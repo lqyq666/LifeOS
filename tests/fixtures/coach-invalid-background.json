@@ -1,0 +1,38 @@
+{
+  "reply": "实施意图是在行动前明确何时、何地以及怎样行动的计划。它适用于已经明确目标后的行动启动计划，不是对具体用户失败原因的检验。基于你提到的明天下午打开微信时询问同学是否还需要资料，可以写成：\n\n如果明天下午我打开微信，我就先询问同学是否还需要资料。",
+  "event": {
+    "target": {
+      "operation": "create",
+      "title": "明天下午询问同学资料需求",
+      "source": {
+       "messageId": "5c09a4ef-66d8-4e36-bccf-08b8d57713d7",
+       "quote": "我想在明天下午打开微信时，先询问同学是否还需要资料。"
+      }
+    },
+    "nodes": [
+      {
+       "kind": "fact",
+       "source": {
+       "messageId": "5c09a4ef-66d8-4e36-bccf-08b8d57713d7",
+       "quote": "我想在明天下午打开微信时，先询问同学是否还需要资料。"
+       }
+      }
+    ]
+  },
+  "background": [
+    {
+      "key": "skills",
+      "value": "使用微信",
+      "source": {
+       "messageId": "5c09a4ef-66d8-4e36-bccf-08b8d57713d7",
+       "quote": "打开微信"
+      }
+    }
+  ],
+  "experienceCandidate": {
+    "source": {
+      "messageId": "5c09a4ef-66d8-4e36-bccf-08b8d57713d7",
+      "quote": "我想在明天下午打开微信时，先询问同学是否还需要资料。"
+    }
+  }
+}

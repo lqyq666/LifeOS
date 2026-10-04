@@ -1,0 +1,26 @@
+{
+  "reply": "如果明天下午打开微信，我就先询问同学是否还需要资料。\n\n核验过的实施意图定义：实施意图是在行动前明确何时、何地以及怎样行动的计划。\n适用范围：已经明确目标后的行动启动计划；不是对具体用户失败原因的检验。",
+  "event": {
+    "target": {
+      "operation": "create",
+      "title": "明天下午微信询问同学资料需求",
+      "source": {
+       "messageId": "bed22890-8800-4e4c-bb99-f9251f291a1d",
+       "quote": "我想在明天下午打开微信时，先询问同学是否还需要资料。"
+      }
+    },
+    "action": {
+      "operation": "create",
+      "draft": {
+       "content": "如果明天下午打开微信，我就先询问同学是否还需要资料。"
+      }
+    }
+  },
+  "background": [],
+  "experienceCandidate": {
+    "source": {
+      "messageId": "bed22890-8800-4e4c-bb99-f9251f291a1d",
+      "quote": "我想在明天下午打开微信时，先询问同学是否还需要资料。"
+    }
+  }
+}

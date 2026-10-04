@@ -1,0 +1,16 @@
+{
+  "evidence": "FROZEN_SYNTHETIC_RELEVANCE_CASES_BEFORE_CUTOFF_IMPLEMENTATION",
+  "source": "evidence/v1.3-action-coach/research/verified-method-cards.json",
+  "cases": [
+    {"id":"definition","text":"实施意图的定义和适用范围是什么？","relevant":true},
+    {"id":"trigger","text":"如果遇到一个具体情境就执行一个动作，这种计划方法有什么定义和边界？","relevant":true},
+    {"id":"when-where-how","text":"请解释提前约定什么时候、在哪里、怎么行动，有什么研究依据？","relevant":true},
+    {"id":"source-lifecycle","text":"我想在明天下午打开微信时，先询问同学是否还需要资料。请把它写成一句如果……就……，给出核验过的实施意图定义与适用范围，不要声称能保证效果。","relevant":true},
+    {"id":"review-opening","text":"我做了上次的行动，但对方没有使用。","relevant":false},
+    {"id":"actual-delivery","text":"我花了三小时整理了四十页，考试前夜把网盘链接发给了他。他后来明确说手机打不开，因此没看。","relevant":false},
+    {"id":"direct-message","text":"同学说资料乱，我没问具体需要，就花三小时整理四十页，考试前夜发了网盘。他说手机打不开，所以没看。我不知道他现在还要不要，请直接帮我写一段微信消息。","relevant":false},
+    {"id":"listening","text":"我今天不想复盘，也不想做行动，只想说说难受的感觉。","relevant":false},
+    {"id":"contact","text":"同班的小林说资料很乱，我就找了他。","relevant":false},
+    {"id":"unrelated","text":"这段Python代码报语法错误，怎么查看出错位置？","relevant":false}
+  ]
+}

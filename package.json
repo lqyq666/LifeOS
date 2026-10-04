@@ -1,0 +1,46 @@
+{
+  "name": "lifeos-growth-flywheel",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview --host 127.0.0.1 --port 5173 --strictPort",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "test:browser": "node scripts/verify-browser.cjs",
+    "server": "tsx server/index.ts",
+    "db:setup": "tsx scripts/setup-db.ts",
+    "db:migrate": "tsx scripts/migrate-db.ts",
+    "model:probe": "tsx scripts/probe-model.ts",
+    "typecheck:server": "tsc -p tsconfig.server.json",
+    "test:backend": "tsx scripts/test-backend-isolated.ts",
+    "test:db-recovery": "tsx scripts/test-backend-isolated.ts --verify-recovery",
+    "campus:import": "tsx scripts/import-campus-knowledge.ts",
+    "test:coach:browser": "npm run build && tsx scripts/test-backend-isolated.ts --file=action-coach-browser.test.ts"
+  },
+  "dependencies": {
+    "@mariozechner/pi-ai": "0.73.1",
+    "@react-three/drei": "10.7.9",
+    "@react-three/fiber": "9.8.1",
+    "better-auth": "1.7.7",
+    "framer-motion": "12.43.0",
+    "pg": "8.23.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "three": "0.180.0",
+    "typebox": "1.3.34"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "@types/pg": "8.20.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/three": "0.180.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vite": "7.3.6"
+  }
+}

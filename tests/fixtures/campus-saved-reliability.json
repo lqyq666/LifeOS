@@ -1,0 +1,985 @@
+{
+  "evidence": "Saved synthetic real-provider failures from campus-targeted-03, checkpoint53da3c7; replay is local, not live acceptance.",
+  "scenarios": [
+    {
+      "id": "C04",
+      "inputs": [
+        "我在合成江城大学甲学院，本科，目标2027届推免，当前必修课未完成，比赛每周十小时。请按已维护的合成规则比较课程和竞赛。",
+        "我的机构=合成江城大学，department=甲学院，project=推免，year=2027，population=本科。收入无压力，但课程只剩两周，请先安排关键缺口。",
+        "维护端已经修订了规则。请说明原依据是否仍然有效，不要沿用旧的竞赛结论。"
+      ],
+      "turns": [
+        {
+          "campus": {
+            "currentId": "de2dcf2d-18af-4143-aa6f-76768df5cad6",
+            "inquiries": [
+              {
+                "id": "de2dcf2d-18af-4143-aa6f-76768df5cad6",
+                "conversation_id": "6a7768d4-fe21-4da6-a722-82954b358851",
+                "revision": 1,
+                "payload": {
+                  "domain": "university_exit",
+                  "changes": [
+                    {
+                      "at": "2026-10-03T14:19:01.258Z",
+                      "text": "原无判断→新证据：依据合成规则明确课程未完成阻断推免资格核对，确立课程优先原则。",
+                      "sourceMessageId": "531b2200-a534-4613-92d0-d2be6ae17062"
+                    }
+                  ],
+                  "criteria": [
+                    "推免资格获取"
+                  ],
+                  "evidence": [
+                    {
+                      "role": "support",
+                      "match": "确立了课程完成的绝对优先地位，竞赛仅为辅助。",
+                      "source": {
+                        "id": "a61eeb88-5134-4d78-8890-ad51069daa6e",
+                        "type": "knowledge",
+                        "quote": "SYNTHETIC：课程未完成不可进入推荐资格核对；竞赛奖项不抵扣课程要求。",
+                        "revision": 1
+                      },
+                      "limitation": "合成材料，需结合该校真实细则验证竞赛是否在其他环节加分。"
+                    }
+                  ],
+                  "pathways": [
+                    {
+                      "status": "candidate",
+                      "pathway": "recommendation",
+                      "bottleneck": "当前必修课未完成",
+                      "motivation": "用户明确目标为2027届推免",
+                      "nextWindow": "未核实",
+                      "unverified": [
+                        "GPA/排名具体数值及口径",
+                        "接收院校具体要求"
+                      ],
+                      "requirements": [
+                        "a61eeb88-5134-4d78-8890-ad51069daa6e@1"
+                      ]
+                    }
+                  ],
+                  "question": "在合成江城大学甲学院2027届推免背景下，如何平衡必修课完成与每周十小时的比赛投入？",
+                  "questions": [],
+                  "readiness": "bounded",
+                  "hypotheses": [
+                    {
+                      "id": "b40054fa-140f-4be9-8cf2-0f2bedc0ccc0",
+                      "status": "pending",
+                      "evidence": [
+                        {
+                          "role": "support",
+                          "match": "直接支持课程优先于竞赛的判断。",
+                          "source": {
+                            "id": "a61eeb88-5134-4d78-8890-ad51069daa6e",
+                            "type": "knowledge",
+                            "quote": "SYNTHETIC：课程未完成不可进入推荐资格核对；竞赛奖项不抵扣课程要求。",
+                            "revision": 1
+                          },
+                          "limitation": "仅限合成场景，现实规则可能不同。"
+                        }
+                      ],
+                      "createdAt": "2026-10-03T14:19:01.258Z",
+                      "falsifier": "若发现该学院有“竞赛获奖可豁免部分选修课”或“竞赛积分折算 GPA”等特殊条款（需官方原文证实）。",
+                      "statement": "在合成规则下，只要必修课未完成，任何竞赛投入都无法转化为推免资格，因此当前阶段课程完成率比竞赛成果更关键。",
+                      "conditions": "基于合成江城大学甲学院2027届推免的特定规则。"
+                    }
+                  ],
+                  "experiments": [
+                    {
+                      "id": "463ffdf4-c45f-4d4a-9ddc-c05cf32cda5d",
+                      "cap": "建议上限：30分钟检索公开文件或咨询教务老师，可调整。",
+                      "kind": "verify",
+                      "action": "查找合成江城大学甲学院2027届推免综合评价细则中关于“学科竞赛”的计分标准。",
+                      "status": "proposed",
+                      "observe": "是否有明确条款显示竞赛奖项可计入综合分或作为面试加分项。",
+                      "question": "合成规则是否隐含竞赛在推免综合排名中的具体加分权重？",
+                      "createdAt": "2026-10-03T14:19:01.258Z",
+                      "adjustWhen": "若查到竞赛有显著加分权重，则需在保证课程及格的前提下优化比赛策略；若无，则维持最低限度比赛投入以保留简历亮点。",
+                      "hypothesisId": "b40054fa-140f-4be9-8cf2-0f2bedc0ccc0",
+                      "decisionVersion": 1
+                    }
+                  ],
+                  "opportunities": [
+                    {
+                      "goal": "recommendation",
+                      "name": "优先补齐必修课以符合推免资格核对前提",
+                      "role": "核心门槛",
+                      "choice": "choose",
+                      "output": "必修课成绩合格，具备进入推免资格核对的资格。",
+                      "reason": "合成规则明确指出课程未完成不可进入推荐资格核对，且竞赛奖项不抵扣课程要求，因此课程完成是获取推免资格的硬性前置条件。",
+                      "evidence": [
+                        {
+                          "role": "support",
+                          "match": "直接规定课程完成是推免核对的前置条件，竞赛不能替代。",
+                          "source": {
+                            "id": "a61eeb88-5134-4d78-8890-ad51069daa6e",
+                            "type": "knowledge",
+                            "quote": "SYNTHETIC：课程未完成不可进入推荐资格核对；竞赛奖项不抵扣课程要求。",
+                            "revision": 1
+                          },
+                          "limitation": "仅适用于合成江城大学甲学院2027对应项目，非现实通用规则。"
+                        }
+                      ],
+                      "feedback": "若课程进度滞后影响毕业或资格核对时间，需重新评估比赛投入占比。",
+                      "stopWhen": "当必修课全部完成并确认符合推免资格核对条件时，此优先级降低。",
+                      "investment": "建议上限：根据剩余课程工作量估算，可调整；需确保在2027届推免申请前完成。",
+                      "alternative": "暂缓比赛高强度训练，转为维持性参与或暂停。"
+                    },
+                    {
+                      "goal": "recommendation",
+                      "name": "维持每周十小时比赛投入（在课程允许范围内）",
+                      "role": "辅助增强",
+                      "choice": "explore",
+                      "output": "比赛成果或经历，可能提升推免综合排名或面试表现。",
+                      "reason": "虽然竞赛不抵扣课程要求，但可能在推免综合评价中作为加分项或背景优势（需进一步核实具体评分细则），且在课程压力可控时可保持竞争力。",
+                      "evidence": [
+                        {
+                          "role": "counterexample",
+                          "match": "明确竞赛不能抵扣课程要求，削弱了竞赛对核心资格的作用。",
+                          "source": {
+                            "id": "a61eeb88-5134-4d78-8890-ad51069daa6e",
+                            "type": "knowledge",
+                            "quote": "SYNTHETIC：课程未完成不可进入推荐资格核对；竞赛奖项不抵扣课程要求。",
+                            "revision": 1
+                          },
+                          "limitation": "未说明竞赛在其他评价维度（如综合排名加分）的具体权重，存在不确定性。"
+                        }
+                      ],
+                      "feedback": "若因比赛导致课程作业迟交、复习不足或成绩下滑，立即减少比赛时间。",
+                      "stopWhen": "当必修课出现紧急缺口或考试周冲突时，暂停或大幅削减比赛时间。",
+                      "investment": "建议上限：每周10小时，可调整；前提是必修课进度正常。",
+                      "alternative": "完全暂停比赛，全力冲刺课程。"
+                    }
+                  ],
+                  "questionSource": {
+                    "id": "531b2200-a534-4613-92d0-d2be6ae17062",
+                    "type": "message",
+                    "quote": "我在合成江城大学甲学院，本科，目标2027届推免，当前必修课未完成，比赛每周十小时。请按已维护的合成规则比较课程和竞赛。"
+                  },
+                  "studentContext": [
+                    {
+                      "key": "institution",
+                      "scope": "inquiry",
+                      "value": "合成江城大学",
+                      "source": {
+                        "id": "531b2200-a534-4613-92d0-d2be6ae17062",
+                        "type": "message",
+                        "quote": "我在合成江城大学甲学院，本科，目标2027届推免，当前必修课未完成，比赛每周十小时。请按已维护的合成规则比较课程和竞赛。"
+                      },
+                      "status": "known"
+                    },
+                    {
+                      "key": "department",
+                      "scope": "inquiry",
+                      "value": "甲学院",
+                      "source": {
+                        "id": "531b2200-a534-4613-92d0-d2be6ae17062",
+                        "type": "message",
+                        "quote": "我在合成江城大学甲学院，本科，目标2027届推免，当前必修课未完成，比赛每周十小时。请按已维护的合成规则比较课程和竞赛。"
+                      },
+                      "status": "known"
+                    },
+                    {
+                      "key": "project",
+                      "scope": "inquiry",
+                      "value": "推免",
+                      "source": {
+                        "id": "531b2200-a534-4613-92d0-d2be6ae17062",
+                        "type": "message",
+                        "quote": "我在合成江城大学甲学院，本科，目标2027届推免，当前必修课未完成，比赛每周十小时。请按已维护的合成规则比较课程和竞赛。"
+                      },
+                      "status": "known"
+                    },
+                    {
+                      "key": "year",
+                      "scope": "inquiry",
+                      "value": "2027",
+                      "source": {
+                        "id": "531b2200-a534-4613-92d0-d2be6ae17062",
+                        "type": "message",
+                        "quote": "我在合成江城大学甲学院，本科，目标2027届推免，当前必修课未完成，比赛每周十小时。请按已维护的合成规则比较课程和竞赛。"
+                      },
+                      "status": "known"
+                    },
+                    {
+                      "key": "population",
+                      "scope": "inquiry",
+                      "value": "本科",
+                      "source": {
+                        "id": "531b2200-a534-4613-92d0-d2be6ae17062",
+                        "type": "message",
+                        "quote": "我在合成江城大学甲学院，本科，目标2027届推免，当前必修课未完成，比赛每周十小时。请按已维护的合成规则比较课程和竞赛。"
+                      },
+                      "status": "known"
+                    }
+                  ]
+                },
+                "stale": false
+              }
+            ]
+          }
+        },
+        {
+          "audit": [
+            {
+              "phase": "campus_structured_candidate",
+              "candidate": {
+                "change": "用户补充课程仅剩两周且要求先安排关键缺口，结合已有合成规则确认课程为推免前置硬门槛，故将行动焦点从单纯检索竞赛加分权重调整为立即核验并补齐课程缺口，同时保留对竞赛规则的验证以排除潜在豁免可能。",
+                "domain": "university_exit",
+                "criteria": [],
+                "evidence": [
+                  {
+                    "role": "support",
+                    "match": "直接对应合成江城大学甲学院2027届推免规则，确认课程是前置硬门槛。",
+                    "source": {
+                      "id": "a61eeb88-5134-4d78-8890-ad51069daa6e",
+                      "type": "knowledge",
+                      "quote": "SYNTHETIC：课程未完成不可进入推荐资格核对；竞赛奖项不抵扣课程要求。",
+                      "revision": 1
+                    },
+                    "limitation": "仅适用于该合成项目范围，不代表现实通用政策。"
+                  }
+                ],
+                "pathways": [],
+                "question": "在合成江城大学甲学院2027届推免背景下，如何平衡必修课完成与每周十小时的比赛投入？",
+                "questions": [],
+                "readiness": "act",
+                "hypothesis": {
+                  "evidence": [
+                    {
+                      "role": "support",
+                      "match": "规则明确课程未完成阻断资格核对，且竞赛不抵扣课程。",
+                      "source": {
+                        "id": "a61eeb88-5134-4d78-8890-ad51069daa6e",
+                        "type": "knowledge",
+                        "quote": "SYNTHETIC：课程未完成不可进入推荐资格核对；竞赛奖项不抵扣课程要求。",
+                        "revision": 1
+                      },
+                      "limitation": "未覆盖所有可能的豁免情形，需按原实验继续核验细则。"
+                    }
+                  ],
+                  "falsifier": "若发现该学院有“竞赛获奖可豁免部分选修课”或“竞赛积分折算 GPA”等特殊条款（需官方原文证实）。",
+                  "statement": "在合成规则下，只要必修课未完成，任何竞赛投入都无法转化为推免资格，因此当前阶段课程完成率比竞赛成果更关键。",
+                  "conditions": "基于合成江城大学甲学院2027届推免的特定规则。"
+                },
+                "newInquiry": false,
+                "opportunities": [],
+                "questionSource": {
+                  "id": "b6b5080f-acdb-4054-b831-7f884db43295",
+                  "quote": "我的机构=合成江城大学，department=甲学院，project=推免，year=2027，population=本科。收入无压力，但课程只剩两周，请先安排关键缺口。"
+                },
+                "studentContext": [
+                  {
+                    "key": "institution",
+                    "scope": "inquiry",
+                    "value": "合成江城大学",
+                    "source": {
+                      "id": "b6b5080f-acdb-4054-b831-7f884db43295",
+                      "type": "message",
+                      "quote": "我的机构=合成江城大学，department=甲学院，project=推免，year=2027，population=本科。收入无压力，但课程只剩两周，请先安排关键缺口。"
+                    },
+                    "status": "known"
+                  },
+                  {
+                    "key": "department",
+                    "scope": "inquiry",
+                    "value": "甲学院",
+                    "source": {
+                      "id": "b6b5080f-acdb-4054-b831-7f884db43295",
+                      "type": "message",
+                      "quote": "我的机构=合成江城大学，department=甲学院，project=推免，year=2027，population=本科。收入无压力，但课程只剩两周，请先安排关键缺口。"
+                    },
+                    "status": "known"
+                  },
+                  {
+                    "key": "project",
+                    "scope": "inquiry",
+                    "value": "推免",
+                    "source": {
+                      "id": "b6b5080f-acdb-4054-b831-7f884db43295",
+                      "type": "message",
+                      "quote": "我的机构=合成江城大学，department=甲学院，project=推免，year=2027，population=本科。收入无压力，但课程只剩两周，请先安排关键缺口。"
+                    },
+                    "status": "known"
+                  },
+                  {
+                    "key": "year",
+                    "scope": "inquiry",
+                    "value": "2027",
+                    "source": {
+                      "id": "b6b5080f-acdb-4054-b831-7f884db43295",
+                      "type": "message",
+                      "quote": "我的机构=合成江城大学，department=甲学院，project=推免，year=2027，population=本科。收入无压力，但课程只剩两周，请先安排关键缺口。"
+                    },
+                    "status": "known"
+                  },
+                  {
+                    "key": "population",
+                    "scope": "inquiry",
+                    "value": "本科",
+                    "source": {
+                      "id": "b6b5080f-acdb-4054-b831-7f884db43295",
+                      "type": "message",
+                      "quote": "我的机构=合成江城大学，department=甲学院，project=推免，year=2027，population=本科。收入无压力，但课程只剩两周，请先安排关键缺口。"
+                    },
+                    "status": "known"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {}
+      ]
+    },
+    {
+      "id": "C06",
+      "inputs": [
+        "我想参加2027年合成江城大学甲学院研究生项目考试，基础薄弱，每周六小时；竞赛邀请还要十小时。我的目标已明确是备考。",
+        "机构合成江城大学，学院甲学院，项目统考，年份2027，对象本科；按已维护的合成科目规则，我的主要弱项是数学。请直接安排一周。",
+        "我拒绝了竞赛邀请，做了基础诊断，十道题里六道计算错误。接下来应调整哪里？"
+      ],
+      "turns": [
+        {
+          "audit": [
+            {
+              "phase": "campus_structured_candidate",
+              "candidate": {
+                "change": "原状态无规划 -> 新增基于时间冲突的取舍判断：鉴于目标明确为备考且可用时间(6h)小于竞赛需求(10h)，确立‘保备考、舍竞赛’的资源分配原则。竞赛活动因超出预算且非首选目标，列为暂缓项。此变更旨在防止机会成本侵蚀核心目标所需的最低时间投入。",
+                "domain": "university_exit",
+                "criteria": [],
+                "evidence": [
+                  {
+                    "role": "support",
+                    "match": "指南建议分散学习以保持内容，符合长期备考策略。",
+                    "source": {
+                      "id": "12000000-0000-4000-8000-000000000001",
+                      "type": "knowledge",
+                      "quote": "Space learning over time.",
+                      "revision": 1
+                    },
+                    "limitation": "不能保证考试通过，也未规定最优间隔。"
+                  },
+                  {
+                    "role": "support",
+                    "match": "提取练习有助于检查掌握情况，适合基础薄弱者查漏补缺。",
+                    "source": {
+                      "id": "12000000-0000-4000-8000-000000000002",
+                      "type": "knowledge",
+                      "quote": "Use quizzes to re-expose students to key content.",
+                      "revision": 1
+                    },
+                    "limitation": "需确保测验内容紧扣考纲，避免无效重复。"
+                  }
+                ],
+                "pathways": [
+                  {
+                    "status": "candidate",
+                    "pathway": "employment",
+                    "bottleneck": "unknown",
+                    "motivation": "unknown",
+                    "nextWindow": "未核实",
+                    "unverified": [
+                      "无匹配规则"
+                    ],
+                    "requirements": []
+                  },
+                  {
+                    "status": "primary",
+                    "pathway": "postgraduate_exam",
+                    "bottleneck": "time_conflict",
+                    "motivation": "explicit_goal",
+                    "nextWindow": "未核实",
+                    "unverified": [
+                      "具体考试科目与大纲需核验"
+                    ],
+                    "requirements": []
+                  }
+                ],
+                "question": "如何在每周6小时预算内平衡备考与竞赛邀请的10小时需求？",
+                "questions": [],
+                "readiness": "act",
+                "hypothesis": {
+                  "evidence": [],
+                  "falsifier": "若用户能在极短时间内（如考前冲刺期）以低投入获得竞赛收益而不影响复习进度，或者发现考研复习所需实际时间远低于6小时/周，则该假设被推翻。",
+                  "statement": "在每周6小时的硬约束下，放弃或大幅缩减竞赛投入是达成2027年考研目标的必要条件，因为时间资源无法同时支撑高强度的竞赛准备和系统性的考研复习。",
+                  "conditions": "用户坚持将考研作为唯一或最高优先级目标，且竞赛确实需要每周10小时以上的持续投入。"
+                },
+                "newInquiry": true,
+                "opportunities": [
+                  {
+                    "goal": "postgraduate_exam",
+                    "name": "优先保障备考时间，暂缓或拒绝竞赛邀请",
+                    "role": "主导者",
+                    "choice": "choose",
+                    "output": "完成既定复习计划，保持对考试内容的熟悉度。",
+                    "reason": "用户明确目标为备考且可用时间仅6小时，而竞赛需10小时，两者直接冲突。为满足备考这一首要目标，必须将有限资源集中于复习，因此建议暂缓或拒绝占用大量时间的竞赛活动，以避免机会成本导致备考进度受阻。",
+                    "evidence": [],
+                    "feedback": "检查每周是否严格执行了6小时复习，以及是否有因拒绝竞赛而产生的心理负担或社交压力。",
+                    "stopWhen": "当发现现有6小时不足以覆盖基础薄弱科目的最低要求时，需进一步调整预期或寻求外部支持。",
+                    "investment": "每周投入6小时用于核心科目复习，不分配给竞赛。",
+                    "alternative": "若未来时间增加或竞赛转为短期突击，可重新评估参与可能性。"
+                  },
+                  {
+                    "goal": "postgraduate_exam",
+                    "name": "采用分散复习与提取练习提升效率",
+                    "role": "学习者",
+                    "choice": "choose",
+                    "output": "生成错题集或薄弱环节清单，用于后续针对性复习。",
+                    "reason": "针对基础薄弱的情况，在有限时间内提高记忆保持率至关重要。指南建议通过分散学习和主动提取来巩固知识，这比单纯集中阅读更适合长期备考，有助于在6小时内最大化学习效果。",
+                    "evidence": [],
+                    "feedback": "观察自我测验的正确率变化及知识点遗忘速度。",
+                    "stopWhen": "当该方法导致焦虑加剧或明显偏离考试大纲重点时停止使用。",
+                    "investment": "建议上限：每周安排至少2次短时（如15-30分钟）的自我测验，可调整。",
+                    "alternative": "若发现测验过于耗时影响主线复习，可简化题目数量或频率。"
+                  }
+                ],
+                "questionSource": {
+                  "id": "b9d05b50-05d6-4af3-9db6-7eb9d63625d7",
+                  "quote": "我想参加2027年合成江城大学甲学院研究生项目考试，基础薄弱，每周六小时；竞赛邀请还要十小时。我的目标已明确是备考。"
+                },
+                "studentContext": [
+                  {
+                    "key": "institution",
+                    "scope": "user",
+                    "value": "合成江城大学",
+                    "source": {
+                      "id": "b9d05b50-05d6-4af3-9db6-7eb9d63625d7",
+                      "type": "message",
+                      "quote": "我想参加2027年合成江城大学甲学院研究生项目考试，基础薄弱，每周六小时；竞赛邀请还要十小时。我的目标已明确是备考。"
+                    },
+                    "status": "known"
+                  },
+                  {
+                    "key": "department",
+                    "scope": "user",
+                    "value": "甲学院",
+                    "source": {
+                      "id": "b9d05b50-05d6-4af3-9db6-7eb9d63625d7",
+                      "type": "message",
+                      "quote": "我想参加2027年合成江城大学甲学院研究生项目考试，基础薄弱，每周六小时；竞赛邀请还要十小时。我的目标已明确是备考。"
+                    },
+                    "status": "known"
+                  },
+                  {
+                    "key": "project",
+                    "scope": "user",
+                    "value": "研究生项目",
+                    "source": {
+                      "id": "b9d05b50-05d6-4af3-9db6-7eb9d63625d7",
+                      "type": "message",
+                      "quote": "我想参加2027年合成江城大学甲学院研究生项目考试，基础薄弱，每周六小时；竞赛邀请还要十小时。我的目标已明确是备考。"
+                    },
+                    "status": "known"
+                  },
+                  {
+                    "key": "year",
+                    "scope": "user",
+                    "value": "2027",
+                    "source": {
+                      "id": "b9d05b50-05d6-4af3-9db6-7eb9d63625d7",
+                      "type": "message",
+                      "quote": "我想参加2027年合成江城大学甲学院研究生项目考试，基础薄弱，每周六小时；竞赛邀请还要十小时。我的目标已明确是备考。"
+                    },
+                    "status": "known"
+                  },
+                  {
+                    "key": "population",
+                    "scope": "user",
+                    "value": "考生",
+                    "source": {
+                      "id": "b9d05b50-05d6-4af3-9db6-7eb9d63625d7",
+                      "type": "message",
+                      "quote": "我想参加2027年合成江城大学甲学院研究生项目考试，基础薄弱，每周六小时；竞赛邀请还要十小时。我的目标已明确是备考。"
+                    },
+                    "status": "known"
+                  },
+                  {
+                    "key": "education.stage",
+                    "scope": "user",
+                    "value": "未核实",
+                    "source": {
+                      "id": "b9d05b50-05d6-4af3-9db6-7eb9d63625d7",
+                      "type": "message",
+                      "quote": "我想参加2027年合成江城大学甲学院研究生项目考试，基础薄弱，每周六小时；竞赛邀请还要十小时。我的目标已明确是备考。"
+                    },
+                    "status": "unknown"
+                  },
+                  {
+                    "key": "availableTime",
+                    "scope": "user",
+                    "value": "每周六小时",
+                    "source": {
+                      "id": "b9d05b50-05d6-4af3-9db6-7eb9d63625d7",
+                      "type": "message",
+                      "quote": "我想参加2027年合成江城大学甲学院研究生项目考试，基础薄弱，每周六小时；竞赛邀请还要十小时。我的目标已明确是备考。"
+                    },
+                    "status": "known"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {},
+        {}
+      ]
+    },
+    {
+      "id": "C21",
+      "inputs": [
+        "我希望通过帮助同学整理资料找到值得投入的事。每周一小时，先形成可验证判断和一个小尝试。",
+        "我接受这个行动，准备观察对方是否真的使用，接受不代表已经完成。",
+        "这是新对话。我回填了之前尝试的失败结果：同学没用资料，我很失望。请关联原行动，区分结果和原因并修正假设。"
+      ],
+      "turns": [
+        {},
+        {},
+        {
+          "campus": {
+            "currentId": "06a3213e-9255-4ada-a2ed-5f0bfe956330",
+            "inquiries": [
+              {
+                "id": "06a3213e-9255-4ada-a2ed-5f0bfe956330",
+                "conversation_id": "2c022a6d-7351-49b0-849a-b4479547f431",
+                "revision": 1,
+                "payload": {
+                  "domain": "life_goal",
+                  "changes": [
+                    {
+                      "at": "2026-10-03T14:25:23.093Z",
+                      "text": "原假设认为整理过程能暴露兴趣缺口；新证据显示失败源于‘未使用+失望’，故修正为关注‘反馈机制缺失导致的价值感断裂’，而非单纯技能缺口。原实验状态标记为stale。",
+                      "sourceMessageId": "1da96428-9f20-4c81-99d4-f7f0ad1e08c2"
+                    }
+                  ],
+                  "criteria": [],
+                  "evidence": [
+                    {
+                      "role": "support",
+                      "match": "确认了单次协助未获采用且引发负面情绪的事实。",
+                      "source": {
+                        "id": "2031932f-b561-4c25-bd2a-973d3fe3a40a",
+                        "type": "message",
+                        "quote": "我尝试帮助同学整理资料，但对方没有使用，花了一小时后很失望。"
+                      },
+                      "limitation": "仅反映该次特定任务与互动，不证明用户不适合所有助人场景或量化工作。"
+                    }
+                  ],
+                  "pathways": [],
+                  "question": "我希望通过帮助同学整理资料找到值得投入的事。每周一小时，先形成可验证判断和一个小尝试。",
+                  "questions": [],
+                  "readiness": "bounded",
+                  "hypotheses": [
+                    {
+                      "id": "cbe2a646-fe7a-4687-b557-3b7621ffae2a",
+                      "status": "pending",
+                      "evidence": [
+                        {
+                          "role": "support",
+                          "match": "结果显示无反馈即产生失望，暗示对‘有用性’的确认有强依赖。",
+                          "source": {
+                            "id": "2031932f-b561-4c25-bd2a-973d3fe3a40a",
+                            "type": "message",
+                            "quote": "我尝试帮助同学整理资料，但对方没有使用，花了一小时后很失望。"
+                          },
+                          "limitation": "原因未知，可能是性格偏好、任务价值感低或沟通方式问题。"
+                        }
+                      ],
+                      "createdAt": "2026-10-03T14:25:23.093Z",
+                      "falsifier": "若在双向确认或独立练习中仍感到无意义或失望，则说明问题不在反馈机制，而在对该类活动本身的兴趣缺失。",
+                      "statement": "在当前的单向交付模式下，缺乏即时反馈导致‘被需要感’断裂从而引发失望；需转向能直接观察到‘易用性改进’或‘即时正向反馈’的协作方式。",
+                      "conditions": "当协助行为改为双向确认（如先问需求再整理）或载体更独立时，若情绪改善则支持该假设。"
+                    }
+                  ],
+                  "experiments": [
+                    {
+                      "id": "adc0fbb6-685a-45e5-8141-083380a8a5a8",
+                      "cap": "建议上限每周1小时，可调整",
+                      "kind": "verify",
+                      "action": "在下一次协助前，先询问对方具体痛点并约定交付标准；完成后立即邀请对方试用并反馈。",
+                      "status": "proposed",
+                      "observe": "对方是否明确提及使用了你整理的部分；你自己在等待反馈时是否感到‘这件事对我有意义’。",
+                      "question": "改变交互模式后，用户的失望情绪是否缓解？",
+                      "createdAt": "2026-10-03T14:25:23.093Z",
+                      "adjustWhen": "若对方未使用且你感到失望，探索方向转向‘如何提升资料易用性’；若对方未使用但你感到轻松，考虑更换为更独立的技能练习载体。",
+                      "hypothesisId": "cbe2a646-fe7a-4687-b557-3b7621ffae2a",
+                      "decisionVersion": 1
+                    }
+                  ],
+                  "continuedFrom": {
+                    "inquiryId": "5dc547e9-bf75-4165-9f52-82662b850f77",
+                    "experimentId": "4ab08529-837a-4eb9-b1dd-7aba016c714d"
+                  },
+                  "opportunities": [],
+                  "questionSource": {
+                    "id": "1da96428-9f20-4c81-99d4-f7f0ad1e08c2",
+                    "type": "message",
+                    "quote": "请关联原行动"
+                  },
+                  "studentContext": []
+                },
+                "stale": false
+              },
+              {
+                "id": "5dc547e9-bf75-4165-9f52-82662b850f77",
+                "conversation_id": "906c762d-7a5e-487c-839a-7a397ada073e",
+                "revision": 4,
+                "payload": {
+                  "domain": "life_goal",
+                  "changes": [
+                    {
+                      "at": "2026-10-03T14:24:13.635Z",
+                      "text": "新问题：从模糊的方向探索转为基于‘协助整理资料’这一具体载体的最小可行性验证。",
+                      "sourceMessageId": "280bb50d-78bf-4aeb-a5e0-2191c21768b2"
+                    },
+                    {
+                      "at": "2026-10-03T14:24:47.211Z",
+                      "text": "将原实验的观察指标从‘自我好奇心’调整为‘外部使用反馈+内部意义感’，以匹配用户新增的关注点。",
+                      "sourceMessageId": "d89b9c2b-6246-4b83-aa6b-26dbcddb9c06"
+                    },
+                    {
+                      "at": "2026-10-03T14:24:47.384Z",
+                      "text": "原判断「在每周一小时的限制下，协助同学整理资料的过程能暴露出用户真正感兴趣且愿意持续投入的具体领域或技能缺口。」收到新结果「我尝试帮助同学整理资料，但对方没有使用，花了一小时后很失望。」。解释需重新核对；结果不自动证明原因。",
+                      "sourceMessageId": "2031932f-b561-4c25-bd2a-973d3fe3a40a"
+                    }
+                  ],
+                  "criteria": [],
+                  "evidence": [],
+                  "pathways": [],
+                  "question": "我希望通过帮助同学整理资料找到值得投入的事。每周一小时，先形成可验证判断和一个小尝试。",
+                  "questions": [],
+                  "readiness": "bounded",
+                  "hypotheses": [
+                    {
+                      "id": "26649163-6235-412f-a848-44796052c133",
+                      "status": "stale",
+                      "evidence": [],
+                      "createdAt": "2026-10-03T14:24:13.635Z",
+                      "falsifier": "若连续两次尝试后，用户仅感到机械重复而无特定兴趣点浮现，或整理过程未产生任何可复用的认知价值，则此路径作为探索手段的价值降低。",
+                      "statement": "在每周一小时的限制下，协助同学整理资料的过程能暴露出用户真正感兴趣且愿意持续投入的具体领域或技能缺口。",
+                      "conditions": "仅限当前小尝试的观察结果，不证明该领域适合长期职业选择。"
+                    },
+                    {
+                      "id": "f8ca0bce-3534-4086-9e11-255762337f37",
+                      "status": "pending",
+                      "evidence": [],
+                      "createdAt": "2026-10-03T14:24:47.211Z",
+                      "falsifier": "若对方使用了资料但用户无成就感，或对方未使用但用户仍享受整理过程本身，则说明价值来源不是‘被使用’这一结果，而是其他因素（如秩序感、技能提升等）。",
+                      "statement": "协助同学整理资料这一行为本身可能并非核心兴趣点，真正的驱动力或价值感来源于‘解决他人信息混乱问题’或‘看到整理成果被有效利用’的过程。",
+                      "conditions": "仅基于当前单次观察意图的推断，需通过后续实际反馈（对方是否使用、用户自身反应）来证实或证伪。"
+                    }
+                  ],
+                  "experiments": [
+                    {
+                      "id": "0c18c2cf-2585-4600-81cd-7a6fe79a202b",
+                      "cap": "建议上限每周1小时，可调整",
+                      "kind": "explore",
+                      "action": "选取一位同学的非紧急资料进行结构化整理（如笔记归类、文档优化），专注观察自己在处理哪类信息时注意力最集中或最有成就感。",
+                      "status": "proposed",
+                      "observe": "记录每次整理中引发好奇心的具体片段，以及完成后是否期待下一次接触同类任务。",
+                      "question": "整理资料时，哪类内容或环节让用户产生‘想深入了解’或‘做得顺手’的感觉？",
+                      "createdAt": "2026-10-03T14:24:13.635Z",
+                      "adjustWhen": "若发现对某类学科/技能有明确正向反馈，可增加该方向的微学习；若全程无感或疲惫，则更换探索载体（如访谈、旁观）而非继续整理。",
+                      "hypothesisId": "26649163-6235-412f-a848-44796052c133",
+                      "decisionVersion": 1
+                    },
+                    {
+                      "id": "4ab08529-837a-4eb9-b1dd-7aba016c714d",
+                      "cap": "建议上限每周1小时，可调整",
+                      "kind": "verify",
+                      "action": "完成一次非紧急资料整理后，主动询问对方是否使用及具体反馈；同时记录自己在交付后到得到回复前的心理状态。",
+                      "result": {
+                        "text": "我尝试帮助同学整理资料，但对方没有使用，花了一小时后很失望。",
+                        "source": {
+                          "id": "2031932f-b561-4c25-bd2a-973d3fe3a40a",
+                          "type": "message",
+                          "quote": "我尝试帮助同学整理资料，但对方没有使用，花了一小时后很失望。"
+                        },
+                        "reportedAt": "2026-10-03T14:24:47.384Z",
+                        "candidateId": "2fe0c9e6-25c9-4fc4-ac64-1d347f5728e2"
+                      },
+                      "status": "reported",
+                      "observe": "对方是否明确提及使用了你整理的部分；你自己在等待反馈时是否感到‘这件事对我有意义’。",
+                      "question": "整理后的资料是否被对方实际采用？用户在等待反馈期间的心理状态如何？",
+                      "createdAt": "2026-10-03T14:24:47.211Z",
+                      "adjustWhen": "若对方未使用且你感到失望，探索方向转向‘如何提升资料易用性’；若对方未使用但你感到轻松，考虑更换为更独立的技能练习载体。",
+                      "hypothesisId": "26649163-6235-412f-a848-44796052c133",
+                      "decisionVersion": 2
+                    }
+                  ],
+                  "opportunities": [],
+                  "questionSource": {
+                    "id": "d89b9c2b-6246-4b83-aa6b-26dbcddb9c06",
+                    "type": "message",
+                    "quote": "我接受这个行动，准备观察对方是否真的使用，接受不代表已经完成。"
+                  },
+                  "studentContext": [
+                    {
+                      "key": "taskGoal",
+                      "scope": "inquiry",
+                      "value": "通过帮助同学整理资料找到值得投入的事",
+                      "source": {
+                        "id": "280bb50d-78bf-4aeb-a5e0-2191c21768b2",
+                        "type": "message",
+                        "quote": "我希望通过帮助同学整理资料找到值得投入的事。每周一小时，先形成可验证判断和一个小尝试。"
+                      },
+                      "status": "known"
+                    },
+                    {
+                      "key": "availableTime",
+                      "scope": "inquiry",
+                      "value": "每周一小时",
+                      "source": {
+                        "id": "280bb50d-78bf-4aeb-a5e0-2191c21768b2",
+                        "type": "message",
+                        "quote": "我希望通过帮助同学整理资料找到值得投入的事。每周一小时，先形成可验证判断和一个小尝试。"
+                      },
+                      "status": "known"
+                    },
+                    {
+                      "key": "currentConcern",
+                      "scope": "inquiry",
+                      "value": "准备观察对方是否真的使用",
+                      "source": {
+                        "id": "d89b9c2b-6246-4b83-aa6b-26dbcddb9c06",
+                        "type": "message",
+                        "quote": "我接受这个行动，准备观察对方是否真的使用，接受不代表已经完成。"
+                      },
+                      "status": "known"
+                    }
+                  ]
+                },
+                "stale": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "C23",
+      "inputs": [
+        "我在考虑继续参加创业培训，个人经历让我有动力，但必须靠兼职生活。能否用可比的外部案例帮我比较？",
+        "每周最多一小时，不花钱。请说明外部案例的失败或收入边界和我有什么差异，不要只给引文。",
+        "如果培训不能证明收入改善，我先缩小为一次零成本访谈。请说明哪项外部证据改变了建议。"
+      ],
+      "turns": [
+        {},
+        {
+          "campus": {
+            "currentId": "eca91787-f413-4465-a278-b9ece53383fc",
+            "inquiries": [
+              {
+                "id": "eca91787-f413-4465-a278-b9ece53383fc",
+                "conversation_id": "8e7b5e34-6681-4554-b00d-160c9adeab3e",
+                "revision": 2,
+                "payload": {
+                  "domain": "life_goal",
+                  "changes": [
+                    {
+                      "at": "2026-10-03T14:26:50.320Z",
+                      "text": "从“凭兴趣参加高强度培训”调整为“以保住兼职收入为底线，进行极小成本的客户访谈验证”。依据是GATE研究中正反案例共同揭示的风险：创业介入可能提升发生率但也显著压低短期收入，而用户自身经历已证实工时损失会直接冲击生活安全网。因此，原定的“继续参加创业培训”这一宽泛意向，被重构为一个具体的、带有严格财务止损线的验证实验。",
+                      "sourceMessageId": "f5fc7b69-9d06-4bd6-bd88-d92fadb85dda"
+                    },
+                    {
+                      "at": "2026-10-03T14:27:51.787Z",
+                      "text": "根据用户新增的“每周最多一小时”和“不花钱”约束，将实验投入上限从每周3小时缩减至每周1小时，并明确禁止费用产生。引入GATE研究的收入边界作为反例，强调在刚性兼职依赖下，需警惕早期收入下降风险，因此验证重点必须放在“付费意愿”而非单纯兴趣上，以避免因错误假设而挤占生存所需时间。",
+                      "sourceMessageId": "e1d4c232-45e5-4099-a6dc-3e5f19ea954c"
+                    }
+                  ],
+                  "criteria": [
+                    "生活费稳定优先于创业探索",
+                    "需要外部案例比较以辅助决策",
+                    "严格限制时间与金钱投入"
+                  ],
+                  "evidence": [],
+                  "pathways": [
+                    {
+                      "status": "candidate",
+                      "pathway": "entrepreneurship",
+                      "bottleneck": "income_dependency_and_time_constraint",
+                      "motivation": "external_case_comparison",
+                      "nextWindow": "未核实",
+                      "unverified": [
+                        "目标机构对在校生创业的学业/考勤要求",
+                        "兼职时间被挤占后的具体财务缺口金额"
+                      ],
+                      "requirements": []
+                    }
+                  ],
+                  "question": "在必须依靠兼职收入维持生活、每周仅1小时且零成本的条件下，如何参考外部案例判断创业培训投入的风险与收益？",
+                  "questions": [],
+                  "readiness": "bounded",
+                  "hypotheses": [
+                    {
+                      "id": "51b77406-abc6-45f9-8e65-a95c7655ddd4",
+                      "status": "pending",
+                      "evidence": [
+                        {
+                          "role": "support",
+                          "match": "证明了单纯的热情不足以覆盖现实成本，必须引入更严格的工时隔离机制。",
+                          "source": {
+                            "id": "f9ea9892-1a8c-4bef-b84b-0178eb095fc1",
+                            "type": "experience",
+                            "quote": "上月我参加创业工作坊，做完商业计划很兴奋，但兼职少了两班，生活费变紧。",
+                            "revision": 2
+                          },
+                          "limitation": "未排除是否存在其他非工作时间可用于访谈的可能性。"
+                        },
+                        {
+                          "role": "support",
+                          "match": "提供了将大投入拆解为小动作的方法论依据，使得“不牺牲兼职”成为可操作的目标。",
+                          "source": {
+                            "id": "12000000-0000-4000-8000-000000000004",
+                            "type": "knowledge",
+                            "quote": "talking to potential customers, partners and other industry stakeholders",
+                            "revision": 1
+                          },
+                          "limitation": "方法有效性依赖于访谈质量，低质量闲聊无法证伪假设。"
+                        }
+                      ],
+                      "createdAt": "2026-10-03T14:26:50.320Z",
+                      "falsifier": "若连续两周无法在不扣减最低兼职时数的情况下安排出3小时，或所有受访者均表示“感兴趣但不愿付费/不提供联系方式”，则此路径在当前阶段不可行。",
+                      "statement": "如果能在不减少维持基本生活所需兼职班次的前提下，完成3-5次针对潜在客户的简短访谈，那么可以初步判断当前商业想法是否具有超越“自我兴奋”的真实市场需求。",
+                      "conditions": "用户每周可用于非兼职事务的时间极少，且任何额外支出或工时损失都可能引发焦虑。"
+                    },
+                    {
+                      "id": "86722a86-d137-4b67-b634-5d2f3c700692",
+                      "status": "pending",
+                      "evidence": [
+                        {
+                          "role": "counterexample",
+                          "match": "外部案例显示即使参与培训，早期收入也可能下降，这强化了用户需先验证付费意愿而非直接投入开发的必要性。",
+                          "source": {
+                            "id": "12000000-0000-4000-8000-000000000008",
+                            "type": "knowledge",
+                            "quote": "earned significantly less than control group participants",
+                            "revision": 1
+                          },
+                          "limitation": "该结论基于特定试点项目，不证明所有创业培训必然导致收入降低。"
+                        }
+                      ],
+                      "createdAt": "2026-10-03T14:27:51.787Z",
+                      "falsifier": "若连续两周无法在不扣减最低兼职时数的情况下安排出1小时，或所有受访者均表示“感兴趣但不愿付费/不提供联系方式”，则此路径在当前阶段不可行。",
+                      "statement": "如果能在零成本和每周1小时的极端约束下完成少量客户访谈，那么可以初步判断当前想法是否存在超越自我兴奋的真实市场需求，从而决定是否值得继续占用兼职时间进行更深层验证。",
+                      "conditions": "用户必须依靠兼职生活，任何额外支出或工时损失都不可接受。"
+                    }
+                  ],
+                  "experiments": [
+                    {
+                      "id": "d12eddc1-4350-4f22-8864-49ac70f2dc43",
+                      "cap": "建议上限每周3小时，可调整；严禁削减保障基本生活的兼职班次。",
+                      "kind": "verify",
+                      "action": "列出3个可能的目标客户，发送简短消息请求15分钟电话或面谈，重点询问他们目前如何解决相关痛点及愿意为此支付多少。",
+                      "status": "proposed",
+                      "observe": "记录每次沟通中对方是否主动提及预算、是否同意后续演示、以及拒绝的具体理由。",
+                      "question": "能否在不影响最低生活兼职时数的前提下，获取至少一个关于付费意愿的有效反馈？",
+                      "createdAt": "2026-10-03T14:26:50.320Z",
+                      "adjustWhen": "若两周内无一人回复或全部为无效客套，则暂停寻找新客户，转为复盘为何渠道失效或重新评估该想法的价值。",
+                      "needsReview": true,
+                      "hypothesisId": "51b77406-abc6-45f9-8e65-a95c7655ddd4",
+                      "decisionVersion": 1
+                    },
+                    {
+                      "id": "9ca8254e-6536-4ad8-83d1-e1e65878afea",
+                      "cap": "建议上限每周1小时，可调整；严禁产生任何费用或削减保障基本生活的兼职班次。",
+                      "kind": "verify",
+                      "action": "列出3个可能的目标客户，发送简短消息请求15分钟电话或面谈，重点询问他们目前如何解决相关痛点及愿意为此支付多少。",
+                      "status": "proposed",
+                      "observe": "记录每次沟通中对方是否主动提及预算、是否同意后续演示、以及拒绝的具体理由。",
+                      "question": "能否在不影响最低生活兼职时数且不花钱的前提下，获取至少一个关于付费意愿的有效反馈？",
+                      "createdAt": "2026-10-03T14:27:51.787Z",
+                      "adjustWhen": "若两周内无一人回复或全部为无效客套，则暂停寻找新客户，转为复盘为何渠道失效或重新评估该想法的价值。",
+                      "hypothesisId": "51b77406-abc6-45f9-8e65-a95c7655ddd4",
+                      "decisionVersion": 2
+                    }
+                  ],
+                  "opportunities": [
+                    {
+                      "goal": "entrepreneurship_validation",
+                      "name": "低成本访谈验证需求（参考I-Corps方法）",
+                      "role": "primary",
+                      "choice": "explore",
+                      "output": "获取至少一个关于付费意愿的有效反馈或确认无有效反馈。",
+                      "reason": "用户需在不影响基本生活的前提下评估创业想法。相比原建议，现调整为更极端的低投入模式。外部案例显示培训可能增加创业行为但早期收入下降，故需先通过免费访谈验证真实付费意愿，避免盲目投入时间导致兼职受损。",
+                      "evidence": [
+                        {
+                          "role": "support",
+                          "match": "GATE研究显示短期进入创业概率增加，支持尝试验证方向。",
+                          "source": {
+                            "id": "12000000-0000-4000-8000-000000000007",
+                            "type": "knowledge",
+                            "quote": "increased the likelihood of business ownership",
+                            "revision": 1
+                          },
+                          "limitation": "研究对象为美国成年申请人，非中国大学生；进入创业不等于收入增长。"
+                        },
+                        {
+                          "role": "counterexample",
+                          "match": "GATE研究指出早期季度收入显著低于对照组，警示收入风险。",
+                          "source": {
+                            "id": "12000000-0000-4000-8000-000000000008",
+                            "type": "knowledge",
+                            "quote": "earned significantly less than control group participants",
+                            "revision": 1
+                          },
+                          "limitation": "长期因果证据较弱；用户有刚性兼职收入需求，不能承受类似收入波动。"
+                        },
+                        {
+                          "role": "support",
+                          "match": "I-Corps方法强调通过接触潜在客户评估商业机会。",
+                          "source": {
+                            "id": "12000000-0000-4000-8000-000000000004",
+                            "type": "knowledge",
+                            "quote": "talking to potential customers, partners and other industry stakeholders",
+                            "revision": 1
+                          },
+                          "limitation": "校园小访谈只是有限探索，口头赞同不等于付费需求。"
+                        }
+                      ],
+                      "feedback": "记录每次沟通中对方是否主动提及预算、是否同意后续演示、以及拒绝的具体理由。",
+                      "stopWhen": "若两周内无一人回复或全部为无效客套，则停止寻找新客户。",
+                      "investment": "建议上限每周1小时，可调整；严禁产生任何费用或削减保障基本生活的兼职班次。",
+                      "alternative": "若无法安排访谈，则暂停该方向，转为复盘渠道失效原因或重新评估想法价值。"
+                    }
+                  ],
+                  "questionSource": {
+                    "id": "e1d4c232-45e5-4099-a6dc-3e5f19ea954c",
+                    "type": "message",
+                    "quote": "每周最多一小时，不花钱。请说明外部案例的失败或收入边界和我有什么差异，不要只给引文。"
+                  },
+                  "studentContext": [
+                    {
+                      "key": "availableTime",
+                      "scope": "inquiry",
+                      "value": "每周最多一小时",
+                      "source": {
+                        "id": "e1d4c232-45e5-4099-a6dc-3e5f19ea954c",
+                        "type": "message",
+                        "quote": "每周最多一小时，不花钱。请说明外部案例的失败或收入边界和我有什么差异，不要只给引文。"
+                      },
+                      "status": "known"
+                    },
+                    {
+                      "key": "taskConstraints",
+                      "scope": "inquiry",
+                      "value": "不花钱",
+                      "source": {
+                        "id": "e1d4c232-45e5-4099-a6dc-3e5f19ea954c",
+                        "type": "message",
+                        "quote": "每周最多一小时，不花钱。请说明外部案例的失败或收入边界和我有什么差异，不要只给引文。"
+                      },
+                      "status": "known"
+                    }
+                  ]
+                },
+                "stale": false
+              }
+            ]
+          }
+        },
+        {}
+      ]
+    }
+  ]
+}

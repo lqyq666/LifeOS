@@ -1,0 +1,130 @@
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { CodexSelect } from '../../components/ui/CodexSelect'
+import { graph, graphSource, REVIEW_KEY, type Review } from './graph.ts'
+import { api, dataChanged, explainError } from '../../backend/client'
+import { parseRecordDrafts, RECORD_KEY, recordFields, type RecordDraft } from './recordDraft.ts'
+import type { CognitionController } from './state.ts'
+
+function normalized(input: RecordDraft): RecordDraft {
+  return { ...Object.fromEntries(recordFields.map(key => [key, (input[key] ?? '').trim()])), tags: [...new Set((input.tags ?? []).map(tag => tag.trim()).filter(Boolean))] }
+}
+
+export function RecordPanel({ controller, onBack }: { controller: CognitionController; onBack: () => void }) {
+  const view = useSyncExternalStore(controller.subscribe, controller.getSnapshot)
+  const node = graph.getNode(view.activeRecordId!)!
+  const dialog = useRef<HTMLDialogElement>(null), back = useRef<HTMLButtonElement>(null), edit = useRef<HTMLButtonElement>(null)
+  const initialForm = useRef<RecordDraft>({})
+  const live = graphSource === 'database' && !!node.serverId
+  const revision = useRef(node.serverRevision ?? 1)
+  const [saving, setSaving] = useState(false)
+  const [initial] = useState(() => {
+    if (live) return { draft: {} as RecordDraft, error: '' }
+    try { return { draft: parseRecordDrafts(localStorage.getItem(RECORD_KEY))[node.id] ?? {}, error: '' } }
+    catch { return { draft: {} as RecordDraft, error: '无法读取本地记录，原数据未覆盖。' } }
+  })
+  const [draft, setDraft] = useState<RecordDraft>(initial.draft), [form, setForm] = useState<RecordDraft>({})
+  const [editing, setEditing] = useState(false), [error, setError] = useState(initial.error), [notice, setNotice] = useState('')
+  const [reason, setReason] = useState(''), [disposition, setDisposition] = useState<Review['disposition'] | 'proposed'>('proposed')
+  const originalValues = graph.getValueIdsForExperience(node.id), values = graph.getValueIdsForExperience(node.id, view.reviews)
+  // Reading defaults never become a navigation parent.
+  const angleId = values.includes(view.interpretationValueId ?? '') ? view.interpretationValueId! : values[0] ?? originalValues[0]
+  const edge = angleId ? graph.getRelationExplanation(node.id, angleId) : undefined
+  const review = edge ? view.reviews[edge.id] : undefined
+  const fields = [
+    { key: 'occurredAt', label: '时间' }, { key: 'action', label: '行动' },
+    { key: 'result', label: '结果' }, { key: 'reflection', label: '反思' },
+  ] as const
+  const content = (key: typeof fields[number]['key']) => draft[key] ?? node[key]
+  const summary = draft.summary || node.summary || ''
+  const displaySummary = !draft.summary && node.contentStatus === 'draft_summary' ? `${summary.split('；')[0].replace(/。$/, '')}。` : summary
+  const evidence = [...new Set(edge?.sourceEvidence ?? [])]
+  const cancel = () => { setEditing(false); setNotice(''); requestAnimationFrame(() => edit.current?.focus()) }
+  const startEdit = () => {
+    const next = { ...draft, summary, ...Object.fromEntries(fields.map(field => [field.key, content(field.key) ?? ''])) }
+    initialForm.current = normalized(next); setForm(next)
+    setReason(review?.editedReason ?? edge?.reason ?? ''); setDisposition(review?.disposition ?? 'proposed'); setNotice(''); setEditing(true)
+  }
+  const save = async () => {
+    if (saving) return
+    const next = normalized(form), reasonChanged = reason.trim() !== (review?.editedReason ?? edge?.reason ?? '')
+    const relationChanged = !!edge && (reasonChanged || disposition !== (review?.disposition ?? 'proposed'))
+    if (relationChanged && !reason.trim()) { setError('请填写关联解释。'); return }
+    if (live && node.serverId) {
+      const changed = JSON.stringify(next) !== JSON.stringify(initialForm.current)
+      if (!changed && !relationChanged) { cancel(); return }
+      setSaving(true)
+      try {
+        const updated = await api('/api/experiences/' + node.serverId + '/actions', {
+          requestId: crypto.randomUUID(), expectedRevision: revision.current, action: changed ? 'correct' : 'review',
+          ...(changed ? { content: next } : {}), ...(relationChanged && edge ? { link: { valueId: edge.targetId, reason: reason.trim(), disposition: disposition === 'proposed' ? 'edited' : disposition } } : {}),
+        })
+        revision.current = updated.revision; setDraft(next); initialForm.current = next; setEditing(false); setError(''); setNotice('已保存到你的账户'); dataChanged()
+      } catch (error) { setError(explainError(error)) }
+      finally { setSaving(false) }
+      return
+    }
+    let recordSaved = false
+    try {
+      if (JSON.stringify(next) !== JSON.stringify(initialForm.current)) {
+        const records = parseRecordDrafts(localStorage.getItem(RECORD_KEY))
+        const checked = parseRecordDrafts(JSON.stringify({ ...records, [node.id]: next }))
+        localStorage.setItem(RECORD_KEY, JSON.stringify(checked)); setDraft(next); initialForm.current = next; recordSaved = true
+      }
+    } catch { setError('保存失败，输入已保留。请检查存储权限或标签长度。'); return }
+    if (relationChanged && edge) {
+      const selected = disposition === 'proposed' ? 'edited' : disposition
+      const ok = controller.review(edge.id, { disposition: selected, reviewedAt: new Date().toISOString(), ...(reasonChanged || selected === 'edited' ? { editedReason: reason.trim() } : {}) }, reviews => localStorage.setItem(REVIEW_KEY, JSON.stringify(reviews)))
+      if (!ok) { setError(recordSaved ? '经历已保存，关联未保存；输入已保留。' : '关联未保存，输入已保留。'); return }
+    }
+    setEditing(false); setError(recordSaved ? '' : initial.error); setNotice(recordSaved || relationChanged ? '已保存' : ''); requestAnimationFrame(() => edit.current?.focus())
+  }
+  useEffect(() => { dialog.current?.showModal(); back.current?.focus(); const el = dialog.current; return () => el?.close() }, [])
+  useLayoutEffect(() => { if (editing) document.getElementById('record-summary')?.focus() }, [editing])
+  return <dialog ref={dialog} className="record-panel" aria-labelledby="record-title" onCancel={event => { event.preventDefault(); if (editing) cancel(); else onBack() }} onKeyDown={event => {
+    if (event.key !== 'Tab') return
+    const controls = [...event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled),textarea,input,select,summary')].filter(el => {
+      const collapsed = el.closest('details:not([open])')
+      return el.getClientRects().length > 0 && (!collapsed || el === collapsed.querySelector('summary'))
+    })
+    const first = controls[0], last = controls.at(-1)
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+  }}>
+    <div className="record-body">
+      <header className="record-header">
+        <button ref={back} onClick={editing ? cancel : onBack} aria-label={editing ? '取消编辑' : '关闭记录，返回原位'}>{editing ? '取消' : '返回'}</button>
+        {editing ? <button key="save" type="submit" form="record-edit-form" disabled={saving}>{saving ? '保存中…' : '保存'}</button> : <button key="edit" ref={edit} type="button" onClick={event => { event.preventDefault(); startEdit() }}>编辑</button>}
+      </header>
+      <main className="record-content">
+        <h2 id="record-title">{node.title}</h2>
+        {error && <p className="storage-error" role="alert">{error}</p>}
+        {editing ? <form id="record-edit-form" className="record-editor" onSubmit={event => { event.preventDefault(); void save() }}>
+          <label htmlFor="record-summary">经历</label><textarea id="record-summary" maxLength={4000} value={form.summary ?? ''} onChange={e => setForm({ ...form, summary: e.target.value })} />
+          <label htmlFor="record-reflection">反思</label><textarea id="record-reflection" maxLength={4000} value={form.reflection ?? ''} onChange={e => setForm({ ...form, reflection: e.target.value })} />
+          <details className="record-extra"><summary>其他信息</summary>
+            {fields.filter(field => field.key !== 'reflection').map(field => <div key={field.key}><label htmlFor={`record-${field.key}`}>{field.label}</label>{field.key === 'occurredAt' ? <input id={`record-${field.key}`} maxLength={200} value={form[field.key] ?? ''} onChange={e => setForm({ ...form, [field.key]: e.target.value })} /> : <textarea id={`record-${field.key}`} maxLength={4000} value={form[field.key] ?? ''} onChange={e => setForm({ ...form, [field.key]: e.target.value })} />}</div>)}
+            <label htmlFor="record-tags">标签（逗号分隔）</label><input id="record-tags" value={(form.tags ?? []).join('，')} onChange={e => setForm({ ...form, tags: e.target.value.split(/[,，]/) })} />
+            <label htmlFor="record-source">依据</label><textarea id="record-source" maxLength={4000} value={form.source ?? ''} onChange={e => setForm({ ...form, source: e.target.value })} />
+          </details>
+          {edge && <details className="record-extra relation-editor"><summary>关联解释</summary><label htmlFor="edited-reason">调整这条关联解释</label><textarea id="edited-reason" maxLength={2000} value={reason} onChange={e => setReason(e.target.value)} /><label htmlFor="relation-disposition">关联判断</label><CodexSelect id="relation-disposition" label="关联判断" value={disposition} onChange={value => setDisposition(value as Review['disposition'] | 'proposed')} options={[{ value: 'proposed', label: '未校准', disabled: !!review }, { value: 'accepted', label: '认可' }, { value: 'edited', label: '修改' }, { value: 'rejected', label: '不符合' }]} /></details>}
+          <p className="record-editor-note">{live ? '保存到你的账户。修改经历后，关联解释需要重新核对。' : '仅保存在此浏览器。'}</p>
+          {live && <button type="button" disabled={saving} onClick={async () => {
+            setSaving(true)
+            try { await api('/api/experiences/' + node.serverId + '/actions', { requestId: crypto.randomUUID(), expectedRevision: revision.current, action: 'delete' }); dataChanged(); onBack() }
+            catch (error) { setError(explainError(error)); setSaving(false) }
+          }}>删除经历</button>}
+        </form> : <>
+          {content('occurredAt') && <p className="record-date">{content('occurredAt')}</p>}
+          {displaySummary && <p className="record-summary">{displaySummary}</p>}
+          {fields.slice(1).filter(field => content(field.key)).map(field => <section className="record-story" key={field.key}><h3>{field.label}</h3><p>{content(field.key)}</p></section>)}
+          {originalValues.length > 0 && <section className="interpretation" aria-label="关联解释"><h3>关联</h3>
+            {values.length > 1 ? <div className="angle-options" role="group" aria-label="选择关联角度">{values.map(id => <button key={id} aria-pressed={angleId === id} onClick={() => controller.changeAngle(id)}>{graph.getNode(id)?.title}</button>)}</div> : values.length === 1 && <p className="single-value">{graph.getNode(values[0])?.title}</p>}
+            {values.length && edge ? <p className="relation-reason">{review?.editedReason ?? edge.reason}</p> : <p className="relation-empty">暂无关联</p>}
+          </section>}
+          {(draft.source || evidence.length > 0) && <section className="record-source"><h3>依据</h3>{draft.source && <p>{draft.source}</p>}{evidence.map(source => <p key={source}>{source}</p>)}</section>}
+        </>}
+        {notice && <p className="record-notice" role="status">{notice}</p>}
+      </main>
+    </div>
+  </dialog>
+}

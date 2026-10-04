@@ -1,0 +1,1 @@
+请直接在 D:\aaaLife\LifeOS 开发 LifeOS V1.3。先读 HANDOFF.md、AGENTS.md、docs/v1.3-action-coach/OBJECTIVE_V1_3_ACTION_COACH.md、docs/v1.3-action-coach/CODEX_FAST_LAUNCH_PLAN.md、DEPLOYMENT_HANDOFF.md。以当前代码为准，默认模型保持 qwen3.8-flash；优先推进真实过程追问和未知项处理，完整验收前保持 WIP_NOT_READY。

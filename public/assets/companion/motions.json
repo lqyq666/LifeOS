@@ -1,0 +1,409 @@
+{
+  "version": 1,
+  "image": "/assets/companion/lifeos-motion-atlas.png",
+  "imageWidth": 1161,
+  "imageHeight": 1355,
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "states": {
+    "idle": {
+      "label": "待机",
+      "description": "呼吸与眨眼",
+      "duration": 2400,
+      "loop": true,
+      "poster": 0,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 202,
+          "height": 201,
+          "dx": 23,
+          "dy": 5
+        },
+        {
+          "x": 202,
+          "y": 0,
+          "width": 190,
+          "height": 201,
+          "dx": 34,
+          "dy": 9
+        },
+        {
+          "x": 392,
+          "y": 0,
+          "width": 188,
+          "height": 201,
+          "dx": 35,
+          "dy": 1
+        },
+        {
+          "x": 580,
+          "y": 0,
+          "width": 192,
+          "height": 201,
+          "dx": 33,
+          "dy": 0
+        },
+        {
+          "x": 772,
+          "y": 0,
+          "width": 190,
+          "height": 201,
+          "dx": 35,
+          "dy": 5
+        },
+        {
+          "x": 962,
+          "y": 0,
+          "width": 199,
+          "height": 201,
+          "dx": 34,
+          "dy": 4
+        }
+      ]
+    },
+    "received": {
+      "label": "收到消息",
+      "description": "轻抬回应",
+      "duration": 360,
+      "loop": false,
+      "poster": 0,
+      "frames": [
+        {
+          "x": 0,
+          "y": 201,
+          "width": 202,
+          "height": 189,
+          "dx": 23,
+          "dy": 21
+        },
+        {
+          "x": 202,
+          "y": 201,
+          "width": 190,
+          "height": 189,
+          "dx": 33,
+          "dy": 19
+        },
+        {
+          "x": 392,
+          "y": 201,
+          "width": 190,
+          "height": 189,
+          "dx": 34,
+          "dy": 15
+        },
+        {
+          "x": 582,
+          "y": 201,
+          "width": 190,
+          "height": 189,
+          "dx": 35,
+          "dy": 16
+        },
+        {
+          "x": 772,
+          "y": 201,
+          "width": 190,
+          "height": 189,
+          "dx": 35,
+          "dy": 18
+        },
+        {
+          "x": 962,
+          "y": 201,
+          "width": 199,
+          "height": 189,
+          "dx": 34,
+          "dy": 21
+        }
+      ]
+    },
+    "thinking": {
+      "label": "正在整理",
+      "description": "下浮与三点",
+      "duration": 1080,
+      "loop": true,
+      "poster": 0,
+      "frames": [
+        {
+          "x": 0,
+          "y": 390,
+          "width": 202,
+          "height": 190,
+          "dx": 23,
+          "dy": 20
+        },
+        {
+          "x": 202,
+          "y": 390,
+          "width": 192,
+          "height": 190,
+          "dx": 34,
+          "dy": 19
+        },
+        {
+          "x": 394,
+          "y": 390,
+          "width": 192,
+          "height": 190,
+          "dx": 36,
+          "dy": 22
+        },
+        {
+          "x": 586,
+          "y": 390,
+          "width": 194,
+          "height": 190,
+          "dx": 39,
+          "dy": 17
+        },
+        {
+          "x": 780,
+          "y": 390,
+          "width": 186,
+          "height": 190,
+          "dx": 43,
+          "dy": 24
+        },
+        {
+          "x": 966,
+          "y": 390,
+          "width": 195,
+          "height": 190,
+          "dx": 38,
+          "dy": 19
+        }
+      ]
+    },
+    "searching": {
+      "label": "查找相关经历",
+      "description": "环绕转动",
+      "duration": 1080,
+      "loop": true,
+      "poster": 0,
+      "frames": [
+        {
+          "x": 0,
+          "y": 580,
+          "width": 202,
+          "height": 188,
+          "dx": 23,
+          "dy": 19
+        },
+        {
+          "x": 202,
+          "y": 580,
+          "width": 191,
+          "height": 188,
+          "dx": 34,
+          "dy": 19
+        },
+        {
+          "x": 393,
+          "y": 580,
+          "width": 189,
+          "height": 188,
+          "dx": 35,
+          "dy": 16
+        },
+        {
+          "x": 582,
+          "y": 580,
+          "width": 190,
+          "height": 188,
+          "dx": 35,
+          "dy": 13
+        },
+        {
+          "x": 772,
+          "y": 580,
+          "width": 190,
+          "height": 188,
+          "dx": 34,
+          "dy": 13
+        },
+        {
+          "x": 962,
+          "y": 580,
+          "width": 199,
+          "height": 188,
+          "dx": 34,
+          "dy": 16
+        }
+      ]
+    },
+    "answering": {
+      "label": "正在回答",
+      "description": "发光强化",
+      "duration": 900,
+      "loop": true,
+      "poster": 0,
+      "frames": [
+        {
+          "x": 0,
+          "y": 768,
+          "width": 202,
+          "height": 192,
+          "dx": 24,
+          "dy": 14
+        },
+        {
+          "x": 202,
+          "y": 768,
+          "width": 190,
+          "height": 192,
+          "dx": 33,
+          "dy": 16
+        },
+        {
+          "x": 392,
+          "y": 768,
+          "width": 189,
+          "height": 192,
+          "dx": 33,
+          "dy": 16
+        },
+        {
+          "x": 581,
+          "y": 768,
+          "width": 189,
+          "height": 192,
+          "dx": 34,
+          "dy": 18
+        },
+        {
+          "x": 770,
+          "y": 768,
+          "width": 192,
+          "height": 192,
+          "dx": 34,
+          "dy": 14
+        },
+        {
+          "x": 962,
+          "y": 768,
+          "width": 199,
+          "height": 192,
+          "dx": 34,
+          "dy": 16
+        }
+      ]
+    },
+    "complete": {
+      "label": "完成",
+      "description": "开心小跳",
+      "duration": 720,
+      "loop": false,
+      "poster": 0,
+      "frames": [
+        {
+          "x": 0,
+          "y": 960,
+          "width": 202,
+          "height": 190,
+          "dx": 23,
+          "dy": 10
+        },
+        {
+          "x": 202,
+          "y": 960,
+          "width": 190,
+          "height": 190,
+          "dx": 34,
+          "dy": 13
+        },
+        {
+          "x": 392,
+          "y": 960,
+          "width": 196,
+          "height": 190,
+          "dx": 32,
+          "dy": 16
+        },
+        {
+          "x": 588,
+          "y": 960,
+          "width": 182,
+          "height": 190,
+          "dx": 40,
+          "dy": 10
+        },
+        {
+          "x": 770,
+          "y": 960,
+          "width": 192,
+          "height": 190,
+          "dx": 32,
+          "dy": 11
+        },
+        {
+          "x": 962,
+          "y": 960,
+          "width": 199,
+          "height": 190,
+          "dx": 34,
+          "dy": 17
+        }
+      ]
+    },
+    "waiting": {
+      "label": "等待用户",
+      "description": "安静悬停",
+      "duration": 2400,
+      "loop": true,
+      "poster": 0,
+      "frames": [
+        {
+          "x": 0,
+          "y": 1150,
+          "width": 211,
+          "height": 205,
+          "dx": 23,
+          "dy": 22
+        },
+        {
+          "x": 211,
+          "y": 1150,
+          "width": 188,
+          "height": 205,
+          "dx": 43,
+          "dy": 19
+        },
+        {
+          "x": 399,
+          "y": 1150,
+          "width": 189,
+          "height": 205,
+          "dx": 41,
+          "dy": 22
+        },
+        {
+          "x": 588,
+          "y": 1150,
+          "width": 190,
+          "height": 205,
+          "dx": 41,
+          "dy": 18
+        },
+        {
+          "x": 778,
+          "y": 1150,
+          "width": 190,
+          "height": 205,
+          "dx": 41,
+          "dy": 23
+        },
+        {
+          "x": 968,
+          "y": 1150,
+          "width": 193,
+          "height": 205,
+          "dx": 40,
+          "dy": 22
+        }
+      ]
+    }
+  }
+}
