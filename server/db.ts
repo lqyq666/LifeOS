@@ -9,5 +9,5 @@ export async function transaction<T>(fn: (client: PoolClient) => Promise<T>): Pr
   catch (error) { await client.query('ROLLBACK'); throw error }
   finally { client.release() }
 }
-export class HttpError extends Error { constructor(public status: number, public code: string, public retryAfter?: number) { super(code) } }
+export class HttpError extends Error { constructor(public status: number, public code: string, public retryAfter?: number, public details?: unknown) { super(code) } }
 export const requireRow = <T>(row: T | undefined): T => { if (!row) throw new HttpError(404, 'NOT_FOUND'); return row }

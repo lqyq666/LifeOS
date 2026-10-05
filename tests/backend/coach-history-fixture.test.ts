@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
 import {pool} from '../../server/db.ts'
+import {config} from '../../server/config.ts'
 import * as store from '../../server/store.ts'
 import {seedCoachHistoryFixture} from '../../scripts/coach-history-fixture.ts'
 import {stageCoachEvent,coachEventView} from '../../server/action-coach-events.ts'
@@ -9,6 +10,10 @@ import {checkMessageLimit} from '../../server/operations.ts'
 
 test('A07 synthetic distractors actually displace old roles while authorized event sources remain',async()=>{
   const user='history-fixture-'+randomUUID(),chat=randomUUID(),signal=new AbortController().signal
+  // Pin the documented default request limits so a locally relaxed .env.server
+  // cannot silently skip the limit-bypass assertion below.
+  const previousMinute=config.messagesPerMinute,previousDay=config.messagesPerDay
+  config.messagesPerMinute=3;config.messagesPerDay=50
   await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
   try{
     await store.createConversation(user,{id:chat,title:'SYNTHETIC A07 history'})
@@ -38,5 +43,5 @@ test('A07 synthetic distractors actually displace old roles while authorized eve
     assert.equal(event!.nodes[0].source!.messageId,original.source_message_id)
     assert.equal(event!.nodes[0].source!.quote,text)
     await store.terminateRun(user,current.request_id,'cancelled','SYNTHETIC_HISTORY_DONE')
-  }finally{await pool.query('DELETE FROM "user" WHERE id=$1',[user])}
+  }finally{config.messagesPerMinute=previousMinute;config.messagesPerDay=previousDay;await pool.query('DELETE FROM "user" WHERE id=$1',[user])}
 })

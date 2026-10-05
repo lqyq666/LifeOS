@@ -46,18 +46,25 @@ async function eventFor(c:PoolClient,user:string,conversation:string,id:string,l
   if(row.conversation_id!==conversation&&!await enabled(c,user))throw new HttpError(403,'MEMORY_DISABLED')
   return row
 }
-async function sourceAvailable(c:PoolClient,user:string,source:CoachSource){
+async function sourceContent(c:PoolClient,user:string,source:CoachSource):Promise<string|null>{
   const row=(await c.query(`SELECT m.content FROM messages m
     WHERE m.user_id=$1 AND m.conversation_id=$2 AND m.id=$3 AND m.role='user'
     AND NOT EXISTS(SELECT 1 FROM memory_suppressions s WHERE s.user_id=m.user_id AND s.source_message_id=m.id)
     AND NOT EXISTS(SELECT 1 FROM coach_source_withdrawals w WHERE w.user_id=m.user_id AND w.message_id=m.id)
     AND NOT EXISTS(SELECT 1 FROM experiences e WHERE e.user_id=m.user_id AND e.source_message_id=m.id AND e.status='deleted')`,[user,source.conversationId,source.messageId])).rows[0]
-  return Boolean(row&&source.quote.trim()&&row.content.includes(source.quote))
+  return row?.content??null
+}
+async function sourceAvailable(c:PoolClient,user:string,source:CoachSource){
+  const content=await sourceContent(c,user,source)
+  return Boolean(content&&source.quote.trim()&&content.includes(source.quote))
 }
 async function currentSource(c:PoolClient,run:Run,source:{messageId:string;quote:string}):Promise<CoachSource>{
   if(source.messageId!==run.source_message_id)throw new HttpError(400,'COACH_CURRENT_SOURCE_REQUIRED')
   const ref={...source,conversationId:run.conversation_id}
-  if(!await sourceAvailable(c,run.user_id,ref))throw new HttpError(400,'COACH_SOURCE_INVALID')
+  const content=await sourceContent(c,run.user_id,ref)
+  // Repair guidance carries the exact mismatch so a bounded repair can fix the
+  // quoted span deterministically instead of guessing which reference failed.
+  if(content===null||!source.quote.trim()||!content.includes(source.quote))throw new HttpError(400,'COACH_SOURCE_INVALID',undefined,{quote:source.quote.slice(0,400),currentText:content?.slice(0,2000)??null,currentMessageId:run.source_message_id})
   return ref
 }
 async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
@@ -90,7 +97,20 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
       if(delta.action.operation==='modify'&&action.status==='proposed'&&action.knowledge_valid&&action.draft_unchanged&&!delta.corrections?.length)throw new HttpError(400,'COACH_ACTION_UNCHANGED')
     }
   }
-  for(const node of delta.nodes??[])if(node.kind!=='unknown')await currentSource(c,run,node.source)
+  let recordedContents:Set<string>|undefined
+  if(delta.target.operation!=='create')recordedContents=new Set((await c.query("SELECT content FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn'",[run.user_id,delta.target.eventId])).rows.map(row=>row.content as string))
+  // A redundant re-emission of an already-recorded verbatim node is skipped,
+  // not failed: it carries no new claim and the reply stays unchanged. Any
+  // other non-current quote remains a blocking source error.
+  const nodeSource=async(node:{kind:string;source?:{messageId:string;quote:string}}):Promise<CoachSource|null>=>{
+    if(node.kind==='unknown')return null
+    try{return await currentSource(c,run,node.source!)}
+    catch(error){
+      if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&recordedContents?.has(node.source!.quote))return null
+      throw error
+    }
+  }
+  for(const node of delta.nodes??[])await nodeSource(node)
   for(const correction of delta.corrections??[])await currentSource(c,run,correction.source)
   if(delta.action&&'draft' in delta.action){
     if(!delta.action.draft.content.trim()||!reply.includes(delta.action.draft.content))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
@@ -116,7 +136,14 @@ export async function persistCoachEvent(c:PoolClient,run:Run,staged:CoachStaged)
     await c.query('UPDATE coach_events SET revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2',[run.user_id,staged.eventId])
   }
   for(const node of delta.nodes??[]){
-    const source=node.kind==='unknown'?null:await currentSource(c,run,node.source)
+    let source:CoachSource|null=null
+    if(node.kind!=='unknown'){
+      try{source=await currentSource(c,run,node.source)}
+      catch(error){
+        if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&(await c.query("SELECT 1 FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' AND source IS NOT NULL AND content=$3",[run.user_id,staged.eventId,node.source.quote])).rowCount)continue
+        throw error
+      }
+    }
     const content=node.kind==='unknown'?node.question:node.source.quote
     const duplicate=(await c.query("SELECT 1 FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status='active' AND kind=$3 AND content=$4 AND source IS NOT DISTINCT FROM $5::jsonb",[run.user_id,staged.eventId,node.kind,content,source?JSON.stringify(source):null])).rowCount
     if(!duplicate)await c.query('INSERT INTO coach_nodes(id,user_id,event_id,kind,content,source) VALUES($1,$2,$3,$4,$5,$6)',[randomUUID(),run.user_id,staged.eventId,node.kind,content,source])

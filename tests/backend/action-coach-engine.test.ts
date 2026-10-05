@@ -570,7 +570,14 @@ test('the only turn core uses natural replies and event deltas, with one bounded
           if(value.properties?.messageId){bound++;assert.deepEqual(value.properties.messageId.enum,[state.currentUserMessage.id])}
           for(const item of Object.values(value))check(item)
         }
-        check(request.response_format.json_schema.schema);assert.ok(bound>=5)
+        const eventProperties=request.response_format.json_schema.schema.properties.event.properties
+        // Corrections exist only when the authorized context has correctable
+        // nodes; without events the remaining source bindings still number four.
+        const correctable=targets.some((event:any)=>event.nodes?.length)
+        const required=correctable?5:4
+        check(request.response_format.json_schema.schema);assert.ok(bound>=required,'messageId identity bindings: '+bound+' < '+required)
+        assert.equal('corrections' in eventProperties,correctable,'corrections schema presence follows authorized correctable nodes')
+        if(correctable)for(const nodeId of eventProperties.corrections.items.properties.nodeId.enum)assert.ok(targets.some((event:any)=>event.nodes.some((node:any)=>node.id===nodeId)),'corrections enum only contains authorized node IDs')
       }
     })
   }finally{
