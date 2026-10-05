@@ -4,6 +4,7 @@ import {officialUrl,fetchOfficialDocument,OfficialFetchError} from './official-f
 import {extractOfficialDocument,type OfficialExtraction} from './official-extract.ts'
 import {validateKnowledge,type KnowledgeCard} from './campus-knowledge.ts'
 import {config} from './config.ts'
+import {officialAttachmentViews} from './official-attachments.ts'
 
 export const officialSourceRegistry=[
   {url:'https://yz.chsi.com.cn/kyzx/jybzc/202609/20260924/2293971511.html',publisher:'中国研究生招生信息网',issuer:'教育部'},
@@ -72,9 +73,9 @@ export async function approveOfficialKnowledge(sourceId:string,expectedRevision:
 export async function officialSourcesView(){
   const rows=(await pool.query('SELECT id,revision,status,payload FROM official_sources ORDER BY url')).rows
   const cards=(await pool.query("SELECT id,revision,status,valid_until,payload,official_knowledge_current(payload) AS official_current FROM campus_knowledge WHERE kind='policy' ORDER BY id")).rows
+  const attachments=await officialAttachmentViews()
   return {sources:rows.map(row=>{
     const payload:Snapshot=row.payload,extraction=payload.extraction
-    return {id:row.id,revision:row.revision,status:row.status,synthetic:payload.synthetic,url:payload.url,publisher:payload.publisher,issuer:payload.issuer,checkedAt:payload.checkedAt,errorCode:payload.errorCode??null,title:extraction?.title??null,publishedOn:extraction?.publishedOn??null,issuedOn:extraction?.issuedOn??null,applicableYear:extraction?.applicableYear??null,attachments:extraction?.attachments??[],deadlines:extraction?.deadlineCandidates??[],unknowns:extraction?.unknowns??['本次未能读取正文，不能由此断言政策未发布'],textPreview:extraction?.text.slice(0,800)??null,claims:cards.filter(card=>card.payload.url===payload.url).map(card=>({id:card.id,revision:card.revision,title:card.payload.title,claim:card.payload.claim,scope:card.payload.scope,limitations:card.payload.limitations,validUntil:card.valid_until,status:card.status==='verified'&&!card.official_current?'unverified':card.status==='verified'&&(!card.valid_until||Date.parse(card.valid_until)<=Date.now())?'expired':card.status}))}
+    return {id:row.id,revision:row.revision,status:row.status,synthetic:payload.synthetic,url:payload.url,publisher:payload.publisher,issuer:payload.issuer,checkedAt:payload.checkedAt,errorCode:payload.errorCode??null,title:extraction?.title??null,publishedOn:extraction?.publishedOn??null,issuedOn:extraction?.issuedOn??null,applicableYear:extraction?.applicableYear??null,attachments:[...(extraction?.attachments??[]),...attachments.filter(item=>item.sourceId===row.id&&!extraction?.attachments.some(link=>link.url===item.url)).map(item=>({url:item.url,title:item.title,status:'not_read' as const}))].map(link=>({...link,read:attachments.find(item=>item.sourceId===row.id&&item.url===link.url)??null})),deadlines:extraction?.deadlineCandidates??[],unknowns:extraction?.unknowns??['本次未能读取正文，不能由此断言政策未发布'],textPreview:extraction?.text.slice(0,800)??null,claims:cards.filter(card=>card.payload.url===payload.url).map(card=>({id:card.id,revision:card.revision,title:card.payload.title,claim:card.payload.claim,scope:card.payload.scope,limitations:card.payload.limitations,validUntil:card.valid_until,status:card.status==='verified'&&!card.official_current?'unverified':card.status==='verified'&&(!card.valid_until||Date.parse(card.valid_until)<=Date.now())?'expired':card.status}))}
   })}
 }
-

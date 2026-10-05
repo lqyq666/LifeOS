@@ -54,3 +54,13 @@ npm audit五项high均沿 pi-ai0.73.1→proxy-agent6.5.0→pac-proxy-agent7.2.0�
 生产只读代理核查补充：当前容器六个HTTP_PROXY/HTTPS_PROXY/ALL_PROXY及小写变量均present=false、pac=false（只打印布尔值）。这降低现有配置触发概率，不证明未来配置安全或运行进程所有模块加载状态；尚无修复前不清除发布风险。
 
 安全补丁本地结果：在get-uri专用override固定basic-ftp6.2.2，保持SDK及get-uri原版本。原5.3.1同一恶意Unix列表有界子进程3秒超时；6.2.2原样输入约57ms结束。实际回环FTP控制/数据socket覆盖MDTM失败、RFC3659列表日期、RETR内容/缓存、PASV分离主机拒绝。6.x默认拒绝分离主机是安全收紧，可能影响少数依赖不同数据主机的FTP/PAC配置；本产品无需此配置，不放宽该默认。局部兼容结果不声明全部FTP服务器/FTPS场景通过。npm audit新报告0漏洞，SDK引擎42/42和客户端/依赖47/47、类型/构建通过。旧生产仅只读查看未修补，安装与实际模块加载区分仍保留；部署前须使用新锁文件镜像并通过产品门槛。
+
+## 官方附件受控解析（2026-10-05，本地）
+
+复用 [Mammoth1.13.0](https://github.com/mwilliamson/mammoth.js) 的extractRawText与实际raw-text/tests、docx Files默认externalFileAccess=false；BSD-2-Clause。只读段落文本，不调用HTML转换；自动编号/表格布局/图片未还原，空白表不是个人填报。复用 [read-excel-file9.3.10](https://github.com/catamphetamine/read-excel-file) Node入口、实际parseCell/parseSheet/parseSpreadsheetContents，MIT，Node>=18；保留trim:false、sheet及A1坐标，字符串代码与零/空白分开，公式缓存不采用。ExcelJS4.4.0作为候选因写入/图表依赖过重未安装。复用 [yauzl3.4.0](https://github.com/thejoshwolfe/yauzl) lazyEntries/validateEntrySizes/strictFileNames，MIT；读取实际entry/size校验源码，预先约束ZIP而不自行实现Office格式。三个许可副本见THIRD_PARTY_NOTICES。
+
+真实浙江官网将三份Office ZIP均标text/html。首次下载明确拒绝并保留official-attachments-20261005/report.json；人工固定公开页面Referer/通用UA只读诊断（未发送Cookie/凭据）发现PK签名，兼容分支只接受Office后缀+ZIP签名，不接受HTML错误页。再次明确执行的受控下载原文件保存到 .local/campus-growth/official-attachments-20261005-1791202250923：细则DOCX543038B/SHA739f3e5bee974e4a76facc5104be3b029a4bbc34b4955b7775b5d5fcb82618f9；专业对照XLSX39177B/SHA7e8d952943c8179d45ccc72838972f1bfd7f6bba6d704acb8d6b6d72496cf86b；空登记表DOCX292813B/SHAd416910f6b8cc75181894b5f45961c97adae3e7c6bb7397db223157cb7850028。三者原始字节未改。
+
+DOCX分别提取2669/591字符，XLSX1611非空单元格；人工核对细则“我省全日制高职高专应届毕业”、Sheet1!A2年度标题/B5哲学代码、登记表身份证号为空表字段。专业类别合并格不自动填充/匹配，不推其他省/2027。独立附件发布日期未知，父通知2026-01-05和适用2026分列。实际HTTPS/Office bytes/隔离PG测试PASS，report:official-attachment-public-1791202570669/report.json，Provider0，没有自动维护核验命题。
+
+解析独立worker10秒/128MiB；ZIP256项/单项4MiB/总12MiB与实际流大小限额，HTTP2MiB/20秒，路径/重复/加密、宏/OLE/ActiveX、外部资源/Word INCLUDETEXT/DDE、DTD实体、XLSX稀疏巨大网格及公式均拒绝，公式不执行、不采用缓存。PDF/旧doc/xls显式unsupported。017两表保存原始文件和每修订payload；父hash/版本CAS、当前链接成员、双24h及状态校验连带暂停附件引用；父失败界面仍保留原附件为暂停历史。没有新公开写接口，不通过浏览器/模型认证来源。新增依赖audit0漏洞。

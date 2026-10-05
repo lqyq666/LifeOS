@@ -1,7 +1,7 @@
 {
   "status": "LOCAL_ISOLATED_IMPORT_VERIFIED_NOT_PRODUCTION",
   "retrievedOn": "2026-10-05",
-  "note": "Two real public HTML captures and raw hashes verified. One national registration-timing claim manually reviewed in disposable DB only; provincial attachments remain unread. No primary/production import or individual eligibility certification.",
+  "note": "Two public HTML sources and three actual provincial Office files captured with SHA256. Office parsing and raw snapshot storage verified in isolated DB only; no individual eligibility certification or primary/production import.",
   "sources": [
     {
       "url": "https://yz.chsi.com.cn/kyzx/jybzc/202609/20260924/2293971511.html",
@@ -50,19 +50,38 @@
       "issuedOn": "2025-12-19",
       "applicableYear": "2026",
       "region": "浙江省",
-      "fetchStatus": "page_text_read_attachments_not_read",
+      "fetchStatus": "page_and_three_office_attachments_parsed",
       "contentHash": "f73045b0d0defca27c0a31960d4cad68383da7cbd1eec390005c8309baae21da",
       "deadlineEvents": [],
       "evidenceLocator": "通知正文、落款、三个附件链接",
       "scopeNote": "仅核实通知的发布身份和年度，未核实附件内资格或期限；不外推2027或其他省份。成年学生不等于成人高校学籍。",
       "unknowns": [
-        "附件实施细则正文",
-        "专业对照表",
-        "具体报名条件和时间",
         "个人学籍、专业与资格",
-        "2027年度规定"
+        "2027年度规定",
+        "其他省份条件",
+        "表格合并关系及个人专业匹配须另核"
       ],
-      "importStatus": "ISOLATED_RAW_SNAPSHOT_NO_REVIEWED_CLAIMS"
+      "importStatus": "ISOLATED_RAW_AND_ATTACHMENTS_NO_REVIEWED_CLAIMS",
+      "attachments": [
+        {
+          "title": "浙江省2026年选拔高职高专毕业生进入本科学习实施细则.docx",
+          "hash": "739f3e5bee974e4a76facc5104be3b029a4bbc34b4955b7775b5d5fcb82618f9",
+          "bytes": 543038,
+          "cells": null
+        },
+        {
+          "title": "附件1浙江省专升本各类别所含专业对照表（2026年版）.xlsx",
+          "hash": "7e8d952943c8179d45ccc72838972f1bfd7f6bba6d704acb8d6b6d72496cf86b",
+          "bytes": 39177,
+          "cells": 1611
+        },
+        {
+          "title": "附件2浙江省2026年普通高校专升本选拔考试考生登记表.docx",
+          "hash": "d416910f6b8cc75181894b5f45961c97adae3e7c6bb7397db223157cb7850028",
+          "bytes": 292813,
+          "cells": null
+        }
+      ]
     }
   ]
 }

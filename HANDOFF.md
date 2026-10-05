@@ -159,3 +159,12 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - npm audit新报告0漏洞（ftp-patched-audit.json）；客户端/依赖47/47、受影响SDK引擎42/42、服务端typecheck与构建通过，Three既有大chunk警告仍在。完整产品业务后端35文件196已在第六批通过；本次只改传递依赖，没有重复无关全恢复。未在生产升级或重启，旧镜像受影响依赖尚存在，补丁发布仍需整体验收和条件部署门槛。
 - 本批Provider 0。付费审批未解决且无重试；模型真实完整校园链、20普通时延/混合费用、更多官方附件/就业/留学路径仍待验证，整体WIP_NOT_READY。
 第八批免费边界补验：迟到旧来源抓取在CAS冲突后不写入快照、不覆盖最新hash/版本；来源读取超过24小时即使维护卡未来到期/hash匹配也在SQL与UI失效，仅恢复读取时间的正对照证明拒绝源于独立新鲜度。官方来源定向7/7、服务端类型通过，日志official-source-boundaries-positive.log/type.log。仅新增回归，无产品/迁移改动，未重复无关全构建与备份。
+
+### 第九批：官方Office附件（免费，本地）
+
+- 接4b626e5。固定复用Mammoth1.13.0/read-excel-file9.3.10/yauzl3.4.0，原许可及源码/测试依据记sources.md和ATTACHMENTS_BRIEF.md。DOCX/XLSX有限支持，ZIP/宏/XML实体/外部文件与Word字段/公式/稀疏网格有界预检，10秒128MiB隔离worker；PDF/旧doc/xls/公式显式不支持，不执行宏/公式/外部资源。
+- 真实浙江三文件原hash已核实：细则543038B/2669字符、专业表39177B/1611坐标非空单元格、空登记表292813B/591字符，范围仅浙江2026，不推个人/2027或其他省。官网错误MIME=text/html首次3失败完整保留，实际PK字节诊断后兼容只允许明确Office后缀+ZIP签名。真实HTTPS+PG三附件入库、原字节/标题/关键坐标及零自动认证通过；报告 .local/campus-growth/official-attachment-public-1791202570669/report.json。详细hash见来源登记，不提交原私有账本或DB。
+- 新017两表保存附件当前/各修订原字节、父hash/版本、独立发布日期未知与父发布/适用年分列；当前父快照明确链接才允许读取，延迟抓取CAS失败无写入。父失败/变更/超24h、附件hash/状态/有效期变化阻断引用。父读取失败仍保留已读附件暂停界面；GET只读，无自动政策认证入口。UI主题/2D/3D未改。
+- 附件定向4/4、实际公开文件1/1、Chrome320/390/1440展开附件及hash无溢出并目检通过；模型与浏览器文件显式合成，与真实HTTPS验收分别报告。完整后端36文件202测试通过（第八批追加2+本批4），客户端47/47、服务端类型/构建通过，audit0漏洞。初次浏览器夹具document变量遮蔽DOM类型失败已修正，原type失败日志保留；截图必须实际展开的检查已补，不用隐藏DOM文本算视觉通过。
+- 与017相关的一次非空真实恢复47表18迁移全部内容hash一致，附件rawhash、父失败暂停、日期不冒充、源续写保持。报告 .local/campus-growth/attachment-recovery/recovery-report.json。未重复无关恢复。日志 attachment-full-backend/unit-final/type-final-2/build-second/browser-expanded/recovery/real-public-db.log。
+- 本批Provider0，未改默认模型/推送/合main/部署；付费仍暂停。下一免费批覆盖推免/就业/留学核对入口和实际静态来源状态，具体资格仍按用户/校/年/项目核实。完整产品WIP_NOT_READY。

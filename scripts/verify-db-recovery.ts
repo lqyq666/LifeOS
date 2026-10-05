@@ -102,7 +102,7 @@ try{
   const coachContinuation=coachSeeded?coachWorker(target.href):null
   const growthContinuation=growthSeeded?growthWorker(target.href):null
   const officialContinuation=officialSeeded?officialWorker(target.href):null
-  if(officialSeeded)for(const table of ['official_sources','official_source_snapshots'])if(!counts[table])throw new Error('Official recovery fixture missing '+table)
+  if(officialSeeded)for(const table of ['official_sources','official_source_snapshots',...(migrations.has('017-official-attachments.sql')?['official_attachments','official_attachment_snapshots']:[])])if(!counts[table])throw new Error('Official recovery fixture missing '+table)
   if(coachSeeded)for(const table of ['coach_events','coach_current','coach_nodes','coach_actions','coach_event_revisions','coach_source_withdrawals','coach_semantic_index','coach_index_jobs'])if(!counts[table])throw new Error('Coach recovery fixture missing '+table)
   if(coachSeeded&&migrations.has('010-coach-knowledge-citations.sql')&&!counts.coach_reply_sources)throw new Error('Coach recovery fixture missing citation provenance')
   const campusContinuation=campusSeeded?campusWorker(target.href):null

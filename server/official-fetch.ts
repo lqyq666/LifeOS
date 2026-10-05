@@ -42,21 +42,29 @@ const transport:Transport={
 }
 // DNS answers are checked and pinned into TLS lookup; redirects go through the
 // same allowlist and IP gate. No cookie, credential, proxy or page script executes.
-export async function fetchOfficialDocument(raw:string,testTransport:Transport=transport){
+async function fetchOfficialResource(raw:string,attachment:boolean,testTransport:Transport=transport){
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000)
-  let url=officialUrl(raw)
+  const validate=attachment?officialAttachmentUrl:officialUrl
+  let url=validate(raw)
   try{
     for(let redirect=0;redirect<=2;redirect++){
       const addresses=await Promise.race([testTransport.resolve(url.hostname),new Promise<never>((_resolve,reject)=>controller.signal.addEventListener('abort',()=>reject(new OfficialFetchError('OFFICIAL_FETCH_TIMEOUT')),{once:true}))])
       if(!addresses.length||addresses.some(row=>row.family!==4||!publicIPv4(row.address)))throw new OfficialFetchError('OFFICIAL_ADDRESS_REJECTED')
       const page=await testTransport.get(url,addresses[0].address,controller.signal)
-      if(page.status>=300&&page.status<400){if(!page.headers.location||redirect===2)throw new OfficialFetchError('OFFICIAL_REDIRECT_LIMIT');url=officialUrl(new URL(page.headers.location,url).href);continue}
+      if(page.status>=300&&page.status<400){if(!page.headers.location||redirect===2)throw new OfficialFetchError('OFFICIAL_REDIRECT_LIMIT');url=validate(new URL(page.headers.location,url).href);continue}
       if(page.status!==200)throw new OfficialFetchError('OFFICIAL_HTTP_FAILED')
       if(page.bytes.length>maximumBytes)throw new OfficialFetchError('OFFICIAL_BODY_TOO_LARGE')
-      if(!/^text\/html\b/i.test(page.headers['content-type']??'')||!['identity',''].includes(page.headers['content-encoding']??''))throw new OfficialFetchError('OFFICIAL_CONTENT_UNSUPPORTED')
+      const officeName=url.searchParams.get('filename')??url.pathname
+      // The real provincial download endpoint labels genuine Office ZIPs as
+      // text/html. Accept only this signature + Office extension combination;
+      // ordinary HTML errors are never treated as an attachment.
+      const mislabeledOffice=attachment&&/\.(?:docx|xlsx)$/i.test(officeName)&&page.bytes.subarray(0,4).toString('hex')==='504b0304'&&/^text\/html\b/i.test(page.headers['content-type']??'')
+      if(!(attachment?mislabeledOffice||/^(?:application\/(?:octet-stream|zip|pdf|vnd\.openxmlformats-officedocument\.[\w.-]+)|application\/msword)\b/i.test(page.headers['content-type']??''):/^text\/html\b/i.test(page.headers['content-type']??''))||!['identity',''].includes(page.headers['content-encoding']??''))throw new OfficialFetchError('OFFICIAL_CONTENT_UNSUPPORTED')
       return {url:url.href,bytes:page.bytes,contentType:page.headers['content-type']!}
     }
     throw new OfficialFetchError('OFFICIAL_REDIRECT_LIMIT')
   }catch(error){if(error instanceof OfficialFetchError)throw error;throw new OfficialFetchError(controller.signal.aborted?'OFFICIAL_FETCH_TIMEOUT':'OFFICIAL_FETCH_FAILED')}
   finally{clearTimeout(timer)}
 }
+export const fetchOfficialDocument=(raw:string,testTransport:Transport=transport)=>fetchOfficialResource(raw,false,testTransport)
+export const fetchOfficialAttachment=(raw:string,testTransport:Transport=transport)=>fetchOfficialResource(raw,true,testTransport)

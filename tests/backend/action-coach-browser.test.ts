@@ -2,6 +2,8 @@ import {grantEntitlement,entitlementView} from '../../server/entitlements.ts'
 import {syncOfficialSource,officialSourceRegistry,approveOfficialKnowledge} from '../../server/official-sources.ts'
 import {extractOfficialDocument} from '../../server/official-extract.ts'
 import {OfficialFetchError} from '../../server/official-fetch.ts'
+import {syncOfficialAttachment} from '../../server/official-attachments.ts'
+import {officeFixture} from '../fixtures/official-office.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
@@ -71,10 +73,16 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
   const report:any={evidence:'REAL_CHROME_REAL_POSTGRESQL_REAL_AUTH_SIMULATED_MODEL_SYNTHETIC_USER',checks:[],screenshots:[],errors:[]}
   let browser:any,user=''
   const sourceCardId=randomUUID(),officialEntry=officialSourceRegistry[0]
+  let provinceId:string|undefined
   try{
     assert.equal((await fetch(origin+'/api/official-sources')).status,401,'official source view requires an authenticated session')
     const fixture=JSON.parse(readFileSync('tests/fixtures/official-source-dom.json','utf8'))[0],bytes=Buffer.from(fixture.html),extracted=extractOfficialDocument(bytes,officialEntry.url)
     const source=await syncOfficialSource(officialEntry,async()=>({url:officialEntry.url,bytes,contentType:'text/html'}))
+    const provinceEntry=officialSourceRegistry[1],provinceFixture=JSON.parse(readFileSync('tests/fixtures/official-source-dom.json','utf8'))[1]
+    const province=await syncOfficialSource(provinceEntry,async()=>({url:provinceEntry.url,bytes:Buffer.from(provinceFixture.html),contentType:'text/html'}));provinceId=province.id
+    const linked=extractOfficialDocument(Buffer.from(provinceFixture.html),provinceEntry.url).attachments[0].url
+    const officeBytes=await officeFixture('docx')
+    await syncOfficialAttachment(province.id,province.revision,linked,async()=>({url:linked,bytes:officeBytes,contentType:'application/octet-stream'}))
     const excerpt=extracted.text.split('\n').find(line=>line.startsWith('第十九条'))!
     await approveOfficialKnowledge(source.id,source.revision,[{id:sourceCardId,revision:1,kind:'policy',status:'verified',synthetic:true,title:'SYNTHETIC 国家报名时段',url:officialEntry.url,publisher:officialEntry.publisher,publishedYear:'2026发布，2027招生',verifiedAt:new Date().toISOString(),validUntil:new Date(Date.now()+3600000).toISOString(),excerpt,claim:'SYNTHETIC 仅核验国家网报时段，不保证个人资格。',scope:'SYNTHETIC 国家的统一时段，个人资格未知',limitations:'院校和个人条件尚未核实',mechanisms:['official-browser-fixture'],sourceHash:extracted.hash,scopeRules:{institution:{status:'unknown',reason:'仅演示来源状态，不认证机构范围'},department:{status:'unknown',reason:'院系未核实'},project:{status:'unknown',reason:'项目未核实'},year:{status:'unknown',reason:'范围未核实'},population:{status:'unknown',reason:'个人资格未核实'}}}])
     const email='coach-browser-'+randomUUID()+'@example.invalid',password='Synthetic-'+randomUUID()
@@ -120,9 +128,18 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
     await official.getByText('从原文识别的时间（待核验）',{exact:true}).click()
     assert.ok((await official.textContent()).includes('预报名：2026-10-09 至 2026-10-12'))
     assert.ok((await official.textContent()).includes('正式报名：2026-10-15 至 2026-10-24'))
+    await official.getByText('官方附件（3）',{exact:true}).click()
+    await official.getByText('已提取，尚未认证条件',{exact:false}).waitFor()
+    assert.ok((await official.textContent()).includes('父来源仍匹配'))
+    assert.ok((await official.textContent()).includes('附件独立发布日期未知'))
+    await official.getByText('原文件 SHA256',{exact:true}).click()
+    await official.getByText('提取文字（待核验）',{exact:true}).click()
     await syncOfficialSource(officialEntry,async()=>{throw new OfficialFetchError('OFFICIAL_FETCH_TIMEOUT')})
     await official.getByRole('button',{name:'刷新资料状态',exact:true}).click()
     await official.getByText('本次读取失败 · 暂不作依据',{exact:true}).waitFor()
+    await syncOfficialSource(provinceEntry,async()=>{throw new OfficialFetchError('OFFICIAL_FETCH_TIMEOUT')})
+    await official.getByRole('button',{name:'刷新资料状态',exact:true}).click()
+    await official.getByText('父来源已变更或过期，暂停使用',{exact:false}).waitFor()
     await official.getByText('依据已暂停，需重新核验 · 命题版本 2',{exact:true}).waitFor()
     assert.ok((await official.textContent()).includes('读取失败不代表政策没有发布'))
     report.checks.push('official source UI distinguishes page/document dates, admission year and two pending windows; failed refresh suspends the prior claim, not a policy disappearance')
@@ -163,6 +180,14 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
        await page.locator('.growth-official').scrollIntoViewIfNeeded()
        assert.equal(await page.locator('.growth-official').evaluate((element:any)=>element.scrollWidth<=element.clientWidth+1),true,'official source panel no overflow at '+width)
        const sourceFile=resolve(directory,'official-source-'+width+'.png');await page.screenshot({path:sourceFile});report.screenshots.push(sourceFile)
+       const attachmentSummary=official.getByText('官方附件（1）',{exact:true})
+       if(!await attachmentSummary.evaluate((element:any)=>element.parentElement.open))await attachmentSummary.click()
+       const hashSummary=official.getByText('原文件 SHA256',{exact:true})
+       if(!await hashSummary.evaluate((element:any)=>element.parentElement.open))await hashSummary.click()
+       await attachmentSummary.scrollIntoViewIfNeeded()
+       assert.equal(await page.locator('.growth-official').evaluate((element:any)=>element.scrollWidth<=element.clientWidth+1),true,'expanded attachment SHA256 has no overflow at '+width)
+       await official.getByText('父来源已变更或过期，暂停使用',{exact:false}).waitFor()
+       const attachmentFile=resolve(directory,'official-attachment-'+width+'.png');await page.screenshot({path:attachmentFile});report.screenshots.push(attachmentFile)
     }
     const secondContext=await browser.newContext({viewport:{width:390,height:844}})
     await secondContext.addCookies(await context.cookies())
@@ -387,6 +412,7 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
     config.origin=oldOrigin;config.messagesPerMinute=oldRate;config.entitlementsEnabled=oldAccess
       if(user){await pool.query('DELETE FROM experiences WHERE user_id=$1',[user]);await pool.query('DELETE FROM "user" WHERE id=$1',[user])}
       await pool.query('DELETE FROM campus_knowledge_revisions WHERE id=$1',[sourceCardId]);await pool.query('DELETE FROM campus_knowledge WHERE id=$1',[sourceCardId])
+      if(provinceId){await pool.query('DELETE FROM official_attachment_snapshots WHERE attachment_id IN (SELECT id FROM official_attachments WHERE source_id=$1)',[provinceId]);await pool.query('DELETE FROM official_attachments WHERE source_id=$1',[provinceId]);await pool.query('DELETE FROM official_source_snapshots WHERE source_id=$1',[provinceId]);await pool.query('DELETE FROM official_sources WHERE id=$1',[provinceId])}
       await pool.query('DELETE FROM official_source_snapshots WHERE source_id IN (SELECT id FROM official_sources WHERE url=$1)',[officialEntry.url]);await pool.query('DELETE FROM official_sources WHERE url=$1',[officialEntry.url])
     await pool.end()
   }
