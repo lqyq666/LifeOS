@@ -2,7 +2,18 @@
 
 工作区为 D:\aaaLife\LifeOS。当前 LifeOS V1.3 精简源码仓库。默认模型保持 qwen3.8-flash。整体状态 WIP_NOT_READY。生产已部署于 https://lqynb.xyz（2026-10-05，见下），正式验收未完成。
 
-## 2026-10-05 下午：按用户审阅意见收口（本轮）
+## 2026-10-05 Codex 本地边界修复（仅本地 Git 提交、未部署）
+
+- 实际接续基线为 `7826593`，初始工作区干净，晚于下方历史交接的 `a5b53ac`。该提交已取消 8 字去重门槛，并按当前输入起草/改写意图及交付引导校验问句材料；这些已完成部分不重复修复。
+- 本批隔离于 `fix/coach-material-boundaries-20261005`，`main` 仍指向原基线。用户已批准本批本地 Git 提交，提交号见该分支最新 Git 记录；未推送、未合并、未部署。默认模型配置未改，保持 qwen3.8-flash。未调用付费模型或访问生产。
+- 新复现：`不要帮我写消息，只想聊聊。` 的“帮我写”被当作肯定起草意图，追问 `他当时有回复你吗？` 可写成行动。隔离运行器定向测试先失败（Missing expected rejection），再修复为按分句检查请求/改写前的否定；独立肯定分句仍可起草或改短，`特别想写一句` 不误判为否定。
+- `tests/backend/action-coach-material-boundary.test.ts` 新增拒绝起草的 create/modify 对照、拒绝后材料不变、否定长邮件但请求短消息、否定重写但请求改短，以及问句形式用户原话保留来源节点的回归。既有短约束去重回归继续通过。
+- 已验证：最终定向隔离后端 6/6；`npm run typecheck`、`npm run typecheck:server`、`npm test`（44/44）、`npm run build` 通过。全量隔离后端 30 文件、145 测试通过；运行中补充“特别想写”的排除规则后，再跑受影响定向测试和服务端类型检查通过。构建保留 Three.js chunk >500 kB 的警告。
+- 恢复检查另发现基线 `7826593` 的材料门会拒绝 `scripts/coach-recovery-action.ts` 原合成草稿（缺少交付引导），已修正夹具为“这份消息仍是草稿，可以先发这段”，不放宽产品校验。最初恢复运行失败；修正后 Docker 管道被沙箱拒绝，使用空临时 Docker 配置并经执行器权限升级重试后通过。最终命令为 `npm run test:db-recovery -- --file=action-coach-material-boundary.test.ts`，环境 `LIFEOS_EVIDENCE=.local/coach-boundary-20261005/recovery`；真实 pg_dump/restore 验证 39 表内容一致、恢复后继续修改同一行动/更正/幂等/过期索引租约/遗忘/引用撤回与权益账本通过，Provider 调用 0，恢复库已删除，主库未修改。证据为该目录的 `migration-report.json`、`recovery-report.json`，全量日志 `.local/coach-boundary-20261005-backend.log`、最终恢复日志 `.local/coach-boundary-20261005-recovery.log`（均 gitignored）。
+- 并发检查：Codex 会话列表未发现另一个活动的本地仓库开发会话；系统拒绝 Win32_Process 详细查询，不能据此保证没有其他外部开发工具。仓库 HEAD 与改动在本批检查期间保持可核对；仓库及父目录未发现 `.agents/skills` 或额外 AGENTS.md，无需读本地记忆来补充已明确的接续目标。
+- 仍为 **WIP_NOT_READY**。本地边界回归不能证明模型语义验收；意图校验仍是有限文本规则，A01/A05 真实小批、A02–A04/A07/A08、20 个速度样本、1440/390/320 正式浏览器验收和生产镜像更新均未由本批完成。下一步如执行真实模型复核，应先取得本次的调用数量/费用上限授权；部署或端点/模式变更另行批准。
+
+## 2026-10-05 下午：按用户审阅意见收口（历史 GLM 批次）
 
 用户纠正了上一轮"三条轨迹全部完整通过"的口径，并要求以已保存真实输出建立回归、做最小修复、分解等待时间。已执行：
 

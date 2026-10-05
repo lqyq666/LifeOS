@@ -77,7 +77,14 @@ const rewriteIntent=/(?:再|稍微)?(?:改|换|缩短|改短|润色|重写|调�
 // preambles like "我们先了解一下：" do not.
 const framingIntent=/(?:可以|直接|就能|先|拿去)[^。！？\n]{0,8}(?:发|用|拿|问|说|回|给|发送|复制)|(?:发|用)这(?:段|句|条)|给你写|写一(?:段|句|份)|这(?:段|句|条)(?:话|消息)?[^。！？\n]{0,8}(?:发|用|给)|直接使用|复制/
 export function deliverableIntent(text:string,operation:'create'|'modify'){
-  return operation==='create'?requestIntent.test(text):requestIntent.test(text)||rewriteIntent.test(text)
+  // A declined request contains the same verbs as an affirmative one. Evaluate
+  // clauses separately so "不用写长邮件，帮我写一句" keeps its positive
+  // request without treating "不要帮我写，只想聊聊" as permission.
+  return text.split(/[，,。！？!?；;\n]/).some(clause=>{
+    const request=requestIntent.exec(clause)
+    const rewrite=operation==='modify'?rewriteIntent.exec(clause):null
+    return [request,rewrite].some(match=>match&&!/(?:不要|不用|不必|不想|不需要|无需|(?<![特区分辨识告个类级])别|暂不|先不)/.test(clause.slice(0,match.index+match[0].length)))
+  })
 }
 
 async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){

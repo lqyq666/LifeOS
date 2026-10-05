@@ -16,7 +16,7 @@ async function forget(user:string,message:string){await transaction(async c=>{aw
 async function create(user:string,conversation:string,text:string,card?:KnowledgeCard){
   const run=(await store.startRun(user,conversation,randomUUID(),text)).run
   const material='你好，上次资料在手机上打不开。我可以先把需要的部分发成文字，你现在还需要哪一部分？'
-  const reply='这份消息仍是草稿。\n'+material
+  const reply='这份消息仍是草稿，可以先发这段：\n'+material
   const coach=await stageCoachEvent(run,{target:{operation:'create',title:'交付资料后核对',source:{messageId:run.source_message_id,quote:text}},nodes:[{kind:'fact',source:{messageId:run.source_message_id,quote:text}},{kind:'unknown',question:'现在是否还需要资料？'}],action:{operation:'create',draft:{content:material,stopWhen:'明确不需要时结束'}}},reply+'\n现在是否还需要资料？')
   if(card){const citation=await validateCoachCitations(coach.reply+'\n'+card.claim,[{sourceId:card.id,revision:card.revision,claim:card.claim,quote:card.excerpt,scope:card.scope}],[card],text);coach.reply=citation.text;coach.knowledgeRefs=citation.refs}
   const response=await store.finishRun(run,{candidates:[],audit:[],coach},coach.reply,null,signal)
