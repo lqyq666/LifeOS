@@ -59,8 +59,9 @@ test('each request binds every new process source to its own current message wit
 test('growth replace and observation dependencies bind exact authorized id/revision pairs before generation',()=>{
   const current='00000000-0000-4000-8000-000000000011',first={id:'00000000-0000-4000-8000-000000000021',revision:2},second={id:'00000000-0000-4000-8000-000000000031',revision:3}
   const make=(refs:{id:string;revision:number}[])=>((configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,current,[],refs) as any).response_format.json_schema.schema)
-  const create={target:{operation:'create'},kind:'context',assertion:'user_reported',text:'每周三小时',source:{messageId:current,quote:'每周三小时'}}
+  const create={target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:current,quote:'每周三小时'}}
   assert.equal(Value.Check(make([]),{reply:'记录明确情况',growthUpdates:[create]}),true)
+  assert.equal(Value.Check(make([]),{reply:'旧协议改写文本不可表示',growthUpdates:[{...create,text:'每周投入三小时'}]}),false,'user_reported text is derived by the server, so the native schema must not represent a free paraphrase')
   const replace={...create,target:{operation:'replace',itemId:first.id,expectedRevision:first.revision}}
   assert.equal(Value.Check(make([]),{reply:'无授权目标',growthUpdates:[replace]}),false)
   assert.equal(Value.Check(make([first,second]),{reply:'更正',growthUpdates:[replace]}),true)
@@ -79,7 +80,7 @@ test('reviewed Qwen alternatives retain strict source identity, no thinking and 
     assert.equal(payload.enable_thinking,false);assert.equal(payload.response_format.type,'json_schema');assert.equal(payload.response_format.json_schema.strict,true)
     assert.equal(payload.max_completion_tokens,8192);assert.equal(payload.max_tokens,undefined)
     const schema=payload.response_format.json_schema.schema
-    const change={target:{operation:'create'},kind:'context',assertion:'user_reported',text:'我是成年大学生',source:{messageId:current,quote:'我是成年大学生'}}
+    const change={target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:current,quote:'我是成年大学生'}}
     assert.equal(Value.Check(schema,{reply:'从当前情况开始。',growthUpdates:[change]}),true)
     assert.equal(Value.Check(schema,{reply:'错误来源',growthUpdates:[{...change,source:{...change.source,messageId:other}}]}),false)
     assert.equal(Value.Check(schema,{reply:'只聊聊。'}),true)

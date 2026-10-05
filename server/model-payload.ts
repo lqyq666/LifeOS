@@ -89,9 +89,14 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
         if(unique.has(ref.id)&&unique.get(ref.id)!==ref.revision)throw new Error('GROWTH_TARGET_REVISION_AMBIGUOUS')
         unique.set(ref.id,ref.revision)
       }
-      const items=compiled.properties?.growthUpdates?.items
+      const updates=compiled.properties?.growthUpdates
+      if(updates)updates.description='只保存本轮最后一条用户消息中的新增本人事实；source.quote必须逐字复制currentUserMessage.text的连续片段，不能取历史消息；本轮没有新事实就输出空数组，寒暄或确认语不是事实。'
+      const items=updates?.items
       if(items?.anyOf)items.anyOf=items.anyOf.filter((branch:any)=>{
         const properties=branch.properties,target=properties?.target
+        // The server derives user_reported text from the verified quote; the
+        // legacy free-text field only ever let models smuggle stale paraphrases.
+        if(properties?.assertion?.const==='user_reported')delete properties.text
         if(target?.anyOf){
           const create=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='create'),replace=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='replace')
           target.anyOf=[create,...Array.from(unique,([id,revision])=>({...replace,properties:{...replace.properties,itemId:{...replace.properties.itemId,enum:[id]},expectedRevision:{...replace.properties.expectedRevision,enum:[revision]}}}))]

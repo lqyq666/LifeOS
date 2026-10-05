@@ -38,6 +38,7 @@ function scenarios():Scenario[]{
         {match:/作品|经历|项目|做过|成果|作业|实践/,answer:'做过一份课程的数据分析作品，是课程作业，不算正式项目。',label:'evidence'},
         {match:/兴趣|喜欢|有意思|好奇|偏好|研究/,answer:'这个我还不知道，没有特别确定的兴趣。',label:'interest-unknown'},
         {match:/家庭|收入|经济|钱|家境/,answer:'这个我不想说。',label:'income-refused'},
+        {match:/具体的选择|困惑|遇到什么|想处理什么|想聊什么/,answer:'没有什么具体的选择，就是想先把方向梳理清楚。',label:'generic-open'},
       ],fallback:'这个我说不好，先继续。'},
       {kind:'answer',topics:[
         {match:/专业|学什么|读什么|统计|年级/,answer:'统计学，大三。',label:'major'},
@@ -185,10 +186,13 @@ function nextCommand(replyText:string|null){
       return{operation:'growthAction',itemId:target.id,value:{requestId:randomUUID(),expectedRevision:target.revision??1,action:'forget'}} as const
     }
     if(step.kind==='fixed'){const text=step.text;advance();return{trajectory:scenario.id,text,sampleClass:step.sampleClass??'ordinary_followup',...(step.newConversation?{newConversation:true}:{})} as const}
-    // answer step: reveal facts only when the actual reply asks about them; a
+    // answer step: reveal facts only when the reply actually asks about them
+    // (match interrogative sentences only, so the model's own framing like
+    // "经历少" or its boundary acknowledgment never counts as a question); a
     // student who is never asked may volunteer the core situation once instead
+    const questionText=replyText?replyText.split(/(?<=[。！？!?；;])|\n/).filter(part=>part.includes('？')||part.includes('?')).join(''):''
     const revealed:string[]=[],answers:string[]=[]
-    for(const topic of step.topics)if(replyText&&topic.match.test(replyText)){revealed.push(topic.label);answers.push(topic.answer)}
+    for(const topic of step.topics)if(questionText&&topic.match.test(questionText)){revealed.push(topic.label);answers.push(topic.answer)}
     let text:string
     if(revealed.length)text=answers.join('')
     else if(step.volunteer)text=step.volunteer
