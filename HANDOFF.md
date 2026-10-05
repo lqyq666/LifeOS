@@ -158,3 +158,4 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - 隔离下载旧5.3.1进行有界子进程实际攻击复现：同一畸形Unix列表达到3秒超时，原证据 ftp-baseline-report.json；修复6.2.2同样1000/10000/100000组输入约57ms完成。新测试走真实127.0.0.1控制/数据socket，MDTM不支持→LIST(RFC3659可解析日期)→RETR读取、缓存ENOTMODIFIED、PASV其他主机被拒绝均通过。原夹具Unix日期只有rawModifiedAt、get-uri原本不支持的首失败保留，不谎称解决该历史行为。
 - npm audit新报告0漏洞（ftp-patched-audit.json）；客户端/依赖47/47、受影响SDK引擎42/42、服务端typecheck与构建通过，Three既有大chunk警告仍在。完整产品业务后端35文件196已在第六批通过；本次只改传递依赖，没有重复无关全恢复。未在生产升级或重启，旧镜像受影响依赖尚存在，补丁发布仍需整体验收和条件部署门槛。
 - 本批Provider 0。付费审批未解决且无重试；模型真实完整校园链、20普通时延/混合费用、更多官方附件/就业/留学路径仍待验证，整体WIP_NOT_READY。
+第八批免费边界补验：迟到旧来源抓取在CAS冲突后不写入快照、不覆盖最新hash/版本；来源读取超过24小时即使维护卡未来到期/hash匹配也在SQL与UI失效，仅恢复读取时间的正对照证明拒绝源于独立新鲜度。官方来源定向7/7、服务端类型通过，日志official-source-boundaries-positive.log/type.log。仅新增回归，无产品/迁移改动，未重复无关全构建与备份。

@@ -94,6 +94,30 @@ test('isolated snapshots require explicit bounded review and source changes atom
     assert.equal((await pool.query('SELECT coach_knowledge_refs_valid($1::jsonb) AS valid',[JSON.stringify([{sourceId:cardId,revision:current}])])).rows[0].valid,false)
     assert.equal((await pool.query('SELECT count(*)::int AS n FROM official_source_snapshots WHERE source_id=$1',[first.id])).rows[0].n,4)
     assert.equal((await pool.query('SELECT count(*)::int AS n FROM official_source_snapshots WHERE source_id=$1 AND raw_bytes IS NOT NULL',[first.id])).rows[0].n,3,'failed check retains all previous raw evidence')
+    await t.test('a delayed older fetch cannot overwrite a newer checked snapshot',async()=>{
+      let announce!:()=>void,release!:(value:{url:string;bytes:Buffer;contentType:string})=>void
+      const started=new Promise<void>(resolve=>{announce=resolve})
+      const waiting=new Promise<{url:string;bytes:Buffer;contentType:string}>(resolve=>{release=resolve})
+      const delayed=syncOfficialSource(entry,async()=>{announce();return waiting})
+      await started
+      const latest=await syncOfficialSource(entry,async()=>({url:entry.url,bytes:Buffer.from(body.toString().replace('统一报名时段','最新报名时段')),contentType:'text/html'}))
+      release({url:entry.url,bytes:body,contentType:'text/html'})
+      await assert.rejects(delayed,{code:'OFFICIAL_SOURCE_CHANGED'})
+      const row=(await pool.query('SELECT revision,current_hash FROM official_sources WHERE id=$1',[first.id])).rows[0]
+      assert.equal(row.revision,latest.revision);assert.equal(row.current_hash,latest.hash)
+      assert.equal((await pool.query('SELECT count(*)::int AS n FROM official_source_snapshots WHERE source_id=$1',[first.id])).rows[0].n,5,'losing fetch writes no contradictory snapshot')
+      assert.equal((await officialSourcesView()).sources[0].claims[0].status,'unverified','successful refetch cannot resurrect an expired earlier review')
+    })
+    await t.test('source freshness expires independently of a claim marked verified with a future review expiry',async()=>{
+      await pool.query("UPDATE campus_knowledge SET status='verified',payload=jsonb_set(payload,'{status}','\"verified\"') WHERE id=$1",[cardId])
+      await pool.query("UPDATE official_sources SET status='fetched',current_hash=$2,checked_at=now()-interval '25 hours' WHERE id=$1",[first.id,extraction.hash])
+      assert.equal((await pool.query('SELECT official_knowledge_current(payload) AS current FROM campus_knowledge WHERE id=$1',[cardId])).rows[0].current,false)
+      assert.equal((await officialSourcesView()).sources[0].claims[0].status,'unverified')
+      const freshRevision=(await pool.query('SELECT revision FROM campus_knowledge WHERE id=$1',[cardId])).rows[0].revision
+      assert.equal((await pool.query('SELECT coach_knowledge_refs_valid($1::jsonb) AS valid',[JSON.stringify([{sourceId:cardId,revision:freshRevision}])])).rows[0].valid,false,'matching hash and future claim expiry do not override an old source check')
+      await pool.query('UPDATE official_sources SET checked_at=now() WHERE id=$1',[first.id])
+      assert.equal((await pool.query('SELECT coach_knowledge_refs_valid($1::jsonb) AS valid',[JSON.stringify([{sourceId:cardId,revision:freshRevision}])])).rows[0].valid,true,'the freshness timestamp alone caused the rejection')
+    })
   }finally{
     if(run)await store.terminateRun(user,run.request_id,'failed','SYNTHETIC_OFFICIAL_CLEANUP')
     await pool.query('DELETE FROM "user" WHERE id=$1',[user])
