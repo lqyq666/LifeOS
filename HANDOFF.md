@@ -177,3 +177,10 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - 用户2026-10-05 12:34明确确认现有百炼账号、严格27.92元、最多8次、无自动重试。二级限制绑定原唯一账本414基线/原grant/hash/旧收据，不增加或合并余额；pending/unknown均永久保守计入次数与金额。模拟费用边界及锁回归通过。原DPAPI加载器正常安全注入子进程，新exec审批已通过Flash首项2次，PARSED_NOT_COMMITTED并非事务或质量通过；Max首次因未注入已有价格在reserve前退出0调用，原失败保留。对照仍在执行，最终真实结果另记，不改默认Flash思考0。
 - 完整校园连续链、真实事务/浏览器、20普通时延及混合预算仍未验收，WIP_NOT_READY；未推送/合main/部署。
 - 八次已全部完成并终止收费，详见COMPARISON_REVIEW.md。估费合计0.2946507元，子余额27.6253493但次数0；Flash/Max/Plus0共6份原文校验拒绝，Max2048两份仅71/65字不完整reply且零更新，人工FAIL。旧空暂存误分类报告保留，最终改NO_GROWTH_UPDATES_NOT_TESTED；补回归非空前置条件，存在产物仍PENDING语义且NOT_TESTED业务。完整离线重放1/1、非空/限制2/2和最新类型通过，8份原始输出/冻结/费用未改。
+
+### 第十一批：本人陈述原文只生成一次（免费）
+
+- 接988f7bf，复用已有事件reportedNode/currentSource与固定TypeBox可选字段机制，不添框架/依赖/迁移。user_reported省略重复text时，服务器验证本轮消息/连续quote/未忘记，再由quote导出text。原带text仍严格校验，不删除或纠正其改写、不改8份真实输出；AI观察/unknown/期限/反馈/依赖规则不变。内部暂存和持久结构仍要求text，生成输入与已核实记录类型分开。提示与修复指令同步，默认Flash0保持。
+- 实际隔离PG事务source-only三项保存，包括团队/本人贡献、短约束、问句边界；来源与text同一原文。旧幻想改写、拼接/省略号、错消息、缺期限、已忘记span及4001字不裁剪全部拒绝；忘记一项不抹独立问句。新动态原生Schema校验、parser、真实finishRun均通过1/1，原growth9/9、payload11/11、最新类型通过。
+- 完整后端39文件209通过（growth-single-source-full.log）；客户端47/47、build通过，Three原chunk提示仍在。原8真实回答免费原样重放仍6份GROWTH_SOURCE_INVALID、2份NO_GROWTH_UPDATES_NOT_TESTED，零Provider/零持久成长/账本字节保持；日志growth-single-source-original-review.log。只修协议冗余，不宣称模型质量已改善。
+- 未改客户端或迁移，不重复Chrome/恢复；上一批真实Chrome三屏界面证据仍适用，本批重点是实际后端来源与保存边界。新协议影响能力签名，旧能力/冻结不自动复用为新版本模型验收。新协议真实模型、真实连续事务/浏览器和20普通时延仍需新增明确调用次数授权；已有账本子余额27.6253493但8次已满，不继续付费。无新账号/资金需求，保持WIP_NOT_READY，未推送/合main/部署。

@@ -5,7 +5,7 @@ import { checkCampusSource } from './campus.ts'
 import { validate } from './contracts.ts'
 import { growthCreateSchema, growthActionSchema, type GrowthCreate, type GrowthAction } from './growth-contracts.ts'
 import type { GrowthItem, GrowthRef, GrowthView } from '../src/features/growth/types.ts'
-import type { GrowthDelta } from './growth-model-contracts.ts'
+import type { GrowthDelta,GrowthInputDelta } from './growth-model-contracts.ts'
 import type { Run } from './store.ts'
 
 type DB = Pick<PoolClient, 'query'>
@@ -154,14 +154,19 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
 }
 
 export type GrowthStaged={changes:GrowthDelta[]}
-export async function stageGrowthUpdates(run:Run,changes:GrowthDelta[],authorized:GrowthItem[]):Promise<GrowthStaged> {
+export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[]):Promise<GrowthStaged> {
   const current=requireRow((await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0])
   const replacements=new Set<string>()
   const unique:GrowthDelta[]=[]
-  for(const delta of changes){
+  for(const change of changes){
+    // Select one source span once. Derivation adds no claim and never repairs a
+    // supplied paraphrase: legacy text remains subject to the same exact guard.
+    const selectedText=change.assertion==='user_reported'&&change.text===undefined?change.source.quote:change.text
+    if(typeof selectedText!=='string')throw new HttpError(400,'GROWTH_SOURCE_INVALID')
+    const delta:GrowthDelta={...change,text:selectedText}
     if(delta.source.messageId!==run.source_message_id||!delta.source.quote.trim()||!current.content.includes(delta.source.quote))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     await checkCampusSource(pool,run.user_id,run.conversation_id,true,{type:'message',id:delta.source.messageId,quote:delta.source.quote})
-    if(delta.assertion==='user_reported'&&!delta.source.quote.includes(delta.text))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
+    if(delta.assertion==='user_reported'&&(!delta.text.trim()||delta.text.length>4000||!delta.source.quote.includes(delta.text)))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     if(delta.target.operation==='replace'){
       const selected=delta.target
       const target=authorized.find(row=>row.id===selected.itemId&&row.revision===selected.expectedRevision)

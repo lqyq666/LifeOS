@@ -11,7 +11,7 @@ const dependencies=Type.Array(Type.Object({id,revision:Type.Integer({minimum:1})
 const reported=Type.Object({
   target,
   kind:Type.Union([Type.Literal('context'),Type.Literal('ability'),Type.Literal('preference'),Type.Literal('goal'),Type.Literal('direction'),Type.Literal('constraint'),Type.Literal('feedback')]),
-  assertion:Type.Literal('user_reported'),text:{...text(),description:'逐字来自source.quote的一项具体本人陈述。兴趣/自评/团队结果仍照原话保留，不能改写成已经证明的个人能力。'},source,
+  assertion:Type.Literal('user_reported'),text:Type.Optional({...text(),description:'兼容旧输出；若提供必须逐字来自source.quote。推荐省略，由服务器直接保存已核实的一项本人原话，避免重复改写。'}),source,
   validUntil:Type.Optional(text(40)),
   progressState:Type.Optional(Type.Union([Type.Literal('unattempted'),Type.Literal('attempted'),Type.Literal('stuck'),Type.Literal('completed'),Type.Literal('unknown')])),
 },{additionalProperties:false,description:'本人本轮明确提供的实际情况。临时时间约束必须给出有当前时间依据的有效期。反馈区分未做/已尝试/卡住/完成动作/不知道，结果未知不等于动作失败。'})
@@ -23,4 +23,5 @@ const observation=Type.Object({
 },{additionalProperties:false,description:'有当前诉求和本人证据的待核对观察/方向权衡/阶段重点。不是用户已经认可或执行。明确局限与仍未知的条件；单次事件不能证明稳定人格、终身能力或确定路径适配。'})
 const unknown=Type.Object({target,kind:Type.Literal('unknown'),assertion:Type.Literal('unknown'),text:text(2000),source},{additionalProperties:false,description:'尚不清楚且会影响本人当前判断的未知，不把拒答改成未知反复追问。纯知识或日常闲聊不建立档案问题。'})
 export const growthDeltaSchema=Type.Union([reported,observation,unknown])
-export type GrowthDelta=Static<typeof growthDeltaSchema>
+export type GrowthInputDelta=Static<typeof growthDeltaSchema>
+export type GrowthDelta=GrowthInputDelta&{text:string}
