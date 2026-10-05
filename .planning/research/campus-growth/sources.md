@@ -23,3 +23,9 @@
 官方价格页华北2北京、2026-10-05读取：Qwen3.8 Flash 输入/输出 ¥0.8/¥2.7 每百万token，Max ¥12/¥36；Qwen3.7 Plus ≤256K 原价 ¥2/¥8（限时优惠不作为长期预算保证）。缓存费率须单独核实，不把免费额度假定为账号现余额。
 
 [官方结构化输出](https://help.aliyun.com/zh/model-studio/qwen-structured-output) 列出 Qwen3.8 Max/Flash、Qwen3.7 Plus/Flash/Max 的 JSON Schema 支持。已有SDK/传输可复用，实际账户及新结构能力仍需真实收据，当前没有更换生产模型。
+
+第三批再次实际核实：官方结构化输出与模型大全可直接读取；价格页在 web 工具两次超时后，本机只读下载成功，保存 `.local/campus-growth/official-model-pricing.html`，SHA256 `0d63b40f60bff1500ca07dd2a1bf3e2d26863ac2844692b1e3cc9b619286b204`。当前北京 Max 12/36、Plus ≤256K 原价2/8、高于256K为6/24，价格档和临时折扣分开。小样本配置只使用已有128K运行上下文档；不预设免费额度或缓存折扣，缓存 token 按完整输入单价保守估算。未知费用仍为未知，不把估算当账单。官方公开支持不证明当前账户模型权限。
+
+候选传输继续复用当前 pi-ai 和 TypeBox，Max/Plus 与 Flash 均关闭思考并使用同一严格 Schema；默认仍 Flash，候选只通过临时进程配置比较。动态成长更正和观察依赖进一步约束真实授权ID/版本配对；首次无成长依据不生成持久化AI观察。新校园夹具及操作入口复用原独立数据库/真实认证/人工逐条输入/同一预算观察器，不安装新的基准框架。
+
+父线程新增受控高推理对照后，核对[官方深度思考](https://help.aliyun.com/zh/model-studio/deep-thinking)：Qwen3.8/3.7可用 enable_thinking 与 thinking_budget；max_completion_tokens 限制思考加回答的总长度。比较仅增加一档2048思考token，上限输出仍8192；实现限配置预算0–4096且必须小于总输出，不默认最高档、不同时传 reasoning_effort。实际已安装 pi-ai@0.73.1 的 openai-completions.js 在 HTTP create 之前等待 onPayload 并使用其返回对象；其 usage.completion_tokens 含推理token，text 与 thinking content 独立。模拟 SDK 回归证实参数传输/完整输出token统计/不显示或保存内部思考。官网控制台默认预算不等于本项目实测档；收益待同场景实测，不能宣称已经更聪明或更快。

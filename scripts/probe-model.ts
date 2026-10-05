@@ -9,8 +9,9 @@ import {renderCoachReply} from '../server/coach-reply.ts'
 import {configureProviderPayload,outputTokenLimit} from '../server/model-payload.ts'
 import {estimateProviderCallCostCny,maximumProviderCallCostCny} from '../server/cost-workload.ts'
 import {redactProbeText,redactProbeValue,probeErrorCategory} from './probe-diagnostics.ts'
-import {CoachProviderBudget,readCoachAuthorization} from './coach-provider-budget.ts'
+import {CoachProviderBudget,readCoachAuthorization,activeCoachFunding} from './coach-provider-budget.ts'
 import {assertCoachSourceFreeze} from './coach-source-freeze.ts'
+import {config} from '../server/config.ts'
 
 const args=process.argv.slice(2),arg=(name:string)=>args[args.indexOf(name)+1]
 const requested=process.env.LIFEOS_MODEL_PROBE_TIER??(args.includes('--tier')?arg('--tier'):'default')
@@ -24,13 +25,14 @@ if(args.includes('--check')&&(!check||!['R1','R2','R3','R4'].includes(check)))th
 const selected=check?[check]:['R1','R2','R3','R4'],runtime=resolveModel(tier)
 if(!runtime.available)throw new Error('MISSING_OR_PLACEHOLDER_CREDENTIAL')
 const authorization=readCoachAuthorization(),budget=new CoachProviderBudget(),funds=budget.snapshot(),maximum=maximumProviderCallCostCny(runtime.model.contextWindow,outputTokenLimit(runtime.model,tier),runtime.pricing)
-if(funds.additional?funds.additional.paused||typeof maximum!=='number'||funds.additional.remainingCny<maximum*selected.length:funds.remaining<selected.length)throw new Error('AUTHORIZED_PROVIDER_CALL_BUDGET_EXHAUSTED')
+const activeFunding=activeCoachFunding(funds)
+if(activeFunding?activeFunding.paused||typeof maximum!=='number'||activeFunding.remainingCny<maximum*selected.length:funds.remaining<selected.length)throw new Error('AUTHORIZED_PROVIDER_CALL_BUDGET_EXHAUSTED')
 const directory=resolve(process.env.LIFEOS_EVIDENCE??'evidence/v1.3-action-coach/provider'),runId='coach-probe-'+tier+'-'+Date.now()+'-'+randomUUID().slice(0,8)
 mkdirSync(directory,{recursive:true})
 const path=resolve(directory,runId+'.json'),signature=modelSignatureFor(tier)
 const redact=(value:unknown)=>redactProbeText(value,[resolveModel('default').apiKey,resolveModel('reasoning').apiKey])
 const serialize=(value:unknown)=>JSON.stringify(redactProbeValue(value,[resolveModel('default').apiKey,resolveModel('reasoning').apiKey]),null,2)+'\n'
-const report:any={at:new Date().toISOString(),runId,status:'RUNNING',evidence:'REAL_PROVIDER_API',contract:'action-coach-v1.3',sourceFreeze:{path:resolve(freezePath),digest:sourceDigest},contractSignature:coachContractSignatureFor(tier),interfaceSignature:coachInterfaceSignatureFor(tier),signature,tier,provider:runtime.model.provider,model:runtime.model.id,maxRetries:0,authorization,checks:{},calls:[],note:'Capability/transport evidence only; not A01–A08 quality or the 20-sample speed acceptance.'}
+const report:any={at:new Date().toISOString(),runId,status:'RUNNING',evidence:'REAL_PROVIDER_API',contract:'action-coach-v1.3',sourceFreeze:{path:resolve(freezePath),digest:sourceDigest},contractSignature:coachContractSignatureFor(tier),interfaceSignature:coachInterfaceSignatureFor(tier),signature,tier,provider:runtime.model.provider,model:runtime.model.id,thinkingBudget:tier==='default'?config.qwenThinkingBudget:0,maxRetries:0,authorization,checks:{},calls:[],note:'Capability/transport evidence only; not A01–A08 quality or the 20-sample speed acceptance.'}
 const save=()=>writeFileSync(path,serialize(report))
 save()
 const messageId='00000000-0000-4000-8000-000000000011'
@@ -46,7 +48,7 @@ async function call(id:keyof typeof inputs){
   let answer:AssistantMessage|null=null,thrown:unknown,firstMs:number|null=null,deltas=0,cancelled=false
   const timer=setTimeout(()=>controller.abort(),60000)
   try{
-    const source=stream(runtime.model,{systemPrompt:turnSystemPrompt(tier==='reasoning'?'reasoning':'default',runtime.model.id),messages:providerTurnMessages(buildTurnPrompt({currentMessageId:messageId,messages:[{id:messageId,role:'user',content:inputs[id]}],currentEvent:id==='R3'?existingEvent:null}),runtime.model)},{apiKey:runtime.apiKey,maxTokens:outputTokenLimit(runtime.model,tier),maxRetries:0,timeoutMs:60000,signal:controller.signal,onPayload:(payload,profile)=>configureProviderPayload(payload,profile,tier,undefined,undefined,outputTokenLimit(runtime.model,tier),messageId,id==='R3'?[existingEvent]:[])})
+    const source=stream(runtime.model,{systemPrompt:turnSystemPrompt(tier==='reasoning'?'reasoning':'default',runtime.model.id),messages:providerTurnMessages(buildTurnPrompt({currentMessageId:messageId,messages:[{id:messageId,role:'user',content:inputs[id]}],currentEvent:id==='R3'?existingEvent:null}),runtime.model)},{apiKey:runtime.apiKey,maxTokens:outputTokenLimit(runtime.model,tier),maxRetries:0,timeoutMs:60000,signal:controller.signal,onPayload:(payload,profile)=>configureProviderPayload(payload,profile,tier,undefined,undefined,outputTokenLimit(runtime.model,tier),messageId,id==='R3'?[existingEvent]:[],[],tier==='default'?config.qwenThinkingBudget:0)})
     for await(const event of source)if(event.type==='text_delta'){
       deltas++;firstMs??=Math.round(performance.now()-started)
       if(id==='R4'&&!cancelled){cancelled=true;controller.abort()}
@@ -72,7 +74,7 @@ async function call(id:keyof typeof inputs){
   try{result=parseActionCoachTurn(text)}catch{}
   const diagnostics={stopReason:stop,elapsedMs:Math.round(performance.now()-started),firstRawDeltaMs:firstMs,deltas,usage:recordedUsage??'unknown',estimatedCostCny:cost,callId:receipt.callId,cancelledAfterDelta:cancelled,errorCategory:thrown||stop==='error'?probeErrorCategory(redact(answer?.errorMessage??thrown)):null}
   if(id==='R1')report.checks.streaming={passed:stop==='stop'&&deltas>1&&Boolean(result&&/[\u4e00-\u9fff]/.test(result.reply)),...diagnostics,reply:result?.reply??null,note:'Raw delta timing is transport evidence, not meaningful first content.'}
-  if(id==='R2')report.checks.freeOutput={passed:stop==='stop'&&Boolean(result&&!result.event&&!result.background?.length&&!result.experienceCandidate&&!result.citations?.length),...diagnostics,reply:result?.reply??null,output:result??null}
+  if(id==='R2')report.checks.freeOutput={passed:stop==='stop'&&Boolean(result&&!result.event&&!result.background?.length&&!result.growthUpdates?.length&&!result.experienceCandidate&&!result.citations?.length),...diagnostics,reply:result?.reply??null,output:result??null}
   if(id==='R3'){
     const target=result?.event?.target,action=result?.event?.action
     const validSource=target?.operation==='continue'&&target.eventId===existingEvent.id&&target.expectedRevision===existingEvent.revision
@@ -87,7 +89,8 @@ async function call(id:keyof typeof inputs){
 }
 try{for(const id of selected)await call(id as keyof typeof inputs)}catch(error){report.errorCategory=probeErrorCategory(redact(error));report.status='FAIL';save();throw error}
 report.status=Object.values(report.checks).every((value:any)=>value.passed===true)?check?'CHECK_PASS':'PASS':'FAIL'
-report.authorizationAfter=budget.snapshot().remaining;save()
+const fundsAfter=budget.snapshot()
+report.authorizationAfter=fundsAfter.remaining;report.activeFundingAfter=activeCoachFunding(fundsAfter);save()
 if(report.status==='PASS'){
   const capability=resolve(directory,`coach-capabilities-${tier}.json`)
   if(existsSync(capability))copyFileSync(capability,resolve(directory,`coach-capabilities-${tier}-previous-${Date.now()}.json`))

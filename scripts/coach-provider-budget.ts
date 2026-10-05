@@ -2,6 +2,9 @@ import {readFileSync,writeFileSync,mkdirSync,openSync,closeSync,unlinkSync,renam
 import {resolve,dirname,sep} from 'node:path'
 import {createHash,randomUUID} from 'node:crypto'
 const digest=(bytes:string|Buffer)=>createHash('sha256').update(bytes).digest('hex')
+// Preflight and reservation must use the same active grant. Historical funds
+// remain auditable but never supplement or replace an activated current grant.
+export const activeCoachFunding=(snapshot:any)=>snapshot.currentGrant??snapshot.additional??null
 
 export function readCoachAuthorization(root=process.cwd()){
   const directory=resolve(root,'evidence/v1.2.1-reliability/20261003-authorized300-11')

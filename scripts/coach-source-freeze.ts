@@ -22,7 +22,9 @@ export function captureCoachSource(root=process.cwd()){
   files.sort((a,b)=>a.path.localeCompare(b.path))
   for(const required of ['package.json','server/turn-engine.ts','server/action-coach-contracts.ts','src/backend/client.ts'])if(!files.some(file=>file.path===required))throw new Error('SOURCE_FREEZE_INCOMPLETE')
   const runtime={node:process.version,platform:process.platform,arch:process.arch,embedding:embeddingSignature,generationConcurrency:config.generationConcurrency,generationQueueLimit:config.generationQueueLimit,access:{entitlementsEnabled:config.entitlementsEnabled,providerBudgetEnabled:config.providerBudgetEnabled,providerBudgetId:config.providerBudgetId,signupEnabled:config.signupEnabled},models:(['default','reasoning'] as const).map(tier=>{const route=resolveModel(tier);return {tier,provider:route.model.provider,model:route.model.id,available:route.available,signature:modelSignatureFor(tier),contractSignature:coachContractSignatureFor(tier),interfaceSignature:coachInterfaceSignatureFor(tier),pricing:route.pricing}})}
-  return {kind:'FROZEN_SOURCE_AND_RUNTIME_CONFIG' as const,files,runtime,digest:hash(JSON.stringify({files,runtime}))}
+  const comparison={qwenThinkingBudget:config.qwenThinkingBudget}
+  const exactRuntime={...runtime,comparison}
+  return {kind:'FROZEN_SOURCE_AND_RUNTIME_CONFIG' as const,files,runtime:exactRuntime,digest:hash(JSON.stringify({files,runtime:exactRuntime}))}
 }
 export function assertCoachSourceFreeze(path:string,root=process.cwd()){
   const frozen=JSON.parse(readFileSync(path,'utf8')),current=captureCoachSource(root)

@@ -14,8 +14,12 @@ const configured=(primary:string,alias:string,fallback:string)=>process.env[alia
 const bailianBaseUrl='https://dashscope.aliyuncs.com/compatible-mode/v1'
 const defaultProvider='bailian'
 const defaultModelId=process.env.LIFEOS_MODEL_DEFAULT_ID?.trim()||file.LIFEOS_MODEL_DEFAULT_ID?.trim()||'qwen3.8-flash'
-if(!['qwen3.8-flash','deepseek-v4.1-flash'].includes(defaultModelId))throw new Error('Unsupported LIFEOS_MODEL_DEFAULT_ID; use an already configured Bailian model')
+if(!['qwen3.8-flash','qwen3.8-max','qwen3.7-plus','deepseek-v4.1-flash'].includes(defaultModelId))throw new Error('Unsupported LIFEOS_MODEL_DEFAULT_ID; use a reviewed Bailian model')
 const defaultApiKey=env.LIFEOS_MODEL_DEFAULT_API_KEY||env.LIFEOS_DEFAULT_API_KEY||env.DASHSCOPE_API_KEY||''
+const thinkingBudgetRaw=process.env.LIFEOS_QWEN_THINKING_BUDGET??file.LIFEOS_QWEN_THINKING_BUDGET??'0'
+if(!/^\d+$/.test(thinkingBudgetRaw)||Number(thinkingBudgetRaw)>4096)throw new Error('LIFEOS_QWEN_THINKING_BUDGET must be an integer from 0 to 4096')
+const qwenThinkingBudget=Number(thinkingBudgetRaw)
+if(qwenThinkingBudget&&!['qwen3.8-flash','qwen3.8-max','qwen3.7-plus'].includes(defaultModelId))throw new Error('Bounded Qwen thinking requires a reviewed Qwen model')
 const reasoningProvider='bailian'
 const reasoningId='deepseek-v4.1-flash'
 const tierConfig=(tier:'REASONING'|'DEEP')=>{
@@ -35,12 +39,13 @@ export const config = {
   databaseUrl: env.DATABASE_URL ?? '',
   authSecret: env.BETTER_AUTH_SECRET ?? '',
   apiKey: defaultApiKey,
+  qwenThinkingBudget,
   modelTiers:{
     default:{provider:defaultProvider,id:defaultModelId,baseUrl:configured('LIFEOS_MODEL_DEFAULT_BASE_URL','LIFEOS_DEFAULT_BASE_URL',bailianBaseUrl),apiKey:defaultApiKey},
     reasoning:tierConfig('REASONING'),
     deep:tierConfig('DEEP'),
   },
-  modelPricingJson:env.LIFEOS_MODEL_PRICING_JSON??'{}',
+  modelPricingJson:process.env.LIFEOS_MODEL_PRICING_JSON??env.LIFEOS_MODEL_PRICING_JSON??'{}',
   providerBudgetEnabled: env.LIFEOS_PROVIDER_BUDGET_ENABLED==='true'||(production&&env.LIFEOS_PROVIDER_BUDGET_ENABLED!=='false'),
   providerBudgetId: env.LIFEOS_PROVIDER_BUDGET_ID??'production',
   entitlementsEnabled: env.LIFEOS_ENTITLEMENTS_ENABLED==='true'||(production&&env.LIFEOS_ENTITLEMENTS_ENABLED!=='false'),

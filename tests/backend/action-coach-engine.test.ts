@@ -38,6 +38,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       const content=typeof output==='string'?output:JSON.stringify(output)
       res.writeHead(200,{'Content-Type':'text/event-stream'})
       const base={id:'synthetic-coach-'+requests.length,object:'chat.completion.chunk',created:1,model:streamed?.responseModel??model.id}
+      for(const thought of streamed?.thinkingChunks??[])res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{reasoning_content:thought},finish_reason:null}]})+'\n\n')
       if(streamed?.chunks){
         for(const chunk of streamed.chunks){
           res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:chunk},finish_reason:null}]})+'\n\n')
@@ -71,6 +72,19 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       assert.ok(!JSON.stringify(state.growth).includes('先探索就业'))
       assert.deepEqual(input.staged.usedGrowthRefs,[{id:original.id,revision:2}])
       await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+    })
+    await t.test('bounded thinking reaches SDK transport, counts full completion tokens and never exposes internal reasoning',async()=>{
+      const previous=config.qwenThinkingBudget,input=await prepare('时间有限，需要权衡课程和探索方向。')
+      try{
+        config.qwenThinkingBudget=2048
+        const marker='SYNTHETIC_INTERNAL_REASONING_NOT_USER_CONTENT',reply='先保留课程底线，再缩小探索范围。'
+        outputs.push({chunks:[JSON.stringify({reply})],thinkingChunks:[marker],usage:{prompt_tokens:200,completion_tokens:300,total_tokens:500,prompt_tokens_details:{cached_tokens:0}}})
+        const result=await engine(input)
+        assert.equal(requests.at(-1).enable_thinking,true);assert.equal(requests.at(-1).thinking_budget,2048)
+        assert.equal((result.usage as any).outputTokens,300,'completion usage includes reasoning, not just answer tokens')
+        assert.equal(result.text,reply);assert.ok(!captured.at(-1)!.text.includes(marker))
+        await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      }finally{config.qwenThinkingBudget=previous}
     })
     await t.test('automatic growth changes pass through the SDK schema and durable turn completion',async()=>{
       const input=await prepare('我是成年大学生，目前每周只有四小时。'),source={messageId:input.run.source_message_id,quote:'我是成年大学生'}

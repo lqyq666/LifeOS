@@ -41,6 +41,48 @@ test('each request binds every new process source to its own current message wit
   assert.throws(()=>configureProviderPayload({}, {provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,'not-a-source-id'),/CURRENT_MESSAGE_ID_INVALID/)
 })
 
+test('growth replace and observation dependencies bind exact authorized id/revision pairs before generation',()=>{
+  const current='00000000-0000-4000-8000-000000000011',first={id:'00000000-0000-4000-8000-000000000021',revision:2},second={id:'00000000-0000-4000-8000-000000000031',revision:3}
+  const make=(refs:{id:string;revision:number}[])=>((configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,current,[],refs) as any).response_format.json_schema.schema)
+  const create={target:{operation:'create'},kind:'context',assertion:'user_reported',text:'每周三小时',source:{messageId:current,quote:'每周三小时'}}
+  assert.equal(Value.Check(make([]),{reply:'记录明确情况',growthUpdates:[create]}),true)
+  const replace={...create,target:{operation:'replace',itemId:first.id,expectedRevision:first.revision}}
+  assert.equal(Value.Check(make([]),{reply:'无授权目标',growthUpdates:[replace]}),false)
+  assert.equal(Value.Check(make([first,second]),{reply:'更正',growthUpdates:[replace]}),true)
+  assert.equal(Value.Check(make([first,second]),{reply:'混用版本',growthUpdates:[{...replace,target:{...replace.target,expectedRevision:3}}]}),false)
+  const observation={target:{operation:'create'},kind:'observation',assertion:'ai_observation',text:'先缩小投入',source:create.source,dependencies:[first],limitation:'尚不清楚课程安排'}
+  assert.equal(Value.Check(make([]),{reply:'没有本人依据',growthUpdates:[observation]}),false)
+  assert.equal(Value.Check(make([first]),{reply:'待核对',growthUpdates:[observation]}),true)
+  assert.equal(Value.Check(make([second]),{reply:'旧引用',growthUpdates:[observation]}),false)
+  assert.throws(()=>make([first,{...first,revision:3}]),/GROWTH_TARGET_REVISION_AMBIGUOUS/)
+})
+
+test('reviewed Qwen alternatives retain strict source identity, no thinking and optional grounded growth updates',()=>{
+  const current='00000000-0000-4000-8000-000000000011',other='00000000-0000-4000-8000-000000000012'
+  for(const id of ['qwen3.8-flash','qwen3.8-max','qwen3.7-plus']){
+    const payload=configureProviderPayload({model:id,max_tokens:4096,stream:true},{provider:'bailian',id},'default',undefined,undefined,8192,current,[]) as any
+    assert.equal(payload.enable_thinking,false);assert.equal(payload.response_format.type,'json_schema');assert.equal(payload.response_format.json_schema.strict,true)
+    assert.equal(payload.max_completion_tokens,8192);assert.equal(payload.max_tokens,undefined)
+    const schema=payload.response_format.json_schema.schema
+    const change={target:{operation:'create'},kind:'context',assertion:'user_reported',text:'我是成年大学生',source:{messageId:current,quote:'我是成年大学生'}}
+    assert.equal(Value.Check(schema,{reply:'从当前情况开始。',growthUpdates:[change]}),true)
+    assert.equal(Value.Check(schema,{reply:'错误来源',growthUpdates:[{...change,source:{...change.source,messageId:other}}]}),false)
+    assert.equal(Value.Check(schema,{reply:'只聊聊。'}),true)
+  }
+})
+
+test('explicit higher-thinking comparison caps total output, avoids conflicting effort parameters and defaults off',()=>{
+  const profile={provider:'bailian',id:'qwen3.8-max'}
+  const make=(budget:number,limit=8192)=>configureProviderPayload({reasoning_effort:'xhigh',thinking_budget:32768,max_tokens:4096},profile,'default',undefined,undefined,limit,undefined,undefined,undefined,budget) as any
+  const thinking=make(2048)
+  assert.equal(thinking.enable_thinking,true);assert.equal(thinking.thinking_budget,2048)
+  assert.equal(thinking.max_completion_tokens,8192);assert.equal(thinking.max_tokens,undefined);assert.equal(thinking.reasoning_effort,undefined)
+  const ordinary=make(0)
+  assert.equal(ordinary.enable_thinking,false);assert.equal(ordinary.thinking_budget,undefined)
+  for(const budget of [-1,4097,1.5,NaN])assert.throws(()=>make(budget),/QWEN_THINKING_BUDGET_INVALID/)
+  assert.throws(()=>make(2048,2048),/QWEN_THINKING_BUDGET_INVALID/)
+})
+
 test('Qwen receives the natural reply contract without required planning or analysis objects',()=>{
   const payload=configureProviderPayload({model:'qwen3.8-flash',messages:[],stream:true,max_tokens:4096},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192) as any
   assert.equal(payload.enable_thinking,false)

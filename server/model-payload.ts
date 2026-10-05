@@ -21,13 +21,17 @@ function providerSchema(value:unknown,currentMessageId?:string):unknown{
   ]))
 }
 
-export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[]):unknown{
+export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0):unknown{
   if(currentMessageId&&!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(currentMessageId))throw new Error('CURRENT_MESSAGE_ID_INVALID')
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return payload
   const body={...payload as Record<string,unknown>}
   if(profile.provider!=='bailian')return payload
-  if(profile.id==='qwen3.8-flash'){
-    body.enable_thinking=false
+  if(['qwen3.8-flash','qwen3.8-max','qwen3.7-plus'].includes(profile.id)){
+    if(!Number.isSafeInteger(thinkingBudget)||thinkingBudget<0||thinkingBudget>4096||(thinkingBudget>0&&(!maxOutputTokens||thinkingBudget>=maxOutputTokens)))throw new Error('QWEN_THINKING_BUDGET_INVALID')
+    body.enable_thinking=thinkingBudget>0
+    delete body.reasoning_effort
+    delete body.thinking_budget
+    if(thinkingBudget>0)body.thinking_budget=thinkingBudget
     body.temperature=0
     body.presence_penalty=0
     const compiled=providerSchema(schema,currentMessageId) as any
@@ -73,6 +77,28 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
           if(branches.length)eventProperties.action.anyOf=branches
         }
       }
+    }
+    if(growthTargets){
+      const unique=new Map<string,number>()
+      for(const ref of growthTargets){
+        if(!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(ref.id)||!Number.isInteger(ref.revision)||ref.revision<1)throw new Error('GROWTH_TARGET_INVALID')
+        if(unique.has(ref.id)&&unique.get(ref.id)!==ref.revision)throw new Error('GROWTH_TARGET_REVISION_AMBIGUOUS')
+        unique.set(ref.id,ref.revision)
+      }
+      const items=compiled.properties?.growthUpdates?.items
+      if(items?.anyOf)items.anyOf=items.anyOf.filter((branch:any)=>{
+        const properties=branch.properties,target=properties?.target
+        if(target?.anyOf){
+          const create=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='create'),replace=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='replace')
+          target.anyOf=[create,...Array.from(unique,([id,revision])=>({...replace,properties:{...replace.properties,itemId:{...replace.properties.itemId,enum:[id]},expectedRevision:{...replace.properties.expectedRevision,enum:[revision]}}}))]
+        }
+        if(properties?.assertion?.const==='ai_observation'){
+          if(!unique.size)return false
+          const dependency=properties.dependencies.items
+          properties.dependencies.items={anyOf:Array.from(unique,([id,revision])=>({...dependency,properties:{...dependency.properties,id:{...dependency.properties.id,enum:[id]},revision:{...dependency.properties.revision,enum:[revision]}}}))}
+        }
+        return true
+      })
     }
     body.response_format={type:'json_schema',json_schema:{name:schemaName,strict:true,schema:compiled}}
     if(maxOutputTokens)body.max_completion_tokens=maxOutputTokens

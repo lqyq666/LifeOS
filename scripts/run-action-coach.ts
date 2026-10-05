@@ -5,9 +5,10 @@ import {createInterface} from 'node:readline'
 import {Client} from 'pg'
 import {config} from '../server/config.ts'
 import {assertCoachSourceFreeze} from './coach-source-freeze.ts'
-import {CoachProviderBudget} from './coach-provider-budget.ts'
+import {CoachProviderBudget,activeCoachFunding} from './coach-provider-budget.ts'
 import {coachBudgetObserver} from './coach-budget-observer.ts'
 import {collectCoachStream,coachSpeedSummary} from './coach-stream-evidence.ts'
+import {campusCostSummary} from './campus-benchmark-summary.ts'
 
 // Operator supplies synthetic user answers after reading each actual reply.
 // Hidden fixture facts and review criteria are never included in model requests.
@@ -16,16 +17,20 @@ if(preflight&&process.argv.includes('--paid'))throw new Error('PREFLIGHT_AND_PAI
 if(!preflight&&!process.argv.includes('--paid'))throw new Error('Explicit --paid or no-provider --preflight is required; no provider request made.')
 const option=(name:string)=>{const i=process.argv.indexOf(name),value=process.argv[i+1];if(i<0||!value||value.startsWith('--'))throw new Error(name+' is required');return value}
 const freezePath=resolve(option('--freeze')),sourceDigest=assertCoachSourceFreeze(freezePath)
-const budget=new CoachProviderBudget(),availableBudget=budget.snapshot();if(!preflight&&availableBudget.remaining<1&&!(availableBudget.additional&&!availableBudget.additional.paused&&availableBudget.additional.remainingCny>0))throw new Error('AUTHORIZED_PROVIDER_CALL_BUDGET_EXHAUSTED')
+const budget=new CoachProviderBudget(),availableBudget=budget.snapshot(),funding=activeCoachFunding(availableBudget);if(!preflight&&(funding?funding.paused||funding.remainingCny<=0:availableBudget.remaining<1))throw new Error('AUTHORIZED_PROVIDER_CALL_BUDGET_EXHAUSTED')
 const mainURL=new URL(config.databaseUrl)
 if(!['127.0.0.1','localhost','::1'].includes(mainURL.hostname)||decodeURIComponent(mainURL.pathname.slice(1))!=='lifeos')throw new Error('LOCAL_PRIMARY_IDENTITY_REQUIRED')
 const runId='coach-'+randomUUID(),databaseName='lifeos_dialogue_live_'+randomUUID().replaceAll('-',''),target=new URL(mainURL)
 target.pathname='/'+databaseName
 const directory=resolve('evidence/v1.3-action-coach/real',runId),privateDirectory=resolve('.local/v1.3-action-coach',runId)
 mkdirSync(directory,{recursive:true});mkdirSync(privateDirectory,{recursive:true})
-const fixtureBytes=readFileSync('tests/fixtures/action-coach-trajectories.json'),fixture=JSON.parse(fixtureBytes.toString())
-const report:any={runId,evidence:preflight?'REAL_HTTP_AUTH_ISOLATED_POSTGRESQL_NO_PROVIDER_PREFLIGHT':'REAL_PROVIDER_REAL_HTTP_REAL_AUTH_REAL_ISOLATED_POSTGRESQL_SYNTHETIC_USER',sourceDigest,fixtureSha256:createHash('sha256').update(fixtureBytes).digest('hex'),databaseName,createdAt:new Date().toISOString(),status:'NOT_READY',humanSemanticReview:'PENDING',turns:[],operations:[],trajectoryConversations:{},maximumUserTurns:47,automaticRetry:false}
-const save=()=>{report.speed=coachSpeedSummary(report.turns);writeFileSync(resolve(directory,'report.json'),JSON.stringify(report,null,2)+'\n')}
+const fixturePath=process.argv.includes('--fixture')?option('--fixture'):'tests/fixtures/action-coach-trajectories.json'
+if(!['tests/fixtures/action-coach-trajectories.json','tests/fixtures/campus-growth-trajectories.json'].includes(fixturePath))throw new Error('REVIEWED_FIXTURE_PATH_REQUIRED')
+const fixtureBytes=readFileSync(fixturePath),fixture=JSON.parse(fixtureBytes.toString()),campus=fixture.kind==='SYNTHETIC_ADULT_CAMPUS_GROWTH_OPERATOR_FIXTURE'
+if(campus){config.messagesPerMinute=1000;config.messagesPerDay=1000}
+const report:any={runId,evidence:preflight?'REAL_HTTP_AUTH_ISOLATED_POSTGRESQL_NO_PROVIDER_PREFLIGHT':'REAL_PROVIDER_REAL_HTTP_REAL_AUTH_REAL_ISOLATED_POSTGRESQL_SYNTHETIC_USER',sourceDigest,fixturePath,fixtureSha256:createHash('sha256').update(fixtureBytes).digest('hex'),databaseName,comparisonMode:{model:config.modelTiers.default.id,thinkingBudget:config.qwenThinkingBudget},createdAt:new Date().toISOString(),status:'NOT_READY',humanSemanticReview:'PENDING',turns:[],operations:[],trajectoryConversations:{},maximumUserTurns:campus?null:47,automaticRetry:false}
+const save=()=>{report.speed=coachSpeedSummary(report.turns);if(campus)report.mixedCost=campusCostSummary(report.turns,report.providerCalls??[]);writeFileSync(resolve(directory,'report.json'),JSON.stringify(report,null,2)+'\n')}
+report.runtimeAccess={entitlementsEnabled:config.entitlementsEnabled,providerBudgetEnabled:config.providerBudgetEnabled,messagesPerMinute:config.messagesPerMinute,messagesPerDay:config.messagesPerDay,quotaEvidence:campus?'SYNTHETIC_COHORT_RATE_OVERRIDE_NOT_PUBLIC_THROTTLE_ACCEPTANCE':'ACTUAL_LOCAL_CONFIGURATION'}
 save()
 const admin=new Client({connectionString:mainURL.href});await admin.connect()
 try{await admin.query(`CREATE DATABASE "${databaseName}"`)}finally{await admin.end()}
@@ -85,7 +90,7 @@ try{
     writeFileSync(resolve(privateDirectory,name),text,{flag:'wx',mode:0o600})
     const request=payload as any
     report.providerRequests??=[]
-    report.providerRequests.push({logicalCallId:call.callId,purpose:call.purpose,sha256:createHash('sha256').update(text).digest('hex'),chars:text.length,model:request.model,enableThinking:request.enable_thinking,temperature:request.temperature,responseFormat:request.response_format?.type,maxCompletionTokens:request.max_completion_tokens,evidence:'ACTUAL_SDK_OUTGOING_BODY_PRIVATE_SYNTHETIC_CONTEXT_NO_CREDENTIAL_HEADERS'})
+    report.providerRequests.push({logicalCallId:call.callId,purpose:call.purpose,sha256:createHash('sha256').update(text).digest('hex'),chars:text.length,model:request.model,enableThinking:request.enable_thinking,thinkingBudget:request.thinking_budget??0,temperature:request.temperature,responseFormat:request.response_format?.type,maxCompletionTokens:request.max_completion_tokens,evidence:'ACTUAL_SDK_OUTGOING_BODY_PRIVATE_SYNTHETIC_CONTEXT_NO_CREDENTIAL_HEADERS'})
     save()
   }
   providerCallObserver.output=(call,text)=>{
@@ -114,13 +119,15 @@ try{
   }
   const user=(await api('/api/session')).id
   report.origin=origin;save()
-  console.log(JSON.stringify({ready:true,runId,origin,directory,databaseName,instructions:'JSONL stdin: {trajectory:A01..A08,text:<explicit user answer>,sampleClass:opening|ordinary_followup|long_material}. {newConversation:true} creates a new conversation for the same trajectory. {operation:memorySettings,value:{requestId:<uuid>,enabled:true,expectedRevision:<current revision>}}. {operation:exit} drains and preserves this isolated DB for formal UI review. No automatic answers/retries.'}))
+  console.log(JSON.stringify({ready:true,runId,origin,directory,databaseName,fixtureIds:fixture.trajectories.map((row:any)=>row.id),instructions:'JSONL stdin: {trajectory:<fixture id>,text:<explicit user answer>,sampleClass:opening|ordinary_followup|long_material}. {newConversation:true} creates a new conversation for the same trajectory. {operation:memorySettings,value:{requestId:<uuid>,enabled:true,expectedRevision:<current revision>}}. {operation:exit} drains and preserves this isolated DB for formal UI review. No automatic answers/retries.'}))
   if(preflight){
     const conversation=await api('/api/conversations',{id:randomUUID(),title:'NO PROVIDER preflight'})
     const event=await api('/api/conversations/'+conversation.id+'/event')
     if(event!==null)throw new Error('PREFLIGHT_EVENT_SHOULD_BE_EMPTY')
     const memory=await api('/api/memory?conversation='+conversation.id)
-    report.preflight={actualDatabase:databaseName,auth:true,conversation:true,eventRead:true,memoryRead:!!memory,paidCalls:0};save()
+    const growth=await api('/api/growth?conversation='+conversation.id)
+    if(!Array.isArray(growth.items)||growth.items.length)throw new Error('PREFLIGHT_GROWTH_SHOULD_BE_EMPTY')
+    report.preflight={actualDatabase:databaseName,auth:true,conversation:true,eventRead:true,memoryRead:!!memory,growthRead:true,fixturePath,paidCalls:0};save()
     console.log(JSON.stringify({preflight:'PASS',...report.preflight}))
   }else for await(const line of (inputLines=createInterface({input:process.stdin,crlfDelay:Infinity}))){
     if(!line.trim())continue
@@ -129,6 +136,13 @@ try{
     if(command.operation==='exit')break
     if(command.operation==='readMemory'){
       const value=await api('/api/memory');console.log(JSON.stringify({operation:'readMemory',value}));continue
+    }
+    if(command.operation==='readGrowth'){
+      const value=await api('/api/growth');console.log(JSON.stringify({operation:'readGrowth',value}));continue
+    }
+    if(command.operation==='growthAction'){
+      const value=await api('/api/growth/'+command.itemId+'/actions',command.value)
+      report.operations.push({at:new Date().toISOString(),operation:'growthAction',value});save();console.log(JSON.stringify({operation:'growthAction',value}));continue
     }
     if(command.operation==='revokeVerifiedSource'){
       const card=cards.find((card:any)=>card.id===command.sourceId)
@@ -152,10 +166,10 @@ try{
       console.log(JSON.stringify({operation:'seedA07Distractors',count,paidCalls:0,quotaEffect:seeded.quotaEffect}));continue
     }
     if(!fixture.trajectories.some((item:any)=>item.id===command.trajectory)||typeof command.text!=='string'||!command.text.trim()||command.text.length>16000||!['opening','ordinary_followup','long_material'].includes(command.sampleClass))throw new Error('EXPLICIT_TRAJECTORY_TEXT_AND_SAMPLE_CLASS_REQUIRED')
-    if(report.turns.length>=47)throw new Error('MAXIMUM_USER_TURNS_REACHED')
+    if(report.maximumUserTurns!==null&&report.turns.length>=report.maximumUserTurns)throw new Error('MAXIMUM_USER_TURNS_REACHED')
     const id=command.trajectory
     if(!report.trajectoryConversations[id]||command.newConversation){
-      const conversation=await api('/api/conversations',{id:randomUUID(),title:'V1.3 '+id})
+      const conversation=await api('/api/conversations',{id:randomUUID(),title:(campus?'Campus growth ':'V1.3 ')+id})
       report.trajectoryConversations[id]=conversation.id
     }
     const conversationId=report.trajectoryConversations[id],requestId=randomUUID()
@@ -165,7 +179,7 @@ try{
       const started=performance.now()
       const response=await fetch(origin+'/api/conversations/'+conversationId+'/messages',{method:'POST',headers,body:JSON.stringify({requestId,text:command.text})})
       const measured=await collectCoachStream(response,started)
-      Object.assign(turn,measured,{status:'SAVED',providerCallCount:measured.done.upstreamCalls,event:await api('/api/conversations/'+conversationId+'/event')})
+      Object.assign(turn,measured,{status:'SAVED',providerCallCount:measured.done.upstreamCalls,event:await api('/api/conversations/'+conversationId+'/event'),...(campus?{growth:await api('/api/growth?conversation='+conversationId)}:{})})
       console.log(JSON.stringify({trajectory:id,turn:report.turns.length,...measured}))
     }catch(error){turn.status='FAILED';turn.error=error instanceof Error?error.message:'UNKNOWN';turn.streamEvidence=(error as any)?.streamEvidence??null;console.log(JSON.stringify({trajectory:id,turn:report.turns.length,error:turn.error,retry:false}))}
     finally{report.providerCalls=budget.snapshot().calls.filter((call:any)=>call.runId===runId);save()}

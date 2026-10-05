@@ -28,7 +28,7 @@ function parsePrices():Record<string,ModelPricing>{
 }
 const prices=parsePrices()
 function makeModel(profile:ModelProfile):Model<'openai-completions'>{
-  const supportsBailianThinking=profile.provider==='bailian'&&['qwen3.8-flash','deepseek-v4.1-flash'].includes(profile.id)
+  const supportsBailianThinking=profile.provider==='bailian'&&['qwen3.8-flash','qwen3.8-max','qwen3.7-plus','deepseek-v4.1-flash'].includes(profile.id)
   return {
   id:profile.id, name:profile.id, provider:profile.provider,
   api: 'openai-completions', baseUrl:profile.baseUrl,
@@ -61,14 +61,14 @@ export function modelSignatureFor(tier:ModelTier){
 export const modelSignature=modelSignatureFor('default')
 export function coachContractSignatureFor(tier:ModelTier){
   const route=resolveModel(tier)
-  return createHash('sha256').update(JSON.stringify({version:'action-coach-v1.3',schema:actionCoachTurnSchema,prompt:turnSystemPrompt(tier==='reasoning'?'reasoning':'default',route.model.id),dialogueTransport:providerTurnMessages.toString(),rendering:renderCoachReply.toString(),payload:configureProviderPayload({},route.model,tier),outputTokenLimit:outputTokenLimit(route.model,tier)})).digest('hex')
+  return createHash('sha256').update(JSON.stringify({version:'action-coach-v1.3',schema:actionCoachTurnSchema,prompt:turnSystemPrompt(tier==='reasoning'?'reasoning':'default',route.model.id),dialogueTransport:providerTurnMessages.toString(),rendering:renderCoachReply.toString(),payload:configureProviderPayload({},route.model,tier,undefined,undefined,outputTokenLimit(route.model,tier),undefined,undefined,undefined,tier==='default'?config.qwenThinkingBudget:0),outputTokenLimit:outputTokenLimit(route.model,tier)})).digest('hex')
 }
 // API capabilities survive business prompt/rendering changes. Keep the legacy
 // combined signature above for old evidence; never rewrite its historical hash.
 export function coachInterfaceSignatureFor(tier:ModelTier){
   const route=resolveModel(tier)
   const structural=(value:unknown):unknown=>Array.isArray(value)?value.map(structural):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).filter(([key])=>key!=='description').map(([key,item])=>[key,structural(item)])):value
-  return createHash('sha256').update(JSON.stringify({version:'action-coach-interface-v1',model:modelSignatureFor(tier),api:route.model.api,compat:route.model.compat,schema:structural(actionCoachTurnSchema),payload:structural(configureProviderPayload({},route.model,tier)),payloadImplementation:configureProviderPayload.toString(),outputTokenLimit:outputTokenLimit(route.model,tier),transport:{stream:true,cancel:true,maxRetries:0}})).digest('hex')
+  return createHash('sha256').update(JSON.stringify({version:'action-coach-interface-v1',model:modelSignatureFor(tier),api:route.model.api,compat:route.model.compat,schema:structural(actionCoachTurnSchema),payload:structural(configureProviderPayload({},route.model,tier,undefined,undefined,outputTokenLimit(route.model,tier),undefined,undefined,undefined,tier==='default'?config.qwenThinkingBudget:0)),payloadImplementation:configureProviderPayload.toString(),outputTokenLimit:outputTokenLimit(route.model,tier),transport:{stream:true,cancel:true,maxRetries:0}})).digest('hex')
 }
 export function coachCapabilityReuseProof(report:any,tier:ModelTier){
   if(report?.interfaceSignature!==undefined||report?.contractSignature!==coachContractSignatureFor(tier)||!coachCapabilityReportMatches(report,tier))throw new Error('CAPABILITY_EQUIVALENCE_NOT_PROVEN')
