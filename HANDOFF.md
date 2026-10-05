@@ -2,7 +2,15 @@
 
 工作区为 D:\aaaLife\LifeOS。当前 LifeOS V1.3 精简源码仓库。默认模型保持 qwen3.8-flash。整体状态 WIP_NOT_READY。生产已部署于 https://lqynb.xyz（2026-10-05，见下），正式验收未完成。
 
-## 2026-10-05 当前接续：拒绝优先、统一去重与新增测试授权
+## 2026-10-05 当前接续：真实失败复现与帮助角色核对
+
+- 接续本地 `2eaa4bb`，仍在 `fix/coach-material-boundaries-20261005`。真实运行 `coach-74470d15-383d-4e10-b97a-1bbdc02e73ad` 已关闭，原报告和 `operator-review.json` 保留。A05 两轮直接材料与同一 action rev1→2 保持确认需求目的，但首轮回复复述、有效首内容约 9.18 秒；A01 只执行三轮，仍未通过：追问材料被拒绝后修复，第三轮反转帮助关系，不能称闭环或整体验收通过。
+- A01 原始输入“用途说明和有没有再试别的发送方式，这两个细节我记不清了。”免费回归复现 `COACH_ACTION_DECLINED`。单字“别”改为须紧接同一有限材料/联系动词及命令前缀，不再通过不断补充名词例外来过滤；“别的发送方式”保留为叙述。有效历史起草请求可以继续完成，真实停止仍阻断。边界回归 5/5，红绿日志 `narrative-decline-red.log` / `narrative-decline-green.log` 位于 `.local/coach-boundary-20261005`。
+- 对话提示最小调整：从必要回应或关键问题开始，避免逐句复述输入；按用户原话保持帮助提供者、成果使用者及各自诉求。没有新增模型调用、分类器、角色架构或故事专用示例。真实效果尚待新冻结验证，不能用本地测试代替语义验收。
+- 本地完整检查通过：`npm run test:backend` 31 文件、151 测试；`npm test` 44/44；`npm run typecheck:server` 与 `npm run build` 通过（后者含前端 TypeScript 构建，保留 Three.js 大分块警告）。`npm run test:backend -- --file=action-coach-browser.test.ts` 真实 Chrome/认证/隔离 PG 界面回归通过，模型为替身；不能计为真实模型或生产浏览器验收。日志 `final-backend.log` / `final-unit.log` / `final-build.log` / `final-browser.log`。
+- 唯一 D 盘账本此批真实测试后 392 条、无 pending；本次 ¥30 授权从 385 条起计，7 调用占 ¥0.0119706、余 ¥29.9880294。旧余额和生产 ¥10 池保持独立。没有改模型/模式/端点，也未部署；所有 Gate 成立后才用已授权现有服务器、域名与数据库发布。目前 **WIP_NOT_READY**。
+
+## 2026-10-05 拒绝优先、统一去重与新增测试授权（历史 2eaa4bb 批次）
 
 - 接续 `b94c039`，分支 `fix/coach-material-boundaries-20261005`。同一写工作区，无覆盖或回退；本批完成受影响检查后本地提交，不 push 或合并 main。
 - 拒绝边界先红后绿：用户不写、不改或先别联系时，模型自身交付前言不能授权 create/modify，无问号材料也受约束；close 可尊重停止。已有有效请求可在后续补充后完成首次材料，停止后普通确认不撤销停止；独立肯定分句仍可起草/改短。此有限文本/授权上下文校验不是通用语义分类器。新隔离回归 4/4，旧材料边界 6/6，engine/process-turns 回归和前后端类型检查通过。

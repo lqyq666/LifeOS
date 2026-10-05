@@ -32,6 +32,19 @@ test('an existing authorized request can complete after a context answer without
   }finally{await pool.query('DELETE FROM "user" WHERE id=$1',[base.user])}
 })
 
+test('other sending methods are narrative context, not a command to stop sending',async()=>{
+  const base=await prepare(false)
+  try{
+    const event=(await coachEventView(base.user,base.conversation))!
+    const text='用途说明和有没有再试别的发送方式，这两个细节我记不清了。'
+    const run=(await store.startRun(base.user,base.conversation,randomUUID(),text)).run
+    const content='你现在还需要那份资料吗？不需要也没关系。'
+    const staged=await stageCoachEvent(run,{target:{operation:'continue',eventId:event.id,expectedRevision:event.revision},action:{operation:'create',draft:{content}}},content)
+    await store.finishRun(run,{candidates:[],audit:[],coach:staged},content,null,signal)
+    assert.equal((await coachEventView(base.user,base.conversation))!.actions[0]!.draft!.content,content)
+  }finally{await pool.query('DELETE FROM "user" WHERE id=$1',[base.user])}
+})
+
 test('explicit decline blocks framed or bare create/modify with or without a question, and close respects stopping',async()=>{
   for(const text of ['不要帮我写消息，只想聊聊。','不写消息了，只想聊聊。','不要改这份消息，先聊聊。','先别联系他，只想聊聊。']){
     const base=await prepare()

@@ -80,8 +80,10 @@ const rewriteIntent=/(?:再|稍微)?(?:改|换|缩短|改短|润色|重写|调�
 // a sendable artifact ("可以先发这段：/可以这样问："); conversational
 // preambles like "我们先了解一下：" do not.
 const framingIntent=/(?:可以|直接|就能|先|拿去)[^。！？\n]{0,8}(?:发|用|拿|问|说|回|给|发送|复制)|(?:发|用)这(?:段|句|条)|给你写|写一(?:段|句|份)|这(?:段|句|条)(?:话|消息)?[^。！？\n]{0,8}(?:发|用|给)|直接使用|复制/
-const negativeRequest=/(?:不要|不用|不必|不想|不需要|无需|(?<![特区分辨识告个类级])别|暂不|先不|^不)/
 const materialVerb=/(?:写|起草|拟|做|改|换|缩短|润色|重写|调整|联系|联络|发|沟通)/
+// A bare 别 is a command only when it introduces a material/contact verb.
+// Narrative nouns such as 别的发送方式 must not become a lasting stop request.
+const negativeRequest=new RegExp('(?:不要|不用|不必|不想|不需要|无需|别(?=(?:再|先|帮我|替我|给我)*'+materialVerb.source+')|暂不|先不|^不)')
 function materialRequest(text:string,operation:'create'|'modify'):'requested'|'declined'|'unspecified'{
   // A declined request contains the same verbs as an affirmative one. Evaluate
   // clauses separately so "不用写长邮件，帮我写一句" keeps its positive
