@@ -130,8 +130,12 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
     if(event.revision!==delta.target.expectedRevision)throw new HttpError(409,'COACH_EVENT_REVISION_CONFLICT')
     if(!await sourceAvailable(c,run.user_id,event.title_source))throw new HttpError(409,'COACH_SOURCE_REVOKED')
     for(const correction of delta.corrections??[]){
-      const node=(await c.query("SELECT kind,status FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND id=$3",[run.user_id,event.id,correction.nodeId])).rows[0]
+      const node=(await c.query("SELECT kind,status,content FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND id=$3",[run.user_id,event.id,correction.nodeId])).rows[0]
       if(!node||node.status==='withdrawn')throw new HttpError(404,'COACH_NODE_NOT_FOUND')
+      // A repeated exact fragment supplies no changed fact. Replacing a larger
+      // source-backed node with it would erase the other reported details.
+      // Unknown answers and genuinely changed quotes keep their existing path.
+      if(node.kind!=='unknown'&&node.content.includes(correction.source.quote))throw new HttpError(400,'COACH_CORRECTION_UNCHANGED')
     }
     const resolved=new Set(delta.resolveUnknowns??[])
     if((delta.declineUnknowns??[]).some(id=>resolved.has(id)))throw new HttpError(400,'COACH_UNKNOWN_DISPOSITION_CONFLICT')

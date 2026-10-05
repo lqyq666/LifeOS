@@ -58,6 +58,25 @@ test('the only turn core uses natural replies and event deltas, with one bounded
   let eventId=''
   const sourceIds:string[]=[]
   try{
+    await t.test('an unchanged fragment correction gets one specific repair and preserves the complete fact',async()=>{
+      const other=randomUUID();await store.createConversation(user,{id:other,title:'SYNTHETIC fragment correction'})
+      const original='我花了三小时整理四十页。同学说手机打不开，所以没看。'
+      const seed=(await store.startRun(user,other,randomUUID(),original)).run
+      const coach=await stageCoachEvent(seed,{target:{operation:'create',title:'资料整理',source:{messageId:seed.source_message_id,quote:original}},nodes:[{kind:'fact',source:{messageId:seed.source_message_id,quote:original}}]},'了解事情经过。')
+      await store.finishRun(seed,{candidates:[],audit:[],coach},coach.reply,null,new AbortController().signal)
+      const event=(await coachEventView(user,other))!
+      const text='同学说手机打不开，所以没看。我想帮他整理资料。'
+      const run=(await store.startRun(user,other,randomUUID(),text)).run
+      const input={run,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:(_event:Record<string,unknown>)=>{}}
+      const target={operation:'continue',eventId:event.id,expectedRevision:event.revision},reply='当时他具体希望整理什么内容？'
+      outputs.push({reply,event:{target,corrections:[{nodeId:event.nodes[0]!.id,source:{messageId:run.source_message_id,quote:'同学说手机打不开，所以没看。'}}]}},{reply,event:{target,nodes:[{kind:'user_interpretation',source:{messageId:run.source_message_id,quote:'我想帮他整理资料。'}}]}})
+      const before=requests.length,result=await engine(input)
+      assert.equal(requests.length-before,2)
+      assert.equal((result.usage as any).repairReason,'COACH_CORRECTION_UNCHANGED')
+      assert.match(JSON.parse(requests.at(-1).messages[1].content).validationGuidance,/Omit this correction/)
+      await store.finishRun(run,input.staged,result.text,result.usage,input.signal)
+      assert.ok((await coachEventView(user,other))!.nodes.some(node=>node.content===original))
+    })
     await t.test('SDK payload observation records final configured parameters without changing the transmitted request',async()=>{
       const input=await prepare('这轮先听我说，不需要行动。'),before=payloads.length
       outputs.push({reply:'好，我在听。'})

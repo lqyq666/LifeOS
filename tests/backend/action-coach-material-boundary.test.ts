@@ -139,6 +139,29 @@ test('question-shaped user evidence stays source-backed and is not mistaken for 
   } finally { await pool.query('DELETE FROM "user" WHERE id=$1', [base.user]) }
 })
 
+test('repeating a fragment cannot replace a compound fact and erase its other reported details', async () => {
+  const original='我花了三小时整理了四十页。同班的小林说资料很乱，我就找了他。他后来明确说手机打不开，因此没看。'
+  const base=await prepare(original)
+  try {
+    const seeded=await stageCoachEvent(base.run,{target:{operation:'create',title:'资料整理',source:{messageId:base.run.source_message_id,quote:original}},nodes:[{kind:'fact',source:{messageId:base.run.source_message_id,quote:original}}]},'先了解原来的需要。')
+    await store.finishRun(base.run,{candidates:[],audit:[],coach:seeded},seeded.reply,null,base.signal)
+    const event=(await coachEventView(base.user,base.conversation))!
+    const text='同班的小林说资料很乱，我就找了他。我想试试整理资料能不能帮到同学。'
+    const run=(await store.startRun(base.user,base.conversation,randomUUID(),text)).run
+    const target={operation:'continue' as const,eventId:event.id,expectedRevision:event.revision}
+    await assert.rejects(stageCoachEvent(run,{target,corrections:[{nodeId:event.nodes[0]!.id,source:{messageId:run.source_message_id,quote:'同班的小林说资料很乱，我就找了他。'}}]},'那当时他具体需要什么？'),(error:any)=>error.code==='COACH_CORRECTION_UNCHANGED')
+    const repaired=await stageCoachEvent(run,{target,nodes:[{kind:'user_interpretation',source:{messageId:run.source_message_id,quote:'我想试试整理资料能不能帮到同学。'}}]},'那当时他具体需要什么？')
+    await store.finishRun(run,{candidates:[],audit:[],coach:repaired},repaired.reply,null,base.signal)
+    const current=(await coachEventView(base.user,base.conversation))!
+    assert.ok(current.nodes.some(node=>node.content===original))
+    assert.ok(current.processTurns!.some(turn=>turn.sourceMessageId===base.run.source_message_id))
+    const actual=(await store.startRun(base.user,base.conversation,randomUUID(),'更正一下，我实际花了两小时。')).run
+    const changed=await stageCoachEvent(actual,{target:{...target,expectedRevision:current.revision},corrections:[{nodeId:event.nodes[0]!.id,source:{messageId:actual.source_message_id,quote:'我实际花了两小时。'}}]},'以更正后的时间为准。')
+    await store.finishRun(actual,{candidates:[],audit:[],coach:changed},changed.reply,null,base.signal)
+    assert.ok((await coachEventView(base.user,base.conversation))!.nodes.some(node=>node.content==='我实际花了两小时。'))
+  } finally { await pool.query('DELETE FROM "user" WHERE id=$1',[base.user]) }
+})
+
 test('a stale re-emission never silently swallows unrecorded current input, however short, and even unstructured input stays traceable', async () => {
   const opening = await prepare('我做了上次的行动，但对方没有使用。')
   try {

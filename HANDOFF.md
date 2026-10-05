@@ -2,7 +2,14 @@
 
 工作区为 D:\aaaLife\LifeOS。当前 LifeOS V1.3 精简源码仓库。默认模型保持 qwen3.8-flash。整体状态 WIP_NOT_READY。生产已部署于 https://lqynb.xyz（2026-10-05，见下），正式验收未完成。
 
-## 2026-10-05 当前接续：叙述不是交付引导
+## 2026-10-05 当前接续：重复片段不能擦除复合事实
+
+- 接续 `a199922`。真实 `coach-7b193fc3-47ff-4cf1-af68-f2ecc6bdceca` 已停止，保留四轮/五调用及独立人工审阅。前三轮无行动且一次调用；第三轮模型却用未变化的人物片段更正整条投入/人物/结果，事件节点和 processTurns 失去其余详情（原聊天仍在实际 Provider 请求）。第四轮再次问已给出的来源/结果并试图继续错误更正。A01 **未通过**，有效首内容 4.96/5.60/6.60/14.11 秒，不算最终速度通过。
+- 免费红绿新增 `COACH_CORRECTION_UNCHANGED`：旧事实的原样片段不足以授权缩小替换整个事实。保留原节点，新增当轮信息走 nodes；未知答案、确实变化的引文仍走原更正路径。引擎至多一次具体修复并说明保留原事实；这是结构性重复保护，不是通用语义更正判断。不同引文是否确为用户意图仍须真实语义验收。提示明确每节点一项陈述、补充/重述与实质更正的区别。
+- 定向材料 8/8、引擎 34/34，完整隔离后端 31 文件 154 测试、客户端 44/44、服务端类型与构建通过（保留大分块警告）。日志 `.local/coach-boundary-20261005/correction-fragment-red.log` / `correction-fragment-green.log` / `correction-engine-green.log` / `correction-full-backend.log` / `correction-unit.log` / `correction-build.log`。初始红测与每次失败原文保留，不重写为成功。
+- 唯一 D 盘账本 400 条、无 pending；本次新增 ¥30 授权 15 调用累计 ¥0.0280042，余 ¥29.9719958。未改模型、模式、端点及旧/生产池。最终真实全轨迹、20 普通样本速度、真实浏览器、恢复与条件部署仍待完成；当前 **WIP_NOT_READY**。
+
+## 2026-10-05 叙述不是交付引导（历史 a199922 批次）
 
 - 接续 `dde78c6`；新冻结 `source-1791185343488` 的真实 `coach-df280b67-46c8-4233-8e47-3e48d96c8dfe` 两轮后停止，原报告/SDK请求/原文/独立 `operator-review.json` 保留。A01 首轮追问行动被修复；第二轮继续追问同时擅自交付联系材料并承诺下一次整理，语义未通过，有效首内容约 8.96/9.83 秒。尚未透露 goal/agreement/outcome/currentNeed，不继续原配置刷样本。
 - 实际 Provider payload 系统提示存在、用户/助手角色正确，Schema 仍只要求 reply。新增免费红测确认历史引号“可以”与“到考试前夜发链接”会被跨词匹配为交付引导。引导改为分句起始并不穿越引号，真实“可以先发这段”仍合法；材料边界 7/7、拒绝边界 5/5、引擎 33/33、payload 8/8 与服务端类型检查通过。日志 `narrative-framing-red.log` / `narrative-framing-green.log` / `framing-user-green.log` / `framing-engine-green.log`。
