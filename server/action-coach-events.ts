@@ -98,22 +98,31 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
     }
   }
   let recordedContents:Set<string>|undefined
-  if(delta.target.operation!=='create')recordedContents=new Set((await c.query("SELECT content FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn'",[run.user_id,delta.target.eventId])).rows.map(row=>row.content as string))
-  // A redundant re-emission of an already-recorded verbatim node is skipped,
-  // not failed: it carries no new claim and the reply stays unchanged. Any
-  // other non-current quote remains a blocking source error.
-  const nodeSource=async(node:{kind:string;source?:{messageId:string;quote:string}}):Promise<CoachSource|null>=>{
+  if(delta.target.operation!=='create')recordedContents=new Set((await c.query("SELECT content FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' AND source IS NOT NULL",[run.user_id,delta.target.eventId])).rows.map(row=>row.content as string))
+  // A redundant re-emission of an already-recorded verbatim node is tolerated
+  // only when the current user message carries no substantive unrecorded span;
+  // otherwise the stale quote is a blocking error so a bounded repair can
+  // record what the user actually just said (A01 turn-8 regression).
+  const nodeSource=async(node:{kind:string;source?:{messageId:string;quote:string}},otherNewQuotes:string[]):Promise<CoachSource|null>=>{
     if(node.kind==='unknown')return null
     try{return await currentSource(c,run,node.source!)}
     catch(error){
-      if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&recordedContents?.has(node.source!.quote))return null
+      if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&recordedContents?.has(node.source!.quote)){
+        const text=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role=\'user\'',[run.user_id,run.source_message_id])).rows[0]?.content as string|undefined
+        if(typeof text==='string'&&unquotedRequestParts(text,[...otherNewQuotes,...recordedContents]).every(part=>part.replace(/[^\p{L}\p{N}]/gu,'').length<8))return null
+      }
       throw error
     }
   }
-  for(const node of delta.nodes??[])await nodeSource(node)
+  const newQuotes=(delta.nodes??[]).filter(node=>node.kind!=='unknown').map(node=>node.source.quote)
+  for(const node of delta.nodes??[])await nodeSource(node,newQuotes.filter(quote=>!(node.kind!=='unknown'&&node.source.quote===quote)))
   for(const correction of delta.corrections??[])await currentSource(c,run,correction.source)
   if(delta.action&&'draft' in delta.action){
     if(!delta.action.draft.content.trim()||!reply.includes(delta.action.draft.content))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
+    // A brand-new deliverable never equals the whole turn reply when that
+    // reply is itself a coaching question to the user; real rewrites modify an
+    // existing action instead (A01 turns 3/4/7 vs A05 turn 2).
+    if(delta.action.operation==='create'&&delta.action.draft.content.trim()===reply.trim()&&visibleCoachQuestions(delta.action.draft.content).length>0)throw new HttpError(400,'COACH_MATERIAL_IS_CONVERSATION')
   }
 }
 
@@ -135,12 +144,17 @@ export async function persistCoachEvent(c:PoolClient,run:Run,staged:CoachStaged)
   }else{
     await c.query('UPDATE coach_events SET revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2',[run.user_id,staged.eventId])
   }
+  const newQuotes=(delta.nodes??[]).filter(node=>node.kind!=='unknown').map(node=>node.source.quote)
   for(const node of delta.nodes??[]){
     let source:CoachSource|null=null
     if(node.kind!=='unknown'){
       try{source=await currentSource(c,run,node.source)}
       catch(error){
-        if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&(await c.query("SELECT 1 FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' AND source IS NOT NULL AND content=$3",[run.user_id,staged.eventId,node.source.quote])).rowCount)continue
+        if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&(await c.query("SELECT 1 FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' AND source IS NOT NULL AND content=$3",[run.user_id,staged.eventId,node.source.quote])).rowCount){
+          const text=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role=\'user\'',[run.user_id,run.source_message_id])).rows[0]?.content as string|undefined
+          const recorded=(await c.query("SELECT content FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' AND source IS NOT NULL",[run.user_id,staged.eventId])).rows.map(row=>row.content as string)
+          if(typeof text==='string'&&unquotedRequestParts(text,[...newQuotes.filter(quote=>quote!==node.source.quote),...recorded]).every(part=>part.replace(/[^\p{L}\p{N}]/gu,'').length<8))continue
+        }
         throw error
       }
     }
