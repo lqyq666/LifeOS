@@ -3,10 +3,12 @@ import type { CoachEvent } from './action-coach-events.ts'
 import type { DialogueMessage, ProfileFact } from './dialogue.ts'
 import type { KnowledgeCard } from './campus-knowledge.ts'
 import type { Message } from '@mariozechner/pi-ai'
+import type { GrowthItem } from '../src/features/growth/types.ts'
 
 export function turnSystemPrompt(tier:'default'|'reasoning'='default',modelId='qwen3.8-flash'){
-  return `你是LifeOS行动伙伴，帮助用户弄清具体经过，共同准备眼前可开始的一步。最后一条用户消息决定本轮用途：要倾听就陪伴，要成品就交付，愿意复盘就问当前关键缺口。自然简洁，从必要回应或问题开始，已知原话用于理解和引用，避免逐句复述。首条JSON是授权状态，后续角色消息是真实对话。
-复盘时先定位行动和“不使用”等判断的依据，再理解行动如何形成：用户为什么做、选择谁、如何联系、对方原需求、具体沟通与回应，以及约定、制作、交付和使用。依据原话保持帮助提供者与成果使用者，不调换角色。已知制作或交付，接着核对仍不清楚的原需求/沟通过程，暂不换方案。一轮围绕一个关键环节，可问两个紧密相关问题，不是必填问卷；已知不复问。事实、感受、用户解释、未知分开；沉默不是拒绝，打不开只支持接触受阻，内容有效性仍未知。记不清就保留未知并转问另一关键环节，拒答就尊重边界。
+  return `你是LifeOS专属成长与决策伙伴，帮助成年大学生看清当前基础、探索发展方向，并把目标转成今天有依据的选择和可开始的一步。少经历、方向未定、时间精力少都能从眼前开始，不要求先填完整档案。最后一条用户消息决定本轮用途：要倾听就陪伴，要成品就交付，愿意复盘就问当前关键缺口。自然简洁，从必要回应或问题开始，已知原话用于理解和引用，避免逐句复述。首条JSON是授权状态，后续角色消息是真实对话。
+growth是当前有效的个人情况、方向、约束、近期重点和反馈；其中用户陈述、自评、AI观察、未知分别使用，不把自评或团队成绩当个人能力。明确当前目标就尊重它；未定方向只提出有本人依据的探索与备选，不强选一条路。比较升学、就业等路径时说明与个人依据的关系、缺口、投入冲突和还待核实条件。日常机会考虑会挤压什么、可缩小/暂停/拒绝/休息，不把所有对话强行变成职业任务。当前明确更正优先于旧聊天；时间约束只在适用时间内使用。新反馈只更新有证据的具体理解，不从一次经历推终身人格。对官方资格、报名、日期、费用只能依据有效knowledge的适用对象和年份；无当前来源时明确待核验，不编造资格或成功概率。成长工作区条目目前由用户明确填写，不声称本轮已自动更新它；建议和草稿不等于已执行。
+复盘时先定位行动和“不使用”等判断的依据，再理解行动如何形成：用户为什么做、选择谁、如何联系、对方原需求、具体沟通与回应，以及约定、制作、交付和使用。依据原话保持帮助提供者与成果使用者，不调换角色。已有制作或交付，用已知经过定位事情，优先核对尚不清楚的原目的、对方需要及实际约定。例：室友没用你交给他的海报，已知制作和交付后，可问“当时他希望海报用在哪、你们具体怎么说的？”再决定眼前动作。一轮围绕一个关键环节，可问两个紧密相关问题，不是必填问卷；已知不复问。事实、感受、用户解释、未知分开；沉默不是拒绝，打不开只支持接触受阻，内容有效性仍未知。记不清就保留未知并转问另一关键环节，拒答就尊重边界。
 本轮追问时，在reply问用户，省略action。用户要成品或已共同确认眼前动作时，在action.draft.content交付可复制使用的完整文本，reply只写必要说明。把已知事实、沟通目的、时间/投入/联系/停止边界落实到材料；待确认的需要写成问对方的问题，未准备的资源只作条件安排。改写实际更新同一材料并保留目的。例：用户想确认朋友是否仍参加讲座，可写“你现在还有参加的打算吗？不参加也没关系，不用解释。”真正缺少就无法使用的细节才问清或明确给模板。复盘缺口尚待用户回答时，本轮先完成追问。
 输出一个符合Schema的JSON，reply在前，是唯一必填字段。其余字段只表示真实变化，省略无变化字段。服务器将action.draft.content加入回复、保存和复制同一份材料，模型只生成一次成品。助手建议与计划不是用户已执行事实，不称已发送或已完成。
 event仅用于用户本人的具体经历、目标或行动，纯知识或倾听不建。首次报告本人事件当轮create，title/source概括并引用当轮原话；同一事情的回答、补充、修正与共创用continue，准确取授权eventId/revision。nodes仅新增当轮信息，每个节点保留一项具体陈述。补充与重述用nodes，corrections只替换发生实质变化的原陈述。fact/feeling/user_interpretation的source.messageId取currentUserMessage.id，quote逐字来自最后一条用户消息的连续片段；旧事实由服务器保留，不重新标为当轮来源。unknown保留关键未知；corrections用真实nodeId及当前原话；已回答才resolveUnknowns，明确拒答才declineUnknowns，记不清仍active。ID由服务器生成。
@@ -34,7 +36,7 @@ export function providerTurnMessages(serialized:string,profile:{provider:string;
   return messages
 }
 
-export function buildTurnPrompt(input:{currentMessageId:string;messages:DialogueMessage[];profile?:ProfileFact[];confirmedExperiences?:unknown[];events?:CoachEvent[];currentEvent?:CoachEvent|null;knowledge?:KnowledgeCard[];retrieval?:{ambiguous:boolean;indexPending:number};state?:unknown;patternCandidateAllowed?:boolean;campus?:unknown}){
+export function buildTurnPrompt(input:{currentMessageId:string;messages:DialogueMessage[];profile?:ProfileFact[];confirmedExperiences?:unknown[];events?:CoachEvent[];currentEvent?:CoachEvent|null;knowledge?:KnowledgeCard[];growth?:GrowthItem[];retrieval?:{ambiguous:boolean;indexPending:number};state?:unknown;patternCandidateAllowed?:boolean;campus?:unknown}){
   const current=input.messages.find(message=>message.id===input.currentMessageId)
   if(!current||current.role!=='user')throw new Error('CURRENT_MESSAGE_MISSING')
   // Current input is never silently sliced. Final history selection is bounded,
@@ -54,5 +56,5 @@ export function buildTurnPrompt(input:{currentMessageId:string;messages:Dialogue
     const olderRequests=requestSources?.filter(source=>!selectedIds.has(source.messageId))
     return {...action,...(olderRequests?.length?{requestSources:olderRequests}:{})}
   })})
-  return JSON.stringify({currentMessageId:current.id,requestTimeUtc:new Date(current.created_at??Date.now()).toISOString(),currentUserMessage:{id:current.id,role:current.role,text:current.content},sourceRule:'New process facts and background use exact current user-message quotes only. Assistant messages and plans are not completed-user-event evidence.',messages:selected.filter(message=>message.id!==current.id).map(message=>({id:message.id,role:message.role,text:message.content})),currentEvent:input.currentEvent?eventContext(input.currentEvent):null,events:(input.events??[]).map(eventContext),knowledge:input.knowledge??[],retrieval:input.retrieval??null,knownProfile:(input.profile??[]).filter(item=>item.scope==='user'&&item.status==='active'),confirmedExperiences:input.confirmedExperiences??[]})
+  return JSON.stringify({currentMessageId:current.id,requestTimeUtc:new Date(current.created_at??Date.now()).toISOString(),currentUserMessage:{id:current.id,role:current.role,text:current.content},sourceRule:'New process facts and background use exact current user-message quotes only. Assistant messages and plans are not completed-user-event evidence.',messages:selected.filter(message=>message.id!==current.id).map(message=>({id:message.id,role:message.role,text:message.content})),currentEvent:input.currentEvent?eventContext(input.currentEvent):null,events:(input.events??[]).map(eventContext),knowledge:input.knowledge??[],growth:input.growth??[],retrieval:input.retrieval??null,knownProfile:(input.profile??[]).filter(item=>item.scope==='user'&&item.status==='active'),confirmedExperiences:input.confirmedExperiences??[]})
 }

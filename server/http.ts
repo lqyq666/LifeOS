@@ -22,6 +22,8 @@ import {campusView} from './campus.ts'
 import { RequestScheduler } from './request-scheduler.ts'
 import { coachEventView } from './action-coach-events.ts'
 import { localEmbedding } from './local-embedding.ts'
+import { growthView, createGrowthItem, actOnGrowthItem } from './growth.ts'
+import { growthCreateSchema, growthActionSchema } from './growth-contracts.ts'
 
 export function modelReady() {
   return credentialReady()&&modelCapabilityVerified('default')
@@ -63,6 +65,10 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
         const user=session.user.id
         if(path==='/api/access'&&method==='GET'){json(res,200,await entitlementView(user));return}
         if(path==='/api/session'&&method==='GET'){json(res,200,{id:user,name:session.user.name,email:session.user.email});return}
+        if(path==='/api/growth'&&method==='GET'){const conversation=url.searchParams.get('conversation');json(res,200,await growthView(user,conversation?validateId(conversation):undefined));return}
+        if(path==='/api/growth'&&method==='POST'){json(res,201,await createGrowthItem(user,validate(growthCreateSchema,await body(req))));return}
+        const growthAction=path.match(/^\/api\/growth\/([^/]+)\/actions$/)
+        if(growthAction&&method==='POST'){json(res,200,await actOnGrowthItem(user,validateId(growthAction[1]),validate(growthActionSchema,await body(req))));return}
         const history=path.match(/^\/api\/conversations\/([^/]+)\/history$/)
         if(history&&method==='GET'){json(res,200,await coachHistoryView(user,validateId(history[1])));return}
         const search=path.match(/^\/api\/conversations\/([^/]+)\/event\/search$/)

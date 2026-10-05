@@ -8,6 +8,7 @@ import type { DialoguePath } from './dialogue.ts'
 import seed from '../src/features/cognition/data/lifeos-graph.seed.json' with { type: 'json' }
 import { persistCoachEvent, invalidateCoachSources, assertCoachEvidence, coachEventView, type CoachStaged } from './action-coach-events.ts'
 import { assertCoachKnowledge, type CoachKnowledgeRef } from './coach-knowledge.ts'
+import { assertGrowthSnapshot } from './growth.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -43,7 +44,7 @@ export async function retrieveExperiences(user:string,input:unknown,signal?:Abor
   return { records: rows, method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
 }
 export type Run = { user_id:string; request_id:string; conversation_id:string; source_message_id:string; expected_version:number; status:string; response:any }
-export type Staged = { candidates:Candidate[]; audit:unknown[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged }
+export type Staged = { candidates:Candidate[]; audit:unknown[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged }
 export async function startRun(user:string,conversation:string,requestId:string,text:string) {
   return transaction(async c=>{
     await lock(c,user+':'+requestId)
@@ -105,6 +106,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       await assertSnapshotStillValid(c,run.user_id,staged.snapshot,staged.usedMemoryRefs??[])
     }
     await assertCoachEvidence(c,run.user_id,run.conversation_id,staged.usedEventRefs??[])
+    await assertGrowthSnapshot(c,run.user_id,run.conversation_id,staged.usedGrowthRefs??[],staged.growthSnapshotKey)
     for(const ref of staged.usedExperienceRefs??[]){
       const source=(await c.query("SELECT revision FROM experiences WHERE user_id=$1 AND id=$2 AND status='confirmed' FOR SHARE",[run.user_id,ref.id])).rows[0]
       if(!source||source.revision!==ref.revision)throw new HttpError(409,'EXPERIENCE_SNAPSHOT_INVALIDATED')

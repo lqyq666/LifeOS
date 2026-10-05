@@ -5,7 +5,7 @@ const text=(maxLength=16000)=>Type.String({minLength:1,maxLength})
 const id=Type.String({pattern:'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'})
 export const processSourceSchema=Type.Object({messageId:{...id,description:'只复制本轮currentUserMessage.id。不能把历史消息的原话重新标成本轮消息。'},quote:{...text(8000),description:'必须是本轮最后一条用户消息中的连续原文，不能引用更早消息、拼接或改写。历史事实已在事件/对话中，不重复生成到本轮新节点。'}},{additionalProperties:false})
 const reportedNode=Type.Object({kind:Type.Union([Type.Literal('fact'),Type.Literal('feeling'),Type.Literal('user_interpretation')]),source:processSourceSchema},{additionalProperties:false,description:'一项当前用户陈述及其连续原话。已知旧陈述不重新生成，补充新信息使用新节点。事实、感受与用户解释分别表达。'})
-const unknownNode=Type.Object({kind:Type.Literal('unknown'),question:text(2000)},{additionalProperties:false})
+const unknownNode=Type.Object({kind:Type.Literal('unknown'),question:text(2000)},{additionalProperties:false,description:'当前关键未知的具体问题；记不清的详情仍未知。只保留会改变理解或下一步的信息，不把已明确的经过重新记作未知。'})
 const processNode=Type.Union([reportedNode,unknownNode])
 // The server creates identities and revisions. The model selects existing
 // records by ID/revision only; it cannot create an ID or mark a plan executed.
@@ -32,8 +32,8 @@ export const eventDeltaSchema=Type.Object({
   ],{description:'先定位事情，再选择目标。同一事情的不同轮次共用eventId；新的用户消息不等于新的事件。'}),
   nodes:Type.Optional(Type.Array(processNode,{maxItems:24})),
   corrections:Type.Optional(Type.Array(Type.Object({nodeId:id,source:processSourceSchema},{additionalProperties:false}),{maxItems:12,description:'用户实质更正已有陈述时才替换对应节点。重复旧话或补充另一个事实使用nodes，不能缩小覆盖其他旧事实。'})),
-  resolveUnknowns:Type.Optional(Type.Array(id,{maxItems:24})),
-  declineUnknowns:Type.Optional(Type.Array(id,{maxItems:24})),
+  resolveUnknowns:Type.Optional(Type.Array(id,{maxItems:24,description:'仅标记授权事件中实际已回答的对应未知问题ID；按问题与回答对应，不因本轮有任何新事实就任意选择ID。记不清仍未知。'})),
+  declineUnknowns:Type.Optional(Type.Array(id,{maxItems:24,description:'仅在用户明确拒绝回答对应问题时标记该问题ID；记不清不是拒答，不标记declined，也不转移到另一个旧问题。原因不想讲可保留为declined，另一个时间记不清仍active。'})),
   action:Type.Optional(actionChangeSchema),
 },{additionalProperties:false,description:'仅在本人具体事件/目标的过程或行动确有变化时使用。不是对话话题分类；纯知识、概念解释、只倾听不建立event。没有事件变化时整字段省略，不只填target来凑结构。'})
 export const coachCitationSchema=Type.Object({sourceId:id,revision:Type.Integer({minimum:1}),claim:text(4000),quote:text(8000),scope:text(4000)},{additionalProperties:false})

@@ -53,7 +53,7 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
     if(calls===2){
       const reply='请确认你在文档里看到的两处问题，我再逐项修改。'
       input.staged.coach=await stageCoachEvent(input.run,{target:{operation:'create',title:'课程项目组员反馈',source:{messageId:input.run.source_message_id,quote:text}},nodes:[{kind:'fact',source:{messageId:input.run.source_message_id,quote:text}}],action:{operation:'create',draft:{content:reply}}},reply)
-      await store.stageCandidate(input.run,input.staged,{sourceMessageId:input.run.source_message_id,quote:text,links:[]},input.signal)
+      await store.stageCandidate(input.run,input.staged,{sourceMessageId:input.run.source_message_id,quote:'我把课程项目发给组员，他已经打开并完成了检查。',links:[]},input.signal)
       return {text:reply,usage:null}
     }
     return {text:'递归是一个过程调用自身，并由结束条件停止。',usage:null}
@@ -93,12 +93,55 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
     await page.getByRole('checkbox',{name:'启用长期记忆'}).click()
     await page.waitForFunction(()=>document.querySelector<HTMLInputElement>('.qa-memory-switch input')?.checked===true)
     await page.getByRole('button',{name:'关闭记忆面板'}).click()
+    await page.getByRole('button',{name:'我的成长',exact:true}).click()
+    await page.getByRole('heading',{name:'现在的我，接下来的一步'}).waitFor()
+    const growthRequestIds:string[]=[]
+    await page.route('**/api/growth',async(route:any)=>{
+      if(route.request().method()!=='POST'){await route.continue();return}
+      growthRequestIds.push(route.request().postDataJSON().requestId)
+      if(growthRequestIds.length===1){await route.fetch();await route.abort('failed')}
+      else await route.continue()
+    })
+    await page.getByLabel('你的原话',{exact:true}).fill('先探索就业，暂不强选岗位。')
+    await page.getByRole('button',{name:'保存这项',exact:true}).click()
+    const growthCard=page.locator('.growth-card').filter({hasText:'先探索就业，暂不强选岗位。'})
+    await growthCard.waitFor()
+    assert.equal(await page.getByLabel('你的原话',{exact:true}).inputValue(),'先探索就业，暂不强选岗位。','transport failure retains authored input')
+    await page.getByRole('button',{name:'保存这项',exact:true}).click()
+    await page.getByLabel('你的原话',{exact:true}).waitFor()
+    await page.waitForFunction(()=>document.querySelector<HTMLTextAreaElement>('#growth-text')?.value==='')
+    assert.equal(growthRequestIds.length,2);assert.equal(growthRequestIds[0],growthRequestIds[1]);assert.equal(await growthCard.count(),1)
+    await page.unroute('**/api/growth')
+    await growthCard.getByRole('button',{name:'更正',exact:true}).click()
+    await page.getByLabel('你的原话',{exact:true}).fill('这阶段优先期末，之后探索实习。')
+    await page.getByRole('button',{name:'保存这项',exact:true}).click()
+    await page.locator('.growth-card').filter({hasText:'这阶段优先期末，之后探索实习。'}).waitFor()
+    for(const width of [1440,390,320]){
+      await page.setViewportSize({width,height:900})
+      await page.locator('.growth-workspace').evaluate((element:any)=>{element.scrollTop=0})
+      assert.equal(await page.locator('.growth-workspace').evaluate((element:any)=>element.scrollWidth<=element.clientWidth+1),true,'growth workspace no overflow at '+width)
+      const file=resolve(directory,'growth-'+width+'.png');await page.screenshot({path:file});report.screenshots.push(file)
+    }
+    const secondContext=await browser.newContext({viewport:{width:390,height:844}})
+    await secondContext.addCookies(await context.cookies())
+    const secondPage=await secondContext.newPage()
+    await secondPage.goto(origin+'/#conversation',{waitUntil:'networkidle'})
+    await secondPage.getByRole('button',{name:'我的成长',exact:true}).click()
+    const syncedCard=secondPage.locator('.growth-card').filter({hasText:'这阶段优先期末，之后探索实习。'})
+    await syncedCard.waitFor();assert.equal(await secondPage.locator('.growth-card').filter({hasText:'先探索就业，暂不强选岗位。'}).count(),0)
+    await syncedCard.getByRole('button',{name:'遗忘这条',exact:true}).click()
+    await syncedCard.waitFor({state:'detached'})
+    await secondContext.close()
+    await page.getByRole('button',{name:'继续聊天',exact:true}).click()
+    await page.setViewportSize({width:1440,height:900})
+    assert.equal(calls,0,'growth editing and cross-device control never invokes provider')
+    report.checks.push('growth workspace actual create/correct/forget, lost create response preserves text and same request ID without duplicate, desktop1440/mobile390/narrow320, second authenticated browser context sees corrected state; zero model calls')
     const input=page.getByRole('textbox',{name:'想聊的事'})
     const long='完整长输入。'.repeat(900)
     await input.fill(long);assert.equal(await input.inputValue(),long)
     const oversized='字'.repeat(16001);await input.fill(oversized);await page.getByRole('button',{name:'发送消息'}).click()
     await page.getByText(/超过单次 16000/).waitFor();assert.equal(await input.inputValue(),oversized);assert.equal(calls,0)
-    const text='我读计算机专业。我把资料发给同学，对方说手机打不开，所以没有看。'
+    const text='我读计算机专业。我把资料发给同学，对方说手机打不开，所以没有看。请帮我写确认需求的消息。'
     await input.fill(text)
     await input.evaluate((element:any)=>element.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true,isComposing:true})))
     assert.equal(calls,0);assert.equal(await input.inputValue(),text)
@@ -160,7 +203,7 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
     await page.locator('.qa-review-footer').getByRole('button',{name:'返回对话',exact:true}).click()
     await page.setViewportSize({width:1440,height:900})
     await page.getByRole('button',{name:'新对话',exact:true}).click()
-    const secondRaw='我把课程项目发给组员，他已经打开并完成了检查。'
+    const secondRaw='我把课程项目发给组员，他已经打开并完成了检查。请帮我写一句确认消息。'
     await input.fill(secondRaw);await page.getByRole('button',{name:'发送消息'}).click()
     await page.locator('.qa-thinking').waitFor({state:'detached'})
     const secondChat=(await store.listConversations(user)).find(row=>row.id!==conversation)!.id

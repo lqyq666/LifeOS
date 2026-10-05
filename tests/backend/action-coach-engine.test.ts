@@ -15,6 +15,7 @@ import { pool } from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import { coachEventView } from '../../server/action-coach-events.ts'
 import { importKnowledge, type KnowledgeCard } from '../../server/campus-knowledge.ts'
+import { createGrowthItem, actOnGrowthItem } from '../../server/growth.ts'
 
 test('the only turn core uses natural replies and event deltas, with one bounded repair and no legacy fallback (simulated provider)',async t=>{
   await localEmbedding.start()
@@ -58,6 +59,19 @@ test('the only turn core uses natural replies and event deltas, with one bounded
   let eventId=''
   const sourceIds:string[]=[]
   try{
+    await t.test('corrected growth goals reach the real SDK payload and persist through the same turn transaction (simulated provider)',async()=>{
+      const original=await createGrowthItem(user,{requestId:randomUUID(),conversationId:conversation,kind:'goal',text:'先探索就业'})
+      await actOnGrowthItem(user,original.id,{requestId:randomUUID(),expectedRevision:original.revision,action:'correct',text:'现在先准备期末'})
+      const input=await prepare('本周有一个竞赛机会，我该怎样取舍？')
+      outputs.push({reply:'先守住当前期末重点，再核对竞赛是否会挤压复习时间。'})
+      const before=requests.length,result=await engine(input)
+      assert.equal(requests.length-before,1)
+      const state=JSON.parse(requests.at(-1).messages[1].content)
+      assert.ok(state.growth.some((row:any)=>row.id===original.id&&row.text==='现在先准备期末'))
+      assert.ok(!JSON.stringify(state.growth).includes('先探索就业'))
+      assert.deepEqual(input.staged.usedGrowthRefs,[{id:original.id,revision:2}])
+      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+    })
     await t.test('a requested artifact delivered inline without action is repaired into the durable material',async()=>{
       const text='同学还需不需要我不知道，请直接帮我写一句确认消息。',input=await prepare(text)
       const material='之前那份资料，你现在还需要吗？不需要也没关系。'

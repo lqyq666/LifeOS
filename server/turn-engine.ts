@@ -18,6 +18,7 @@ import { stageCandidate, type Run, type Staged } from './store.ts'
 import { buildTurnPrompt, providerTurnMessages, turnSystemPrompt } from './turn-prompt.ts'
 import { configureProviderPayload, outputTokenLimit, type OutputPath } from './model-payload.ts'
 import { estimateProviderCallCostCny } from './cost-workload.ts'
+import { growthContext, growthSnapshotKey } from './growth.ts'
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
@@ -158,8 +159,11 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   staged.usedExperienceRefs=snapshot.confirmedExperiences.map(item=>({id:item.id,revision:item.revision}))
   staged.usedEventRefs=[...(currentEvent?[currentEvent]:[]),...historicalEvents].map(event=>({eventId:event.id,revision:event.revision,generation:event.generation}))
   const route=initialModelRoute(current.content,snapshot,capabilityVerified),runtime=resolveModel(route.tier)
+  const growth=await growthContext(run.user_id,run.conversation_id)
+  staged.usedGrowthRefs=growth.map(item=>({id:item.id,revision:item.revision}))
+  staged.growthSnapshotKey=growthSnapshotKey(growth)
   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id)
-  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
+  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth,retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
   const retrieved=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
   const calls:CallRecord[]=[]
