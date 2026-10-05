@@ -86,6 +86,9 @@ async function call(id:keyof typeof inputs){
   }
   if(id==='R4')report.checks.cancel={passed:cancelled&&stop==='aborted',...diagnostics,note:'Provider final billing is unknown unless nonempty usage is actually reported.'}
   save();console.log(JSON.stringify({check:id,tier,passed:Object.values(report.checks).at(-1)&& (Object.values(report.checks).at(-1) as any).passed,elapsedMs:diagnostics.elapsedMs}))
+  // An account/transport error cannot be repaired by sending the other fixtures.
+  // Stop after its settled receipt; never repeat an unsupported paid request.
+  if(stop==='error'||thrown)throw new Error('PROVIDER_PROBE_STOPPED_AFTER_FAILED_REQUEST')
 }
 try{for(const id of selected)await call(id as keyof typeof inputs)}catch(error){report.errorCategory=probeErrorCategory(redact(error));report.status='FAIL';save();throw error}
 report.status=Object.values(report.checks).every((value:any)=>value.passed===true)?check?'CHECK_PASS':'PASS':'FAIL'

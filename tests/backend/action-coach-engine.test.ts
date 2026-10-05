@@ -626,6 +626,44 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       assert.equal((await pool.query("SELECT count(*)::int AS n FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[user,input.run.request_id])).rows[0].n,0)
       await store.terminateRun(user,input.run.request_id,'failed','SYNTHETIC_EVENT_VERSION_CHANGED')
     })
+    await t.test('captured explicit material request cannot silently finish with only abstract advice (minimized real Flash failure)',async()=>{
+      const fresh=randomUUID();await store.createConversation(user,{id:fresh,title:'SYNTHETIC minimized missing delivery'})
+      const text='我给同学发了资料，他明确说手机打不开，所以没有看。现在我只想问他还需要哪一部分，请直接起草一段可以发送的消息，先不重新制作资料。'
+      const run=(await store.startRun(user,fresh,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
+      const input={run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:(_event:Record<string,unknown>)=>{}}
+      const failure={reply:'好的，直接问清楚他具体需要哪部分，避免盲目重做。'}
+      outputs.push(failure,failure)
+      const before=requests.length
+      try{
+        await assert.rejects(engine(input),{code:'COACH_MATERIAL_NOT_VISIBLE'})
+        assert.equal(requests.length-before,2,'one targeted repair, then reject rather than claiming delivery')
+        assert.equal((await pool.query("SELECT count(*)::int AS n FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[user,run.request_id])).rows[0].n,0)
+      }finally{
+        outputs.length=0
+        await store.terminateRun(user,run.request_id,'failed','SYNTHETIC_MISSING_DELIVERY')
+      }
+    })
+    await t.test('declining direct drafting beside an ordinary question does not force delivery',async()=>{
+      const input=await prepare('不要直接起草消息。我想问一下，沟通前应该确认什么？'),before=requests.length
+      outputs.push({reply:'先确认对方现在是否还有需求。'})
+      try{
+        const result=await engine(input)
+        assert.equal(requests.length-before,1);assert.equal(input.staged.coach,undefined)
+        await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      }finally{outputs.length=0;await store.terminateRun(user,input.run.request_id,'failed','SYNTHETIC_DECLINED_DRAFT_CLEANUP')}
+    })
+    await t.test('one missing-delivery repair preserves the requested purpose and saves usable material once',async()=>{
+      const input=await prepare('请直接起草一句问对方现在是否还需要资料的消息。'),before=requests.length
+      const content='你现在还需要这份资料吗？如果需要，告诉我具体哪一部分。'
+      outputs.push({reply:'先确认需求。'},{reply:'可以先发这段：',event:{target:{operation:'continue',eventId,expectedRevision:(await coachEventView(user,conversation))!.revision},action:{operation:'create',draft:{content}}}})
+      const result=await engine(input)
+      assert.equal(requests.length-before,2);assert.equal((result.usage as any).repairReason,'COACH_MATERIAL_NOT_VISIBLE')
+      assert.match(requests.at(-1).messages[0].content,/cannot be completed by abstract advice/)
+      const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      assert.equal(saved.upstreamCalls,2)
+      assert.equal(result.text.split(content).length,2)
+      assert.equal((await coachEventView(user,conversation))!.actions.find(action=>action.status==='proposed')!.draft!.content,content)
+    })
     await t.test('every actual generation and repair has exactly one ordered reservation and completion',()=>{
       assert.equal(observed.length,requests.length*2)
       const ids=new Set<string>()
