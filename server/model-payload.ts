@@ -79,6 +79,10 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
       }
     }
     if(growthTargets){
+      // The growth-enabled native protocol has one personal-fact lane. Legacy
+      // stored profiles remain readable and the parser still accepts old turns;
+      // confirmed-experience candidates keep their separate opt-in lifecycle.
+      delete compiled.properties?.background
       const unique=new Map<string,number>()
       for(const ref of growthTargets){
         if(!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(ref.id)||!Number.isInteger(ref.revision)||ref.revision<1)throw new Error('GROWTH_TARGET_INVALID')
@@ -93,9 +97,9 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
           target.anyOf=[create,...Array.from(unique,([id,revision])=>({...replace,properties:{...replace.properties,itemId:{...replace.properties.itemId,enum:[id]},expectedRevision:{...replace.properties.expectedRevision,enum:[revision]}}}))]
         }
         if(properties?.assertion?.const==='ai_observation'){
-          if(!unique.size)return false
-          const dependency=properties.dependencies.items
-          properties.dependencies.items={anyOf:Array.from(unique,([id,revision])=>({...dependency,properties:{...dependency.properties,id:{...dependency.properties.id,enum:[id]},revision:{...dependency.properties.revision,enum:[revision]}}}))}
+            const alternatives=properties.dependencies.items.anyOf
+            const dependency=alternatives.find((branch:any)=>branch.properties?.id),local=alternatives.find((branch:any)=>branch.properties?.updateIndex)
+            properties.dependencies.items={anyOf:[local,...Array.from(unique,([id,revision])=>({...dependency,properties:{...dependency.properties,id:{...dependency.properties.id,enum:[id]},revision:{...dependency.properties.revision,enum:[revision]}}}))]}
         }
         return true
       })

@@ -4,7 +4,7 @@ import {createHash,randomUUID} from 'node:crypto'
 const digest=(bytes:string|Buffer)=>createHash('sha256').update(bytes).digest('hex')
 // Preflight and reservation must use the same active grant. Historical funds
 // remain auditable but never supplement or replace an activated current grant.
-export const activeCoachFunding=(snapshot:any)=>snapshot.currentGrant??snapshot.additional??null
+export const activeCoachFunding=(snapshot:any)=>snapshot.continuation??snapshot.currentGrant??snapshot.additional??null
 
 export function readCoachAuthorization(root=process.cwd()){
   const directory=resolve(root,'evidence/v1.2.1-reliability/20261003-authorized300-11')
@@ -30,7 +30,8 @@ export type CoachCallReceipt={callId:string;runId:string;purpose:'capability'|'t
 export type ComparisonRestriction={startingCall:number;priorReceiptsSha256:string;grantSha256:string;limitCny:27.92;maximumCalls:8}
 export function comparisonAllowance(ledger:any,restriction:ComparisonRestriction){
   if(restriction.limitCny!==27.92||restriction.maximumCalls!==8||!Number.isInteger(restriction.startingCall)||restriction.startingCall<0||restriction.startingCall>ledger.calls.length||restriction.grantSha256!==ledger.currentGrant?.authorizationSha256||digest(JSON.stringify(ledger.calls.slice(0,restriction.startingCall)))!==restriction.priorReceiptsSha256)throw new Error('COMPARISON_RESTRICTION_CHANGED')
-  const calls=ledger.calls.slice(restriction.startingCall) as CoachCallReceipt[]
+  const end=ledger.comparisonRestriction?.completedCallCount
+  const calls=ledger.calls.slice(restriction.startingCall,end) as CoachCallReceipt[]
   let accounted=0
   for(const call of calls){
     const cost=call.status==='finished'&&typeof call.estimatedCostCny==='number'?call.estimatedCostCny:call.reservedCostCny
@@ -83,6 +84,32 @@ export class CoachProviderBudget {
     grant.remainingCny=Math.max(0,Number((grant.limitCny-accounted).toFixed(8)))
     if(accounted>grant.limitCny)grant.paused=true
   }
+  private refreshContinuation(ledger:any){
+    const funding=ledger.continuation
+    if(!funding)return
+    const bytes=readFileSync(resolve(dirname(this.path),'campus-acceptance-continuation-20261005.json')),note=JSON.parse(bytes.toString())
+    if(digest(bytes)!==funding.authorizationSha256||note.amountCny!==27.62||funding.limitCny!==27.62||note.noCallLimit!==true||funding.startingCall!==note.startingCall||funding.grantSha256!==ledger.currentGrant?.authorizationSha256||note.grantSha256!==funding.grantSha256||!Number.isInteger(funding.startingCall)||funding.startingCall<0||funding.startingCall>ledger.calls.length||digest(JSON.stringify(ledger.calls.slice(0,funding.startingCall)))!==note.priorReceiptsSha256||note.previousComparisonSha256!==(ledger.comparisonRestriction?.authorizationSha256??null))throw new Error('CONTINUATION_AUTHORIZATION_CHANGED')
+    let accounted=0
+    for(const call of ledger.calls.slice(funding.startingCall) as CoachCallReceipt[]){
+      const cost=call.status==='finished'&&typeof call.estimatedCostCny==='number'?call.estimatedCostCny:call.reservedCostCny
+      if(typeof cost!=='number'||!Number.isFinite(cost)||cost<0)throw new Error('CONTINUATION_SPEND_UNBOUNDED')
+      accounted+=cost
+    }
+    funding.accountedCny=Number(accounted.toFixed(8));funding.remainingCny=Math.max(0,Number((funding.limitCny-accounted).toFixed(8)))
+    if(accounted>funding.limitCny)funding.paused=true
+  }
+  activateContinuation(){
+    return this.change(ledger=>{
+      if(ledger.continuation)return structuredClone(ledger.continuation)
+      if(ledger.calls.some((call:CoachCallReceipt)=>call.status!=='finished'))throw new Error('TERMINAL_CALLS_REQUIRED_FOR_PLAN_CHANGE')
+      const bytes=readFileSync(resolve(dirname(this.path),'campus-acceptance-continuation-20261005.json')),note=JSON.parse(bytes.toString())
+      if(note.kind!==(this.options.simulation?'SIMULATED_ACCEPTANCE_CONTINUATION':'USER_AUTHORIZED_ACCEPTANCE_CONTINUATION')||note.amountCny!==27.62||note.noCallLimit!==true||note.startingCall!==ledger.calls.length||note.grantSha256!==ledger.currentGrant?.authorizationSha256||digest(JSON.stringify(ledger.calls))!==note.priorReceiptsSha256||note.previousComparisonSha256!==(ledger.comparisonRestriction?.authorizationSha256??null)||ledger.currentGrant.paused||ledger.currentGrant.remainingCny<27.62)throw new Error('CONTINUATION_AUTHORIZATION_INVALID')
+      if(ledger.comparisonRestriction)Object.assign(ledger.comparisonRestriction,{completedCallCount:ledger.calls.length,completedAt:new Date().toISOString()})
+      ledger.continuation={authorizationSha256:digest(bytes),grantSha256:note.grantSha256,limitCny:27.62,startingCall:note.startingCall,activatedAt:new Date().toISOString(),noCallLimit:true,paused:false}
+      this.refreshContinuation(ledger)
+      return structuredClone(ledger.continuation)
+    })
+  }
   activateCurrentGrant(){
     return this.change(ledger=>{
       if(ledger.currentGrant)return structuredClone(ledger.currentGrant)
@@ -91,6 +118,7 @@ export class CoachProviderBudget {
       if(note.kind!==(this.options.simulation?'SIMULATED_DEVELOPMENT_TEST_GRANT':'USER_AUTHORIZED_DEVELOPMENT_TEST_GRANT')||note.amountCny!==30||note.startingCall!==ledger.calls.length||note.priorReceiptsSha256!==digest(JSON.stringify(ledger.calls)))throw new Error('CURRENT_GRANT_AUTHORIZATION_INVALID')
       ledger.currentGrant={authorizationSha256:digest(bytes),limitCny:note.amountCny,startingCall:note.startingCall,activatedAt:new Date().toISOString(),paused:false}
       this.refreshCurrentGrant(ledger)
+      this.refreshContinuation(ledger)
       return structuredClone(ledger.currentGrant)
     })
   }
@@ -127,6 +155,7 @@ export class CoachProviderBudget {
       ledger.remaining=Math.min(authorization.remaining,ledger.maxNewCalls)-ledger.calls.filter((call:CoachCallReceipt)=>!call.funding).length
       this.refreshAdditional(ledger)
       this.refreshCurrentGrant(ledger)
+      this.refreshContinuation(ledger)
       if(ledger.comparisonRestriction){
         const bytes=readFileSync(resolve(this.options.root??process.cwd(),'.local/campus-growth/comparison-restriction-20261005.json'))
         if(digest(bytes)!==ledger.comparisonRestriction.authorizationSha256)throw new Error('COMPARISON_RESTRICTION_CHANGED')
@@ -136,6 +165,7 @@ export class CoachProviderBudget {
       ledger.remaining=Math.min(authorization.remaining,ledger.maxNewCalls)-ledger.calls.filter((call:CoachCallReceipt)=>!call.funding).length
       this.refreshAdditional(ledger)
       this.refreshCurrentGrant(ledger)
+      this.refreshContinuation(ledger)
       if(!persist)return result
       temp=this.path+'.'+randomUUID()+'.tmp'
       writeFileSync(temp,JSON.stringify(ledger,null,2)+'\n',{mode:0o600});renameSync(temp,this.path);temp=undefined
@@ -177,13 +207,14 @@ export class CoachProviderBudget {
   }
   reserve(input:Omit<CoachCallReceipt,'callId'|'startedAt'|'status'>,restriction?:ComparisonRestriction){
     return this.change(ledger=>{
-      restriction=ledger.comparisonRestriction??restriction
+      restriction=ledger.continuation?undefined:ledger.comparisonRestriction??restriction
       if(restriction){
         const allowance=comparisonAllowance(ledger,restriction)
         if(input.purpose!=='diagnostic'||input.tier!=='default'||!['qwen3.8-flash','qwen3.8-max','qwen3.7-plus'].includes(input.model)||allowance.remainingCalls<1||typeof input.reservedCostCny!=='number'||input.reservedCostCny>allowance.remainingCny)throw new Error('COMPARISON_BUDGET_OR_SCOPE_EXHAUSTED')
       }
       const limits=ledger.purposeLimits??{overhead:64,generation:70,repair:22}
       const additional=ledger.currentGrant??ledger.additional
+      if(ledger.continuation&&(ledger.continuation.paused||typeof input.reservedCostCny!=='number'||!Number.isFinite(input.reservedCostCny)||input.reservedCostCny<=0||input.reservedCostCny>ledger.continuation.remainingCny))throw new Error('CONTINUATION_BUDGET_EXHAUSTED_OR_PRICE_REQUIRED')
       if(additional){
         if(additional.paused||typeof input.reservedCostCny!=='number'||!Number.isFinite(input.reservedCostCny)||input.reservedCostCny<=0||input.reservedCostCny>additional.remainingCny)throw new Error('ADDITIONAL_BUDGET_EXHAUSTED_OR_PRICE_REQUIRED')
       }

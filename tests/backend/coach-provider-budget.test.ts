@@ -5,6 +5,35 @@ import {readFileSync,writeFileSync,unlinkSync,rmdirSync,existsSync} from 'node:f
 import {dirname} from 'node:path'
 import {CoachProviderBudget,readCoachAuthorization} from '../../scripts/coach-provider-budget.ts'
 
+test('SIMULATED continuation keeps old receipts, removes call-count ceilings and caps exact new spend including unknowns',()=>{
+  const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()}),directory=dirname(budget.path)
+  const grantPath=directory+'/development-test-grant-20261005.json',notePath=directory+'/campus-acceptance-continuation-20261005.json'
+  const input={runId:'synthetic',purpose:'turn' as const,tier:'default',provider:'synthetic',model:'synthetic',signature:'synthetic',reservedCostCny:0.1}
+  try{
+    budget.snapshot()
+    writeFileSync(grantPath,JSON.stringify({kind:'SIMULATED_DEVELOPMENT_TEST_GRANT',amountCny:30,startingCall:0,priorReceiptsSha256:createHash('sha256').update('[]').digest('hex')}))
+    const grant=budget.activateCurrentGrant(),old=budget.reserve(input)
+    budget.finish(old.callId,{outcome:'completed',usage:{},estimatedCostCny:0.1,providerResponseId:null})
+    const original=budget.snapshot()
+    writeFileSync(notePath,JSON.stringify({kind:'SIMULATED_ACCEPTANCE_CONTINUATION',amountCny:27.62,noCallLimit:true,startingCall:original.calls.length,grantSha256:grant.authorizationSha256,priorReceiptsSha256:createHash('sha256').update(JSON.stringify(original.calls)).digest('hex'),previousComparisonSha256:null}))
+    const activation=budget.activateContinuation()
+    for(let index=0;index<9;index++){const receipt=budget.reserve(input);budget.finish(receipt.callId,{outcome:'completed',usage:{},estimatedCostCny:0.01,providerResponseId:null})}
+    const unknown=budget.reserve({...input,reservedCostCny:10});budget.finish(unknown.callId,{outcome:'aborted',usage:'unknown',estimatedCostCny:'unknown',providerResponseId:null})
+    const snapshot=budget.snapshot()
+    assert.equal(snapshot.continuation.accountedCny,10.09);assert.equal(snapshot.continuation.remainingCny,17.53)
+    assert.deepEqual(snapshot.calls.slice(0,original.calls.length),original.calls)
+    assert.throws(()=>budget.reserve({...input,reservedCostCny:17.531}),/CONTINUATION_BUDGET/)
+    assert.equal(budget.activateContinuation().activatedAt,activation.activatedAt,'reactivation cannot reset receipts or amount')
+    const bytes=readFileSync(notePath);writeFileSync(notePath,bytes.toString().replace('27.62','27.63'))
+    assert.throws(()=>budget.snapshot(),/CONTINUATION_AUTHORIZATION_CHANGED/)
+    writeFileSync(notePath,bytes)
+    assert.equal(budget.snapshot().continuation.remainingCny,17.53)
+  }finally{
+    for(const path of [notePath,grantPath,budget.path,budget.path+'.lock'])if(existsSync(path))unlinkSync(path)
+    if(existsSync(directory))rmdirSync(directory)
+  }
+})
+
 test('SIMULATED comparison reservation enforces exact budget and eight starts under the existing ledger lock',()=>{
   const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()}),notePath=dirname(budget.path)+'/development-test-grant-20261005.json'
   try{

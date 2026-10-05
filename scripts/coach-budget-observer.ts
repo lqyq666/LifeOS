@@ -8,6 +8,9 @@ export function coachBudgetObserver(input:{runId:string;freezePath:string;source
   const budget=input.budget??new CoachProviderBudget(),receipts=new Map<string,string>()
   return {
     before(call){
+      // Paid development runs stop for evidence and a fix instead of silently
+      // issuing an automatic second semantic repair request.
+      if(call.purpose==='repair')throw new Error('AUTOMATIC_PAID_REPAIR_DISABLED')
       const sourceDigest=assertCoachSourceFreeze(input.freezePath,input.sourceRoot)
       if(receipts.has(call.callId))throw new Error('DUPLICATE_PROVIDER_CALL_RESERVATION')
       const maximum=maximumProviderCallCostCny(resolveModel(call.tier).model.contextWindow,call.outputTokenLimit,call.pricing)

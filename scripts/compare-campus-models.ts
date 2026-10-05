@@ -27,13 +27,13 @@ const sourceDigest=assertCoachSourceFreeze(freeze),runtime=resolveModel('default
 const limit=outputTokenLimit(runtime.model,'default'),maximum=maximumProviderCallCostCny(runtime.model.contextWindow,limit,runtime.pricing)
 const funding=activeCoachFunding(budget.snapshot())
 const restriction:ComparisonRestriction=JSON.parse(readFileSync(resolve('.local/campus-growth/comparison-restriction-20261005.json'),'utf8'))
-const allowance=comparisonAllowance(budget.snapshot(),restriction)
+const snapshot=budget.snapshot(),allowance=snapshot.continuation?{remainingCalls:null,remainingCny:snapshot.continuation.remainingCny,accountedCny:snapshot.continuation.accountedCny}:comparisonAllowance(snapshot,restriction)
 if(args.includes('--preflight')){
   console.log(JSON.stringify({evidence:'LOCAL_PREFLIGHT_ZERO_PROVIDER_CALLS',model:runtime.model.id,thinkingBudget:config.qwenThinkingBudget,sourceDigest,credentialAvailable:runtime.available,maximumPerCallCny:maximum,maximumCohortCny:typeof maximum==='number'?maximum*campusComparisonCases.length:null,remainingCny:funding?.remainingCny??null,comparisonAllowance:allowance,caseIds:campusComparisonCases.map(fixture=>fixture.id),maxRetries:0,persistence:'NONE'}))
   process.exit(0)
 }
 if(!runtime.available)throw new Error('MISSING_OR_PLACEHOLDER_CREDENTIAL')
-if(!funding||funding.paused||typeof maximum!=='number'||funding.remainingCny<maximum*campusComparisonCases.length||allowance.remainingCalls<campusComparisonCases.length||allowance.remainingCny<maximum*campusComparisonCases.length)throw new Error('AUTHORIZED_PROVIDER_CALL_BUDGET_EXHAUSTED')
+if(!funding||funding.paused||typeof maximum!=='number'||funding.remainingCny<maximum*campusComparisonCases.length||allowance.remainingCalls!==null&&allowance.remainingCalls<campusComparisonCases.length||allowance.remainingCny<maximum*campusComparisonCases.length)throw new Error('AUTHORIZED_PROVIDER_CALL_BUDGET_EXHAUSTED')
 const directory=resolve(process.env.LIFEOS_EVIDENCE??'.local/campus-growth/comparisons'),runId='campus-comparison-'+Date.now()+'-'+randomUUID().slice(0,8)
 mkdirSync(directory,{recursive:true})
 const report={runId,evidence:'REAL_PROVIDER_SYNTHETIC_DIAGNOSTIC_NOT_SAVED_TRAJECTORY',model:runtime.model.id,thinkingBudget:config.qwenThinkingBudget,sourceDigest,maxRetries:0,quality:'PENDING_MANUAL_REVIEW',cases:[] as Record<string,unknown>[],fundingAfter:funding}

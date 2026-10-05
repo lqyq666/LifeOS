@@ -18,3 +18,11 @@
 免费审计同类汇总：campusCostSummary只用SAVED事务计算费用且qualityAcceptance仍PENDING_SEPARATE_SEMANTIC_REVIEW；compare-coach-model只标OUTPUT_SHAPE_VALID_NOT_COMMITTED；run-action-coach收尾固定NOT_READY并要求独立语义复核。没有把本次空更新加入成功分母。新campusComparisonArtifacts明确非空必要条件，内容齐全仍不是语义/事务/性能通过。
 
 下一免费工作：精简重复生成本人text与source.quote的协议，复用已存在事件节点由服务器保存原文的机制；保持旧改写/伪造来源严格拒绝，不能改原失败回答冒充新成功。付费语义复验、真实连续事务/浏览器链及20普通时延样本需要新的明确次数授权，现阶段WIP_NOT_READY，不部署。
+
+2026-10-05 13:22:50后续授权已变更：在原账本422基线上使用严格27.62元，无调用次数上限，不增加预算、不自动重试，有新证据和实际修复后才继续。以上8次记录保持历史有效，不能把其次数0或旧余额当作新阶段状态。
+
+source-only Flash0首次2例估费0.0098653，连续quote与省略text不再互相改写，但人工质量仍FAIL。第一份编造学期结束日期、对外草稿擅自宣称能力；第二份扩大课程评价和地域愿望。免费回放仅暂存不是业务成功。加入期限来源守卫后原样重放第一份GROWTH_TIME_UNVERIFIED，第二份仅GROWTH_STAGED_NOT_COMMITTED，零持久写入；原首次报告保留为before-time-guard。
+
+source-semantic Flash0提示修复后两例24.216/37.327秒，估费0.0144548，人工仍FAIL：第一份继续猜截止日和把短访谈交集小当排除方向；第二份把可选研究体验冒充已计划、扣除6小时并分配剩余时间。真实隔离PG原样分别GROWTH_TIME_UNVERIFIED/GROWTH_TIME_REQUIRED拒绝，零成长保存。四次新阶段共估费0.0243201，严格余额27.5956799，未产生自动repair。
+
+发现constraint允许省略validUntil的Schema结构缺口，现拆成必填有效期分支；可核对期限未知时保留context，服务器不改写原失败记录。新通用提示区分机会/建议/本人决定/执行、证据范围和短反馈局限。待新冻结验证，整体验收仍WIP_NOT_READY。

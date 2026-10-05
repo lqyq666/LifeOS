@@ -191,3 +191,23 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - 一条命令合并growth-source-span、growth-model、model-payload：同一临时DB/18迁移，3文件21测试全过，merged-regression.log。选择器3项边界随客户端共50/50、服务端类型通过；只改测试基础设施，不重复全量业务/浏览器/恢复/构建。
 - 独立只读协议审阅未发现高优先新增缺陷，提醒连续原文不证明片段语义完整，真实模型不能据此通过。未切换开发模型：本机默认配置gpt-6.1-sol/medium/priority，但本任务实际model/thinking/serviceTier元数据未暴露、精确thread SQLite无行，实际三项unknown，不混同产品Flash。
 - 2026-10-05 13:22:50真人确认后续按剩余约27.62元控制、不设调用次数上限、不增加预算、不自动重试；有新证据和修复后继续。正在同一账本追加后续限制/422基线，旧8次限制和原收据保留，未扩大资金。下一真实门是新协议完整原文/事实及实际暂存，不预设高思考或解析成功等于通过。
+
+### 第十三批：金额续期、期限来源与机会边界（进行中）
+
+- 同一唯一账本追加422基线、严格27.62元、无次数上限阶段；旧8次授权/收据/失败保留，未增资金或重置。完成收据按实际估费，pending/unknown按原最坏reserve永久保守计入。模拟超过8次、余额不足、未知用量、不可重启重置及授权文件篡改均通过。付费开发observer在reserve/API之前拒绝自动semantic repair；生产引擎未由此改重试策略。
+- source-only Flash0首两份仍人工FAIL：一份无本人学期截止日却填2026-12-31，另一份把有限课程经历说成核心优势；估费0.0098653。原样免费PG重放初次均只暂存；新增期限来源守卫后第一份GROWTH_TIME_UNVERIFIED拒绝，第二份仅暂存，不保存业务。原报告已复制保留before-time-guard。学期/暑寒假constraint期限必须在同一verified span有明确截止日；其余相对时间规则未声称全面解决。
+- 提示修复后新两份估费0.0144548，耗时24.216/37.327秒。真实PG分别GROWTH_TIME_UNVERIFIED/GROWTH_TIME_REQUIRED拒绝，独立人工复核均FAIL：猜学期截止、constraint缺有效期、短接触排除方向，第二份把可选研究体验说成已计划并扣时间。原文/冻结/费用不修改；source-semantic-real-review.log及对应report保留。截至这四次续期估费0.0243201、严格余额27.5956799、零pending，非账户发票。
+- 新增通用提示保留能力证据范围、费用未知、机会≠决定/执行、短体验只给局部反馈；复用已有TypeBox拆分constraint分支，使validUntil在native Schema/parser必填，无可核对期限保留context。动态Schema、parser与实际stage负对照/明确日期正对照均加入原来源回归；不由服务器改写失败回答或补默认期限。
+- 第一轮整批后端39文件211、客户端50、类型/build全通过；Schema追加后定向4文件63与最终类型/build通过，完整后端正在运行。两处故意 malformed runtime 测试随更严格类型首次type失败，已加定点ts-expect-error保留运行时负对照，失败日志保留。第二次修复的新冻结两案例正在正常批准的现有百炼环境执行，不能在完成前计通过。未改默认Flash0/客户端/迁移，不重复无关恢复或Chrome。
+- 自动审批一度因认为仓库冻结内容会外传而拒绝；只读确认唯一payload是产品提示/JSON协议与两条合成成年案例，冻结仅本地assert，不上传仓库/账本/真实用户库。携实际代码和已有明确模型测试授权，重提同一操作一次已正常批准；无换通道绕过。完整产品仍WIP_NOT_READY，真实连续事务/浏览器、10场景、20普通速度和混合成本仍待验收，未push/合main/部署。
+
+### 第十四批：共享保存责任与本轮显式依据（本地通过，真实链仍未通过）
+
+- 第十三批constraint新Schema下Flash两例25.347/16.840秒、估费0.0101739，人工仍FAIL：第一份只unknown、假设薪酬/非技术兴趣且提纲只reply，第二份零growth/能力扩大。真实PG第一份仅暂存unknown、第二份NO_GROWTH_UPDATES_NOT_TESTED；不是个人理解成功。Max0同协议两例24.057/37.262秒、0.139572，比较/停止边界改善但第一份仅unknown且“请保住课程”非原文被GROWTH_SOURCE_INVALID，第二份零growth；均FAIL。原对照、冻结和费用保留。
+- 免费核验共享任务负担：成长/event/背景/经历同时可承载同一事实、缺优先级，default末尾还限定普通追问。明确growth为跨对话个人理解主要承载，event承接过程和材料，固定updatePolicy随授权状态发送；取消普通追问限定。59定向与类型通过。Flash接口R1/R2/R4通过、R3缺材料FAIL，未绕门启动；Max当前R1–R4PASS后才正式进入C10，接口PASS不是业务/语义通过。
+- 首C10真实HTTP/BetterAuth隔离PG coach-cd5b4310-b013-4d4b-95e7-76c05b13d5f2：开场只存unknown，第二轮3作品/排版配色/就业倾向/6h信息后GROWTH_SNAPSHOT_INVALIDATED。原输出显示同批replace旧unknown revision1又生成依赖其旧revision1观察；事务正确回滚，stage未提前检查，反序可能立即stale。无外部writer证据、无重试，原DB lifeos_dialogue_live_5c0ca8739e2c4b3189c63ed2b68a7b36保留。
+- 显式updateIndex仅引用本轮已核实user_reported增量，0基0–7；不许unknown/观察/自引用/越界。stage整批验源后映射精确去重索引，事务先事实后观察解析真实id/revision；旧refs仍严格CAS，同批replace旧依据两顺序均拒绝，不自动升级。本人事实与观察同文字也不合并，保持proposed/limitation/dependencies；本轮依赖有效期在stage和commit重验，暂存后到期原子回滚。反馈独立Schema必填progressState，其他分支禁此字段。无新依赖/框架/迁移。
+- 新真实隔离PG两顺序创建→观察、更正→观察、非法旧依赖、去重映射、不同assertion同文字、到期回滚、来源忘记级联全部通过。65定向、类型、客户端50/build通过，整批完整后端40文件213通过（growth-local-evidence-full.log）。只读审阅指出的持久assertion去重和到期漏验已修，不宣称没有其他语义错误。
+- 新Max接口PASS后C10 coach-64ba39e7-0f84-4c0c-bf83-843692046bcf两轮都SAVED（10.540/21.299秒），但成长仍只有unknown，已明确条件被继续列未知；事实流入background、经历流入candidate，合法本轮引用没有生成，因此仍FAIL。原输出/DB lifeos_dialogue_live_27cfd9185917498e958e8b33c890a9c9保留，已正常exit，不继续带错误基线收费。
+- 下一最小裁剪：成长授权的Qwen native请求不再生成重复background，旧Schema/parser/已存profile仍兼容；保留experienceCandidate的本人确认生命周期，避免破坏首轮具体经历确认。个人学校/阶段/本人工作事实进入growth原话。裁剪相关payload/context/engine 60项及类型通过；上面的213完整是裁剪前基线，当前新增1项定向已覆盖，不冒充全量214已跑。不重复无关恢复/浏览器/全量循环。
+- 截至446收据（续期422基线后24次），零pending；续期严格27.62中保守计入4.3494604，剩23.2705396。包括预注册取消unknown最坏reserve，不是发票或全部实际花费；旧收据不改、不合余额、不设新次数上限。默认产品Flash0保持，诊断Max只是进程环境。完整10场景/20普通时延/混合成本/真实浏览器/隐私与条件部署仍未通过，持续开发，WIP_NOT_READY。

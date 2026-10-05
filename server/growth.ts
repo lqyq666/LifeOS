@@ -158,6 +158,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
   const current=requireRow((await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0])
   const replacements=new Set<string>()
   const unique:GrowthDelta[]=[]
+  const positions:number[]=[]
   for(const change of changes){
     // Select one source span once. Derivation adds no claim and never repairs a
     // supplied paraphrase: legacy text remains subject to the same exact guard.
@@ -177,35 +178,66 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
     if(delta.assertion==='ai_observation'){
       if(!delta.limitation.trim())throw new HttpError(400,'GROWTH_OBSERVATION_INVALID')
       if(!delta.dependencies.length)throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
-      for(const ref of delta.dependencies)if(!authorized.some(row=>row.id===ref.id&&row.revision===ref.revision&&!row.unavailableReason&&['active','proposed'].includes(row.status)))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
+      for(const ref of delta.dependencies){
+        if('updateIndex'in ref){
+          if(!Number.isInteger(ref.updateIndex)||ref.updateIndex<0||ref.updateIndex>=changes.length||changes[ref.updateIndex].assertion!=='user_reported')throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
+          const basis=changes[ref.updateIndex]
+          if('validUntil'in basis&&basis.validUntil&&expiry(basis.validUntil)!.getTime()<=Date.now())throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
+        }else if(!authorized.some(row=>row.id===ref.id&&row.revision===ref.revision&&!row.unavailableReason&&['active','proposed'].includes(row.status)))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
+      }
     }
     if('validUntil'in delta)expiry(delta.validUntil)
+    if(delta.kind==='constraint'&&'validUntil'in delta&&delta.validUntil&&/学期|暑假|寒假/.test(delta.source.quote)){
+      // A semester/vacation name supplies no cutoff; require its explicit end
+      // date in this verified span instead of fabricating an academic calendar.
+      const cutoff=Date.parse(delta.validUntil),day=Number.isFinite(cutoff)?new Date(cutoff).toISOString().slice(0,10):''
+      const end=delta.source.quote.match(/(?:截至|截止|直到|至|到|结束于)\s*(20\d{2})(?:年|-)(\d{1,2})(?:月|-)(\d{1,2})日?/)
+      const stated=end?`${end[1]}-${end[2].padStart(2,'0')}-${end[3].padStart(2,'0')}`:null
+      if(!stated||stated!==day)throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
+    }
     if(delta.kind==='constraint'&&(!('validUntil'in delta)||!delta.validUntil))throw new HttpError(400,'GROWTH_TIME_REQUIRED')
     if(delta.kind==='feedback'&&(!('progressState'in delta)||!delta.progressState))throw new HttpError(400,'GROWTH_FEEDBACK_INVALID')
     if(delta.kind!=='feedback'&&'progressState'in delta&&delta.progressState)throw new HttpError(400,'GROWTH_FEEDBACK_INVALID')
-    if(!unique.some(row=>row.target.operation==='create'&&delta.target.operation==='create'&&row.kind===delta.kind&&row.text===delta.text))unique.push(delta)
+    const existing=unique.findIndex(row=>row.target.operation==='create'&&delta.target.operation==='create'&&row.kind===delta.kind&&row.assertion==='user_reported'&&delta.assertion==='user_reported'&&row.text===delta.text&&row.source.quote===delta.source.quote&&('validUntil'in row?row.validUntil:null)===('validUntil'in delta?delta.validUntil:null)&&('progressState'in row?row.progressState:null)===('progressState'in delta?delta.progressState:null))
+    positions.push(existing<0?unique.length:existing)
+    if(existing<0)unique.push(delta)
   }
-  return {changes:unique}
+  // References describe the authorized pre-turn snapshot. Replacing their
+  // target in this same batch would invalidate them regardless of write order;
+  // never silently upgrade a model's evidence to the new revision.
+  if(unique.some(delta=>delta.assertion==='ai_observation'&&delta.dependencies.some(ref=>'id'in ref&&replacements.has(ref.id))))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
+  // Map explicit input positions through duplicate removal without changing
+  // which verified fact the model selected; raw provider output stays intact.
+  return {changes:unique.map(delta=>delta.assertion==='ai_observation'?{...delta,dependencies:delta.dependencies.map(ref=>'updateIndex'in ref?{updateIndex:positions[ref.updateIndex]}:ref)}:delta)}
 }
 export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthStaged):Promise<string[]> {
   if(!staged.changes.length)return []
   await lockGrowth(c,run.user_id)
-  const ids:string[]=[]
-  for(const delta of staged.changes){
+  const ids:string[]=[],written=new Map<number,Row>()
+  const replacements=new Set(staged.changes.flatMap(delta=>delta.target.operation==='replace'?[delta.target.itemId]:[]))
+  // Keep external references strict, even if an internal caller bypassed stage.
+  for(const delta of staged.changes)if(delta.assertion==='ai_observation')for(const ref of delta.dependencies)if('id'in ref&&replacements.has(ref.id))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
+  const order=staged.changes.map((delta,index)=>({delta,index})).sort((a,b)=>Number(a.delta.assertion==='ai_observation')-Number(b.delta.assertion==='ai_observation'))
+  for(const {delta,index} of order){
     const source={type:'message' as const,id:run.source_message_id,quote:delta.assertion==='user_reported'?delta.text:delta.source.quote}
     await checkCampusSource(c,run.user_id,run.conversation_id,true,source,true)
-    const refs=delta.assertion==='ai_observation'?delta.dependencies:[]
-    for(const ref of refs){const dependency=(await c.query('SELECT revision,status FROM growth_items WHERE user_id=$1 AND id=$2 FOR SHARE',[run.user_id,ref.id])).rows[0];if(!dependency||dependency.revision!==ref.revision||!['active','proposed'].includes(dependency.status))throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')}
+    const refs:GrowthRef[]=delta.assertion==='ai_observation'?delta.dependencies.map(ref=>{
+      if('id'in ref)return ref
+      const dependency=written.get(ref.updateIndex)
+      if(!dependency||staged.changes[ref.updateIndex]?.assertion!=='user_reported')throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
+      return {id:dependency.id,revision:dependency.revision}
+    }):[]
+    for(const ref of refs){const dependency=(await c.query('SELECT revision,status,valid_until FROM growth_items WHERE user_id=$1 AND id=$2 FOR SHARE',[run.user_id,ref.id])).rows[0];if(!dependency||dependency.revision!==ref.revision||!['active','proposed'].includes(dependency.status)||dependency.valid_until&&dependency.valid_until.getTime()<=Date.now())throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')}
     const status=delta.assertion==='ai_observation'?'proposed':'active',limitation=delta.assertion==='ai_observation'?delta.limitation:'',validUntil='validUntil'in delta?expiry(delta.validUntil):null,progressState='progressState'in delta?delta.progressState??null:null
     let row:Row
     if(delta.target.operation==='create'){
-      const existing=(await c.query('SELECT * FROM growth_items WHERE user_id=$1 AND kind=$2 AND text=$3 AND status IN (\'active\',\'proposed\') AND sources @> $4::jsonb',[run.user_id,delta.kind,delta.text,JSON.stringify([source])])).rows[0]
-      if(existing){ids.push(existing.id);continue}
+      const existing=(await c.query('SELECT * FROM growth_items WHERE user_id=$1 AND kind=$2 AND text=$3 AND status IN (\'active\',\'proposed\') AND sources @> $4::jsonb AND assertion=$5 AND dependencies=$6::jsonb AND limitation=$7',[run.user_id,delta.kind,delta.text,JSON.stringify([source]),delta.assertion,JSON.stringify(refs),limitation])).rows[0]
+      if(existing){ids[index]=existing.id;written.set(index,existing);continue}
       row=(await c.query('INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,limitation,progress_state,origin_request_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *',[randomUUID(),run.user_id,run.conversation_id,delta.kind,delta.text,delta.assertion,status,JSON.stringify([source]),JSON.stringify(refs),validUntil,limitation,progressState,run.request_id])).rows[0]
     }else{
       row=requireRow((await c.query('UPDATE growth_items SET kind=$4,text=$5,assertion=$6,status=$7,sources=$8,dependencies=$9,valid_until=$10,limitation=$11,progress_state=$12,origin_request_id=$13,revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 AND revision=$3 AND status IN (\'active\',\'proposed\') RETURNING *',[run.user_id,delta.target.itemId,delta.target.expectedRevision,delta.kind,delta.text,delta.assertion,status,JSON.stringify([source]),JSON.stringify(refs),validUntil,limitation,progressState,run.request_id])).rows[0])
     }
-    await record(c,row,delta.target.operation==='create'?'extract':'replace');ids.push(row.id)
+    await record(c,row,delta.target.operation==='create'?'extract':'replace');ids[index]=row.id;written.set(index,row)
   }
   return ids
 }

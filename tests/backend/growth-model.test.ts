@@ -44,7 +44,9 @@ test('conversation growth changes are grounded, atomic and selectively forgettab
       const input=await prepare('我这周只有两小时，还没投递。')
       const base={target:{operation:'create' as const},assertion:'user_reported' as const,source:input.source}
       await assert.rejects(stageGrowthUpdates(input.run,[{...base,kind:'ability',text:'我有丰富实习经验'}],input.growth),{code:'GROWTH_SOURCE_INVALID'})
+      // @ts-expect-error Deliberately malformed input must also fail at the runtime boundary.
       await assert.rejects(stageGrowthUpdates(input.run,[{...base,kind:'constraint',text:'只有两小时'}],input.growth),{code:'GROWTH_TIME_REQUIRED'})
+      // @ts-expect-error Intentionally omit required state to verify the runtime guard independently of parsing.
       await assert.rejects(stageGrowthUpdates(input.run,[{...base,kind:'feedback',text:'还没投递'}],input.growth),{code:'GROWTH_FEEDBACK_INVALID'})
       await store.terminateRun(user,input.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
     })
@@ -68,6 +70,16 @@ test('conversation growth changes are grounded, atomic and selectively forgettab
     await t.test('an unchanged short fragment cannot erase details from an existing goal',async()=>{
       const input=await prepare('准备考研')
       await assert.rejects(stageGrowthUpdates(input.run,[{target:{operation:'replace',itemId:goalId,expectedRevision:2},kind:'goal',assertion:'user_reported',text:'准备考研',source:input.source}],input.growth),{code:'GROWTH_UNCHANGED'})
+      await store.terminateRun(user,input.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
+    })
+    await t.test('a same-batch replacement cannot underpin an observation with its superseded revision in either order',async()=>{
+      const input=await prepare('更正：先探索就业，想看看绘画项目的反馈。')
+      const replacement={target:{operation:'replace' as const,itemId:goalId,expectedRevision:2},kind:'goal' as const,assertion:'user_reported' as const,source:input.source,text:'先探索就业'}
+      const observation={target:{operation:'create' as const},kind:'observation' as const,assertion:'ai_observation' as const,source:input.source,text:'绘画项目可能帮助就业探索',dependencies:[{id:goalId,revision:2}],limitation:'仅为待核对的探索线索，未有实际反馈'}
+      for(const changes of [[replacement,observation],[observation,replacement]])await assert.rejects(stageGrowthUpdates(input.run,changes,input.growth),{code:'GROWTH_DEPENDENCY_INVALID'})
+      const after=await growthView(user,chat)
+      assert.equal(after.items.find(row=>row.id===goalId)!.revision,2)
+      assert.ok(!after.items.some(row=>row.text===observation.text),'neither ordering may save an immediately stale observation')
       await store.terminateRun(user,input.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
     })
     await t.test('rejected observations remain separate decision boundaries; changing them invalidates an in-flight boundary snapshot',async()=>{
