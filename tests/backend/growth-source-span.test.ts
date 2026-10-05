@@ -33,9 +33,14 @@ test('source-only reported facts use verified user spans while legacy paraphrase
     await assert.rejects(stageGrowthUpdates(run,[{...selected[0],text:'我具备稳定技术能力'}],[]),{code:'GROWTH_SOURCE_INVALID'})
     await assert.rejects(stageGrowthUpdates(run,[delta('团队项目...没有写代码')],[]),{code:'GROWTH_SOURCE_INVALID'})
     await assert.rejects(stageGrowthUpdates(run,[{...selected[0],source:{...selected[0].source,messageId:randomUUID()}}],[]),{code:'GROWTH_SOURCE_INVALID'})
-    // @ts-expect-error Deliberately bypass the parser to verify rejection at the runtime boundary too.
-    await assert.rejects(stageGrowthUpdates(run,[{...delta('本周仅两小时'),kind:'constraint'}],[]),{code:'GROWTH_TIME_REQUIRED'})
-    await assert.rejects(stageGrowthUpdates(run,[{...delta('本学期每周最多四小时'),kind:'constraint',validUntil:`${academicYear}-12-31T23:59:59Z`}],[]),{code:'GROWTH_TIME_UNVERIFIED'})
+    // @ts-expect-error Deliberately bypass the parser: malformed runtime input must drop the unverifiable constraint instead of failing the turn.
+    const timeSkipped=await stageGrowthUpdates(run,[{...delta('本周仅两小时'),kind:'constraint'},{...delta('先不联系，可以吗？')}],[])
+    assert.deepEqual(timeSkipped.changes.map(row=>row.text),['先不联系，可以吗？'],'missing constraint expiry drops only that item')
+    assert.equal(timeSkipped.skipped?.[0].reason,'unverifiable_constraint_time')
+    // A semester budget without its stated cutoff is skipped, never saved with a guessed date.
+    const semesterSkipped=await stageGrowthUpdates(run,[{...delta('本学期每周最多四小时'),kind:'constraint',validUntil:`${academicYear}-12-31T23:59:59Z`}],[])
+    assert.equal(semesterSkipped.changes.length,0)
+    assert.equal(semesterSkipped.skipped?.[0].reason,'unverifiable_constraint_time')
     assert.equal((await stageGrowthUpdates(run,[{...delta(academicSpan),kind:'constraint',validUntil:`${academicYear}-12-31T23:59:59Z`}],[])).changes[0].text,academicSpan)
     assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:'未知不猜。',growthUpdates:[{...delta('先不联系，可以吗？'),kind:'unknown',assertion:'unknown'}]})),/OUTPUT_INVALID/)
     assert.equal((await growthView(user,chat)).items.length,0,'all validation failures precede any writes')
@@ -50,6 +55,15 @@ test('source-only reported facts use verified user spans while legacy paraphrase
     await actOnGrowthItem(user,forgotten.id,{requestId:randomUUID(),expectedRevision:forgotten.revision,action:'forget'})
     await assert.rejects(stageGrowthUpdates(run,[selected[0]],[]),{code:'CAMPUS_SOURCE_FORGOTTEN'})
     assert.equal((await stageGrowthUpdates(run,[selected[1]],[])).changes[0].text,'先不联系，可以吗？','forgetting one selected span preserves independent question-form boundaries')
+    // Re-asserting words the user verbatim said in an earlier message drops the
+    // duplicate instead of failing the turn; genuine fabrication still fails.
+    const secondRun=(await store.startRun(user,chat,randomUUID(),'先不联系，可以吗？我再说一次本周仅两小时。')).run
+    const reasserted={...delta('我是20岁的大二学生。'),source:{messageId:secondRun.source_message_id,quote:'我是20岁的大二学生。'}}
+    const mixed=await stageGrowthUpdates(secondRun,[reasserted,{...reasserted,source:{messageId:secondRun.source_message_id,quote:'本周仅两小时'}}],[])
+    assert.deepEqual(mixed.changes.map(row=>row.text),['本周仅两小时'],'old-message re-assertions are dropped while current-message facts persist')
+    assert.equal(mixed.skipped?.[0].reason,'reasserted_prior_message')
+    await assert.rejects(stageGrowthUpdates(secondRun,[{...reasserted,source:{messageId:secondRun.source_message_id,quote:'我从没说过的原话'}}],[]),{code:'GROWTH_SOURCE_INVALID'})
+    await store.terminateRun(user,secondRun.request_id,'cancelled','SYNTHETIC_REASSERTION_PROBE')
     const longText='我'.repeat(4001),oversize=(await store.startRun(user,chat,randomUUID(),longText)).run
     const longDelta={...delta(longText),source:{messageId:oversize.source_message_id,quote:longText}}
     await assert.rejects(stageGrowthUpdates(oversize,[longDelta],[]),{code:'GROWTH_SOURCE_INVALID'})

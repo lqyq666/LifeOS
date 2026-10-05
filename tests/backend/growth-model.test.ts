@@ -44,8 +44,10 @@ test('conversation growth changes are grounded, atomic and selectively forgettab
       const input=await prepare('我这周只有两小时，还没投递。')
       const base={target:{operation:'create' as const},assertion:'user_reported' as const,source:input.source}
       await assert.rejects(stageGrowthUpdates(input.run,[{...base,kind:'ability',text:'我有丰富实习经验'}],input.growth),{code:'GROWTH_SOURCE_INVALID'})
-      // @ts-expect-error Deliberately malformed input must also fail at the runtime boundary.
-      await assert.rejects(stageGrowthUpdates(input.run,[{...base,kind:'constraint',text:'只有两小时'}],input.growth),{code:'GROWTH_TIME_REQUIRED'})
+      // @ts-expect-error Deliberately malformed input: unverifiable constraint expiry drops that item instead of failing the turn.
+      const timeDropped=await stageGrowthUpdates(input.run,[{...base,kind:'constraint',text:'只有两小时'}],input.growth)
+      assert.equal(timeDropped.changes.length,0)
+      assert.equal(timeDropped.skipped?.[0].reason,'unverifiable_constraint_time')
       // @ts-expect-error Intentionally omit required state to verify the runtime guard independently of parsing.
       await assert.rejects(stageGrowthUpdates(input.run,[{...base,kind:'feedback',text:'还没投递'}],input.growth),{code:'GROWTH_FEEDBACK_INVALID'})
       await store.terminateRun(user,input.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')

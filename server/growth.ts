@@ -153,19 +153,64 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
   })
 }
 
-export type GrowthStaged={changes:GrowthDelta[]}
+export type GrowthStaged={changes:GrowthDelta[],skipped?:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'dropped_dependency'}[]}
 export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[]):Promise<GrowthStaged> {
   const current=requireRow((await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0])
+  // Models routinely re-assert facts the user already stated in an earlier
+  // message of this conversation, binding the old quote to the current message
+  // id. Those items are dropped idempotently instead of failing the turn:
+  // nothing is re-saved, nothing withdrawn is resurrected, and a quote that is
+  // the user's verbatim words nowhere remains a hard fabrication failure.
+  const earlier=(await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND role='user' AND id<>$3",[run.user_id,run.conversation_id,run.source_message_id])).rows as {content:string}[]
+  const saidEarlier=(quote:string)=>earlier.some(row=>row.content.includes(quote))
+  const skipped:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'dropped_dependency'}[]=[]
+  const skippedIndexes=new Set<number>()
+  const constraintTimeVerifiable=(change:GrowthInputDelta):boolean=>{
+    if(change.kind!=='constraint')return true
+    const value='validUntil'in change?change.validUntil:undefined
+    if(!value)return false
+    try{expiry(value)}catch{return false}
+    if(/学期|暑假|寒假/.test(change.source.quote)){
+      // A semester/vacation name supplies no cutoff; require its explicit end
+      // date in this verified span instead of fabricating an academic calendar.
+      const cutoff=Date.parse(value),day=Number.isFinite(cutoff)?new Date(cutoff).toISOString().slice(0,10):''
+      const end=change.source.quote.match(/(?:截至|截止|直到|至|到|结束于)\s*(20\d{2})(?:年|-)(\d{1,2})(?:月|-)(\d{1,2})日?/)
+      const stated=end?`${end[1]}-${end[2].padStart(2,'0')}-${end[3].padStart(2,'0')}`:null
+      if(!stated||stated!==day)return false
+    }
+    return true
+  }
+  for(const [index,change] of changes.entries()){
+    if(typeof (change.assertion==='user_reported'&&change.text===undefined?change.source.quote:change.text)!=='string')throw new HttpError(400,'GROWTH_SOURCE_INVALID')
+    if(change.source.messageId===run.source_message_id&&change.source.quote.trim()&&!current.content.includes(change.source.quote)&&saidEarlier(change.source.quote)){
+      skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'reasserted_prior_message'});continue
+    }
+    if(change.source.messageId!==run.source_message_id||!change.source.quote.trim()||!current.content.includes(change.source.quote))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
+    if(!constraintTimeVerifiable(change)){
+      // A constraint whose expiry the user never verifiably stated is unsafe to
+      // save; dropping that one item keeps the turn's verified facts intact.
+      skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'unverifiable_constraint_time'});continue
+    }
+  }
+  // Observations may only stand on facts that actually persisted this turn.
+  for(let pass=0;pass<changes.length;pass++){
+    let cascaded=false
+    for(const [index,change] of changes.entries()){
+      if(skippedIndexes.has(index)||change.assertion!=='ai_observation')continue
+      if(change.dependencies.some(ref=>'updateIndex'in ref&&skippedIndexes.has(ref.updateIndex))){skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'dropped_dependency'});cascaded=true}
+    }
+    if(!cascaded)break
+  }
   const replacements=new Set<string>()
   const unique:GrowthDelta[]=[]
   const positions:number[]=[]
-  for(const change of changes){
+  for(const [index,change] of changes.entries()){
+    if(skippedIndexes.has(index)){positions.push(-1);continue}
     // Select one source span once. Derivation adds no claim and never repairs a
     // supplied paraphrase: legacy text remains subject to the same exact guard.
     const selectedText=change.assertion==='user_reported'&&change.text===undefined?change.source.quote:change.text
     if(typeof selectedText!=='string')throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     const delta:GrowthDelta={...change,text:selectedText}
-    if(delta.source.messageId!==run.source_message_id||!delta.source.quote.trim()||!current.content.includes(delta.source.quote))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     await checkCampusSource(pool,run.user_id,run.conversation_id,true,{type:'message',id:delta.source.messageId,quote:delta.source.quote})
     if(delta.assertion==='user_reported'&&(!delta.text.trim()||delta.text.length>4000||!delta.source.quote.includes(delta.text)))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     if(delta.target.operation==='replace'){
@@ -187,15 +232,6 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
       }
     }
     if('validUntil'in delta)expiry(delta.validUntil)
-    if(delta.kind==='constraint'&&'validUntil'in delta&&delta.validUntil&&/学期|暑假|寒假/.test(delta.source.quote)){
-      // A semester/vacation name supplies no cutoff; require its explicit end
-      // date in this verified span instead of fabricating an academic calendar.
-      const cutoff=Date.parse(delta.validUntil),day=Number.isFinite(cutoff)?new Date(cutoff).toISOString().slice(0,10):''
-      const end=delta.source.quote.match(/(?:截至|截止|直到|至|到|结束于)\s*(20\d{2})(?:年|-)(\d{1,2})(?:月|-)(\d{1,2})日?/)
-      const stated=end?`${end[1]}-${end[2].padStart(2,'0')}-${end[3].padStart(2,'0')}`:null
-      if(!stated||stated!==day)throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
-    }
-    if(delta.kind==='constraint'&&(!('validUntil'in delta)||!delta.validUntil))throw new HttpError(400,'GROWTH_TIME_REQUIRED')
     if(delta.kind==='feedback'&&(!('progressState'in delta)||!delta.progressState))throw new HttpError(400,'GROWTH_FEEDBACK_INVALID')
     if(delta.kind!=='feedback'&&'progressState'in delta&&delta.progressState)throw new HttpError(400,'GROWTH_FEEDBACK_INVALID')
     const existing=unique.findIndex(row=>row.target.operation==='create'&&delta.target.operation==='create'&&row.kind===delta.kind&&row.assertion==='user_reported'&&delta.assertion==='user_reported'&&row.text===delta.text&&row.source.quote===delta.source.quote&&('validUntil'in row?row.validUntil:null)===('validUntil'in delta?delta.validUntil:null)&&('progressState'in row?row.progressState:null)===('progressState'in delta?delta.progressState:null))
@@ -208,7 +244,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
   if(unique.some(delta=>delta.assertion==='ai_observation'&&delta.dependencies.some(ref=>'id'in ref&&replacements.has(ref.id))))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
   // Map explicit input positions through duplicate removal without changing
   // which verified fact the model selected; raw provider output stays intact.
-  return {changes:unique.map(delta=>delta.assertion==='ai_observation'?{...delta,dependencies:delta.dependencies.map(ref=>'updateIndex'in ref?{updateIndex:positions[ref.updateIndex]}:ref)}:delta)}
+  return {changes:unique.map(delta=>delta.assertion==='ai_observation'?{...delta,dependencies:delta.dependencies.map(ref=>'updateIndex'in ref?{updateIndex:positions[ref.updateIndex]}:ref)}:delta),skipped}
 }
 export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthStaged):Promise<string[]> {
   if(!staged.changes.length)return []
