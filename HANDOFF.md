@@ -211,3 +211,13 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - 新Max接口PASS后C10 coach-64ba39e7-0f84-4c0c-bf83-843692046bcf两轮都SAVED（10.540/21.299秒），但成长仍只有unknown，已明确条件被继续列未知；事实流入background、经历流入candidate，合法本轮引用没有生成，因此仍FAIL。原输出/DB lifeos_dialogue_live_27cfd9185917498e958e8b33c890a9c9保留，已正常exit，不继续带错误基线收费。
 - 下一最小裁剪：成长授权的Qwen native请求不再生成重复background，旧Schema/parser/已存profile仍兼容；保留experienceCandidate的本人确认生命周期，避免破坏首轮具体经历确认。个人学校/阶段/本人工作事实进入growth原话。裁剪相关payload/context/engine 60项及类型通过；上面的213完整是裁剪前基线，当前新增1项定向已覆盖，不冒充全量214已跑。不重复无关恢复/浏览器/全量循环。
 - 截至446收据（续期422基线后24次），零pending；续期严格27.62中保守计入4.3494604，剩23.2705396。包括预注册取消unknown最坏reserve，不是发票或全部实际花费；旧收据不改、不合余额、不设新次数上限。默认产品Flash0保持，诊断Max只是进程环境。完整10场景/20普通时延/混合成本/真实浏览器/隐私与条件部署仍未通过，持续开发，WIP_NOT_READY。
+
+### 第十五批：材料请求误判、原始失败码与信息性质优先（进行中）
+
+- 原生background裁剪后的第三次C10：coach-65e5c205-8fec-4c97-94c2-f436a4d27a22开场保存，但仍只有六项unknown；第二轮Provider已完成，六项明确事实又全部标unknown，业务未保存。只读隔离PG runs.tool_audit核对原始COACH_MATERIAL_NOT_VISIBLE，operations记录AUTOMATIC_PAID_REPAIR_DISABLED且providerRequestSent:false；通用MODEL_REQUEST_FAILED不能归为Provider网络失败。原输出、失败报告、费用不改。
+- 实际根因：材料请求识别用“可以…做”匹配到“每周可以拿出六小时做探索”，将个人能力/时间陈述误判为向助手索要成品，普通建议中的“可以这样问”随后触发缺少draft。复用既有意图/TypeBox/模拟SDK/PG实现；泛化做字在无明确请/帮我指令时要求具体材料对象，保留原有问/写等流程；新增容量与探索负对照及邮件/清单/确认消息/混合否定正对照。
+- ProviderCallObserver增加显式allowRepair策略；开发预算observer设false，引擎在第二次reserve/API前保留首个HttpError、首调用用量及coach_repair_blocked审计，不伪装网络错误。before中的禁止repair守卫仍保留，生产默认策略无变化。受影响9材料/44引擎/3预算测试通过，未收费；第一次较宽删词引起旧流程失败、第二次新测试遗漏总ledger观察计数引起失败，均修正且日志保留。
+- 独立只读复核实际传输Schema：user_reported合法分支仍在，省略text合法，未发现确定结构漏洞。reported字段重构后与unknown排列不一致，支持受约束生成过早选unknown的待验证假设，未证明因果。所有分支统一target/assertion/kind顺序并明确unknown是仍缺失的答案，已提供事实不能作为未知标题；不事后改写原失败结果。当前类型、客户端50/build通过，完整隔离后端运行中，真实模型尚待新冻结验证。
+- 本批诊断前唯一账本452条，续期422基线后30条，pending0，严格27.62元阶段保守已计6.4222324、剩余21.1977676元；包含取消未知的最坏reserve，不是发票花费。仍无次数上限、无增预算、无自动收费修复或重试；不部署、不推送，整体WIP_NOT_READY。
+
+- 第十五批最终完整本地检查：40文件217项隔离后端通过，客户端50、服务端类型、构建及diff检查通过；日志material-and-status-full/type/unit/build.log。新Flash0冻结6af9b9c69252300bdb872df221655c23a731e49ea2c15aa2b1eaa31c5efbf119，真实接口与业务仍待验证。

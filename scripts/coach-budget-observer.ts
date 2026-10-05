@@ -7,6 +7,7 @@ import {assertCoachSourceFreeze} from './coach-source-freeze.ts'
 export function coachBudgetObserver(input:{runId:string;freezePath:string;sourceRoot?:string;budget?:CoachProviderBudget;purpose?:'diagnostic'}):ProviderCallObserver{
   const budget=input.budget??new CoachProviderBudget(),receipts=new Map<string,string>()
   return {
+    allowRepair:false,
     before(call){
       // Paid development runs stop for evidence and a fix instead of silently
       // issuing an automatic second semantic repair request.

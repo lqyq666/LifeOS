@@ -125,6 +125,32 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       assert.equal(incomplete.staged.coach,undefined)
       await store.finishRun(incomplete.run,incomplete.staged,clarified.text,clarified.usage,incomplete.signal)
     })
+    await t.test('reported capacity permits coaching examples without forcing an artifact or repair',async()=>{
+      const input=await prepare('我大三，做过三个课程作品，每周可以拿出六小时做探索。'),before=requests.length
+      outputs.push({reply:'先选择一个作品找真实使用者了解反馈。可以这样问：你能看清活动时间吗？'})
+      const result=await engine(input)
+      assert.equal(requests.length-before,1)
+      assert.equal((result.usage as any).repairCalls,0)
+      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+    })
+    await t.test('disabled automatic repair preserves the original validation code and billed first call',async()=>{
+      const input=await prepare('请帮我写一句确认消息。'),before=requests.length
+      let reservations=0
+      const restricted=createTurnEngine({capabilityVerified:()=>true,providerCallObserver:{
+        allowRepair:false,
+        before(call){reservations++;observed.push({phase:'before',call})},
+        after(call){observed.push({phase:'after',call})},
+        output(call,text){captured.push({callId:call.callId,text})},
+        payload(_call,payload){payloads.push(structuredClone(payload))},
+      }})
+      outputs.push({reply:'可以这样问：现在还需要那份资料吗？'})
+      await assert.rejects(restricted(input),(error:any)=>error.code==='COACH_MATERIAL_NOT_VISIBLE')
+      assert.equal(requests.length-before,1);assert.equal(reservations,1)
+      assert.equal((input.staged.modelUsage as any).llmCallCount,1)
+      assert.equal((input.staged.modelUsage as any).repairCalls,0)
+      assert.ok(input.staged.audit.some((entry:any)=>entry.phase==='coach_repair_blocked'&&entry.code==='COACH_MATERIAL_NOT_VISIBLE'&&entry.providerRequestSent===false))
+      await store.terminateRun(user,input.run.request_id,'failed','COACH_MATERIAL_NOT_VISIBLE')
+    })
     await t.test('an unchanged fragment correction gets one specific repair and preserves the complete fact',async()=>{
       const other=randomUUID();await store.createConversation(user,{id:other,title:'SYNTHETIC fragment correction'})
       const original='我花了三小时整理四十页。同学说手机打不开，所以没看。'

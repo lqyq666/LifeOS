@@ -10,6 +10,7 @@ const ledger=(calls:any[])=>({currentGrant:{authorizationSha256:'grant'},calls:[
 test('paid development observer rejects automatic semantic repair before reservation or provider access',()=>{
   let reservations=0
   const observer=coachBudgetObserver({runId:'synthetic',freezePath:'not-opened',budget:{reserve(){reservations++}} as any})
+  assert.equal(observer.allowRepair,false)
   assert.throws(()=>observer.before({purpose:'repair'} as any),/AUTOMATIC_PAID_REPAIR_DISABLED/)
   assert.equal(reservations,0)
 })
