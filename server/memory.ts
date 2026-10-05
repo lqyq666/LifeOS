@@ -6,6 +6,7 @@ import type {ActionCoachTurn} from './action-coach-contracts.ts'
 import { requestsCrossExperienceReview, type DialogueTask, type ProfileFact } from './dialogue.ts'
 import {rankConfirmedCoachExperiences} from './coach-retrieval.ts'
 import { invalidateCoachSources } from './action-coach-events.ts'
+import { growthQuoteSuppressed } from './growth-privacy.ts'
 
 const hash=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const advisory=(c:PoolClient,key:string)=>c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -31,6 +32,7 @@ async function factSourceValid(user:string,row:any){
     if(ref.type==='message'){
       const source=(await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[user,ref.conversationId,ref.messageId])).rows[0]
       if(!source||typeof ref.quote!=='string'||!source.content.includes(ref.quote))return false
+      if(await growthQuoteSuppressed(pool,user,ref.messageId,ref.quote))return false
     }else if(ref.type==='user_edit'){
       if(!(await pool.query('SELECT 1 FROM user_operations WHERE user_id=$1 AND request_id=$2',[user,ref.requestId])).rowCount)return false
     }else return false
@@ -55,8 +57,10 @@ export async function loadSnapshot(user:string,conversation:string,query:string)
     const suppressions=(await pool.query('SELECT source_message_id,key FROM memory_suppressions WHERE user_id=$1 AND source_conversation_id=$2',[user,conversation])).rows
     const deletedSources=(await pool.query("SELECT source_message_id FROM experiences WHERE user_id=$1 AND conversation_id=$2 AND status='deleted' UNION SELECT message_id AS source_message_id FROM coach_source_withdrawals WHERE user_id=$1 AND conversation_id=$2",[user,conversation])).rows
     const experienceRows=(await pool.query("SELECT e.id,e.revision,e.content,e.conversation_id,e.source_message_id,e.source_quote,e.updated_at,c.title AS conversation_title FROM experiences e JOIN conversations c ON c.user_id=e.user_id AND c.id=e.conversation_id JOIN messages m ON m.user_id=e.user_id AND m.conversation_id=e.conversation_id AND m.id=e.source_message_id WHERE e.user_id=$1 AND ($2 OR e.conversation_id=$3) AND e.status='confirmed' AND m.role='user' AND btrim(e.source_quote)<>'' AND strpos(m.content,e.source_quote)>0 ORDER BY e.updated_at DESC,e.id",[user,settings.enabled,conversation])).rows
+    const usableExperiences=[]
+    for(const row of experienceRows)if(!await growthQuoteSuppressed(pool,user,row.source_message_id,row.source_quote))usableExperiences.push(row)
     const includePatternSources=requestsCrossExperienceReview(query)
-    return {settings,profile,writeProfile,confirmedExperiences:(await rankConfirmedCoachExperiences(experienceRows,includePatternSources?'':query,includePatternSources?6:4)).map(row=>({id:row.id,revision:row.revision,content:row.content,conversationId:row.conversation_id,conversationTitle:row.conversation_title,sourceMessageId:row.source_message_id,quote:row.content?.summary||row.source_quote})),suppressedMessageIds:[...new Set([...suppressions,...deletedSources].map(item=>String(item.source_message_id)))]}
+    return {settings,profile,writeProfile,confirmedExperiences:(await rankConfirmedCoachExperiences(usableExperiences,includePatternSources?'':query,includePatternSources?6:4)).map(row=>({id:row.id,revision:row.revision,content:row.content,conversationId:row.conversation_id,conversationTitle:row.conversation_title,sourceMessageId:row.source_message_id,quote:row.content?.summary||row.source_quote})),suppressedMessageIds:[...new Set([...suppressions,...deletedSources].map(item=>String(item.source_message_id)))]}
   }catch(error){if(error instanceof HttpError)throw error;throw new HttpError(503,'MEMORY_LOAD_FAILED',15)}
 }
 export async function getMemoryView(user:string,conversation?:string){
@@ -69,10 +73,12 @@ export async function getMemoryView(user:string,conversation?:string){
     const refs=parseSourceRefs(row.source_refs)
     const sources=[]
     let valid=true
+    let growthForgotten=false
     for(const ref of refs){
       if(ref.type==='message'){
         const source=(await pool.query("SELECT m.content,c.title FROM messages m JOIN conversations c ON c.user_id=m.user_id AND c.id=m.conversation_id WHERE m.user_id=$1 AND m.conversation_id=$2 AND m.id=$3 AND m.role='user'",[user,ref.conversationId,ref.messageId])).rows[0]
         if(!source||typeof ref.quote!=='string'||!source.content.includes(ref.quote)){valid=false;break}
+        if(await growthQuoteSuppressed(pool,user,ref.messageId,ref.quote)){growthForgotten=true;valid=false;break}
         sources.push({type:'message',conversationTitle:source.title,quote:ref.quote,observedAt:new Date(row.observed_at).toISOString()})
       }else if(ref.type==='user_edit'){
         const edit=(await pool.query('SELECT 1 FROM user_operations WHERE user_id=$1 AND request_id=$2',[user,ref.requestId])).rowCount
@@ -80,11 +86,13 @@ export async function getMemoryView(user:string,conversation?:string){
         sources.push({type:'user_edit',label:'你手动修改',observedAt:new Date(row.updated_at).toISOString()})
       }
       else if(ref.type==='experience'){
-        const source=(await pool.query("SELECT e.revision,e.status,e.source_quote,e.content,c.title FROM experiences e JOIN conversations c ON c.user_id=e.user_id AND c.id=e.conversation_id WHERE e.user_id=$1 AND e.id=$2",[user,ref.experienceId])).rows[0]
+        const source=(await pool.query("SELECT e.revision,e.status,e.source_message_id,e.source_quote,e.content,c.title FROM experiences e JOIN conversations c ON c.user_id=e.user_id AND c.id=e.conversation_id WHERE e.user_id=$1 AND e.id=$2",[user,ref.experienceId])).rows[0]
         if(!source||source.status!=='confirmed'||source.revision!==ref.revision){valid=false;break}
+        if(await growthQuoteSuppressed(pool,user,source.source_message_id,source.source_quote)){growthForgotten=true;valid=false;break}
         sources.push({type:'experience',conversationTitle:source.title,quote:source.content?.summary||source.source_quote,experienceId:ref.experienceId,revision:ref.revision})
       }
     }
+    if(growthForgotten)continue
     if(!valid&&row.kind==='fact')sources.length=0
     else if(!valid&&row.status!=='revoked')continue
     const expired=row.valid_until&&Date.parse(row.valid_until)<=Date.now()

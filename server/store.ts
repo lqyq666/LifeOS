@@ -8,7 +8,7 @@ import type { DialoguePath } from './dialogue.ts'
 import seed from '../src/features/cognition/data/lifeos-graph.seed.json' with { type: 'json' }
 import { persistCoachEvent, invalidateCoachSources, assertCoachEvidence, coachEventView, type CoachStaged } from './action-coach-events.ts'
 import { assertCoachKnowledge, type CoachKnowledgeRef } from './coach-knowledge.ts'
-import { assertGrowthSnapshot } from './growth.ts'
+import { assertGrowthSnapshot, persistGrowthUpdates, type GrowthStaged } from './growth.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -44,7 +44,7 @@ export async function retrieveExperiences(user:string,input:unknown,signal?:Abor
   return { records: rows, method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
 }
 export type Run = { user_id:string; request_id:string; conversation_id:string; source_message_id:string; expected_version:number; status:string; response:any }
-export type Staged = { candidates:Candidate[]; audit:unknown[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged }
+export type Staged = { candidates:Candidate[]; audit:unknown[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged }
 export async function startRun(user:string,conversation:string,requestId:string,text:string) {
   return transaction(async c=>{
     await lock(c,user+':'+requestId)
@@ -106,7 +106,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       await assertSnapshotStillValid(c,run.user_id,staged.snapshot,staged.usedMemoryRefs??[])
     }
     await assertCoachEvidence(c,run.user_id,run.conversation_id,staged.usedEventRefs??[])
-    await assertGrowthSnapshot(c,run.user_id,run.conversation_id,staged.usedGrowthRefs??[],staged.growthSnapshotKey)
+    await assertGrowthSnapshot(c,run.user_id,run.conversation_id,staged.usedGrowthRefs??[],staged.growthSnapshotKey,staged.growthBoundaryKey)
     for(const ref of staged.usedExperienceRefs??[]){
       const source=(await c.query("SELECT revision FROM experiences WHERE user_id=$1 AND id=$2 AND status='confirmed' FOR SHARE",[run.user_id,ref.id])).rows[0]
       if(!source||source.revision!==ref.revision)throw new HttpError(409,'EXPERIENCE_SNAPSHOT_INVALIDATED')
@@ -124,10 +124,11 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     }
     for(const ref of knowledgeRefs)await c.query('INSERT INTO coach_reply_sources(user_id,request_id,source_id,revision) VALUES($1,$2,$3,$4)',[run.user_id,run.request_id,ref.sourceId,ref.revision])
     const coach=staged.coach?await persistCoachEvent(c,run,staged.coach):null
+    const growthIds=staged.growth?await persistGrowthUpdates(c,run,staged.growth):[]
     const memoryIds=staged.snapshot&&staged.memoryChanges?.length?await persistChanges(c,run.user_id,run.conversation_id,staged.memoryChanges,new Date()):[]
     await consumeEntitlement(c,run.user_id,current.entitlement_reserved)
     await c.query('INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,\'assistant\',$4,$5)',[randomUUID(),run.user_id,run.conversation_id,text,run.request_id])
-    const response={requestId:run.request_id,decisionVersion:version,candidateIds,memoryIds,memorySavedCount:memoryIds.length,dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
+    const response={requestId:run.request_id,decisionVersion:version,candidateIds,memoryIds,memorySavedCount:memoryIds.length,growthIds,dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
     await c.query('UPDATE runs SET status=\'completed\',response=$3,usage=$4,tool_audit=$5,finished_at=now() WHERE user_id=$1 AND request_id=$2',[run.user_id,run.request_id,response,usage,JSON.stringify(staged.audit)])
     await c.query('UPDATE conversations SET updated_at=now() WHERE user_id=$1 AND id=$2',[run.user_id,run.conversation_id])
     signal.throwIfAborted()

@@ -14,6 +14,7 @@ import { coachEventView, stageCoachEvent } from '../../server/action-coach-event
 import { loadSnapshot, stageCoachBackground } from '../../server/memory.ts'
 import {indexCoachEventOnce} from '../../server/coach-retrieval.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
+import {createGrowthItem} from '../../server/growth.ts'
 
 const {chromium}=createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE||'C:/Users/LQY/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright')
 async function bounded<T>(promise:Promise<T>,label:string){
@@ -116,6 +117,23 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
     await page.getByLabel('你的原话',{exact:true}).fill('这阶段优先期末，之后探索实习。')
     await page.getByRole('button',{name:'保存这项',exact:true}).click()
     await page.locator('.growth-card').filter({hasText:'这阶段优先期末，之后探索实习。'}).waitFor()
+    await page.getByLabel('放在哪里',{exact:true}).selectOption('feedback')
+    await page.getByLabel('你的原话',{exact:true}).fill('已经投递五份，结果仍未知。')
+    await page.getByLabel('实际行动状态',{exact:true}).selectOption('completed')
+    await page.getByRole('button',{name:'保存这项',exact:true}).click()
+    const feedbackCard=page.locator('.growth-card').filter({hasText:'已经投递五份，结果仍未知。'})
+    await feedbackCard.getByText('动作已完成 · 不代表结果已达成',{exact:true}).waitFor()
+    const ownChat=(await pool.query('SELECT conversation_id FROM growth_items WHERE user_id=$1 LIMIT 1',[user])).rows[0].conversation_id
+    const proposal=await createGrowthItem(user,{requestId:randomUUID(),conversationId:ownChat,kind:'priority',text:'SYNTHETIC 先核对作品质量'})
+    await pool.query("UPDATE growth_items SET assertion='ai_observation',status='proposed',limitation='只有兴趣陈述，作品质量还未知。' WHERE user_id=$1 AND id=$2",[user,proposal.id])
+    await page.getByRole('button',{name:'继续聊天',exact:true}).click()
+    await page.getByRole('button',{name:'我的成长',exact:true}).click()
+    const proposalCard=page.locator('.growth-card').filter({hasText:'SYNTHETIC 先核对作品质量'})
+    await proposalCard.getByText('判断局限：只有兴趣陈述，作品质量还未知。',{exact:true}).waitFor()
+    await proposalCard.getByRole('button',{name:'采用这项观察',exact:true}).click()
+    await proposalCard.getByText('当前',{exact:true}).waitFor()
+    assert.ok((await proposalCard.textContent()).includes('AI 观察 · 不是事实结论'))
+    report.checks.push('actual UI preserves explicit completed action versus unknown outcome; simulated AI proposal displays limitation and adoption retains AI assertion')
     for(const width of [1440,390,320]){
       await page.setViewportSize({width,height:900})
       await page.locator('.growth-workspace').evaluate((element:any)=>{element.scrollTop=0})

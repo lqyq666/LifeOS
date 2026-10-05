@@ -12,5 +12,6 @@ export type GrowthItem = {
   assertion: 'user_reported' | 'user_edit' | 'ai_observation' | 'unknown'; status: GrowthStatus;
   sources: GrowthSource[]; dependencies: GrowthRef[]; validUntil: string | null;
   revision: number; createdAt: string; updatedAt: string; unavailableReason: string | null;
+  limitation?: string; progressState?: 'unattempted' | 'attempted' | 'stuck' | 'completed' | 'unknown' | null;
 }
 export type GrowthView = { memoryEnabled: boolean; items: GrowthItem[] }

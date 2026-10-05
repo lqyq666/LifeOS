@@ -1,5 +1,6 @@
 import { Type, type Static } from 'typebox'
 import { Value } from 'typebox/value'
+import { growthDeltaSchema } from './growth-model-contracts.ts'
 
 const text=(maxLength=16000)=>Type.String({minLength:1,maxLength})
 const id=Type.String({pattern:'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'})
@@ -42,6 +43,7 @@ export const actionCoachTurnSchema=Type.Object({
   reply:Type.String({minLength:1,maxLength:16000,description:'自然简洁地回应本轮诉求。复盘先问关键未知问题，已知事实用于理解，不逐句复述。要交付成品时这里只写必要说明，完整可复制文本放event.action.draft.content，服务器展示同一材料。'}),
   citations:Type.Optional(Type.Array(coachCitationSchema,{maxItems:6,description:'仅对确实使用的有效知识条目逐命题引用；普通追问、个人起草和倾听通常省略。不得编造来源。'})),
   event:Type.Optional(eventDeltaSchema),
+  growthUpdates:Type.Optional(Type.Array(growthDeltaSchema,{maxItems:8,description:'只有当前个人情况、方向/近期判断或实际反馈新增/变化才给小粒度增量。普通知识/倾听无需建档。明确陈述与带局限的待核对AI观察分开，每条一项；不要求每轮补齐档案。'})),
   background:Type.Optional(Type.Array(Type.Object({
     key:Type.Union([Type.Literal('education.school'),Type.Literal('education.major'),Type.Literal('education.stage'),Type.Literal('skills')]),
     value:text(500),source:processSourceSchema,

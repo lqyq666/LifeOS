@@ -5,6 +5,7 @@ import './growth.css'
 
 const states = { active: '当前', proposed: '待核对', paused: '已暂停', completed: '已结束', rejected: '不再采用', forgotten: '已遗忘', stale: '需重新核对' }
 const assertions = { user_edit: '你提供的情况', user_reported: '你的对话原话', ai_observation: 'AI 观察 · 不是事实结论', unknown: '未知 · 尚无结论' }
+const progressLabels = { unattempted:'尚未行动',attempted:'已尝试 · 结果另行核对',stuck:'卡住了',completed:'动作已完成 · 不代表结果已达成',unknown:'实际行动状态未知' }
 const sections: GrowthKind[][] = [['context','ability','preference','observation','unknown'], ['goal','direction'], ['constraint','priority','decision','feedback']]
 export function GrowthWorkspace({ conversationId, conversationTitle, onClose, onExplore }: { conversationId: string; conversationTitle: string; onClose: () => void; onExplore: (text: string) => void }) {
   const [view, setView] = useState<GrowthView | null>(null)
@@ -13,6 +14,7 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
   const [kind, setKind] = useState<GrowthKind>('goal')
   const [text, setText] = useState('')
   const [until, setUntil] = useState('')
+  const [progressState,setProgressState]=useState<NonNullable<GrowthItem['progressState']>>('unknown')
   const [editing, setEditing] = useState<GrowthItem | null>(null)
   // Reuse this repository's chat request rule: an uncertain transport outcome
   // retries the same operation identity, rather than duplicating a saved item.
@@ -29,18 +31,19 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
     setBusy(true); setNotice('')
     try {
       const validUntil = until ? new Date(until).toISOString() : null
-      const key=JSON.stringify([conversationId,editing?.id,editing?.revision,kind,text.trim(),validUntil])
+      const feedback=kind==='feedback'?{progressState}:{}
+      const key=JSON.stringify([conversationId,editing?.id,editing?.revision,kind,text.trim(),validUntil,feedback])
       if (kind === 'constraint' && !validUntil) { setNotice('请写明这项约束适用到哪一天；之后会提醒重新核对。'); return }
-      if (editing) await api('/api/growth/' + editing.id + '/actions', { requestId: requestId(key), expectedRevision: editing.revision, action: 'correct', text: text.trim(), validUntil })
+      if (editing) await api('/api/growth/' + editing.id + '/actions', { requestId: requestId(key), expectedRevision: editing.revision, action: 'correct', text: text.trim(), validUntil,...feedback })
       else {
         await api('/api/conversations', { id: conversationId, title: conversationTitle })
-        await api('/api/growth', { requestId: requestId(key), conversationId, kind, text: text.trim(), ...(validUntil ? { validUntil } : {}) })
+        await api('/api/growth', { requestId: requestId(key), conversationId, kind, text: text.trim(), ...(validUntil ? { validUntil } : {}),...feedback })
       }
       pending.current.delete(key);setText(''); setUntil(''); setEditing(null); await load(); dataChanged(); setNotice('已保存。更正只影响这一项，旧依据的相关建议需要重新核对。')
     } catch (error) { setNotice(explainError(error)); await load().catch(() => {}) }
     finally { setBusy(false) }
   }
-  async function act(item: GrowthItem, action: 'pause' | 'complete' | 'reject' | 'forget') {
+  async function act(item: GrowthItem, action: 'accept' | 'pause' | 'complete' | 'reject' | 'forget') {
     if (busy) return
     setBusy(true); setNotice('')
     const key=JSON.stringify([item.id,item.revision,action])
@@ -48,7 +51,7 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
       await api('/api/growth/' + item.id + '/actions', { requestId: requestId(key), expectedRevision: item.revision, action })
       pending.current.delete(key)
       if (editing?.id === item.id) { setEditing(null); setText(''); setUntil('') }
-      await load(); dataChanged(); setNotice(action === 'forget' ? '这条成长记录和依赖它的记录已清除内容。原聊天仍保留，可在事件与记忆中单独撤回来源。' : '状态已更新。')
+      await load(); dataChanged(); setNotice(action === 'forget' ? '这条成长记录和依赖它的记录已清除内容，其原话不再用作后续建议的依据；同一消息里的其他独立情况仍保留。原聊天仍可查看。' : action==='accept'?'已采用这项观察；仍保留 AI 判断和局限标记，不代表已证明或已执行。':'状态已更新。')
     } catch (error) { setNotice(explainError(error)); await load().catch(() => {}) }
     finally { setBusy(false) }
   }
@@ -59,12 +62,15 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
       <div className="growth-card-heading"><strong>{growthLabels[item.kind]}</strong><span>{states[item.status]}</span></div>
       <p>{item.text || '这项记录依赖的依据已撤回，内容已清除。'}</p>
       <small>{assertions[item.assertion]} · {new Date(item.updatedAt).toLocaleDateString()} · 第 {item.revision} 版</small>
+      {item.limitation && <p className="growth-stale">判断局限：{item.limitation}</p>}
+      {item.progressState && <small>{progressLabels[item.progressState]}</small>}
       {item.validUntil && <small>适用至 {new Date(item.validUntil).toLocaleString()}</small>}
       {item.unavailableReason && <p className="growth-stale">依据或适用时间有变化，继续采用前需要核对。</p>}
       {!!item.sources.length && <details><summary>查看依据</summary>{item.sources.map((source, index) => <blockquote key={index}>{source.quote}<small>{source.type === 'user_edit' ? '你在成长工作区填写' : '你的对话原话'}</small></blockquote>)}</details>}
       {!!item.dependencies.length && <details><summary>相关个人依据（{item.dependencies.length}）</summary>{item.dependencies.map(ref => { const source = view?.items.find(candidate => candidate.id === ref.id); return <p key={ref.id}>{source?.text || '依据已不再使用'}{source && source.revision !== ref.revision ? ' · 已更正，请重新核对' : ''}</p> })}</details>}
       <div className="growth-card-actions">
-        <button disabled={busy || !item.text} onClick={() => { setEditing(item); setKind(item.kind); setText(item.text); setUntil(item.validUntil ? new Date(Date.parse(item.validUntil) - new Date(item.validUntil).getTimezoneOffset() * 60000).toISOString().slice(0,16) : '') }}>更正</button>
+        <button disabled={busy || !item.text} onClick={() => { setEditing(item); setKind(item.kind); setText(item.text);setProgressState(item.progressState??'unknown'); setUntil(item.validUntil ? new Date(Date.parse(item.validUntil) - new Date(item.validUntil).getTimezoneOffset() * 60000).toISOString().slice(0,16) : '') }}>更正</button>
+        {item.status==='proposed'&&!item.unavailableReason&&<button disabled={busy} onClick={()=>void act(item,'accept')}>采用这项观察</button>}
         {['goal','direction','priority','decision'].includes(item.kind) && item.status === 'active' && <button disabled={busy} onClick={() => void act(item,'pause')}>暂停</button>}
         {['goal','priority','decision'].includes(item.kind) && item.status === 'active' && <button disabled={busy} onClick={() => void act(item,'complete')}>结束这项</button>}
         {item.status !== 'rejected' && <button disabled={busy} onClick={() => void act(item,'reject')}>不再采用</button>}
@@ -82,6 +88,7 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
       <h2>{editing ? '更正这一项' : '补充一件当前情况'}</h2>
       <label htmlFor="growth-kind">放在哪里</label><select id="growth-kind" value={kind} disabled={busy || !!editing} onChange={event => setKind(event.target.value as GrowthKind)}>{Object.entries(growthLabels).filter(([key]) => key !== 'observation').map(([key,label]) => <option key={key} value={key}>{label}</option>)}</select>
       <label htmlFor="growth-text">你的原话</label><textarea id="growth-text" value={text} disabled={busy} onChange={event => setText(event.target.value)} maxLength={4000} required placeholder="例如：还没确定毕业方向；这周优先期末；想试试真实的项目工作。" />
+      {kind==='feedback'&&<><label htmlFor="growth-progress">实际行动状态</label><select id="growth-progress" value={progressState} disabled={busy} onChange={event=>setProgressState(event.target.value as NonNullable<GrowthItem['progressState']>)}>{Object.entries(progressLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></>}
       <label htmlFor="growth-until">{kind === 'constraint' ? '这项约束适用到（必填）' : '适用到（选填）'}</label><input id="growth-until" type="datetime-local" value={until} required={kind === 'constraint'} disabled={busy} onChange={event => setUntil(event.target.value)} />
       <div><button disabled={busy || !text.trim()} type="submit">{busy ? '保存中…' : '保存这项'}</button>{editing && <button type="button" disabled={busy} onClick={() => { setEditing(null); setText(''); setUntil(''); setKind('goal') }}>取消更正</button>}</div>
     </form>

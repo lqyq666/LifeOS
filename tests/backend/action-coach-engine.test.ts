@@ -72,6 +72,27 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       assert.deepEqual(input.staged.usedGrowthRefs,[{id:original.id,revision:2}])
       await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
     })
+    await t.test('automatic growth changes pass through the SDK schema and durable turn completion',async()=>{
+      const input=await prepare('我是成年大学生，目前每周只有四小时。'),source={messageId:input.run.source_message_id,quote:'我是成年大学生'}
+      outputs.push({reply:'先按你目前的时间，从一个小探索开始。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',text:'我是成年大学生',source}]})
+      const before=requests.length,result=await engine(input)
+      assert.equal(requests.length-before,1)
+      assert.ok(JSON.stringify(requests.at(-1).response_format).includes('growthUpdates'))
+      const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      assert.equal(saved.growthIds.length,1)
+      assert.equal((await pool.query('SELECT text,assertion FROM growth_items WHERE user_id=$1 AND id=$2',[user,saved.growthIds[0]])).rows[0].assertion,'user_reported')
+    })
+    await t.test('invalid growth source gets one bounded repair; rejected state is never persisted',async()=>{
+      const input=await prepare('现在还没开始投递。'),source={messageId:input.run.source_message_id,quote:'现在还没开始投递。'}
+      outputs.push({reply:'先核对第一步。',growthUpdates:[{target:{operation:'create'},kind:'ability',assertion:'user_reported',text:'独立完成五个项目',source}]},{reply:'还没开始可以先看看卡在哪。'})
+      const before=requests.length,result=await engine(input)
+      assert.equal(requests.length-before,2)
+      assert.equal((result.usage as any).repairReason,'GROWTH_SOURCE_INVALID')
+      assert.ok(requests.at(-1).messages[0].content.includes('Repair only growthUpdates'))
+      const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      assert.deepEqual(saved.growthIds,[])
+      assert.equal((await pool.query('SELECT count(*)::int AS n FROM growth_items WHERE user_id=$1 AND origin_request_id=$2',[user,input.run.request_id])).rows[0].n,0)
+    })
     await t.test('a requested artifact delivered inline without action is repaired into the durable material',async()=>{
       const text='同学还需不需要我不知道，请直接帮我写一句确认消息。',input=await prepare(text)
       const material='之前那份资料，你现在还需要吗？不需要也没关系。'

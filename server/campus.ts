@@ -2,6 +2,7 @@ import type {PoolClient} from 'pg'
 import {pool,HttpError,requireRow} from './db.ts'
 import type {CampusSource,Inquiry,InquiryPayload,EvidenceLink} from './campus-contracts.ts'
 import type {KnowledgeRecord} from './campus-knowledge.ts'
+import { growthQuoteSuppressed } from './growth-privacy.ts'
 // Saved V1.2 records are read-only. New writes use action-coach-events.ts.
 type DB=Pick<PoolClient,'query'>
 async function owner(c:DB,user:string,conversation:string){requireRow((await c.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2',[user,conversation])).rows[0])}
@@ -16,6 +17,7 @@ export async function checkCampusSource(c:DB,user:string,conversation:string,ena
   if(typeof ref.quote!=='string'||!ref.quote.trim())throw new HttpError(400,'CAMPUS_SOURCE_INVALID')
   const share=locking?' FOR SHARE':''
   if(ref.type==='message'){
+    if(await growthQuoteSuppressed(c,user,ref.id,ref.quote))throw new HttpError(400,'CAMPUS_SOURCE_FORGOTTEN')
     const source=(await c.query("SELECT content,conversation_id FROM messages WHERE user_id=$1 AND id=$2 AND role='user'"+share,[user,ref.id])).rows[0]
     if(!source||source.conversation_id!==conversation||!ref.quote.trim()||!source.content.includes(ref.quote))throw new HttpError(400,'CAMPUS_MESSAGE_SOURCE_INVALID')
     const suppressed=(await c.query('SELECT 1 FROM memory_suppressions WHERE user_id=$1 AND source_message_id=$2 LIMIT 1',[user,ref.id])).rowCount

@@ -5,6 +5,7 @@ import { pool, transaction, HttpError, requireRow } from './db.ts'
 import { eventDeltaSchema, type EventDelta } from './action-coach-contracts.ts'
 import type { Run } from './store.ts'
 import type { CoachKnowledgeRef } from './coach-knowledge.ts'
+import { growthQuoteSuppressed } from './growth-privacy.ts'
 
 export type CoachSource={messageId:string;quote:string;conversationId:string}
 export type CoachNode={id:string;revision:number;kind:'fact'|'feeling'|'user_interpretation'|'unknown';status:'active'|'resolved'|'declined';content:string;source:CoachSource|null}
@@ -51,6 +52,7 @@ async function eventFor(c:PoolClient,user:string,conversation:string,id:string,l
   return row
 }
 async function sourceContent(c:PoolClient,user:string,source:CoachSource):Promise<string|null>{
+  if(await growthQuoteSuppressed(c,user,source.messageId,source.quote))return null
   const row=(await c.query(`SELECT m.content FROM messages m
     WHERE m.user_id=$1 AND m.conversation_id=$2 AND m.id=$3 AND m.role='user'
     AND NOT EXISTS(SELECT 1 FROM memory_suppressions s WHERE s.user_id=m.user_id AND s.source_message_id=m.id)
