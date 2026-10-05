@@ -1,47 +1,43 @@
 # GLM 开发交接
 
-工作区为 D:\aaaLife\LifeOS。当前 LifeOS V1.3 精简源码仓库（运行源码、测试、当前目标与部署文件；无旧状态日志、历史交付包或 Git 旧历史）。默认模型保持 qwen3.8-flash。整体状态 WIP_NOT_READY（核心 A01/A05/A06 已真实通过）；**生产已部署上线 https://lqynb.xyz（2026-10-05）**，正式验收（A02–A08、速度、正式浏览器）仍未完成。
+工作区为 D:\aaaLife\LifeOS。当前 LifeOS V1.3 精简源码仓库。默认模型保持 qwen3.8-flash。整体状态 WIP_NOT_READY。生产已部署于 https://lqynb.xyz（2026-10-05，见下），正式验收未完成。
 
-## 2026-10-05 生产部署（用户两次明确授权：删除海闻、部署 LifeOS）
+## 2026-10-05 下午：按用户审阅意见收口（本轮）
 
-- 服务器 8.137.181.86 经本机 SSH 密钥 root 直达（与阿里云 API 无关——所给 AccessKey 的主账号名下无任何 ECS，实例属其他账号）。
-- **海闻已删除，删除前完整备份**于服务器 `/root/backups/haiwen-20261005/`：pg_dump（haiwen-db.dump，已验证可读）、/opt/campus-haiwen 配置包、campus-data 卷、容器 inspect、compose 文件、nginx 原配置。回滚：恢复备份目录 + `cd /opt/campus-haiwen/releases/20260916-review-gate && docker compose -f compose.yml -f ../../20260831/compose.yml up -d` + 还原 nginx 配置。8001 端口的 campus-advisor 服务不属于海闻，未受影响。
-- 镜像 lifeos:v1.3-glm-52a4e47（本地构建：锁定的 Linux CPU wheels 41 包 + 固定 revision BGE 模型 + 最新能力证据，非 root、只读根、资源限额），docker save|gzip|ssh 载入服务器。
-- /opt/lifeos：compose.yaml（镜像 tag 已改、挂载 /opt/lifeos/evidence/qwen-default 供 LIFEOS_EVIDENCE 覆盖最新 PASS 能力报告——镜像内旧报告接口签名不匹配）、.env.production（600：随机 DB 密码/认证密钥、百炼 Key、LIFEOS_ORIGIN=https://lqynb.xyz、LIFEOS_TRUSTED_PROXY=172.20.0.1、显式 LIFEOS_MODEL_PRICING_JSON——compose 默认值含字面单引号会导致 PROVIDER_PRICE_REQUIRED）。
-- 生产预算 production-20261005 初始 ¥10（manage-provider-budget set；熔断上限，可调）。权益门开启：无 grant 不能调用模型。
-- nginx：lqynb.xyz（LE 证书至 2026-12-19，DNS 已指向）→ 127.0.0.1:8787，SSE 无缓冲、240s 读超时；default_server 改 404；acme-challenge 保留。原配置备份同上。
-- **上线验证**（全部真实）：/api/ready 通过；外部 https://lqynb.xyz 注册（signup 当前开启）→ 授权益 100 次 → 真实 SSE 对话 2 条（qwen3.8-flash 各 1 次调用，回复正常，首事件约 1.7-1.9s）；app 重启后消息持久（7 条）、容器内存 app 557MB/1GiB、db 59MB/256MiB，磁盘余 16GB。
-- 冒烟账号 smoke-20261005@lifeos.local（userId DfzGDviO…）。**signup 仍开启**（权益门兜底：新注册无 grant 不能用模型）；正式创始人账号建好后应设 LIFEOS_SIGNUP_ENABLED=false 重建。
+用户纠正了上一轮"三条轨迹全部完整通过"的口径，并要求以已保存真实输出建立回归、做最小修复、分解等待时间。已执行：
 
-## 2026-10-05 真实模型验证与修复（本轮 GLM）
+### 逐项修正后的真实结论（基于 coach-8817402e / coach-46fba1bf / coach-07310002 原始输出）
 
-用户以主账号 AccessKey（存于 .local/aliyun.env，gitignored）授权全部云端权限并要求执行真实测试。核验结果：凭证属主账号 root（账号 1888682659551660），但**该账号 33 个地域名下没有任何 ECS 实例**——候选部署目标 8.137.181.86（Ubuntu-zhla，cn-chengdu）不在此账号名下，此 Key 无法管理它；部署需服务器归属账号另行授权或在该账号下新建实例（费用须确认）。DNS 在 Cloudflare，与阿里云无关。
+- **A06：局部通过**。两轮纯倾听、零事件/节点/行动、尊重拒答。仅此范围成立，不扩大。
+- **A01：未通过（语义）**。第 3/4/7 轮把对用户的追问原文写入 proposed action（t3 为 create、内容=整段回复；t4/t7 为 modify 覆盖）；第 8 轮用户补充"没有明确约好交付时间和格式"，模型只重发旧 outcome 原话，被当时的静默去重跳过，**约定事实未落任何节点**（聊天原文仍在，非数据丢失，但跨会话过程记录缺关键环节）；最终材料含"你考完试之后"，现有输入不能确认当前已考完（时间状态未核实）。
+- **A05：机制通过、语义待复核**。直接起草与同 action rev1→rev2 实际改短成立（t2 的 reply==材料且含问号是合法形态，修复规则已据此收窄到 create）；但改写后"确认现在是否还需要"的目的弱化为"方便看吗"，目的保持待小批复核。
+- 上一轮"93 次调用=13 探针+80 轨迹"分类有误：实际 **17 capability + 65 turn + 11 repair = 93**。账本现 383 条、0 未终结；追加 ¥15 保守已占 ¥2.1173882、余 ¥12.8826118；原计次桶余 21。三条轨迹合计 15 调用/14 输入，估算 ¥0.0334789。
 
-真实调用准备（无代码改动部分）：
-- 百炼 Key 经原工作区 DPAPI 包装脚本（with-bailian-key.ps1，经 .local/run-with-bailian.ps1 调用）注入，未落盘明文。
-- 唯一 Provider 账本已从原工作区**移入**本工作区 .local/v1.3-action-coach/paid/（复制后 SHA 校验一致再删除原件；原工作区该目录已清空）。研究 PDF（hash 483a83e7…）同样移入。
-- 每轮真实运行先 freeze-action-coach.ts 建源冻结；探针与轨迹运行全程断言冻结一致。
-- .env.server 增加本地限流放宽（LIFEOS_MESSAGES_PER_MINUTE/DAY=10000，用户明确要求取消 3/分钟限流）；生产部署必须重新设置真实限流。
+### 冻结与 52a4e47 差异（真实运行证据的有效性）
 
-代码修复（全部先本地红绿再真实验证；typecheck×2、客户端 44/44、隔离后端 29 文件、test:db-recovery 全绿）：
-1. turn-prompt：event 默认省略门控前置（修复纯知识/倾听建事件——R2 探针两次复现后 4/4 PASS）；首次报告本人经历当轮建事件（修复延迟补建错引）；新增节点 quote 必须逐字取自本轮最后一条用户消息；action 仅限真实成品交付、不改不重发。
-2. model-payload/turn-engine：schema enum 绑定扩展——resolveUnknowns/declineUnknowns 绑定仍为 active 的 unknown 节点、corrections.nodeId 绑定既有节点、modify/reuse/close 的 actionId 绑定既有行动。编造/过期 ID 在约束解码下不可表达，整类 COACH_UNKNOWN_NOT_FOUND/COACH_NODE_NOT_FOUND 失败消除。
-3. action-coach-events：COACH_SOURCE_INVALID 附具体错引与当前消息全文（HttpError.details，修复调用可对照）；与已存节点逐字相同的冗余重发原话跳过而非整轮失败（不写新内容、不改回复；其余错引仍阻断）。turn-engine 将对照注入修复指引。
-4. 测试：engine 测试按上下文动态断言 messageId 绑定数并校验 corrections 枚举只含授权节点；history-fixture 测试显式固定限流值，避免本地放宽配置跳过断言。
+三个真实运行绑定 source-1791172407783（digest d00c2ba5…）。与 52a4e47 逐文件比对仅两处差异：`server/action-coach-events.ts`（nodeSource 参数类型放宽+非空断言——esbuild 剥离类型后两版 JS sha256 完全一致，运行时等价已证明）与 `tests/backend/coach-history-fixture.test.ts`（测试文件，不进运行时）。故真实运行的行为证据对当前运行时仍有效；但按口径要求**不将其算作当前版本语义通过**——上述 A01/A05 语义缺口本就未过，本轮以本地回归钉住。
 
-真实轨迹结果（runId 均在 evidence/v1.3-action-coach/real/，报告+私有 raw 落盘；隔离库保留供正式 UI 审阅）：
-- 能力探针 4/4 PASS ×3 轮（接口变化后重验，符合"接口实际变化只验证受影响能力"）。
-- A01 coach-8817402e：10 轮全 SAVED；8 节点事实正确（goal 恰当记为 user_interpretation）；唯一 proposed 行动为可发送确认消息（含"不需要也没关系，不用特意回我"退出）；区分打不开≠内容无效；仅 1 轮修复。**通过**（此前 7 次运行暴露并修复上述各类失败）。
-- A05 coach-46fba1bf：不盘问直接起草；"再短一点"落实为同一 action 0c805ec7 rev1→rev2 实际改短。**通过**。
-- A06 coach-07310002：纯倾听，零事件/节点/行动，尊重拒答。**通过**。
-- 速度（同一最终配置真实 SSE）：普通追问有效内容 p50≈7.1s、p95≈14.7s、完成 p95≈14.7s——**未达标**（目标 3/5/15s），仅完成 p95 边缘达标；属里程碑 5.1 已知问题，未动。
-- 账本：今日共 93 次真实调用（探针 13 + 轨迹迭代 80），追加 ¥15 计划余 ¥12.88；非追加额度 21 次未动。无 pending 调用。
-- 一次 A05 运行因操作者传错开场白被即时中止（coach-f75bb698，0 调用）；一次传输层 MODEL_REQUEST_FAILED 瞬时失败重跑成功。
+### 本轮最小修复（全部先红后绿；typecheck×2、客户端 44/44、隔离后端 30 文件全绿）
+
+1. **追问不是新建材料**：checkDelta 新增 `COACH_MATERIAL_IS_CONVERSATION`——仅当 **create** 的 draft.content 与整段 reply 相同且其中含可见问句时拒绝（modify 的合法改短形态不受影响，A05t2 已作对照回归）；turn-engine 加入可修复集与具体指引；提示词同步一句"新建 action 的成品面向用户要接触的对象，不能等于本轮对用户的追问"。回归：tests/backend/action-coach-material-boundary.test.ts 用 A01 t3 真实输出回放拒绝、A05 真实形态对照放行。
+2. **去重不得吞掉关键新信息**：checkDelta 与 persistCoachEvent 的去重条件对齐（均要求 source IS NOT NULL、同事件、非 withdrawn）；重发已记录原话仅在**当前消息无 ≥8 个有效字符（去标点字母/汉字）的未记录片段**时跳过，否则升级为 COACH_SOURCE_INVALID（携带当前消息全文的修复对照）——A01 t8 形态回放：旧原话重发+约定事实未记录→修复；"好的，我明白了"（6 字）→仍静默跳过。
+3. **改写目的与时间状态**：提示词两句（保留原成品沟通目的；不虚构未确认的时间/完成状态）；预登记小批案例冻结于 evidence/v1.3-action-coach/research/a05-rewrite-purpose-cases.json（≤12 次 SDK 含修复，仅用既有追加授权，未执行）。
+4. **四类负例补齐**（同文件）：跨事件 corrections/resolveUnknowns、有效 actionId 配错误 revision、staging 后来源撤回/版本冲突阻断、去重吞新事实。schema 枚举绑定只是防编造，跨事件错配/错误版本仍由服务端验证兜底（已在 HANDOFF 明确该边界）。
+
+### 14 个真实请求的等待时间分解（零新增调用）
+
+SAVED n=14：**原始首文本（firstRawDelta）中位 4472ms；完成中位 7182ms；每请求非模型开销（完成−Σ模型调用）中位 150ms**；输出 18~675 token。A06 两轮仅 18/24 token，firstRaw 仍 5329/5498ms；A01t7 生成 9644ms+修复 4802ms。结论：瓶颈在供应商侧 TTFT（网络+排队+协议），本地检索/校验/提交合计仅约 150ms，**仅改本地代码无法达到 p50≤3s**；SSE 首事件落后 firstRaw 的部分=模型流式前奏+完整中性问句积累（reply-draft 机制本身已有分块/转义/引号/撤回回归覆盖，tests/reply-draft.test.ts）。队列、snapshot、提交的细分时间点现有记录未覆盖，留 unknown；达标需要端点/模式层面变更，按规则须先呈报依据再由用户决定。
+
+### 服务器归属更正（SWAS 核查）
+
+此前"ECS 所有地域为空→服务器属其他账号"**结论有误**：目标服务器是本账号下的**轻量应用服务器**（swas-open ListInstances：be1d93d1b9914b25b8e031c3ba7168e5，Ubuntu-zhla，8.137.181.86，cn-chengdu，创建 2026-07-16，到期 2026-11-16，Normal）。所给 AccessKey 可经 swas-open API 管理它；此前部署经 SSH root 完成，不受影响。主账号长期 AccessKey 存于 .local/aliyun.env（gitignored），建议账号所有者择机轮换为最小权限 RAM 凭证；不影响现有服务前不擅自停用。
+
+## 生产部署状态（2026-10-05，用户授权）
+
+https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）：海闻已删（备份 /root/backups/haiwen-20261005，含回滚步骤）、lifeos:v1.3-glm-52a4e47、生产预算 ¥10、权益门开启、LE 证书至 2026-12-19、重启持久化与真实 SSE 冒烟通过。signup 仍开启（权益门兜底）。生产限流为 compose 默认 3/分、50/日；本地 10000/10000 仅为测试放宽，不复制到生产。注意：**服务器上的镜像仍是 52a4e47 时代的源码，不含本轮语义修复**；用户已指示"先不急着部署"，故未更新镜像。
 
 ## 未完成项（保持 NOT_READY）
 
-- 速度未达标（见上）；A02–A04、A07（跨会话/干扰）、A08 真实轨迹；≥20 条普通追问速度样本；真实来源撤销链路。
-- 最终配置正式浏览器验收（1440/390/320）、最终源码全套+恢复复跑（本轮修复后已跑机制回归，但需与最终冻结一致再跑一遍）。
-- 部署：目标服务器不在凭证账号名下；需要服务器归属账号授权，或在本账号新建实例（费用另确认）。生产限流/Origin/密钥须按 DEPLOYMENT_HANDOFF 重建。
-
-先读本文件、AGENTS.md、docs/v1.3-action-coach/OBJECTIVE_V1_3_ACTION_COACH.md、docs/v1.3-action-coach/CODEX_FAST_LAUNCH_PLAN.md 和 DEPLOYMENT_HANDOFF.md。真实调用沿用本工作区 .local 的唯一账本；不切换模型、不擅自部署、完整验收前不宣称 READY。
+- A01 语义（追问入行动已由服务端门+回归钉住，但需真实小批复核）、A05 改写目的保持（预登记案例待执行）、A02–A04/A07/A08 真实轨迹。
+- 速度：firstRaw 中位 4.47s 为供应商侧；20 条普通样本与 p50≤3s 目标未达，需端点/模式决策。
+- 正式 1440/390/320 浏览器验收、最终源码全套+恢复、生产镜像更新（含本轮修复）。
