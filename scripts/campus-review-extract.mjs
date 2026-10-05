@@ -5,7 +5,7 @@ import {resolve} from 'node:path'
 // submission order, for manual hard-failure review. No verdicts are computed.
 const logPath=process.argv[2],reportPath=process.argv[3]
 if(!logPath||!reportPath)throw new Error('usage: node campus-review-extract.mjs <operator-log.jsonl> <report.json>')
-const entries=([],(...xs)=>xs.map(x=>x)).concat(readFileSync(logPath,'utf8').trim().split('\n').map(l=>JSON.parse(l)))
+const entries=readFileSync(logPath,'utf8').trim().split('\n').map(l=>JSON.parse(l))
 const report=JSON.parse(readFileSync(reportPath,'utf8'))
 const packets={}
 for(const turn of report.turns??[]){
