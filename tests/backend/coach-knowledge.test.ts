@@ -3,8 +3,8 @@ import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
 import { randomUUID } from 'node:crypto'
 import { pool } from '../../server/db.ts'
-import { importKnowledge, type KnowledgeCard } from '../../server/campus-knowledge.ts'
-import { validateCoachCitations, retrieveCoachKnowledge, coachPolicyScope } from '../../server/coach-knowledge.ts'
+import { importKnowledge, validateKnowledge, type KnowledgeCard } from '../../server/campus-knowledge.ts'
+import { validateCoachCitations, retrieveCoachKnowledge, coachPolicyScope, policyApplies } from '../../server/coach-knowledge.ts'
 import { buildTurnPrompt, providerTurnMessages } from '../../server/turn-prompt.ts'
 import { stageCoachEvent, coachEventView } from '../../server/action-coach-events.ts'
 import { localEmbedding } from '../../server/local-embedding.ts'
@@ -53,6 +53,34 @@ test('per-proposition citation provenance, scope and withdrawal use real isolate
       await validateCoachCitations(policy.claim,[c],[policy],scope)
       for(const text of ['我在合成学校读书',scope.replace(' 年份=2026',''),scope+' 年份=2027'])await assert.rejects(validateCoachCitations(policy.claim,[c],[policy],text),(error:any)=>error.code==='COACH_CITATION_INVALID')
       assert.equal(coachPolicyScope(scope+' 年份=2027').year,undefined)
+    })
+    await t.test('maintenance rejects incomplete, blank or non-text policy scope before importing official cards',()=>{
+      for(const scopeKeys of [{},{...policy.scopeKeys,year:undefined},{...policy.scopeKeys,year:2027},{...policy.scopeKeys,population:'   '},{...policy.scopeKeys,region:'SYNTHETIC'},['学校','学院','项目','2027','学生']]){
+        assert.throws(()=>validateKnowledge({...policy,scopeKeys} as unknown as KnowledgeCard,true),{code:'POLICY_SCOPE_REQUIRED'})
+      }
+      assert.doesNotThrow(()=>validateKnowledge(policy,true))
+    })
+    await t.test('verified national ranges need no invented school and unknown never authorizes applicability',()=>{
+      const excerpt='SYNTHETIC：全国各招生单位均适用；本条不涉及院系或具体项目；2027年硕士研究生报名考生。'
+      const national:KnowledgeCard={...policy,scopeKeys:undefined,excerpt,scopeRules:{
+        institution:{status:'all',quote:'全国各招生单位均适用'},
+        department:{status:'not_applicable',reason:'本条是统一报名时段，不判断院系资格',quote:'本条不涉及院系或具体项目'},
+        project:{status:'not_applicable',reason:'本条是统一报名时段，不判断项目资格',quote:'本条不涉及院系或具体项目'},
+        year:{status:'specific',value:'2027',quote:'2027年'},
+        population:{status:'specific',value:'硕士研究生报名考生',quote:'硕士研究生报名考生'},
+      }}
+      assert.doesNotThrow(()=>validateKnowledge(national,true))
+      const query='年份=2027 对象=硕士研究生报名考生'
+      assert.equal(policyApplies(national,query),true)
+      assert.equal(policyApplies(national,query.replace('2027','2026')),false)
+      const unknown:KnowledgeCard={...national,scopeRules:{...national.scopeRules!,institution:{status:'unknown',reason:'尚未核实机构适用范围'}}}
+      assert.doesNotThrow(()=>validateKnowledge(unknown,true),'unknown may be stored honestly, not certified as applicable')
+      assert.equal(policyApplies(unknown,query),false)
+      assert.throws(()=>validateKnowledge({...national,scopeRules:{...national.scopeRules!,institution:{status:'all',quote:'未经核实的全国适用'}}},true),{code:'POLICY_SCOPE_REQUIRED'})
+      assert.throws(()=>validateKnowledge({...national,scopeKeys:policy.scopeKeys},true),{code:'POLICY_SCOPE_REQUIRED'},'two contradictory scope representations are refused')
+      for(const badRule of [{status:'all'},{status:'unknown',reason:12},{status:'specific',value:2027,quote:'2027年'},{status:'all',quote:'全国各招生单位均适用',value:'某所学校'}]){
+        assert.throws(()=>validateKnowledge({...national,scopeRules:{...national.scopeRules!,institution:badRule}} as unknown as KnowledgeCard,true),{code:'POLICY_SCOPE_REQUIRED'})
+      }
     })
     await t.test('real local semantic source lookup excludes unscoped policies and revoked/expired entries',async()=>{
       const found=await retrieveCoachKnowledge('文件打不开，如何定位可用性步骤？',signal)

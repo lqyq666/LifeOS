@@ -1,7 +1,7 @@
 import type { PoolClient } from 'pg'
 import { pool, transaction, HttpError } from './db.ts'
 import { config } from './config.ts'
-import type { KnowledgeCard, KnowledgeRecord } from './campus-knowledge.ts'
+import { validPolicyScope, validPolicyScopeRules, type KnowledgeCard, type KnowledgeRecord } from './campus-knowledge.ts'
 import type { CoachCitation } from './action-coach-contracts.ts'
 import { localEmbedding, embeddingSignature } from './local-embedding.ts'
 
@@ -23,7 +23,17 @@ export function coachPolicyScope(text:string){
   }
   return result
 }
-const policyApplies=(card:KnowledgeCard,text:string)=>card.kind!=='policy'||Boolean(card.scopeKeys&&Object.keys(card.scopeKeys).length===5&&Object.entries(card.scopeKeys).every(([key,value])=>value===coachPolicyScope(text)[key]))
+export function policyApplies(card:KnowledgeCard,text:string){
+  if(card.kind!=='policy')return true
+  const current=coachPolicyScope(text)
+  if(card.scopeRules){
+    if(card.scopeKeys||!validPolicyScopeRules(card.scopeRules,card.excerpt))return false
+    // Broad/not-applicable ranges are maintenance-reviewed source statements,
+    // never inferred from missing fields. Unknown always abstains, not a wildcard.
+    return Object.entries(card.scopeRules).every(([key,rule])=>rule.status==='specific'?rule.value===current[key]:rule.status==='all'||rule.status==='not_applicable')
+  }
+  return validPolicyScope(card.scopeKeys)&&Object.entries(card.scopeKeys).every(([key,value])=>value===current[key])
+}
 
 export async function retrieveCoachKnowledge(query:string,signal?:AbortSignal):Promise<KnowledgeCard[]>{
   const rows=((await pool.query("SELECT * FROM campus_knowledge WHERE status='verified' AND (valid_until IS NULL OR valid_until>now()) ORDER BY id")).rows as KnowledgeRecord[]).filter(row=>valid(row)&&policyApplies(row.payload,query))

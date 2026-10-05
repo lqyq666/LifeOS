@@ -1,12 +1,42 @@
 import {createHash} from 'node:crypto'
 import {pool,transaction,HttpError} from './db.ts'
+export type PolicyScopeRule=
+  |{status:'specific';value:string;quote:string}
+  |{status:'all';quote:string}
+  |{status:'not_applicable';reason:string;quote:string}
+  |{status:'unknown';reason:string}
+export type PolicyScopeRules=Record<'institution'|'department'|'project'|'year'|'population',PolicyScopeRule>
 export type KnowledgeCard={
   id:string;revision:number;kind:'method'|'case'|'policy';status:'verified'|'unverified'|'revoked';synthetic:boolean;
   title:string;url:string;publisher:string;publishedYear:string;verifiedAt:string;validUntil:string|null;
   excerpt:string;claim:string;scope:string;limitations:string;mechanisms:string[];comparisonGroup?:string;outcome?:'support'|'boundary';
   sourceHash:string;application?:'learning'|'venture'|'study_support';scopeKeys?:{institution:string;department:string;project:string;year:string;population:string};
+  scopeRules?:PolicyScopeRules;
 }
 export type KnowledgeRecord={id:string;revision:number;kind:KnowledgeCard['kind'];status:KnowledgeCard['status'];synthetic:boolean;valid_until:string|null;payload:KnowledgeCard}
+const policyScopeKeys=['institution','department','project','year','population'] as const
+export function validPolicyScope(value:unknown):value is NonNullable<KnowledgeCard['scopeKeys']>{
+  if(!value||typeof value!=='object'||Array.isArray(value))return false
+  const fields=value as Record<string,unknown>
+  return Object.keys(fields).length===policyScopeKeys.length&&policyScopeKeys.every(key=>Object.hasOwn(fields,key)&&typeof fields[key]==='string'&&fields[key].trim().length>0)
+}
+export function validPolicyScopeRules(value:unknown,excerpt:string):value is PolicyScopeRules{
+  if(!value||typeof value!=='object'||Array.isArray(value))return false
+  const fields=value as Record<string,unknown>,nonblank=(text:unknown):text is string=>typeof text==='string'&&text.trim().length>0
+  return Object.keys(fields).length===policyScopeKeys.length&&policyScopeKeys.every(key=>{
+    if(!Object.hasOwn(fields,key))return false
+    const rule=fields[key]
+    if(!rule||typeof rule!=='object'||Array.isArray(rule))return false
+    const row=rule as Record<string,unknown>
+    const expected=row.status==='specific'?['status','value','quote']:row.status==='all'?['status','quote']:row.status==='not_applicable'?['status','reason','quote']:['status','reason']
+    if(Object.keys(row).length!==expected.length||expected.some(name=>!Object.hasOwn(row,name)))return false
+    if(row.status==='unknown')return nonblank(row.reason)
+    if(!nonblank(row.quote)||!excerpt.includes(row.quote))return false
+    if(row.status==='specific')return nonblank(row.value)
+    if(row.status==='all')return true
+    return row.status==='not_applicable'&&nonblank(row.reason)
+  })
+}
 export function validateKnowledge(card:KnowledgeCard,allowSynthetic=false){
   if(!/^[0-9a-f-]{36}$/i.test(card.id)||!Number.isInteger(card.revision)||card.revision<1)throw new HttpError(400,'KNOWLEDGE_ID_INVALID')
   if(!['method','case','policy'].includes(card.kind)||!['verified','unverified','revoked'].includes(card.status))throw new HttpError(400,'KNOWLEDGE_STATUS_INVALID')
@@ -16,7 +46,9 @@ export function validateKnowledge(card:KnowledgeCard,allowSynthetic=false){
   for(const key of ['title','publisher','publishedYear','verifiedAt','excerpt','claim','scope','limitations','sourceHash'] as const)if(typeof card[key]!=='string'||!card[key].trim())throw new HttpError(400,'KNOWLEDGE_METADATA_REQUIRED')
   if(!Number.isFinite(Date.parse(card.verifiedAt))||!/^[0-9a-f]{64}$/.test(card.sourceHash)||!Array.isArray(card.mechanisms)||!card.mechanisms.length)throw new HttpError(400,'KNOWLEDGE_AUDIT_REQUIRED')
   if(card.validUntil!==null&&!Number.isFinite(Date.parse(card.validUntil)))throw new HttpError(400,'KNOWLEDGE_EXPIRY_INVALID')
-  if(card.kind==='policy'&&(!card.scopeKeys||Object.values(card.scopeKeys).some(value=>!value)))throw new HttpError(400,'POLICY_SCOPE_REQUIRED')
+  if(card.kind==='policy'&&!(card.scopeRules
+    ?!card.scopeKeys&&validPolicyScopeRules(card.scopeRules,card.excerpt)
+    :validPolicyScope(card.scopeKeys)))throw new HttpError(400,'POLICY_SCOPE_REQUIRED')
 }
 // Only called by local maintenance CLI or isolated fixtures. No HTTP route grants verification.
 export async function importKnowledge(cards:KnowledgeCard[],allowSynthetic=false){

@@ -29,3 +29,11 @@
 候选传输继续复用当前 pi-ai 和 TypeBox，Max/Plus 与 Flash 均关闭思考并使用同一严格 Schema；默认仍 Flash，候选只通过临时进程配置比较。动态成长更正和观察依赖进一步约束真实授权ID/版本配对；首次无成长依据不生成持久化AI观察。新校园夹具及操作入口复用原独立数据库/真实认证/人工逐条输入/同一预算观察器，不安装新的基准框架。
 
 父线程新增受控高推理对照后，核对[官方深度思考](https://help.aliyun.com/zh/model-studio/deep-thinking)：Qwen3.8/3.7可用 enable_thinking 与 thinking_budget；max_completion_tokens 限制思考加回答的总长度。比较仅增加一档2048思考token，上限输出仍8192；实现限配置预算0–4096且必须小于总输出，不默认最高档、不同时传 reasoning_effort。实际已安装 pi-ai@0.73.1 的 openai-completions.js 在 HTTP create 之前等待 onPayload 并使用其返回对象；其 usage.completion_tokens 含推理token，text 与 thinking content 独立。模拟 SDK 回归证实参数传输/完整输出token统计/不显示或保存内部思考。官网控制台默认预算不等于本项目实测档；收益待同场景实测，不能宣称已经更聪明或更快。
+
+## 官方政策前置核对（免费，只读）
+
+本机执行者于2026-10-05实际读取[教育部2027硕士招生规定](https://yz.chsi.com.cn/kyzx/jybzc/202609/20260924/2293971511.html)：网页发布日与通知落款分开；第十九条的正式报名和预报名为不同动作，省级安排仍需另核。第十五、十六条及招生单位审核并不允许只凭成年大学生身份保证报考资格。
+
+实际读取[浙江2026普通专升本通知](https://www.zjzs.net/art/2026/1/5/art_49_11840.html)：仅正文与附件链接可读；尚未下载/解析docx细则、xlsx专业对照和登记表，不提取附件资格/日期、不外推其他省份或2027年度。具体元数据见 `official-source-registry.json`；两项均研究准备、未入库，原始字节hash尚无，不能冒充已完成政策导入。
+
+范围结构复用当前维护卡、引用验证和版本失效机制，不安装抓取/代理框架。旧精确五键卡仍支持；新的 specific/all/not_applicable/unknown 分开，已核实范围须有维护卡原文引用，unknown只能弃权，不冒充全部适用。形式校验不证明原文蕴含范围，仍需实际来源审阅。全国时段不虚构院校/院系，学校资格条件需另建准确范围命题。
