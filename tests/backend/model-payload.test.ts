@@ -133,6 +133,17 @@ test('JSON-object reasoning prompt includes the full current event and citation 
   assert.equal(Object.hasOwn(schema.properties,'campus'),false)
 })
 
+test('growth-enabled native generation uses the personal growth lane while legacy parsing and experience confirmation remain available',()=>{
+  const current='00000000-0000-4000-8000-000000000011'
+  const source={messageId:current,quote:'我大三'}
+  const native=(refs?:{id:string;revision:number}[])=>((configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,current,[],refs) as any).response_format.json_schema.schema)
+  const legacy={reply:'保留当前阶段',background:[{key:'education.stage',value:'大三',source}]}
+  assert.equal(Value.Check(native(),legacy),true,'the schema without growth authorization keeps its legacy protocol')
+  assert.equal(Value.Check(native([]),legacy),false,'a growth-enabled request cannot divert personal facts into background')
+  assert.equal(Value.Check(native([]),{reply:'保留当前阶段',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source}]}),true)
+  assert.equal(Value.Check(native([]),{reply:'候选经历仍需本人确认',experienceCandidate:{source}}),true)
+})
+
 test('the existing DeepSeek default candidate carries the same full schema without thinking or extra calls',()=>{
   const prompt=turnSystemPrompt('default','deepseek-v4.1-flash')
   assert.deepEqual(JSON.parse(prompt.split('Schema：').at(-1)!),actionCoachTurnSchema)
