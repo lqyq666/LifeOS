@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { Client } from 'pg'
 import { config } from '../server/config.ts'
+import {selectBackendTests} from './backend-test-selection.ts'
 
 const root=resolve(fileURLToPath(new URL('..',import.meta.url)))
 const adminUrl=new URL(config.databaseUrl)
@@ -54,6 +55,8 @@ async function applyMigrations(){
 }
 
 async function main(){
+  // Validate the entire requested batch before creating a disposable database.
+  const files=selectBackendTests(readdirSync(resolve(root,'tests/backend')),process.argv.slice(2))
   await admin.connect()
   const identity=(await admin.query('SELECT current_database() AS database,current_user AS role,rolcreatedb FROM pg_roles WHERE rolname=current_user')).rows[0]
   if(identity.database!=='lifeos'||!identity.rolcreatedb)throw new Error('The configured local database role cannot safely create a disposable test database.')
@@ -61,17 +64,6 @@ async function main(){
   created=true
   await applyMigrations()
   process.stdout.write(`Isolated PostgreSQL target: ${databaseName} (local port ${adminUrl.port||'5432'}); applied ${migrations} migrations.\n`)
-  const browserOnly=process.argv.includes('--browser-only')
-  if(process.argv.includes('--engine-workload'))throw new Error('The retired V1.1 workload is not a V1.3 acceptance suite.')
-  const liveFiles=['live-01-university.test.ts','live-02-memory.test.ts','live-03-internship.test.ts','live-04-experience.test.ts','live-05-pattern.test.ts','live-reliability.test.ts','official-source-public.test.ts','official-attachment-public.test.ts','campus-comparison-real-review.test.ts']
-  const targeted=process.argv.find(arg=>arg.startsWith('--file='))?.slice(7)
-  if(targeted&&!/^[a-z0-9-]+\.test\.ts$/.test(targeted))throw new Error('Invalid targeted test filename')
-  // Existing user edits stay at their exact paths as historical source, not active business gates.
-  const preservedRetiredFiles=['campus-grounding-contract.test.ts','campus-reference-context.test.ts','campus-reliability.test.ts','campus-repair.test.ts']
-  if(targeted&&preservedRetiredFiles.includes(targeted))throw new Error('This user-edited V1.2 test is preserved as historical source; use the V1.3 regression suites.')
-  const browserFiles=['action-coach-browser.test.ts']
-  const files=targeted?[targeted]:readdirSync(resolve(root,'tests/backend')).filter(name=>name.endsWith('.test.ts')&&!preservedRetiredFiles.includes(name)&&(browserOnly?browserFiles.includes(name):![...browserFiles,...liveFiles].includes(name))).sort()
-  if(!files.length)throw new Error('No backend test files were found.')
   for(const file of files){
     process.stdout.write(`\n=== ${file} ===\n`)
     const result=spawnSync(process.execPath,['--import','tsx','--import',pathToFileURL(resolve(root,'scripts/backend-test-preload.ts')).href,'--test',resolve(root,'tests/backend',file)],{
