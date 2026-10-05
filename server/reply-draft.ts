@@ -40,7 +40,10 @@ export function openingQuestionDraft(raw:string):string|null{
       else if(/[”」』’]/.test(char)){invalidQuote=true;break}
     }
     if(closingQuote||invalidQuote)continue
-    if(!/^(你想|你希望|你愿意|你更想|你最想|你现在想|你现在最想|这次你想|哪一步|哪件事|什么时候|具体是哪|能(?:具体|简单)?(?:说说|说一下)|可以(?:具体|简单)?(?:说说|说一下)|想确认一下[：:]|先确认(?:一下)?|那(?:当时|之后|这次|现在)?(?:你|他|她|你们|对方|这位|这份|有没有)|我想(?:先|再)?确认(?:一下|一个[^：:]{0,10})[：:]|你说的|要不要|你(?:上次|当时|这次)?(?:具体)?(?:做了什么|做的是|是怎么|是怎样|有没有)|你[^。！？?"“”<>]{0,8}的是)/.test(question))continue
+    // Check interrogative form rather than enumerating names or sentence starts.
+    // Recommendations and confident conclusions remain gated even as questions.
+    if(/应该|必须|建议|最好|不如|肯定|显然|一定|证明|意味着|因此|于是/.test(question))continue
+    if(!/(?:谁|什么|哪|何时|如何|怎么|怎样|是否|有没有|是不是|还是|要不要|吗[？?]$|(?:能|可以)(?:具体|简单)?(?:说说|说一下))/.test(question))continue
     return question
   }
   return null

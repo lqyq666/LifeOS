@@ -8,7 +8,7 @@ import { stream, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError } from './db.ts'
 import { providerError } from './provider-errors.ts'
 import { parseActionCoachTurn, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
-import { coachEventView, stageCoachEvent } from './action-coach-events.ts'
+import { coachEventView, stageCoachEvent, deliverableIntent, coachMaterialPresentation, type CoachEvent } from './action-coach-events.ts'
 import { estimateTokens } from './context.ts'
 import { loadSnapshot, stageCoachBackground } from './memory.ts'
 import { initialModelRoute, readKnownMajor } from './model-router.ts'
@@ -143,7 +143,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const usage=usageSummary([],0,1,false,null,true);staged.modelUsage=usage
     return {text:`你之前告诉我，你的专业是「${known}」。如果有变化，可以直接更正。`,usage}
   }
-  let currentEvent=null
+  let currentEvent:CoachEvent|null=null
   try{currentEvent=await coachEventView(run.user_id,run.conversation_id)}catch(error){
     if(!(error instanceof HttpError)||!['NOT_FOUND','MEMORY_DISABLED','COACH_SOURCE_REVOKED'].includes(error.code))throw error
   }
@@ -170,6 +170,8 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     let result:ActionCoachTurn
     try{result=parseActionCoachTurn(raw)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
     staged.coach=undefined;staged.candidates=[];staged.memoryChanges=[]
+    const hasMaterial=result.event?.action&&'draft'in result.event.action
+    if(!hasMaterial&&deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')&&coachMaterialPresentation(result.reply))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
     staged.usedKnowledgeRefs=undefined
     const narrativeChars=result.reply.length
     try{result.reply=renderCoachReply(result)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}

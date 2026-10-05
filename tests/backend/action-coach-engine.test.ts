@@ -58,6 +58,24 @@ test('the only turn core uses natural replies and event deltas, with one bounded
   let eventId=''
   const sourceIds:string[]=[]
   try{
+    await t.test('a requested artifact delivered inline without action is repaired into the durable material',async()=>{
+      const text='同学还需不需要我不知道，请直接帮我写一句确认消息。',input=await prepare(text)
+      const material='之前那份资料，你现在还需要吗？不需要也没关系。'
+      const source={messageId:input.run.source_message_id,quote:text}
+      outputs.push({reply:'帮你拟好了，直接复制发给他就行：\n'+material,event:{target:{operation:'create',title:'确认资料需求',source}}},{reply:'可以先发这句：',event:{target:{operation:'create',title:'确认资料需求',source},action:{operation:'create',draft:{content:material}}}})
+      const before=requests.length,result=await engine(input)
+      assert.equal(requests.length-before,2)
+      assert.equal((result.usage as any).repairReason,'COACH_MATERIAL_NOT_VISIBLE')
+      const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      assert.equal(saved.event!.actions[0]!.draft!.content,material)
+      assert.ok(result.text.includes(material))
+      const incomplete=await prepare('帮我写一封介绍邮件。'),next=requests.length
+      outputs.push({reply:'邮件要发给谁，你希望介绍哪件事？'})
+      const clarified=await engine(incomplete)
+      assert.equal(requests.length-next,1,'a necessary clarification does not force placeholder material')
+      assert.equal(incomplete.staged.coach,undefined)
+      await store.finishRun(incomplete.run,incomplete.staged,clarified.text,clarified.usage,incomplete.signal)
+    })
     await t.test('an unchanged fragment correction gets one specific repair and preserves the complete fact',async()=>{
       const other=randomUUID();await store.createConversation(user,{id:other,title:'SYNTHETIC fragment correction'})
       const original='我花了三小时整理四十页。同学说手机打不开，所以没看。'

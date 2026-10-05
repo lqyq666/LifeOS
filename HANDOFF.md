@@ -2,7 +2,16 @@
 
 工作区为 D:\aaaLife\LifeOS。当前 LifeOS V1.3 精简源码仓库。默认模型保持 qwen3.8-flash。整体状态 WIP_NOT_READY。生产已部署于 https://lqynb.xyz（2026-10-05，见下），正式验收未完成。
 
-## 2026-10-05 当前接续：重复片段不能擦除复合事实
+## 2026-10-05 当前接续：成品归入行动、流式问句使用语法
+
+- 接续 `d106264`。真实 `coach-e8ef140f-947e-4444-8920-d974047555da` 两条独立开场后停止，保留原始输出/请求与人工审阅。A05 可复制文本仅在 reply，event.actions 为空，又把临时考试时间提为教育阶段；不是材料闭环通过。A01 仅开场，不能称整条接受。
+- 免费红绿：当前明确要求起草/改写且 reply 实际以交付引导和冒号后非空文本呈现成品，却没有 action.draft 时，使用已有 `COACH_MATERIAL_NOT_VISIBLE` 至多一次具体修复；必要澄清仍一次调用、不强制占位。交付引导共用 staging 的有限匹配，不是通用成品语义识别。引擎定向 35/35。
+- `openingQuestionDraft` 用中性问句语法取代长句首/人名白名单；保持完成问号、JSON 解码、引号平衡、敏感声明/引用/因果门，新增建议和确定结论问句门。保存原文的完整问句，未展示事实前言，不改正式回复。7/7 流式红绿回归。此有限初步问句门不替代语义接受或提交校验，真实速度仍须新版本 20 个普通样本验证。
+- Schema 只收敛 description 与提示一致：回复从问题/必要回应开始，交付文本归材料；每节点一项陈述，corrections 仅实质更正，background 仅稳定身份/技能。结构签名仍 `1f11c0a4...6af1a6`、原四条真实能力收据保持不变；零 API 检查 `artifact-interface-equivalence.json` 确认 capabilityVerified=true，没有重复收费探针。
+- 完整隔离后端 31 文件 155 测试、客户端 45/45、服务端类型与构建通过，保留 Three.js 分块警告。日志 `.local/coach-boundary-20261005/missing-material-red.log` / `missing-material-green.log` / `question-syntax-red.log` / `question-syntax-green.log` / `artifact-stream-full-backend.log` / `artifact-stream-unit.log` / `artifact-stream-build.log`。真实行为、稳定背景与速度待新冻结复核，尚未部署，**WIP_NOT_READY**。
+- 唯一 D 盘账本 402 条、无 pending；新增 ¥30 授权 17 调用累计 ¥0.0318079、余 ¥29.9681921；旧/生产池独立，qwen3.8-flash 模型/模式/端点未变。
+
+## 2026-10-05 重复片段不能擦除复合事实（历史 d106264 批次）
 
 - 接续 `a199922`。真实 `coach-7b193fc3-47ff-4cf1-af68-f2ecc6bdceca` 已停止，保留四轮/五调用及独立人工审阅。前三轮无行动且一次调用；第三轮模型却用未变化的人物片段更正整条投入/人物/结果，事件节点和 processTurns 失去其余详情（原聊天仍在实际 Provider 请求）。第四轮再次问已给出的来源/结果并试图继续错误更正。A01 **未通过**，有效首内容 4.96/5.60/6.60/14.11 秒，不算最终速度通过。
 - 免费红绿新增 `COACH_CORRECTION_UNCHANGED`：旧事实的原样片段不足以授权缩小替换整个事实。保留原节点，新增当轮信息走 nodes；未知答案、确实变化的引文仍走原更正路径。引擎至多一次具体修复并说明保留原事实；这是结构性重复保护，不是通用语义更正判断。不同引文是否确为用户意图仍须真实语义验收。提示明确每节点一项陈述、补充/重述与实质更正的区别。

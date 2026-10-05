@@ -42,6 +42,15 @@ test('neutral retrospective interrogatives can stream without making factual cla
   }
 })
 
+test('neutral questions use interrogative syntax without a growing name or sentence-prefix allowlist',()=>{
+  for(const question of ['那小林说“资料很乱”时，他具体指的是什么？','这里“资料很乱”是他对内容的判断，还是你转述时的概括？','对方当时具体希望拿到哪种材料？']){
+    const raw=JSON.stringify({reply:'前面这段承接不提前展示。'+question})
+    assert.equal(openingQuestionDraft(raw),question)
+    assert.equal(openingQuestionDraft(raw.slice(0,raw.indexOf('？'))),null)
+  }
+  for(const question of ['对方是不是因为你不认真才不用材料？','小林肯定拒绝你了，你是不是应该继续催？','你是不是应该再发一份新的材料？','这说明你需要治疗吗？'])assert.equal(openingQuestionDraft(JSON.stringify({reply:question})),null)
+})
+
 test('a neutral completed question after a factual preamble is an exact fragment, never the unvalidated preamble',()=>{
   const question='能具体说说这次行动是什么吗？'
   const reply='你提到做了上次的行动，但对方没有使用。'+question+'比如是发了什么内容？'

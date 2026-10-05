@@ -4,7 +4,7 @@ import { Value } from 'typebox/value'
 const text=(maxLength=16000)=>Type.String({minLength:1,maxLength})
 const id=Type.String({pattern:'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'})
 export const processSourceSchema=Type.Object({messageId:{...id,description:'只复制本轮currentUserMessage.id。不能把历史消息的原话重新标成本轮消息。'},quote:{...text(8000),description:'必须是本轮最后一条用户消息中的连续原文，不能引用更早消息、拼接或改写。历史事实已在事件/对话中，不重复生成到本轮新节点。'}},{additionalProperties:false})
-const reportedNode=Type.Object({kind:Type.Union([Type.Literal('fact'),Type.Literal('feeling'),Type.Literal('user_interpretation')]),source:processSourceSchema},{additionalProperties:false})
+const reportedNode=Type.Object({kind:Type.Union([Type.Literal('fact'),Type.Literal('feeling'),Type.Literal('user_interpretation')]),source:processSourceSchema},{additionalProperties:false,description:'一项当前用户陈述及其连续原话。已知旧陈述不重新生成，补充新信息使用新节点。事实、感受与用户解释分别表达。'})
 const unknownNode=Type.Object({kind:Type.Literal('unknown'),question:text(2000)},{additionalProperties:false})
 const processNode=Type.Union([reportedNode,unknownNode])
 // The server creates identities and revisions. The model selects existing
@@ -31,7 +31,7 @@ export const eventDeltaSchema=Type.Object({
     Type.Object({operation:Type.Literal('continue'),eventId:id,expectedRevision:Type.Integer({minimum:1})},{additionalProperties:false,description:'对currentEvent或已准确定位的events补充、回答、修正和共创时使用。必须原样取对应id/revision；nodes仅新增当前原话，既有过程由服务器保留。'}),
   ],{description:'先定位事情，再选择目标。同一事情的不同轮次共用eventId；新的用户消息不等于新的事件。'}),
   nodes:Type.Optional(Type.Array(processNode,{maxItems:24})),
-  corrections:Type.Optional(Type.Array(Type.Object({nodeId:id,source:processSourceSchema},{additionalProperties:false}),{maxItems:12})),
+  corrections:Type.Optional(Type.Array(Type.Object({nodeId:id,source:processSourceSchema},{additionalProperties:false}),{maxItems:12,description:'用户实质更正已有陈述时才替换对应节点。重复旧话或补充另一个事实使用nodes，不能缩小覆盖其他旧事实。'})),
   resolveUnknowns:Type.Optional(Type.Array(id,{maxItems:24})),
   declineUnknowns:Type.Optional(Type.Array(id,{maxItems:24})),
   action:Type.Optional(actionChangeSchema),
@@ -39,13 +39,13 @@ export const eventDeltaSchema=Type.Object({
 export const coachCitationSchema=Type.Object({sourceId:id,revision:Type.Integer({minimum:1}),claim:text(4000),quote:text(8000),scope:text(4000)},{additionalProperties:false})
 export type CoachCitation=Static<typeof coachCitationSchema>
 export const actionCoachTurnSchema=Type.Object({
-  reply:Type.String({minLength:1,maxLength:16000,description:'自然回应本轮用户，并承接之前真实对话。用户补充经过后不要只照抄事实；需要深入时先问一个关键未知信息。可复制成品只写在event.action.draft.content，本字段写必要说明。'}),
+  reply:Type.String({minLength:1,maxLength:16000,description:'自然简洁地回应本轮诉求。复盘先问关键未知问题，已知事实用于理解，不逐句复述。要交付成品时这里只写必要说明，完整可复制文本放event.action.draft.content，服务器展示同一材料。'}),
   citations:Type.Optional(Type.Array(coachCitationSchema,{maxItems:6,description:'仅对确实使用的有效知识条目逐命题引用；普通追问、个人起草和倾听通常省略。不得编造来源。'})),
   event:Type.Optional(eventDeltaSchema),
   background:Type.Optional(Type.Array(Type.Object({
     key:Type.Union([Type.Literal('education.school'),Type.Literal('education.major'),Type.Literal('education.stage'),Type.Literal('skills')]),
     value:text(500),source:processSourceSchema,
-  },{additionalProperties:false}),{maxItems:8})),
+  },{additionalProperties:false}),{maxItems:8,description:'仅限本人明确、稳定的教育和技能背景；教育阶段指大三、硕士等身份阶段，今晚等临时行动时间不是教育阶段。省略临时约束和事件事实。'})),
   // Candidates remain opt-in proposals; confirmation still uses the existing
   // experience API and is never implied by a conversation-state update.
   experienceCandidate:Type.Optional(Type.Object({source:processSourceSchema},{additionalProperties:false})),
