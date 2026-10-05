@@ -37,3 +37,18 @@
 实际读取[浙江2026普通专升本通知](https://www.zjzs.net/art/2026/1/5/art_49_11840.html)：仅正文与附件链接可读；尚未下载/解析docx细则、xlsx专业对照和登记表，不提取附件资格/日期、不外推其他省份或2027年度。具体元数据见 `official-source-registry.json`；两项均研究准备、未入库，原始字节hash尚无，不能冒充已完成政策导入。
 
 范围结构复用当前维护卡、引用验证和版本失效机制，不安装抓取/代理框架。旧精确五键卡仍支持；新的 specific/all/not_applicable/unknown 分开，已核实范围须有维护卡原文引用，unknown只能弃权，不冒充全部适用。形式校验不证明原文蕴含范围，仍需实际来源审阅。全国时段不虚构院校/院系，学校资格条件需另建准确范围命题。
+
+## 第六批官方正文模块（2026-10-05，免费本地）
+
+实际复用 [Cheerio v1.2.0](https://github.com/cheeriojs/cheerio/tree/v1.2.0)：读取固定版本源码 loadBuffer/encoding-sniffer、UTF-8/UTF-16测试及MIT许可，Node最低20.18.1满足本机。只用静态解析；不使用fromURL自动重定向。许可副本 THIRD_PARTY_NOTICES/cheerio-LICENSE.txt。自有HTTP边界限定官方HTTPS主机、固定公共IPv4解析、每次重定向再校验、2MiB/20秒上限，不执行脚本、发送凭证或读取内部地址。
+
+上述两份官方页面已获得原始字节SHA256，初始通用选择器仅partial的失败保留；按实际DOM适配后两份读取通过。首次隔离DB公开测试省站超时仍保存FAIL，第二次明确人工执行两站成功，仅维护审阅国家报名时段一条，不把资格/附件和全部政策当通过。原始证据位于 .local/campus-growth/public-official-20261005 和 official-public-db-1791199745629/report.json，Provider 0。登记状态更新为本地隔离导入验证，主库/生产没有导入。
+
+增量016迁移保留每版本原始字节、hash、发布/落款/年度和失败原因；正文候选不自动核验。维护审阅必须绑定当前原始hash、精确摘录及scopeEvidence跨度，24小时内到期。变更/部分读取/失败暂停原命题、连带旧回复/材料失效；相同字节不延长审核期。全国2027招生年度不能被2026报名日冒充。未知范围不作为全部适用。认证界面仅GET保存状态，无远程抓取或审核写入口。
+
+## 发布前依赖安全核对（尚未修复）
+
+npm audit五项high均沿 pi-ai0.73.1→proxy-agent6.5.0→pac-proxy-agent7.2.0→get-uri6.0.5→basic-ftp5.3.1 传播同一 [GHSA-c475-qrg2-pj4r](https://github.com/advisories/GHSA-c475-qrg2-pj4r) / CVE-2026-102990。basic-ftp<=6.2.0受影响，6.2.1修复恶意Unix目录列表解析的CPU耗尽。get-uri FTP路径MDTM失败回退Client.list可触发。pi-ai现有代理路径仅Bedrock provider；本产品仅Bailian/openai-completions，官方读取用agent:false，但不能因此忽略生产包含该依赖。
+
+只读SSH docker ps证实旧生产lifeos-app-1仍lifeos:v1.3-glm-52a4e47，依赖5.3.1/get-uri6.0.5/proxy-agent6.5.0实际安装；安装不等于在运行进程已加载。不dump环境/读取凭证。上游最新get-uri8.0.1仍依赖basic-ftp^5.3.1；不force降级pi-ai。核对 [6.0.0变更](https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.0.0)：默认禁止分离传输主机，是FTP bounce防御；[6.2.1补丁](https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.1)修复该解析。窄override到6.2.2需实际get-uri本地FTP兼容/攻击边界回归，未通过前列潜在发布风险。
+生产只读代理核查补充：当前容器六个HTTP_PROXY/HTTPS_PROXY/ALL_PROXY及小写变量均present=false、pac=false（只打印布尔值）。这降低现有配置触发概率，不证明未来配置安全或运行进程所有模块加载状态；尚无修复前不清除发布风险。

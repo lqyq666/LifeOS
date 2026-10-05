@@ -142,3 +142,12 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - A01 语义（追问入行动已由服务端门+回归钉住，但需真实小批复核）、A05 改写目的保持（预登记案例待执行）、A02–A04/A07/A08 真实轨迹。
 - 速度：firstRaw 中位 4.47s 为供应商侧；20 条普通样本与 p50≤3s 目标未达，需端点/模式决策。
 - 正式 1440/390/320 浏览器验收、最终源码全套+恢复、生产镜像更新（含本轮修复）。
+
+### 第六批：真实官方正文、失效闭环和只读资料界面（免费）
+
+- 复用固定MIT Cheerio1.2.0，明确HTTPS/公共IPv4/重定向/体积/超时边界，无JS执行。两份公开官方页面原始hash已保存；只有国家时段一条人工核验在临时DB成功，省级附件3份未读。失败与partial保留，不伪造全部资格和有效政策验收。详见 research/campus-growth/sources.md、official-source-registry.json。
+- 016增量迁移两表保存原始快照、来源版本、时间/适用年度/未知；抓取不自动认证。维护命题绑定hash和原文跨度/独立范围跨度、<=24小时有效期，源变更/失败暂停命题和旧历史/材料，旧import误标verified也无法绕过SQL/JS/UI失效检查。认证GET只读界面保留原主题/2D/3D资产。
+- 定向5/5（含真实DOM与旧import失效）、客户端45/45、服务端类型检查/构建通过；真实Chrome认证与三个尺寸320/390/1440通过并目检窄屏截图，模型/页面来源为显式合成。完整后端35文件196测试全部通过，日志 official-full-backend.log。公开HTTPS+实际PG双来源通过日志 official-public-db-2.log，不是合成来源验收。零新Provider。
+- 一次与新迁移相关非空真实pg_dump/restore通过45表17迁移，全部内容hash一致；恢复保留原始hash/两种日期/失败快照，续写revision3不自动认证。报告 .local/campus-growth/official-recovery/recovery-report.json，原主库不修改。
+- npm audit五项high同根FTP CPU拒绝服务，实际旧生产依赖已只读核实；完整触发链和补丁候选见sources.md，未盲目升级/降SDK、未部署。仍须窄补丁兼容验证。付费审批保持暂停，默认模型未改；真实完整校园链、20普通时延和混合成本仍未验收，WIP_NOT_READY。
+

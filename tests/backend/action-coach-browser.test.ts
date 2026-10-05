@@ -1,9 +1,12 @@
 import {grantEntitlement,entitlementView} from '../../server/entitlements.ts'
+import {syncOfficialSource,officialSourceRegistry,approveOfficialKnowledge} from '../../server/official-sources.ts'
+import {extractOfficialDocument} from '../../server/official-extract.ts'
+import {OfficialFetchError} from '../../server/official-fetch.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { createRequire } from 'node:module'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../../server/config.ts'
 import { pool } from '../../server/db.ts'
@@ -67,7 +70,13 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
   const directory=resolve('evidence/v1.3-action-coach','browser-local-'+Date.now());mkdirSync(directory,{recursive:true})
   const report:any={evidence:'REAL_CHROME_REAL_POSTGRESQL_REAL_AUTH_SIMULATED_MODEL_SYNTHETIC_USER',checks:[],screenshots:[],errors:[]}
   let browser:any,user=''
+  const sourceCardId=randomUUID(),officialEntry=officialSourceRegistry[0]
   try{
+    assert.equal((await fetch(origin+'/api/official-sources')).status,401,'official source view requires an authenticated session')
+    const fixture=JSON.parse(readFileSync('tests/fixtures/official-source-dom.json','utf8'))[0],bytes=Buffer.from(fixture.html),extracted=extractOfficialDocument(bytes,officialEntry.url)
+    const source=await syncOfficialSource(officialEntry,async()=>({url:officialEntry.url,bytes,contentType:'text/html'}))
+    const excerpt=extracted.text.split('\n').find(line=>line.startsWith('第十九条'))!
+    await approveOfficialKnowledge(source.id,source.revision,[{id:sourceCardId,revision:1,kind:'policy',status:'verified',synthetic:true,title:'SYNTHETIC 国家报名时段',url:officialEntry.url,publisher:officialEntry.publisher,publishedYear:'2026发布，2027招生',verifiedAt:new Date().toISOString(),validUntil:new Date(Date.now()+3600000).toISOString(),excerpt,claim:'SYNTHETIC 仅核验国家网报时段，不保证个人资格。',scope:'SYNTHETIC 国家的统一时段，个人资格未知',limitations:'院校和个人条件尚未核实',mechanisms:['official-browser-fixture'],sourceHash:extracted.hash,scopeRules:{institution:{status:'unknown',reason:'仅演示来源状态，不认证机构范围'},department:{status:'unknown',reason:'院系未核实'},project:{status:'unknown',reason:'项目未核实'},year:{status:'unknown',reason:'范围未核实'},population:{status:'unknown',reason:'个人资格未核实'}}}])
     const email='coach-browser-'+randomUUID()+'@example.invalid',password='Synthetic-'+randomUUID()
     const signup=await fetch(origin+'/api/auth/sign-up/email',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({email,password,name:'Synthetic browser'})})
     assert.equal(signup.status,200)
@@ -105,6 +114,18 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
     })
     await page.getByLabel('你的原话',{exact:true}).fill('先探索就业，暂不强选岗位。')
     await page.getByRole('button',{name:'保存这项',exact:true}).click()
+    const official=page.locator('.growth-official')
+    await official.getByText('2026-09-24',{exact:true}).waitFor();await official.getByText('2026-09-21',{exact:true}).waitFor()
+    await official.getByText('维护核验有效 · 命题版本 1',{exact:true}).waitFor()
+    await official.getByText('从原文识别的时间（待核验）',{exact:true}).click()
+    assert.ok((await official.textContent()).includes('预报名：2026-10-09 至 2026-10-12'))
+    assert.ok((await official.textContent()).includes('正式报名：2026-10-15 至 2026-10-24'))
+    await syncOfficialSource(officialEntry,async()=>{throw new OfficialFetchError('OFFICIAL_FETCH_TIMEOUT')})
+    await official.getByRole('button',{name:'刷新资料状态',exact:true}).click()
+    await official.getByText('本次读取失败 · 暂不作依据',{exact:true}).waitFor()
+    await official.getByText('依据已暂停，需重新核验 · 命题版本 2',{exact:true}).waitFor()
+    assert.ok((await official.textContent()).includes('读取失败不代表政策没有发布'))
+    report.checks.push('official source UI distinguishes page/document dates, admission year and two pending windows; failed refresh suspends the prior claim, not a policy disappearance')
     const growthCard=page.locator('.growth-card').filter({hasText:'先探索就业，暂不强选岗位。'})
     await growthCard.waitFor()
     assert.equal(await page.getByLabel('你的原话',{exact:true}).inputValue(),'先探索就业，暂不强选岗位。','transport failure retains authored input')
@@ -138,7 +159,10 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
       await page.setViewportSize({width,height:900})
       await page.locator('.growth-workspace').evaluate((element:any)=>{element.scrollTop=0})
       assert.equal(await page.locator('.growth-workspace').evaluate((element:any)=>element.scrollWidth<=element.clientWidth+1),true,'growth workspace no overflow at '+width)
-      const file=resolve(directory,'growth-'+width+'.png');await page.screenshot({path:file});report.screenshots.push(file)
+       const file=resolve(directory,'growth-'+width+'.png');await page.screenshot({path:file});report.screenshots.push(file)
+       await page.locator('.growth-official').scrollIntoViewIfNeeded()
+       assert.equal(await page.locator('.growth-official').evaluate((element:any)=>element.scrollWidth<=element.clientWidth+1),true,'official source panel no overflow at '+width)
+       const sourceFile=resolve(directory,'official-source-'+width+'.png');await page.screenshot({path:sourceFile});report.screenshots.push(sourceFile)
     }
     const secondContext=await browser.newContext({viewport:{width:390,height:844}})
     await secondContext.addCookies(await context.cookies())
@@ -361,7 +385,9 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
     await localEmbedding.close()
     await browser?.close();app.closeAllConnections();await new Promise<void>(resolveClose=>app.close(()=>resolveClose()))
     config.origin=oldOrigin;config.messagesPerMinute=oldRate;config.entitlementsEnabled=oldAccess
-    if(user){await pool.query('DELETE FROM experiences WHERE user_id=$1',[user]);await pool.query('DELETE FROM "user" WHERE id=$1',[user])}
+      if(user){await pool.query('DELETE FROM experiences WHERE user_id=$1',[user]);await pool.query('DELETE FROM "user" WHERE id=$1',[user])}
+      await pool.query('DELETE FROM campus_knowledge_revisions WHERE id=$1',[sourceCardId]);await pool.query('DELETE FROM campus_knowledge WHERE id=$1',[sourceCardId])
+      await pool.query('DELETE FROM official_source_snapshots WHERE source_id IN (SELECT id FROM official_sources WHERE url=$1)',[officialEntry.url]);await pool.query('DELETE FROM official_sources WHERE url=$1',[officialEntry.url])
     await pool.end()
   }
 })

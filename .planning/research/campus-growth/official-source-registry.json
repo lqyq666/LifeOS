@@ -1,7 +1,7 @@
 {
-  "status": "RESEARCH_ONLY_NOT_IMPORTED",
+  "status": "LOCAL_ISOLATED_IMPORT_VERIFIED_NOT_PRODUCTION",
   "retrievedOn": "2026-10-05",
-  "note": "Official page text read directly. No raw-byte content hash or policy-card import yet; page readability does not certify individual eligibility.",
+  "note": "Two real public HTML captures and raw hashes verified. One national registration-timing claim manually reviewed in disposable DB only; provincial attachments remain unread. No primary/production import or individual eligibility certification.",
   "sources": [
     {
       "url": "https://yz.chsi.com.cn/kyzx/jybzc/202609/20260924/2293971511.html",
@@ -14,14 +14,32 @@
       "applicableYear": "2027",
       "region": "中国大陆全国硕士研究生招生",
       "fetchStatus": "page_text_read",
-      "contentHash": null,
+      "contentHash": "764f27ac5d7a2b762fe94b336c4b3a000e571ff1b0812b69d5d4478aba0feffe",
       "deadlineEvents": [
-        {"action": "regular_registration", "startDate": "2026-10-15", "endDate": "2026-10-24", "dailyHours": "09:00—22:00", "evidenceLocator": "第十九条"},
-        {"action": "preregistration", "startDate": "2026-10-09", "endDate": "2026-10-12", "dailyHours": "09:00—22:00", "evidenceLocator": "第十九条", "limitation": "相关工作安排由各省级教育招生考试机构确定并公布"}
+        {
+          "action": "regular_registration",
+          "startDate": "2026-10-15",
+          "endDate": "2026-10-24",
+          "dailyHours": "09:00—22:00",
+          "evidenceLocator": "第十九条"
+        },
+        {
+          "action": "preregistration",
+          "startDate": "2026-10-09",
+          "endDate": "2026-10-12",
+          "dailyHours": "09:00—22:00",
+          "evidenceLocator": "第十九条",
+          "limitation": "相关工作安排由各省级教育招生考试机构确定并公布"
+        }
       ],
       "scopeNote": "国家报名时段不需要虚构用户院校或院系；具体报考资格不能由此推出。",
-      "unknowns": ["个人报考资格", "招生单位附加要求", "省级报名及报考点安排", "是否存在更新通知"],
-      "importStatus": "NOT_IMPORTED"
+      "unknowns": [
+        "个人报考资格",
+        "招生单位附加要求",
+        "省级报名及报考点安排",
+        "是否存在更新通知"
+      ],
+      "importStatus": "ISOLATED_TIMING_CLAIM_ONLY"
     },
     {
       "url": "https://www.zjzs.net/art/2026/1/5/art_49_11840.html",
@@ -33,12 +51,18 @@
       "applicableYear": "2026",
       "region": "浙江省",
       "fetchStatus": "page_text_read_attachments_not_read",
-      "contentHash": null,
+      "contentHash": "f73045b0d0defca27c0a31960d4cad68383da7cbd1eec390005c8309baae21da",
       "deadlineEvents": [],
       "evidenceLocator": "通知正文、落款、三个附件链接",
       "scopeNote": "仅核实通知的发布身份和年度，未核实附件内资格或期限；不外推2027或其他省份。成年学生不等于成人高校学籍。",
-      "unknowns": ["附件实施细则正文", "专业对照表", "具体报名条件和时间", "个人学籍、专业与资格", "2027年度规定"],
-      "importStatus": "NOT_IMPORTED"
+      "unknowns": [
+        "附件实施细则正文",
+        "专业对照表",
+        "具体报名条件和时间",
+        "个人学籍、专业与资格",
+        "2027年度规定"
+      ],
+      "importStatus": "ISOLATED_RAW_SNAPSHOT_NO_REVIEWED_CLAIMS"
     }
   ]
 }

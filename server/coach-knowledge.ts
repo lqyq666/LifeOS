@@ -1,13 +1,13 @@
 import type { PoolClient } from 'pg'
 import { pool, transaction, HttpError } from './db.ts'
 import { config } from './config.ts'
-import { validPolicyScope, validPolicyScopeRules, type KnowledgeCard, type KnowledgeRecord } from './campus-knowledge.ts'
+import { validPolicyScope, validPolicyScopeRules, policyScopeEvidence, type KnowledgeCard, type KnowledgeRecord } from './campus-knowledge.ts'
 import type { CoachCitation } from './action-coach-contracts.ts'
 import { localEmbedding, embeddingSignature } from './local-embedding.ts'
 
 export type CoachKnowledgeRef={sourceId:string;revision:number}
 const isolated=/^lifeos_dialogue_(?:test|live)_/.test(new URL(config.databaseUrl).pathname.slice(1))
-const valid=(row:KnowledgeRecord)=>row.status==='verified'&&(!row.synthetic||isolated)&&(!row.valid_until||Date.parse(row.valid_until)>Date.now())
+const valid=(row:KnowledgeRecord&{official_current?:boolean})=>row.status==='verified'&&row.official_current!==false&&(!row.synthetic||isolated)&&(!row.valid_until||Date.parse(row.valid_until)>Date.now())
 const cache=new Map<string,number[]>()
 // Calibrated against the pinned local encoder and frozen relevance cases.
 // Ranking alone always returns something, even for an unrelated conversation.
@@ -27,7 +27,7 @@ export function policyApplies(card:KnowledgeCard,text:string){
   if(card.kind!=='policy')return true
   const current=coachPolicyScope(text)
   if(card.scopeRules){
-    if(card.scopeKeys||!validPolicyScopeRules(card.scopeRules,card.excerpt))return false
+    if(card.scopeKeys||!validPolicyScopeRules(card.scopeRules,policyScopeEvidence(card)))return false
     // Broad/not-applicable ranges are maintenance-reviewed source statements,
     // never inferred from missing fields. Unknown always abstains, not a wildcard.
     return Object.entries(card.scopeRules).every(([key,rule])=>rule.status==='specific'?rule.value===current[key]:rule.status==='all'||rule.status==='not_applicable')
@@ -36,7 +36,7 @@ export function policyApplies(card:KnowledgeCard,text:string){
 }
 
 export async function retrieveCoachKnowledge(query:string,signal?:AbortSignal):Promise<KnowledgeCard[]>{
-  const rows=((await pool.query("SELECT * FROM campus_knowledge WHERE status='verified' AND (valid_until IS NULL OR valid_until>now()) ORDER BY id")).rows as KnowledgeRecord[]).filter(row=>valid(row)&&policyApplies(row.payload,query))
+  const rows=((await pool.query("SELECT *,official_knowledge_current(payload) AS official_current FROM campus_knowledge WHERE status='verified' AND (valid_until IS NULL OR valid_until>now()) AND official_knowledge_current(payload) ORDER BY id")).rows as KnowledgeRecord[]).filter(row=>valid(row)&&policyApplies(row.payload,query))
   if(!rows.length)return []
   const queryVector=(await localEmbedding.encode([query],true,signal))[0]
   const ranked:{card:KnowledgeCard;score:number}[]=[]
@@ -59,7 +59,7 @@ export async function assertCoachKnowledge(c:PoolClient,refs:CoachKnowledgeRef[]
   for(const ref of refs){if(versions.has(ref.sourceId)&&versions.get(ref.sourceId)!==ref.revision)throw new HttpError(409,'COACH_KNOWLEDGE_INVALIDATED');versions.set(ref.sourceId,ref.revision)}
   // Sorted shared row locks serialize with local maintenance updates through commit.
   for(const ref of [...new Map(refs.map(ref=>[ref.sourceId,ref])).values()].sort((a,b)=>a.sourceId.localeCompare(b.sourceId))){
-    const row=(await c.query('SELECT * FROM campus_knowledge WHERE id=$1 FOR SHARE',[ref.sourceId])).rows[0] as KnowledgeRecord|undefined
+    const row=(await c.query('SELECT *,official_knowledge_current(payload) AS official_current FROM campus_knowledge WHERE id=$1 FOR SHARE',[ref.sourceId])).rows[0] as KnowledgeRecord|undefined
     if(!row||!valid(row)||row.revision!==ref.revision)throw new HttpError(409,'COACH_KNOWLEDGE_INVALIDATED')
   }
 }

@@ -55,6 +55,11 @@ function growthWorker(url:string,seed=false){
   if(result.status!==0)throw new Error('Growth recovery operation failed: '+result.stderr)
   return JSON.parse(result.stdout.trim().split('\n').at(-1)!)
 }
+function officialWorker(url:string,seed=false){
+  const result=spawnSync(process.execPath,['--import','tsx','--import',pathToFileURL(resolve('scripts/backend-test-preload.ts')).href,'scripts/official-recovery-action.ts',...(seed?['--seed']:[])],{env:{...process.env,LIFEOS_ISOLATED_TEST_DATABASE_URL:url},encoding:'utf8',windowsHide:true})
+  if(result.status!==0)throw new Error('Official source recovery failed: '+result.stderr)
+  return JSON.parse(result.stdout.trim().split('\n').at(-1)!)
+}
 try{
   const migrations=new Set((await source.query('SELECT name FROM lifeos_schema_migrations')).rows.map(row=>row.name as string))
   const tables=(await source.query("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public' ORDER BY tablename")).rows.map(row=>row.tablename as string)
@@ -71,6 +76,8 @@ try{
   if(accessSeeded)accessWorker(sourceUrl.href,true)
   const growthSeeded=seedSynthetic&&migrations.has('014-growth-workspace.sql')
   if(growthSeeded)growthWorker(sourceUrl.href,true)
+  const officialSeeded=seedSynthetic&&migrations.has('016-official-source-snapshots.sql')
+  if(officialSeeded)officialWorker(sourceUrl.href,true)
   const dump=docker(['exec',container,'pg_dump','-U','lifeos','-d',sourceDatabase,'-Fc']);writeFileSync(file,dump,{mode:0o600})
   docker(['exec',container,'createdb','-U','lifeos',restored]);created=true
   docker(['exec','-i',container,'pg_restore','-U','lifeos','--exit-on-error','-d',restored],dump)
@@ -94,13 +101,15 @@ try{
   if(seedSynthetic)for(const table of ['memory_items','dialogue_states','memory_suppressions','decision_versions','experiences'])if(counts[table]<1)throw new Error('Recovery fixture missing '+table)
   const coachContinuation=coachSeeded?coachWorker(target.href):null
   const growthContinuation=growthSeeded?growthWorker(target.href):null
+  const officialContinuation=officialSeeded?officialWorker(target.href):null
+  if(officialSeeded)for(const table of ['official_sources','official_source_snapshots'])if(!counts[table])throw new Error('Official recovery fixture missing '+table)
   if(coachSeeded)for(const table of ['coach_events','coach_current','coach_nodes','coach_actions','coach_event_revisions','coach_source_withdrawals','coach_semantic_index','coach_index_jobs'])if(!counts[table])throw new Error('Coach recovery fixture missing '+table)
   if(coachSeeded&&migrations.has('010-coach-knowledge-citations.sql')&&!counts.coach_reply_sources)throw new Error('Coach recovery fixture missing citation provenance')
   const campusContinuation=campusSeeded?campusWorker(target.href):null
   if(campusSeeded)for(const table of ['campus_inquiries','campus_current','campus_revisions','campus_dependencies','campus_knowledge','campus_knowledge_revisions'])if(!counts[table])throw new Error('Campus recovery fixture missing '+table)
   if(accessSeeded)for(const table of ['lifeos_entitlements','lifeos_provider_budgets','lifeos_provider_spend'])if(!counts[table])throw new Error('Access/accounting recovery fixture missing '+table)
   const accessContinuation=accessSeeded?accessWorker(target.href):null
-  const report={status:'PASS',evidence:'REAL_PG_DUMP_RESTORE_TO_SEPARATE_DATABASE',sourceDatabase,sourceMigrations:[...migrations].sort(),syntheticRowsSeeded:seedSynthetic,backup:relative(process.cwd(),file).replaceAll('\\','/'),bytes:dump.length,verifiedTableCount:tables.length,tableCounts:counts,tableContentHashes:contentHashes,allTableContentsIdentical:true,decisionPayloadsIdentical:true,confirmedExperienceReadable:true,campusContinuation,coachContinuation,accessContinuation,growthContinuation,restoredDatabaseRemovedAfterVerification:true,primaryDatabaseModified:false}
+  const report={status:'PASS',evidence:'REAL_PG_DUMP_RESTORE_TO_SEPARATE_DATABASE',sourceDatabase,sourceMigrations:[...migrations].sort(),syntheticRowsSeeded:seedSynthetic,backup:relative(process.cwd(),file).replaceAll('\\','/'),bytes:dump.length,verifiedTableCount:tables.length,tableCounts:counts,tableContentHashes:contentHashes,allTableContentsIdentical:true,decisionPayloadsIdentical:true,confirmedExperienceReadable:true,campusContinuation,coachContinuation,accessContinuation,growthContinuation,officialContinuation,restoredDatabaseRemovedAfterVerification:true,primaryDatabaseModified:false}
   mkdirSync(evidenceDirectory,{recursive:true});writeFileSync(resolve(evidenceDirectory,'recovery-report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report))
 }finally{
   if(copy)await copy.end()
@@ -108,4 +117,3 @@ try{
   if(created)docker(['exec',container,'dropdb','-U','lifeos',restored])
   await source.end()
 }
-

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { api, dataChanged, explainError } from '../../backend/client'
 import { growthLabels, type GrowthItem, type GrowthKind, type GrowthView } from './types'
 import './growth.css'
+import {OfficialSources} from './OfficialSources'
 
 const states = { active: '当前', proposed: '待核对', paused: '已暂停', completed: '已结束', rejected: '不再采用', forgotten: '已遗忘', stale: '需重新核对' }
 const assertions = { user_edit: '你提供的情况', user_reported: '你的对话原话', ai_observation: 'AI 观察 · 不是事实结论', unknown: '未知 · 尚无结论' }
@@ -94,6 +95,7 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
     </form>
     <section className="growth-explore"><h2>从一件真正困惑的事继续</h2>{['我还没确定毕业方向，经历也不多，帮我从当前情况开始梳理。','我已经有方向，想理清最近先准备什么。','这周时间很少，帮我权衡眼前的机会和必须完成的任务。','上次那一步没有开始，我想弄清哪里卡住了。'].map(prompt => <button key={prompt} disabled={busy} onClick={() => onExplore(prompt)}>{prompt}</button>)}</section>
     {!!historicalItems.length && <details className="growth-history"><summary>已暂停、不再采用和已结束的事（{historicalItems.length}）</summary>{historicalItems.map(card)}</details>}
+    <OfficialSources />
     <p className="growth-note">填写和结束记录是你对当前状态的说明。复制材料、保存计划不会被当作已对外执行。</p>
   </main>
 }

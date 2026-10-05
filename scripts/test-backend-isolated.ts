@@ -63,7 +63,7 @@ async function main(){
   process.stdout.write(`Isolated PostgreSQL target: ${databaseName} (local port ${adminUrl.port||'5432'}); applied ${migrations} migrations.\n`)
   const browserOnly=process.argv.includes('--browser-only')
   if(process.argv.includes('--engine-workload'))throw new Error('The retired V1.1 workload is not a V1.3 acceptance suite.')
-  const liveFiles=['live-01-university.test.ts','live-02-memory.test.ts','live-03-internship.test.ts','live-04-experience.test.ts','live-05-pattern.test.ts','live-reliability.test.ts']
+  const liveFiles=['live-01-university.test.ts','live-02-memory.test.ts','live-03-internship.test.ts','live-04-experience.test.ts','live-05-pattern.test.ts','live-reliability.test.ts','official-source-public.test.ts']
   const targeted=process.argv.find(arg=>arg.startsWith('--file='))?.slice(7)
   if(targeted&&!/^[a-z0-9-]+\.test\.ts$/.test(targeted))throw new Error('Invalid targeted test filename')
   // Existing user edits stay at their exact paths as historical source, not active business gates.

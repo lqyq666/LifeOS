@@ -12,6 +12,7 @@ export type KnowledgeCard={
   excerpt:string;claim:string;scope:string;limitations:string;mechanisms:string[];comparisonGroup?:string;outcome?:'support'|'boundary';
   sourceHash:string;application?:'learning'|'venture'|'study_support';scopeKeys?:{institution:string;department:string;project:string;year:string;population:string};
   scopeRules?:PolicyScopeRules;
+  scopeEvidence?:string[];
 }
 export type KnowledgeRecord={id:string;revision:number;kind:KnowledgeCard['kind'];status:KnowledgeCard['status'];synthetic:boolean;valid_until:string|null;payload:KnowledgeCard}
 const policyScopeKeys=['institution','department','project','year','population'] as const
@@ -37,6 +38,7 @@ export function validPolicyScopeRules(value:unknown,excerpt:string):value is Pol
     return row.status==='not_applicable'&&nonblank(row.reason)
   })
 }
+export function policyScopeEvidence(card:KnowledgeCard){return card.scopeEvidence?.join('\n')??card.excerpt}
 export function validateKnowledge(card:KnowledgeCard,allowSynthetic=false){
   if(!/^[0-9a-f-]{36}$/i.test(card.id)||!Number.isInteger(card.revision)||card.revision<1)throw new HttpError(400,'KNOWLEDGE_ID_INVALID')
   if(!['method','case','policy'].includes(card.kind)||!['verified','unverified','revoked'].includes(card.status))throw new HttpError(400,'KNOWLEDGE_STATUS_INVALID')
@@ -46,8 +48,9 @@ export function validateKnowledge(card:KnowledgeCard,allowSynthetic=false){
   for(const key of ['title','publisher','publishedYear','verifiedAt','excerpt','claim','scope','limitations','sourceHash'] as const)if(typeof card[key]!=='string'||!card[key].trim())throw new HttpError(400,'KNOWLEDGE_METADATA_REQUIRED')
   if(!Number.isFinite(Date.parse(card.verifiedAt))||!/^[0-9a-f]{64}$/.test(card.sourceHash)||!Array.isArray(card.mechanisms)||!card.mechanisms.length)throw new HttpError(400,'KNOWLEDGE_AUDIT_REQUIRED')
   if(card.validUntil!==null&&!Number.isFinite(Date.parse(card.validUntil)))throw new HttpError(400,'KNOWLEDGE_EXPIRY_INVALID')
+  if(card.scopeEvidence&&(!Array.isArray(card.scopeEvidence)||!card.scopeEvidence.length||card.scopeEvidence.length>12||card.scopeEvidence.some(span=>typeof span!=='string'||!span.trim()||span.length>2000)))throw new HttpError(400,'POLICY_SCOPE_REQUIRED')
   if(card.kind==='policy'&&!(card.scopeRules
-    ?!card.scopeKeys&&validPolicyScopeRules(card.scopeRules,card.excerpt)
+    ?!card.scopeKeys&&validPolicyScopeRules(card.scopeRules,policyScopeEvidence(card))
     :validPolicyScope(card.scopeKeys)))throw new HttpError(400,'POLICY_SCOPE_REQUIRED')
 }
 // Only called by local maintenance CLI or isolated fixtures. No HTTP route grants verification.
