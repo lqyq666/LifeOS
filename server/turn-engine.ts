@@ -8,7 +8,7 @@ import { stream, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError } from './db.ts'
 import { providerError } from './provider-errors.ts'
 import { parseActionCoachTurn, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
-import { coachEventView, stageCoachEvent, deliverableIntent, coachMaterialPresentation, type CoachEvent } from './action-coach-events.ts'
+import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation, type CoachEvent } from './action-coach-events.ts'
 import { estimateTokens } from './context.ts'
 import { loadSnapshot, stageCoachBackground } from './memory.ts'
 import { initialModelRoute, readKnownMajor } from './model-router.ts'
@@ -69,7 +69,7 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     const envelope=JSON.parse(userPrompt),authorized=envelope.authorizedContext??envelope,currentMessageId=authorized.currentUserMessage.id
     const eventTargets=[authorized.currentEvent,...authorized.events??[]].filter(Boolean).map((event:any)=>({id:event.id,revision:event.revision,activeUnknownIds:(event.nodes??[]).filter((node:any)=>node.kind==='unknown'&&node.status==='active').map((node:any)=>node.id),nodeIds:(event.nodes??[]).map((node:any)=>node.id),actionIds:(event.actions??[]).map((action:any)=>action.id)}))
     const source=stream(runtime.model,{systemPrompt,messages},{apiKey:runtime.apiKey,maxTokens:maxOutputTokens,timeoutMs:60000,maxRetries:0,signal,onPayload:(payload,selected)=>{
-      const configured=configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,(authorized.growth??[]).map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0)
+      const configured=configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,(authorized.growth??[]).map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(authorized.currentUserMessage.text))
       // Explicit isolated instrumentation only. The observer cannot mutate the
       // actual outgoing body, and the production engine has no payload logger.
       if(observer?.payload)observer.payload(Object.freeze({...record}),structuredClone(configured))
@@ -181,10 +181,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const requestedMaterial=deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
     // A direct drafting instruction requests delivery now. Abstract advice is
     // not a completed delivery, even when it lacks the old framing markers.
-    const directDraft=current.content.split(/[，,。！？!?；;\n]/).some((part:string)=>{
-      const clause=part.trim()
-      return clause.startsWith('直接起草')||clause.startsWith('请直接起草')
-    })
+    const directDraft=requiresImmediateMaterial(current.content)
     if(!hasMaterial&&requestedMaterial&&(directDraft||coachMaterialPresentation(result.reply)))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
     staged.usedKnowledgeRefs=undefined
     const narrativeChars=result.reply.length

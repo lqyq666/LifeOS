@@ -117,6 +117,12 @@ function materialRequest(text:string,operation:'create'|'modify'):'requested'|'d
 export function deliverableIntent(text:string,operation:'create'|'modify'){
   return materialRequest(text,operation)==='requested'
 }
+export function requiresImmediateMaterial(text:string){
+  return deliverableIntent(text,'create')&&text.split(/[，,。！？!?；;\n]/).some(part=>{
+    const clause=part.trim()
+    return clause.startsWith('直接起草')||clause.startsWith('请直接起草')
+  })
+}
 
 // The same source/duplicate decision is used at staging and at commit. A
 // swallowed stale quote is allowed only when the current input is fully covered;

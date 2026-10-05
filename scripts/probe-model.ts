@@ -12,6 +12,7 @@ import {redactProbeText,redactProbeValue,probeErrorCategory} from './probe-diagn
 import {CoachProviderBudget,readCoachAuthorization,activeCoachFunding} from './coach-provider-budget.ts'
 import {assertCoachSourceFreeze} from './coach-source-freeze.ts'
 import {config} from '../server/config.ts'
+import {requiresImmediateMaterial} from '../server/action-coach-events.ts'
 
 const args=process.argv.slice(2),arg=(name:string)=>args[args.indexOf(name)+1]
 const requested=process.env.LIFEOS_MODEL_PROBE_TIER??(args.includes('--tier')?arg('--tier'):'default')
@@ -48,7 +49,7 @@ async function call(id:keyof typeof inputs){
   let answer:AssistantMessage|null=null,thrown:unknown,firstMs:number|null=null,deltas=0,cancelled=false
   const timer=setTimeout(()=>controller.abort(),60000)
   try{
-    const source=stream(runtime.model,{systemPrompt:turnSystemPrompt(tier==='reasoning'?'reasoning':'default',runtime.model.id),messages:providerTurnMessages(buildTurnPrompt({currentMessageId:messageId,messages:[{id:messageId,role:'user',content:inputs[id]}],currentEvent:id==='R3'?existingEvent:null}),runtime.model)},{apiKey:runtime.apiKey,maxTokens:outputTokenLimit(runtime.model,tier),maxRetries:0,timeoutMs:60000,signal:controller.signal,onPayload:(payload,profile)=>configureProviderPayload(payload,profile,tier,undefined,undefined,outputTokenLimit(runtime.model,tier),messageId,id==='R3'?[existingEvent]:[],[],tier==='default'?config.qwenThinkingBudget:0)})
+    const source=stream(runtime.model,{systemPrompt:turnSystemPrompt(tier==='reasoning'?'reasoning':'default',runtime.model.id),messages:providerTurnMessages(buildTurnPrompt({currentMessageId:messageId,messages:[{id:messageId,role:'user',content:inputs[id]}],currentEvent:id==='R3'?existingEvent:null}),runtime.model)},{apiKey:runtime.apiKey,maxTokens:outputTokenLimit(runtime.model,tier),maxRetries:0,timeoutMs:60000,signal:controller.signal,onPayload:(payload,profile)=>configureProviderPayload(payload,profile,tier,undefined,undefined,outputTokenLimit(runtime.model,tier),messageId,id==='R3'?[existingEvent]:[],[],tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(inputs[id]))})
     for await(const event of source)if(event.type==='text_delta'){
       deltas++;firstMs??=Math.round(performance.now()-started)
       if(id==='R4'&&!cancelled){cancelled=true;controller.abort()}

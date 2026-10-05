@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { pool } from '../../server/db.ts'
 import * as store from '../../server/store.ts'
-import { stageCoachEvent, coachEventView, deliverableIntent } from '../../server/action-coach-events.ts'
+import { stageCoachEvent, coachEventView, deliverableIntent, requiresImmediateMaterial } from '../../server/action-coach-events.ts'
 import type { EventDelta } from '../../server/action-coach-contracts.ts'
 
 test('personal capacity and exploration statements do not request a material artifact',()=>{
@@ -11,6 +11,9 @@ test('personal capacity and exploration statements do not request a material art
   for(const text of ['请帮我做一份计划','先做一份清单','我想写一封介绍邮件','可以写一句发给社团的消息吗？','给我一句确认是否需要的话'])assert.equal(deliverableIntent(text,'create'),true,text)
   assert.equal(deliverableIntent('不用写长邮件，帮我写一句消息','create'),true)
   assert.equal(deliverableIntent('不要帮我写，只想聊聊','create'),false)
+  assert.equal(requiresImmediateMaterial('请直接起草一段可以发送的消息。'),true)
+  assert.equal(requiresImmediateMaterial('不要直接起草，只想聊聊。'),false)
+  assert.equal(requiresImmediateMaterial('帮我写一封邮件，但还不知道发给谁。'),false)
 })
 
 // Regressions built from the saved real outputs of coach-8817402e (A01) and

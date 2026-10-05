@@ -6,6 +6,21 @@ import { turnSystemPrompt } from '../../server/turn-prompt.ts'
 import { actionCoachTurnSchema } from '../../server/action-coach-contracts.ts'
 import { configureProviderPayload, outputTokenLimit } from '../../server/model-payload.ts'
 
+test('immediate drafting requires an authoritative artifact while ordinary clarification remains possible',()=>{
+  const current='00000000-0000-4000-8000-000000000011',eventId='00000000-0000-4000-8000-000000000021',profile={provider:'bailian',id:'qwen3.8-flash'}
+  const make=(required:boolean)=>(configureProviderPayload({},profile,'default',undefined,undefined,8192,current,[{id:eventId,revision:3}],[],0,required) as any).response_format.json_schema.schema
+  const ordinary=make(false),immediate=make(true),promise={reply:'好的，我会起草一段消息。'}
+  assert.equal(Value.Check(ordinary,promise),true);assert.equal(Value.Check(immediate,promise),false)
+  const target={operation:'continue',eventId,expectedRevision:3}
+  assert.equal(Value.Check(immediate,{reply:'说明',event:{target}}),false)
+  assert.equal(Value.Check(immediate,{reply:'说明',event:{target,action:{operation:'close',actionId:current,expectedRevision:1,reason:'结束'}}}),false)
+  const delivery={reply:'下面是可用消息。',event:{target,action:{operation:'create',draft:{content:'你现在还需要哪一部分资料？'}}}}
+  assert.equal(Value.Check(immediate,delivery),true)
+  assert.equal(Value.Check(immediate,{...delivery,event:{...delivery.event,target:{...target,expectedRevision:4}}}),false)
+  assert.equal(Value.Check(immediate,{...delivery,event:{...delivery.event,action:{operation:'create',draft:{content:''}}}}),false)
+  assert.equal(Value.Check(ordinary,{reply:'邮件发给谁？'}),true)
+})
+
 test('saved invented continue target is excluded before generation while real targets and new events remain valid',()=>{
   const current='00000000-0000-4000-8000-000000000011',profile={provider:'bailian',id:'qwen3.8-flash'},original=JSON.stringify(actionCoachTurnSchema)
   const failure=JSON.parse(readFileSync('tests/fixtures/coach-invented-event.json','utf8'))

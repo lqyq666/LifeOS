@@ -21,7 +21,7 @@ function providerSchema(value:unknown,currentMessageId?:string):unknown{
   ]))
 }
 
-export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0):unknown{
+export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false):unknown{
   if(currentMessageId&&!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(currentMessageId))throw new Error('CURRENT_MESSAGE_ID_INVALID')
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return payload
   const body={...payload as Record<string,unknown>}
@@ -103,6 +103,15 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
         }
         return true
       })
+    }
+    if(requireMaterial){
+      const event=compiled.properties?.event,action=event?.properties?.action
+      const drafts=action?.anyOf?.filter((branch:any)=>branch.properties?.draft)
+      if(!drafts?.length)throw new Error('MATERIAL_SCHEMA_REQUIRED')
+      compiled.required=[...new Set([...compiled.required??[],'event'])]
+      event.required=[...new Set([...event.required??[],'action'])]
+      action.anyOf=drafts
+      compiled.description='本轮明确要求直接起草，reply与event.action均必填。完整可用成品仅生成于draft.content，由服务器展示同一材料；不能仅承诺稍后起草。'
     }
     body.response_format={type:'json_schema',json_schema:{name:schemaName,strict:true,schema:compiled}}
     if(maxOutputTokens)body.max_completion_tokens=maxOutputTokens
