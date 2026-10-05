@@ -5,6 +5,25 @@ import {readFileSync,writeFileSync,unlinkSync,rmdirSync,existsSync} from 'node:f
 import {dirname} from 'node:path'
 import {CoachProviderBudget,readCoachAuthorization} from '../../scripts/coach-provider-budget.ts'
 
+test('SIMULATED comparison reservation enforces exact budget and eight starts under the existing ledger lock',()=>{
+  const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()}),notePath=dirname(budget.path)+'/development-test-grant-20261005.json'
+  try{
+    const initial=budget.snapshot(),prefix=createHash('sha256').update(JSON.stringify(initial.calls)).digest('hex')
+    writeFileSync(notePath,JSON.stringify({kind:'SIMULATED_DEVELOPMENT_TEST_GRANT',amountCny:30,startingCall:0,priorReceiptsSha256:prefix}))
+    const grant=budget.activateCurrentGrant()
+    const restriction={startingCall:0,priorReceiptsSha256:prefix,grantSha256:grant.authorizationSha256,limitCny:27.92 as const,maximumCalls:8 as const}
+    const input={runId:'synthetic',purpose:'diagnostic' as const,tier:'default',provider:'synthetic',model:'qwen3.8-flash',signature:'synthetic',reservedCostCny:0.1}
+    assert.throws(()=>budget.reserve({...input,reservedCostCny:27.9212822},restriction),/COMPARISON_BUDGET/)
+    assert.throws(()=>budget.reserve({...input,purpose:'turn'},restriction),/COMPARISON_BUDGET/)
+    for(let index=0;index<8;index++){const receipt=budget.reserve(input,restriction);budget.finish(receipt.callId,{outcome:'unknown',usage:'unknown',estimatedCostCny:'unknown',providerResponseId:null})}
+    assert.throws(()=>budget.reserve(input,restriction),/COMPARISON_BUDGET/)
+    assert.equal(budget.snapshot().calls.length,8)
+  }finally{
+    for(const path of [notePath,budget.path,budget.path+'.lock'])if(existsSync(path))unlinkSync(path)
+    if(existsSync(dirname(budget.path)))rmdirSync(dirname(budget.path))
+  }
+})
+
 test('SIMULATED new monetary grant preserves old receipts, caps only new spend, and cannot refund unknown usage',()=>{
   const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()})
   const notePath=dirname(budget.path)+'/development-test-grant-20261005.json'

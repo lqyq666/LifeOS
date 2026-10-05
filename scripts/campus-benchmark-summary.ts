@@ -1,6 +1,14 @@
 type Turn={status:string}
 type Receipt={status:string;estimatedCostCny?:number|'unknown';purpose:string}
 
+// Presence is a prerequisite for the preregistered campus comparison, never
+// evidence that its content, grounding, transaction or speed has passed.
+export function campusComparisonArtifacts(output:{reply?:string;growthUpdates?:unknown[]}|null){
+  const replyPresent=typeof output?.reply==='string'&&Boolean(output.reply.trim())
+  const growthUpdateCount=Array.isArray(output?.growthUpdates)?output.growthUpdates.length:0
+  return {replyPresent,growthUpdateCount,growthStageEligible:replyPresent&&growthUpdateCount>0,semanticQuality:'PENDING_MANUAL_REVIEW' as const,fullBusinessAcceptance:'NOT_TESTED' as const}
+}
+
 // Failed generations and repairs remain costs of the successful workload.
 // Unknown receipts cannot be silently treated as free or excluded as outliers.
 export function campusCostSummary(turns:Turn[],calls:Receipt[]){

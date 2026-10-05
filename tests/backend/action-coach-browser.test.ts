@@ -73,13 +73,16 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
   const report:any={evidence:'REAL_CHROME_REAL_POSTGRESQL_REAL_AUTH_SIMULATED_MODEL_SYNTHETIC_USER',checks:[],screenshots:[],errors:[]}
   let browser:any,user=''
   const sourceCardId=randomUUID(),officialEntry=officialSourceRegistry[0]
-  let provinceId:string|undefined
+  let provinceId:string|undefined,recommendationId:string|undefined
   try{
     assert.equal((await fetch(origin+'/api/official-sources')).status,401,'official source view requires an authenticated session')
+    assert.equal((await fetch(origin+'/api/official-paths')).status,401)
     const fixture=JSON.parse(readFileSync('tests/fixtures/official-source-dom.json','utf8'))[0],bytes=Buffer.from(fixture.html),extracted=extractOfficialDocument(bytes,officialEntry.url)
     const source=await syncOfficialSource(officialEntry,async()=>({url:officialEntry.url,bytes,contentType:'text/html'}))
     const provinceEntry=officialSourceRegistry[1],provinceFixture=JSON.parse(readFileSync('tests/fixtures/official-source-dom.json','utf8'))[1]
     const province=await syncOfficialSource(provinceEntry,async()=>({url:provinceEntry.url,bytes:Buffer.from(provinceFixture.html),contentType:'text/html'}));provinceId=province.id
+    const recommendationEntry=officialSourceRegistry[2],recommendationFixture=JSON.parse(readFileSync('tests/fixtures/official-recommendation-dom.json','utf8'))
+    recommendationId=(await syncOfficialSource(recommendationEntry,async()=>({url:recommendationEntry.url,bytes:Buffer.from(recommendationFixture.html),contentType:'text/html'}))).id
     const linked=extractOfficialDocument(Buffer.from(provinceFixture.html),provinceEntry.url).attachments[0].url
     const officeBytes=await officeFixture('docx')
     await syncOfficialAttachment(province.id,province.revision,linked,async()=>({url:linked,bytes:officeBytes,contentType:'application/octet-stream'}))
@@ -90,6 +93,8 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
     assert.equal(signup.status,200)
     const cookie=signup.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ')
     user=(await (await fetch(origin+'/api/session',{headers:{Cookie:cookie}})).json() as any).id
+    const paths=await fetch(origin+'/api/official-paths',{headers:{Cookie:cookie}})
+    assert.equal(paths.status,200);assert.equal(((await paths.json()) as any).paths.length,3)
     await grantEntitlement(user,20,new Date(Date.now()+86400000).toISOString())
     browser=await chromium.launch({channel:'chrome',headless:true})
     const context=await browser.newContext({viewport:{width:1440,height:900},permissions:['clipboard-read','clipboard-write']})
@@ -123,6 +128,15 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
     await page.getByLabel('你的原话',{exact:true}).fill('先探索就业，暂不强选岗位。')
     await page.getByRole('button',{name:'保存这项',exact:true}).click()
     const official=page.locator('.growth-official')
+    await official.getByText('发展路径的官方核对入口',{exact:true}).click()
+    await official.getByRole('link',{name:'推免与免初试',exact:true}).waitFor()
+    await official.getByRole('link',{name:'就业与实习',exact:true}).waitFor()
+    await official.getByRole('link',{name:'留学与学历认证',exact:true}).waitFor()
+    assert.ok((await official.textContent()).includes('不保证项目录取或个人认证'))
+    await official.getByText('推免各动作时间（待核验）',{exact:true}).click()
+    assert.ok((await official.textContent()).includes('推免志愿填报：2026-09-21起，至 2026-10-18'))
+    assert.ok((await official.textContent()).includes('复试通知确认：2026-09-22 08:00起，具体通知确认截止未知'))
+    assert.ok((await official.textContent()).includes('待录取通知确认：2026-09-24 14:00起，具体通知确认截止未知'))
     await official.getByText('2026-09-24',{exact:true}).waitFor();await official.getByText('2026-09-21',{exact:true}).waitFor()
     await official.getByText('维护核验有效 · 命题版本 1',{exact:true}).waitFor()
     await official.getByText('从原文识别的时间（待核验）',{exact:true}).click()
@@ -180,6 +194,12 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
        await page.locator('.growth-official').scrollIntoViewIfNeeded()
        assert.equal(await page.locator('.growth-official').evaluate((element:any)=>element.scrollWidth<=element.clientWidth+1),true,'official source panel no overflow at '+width)
        const sourceFile=resolve(directory,'official-source-'+width+'.png');await page.screenshot({path:sourceFile});report.screenshots.push(sourceFile)
+       const pathSummary=official.getByText('发展路径的官方核对入口',{exact:true})
+       if(!await pathSummary.evaluate((element:any)=>element.parentElement.open))await pathSummary.click()
+       assert.equal(await pathSummary.evaluate((element:any)=>element.parentElement.open),true)
+       await pathSummary.scrollIntoViewIfNeeded()
+       assert.equal(await official.evaluate((element:any)=>element.scrollWidth<=element.clientWidth+1),true,'expanded path catalog no overflow at '+width)
+       const pathFile=resolve(directory,'official-paths-'+width+'.png');await page.screenshot({path:pathFile});report.screenshots.push(pathFile)
        const attachmentSummary=official.getByText('官方附件（1）',{exact:true})
        if(!await attachmentSummary.evaluate((element:any)=>element.parentElement.open))await attachmentSummary.click()
        const hashSummary=official.getByText('原文件 SHA256',{exact:true})
@@ -414,6 +434,7 @@ test('real browser event/material UI, clipboard, responsive layout and source wi
       await pool.query('DELETE FROM campus_knowledge_revisions WHERE id=$1',[sourceCardId]);await pool.query('DELETE FROM campus_knowledge WHERE id=$1',[sourceCardId])
       if(provinceId){await pool.query('DELETE FROM official_attachment_snapshots WHERE attachment_id IN (SELECT id FROM official_attachments WHERE source_id=$1)',[provinceId]);await pool.query('DELETE FROM official_attachments WHERE source_id=$1',[provinceId]);await pool.query('DELETE FROM official_source_snapshots WHERE source_id=$1',[provinceId]);await pool.query('DELETE FROM official_sources WHERE id=$1',[provinceId])}
       await pool.query('DELETE FROM official_source_snapshots WHERE source_id IN (SELECT id FROM official_sources WHERE url=$1)',[officialEntry.url]);await pool.query('DELETE FROM official_sources WHERE url=$1',[officialEntry.url])
+      if(recommendationId){await pool.query('DELETE FROM official_source_snapshots WHERE source_id=$1',[recommendationId]);await pool.query('DELETE FROM official_sources WHERE id=$1',[recommendationId])}
     await pool.end()
   }
 })

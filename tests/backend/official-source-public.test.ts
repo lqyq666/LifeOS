@@ -16,7 +16,7 @@ test('two actual public official pages become local raw snapshots and only the r
   const save=()=>writeFileSync(resolve(directory,'report.json'),JSON.stringify(report,null,2)+'\n')
   save()
   try{
-    for(const entry of officialSourceRegistry){const result=await syncOfficialSource(entry);report.snapshots.push({...result,url:entry.url});save()}
+    for(const entry of officialSourceRegistry.slice(0,2)){const result=await syncOfficialSource(entry);report.snapshots.push({...result,url:entry.url});save()}
     const row=(await pool.query('SELECT * FROM official_sources WHERE url=$1',[officialSourceRegistry[0].url])).rows[0]
     const extraction=row.payload.extraction,excerpt=extraction.text.split('\n').find((line:string)=>line.startsWith('第十九条'))
     assert.equal(row.status,'fetched');assert.equal(extraction.applicableYear,'2027');assert.equal(extraction.publishedOn,'2026-09-24');assert.equal(extraction.issuedOn,'2026-09-21')

@@ -1,4 +1,4 @@
-import {mkdirSync,writeFileSync} from 'node:fs'
+import {mkdirSync,writeFileSync,readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {randomUUID,createHash} from 'node:crypto'
 import {stream} from '@mariozechner/pi-ai'
@@ -10,8 +10,9 @@ import {parseActionCoachTurn} from '../server/action-coach-contracts.ts'
 import {renderCoachReply} from '../server/coach-reply.ts'
 import {openingQuestionDraft} from '../server/reply-draft.ts'
 import {maximumProviderCallCostCny,estimateProviderCallCostCny} from '../server/cost-workload.ts'
-import {CoachProviderBudget,activeCoachFunding} from './coach-provider-budget.ts'
+import {CoachProviderBudget,activeCoachFunding,comparisonAllowance,type ComparisonRestriction} from './coach-provider-budget.ts'
 import {assertCoachSourceFreeze} from './coach-source-freeze.ts'
+import {campusComparisonArtifacts} from './campus-benchmark-summary.ts'
 
 // Two preregistered synthetic adult cases. Identical inputs across processes;
 // no model-generated answers, hidden personal data, persisted success or retries.
@@ -25,12 +26,14 @@ if((!args.includes('--paid')&&!args.includes('--preflight'))||!freeze||freeze.st
 const sourceDigest=assertCoachSourceFreeze(freeze),runtime=resolveModel('default'),budget=new CoachProviderBudget()
 const limit=outputTokenLimit(runtime.model,'default'),maximum=maximumProviderCallCostCny(runtime.model.contextWindow,limit,runtime.pricing)
 const funding=activeCoachFunding(budget.snapshot())
+const restriction:ComparisonRestriction=JSON.parse(readFileSync(resolve('.local/campus-growth/comparison-restriction-20261005.json'),'utf8'))
+const allowance=comparisonAllowance(budget.snapshot(),restriction)
 if(args.includes('--preflight')){
-  console.log(JSON.stringify({evidence:'LOCAL_PREFLIGHT_ZERO_PROVIDER_CALLS',model:runtime.model.id,thinkingBudget:config.qwenThinkingBudget,sourceDigest,credentialAvailable:runtime.available,maximumPerCallCny:maximum,maximumCohortCny:typeof maximum==='number'?maximum*campusComparisonCases.length:null,remainingCny:funding?.remainingCny??null,caseIds:campusComparisonCases.map(fixture=>fixture.id),maxRetries:0,persistence:'NONE'}))
+  console.log(JSON.stringify({evidence:'LOCAL_PREFLIGHT_ZERO_PROVIDER_CALLS',model:runtime.model.id,thinkingBudget:config.qwenThinkingBudget,sourceDigest,credentialAvailable:runtime.available,maximumPerCallCny:maximum,maximumCohortCny:typeof maximum==='number'?maximum*campusComparisonCases.length:null,remainingCny:funding?.remainingCny??null,comparisonAllowance:allowance,caseIds:campusComparisonCases.map(fixture=>fixture.id),maxRetries:0,persistence:'NONE'}))
   process.exit(0)
 }
 if(!runtime.available)throw new Error('MISSING_OR_PLACEHOLDER_CREDENTIAL')
-if(!funding||funding.paused||typeof maximum!=='number'||funding.remainingCny<maximum*campusComparisonCases.length)throw new Error('AUTHORIZED_PROVIDER_CALL_BUDGET_EXHAUSTED')
+if(!funding||funding.paused||typeof maximum!=='number'||funding.remainingCny<maximum*campusComparisonCases.length||allowance.remainingCalls<campusComparisonCases.length||allowance.remainingCny<maximum*campusComparisonCases.length)throw new Error('AUTHORIZED_PROVIDER_CALL_BUDGET_EXHAUSTED')
 const directory=resolve(process.env.LIFEOS_EVIDENCE??'.local/campus-growth/comparisons'),runId='campus-comparison-'+Date.now()+'-'+randomUUID().slice(0,8)
 mkdirSync(directory,{recursive:true})
 const report={runId,evidence:'REAL_PROVIDER_SYNTHETIC_DIAGNOSTIC_NOT_SAVED_TRAJECTORY',model:runtime.model.id,thinkingBudget:config.qwenThinkingBudget,sourceDigest,maxRetries:0,quality:'PENDING_MANUAL_REVIEW',cases:[] as Record<string,unknown>[],fundingAfter:funding}
@@ -39,7 +42,7 @@ save()
 for(const fixture of campusComparisonCases){
   assertCoachSourceFreeze(freeze)
   const messageId='00000000-0000-4000-8000-000000000011',started=performance.now(),controller=new AbortController()
-  const receipt=budget.reserve({runId,purpose:'diagnostic',tier:'default',provider:runtime.model.provider,model:runtime.model.id,signature:modelSignatureFor('default'),sourceDigest,reservedCostCny:maximum})
+  const receipt=budget.reserve({runId,purpose:'diagnostic',tier:'default',provider:runtime.model.provider,model:runtime.model.id,signature:modelSignatureFor('default'),sourceDigest,reservedCostCny:maximum},restriction)
   const entry:Record<string,unknown>={id:fixture.id,input:fixture.text,callId:receipt.callId,status:'RESERVED',inputHash:createHash('sha256').update(fixture.text).digest('hex')}
   report.cases.push(entry);save()
   let raw='',firstRawDeltaMs:number|null=null,firstCandidateContentMs:number|null=null,answer:Awaited<ReturnType<ReturnType<typeof stream>['result']>>|undefined,failed=false
@@ -62,6 +65,7 @@ for(const fixture of campusComparisonCases){
   let parsed:ReturnType<typeof parseActionCoachTurn>|null=null
   try{parsed=parseActionCoachTurn(text)}catch{}
   Object.assign(entry,{status:failed?'FAILED':parsed?'PARSED_NOT_COMMITTED':'INVALID_OUTPUT',elapsedMs:Math.round(performance.now()-started),firstRawDeltaMs,firstCandidateContentMs,candidateTimingNote:'Provisional reply prefix; must be manually reviewed for meaningfulness, never ordinary speed acceptance.',usage:recorded,estimatedCostCny:cost,conservativelyAccountedCny:typeof cost==='number'?cost:finished.reservedCostCny,output:parsed,answerText:text,renderedReply:parsed?renderCoachReply(parsed):null,quality:'PENDING_MANUAL_REVIEW',transactionValidation:'NOT_RUN',repairCalls:0})
+  entry.artifactPresence=campusComparisonArtifacts(parsed)
   report.fundingAfter=activeCoachFunding(budget.snapshot())!;save()
   console.log(JSON.stringify({id:fixture.id,model:runtime.model.id,thinkingBudget:config.qwenThinkingBudget,status:entry.status,elapsedMs:entry.elapsedMs,estimatedCostCny:cost}))
   assertCoachSourceFreeze(freeze)

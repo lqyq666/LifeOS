@@ -27,6 +27,18 @@ export function readCoachAuthorization(root=process.cwd()){
   return {sha256:digest(bytes),maximum:ledger.batchMaximumCalls,used:calls.length,remaining,unknownUsageCalls:ledger.unknownUsageCalls}
 }
 export type CoachCallReceipt={callId:string;runId:string;purpose:'capability'|'turn'|'repair'|'diagnostic';tier:string;provider:string;model:string;signature:string;sourceDigest?:string;logicalCallId?:string;startedAt:string;finishedAt?:string;status:'reserved'|'finished';outcome?:string;usage?:unknown;estimatedCostCny?:number|'unknown';providerResponseId?:string|null;funding?:'additional_cny'|'current_grant';reservedCostCny?:number}
+export type ComparisonRestriction={startingCall:number;priorReceiptsSha256:string;grantSha256:string;limitCny:27.92;maximumCalls:8}
+export function comparisonAllowance(ledger:any,restriction:ComparisonRestriction){
+  if(restriction.limitCny!==27.92||restriction.maximumCalls!==8||!Number.isInteger(restriction.startingCall)||restriction.startingCall<0||restriction.startingCall>ledger.calls.length||restriction.grantSha256!==ledger.currentGrant?.authorizationSha256||digest(JSON.stringify(ledger.calls.slice(0,restriction.startingCall)))!==restriction.priorReceiptsSha256)throw new Error('COMPARISON_RESTRICTION_CHANGED')
+  const calls=ledger.calls.slice(restriction.startingCall) as CoachCallReceipt[]
+  let accounted=0
+  for(const call of calls){
+    const cost=call.status==='finished'&&typeof call.estimatedCostCny==='number'?call.estimatedCostCny:call.reservedCostCny
+    if(typeof cost!=='number'||!Number.isFinite(cost)||cost<0)throw new Error('COMPARISON_SPEND_UNBOUNDED')
+    accounted+=cost
+  }
+  return {remainingCalls:Math.max(0,restriction.maximumCalls-calls.length),remainingCny:Math.max(0,Number((restriction.limitCny-accounted).toFixed(8))),accountedCny:Number(accounted.toFixed(8))}
+}
 
 // One synchronous exclusive lock covers read/reserve/atomic replace. A reserved
 // entry counts permanently, even if its process dies before recording usage.
@@ -115,6 +127,11 @@ export class CoachProviderBudget {
       ledger.remaining=Math.min(authorization.remaining,ledger.maxNewCalls)-ledger.calls.filter((call:CoachCallReceipt)=>!call.funding).length
       this.refreshAdditional(ledger)
       this.refreshCurrentGrant(ledger)
+      if(ledger.comparisonRestriction){
+        const bytes=readFileSync(resolve(this.options.root??process.cwd(),'.local/campus-growth/comparison-restriction-20261005.json'))
+        if(digest(bytes)!==ledger.comparisonRestriction.authorizationSha256)throw new Error('COMPARISON_RESTRICTION_CHANGED')
+        comparisonAllowance(ledger,ledger.comparisonRestriction)
+      }
       const result=fn(ledger)
       ledger.remaining=Math.min(authorization.remaining,ledger.maxNewCalls)-ledger.calls.filter((call:CoachCallReceipt)=>!call.funding).length
       this.refreshAdditional(ledger)
@@ -146,8 +163,25 @@ export class CoachProviderBudget {
       return adjustment
     })
   }
-  reserve(input:Omit<CoachCallReceipt,'callId'|'startedAt'|'status'>){
+  activateComparisonRestriction(){
     return this.change(ledger=>{
+      if(ledger.comparisonRestriction)return structuredClone(ledger.comparisonRestriction)
+      if(ledger.calls.some((call:CoachCallReceipt)=>call.status!=='finished'))throw new Error('TERMINAL_CALLS_REQUIRED_FOR_PLAN_CHANGE')
+      const bytes=readFileSync(resolve(this.options.root??process.cwd(),'.local/campus-growth/comparison-restriction-20261005.json'))
+      const restriction=JSON.parse(bytes.toString()) as ComparisonRestriction
+      comparisonAllowance(ledger,restriction)
+      if(restriction.startingCall!==ledger.calls.length)throw new Error('COMPARISON_BASELINE_CHANGED')
+      ledger.comparisonRestriction={...restriction,authorizationSha256:digest(bytes)}
+      return structuredClone(ledger.comparisonRestriction)
+    })
+  }
+  reserve(input:Omit<CoachCallReceipt,'callId'|'startedAt'|'status'>,restriction?:ComparisonRestriction){
+    return this.change(ledger=>{
+      restriction=ledger.comparisonRestriction??restriction
+      if(restriction){
+        const allowance=comparisonAllowance(ledger,restriction)
+        if(input.purpose!=='diagnostic'||input.tier!=='default'||!['qwen3.8-flash','qwen3.8-max','qwen3.7-plus'].includes(input.model)||allowance.remainingCalls<1||typeof input.reservedCostCny!=='number'||input.reservedCostCny>allowance.remainingCny)throw new Error('COMPARISON_BUDGET_OR_SCOPE_EXHAUSTED')
+      }
       const limits=ledger.purposeLimits??{overhead:64,generation:70,repair:22}
       const additional=ledger.currentGrant??ledger.additional
       if(additional){

@@ -168,3 +168,12 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - 附件定向4/4、实际公开文件1/1、Chrome320/390/1440展开附件及hash无溢出并目检通过；模型与浏览器文件显式合成，与真实HTTPS验收分别报告。完整后端36文件202测试通过（第八批追加2+本批4），客户端47/47、服务端类型/构建通过，audit0漏洞。初次浏览器夹具document变量遮蔽DOM类型失败已修正，原type失败日志保留；截图必须实际展开的检查已补，不用隐藏DOM文本算视觉通过。
 - 与017相关的一次非空真实恢复47表18迁移全部内容hash一致，附件rawhash、父失败暂停、日期不冒充、源续写保持。报告 .local/campus-growth/attachment-recovery/recovery-report.json。未重复无关恢复。日志 attachment-full-backend/unit-final/type-final-2/build-second/browser-expanded/recovery/real-public-db.log。
 - 本批Provider0，未改默认模型/推送/合main/部署；付费仍暂停。下一免费批覆盖推免/就业/留学核对入口和实际静态来源状态，具体资格仍按用户/校/年/项目核实。完整产品WIP_NOT_READY。
+
+### 第十批：官方发展路径与推免动作边界（本地）
+
+- 新只读认证官方路径目录（推免/就业/留学），区分入口身份、具体岗位或项目与个人资格。推免真实静态DOM独立适配：2027招生年、2026操作年；志愿填报09/21–10/18、复试确认09/22 08:00起、待录取确认09/24 14:00起。确认截止未知，不能借总体09/21–10/20窗口补齐。无自动认证或新的付费来源抓取。
+- 真实公共原始HTML与hash保留 .local/campus-growth/public-paths-1791203472637：推免raw12f2dbe2b1a3d32242cc0141e8e74f6df1701413856f530059b1b4e5b045546b从初始partial回放变fetched；就业rawbb650348b781c092f423af1ef3c85929fbb5fb4be9fa169fda3d69c47b62a634仍partial页面壳；留服本机OFFICIAL_FETCH_FAILED，没有原始hash或认证成功，不跟随HTTP子站。最小真实DOM夹具记录rawhash；合成年度/坏日期/坏时刻边界回归通过。
+- 全后端38文件206通过（paths-full-backend.log），之后新增预算锁回归单独7/7，相对上批新增共5项；客户端47/47、服务端类型、构建通过。Chrome三入口与三动作320/390/1440检查通过；首截图实际目录折叠不作为目检通过，补强截图前真实open断言再运行，证据paths-browser-visible.log。未新增迁移，不重复无关恢复。
+- 用户2026-10-05 12:34明确确认现有百炼账号、严格27.92元、最多8次、无自动重试。二级限制绑定原唯一账本414基线/原grant/hash/旧收据，不增加或合并余额；pending/unknown均永久保守计入次数与金额。模拟费用边界及锁回归通过。原DPAPI加载器正常安全注入子进程，新exec审批已通过Flash首项2次，PARSED_NOT_COMMITTED并非事务或质量通过；Max首次因未注入已有价格在reserve前退出0调用，原失败保留。对照仍在执行，最终真实结果另记，不改默认Flash思考0。
+- 完整校园连续链、真实事务/浏览器、20普通时延及混合预算仍未验收，WIP_NOT_READY；未推送/合main/部署。
+- 八次已全部完成并终止收费，详见COMPARISON_REVIEW.md。估费合计0.2946507元，子余额27.6253493但次数0；Flash/Max/Plus0共6份原文校验拒绝，Max2048两份仅71/65字不完整reply且零更新，人工FAIL。旧空暂存误分类报告保留，最终改NO_GROWTH_UPDATES_NOT_TESTED；补回归非空前置条件，存在产物仍PENDING语义且NOT_TESTED业务。完整离线重放1/1、非空/限制2/2和最新类型通过，8份原始输出/冻结/费用未改。
