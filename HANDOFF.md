@@ -2,7 +2,14 @@
 
 工作区为 D:\aaaLife\LifeOS。当前 LifeOS V1.3 精简源码仓库。默认模型保持 qwen3.8-flash。整体状态 WIP_NOT_READY。生产已部署于 https://lqynb.xyz（2026-10-05，见下），正式验收未完成。
 
-## 2026-10-05 当前接续：真实失败复现与帮助角色核对
+## 2026-10-05 当前接续：叙述不是交付引导
+
+- 接续 `dde78c6`；新冻结 `source-1791185343488` 的真实 `coach-df280b67-46c8-4233-8e47-3e48d96c8dfe` 两轮后停止，原报告/SDK请求/原文/独立 `operator-review.json` 保留。A01 首轮追问行动被修复；第二轮继续追问同时擅自交付联系材料并承诺下一次整理，语义未通过，有效首内容约 8.96/9.83 秒。尚未透露 goal/agreement/outcome/currentNeed，不继续原配置刷样本。
+- 实际 Provider payload 系统提示存在、用户/助手角色正确，Schema 仍只要求 reply。新增免费红测确认历史引号“可以”与“到考试前夜发链接”会被跨词匹配为交付引导。引导改为分句起始并不穿越引号，真实“可以先发这段”仍合法；材料边界 7/7、拒绝边界 5/5、引擎 33/33、payload 8/8 与服务端类型检查通过。日志 `narrative-framing-red.log` / `narrative-framing-green.log` / `framing-user-green.log` / `framing-engine-green.log`。
+- 提示收敛重复条款：按本轮用途陪伴/追问/交付；复盘缺口等待回答时本轮先完成追问；成品只生成一次、保留角色、目的与边界。未增加额外模型调用或改变接口。真实行为仍须新冻结验证；最终全量本地检查需在剩余修复收敛后跑完。
+- 唯一 D 盘账本 395 条、无 pending，新 ¥30 授权 10 调用累计占 ¥0.0163439、余 ¥29.9836561。旧/生产池不叠加。模型 qwen3.8-flash、未部署，状态 **WIP_NOT_READY**。
+
+## 2026-10-05 真实失败复现与帮助角色核对（历史 dde78c6 批次）
 
 - 接续本地 `2eaa4bb`，仍在 `fix/coach-material-boundaries-20261005`。真实运行 `coach-74470d15-383d-4e10-b97a-1bbdc02e73ad` 已关闭，原报告和 `operator-review.json` 保留。A05 两轮直接材料与同一 action rev1→2 保持确认需求目的，但首轮回复复述、有效首内容约 9.18 秒；A01 只执行三轮，仍未通过：追问材料被拒绝后修复，第三轮反转帮助关系，不能称闭环或整体验收通过。
 - A01 原始输入“用途说明和有没有再试别的发送方式，这两个细节我记不清了。”免费回归复现 `COACH_ACTION_DECLINED`。单字“别”改为须紧接同一有限材料/联系动词及命令前缀，不再通过不断补充名词例外来过滤；“别的发送方式”保留为叙述。有效历史起草请求可以继续完成，真实停止仍阻断。边界回归 5/5，红绿日志 `narrative-decline-red.log` / `narrative-decline-green.log` 位于 `.local/coach-boundary-20261005`。

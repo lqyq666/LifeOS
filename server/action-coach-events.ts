@@ -79,7 +79,7 @@ const rewriteIntent=/(?:再|稍微)?(?:改|换|缩短|改短|润色|重写|调�
 // Delivery framing marks the reply's non-material remainder as presentation of
 // a sendable artifact ("可以先发这段：/可以这样问："); conversational
 // preambles like "我们先了解一下：" do not.
-const framingIntent=/(?:可以|直接|就能|先|拿去)[^。！？\n]{0,8}(?:发|用|拿|问|说|回|给|发送|复制)|(?:发|用)这(?:段|句|条)|给你写|写一(?:段|句|份)|这(?:段|句|条)(?:话|消息)?[^。！？\n]{0,8}(?:发|用|给)|直接使用|复制/
+const framingIntent=/^(?:(?:可以|直接|就能|先|拿去)[^。！？\n“”「」『』"']{0,8}(?:发|用|拿|问|说|回|给|发送|复制)|(?:发|用)这(?:段|句|条)|给你写|写一(?:段|句|份)|这(?:段|句|条)(?:话|消息)?[^。！？\n“”「」『』"']{0,8}(?:发|用|给)|直接使用|复制)/
 const materialVerb=/(?:写|起草|拟|做|改|换|缩短|润色|重写|调整|联系|联络|发|沟通)/
 // A bare 别 is a command only when it introduces a material/contact verb.
 // Narrative nouns such as 别的发送方式 must not become a lasting stop request.
@@ -182,7 +182,7 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
     if(visibleCoachQuestions(delta.action.draft.content).length>0){
       const current=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role=\'user\'',[run.user_id,run.source_message_id])).rows[0]?.content as string|undefined
       const intent=inheritedCreateRequest||current&&deliverableIntent(current,delta.action.operation==='modify'?'modify':'create')
-      const framed=delta.action.draft.content.trim()!==reply.trim()&&framingIntent.test(reply.replace(delta.action.draft.content,''))
+      const framed=delta.action.draft.content.trim()!==reply.trim()&&reply.replace(delta.action.draft.content,'').split(/[。！？!?；;\n，,:：]/).some(part=>framingIntent.test(part.trim()))
       if(!intent&&!framed)throw new HttpError(400,'COACH_MATERIAL_IS_CONVERSATION')
     }
   }

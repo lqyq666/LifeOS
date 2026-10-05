@@ -24,6 +24,20 @@ async function createEvent(run: store.Run, quote: string, title = 'SYNTHETIC 事
   return (await coachEventView(run.user_id, run.conversation_id))!
 }
 
+test('quoted past permission and delivery narration do not frame a new material', async () => {
+  const input='我花了三小时整理了四十页。同班的小林说资料很乱，我就找了他。在微信说我帮他整理，他说可以，没有讲具体知识点。考试前夜把网盘链接发给了他。'
+  const base=await prepare(input)
+  try {
+    const material='小林，之前发你的网盘链接你看了吗？如果没来得及看也没关系。想确认一下，你当时说资料很乱，具体是哪部分让你觉得乱？下次整理我可以按你的需要来。'
+    const coaching='你花了三小时整理四十页发给他，他最后没用——这确实让人挺不舒服的。我想再弄清一个环节：你说他之前提过“资料很乱”，你当时找他说“帮他整理”，他回“可以”之后，有没有再提过他具体想要哪部分、或者什么形式？还是说从“可以”到考试前夜发链接，中间你们就没再聊过内容本身？'
+    const delta:EventDelta={target:{operation:'create',title:'整理资料',source:{messageId:base.run.source_message_id,quote:input}},action:{operation:'create',draft:{content:material}}}
+    await assert.rejects(stageCoachEvent(base.run,delta,coaching+'\n'+material),(error:any)=>error.code==='COACH_MATERIAL_IS_CONVERSATION')
+    // Actual presentation still permits a question-bearing deliverable; quotation
+    // in a process narrative is the distinction, not punctuation in the material.
+    await stageCoachEvent(base.run,delta,'可以先发这段：\n'+material)
+  } finally { await pool.query('DELETE FROM "user" WHERE id=$1',[base.user]) }
+})
+
 test('a requested one-line question message is a legal create even when it equals the whole reply, while assistant follow-up questions never become material', async () => {
   // A01 turn-3 shape: entire reply (a question to the user) became the created material.
   const q = '三小时整理四十页，投入挺大的。你整理好之后是怎么给小林的？他当时有说什么吗？'
