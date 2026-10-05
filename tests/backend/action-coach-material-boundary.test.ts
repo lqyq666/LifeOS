@@ -24,16 +24,27 @@ async function createEvent(run: store.Run, quote: string, title = 'SYNTHETIC 事
   return (await coachEventView(run.user_id, run.conversation_id))!
 }
 
-test('a create whose whole draft equals the coaching-question reply is rejected as conversation, while an A05-style rewrite of an existing action stays valid', async () => {
+test('a requested one-line question message is a legal create even when it equals the whole reply, while assistant follow-up questions never become material', async () => {
   // A01 turn-3 shape: entire reply (a question to the user) became the created material.
   const q = '三小时整理四十页，投入挺大的。你整理好之后是怎么给小林的？他当时有说什么吗？'
   const opening = await prepare('我做了上次的行动，但对方没有使用。')
+  const asked = await prepare('同学说资料打不开没看。只给我一句发给他的消息。')
+  const seeded = await prepare('同学说资料乱，我没问具体需要，就花三小时整理四十页，考试前夜发了网盘。他说手机打不开，所以没看。我不知道他现在还要不要，请直接帮我写一段微信消息。')
   try {
     await assert.rejects(
       stageCoachEvent(opening.run, { target: { operation: 'create', title: '整理后未使用', source: { messageId: opening.run.source_message_id, quote: '我做了上次的行动，但对方没有使用。' } }, action: { operation: 'create', draft: { content: q } } }, q),
-      (error: any) => error.code === 'COACH_MATERIAL_IS_CONVERSATION')
+      (error: any) => error.code === 'COACH_MATERIAL_IS_CONVERSATION', 'A01 turn-3 real shape still rejected')
+    // Same question as material, but this time behind a preamble: still conversation, not a deliverable.
+    await assert.rejects(
+      stageCoachEvent(opening.run, { target: { operation: 'create', title: '整理后未使用', source: { messageId: opening.run.source_message_id, quote: '我做了上次的行动，但对方没有使用。' } }, action: { operation: 'create', draft: { content: '你整理好之后是怎么给小林的？' } } }, '我们先了解一下：你整理好之后是怎么给小林的？'),
+      (error: any) => error.code === 'COACH_MATERIAL_IS_CONVERSATION', 'preamble does not turn a follow-up question into material')
+    // Paired legal case: the user explicitly asked for one sendable line; the
+    // reply IS the question message and create is legitimate.
+    const oneLine = '你现在还需要那份资料吗？不需要也没关系。'
+    const legal = await stageCoachEvent(asked.run, { target: { operation: 'create', title: '确认资料需要', source: { messageId: asked.run.source_message_id, quote: '只给我一句发给他的消息。' } }, action: { operation: 'create', draft: { content: oneLine } } }, oneLine)
+    await store.finishRun(asked.run, { candidates: [], audit: [], coach: legal }, oneLine, null, asked.signal)
+    assert.equal((await coachEventView(asked.user, asked.conversation))!.actions[0]!.draft!.content, oneLine)
     // A05 turn-2 shape: a modify whose content equals the whole reply is a legal rewrite.
-    const seeded = await prepare('同学说资料乱，我没问具体需要，就花三小时整理四十页，考试前夜发了网盘。他说手机打不开，所以没看。我不知道他现在还要不要，请直接帮我写一段微信消息。')
     const first = '嗨，之前整理的那份资料你后来能打开吗？如果还需要，我可以换个方式发你；不需要也没关系，不用特意回复。'
     const reply1 = '我帮你写一段，语气自然、不施压：\n\n' + first
     const created = await stageCoachEvent(seeded.run, { target: { operation: 'create', title: '确认资料需要', source: { messageId: seeded.run.source_message_id, quote: '请直接帮我写一段微信消息。' } }, action: { operation: 'create', draft: { content: first } } }, reply1)
@@ -46,34 +57,65 @@ test('a create whose whole draft equals the coaching-question reply is rejected 
     const final = (await coachEventView(seeded.user, seeded.conversation))!
     assert.equal(final.actions[0]!.draft!.content, short)
     assert.equal(final.actions[0]!.revision, event.actions[0]!.revision + 1)
-  } finally { await pool.query('DELETE FROM "user" WHERE id=ANY($1::text[])', [[opening.user]]) }
+    // A fact-answer turn must not overwrite the deliverable with a question to the user.
+    const pollutionRun = (await store.startRun(seeded.user, seeded.conversation, randomUUID(), '考试前夜把网盘链接发给了他。')).run
+    await assert.rejects(
+      stageCoachEvent(pollutionRun, { target: { operation: 'continue', eventId: final.id, expectedRevision: final.revision }, action: { operation: 'modify', actionId: final.actions[0]!.id, expectedRevision: final.actions[0]!.revision, draft: { content: '考试前夜发给他，这个时间点挺关键的。他当时有回复你吗？' } } }, '考试前夜发给他，这个时间点挺关键的。他当时有回复你吗？'),
+      (error: any) => error.code === 'COACH_MATERIAL_IS_CONVERSATION', 'modify cannot overwrite material with a question on a fact-answer turn')
+    await store.terminateRun(seeded.user, pollutionRun.request_id, 'cancelled', 'SYNTHETIC_DONE')
+    assert.equal((await coachEventView(seeded.user, seeded.conversation))!.actions[0]!.draft!.content, short, 'deliverable untouched after rejected pollution')
+  } finally { await pool.query('DELETE FROM "user" WHERE id=ANY($1::text[])', [[opening.user, asked.user, seeded.user]]) }
 })
 
-test('a tolerated duplicate re-emission escalates when the current message carries a substantive unrecorded span (A01 turn 8)', async () => {
+test('a stale re-emission never silently swallows unrecorded current input, however short, and even unstructured input stays traceable', async () => {
   const opening = await prepare('我做了上次的行动，但对方没有使用。')
   try {
     const event = await createEvent(opening.run, '我做了上次的行动，但对方没有使用。')
     const outcomeRun = (await store.startRun(opening.user, opening.conversation, randomUUID(), '他后来明确说手机打不开，因此没看。')).run
     const outcome = await stageCoachEvent(outcomeRun, { target: { operation: 'continue', eventId: event.id, expectedRevision: event.revision }, nodes: [{ kind: 'fact', source: { messageId: outcomeRun.source_message_id, quote: '他后来明确说手机打不开，因此没看。' } }] }, '先核对接触方式。')
     await store.finishRun(outcomeRun, { candidates: [], audit: [], coach: outcome }, '先核对接触方式。', null, opening.signal)
-    const current = (await coachEventView(opening.user, opening.conversation))!
-    // Turn 8: user supplies the agreement fact; the model re-emits the stale outcome quote instead.
+    let current = (await coachEventView(opening.user, opening.conversation))!
+    // Short constraints must escalate exactly like the long agreement fact:
+    // no character threshold decides whether new input matters.
+    for (const [index, constraint] of ['只剩两小时', '不用联系了', '改成周五', '他拒绝了', '没约时间'].entries()) {
+      const run = (await store.startRun(opening.user, opening.conversation, randomUUID(), constraint)).run
+      await assert.rejects(
+        stageCoachEvent(run, { target: { operation: 'continue', eventId: current.id, expectedRevision: current.revision }, nodes: [{ kind: 'fact', source: { messageId: run.source_message_id, quote: '他后来明确说手机打不开，因此没看。' } }] }, '收到。'),
+        (error: any) => error.code === 'COACH_SOURCE_INVALID', 'short constraint must reach a repair: ' + constraint)
+      const recorded = await stageCoachEvent(run, { target: { operation: 'continue', eventId: current.id, expectedRevision: current.revision }, nodes: [{ kind: 'fact', source: { messageId: run.source_message_id, quote: constraint } }] }, '已记录。')
+      await store.finishRun(run, { candidates: [], audit: [], coach: recorded }, '已记录。', null, opening.signal)
+      current = (await coachEventView(opening.user, opening.conversation))!
+      assert.ok(current.nodes.some(node => node.content === constraint), 'constraint recorded as a node: ' + constraint)
+    }
+    // A01 turn-8 long agreement fact keeps the same behavior.
     const turn8 = (await store.startRun(opening.user, opening.conversation, randomUUID(), '没有明确约好交付时间和格式。')).run
     await assert.rejects(
       stageCoachEvent(turn8, { target: { operation: 'continue', eventId: current.id, expectedRevision: current.revision }, nodes: [{ kind: 'fact', source: { messageId: turn8.source_message_id, quote: '他后来明确说手机打不开，因此没看。' } }] }, '这个环节没有约定。'),
       (error: any) => error.code === 'COACH_SOURCE_INVALID')
     await store.terminateRun(opening.user, turn8.request_id, 'cancelled', 'SYNTHETIC_DONE')
-    // After the repair records the agreement fact, a later re-emission of it with a fully covered short reply is skipped without error.
     const repairedRun = (await store.startRun(opening.user, opening.conversation, randomUUID(), '没有明确约好交付时间和格式。')).run
     const repaired = await stageCoachEvent(repairedRun, { target: { operation: 'continue', eventId: current.id, expectedRevision: current.revision }, nodes: [{ kind: 'fact', source: { messageId: repairedRun.source_message_id, quote: '没有明确约好交付时间和格式。' } }] }, '已记录约定情况。')
     await store.finishRun(repairedRun, { candidates: [], audit: [], coach: repaired }, '已记录约定情况。', null, opening.signal)
-    const after = (await coachEventView(opening.user, opening.conversation))!
-    assert.ok(after.nodes.some(node => node.content === '没有明确约好交付时间和格式。'))
+    current = (await coachEventView(opening.user, opening.conversation))!
+    assert.ok(current.nodes.some(node => node.content === '没有明确约好交付时间和格式。'))
+    // Mere chatter with a stale re-emission also escalates; the repair may
+    // legitimately drop the node entirely, and the turn still saves.
     const ackRun = (await store.startRun(opening.user, opening.conversation, randomUUID(), '好的，我明白了。')).run
-    const dup = await stageCoachEvent(ackRun, { target: { operation: 'continue', eventId: after.id, expectedRevision: after.revision }, nodes: [{ kind: 'fact', source: { messageId: ackRun.source_message_id, quote: '没有明确约好交付时间和格式。' } }] }, '好的。')
-    await store.finishRun(ackRun, { candidates: [], audit: [], coach: dup }, '好的。', null, opening.signal)
+    await assert.rejects(
+      stageCoachEvent(ackRun, { target: { operation: 'continue', eventId: current.id, expectedRevision: current.revision }, nodes: [{ kind: 'fact', source: { messageId: ackRun.source_message_id, quote: '没有明确约好交付时间和格式。' } }] }, '好的。'),
+      (error: any) => error.code === 'COACH_SOURCE_INVALID', 'chatter is not silently swallowed either')
+    const ackStaged = await stageCoachEvent(ackRun, { target: { operation: 'continue', eventId: current.id, expectedRevision: current.revision } }, '好的。')
+    await store.finishRun(ackRun, { candidates: [], audit: [], coach: ackStaged }, '好的。', null, opening.signal)
     const final = (await coachEventView(opening.user, opening.conversation))!
-    assert.equal(final.nodes.filter(node => node.content === '没有明确约好交付时间和格式。').length, 1, 'short acknowledgement does not duplicate the node and is not swallowed into an error')
+    assert.equal(final.nodes.filter(node => node.content === '没有明确约好交付时间和格式。').length, 1, 'node not duplicated')
+    // Even when nothing is structured, the unrecorded current input remains
+    // traceable through processTurns inputSources for the next turn.
+    const unstructuredRun = (await store.startRun(opening.user, opening.conversation, randomUUID(), '时间很紧，只剩两小时。')).run
+    const unstructured = await stageCoachEvent(unstructuredRun, { target: { operation: 'continue', eventId: final.id, expectedRevision: final.revision } }, '明白。')
+    await store.finishRun(unstructuredRun, { candidates: [], audit: [], coach: unstructured }, '明白。', null, opening.signal)
+    const traced = (await coachEventView(opening.user, opening.conversation))!
+    const lastTurn = traced.processTurns?.at(-1)
+    assert.ok(lastTurn?.inputSources?.some(source => source.quote.includes('只剩两小时')), 'unstructured constraint stays traceable in inputSources')
   } finally { await pool.query('DELETE FROM "user" WHERE id=$1', [opening.user]) }
 })
 

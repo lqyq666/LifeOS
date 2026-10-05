@@ -67,6 +67,19 @@ async function currentSource(c:PoolClient,run:Run,source:{messageId:string;quote
   if(content===null||!source.quote.trim()||!content.includes(source.quote))throw new HttpError(400,'COACH_SOURCE_INVALID',undefined,{quote:source.quote.slice(0,400),currentText:content?.slice(0,2000)??null,currentMessageId:run.source_message_id})
   return ref
 }
+// Intent classes, not content keywords: the current user message itself asks
+// for a deliverable (request) or refines an existing one (rewrite). Narrative
+// forms like 他说可以/我写了四十页/发给了他 deliberately do not match.
+const requestIntent=/(?:帮我|请|给我|想要?|想|打算|需要|能不?能|可不可以|可以|先|直接|麻烦)[^。！？\n]{0,16}(?:写|起草|拟|列|做|问|发)|(?:写|拟)一(?:句|段|份|条|个)|给我一(?:句|条|段)|发一(?:句|条|段)|怎么(?:说|回|开口|问|写|表述|措辞)/
+const rewriteIntent=/(?:再|稍微)?(?:改|换|缩短|改短|润色|重写|调整|去掉|删掉|加上|加一|短一点|语气|措辞)/
+// Delivery framing marks the reply's non-material remainder as presentation of
+// a sendable artifact ("可以先发这段：/可以这样问："); conversational
+// preambles like "我们先了解一下：" do not.
+const framingIntent=/(?:可以|直接|就能|先|拿去)[^。！？\n]{0,8}(?:发|用|拿|问|说|回|给|发送|复制)|(?:发|用)这(?:段|句|条)|给你写|写一(?:段|句|份)|这(?:段|句|条)(?:话|消息)?[^。！？\n]{0,8}(?:发|用|给)|直接使用|复制/
+export function deliverableIntent(text:string,operation:'create'|'modify'){
+  return operation==='create'?requestIntent.test(text):requestIntent.test(text)||rewriteIntent.test(text)
+}
+
 async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
   if(!Value.Check(eventDeltaSchema,delta))throw new HttpError(400,'COACH_DELTA_INVALID')
   if(delta.target.operation==='create'){
@@ -99,17 +112,18 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
   }
   let recordedContents:Set<string>|undefined
   if(delta.target.operation!=='create')recordedContents=new Set((await c.query("SELECT content FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' AND source IS NOT NULL",[run.user_id,delta.target.eventId])).rows.map(row=>row.content as string))
-  // A redundant re-emission of an already-recorded verbatim node is tolerated
-  // only when the current user message carries no substantive unrecorded span;
-  // otherwise the stale quote is a blocking error so a bounded repair can
-  // record what the user actually just said (A01 turn-8 regression).
+  // A stale verbatim re-emission is tolerated only when the current user
+  // message is fully covered by already-recorded content; ANY unrecorded
+  // remainder escalates to a repairable error so the model — not a character
+  // threshold — decides whether the new input is a fact, a short constraint
+  // or mere chatter (A01 turn-8 regression; short-constraint regressions).
   const nodeSource=async(node:{kind:string;source?:{messageId:string;quote:string}},otherNewQuotes:string[]):Promise<CoachSource|null>=>{
     if(node.kind==='unknown')return null
     try{return await currentSource(c,run,node.source!)}
     catch(error){
       if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&recordedContents?.has(node.source!.quote)){
         const text=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role=\'user\'',[run.user_id,run.source_message_id])).rows[0]?.content as string|undefined
-        if(typeof text==='string'&&unquotedRequestParts(text,[...otherNewQuotes,...recordedContents]).every(part=>part.replace(/[^\p{L}\p{N}]/gu,'').length<8))return null
+        if(typeof text==='string'&&unquotedRequestParts(text,[...otherNewQuotes,...recordedContents]).length===0)return null
       }
       throw error
     }
@@ -119,10 +133,18 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
   for(const correction of delta.corrections??[])await currentSource(c,run,correction.source)
   if(delta.action&&'draft' in delta.action){
     if(!delta.action.draft.content.trim()||!reply.includes(delta.action.draft.content))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
-    // A brand-new deliverable never equals the whole turn reply when that
-    // reply is itself a coaching question to the user; real rewrites modify an
-    // existing action instead (A01 turns 3/4/7 vs A05 turn 2).
-    if(delta.action.operation==='create'&&delta.action.draft.content.trim()===reply.trim()&&visibleCoachQuestions(delta.action.draft.content).length>0)throw new HttpError(400,'COACH_MATERIAL_IS_CONVERSATION')
+    // A question-bearing material is conversation, not a deliverable, when the
+    // turn gives no contrary evidence: no drafting/rewrite intent in the user
+    // message, no user-directed framing around the material, and the material
+    // standing as the entire reply. Shape, pronouns or question marks alone
+    // never decide purpose; the paired regressions pin the known legal and
+    // illegal forms and the boundary stays open to real-run review.
+    if(visibleCoachQuestions(delta.action.draft.content).length>0){
+      const current=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role=\'user\'',[run.user_id,run.source_message_id])).rows[0]?.content as string|undefined
+      const intent=current&&deliverableIntent(current,delta.action.operation==='modify'?'modify':'create')
+      const framed=delta.action.draft.content.trim()!==reply.trim()&&framingIntent.test(reply.replace(delta.action.draft.content,''))
+      if(!intent&&!framed)throw new HttpError(400,'COACH_MATERIAL_IS_CONVERSATION')
+    }
   }
 }
 
