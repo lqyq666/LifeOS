@@ -85,18 +85,19 @@ test('declining a draft never authorizes question material, while a separate pos
         const action: NonNullable<EventDelta['action']> = operation === 'create'
           ? { operation, draft: { content: question } }
           : { operation, actionId: current.actions[0]!.id, expectedRevision: current.actions[0]!.revision, draft: { content: question } }
-        await assert.rejects(stageCoachEvent(run, { target: { operation: 'continue', eventId: event.id, expectedRevision: current.revision }, action }, question), (error: any) => error.code === 'COACH_MATERIAL_IS_CONVERSATION', operation + ': ' + text)
+        await assert.rejects(stageCoachEvent(run, { target: { operation: 'continue', eventId: event.id, expectedRevision: current.revision }, action }, question), (error: any) => error.code === 'COACH_ACTION_DECLINED', operation + ': ' + text)
         await store.terminateRun(base.user, run.request_id, 'cancelled', 'SYNTHETIC_DONE')
         assert.deepEqual((await coachEventView(base.user, base.conversation))!.actions, current.actions, 'rejected question leaves material unchanged')
       }
     } finally { await pool.query('DELETE FROM "user" WHERE id=$1', [base.user]) }
   }
   for (const text of ['不用写长邮件，帮我写一句微信消息。', '特别想写一句给他的消息。', '不用重写，改短一点。']) {
-    const base = await prepare(text)
+    const initial = text.includes('改短') ? '帮我写一句消息。' : text
+    const base = await prepare(initial)
     try {
       const material = '你现在还需要这份资料吗？'
       let run = base.run
-      let delta: EventDelta = { target: { operation: 'create', title: '确认需求', source: { messageId: run.source_message_id, quote: text } }, action: { operation: 'create', draft: { content: material } } }
+      let delta: EventDelta = { target: { operation: 'create', title: '确认需求', source: { messageId: run.source_message_id, quote: initial } }, action: { operation: 'create', draft: { content: material } } }
       if (text.includes('改短')) {
         const first = await stageCoachEvent(run, { ...delta, action: { operation: 'create', draft: { content: '你好，我稍后把资料发给你。' } } }, '你好，我稍后把资料发给你。')
         await store.finishRun(run, { candidates: [], audit: [], coach: first }, first.reply, null, base.signal)

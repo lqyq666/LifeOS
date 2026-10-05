@@ -1,9 +1,40 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {randomUUID} from 'node:crypto'
+import {randomUUID,createHash} from 'node:crypto'
 import {readFileSync,writeFileSync,unlinkSync,rmdirSync,existsSync} from 'node:fs'
 import {dirname} from 'node:path'
 import {CoachProviderBudget,readCoachAuthorization} from '../../scripts/coach-provider-budget.ts'
+
+test('SIMULATED new monetary grant preserves old receipts, caps only new spend, and cannot refund unknown usage',()=>{
+  const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()})
+  const notePath=dirname(budget.path)+'/development-test-grant-20261005.json'
+  const input={runId:'synthetic',purpose:'turn' as const,tier:'default',provider:'synthetic',model:'synthetic',signature:'synthetic',reservedCostCny:10}
+  try{
+    const old=budget.reserve(input);budget.finish(old.callId,{outcome:'completed',usage:{},estimatedCostCny:0.1,providerResponseId:null})
+    const original=budget.snapshot(),prefix=createHash('sha256').update(JSON.stringify(original.calls)).digest('hex')
+    writeFileSync(notePath,JSON.stringify({kind:'SIMULATED_DEVELOPMENT_TEST_GRANT',amountCny:30,startingCall:original.calls.length,priorReceiptsSha256:prefix,scope:'synthetic test'}))
+    budget.activateCurrentGrant()
+    const one=budget.reserve(input)
+    budget.finish(one.callId,{outcome:'aborted',usage:'unknown',estimatedCostCny:'unknown',providerResponseId:null})
+    const two=budget.reserve(input);budget.finish(two.callId,{outcome:'completed',usage:{},estimatedCostCny:1,providerResponseId:null})
+    const snapshot=budget.snapshot()
+    assert.equal(snapshot.currentGrant.accountedCny,11)
+    assert.equal(snapshot.currentGrant.remainingCny,19)
+    assert.deepEqual(snapshot.calls.slice(0,original.calls.length),original.calls)
+    assert.equal(snapshot.remaining,original.remaining,'new funding does not consume old call authorization')
+    assert.throws(()=>budget.reserve({...input,reservedCostCny:20}),/BUDGET_EXHAUSTED_OR_PRICE_REQUIRED/)
+    const bytes=readFileSync(notePath)
+    writeFileSync(notePath,JSON.stringify({kind:'SIMULATED_DEVELOPMENT_TEST_GRANT',amountCny:31}))
+    assert.throws(()=>budget.snapshot(),/CURRENT_GRANT_CHANGED/)
+    writeFileSync(notePath,bytes)
+    const three=budget.reserve({...input,reservedCostCny:19});budget.finish(three.callId,{outcome:'completed',usage:{},estimatedCostCny:20,providerResponseId:null})
+    assert.equal(budget.snapshot().currentGrant.paused,true)
+    assert.throws(()=>budget.reserve({...input,reservedCostCny:0.01}),/BUDGET_EXHAUSTED_OR_PRICE_REQUIRED/)
+  }finally{
+    for(const path of [notePath,budget.path,budget.path+'.lock'])if(existsSync(path))unlinkSync(path)
+    if(existsSync(dirname(budget.path)))rmdirSync(dirname(budget.path))
+  }
+})
 
 test('SIMULATED budget reserves before usage, survives restart and refuses excess/locked/tampered writes',()=>{
   const authorization=readCoachAuthorization(),directory='simulation-'+randomUUID()

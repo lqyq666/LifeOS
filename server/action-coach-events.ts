@@ -28,6 +28,10 @@ function unquotedRequestParts(content:string,quotes:readonly string[]):string[]{
   return parts.filter(Boolean)
 }
 
+export function coachInputCovered(text:string,recorded:readonly string[],newQuotes:readonly string[]=[]){
+  return unquotedRequestParts(text,[...recorded,...newQuotes]).length===0
+}
+
 // Literal display metadata, not a semantic classifier or a generation gate.
 // Materials, code, quoted speech and URLs are not questions to the user.
 export function visibleCoachQuestions(reply:string,material?:string):string[]{
@@ -76,15 +80,42 @@ const rewriteIntent=/(?:再|稍微)?(?:改|换|缩短|改短|润色|重写|调�
 // a sendable artifact ("可以先发这段：/可以这样问："); conversational
 // preambles like "我们先了解一下：" do not.
 const framingIntent=/(?:可以|直接|就能|先|拿去)[^。！？\n]{0,8}(?:发|用|拿|问|说|回|给|发送|复制)|(?:发|用)这(?:段|句|条)|给你写|写一(?:段|句|份)|这(?:段|句|条)(?:话|消息)?[^。！？\n]{0,8}(?:发|用|给)|直接使用|复制/
-export function deliverableIntent(text:string,operation:'create'|'modify'){
+const negativeRequest=/(?:不要|不用|不必|不想|不需要|无需|(?<![特区分辨识告个类级])别|暂不|先不|^不)/
+const materialVerb=/(?:写|起草|拟|做|改|换|缩短|润色|重写|调整|联系|联络|发|沟通)/
+function materialRequest(text:string,operation:'create'|'modify'):'requested'|'declined'|'unspecified'{
   // A declined request contains the same verbs as an affirmative one. Evaluate
   // clauses separately so "不用写长邮件，帮我写一句" keeps its positive
   // request without treating "不要帮我写，只想聊聊" as permission.
-  return text.split(/[，,。！？!?；;\n]/).some(clause=>{
+  let requested=false,declined=false
+  for(const clause of text.split(/[，,。！？!?；;\n]/)){
     const request=requestIntent.exec(clause)
     const rewrite=operation==='modify'?rewriteIntent.exec(clause):null
-    return [request,rewrite].some(match=>match&&!/(?:不要|不用|不必|不想|不需要|无需|(?<![特区分辨识告个类级])别|暂不|先不)/.test(clause.slice(0,match.index+match[0].length)))
-  })
+    if([request,rewrite].some(match=>match&&!negativeRequest.test(clause.slice(0,match.index+match[0].length))))requested=true
+    const negative=negativeRequest.exec(clause)
+    if(negative&&materialVerb.test(clause.slice(negative.index+negative[0].length)))declined=true
+  }
+  return requested?'requested':declined?'declined':'unspecified'
+}
+export function deliverableIntent(text:string,operation:'create'|'modify'){
+  return materialRequest(text,operation)==='requested'
+}
+
+// The same source/duplicate decision is used at staging and at commit. A
+// swallowed stale quote is allowed only when the current input is fully covered;
+// chatter and short constraints may instead be retained by process inputSources.
+async function coachNodeSource(c:PoolClient,run:Run,eventId:string|undefined,node:NonNullable<EventDelta['nodes']>[number],newQuotes:string[]):Promise<CoachSource|null>{
+  if(node.kind==='unknown')return null
+  try{return await currentSource(c,run,node.source)}
+  catch(error){
+    if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&eventId){
+      const recorded=(await c.query("SELECT content FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' AND source IS NOT NULL",[run.user_id,eventId])).rows.map(row=>row.content as string)
+      if(recorded.includes(node.source.quote)){
+        const text=await sourceContent(c,run.user_id,{messageId:run.source_message_id,conversationId:run.conversation_id,quote:node.source.quote})
+        if(text!==null&&coachInputCovered(text,recorded,newQuotes.filter(quote=>quote!==node.source.quote)))return null
+      }
+    }
+    throw error
+  }
 }
 
 async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
@@ -117,27 +148,27 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
       if(delta.action.operation==='modify'&&action.status==='proposed'&&action.knowledge_valid&&action.draft_unchanged&&!delta.corrections?.length)throw new HttpError(400,'COACH_ACTION_UNCHANGED')
     }
   }
-  let recordedContents:Set<string>|undefined
-  if(delta.target.operation!=='create')recordedContents=new Set((await c.query("SELECT content FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' AND source IS NOT NULL",[run.user_id,delta.target.eventId])).rows.map(row=>row.content as string))
-  // A stale verbatim re-emission is tolerated only when the current user
-  // message is fully covered by already-recorded content; ANY unrecorded
-  // remainder escalates to a repairable error so the model — not a character
-  // threshold — decides whether the new input is a fact, a short constraint
-  // or mere chatter (A01 turn-8 regression; short-constraint regressions).
-  const nodeSource=async(node:{kind:string;source?:{messageId:string;quote:string}},otherNewQuotes:string[]):Promise<CoachSource|null>=>{
-    if(node.kind==='unknown')return null
-    try{return await currentSource(c,run,node.source!)}
-    catch(error){
-      if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&recordedContents?.has(node.source!.quote)){
-        const text=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role=\'user\'',[run.user_id,run.source_message_id])).rows[0]?.content as string|undefined
-        if(typeof text==='string'&&unquotedRequestParts(text,[...otherNewQuotes,...recordedContents]).length===0)return null
-      }
-      throw error
-    }
-  }
   const newQuotes=(delta.nodes??[]).filter(node=>node.kind!=='unknown').map(node=>node.source.quote)
-  for(const node of delta.nodes??[])await nodeSource(node,newQuotes.filter(quote=>!(node.kind!=='unknown'&&node.source.quote===quote)))
+  for(const node of delta.nodes??[])await coachNodeSource(c,run,delta.target.operation==='continue'?delta.target.eventId:undefined,node,newQuotes)
   for(const correction of delta.corrections??[])await currentSource(c,run,correction.source)
+  let inheritedCreateRequest=false
+  if(delta.action&&delta.action.operation!=='close'){
+    const operation=delta.action.operation==='modify'?'modify':'create'
+    const current=await sourceContent(c,run.user_id,{messageId:run.source_message_id,conversationId:run.conversation_id,quote:''})
+    let disposition=materialRequest(current??'',operation)
+    if(disposition==='unspecified'&&delta.target.operation==='continue'){
+      // Use only the existing authorized view, whose source withdrawal and
+      // correction filtering also governs the model's process/request context.
+      const event=await readCoachEvent(c,run.user_id,run.conversation_id,delta.target.eventId)
+      for(const turn of [...event.processTurns??[]].reverse()){
+        const fragments=[...turn.inputSources??[],...event.nodes.filter(node=>turn.nodeIds.includes(node.id)&&node.source).map(node=>node.source!)]
+        const previous=materialRequest(fragments.map(source=>source.quote).join('\n'),operation)
+        if(previous!=='unspecified'){disposition=previous;break}
+      }
+      inheritedCreateRequest=delta.action.operation==='create'&&disposition==='requested'&&!event.actions.some(action=>action.status==='proposed')
+    }
+    if(disposition==='declined')throw new HttpError(400,'COACH_ACTION_DECLINED')
+  }
   if(delta.action&&'draft' in delta.action){
     if(!delta.action.draft.content.trim()||!reply.includes(delta.action.draft.content))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
     // A question-bearing material is conversation, not a deliverable, when the
@@ -148,7 +179,7 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
     // illegal forms and the boundary stays open to real-run review.
     if(visibleCoachQuestions(delta.action.draft.content).length>0){
       const current=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role=\'user\'',[run.user_id,run.source_message_id])).rows[0]?.content as string|undefined
-      const intent=current&&deliverableIntent(current,delta.action.operation==='modify'?'modify':'create')
+      const intent=inheritedCreateRequest||current&&deliverableIntent(current,delta.action.operation==='modify'?'modify':'create')
       const framed=delta.action.draft.content.trim()!==reply.trim()&&framingIntent.test(reply.replace(delta.action.draft.content,''))
       if(!intent&&!framed)throw new HttpError(400,'COACH_MATERIAL_IS_CONVERSATION')
     }
@@ -175,18 +206,8 @@ export async function persistCoachEvent(c:PoolClient,run:Run,staged:CoachStaged)
   }
   const newQuotes=(delta.nodes??[]).filter(node=>node.kind!=='unknown').map(node=>node.source.quote)
   for(const node of delta.nodes??[]){
-    let source:CoachSource|null=null
-    if(node.kind!=='unknown'){
-      try{source=await currentSource(c,run,node.source)}
-      catch(error){
-        if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&(await c.query("SELECT 1 FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' AND source IS NOT NULL AND content=$3",[run.user_id,staged.eventId,node.source.quote])).rowCount){
-          const text=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role=\'user\'',[run.user_id,run.source_message_id])).rows[0]?.content as string|undefined
-          const recorded=(await c.query("SELECT content FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' AND source IS NOT NULL",[run.user_id,staged.eventId])).rows.map(row=>row.content as string)
-          if(typeof text==='string'&&unquotedRequestParts(text,[...newQuotes.filter(quote=>quote!==node.source.quote),...recorded]).every(part=>part.replace(/[^\p{L}\p{N}]/gu,'').length<8))continue
-        }
-        throw error
-      }
-    }
+    const source=await coachNodeSource(c,run,staged.eventId,node,newQuotes)
+    if(node.kind!=='unknown'&&source===null)continue
     const content=node.kind==='unknown'?node.question:node.source.quote
     const duplicate=(await c.query("SELECT 1 FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status='active' AND kind=$3 AND content=$4 AND source IS NOT DISTINCT FROM $5::jsonb",[run.user_id,staged.eventId,node.kind,content,source?JSON.stringify(source):null])).rowCount
     if(!duplicate)await c.query('INSERT INTO coach_nodes(id,user_id,event_id,kind,content,source) VALUES($1,$2,$3,$4,$5,$6)',[randomUUID(),run.user_id,staged.eventId,node.kind,content,source])
