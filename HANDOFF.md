@@ -1,6 +1,17 @@
 # GLM 开发交接
 
-工作区为 D:\aaaLife\LifeOS。当前 LifeOS V1.3 精简源码仓库（运行源码、测试、当前目标与部署文件；无旧状态日志、历史交付包或 Git 旧历史）。默认模型保持 qwen3.8-flash。整体状态 WIP_NOT_READY；核心闭环 A01/A05/A06 已用真实模型首次完整通过，速度指标未达标，A02–A04/A07/A08 与正式验收未完成，未部署。
+工作区为 D:\aaaLife\LifeOS。当前 LifeOS V1.3 精简源码仓库（运行源码、测试、当前目标与部署文件；无旧状态日志、历史交付包或 Git 旧历史）。默认模型保持 qwen3.8-flash。整体状态 WIP_NOT_READY（核心 A01/A05/A06 已真实通过）；**生产已部署上线 https://lqynb.xyz（2026-10-05）**，正式验收（A02–A08、速度、正式浏览器）仍未完成。
+
+## 2026-10-05 生产部署（用户两次明确授权：删除海闻、部署 LifeOS）
+
+- 服务器 8.137.181.86 经本机 SSH 密钥 root 直达（与阿里云 API 无关——所给 AccessKey 的主账号名下无任何 ECS，实例属其他账号）。
+- **海闻已删除，删除前完整备份**于服务器 `/root/backups/haiwen-20261005/`：pg_dump（haiwen-db.dump，已验证可读）、/opt/campus-haiwen 配置包、campus-data 卷、容器 inspect、compose 文件、nginx 原配置。回滚：恢复备份目录 + `cd /opt/campus-haiwen/releases/20260916-review-gate && docker compose -f compose.yml -f ../../20260831/compose.yml up -d` + 还原 nginx 配置。8001 端口的 campus-advisor 服务不属于海闻，未受影响。
+- 镜像 lifeos:v1.3-glm-52a4e47（本地构建：锁定的 Linux CPU wheels 41 包 + 固定 revision BGE 模型 + 最新能力证据，非 root、只读根、资源限额），docker save|gzip|ssh 载入服务器。
+- /opt/lifeos：compose.yaml（镜像 tag 已改、挂载 /opt/lifeos/evidence/qwen-default 供 LIFEOS_EVIDENCE 覆盖最新 PASS 能力报告——镜像内旧报告接口签名不匹配）、.env.production（600：随机 DB 密码/认证密钥、百炼 Key、LIFEOS_ORIGIN=https://lqynb.xyz、LIFEOS_TRUSTED_PROXY=172.20.0.1、显式 LIFEOS_MODEL_PRICING_JSON——compose 默认值含字面单引号会导致 PROVIDER_PRICE_REQUIRED）。
+- 生产预算 production-20261005 初始 ¥10（manage-provider-budget set；熔断上限，可调）。权益门开启：无 grant 不能调用模型。
+- nginx：lqynb.xyz（LE 证书至 2026-12-19，DNS 已指向）→ 127.0.0.1:8787，SSE 无缓冲、240s 读超时；default_server 改 404；acme-challenge 保留。原配置备份同上。
+- **上线验证**（全部真实）：/api/ready 通过；外部 https://lqynb.xyz 注册（signup 当前开启）→ 授权益 100 次 → 真实 SSE 对话 2 条（qwen3.8-flash 各 1 次调用，回复正常，首事件约 1.7-1.9s）；app 重启后消息持久（7 条）、容器内存 app 557MB/1GiB、db 59MB/256MiB，磁盘余 16GB。
+- 冒烟账号 smoke-20261005@lifeos.local（userId DfzGDviO…）。**signup 仍开启**（权益门兜底：新注册无 grant 不能用模型）；正式创始人账号建好后应设 LIFEOS_SIGNUP_ENABLED=false 重建。
 
 ## 2026-10-05 真实模型验证与修复（本轮 GLM）
 
