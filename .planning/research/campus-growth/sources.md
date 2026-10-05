@@ -52,3 +52,5 @@ npm audit五项high均沿 pi-ai0.73.1→proxy-agent6.5.0→pac-proxy-agent7.2.0�
 
 只读SSH docker ps证实旧生产lifeos-app-1仍lifeos:v1.3-glm-52a4e47，依赖5.3.1/get-uri6.0.5/proxy-agent6.5.0实际安装；安装不等于在运行进程已加载。不dump环境/读取凭证。上游最新get-uri8.0.1仍依赖basic-ftp^5.3.1；不force降级pi-ai。核对 [6.0.0变更](https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.0.0)：默认禁止分离传输主机，是FTP bounce防御；[6.2.1补丁](https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.1)修复该解析。窄override到6.2.2需实际get-uri本地FTP兼容/攻击边界回归，未通过前列潜在发布风险。
 生产只读代理核查补充：当前容器六个HTTP_PROXY/HTTPS_PROXY/ALL_PROXY及小写变量均present=false、pac=false（只打印布尔值）。这降低现有配置触发概率，不证明未来配置安全或运行进程所有模块加载状态；尚无修复前不清除发布风险。
+
+安全补丁本地结果：在get-uri专用override固定basic-ftp6.2.2，保持SDK及get-uri原版本。原5.3.1同一恶意Unix列表有界子进程3秒超时；6.2.2原样输入约57ms结束。实际回环FTP控制/数据socket覆盖MDTM失败、RFC3659列表日期、RETR内容/缓存、PASV分离主机拒绝。6.x默认拒绝分离主机是安全收紧，可能影响少数依赖不同数据主机的FTP/PAC配置；本产品无需此配置，不放宽该默认。局部兼容结果不声明全部FTP服务器/FTPS场景通过。npm audit新报告0漏洞，SDK引擎42/42和客户端/依赖47/47、类型/构建通过。旧生产仅只读查看未修补，安装与实际模块加载区分仍保留；部署前须使用新锁文件镜像并通过产品门槛。

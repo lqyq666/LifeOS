@@ -151,3 +151,10 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - 一次与新迁移相关非空真实pg_dump/restore通过45表17迁移，全部内容hash一致；恢复保留原始hash/两种日期/失败快照，续写revision3不自动认证。报告 .local/campus-growth/official-recovery/recovery-report.json，原主库不修改。
 - npm audit五项high同根FTP CPU拒绝服务，实际旧生产依赖已只读核实；完整触发链和补丁候选见sources.md，未盲目升级/降SDK、未部署。仍须窄补丁兼容验证。付费审批保持暂停，默认模型未改；真实完整校园链、20普通时延和混合成本仍未验收，WIP_NOT_READY。
 
+
+### 第七批：窄FTP安全补丁（免费，本地，未部署）
+
+- 五项high同根GHSA-c475-qrg2-pj4r/CVE-2026-102990，来源链及实际旧生产安装版本见sources.md。本批只override get-uri.basic-ftp=6.2.2，pi-ai0.73.1/get-uri6.0.5保持；上游MIT许可副本已保存。6.x禁用分离传输主机的默认安全变更保留，不启用allowSeparateTransferHost。
+- 隔离下载旧5.3.1进行有界子进程实际攻击复现：同一畸形Unix列表达到3秒超时，原证据 ftp-baseline-report.json；修复6.2.2同样1000/10000/100000组输入约57ms完成。新测试走真实127.0.0.1控制/数据socket，MDTM不支持→LIST(RFC3659可解析日期)→RETR读取、缓存ENOTMODIFIED、PASV其他主机被拒绝均通过。原夹具Unix日期只有rawModifiedAt、get-uri原本不支持的首失败保留，不谎称解决该历史行为。
+- npm audit新报告0漏洞（ftp-patched-audit.json）；客户端/依赖47/47、受影响SDK引擎42/42、服务端typecheck与构建通过，Three既有大chunk警告仍在。完整产品业务后端35文件196已在第六批通过；本次只改传递依赖，没有重复无关全恢复。未在生产升级或重启，旧镜像受影响依赖尚存在，补丁发布仍需整体验收和条件部署门槛。
+- 本批Provider 0。付费审批未解决且无重试；模型真实完整校园链、20普通时延/混合费用、更多官方附件/就业/留学路径仍待验证，整体WIP_NOT_READY。
