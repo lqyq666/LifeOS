@@ -24,8 +24,9 @@ log({event:'operator-start',paid,directory})
 type AnswerStep={kind:'answer',topics:{match:RegExp,answer:string,label:string}[],volunteer?:string,fallback?:string}
 type FixedStep={kind:'fixed',text:string,newConversation?:boolean,sampleClass?:'opening'|'ordinary_followup'|'long_material'}
 type ReadGrowthStep={kind:'readGrowth'}
+type EnableMemoryStep={kind:'enableMemory'}
 type ForgetStep={kind:'forget',match:RegExp,label:string}
-type Step=AnswerStep|FixedStep|ReadGrowthStep|ForgetStep
+type Step=AnswerStep|FixedStep|ReadGrowthStep|EnableMemoryStep|ForgetStep
 type Scenario={id:string,steps:Step[]}
 
 function scenarios():Scenario[]{
@@ -144,6 +145,7 @@ function scenarios():Scenario[]{
       ],fallback:'大概就是这样。'},
     ]},
     {id:'C09',steps:[
+      {kind:'enableMemory'},
       {kind:'fixed',text:'我已经成年，想梳理我的成绩单和升学考虑。',sampleClass:'opening'},
       {kind:'fixed',text:'我对视觉设计比较有兴趣，每周能投入6小时。成绩单我这学期平均分81，高数70。',sampleClass:'ordinary_followup'},
       {kind:'readGrowth'},
@@ -166,9 +168,13 @@ function scenarios():Scenario[]{
 const queue=(()=>{const all=scenarios();const i=process.argv.indexOf('--only');if(i<0)return all;const wanted=process.argv[i+1]!.split(',');const filtered=all.filter(s=>wanted.includes(s.id));if(!filtered.length)throw new Error('NO_SCENARIO_SELECTED');return filtered})()
 let scenarioIndex=0,stepIndex=0,retryCount=0
 let lastGrowth:unknown=null,runId='',lastReply='',lastTurnInput:object|null=null
+let pendingMemoryEnable=false,forgetQueue:{itemId:string,expectedRevision:number}[]=[]
 
 const child:ChildProcess=spawn(process.execPath,['--import','tsx','scripts/run-action-coach.ts',paid?'--paid':'--preflight','--freeze',freezePath,'--fixture',fixturePath],{stdio:['pipe','pipe','pipe']})
-const send=(line:object)=>{(child.stdin as NonNullable<ChildProcess['stdin']>).write(JSON.stringify(line)+'\n');log({event:'operator-sent',...line})}
+const send=(line:object)=>{
+  if('trajectory' in line)lastTurnInput=line
+  ;(child.stdin as NonNullable<ChildProcess['stdin']>).write(JSON.stringify(line)+'\n');log({event:'operator-sent',...line})
+}
 
 function nextCommand(replyText:string|null){
   while(scenarioIndex<queue.length){
@@ -176,14 +182,17 @@ function nextCommand(replyText:string|null){
     if(!step){scenarioIndex++;stepIndex=0;continue}
     const advance=()=>{stepIndex++;retryCount=0}
     if(step.kind==='readGrowth'){advance();return{operation:'readGrowth'}as const}
+    if(step.kind==='enableMemory'){advance();pendingMemoryEnable=true;return{operation:'readMemory'} as const}
     if(step.kind==='forget'){
-      const growth=lastGrowth as {items?:{id:string,assertion?:string,text?:string,revision?:number,status?:string}[]}|null
+      const growth=lastGrowth as {items?:{id:string,text?:string,revision?:number,status?:string}[]}|null
       const items=growth?.items??[]
-      const target=items.find(item=>item.status!=='forgotten'&&step.match.test(String(item.text||item.assertion||'')))
-      log({event:'forget-step',scenario:scenario.id,label:step.label,found:target?.id??null,text:target?.text??null,items:items.map(i=>({id:i.id,status:i.status,text:String(i.text||'').slice(0,60)}))})
-      if(!target){advance();return nextCommand(replyText)}
+      const targets=items.filter(item=>item.status!=='forgotten'&&step.match.test(String(item.text||'')))
+      log({event:'forget-step',scenario:scenario.id,label:step.label,found:targets.map(t=>t.id),items:items.map(i=>({id:i.id,status:i.status,text:String(i.text||'').slice(0,60)}))})
+      if(!targets.length){advance();return nextCommand(replyText)}
       advance()
-      return{operation:'growthAction',itemId:target.id,value:{requestId:randomUUID(),expectedRevision:target.revision??1,action:'forget'}} as const
+      forgetQueue=targets.map(t=>({itemId:t.id,expectedRevision:t.revision??1}))
+      const first=forgetQueue.shift()!
+      return{operation:'growthAction',itemId:first.itemId,value:{requestId:randomUUID(),expectedRevision:first.expectedRevision,action:'forget'}} as const
     }
     if(step.kind==='fixed'){const text=step.text;advance();return{trajectory:scenario.id,text,sampleClass:step.sampleClass??'ordinary_followup',...(step.newConversation?{newConversation:true}:{})} as const}
     // answer step: reveal facts only when the reply actually asks about them
@@ -214,8 +223,23 @@ let buffer=''
     let message:any
     try{message=JSON.parse(line)}catch{log({event:'child-stdout-unparsed',line:line.slice(0,200)});continue}
     if(message.ready){runId=message.runId;log({event:'ready',runId});send(nextCommand(null)!);continue}
+    if(message.operation==='readMemory'){
+      if(pendingMemoryEnable){
+        pendingMemoryEnable=false
+        const settings=message.value?.settings
+        if(settings&&!settings.enabled){log({event:'memory-enable',revision:settings.revision});send({operation:'memorySettings',value:{requestId:randomUUID(),enabled:true,expectedRevision:settings.revision}});continue}
+        log({event:'memory-already-enabled'})
+        send(nextCommand(null)!);continue
+      }
+      log({event:'readMemory',items:(message.value?.items??[]).length});send(nextCommand(null)!);continue
+    }
+    if(message.operation==='memorySettings'){log({event:'memorySettings-result',value:message.value});send(nextCommand(null)!);continue}
     if(message.operation==='readGrowth'){lastGrowth=message.value;log({event:'readGrowth',items:(message.value?.items??[]).map((i:any)=>({id:i.id,status:i.status,kind:i.kind,assertion:String(i.assertion??i.text??'').slice(0,80),revision:i.revision}))});send(nextCommand(null)!);continue}
-    if(message.operation==='growthAction'){log({event:'growthAction-result',value:message.value});send(nextCommand(null)!);continue}
+    if(message.operation==='growthAction'){
+      log({event:'growthAction-result',value:message.value})
+      if(forgetQueue.length){const next=forgetQueue.shift()!;send({operation:'growthAction',itemId:next.itemId,value:{requestId:randomUUID(),expectedRevision:next.expectedRevision,action:'forget'}});continue}
+      send(nextCommand(null)!);continue
+    }
     if(message.trajectory&&('turn' in message)){
       const failed=Boolean(message.error)
       const delta=(message.events??[]).find((e:any)=>e?.value?.type==='delta'&&e?.value?.saved===true)

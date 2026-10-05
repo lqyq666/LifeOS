@@ -58,6 +58,12 @@ export type ActionDraft=Static<typeof actionDraftSchema>
 
 export function parseActionCoachTurn(raw:string):ActionCoachTurn {
   const output=JSON.parse(raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')) as unknown
+  // Constrained decoding sometimes satisfies a required expiry with an empty
+  // string. It carries no time information, so treat it as absent and let the
+  // staging guards decide whether that item survives.
+  if(Array.isArray((output as {growthUpdates?:unknown[]})?.growthUpdates)){
+    for(const update of (output as {growthUpdates:{validUntil?:unknown}[]}).growthUpdates)if(update&&typeof update==='object'&&update.validUntil==='')delete update.validUntil
+  }
   if(!Value.Check(actionCoachTurnSchema,output))throw new Error('ACTION_COACH_OUTPUT_INVALID')
   return output
 }

@@ -31,7 +31,11 @@ test('source-only reported facts use verified user spans while legacy paraphrase
     const staged=await stageGrowthUpdates(run,parsed.growthUpdates!,[])
     assert.deepEqual(staged.changes.map(row=>row.text),selected.map(row=>row.source.quote))
     await assert.rejects(stageGrowthUpdates(run,[{...selected[0],text:'我具备稳定技术能力'}],[]),{code:'GROWTH_SOURCE_INVALID'})
-    await assert.rejects(stageGrowthUpdates(run,[delta('团队项目...没有写代码')],[]),{code:'GROWTH_SOURCE_INVALID'})
+    // A spliced quote that is the user's verbatim words nowhere is dropped
+    // without failing the turn; nothing unverified is ever saved.
+    const spliced=await stageGrowthUpdates(run,[delta('团队项目...没有写代码'),delta('先不联系，可以吗？')],[])
+    assert.deepEqual(spliced.changes.map(row=>row.text),['先不联系，可以吗？'])
+    assert.equal(spliced.skipped?.[0].reason,'unverified_span')
     await assert.rejects(stageGrowthUpdates(run,[{...selected[0],source:{...selected[0].source,messageId:randomUUID()}}],[]),{code:'GROWTH_SOURCE_INVALID'})
     // @ts-expect-error Deliberately bypass the parser: malformed runtime input must drop the unverifiable constraint instead of failing the turn.
     const timeSkipped=await stageGrowthUpdates(run,[{...delta('本周仅两小时'),kind:'constraint'},{...delta('先不联系，可以吗？')}],[])
@@ -62,7 +66,9 @@ test('source-only reported facts use verified user spans while legacy paraphrase
     const mixed=await stageGrowthUpdates(secondRun,[reasserted,{...reasserted,source:{messageId:secondRun.source_message_id,quote:'本周仅两小时'}}],[])
     assert.deepEqual(mixed.changes.map(row=>row.text),['本周仅两小时'],'old-message re-assertions are dropped while current-message facts persist')
     assert.equal(mixed.skipped?.[0].reason,'reasserted_prior_message')
-    await assert.rejects(stageGrowthUpdates(secondRun,[{...reasserted,source:{messageId:secondRun.source_message_id,quote:'我从没说过的原话'}}],[]),{code:'GROWTH_SOURCE_INVALID'})
+    const fabricated=await stageGrowthUpdates(secondRun,[{...reasserted,source:{messageId:secondRun.source_message_id,quote:'我从没说过的原话'}}],[])
+    assert.equal(fabricated.changes.length,0,'a quote that is the user\'s words nowhere is never saved')
+    assert.equal(fabricated.skipped?.[0].reason,'unverified_span')
     await store.terminateRun(user,secondRun.request_id,'cancelled','SYNTHETIC_REASSERTION_PROBE')
     const longText='我'.repeat(4001),oversize=(await store.startRun(user,chat,randomUUID(),longText)).run
     const longDelta={...delta(longText),source:{messageId:oversize.source_message_id,quote:longText}}

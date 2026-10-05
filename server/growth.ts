@@ -153,7 +153,7 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
   })
 }
 
-export type GrowthStaged={changes:GrowthDelta[],skipped?:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'dropped_dependency'}[]}
+export type GrowthStaged={changes:GrowthDelta[],skipped?:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]}
 export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[]):Promise<GrowthStaged> {
   const current=requireRow((await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0])
   // Models routinely re-assert facts the user already stated in an earlier
@@ -163,7 +163,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
   // the user's verbatim words nowhere remains a hard fabrication failure.
   const earlier=(await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND role='user' AND id<>$3",[run.user_id,run.conversation_id,run.source_message_id])).rows as {content:string}[]
   const saidEarlier=(quote:string)=>earlier.some(row=>row.content.includes(quote))
-  const skipped:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'dropped_dependency'}[]=[]
+  const skipped:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]=[]
   const skippedIndexes=new Set<number>()
   const constraintTimeVerifiable=(change:GrowthInputDelta):boolean=>{
     if(change.kind!=='constraint')return true
@@ -184,6 +184,12 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
     if(typeof (change.assertion==='user_reported'&&change.text===undefined?change.source.quote:change.text)!=='string')throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     if(change.source.messageId===run.source_message_id&&change.source.quote.trim()&&!current.content.includes(change.source.quote)&&saidEarlier(change.source.quote)){
       skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'reasserted_prior_message'});continue
+    }
+    if(change.source.messageId===run.source_message_id&&change.source.quote.trim()&&!current.content.includes(change.source.quote)){
+      // The quote is the user's verbatim words nowhere in this conversation:
+      // never save it, but one paraphrasing item must not fail its verified
+      // siblings — drop it and keep the turn.
+      skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'unverified_span'});continue
     }
     if(change.source.messageId!==run.source_message_id||!change.source.quote.trim()||!current.content.includes(change.source.quote))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     if(!constraintTimeVerifiable(change)){
