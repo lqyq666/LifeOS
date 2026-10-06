@@ -231,23 +231,16 @@ export function verifyTurnObligations(obligations:TurnObligations,staged:Obligat
   }
 }
 
-// P5.3 step 8: the rendered reply must not contradict a verified required
-// effect — one place saying 3h while another still plans on 6h. Mentions of
-// the old value framed as a change (从/降到/改为/变为/减少到) stay legal.
+// P5.3 step 8 (P1 revision): for a just-stated WEEKLY budget the reply text is
+// no longer contradiction-checked — real runs showed the model legitimately
+// restating an OPPORTUNITY's own demanded hours (该实习要每周15小时) next to the
+// user's budget, and the lexical guard failed three correct comparison turns
+// in a row. Stale planning is still caught structurally: the required growth
+// update must carry the new amount (verifyTurnObligations) and a staged plan's
+// availableMinutes must equal the binding budget. The REMAINING-this-week
+// amount stays under a text check — 剩N小时 is unambiguous.
 export function verifyReplyAgainstObligations(obligations:TurnObligations,reply:string):void{
   for(const effect of obligations.requiredEffects){
-    if(effect.type==='weekly_time'){
-      const hours=effect.minutes/60
-      for(const match of reply.matchAll(/每(?:周|星期)[^，,。；;！？!\n]{0,8}?([0-9]+(?:\.[0-9]{1,2})?|\d{1,3})\s*(?:个)?(?:小时|钟头)/g)){
-        const stated=parseExactHours(match[1]!)
-        if(stated===null||stated===effect.minutes)continue
-        const before=reply.slice(Math.max(0,match.index-8),match.index)
-        // A change framing, or an amount attributed to the OPPORTUNITY itself
-        // (该实习需要每周15小时), never contradicts the user's own budget.
-        if(/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|低于|超过|多于|不到|最多|至少|实习|岗位|项目|机会|这份|它需要|需要每周|要求每周)/.test(before+match[0]))continue
-        throw new ObligationError('REPLY_CONTRADICTS_CURRENT_EFFECT')
-      }
-    }
     if(effect.type==='remaining_time'){
       // A different REMAINING amount in the reply contradicts the just-stated
       // one; a weekly amount never does (每周6小时 with 这周剩2小时 is normal).

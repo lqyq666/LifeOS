@@ -251,53 +251,35 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
   const resolveGrowthTime=(change:GrowthInputDelta):TimeWindow|null=>{
     const evidence='timeEvidence'in change?change.timeEvidence:undefined
     const legacy='validUntil'in change?change.validUntil:undefined
-    // P1: a CONSTRAINT whose supplied time evidence cannot be verified is the
-    // "unverifiable constraint time" case whether the model supplied nothing,
-    // an invalid form, or an invented legacy expiry — the item is skipped by
-    // the caller instead of poisoning the turn. A NON-constraint kind with bad
-    // evidence stays a hard error, and a fabricated legacy expiry that
-    // CONTRADICTS otherwise-valid evidence also stays a hard error.
-    const constraintSkip=()=>change.kind==='constraint'?null:undefined
+    // P1: unverifiable SUPPLIED time evidence resolves to null for every kind.
+    // The caller then skips a CONSTRAINT item entirely (nothing with an
+    // invented window is ever saved) and saves a NON-constraint fact windowless
+    // — those kinds never carry a window anyway. The one remaining hard error
+    // is a legacy expiry that CONTRADICTS otherwise-valid evidence: the model
+    // verified a real window and then asserted a different fabricated one.
     if(evidence){
-      let window:TimeWindow
-      try{window=resolveTimeWindow(evidence,current.content,anchorIso,zone)}
-      catch(error){
-        if(error instanceof TimeEvidenceError){
-          const skipped=constraintSkip()
-          if(skipped===null)return null
-          throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
-        }
-        throw error
+      let window:TimeWindow|null=null
+      try{window=resolveTimeWindow(evidence,current.content,anchorIso,zone)}catch(error){if(!(error instanceof TimeEvidenceError))throw error}
+      if(window){
+        // N1.3: the evidence quote must support THIS fact — both spans must sit
+        // in the same clause of the current message, so a date stated for
+        // another matter in the same message can never be borrowed. A
+        // calendar-week marker may sit in an earlier clause of the same
+        // sentence (PC07: 这周课程赶，只剩两小时).
+        const factIndex=current.content.indexOf(change.source.quote)
+        const evidenceIndex=current.content.indexOf(evidence.quote)
+        if(factIndex>=0&&evidenceIndex>=0){
+          const factSpanEnd=factIndex+change.source.quote.length
+          const insideFactSpan=evidenceIndex>=factIndex&&evidenceIndex+evidence.quote.length<=factSpanEnd
+          if(!insideFactSpan&&!sameClause(current.content,factIndex,evidenceIndex)&&!(evidence.kind==='calendar_week'&&sameSentence(current.content,factIndex,evidenceIndex)))window=null
+        }else window=null
       }
-      // N1.3: the evidence quote must support THIS fact — both spans must sit
-      // in the same clause of the current message, so a date stated for
-      // another matter in the same message can never be borrowed.
-      const factIndex=current.content.indexOf(change.source.quote)
-      const evidenceIndex=current.content.indexOf(evidence.quote)
-      if(factIndex<0||evidenceIndex<0){
-        const skipped=constraintSkip()
-        if(skipped===null)return null
-        throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
-      }
-      // Supported when the evidence lies inside the fact's own quoted span, or
-      // when both sit in one clause; a date from a DIFFERENT clause of the
-      // same message (another matter) can never be borrowed.
-      const factSpanEnd=factIndex+change.source.quote.length
-      const insideFactSpan=evidenceIndex>=factIndex&&evidenceIndex+evidence.quote.length<=factSpanEnd
-      if(!insideFactSpan&&!sameClause(current.content,factIndex,evidenceIndex)&&!(evidence.kind==='calendar_week'&&sameSentence(current.content,factIndex,evidenceIndex))){
-        const skipped=constraintSkip()
-        if(skipped===null)return null
-        throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
-      }
+      if(!window)return null
       if(legacy&&legacy!==window.validUntil)throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
       return window
     }
     if(legacy){
-      if(!legacyValidUntilMatchesQuote(legacy,change.source.quote,zone)){
-        const skipped=constraintSkip()
-        if(skipped===null)return null
-        throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
-      }
+      if(!legacyValidUntilMatchesQuote(legacy,change.source.quote,zone))return null
       const stated=quoteStatedCutoff(change.source.quote,zone)!
       return {validFrom:anchorIso,validUntil:legacy,basis:{kind:'date_inclusive',date:stated.date,quote:stated.quote,anchor:anchorIso,zone,endExclusive:true}}
     }
