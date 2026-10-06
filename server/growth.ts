@@ -4,6 +4,7 @@ import { pool, transaction, HttpError, requireRow } from './db.ts'
 import { checkCampusSource } from './campus.ts'
 import { validate } from './contracts.ts'
 import { growthCreateSchema, growthActionSchema, type GrowthCreate, type GrowthAction } from './growth-contracts.ts'
+import { amendExactClause, carriesPersonalText, fromLegacyText, FragmentError, type Fragment, type Source } from './growth-source-fragments.ts'
 import type { GrowthItem, GrowthRef, GrowthView } from '../src/features/growth/types.ts'
 import type { GrowthDelta,GrowthInputDelta } from './growth-model-contracts.ts'
 import type { Run } from './store.ts'
@@ -146,6 +147,23 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
       }
       await c.query("UPDATE growth_items SET text='',limitation='',progress_state=NULL,sources='[]',dependencies='[]',status=CASE WHEN id=$2 THEN 'forgotten' ELSE 'stale' END,revision=CASE WHEN id=$2 THEN revision ELSE revision+1 END,updated_at=now() WHERE user_id=$1 AND id=ANY($3::uuid[])", [user, id, ids])
       await c.query("UPDATE growth_revisions SET snapshot=jsonb_build_object('id',item_id,'revision',revision,'redacted',true) WHERE user_id=$1 AND item_id=ANY($2::uuid[])", [user, ids])
+      // Lineage-aware precise forgetting (P1.5): forgetting a changed fragment
+      // also retires the exact superseded old fragment from its parent's
+      // original source message — never the whole composite parent quote — and
+      // redacts the lineage audit row. Forgetting a parent redacts any remaining
+      // lineage quotes derived from it while the independent children stay.
+      const changedLineage = (await c.query("SELECT parent_id,parent_revision,superseded_quote FROM growth_item_lineage WHERE user_id=$1 AND child_id=$2 AND fragment_role='changed' AND NOT source_redacted", [user, id])).rows as { parent_id: string; parent_revision: number; superseded_quote: string | null }[]
+      for (const row of changedLineage) {
+        if (row.superseded_quote) {
+          const revision = (await c.query('SELECT snapshot FROM growth_revisions WHERE user_id=$1 AND item_id=$2 AND revision=$3', [user, row.parent_id, row.parent_revision])).rows[0] as { snapshot: { conversationId: string; sources: { type: string; id?: string }[] } } | undefined
+          const messageSource = revision?.snapshot?.sources?.find(source => source.type === 'message' && typeof source.id === 'string')
+          if (messageSource?.id && revision) await c.query('INSERT INTO growth_source_suppressions(user_id,conversation_id,message_id,quote) VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING', [user, revision.snapshot.conversationId, messageSource.id, row.superseded_quote])
+        }
+        await c.query('UPDATE growth_item_lineage SET superseded_quote=NULL,source_redacted=true WHERE user_id=$1 AND parent_id=$2 AND parent_revision=$3 AND child_id=$4', [user, row.parent_id, row.parent_revision, id])
+      }
+      if ((await c.query('SELECT 1 FROM growth_item_lineage WHERE user_id=$1 AND parent_id=$2 AND superseded_quote IS NOT NULL', [user, id])).rowCount) {
+        await c.query('UPDATE growth_item_lineage SET superseded_quote=NULL,source_redacted=true WHERE user_id=$1 AND parent_id=$2 AND superseded_quote IS NOT NULL', [user, id])
+      }
     }
     await record(c, updated, input.action)
     await c.query('INSERT INTO growth_operations(user_id,request_id,fingerprint,item_id) VALUES($1,$2,$3,$4)', [user, input.requestId, hash, id])
@@ -153,7 +171,19 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
   })
 }
 
-export type GrowthStaged={changes:GrowthDelta[],skipped?:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]}
+export type PreparedGrowthMutation =
+  | { kind: 'ordinary'; delta: GrowthDelta }
+  | {
+      kind: 'split_amend'; inputIndex: number;
+      parent: { id: string; revision: number };
+      beforeQuote: string;
+      currentSource: { messageId: string; quote: string };
+      fragments: Fragment[];
+      changedFragmentIndex: number;
+    }
+export type GrowthStaged={changes:GrowthDelta[];prepared:PreparedGrowthMutation[];skipped?:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]}
+const asFragmentError=(error:unknown):never=>{if(error instanceof FragmentError)throw new HttpError(400,error.code);throw error}
+const toFragmentSources=(sources:GrowthItem['sources']):Source[]=>sources.map(source=>source.type==='message'?{type:'message',id:source.id,quote:source.quote}:{type:'user_edit',quote:source.quote})
 export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[]):Promise<GrowthStaged> {
   const current=requireRow((await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0])
   // Models routinely re-assert facts the user already stated in an earlier
@@ -209,6 +239,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
   }
   const replacements=new Set<string>()
   const unique:GrowthDelta[]=[]
+  const prepared:PreparedGrowthMutation[]=[]
   const positions:number[]=[]
   for(const [index,change] of changes.entries()){
     if(skippedIndexes.has(index)){positions.push(-1);continue}
@@ -219,13 +250,33 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
     const delta:GrowthDelta={...change,text:selectedText}
     await checkCampusSource(pool,run.user_id,run.conversation_id,true,{type:'message',id:delta.source.messageId,quote:delta.source.quote})
     if(delta.assertion==='user_reported'&&(!delta.text.trim()||delta.text.length>4000||!delta.source.quote.includes(delta.text)))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
-    if(delta.target.operation==='replace'){
+    let mutation:PreparedGrowthMutation
+    if(delta.target.operation==='replace'||delta.target.operation==='amend'){
       const selected=delta.target
       const target=authorized.find(row=>row.id===selected.itemId&&row.revision===selected.expectedRevision)
       if(!target||replacements.has(target.id)||(target.kind!==delta.kind&&target.kind!=='unknown'))throw new HttpError(400,'GROWTH_TARGET_INVALID')
-      if(target.text===delta.text||target.text.includes(delta.text))throw new HttpError(400,'GROWTH_UNCHANGED')
+      if(selected.operation==='amend'){
+        // amend corrects ONE clause of a user-supplied composite of the same
+        // field; unknown→answer and explicit whole-item rewrites stay on replace,
+        // and the model never supplies the merged text.
+        if(change.text!==undefined)throw new HttpError(400,'GROWTH_SOURCE_INVALID')
+        if(target.kind!==delta.kind||!['user_reported','user_edit'].includes(target.assertion)||target.unavailableReason)throw new HttpError(400,'GROWTH_TARGET_INVALID')
+        const analysis=(()=>{try{
+          return amendExactClause(fromLegacyText(target.text,toFragmentSources(target.sources)),selected.beforeQuote,{type:'message',id:run.source_message_id,quote:delta.source.quote},current.content)
+        }catch(error){throw asFragmentError(error)}})()
+        const changedFragmentIndex=analysis.fragments.findIndex(part=>part.source.type==='message'&&part.source.id===run.source_message_id)
+        const personal=analysis.fragments.filter(part=>carriesPersonalText(part.text))
+        // One full clause in the old item: exchange that fact in place under
+        // CAS (no split); anything else splits with retained siblings.
+        mutation=(changedFragmentIndex>=0&&personal.length===1&&personal[0]===analysis.fragments[changedFragmentIndex])
+          ?{kind:'ordinary',delta}
+          :{kind:'split_amend',inputIndex:-1,parent:{id:selected.itemId,revision:selected.expectedRevision},beforeQuote:selected.beforeQuote,currentSource:{messageId:run.source_message_id,quote:delta.source.quote},fragments:analysis.fragments,changedFragmentIndex}
+      }else{
+        if(target.text===delta.text||target.text.includes(delta.text))throw new HttpError(400,'GROWTH_UNCHANGED')
+        mutation={kind:'ordinary',delta}
+      }
       replacements.add(target.id)
-    }
+    }else mutation={kind:'ordinary',delta}
     if(delta.assertion==='ai_observation'){
       if(!delta.limitation.trim())throw new HttpError(400,'GROWTH_OBSERVATION_INVALID')
       if(!delta.dependencies.length)throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
@@ -242,25 +293,94 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
     if(delta.kind!=='feedback'&&'progressState'in delta&&delta.progressState)throw new HttpError(400,'GROWTH_FEEDBACK_INVALID')
     const existing=unique.findIndex(row=>row.target.operation==='create'&&delta.target.operation==='create'&&row.kind===delta.kind&&row.assertion==='user_reported'&&delta.assertion==='user_reported'&&row.text===delta.text&&row.source.quote===delta.source.quote&&('validUntil'in row?row.validUntil:null)===('validUntil'in delta?delta.validUntil:null)&&('progressState'in row?row.progressState:null)===('progressState'in delta?delta.progressState:null))
     positions.push(existing<0?unique.length:existing)
-    if(existing<0)unique.push(delta)
+    if(existing<0){
+      if(mutation.kind==='split_amend')mutation.inputIndex=unique.length
+      unique.push(delta)
+      prepared.push(mutation)
+    }
   }
   // References describe the authorized pre-turn snapshot. Replacing their
   // target in this same batch would invalidate them regardless of write order;
   // never silently upgrade a model's evidence to the new revision.
-  if(unique.some(delta=>delta.assertion==='ai_observation'&&delta.dependencies.some(ref=>'id'in ref&&replacements.has(ref.id))))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
+  if(prepared.some(entry=>entry.kind==='ordinary'&&entry.delta.assertion==='ai_observation'&&entry.delta.dependencies.some(ref=>'id'in ref&&replacements.has(ref.id))))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
   // Map explicit input positions through duplicate removal without changing
   // which verified fact the model selected; raw provider output stays intact.
-  return {changes:unique.map(delta=>delta.assertion==='ai_observation'?{...delta,dependencies:delta.dependencies.map(ref=>'updateIndex'in ref?{updateIndex:positions[ref.updateIndex]}:ref)}:delta),skipped}
+  for(let uniqueIndex=0;uniqueIndex<unique.length;uniqueIndex++){
+    const delta=unique[uniqueIndex]!
+    if(delta.assertion!=='ai_observation')continue
+    const remapped={...delta,dependencies:delta.dependencies.map(ref=>'updateIndex'in ref?{updateIndex:positions[ref.updateIndex]!}:ref)}
+    unique[uniqueIndex]=remapped
+    const mutation=prepared[uniqueIndex]!
+    if(mutation.kind==='ordinary')prepared[uniqueIndex]={kind:'ordinary',delta:remapped}
+  }
+  return {changes:unique,prepared,skipped:skipped.length?skipped:undefined}
 }
-export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthStaged):Promise<string[]> {
-  if(!staged.changes.length)return []
+export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthStaged):Promise<{ids:string[];changedIds:string[];retainedIds:string[]}> {
+  if(!staged.changes.length)return {ids:[],changedIds:[],retainedIds:[]}
   await lockGrowth(c,run.user_id)
-  const ids:string[]=[],written=new Map<number,Row>()
-  const replacements=new Set(staged.changes.flatMap(delta=>delta.target.operation==='replace'?[delta.target.itemId]:[]))
+  const ids:string[]=[],changedIds:string[]=[],retainedIds:string[]=[],written=new Map<number,Row>()
+  const replacements=new Set(staged.prepared.flatMap(entry=>entry.kind==='ordinary'&&entry.delta.target.operation==='replace'?[entry.delta.target.itemId]:entry.kind==='split_amend'?[entry.parent.id]:[]))
   // Keep external references strict, even if an internal caller bypassed stage.
-  for(const delta of staged.changes)if(delta.assertion==='ai_observation')for(const ref of delta.dependencies)if('id'in ref&&replacements.has(ref.id))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
-  const order=staged.changes.map((delta,index)=>({delta,index})).sort((a,b)=>Number(a.delta.assertion==='ai_observation')-Number(b.delta.assertion==='ai_observation'))
-  for(const {delta,index} of order){
+  for(const entry of staged.prepared)if(entry.kind==='ordinary'&&entry.delta.assertion==='ai_observation')for(const ref of entry.delta.dependencies)if('id'in ref&&replacements.has(ref.id))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
+  const order=staged.prepared.map((mutation,index)=>({mutation,index})).sort((a,b)=>Number(a.mutation.kind==='ordinary'&&a.mutation.delta.assertion==='ai_observation')-Number(b.mutation.kind==='ordinary'&&b.mutation.delta.assertion==='ai_observation'))
+  for(const {mutation,index} of order){
+    if(mutation.kind==='split_amend'){
+      // P1.3 steps 1–8: everything is re-derived under the row lock from the
+      // authoritative parent row and current message; staged fragments were an
+      // early, advisory validation only.
+      const delta=requireRow(staged.changes[mutation.inputIndex]) as GrowthDelta
+      const parent=(await c.query('SELECT * FROM growth_items WHERE user_id=$1 AND id=$2 FOR UPDATE',[run.user_id,mutation.parent.id])).rows[0] as Row|undefined
+      if(!parent||parent.revision!==mutation.parent.revision||!['active','proposed'].includes(parent.status)||!['user_reported','user_edit'].includes(parent.assertion))throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')
+      const message=requireRow((await c.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0]) as {content:string}
+      const parentSources=toFragmentSources(parent.sources)
+      for(const source of parentSources){
+        // Withdrawn or unauthorized originals fail the whole mutation.
+        if(source.type==='message')await checkCampusSource(c,run.user_id,parent.conversation_id,true,source,true)
+      }
+      const analysis=(()=>{try{
+        return amendExactClause(fromLegacyText(parent.text,parentSources),mutation.beforeQuote,{type:'message',id:run.source_message_id,quote:mutation.currentSource.quote},message.content)
+      }catch(error){throw asFragmentError(error)}})()
+      const changedFragmentIndex=analysis.fragments.findIndex(part=>part.source.type==='message'&&part.source.id===run.source_message_id)
+      const personal=analysis.fragments.filter(part=>carriesPersonalText(part.text))
+      if(changedFragmentIndex>=0&&personal.length===1&&personal[0]===analysis.fragments[changedFragmentIndex]){
+        // The old item held exactly one full clause: exchange that fact in
+        // place under CAS; no split, no lineage (P1.3 step 6).
+        const updatedRow=(await c.query("UPDATE growth_items SET kind=$4,text=$5,assertion='user_reported',status='active',sources=$6,dependencies='[]',valid_until=$7,limitation='',progress_state=$8,origin_request_id=$9,revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 AND revision=$3 AND status IN ('active','proposed') RETURNING *",[run.user_id,parent.id,mutation.parent.revision,delta.kind,analysis.text,JSON.stringify([{type:'message',id:run.source_message_id,quote:mutation.currentSource.quote}]),'validUntil'in delta?expiry(delta.validUntil):null,delta.kind==='feedback'?(delta as Extract<GrowthDelta,{kind:'feedback'}>).progressState:null,run.request_id])).rows[0] as Row|undefined
+        if(!updatedRow)throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')
+        await record(c,updatedRow,'amend')
+        ids[mutation.inputIndex]=updatedRow.id;changedIds.push(updatedRow.id);written.set(mutation.inputIndex,updatedRow)
+        continue
+      }
+      // Step 2: the parent becomes stale history (text kept), revision+1, with
+      // a supersede audit — never a deletion.
+      const supersededRow=(await c.query("UPDATE growth_items SET status='stale',revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 AND revision=$3 AND status IN ('active','proposed') RETURNING *",[run.user_id,parent.id,mutation.parent.revision])).rows[0] as Row|undefined
+      if(!supersededRow)throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')
+      await record(c,supersededRow,'supersede')
+      // Steps 3–5: retained clauses become independent items pointing at their
+      // ORIGINAL user sources; the corrected clause points at this message with
+      // its own validity; lineage records the evidence-backed split.
+      for(const [fragmentIndex,fragment] of analysis.fragments.entries()){
+        if(!carriesPersonalText(fragment.text))continue
+        const isChanged=fragmentIndex===changedFragmentIndex
+        // Retained clauses drop standalone leading/trailing delimiters from the
+        // slice; the trimmed text stays a verbatim substring of the original
+        // user message, so provenance is unchanged.
+        const childText=isChanged?fragment.text:fragment.text.replace(/^[，,；;。！？!?\n]+/,'').replace(/[，,；;。！？!?\n]+$/,'')
+        if(!childText)continue
+        if(!isChanged&&fragment.source.type==='message')await checkCampusSource(c,run.user_id,parent.conversation_id,true,fragment.source,true)
+        const childSource=isChanged?{type:'message' as const,id:run.source_message_id,quote:childText}:{...fragment.source,quote:childText}
+        const child=(await c.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,limitation,progress_state,origin_request_id) VALUES($1,$2,$3,$4,$5,$6,'active',$7,'[]',$8,'',$9,$10) RETURNING *",[randomUUID(),run.user_id,isChanged?run.conversation_id:parent.conversation_id,isChanged?delta.kind:parent.kind,childText,isChanged?'user_reported':parent.assertion,JSON.stringify([childSource]),isChanged&&'validUntil'in delta?expiry(delta.validUntil):null,isChanged&&delta.kind==='feedback'?(delta as Extract<GrowthDelta,{kind:'feedback'}>).progressState:null,run.request_id])).rows[0] as Row
+        await record(c,child,'split')
+        await c.query("INSERT INTO growth_item_lineage(user_id,parent_id,parent_revision,child_id,relation,fragment_role,superseded_quote) VALUES($1,$2,$3,$4,'split_from',$5,$6)",[run.user_id,parent.id,supersededRow.revision,child.id,isChanged?'changed':'retained',isChanged?mutation.beforeQuote:null])
+        if(isChanged){ids[mutation.inputIndex]=child.id;changedIds.push(child.id);written.set(mutation.inputIndex,child)}
+        else retainedIds.push(child.id)
+      }
+      // Steps 7–8: this updateIndex resolves to the changed item; old dependents
+      // lose availability on their own through the parent's stale revision and
+      // are never auto-upgraded.
+      continue
+    }
+    const delta=mutation.delta
     const source={type:'message' as const,id:run.source_message_id,quote:delta.assertion==='user_reported'?delta.text:delta.source.quote}
     await checkCampusSource(c,run.user_id,run.conversation_id,true,source,true)
     const refs:GrowthRef[]=delta.assertion==='ai_observation'?delta.dependencies.map(ref=>{
@@ -277,9 +397,14 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
       if(existing){ids[index]=existing.id;written.set(index,existing);continue}
       row=(await c.query('INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,limitation,progress_state,origin_request_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *',[randomUUID(),run.user_id,run.conversation_id,delta.kind,delta.text,delta.assertion,status,JSON.stringify([source]),JSON.stringify(refs),validUntil,limitation,progressState,run.request_id])).rows[0]
     }else{
-      row=requireRow((await c.query('UPDATE growth_items SET kind=$4,text=$5,assertion=$6,status=$7,sources=$8,dependencies=$9,valid_until=$10,limitation=$11,progress_state=$12,origin_request_id=$13,revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 AND revision=$3 AND status IN (\'active\',\'proposed\') RETURNING *',[run.user_id,delta.target.itemId,delta.target.expectedRevision,delta.kind,delta.text,delta.assertion,status,JSON.stringify([source]),JSON.stringify(refs),validUntil,limitation,progressState,run.request_id])).rows[0])
+      // CAS update: a missing row is a revision conflict, never a silent
+      // re-read of the newer revision (P1.6).
+      const updatedRow=(await c.query('UPDATE growth_items SET kind=$4,text=$5,assertion=$6,status=$7,sources=$8,dependencies=$9,valid_until=$10,limitation=$11,progress_state=$12,origin_request_id=$13,revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 AND revision=$3 AND status IN (\'active\',\'proposed\') RETURNING *',[run.user_id,delta.target.itemId,delta.target.expectedRevision,delta.kind,delta.text,delta.assertion,status,JSON.stringify([source]),JSON.stringify(refs),validUntil,limitation,progressState,run.request_id])).rows[0] as Row|undefined
+      if(!updatedRow)throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')
+      row=updatedRow
     }
-    await record(c,row,delta.target.operation==='create'?'extract':'replace');ids[index]=row.id;written.set(index,row)
+    await record(c,row,delta.target.operation==='create'?'extract':delta.target.operation);ids[index]=row.id;written.set(index,row)
+    if(delta.target.operation!=='create')changedIds.push(row.id)
   }
-  return ids
+  return {ids,changedIds,retainedIds}
 }

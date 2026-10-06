@@ -98,8 +98,15 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
         // legacy free-text field only ever let models smuggle stale paraphrases.
         if(properties?.assertion?.const==='user_reported')delete properties.text
         if(target?.anyOf){
-          const create=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='create'),replace=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='replace')
-          target.anyOf=[create,...Array.from(unique,([id,revision])=>({...replace,properties:{...replace.properties,itemId:{...replace.properties.itemId,enum:[id]},expectedRevision:{...replace.properties.expectedRevision,enum:[revision]}}}))]
+          const create=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='create'),replace=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='replace'),amend=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='amend')
+          if(!create||!replace)throw new Error('GROWTH_TARGET_SCHEMA_REQUIRED')
+          // Each authorized item becomes ONE alternative branch binding itemId and
+          // expectedRevision together; the model cannot mix an id from one item
+          // with the revision of another. amend branches carry the same pairing.
+          const pairs=Array.from(unique,([id,revision])=>({id,revision}))
+          const boundReplace=pairs.map(({id,revision})=>({...replace,properties:{...replace.properties,itemId:{...replace.properties.itemId,enum:[id]},expectedRevision:{...replace.properties.expectedRevision,enum:[revision]}}}))
+          const boundAmend=amend?pairs.map(({id,revision})=>({...amend,properties:{...amend.properties,itemId:{...amend.properties.itemId,enum:[id]},expectedRevision:{...amend.properties.expectedRevision,enum:[revision]}}})):[]
+          target.anyOf=[create,...boundReplace,...boundAmend]
         }
         if(properties?.assertion?.const==='ai_observation'){
             const alternatives=properties.dependencies.items.anyOf

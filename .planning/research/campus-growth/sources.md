@@ -74,3 +74,7 @@ DOCX分别提取2669/591字符，XLSX1611非空单元格；人工核对细则“
 ## 扣子公共知识检索薄接入层（2026-10-06，用户当日追加指令，本地，零真实扣子调用）
 
 按用户指令新增 server/coze-knowledge.ts：薄适配层，仅做"扣子数据集检索API ↔ 既有知识卡管线"的翻译。复用核查：不引入新依赖（Node fetch）；导入复用 campus-knowledge.importKnowledge 原函数与校验；检索/引用/撤回复用 coach-knowledge.retrieveCoachKnowledge、validateCoachCitations、assertCoachKnowledge 全链，未改任何既有校验语义。卡为内容寻址（sha256→UUID）、UTC日确定性时间戳保证同日幂等重导入、跨日 revision 递增（沿用导入幂等/冲突规则）；24h 有效期使过期卡自然退出检索；limitations 明示"未做本地原文核验"。接入点 turn-engine.ts：本地检索为主，结果为空才回退扣子（审计记录 coze_knowledge_* 阶段），扣子失败仅审计不失败轮次——原检索同时是对照与回退，退役决策留待替代方案验收。默认关闭（LIFEOS_COZE_KNOWLEDGE!=='true' 或缺 PAT/数据集ID），启用即接受查询文本传输到所配置端点，生产启用需用户数据传输授权；不迁移聊天系统、无第二套长期记忆（仅公共知识卡，非个人信息）。测试 tests/backend/coze-knowledge.test.ts 用本地mock扣子端点+真实隔离PG：默认关闭零外呼、Bearer/路径/查询体、导入后经未改动的本地管线可检索、同查询缓存命中、同内容幂等(changed=0)、HTTP500/非法JSON/超时均仅审计、过期卡不再检索。真实扣子API连通性 NOT_TESTED（无凭据，未发起任何真实调用）。
+
+## P1 amend 协议与复合事实拆分（2026-10-06，本地，零Provider）
+
+growth-source-fragments 纯函数模块来自工单附录A指定参考实现（工单声明已在独立 Node 30/30 通过；磁盘上无 reference/ 目录，按工单附录A逐字复制，差异记入 REPAIR-20261006.md）。未引入新依赖；复用现有 TypeBox target union、campus-knowledge.importKnowledge 无关、checkCampusSource/checkCampusSource 来源校验、lockGrowth 事务锁序、growth_revisions 审计与 growth_source_suppressions 精确遗忘。018 迁移 SQL 按工单原文。model-payload 的 amend itemId/expectedRevision 配对沿用既有 replace 单分支配对机制（一个授权项一个备选分支，模型无法跨项混配 id/revision）。

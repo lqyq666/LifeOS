@@ -6,7 +6,8 @@ const source=Type.Object({messageId:id,quote:text(8000)},{additionalProperties:f
 const target=Type.Union([
   Type.Object({operation:Type.Literal('create')},{additionalProperties:false}),
   Type.Object({operation:Type.Literal('replace'),itemId:id,expectedRevision:Type.Integer({minimum:1})},{additionalProperties:false}),
-],{description:'新增一项当前信息用create；用户明确改目标/更正同一项才replace授权growth中的真实id/revision。补充另一事实不能覆盖旧项。'})
+  Type.Object({operation:Type.Literal('amend'),itemId:id,expectedRevision:Type.Integer({minimum:1}),beforeQuote:text(4000)},{additionalProperties:false,description:'复合旧条目中只改一个分句：beforeQuote必须是该旧条目中唯一出现的完整分句原文。新事实来自本轮source.quote；不要提供拼接后的整条text。同一分句出现两次且对象不明时不要猜测。'}),
+],{description:'新增一项当前信息用create；用户明确改目标/更正同一项才replace授权growth中的真实id/revision；旧条目捆绑多个独立事实、本轮只更正其中一句时用amend并引用旧分句，未提及的其他事实由服务器原样保留。补充另一事实不能覆盖旧项。'})
 const dependencies=Type.Array(Type.Union([
   Type.Object({id,revision:Type.Integer({minimum:1})},{additionalProperties:false}),
   Type.Object({updateIndex:Type.Integer({minimum:0,maximum:7})},{additionalProperties:false,description:'本轮growthUpdates数组的0基索引；只能引用已核实user_reported增量，不引用unknown或其他观察。服务器在同一事务保存事实后解析到真实id/revision。'}),
