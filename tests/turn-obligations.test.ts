@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {weeklyTimeIntent,deriveTurnObligations,isPureControlCommand,verifyTurnObligations,verifyReplyAgainstObligations} from '../server/turn-obligations.ts'
+import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,verifyTurnObligations,verifyReplyAgainstObligations} from '../server/turn-obligations.ts'
 const pauseChanges=[{scopes:['overseas_study','postgraduate_exam','postgraduate_recommendation','undergraduate_upgrade'] as never,operation:'pause' as const,quote:'先别推升学相关的安排'}]
 
 test('weekly time intent: only the user\'s own explicit weekly budget creates an obligation',()=>{
@@ -52,4 +52,47 @@ test('missing required updates and contradicting replies are hard failures',()=>
   // Control obligations must actually be staged.
   const controlObligations=deriveTurnObligations('先别推升学相关的安排。',{directionControls:pauseChanges})
   assert.throws(()=>verifyTurnObligations(controlObligations,{growth:undefined,controls:undefined,currentText:'先别推升学相关的安排。',reply:'好的。'}),(error:unknown)=>(error as {code?:string}).code==='DIRECTION_CONTROL_NOT_APPLIED')
+})
+
+test('remaining weekly budget intent: this-week leftover, never weekly or next-week amounts',()=>{
+  assert.deepEqual(remainingWeeklyTimeIntent('这周还剩两小时。'),{quote:'这周还剩两小时',minutes:120})
+  assert.deepEqual(remainingWeeklyTimeIntent('本周只剩1.5小时。'),{quote:'本周只剩1.5小时',minutes:90})
+  assert.deepEqual(remainingWeeklyTimeIntent('这周，只剩下半小时了。'),{quote:'只剩下半小时了',minutes:30},'周期从同句前置分句继承')
+  assert.deepEqual(remainingWeeklyTimeIntent('这周还剩一个半小时。'),{quote:'这周还剩一个半小时',minutes:90})
+  for(const negative of [
+    '还剩两小时。',
+    '下周只剩两小时。',
+    '如果这周还剩两小时呢？',
+    '这周还剩两小时吗？',
+    '室友说这周还剩两小时。',
+    '这周没剩两小时了。',
+    '这周大概还剩三小时。',
+    '这周还剩两个半小时。',
+  ])assert.equal(remainingWeeklyTimeIntent(negative),null,negative)
+})
+
+test('re-plan phrasings create the plan obligation (重新排/重新安排)',()=>{
+  assert.deepEqual(weeklyPlanIntent('以后改成每周1.5小时吧，重新排一下。'),{period:'current'})
+  assert.deepEqual(weeklyPlanIntent('重新安排一下这周的。'),{period:'this_week'})
+  assert.equal(weeklyPlanIntent('你说得有道理。'),null)
+  const obligations=deriveTurnObligations('以后改成每周1.5小时吧，重新排一下。')
+  assert.deepEqual(obligations.requiredEffects.map(effect=>effect.type),['weekly_time','weekly_plan'])
+  const planEffect=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
+  assert.equal(planEffect&&planEffect.type==='weekly_plan'?planEffect.minutes:null,90,'1.5小时=90分钟')
+})
+
+test('remaining budget obligations require a week-scoped constraint and bind plans to the tighter amount',()=>{
+  const obligations=deriveTurnObligations('这周还剩两小时，剩下的时间帮我安排一下。')
+  assert.deepEqual(obligations.requiredEffects.map(effect=>effect.type),['remaining_time','weekly_plan'])
+  const planEffect=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
+  assert.equal(planEffect&&planEffect.type==='weekly_plan'?planEffect.minutes:null,120,'计划用剩余数而非每周数')
+  // An open-ended context item is NOT enough: the remaining budget must be week-scoped.
+  assert.throws(()=>verifyTurnObligations(obligations,{growth:{changes:[{target:{operation:'create'},kind:'context',assertion:'user_reported',text:'这周还剩两小时',source:{messageId:'m',quote:'这周还剩两小时'}}],prepared:[]},controls:undefined,currentText:'这周还剩两小时，剩下的时间帮我安排一下。',reply:'好的。'}),(error:unknown)=>(error as {code?:string}).code==='GROWTH_REQUIRED_UPDATE_MISSING')
+  const planInput={availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[],target:{operation:'create'}}
+  verifyTurnObligations(obligations,{growth:{changes:[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',text:'这周还剩两小时',validUntil:'2026-10-12T16:00:00.000Z',source:{messageId:'m',quote:'这周还剩两小时'}}],prepared:[]},controls:undefined,weeklyPlan:{input:planInput},currentText:'这周还剩两小时，剩下的时间帮我安排一下。',reply:'好的。'})
+  // The reply may restate a weekly amount (每周6小时 is not contradicted by 2h left),
+  // but a different REMAINING amount is a contradiction unless framed as a change.
+  verifyReplyAgainstObligations(obligations,'你每周有六小时，这周还剩两小时，先做最小验证。')
+  verifyReplyAgainstObligations(obligations,'从剩下的三小时改为两小时来安排。')
+  assert.throws(()=>verifyReplyAgainstObligations(obligations,'这周还剩三小时，我们这样安排。'),(error:unknown)=>(error as {code?:string}).code==='REPLY_CONTRADICTS_CURRENT_EFFECT')
 })

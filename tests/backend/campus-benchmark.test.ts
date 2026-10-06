@@ -25,8 +25,10 @@ test('campus cost counts failed generations and repairs, keeps unknown costs unk
 test('campus benchmark fixture covers continuous adult growth and independent counterfactual branches without auto answers',()=>{
   const fixture=JSON.parse(readFileSync('tests/fixtures/campus-growth-trajectories.json','utf8'))
   assert.equal(fixture.hiddenFactsNeverInjected,true)
-  assert.equal(fixture.trajectories.length,13)
-  assert.equal(new Set(fixture.trajectories.map((row:any)=>row.id)).size,13)
+  // P1: 13 continuous-experience trajectories + 13 PC matrix additions
+  // (PC03 four-branch, PC05/07/08/09/11/12/15/06 singles, D01 demo arc).
+  assert.equal(fixture.trajectories.length,26)
+  assert.equal(new Set(fixture.trajectories.map((row:any)=>row.id)).size,26)
   assert.ok(fixture.trajectories.every((row:any)=>typeof row.opening==='string'&&row.privateFacts&&row.hardFailures.length))
-  assert.ok(fixture.trajectories.filter((row:any)=>row.privateFacts.age!==undefined).every((row:any)=>row.privateFacts.age>=18))
+  assert.ok(fixture.trajectories.every((row:any)=>typeof row.privateFacts.age==='number'&&row.privateFacts.age>=18),'every synthetic student is an adult')
 })

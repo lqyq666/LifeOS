@@ -309,8 +309,10 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
       // checked against the verified weekly effect (never rendered from an
       // unverified number), and the durable text comes from persistWeeklyPlan.
       const planInput=result.weeklyPlan as unknown as import('./weekly-plans.ts').WeeklyPlanInput
-      const weeklyEffect=obligations.requiredEffects.find(effect=>effect.type==='weekly_time')
-      if(weeklyEffect&&weeklyEffect.type==='weekly_time'&&planInput.availableMinutes!==weeklyEffect.minutes)throw new HttpError(400,'REPLY_CONTRADICTS_CURRENT_EFFECT')
+      // PC07: the plan's budget is checked against the binding amount (this
+      // week's remaining hours when stated, otherwise the weekly amount).
+      const budgetEffect=obligations.requiredEffects.find(effect=>effect.type==='remaining_time')??obligations.requiredEffects.find(effect=>effect.type==='weekly_time')
+      if(budgetEffect&&(budgetEffect.type==='remaining_time'||budgetEffect.type==='weekly_time')&&planInput.availableMinutes!==budgetEffect.minutes)throw new HttpError(400,'REPLY_CONTRADICTS_CURRENT_EFFECT')
       staged.weeklyPlan=await stageWeeklyPlan(run,planInput,{user:run.user_id,expectedControlSnapshotKey:expectedControlKey,effectiveBlockedScopes:blockedDirectionScopes})
     }
     const checkedCitations=await validateCoachCitations(result.reply,result.citations??[],knowledge,current.content,messages.filter(row=>row.role==='user').map(row=>row.content))

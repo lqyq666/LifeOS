@@ -21,7 +21,10 @@ export type FixedStep={kind:'fixed',text:string,newConversation?:boolean,sampleC
 export type ReadGrowthStep={kind:'readGrowth'}
 export type EnableMemoryStep={kind:'enableMemory'}
 export type ForgetStep={kind:'forget',match:RegExp,label:string}
-export type Step=AnswerStep|FixedStep|ReadGrowthStep|EnableMemoryStep|ForgetStep
+// PC12: the user rejects a PROPOSED ai_observation through the real control
+// surface — same CAS action channel as forget, but action:'reject'.
+export type RejectStep={kind:'reject',match:RegExp,label:string}
+export type Step=AnswerStep|FixedStep|ReadGrowthStep|EnableMemoryStep|ForgetStep|RejectStep
 export type Scenario={id:string,steps:Step[]}
 
 export function scenarios():Scenario[]{
@@ -149,6 +152,10 @@ export function scenarios():Scenario[]{
       {kind:'fixed',text:'接着之前的：我现在的兴趣和时间投入，先做什么比较合适？',newConversation:true,sampleClass:'ordinary_followup'},
     ]},
     {id:'C10',steps:[
+      // Per-actor isolation (R2) means this actor's cross-session continuity is
+      // only in scope once the user has enabled memory — same authorized path
+      // as C09, never silently defaulted.
+      {kind:'enableMemory'},
       {kind:'fixed',text:'我22岁读数字媒体，最近对毕业后的选择有点迷茫。',sampleClass:'opening'},
       {kind:'fixed',text:'我有三个数字媒体作品，每周能投入6小时，倾向就业但想看看真实反馈。',sampleClass:'ordinary_followup'},
       {kind:'fixed',text:'那就业和继续探索之间，帮我比较一下，我现在先确认哪个方向优先？',sampleClass:'ordinary_followup'},
@@ -156,6 +163,121 @@ export function scenarios():Scenario[]{
       {kind:'fixed',text:'我把清单发给两个招聘方了，还没有回复，感觉没什么效果。',sampleClass:'ordinary_followup'},
       {kind:'fixed',text:'最近课程变多了，每周只有3小时了，安排帮我改一下。',sampleClass:'ordinary_followup'},
       {kind:'fixed',text:'接着上次的，我下一步该做什么？',newConversation:true,sampleClass:'ordinary_followup'},
+    ]},
+    // P1 PC matrix additions (synthetic adults; hidden branch facts are revealed
+    // only when the model actually asks about them). Same opening across PC03
+    // branches isolates what the follow-up does with DIFFERENT real processes.
+    {id:'PC03A',steps:[
+      {kind:'fixed',text:'我帮学长的工作室做了一份宣传推文，发过去之后他们一直没用，是不是我做得不行？',sampleClass:'opening'},
+      {kind:'answer',topics:[
+        {match:/反馈|怎么说|回复|回应|为什么没用|原因/,answer:'对方说文件打不开。',label:'feedback-unopenable'},
+        {match:/怎么发|格式|文件|交付|发送方式/,answer:'我是微信发的PDF压缩包，对方说收到但打不开。',label:'delivery-detail'},
+        {match:/当时|目的|为什么做|想/,answer:'当时是想攒一个作品，顺便帮学长一个忙。',label:'purpose'},
+      ],volunteer:'补充一下：对方说文件打不开，我是微信发的PDF压缩包。',fallback:'对方就说打不开，别的没说。'},
+    ]},
+    {id:'PC03B',steps:[
+      {kind:'fixed',text:'我帮学长的工作室做了一份宣传推文，发过去之后他们一直没用，是不是我做得不行？',sampleClass:'opening'},
+      {kind:'answer',topics:[
+        {match:/反馈|怎么说|回复|回应|为什么没用|原因/,answer:'对方说收到的时候活动已经办完了，用不上了。',label:'feedback-late'},
+        {match:/什么时候|时间|交付|多久|约定/,answer:'他们10月1日就要用，我国庆假期结束才交过去，晚了。',label:'timeline'},
+        {match:/当时|目的|为什么做|想/,answer:'当时是想攒一个作品，顺便帮学长一个忙。',label:'purpose'},
+      ],volunteer:'补充一下：对方活动10月1日就办了，我假期结束才交，晚了。',fallback:'就是交晚了，活动都结束了。'},
+    ]},
+    {id:'PC03C',steps:[
+      {kind:'fixed',text:'我帮学长的工作室做了一份宣传推文，发过去之后他们一直没用，是不是我做得不行？',sampleClass:'opening'},
+      {kind:'answer',topics:[
+        {match:/反馈|怎么说|回复|回应|为什么没用|原因/,answer:'对方说风格跟他们想要的不一样，他们想要活泼一点的。',label:'feedback-mismatch'},
+        {match:/要求|想要|风格|需求|开始前|说了什么/,answer:'开始前就说了想要活泼的推文，我做成了正式商务风。',label:'requirement'},
+        {match:/当时|目的|为什么做|想/,answer:'当时是想攒一个作品，顺便帮学长一个忙。',label:'purpose'},
+      ],volunteer:'补充一下：对方想要活泼风格，我交的是正式商务风，需求没对上。',fallback:'对方说风格不合适。'},
+    ]},
+    {id:'PC03D',steps:[
+      {kind:'fixed',text:'我帮学长的工作室做了一份宣传推文，发过去之后他们一直没用，是不是我做得不行？',sampleClass:'opening'},
+      {kind:'answer',topics:[
+        {match:/反馈|怎么说|回复|回应|为什么没用|原因/,answer:'对方到现在都没有回我，我不知道为什么没用。',label:'feedback-silent'},
+        {match:/多久|什么时候发|几天|时间/,answer:'发过去五天了，一点回复都没有。',label:'elapsed'},
+        {match:/当时|目的|为什么做|想/,answer:'当时是想攒一个作品，顺便帮学长一个忙。',label:'purpose'},
+      ],fallback:'真的没有回音，我不知道原因。'},
+      {kind:'fixed',text:'那你现在怎么判断这件事？我该把它当成我做得不行吗？',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'PC05',steps:[
+      {kind:'fixed',text:'我上学期参加过一个新媒体比赛，结果不太好。最近又有个新比赛在报名，我在想要不要参加。',sampleClass:'opening'},
+      {kind:'answer',topics:[
+        {match:/上学期|那次|比赛|过程|作品|结果/,answer:'具体过程我记不清了，就记得结果不太好。',label:'fuzzy-memory'},
+        {match:/老师|评委|评价|反馈|怎么说/,answer:'这个我不想说。',label:'refuse-evaluation'},
+        {match:/新的|这次|要不要|报名|参加/,answer:'我还没决定。',label:'undecided'},
+        {match:/时间|小时|投入|精力/,answer:'这个稍后再说吧。',label:'later'},
+      ],fallback:'我现在说不清楚，你先说你的看法。'},
+      {kind:'answer',topics:[
+        {match:/上学期|那次|过程/,answer:'真记不清了。',label:'fuzzy-memory'},
+        {match:/老师|评委|评价/,answer:'不想说这个。',label:'refuse-evaluation'},
+        {match:/要不要|报名|决定/,answer:'还没决定，先看看我适合不适合。',label:'undecided'},
+        {match:/时间|小时|投入/,answer:'稍后再说。',label:'later'},
+      ],fallback:'嗯。'},
+    ]},
+    {id:'PC07T',steps:[
+      {kind:'fixed',text:'我每周能投入六小时做求职准备，帮我安排一下这周的。',sampleClass:'opening'},
+      {kind:'fixed',text:'这周课程赶，只剩两小时能用了，剩下的怎么安排？',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'以后改成每周1.5小时吧，重新排一下。',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'PC08D',steps:[
+      {kind:'fixed',text:'我在准备考研，但室友都去实习了，我要不要暂停考研去实习？',sampleClass:'opening'},
+      {kind:'answer',topics:[
+        {match:/为什么|动机|原因|考研想/,answer:'我考研的动机其实还算清楚，就是看别人都去实习了有点慌。',label:'motive'},
+        {match:/实习|想做什么|岗位/,answer:'实习还没有具体目标，就是想攒点经历。',label:'internship-unknown'},
+      ],volunteer:'我考研动机还算清楚，就是看别人都去了有点慌，实习还没有具体目标。',fallback:'就是有点慌。'},
+      {kind:'fixed',text:'我想清楚了，先暂停考研，接下来全力准备实习。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'那我的近期安排现在怎么变？',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'PC09T',steps:[
+      {kind:'fixed',text:'我们团队上学期拿了校园文创设计二等奖，我做的是整体策划。',sampleClass:'opening'},
+      {kind:'fixed',text:'更正一下：整体策划主要是队长做的，我只负责了宣传物料里的排版部分。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'那你现在觉得，这段经历里我个人的能力依据是什么？',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'PC12R',steps:[
+      {kind:'fixed',text:'我投了三个实习岗位，都没回音。可能我就是不适合找工作吧。',sampleClass:'opening'},
+      {kind:'readGrowth'},
+      {kind:'reject',match:/害怕|逃避|不主动|不够主动|拖延|畏难/,label:'rejected-explanation'},
+      {kind:'fixed',text:'不对，我不是害怕竞争或者不主动，我是想先把作品集改好才暂停投递的。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'那按我现在的情况，接下来投递怎么安排比较好？',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'PC15C',steps:[
+      {kind:'fixed',text:'今天好累，连着上了三节课，回来还要赶作业。',sampleClass:'opening'},
+      {kind:'fixed',text:'对了，随便问一句，你觉得一堆待办堆在一起的时候，一般怎么开始比较好？',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'嗯，明白了，我先把作业赶完再说。',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'PC11N',steps:[
+      // Memory stays OFF for this actor on purpose: the contrast scenario for
+      // PC11. Same-conversation continuity works; a NEW conversation must not
+      // fabricate memory of facts it can no longer see.
+      {kind:'fixed',text:'我大二，在准备英语四级，目标500分，最近还在纠结要不要报个口语班。',sampleClass:'opening'},
+      {kind:'fixed',text:'先不聊这个了，明天食堂有新菜品，我想去试试。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'还是说回四级，我现在该先做什么？',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'接着之前说的，我接下来该干嘛？',newConversation:true,sampleClass:'ordinary_followup'},
+    ]},
+    {id:'PC06M',steps:[
+      {kind:'fixed',text:'我下周要联系一个校园大使的岗位，别再问我了，直接给我一段能发出去的第一句开场消息，缺的信息你用【】标出来。',sampleClass:'long_material'},
+      {kind:'fixed',text:'可以，就按这个发。',sampleClass:'ordinary_followup'},
+    ]},
+    // The P1 demo trajectory from the work order: one synthetic student, one
+    // unclear thing, one actual process revealed only when asked, then help,
+    // action, feedback and a next choice under changed time conditions.
+    {id:'D01',steps:[
+      {kind:'fixed',text:'我大三，最近在就业和考研之间犹豫。给社团做了一套招新材料，最后没用上，我开始怀疑自己是不是不行。',sampleClass:'opening'},
+      {kind:'answer',topics:[
+        {match:/材料|做了什么|内容|推文|海报/,answer:'是一套推文加海报，给社团外联部迎新用的。',label:'what'},
+        {match:/约定|时间|什么时候|交|交付|截止/,answer:'约的是迎新周开始前给，我晚了两天，迎新当天才交过去。',label:'timeline'},
+        {match:/反馈|怎么说|为什么没用|回应/,answer:'外联部长说时间来不及了就没用，内容本身没来得及细看。',label:'feedback'},
+        {match:/为什么|犹豫|考研|就业|想/,answer:'考研是家里期待的成分多，我自己更想做能看见成品的事。',label:'motive'},
+      ],volunteer:'补充一下：那套材料是给外联部迎新做的，我交晚了两天，部长说来不及就没用，内容没细看。',fallback:'就是交晚了，别的原因不清楚。'},
+      {kind:'answer',topics:[
+        {match:/其他|以前|之前|类似|经历/,answer:'之前帮班级做过一次展板，按时交了，也用上了。',label:'counter-evidence'},
+        {match:/材料|推文|海报/,answer:'推文加海报，迎新用的。',label:'what'},
+      ],fallback:'嗯。'},
+      {kind:'fixed',text:'那按现在的情况，就业和考研之间我怎么先往前走一步？',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'这周我只有两小时，给我一个现在就能开始的具体行动。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'我明天约了外联部长当面问问那套材料的具体反馈，这算开始了吧。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'今天看到学院新媒体中心在招新，我要不要报名？下周开始我每周能拿出四小时了。',sampleClass:'ordinary_followup'},
     ]},
   ]
 }
@@ -168,6 +290,7 @@ export function createOperatorDriver(options:{scenarios:Scenario[];log:(entry:Re
   let lastGrowth:unknown=null
   let pendingMemoryActor:string|null=null
   let forgetQueue:{itemId:string,expectedRevision:number,actorKey:string}[]=[]
+  let rejectQueue:{itemId:string,expectedRevision:number,actorKey:string}[]=[]
   const dispatch=(command:Record<string,unknown>|null)=>{
     if(!command){options.log({event:'operator-done-sending'});options.send({operation:'exit'});return}
     options.send(command)
@@ -190,6 +313,18 @@ export function createOperatorDriver(options:{scenarios:Scenario[];log:(entry:Re
         forgetQueue=targets.map(t=>({itemId:t.id,expectedRevision:t.revision??1,actorKey:scenario.id}))
         const first=forgetQueue.shift()!
         return{operation:'growthAction',actorKey:scenario.id,logicalStepId,itemId:first.itemId,value:{requestId:randomUUID(),expectedRevision:first.expectedRevision,action:'forget'}}
+      }
+      if(step.kind==='reject'){
+        // PC12: reject only PROPOSED ai_observation items — never a user fact.
+        const growth=lastGrowth as {items?:{id:string,text?:string,revision?:number,status?:string,assertion?:string}[]}|null
+        const items=growth?.items??[]
+        const targets=items.filter(item=>item.status==='proposed'&&item.assertion==='ai_observation'&&step.match.test(String(item.text||'')))
+        options.log({event:'reject-step',scenario:scenario.id,label:step.label,found:targets.map(t=>t.id),proposed:items.filter(i=>i.status==='proposed').map(i=>({id:i.id,text:String(i.text||'').slice(0,60)}))})
+        if(!targets.length){advance();return nextCommand(replyText)}
+        advance()
+        rejectQueue=targets.map(t=>({itemId:t.id,expectedRevision:t.revision??1,actorKey:scenario.id}))
+        const first=rejectQueue.shift()!
+        return{operation:'growthAction',actorKey:scenario.id,logicalStepId,itemId:first.itemId,value:{requestId:randomUUID(),expectedRevision:first.expectedRevision,action:'reject'}}
       }
       if(step.kind==='fixed'){const text=step.text;advance();return{trajectory:scenario.id,actorKey:scenario.id,logicalStepId,text,sampleClass:step.sampleClass??'ordinary_followup',...(step.newConversation?{newConversation:true}:{})}}
       // answer step: reveal facts only when the reply actually asks about them
@@ -227,6 +362,7 @@ export function createOperatorDriver(options:{scenarios:Scenario[];log:(entry:Re
     if(message.operation==='growthAction'){
       options.log({event:'growthAction-result',value:message.value})
       if(forgetQueue.length){const next=forgetQueue.shift()!;options.send({operation:'growthAction',actorKey:next.actorKey,itemId:next.itemId,value:{requestId:randomUUID(),expectedRevision:next.expectedRevision,action:'forget'}});return}
+      if(rejectQueue.length){const next=rejectQueue.shift()!;options.send({operation:'growthAction',actorKey:next.actorKey,itemId:next.itemId,value:{requestId:randomUUID(),expectedRevision:next.expectedRevision,action:'reject'}});return}
       dispatch(nextCommand(null));return
     }
     if(message.trajectory&&('turn' in message)){

@@ -213,6 +213,19 @@ const sameClause=(text:string,left:number,right:number)=>{
   }
   return false
 }
+// PC07: a calendar-week marker may sit in an EARLIER clause of the same
+// sentence ("这周课程赶，只剩两小时") — the week scopes the whole sentence,
+// mirroring the obligation detector's own inheritance. Explicit dates and
+// durations stay same-clause only: a cutoff named for another matter must
+// never be borrowed across clauses.
+const sentenceStartAt=(text:string,index:number)=>{
+  for(const clause of scanUserClauses(text))if(index>=clause.start&&index<clause.end)return clause.sentenceStart
+  return null
+}
+const sameSentence=(text:string,left:number,right:number)=>{
+  const a=sentenceStartAt(text,Math.min(left,right)),b=sentenceStartAt(text,Math.max(left,right))
+  return a!==null&&a===b
+}
 const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
 const toFragmentSources=(sources:GrowthItem['sources']):Source[]=>sources.map(source=>source.type==='message'?{type:'message',id:source.id,quote:source.quote}:{type:'user_edit',quote:source.quote})
 export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[],options:{allowedDirectionScopes?:readonly string[]}={}):Promise<GrowthStaged> {
@@ -253,7 +266,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
       // same message (another matter) can never be borrowed.
       const factSpanEnd=factIndex+change.source.quote.length
       const insideFactSpan=evidenceIndex>=factIndex&&evidenceIndex+evidence.quote.length<=factSpanEnd
-      if(!insideFactSpan&&!sameClause(current.content,factIndex,evidenceIndex))throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
+      if(!insideFactSpan&&!sameClause(current.content,factIndex,evidenceIndex)&&!(evidence.kind==='calendar_week'&&sameSentence(current.content,factIndex,evidenceIndex)))throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
       if(legacy&&legacy!==window.validUntil)throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
       return window
     }

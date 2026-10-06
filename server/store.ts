@@ -144,7 +144,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     // P5.5 state-change receipt: what actually committed, computed from real
     // writes — never from the model's own claim of completion.
     const requiredEffects=staged.turnObligations?.requiredEffects??[]
-    const requiredGrowth=requiredEffects.some(effect=>effect.type==='weekly_time')
+    const requiredGrowth=requiredEffects.some(effect=>effect.type==='weekly_time'||effect.type==='remaining_time')
     const growthStatus=!staged.growth?'not_requested'
       :requiredGrowth&&!growth?.changedIds.length&&!growth?.createdIds.length?'needs_confirmation'
       :staged.growth.skipped?.length?'partial'

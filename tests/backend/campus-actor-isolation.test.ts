@@ -166,3 +166,41 @@ test('operator driver: every command carries the scenario actorKey and a failed 
   assert.ok(!sent.some(line => JSON.stringify(line).includes('第一条输入') && sent.filter(other => JSON.stringify(other) === JSON.stringify(line)).length > 1), 'no input was ever sent twice')
   assert.ok(logs.some(entry => entry.event === 'turn-result' && entry.failed === true), 'failures are logged and preserved')
 })
+
+test('operator driver: reject step rejects only proposed ai observations (PC12)', () => {
+  const sent: Record<string, unknown>[] = []
+  const logs: Record<string, unknown>[] = []
+  const scenarios: Scenario[] = [
+    { id: 'PC12R', steps: [
+      { kind: 'fixed', text: '开场', sampleClass: 'opening' },
+      { kind: 'readGrowth' },
+      { kind: 'reject', match: /害怕/, label: 'rejected-explanation' },
+      { kind: 'fixed', text: '更正解释', sampleClass: 'ordinary_followup' },
+    ] },
+  ]
+  const driver = createOperatorDriver({ scenarios, log: entry => logs.push(entry), send: line => sent.push(line) })
+  driver.handleChildMessage({ ready: true, runId: 'r' })
+  driver.handleChildMessage({ trajectory: 'PC12R', turn: 1 })
+  driver.handleChildMessage({ operation: 'readGrowth', value: { items: [
+    { id: 'o1', text: '可能害怕竞争所以没继续投', revision: 2, status: 'proposed', assertion: 'ai_observation' },
+    { id: 'f1', text: '投递时害怕没有回音', revision: 1, status: 'active', assertion: 'user_reported' },
+    { id: 'o2', text: '另一个观察', revision: 1, status: 'proposed', assertion: 'ai_observation' },
+  ] } })
+  // Only the matching PROPOSED observation is rejected; a user fact carrying the
+  // same keyword and unrelated observations are never touched.
+  assert.equal(sent.at(-1)!.operation, 'growthAction')
+  assert.equal(sent.at(-1)!.itemId, 'o1')
+  assert.equal((sent.at(-1)!.value as { action: string }).action, 'reject')
+  driver.handleChildMessage({ operation: 'growthAction', value: { id: 'o1', status: 'rejected' } })
+  assert.deepEqual(sent.at(-1), { trajectory: 'PC12R', actorKey: 'PC12R', logicalStepId: 'PC12R:3', text: '更正解释', sampleClass: 'ordinary_followup' })
+  // With no proposed observation matching, the step skips without any write.
+  const sentAfter = sent.length
+  const driver2 = createOperatorDriver({ scenarios, log: () => {}, send: line => sent.push(line) })
+  driver2.handleChildMessage({ ready: true, runId: 'r2' })
+  driver2.handleChildMessage({ trajectory: 'PC12R', turn: 1 })
+  driver2.handleChildMessage({ operation: 'readGrowth', value: { items: [
+    { id: 'f1', text: '投递时害怕没有回音', revision: 1, status: 'active', assertion: 'user_reported' },
+  ] } })
+  assert.deepEqual(sent.at(-1), { trajectory: 'PC12R', actorKey: 'PC12R', logicalStepId: 'PC12R:3', text: '更正解释', sampleClass: 'ordinary_followup' })
+  assert.ok(!sent.slice(sentAfter).some(line => line.operation === 'growthAction' && line.itemId === 'f1'), 'user facts are never rejected')
+})

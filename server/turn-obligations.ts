@@ -10,6 +10,11 @@ import type { GrowthStaged } from './growth.ts'
 // review (or surface as needs_confirmation upstream).
 export type RequiredEffect =
   | {type:'weekly_time';quote:string;minutes:number;period:'current'|'this_week'|'next_week'}
+  // PC07: "这周还剩N小时" is the budget REMAINING inside the current calendar
+  // week — never a recurring weekly amount and never a next-week plan. It must
+  // persist as a week-scoped constraint, so it expires with the week instead of
+  // silently reshaping future weeks.
+  | {type:'remaining_time';quote:string;minutes:number}
   | {type:'direction_control';scopes:DirectionScope[];operation:'pause'|'resume'}
   | {type:'grounded_material';materialKind:'resume_portfolio'}
   | {type:'weekly_plan';period:'current'|'this_week'|'next_week';minutes:number}
@@ -25,7 +30,7 @@ export function weeklyPlanIntent(text:string):{period:'current'|'this_week'|'nex
       const body=clause.text.trim()
       if(!body)continue
       if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)continue
-      if(/(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|帮我(?:安排|排)|改一下安排|调整.{0,4}安排/.test(body)){
+      if(/(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|帮我(?:安排|排)|改一下安排|调整.{0,4}安排|重新(?:安排|排)|再(?:安排|排)一?(?:次|下)?/.test(body)){
         const period=/下周/.test(body)||sentence.some(c=>/下周/.test(c.text))?'next_week':/(?:这周|本周)/.test(body)||sentence.some(c=>/(?:这周|本周)/.test(c.text))?'this_week':'current'
         return {period}
       }
@@ -72,6 +77,41 @@ export function weeklyTimeIntent(text:string):{quote:string;minutes:number;perio
   return null
 }
 
+// PC07: the REMAINING budget inside the current calendar week. Only an explicit
+// "this week ... N hours left" statement by the user counts; the week marker may
+// sit in an earlier clause of the same sentence (这周，只剩两小时). Next-week and
+// marker-less statements stay out rather than being guessed into this week.
+const remainingBudget=/(?:只)?还?剩(?:下|着)?[^，,。；;！？!?\n]{0,6}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半)?\s*(?:小时|钟头))/
+// 半小时=30, 一个半小时=90 resolve through parseExactHours on the whole token
+// first; bare amounts (两小时) strip the unit. Ambiguous forms (两个半小时) refuse.
+const remainingMinutes=(token:string):number|null=>{
+  const direct=parseExactHours(token)
+  if(direct!==null)return direct
+  return parseExactHours(token.replace(/(?:小时|钟头)$/,''))
+}
+export function remainingWeeklyTimeIntent(text:string):{quote:string;minutes:number}|null{
+  for(const sentence of groupBySentence(scanUserClauses(text))){
+    let weekScoped=false
+    for(const clause of sentence){
+      const body=clause.text.trim()
+      if(!body)continue
+      if(/(?:这|本)周/.test(body))weekScoped=true
+      if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther)continue
+      if(clause.interrogative)continue
+      if(thirdPersonSubject.test(body))continue
+      if(/(?:不是|并没有|没说|并非|没|不剩|没剩|没有剩)/.test(body))continue
+      if(inexactBudget.test(body))continue
+      if(!weekScoped)continue
+      const match=remainingBudget.exec(body)
+      if(!match)continue
+      const minutes=remainingMinutes(match[1]!)
+      if(minutes===null||minutes<0||minutes>10080)continue
+      return {quote:body,minutes}
+    }
+  }
+  return null
+}
+
 function groupBySentence(clauses:readonly UserClauseLike[]):UserClauseLike[][]{
   const groups:UserClauseLike[][]=[]
   let currentKey=-1
@@ -87,11 +127,16 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
   const effects:RequiredEffect[]=[]
   const weekly=weeklyTimeIntent(currentText)
   if(weekly)effects.push({type:'weekly_time',...weekly})
+  const remaining=remainingWeeklyTimeIntent(currentText)
+  if(remaining)effects.push({type:'remaining_time',...remaining})
   const plan=weeklyPlanIntent(currentText)
-  if(plan&&weekly)effects.push({type:'weekly_plan',period:plan.period,minutes:weekly.minutes})
+  // A same-turn plan binds to the TIGHTEST stated budget: the remaining amount
+  // when the user just said what is left this week, otherwise the weekly one.
+  const bindingBudget=remaining??weekly
+  if(plan&&bindingBudget)effects.push({type:'weekly_plan',period:plan.period,minutes:bindingBudget.minutes})
   for(const change of options.directionControls??[])effects.push({type:'direction_control',scopes:change.scopes,operation:change.operation})
   if(options.resumePortfolioMode)effects.push({type:'grounded_material',materialKind:'resume_portfolio'})
-  const families=new Set(effects.map(effect=>effect.type))
+  const families=new Set(effects.map(effect=>effect.type==='remaining_time'?'weekly_time':effect.type))
   const kind=families.size>1?'mixed'
     :families.has('weekly_time')?'update_weekly_time'
     :families.has('direction_control')?'direction_control'
@@ -144,6 +189,17 @@ export function verifyTurnObligations(obligations:TurnObligations,staged:Obligat
         &&hoursIn(delta.text)===effect.minutes)
       if(!covered)throw new ObligationError('GROWTH_REQUIRED_UPDATE_MISSING')
     }
+    if(effect.type==='remaining_time'){
+      // The remaining budget must land as a week-scoped constraint (resolved
+      // validity from the user's own words), never as an open-ended context
+      // item that would quietly reshape the following weeks.
+      const covered=(staged.growth?.changes??[]).some(delta=>delta.assertion==='user_reported'
+        &&delta.kind==='constraint'
+        &&staged.currentText.includes(delta.source.quote)
+        &&hoursIn(delta.text)===effect.minutes
+        &&'validUntil'in delta&&typeof delta.validUntil==='string'&&Boolean(delta.validUntil))
+      if(!covered)throw new ObligationError('GROWTH_REQUIRED_UPDATE_MISSING')
+    }
     if(effect.type==='weekly_plan'){
       // A required plan must be a staged structured plan whose budget matches
       // the verified weekly minutes; a free-text list in the reply never counts.
@@ -170,14 +226,26 @@ export function verifyTurnObligations(obligations:TurnObligations,staged:Obligat
 // the old value framed as a change (从/降到/改为/变为/减少到) stay legal.
 export function verifyReplyAgainstObligations(obligations:TurnObligations,reply:string):void{
   for(const effect of obligations.requiredEffects){
-    if(effect.type!=='weekly_time')continue
-    const hours=effect.minutes/60
-    for(const match of reply.matchAll(/每(?:周|星期)[^，,。；;！？!\n]{0,8}?([0-9]+(?:\.[0-9]{1,2})?|\d{1,3})\s*(?:个)?(?:小时|钟头)/g)){
-      const stated=parseExactHours(match[1]!)
-      if(stated===null||stated===effect.minutes)continue
-      const before=reply.slice(Math.max(0,match.index-8),match.index)
-      if(/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|低于|超过|多于|不到|最多|至少)/.test(before+match[0]))continue
-      throw new ObligationError('REPLY_CONTRADICTS_CURRENT_EFFECT')
+    if(effect.type==='weekly_time'){
+      const hours=effect.minutes/60
+      for(const match of reply.matchAll(/每(?:周|星期)[^，,。；;！？!\n]{0,8}?([0-9]+(?:\.[0-9]{1,2})?|\d{1,3})\s*(?:个)?(?:小时|钟头)/g)){
+        const stated=parseExactHours(match[1]!)
+        if(stated===null||stated===effect.minutes)continue
+        const before=reply.slice(Math.max(0,match.index-8),match.index)
+        if(/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|低于|超过|多于|不到|最多|至少)/.test(before+match[0]))continue
+        throw new ObligationError('REPLY_CONTRADICTS_CURRENT_EFFECT')
+      }
+    }
+    if(effect.type==='remaining_time'){
+      // A different REMAINING amount in the reply contradicts the just-stated
+      // one; a weekly amount never does (每周6小时 with 这周剩2小时 is normal).
+      for(const match of reply.matchAll(/(?:只)?还?剩(?:下|着)?[^，,。；;！？!\n]{0,6}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半)?\s*(?:小时|钟头))/g)){
+        const stated=remainingMinutes(match[1]!)
+        if(stated===null||stated===effect.minutes)continue
+        const before=reply.slice(Math.max(0,match.index-8),match.index)
+        if(/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|低于|超过|多于|不到|最多|至少)/.test(before+match[0]))continue
+        throw new ObligationError('REPLY_CONTRADICTS_CURRENT_EFFECT')
+      }
     }
   }
 }

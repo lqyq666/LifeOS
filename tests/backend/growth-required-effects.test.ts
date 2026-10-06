@@ -9,6 +9,57 @@ import { parseActionCoachTurn } from '../../server/action-coach-contracts.ts'
 import { deriveTurnObligations, verifyTurnObligations, weeklyTimeIntent } from '../../server/turn-obligations.ts'
 import type { GrowthDelta } from '../../server/growth-model-contracts.ts'
 
+// PC07: the remaining-this-week budget persists as a WEEK-SCOPED constraint.
+// The week marker naturally sits in an earlier clause of the same sentence
+// (这周课程赶，只剩两小时) — the calendar-week evidence inherits at sentence
+// level, while an open-ended context item never satisfies the obligation.
+test('remaining-this-week budget lands as a week-scoped constraint, never open-ended context',async t=>{
+  const user='remaining-time-'+randomUUID(),chat=randomUUID()
+  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
+  await store.createConversation(user,{id:chat,title:'SYNTHETIC PC07 remaining budget'})
+  const prepare=async(text:string)=>{
+    await pool.query("UPDATE runs SET status='failed',error_code='SYNTHETIC_TEST_CLEANUP',finished_at=now() WHERE user_id=$1 AND conversation_id=$2 AND status='running'",[user,chat])
+    const run=(await store.startRun(user,chat,randomUUID(),text)).run
+    return {run,growth:await growthContext(user,chat)}
+  }
+  const text='这周课程赶，只剩两小时能用了，剩下的怎么安排？'
+  try{
+    const obligations=deriveTurnObligations(text)
+    assert.deepEqual(obligations.requiredEffects.map(effect=>effect.type),['remaining_time'],'只剩N小时+本周标记产生剩余预算义务')
+    await t.test('an open-ended context item never satisfies the remaining obligation',async()=>{
+      const attempt=await prepare(text)
+      const staged=await stageGrowthUpdates(attempt.run,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:attempt.run.source_message_id,quote:'只剩两小时能用了'}}],attempt.growth)
+      assert.throws(()=>verifyTurnObligations(obligations,{growth:staged,controls:undefined,currentText:text,reply:'好的。'}),(error:unknown)=>(error as {code?:string}).code==='GROWTH_REQUIRED_UPDATE_MISSING')
+      await store.terminateRun(user,attempt.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
+    })
+    await t.test('a week-scoped constraint with sentence-inherited calendar evidence passes and commits',async()=>{
+      const attempt=await prepare(text)
+      const staged=await stageGrowthUpdates(attempt.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:attempt.run.source_message_id,quote:'只剩两小时能用了'},timeEvidence:{kind:'calendar_week',which:'this',quote:'这周'}}],attempt.growth)
+      verifyTurnObligations(obligations,{growth:staged,controls:undefined,currentText:text,reply:'这周剩下的两小时先做一件最小的事。'})
+      const saved=await store.finishRun(attempt.run,{candidates:[],audit:[],growth:staged,turnObligations:obligations},'这周剩下的两小时先做一件最小的事。',null,new AbortController().signal)
+      assert.equal(saved.stateChange.growth.status,'applied')
+      const item=(await growthContext(user,chat)).find(row=>row.kind==='constraint'&&/两小时/.test(row.text))
+      assert.ok(item&&item.validUntil,'the remaining budget persists with an expiry')
+      const until=Date.parse(item!.validUntil as unknown as string)
+      assert.ok(until>Date.now()&&until<=Date.now()+8*86400000,'the window ends within this calendar week')
+    })
+    await t.test('a next-week marker never scopes this-week remaining evidence',async()=>{
+      const attempt=await prepare(text)
+      await assert.rejects(stageGrowthUpdates(attempt.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:attempt.run.source_message_id,quote:'只剩两小时能用了'},timeEvidence:{kind:'calendar_week',which:'next',quote:'这周'}}],attempt.growth),(error:unknown)=>error instanceof Error&&(error as {code?:string}).code==='GROWTH_TIME_UNVERIFIED')
+      await store.terminateRun(user,attempt.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
+    })
+  }finally{
+    await pool.query('DELETE FROM growth_source_suppressions WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_item_lineage WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_items WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_revisions WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM runs WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM messages WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM conversations WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM "user" WHERE id=$1',[user])
+  }
+})
+
 // P5 required-effect regressions (isolated PG, no provider). OBL-02 replays the
 // two REAL C10 time-update failures from coach-b2dd4d6c: the model answered the
 // old delivery topic while the required 3h update was absent. Even with the
