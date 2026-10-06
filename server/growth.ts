@@ -193,7 +193,7 @@ export type PreparedGrowthMutation =
       changedFragmentIndex: number;
       time?: TimeWindow;
     }
-export type GrowthStaged={changes:GrowthDelta[];prepared:PreparedGrowthMutation[];skipped?:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]}
+export type GrowthStaged={changes:GrowthDelta[];prepared:PreparedGrowthMutation[];skipped?:{inputIndex:number;quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]}
 const asFragmentError=(error:unknown):never=>{if(error instanceof FragmentError)throw new HttpError(400,error.code);throw error}
 const toFragmentSources=(sources:GrowthItem['sources']):Source[]=>sources.map(source=>source.type==='message'?{type:'message',id:source.id,quote:source.quote}:{type:'user_edit',quote:source.quote})
 export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[]):Promise<GrowthStaged> {
@@ -205,7 +205,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
   // the user's verbatim words nowhere remains a hard fabrication failure.
   const earlier=(await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND role='user' AND id<>$3",[run.user_id,run.conversation_id,run.source_message_id])).rows as {content:string}[]
   const saidEarlier=(quote:string)=>earlier.some(row=>row.content.includes(quote))
-  const skipped:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]=[]
+  const skipped:{inputIndex:number;quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]=[]
   const skippedIndexes=new Set<number>()
   const resolvedTimes=new Map<number,TimeWindow|null>()
   // Every expiry is derived server-side from explicit user words (P2): the
@@ -236,13 +236,13 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
   for(const [index,change] of changes.entries()){
     if(typeof (change.assertion==='user_reported'&&change.text===undefined?change.source.quote:change.text)!=='string')throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     if(change.source.messageId===run.source_message_id&&change.source.quote.trim()&&!current.content.includes(change.source.quote)&&saidEarlier(change.source.quote)){
-      skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'reasserted_prior_message'});continue
+      skippedIndexes.add(index);skipped.push({inputIndex:index,quote:change.source.quote,reason:'reasserted_prior_message'});continue
     }
     if(change.source.messageId===run.source_message_id&&change.source.quote.trim()&&!current.content.includes(change.source.quote)){
       // The quote is the user's verbatim words nowhere in this conversation:
       // never save it, but one paraphrasing item must not fail its verified
       // siblings — drop it and keep the turn.
-      skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'unverified_span'});continue
+      skippedIndexes.add(index);skipped.push({inputIndex:index,quote:change.source.quote,reason:'unverified_span'});continue
     }
     if(change.source.messageId!==run.source_message_id||!change.source.quote.trim()||!current.content.includes(change.source.quote))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     const resolved=resolveGrowthTime(change)
@@ -250,7 +250,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
     if(change.kind==='constraint'&&!resolved){
       // A constraint whose expiry the user never verifiably stated is unsafe to
       // save; dropping that one item keeps the turn's verified facts intact.
-      skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'unverifiable_constraint_time'});continue
+      skippedIndexes.add(index);skipped.push({inputIndex:index,quote:change.source.quote,reason:'unverifiable_constraint_time'});continue
     }
   }
   // Observations may only stand on facts that actually persisted this turn.
@@ -258,7 +258,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
     let cascaded=false
     for(const [index,change] of changes.entries()){
       if(skippedIndexes.has(index)||change.assertion!=='ai_observation')continue
-      if(change.dependencies.some(ref=>'updateIndex'in ref&&skippedIndexes.has(ref.updateIndex))){skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'dropped_dependency'});cascaded=true}
+      if(change.dependencies.some(ref=>'updateIndex'in ref&&skippedIndexes.has(ref.updateIndex))){skippedIndexes.add(index);skipped.push({inputIndex:index,quote:change.source.quote,reason:'dropped_dependency'});cascaded=true}
     }
     if(!cascaded)break
   }

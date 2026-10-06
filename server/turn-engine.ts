@@ -23,6 +23,7 @@ import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionC
 import { redactGrowthHistory } from './growth-privacy.ts'
 import { syncCozePublicKnowledge } from './coze-knowledge.ts'
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
+import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, isPureControlCommand, controlReplyText, ObligationError, type TurnObligations } from './turn-obligations.ts'
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
@@ -52,7 +53,7 @@ function usageSummary(calls:CallRecord[],contextTokenEstimate:number,retrievedMe
   return {source:calls.length?'provider':zeroLlm?'deterministic':'unknown',provider:last?.provider??null,model:last?.model??null,modelTier:tiers.length?tiers.join('+'):'none',inputTokens:totalInputTokens,totalInputTokens,uncachedInputTokens:input,cacheWriteInputTokens:cacheWrite,outputTokens:sum('outputTokens'),cachedInputTokens:cachedInput,retrievedMemoryCount,contextTokenEstimate,contextTokenEstimateKind:'heuristic',escalated,escalationReason,repairReason,repairCalls:calls.filter(call=>call.purpose==='repair').length,groundingReviewCalls:0,zeroLlm,llmCallCount:calls.length,estimatedCostCny,calls:callLedger}
 }
 
-async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string)=>void,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[]):Promise<string>{
+async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string)=>void,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false):Promise<string>{
   signal.throwIfAborted()
   if(!runtime.available)throw new HttpError(503,'MODEL_TIER_UNAVAILABLE')
   if(!capabilityVerified(runtime.tier))throw new HttpError(503,'MODEL_CAPABILITY_TEST_REQUIRED')
@@ -72,7 +73,7 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     const envelope=JSON.parse(userPrompt),authorized=envelope.authorizedContext??envelope,currentMessageId=authorized.currentUserMessage.id
     const eventTargets=[authorized.currentEvent,...authorized.events??[]].filter(Boolean).map((event:any)=>({id:event.id,revision:event.revision,activeUnknownIds:(event.nodes??[]).filter((node:any)=>node.kind==='unknown'&&node.status==='active').map((node:any)=>node.id),nodeIds:(event.nodes??[]).map((node:any)=>node.id),actionIds:(event.actions??[]).map((action:any)=>action.id)}))
     const source=stream(runtime.model,{systemPrompt,messages},{apiKey:runtime.apiKey,maxTokens:maxOutputTokens,timeoutMs:60000,maxRetries:0,signal,onPayload:(payload,selected)=>{
-      const configured=configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,(authorized.growth??[]).map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(authorized.currentUserMessage.text),resumePortfolioCatalogueIds)
+      const configured=configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,(authorized.growth??[]).map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(authorized.currentUserMessage.text),resumePortfolioCatalogueIds,slimUpdateTimeMode)
       // Explicit isolated instrumentation only. The observer cannot mutate the
       // actual outgoing body, and the production engine has no payload logger.
       if(observer?.payload)observer.payload(Object.freeze({...record}),structuredClone(configured))
@@ -178,6 +179,27 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   // factual prose for this material class.
   const resumePortfolioMode=requiresImmediateMaterial(current.content)&&/简历|作品清单|作品集|个人介绍/.test(current.content)
   const materialCatalogue=resumePortfolioMode?buildMaterialFactCatalogue(growth,snapshot.confirmedExperiences):[]
+  // P5: what THIS turn must actually change, derived from explicit user words.
+  const turnDerivedControls=deriveExplicitDirectionControls(current.content)
+  const obligations=deriveTurnObligations(current.content,{resumePortfolioMode,...(turnDerivedControls.status==='explicit'?{directionControls:turnDerivedControls.changes}:{})})
+  staged.turnObligations=obligations
+  if(isPureControlCommand(current.content,obligations,turnDerivedControls.status==='explicit'?turnDerivedControls.changes.map(change=>change.quote):[])){
+    // P5.6: a pure control command commits through the real storage rules with
+    // a deterministic reply — no model call, and never counted as one.
+    if(turnDerivedControls.status!=='explicit')throw new HttpError(400,'DIRECTION_CONTROL_NOT_APPLIED')
+    staged.directionControls=await stageDirectionControls(run,turnDerivedControls.changes)
+    staged.directionControlSnapshotKey=staged.directionControls.expectedSnapshotKey
+    staged.usedMemoryRefs=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').map(item=>({memoryId:item.id,revision:item.revision}))
+    staged.usedExperienceRefs=snapshot.confirmedExperiences.map(item=>({id:item.id,revision:item.revision}))
+    staged.usedEventRefs=[]
+    staged.usedGrowthRefs=growth.map(item=>({id:item.id,revision:item.revision}))
+    staged.growthSnapshotKey=growthSnapshotKey(growth)
+    staged.growthBoundaryKey=growthSnapshotKey(growthBoundaries)
+    staged.dialoguePath='direct';staged.upstreamCalls=0
+    const retrievedCount=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
+    staged.modelUsage=usageSummary([],0,retrievedCount,false,null,true)
+    return {text:controlReplyText(obligations.requiredEffects),usage:staged.modelUsage}
+  }
   // Account-level direction controls: paused scopes leave the allowed set for
   // this turn's suggestions, and an explicit pause/resume command in the
   // current message is staged server-side — the model never authors it.
@@ -223,16 +245,34 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     staged.usedKnowledgeRefs=undefined
     const narrativeChars=result.reply.length
     try{result.reply=renderCoachReply(result)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
+    if(result.weeklyPlan){
+      // P5.4: a verifiable plan structure - the budget must match the verified
+      // weekly fact, items must fit inside it, and the server renders the
+      // numbers so one reply cannot say 3h in one place and 6h in another.
+      const plan=result.weeklyPlan
+      const total=plan.items.reduce((sum,item)=>sum+item.minutes,0)
+      if(total>plan.availableMinutes)throw new HttpError(400,'COACH_OUTPUT_INVALID')
+      const weeklyEffect=obligations.requiredEffects.find(effect=>effect.type==='weekly_time')
+      if(weeklyEffect&&weeklyEffect.type==='weekly_time'&&plan.availableMinutes!==weeklyEffect.minutes)throw new HttpError(400,'REPLY_CONTRADICTS_CURRENT_EFFECT')
+      const hours=plan.availableMinutes/60
+      const hoursText=Number.isInteger(hours)?String(hours):hours.toFixed(1)
+      const newline='\n'
+      result.reply+=newline+newline+'本周安排（依据已核对的每周'+hoursText+'小时）：'+newline+plan.items.map(item=>'- '+item.action+'（'+(item.minutes%60===0?item.minutes/60+'小时':item.minutes+'分钟')+'）').join(newline)+(total<plan.availableMinutes?newline+'（未排满，保留休息与弹性）':'')
+    }
     const checkedCitations=await validateCoachCitations(result.reply,result.citations??[],knowledge,current.content,messages.filter(row=>row.role==='user').map(row=>row.content))
     result.reply=checkedCitations.text
+    // P5.3 step 8: the final reply must not contradict the verified effects.
+    verifyReplyAgainstObligations(obligations,result.reply)
     staged.audit.push({phase:'coach_reply_rendered',narrativeChars,finalChars:result.reply.length,materialChars:result.event?.action&&'draft'in result.event.action&&'content'in result.event.action.draft?result.event.action.draft.content.length:0})
     staged.usedKnowledgeRefs=[...contextKnowledge,...checkedCitations.refs]
     if(result.growthUpdates?.length)staged.growth=await stageGrowthUpdates(run,result.growthUpdates,growth)
-    const derivedControls=deriveExplicitDirectionControls(current.content)
-    if(derivedControls.status==='explicit'){
-      staged.directionControls=await stageDirectionControls(run,derivedControls.changes)
+    if(turnDerivedControls.status==='explicit'){
+      staged.directionControls=await stageDirectionControls(run,turnDerivedControls.changes)
       staged.directionControlSnapshotKey=staged.directionControls.expectedSnapshotKey
     }else{staged.directionControls=undefined;staged.directionControlSnapshotKey=undefined}
+    // P5.3 step 4: an explicitly commanded change must exist in the staged
+    // batch; answering an old topic instead is a failed turn, not a success.
+    verifyTurnObligations(obligations,{growth:staged.growth,controls:staged.directionControls,currentText:current.content,reply:result.reply})
     if(result.background?.length){
       for(const fact of result.background)if(fact.source.messageId!==run.source_message_id||!fact.source.quote.trim()||!current.content.includes(fact.source.quote)||!fact.source.quote.includes(fact.value))throw new HttpError(400,'COACH_BACKGROUND_INVALID')
       staged.memoryChanges=await stageCoachBackground(run.user_id,run.conversation_id,run.source_message_id,result.background,snapshot)
@@ -262,12 +302,13 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     }
     return result
   }
+  const slimUpdateTimeMode=obligations.kind==='update_weekly_time'&&!/(?:已经|昨天|已投|已发|投了|发了|完成了|做了|交了)/.test(current.content)
   let result:ActionCoachTurn,firstText:string|undefined
   try{
-    firstText=await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',actionCoachTurnSchema,'lifeos_action_coach','turn',text=>emit({type:'draft',text,saved:false}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined)
+    firstText=await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',actionCoachTurnSchema,'lifeos_action_coach','turn',text=>emit({type:'draft',text,saved:false}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode)
     result=await validateOutput(firstText)
   }catch(error){
-    const repairable=new Set(['GROWTH_SOURCE_INVALID','GROWTH_TARGET_INVALID','GROWTH_UNCHANGED','GROWTH_OBSERVATION_INVALID','GROWTH_DEPENDENCY_INVALID','GROWTH_TIME_REQUIRED','GROWTH_TIME_INVALID','GROWTH_FEEDBACK_INVALID','COACH_CORRECTION_UNCHANGED','COACH_ACTION_UNCHANGED','COACH_EVENT_TARGET_INVALID','COACH_UNKNOWN_NOT_FOUND','COACH_UNKNOWN_DISPOSITION_CONFLICT','COACH_OUTPUT_INVALID','MODEL_OUTPUT_TRUNCATED','COACH_DELTA_INVALID','COACH_SOURCE_INVALID','COACH_CURRENT_SOURCE_REQUIRED','COACH_NEW_EVENT_TARGET_INVALID','COACH_MATERIAL_NOT_VISIBLE','COACH_MATERIAL_IS_CONVERSATION','COACH_ACTION_DECLINED','COACH_BACKGROUND_INVALID','COACH_CITATION_INVALID','COACH_CITATION_OUTPUT_LIMIT','PLANNED_ACTION_IS_NOT_EXPERIENCE','SKILL_IS_NOT_EXPERIENCE','SOURCE_QUOTE_MISMATCH','EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE'])
+    const repairable=new Set(['GROWTH_REQUIRED_UPDATE_MISSING','GROWTH_AMENDMENT_AMBIGUOUS','GROWTH_COMPOSITE_REQUIRES_REVIEW','GROWTH_TIME_UNVERIFIED','DIRECTION_CONTROL_NOT_APPLIED','MATERIAL_REFERENCE_INVALID','REPLY_CONTRADICTS_CURRENT_EFFECT','GROWTH_SOURCE_INVALID','GROWTH_TARGET_INVALID','GROWTH_UNCHANGED','GROWTH_OBSERVATION_INVALID','GROWTH_DEPENDENCY_INVALID','GROWTH_TIME_REQUIRED','GROWTH_TIME_INVALID','GROWTH_FEEDBACK_INVALID','COACH_CORRECTION_UNCHANGED','COACH_ACTION_UNCHANGED','COACH_EVENT_TARGET_INVALID','COACH_UNKNOWN_NOT_FOUND','COACH_UNKNOWN_DISPOSITION_CONFLICT','COACH_OUTPUT_INVALID','MODEL_OUTPUT_TRUNCATED','COACH_DELTA_INVALID','COACH_SOURCE_INVALID','COACH_CURRENT_SOURCE_REQUIRED','COACH_NEW_EVENT_TARGET_INVALID','COACH_MATERIAL_NOT_VISIBLE','COACH_MATERIAL_IS_CONVERSATION','COACH_ACTION_DECLINED','COACH_BACKGROUND_INVALID','COACH_CITATION_INVALID','COACH_CITATION_OUTPUT_LIMIT','PLANNED_ACTION_IS_NOT_EXPERIENCE','SKILL_IS_NOT_EXPERIENCE','SOURCE_QUOTE_MISMATCH','EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE'])
     if(!(error instanceof HttpError)||!repairable.has(error.code)||calls.length!==1)throw error
     if(observer?.allowRepair===false){
       staged.audit.push({phase:'coach_repair_blocked',code:error.code,providerRequestSent:false})
@@ -289,7 +330,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const repairPrompt=JSON.stringify({authorizedContext:JSON.parse(userPrompt),validationError:error.code,validationGuidance,invalidAttempt:error.code==='MODEL_OUTPUT_TRUNCATED'?null:firstText})
     const estimate=estimateTokens(repairSystem+repairPrompt);contextTokenEstimate+=estimate
     staged.audit.push({phase:'coach_repair_started',code:error.code,totalBudget:2})
-    const second=await runModelCall(runtime,repairSystem,repairPrompt,1,run.request_id,estimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'repair',actionCoachTurnSchema,'lifeos_action_coach_repair','repair',undefined,observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined)
+    const second=await runModelCall(runtime,repairSystem,repairPrompt,1,run.request_id,estimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'repair',actionCoachTurnSchema,'lifeos_action_coach_repair','repair',undefined,observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode)
     result=await validateOutput(second)
   }
   staged.dialoguePath='direct';staged.upstreamCalls=calls.length

@@ -141,7 +141,18 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
         if (event.type === 'draft_discarded') { assistant = ''; transient = false; render() }
         if (event.type === 'delta') { assistant = event.replace ? event.text : assistant + event.text; transient = false; setCompanionMotion('answering'); render() }
         if (event.type === 'tool') setCompanionMotion(event.name === 'query_experiences' ? 'searching' : 'thinking')
-        if (event.type === 'done') { completed = true; retry.current = null; dataChanged() }
+        if (event.type === 'done') {
+          completed = true; retry.current = null; dataChanged()
+          // P5.5: the saved-message notice and the growth-archive update are
+          // separate truths; show the real receipt from the committed run.
+          const receipt=event.stateChange
+          if(receipt){
+            const growthNote=receipt.growth.status==='applied'?'成长档案已更新':receipt.growth.status==='partial'?'本轮部分更新已保存，个别未核项未保存':receipt.growth.status==='needs_confirmation'?'本轮要求的更新未完成，需要确认':'成长档案本轮无新增'
+            const controlNote=receipt.controls?.changedScopes?.length?'；已暂停相关方向建议':''
+            const materialNote=receipt.material?`；材料${receipt.material.readiness==='template'?'仍为待补模板':'草稿已生成（发送前请核对）'}`:''
+            setNotice(growthNote+controlNote+materialNote)
+          }
+        }
       })
       animateAnswer(true)
     } catch (error) {

@@ -56,6 +56,14 @@ export const actionCoachTurnSchema=Type.Object({
     key:Type.Union([Type.Literal('education.school'),Type.Literal('education.major'),Type.Literal('education.stage'),Type.Literal('skills')]),
     value:text(500),source:processSourceSchema,
   },{additionalProperties:false}),{maxItems:8,description:'仅限本人明确、稳定的教育和技能背景；教育阶段指大三、硕士等身份阶段，今晚等临时行动时间不是教育阶段。省略临时约束和事件事实。'})),
+  weeklyPlan:Type.Optional(Type.Object({
+    availableMinutes:Type.Integer({minimum:1,maximum:10080}),
+    items:Type.Array(Type.Object({action:Type.String({minLength:1,maxLength:200}),minutes:Type.Integer({minimum:1,maximum:10080})}),{minItems:0,maxItems:12}),
+    basis:Type.Array(Type.Union([
+      Type.Object({id,revision:Type.Integer({minimum:1})},{additionalProperties:false}),
+      Type.Object({updateIndex:Type.Integer({minimum:0,maximum:7})},{additionalProperties:false}),
+    ]),{maxItems:12}),
+  },{additionalProperties:false,description:'仅在用户明确要求安排时间时提供：availableMinutes必须来自已核对的每周时间事实；各项分钟数为正且合计不超过预算；依据指向对应growth条目或本轮增量。'})),
   // Candidates remain opt-in proposals; confirmation still uses the existing
   // experience API and is never implied by a conversation-state update.
   experienceCandidate:Type.Optional(Type.Object({source:processSourceSchema},{additionalProperties:false})),

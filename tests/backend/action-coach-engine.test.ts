@@ -87,7 +87,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       }finally{config.qwenThinkingBudget=previous}
     })
     await t.test('automatic growth changes pass through the SDK schema and durable turn completion',async()=>{
-      const input=await prepare('我是成年大学生，目前每周只有四小时。'),source={messageId:input.run.source_message_id,quote:'我是成年大学生'}
+      const input=await prepare('我是成年大学生，最近在梳理方向。'),source={messageId:input.run.source_message_id,quote:'我是成年大学生'}
       outputs.push({reply:'先按你目前的时间，从一个小探索开始。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',text:'我是成年大学生',source}]})
       const before=requests.length,result=await engine(input)
       assert.equal(requests.length-before,1)
@@ -126,7 +126,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       await store.finishRun(incomplete.run,incomplete.staged,clarified.text,clarified.usage,incomplete.signal)
     })
     await t.test('reported capacity permits coaching examples without forcing an artifact or repair',async()=>{
-      const input=await prepare('我大三，做过三个课程作品，每周可以拿出六小时做探索。'),before=requests.length
+      const input=await prepare('我大三，做过三个课程作品，最近可以抽空做探索。'),before=requests.length
       outputs.push({reply:'先选择一个作品找真实使用者了解反馈。可以这样问：你能看清活动时间吗？'})
       const result=await engine(input)
       assert.equal(requests.length-before,1)

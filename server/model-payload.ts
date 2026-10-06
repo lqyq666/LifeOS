@@ -21,7 +21,7 @@ function providerSchema(value:unknown,currentMessageId?:string):unknown{
   ]))
 }
 
-export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false,resumePortfolioCatalogueIds?:readonly string[]):unknown{
+export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false,resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false):unknown{
   if(currentMessageId&&!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(currentMessageId))throw new Error('CURRENT_MESSAGE_ID_INVALID')
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return payload
   const body={...payload as Record<string,unknown>}
@@ -77,6 +77,12 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
           if(branches.length)eventProperties.action.anyOf=branches
         }
       }
+    }
+    if(slimUpdateTimeMode){
+      // P5.4: a turn that only updates time/arrangements and reports no
+      // executed behaviour does not offer the experience-candidate lane; events
+      // stay available for real feedback. This is mode-scoped, never global.
+      delete compiled.properties?.experienceCandidate
     }
     if(growthTargets){
       // The growth-enabled native protocol has one personal-fact lane. Legacy

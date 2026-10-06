@@ -90,3 +90,7 @@ growth-time 纯函数来自工单附录A（同 P1 方式逐字复制）并按工
 ## P4 证据式简历材料（2026-10-06，本地，零Provider）
 
 grounded-material 渲染器来自工单附录A（逐字复制）+ 服务器目录构建（buildMaterialFactCatalogue/resolveSelectedMaterialFacts，候选仅 user_reported/user_edit growth 条目与已确认经历，catalogueId 绑定 item id+revision 使更正即失效；completeForField 仅模式化完整字段——联系方式邮箱/手机号、姓名标注——"有三个作品"不构成完整项目条目）。无新依赖；draft 联合分支复用现有 TypeBox/action 修订链，服务器渲染结果写入旧存储结构并携带 readiness/missingRequired/materialFactIds 元数据；model-payload 在简历作品模式下仅暴露 resume_portfolio 选择分支（enum 绑定本轮目录），旧自由文本分支不可表示。
+
+## P5 当前任务义务（2026-10-06，本地，零Provider）
+
+turn-obligations 为纯模块（不加载DB链，保证 strip-only 单测可用；方向命令由引擎调用 growth-controls 传入）。OBL-02 回放夹具 tests/fixtures/campus-acceptance-regressions.json 保存 coach-b2dd4d6c 两条真实 C10 改时间失败原文（SOURCE_QUOTE_MISMATCH/COACH_SOURCE_INVALID，含旧反馈candidate与旧事件nodes），原 .local 证据未改动。无新依赖；复用既有 TypeBox/repairable 单次修复机制（新增语义错误码，CAS/权限/撤回类不可修复）、finishRun 单事务回执（真实写入计算，非模型自评）、store.stageCandidate 原有来源守卫。受影响引擎测试夹具仅去掉会触发新义务的每周措辞（业务含义不变）。
