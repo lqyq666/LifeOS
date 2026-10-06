@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "bindings": [
+    {
+      "workflowId": "wf-test-1",
+      "datasetId": "ds-1",
+      "documentId": "doc-known",
+      "knowledgeCardId": "1218ea33-89c3-48ad-9afb-b3334bf097dd",
+      "expectedRevision": 1,
+      "expectedSourceHash": "ebb9c54ff6f1b8e996a50c3e273d7ad9d5e9258e9de51530ce71416833b607fd"
+    },
+    {
+      "workflowId": "wf-test-1",
+      "datasetId": "ds-1",
+      "documentId": "doc-stale-revision",
+      "knowledgeCardId": "1218ea33-89c3-48ad-9afb-b3334bf097dd",
+      "expectedRevision": 2,
+      "expectedSourceHash": "ebb9c54ff6f1b8e996a50c3e273d7ad9d5e9258e9de51530ce71416833b607fd"
+    }
+  ]
+}

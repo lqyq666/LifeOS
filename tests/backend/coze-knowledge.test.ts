@@ -1,52 +1,60 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createServer,type Server} from 'node:http'
+import {randomUUID,createHash} from 'node:crypto'
+import {writeFileSync,mkdirSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {pool} from '../../server/db.ts'
-import {localEmbedding} from '../../server/local-embedding.ts'
-import {cozeConfigFrom,parseCozeItems,cozeCards,syncCozePublicKnowledge,CozeRetrievalError} from '../../server/coze-knowledge.ts'
+import {cozeConfigFrom,cozeMissingConfig,parseCozeWorkflowBody,searchCozePublicKnowledge,mapCozeCandidates,loadCozePublicRegistry,CozeRetrievalError,type PublicKnowledgeHit} from '../../server/coze-knowledge.ts'
+import {buildPublicKnowledgeQueryFromText,renderPublicKnowledgeQuery} from '../../server/coze-public-query.ts'
 import {importKnowledge,type KnowledgeCard} from '../../server/campus-knowledge.ts'
 import {retrieveCoachKnowledge} from '../../server/coach-knowledge.ts'
 
-test.after(async()=>{await localEmbedding.close();await pool.end()})
+test.after(async()=>{await pool.end()})
 
-test('coze adapter config gating and strict response mapping (pure functions)',()=>{
-  assert.equal(cozeConfigFrom({}).enabled,false,'adapter stays disabled by default with no credentials')
-  assert.equal(cozeConfigFrom({LIFEOS_COZE_KNOWLEDGE:'true'}).enabled,false,'token and dataset are required')
-  const enabled=cozeConfigFrom({LIFEOS_COZE_KNOWLEDGE:'true',LIFEOS_COZE_PAT:'pat-token',LIFEOS_COZE_DATASET_ID:'ds1',LIFEOS_COZE_TIMEOUT_MS:'700'})
-  assert.equal(enabled.enabled,true)
-  assert.equal(enabled.timeoutMs,700)
-  assert.equal(cozeConfigFrom({LIFEOS_COZE_KNOWLEDGE:'true',LIFEOS_COZE_PAT:'p',LIFEOS_COZE_DATASET_ID:'d',LIFEOS_COZE_TIMEOUT_MS:'10'}).timeoutMs,8000,'timeout outside bounds falls back to the default')
-
-  const body={code:0,msg:'',data:{items:[
-    {document_id:'doc-1',segment_id:'seg-1',content:'浙江专升本报名条件：考生须为全日制高职高专应届毕业生。',score:0.9},
-    {document_id:'doc-2',content:''},
-    {document_id:'',content:'missing document id is dropped'},
-    {document_id:'doc-3',content:'x'.repeat(2001)},
-    'not-an-object',
-  ]}}
-  const items=parseCozeItems(body,6)
-  assert.equal(items.length,1)
-  assert.equal(items[0]!.documentId,'doc-1')
-  assert.throws(()=>parseCozeItems({code:4001,msg:'quota'},6),(error:unknown)=>error instanceof CozeRetrievalError&&error.code==='COZE_RESPONSE_INVALID')
-  assert.throws(()=>parseCozeItems('nope',6),/COZE_RESPONSE_INVALID/)
-  assert.equal(parseCozeItems({data:{items:[]}},6).length,0)
-  assert.equal(parseCozeItems(body,1).length,1,'maxItems caps parsing')
-
-  const retrievedAt=new Date('2026-10-06T08:00:00.000Z')
-  const cards=cozeCards(items,'ds-1',retrievedAt)
-  assert.equal(cards.length,1)
-  const card=cards[0]!
-  assert.equal(card.id,cozeCards(items,'ds-1',retrievedAt)[0]!.id,'card ids are deterministic and re-import idempotent')
-  assert.equal(card.validUntil,'2026-10-07T00:00:00.000Z','freshness envelope is the UTC retrieval day plus 24 hours and deterministic within that day')
-  assert.ok(card.limitations.includes('未做本地原文核验'),'provenance caveat is explicit')
-  assert.equal(card.claim,'浙江专升本报名条件：考生须为全日制高职高专应届毕业生。')
-  assert.equal(card.synthetic,false)
-  assert.match(card.id,/^[0-9a-f-]{36}$/i)
+const WORKFLOW_ID='wf-test-1'
+const card=(revision=1,excerpt='浙江2026年专升本报名条件：考生须为全日制高职高专应届毕业生，具体以当年省教育考试院文件为准。'):KnowledgeCard=>({
+  id:randomUUID(),revision,kind:'policy',status:'verified',synthetic:false,
+  title:'SYNTHETIC 浙江2026专升本规定',url:'https://example.invalid/zj-2026-zsb',publisher:'SYNTHETIC TEST',
+  publishedYear:'2026',verifiedAt:new Date().toISOString(),validUntil:new Date(Date.now()+86400000).toISOString(),
+  excerpt,claim:'浙江2026年专升本报名需应届高职高专学历',scope:'浙江 2026 全日制高职高专应届毕业生',
+  limitations:'合成测试条目',mechanisms:['official_document'],sourceHash:createHash('sha256').update(excerpt).digest('hex'),
+  scopeRules:{institution:{status:'all',quote:'全省'},department:{status:'all',quote:'全部'},project:{status:'all',quote:'专升本'},year:{status:'specific',value:'2026',quote:'2026'},population:{status:'specific',value:'应届毕业生',quote:'应届'}},
+  scopeEvidence:['全省适用于各类院校','全部院系','专升本','2026年','应届毕业生']
 })
 
-test('coze sync: disabled default never calls out; enabled fallback imports through the existing card pipeline; failures are audit-only',async()=>{
+test('workflow contract: outer envelope, one-shot data parse, strict items',()=>{
+  const good=parseCozeWorkflowBody({code:0,msg:'',data:JSON.stringify({schemaVersion:1,items:[{documentId:'d1',content:'片段甲',score:0.9}]})})
+  assert.equal(good.items.length,1)
+  assert.throws(()=>parseCozeWorkflowBody({code:4001,msg:'quota'}),(error:unknown)=>error instanceof CozeRetrievalError&&error.code==='COZE_CONTRACT_INVALID')
+  assert.throws(()=>parseCozeWorkflowBody({code:0,data:'not-json'}),/COZE_CONTRACT_INVALID/)
+  assert.throws(()=>parseCozeWorkflowBody({code:0,data:JSON.stringify({items:[]})}),/COZE_CONTRACT_INVALID/,'缺schemaVersion是契约失败不是空结果')
+  assert.equal(parseCozeWorkflowBody({code:0,data:JSON.stringify({schemaVersion:1,items:[]})}).items.length,0,'明确空items是无结果')
+  assert.equal(parseCozeWorkflowBody({code:0,data:JSON.stringify({schemaVersion:1,items:[{documentId:'',content:'x'}]})}).items.length,0,'畸形条目被丢弃而非伪装结果')
+})
+
+test('config states: disabled vs CONFIG_MISSING are distinct and loud',()=>{
+  assert.deepEqual(cozeMissingConfig(cozeConfigFrom({})),['DISABLED'])
+  const enabled=cozeMissingConfig(cozeConfigFrom({LIFEOS_COZE_KNOWLEDGE:'true'}))
+  assert.ok(enabled!.includes('LIFEOS_COZE_PAT')&&enabled!.includes('LIFEOS_COZE_WORKFLOW_ID'),'启用但缺配置必须明确列出，不装作disabled成功')
+  const complete=cozeConfigFrom({LIFEOS_COZE_KNOWLEDGE:'true',LIFEOS_COZE_PAT:'pat',LIFEOS_COZE_WORKFLOW_ID:WORKFLOW_ID})
+  assert.equal(cozeMissingConfig(complete),null)
+  assert.equal(complete.workflowVersion,null,'未固定版本记WORKFLOW_VERSION_UNPINNED')
+  assert.equal(complete.timeoutMs,2000)
+})
+
+test('public query whitelist: structured fields only, unsafe text yields null',()=>{
+  const query=buildPublicKnowledgeQueryFromText('2026年浙江专升本的报名条件是什么？')
+  assert.deepEqual({...query},{topic:'undergraduate_upgrade',year:2026,region:'浙江',questionKind:'requirements'})
+  assert.equal(renderPublicKnowledgeQuery(query),'undergraduate_upgrade 2026 浙江 requirements','输出仅由白名单字段构成，不含原文其余内容')
+  // No public topic → no query → Coze skipped, raw chat never leaves.
+  assert.equal(buildPublicKnowledgeQueryFromText('我今天心情不太好'),null)
+  assert.equal(buildPublicKnowledgeQueryFromText('我叫小林，帮我写简历'),null,'姓名与私人请求不产生公共检索')
+})
+
+test('search: fixed origin, pinned version, timeout, byte cap, cancellation',async()=>{
   const requests:{url:string;authorization:string|undefined;body:any}[]=[]
-  let respondWith:{status:number;body:string;delayMs?:number}={status:200,body:JSON.stringify({code:0,data:{items:[]}})}
+  let respond:{status:number;body:string;delayMs?:number;huge?:boolean}={status:200,body:JSON.stringify({code:0,data:JSON.stringify({schemaVersion:1,items:[]})})}
   const server:Server=createServer((req,res)=>{
     let payload=''
     req.on('data',(chunk:Buffer)=>{payload+=chunk.toString()})
@@ -54,64 +62,83 @@ test('coze sync: disabled default never calls out; enabled fallback imports thro
       let parsed:any=null
       try{parsed=JSON.parse(payload)}catch{}
       requests.push({url:req.url??'',authorization:req.headers.authorization,body:parsed})
-      if(respondWith.delayMs){setTimeout(()=>{res.writeHead(respondWith.status,{'Content-Type':'application/json'});res.end(respondWith.body)},respondWith.delayMs);return}
-      res.writeHead(respondWith.status,{'Content-Type':'application/json'});res.end(respondWith.body)
+      if(respond.delayMs){setTimeout(()=>{res.writeHead(respond.status);res.end(respond.body)},respond.delayMs);return}
+      if(respond.huge){res.writeHead(200);res.write(Buffer.alloc(300*1024).fill('a'));res.end();return}
+      res.writeHead(respond.status);res.end(respond.body)
     })
   })
   await new Promise<void>(ready=>server.listen(0,'127.0.0.1',ready))
-  const base='http://127.0.0.1:'+(server.address() as {port:number}).port
-  const signal=new AbortController().signal
+  const config={enabled:true,workflowId:WORKFLOW_ID,workflowVersion:'v3',pat:'pat-token',timeoutMs:800,maxItems:6}
+  const query=buildPublicKnowledgeQueryFromText('2026年浙江专升本的报名条件是什么？')!
   try{
-    const audit:Record<string,unknown>[]=[]
-    await syncCozePublicKnowledge('浙江专升本报名条件是什么',signal,audit)
-    assert.deepEqual(audit.at(-1),{phase:'coze_knowledge_skipped',reason:'disabled_by_default'})
-    assert.equal(requests.length,0,'no external request while disabled')
-
-    const env={LIFEOS_COZE_KNOWLEDGE:'true',LIFEOS_COZE_PAT:'pat-token',LIFEOS_COZE_DATASET_ID:'ds-accept',LIFEOS_COZE_API_BASE:base}
-    respondWith={status:200,body:JSON.stringify({code:0,data:{items:[{document_id:'doc-zj',segment_id:'s1',content:'浙江专升本报名条件：考生须为全日制高职高专应届毕业生，具体以当年省教育考试院文件为准。',score:0.91}]}})}
-    const auditSync:Record<string,unknown>[]=[]
-    await syncCozePublicKnowledge('浙江专升本报名条件是什么',signal,auditSync,env)
-    assert.equal(requests.length,1)
-    assert.equal(requests[0]!.url,'/v1/datasets/ds-accept/retrieve')
+    // Origin is FIXED: the client never consults env for the host, so we can
+    // only verify request shape via the fetch impl injection.
+    let abortingController=new AbortController()
+    const fetchImpl=(async(_url:string,init?:RequestInit)=>{
+      assert.equal(init?.redirect,'error','生产origin固定且不允许重定向带走PAT')
+      return fetchImplReal(_url,init)
+    }) as typeof fetch
+    const fetchImplReal:typeof fetch=async()=>{throw new Error('unused')}
+    // Use real fetch against the local mock by pointing the test at it via a
+    // direct call with a patched global — simpler: pass mock fetch directly.
+    const mockFetch=(async(url:string,init?:RequestInit)=>{
+      requests.push({url,authorization:(init?.headers as Record<string,string>)?.Authorization,body:JSON.parse(String(init?.body))})
+      if(respond.delayMs)await new Promise(done=>setTimeout(done,respond.delayMs+400))
+      if(respond.huge)return new Response(new ReadableStream({start(controller){controller.enqueue(Buffer.alloc(300*1024));controller.close()}}),{status:200})
+      return new Response(respond.body,{status:respond.status})
+    }) as typeof fetch
+    const result=await searchCozePublicKnowledge(query,renderPublicKnowledgeQuery(query),undefined,config,()=>performance.now(),mockFetch)
+    assert.equal(result.version,'v3')
+    assert.equal(requests[0]!.url,'https://api.coze.cn/v1/workflow/run')
     assert.equal(requests[0]!.authorization,'Bearer pat-token')
-    assert.equal(requests[0]!.body.query,'浙江专升本报名条件是什么')
-    assert.equal((auditSync.at(-1) as {phase:string}).phase,'coze_knowledge_synced')
-    const row=(await pool.query("SELECT payload FROM campus_knowledge WHERE payload->>'publisher'='扣子公共知识检索'")).rows[0]
-    assert.ok(row,'the coze item became an ordinary knowledge card via the existing import')
-    const knowledge=await retrieveCoachKnowledge('浙江专升本报名条件是什么')
-    assert.ok(knowledge.some(card=>card.publisher==='扣子公共知识检索'),'imported coze card is retrieved through the unchanged local pipeline')
-
-    // Cache: the same query does not hit the external endpoint again.
-    await syncCozePublicKnowledge('浙江专升本报名条件是什么',signal,auditSync,env)
-    assert.equal(requests.length,1)
-    assert.equal((auditSync.at(-1) as {phase:string}).phase,'coze_knowledge_cache_hit')
-    // Same content under a different query is a no-change re-import, not a revision bump.
-    await syncCozePublicKnowledge('帮我查一下专升本的报名条件',signal,auditSync,env)
-    assert.equal(requests.length,2)
-    assert.equal((auditSync.at(-1) as {imported:number;changed:number}).imported,1)
-    assert.equal((auditSync.at(-1) as {changed:number}).changed,0,'identical content re-imports idempotently')
-
-    // Every failure mode stays audit-only and never throws into the turn.
-    respondWith={status:503,body:'unavailable'}
-    await syncCozePublicKnowledge('查询一',signal,auditSync,env)
-    assert.equal((auditSync.at(-1) as {phase:string;code:string}).code,'COZE_HTTP_503')
-    respondWith={status:200,body:'not-json'}
-    await syncCozePublicKnowledge('查询二',signal,auditSync,env)
-    assert.equal((auditSync.at(-1) as {code:string}).code,'COZE_RESPONSE_INVALID')
-    respondWith={status:200,body:JSON.stringify({code:0,data:{items:[{document_id:'d',content:'慢响应条目'}]}}),delayMs:1200}
-    const fastEnv={...env,LIFEOS_COZE_TIMEOUT_MS:'500'}
-    await syncCozePublicKnowledge('查询三',signal,auditSync,fastEnv)
-    assert.equal((auditSync.at(-1) as {code:string}).code,'COZE_TIMEOUT')
-
-    // Expired coze cards stop being retrieved: freshness is enforced by the
-    // same validUntil rule as every other knowledge card.
-    const expired:KnowledgeCard={...cozeCards([{documentId:'doc-old',segmentId:'',content:'过期的扣子公共知识条目内容。',score:null,url:null}],'ds-accept',new Date(Date.now()-48*3600*1000))[0]!,validUntil:new Date(Date.now()-24*3600*1000).toISOString()}
-    await importKnowledge([expired])
-    const afterExpiry=await retrieveCoachKnowledge('过期的扣子公共知识条目内容')
-    assert.ok(!afterExpiry.some(card=>card.id===expired.id),'an expired coze card is never served')
+    assert.equal(requests[0]!.body.workflow_version,'v3','显式传入已发布版本')
+    assert.equal(requests[0]!.body.parameters.query,renderPublicKnowledgeQuery(query),'只发送白名单构造的查询')
+    respond={status:503,body:'x'}
+    await assert.rejects(searchCozePublicKnowledge(query,'q',undefined,config,()=>performance.now(),mockFetch),(error:unknown)=>error instanceof CozeRetrievalError&&error.code==='COZE_HTTP_503')
+    respond={status:200,body:'x',delayMs:1200}
+    await assert.rejects(searchCozePublicKnowledge(query,'q',undefined,config,()=>performance.now(),mockFetch),(error:unknown)=>error instanceof CozeRetrievalError&&error.code==='COZE_TIMEOUT','2000ms级超时上界')
+    respond={status:200,body:'x',huge:true}
+    await assert.rejects(searchCozePublicKnowledge(query,'q',undefined,{...config,timeoutMs:5000},()=>performance.now(),mockFetch),(error:unknown)=>error instanceof CozeRetrievalError&&error.code==='COZE_RESPONSE_TOO_LARGE','累计字节超限立即中止')
+    const cancelled=new AbortController();cancelled.abort()
+    await assert.rejects(searchCozePublicKnowledge(query,'q',cancelled.signal,config,()=>performance.now(),mockFetch),(error:unknown)=>error instanceof CozeRetrievalError&&error.code==='CANCELLED','已取消的signal不得发请求')
   }finally{
-    server.closeIdleConnections?.()
-    server.closeAllConnections?.()
     await new Promise<void>(done=>server.close(()=>done()))
   }
+})
+
+test('candidate mapping: registry-bound cards verify, unknown docs stay unverified, no campus_knowledge writes',async()=>{
+  const verifiedCard=card()
+  await importKnowledge([verifiedCard])
+  const excerpt='浙江2026年专升本报名条件：考生须为全日制高职高专应届毕业生，具体以当年省教育考试院文件为准。'
+  const registryPath=resolve('.planning/research/campus-growth/coze-public-registry.json')
+  mkdirSync(resolve(registryPath,'..'),{recursive:true})
+  writeFileSync(registryPath,JSON.stringify({schemaVersion:1,bindings:[
+    {workflowId:WORKFLOW_ID,datasetId:'ds-1',documentId:'doc-known',knowledgeCardId:verifiedCard.id,expectedRevision:1,expectedSourceHash:verifiedCard.sourceHash},
+    {workflowId:WORKFLOW_ID,datasetId:'ds-1',documentId:'doc-stale-revision',knowledgeCardId:verifiedCard.id,expectedRevision:2,expectedSourceHash:verifiedCard.sourceHash},
+  ]},null,2)+'\n')
+  ;(loadCozePublicRegistry as unknown as {cache?:unknown}).cache=undefined
+  const config={enabled:true,workflowId:WORKFLOW_ID,workflowVersion:null,pat:'p',timeoutMs:2000,maxItems:6}
+  const hits:PublicKnowledgeHit[]=[
+    {documentId:'doc-known',content:excerpt,score:0.9},
+    {documentId:'doc-unknown',content:'完全未登记的片段',score:0.8},
+    {documentId:'doc-stale-revision',content:excerpt,score:0.7},
+    {documentId:'doc-known',content:'不在已核实excerpt中的编造内容',score:0.6},
+  ]
+  const mapped=await mapCozeCandidates(hits,config)
+  assert.equal(mapped.verified.length,1,'只有登记且全项核对的候选成为verified')
+  assert.equal(mapped.verified[0]!.card.id,verifiedCard.id)
+  assert.equal(mapped.unverifiedDocumentIds.length,3)
+  // No new rows ever written for candidates.
+  const count=(await pool.query('SELECT count(*)::int AS n FROM campus_knowledge')).rows[0].n
+  const mappedAgain=await mapCozeCandidates(hits,config)
+  assert.equal((await pool.query('SELECT count(*)::int AS n FROM campus_knowledge')).rows[0].n,count+0,'候选映射零写入：再次映射不新增行')
+  assert.equal(mappedAgain.verified.length,1)
+})
+
+test('legacy auto-verified coze cards are excluded from valid knowledge',async()=>{
+  const legacy=card(1,'旧扣子自动认证时代的片段内容。')
+  legacy.mechanisms=['coze_public_knowledge_retrieval']
+  await importKnowledge([legacy],true)
+  const found=await retrieveCoachKnowledge('专升本报名条件是什么')
+  assert.ok(!found.some(entry=>entry.id===legacy.id),'legacy coze机制卡不再可引用')
 })

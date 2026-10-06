@@ -21,7 +21,8 @@ import { estimateProviderCallCostCny } from './cost-workload.ts'
 import { growthContext, growthBoundaryContext, growthSnapshotKey, stageGrowthUpdates } from './growth.ts'
 import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionControls, overlayDirectionChanges, directionControlsSnapshotKey, allScopes } from './growth-controls.ts'
 import { redactGrowthHistory } from './growth-privacy.ts'
-import { syncCozePublicKnowledge } from './coze-knowledge.ts'
+import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCandidates, CozeRetrievalError } from './coze-knowledge.ts'
+import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
 import { stageWeeklyPlan } from './weekly-plans.ts'
 import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, isPureControlCommand, controlReplyText, isObligationError, type TurnObligations } from './turn-obligations.ts'
@@ -185,12 +186,33 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   const historicalEvents=retrieval.events.filter(event=>event.id!==currentEvent?.id)
   let knowledge=await retrieveCoachKnowledge(current.content,signal)
   if(!knowledge.length){
-    // Thin Coze public-knowledge fallback (user instruction 2026-10-06): only
-    // queried when the primary local retrieval found nothing, so the original
-    // path stays primary and every fallback use stays auditable for comparison.
-    // A Coze failure is audit-only and never fails the turn.
-    await syncCozePublicKnowledge(current.content,signal,staged.audit)
-    knowledge=await retrieveCoachKnowledge(current.content,signal)
+    // N3: Coze fallback — only when local retrieval found nothing AND the
+    // message safely yields a whitelist public query (never the raw chat).
+    // Failures are audit-only; candidates map through the reviewed registry.
+    const publicQuery=buildPublicKnowledgeQueryFromText(current.content)
+    if(publicQuery){
+      const cozeConfig=cozeConfigFrom()
+      const cozeMissing=cozeMissingConfig(cozeConfig)
+      if(cozeMissing&&cozeMissing.includes('DISABLED')){
+        staged.audit.push({phase:'coze_knowledge_skipped',reason:'disabled_by_default'})
+      }else if(cozeMissing&&cozeMissing.length){
+        staged.audit.push({phase:'coze_knowledge_skipped',reason:'CONFIG_MISSING',missing:cozeMissing})
+      }else{
+        try{
+          const rendered=renderPublicKnowledgeQuery(publicQuery)
+          const result=await searchCozePublicKnowledge(publicQuery,rendered,signal,cozeConfig)
+          const mapped=await mapCozeCandidates(result.hits,cozeConfig)
+          staged.audit.push({phase:'coze_knowledge_candidates',latencyMs:result.latencyMs,workflowVersion:result.version,hits:result.hits.length,verified:mapped.verified.length,unverified:mapped.unverifiedDocumentIds.length,costState:'separate_ledger_unknown_until_real'})
+          if(mapped.verified.length){
+            const existing=new Set(knowledge.map(card=>card.id))
+            for(const candidate of mapped.verified)if(!existing.has(candidate.card.id)){knowledge=[...knowledge,candidate.card.payload];existing.add(candidate.card.id)}
+          }
+        }catch(error){
+          const code=error instanceof CozeRetrievalError?error.code:'COZE_REQUEST_FAILED'
+          staged.audit.push({phase:'coze_knowledge_failed',code})
+        }
+      }
+    }
   }
   const contextKnowledge=[...(currentEvent?[currentEvent]:[]),...historicalEvents].flatMap(event=>event.actions.flatMap(action=>action.knowledgeRefs??[]))
   const messages=await redactGrowthHistory(run.user_id,context.filter(row=>row.id===run.source_message_id||!snapshot.suppressedMessageIds?.includes(row.id)))

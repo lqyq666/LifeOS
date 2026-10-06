@@ -8,6 +8,10 @@ import { localEmbedding, embeddingSignature } from './local-embedding.ts'
 export type CoachKnowledgeRef={sourceId:string;revision:number}
 const isolated=/^lifeos_dialogue_(?:test|live)_/.test(new URL(config.databaseUrl).pathname.slice(1))
 const valid=(row:KnowledgeRecord&{official_current?:boolean})=>row.status==='verified'&&row.official_current!==false&&(!row.synthetic||isolated)&&(!row.valid_until||Date.parse(row.valid_until)>Date.now())
+  // N3.1: legacy cards auto-imported from the old Coze path (retrieval-year
+  // pseudo-verification) are excluded from valid knowledge — data kept for
+  // audit, never citable again.
+  &&!(row.payload.mechanisms??[]).includes('coze_public_knowledge_retrieval')
 const cache=new Map<string,number[]>()
 // Calibrated against the pinned local encoder and frozen relevance cases.
 // Ranking alone always returns something, even for an unrelated conversation.
