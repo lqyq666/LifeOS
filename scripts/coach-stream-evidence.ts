@@ -14,6 +14,9 @@ export async function collectCoachStream(response:Response,started:number,now=()
         const line=lines.split('\n').find(value=>value.startsWith('data: '));if(!line)continue
         const value=JSON.parse(line.slice(6)),atMs=now()-started;events.push({atMs,value})
         if(value.type==='draft'&&typeof value.text==='string'&&value.text.trim())draft??=atMs
+    // P6.3: loading hints, restatements and internal JSON are not valid first
+    // content; a discarded safe draft resets it and never counts as success.
+    if(value.type==='draft_discarded')draft=null
         if(value.type==='draft_discarded')draft=null
         if(value.type==='delta'&&value.saved===true&&typeof value.text==='string'&&value.text.trim())committedFirst??=atMs
         if(value.type==='error')throw new Error(value.code??'STREAM_ERROR')
@@ -21,7 +24,7 @@ export async function collectCoachStream(response:Response,started:number,now=()
       }
     }
     if(!done||completed===null)throw new Error('INCOMPLETE_STREAM')
-    return {events,done,meaningfulFirstMs:draft??committedFirst??completed,completionMs:completed,firstKind:draft===null?'committed_reply':'unsaved_safe_question_draft'}
+    return {events,done,meaningfulFirstMs:draft??committedFirst??completed,completionMs:completed,firstKind:draft===null?'committed_reply':'unsaved_safe_question_draft',firstSafeDraftMs:draft,firstCommittedContentMs:committedFirst}
   }catch(error){if(error instanceof Error)Object.assign(error,{streamEvidence:{events,done,completionMs:completed}});throw error}
   finally{if(!done)await reader.cancel().catch(()=>{});reader.releaseLock()}
 }
@@ -31,5 +34,6 @@ export function coachSpeedSummary(turns:{sampleClass:string;status:string;provid
   const quantile=(values:number[],p:number)=>values.length?[...values].sort((a,b)=>a-b)[Math.ceil(p*values.length)-1]!:null
   const first=valid.map(turn=>turn.meaningfulFirstMs!),completion=valid.map(turn=>turn.completionMs!)
   const p50=quantile(first,.5),p95=quantile(first,.95),complete95=quantile(completion,.95)
-  return {evidence:'ACTUAL_HTTP_SSE_TIMINGS_ONLY',predeclaredOrdinary:selected.length,savedOrdinary:valid.length,p50MeaningfulFirstMs:p50,p95MeaningfulFirstMs:p95,p95CompletionMs:complete95,status:valid.length>=20&&selected.length===valid.length&&p50!==null&&p50<=3000&&p95!==null&&p95<=5000&&complete95!==null&&complete95<=15000?'PASS':'NOT_READY'}
+  const failedOrdinary=selected.length-valid.length
+  return {evidence:'ACTUAL_HTTP_SSE_TIMINGS_ONLY',predeclaredOrdinary:selected.length,savedOrdinary:valid.length,failedOrdinary,sampleFailureRate:selected.length?Number((failedOrdinary/selected.length).toFixed(4)):null,deterministicZeroModelTurns:selected.filter(turn=>turn.status==='SAVED'&&turn.providerCallCount===0).length,p50MeaningfulFirstMs:p50,p95MeaningfulFirstMs:p95,p95CompletionMs:complete95,status:valid.length>=20&&selected.length===valid.length&&p50!==null&&p50<=3000&&p95!==null&&p95<=5000&&complete95!==null&&complete95<=15000?'PASS':'NOT_READY'}
 }

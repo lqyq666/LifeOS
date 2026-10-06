@@ -9,7 +9,7 @@ import {assertCoachSourceFreeze} from './coach-source-freeze.ts'
 import {CoachProviderBudget,activeCoachFunding} from './coach-provider-budget.ts'
 import {coachBudgetObserver} from './coach-budget-observer.ts'
 import {collectCoachStream,coachSpeedSummary} from './coach-stream-evidence.ts'
-import {campusCostSummary} from './campus-benchmark-summary.ts'
+import {campusCostSummary,campusReviewRows,campusDualCostSummary} from './campus-benchmark-summary.ts'
 
 // ---- P0: one authenticated account per campus trajectory actor ----
 // Every campus trajectory (C01..C10) runs as its own synthetic student: its own
@@ -335,7 +335,7 @@ try{
       const response=await fetch(origin+'/api/conversations/'+conversationId+'/messages',{method:'POST',headers:campus?actor!.headers:legacyHeaders,body:JSON.stringify({requestId,text:command.text})})
       const measured=await collectCoachStream(response,started)
       const afterApi=campus?campusActors!.apiFor(actor!):undefined
-      Object.assign(turn,measured,{status:'SAVED',providerCallCount:measured.done.upstreamCalls,event:await (afterApi??legacyApi!)('/api/conversations/'+conversationId+'/event'),...(campus?{growth:await afterApi!('/api/growth?conversation='+conversationId)}:{})})
+      Object.assign(turn,measured,{status:'SAVED',providerCallCount:measured.done.upstreamCalls,stateChange:measured.done.stateChange??null,event:await (afterApi??legacyApi!)('/api/conversations/'+conversationId+'/event'),...(campus?{growth:await afterApi!('/api/growth?conversation='+conversationId)}:{})})
       console.log(JSON.stringify({trajectory:id,actorKey:campus?id:undefined,turn:report.turns.length,...measured}))
     }catch(error){turn.status='FAILED';turn.error=error instanceof Error?error.message:'UNKNOWN';turn.streamEvidence=(error as any)?.streamEvidence??null;console.log(JSON.stringify({trajectory:id,actorKey:campus?id:undefined,turn:report.turns.length,error:turn.error,retry:false}))}
     finally{report.providerCalls=budget.snapshot().calls.filter((call:any)=>call.runId===runId);save()}
