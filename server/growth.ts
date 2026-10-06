@@ -5,6 +5,7 @@ import { checkCampusSource } from './campus.ts'
 import { validate } from './contracts.ts'
 import { growthCreateSchema, growthActionSchema, type GrowthCreate, type GrowthAction } from './growth-contracts.ts'
 import { amendExactClause, carriesPersonalText, fromLegacyText, FragmentError, type Fragment, type Source } from './growth-source-fragments.ts'
+import { scanUserClauses } from './user-command-spans.ts'
 import { resolveTimeWindow, legacyValidUntilMatchesQuote, quoteStatedCutoff, TimeEvidenceError, type TimeWindow, type Zone } from './growth-time.ts'
 import { redactDirectionControlsForMessages } from './growth-controls.ts'
 import type { GrowthItem, GrowthRef, GrowthView } from '../src/features/growth/types.ts'
@@ -185,7 +186,7 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
 export type PreparedGrowthMutation =
   | { kind: 'ordinary'; delta: GrowthDelta; time?: TimeWindow }
   | {
-      kind: 'split_amend'; inputIndex: number;
+      kind: 'split_amend'; normalizedIndex: number;
       parent: { id: string; revision: number };
       beforeQuote: string;
       currentSource: { messageId: string; quote: string };
@@ -193,8 +194,26 @@ export type PreparedGrowthMutation =
       changedFragmentIndex: number;
       time?: TimeWindow;
     }
-export type GrowthStaged={changes:GrowthDelta[];prepared:PreparedGrowthMutation[];skipped?:{inputIndex:number;quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]}
+// N1.3: what actually wrote, with the PROVIDER's original array positions
+// bound to the changed/created facts. retainedIds are split siblings and can
+// never satisfy a time-correction obligation.
+export type GrowthWriteResult={
+  ids:string[];createdIds:string[];changedIds:string[];retainedIds:string[]
+  byInputIndex:ReadonlyMap<number,{id:string;revision:number}>
+}
+export type GrowthStaged={changes:GrowthDelta[];prepared:PreparedGrowthMutation[];inputIndexBindings:ReadonlyMap<number,number>;skipped?:{inputIndex:number;quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]}
 const asFragmentError=(error:unknown):never=>{if(error instanceof FragmentError)throw new HttpError(400,error.code);throw error}
+const sameClause=(text:string,left:number,right:number)=>{
+  for(const clause of scanUserClauses(text)){
+    const lo=Math.min(left,right),hi=Math.max(left,right)
+    if(lo>=clause.start&&lo<clause.end&&hi>=clause.start&&hi<clause.end)return true
+    if(lo<clause.start&&hi>=clause.end)continue
+    if(hi>=clause.start&&hi<clause.end&&lo<clause.start)return false
+    if(lo>=clause.start&&lo<clause.end&&hi>=clause.end)return false
+  }
+  return false
+}
+const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
 const toFragmentSources=(sources:GrowthItem['sources']):Source[]=>sources.map(source=>source.type==='message'?{type:'message',id:source.id,quote:source.quote}:{type:'user_edit',quote:source.quote})
 export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[]):Promise<GrowthStaged> {
   const current=requireRow((await pool.query("SELECT content,created_at FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0]) as {content:string;created_at:Date}
@@ -223,6 +242,18 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
       let window:TimeWindow
       try{window=resolveTimeWindow(evidence,current.content,anchorIso,zone)}
       catch(error){if(error instanceof TimeEvidenceError)throw new HttpError(400,'GROWTH_TIME_UNVERIFIED');throw error}
+      // N1.3: the evidence quote must support THIS fact — both spans must sit
+      // in the same clause of the current message, so a date stated for
+      // another matter in the same message can never be borrowed.
+      const factIndex=current.content.indexOf(change.source.quote)
+      const evidenceIndex=current.content.indexOf(evidence.quote)
+      if(factIndex<0||evidenceIndex<0)throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
+      // Supported when the evidence lies inside the fact's own quoted span, or
+      // when both sit in one clause; a date from a DIFFERENT clause of the
+      // same message (another matter) can never be borrowed.
+      const factSpanEnd=factIndex+change.source.quote.length
+      const insideFactSpan=evidenceIndex>=factIndex&&evidenceIndex+evidence.quote.length<=factSpanEnd
+      if(!insideFactSpan&&!sameClause(current.content,factIndex,evidenceIndex))throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
       if(legacy&&legacy!==window.validUntil)throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
       return window
     }
@@ -281,6 +312,13 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
       const selected=delta.target
       const target=authorized.find(row=>row.id===selected.itemId&&row.revision===selected.expectedRevision)
       if(!target||replacements.has(target.id)||(target.kind!==delta.kind&&target.kind!=='unknown'))throw new HttpError(400,'GROWTH_TARGET_INVALID')
+      if(delta.target.operation==='replace'){
+        // N1.3: a plain model replace onto a composite target can silently
+        // erase sibling facts; such targets must go through amend (or an
+        // explicit user whole-item edit). Only single-fact targets replace.
+        const personalClauses=scanUserClauses(target.text).filter(clause=>carriesClauseText(clause.text))
+        if(personalClauses.length>1)throw new HttpError(400,'GROWTH_COMPOSITE_REQUIRES_REVIEW')
+      }
       if(selected.operation==='amend'){
         // amend corrects ONE clause of a user-supplied composite of the same
         // field; unknown→answer and explicit whole-item rewrites stay on replace,
@@ -296,7 +334,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
         // CAS (no split); anything else splits with retained siblings.
         mutation=(changedFragmentIndex>=0&&personal.length===1&&personal[0]===analysis.fragments[changedFragmentIndex])
           ?{kind:'ordinary',delta,...(resolvedTime?{time:resolvedTime}:{})}
-          :{kind:'split_amend',inputIndex:-1,parent:{id:selected.itemId,revision:selected.expectedRevision},beforeQuote:selected.beforeQuote,currentSource:{messageId:run.source_message_id,quote:delta.source.quote},fragments:analysis.fragments,changedFragmentIndex,...(resolvedTime?{time:resolvedTime}:{})}
+          :{kind:'split_amend',normalizedIndex:-1,parent:{id:selected.itemId,revision:selected.expectedRevision},beforeQuote:selected.beforeQuote,currentSource:{messageId:run.source_message_id,quote:delta.source.quote},fragments:analysis.fragments,changedFragmentIndex,...(resolvedTime?{time:resolvedTime}:{})}
       }else{
         if(target.text===delta.text||target.text.includes(delta.text))throw new HttpError(400,'GROWTH_UNCHANGED')
         mutation={kind:'ordinary',delta,...(resolvedTime?{time:resolvedTime}:{})}
@@ -322,7 +360,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
     const existing=unique.findIndex(row=>row.target.operation==='create'&&delta.target.operation==='create'&&row.kind===delta.kind&&row.assertion==='user_reported'&&delta.assertion==='user_reported'&&row.text===delta.text&&row.source.quote===delta.source.quote&&('validUntil'in row?row.validUntil:null)===('validUntil'in delta?delta.validUntil:null)&&('progressState'in row?row.progressState:null)===('progressState'in delta?delta.progressState:null))
     positions.push(existing<0?unique.length:existing)
     if(existing<0){
-      if(mutation.kind==='split_amend')mutation.inputIndex=unique.length
+      if(mutation.kind==='split_amend')mutation.normalizedIndex=unique.length
       unique.push(delta)
       prepared.push(mutation)
     }
@@ -331,8 +369,6 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
   // target in this same batch would invalidate them regardless of write order;
   // never silently upgrade a model's evidence to the new revision.
   if(prepared.some(entry=>entry.kind==='ordinary'&&entry.delta.assertion==='ai_observation'&&entry.delta.dependencies.some(ref=>'id'in ref&&replacements.has(ref.id))))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
-  // Map explicit input positions through duplicate removal without changing
-  // which verified fact the model selected; raw provider output stays intact.
   for(let uniqueIndex=0;uniqueIndex<unique.length;uniqueIndex++){
     const delta=unique[uniqueIndex]!
     if(delta.assertion!=='ai_observation')continue
@@ -341,12 +377,16 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
     const mutation=prepared[uniqueIndex]!
     if(mutation.kind==='ordinary')prepared[uniqueIndex]={kind:'ordinary',delta:remapped}
   }
-  return {changes:unique,prepared,skipped:skipped.length?skipped:undefined}
+  // Original provider positions → normalized unique positions; observations'
+  // updateIndex refs already remap through positions above.
+  const inputIndexBindings=new Map<number,number>()
+  for(const [original,normalized] of positions.entries())if(normalized>=0)inputIndexBindings.set(original,normalized)
+  return {changes:unique,prepared,inputIndexBindings,skipped:skipped.length?skipped:undefined}
 }
-export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthStaged):Promise<{ids:string[];changedIds:string[];retainedIds:string[]}> {
-  if(!staged.changes.length)return {ids:[],changedIds:[],retainedIds:[]}
+export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthStaged):Promise<GrowthWriteResult> {
+  if(!staged.changes.length)return {ids:[],createdIds:[],changedIds:[],retainedIds:[],byInputIndex:new Map()}
   await lockGrowth(c,run.user_id)
-  const ids:string[]=[],changedIds:string[]=[],retainedIds:string[]=[],written=new Map<number,Row>()
+  const ids:string[]=[],createdIds:string[]=[],changedIds:string[]=[],retainedIds:string[]=[],written=new Map<number,Row>()
   const replacements=new Set(staged.prepared.flatMap(entry=>entry.kind==='ordinary'&&entry.delta.target.operation==='replace'?[entry.delta.target.itemId]:entry.kind==='split_amend'?[entry.parent.id]:[]))
   // Keep external references strict, even if an internal caller bypassed stage.
   for(const entry of staged.prepared)if(entry.kind==='ordinary'&&entry.delta.assertion==='ai_observation')for(const ref of entry.delta.dependencies)if('id'in ref&&replacements.has(ref.id))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
@@ -356,7 +396,7 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
       // P1.3 steps 1–8: everything is re-derived under the row lock from the
       // authoritative parent row and current message; staged fragments were an
       // early, advisory validation only.
-      const delta=requireRow(staged.changes[mutation.inputIndex]) as GrowthDelta
+      const delta=requireRow(staged.changes[mutation.normalizedIndex]) as GrowthDelta
       const parent=(await c.query('SELECT * FROM growth_items WHERE user_id=$1 AND id=$2 FOR UPDATE',[run.user_id,mutation.parent.id])).rows[0] as Row|undefined
       if(!parent||parent.revision!==mutation.parent.revision||!['active','proposed'].includes(parent.status)||!['user_reported','user_edit'].includes(parent.assertion))throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')
       const message=requireRow((await c.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0]) as {content:string}
@@ -376,7 +416,7 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
         const updatedRow=(await c.query("UPDATE growth_items SET kind=$4,text=$5,assertion='user_reported',status='active',sources=$6,dependencies='[]',valid_until=$7,limitation='',progress_state=$8,origin_request_id=$9,valid_from=$10,time_basis=$11,revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 AND revision=$3 AND status IN ('active','proposed') RETURNING *",[run.user_id,parent.id,mutation.parent.revision,delta.kind,analysis.text,JSON.stringify([{type:'message',id:run.source_message_id,quote:mutation.currentSource.quote}]),'validUntil'in delta?expiry(delta.validUntil):null,delta.kind==='feedback'?(delta as Extract<GrowthDelta,{kind:'feedback'}>).progressState:null,run.request_id,mutation.time?mutation.time.validFrom:null,mutation.time?JSON.stringify(mutation.time.basis):null])).rows[0] as Row|undefined
         if(!updatedRow)throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')
         await record(c,updatedRow,'amend')
-        ids[mutation.inputIndex]=updatedRow.id;changedIds.push(updatedRow.id);written.set(mutation.inputIndex,updatedRow)
+        ids[mutation.normalizedIndex]=updatedRow.id;changedIds.push(updatedRow.id);written.set(mutation.normalizedIndex,updatedRow)
         continue
       }
       // Step 2: the parent becomes stale history (text kept), revision+1, with
@@ -400,7 +440,7 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
         const child=(await c.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,limitation,progress_state,origin_request_id,valid_from,time_basis) VALUES($1,$2,$3,$4,$5,$6,'active',$7,'[]',$8,'',$9,$10,$11,$12) RETURNING *",[randomUUID(),run.user_id,isChanged?run.conversation_id:parent.conversation_id,isChanged?delta.kind:parent.kind,childText,isChanged?'user_reported':parent.assertion,JSON.stringify([childSource]),isChanged&&'validUntil'in delta?expiry(delta.validUntil):null,isChanged&&delta.kind==='feedback'?(delta as Extract<GrowthDelta,{kind:'feedback'}>).progressState:null,run.request_id,isChanged&&mutation.time?mutation.time.validFrom:null,isChanged&&mutation.time?JSON.stringify(mutation.time.basis):null])).rows[0] as Row
         await record(c,child,'split')
         await c.query("INSERT INTO growth_item_lineage(user_id,parent_id,parent_revision,child_id,relation,fragment_role,superseded_quote) VALUES($1,$2,$3,$4,'split_from',$5,$6)",[run.user_id,parent.id,supersededRow.revision,child.id,isChanged?'changed':'retained',isChanged?mutation.beforeQuote:null])
-        if(isChanged){ids[mutation.inputIndex]=child.id;changedIds.push(child.id);written.set(mutation.inputIndex,child)}
+        if(isChanged){ids[mutation.normalizedIndex]=child.id;changedIds.push(child.id);written.set(mutation.normalizedIndex,child)}
         else retainedIds.push(child.id)
       }
       // Steps 7–8: this updateIndex resolves to the changed item; old dependents
@@ -432,7 +472,16 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
       row=updatedRow
     }
     await record(c,row,delta.target.operation==='create'?'extract':delta.target.operation);ids[index]=row.id;written.set(index,row)
-    if(delta.target.operation!=='create')changedIds.push(row.id)
+    if(delta.target.operation==='create')createdIds.push(row.id)
+    else changedIds.push(row.id)
   }
-  return {ids,changedIds,retainedIds}
+  // Map the provider's ORIGINAL growthUpdates positions to the facts that
+  // actually wrote (created or changed); retained siblings and stale parents
+  // are never bound to an input position.
+  const byInputIndex=new Map<number,{id:string;revision:number}>()
+  for(const [original,normalized] of staged.inputIndexBindings){
+    const row=written.get(normalized)
+    if(row)byInputIndex.set(original,{id:row.id,revision:row.revision})
+  }
+  return {ids,createdIds,changedIds,retainedIds,byInputIndex}
 }
