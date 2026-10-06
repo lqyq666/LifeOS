@@ -19,6 +19,7 @@ import { buildTurnPrompt, providerTurnMessages, turnSystemPrompt } from './turn-
 import { configureProviderPayload, outputTokenLimit, type OutputPath } from './model-payload.ts'
 import { estimateProviderCallCostCny } from './cost-workload.ts'
 import { growthContext, growthBoundaryContext, growthSnapshotKey, stageGrowthUpdates } from './growth.ts'
+import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionControls, allScopes } from './growth-controls.ts'
 import { redactGrowthHistory } from './growth-privacy.ts'
 import { syncCozePublicKnowledge } from './coze-knowledge.ts'
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
@@ -171,11 +172,17 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   const route=initialModelRoute(current.content,snapshot,capabilityVerified),runtime=resolveModel(route.tier)
   const growth=await growthContext(run.user_id,run.conversation_id)
   const growthBoundaries=await growthBoundaryContext(run.user_id,run.conversation_id)
+  // Account-level direction controls: paused scopes leave the allowed set for
+  // this turn's suggestions, and an explicit pause/resume command in the
+  // current message is staged server-side — the model never authors it.
+  const directionControls=await readDirectionControls(run.user_id)
+  const blockedDirectionScopes=directionControls.filter(row=>row.state==='paused').map(row=>row.scope)
+  const allowedDirectionScopes=allScopes.filter(scope=>!blockedDirectionScopes.includes(scope))
   staged.growthBoundaryKey=growthSnapshotKey(growthBoundaries)
   staged.usedGrowthRefs=growth.map(item=>({id:item.id,revision:item.revision}))
   staged.growthSnapshotKey=growthSnapshotKey(growth)
   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id)
-  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth,growthBoundaries,retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
+  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth,growthBoundaries,directionControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
   const retrieved=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
   const calls:CallRecord[]=[]
@@ -200,6 +207,11 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     staged.audit.push({phase:'coach_reply_rendered',narrativeChars,finalChars:result.reply.length,materialChars:result.event?.action&&'draft'in result.event.action?result.event.action.draft.content.length:0})
     staged.usedKnowledgeRefs=[...contextKnowledge,...checkedCitations.refs]
     if(result.growthUpdates?.length)staged.growth=await stageGrowthUpdates(run,result.growthUpdates,growth)
+    const derivedControls=deriveExplicitDirectionControls(current.content)
+    if(derivedControls.status==='explicit'){
+      staged.directionControls=await stageDirectionControls(run,derivedControls.changes)
+      staged.directionControlSnapshotKey=staged.directionControls.expectedSnapshotKey
+    }else{staged.directionControls=undefined;staged.directionControlSnapshotKey=undefined}
     if(result.background?.length){
       for(const fact of result.background)if(fact.source.messageId!==run.source_message_id||!fact.source.quote.trim()||!current.content.includes(fact.source.quote)||!fact.source.quote.includes(fact.value))throw new HttpError(400,'COACH_BACKGROUND_INVALID')
       staged.memoryChanges=await stageCoachBackground(run.user_id,run.conversation_id,run.source_message_id,result.background,snapshot)

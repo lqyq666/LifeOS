@@ -8,8 +8,10 @@ const states = { active: '当前', proposed: '待核对', paused: '已暂停', c
 const assertions = { user_edit: '你提供的情况', user_reported: '你的对话原话', ai_observation: 'AI 观察 · 不是事实结论', unknown: '未知 · 尚无结论' }
 const progressLabels = { unattempted:'尚未行动',attempted:'已尝试 · 结果另行核对',stuck:'卡住了',completed:'动作已完成 · 不代表结果已达成',unknown:'实际行动状态未知' }
 const sections: GrowthKind[][] = [['context','ability','preference','observation','unknown'], ['goal','direction'], ['constraint','priority','decision','feedback']]
-export function GrowthWorkspace({ conversationId, conversationTitle, onClose, onExplore }: { conversationId: string; conversationTitle: string; onClose: () => void; onExplore: (text: string) => void }) {
+type DirectionControlRow = { scope: string; scopeLabel: string; state: 'paused' | 'enabled'; revision: number; sourceQuote: string; sourceRedacted: boolean; updatedAt: string }
+export function GrowthWorkspace({ conversationId, conversationTitle, onClose, onExplore, onSendControl }: { conversationId: string; conversationTitle: string; onClose: () => void; onExplore: (text: string) => void; onSendControl?: (text: string) => void }) {
   const [view, setView] = useState<GrowthView | null>(null)
+  const [directionControls, setDirectionControls] = useState<DirectionControlRow[] | null>(null)
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
   const [kind, setKind] = useState<GrowthKind>('goal')
@@ -25,6 +27,7 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
   useEffect(() => {
     let current = true
     api<GrowthView>('/api/growth').then(next => { if (current) setView(next) }).catch(error => { if (current) setNotice(explainError(error)) })
+    api<{ controls: DirectionControlRow[] }>('/api/growth/direction-controls').then(next => { if (current) setDirectionControls(next.controls) }).catch(() => {})
     return () => { current = false }
   }, [conversationId])
   async function save(event: FormEvent) {
@@ -95,6 +98,7 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
     </form>
     <section className="growth-explore"><h2>从一件真正困惑的事继续</h2>{['我还没确定毕业方向，经历也不多，帮我从当前情况开始梳理。','我已经有方向，想理清最近先准备什么。','这周时间很少，帮我权衡眼前的机会和必须完成的任务。','上次那一步没有开始，我想弄清哪里卡住了。'].map(prompt => <button key={prompt} disabled={busy} onClick={() => onExplore(prompt)}>{prompt}</button>)}</section>
     {!!historicalItems.length && <details className="growth-history"><summary>已暂停、不再采用和已结束的事（{historicalItems.length}）</summary>{historicalItems.map(card)}</details>}
+    {(directionControls ?? []).some(row => row.state === 'paused') && <section className="growth-explore"><h2>方向暂停设置</h2>{(directionControls ?? []).filter(row => row.state === 'paused').map(row => <div key={row.scope} className="growth-card"><p>{row.scopeLabel} · 已暂停 · {row.sourceRedacted ? '原话已遗忘' : `“${row.sourceQuote}”`} · {new Date(row.updatedAt).toLocaleDateString()}</p>{onSendControl && <button disabled={busy} onClick={() => onSendControl(`恢复${row.scopeLabel}建议`)}>恢复{row.scopeLabel}建议</button>}</div>)}</section>}
     <OfficialSources />
     <p className="growth-note">填写和结束记录是你对当前状态的说明。复制材料、保存计划不会被当作已对外执行。</p>
   </main>

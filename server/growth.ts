@@ -6,6 +6,7 @@ import { validate } from './contracts.ts'
 import { growthCreateSchema, growthActionSchema, type GrowthCreate, type GrowthAction } from './growth-contracts.ts'
 import { amendExactClause, carriesPersonalText, fromLegacyText, FragmentError, type Fragment, type Source } from './growth-source-fragments.ts'
 import { resolveTimeWindow, legacyValidUntilMatchesQuote, quoteStatedCutoff, TimeEvidenceError, type TimeWindow, type Zone } from './growth-time.ts'
+import { redactDirectionControlsForMessages } from './growth-controls.ts'
 import type { GrowthItem, GrowthRef, GrowthView } from '../src/features/growth/types.ts'
 import type { GrowthDelta,GrowthInputDelta } from './growth-model-contracts.ts'
 import type { Run } from './store.ts'
@@ -145,6 +146,10 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
         if(!['user_reported','user_edit','unknown'].includes(history.snapshot.assertion))continue
         for(const source of history.snapshot.sources??[])if(source.type==='message')await c.query('INSERT INTO growth_source_suppressions(user_id,conversation_id,message_id,quote) VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING',[user,history.snapshot.conversationId,source.id,source.quote])
       }
+      // Forgetting the original words also redacts direction-control provenance
+      // tied to those messages; the pause setting itself stays until an
+      // explicit resume.
+      await redactDirectionControlsForMessages(c,user,[...new Set(prior.flatMap(history=>(history.snapshot?.sources??[]).filter((source:{type:string;id?:string})=>source.type==='message'&&typeof source.id==='string').map((source:{id:string})=>source.id)))])
       // Purge retained quotes and historical snapshots, including transitive derivatives.
       const ids = [id]
       for (let index = 0; index < ids.length; index++) {

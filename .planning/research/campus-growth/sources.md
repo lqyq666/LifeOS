@@ -82,3 +82,7 @@ growth-source-fragments 纯函数模块来自工单附录A指定参考实现（�
 ## P2 期限服务器推导（2026-10-06，本地，零Provider）
 
 growth-time 纯函数来自工单附录A（同 P1 方式逐字复制）并按工单 P2.2 增加无副作用中文整数转换 chineseInteger（三/两/六等，duration 支持中文数量词，quote 保留原话）。无新依赖；时区仅实现 Asia/Shanghai 与 UTC，未覆盖表达明确拒绝（GROWTH_TIME_UNVERIFIED）。复用既有 expiry/018 迁移列（valid_from/time_basis）、growth_source_suppressions 与 013 既有时间校验路径；UI 仅改日期显示为上海时区（Intl.DateTimeFormat）。
+
+## P3 方向控制（2026-10-06，本地，零Provider）
+
+无新依赖。019 迁移按工单原文。deriveExplicitDirectionControls 为有限显式语法（分句级暂停/恢复动词+具名方向，用户本人语气；引号/疑问/否定/他人转述不触发；升学=推免+考研+留学+专升本四项原子展开），非通用语义分类器——未识别方向返回 needs_confirmation 不猜。复用现有 messages/runs 外键、growth 共用 lockGrowth 锁序、finishRun 单事务、HttpError 409 冲突语义与 growth 遗忘钩子（redactDirectionControlsForMessages 同步脱敏行与历史快照，暂停设置保留）。UI 复用 GrowthWorkspace/ConversationPage 现有组件与消息通道（onSendControl 经现有 send/ requestId/ run 事务），新增只读 GET /api/growth/direction-controls；无 CSS 新文件。

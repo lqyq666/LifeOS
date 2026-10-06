@@ -9,6 +9,7 @@ import seed from '../src/features/cognition/data/lifeos-graph.seed.json' with { 
 import { persistCoachEvent, invalidateCoachSources, assertCoachEvidence, coachEventView, type CoachStaged } from './action-coach-events.ts'
 import { assertCoachKnowledge, type CoachKnowledgeRef } from './coach-knowledge.ts'
 import { assertGrowthSnapshot, persistGrowthUpdates, type GrowthStaged } from './growth.ts'
+import { persistDirectionControls, readDirectionControls, directionControlsSnapshotKey, type PreparedDirectionControls } from './growth-controls.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -44,7 +45,7 @@ export async function retrieveExperiences(user:string,input:unknown,signal?:Abor
   return { records: rows, method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
 }
 export type Run = { user_id:string; request_id:string; conversation_id:string; source_message_id:string; expected_version:number; status:string; response:any }
-export type Staged = { candidates:Candidate[]; audit:unknown[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged }
+export type Staged = { candidates:Candidate[]; audit:unknown[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string }
 export async function startRun(user:string,conversation:string,requestId:string,text:string) {
   return transaction(async c=>{
     await lock(c,user+':'+requestId)
@@ -125,10 +126,16 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     for(const ref of knowledgeRefs)await c.query('INSERT INTO coach_reply_sources(user_id,request_id,source_id,revision) VALUES($1,$2,$3,$4)',[run.user_id,run.request_id,ref.sourceId,ref.revision])
     const coach=staged.coach?await persistCoachEvent(c,run,staged.coach):null
     const growth=staged.growth?await persistGrowthUpdates(c,run,staged.growth):null
+    // Direction controls commit in the same transaction, after growth, under
+    // the same advisory lock; a control snapshot changed by another device
+    // during generation is a 409 conflict, never silently replayed.
+    const controlsBefore=staged.directionControls?await readDirectionControls(run.user_id,c):[]
+    if(staged.directionControlSnapshotKey!==undefined&&directionControlsSnapshotKey(controlsBefore)!==staged.directionControlSnapshotKey)throw new HttpError(409,'DIRECTION_CONTROL_CONFLICT')
+    const directionControls=staged.directionControls?await persistDirectionControls(c,run,staged.directionControls):null
     const memoryIds=staged.snapshot&&staged.memoryChanges?.length?await persistChanges(c,run.user_id,run.conversation_id,staged.memoryChanges,new Date()):[]
     await consumeEntitlement(c,run.user_id,current.entitlement_reserved)
     await c.query('INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,\'assistant\',$4,$5)',[randomUUID(),run.user_id,run.conversation_id,text,run.request_id])
-    const response={requestId:run.request_id,decisionVersion:version,candidateIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
+    const response={requestId:run.request_id,decisionVersion:version,candidateIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],...(directionControls?{directionControls:{changedScopes:directionControls.filter(row=>row.state==='paused').map(row=>row.scope)}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
     await c.query('UPDATE runs SET status=\'completed\',response=$3,usage=$4,tool_audit=$5,finished_at=now() WHERE user_id=$1 AND request_id=$2',[run.user_id,run.request_id,response,usage,JSON.stringify(staged.audit)])
     await c.query('UPDATE conversations SET updated_at=now() WHERE user_id=$1 AND id=$2',[run.user_id,run.conversation_id])
     signal.throwIfAborted()
