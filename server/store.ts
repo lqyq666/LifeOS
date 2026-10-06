@@ -10,6 +10,7 @@ import { persistCoachEvent, invalidateCoachSources, assertCoachEvidence, coachEv
 import { assertCoachKnowledge, type CoachKnowledgeRef } from './coach-knowledge.ts'
 import { assertGrowthSnapshot, persistGrowthUpdates, type GrowthStaged } from './growth.ts'
 import { persistDirectionControls, readDirectionControls, directionControlsSnapshotKey, type PreparedDirectionControls } from './growth-controls.ts'
+import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -45,7 +46,7 @@ export async function retrieveExperiences(user:string,input:unknown,signal?:Abor
   return { records: rows, method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
 }
 export type Run = { user_id:string; request_id:string; conversation_id:string; source_message_id:string; expected_version:number; status:string; response:any }
-export type Staged = { candidates:Candidate[]; audit:unknown[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations }
+export type Staged = { candidates:Candidate[]; audit:unknown[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations;weeklyPlan?:import('./weekly-plans.ts').PreparedWeeklyPlan }
 export async function startRun(user:string,conversation:string,requestId:string,text:string) {
   return transaction(async c=>{
     await lock(c,user+':'+requestId)
@@ -147,6 +148,9 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     // N1.6: the receipt is built ONLY from this transaction's own results —
     // persistCoachEvent's return (read through the same client) and the
     // before/after control effects. No pool re-read, no catch-to-null.
+    // N2.2 order: facts → controls → plan; the plan's budget/basis resolve
+    // against THIS transaction's growth writes and authorized facts.
+    const plan:PersistedWeeklyPlan|null=staged.weeklyPlan?await persistWeeklyPlan(c,run,staged.weeklyPlan,growth,(await (await import('./growth.ts')).growthView(run.user_id,run.conversation_id,c)).items):null
     const materialAction=coach?.actions.find(action=>action.status==='proposed'&&action.draft&&action.draft.readiness)
     const controlEffects=directionControls?directionControls.effects:[]
     const changedScopes=controlEffects.filter(effect=>effect.before!==effect.after).map(effect=>effect.scope)
@@ -154,7 +158,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       growth:{status:growthStatus,createdIds:growth?growth.createdIds:[],changedIds:growth?growth.changedIds:[],retainedIds:growth?growth.retainedIds:[],skipped:(staged.growth?.skipped??[]).map(skip=>({inputIndex:skip.inputIndex,code:skip.reason}))},
       controls:{changedScopes,effects:controlEffects},
       material:materialAction&&materialAction.draft?{actionId:materialAction.id,revision:materialAction.revision,readiness:materialAction.draft.readiness as 'template'|'draft_for_user_review',missingRequired:materialAction.draft.missingRequired??[]}:null,
-      plan:null,
+      plan:plan?{itemId:plan.itemId,revision:plan.revision,status:'proposed',budgetRef:plan.budgetRef}:null,
     }
     const memoryIds=staged.snapshot&&staged.memoryChanges?.length?await persistChanges(c,run.user_id,run.conversation_id,staged.memoryChanges,new Date()):[]
     await consumeEntitlement(c,run.user_id,current.entitlement_reserved)

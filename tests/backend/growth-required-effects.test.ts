@@ -41,7 +41,7 @@ test('required weekly-time updates must exist; real C10 failures replay as FAIL 
       await store.finishRun(priorRun.run,{candidates:[],audit:[]},'收到反馈。',null,new AbortController().signal)
       const priorMessageId=priorRun.run.source_message_id
       const obligations=deriveTurnObligations(fixture.input)
-      assert.equal(obligations.kind,'update_weekly_time')
+      assert.equal(obligations.kind,'mixed','N2.3: 改时间+改安排产生时间与计划双义务')
       for(const failure of fixture.failures){
         const parsed=parseActionCoachTurn(failure.rawOutput)
         // With the full original output the offending lane is refused by its
@@ -75,7 +75,8 @@ test('required weekly-time updates must exist; real C10 failures replay as FAIL 
         {target:{operation:'amend',itemId:compositeId,expectedRevision:1,beforeQuote:'每周能投入6小时'},kind:'context',assertion:'user_reported',source:{messageId:input.run.source_message_id,quote:'每周只有3小时了'}},
       ],input.growth)
       const obligations=deriveTurnObligations(fixture.input)
-      verifyTurnObligations(obligations,{growth:staged,controls:undefined,currentText:fixture.input,reply:'已按每周3小时更新。'})
+      const stagedPlan={input:{availableMinutes:180,period:'current',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[],target:{operation:'create'}}}
+      verifyTurnObligations(obligations,{growth:staged,controls:undefined,weeklyPlan:stagedPlan,currentText:fixture.input,reply:'已按每周3小时更新。'})
       const saved=await store.finishRun(input.run,{candidates:[],audit:[],growth:staged,turnObligations:obligations},'已按每周3小时更新。',null,new AbortController().signal)
       assert.equal(saved.stateChange.growth.status,'applied')
       assert.equal(saved.stateChange.growth.changedIds.length,1)

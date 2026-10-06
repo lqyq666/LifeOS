@@ -58,13 +58,26 @@ export const actionCoachTurnSchema=Type.Object({
     value:text(500),source:processSourceSchema,
   },{additionalProperties:false}),{maxItems:8,description:'仅限本人明确、稳定的教育和技能背景；教育阶段指大三、硕士等身份阶段，今晚等临时行动时间不是教育阶段。省略临时约束和事件事实。'})),
   weeklyPlan:Type.Optional(Type.Object({
-    availableMinutes:Type.Integer({minimum:1,maximum:10080}),
-    items:Type.Array(Type.Object({action:Type.String({minLength:1,maxLength:200}),minutes:Type.Integer({minimum:1,maximum:10080})}),{minItems:0,maxItems:12}),
+    target:Type.Union([
+      Type.Object({operation:Type.Literal('create')},{additionalProperties:false}),
+      Type.Object({operation:Type.Literal('replace'),itemId:id,expectedRevision:Type.Integer({minimum:1})},{additionalProperties:false}),
+    ]),
+    availableMinutes:Type.Integer({minimum:0,maximum:10080}),
+    period:Type.Union([Type.Literal('current'),Type.Literal('this_week'),Type.Literal('next_week')]),
+    budgetRef:Type.Union([
+      Type.Object({id,revision:Type.Integer({minimum:1})},{additionalProperties:false}),
+      Type.Object({updateIndex:Type.Integer({minimum:0,maximum:7})},{additionalProperties:false}),
+    ]),
     basis:Type.Array(Type.Union([
       Type.Object({id,revision:Type.Integer({minimum:1})},{additionalProperties:false}),
       Type.Object({updateIndex:Type.Integer({minimum:0,maximum:7})},{additionalProperties:false}),
-    ]),{maxItems:12}),
-  },{additionalProperties:false,description:'仅在用户明确要求安排时间时提供：availableMinutes必须来自已核对的每周时间事实；各项分钟数为正且合计不超过预算；依据指向对应growth条目或本轮增量。'})),
+    ]),{minItems:1,maxItems:12}),
+    items:Type.Array(Type.Object({
+      action:Type.String({minLength:1,maxLength:200}),
+      minutes:Type.Integer({minimum:1,maximum:10080}),
+      directionScopes:Type.Array(Type.Union([Type.Literal('employment'),Type.Literal('postgraduate_recommendation'),Type.Literal('postgraduate_exam'),Type.Literal('public_service'),Type.Literal('entrepreneurship'),Type.Literal('overseas_study'),Type.Literal('undergraduate_upgrade')]),{maxItems:7}),
+    }),{minItems:0,maxItems:12}),
+  },{additionalProperties:false,description:'仅在用户明确要求安排/修改时间安排时提供：budgetRef/basis引用本轮growthUpdates原始索引或授权id/revision；availableMinutes由服务器对照已核实预算，计划项合计不超过预算，方向不得命中已暂停范围。'})),
   // Candidates remain opt-in proposals; confirmation still uses the existing
   // experience API and is never implied by a conversation-state update.
   experienceCandidate:Type.Optional(Type.Object({source:processSourceSchema},{additionalProperties:false})),

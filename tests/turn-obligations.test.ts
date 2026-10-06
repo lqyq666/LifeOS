@@ -23,7 +23,8 @@ test('weekly time intent: only the user\'s own explicit weekly budget creates an
 
 test('obligation kinds follow explicit commands and never small talk',()=>{
   assert.equal(deriveTurnObligations('今天天气不错。').kind,'ordinary')
-  assert.equal(deriveTurnObligations('我每周只有3小时，安排帮我改一下。').kind,'update_weekly_time')
+  assert.equal(deriveTurnObligations('我每周只有3小时。').kind,'update_weekly_time')
+  assert.equal(deriveTurnObligations('我每周只有3小时，安排帮我改一下。').kind,'mixed','改安排同轮增加计划义务(N2.3)')
   assert.equal(deriveTurnObligations('先别推升学相关的安排。',{directionControls:pauseChanges}).kind,'direction_control')
   assert.equal(deriveTurnObligations('请直接起草一份我可以用的简历作品清单。',{resumePortfolioMode:true}).kind,'resume_portfolio')
   const mixed=deriveTurnObligations('改成每周3小时吧，也先别推升学相关的安排。',{directionControls:pauseChanges})
@@ -43,7 +44,8 @@ test('missing required updates and contradicting replies are hard failures',()=>
   const obligations=deriveTurnObligations('最近课程变多了，每周只有3小时了，安排帮我改一下。')
   // OBL-01 core: an old-topic update with no 3h change fails even without any source error.
   assert.throws(()=>verifyTurnObligations(obligations,{growth:{changes:[{target:{operation:'create'},kind:'context',assertion:'user_reported',text:'我把清单发给两个招聘方了',source:{messageId:'m',quote:'我把清单发给两个招聘方了'}}],prepared:[]},controls:undefined,currentText:'最近课程变多了，每周只有3小时了，安排帮我改一下。',reply:'已收到反馈。'}),(error:unknown)=>(error as {code?:string}).code==='GROWTH_REQUIRED_UPDATE_MISSING')
-  verifyTurnObligations(obligations,{growth:{changes:[{target:{operation:'replace'},kind:'context',assertion:'user_reported',text:'每周只有3小时了',source:{messageId:'m',quote:'每周只有3小时了'}}],prepared:[]},controls:undefined,currentText:'最近课程变多了，每周只有3小时了，安排帮我改一下。',reply:'已更新。'})
+  const planInput={availableMinutes:180,period:'current',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[],target:{operation:'create'}}
+  verifyTurnObligations(obligations,{growth:{changes:[{target:{operation:'replace'},kind:'context',assertion:'user_reported',text:'每周只有3小时了',source:{messageId:'m',quote:'每周只有3小时了'}}],prepared:[]},controls:undefined,weeklyPlan:{input:planInput},currentText:'最近课程变多了，每周只有3小时了，安排帮我改一下。',reply:'已更新。'})
   verifyReplyAgainstObligations(obligations,'每周从6小时降到3小时，安排如下…')
   verifyReplyAgainstObligations(obligations,'按每周3小时安排。')
   assert.throws(()=>verifyReplyAgainstObligations(obligations,'好的，继续保持每周6小时的节奏推进。'),(error:unknown)=>(error as {code?:string}).code==='REPLY_CONTRADICTS_CURRENT_EFFECT')

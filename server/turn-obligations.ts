@@ -12,9 +12,26 @@ export type RequiredEffect =
   | {type:'weekly_time';quote:string;minutes:number;period:'current'|'this_week'|'next_week'}
   | {type:'direction_control';scopes:DirectionScope[];operation:'pause'|'resume'}
   | {type:'grounded_material';materialKind:'resume_portfolio'}
+  | {type:'weekly_plan';period:'current'|'this_week'|'next_week';minutes:number}
 export type TurnObligations = {
   kind:'ordinary'|'update_weekly_time'|'direction_control'|'resume_portfolio'|'mixed'
   requiredEffects:RequiredEffect[]
+}
+// N2.3: only an explicit request to arrange/re-arrange creates a plan
+// obligation; stating a weekly budget alone only requires the fact.
+export function weeklyPlanIntent(text:string):{period:'current'|'this_week'|'next_week'}|null{
+  for(const sentence of groupBySentence(scanUserClauses(text))){
+    for(const clause of sentence){
+      const body=clause.text.trim()
+      if(!body)continue
+      if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)continue
+      if(/(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|帮我(?:安排|排)|改一下安排|调整.{0,4}安排/.test(body)){
+        const period=/下周/.test(body)||sentence.some(c=>/下周/.test(c.text))?'next_week':/(?:这周|本周)/.test(body)||sentence.some(c=>/(?:这周|本周)/.test(c.text))?'this_week':'current'
+        return {period}
+      }
+    }
+  }
+  return null
 }
 
 const thirdPersonSubject=/^(?:室友|同学|朋友|他|她|他们|她们|别人|大家|我妈|我爸|父母|家人|老师|辅导员)/
@@ -70,6 +87,8 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
   const effects:RequiredEffect[]=[]
   const weekly=weeklyTimeIntent(currentText)
   if(weekly)effects.push({type:'weekly_time',...weekly})
+  const plan=weeklyPlanIntent(currentText)
+  if(plan&&weekly)effects.push({type:'weekly_plan',period:plan.period,minutes:weekly.minutes})
   for(const change of options.directionControls??[])effects.push({type:'direction_control',scopes:change.scopes,operation:change.operation})
   if(options.resumePortfolioMode)effects.push({type:'grounded_material',materialKind:'resume_portfolio'})
   const families=new Set(effects.map(effect=>effect.type))
@@ -108,6 +127,7 @@ export type ObligationVerificationInput={
   growth:GrowthStaged|undefined
   controls:PreparedDirectionControls|undefined
   coachActionDraft?:{readiness?:string;content?:string;materialFactIds?:string[]}|null
+  weeklyPlan?:unknown
   currentText:string
   reply:string
 }
@@ -123,6 +143,13 @@ export function verifyTurnObligations(obligations:TurnObligations,staged:Obligat
         &&staged.currentText.includes(delta.source.quote)
         &&hoursIn(delta.text)===effect.minutes)
       if(!covered)throw new ObligationError('GROWTH_REQUIRED_UPDATE_MISSING')
+    }
+    if(effect.type==='weekly_plan'){
+      // A required plan must be a staged structured plan whose budget matches
+      // the verified weekly minutes; a free-text list in the reply never counts.
+      const plan=staged.weeklyPlan as {input?:{availableMinutes?:number}}|undefined
+      const covered=Boolean(plan&&plan.input&&plan.input.availableMinutes===effect.minutes)
+      if(!covered)throw new ObligationError('WEEKLY_PLAN_REQUIRED_MISSING')
     }
     if(effect.type==='grounded_material'){
       // The obligation needs an actual SERVER-RENDERED material: real content

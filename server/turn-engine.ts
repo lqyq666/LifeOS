@@ -23,6 +23,7 @@ import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionC
 import { redactGrowthHistory } from './growth-privacy.ts'
 import { syncCozePublicKnowledge } from './coze-knowledge.ts'
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
+import { stageWeeklyPlan } from './weekly-plans.ts'
 import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, isPureControlCommand, controlReplyText, isObligationError, type TurnObligations } from './turn-obligations.ts'
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
@@ -258,18 +259,14 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const narrativeChars=result.reply.length
     try{result.reply=renderCoachReply(result)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
     if(result.weeklyPlan){
-      // P5.4: a verifiable plan structure - the budget must match the verified
-      // weekly fact, items must fit inside it, and the server renders the
-      // numbers so one reply cannot say 3h in one place and 6h in another.
-      const plan=result.weeklyPlan
-      const total=plan.items.reduce((sum,item)=>sum+item.minutes,0)
-      if(total>plan.availableMinutes)throw new HttpError(400,'COACH_OUTPUT_INVALID')
+      // N2.2/N2.3: the structured plan is staged against the pre-generation
+      // control snapshot and the EFFECTIVE blocked scopes; the budget is
+      // checked against the verified weekly effect (never rendered from an
+      // unverified number), and the durable text comes from persistWeeklyPlan.
+      const planInput=result.weeklyPlan as unknown as import('./weekly-plans.ts').WeeklyPlanInput
       const weeklyEffect=obligations.requiredEffects.find(effect=>effect.type==='weekly_time')
-      if(weeklyEffect&&weeklyEffect.type==='weekly_time'&&plan.availableMinutes!==weeklyEffect.minutes)throw new HttpError(400,'REPLY_CONTRADICTS_CURRENT_EFFECT')
-      const hours=plan.availableMinutes/60
-      const hoursText=Number.isInteger(hours)?String(hours):hours.toFixed(1)
-      const newline='\n'
-      result.reply+=newline+newline+'本周安排（依据已核对的每周'+hoursText+'小时）：'+newline+plan.items.map(item=>'- '+item.action+'（'+(item.minutes%60===0?item.minutes/60+'小时':item.minutes+'分钟')+'）').join(newline)+(total<plan.availableMinutes?newline+'（未排满，保留休息与弹性）':'')
+      if(weeklyEffect&&weeklyEffect.type==='weekly_time'&&planInput.availableMinutes!==weeklyEffect.minutes)throw new HttpError(400,'REPLY_CONTRADICTS_CURRENT_EFFECT')
+      staged.weeklyPlan=await stageWeeklyPlan(run,planInput,{user:run.user_id,expectedControlSnapshotKey:expectedControlKey,effectiveBlockedScopes:blockedDirectionScopes})
     }
     const checkedCitations=await validateCoachCitations(result.reply,result.citations??[],knowledge,current.content,messages.filter(row=>row.role==='user').map(row=>row.content))
     result.reply=checkedCitations.text
