@@ -112,9 +112,12 @@ test('candidate mapping: registry-bound cards verify, unknown docs stay unverifi
   const verifiedCard=card()
   await importKnowledge([verifiedCard])
   const excerpt='浙江2026年专升本报名条件：考生须为全日制高职高专应届毕业生，具体以当年省教育考试院文件为准。'
-  const registryPath=resolve('.planning/research/campus-growth/coze-public-registry.json')
-  mkdirSync(resolve(registryPath,'..'),{recursive:true})
-  writeFileSync(registryPath,JSON.stringify({schemaVersion:1,bindings:[
+  // Temporary independent registry (work-order §7.4: no test IDs may remain
+  // in the Git working tree), injected via registryRoot.
+  const registryRoot=resolve('.local/coze-automation/test-registry-'+Date.now())
+  mkdirSync(registryRoot,{recursive:true})
+  mkdirSync(resolve(registryRoot,'.planning/research/campus-growth'),{recursive:true})
+  writeFileSync(resolve(registryRoot,'.planning/research/campus-growth/coze-public-registry.json'),JSON.stringify({schemaVersion:1,bindings:[
     {workflowId:WORKFLOW_ID,datasetId:'ds-1',documentId:'doc-known',knowledgeCardId:verifiedCard.id,expectedRevision:1,expectedSourceHash:verifiedCard.sourceHash},
     {workflowId:WORKFLOW_ID,datasetId:'ds-1',documentId:'doc-stale-revision',knowledgeCardId:verifiedCard.id,expectedRevision:2,expectedSourceHash:verifiedCard.sourceHash},
   ]},null,2)+'\n')
@@ -126,13 +129,14 @@ test('candidate mapping: registry-bound cards verify, unknown docs stay unverifi
     {documentId:'doc-stale-revision',content:excerpt,score:0.7},
     {documentId:'doc-known',content:'不在已核实excerpt中的编造内容',score:0.6},
   ]
-  const mapped=await mapCozeCandidates(hits,config)
+  const mapper=(sql:string,params:unknown[])=>pool.query(sql,params)
+  const mapped=await mapCozeCandidates(hits,config,{query:mapper,registryRoot})
   assert.equal(mapped.verified.length,1,'只有登记且全项核对的候选成为verified')
   assert.equal(mapped.verified[0]!.card.id,verifiedCard.id)
   assert.equal(mapped.unverifiedDocumentIds.length,3)
   // No new rows ever written for candidates.
   const count=(await pool.query('SELECT count(*)::int AS n FROM campus_knowledge')).rows[0].n
-  const mappedAgain=await mapCozeCandidates(hits,config)
+  const mappedAgain=await mapCozeCandidates(hits,config,{query:mapper,registryRoot})
   assert.equal((await pool.query('SELECT count(*)::int AS n FROM campus_knowledge')).rows[0].n,count+0,'候选映射零写入：再次映射不新增行')
   assert.equal(mappedAgain.verified.length,1)
 })

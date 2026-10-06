@@ -157,8 +157,8 @@ export type MappedCandidates={verified:VerifiedCandidate[];unverifiedDocumentIds
 // KnowledgeCard passes the existing status/hash/revision/expiry checks and
 // whose excerpt appears CONTIGUOUSLY in the card's verified excerpt (newline
 // normalization fixed by convention). Unknown documents stay unverified.
-export async function mapCozeCandidates(hits:readonly PublicKnowledgeHit[],config:CozeConfig,c:{query:(sql:string,params:unknown[])=>Promise<{rows:unknown[]}>}=pool):Promise<MappedCandidates>{
-  const registry=loadCozePublicRegistry()
+export async function mapCozeCandidates(hits:readonly PublicKnowledgeHit[],config:CozeConfig,c:{query:(sql:string,params:unknown[])=>Promise<{rows:unknown[]}>;registryRoot?:string}=pool):Promise<MappedCandidates>{
+  const registry=loadCozePublicRegistry(c.registryRoot)
   const verified:VerifiedCandidate[]=[]
   const unverified:string[]=[]
   for(const hit of hits){

@@ -16,7 +16,12 @@ const rows:Row[]=[]
 const check=(id:string,status:Row['status'],detail:string)=>{rows.push({id,status,detail})}
 
 // ---- local contract checks (always run, zero network) ----
+// process.env first (matches production wiring), explicit --env: flags override.
 const env:Record<string,string>={}
+for(const key of Object.keys(process.env)){
+  const v=process.env[key]
+  if(v!==undefined)env[key]=v
+}
 for(const arg of args){
   const match=/^--env:([A-Z_]+)=(.*)$/.exec(arg)
   if(match)env[match[1]!]=match[2]!
