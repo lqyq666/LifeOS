@@ -20,6 +20,7 @@ import { configureProviderPayload, outputTokenLimit, type OutputPath } from './m
 import { estimateProviderCallCostCny } from './cost-workload.ts'
 import { growthContext, growthBoundaryContext, growthSnapshotKey, stageGrowthUpdates } from './growth.ts'
 import { redactGrowthHistory } from './growth-privacy.ts'
+import { syncCozePublicKnowledge } from './coze-knowledge.ts'
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
@@ -153,7 +154,15 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   const retrieval=await searchCoachEvents(run.user_id,run.conversation_id,{query:current.content},signal)
   staged.audit.push({phase:'coach_retrieval_completed',latencyMs:Math.round(performance.now()-retrievalStarted),eventCount:retrieval.events.length,indexPending:retrieval.indexPending,ambiguous:retrieval.ambiguous,embedding:'local_offline'})
   const historicalEvents=retrieval.events.filter(event=>event.id!==currentEvent?.id)
-  const knowledge=await retrieveCoachKnowledge(current.content,signal)
+  let knowledge=await retrieveCoachKnowledge(current.content,signal)
+  if(!knowledge.length){
+    // Thin Coze public-knowledge fallback (user instruction 2026-10-06): only
+    // queried when the primary local retrieval found nothing, so the original
+    // path stays primary and every fallback use stays auditable for comparison.
+    // A Coze failure is audit-only and never fails the turn.
+    await syncCozePublicKnowledge(current.content,signal,staged.audit)
+    knowledge=await retrieveCoachKnowledge(current.content,signal)
+  }
   const contextKnowledge=[...(currentEvent?[currentEvent]:[]),...historicalEvents].flatMap(event=>event.actions.flatMap(action=>action.knowledgeRefs??[]))
   const messages=await redactGrowthHistory(run.user_id,context.filter(row=>row.id===run.source_message_id||!snapshot.suppressedMessageIds?.includes(row.id)))
   staged.usedMemoryRefs=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').map(item=>({memoryId:item.id,revision:item.revision}))

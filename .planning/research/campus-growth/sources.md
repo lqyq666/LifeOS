@@ -70,3 +70,7 @@ DOCX分别提取2669/591字符，XLSX1611非空单元格；人工核对细则“
 按用户2026-10-06工单（GLM_EXECUTION_ORDER.md P0）与当日追加指令执行。复用核查：本批不新增外部依赖或新框架——多账号注册复用仓库现有 BetterAuth 1.7.7 email signup 与 fetch（同 scripts/run-action-coach.ts 既有用法），操作员状态机复用原脚本逻辑仅去自动重发。无外部仓库脚本执行。核对 better-auth 1.7.7 实际源码 node_modules/better-auth/dist/api/rate-limiter/index.mjs：/sign-up* 默认特殊限流 window=10s、max=3（同IP同路径共享桶），故 ensureActor 对 429 按响应 Retry-After 有界等待重试本地免费注册（≤8次、单次≤15s），不改生产 auth 配置。
 
 当日用户追加指令：停止扩建自建通用知识库/检索基础设施；新增薄扣子(Coze)公共知识检索接入层（复用现有来源检查与产品界面，不迁移聊天系统、不建第二套长期记忆，原检索保留对照回退）。该新增为用户明示授权的白名单外扩展，单独批次实施并记入 REPAIR-20261006.md。
+
+## 扣子公共知识检索薄接入层（2026-10-06，用户当日追加指令，本地，零真实扣子调用）
+
+按用户指令新增 server/coze-knowledge.ts：薄适配层，仅做"扣子数据集检索API ↔ 既有知识卡管线"的翻译。复用核查：不引入新依赖（Node fetch）；导入复用 campus-knowledge.importKnowledge 原函数与校验；检索/引用/撤回复用 coach-knowledge.retrieveCoachKnowledge、validateCoachCitations、assertCoachKnowledge 全链，未改任何既有校验语义。卡为内容寻址（sha256→UUID）、UTC日确定性时间戳保证同日幂等重导入、跨日 revision 递增（沿用导入幂等/冲突规则）；24h 有效期使过期卡自然退出检索；limitations 明示"未做本地原文核验"。接入点 turn-engine.ts：本地检索为主，结果为空才回退扣子（审计记录 coze_knowledge_* 阶段），扣子失败仅审计不失败轮次——原检索同时是对照与回退，退役决策留待替代方案验收。默认关闭（LIFEOS_COZE_KNOWLEDGE!=='true' 或缺 PAT/数据集ID），启用即接受查询文本传输到所配置端点，生产启用需用户数据传输授权；不迁移聊天系统、无第二套长期记忆（仅公共知识卡，非个人信息）。测试 tests/backend/coze-knowledge.test.ts 用本地mock扣子端点+真实隔离PG：默认关闭零外呼、Bearer/路径/查询体、导入后经未改动的本地管线可检索、同查询缓存命中、同内容幂等(changed=0)、HTTP500/非法JSON/超时均仅审计、过期卡不再检索。真实扣子API连通性 NOT_TESTED（无凭据，未发起任何真实调用）。
