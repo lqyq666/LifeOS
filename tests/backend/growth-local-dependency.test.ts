@@ -57,11 +57,13 @@ test('explicit local evidence resolves to saved facts and corrections in either 
       assert.equal(sameView.items.find(row=>row.id===sameSaved.growthIds[0])!.assertion,'user_reported')
       assert.equal(sameView.items.find(row=>row.id===sameSaved.growthIds[1])!.status,'proposed')
       assert.deepEqual(sameView.items.find(row=>row.id===sameSaved.growthIds[1])!.dependencies,[{id:sameSaved.growthIds[0],revision:1}])
-      const timed=(await store.startRun(user,chat,randomUUID(),'每周只能两小时。')).run
-      const deadline=new Date(Date.now()+60000).toISOString()
-      const timedFact={...fact,kind:'constraint' as const,source:{messageId:timed.source_message_id,quote:'每周只能两小时'},validUntil:deadline}
+      const timed=(await store.startRun(user,chat,randomUUID(),'接下来2天我每周只能两小时。')).run
+      const anchor=(await pool.query('SELECT created_at FROM messages WHERE user_id=$1 AND id=$2',[user,timed.source_message_id])).rows[0].created_at as Date
+      const deadline=new Date(anchor.getTime()+2*86400000).toISOString()
+      const timedFact={...fact,kind:'constraint' as const,source:{messageId:timed.source_message_id,quote:'每周只能两小时'},timeEvidence:{kind:'duration' as const,count:2,unit:'day' as const,quote:'接下来2天'}}
       const timedObservation={...observation,source:timedFact.source,dependencies:[{updateIndex:0}]}
-      await assert.rejects(stageGrowthUpdates(timed,[{...timedFact,validUntil:'2020-01-01T00:00:00Z'},timedObservation],[]),{code:'GROWTH_DEPENDENCY_INVALID'})
+      // A fabricated past expiry the user never stated can never ground a dependency.
+      await assert.rejects(stageGrowthUpdates(timed,[{...timedFact,validUntil:'2020-01-01T00:00:00Z'},timedObservation],[]),{code:'GROWTH_TIME_UNVERIFIED'})
       const timedStage=await stageGrowthUpdates(timed,[timedFact,timedObservation],[])
       const advanced=t.mock.method(Date,'now',()=>Date.parse(deadline)+1)
       try{await assert.rejects(store.finishRun(timed,{candidates:[],audit:[],growth:timedStage},'截止后不可依赖。',null,new AbortController().signal),{code:'GROWTH_SNAPSHOT_INVALIDATED'})}finally{advanced.mock.restore()}

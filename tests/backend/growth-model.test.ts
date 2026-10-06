@@ -3,11 +3,11 @@ import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { pool } from '../../server/db.ts'
 import * as store from '../../server/store.ts'
-import { growthContext, growthBoundaryContext, growthView, stageGrowthUpdates, actOnGrowthItem, growthSnapshotKey, assertGrowthSnapshot } from '../../server/growth.ts'
+import { growthContext, growthBoundaryContext, growthView, stageGrowthUpdates, actOnGrowthItem, growthSnapshotKey, assertGrowthSnapshot, createGrowthItem } from '../../server/growth.ts'
 import { transaction } from '../../server/db.ts'
 import { buildTurnPrompt } from '../../server/turn-prompt.ts'
 import { redactGrowthHistory, growthQuoteSuppressed } from '../../server/growth-privacy.ts'
-import type { GrowthDelta } from '../../server/growth-model-contracts.ts'
+import type { GrowthDelta, GrowthInputDelta } from '../../server/growth-model-contracts.ts'
 
 test('conversation growth changes are grounded, atomic and selectively forgettable (isolated PG, no provider)',async t=>{
   const user='growth-model-'+randomUUID(),chat=randomUUID()
@@ -18,7 +18,7 @@ test('conversation growth changes are grounded, atomic and selectively forgettab
     const growth=await growthContext(user,chat)
     return {run,growth,source:{messageId:run.source_message_id,quote:text}}
   }
-  const finish=async(input:Awaited<ReturnType<typeof prepare>>,changes:GrowthDelta[])=>{
+  const finish=async(input:Awaited<ReturnType<typeof prepare>>,changes:GrowthInputDelta[])=>{
     const staged=await stageGrowthUpdates(input.run,changes,input.growth)
     return store.finishRun(input.run,{candidates:[],audit:[],growth:staged,usedGrowthRefs:input.growth.map(row=>({id:row.id,revision:row.revision})),growthSnapshotKey:growthSnapshotKey(input.growth)},'先保留明确情况，未知再核对。',null,new AbortController().signal)
   }
@@ -44,7 +44,6 @@ test('conversation growth changes are grounded, atomic and selectively forgettab
       const input=await prepare('我这周只有两小时，还没投递。')
       const base={target:{operation:'create' as const},assertion:'user_reported' as const,source:input.source}
       await assert.rejects(stageGrowthUpdates(input.run,[{...base,kind:'ability',text:'我有丰富实习经验'}],input.growth),{code:'GROWTH_SOURCE_INVALID'})
-      // @ts-expect-error Deliberately malformed input: unverifiable constraint expiry drops that item instead of failing the turn.
       const timeDropped=await stageGrowthUpdates(input.run,[{...base,kind:'constraint',text:'只有两小时'}],input.growth)
       assert.equal(timeDropped.changes.length,0)
       assert.equal(timeDropped.skipped?.[0].reason,'unverifiable_constraint_time')
@@ -115,6 +114,40 @@ test('conversation growth changes are grounded, atomic and selectively forgettab
       assert.ok(!original.content.includes('我喜欢绘画'));assert.ok(original.content.includes('先不联系'))
       const retained=(await pool.query('SELECT snapshot FROM growth_revisions WHERE user_id=$1 AND item_id=ANY($2::uuid[])',[user,[interestId,observationId]])).rows
       assert.ok(!JSON.stringify(retained).includes('绘画'))
+    })
+    await t.test('time windows come from user words only: no year-end fabrication, next week stays future, legacy stays unverified (TIM-01/02/04/05)',async()=>{
+      // TIM-01: a weekly budget without any stated deadline stays open-ended.
+      const budget=await prepare('我每周能投入4小时。')
+      const budgetSaved=await finish(budget,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:budget.source}])
+      const budgetItem=(await growthView(user,chat)).items.find(row=>row.id===budgetSaved.growthIds[0])!
+      assert.equal(budgetItem.validUntil,null,'no deadline stated, no deadline stored')
+      assert.equal(budgetItem.timeBasis,null)
+      // TIM-02: 期末忙 never becomes Dec 31.
+      const busy=await prepare('期末忙，先不安排新任务。')
+      const busySaved=await finish(busy,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:busy.source}])
+      const busyItem=(await growthView(user,chat)).items.find(row=>row.id===busySaved.growthIds[0])!
+      assert.equal(busyItem.validUntil,null)
+      // An evidence quote the user never wrote is a hard refusal.
+      const forged=await prepare('这周先赶作业。')
+      await assert.rejects(stageGrowthUpdates(forged.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:forged.run.source_message_id,quote:'这周'},timeEvidence:{kind:'date_inclusive',date:'2026-12-31',quote:'截至2026年12月31日'}}],[]),{code:'GROWTH_TIME_UNVERIFIED'})
+      await store.terminateRun(user,forged.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
+      // TIM-04: 下周 opens next Monday — it never overwrites today's state.
+      const next=await prepare('下周我每周只有2小时。')
+      const nextSaved=await finish(next,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:next.run.source_message_id,quote:'下周我每周只有2小时'},timeEvidence:{kind:'calendar_week',which:'next',quote:'下周'}}])
+      const nextItem=(await growthView(user,chat)).items.find(row=>row.id===nextSaved.growthIds[0])!
+      assert.ok(Date.parse(nextItem.validFrom!)>Date.now(),'next week has a future validFrom')
+      assert.equal(nextItem.unavailableReason,'not_yet_active','a future window is not a current fact')
+      assert.ok(!(await growthContext(user,chat)).some(row=>row.id===nextItem.id),'today keeps the previous state')
+      // TIM-05: legacy stored expiries without a basis stay visible but explicitly unverified.
+      const legacyId=randomUUID()
+      await pool.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until) VALUES($1,$2,$3,'context','旧期限记录','user_edit','active','[]'::jsonb,'[]'::jsonb,$4)",[legacyId,user,chat,new Date(Date.now()+86400000).toISOString()])
+      const legacy=(await growthView(user,chat)).items.find(row=>row.id===legacyId)!
+      assert.equal(legacy.timeBasis,null,'no time basis means unverified_legacy, never a checked deadline')
+      await pool.query('DELETE FROM growth_items WHERE user_id=$1 AND id=$2',[user,legacyId])
+      // A user-edit date input is its own evidence, distinct from model guesses.
+      const edited=await createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind:'constraint',text:'考试周暂停',validUntil:new Date(Date.now()+3*86400000).toISOString()})
+      const editedItem=(await growthView(user,chat)).items.find(row=>row.id===edited.id)!
+      assert.equal((editedItem.timeBasis as {kind:string}|null)?.kind,'user_edit')
     })
   }finally{
     await pool.query('DELETE FROM "user" WHERE id=$1',[user]);await pool.end()

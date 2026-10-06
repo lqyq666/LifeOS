@@ -5,12 +5,13 @@ import { checkCampusSource } from './campus.ts'
 import { validate } from './contracts.ts'
 import { growthCreateSchema, growthActionSchema, type GrowthCreate, type GrowthAction } from './growth-contracts.ts'
 import { amendExactClause, carriesPersonalText, fromLegacyText, FragmentError, type Fragment, type Source } from './growth-source-fragments.ts'
+import { resolveTimeWindow, legacyValidUntilMatchesQuote, quoteStatedCutoff, TimeEvidenceError, type TimeWindow, type Zone } from './growth-time.ts'
 import type { GrowthItem, GrowthRef, GrowthView } from '../src/features/growth/types.ts'
 import type { GrowthDelta,GrowthInputDelta } from './growth-model-contracts.ts'
 import type { Run } from './store.ts'
 
 type DB = Pick<PoolClient, 'query'>
-type Row = { id: string; user_id: string; conversation_id: string; kind: GrowthItem['kind']; text: string; assertion: GrowthItem['assertion']; status: GrowthItem['status']; sources: GrowthItem['sources']; dependencies: GrowthRef[]; valid_until: Date | null; revision: number; created_at: Date; updated_at: Date; limitation?:string;progress_state?:GrowthItem['progressState'] }
+type Row = { id: string; user_id: string; conversation_id: string; kind: GrowthItem['kind']; text: string; assertion: GrowthItem['assertion']; status: GrowthItem['status']; sources: GrowthItem['sources']; dependencies: GrowthRef[]; valid_until: Date | null; valid_from: Date | null; time_basis: Record<string, unknown> | null; revision: number; created_at: Date; updated_at: Date; limitation?:string;progress_state?:GrowthItem['progressState'] }
 const fingerprint = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 export const lockGrowth = (c: DB, user: string) => c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', ['growth:' + user])
 async function owner(c: DB, user: string, conversation: string) { requireRow((await c.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2', [user, conversation])).rows[0]) }
@@ -25,12 +26,15 @@ function item(row: Row, reason: string | null = null): GrowthItem {
   const hidden = row.status === 'forgotten' || reason === 'source_revoked'
   return { id: row.id, conversationId: row.conversation_id, kind: row.kind, text: hidden ? '' : row.text, assertion: row.assertion,
     status: reason && ['active','proposed'].includes(row.status) ? 'stale' : row.status, sources: hidden ? [] : row.sources, dependencies: hidden ? [] : row.dependencies,
-    validUntil: row.valid_until?.toISOString() ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null }
+    validUntil: row.valid_until?.toISOString() ?? null, validFrom: row.valid_from?.toISOString() ?? null, timeBasis: row.time_basis ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null }
 }
 async function availability(c: DB, user: string, row: Row, rows: Map<string, Row>, memoryEnabled: boolean, conversation?: string, seen = new Set<string>()): Promise<string | null> {
   if (['forgotten', 'stale'].includes(row.status)) return row.status === 'forgotten' ? 'source_revoked' : 'changed'
   if (seen.has(row.id)) return 'dependency_cycle'
   if (row.valid_until && row.valid_until.getTime() <= Date.now()) return 'expired'
+  // A future window (下周…) is not yet a current fact: today's state keeps the
+  // previous value until the window opens.
+  if (row.valid_from && row.valid_from.getTime() > Date.now()) return 'not_yet_active'
   if (conversation && row.conversation_id !== conversation && !memoryEnabled) return 'memory_disabled'
   const next = new Set(seen).add(row.id)
   for (const source of row.sources) {
@@ -101,7 +105,7 @@ export async function createGrowthItem(user: string, raw: GrowthCreate): Promise
       const found = view.items.find(row => row.id === ref.id && row.revision === ref.revision)
       if (!found || found.unavailableReason || !['active','proposed'].includes(found.status)) throw new HttpError(409, 'GROWTH_DEPENDENCY_INVALID')
     }
-    const row = (await c.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,progress_state) VALUES($1,$2,$3,$4,$5,$6,'active',$7,$8,$9,$10) RETURNING *", [randomUUID(), user, input.conversationId, input.kind, input.text, input.kind === 'unknown' ? 'unknown' : 'user_edit', JSON.stringify([{ type: 'user_edit', quote: input.text }]), JSON.stringify(input.dependencies ?? []), validUntil,input.kind==='feedback'?input.progressState??'unknown':null])).rows[0] as Row
+    const row = (await c.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,progress_state,time_basis) VALUES($1,$2,$3,$4,$5,$6,'active',$7,$8,$9,$10,$11) RETURNING *", [randomUUID(), user, input.conversationId, input.kind, input.text, input.kind === 'unknown' ? 'unknown' : 'user_edit', JSON.stringify([{ type: 'user_edit', quote: input.text }]), JSON.stringify(input.dependencies ?? []), validUntil,input.kind==='feedback'?input.progressState??'unknown':null,validUntil?JSON.stringify({kind:'user_edit',zone:'Asia/Shanghai',anchor:new Date().toISOString()}):null])).rows[0] as Row
     await record(c, row, 'create')
     await c.query('INSERT INTO growth_operations(user_id,request_id,fingerprint,item_id) VALUES($1,$2,$3,$4)', [user, input.requestId, hash, row.id])
     return item(row)
@@ -127,10 +131,12 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
     if (input.action === 'correct' && row.kind === 'constraint' && !(input.validUntil === undefined ? row.valid_until : validUntil)) throw new HttpError(400, 'GROWTH_TIME_REQUIRED')
     const status = input.action === 'correct' ? 'active' : ({ accept:'active',pause: 'paused', complete: 'completed', reject: 'rejected', forget: 'forgotten' } as const)[input.action]
     const forgotten = status === 'forgotten'
-    const updated = (await c.query('UPDATE growth_items SET text=$3,assertion=$4,status=$5,sources=$6,valid_until=$7,limitation=$8,progress_state=$9,revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING *', [user, id,
+    // A user-edit date input is its own evidence; a cleared date clears the basis.
+    const nextBasis = forgotten ? null : input.validUntil === undefined ? row.time_basis : input.validUntil === null ? null : { kind: 'user_edit', zone: 'Asia/Shanghai', anchor: new Date().toISOString() } as Record<string, unknown>
+    const updated = (await c.query('UPDATE growth_items SET text=$3,assertion=$4,status=$5,sources=$6,valid_until=$7,limitation=$8,progress_state=$9,time_basis=$10,revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING *', [user, id,
       forgotten ? '' : input.text ?? row.text, input.action === 'correct' ? row.kind === 'unknown' ? 'unknown' : 'user_edit' : row.assertion,
       status, JSON.stringify(forgotten ? [] : input.action === 'correct' ? [{ type: 'user_edit', quote: input.text }] : row.sources), input.validUntil === undefined ? row.valid_until : validUntil,
-      forgotten||input.action==='correct'?'':row.limitation??'',forgotten?null:row.kind==='feedback'?input.progressState??row.progress_state??'unknown':null])).rows[0] as Row
+      forgotten||input.action==='correct'?'':row.limitation??'',forgotten?null:row.kind==='feedback'?input.progressState??row.progress_state??'unknown':null,nextBasis===null?null:JSON.stringify(nextBasis)])).rows[0] as Row
     if (forgotten) {
       // Preserve independent facts from the same message: tombstones cover
       // exact reported spans, rather than suppressing the whole source message.
@@ -172,7 +178,7 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
 }
 
 export type PreparedGrowthMutation =
-  | { kind: 'ordinary'; delta: GrowthDelta }
+  | { kind: 'ordinary'; delta: GrowthDelta; time?: TimeWindow }
   | {
       kind: 'split_amend'; inputIndex: number;
       parent: { id: string; revision: number };
@@ -180,12 +186,13 @@ export type PreparedGrowthMutation =
       currentSource: { messageId: string; quote: string };
       fragments: Fragment[];
       changedFragmentIndex: number;
+      time?: TimeWindow;
     }
 export type GrowthStaged={changes:GrowthDelta[];prepared:PreparedGrowthMutation[];skipped?:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]}
 const asFragmentError=(error:unknown):never=>{if(error instanceof FragmentError)throw new HttpError(400,error.code);throw error}
 const toFragmentSources=(sources:GrowthItem['sources']):Source[]=>sources.map(source=>source.type==='message'?{type:'message',id:source.id,quote:source.quote}:{type:'user_edit',quote:source.quote})
 export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[]):Promise<GrowthStaged> {
-  const current=requireRow((await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0])
+  const current=requireRow((await pool.query("SELECT content,created_at FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0]) as {content:string;created_at:Date}
   // Models routinely re-assert facts the user already stated in an earlier
   // message of this conversation, binding the old quote to the current message
   // id. Those items are dropped idempotently instead of failing the turn:
@@ -195,20 +202,31 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
   const saidEarlier=(quote:string)=>earlier.some(row=>row.content.includes(quote))
   const skipped:{quote:string,reason:'reasserted_prior_message'|'unverifiable_constraint_time'|'unverified_span'|'dropped_dependency'}[]=[]
   const skippedIndexes=new Set<number>()
-  const constraintTimeVerifiable=(change:GrowthInputDelta):boolean=>{
-    if(change.kind!=='constraint')return true
-    const value='validUntil'in change?change.validUntil:undefined
-    if(!value)return false
-    try{expiry(value)}catch{return false}
-    if(/学期|暑假|寒假/.test(change.source.quote)){
-      // A semester/vacation name supplies no cutoff; require its explicit end
-      // date in this verified span instead of fabricating an academic calendar.
-      const cutoff=Date.parse(value),day=Number.isFinite(cutoff)?new Date(cutoff).toISOString().slice(0,10):''
-      const end=change.source.quote.match(/(?:截至|截止|直到|至|到|结束于)\s*(20\d{2})(?:年|-)(\d{1,2})(?:月|-)(\d{1,2})日?/)
-      const stated=end?`${end[1]}-${end[2].padStart(2,'0')}-${end[3].padStart(2,'0')}`:null
-      if(!stated||stated!==day)return false
+  const resolvedTimes=new Map<number,TimeWindow|null>()
+  // Every expiry is derived server-side from explicit user words (P2): the
+  // model may only point at time evidence in this message. A supplied legacy
+  // validUntil is accepted only when the user's own quote states the same
+  // cutoff; anything else is GROWTH_TIME_UNVERIFIED, never silently dropped
+  // and counted as a complete update. The anchor is the source message time,
+  // so retries never shift a window.
+  const zone:Zone='Asia/Shanghai'
+  const anchorIso=new Date(current.created_at).toISOString()
+  const resolveGrowthTime=(change:GrowthInputDelta):TimeWindow|null=>{
+    const evidence='timeEvidence'in change?change.timeEvidence:undefined
+    const legacy='validUntil'in change?change.validUntil:undefined
+    if(evidence){
+      let window:TimeWindow
+      try{window=resolveTimeWindow(evidence,current.content,anchorIso,zone)}
+      catch(error){if(error instanceof TimeEvidenceError)throw new HttpError(400,'GROWTH_TIME_UNVERIFIED');throw error}
+      if(legacy&&legacy!==window.validUntil)throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
+      return window
     }
-    return true
+    if(legacy){
+      if(!legacyValidUntilMatchesQuote(legacy,change.source.quote,zone))throw new HttpError(400,'GROWTH_TIME_UNVERIFIED')
+      const stated=quoteStatedCutoff(change.source.quote,zone)!
+      return {validFrom:anchorIso,validUntil:legacy,basis:{kind:'date_inclusive',date:stated.date,quote:stated.quote,anchor:anchorIso,zone,endExclusive:true}}
+    }
+    return null
   }
   for(const [index,change] of changes.entries()){
     if(typeof (change.assertion==='user_reported'&&change.text===undefined?change.source.quote:change.text)!=='string')throw new HttpError(400,'GROWTH_SOURCE_INVALID')
@@ -222,7 +240,9 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
       skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'unverified_span'});continue
     }
     if(change.source.messageId!==run.source_message_id||!change.source.quote.trim()||!current.content.includes(change.source.quote))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
-    if(!constraintTimeVerifiable(change)){
+    const resolved=resolveGrowthTime(change)
+    resolvedTimes.set(index,resolved)
+    if(change.kind==='constraint'&&!resolved){
       // A constraint whose expiry the user never verifiably stated is unsafe to
       // save; dropping that one item keeps the turn's verified facts intact.
       skippedIndexes.add(index);skipped.push({quote:change.source.quote,reason:'unverifiable_constraint_time'});continue
@@ -247,7 +267,8 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
     // supplied paraphrase: legacy text remains subject to the same exact guard.
     const selectedText=change.assertion==='user_reported'&&change.text===undefined?change.source.quote:change.text
     if(typeof selectedText!=='string')throw new HttpError(400,'GROWTH_SOURCE_INVALID')
-    const delta:GrowthDelta={...change,text:selectedText}
+    const resolvedTime=resolvedTimes.get(index)??null
+    const delta:GrowthDelta={...change,text:selectedText,...(resolvedTime?{validUntil:resolvedTime.validUntil}:{})}
     await checkCampusSource(pool,run.user_id,run.conversation_id,true,{type:'message',id:delta.source.messageId,quote:delta.source.quote})
     if(delta.assertion==='user_reported'&&(!delta.text.trim()||delta.text.length>4000||!delta.source.quote.includes(delta.text)))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     let mutation:PreparedGrowthMutation
@@ -269,14 +290,14 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
         // One full clause in the old item: exchange that fact in place under
         // CAS (no split); anything else splits with retained siblings.
         mutation=(changedFragmentIndex>=0&&personal.length===1&&personal[0]===analysis.fragments[changedFragmentIndex])
-          ?{kind:'ordinary',delta}
-          :{kind:'split_amend',inputIndex:-1,parent:{id:selected.itemId,revision:selected.expectedRevision},beforeQuote:selected.beforeQuote,currentSource:{messageId:run.source_message_id,quote:delta.source.quote},fragments:analysis.fragments,changedFragmentIndex}
+          ?{kind:'ordinary',delta,...(resolvedTime?{time:resolvedTime}:{})}
+          :{kind:'split_amend',inputIndex:-1,parent:{id:selected.itemId,revision:selected.expectedRevision},beforeQuote:selected.beforeQuote,currentSource:{messageId:run.source_message_id,quote:delta.source.quote},fragments:analysis.fragments,changedFragmentIndex,...(resolvedTime?{time:resolvedTime}:{})}
       }else{
         if(target.text===delta.text||target.text.includes(delta.text))throw new HttpError(400,'GROWTH_UNCHANGED')
-        mutation={kind:'ordinary',delta}
+        mutation={kind:'ordinary',delta,...(resolvedTime?{time:resolvedTime}:{})}
       }
       replacements.add(target.id)
-    }else mutation={kind:'ordinary',delta}
+    }else mutation={kind:'ordinary',delta,...(resolvedTime?{time:resolvedTime}:{})}
     if(delta.assertion==='ai_observation'){
       if(!delta.limitation.trim())throw new HttpError(400,'GROWTH_OBSERVATION_INVALID')
       if(!delta.dependencies.length)throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
@@ -284,6 +305,8 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
         if('updateIndex'in ref){
           if(!Number.isInteger(ref.updateIndex)||ref.updateIndex<0||ref.updateIndex>=changes.length||changes[ref.updateIndex].assertion!=='user_reported')throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
           const basis=changes[ref.updateIndex]
+          const basisWindow=resolvedTimes.get(ref.updateIndex)
+          if(basisWindow&&Date.parse(basisWindow.validUntil)<=Date.now())throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
           if('validUntil'in basis&&basis.validUntil&&expiry(basis.validUntil)!.getTime()<=Date.now())throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
         }else if(!authorized.some(row=>row.id===ref.id&&row.revision===ref.revision&&!row.unavailableReason&&['active','proposed'].includes(row.status)))throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
       }
@@ -345,7 +368,7 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
       if(changedFragmentIndex>=0&&personal.length===1&&personal[0]===analysis.fragments[changedFragmentIndex]){
         // The old item held exactly one full clause: exchange that fact in
         // place under CAS; no split, no lineage (P1.3 step 6).
-        const updatedRow=(await c.query("UPDATE growth_items SET kind=$4,text=$5,assertion='user_reported',status='active',sources=$6,dependencies='[]',valid_until=$7,limitation='',progress_state=$8,origin_request_id=$9,revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 AND revision=$3 AND status IN ('active','proposed') RETURNING *",[run.user_id,parent.id,mutation.parent.revision,delta.kind,analysis.text,JSON.stringify([{type:'message',id:run.source_message_id,quote:mutation.currentSource.quote}]),'validUntil'in delta?expiry(delta.validUntil):null,delta.kind==='feedback'?(delta as Extract<GrowthDelta,{kind:'feedback'}>).progressState:null,run.request_id])).rows[0] as Row|undefined
+        const updatedRow=(await c.query("UPDATE growth_items SET kind=$4,text=$5,assertion='user_reported',status='active',sources=$6,dependencies='[]',valid_until=$7,limitation='',progress_state=$8,origin_request_id=$9,valid_from=$10,time_basis=$11,revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 AND revision=$3 AND status IN ('active','proposed') RETURNING *",[run.user_id,parent.id,mutation.parent.revision,delta.kind,analysis.text,JSON.stringify([{type:'message',id:run.source_message_id,quote:mutation.currentSource.quote}]),'validUntil'in delta?expiry(delta.validUntil):null,delta.kind==='feedback'?(delta as Extract<GrowthDelta,{kind:'feedback'}>).progressState:null,run.request_id,mutation.time?mutation.time.validFrom:null,mutation.time?JSON.stringify(mutation.time.basis):null])).rows[0] as Row|undefined
         if(!updatedRow)throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')
         await record(c,updatedRow,'amend')
         ids[mutation.inputIndex]=updatedRow.id;changedIds.push(updatedRow.id);written.set(mutation.inputIndex,updatedRow)
@@ -369,7 +392,7 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
         if(!childText)continue
         if(!isChanged&&fragment.source.type==='message')await checkCampusSource(c,run.user_id,parent.conversation_id,true,fragment.source,true)
         const childSource=isChanged?{type:'message' as const,id:run.source_message_id,quote:childText}:{...fragment.source,quote:childText}
-        const child=(await c.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,limitation,progress_state,origin_request_id) VALUES($1,$2,$3,$4,$5,$6,'active',$7,'[]',$8,'',$9,$10) RETURNING *",[randomUUID(),run.user_id,isChanged?run.conversation_id:parent.conversation_id,isChanged?delta.kind:parent.kind,childText,isChanged?'user_reported':parent.assertion,JSON.stringify([childSource]),isChanged&&'validUntil'in delta?expiry(delta.validUntil):null,isChanged&&delta.kind==='feedback'?(delta as Extract<GrowthDelta,{kind:'feedback'}>).progressState:null,run.request_id])).rows[0] as Row
+        const child=(await c.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,limitation,progress_state,origin_request_id,valid_from,time_basis) VALUES($1,$2,$3,$4,$5,$6,'active',$7,'[]',$8,'',$9,$10,$11,$12) RETURNING *",[randomUUID(),run.user_id,isChanged?run.conversation_id:parent.conversation_id,isChanged?delta.kind:parent.kind,childText,isChanged?'user_reported':parent.assertion,JSON.stringify([childSource]),isChanged&&'validUntil'in delta?expiry(delta.validUntil):null,isChanged&&delta.kind==='feedback'?(delta as Extract<GrowthDelta,{kind:'feedback'}>).progressState:null,run.request_id,isChanged&&mutation.time?mutation.time.validFrom:null,isChanged&&mutation.time?JSON.stringify(mutation.time.basis):null])).rows[0] as Row
         await record(c,child,'split')
         await c.query("INSERT INTO growth_item_lineage(user_id,parent_id,parent_revision,child_id,relation,fragment_role,superseded_quote) VALUES($1,$2,$3,$4,'split_from',$5,$6)",[run.user_id,parent.id,supersededRow.revision,child.id,isChanged?'changed':'retained',isChanged?mutation.beforeQuote:null])
         if(isChanged){ids[mutation.inputIndex]=child.id;changedIds.push(child.id);written.set(mutation.inputIndex,child)}
@@ -395,7 +418,7 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
     if(delta.target.operation==='create'){
       const existing=(await c.query('SELECT * FROM growth_items WHERE user_id=$1 AND kind=$2 AND text=$3 AND status IN (\'active\',\'proposed\') AND sources @> $4::jsonb AND assertion=$5 AND dependencies=$6::jsonb AND limitation=$7',[run.user_id,delta.kind,delta.text,JSON.stringify([source]),delta.assertion,JSON.stringify(refs),limitation])).rows[0]
       if(existing){ids[index]=existing.id;written.set(index,existing);continue}
-      row=(await c.query('INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,limitation,progress_state,origin_request_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *',[randomUUID(),run.user_id,run.conversation_id,delta.kind,delta.text,delta.assertion,status,JSON.stringify([source]),JSON.stringify(refs),validUntil,limitation,progressState,run.request_id])).rows[0]
+      row=(await c.query('INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,limitation,progress_state,origin_request_id,valid_from,time_basis) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *',[randomUUID(),run.user_id,run.conversation_id,delta.kind,delta.text,delta.assertion,status,JSON.stringify([source]),JSON.stringify(refs),validUntil,limitation,progressState,run.request_id,mutation.time?mutation.time.validFrom:null,mutation.time?JSON.stringify(mutation.time.basis):null])).rows[0]
     }else{
       // CAS update: a missing row is a revision conflict, never a silent
       // re-read of the newer revision (P1.6).

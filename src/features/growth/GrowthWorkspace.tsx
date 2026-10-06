@@ -65,7 +65,7 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
       <small>{assertions[item.assertion]} · {new Date(item.updatedAt).toLocaleDateString()} · 第 {item.revision} 版</small>
       {item.limitation && <p className="growth-stale">判断局限：{item.limitation}</p>}
       {item.progressState && <small>{progressLabels[item.progressState]}</small>}
-      {item.validUntil && <small>适用至 {new Date(item.validUntil).toLocaleString()}</small>}
+      {item.validUntil && <small>适用至 {new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(item.validUntil))}{item.timeBasis?'':'（期限未核验）'}</small>}
       {item.unavailableReason && <p className="growth-stale">依据或适用时间有变化，继续采用前需要核对。</p>}
       {!!item.sources.length && <details><summary>查看依据</summary>{item.sources.map((source, index) => <blockquote key={index}>{source.quote}<small>{source.type === 'user_edit' ? '你在成长工作区填写' : '你的对话原话'}</small></blockquote>)}</details>}
       {!!item.dependencies.length && <details><summary>相关个人依据（{item.dependencies.length}）</summary>{item.dependencies.map(ref => { const source = view?.items.find(candidate => candidate.id === ref.id); return <p key={ref.id}>{source?.text || '依据已不再使用'}{source && source.revision !== ref.revision ? ' · 已更正，请重新核对' : ''}</p> })}</details>}

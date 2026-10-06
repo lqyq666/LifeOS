@@ -3,6 +3,11 @@ import { Type, type Static } from 'typebox'
 const id=Type.String({pattern:'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'})
 const text=(maxLength=4000)=>Type.String({minLength:1,maxLength})
 const source=Type.Object({messageId:id,quote:text(8000)},{additionalProperties:false,description:'仅引用最后一条用户消息的连续原文；不能把助手建议或旧消息伪装成本轮用户事实。'})
+export const timeEvidenceSchema=Type.Union([
+  Type.Object({kind:Type.Literal('date_inclusive'),date:Type.String({minLength:10,maxLength:10}),quote:text(4000)},{additionalProperties:false}),
+  Type.Object({kind:Type.Literal('duration'),count:Type.Integer({minimum:1,maximum:366}),unit:Type.Union([Type.Literal('day'),Type.Literal('week')]),quote:text(4000)},{additionalProperties:false}),
+  Type.Object({kind:Type.Literal('calendar_week'),which:Type.Union([Type.Literal('this'),Type.Literal('next')]),quote:text(4000)},{additionalProperties:false}),
+],{description:'期限证据来自本轮用户原话：截至某日/接下来N天N周/本周/下周。服务器据此推导有效期（上海时区，右开区间），模型不再生成validUntil；quote必须是本轮消息中的原文片段。'})
 const target=Type.Union([
   Type.Object({operation:Type.Literal('create')},{additionalProperties:false}),
   Type.Object({operation:Type.Literal('replace'),itemId:id,expectedRevision:Type.Integer({minimum:1})},{additionalProperties:false}),
@@ -14,6 +19,7 @@ const dependencies=Type.Array(Type.Union([
 ]),{minItems:1,maxItems:12,description:'依据来自授权growth准确id/revision，或本轮明确user_reported增量的updateIndex。不引用助手文字、编造ID或本轮replace的旧版本；更正后的事实用updateIndex明确引用。观察始终待核对并保留局限。'})
 const reportedFields={
   text:Type.Optional({...text(),description:'兼容旧输出；若提供必须逐字来自source.quote。推荐省略，由服务器直接保存已核实的一项本人原话，避免重复改写。'}),source,
+  timeEvidence:Type.Optional({...timeEvidenceSchema,description:'仅当本轮原话明确给出期限时提供；服务器校验并推导有效期。'}),
 }
 // Select information status before its category in every constrained branch.
 // This is protocol consistency; real-model classification still needs review.
@@ -25,7 +31,7 @@ const reported=Type.Object({
 },{additionalProperties:false,description:'本人本轮明确提供的实际情况。未定期限的个人时间预算、经济情况和地域愿望可用context原样保留，不猜日期；有明确有效期才用单独constraint分支。反馈区分未做/已尝试/卡住/完成动作/不知道，结果未知不等于动作失败。'})
 const constraint=Type.Object({
   target,assertion:Type.Literal('user_reported'),kind:Type.Literal('constraint'),...reportedFields,
-  validUntil:{...text(40),description:'必填ISO有效期，必须依据本人明确截止日或可核对的相对时长计算。学期/假期名称不能推算结束日；有效期未知时不要生成constraint，改用context保留原话并核对期限。'},
+  validUntil:Type.Optional({...text(40),description:'兼容旧协议；新输出省略并改用timeEvidence。若仍提供，必须与用户原话中明确截止日一致，否则服务器拒绝。学期/假期名称不能推算结束日；期限未知时不要生成constraint，改用context保留原话并核对期限。'}),
 },{additionalProperties:false,description:'有明确可核对有效期的本人临时约束。本人愿望、未定期限的时间预算和经济情况用context；不要补默认日期或将愿望升级为硬性限制。'})
 const feedback=Type.Object({
   target,assertion:Type.Literal('user_reported'),kind:Type.Literal('feedback'),...reportedFields,

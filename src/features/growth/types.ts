@@ -7,10 +7,11 @@ export type GrowthKind = keyof typeof growthLabels
 export type GrowthStatus = 'active' | 'proposed' | 'paused' | 'completed' | 'rejected' | 'forgotten' | 'stale'
 export type GrowthRef = { id: string; revision: number }
 export type GrowthSource = { type: 'user_edit'; quote: string } | { type: 'message'; id: string; quote: string }
+export type GrowthTimeBasis = Record<string, unknown> | null
 export type GrowthItem = {
   id: string; conversationId: string; kind: GrowthKind; text: string;
   assertion: 'user_reported' | 'user_edit' | 'ai_observation' | 'unknown'; status: GrowthStatus;
-  sources: GrowthSource[]; dependencies: GrowthRef[]; validUntil: string | null;
+  sources: GrowthSource[]; dependencies: GrowthRef[]; validUntil: string | null; validFrom?: string | null; timeBasis?: GrowthTimeBasis;
   revision: number; createdAt: string; updatedAt: string; unavailableReason: string | null;
   limitation?: string; progressState?: 'unattempted' | 'attempted' | 'stuck' | 'completed' | 'unknown' | null;
 }

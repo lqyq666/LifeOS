@@ -78,3 +78,7 @@ DOCX分别提取2669/591字符，XLSX1611非空单元格；人工核对细则“
 ## P1 amend 协议与复合事实拆分（2026-10-06，本地，零Provider）
 
 growth-source-fragments 纯函数模块来自工单附录A指定参考实现（工单声明已在独立 Node 30/30 通过；磁盘上无 reference/ 目录，按工单附录A逐字复制，差异记入 REPAIR-20261006.md）。未引入新依赖；复用现有 TypeBox target union、campus-knowledge.importKnowledge 无关、checkCampusSource/checkCampusSource 来源校验、lockGrowth 事务锁序、growth_revisions 审计与 growth_source_suppressions 精确遗忘。018 迁移 SQL 按工单原文。model-payload 的 amend itemId/expectedRevision 配对沿用既有 replace 单分支配对机制（一个授权项一个备选分支，模型无法跨项混配 id/revision）。
+
+## P2 期限服务器推导（2026-10-06，本地，零Provider）
+
+growth-time 纯函数来自工单附录A（同 P1 方式逐字复制）并按工单 P2.2 增加无副作用中文整数转换 chineseInteger（三/两/六等，duration 支持中文数量词，quote 保留原话）。无新依赖；时区仅实现 Asia/Shanghai 与 UTC，未覆盖表达明确拒绝（GROWTH_TIME_UNVERIFIED）。复用既有 expiry/018 迁移列（valid_from/time_basis）、growth_source_suppressions 与 013 既有时间校验路径；UI 仅改日期显示为上海时区（Intl.DateTimeFormat）。
