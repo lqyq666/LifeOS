@@ -130,3 +130,24 @@ test('direction controls persist per account, expand 升学 atomically, resume o
 })
 
 test.after(async()=>{await pool.end()})
+import { scanUserClauses } from '../../server/user-command-spans.ts'
+
+test('N1.1 audit cases: questions, conditionals and quotes never become pause settings',()=>{
+  // A01: a question never executes; A05 keeps 为什么 answerable (not pure).
+  assert.deepEqual(deriveExplicitDirectionControls('暂停考研吗？'),{status:'none'})
+  assert.deepEqual(deriveExplicitDirectionControls('要不要暂停考研？'),{status:'none'})
+  assert.deepEqual(deriveExplicitDirectionControls('你是不是要停止推考研建议？'),{status:'none'})
+  // A02: conditional spans the comma; the realistic clause after the turn is valid.
+  assert.deepEqual(deriveExplicitDirectionControls('如果压力太大，就暂停考研'),{status:'none'})
+  assert.deepEqual(deriveExplicitDirectionControls('如果以后不考研了，先别推考研建议。'),{status:'none'})
+  assert.equal(deriveExplicitDirectionControls('如果压力太大再说，现在先暂停考研建议。').status,'explicit')
+  // Kept positives and attribution negatives.
+  const pause=deriveExplicitDirectionControls('先暂停考研建议。')
+  assert.equal(pause.status,'explicit')
+  assert.deepEqual(deriveExplicitDirectionControls('朋友说：暂停考研'),{status:'none'})
+  assert.equal(deriveExplicitDirectionControls('暂停考研建议。另外帮我安排课程。').status,'explicit')
+  // Politeness question asks for confirmation instead of executing.
+  assert.equal(deriveExplicitDirectionControls('请暂停考研建议，可以吗？').status,'needs_confirmation')
+  // Backtick content is not a command.
+  assert.deepEqual(deriveExplicitDirectionControls('代码：`先暂停考研` 不执行'),{status:'none'})
+})

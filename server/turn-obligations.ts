@@ -1,11 +1,13 @@
 import {chineseInteger} from './growth-time.ts'
+import { scanUserClauses, parseExactHours } from './user-command-spans.ts'
 import type { DirectionScope, RawDirectionControl, PreparedDirectionControls } from './growth-controls.ts'
 import type { GrowthStaged } from './growth.ts'
 
-// P5.2: obligations exist only for explicit, checkable commands — never for
-// small talk. This is a limited syntax detector (subject, negation,
-// hypothetical, bounds), not a general semantic classifier; unseen phrasings
-// simply create no obligation and stay open to review.
+// P5.2/N1.2: obligations exist only for explicit, checkable commands — never
+// for small talk, questions, conditionals or other people's words. This is a
+// limited syntax detector built on the shared clause scanner, not a general
+// semantic classifier; unseen phrasings create no obligation and stay open to
+// review (or surface as needs_confirmation upstream).
 export type RequiredEffect =
   | {type:'weekly_time';quote:string;minutes:number;period:'current'|'this_week'|'next_week'}
   | {type:'direction_control';scopes:DirectionScope[];operation:'pause'|'resume'}
@@ -15,33 +17,55 @@ export type TurnObligations = {
   requiredEffects:RequiredEffect[]
 }
 
-const clauseSplit=/[，,；;。！？!?\n]/
 const thirdPersonSubject=/^(?:室友|同学|朋友|他|她|他们|她们|别人|大家|我妈|我爸|父母|家人|老师|辅导员)/
-const hypothetical=/(?:如果|要是|假如|假设|万一)/
-const negation=/(?:不是|并没有|没说|并非)/
-const vagueBound=/(?:大概|大约|左右|至少|最多|不超过|可能)/
-const weeklyBudget=/每(?:周|星期)[^，,。；;！？!?\n]{0,8}?([\d零一二两三四五六七八九十百]+)\s*(?:个)?(?:个)?(?:小时|钟头)/
+const inexactBudget=/(?:大概|大约|左右|至少|最多|不超过|可能|到|至|－|~)/
+// The full numeric token is captured atomically so a decimal point can never
+// be swallowed by a wildcard prefix (N1.2: 1.5小时 is 90 minutes, not 300).
+const weeklyBudget=/每(?:周|星期)[^，,。；;！？!?\n]{0,8}?([0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+)(?:个)?(?:小时|钟头)/
+// Bare amounts (做作品花了3小时) resolve exactly but never claim to be weekly.
+const bareHours=/([0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+)\s*(?:个)?(?:小时|钟头)/
 
 export function weeklyTimeIntent(text:string):{quote:string;minutes:number;period:'current'|'this_week'|'next_week'}|null{
-  for(const clause of text.split(clauseSplit)){
-    const trimmed=clause.trim()
-    if(!trimmed)continue
-    if(hypothetical.test(trimmed))continue
-    if(negation.test(trimmed)&&weeklyBudget.test(trimmed))continue
-    if(thirdPersonSubject.test(trimmed))continue
-    if(vagueBound.test(trimmed))continue
-    const match=weeklyBudget.exec(trimmed)
-    if(!match)continue
-    const hours=chineseInteger(match[1]!)
-    if(hours===null||hours<1||hours>100)continue
-    const period=/下周/.test(trimmed)?'next_week':/(?:这周|本周)/.test(trimmed)?'this_week':'current'
-    return {quote:trimmed,minutes:hours*60,period}
+  for(const sentence of groupBySentence(scanUserClauses(text))){
+    // Period markers inherit from earlier clauses of the same sentence.
+    let period:'current'|'this_week'|'next_week'='current'
+    for(const clause of sentence){
+      const body=clause.text.trim()
+      if(!body)continue
+      if(/下周/.test(body))period='next_week'
+      else if(/(?:这周|本周)/.test(body))period='this_week'
+      // N1.1 guards: quoted/code spans, other people's speech, conditional
+      // clauses and question clauses never state the user's current budget.
+      if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther)continue
+      if(clause.interrogative)continue
+      if(thirdPersonSubject.test(body))continue
+      // An explicit negation of the amount is not a budget statement.
+      if(/(?:不是|并没有|没说|并非|没)/.test(body))continue
+      if(inexactBudget.test(body))continue
+      // 这周剩N小时 is a remaining budget, not a weekly one; refused this batch.
+      if(/剩/.test(body)&&!weeklyBudget.test(body))continue
+      const match=weeklyBudget.exec(body)
+      if(!match)continue
+      const minutes=parseExactHours(match[1]!)
+      if(minutes===null)continue
+      if(minutes<0||minutes>10080)continue
+      return {quote:body,minutes,period}
+    }
   }
   return null
 }
 
-// Pure by construction: the caller (engine) runs the growth-controls deriver
-// and passes the explicit changes in; this module never loads database code.
+function groupBySentence(clauses:readonly UserClauseLike[]):UserClauseLike[][]{
+  const groups:UserClauseLike[][]=[]
+  let currentKey=-1
+  for(const clause of clauses){
+    if(clause.sentenceStart!==currentKey){currentKey=clause.sentenceStart;groups.push([])}
+    groups.at(-1)!.push(clause)
+  }
+  return groups
+}
+type UserClauseLike={start:number;end:number;text:string;delimiter:string;sentenceStart:number;sentenceEnd:number;quoted:boolean;code:boolean;conditional:boolean;attributedToOther:boolean;interrogative:boolean}
+
 export function deriveTurnObligations(currentText:string,options:{resumePortfolioMode?:boolean;directionControls?:readonly RawDirectionControl[]}={}):TurnObligations{
   const effects:RequiredEffect[]=[]
   const weekly=weeklyTimeIntent(currentText)
@@ -59,17 +83,25 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
 
 // A pure control message contains nothing but the explicit command clauses and
 // trivial connectives — it can be answered deterministically without a model.
+const ignorableConnectives=new Set(['谢谢','好的','好','请','嗯','哦','ok','OK','Okay','okay'])
 export function isPureControlCommand(currentText:string,obligations:TurnObligations,controlQuotes:readonly string[]):boolean{
   if(obligations.kind!=='direction_control'||!obligations.requiredEffects.length||!controlQuotes.length)return false
   const controlClauses=new Set(controlQuotes)
-  return currentText.split(clauseSplit).map(clause=>clause.trim()).every(clause=>!clause||controlClauses.has(clause)||clause.length<=3)
+  return scanUserClauses(currentText).every(clause=>{
+    const body=clause.text.trim()
+    // Only whitespace, pure punctuation and fixed politeness words are neutral;
+    // any real content (为什么/怎么办/会怎样…) keeps the turn out of the
+    // zero-model shortcut so the question is actually answered.
+    return !body||!/[\p{L}\p{N}]/u.test(body)||controlClauses.has(body)||ignorableConnectives.has(body)
+  })
 }
 
 const hoursIn=(text:string):number|null=>{
-  const match=weeklyBudget.exec(text)??/(?:^|[^\d])(\d{1,3})\s*(?:个)?小时/.exec(text)
-  if(!match)return null
-  const value=chineseInteger(match[1]!)
-  return value!==null&&value>=1&&value<=100?value:null
+  const weekly=weeklyBudget.exec(text)
+  if(weekly)return parseExactHours(weekly[1]!)
+  const bare=bareHours.exec(text)
+  if(!bare)return null
+  return parseExactHours(bare[1]!)
 }
 
 export type ObligationVerificationInput={
@@ -86,15 +118,14 @@ export type ObligationVerificationInput={
 export function verifyTurnObligations(obligations:TurnObligations,staged:ObligationVerificationInput):void{
   for(const effect of obligations.requiredEffects){
     if(effect.type==='weekly_time'){
-      const hours=effect.minutes/60
       const covered=(staged.growth?.changes??[]).some(delta=>delta.assertion==='user_reported'
         &&['context','constraint'].includes(delta.kind)
         &&staged.currentText.includes(delta.source.quote)
-        &&hoursIn(delta.text)===hours)
+        &&hoursIn(delta.text)===effect.minutes)
       if(!covered)throw new ObligationError('GROWTH_REQUIRED_UPDATE_MISSING')
     }
     if(effect.type==='direction_control'){
-      const covered=(staged.controls?.changes??[]).some(change=>change.operation===effect.operation&&effect.scopes.every(scope=>change.scopes.includes(scope)))
+      const covered=(staged.controls?.changes?.length??0)>0&&(staged.controls?.changes??[]).some(change=>change.operation===effect.operation&&effect.scopes.every(scope=>change.scopes.includes(scope)))
       if(!covered)throw new ObligationError('DIRECTION_CONTROL_NOT_APPLIED')
     }
   }
@@ -107,11 +138,11 @@ export function verifyReplyAgainstObligations(obligations:TurnObligations,reply:
   for(const effect of obligations.requiredEffects){
     if(effect.type!=='weekly_time')continue
     const hours=effect.minutes/60
-    for(const match of reply.matchAll(/每(?:周|星期)[^，,。；;！？!\n]{0,8}?(\d{1,3})\s*(?:个)?(?:小时|钟头)/g)){
-      const stated=Number(match[1])
-      if(!Number.isFinite(stated)||stated===hours)continue
+    for(const match of reply.matchAll(/每(?:周|星期)[^，,。；;！？!\n]{0,8}?([0-9]+(?:\.[0-9]{1,2})?|\d{1,3})\s*(?:个)?(?:小时|钟头)/g)){
+      const stated=parseExactHours(match[1]!)
+      if(stated===null||stated===effect.minutes)continue
       const before=reply.slice(Math.max(0,match.index-8),match.index)
-      if(/(?:从|降到|改为|变为|变成|减到|减少到|降到|换成|改到|低于|超过|多于|不到|最多|至少)/.test(before+match[0]))continue
+      if(/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|低于|超过|多于|不到|最多|至少)/.test(before+match[0]))continue
       throw new ObligationError('REPLY_CONTRADICTS_CURRENT_EFFECT')
     }
   }

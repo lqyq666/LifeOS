@@ -8,7 +8,7 @@ test('weekly time intent: only the user\'s own explicit weekly budget creates an
   assert.deepEqual(weeklyTimeIntent('我每周只有3小时'),{quote:'我每周只有3小时',minutes:180,period:'current'})
   assert.deepEqual(weeklyTimeIntent('我每周只有两小时'),{quote:'我每周只有两小时',minutes:120,period:'current'})
   assert.deepEqual(weeklyTimeIntent('下周我每周三小时都得排满'),{quote:'下周我每周三小时都得排满',minutes:180,period:'next_week'})
-  assert.deepEqual(weeklyTimeIntent('这周每周就剩这些了，先按每周4小时安排'),{quote:'先按每周4小时安排',minutes:240,period:'current'})
+  assert.deepEqual(weeklyTimeIntent('这周每周就剩这些了，先按每周4小时安排'),{quote:'先按每周4小时安排',minutes:240,period:'this_week'},'周期从同句前置分句继承（N1.2）')
   assert.deepEqual(weeklyTimeIntent('这周先按每周4小时安排'),{quote:'这周先按每周4小时安排',minutes:240,period:'this_week'})
   for(const negative of [
     '室友每周3小时。',

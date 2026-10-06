@@ -2,6 +2,7 @@ import {createHash} from 'node:crypto'
 import type { PoolClient } from 'pg'
 import { pool, HttpError, requireRow } from './db.ts'
 import type { Run } from './store.ts'
+import { scanUserClauses } from './user-command-spans.ts'
 
 // P3: durable, cross-session direction controls. Pausing a direction is an
 // account setting derived only from the user's own explicit words in the
@@ -84,17 +85,27 @@ export function deriveExplicitDirectionControls(currentText:string):
   {status:'none'} |
   {status:'explicit'; changes:RawDirectionControl[]} |
   {status:'needs_confirmation'; reason:string}{
-  const clauses=currentText.split(clauseSplit).map(clause=>clause.trim()).filter(Boolean)
+  const clauses=scanUserClauses(currentText)
   const changes:RawDirectionControl[]=[]
   for(const clause of clauses){
-    const pause=pauseVerbs.exec(clause)
-    const resume=resumeVerbs.exec(clause)
+    const body=clause.text.trim()
+    if(!body)continue
+    // N1.1: quoted/code spans, other people's speech, conditional clauses and
+    // question clauses are never the user's own affirmative command.
+    if(clause.quoted||clause.code||clause.attributedToOther||clause.conditional||clause.interrogative)continue
+    const pause=pauseVerbs.exec(body)
+    const resume=resumeVerbs.exec(body)
     if(!pause&&!resume)continue
     const verbIndex=pause?pause.index:resume!.index
-    if(!commandIsUsersOwn(clause,verbIndex))continue
+    // A command matched inside a protected span (backticks/quotes) is not the
+    // user's instruction even when the surrounding clause looks affirmative.
+    const absolute=clause.start+verbIndex
+    if(clause.codeSpans.some(span=>absolute>=span.start&&absolute<span.end))continue
+    if(clause.quoteSpans.some(span=>absolute>=span.start&&absolute<span.end))continue
+    if(!commandIsUsersOwn(body,verbIndex))continue
     const scopes=new Set<DirectionScope>()
     for(const {pattern,scopes:resolve} of directionPatterns){
-      if(pattern.test(clause))for(const scope of resolve())scopes.add(scope)
+      if(pattern.test(body))for(const scope of resolve())scopes.add(scope)
     }
     if(!scopes.size){
       // A pause/resume command with no recognizable direction: broad
@@ -105,9 +116,13 @@ export function deriveExplicitDirectionControls(currentText:string):
       // Two opposing commands in one clause are ambiguous by construction.
       return {status:'needs_confirmation',reason:'PAUSE_RESUME_CONFLICT'}
     }
-    changes.push({scopes:[...scopes].sort((a,b)=>a.localeCompare(b)),operation:pause?'pause':'resume',quote:clause})
+    changes.push({scopes:[...scopes].sort((a,b)=>a.localeCompare(b)),operation:pause?'pause':'resume',quote:body})
   }
   if(!changes.length)return {status:'none'}
+  // An explicit command followed by a politeness question in the same sentence
+  // is a confirmation request, not an executed setting.
+  const politenessQuestion=clauses.some(clause=>clause.interrogative&&/(?:可以吗|好吗|行吗|可以么|行不行|对吗)/.test(clause.text))
+  if(changes.length&&politenessQuestion)return {status:'needs_confirmation',reason:'PAUSE_CONFIRMATION_REQUESTED'}
   return {status:'explicit',changes}
 }
 
