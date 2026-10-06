@@ -102,3 +102,7 @@ P6/P7 无新依赖：双分母/ReviewRow/速度口径复用现有 scripts 结构
 ## R2 批次（2026-10-06，本地，零真实Provider/Coze调用）
 
 按 GLM_NEXT_EXECUTION_ORDER.md R2 执行，接续R1九提交。新增模块：user-command-spans（单遍原文分句扫描器：绝对offset、代码/引号保护span、条件与转述句内状态机、分句级问句标记；供指令与时间两检测器共用，未覆盖表达交回调用方确认）、weekly-plans（复用growth_items priority/ai_observation/proposed，018/019/020既有列承载结构化计划）、coze-public-query（白名单公共检索词构造，输出仅由结构化字段组成）。020迁移SQL按工单原文。无新npm依赖。真实扣子API按工单S1官方 /v1/workflow/run 契约实现（本地mock验证），真实连通未测（无PAT/workflowId）。validation-preflight --offline 零联网预检（凭据仅存在性布尔，账本只读解析）。全部本地检查见 NEXT-20261006-R2.md。
+
+## 扣子AI编程工作流批次（2026-10-06，真实CLI操作）
+
+按 GLM_COZE_AUTOMATION.md C1 执行。官方 Coze CLI 0.3.11（用户升级），设备授权流程由用户确认后 logged_in=true。空间：个人空间 7651603600241836078（唯一，无歧义）。无既有 LifeOS 项目 → 创建 AI编程workflow 项目 7693465311558795327（一次性 create，session 363941496948738）。云端使用官方 KnowledgeClient（coze-coding-dev-sdk 0.5.25，/v1/knowledge_base/batch_import + recall，新版 Knowledge 数据库，非旧版 datasets），8份gov.cn公开资料（幂等复验：同版本重复导入零新增、doc_id不变）。部署 7693525668302422058（commit 7cf4bd7b...，域名 https://7hdbk4bb24.coze.site，状态 Succeeded，未自动fix/redeploy）。本地新增 server/coze-code-workflow.ts（code_workflow 传输适配器：固定端点校验 .coze.cn/.coze.run/.coze.site + /run 路径、redirect:error、256KiB累计字节上限、CANCELLED/401/403/429/超时独立错误类别、专用运行时Token不与CLI OAuth混用）+ scripts/validate-coze-code-workflow.ts（默认零联网 preflight，--real 显式分支）+ tests/backend/coze-code-workflow.test.ts（传输边界全mock）。引擎传输选择互斥：code_workflow 配置齐全时独用，失败不自动切换另一种传输。全量本地检查通过（74单测+适配器5+引擎44+coze 6+typecheck×2+build）。

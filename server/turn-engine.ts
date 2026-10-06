@@ -22,6 +22,7 @@ import { growthContext, growthBoundaryContext, growthSnapshotKey, stageGrowthUpd
 import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionControls, overlayDirectionChanges, directionControlsSnapshotKey, allScopes } from './growth-controls.ts'
 import { redactGrowthHistory } from './growth-privacy.ts'
 import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCandidates, CozeRetrievalError } from './coze-knowledge.ts'
+import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKnowledge, CodeWorkflowError, type CodeWorkflowConfig } from './coze-code-workflow.ts'
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
 import { stageWeeklyPlan } from './weekly-plans.ts'
@@ -191,26 +192,48 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     // Failures are audit-only; candidates map through the reviewed registry.
     const publicQuery=buildPublicKnowledgeQueryFromText(current.content)
     if(publicQuery){
-      const cozeConfig=cozeConfigFrom()
-      const cozeMissing=cozeMissingConfig(cozeConfig)
-      if(cozeMissing&&cozeMissing.includes('DISABLED')){
+      const rendered=renderPublicKnowledgeQuery(publicQuery)
+      // S6: transport selection is exclusive — code_workflow (deployed
+      // read-only API) when configured, else the legacy resource_workflow
+      // PAT path. One request uses exactly one transport; a failure never
+      // auto-switches to the other (no double billing).
+      const codeConfig=codeWorkflowConfigFrom()
+      const codeMissing=codeWorkflowMissingConfig(codeConfig)
+      const resourceConfig=cozeConfigFrom()
+      const resourceMissing=cozeMissingConfig(resourceConfig)
+      const codeActive=!codeMissing
+      if(codeMissing&&codeMissing.includes('DISABLED')&&(!resourceMissing||resourceMissing.includes('DISABLED'))){
         staged.audit.push({phase:'coze_knowledge_skipped',reason:'disabled_by_default'})
-      }else if(cozeMissing&&cozeMissing.length){
-        staged.audit.push({phase:'coze_knowledge_skipped',reason:'CONFIG_MISSING',missing:cozeMissing})
-      }else{
+      }else if(codeActive){
         try{
-          const rendered=renderPublicKnowledgeQuery(publicQuery)
-          const result=await searchCozePublicKnowledge(publicQuery,rendered,signal,cozeConfig)
-          const mapped=await mapCozeCandidates(result.hits,cozeConfig)
-          staged.audit.push({phase:'coze_knowledge_candidates',latencyMs:result.latencyMs,workflowVersion:result.version,hits:result.hits.length,verified:mapped.verified.length,unverified:mapped.unverifiedDocumentIds.length,costState:'separate_ledger_unknown_until_real'})
+          const result=await searchCodeWorkflowKnowledge(rendered,signal,codeConfig)
+          const mapped=await mapCozeCandidates(result.hits,{enabled:true,workflowId:codeConfig.projectId,workflowVersion:codeConfig.release,pat:'',timeoutMs:codeConfig.timeoutMs,maxItems:6})
+          staged.audit.push({phase:'coze_knowledge_candidates',transport:'code_workflow',latencyMs:result.latencyMs,workflowVersion:result.release,hits:result.hits.length,verified:mapped.verified.length,unverified:mapped.unverifiedDocumentIds.length,costState:'separate_ledger_unknown_until_real'})
+          if(mapped.verified.length){
+            const existing=new Set(knowledge.map(card=>card.id))
+            for(const candidate of mapped.verified)if(!existing.has(candidate.card.id)){knowledge=[...knowledge,candidate.card.payload];existing.add(candidate.card.id)}
+          }
+        }catch(error){
+          const code=error instanceof CodeWorkflowError?error.code:'CODE_REQUEST_FAILED'
+          staged.audit.push({phase:'coze_knowledge_failed',transport:'code_workflow',code})
+        }
+      }else if(codeMissing&&codeMissing.length&&!codeMissing.includes('DISABLED')&&(!resourceMissing||resourceMissing.includes('DISABLED'))){
+        staged.audit.push({phase:'coze_knowledge_skipped',transport:'code_workflow',reason:'CONFIG_MISSING',missing:codeMissing})
+      }else if(!resourceMissing||resourceMissing.length===0){
+        try{
+          const result=await searchCozePublicKnowledge(publicQuery,rendered,signal,resourceConfig)
+          const mapped=await mapCozeCandidates(result.hits,resourceConfig)
+          staged.audit.push({phase:'coze_knowledge_candidates',transport:'resource_workflow',latencyMs:result.latencyMs,workflowVersion:result.version,hits:result.hits.length,verified:mapped.verified.length,unverified:mapped.unverifiedDocumentIds.length,costState:'separate_ledger_unknown_until_real'})
           if(mapped.verified.length){
             const existing=new Set(knowledge.map(card=>card.id))
             for(const candidate of mapped.verified)if(!existing.has(candidate.card.id)){knowledge=[...knowledge,candidate.card.payload];existing.add(candidate.card.id)}
           }
         }catch(error){
           const code=error instanceof CozeRetrievalError?error.code:'COZE_REQUEST_FAILED'
-          staged.audit.push({phase:'coze_knowledge_failed',code})
+          staged.audit.push({phase:'coze_knowledge_failed',transport:'resource_workflow',code})
         }
+      }else{
+        staged.audit.push({phase:'coze_knowledge_skipped',reason:'CONFIG_MISSING',missing:[...(codeMissing??[]).filter(k=>k!=='DISABLED'),...(resourceMissing??[]).filter(k=>k!=='DISABLED')]})
       }
     }
   }
