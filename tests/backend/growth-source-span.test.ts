@@ -40,9 +40,13 @@ test('source-only reported facts use verified user spans while legacy paraphrase
     const timeSkipped=await stageGrowthUpdates(run,[{...delta('本周仅两小时'),kind:'constraint'},{...delta('先不联系，可以吗？')}],[])
     assert.deepEqual(timeSkipped.changes.map(row=>row.text),['先不联系，可以吗？'],'missing constraint expiry drops only that item')
     assert.equal(timeSkipped.skipped?.[0].reason,'unverifiable_constraint_time')
-    // A supplied legacy expiry the user never stated is refused outright, never
-    // silently dropped and counted as a complete update (P2).
-    await assert.rejects(stageGrowthUpdates(run,[{...delta('本学期每周最多四小时'),kind:'constraint',validUntil:`${academicYear}-12-31T23:59:59Z`}],[]),{code:'GROWTH_TIME_UNVERIFIED'})
+    // A supplied legacy expiry the user never stated is never saved. Since P1
+    // an invented constraint expiry is skipped item-wise (the real-run model
+    // kept attaching made-up windows to ordinary weekly budgets and poisoned
+    // whole turns); it is still never silently counted as a complete update.
+    const invented=await stageGrowthUpdates(run,[{...delta('本学期每周最多四小时'),kind:'constraint',validUntil:`${academicYear}-12-31T23:59:59Z`}],[])
+    assert.equal(invented.changes.length,0)
+    assert.equal(invented.skipped?.some(skip=>skip.reason==='unverifiable_constraint_time'),true)
     // An explicitly stated cutoff resolves server-side: Shanghai Oct-21-style
     // right-open boundary, with the basis stored for later verification.
     const dated=(await stageGrowthUpdates(run,[{...delta(academicSpan),kind:'constraint',timeEvidence:{kind:'date_inclusive',date:`${academicYear}-12-31`,quote:`截至${academicYear}年12月31日`}}],[])).changes[0]!

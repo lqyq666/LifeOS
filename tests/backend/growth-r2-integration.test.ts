@@ -87,10 +87,11 @@ test('growth write wiring: composite guards, exact write results, time columns (
     })
     await t.test('time evidence cannot borrow a date from another fact in the same message',async()=>{
       const input=await prepare('考试安排：截至2026年12月31日交作品。每周只有4小时。')
-      await assert.rejects(
-        stageGrowthUpdates(input.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:input.run.source_message_id,quote:'每周只有4小时'},timeEvidence:{kind:'date_inclusive',date:'2026-12-31',quote:'截至2026年12月31日'}}],input.growth),
-        {code:'GROWTH_TIME_UNVERIFIED'},
-        '证据quote与事实quote不在同一分句，不能借用日期')
+      // P1: an unverifiable constraint is skipped item-wise (never saved with a
+      // borrowed date) instead of failing the whole turn.
+      const borrowedStaged=await stageGrowthUpdates(input.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:input.run.source_message_id,quote:'每周只有4小时'},timeEvidence:{kind:'date_inclusive',date:'2026-12-31',quote:'截至2026年12月31日'}}],input.growth)
+      assert.equal(borrowedStaged.changes.length,0,'证据quote与事实quote不在同一分句，不能借用日期')
+      assert.equal(borrowedStaged.skipped?.some(skip=>skip.reason==='unverifiable_constraint_time'),true)
       await store.terminateRun(user,input.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
     })
     await t.test('time evidence inside the fact clause binds correctly',async()=>{

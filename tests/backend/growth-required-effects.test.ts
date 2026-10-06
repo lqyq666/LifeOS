@@ -45,7 +45,22 @@ test('remaining-this-week budget lands as a week-scoped constraint, never open-e
     })
     await t.test('a next-week marker never scopes this-week remaining evidence',async()=>{
       const attempt=await prepare(text)
-      await assert.rejects(stageGrowthUpdates(attempt.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:attempt.run.source_message_id,quote:'只剩两小时能用了'},timeEvidence:{kind:'calendar_week',which:'next',quote:'这周'}}],attempt.growth),(error:unknown)=>error instanceof Error&&(error as {code?:string}).code==='GROWTH_TIME_UNVERIFIED')
+      // A mismatched calendar_week (which:next with a this-week quote) can never
+      // verify; since P1 the bogus constraint is skipped rather than failing
+      // the turn — nothing with an invented window is ever saved.
+      const staged=await stageGrowthUpdates(attempt.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:attempt.run.source_message_id,quote:'只剩两小时能用了'},timeEvidence:{kind:'calendar_week',which:'next',quote:'这周'}}],attempt.growth)
+      assert.equal(staged.changes.length,0)
+      assert.equal(staged.skipped?.some(skip=>skip.reason==='unverifiable_constraint_time'),true)
+      await store.terminateRun(user,attempt.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
+    })
+    await t.test('a constraint with SUPPLIED-but-unverifiable evidence is skipped, not a turn failure (P1)',async()=>{
+      const attempt=await prepare('每周10小时。')
+      const staged=await stageGrowthUpdates(attempt.run,[
+        {target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:attempt.run.source_message_id,quote:'每周10小时'},timeEvidence:{kind:'calendar_week',which:'this',quote:'每周'}},
+        {target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:attempt.run.source_message_id,quote:'每周10小时'}},
+      ],attempt.growth)
+      assert.equal(staged.skipped?.some(skip=>skip.reason==='unverifiable_constraint_time'&&skip.quote==='每周10小时'),true,'the bogus-evidence constraint is dropped')
+      assert.ok(staged.changes.some(delta=>delta.kind==='context'&&delta.assertion==='user_reported'),'the sibling context fact survives')
       await store.terminateRun(user,attempt.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
     })
   }finally{

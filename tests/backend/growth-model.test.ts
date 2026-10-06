@@ -127,9 +127,13 @@ test('conversation growth changes are grounded, atomic and selectively forgettab
       const busySaved=await finish(busy,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:busy.source}])
       const busyItem=(await growthView(user,chat)).items.find(row=>row.id===busySaved.growthIds[0])!
       assert.equal(busyItem.validUntil,null)
-      // An evidence quote the user never wrote is a hard refusal.
+      // An evidence quote the user never wrote is never saved. Since P1 an
+      // unverifiable constraint is skipped item-wise instead of failing the
+      // whole turn; the forged window still never persists.
       const forged=await prepare('这周先赶作业。')
-      await assert.rejects(stageGrowthUpdates(forged.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:forged.run.source_message_id,quote:'这周'},timeEvidence:{kind:'date_inclusive',date:'2026-12-31',quote:'截至2026年12月31日'}}],[]),{code:'GROWTH_TIME_UNVERIFIED'})
+      const forgedStaged=await stageGrowthUpdates(forged.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:forged.run.source_message_id,quote:'这周'},timeEvidence:{kind:'date_inclusive',date:'2026-12-31',quote:'截至2026年12月31日'}}],[])
+      assert.equal(forgedStaged.changes.length,0)
+      assert.equal(forgedStaged.skipped?.some(skip=>skip.reason==='unverifiable_constraint_time'),true)
       await store.terminateRun(user,forged.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
       // TIM-04: 下周 opens next Monday — it never overwrites today's state.
       const next=await prepare('下周我每周只有2小时。')
