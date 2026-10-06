@@ -98,3 +98,7 @@ turn-obligations 为纯模块（不加载DB链，保证 strip-only 单测可用�
 ## P5–P7 复用与验证记录（2026-10-06，本地，零Provider）
 
 P6/P7 无新依赖：双分母/ReviewRow/速度口径复用现有 scripts 结构；恢复夹具复用现有 verify-db-recovery 管道与 coach-recovery-action worker（018/019 数据由既有 growth/growth-controls 函数生成，无新框架）。完整后端 46 文件、单测 71、typecheck×2、build、真实 Chrome 既有回归、50 表非空恢复全部通过。真实模型验证因本会话无 DASHSCOPE_API_KEY（历史 DPAPI 注入器不可用）按工单 0.2 停止，账本未动（658 finished/0 pending，continuation 余 ¥19.7424037）。交付文档 REPAIR-20261006.md。
+
+## R2 批次（2026-10-06，本地，零真实Provider/Coze调用）
+
+按 GLM_NEXT_EXECUTION_ORDER.md R2 执行，接续R1九提交。新增模块：user-command-spans（单遍原文分句扫描器：绝对offset、代码/引号保护span、条件与转述句内状态机、分句级问句标记；供指令与时间两检测器共用，未覆盖表达交回调用方确认）、weekly-plans（复用growth_items priority/ai_observation/proposed，018/019/020既有列承载结构化计划）、coze-public-query（白名单公共检索词构造，输出仅由结构化字段组成）。020迁移SQL按工单原文。无新npm依赖。真实扣子API按工单S1官方 /v1/workflow/run 契约实现（本地mock验证），真实连通未测（无PAT/workflowId）。validation-preflight --offline 零联网预检（凭据仅存在性布尔，账本只读解析）。全部本地检查见 NEXT-20261006-R2.md。

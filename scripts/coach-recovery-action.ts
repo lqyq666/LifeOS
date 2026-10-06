@@ -57,7 +57,19 @@ try{
       const controlRun=(await store.startRun(user,provenanceChat,randomUUID(),'先别推升学相关的安排。')).run
       const stagedControls=await controlsModule.stageDirectionControls(controlRun,[{scopes:['postgraduate_recommendation','postgraduate_exam','overseas_study','undergraduate_upgrade'],operation:'pause',quote:'先别推升学相关的安排'}])
       await store.finishRun(controlRun,{candidates:[],audit:[],directionControls:stagedControls,directionControlSnapshotKey:stagedControls.expectedSnapshotKey},'已暂停升学相关方向的新建议。',null,signal)
-      console.log(JSON.stringify({seeded:true,currentEvent:primary.event.id,nonemptyNodes:true,nonemptyAction:true,nonemptyIndex:true,pendingLease:true,withdrawalTombstone:true,splitLineage:savedSplit.growthRetainedIds.length===2,changedTimeFact:savedSplit.growthChangedIds.length===1,directionControlsPaused:4,stateChangeReceipt:!!savedSplit.stateChange}))
+      // N5.3: 020 fixtures — a proposed weekly plan bound to the time budget
+      // with structured_plan/direction_scopes, plus a material action carrying
+      // materialEvidence refs into the split facts.
+      const {stageWeeklyPlan,persistWeeklyPlan}=await import('../server/weekly-plans.ts')
+      const planRun=(await store.startRun(user,provenanceChat,randomUUID(),'按新时间给我排一下本周安排。')).run
+      const factsBeforePlan=await growthModule.growthContext(user,provenanceChat)
+      const timeFact=factsBeforePlan.find(row=>row.text==='每周只有3小时了')!
+      const planWrites={ids:[],createdIds:[timeFact.id],changedIds:[],retainedIds:[],byInputIndex:new Map([[0,{id:timeFact.id,revision:timeFact.revision}]])}
+      const preparedPlan=await stageWeeklyPlan(planRun,{target:{operation:'create'},availableMinutes:180,period:'current',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'更新作品集首页',minutes:90,directionScopes:['employment']}]},{user,expectedControlSnapshotKey:undefined as unknown as string,effectiveBlockedScopes:[]})
+      const savedPlan=await transaction(async c=>persistWeeklyPlan(c,planRun,preparedPlan,planWrites,factsBeforePlan))
+      await c2finish(planRun,'已保存本周安排建议。')
+      async function c2finish(run2:typeof planRun,text:string){await store.finishRun(run2,{candidates:[],audit:[]},text,null,signal)}
+      console.log(JSON.stringify({seeded:true,currentEvent:primary.event.id,nonemptyNodes:true,nonemptyAction:true,nonemptyIndex:true,pendingLease:true,withdrawalTombstone:true,splitLineage:savedSplit.growthRetainedIds.length===2,changedTimeFact:savedSplit.growthChangedIds.length===1,directionControlsPaused:4,stateChangeReceipt:!!savedSplit.stateChange,weeklyPlanItem:savedPlan.itemId,weeklyPlanBudget:JSON.stringify(savedPlan.budgetRef)}))
     }else console.log(JSON.stringify({seeded:true,currentEvent:primary.event.id,nonemptyNodes:true,nonemptyAction:true,nonemptyIndex:true,pendingLease:true,withdrawalTombstone:true,splitLineage:false,changedTimeFact:false,directionControlsPaused:0,stateChangeReceipt:false}))
   }else{
     const row=(await pool.query('SELECT c.user_id,c.id AS conversation_id FROM conversations c WHERE c.title=$1',[title])).rows[0]
@@ -121,7 +133,24 @@ try{
       assert.equal(savedAgain.growthChangedIds[0],timeItem.id)
       assert.ok((await growthModule.growthContext(user,conversation)).some(row=>row.text==='我有三个数字媒体作品'),'works fact still untouched after restore+amend')
       provenanceContinuation.continuedAmend=true
-      await growthModule.actOnGrowthItem(user,timeItem.id,{requestId:randomUUID(),expectedRevision:timeItem.revision+1,action:'forget'})
+      // N5.3: the plan and its budget evidence survive restore and stay stale
+      // after a later budget correction (never silently re-pointed).
+      const planRow=(await pool.query("SELECT structured_plan,direction_scopes FROM growth_items WHERE user_id=$1 AND kind='priority' AND structured_plan IS NOT NULL ORDER BY updated_at DESC LIMIT 1",[user])).rows[0]
+      assert.ok(planRow&&planRow.structured_plan.budgetRef,'plan evidence restored')
+      assert.deepEqual(planRow.direction_scopes,['employment'])
+      const planFacts=await growthModule.growthView(user,provenance.id)
+      const planView2=(await growthModule.growthView(user,provenance.id)).items.find(row=>row.structuredPlan)
+      assert.ok(planView2,'plan readable after restore')
+      const budgetItem=(await growthModule.growthContext(user,provenance.id)).find(row=>row.id===planRow.structured_plan.budgetRef.id)
+      assert.ok(budgetItem,'budget fact readable after restore')
+      const staleRun=(await store.startRun(user,provenance.id,randomUUID(),'时间又变了，每周只有2小时。')).run
+      const stagedStale=await growthModule.stageGrowthUpdates(staleRun,[{target:{operation:'amend',itemId:budgetItem.id,expectedRevision:budgetItem.revision,beforeQuote:budgetItem.text},kind:'context',assertion:'user_reported',source:{messageId:staleRun.source_message_id,quote:'每周只有2小时'}}],await growthModule.growthContext(user,provenance.id))
+      await store.finishRun(staleRun,{candidates:[],audit:[],growth:stagedStale},'已改为2小时。',null,signal)
+      const planAfterBudgetChange=(await growthModule.growthView(user,provenance.id)).items.find(row=>row.structuredPlan)
+      assert.equal(planAfterBudgetChange!.unavailableReason,'dependency_changed','plan stales via its real budget dependency')
+
+      const timeItemCurrent=(await growthModule.growthView(user,conversation)).items.find(row=>row.id===timeItem.id)!
+      await growthModule.actOnGrowthItem(user,timeItem.id,{requestId:randomUUID(),expectedRevision:timeItemCurrent.revision,action:'forget'})
       const afterForget=await growthModule.growthContext(user,conversation)
       assert.ok(!afterForget.some(row=>row.text.includes('小时')),'forgotten time fact does not resurrect the old budget')
       assert.ok(afterForget.some(row=>row.text==='我有三个数字媒体作品'),'works fact survives precise forgetting after restore')

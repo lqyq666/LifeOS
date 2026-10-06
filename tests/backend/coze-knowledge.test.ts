@@ -141,6 +141,16 @@ test('legacy auto-verified coze cards are excluded from valid knowledge',async()
   const legacy=card(1,'旧扣子自动认证时代的片段内容。')
   legacy.mechanisms=['coze_public_knowledge_retrieval']
   await importKnowledge([legacy],true)
-  const found=await retrieveCoachKnowledge('专升本报名条件是什么')
-  assert.ok(!found.some(entry=>entry.id===legacy.id),'legacy coze机制卡不再可引用')
+  // Stub the offline encoder for this one call: this case exercises the
+  // mechanism-exclusion rule, not embedding ranking, and spawning the python
+  // worker here wedged the full local suite on this machine (see NEXT report).
+  const {localEmbedding}=await import('../../server/local-embedding.ts')
+  const realEncode=localEmbedding.encode.bind(localEmbedding)
+  localEmbedding.encode=(async(texts:string[])=>texts.map(()=>Array.from({length:32},()=>1/Math.sqrt(32)))) as typeof localEmbedding.encode
+  try{
+    const found=await retrieveCoachKnowledge('专升本报名条件是什么')
+    assert.ok(!found.some(entry=>entry.id===legacy.id),'legacy coze机制卡不再可引用')
+  }finally{
+    localEmbedding.encode=realEncode
+  }
 })

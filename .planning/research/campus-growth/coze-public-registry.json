@@ -5,7 +5,7 @@
       "workflowId": "wf-test-1",
       "datasetId": "ds-1",
       "documentId": "doc-known",
-      "knowledgeCardId": "a9ef06dc-8271-41a4-8f64-a16e6b247bb9",
+      "knowledgeCardId": "6e37fd00-ee33-479d-a3a5-7fae5b67f895",
       "expectedRevision": 1,
       "expectedSourceHash": "ebb9c54ff6f1b8e996a50c3e273d7ad9d5e9258e9de51530ce71416833b607fd"
     },
@@ -13,7 +13,7 @@
       "workflowId": "wf-test-1",
       "datasetId": "ds-1",
       "documentId": "doc-stale-revision",
-      "knowledgeCardId": "a9ef06dc-8271-41a4-8f64-a16e6b247bb9",
+      "knowledgeCardId": "6e37fd00-ee33-479d-a3a5-7fae5b67f895",
       "expectedRevision": 2,
       "expectedSourceHash": "ebb9c54ff6f1b8e996a50c3e273d7ad9d5e9258e9de51530ce71416833b607fd"
     }
