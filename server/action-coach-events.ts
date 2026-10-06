@@ -198,14 +198,17 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
     if(disposition==='declined')throw new HttpError(400,'COACH_ACTION_DECLINED')
   }
   if(delta.action&&'draft' in delta.action){
-    if(!delta.action.draft.content.trim()||!reply.includes(delta.action.draft.content))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
+    // Staged drafts are always the stored legacy shape: resume_portfolio
+    // selections were rendered server-side before staging (P4).
+    if(!('content' in delta.action.draft)||!delta.action.draft.content.trim())throw new HttpError(400,'MATERIAL_REFERENCE_INVALID')
+    if(!reply.includes(delta.action.draft.content))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
     // A question-bearing material is conversation, not a deliverable, when the
     // turn gives no contrary evidence: no drafting/rewrite intent in the user
     // message, no user-directed framing around the material, and the material
     // standing as the entire reply. Shape, pronouns or question marks alone
     // never decide purpose; the paired regressions pin the known legal and
     // illegal forms and the boundary stays open to real-run review.
-    if(visibleCoachQuestions(delta.action.draft.content).length>0){
+    if(visibleCoachQuestions((delta.action.draft as {content:string}).content).length>0){
       const current=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role=\'user\'',[run.user_id,run.source_message_id])).rows[0]?.content as string|undefined
       const intent=inheritedCreateRequest||current&&deliverableIntent(current,delta.action.operation==='modify'?'modify':'create')
       const framed=delta.action.draft.content.trim()!==reply.trim()&&coachMaterialFraming(reply.replace(delta.action.draft.content,''))
@@ -282,7 +285,7 @@ export async function persistCoachEvent(c:PoolClient,run:Run,staged:CoachStaged)
   }
   await c.query('INSERT INTO coach_current(user_id,conversation_id,event_id) VALUES($1,$2,$3) ON CONFLICT(user_id,conversation_id) DO UPDATE SET event_id=EXCLUDED.event_id',[run.user_id,run.conversation_id,staged.eventId])
   const event=await readCoachEvent(c,run.user_id,run.conversation_id,staged.eventId)
-  const askedThisTurn=visibleCoachQuestions(staged.reply,change&&'draft'in change?change.draft.content:undefined)
+  const askedThisTurn=visibleCoachQuestions(staged.reply,change&&'draft'in change&&'content'in change.draft?change.draft.content:undefined)
   event.asked=[...new Set([...event.asked,...askedThisTurn])]
   // Process chronology is reconstructed from owned runs/messages, not copied
   // recursively into each revision snapshot or classified as answered/refused.

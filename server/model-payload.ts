@@ -21,7 +21,7 @@ function providerSchema(value:unknown,currentMessageId?:string):unknown{
   ]))
 }
 
-export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false):unknown{
+export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false,resumePortfolioCatalogueIds?:readonly string[]):unknown{
   if(currentMessageId&&!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(currentMessageId))throw new Error('CURRENT_MESSAGE_ID_INVALID')
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return payload
   const body={...payload as Record<string,unknown>}
@@ -122,8 +122,21 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
       if(!drafts?.length)throw new Error('MATERIAL_SCHEMA_REQUIRED')
       compiled.required=[...new Set([...compiled.required??[],'event'])]
       event.required=[...new Set([...event.required??[],'action'])]
-      action.anyOf=drafts
-      compiled.description='本轮明确要求直接起草，reply与event.action均必填。完整可用成品仅生成于draft.content，由服务器展示同一材料；不能仅承诺稍后起草。'
+      if(resumePortfolioCatalogueIds){
+        // P4.2: a resume/portfolio turn can ONLY select server-verified facts;
+        // the legacy free-text branch is unrepresentable in native schema.
+        const create=drafts.find((branch:any)=>branch.properties?.operation?.const==='create')
+        if(!create)throw new Error('MATERIAL_SCHEMA_REQUIRED')
+        const selection=create.properties.draft.anyOf?.find((branch:any)=>branch.properties?.kind?.const==='resume_portfolio')
+        if(!selection)throw new Error('MATERIAL_SCHEMA_REQUIRED')
+        selection.properties.selectedFactIds={type:'array',items:{type:'string',enum:[...resumePortfolioCatalogueIds]},maxItems:32,description:'只能选择本轮growthCatalogue列出的catalogueId；不能自创新id或提交文字。'}
+        create.properties.draft={...create.properties.draft,anyOf:[selection]}
+        action.anyOf=[create]
+        compiled.description='本轮要求直接起草简历/作品清单类材料。action.draft只能是resume_portfolio选择：从growthCatalogue的catalogueId中选择事实，服务器核对并渲染内容与缺口；不得提交自由文本、新id或宣称可直接发送。'
+      }else{
+        action.anyOf=drafts
+        compiled.description='本轮明确要求直接起草，reply与event.action均必填。完整可用成品仅生成于draft.content，由服务器展示同一材料；不能仅承诺稍后起草。'
+      }
     }
     body.response_format={type:'json_schema',json_schema:{name:schemaName,strict:true,schema:compiled}}
     if(maxOutputTokens)body.max_completion_tokens=maxOutputTokens

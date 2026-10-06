@@ -6,6 +6,9 @@ import type {ActionCoachTurn} from './action-coach-contracts.ts'
 export function renderCoachReply(turn:ActionCoachTurn):string{
   const action=turn.event?.action
   if(!action||!('draft' in action))return turn.reply
+  // Resume-portfolio selections are already rendered server-side before this
+  // point; anything without content here is a protocol violation.
+  if(!('content' in action.draft))throw new Error('ACTION_COACH_EMPTY_MATERIAL')
   const material=action.draft.content
   if(!material.trim())throw new Error('ACTION_COACH_EMPTY_MATERIAL')
   if(turn.reply.includes(material))return turn.reply

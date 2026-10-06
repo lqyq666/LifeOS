@@ -10,7 +10,7 @@ const unknownNode=Type.Object({kind:Type.Literal('unknown'),question:text(2000)}
 const processNode=Type.Union([reportedNode,unknownNode])
 // The server creates identities and revisions. The model selects existing
 // records by ID/revision only; it cannot create an ID or mark a plan executed.
-export const actionDraftSchema=Type.Object({
+const legacyDraftSchema=Type.Object({
   content:Type.String({minLength:1,maxLength:12000,description:'完整可使用成品，只生成一次；服务器将它加入正式回复并保存同一版本。不得是空字符串、空格、未完成占位或只说去执行。'}),
   goal:Type.Optional(text(2000)),
   start:Type.Optional(text(4000)),
@@ -18,7 +18,15 @@ export const actionDraftSchema=Type.Object({
   observable:Type.Optional(text(2000)),
   effort:Type.Optional(text(1000)),
   stopWhen:Type.Optional(text(2000)),
+  readiness:Type.Optional(Type.Union([Type.Literal('template'),Type.Literal('draft_for_user_review')],{description:'由服务器渲染简历作品类材料时写入；模型不得自行填写。'})),
+  missingRequired:Type.Optional(Type.Array(Type.String({maxLength:40}),{maxItems:8})),
+  materialFactIds:Type.Optional(Type.Array(Type.String({maxLength:64}),{maxItems:32})),
 },{additionalProperties:false})
+export const resumePortfolioDraftSchema=Type.Object({
+  kind:Type.Literal('resume_portfolio'),
+  selectedFactIds:Type.Array(Type.String({minLength:1,maxLength:64}),{minItems:0,maxItems:32,description:'只能从本轮growthCatalogue列出的catalogueId中选择；不得提交新文字、截断原话或宣称可直接发送。'}),
+},{additionalProperties:false,description:'简历/个人介绍/作品清单类材料走证据选择：服务器核对引用并渲染内容，模板缺口如实标注。'})
+export const actionDraftSchema=Type.Union([legacyDraftSchema,resumePortfolioDraftSchema])
 const actionTarget={actionId:id,expectedRevision:Type.Integer({minimum:1})}
 export const actionChangeSchema=Type.Union([
   Type.Object({operation:Type.Literal('create'),draft:actionDraftSchema},{additionalProperties:false}),
@@ -54,7 +62,8 @@ export const actionCoachTurnSchema=Type.Object({
 },{additionalProperties:false,description:'reply是唯一必填字段。其余字段仅表示真实必要变化；知识或倾听可以只有reply。可选不是要求每轮创建对象，省略未发生的变化，不填空对象或空文案。'})
 export type ActionCoachTurn=Static<typeof actionCoachTurnSchema>
 export type EventDelta=Static<typeof eventDeltaSchema>
-export type ActionDraft=Static<typeof actionDraftSchema>
+export type ActionDraft=Static<typeof legacyDraftSchema>
+export type ResumePortfolioDraft=Static<typeof resumePortfolioDraftSchema>
 
 export function parseActionCoachTurn(raw:string):ActionCoachTurn {
   const output=JSON.parse(raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')) as unknown

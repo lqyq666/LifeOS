@@ -86,3 +86,7 @@ growth-time 纯函数来自工单附录A（同 P1 方式逐字复制）并按工
 ## P3 方向控制（2026-10-06，本地，零Provider）
 
 无新依赖。019 迁移按工单原文。deriveExplicitDirectionControls 为有限显式语法（分句级暂停/恢复动词+具名方向，用户本人语气；引号/疑问/否定/他人转述不触发；升学=推免+考研+留学+专升本四项原子展开），非通用语义分类器——未识别方向返回 needs_confirmation 不猜。复用现有 messages/runs 外键、growth 共用 lockGrowth 锁序、finishRun 单事务、HttpError 409 冲突语义与 growth 遗忘钩子（redactDirectionControlsForMessages 同步脱敏行与历史快照，暂停设置保留）。UI 复用 GrowthWorkspace/ConversationPage 现有组件与消息通道（onSendControl 经现有 send/ requestId/ run 事务），新增只读 GET /api/growth/direction-controls；无 CSS 新文件。
+
+## P4 证据式简历材料（2026-10-06，本地，零Provider）
+
+grounded-material 渲染器来自工单附录A（逐字复制）+ 服务器目录构建（buildMaterialFactCatalogue/resolveSelectedMaterialFacts，候选仅 user_reported/user_edit growth 条目与已确认经历，catalogueId 绑定 item id+revision 使更正即失效；completeForField 仅模式化完整字段——联系方式邮箱/手机号、姓名标注——"有三个作品"不构成完整项目条目）。无新依赖；draft 联合分支复用现有 TypeBox/action 修订链，服务器渲染结果写入旧存储结构并携带 readiness/missingRequired/materialFactIds 元数据；model-payload 在简历作品模式下仅暴露 resume_portfolio 选择分支（enum 绑定本轮目录），旧自由文本分支不可表示。

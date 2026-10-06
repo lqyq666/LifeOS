@@ -110,7 +110,7 @@ test('Qwen receives the natural reply contract without required planning or anal
   assert.equal(payload.response_format.json_schema.strict,true)
   assert.deepEqual(schema.required,['reply']);assert.equal(schema.additionalProperties,false)
   for(const old of ['analysis','decision','escalation','campus'])assert.equal(schema.properties[old],undefined)
-  assert.equal(schema.properties.event.properties.action.anyOf[0].properties.draft.properties.content.maxLength,12000)
+  assert.equal(schema.properties.event.properties.action.anyOf[0].properties.draft.anyOf[0].properties.content.maxLength,12000,'the legacy free-text draft keeps its bounds inside the draft union')
   assert.equal(schema.properties.reply.maxLength,16000)
   assert.equal(schema.properties.citations.items.properties.sourceId.type,'string')
   assert.equal(JSON.stringify(payload).includes('~optional'),false)
