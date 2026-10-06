@@ -135,7 +135,19 @@ export const directionControlsSnapshotKey=(controls:DirectionControl[]):string=>
 
 // Bind each derived clause to this turn's source message; the derive function
 // itself never receives or fabricates message identities.
-export async function stageDirectionControls(run:Run,changes:RawDirectionControl[]):Promise<PreparedDirectionControls>{
+// N1.4: apply this turn's explicit commands to the pre-generation state so
+// allowed/blocked scopes include the pending pause/resume immediately.
+export function overlayDirectionChanges(controls:DirectionControl[],changes:readonly RawDirectionControl[]):DirectionControl[]{
+  const map=new Map(controls.map(row=>[row.scope,{...row}]))
+  for(const change of changes)for(const scope of change.scopes){
+    const state=change.operation==='pause'?'paused':'enabled'
+    const existing=map.get(scope)
+    map.set(scope,existing?{...existing,state,revision:existing.revision+1}:{scope,state,revision:1,sourceMessageId:null,sourceConversationId:null,sourceQuote:'',sourceRedacted:true,updatedAt:new Date().toISOString()})
+  }
+  return [...map.values()].sort((a,b)=>a.scope.localeCompare(b.scope))
+}
+
+export async function stageDirectionControls(run:Run,changes:RawDirectionControl[],expectedSnapshotKey?:string):Promise<PreparedDirectionControls>{
   const message=requireRow((await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0]) as {content:string}
   const prepared:DirectionControlChange[]=[]
   for(const change of changes){
@@ -143,35 +155,50 @@ export async function stageDirectionControls(run:Run,changes:RawDirectionControl
     if(change.scopes.some(scope=>!allScopes.includes(scope)))throw new HttpError(400,'DIRECTION_CONTROL_SCOPE_INVALID')
     prepared.push({scopes:change.scopes,operation:change.operation,source:{messageId:run.source_message_id,quote:change.quote}})
   }
-  return {expectedSnapshotKey:directionControlsSnapshotKey(await readDirectionControls(run.user_id)),changes:prepared}
+  const currentKey=directionControlsSnapshotKey(await readDirectionControls(run.user_id))
+  // The expected snapshot is the PRE-generation one supplied by the engine;
+  // staging never re-reads a fresher state to overwrite it.
+  if(expectedSnapshotKey!==undefined&&expectedSnapshotKey!==currentKey)throw new HttpError(409,'DIRECTION_CONTROL_CONFLICT')
+  return {expectedSnapshotKey:expectedSnapshotKey??currentKey,changes:prepared}
 }
 
-export async function persistDirectionControls(c:PoolClient,run:Run,staged:PreparedDirectionControls):Promise<DirectionControl[]>{
-  if(!staged.changes.length)return readDirectionControls(run.user_id,c)
+export type ControlEffect={scope:DirectionScope;before:'paused'|'enabled';after:'paused'|'enabled';revision:number}
+
+export async function persistDirectionControls(c:PoolClient,run:Run,staged:PreparedDirectionControls):Promise<{controls:DirectionControl[];effects:ControlEffect[]}>{
+  if(!staged.changes.length)return {controls:await readDirectionControls(run.user_id,c),effects:[]}
   // Shared growth lock keeps the ordering identical to growth writes; the
   // controls never take a contrary lock order.
   await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['growth:'+run.user_id])
   const current=await readDirectionControls(run.user_id,c)
   if(directionControlsSnapshotKey(current)!==staged.expectedSnapshotKey)throw new HttpError(409,'DIRECTION_CONTROL_CONFLICT')
+  const effects:ControlEffect[]=[]
   for(const change of staged.changes){
-    const message=requireRow((await c.query('SELECT conversation_id FROM messages WHERE user_id=$1 AND id=$2 AND role=\'user\'',[run.user_id,change.source.messageId])).rows[0]) as {conversation_id:string}
+    const message=requireRow((await c.query("SELECT conversation_id FROM messages WHERE user_id=$1 AND id=$2 AND role='user'",[run.user_id,change.source.messageId])).rows[0]) as {conversation_id:string}
     if(!(await c.query('SELECT 1 FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND strpos(content,$4)>0',[run.user_id,message.conversation_id,change.source.messageId,change.source.quote])).rowCount)throw new HttpError(400,'DIRECTION_CONTROL_SOURCE_INVALID')
+    const targetState=change.operation==='pause'?'paused':'enabled'
     for(const scope of change.scopes){
-      const updated=(await c.query(`INSERT INTO growth_direction_controls(user_id,scope,state,revision,source_conversation_id,source_message_id,source_quote,origin_request_id)
-        VALUES($1,$2,$3,1,$4,$5,$6,$7)
-        ON CONFLICT(user_id,scope) DO UPDATE SET state=EXCLUDED.state,revision=growth_direction_controls.revision+1,source_conversation_id=EXCLUDED.source_conversation_id,source_message_id=EXCLUDED.source_message_id,source_quote=EXCLUDED.source_quote,origin_request_id=EXCLUDED.origin_request_id,updated_at=now()
+      const existing=(await c.query('SELECT state,revision FROM growth_direction_controls WHERE user_id=$1 AND scope=$2 FOR UPDATE',[run.user_id,scope])).rows[0] as {state:'paused'|'enabled';revision:number}|undefined
+      if(existing&&existing.state===targetState){
+        // Setting the same state again is a true no-op for this turn's
+        // effects; the row keeps its history and is not counted as changed.
+        continue
+      }
+      // source_redacted is explicitly reset: a resumed direction gets the new
+      // provenance and satisfies the 019 paired-id CHECK after a redaction.
+      const updated=(await c.query(`INSERT INTO growth_direction_controls(user_id,scope,state,revision,source_conversation_id,source_message_id,source_quote,source_redacted,origin_request_id)
+        VALUES($1,$2,$3,1,$4,$5,$6,false,$7)
+        ON CONFLICT(user_id,scope) DO UPDATE SET state=EXCLUDED.state,revision=growth_direction_controls.revision+1,source_conversation_id=EXCLUDED.source_conversation_id,source_message_id=EXCLUDED.source_message_id,source_quote=EXCLUDED.source_quote,source_redacted=false,origin_request_id=EXCLUDED.origin_request_id,updated_at=now()
         RETURNING scope,state,revision,source_message_id,source_conversation_id,source_quote,source_redacted,updated_at`,
-        [run.user_id,scope,change.operation==='pause'?'paused':'enabled',message.conversation_id,change.source.messageId,change.source.quote,run.request_id])).rows[0] as {scope:DirectionScope;state:'paused'|'enabled';revision:number;source_message_id:string|null;source_conversation_id:string|null;source_quote:string;source_redacted:boolean;updated_at:Date}
+        [run.user_id,scope,targetState,message.conversation_id,change.source.messageId,change.source.quote,run.request_id])).rows[0] as {scope:DirectionScope;state:'paused'|'enabled';revision:number;source_message_id:string|null;source_conversation_id:string|null;source_quote:string;source_redacted:boolean;updated_at:Date}
       await c.query('INSERT INTO growth_direction_control_revisions(user_id,scope,revision,snapshot,origin_request_id) VALUES($1,$2,$3,$4,$5)',
         [run.user_id,scope,updated.revision,JSON.stringify({scope:updated.scope,state:updated.state,revision:updated.revision,sourceMessageId:updated.source_message_id,sourceConversationId:updated.source_conversation_id,sourceQuote:updated.source_quote,sourceRedacted:updated.source_redacted,updatedAt:updated.updated_at.toISOString()}),run.request_id])
+      // A scope with no row implicitly starts enabled, so a first pause IS a change.
+      effects.push({scope,before:existing?existing.state:'enabled',after:targetState,revision:updated.revision})
     }
   }
-  return readDirectionControls(run.user_id,c)
+  return {controls:await readDirectionControls(run.user_id,c),effects}
 }
 
-// Forgetting the original words redacts control provenance (rows and every
-// historical snapshot) without revoking the pause itself; only an explicit
-// resume re-enables a direction.
 export async function redactDirectionControlsForMessages(c:PoolClient,user:string,messageIds:string[]):Promise<void>{
   if(!messageIds.length)return
   const rows=(await c.query('SELECT scope,revision FROM growth_direction_controls WHERE user_id=$1 AND source_message_id=ANY($2::uuid[]) AND NOT source_redacted',[user,messageIds])).rows as {scope:DirectionScope;revision:number}[]

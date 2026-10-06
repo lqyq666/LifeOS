@@ -19,11 +19,11 @@ import { buildTurnPrompt, providerTurnMessages, turnSystemPrompt } from './turn-
 import { configureProviderPayload, outputTokenLimit, type OutputPath } from './model-payload.ts'
 import { estimateProviderCallCostCny } from './cost-workload.ts'
 import { growthContext, growthBoundaryContext, growthSnapshotKey, stageGrowthUpdates } from './growth.ts'
-import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionControls, allScopes } from './growth-controls.ts'
+import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionControls, overlayDirectionChanges, directionControlsSnapshotKey, allScopes } from './growth-controls.ts'
 import { redactGrowthHistory } from './growth-privacy.ts'
 import { syncCozePublicKnowledge } from './coze-knowledge.ts'
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
-import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, isPureControlCommand, controlReplyText, ObligationError, type TurnObligations } from './turn-obligations.ts'
+import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, isPureControlCommand, controlReplyText, isObligationError, type TurnObligations } from './turn-obligations.ts'
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
@@ -149,6 +149,31 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const usage=usageSummary([],0,1,false,null,true);staged.modelUsage=usage
     return {text:`你之前告诉我，你的专业是「${known}」。如果有变化，可以直接更正。`,usage}
   }
+  // N1.4: direction controls are read, derived, overlaid and staged BEFORE
+  // any retrieval, embedding, public knowledge or Coze work. The expected
+  // snapshot key is the PRE-generation one and is set for every turn.
+  const controlsBefore=await readDirectionControls(run.user_id)
+  const expectedControlKey=directionControlsSnapshotKey(controlsBefore)
+  const turnDerivedControls=deriveExplicitDirectionControls(current.content)
+  const effectiveControls=overlayDirectionChanges(controlsBefore,turnDerivedControls.status==='explicit'?turnDerivedControls.changes:[])
+  staged.directionControlSnapshotKey=expectedControlKey
+  if(turnDerivedControls.status==='explicit'){
+    staged.directionControls=await stageDirectionControls(run,turnDerivedControls.changes,expectedControlKey)
+  }
+  const resumePortfolioMode=requiresImmediateMaterial(current.content)&&/简历|作品清单|作品集|个人介绍/.test(current.content)
+  const obligations=deriveTurnObligations(current.content,{resumePortfolioMode,...(turnDerivedControls.status==='explicit'?{directionControls:turnDerivedControls.changes}:{})})
+  staged.turnObligations=obligations
+  if(isPureControlCommand(current.content,obligations,turnDerivedControls.status==='explicit'?turnDerivedControls.changes.map(change=>change.quote):[])){
+    // N1.4/P5.6: a pure control command commits through the real storage rules
+    // with a deterministic reply — before event retrieval, embedding, public
+    // knowledge and Coze; zero network, zero provider calls, real entitlements.
+    staged.usedMemoryRefs=[]
+    staged.usedExperienceRefs=[]
+    staged.usedEventRefs=[]
+    staged.dialoguePath='direct';staged.upstreamCalls=0
+    staged.modelUsage=usageSummary([],0,0,false,null,true)
+    return {text:controlReplyText(obligations.requiredEffects),usage:staged.modelUsage}
+  }
   let currentEvent:CoachEvent|null=null
   try{currentEvent=await coachEventView(run.user_id,run.conversation_id)}catch(error){
     if(!(error instanceof HttpError)||!['NOT_FOUND','MEMORY_DISABLED','COACH_SOURCE_REVOKED'].includes(error.code))throw error
@@ -177,46 +202,28 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   // P4: resume/portfolio materials render from a server-built catalogue of the
   // user's own verified words only; the model selects ids and never authors
   // factual prose for this material class.
-  const resumePortfolioMode=requiresImmediateMaterial(current.content)&&/简历|作品清单|作品集|个人介绍/.test(current.content)
   const materialCatalogue=resumePortfolioMode?buildMaterialFactCatalogue(growth,snapshot.confirmedExperiences):[]
-  // P5: what THIS turn must actually change, derived from explicit user words.
-  const turnDerivedControls=deriveExplicitDirectionControls(current.content)
-  const obligations=deriveTurnObligations(current.content,{resumePortfolioMode,...(turnDerivedControls.status==='explicit'?{directionControls:turnDerivedControls.changes}:{})})
-  staged.turnObligations=obligations
-  if(isPureControlCommand(current.content,obligations,turnDerivedControls.status==='explicit'?turnDerivedControls.changes.map(change=>change.quote):[])){
-    // P5.6: a pure control command commits through the real storage rules with
-    // a deterministic reply — no model call, and never counted as one.
-    if(turnDerivedControls.status!=='explicit')throw new HttpError(400,'DIRECTION_CONTROL_NOT_APPLIED')
-    staged.directionControls=await stageDirectionControls(run,turnDerivedControls.changes)
-    staged.directionControlSnapshotKey=staged.directionControls.expectedSnapshotKey
-    staged.usedMemoryRefs=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').map(item=>({memoryId:item.id,revision:item.revision}))
-    staged.usedExperienceRefs=snapshot.confirmedExperiences.map(item=>({id:item.id,revision:item.revision}))
-    staged.usedEventRefs=[]
-    staged.usedGrowthRefs=growth.map(item=>({id:item.id,revision:item.revision}))
-    staged.growthSnapshotKey=growthSnapshotKey(growth)
-    staged.growthBoundaryKey=growthSnapshotKey(growthBoundaries)
-    staged.dialoguePath='direct';staged.upstreamCalls=0
-    const retrievedCount=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
-    staged.modelUsage=usageSummary([],0,retrievedCount,false,null,true)
-    return {text:controlReplyText(obligations.requiredEffects),usage:staged.modelUsage}
-  }
-  // Account-level direction controls: paused scopes leave the allowed set for
-  // this turn's suggestions, and an explicit pause/resume command in the
-  // current message is staged server-side — the model never authors it.
-  const directionControls=await readDirectionControls(run.user_id)
-  const blockedDirectionScopes=directionControls.filter(row=>row.state==='paused').map(row=>row.scope)
+  // N1.4: allowed/blocked come from the EFFECTIVE overlay (including this
+  // turn's pending pause/resume), not a re-read after generation.
+  const blockedDirectionScopes=effectiveControls.filter(row=>row.state==='paused').map(row=>row.scope)
   const allowedDirectionScopes=allScopes.filter(scope=>!blockedDirectionScopes.includes(scope))
   staged.growthBoundaryKey=growthSnapshotKey(growthBoundaries)
   staged.usedGrowthRefs=growth.map(item=>({id:item.id,revision:item.revision}))
   staged.growthSnapshotKey=growthSnapshotKey(growth)
   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id)
-  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth,growthBoundaries,directionControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
+  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth,growthBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
   const retrieved=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
   const calls:CallRecord[]=[]
   let repairReason:string|null=null
   staged.audit.push({phase:'model_route',tier:route.tier,reason:route.reason??'ordinary_turn',escalated:route.escalated,retrievedMemoryCount:retrieved,contextTokenEstimate,contextTokenEstimateKind:'heuristic'})
   await checkModelCooldown()
+  function materialDraftOf(result:ActionCoachTurn):{readiness?:string;content?:string;materialFactIds?:string[]}|null{
+    const action=result.event?.action
+    if(!action||!('draft'in action))return null
+    const draft=action.draft as {content?:string;readiness?:string;materialFactIds?:string[]}
+    return draft??null
+  }
   async function validateOutput(raw:string):Promise<ActionCoachTurn>{
     let result:ActionCoachTurn
     try{result=parseActionCoachTurn(raw)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
@@ -262,17 +269,25 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const checkedCitations=await validateCoachCitations(result.reply,result.citations??[],knowledge,current.content,messages.filter(row=>row.role==='user').map(row=>row.content))
     result.reply=checkedCitations.text
     // P5.3 step 8: the final reply must not contradict the verified effects.
-    verifyReplyAgainstObligations(obligations,result.reply)
+    try{
+      verifyReplyAgainstObligations(obligations,result.reply)
+    }catch(error){
+      if(isObligationError(error))throw new HttpError(400,error.code)
+      throw error
+    }
     staged.audit.push({phase:'coach_reply_rendered',narrativeChars,finalChars:result.reply.length,materialChars:result.event?.action&&'draft'in result.event.action&&'content'in result.event.action.draft?result.event.action.draft.content.length:0})
     staged.usedKnowledgeRefs=[...contextKnowledge,...checkedCitations.refs]
     if(result.growthUpdates?.length)staged.growth=await stageGrowthUpdates(run,result.growthUpdates,growth)
-    if(turnDerivedControls.status==='explicit'){
-      staged.directionControls=await stageDirectionControls(run,turnDerivedControls.changes)
-      staged.directionControlSnapshotKey=staged.directionControls.expectedSnapshotKey
-    }else{staged.directionControls=undefined;staged.directionControlSnapshotKey=undefined}
-    // P5.3 step 4: an explicitly commanded change must exist in the staged
-    // batch; answering an old topic instead is a failed turn, not a success.
-    verifyTurnObligations(obligations,{growth:staged.growth,controls:staged.directionControls,currentText:current.content,reply:result.reply})
+    // P5.3 step 4 (N1.4/N1.5): an explicitly commanded change must exist in
+    // the PRE-STAGED batch (staged before generation, never re-read here);
+    // answering an old topic instead is a failed turn. Domain obligation
+    // errors convert to HttpError at this boundary only.
+    try{
+      verifyTurnObligations(obligations,{growth:staged.growth,controls:staged.directionControls,coachActionDraft:materialDraftOf(result),currentText:current.content,reply:result.reply})
+    }catch(error){
+      if(isObligationError(error))throw new HttpError(400,error.code)
+      throw error
+    }
     if(result.background?.length){
       for(const fact of result.background)if(fact.source.messageId!==run.source_message_id||!fact.source.quote.trim()||!current.content.includes(fact.source.quote)||!fact.source.quote.includes(fact.value))throw new HttpError(400,'COACH_BACKGROUND_INVALID')
       staged.memoryChanges=await stageCoachBackground(run.user_id,run.conversation_id,run.source_message_id,result.background,snapshot)

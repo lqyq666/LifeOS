@@ -107,7 +107,7 @@ const hoursIn=(text:string):number|null=>{
 export type ObligationVerificationInput={
   growth:GrowthStaged|undefined
   controls:PreparedDirectionControls|undefined
-  coachActionDraft?:{readiness?:string}|null
+  coachActionDraft?:{readiness?:string;content?:string;materialFactIds?:string[]}|null
   currentText:string
   reply:string
 }
@@ -123,6 +123,13 @@ export function verifyTurnObligations(obligations:TurnObligations,staged:Obligat
         &&staged.currentText.includes(delta.source.quote)
         &&hoursIn(delta.text)===effect.minutes)
       if(!covered)throw new ObligationError('GROWTH_REQUIRED_UPDATE_MISSING')
+    }
+    if(effect.type==='grounded_material'){
+      // The obligation needs an actual SERVER-RENDERED material: real content
+      // plus resolved fact references, never a bare readiness string.
+      const draft=staged.coachActionDraft
+      const rendered=Boolean(draft&&typeof draft.content==='string'&&draft.content.trim()&&Array.isArray(draft.materialFactIds))
+      if(!rendered)throw new ObligationError('MATERIAL_MODE_MISMATCH')
     }
     if(effect.type==='direction_control'){
       const covered=(staged.controls?.changes?.length??0)>0&&(staged.controls?.changes??[]).some(change=>change.operation===effect.operation&&effect.scopes.every(scope=>change.scopes.includes(scope)))

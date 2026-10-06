@@ -116,3 +116,66 @@ test('growth write wiring: composite guards, exact write results, time columns (
 })
 
 test.after(async()=>{await pool.end()})
+
+import { readDirectionControls, stageDirectionControls, persistDirectionControls, directionControlsSnapshotKey, redactDirectionControlsForMessages } from '../../server/growth-controls.ts'
+import { transaction } from '../../server/db.ts'
+
+test('N1.4 control snapshot discipline: pre-generation key, zero-dep pure control, resume after redaction',async t=>{
+  const user='growth-r2-ctl-'+randomUUID(),chat=randomUUID()
+  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
+  await store.createConversation(user,{id:chat,title:'SYNTHETIC r2 controls'})
+  const prepare=async(text:string)=>{
+    await pool.query("UPDATE runs SET status='failed',error_code='SYNTHETIC_TEST_CLEANUP',finished_at=now() WHERE user_id=$1 AND conversation_id=$2 AND status='running'",[user,chat])
+    return (await store.startRun(user,chat,randomUUID(),text)).run
+  }
+  try{
+    await t.test('repeat same-state pause is a true no-op with empty effects',async()=>{
+      const first=await prepare('先别推考研建议。')
+      const staged1=await stageDirectionControls(first,[{scopes:['postgraduate_exam'],operation:'pause',quote:'先别推考研建议'}])
+      const saved1=await store.finishRun(first,{candidates:[],audit:[],directionControls:staged1,directionControlSnapshotKey:staged1.expectedSnapshotKey},'已暂停考研建议。',null,new AbortController().signal)
+      assert.equal(saved1.stateChange.controls.changedScopes.length,1)
+      const second=await prepare('先别推考研建议，不要变。')
+      const staged2=await stageDirectionControls(second,[{scopes:['postgraduate_exam'],operation:'pause',quote:'先别推考研建议'}])
+      const saved2=await store.finishRun(second,{candidates:[],audit:[],directionControls:staged2,directionControlSnapshotKey:staged2.expectedSnapshotKey},'保持不变。',null,new AbortController().signal)
+      assert.deepEqual(saved2.stateChange.controls.changedScopes,[],'same-state repeat is a real no-op')
+      assert.deepEqual(saved2.stateChange.controls.effects,[])
+    })
+    await t.test('snapshot conflict rolls back on turns without control changes too',async()=>{
+      const before=(await readDirectionControls(user)).map(row=>[row.scope,row.state,row.revision])
+      const innocent=await prepare('帮我看看作品怎么改进。')
+      const staleKey='deadbeef'.repeat(8)
+      await assert.rejects(store.finishRun(innocent,{candidates:[],audit:[],directionControlSnapshotKey:staleKey},'不应提交。',null,new AbortController().signal),{code:'DIRECTION_CONTROL_CONFLICT'})
+      const after=(await readDirectionControls(user)).map(row=>[row.scope,row.state,row.revision])
+      assert.deepEqual(after,before,'no partial writes from the conflicting turn')
+    })
+    await t.test('resume after source redaction satisfies the 019 paired-id CHECK',async()=>{
+      const pauseRun=await prepare('先别推考公相关的建议。')
+      const staged=await stageDirectionControls(pauseRun,[{scopes:['public_service'],operation:'pause',quote:'先别推考公相关的建议'}])
+      await store.finishRun(pauseRun,{candidates:[],audit:[],directionControls:staged,directionControlSnapshotKey:staged.expectedSnapshotKey},'已暂停考公建议。',null,new AbortController().signal)
+      // Forget the source message (redaction path).
+      await transaction(async c=>{await redactDirectionControlsForMessages(c,user,[pauseRun.source_message_id])})
+      const redacted=(await readDirectionControls(user)).find(row=>row.scope==='public_service')!
+      assert.equal(redacted.sourceRedacted,true)
+      // Resuming writes new provenance and resets the flag — no CHECK violation.
+      const resumeRun=await prepare('恢复考公建议。')
+      const stagedResume=await stageDirectionControls(resumeRun,[{scopes:['public_service'],operation:'resume',quote:'恢复考公建议'}])
+      const saved=await store.finishRun(resumeRun,{candidates:[],audit:[],directionControls:stagedResume,directionControlSnapshotKey:stagedResume.expectedSnapshotKey},'已恢复考公建议。',null,new AbortController().signal)
+      const resumed=(await readDirectionControls(user)).find(row=>row.scope==='public_service')!
+      assert.equal(resumed.state,'enabled')
+      assert.equal(resumed.sourceRedacted,false)
+      assert.ok(resumed.sourceMessageId)
+      assert.equal(saved.stateChange.controls.changedScopes.length,1,'resume appears as a change')
+    })
+  }finally{
+    await pool.query('DELETE FROM growth_direction_control_revisions WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_direction_controls WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_source_suppressions WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_item_lineage WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_items WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_revisions WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM runs WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM messages WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM conversations WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM "user" WHERE id=$1',[user])
+  }
+})

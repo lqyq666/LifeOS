@@ -129,7 +129,11 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     // Direction controls commit in the same transaction, after growth, under
     // the same advisory lock; a control snapshot changed by another device
     // during generation is a 409 conflict, never silently replayed.
-    const controlsBefore=staged.directionControls?await readDirectionControls(run.user_id,c):[]
+    // N1.4: the expected key is the PRE-generation snapshot set on every
+    // direction-affected turn; a change by another device during generation is
+    // a 409 that rolls the whole run back — including turns without new
+    // control changes of their own.
+    const controlsBefore=await readDirectionControls(run.user_id,c)
     if(staged.directionControlSnapshotKey!==undefined&&directionControlsSnapshotKey(controlsBefore)!==staged.directionControlSnapshotKey)throw new HttpError(409,'DIRECTION_CONTROL_CONFLICT')
     const directionControls=staged.directionControls?await persistDirectionControls(c,run,staged.directionControls):null
     // P5.5 state-change receipt: what actually committed, computed from real
@@ -137,20 +141,25 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     const requiredEffects=staged.turnObligations?.requiredEffects??[]
     const requiredGrowth=requiredEffects.some(effect=>effect.type==='weekly_time')
     const growthStatus=!staged.growth?'not_requested'
-      :requiredGrowth&&!growth?.changedIds.length?'needs_confirmation'
+      :requiredGrowth&&!growth?.changedIds.length&&!growth?.createdIds.length?'needs_confirmation'
       :staged.growth.skipped?.length?'partial'
       :'applied'
-    const coachDraft=staged.coach?await coachEventView(run.user_id,run.conversation_id,staged.coach.eventId).catch(()=>null):null
-    const materialAction=coachDraft?.actions.find(action=>action.status==='proposed'&&action.draft&&action.draft.readiness)
+    // N1.6: the receipt is built ONLY from this transaction's own results —
+    // persistCoachEvent's return (read through the same client) and the
+    // before/after control effects. No pool re-read, no catch-to-null.
+    const materialAction=coach?.actions.find(action=>action.status==='proposed'&&action.draft&&action.draft.readiness)
+    const controlEffects=directionControls?directionControls.effects:[]
+    const changedScopes=controlEffects.filter(effect=>effect.before!==effect.after).map(effect=>effect.scope)
     const stateChange={
       growth:{status:growthStatus,createdIds:growth?growth.createdIds:[],changedIds:growth?growth.changedIds:[],retainedIds:growth?growth.retainedIds:[],skipped:(staged.growth?.skipped??[]).map(skip=>({inputIndex:skip.inputIndex,code:skip.reason}))},
-      controls:{changedScopes:(directionControls??[]).filter(row=>row.state==='paused').map(row=>row.scope)},
-      material:materialAction&&materialAction.draft?{actionId:materialAction.id,readiness:materialAction.draft.readiness as 'template'|'draft_for_user_review',missingRequired:materialAction.draft.missingRequired??[]}:null,
+      controls:{changedScopes,effects:controlEffects},
+      material:materialAction&&materialAction.draft?{actionId:materialAction.id,revision:materialAction.revision,readiness:materialAction.draft.readiness as 'template'|'draft_for_user_review',missingRequired:materialAction.draft.missingRequired??[]}:null,
+      plan:null,
     }
     const memoryIds=staged.snapshot&&staged.memoryChanges?.length?await persistChanges(c,run.user_id,run.conversation_id,staged.memoryChanges,new Date()):[]
     await consumeEntitlement(c,run.user_id,current.entitlement_reserved)
     await c.query('INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,\'assistant\',$4,$5)',[randomUUID(),run.user_id,run.conversation_id,text,run.request_id])
-    const response={requestId:run.request_id,decisionVersion:version,candidateIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthCreatedIds:growth?growth.createdIds:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],growthWrite:growth??null,stateChange,...(directionControls?{directionControls:{changedScopes:directionControls.filter(row=>row.state==='paused').map(row=>row.scope)}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
+    const response={requestId:run.request_id,decisionVersion:version,candidateIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthCreatedIds:growth?growth.createdIds:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],growthWrite:growth??null,stateChange,...(directionControls?{directionControls:{changedScopes,effects:controlEffects}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
     await c.query('UPDATE runs SET status=\'completed\',response=$3,usage=$4,tool_audit=$5,finished_at=now() WHERE user_id=$1 AND request_id=$2',[run.user_id,run.request_id,response,usage,JSON.stringify(staged.audit)])
     await c.query('UPDATE conversations SET updated_at=now() WHERE user_id=$1 AND id=$2',[run.user_id,run.conversation_id])
     signal.throwIfAborted()
