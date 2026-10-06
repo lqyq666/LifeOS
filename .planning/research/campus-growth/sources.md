@@ -94,3 +94,7 @@ grounded-material 渲染器来自工单附录A（逐字复制）+ 服务器目�
 ## P5 当前任务义务（2026-10-06，本地，零Provider）
 
 turn-obligations 为纯模块（不加载DB链，保证 strip-only 单测可用；方向命令由引擎调用 growth-controls 传入）。OBL-02 回放夹具 tests/fixtures/campus-acceptance-regressions.json 保存 coach-b2dd4d6c 两条真实 C10 改时间失败原文（SOURCE_QUOTE_MISMATCH/COACH_SOURCE_INVALID，含旧反馈candidate与旧事件nodes），原 .local 证据未改动。无新依赖；复用既有 TypeBox/repairable 单次修复机制（新增语义错误码，CAS/权限/撤回类不可修复）、finishRun 单事务回执（真实写入计算，非模型自评）、store.stageCandidate 原有来源守卫。受影响引擎测试夹具仅去掉会触发新义务的每周措辞（业务含义不变）。
+
+## P5–P7 复用与验证记录（2026-10-06，本地，零Provider）
+
+P6/P7 无新依赖：双分母/ReviewRow/速度口径复用现有 scripts 结构；恢复夹具复用现有 verify-db-recovery 管道与 coach-recovery-action worker（018/019 数据由既有 growth/growth-controls 函数生成，无新框架）。完整后端 46 文件、单测 71、typecheck×2、build、真实 Chrome 既有回归、50 表非空恢复全部通过。真实模型验证因本会话无 DASHSCOPE_API_KEY（历史 DPAPI 注入器不可用）按工单 0.2 停止，账本未动（658 finished/0 pending，continuation 余 ¥19.7424037）。交付文档 REPAIR-20261006.md。
