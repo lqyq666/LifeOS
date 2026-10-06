@@ -2,6 +2,14 @@
 
 工作区 D:\aaaLife\LifeOS。当前唯一验收目标是 PRODUCT.md 的校园成长与连续决策完整产品。用户已恢复自主开发，允许在原 grant 剩余额度内选择产品模型；旧固定 qwen3.8-flash 与旧实现顺序已替代。公网 lqynb.xyz 仍是旧 52a4e47 镜像，不代表新产品已发布。
 
+## 2026-10-06 P1 批（GLM）：个人伙伴主线 + PC 矩阵 + 主 Skill + 云端伙伴化
+
+- 提交 `20dd412`→`382071a`（6 笔本地，未 push）：remaining_time 义务族（本周剩余≠每周≠下周、1.5h=90min、计划绑剩余数、calendar-week 证据同句继承）；PC 场景矩阵（PC03 四分支/PC05/PC07T/PC08D/PC09T/PC12R reject 步/PC15C/PC11N 记忆关对照/PC06M/D01 演示弧，fixture 26 条全成年）；机会时长不误判本人预算；不可核验期限改逐项跳过（constraint 跳过、其他类目无窗保存、有效证据+伪造 legacy 仍硬错）；预算事实服务器补齐（supplementMissingBudgetDeltas，修复"预算轮整轮失败"结构类）；周预算叙述矛盾检查移除（结构性检查保留）；操作员冷却退避。
+- 真实验证六轮链（R1 冷却级联与两次运行中编辑违规中止——失败全保留；R6 `coach-d353af74` 预算类清零、PC12R 全过）。PC01–PC16 判定与全部原始证据索引见 `P1_BEHAVIOR_ACCEPTANCE.md`；速度 Gate 仍不成立（供应商 TTFT），成本 ¥0.45–0.57/100 成立；账本余 ¥18.55。
+- 主 Skill `lifeos-personal-companion` v1.0.0：`skills/` + 用户级安装 `C:\Users\LQY\.agents\skills\`；PC16 四轮三过（更正状态层未持久为残余项）。
+- 云端参赛项目 7693388932939300905 部署 `5b8a04b`：K1–K5 修复（自愈清库、fact 回执、新会话注册、companion 分支+义务状态机+回执契约）+ 八探针复验通过（`.local/coze-competition/p1-deploy-verify-result.json`）；已知偏差 pending 重复项。语料=空库策略，攻略语料待导入。
+- 交付文档：`P1_DELIVERY.md`、`P1_BEHAVIOR_ACCEPTANCE.md`、`.planning/research/campus-growth/P1-GAP-20261006.md`、`docs/competition/P1_DESIGN.md`、`P1_DEMO_SCRIPT.md`（视频未录制）。整体维持 WIP_NOT_READY（速度 Gate、更正类成功率、生产未部署）。
+
 ## 2026-10-06 无人值守批次：真实校园连续体验与最终验收候选（选择A，未部署）
 
 - 接续 3171a6b 审计后提交 2d8f366（直接起草强制 Schema，R1–R4 探针真实 PASS）。本批新增四笔本地提交：旧 quote 禁绑当前消息提示、user_reported 文本仅由服务器从已核验 quote 派生（Provider Schema 删除 text）、growth staging 逐项跳过（旧消息重报/完全未验证 span/不可核对期限逐项丢弃而不毒化整轮，观察项级联）、空串 validUntil 规约+最窄片段/零 nodes/反重复提示。全量后端 40 文件 218、客户端 50、类型、构建通过。

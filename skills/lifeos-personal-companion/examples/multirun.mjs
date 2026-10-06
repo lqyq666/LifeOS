@@ -20,7 +20,9 @@ const paid = flag('--paid')
 
 let session
 try { session = await fetch(origin + '/api/session') } catch { session = null }
-if (!session || !session.ok) { console.error('SERVER_NOT_REACHABLE ' + origin + ' — start the local product first (honest offline mode applies, see SKILL.md)'); process.exit(2) }
+// Any HTTP answer (200 or 401 anonymous) means the product is up; only a
+// network-level failure means unreachable.
+if (!session) { console.error('SERVER_NOT_REACHABLE ' + origin + ' — start the local product first (honest offline mode applies, see SKILL.md)'); process.exit(2) }
 
 // Real BetterAuth signup for a synthetic ADULT student; local rate limits can 429.
 const email = 'skill-pc16-' + randomUUID().slice(0, 8) + '@example.invalid'
@@ -93,7 +95,7 @@ const steps = [
   '我大三，最近在就业和考研之间犹豫。给社团做了一套招新材料，最后没用上，我开始怀疑自己是不是不行。',
   '补充一下：那套材料是迎新周前两天交的，外联部长说方向临时改了才没采用，内容本身他没说有问题。',
   '这周我只有两小时，给我一个现在就能开始的具体行动。',
-  '更正一下：材料其实是我晚交了两天，不是按时交的，刚才我说错了。',
+  '更正一下：我是大二，刚才说成大三了。',
 ]
 for (const [index, text] of steps.entries()) {
   const turn = await send(text)
