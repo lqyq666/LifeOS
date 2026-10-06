@@ -10,6 +10,11 @@ test('weekly time intent: only the user\'s own explicit weekly budget creates an
   assert.deepEqual(weeklyTimeIntent('下周我每周三小时都得排满'),{quote:'下周我每周三小时都得排满',minutes:180,period:'next_week'})
   assert.deepEqual(weeklyTimeIntent('这周每周就剩这些了，先按每周4小时安排'),{quote:'先按每周4小时安排',minutes:240,period:'this_week'},'周期从同句前置分句继承（N1.2）')
   assert.deepEqual(weeklyTimeIntent('这周先按每周4小时安排'),{quote:'这周先按每周4小时安排',minutes:240,period:'this_week'})
+  // PC13/C04: the opportunity's own demanded hours are never the user's budget.
+  assert.equal(weeklyTimeIntent('有个无薪产品实习，每周15小时、持续8周，我要不要接？'),null,'机会要求不是本人预算')
+  assert.equal(weeklyTimeIntent('这个岗位要求每周工作20小时，值得去吗？'),null)
+  // …but the user's own availability in the same breath still counts.
+  assert.deepEqual(weeklyTimeIntent('这个实习要每周15小时，我每周只有10小时。'),{quote:'我每周只有10小时',minutes:600,period:'current'})
   for(const negative of [
     '室友每周3小时。',
     '如果以后每周只有3小时怎么办？',
@@ -48,6 +53,8 @@ test('missing required updates and contradicting replies are hard failures',()=>
   verifyTurnObligations(obligations,{growth:{changes:[{target:{operation:'replace'},kind:'context',assertion:'user_reported',text:'每周只有3小时了',source:{messageId:'m',quote:'每周只有3小时了'}}],prepared:[]},controls:undefined,weeklyPlan:{input:planInput},currentText:'最近课程变多了，每周只有3小时了，安排帮我改一下。',reply:'已更新。'})
   verifyReplyAgainstObligations(obligations,'每周从6小时降到3小时，安排如下…')
   verifyReplyAgainstObligations(obligations,'按每周3小时安排。')
+  // The opportunity's own demanded hours in the reply never contradict the user's budget.
+  verifyReplyAgainstObligations(obligations,'这个实习本身要求每周15小时，而你每周只有3小时，缺口很大。')
   assert.throws(()=>verifyReplyAgainstObligations(obligations,'好的，继续保持每周6小时的节奏推进。'),(error:unknown)=>(error as {code?:string}).code==='REPLY_CONTRADICTS_CURRENT_EFFECT')
   // Control obligations must actually be staged.
   const controlObligations=deriveTurnObligations('先别推升学相关的安排。',{directionControls:pauseChanges})

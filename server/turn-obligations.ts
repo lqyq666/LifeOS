@@ -41,6 +41,11 @@ export function weeklyPlanIntent(text:string):{period:'current'|'this_week'|'nex
 
 const thirdPersonSubject=/^(?:室友|同学|朋友|他|她|他们|她们|别人|大家|我妈|我爸|父母|家人|老师|辅导员)/
 const inexactBudget=/(?:大概|大约|左右|至少|最多|不超过|可能|到|至|－|~)/
+// An opportunity's OWN demanded hours (实习每周15小时) are not the user's
+// budget. Inside a sentence that mentions an opportunity, a bare 每周N小时
+// clause only counts when it reads as the user's own availability.
+const opportunityNoun=/(?:实习|岗位|兼职|机会|项目|offer|Offer|OFFER)/
+const ownAvailability=/(?:我|自己|能|可|只有|只剩|还剩|拿出|投入|腾)/
 // The full numeric token is captured atomically so a decimal point can never
 // be swallowed by a wildcard prefix (N1.2: 1.5小时 is 90 minutes, not 300).
 const weeklyBudget=/每(?:周|星期)[^，,。；;！？!?\n]{0,8}?([0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+)(?:个)?(?:小时|钟头)/
@@ -51,11 +56,13 @@ export function weeklyTimeIntent(text:string):{quote:string;minutes:number;perio
   for(const sentence of groupBySentence(scanUserClauses(text))){
     // Period markers inherit from earlier clauses of the same sentence.
     let period:'current'|'this_week'|'next_week'='current'
+    let mentionsOpportunity=false
     for(const clause of sentence){
       const body=clause.text.trim()
       if(!body)continue
       if(/下周/.test(body))period='next_week'
       else if(/(?:这周|本周)/.test(body))period='this_week'
+      if(opportunityNoun.test(body))mentionsOpportunity=true
       // N1.1 guards: quoted/code spans, other people's speech, conditional
       // clauses and question clauses never state the user's current budget.
       if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther)continue
@@ -68,6 +75,9 @@ export function weeklyTimeIntent(text:string):{quote:string;minutes:number;perio
       if(/剩/.test(body)&&!weeklyBudget.test(body))continue
       const match=weeklyBudget.exec(body)
       if(!match)continue
+      // PC13/C04: "有个实习，每周15小时" states the OPPORTUNITY's demand;
+      // only a clause with the user's own availability marker counts there.
+      if(mentionsOpportunity&&!ownAvailability.test(body))continue
       const minutes=parseExactHours(match[1]!)
       if(minutes===null)continue
       if(minutes<0||minutes>10080)continue
@@ -232,7 +242,9 @@ export function verifyReplyAgainstObligations(obligations:TurnObligations,reply:
         const stated=parseExactHours(match[1]!)
         if(stated===null||stated===effect.minutes)continue
         const before=reply.slice(Math.max(0,match.index-8),match.index)
-        if(/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|低于|超过|多于|不到|最多|至少)/.test(before+match[0]))continue
+        // A change framing, or an amount attributed to the OPPORTUNITY itself
+        // (该实习需要每周15小时), never contradicts the user's own budget.
+        if(/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|低于|超过|多于|不到|最多|至少|实习|岗位|项目|机会|这份|它需要|需要每周|要求每周)/.test(before+match[0]))continue
         throw new ObligationError('REPLY_CONTRADICTS_CURRENT_EFFECT')
       }
     }
