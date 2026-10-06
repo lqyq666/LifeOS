@@ -72,6 +72,7 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
         if(path==='/api/official-paths'&&method==='GET'){json(res,200,{paths:officialPaths});return}
         if(path==='/api/growth'&&method==='GET'){const conversation=url.searchParams.get('conversation');json(res,200,await growthView(user,conversation?validateId(conversation):undefined));return}
         if(path==='/api/growth'&&method==='POST'){json(res,201,await createGrowthItem(user,validate(growthCreateSchema,await body(req))));return}
+        if(path==='/api/growth/direction-controls'&&method==='GET'){const controls=await readDirectionControls(user);json(res,200,{controls:controls.map(row=>({...row,scopeLabel:directionScopeLabel(row.scope)}))});return}
         const growthAction=path.match(/^\/api\/growth\/([^/]+)\/actions$/)
         if(growthAction&&method==='POST'){json(res,200,await actOnGrowthItem(user,validateId(growthAction[1]),validate(growthActionSchema,await body(req))));return}
         const history=path.match(/^\/api\/conversations\/([^/]+)\/history$/)

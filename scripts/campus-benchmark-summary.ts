@@ -36,7 +36,16 @@ export function campusReviewRows(turns:readonly any[]):ReviewRow[]{
   return turns.map(turn=>{
     const receipt=turn?.done?.stateChange??turn?.stateChange??null
     const growthStatus=receipt?.growth?.status
-    const stateEffectsPassed=turn?.status!=='SAVED'?null:growthStatus===undefined?null:growthStatus==='applied'||growthStatus==='not_requested'?true:growthStatus==='partial'?null:false
+    // N4.3: every effect class must agree; growth=not_requested alone never
+    // marks the whole turn's effects as passed when controls/plan/material
+    // were also part of the run.
+    const controlsChanged=(receipt?.controls?.changedScopes??[]).length>0
+    const hasPlan=Boolean(receipt?.plan)
+    const hasMaterial=Boolean(receipt?.material)
+    const stateEffectsPassed=turn?.status!=='SAVED'?null:growthStatus===undefined?null
+      :growthStatus==='applied'?true
+      :growthStatus==='not_requested'?(controlsChanged||hasPlan||hasMaterial)?true:null
+      :growthStatus==='partial'?null:false
     return {
       logicalStepId:String(turn?.logicalStepId??(turn?.trajectory??'unknown')+':'+(turn?.turn??'unknown')),
       attemptId:String(turn?.attemptId??'unknown'),
@@ -56,25 +65,36 @@ export function campusReviewRows(turns:readonly any[]):ReviewRow[]{
 // 每百提交轮 uses committed logical steps; 每百语义合格轮 needs independently
 // reviewed PASS steps and becomes NOT_EVALUABLE without them — a SAVED count
 // can never stand in for a semantic PASS count.
-export function campusDualCostSummary(turns:readonly any[],calls:readonly Receipt[],reviewRows:readonly ReviewRow[]=[]){
-  const committed=reviewRows.length?reviewRows.filter(row=>row.committed).length:turns.filter(turn=>turn.status==='SAVED').length
-  const semanticPass=reviewRows.filter(row=>row.semanticVerdict==='PASS').length
+export function campusDualCostSummary(turns:readonly any[],calls:readonly Receipt[],reviewRows:readonly ReviewRow[]=[],options:{probeCalls?:readonly Receipt[]}={}){
+  const fallbackRows:ReviewRow[]=turns.map(turn=>({logicalStepId:String(turn?.logicalStepId??'unknown'),attemptId:String(turn?.attemptId??'unknown'),actorKey:String(turn?.actorKey??turn?.trajectory??'unknown'),transportStatus:String(turn?.status??'UNKNOWN'),committed:turn?.status==='SAVED',stateEffectsPassed:null,semanticVerdict:turn?.status==='SAVED'?'PENDING_REVIEW':'NOT_TESTED',hardFailures:[],reviewer:null}))
+  const rows=reviewRows.length?reviewRows:fallbackRows
+  // Unique logical step = actorKey + ':' + logicalStepId: attempts of one step
+  // add cost, never denominators; different actors count separately.
+  const uniqueSteps=(subset:readonly ReviewRow[])=>new Set(subset.map(row=>row.actorKey+':'+row.logicalStepId)).size
+  // A PASS only counts with complete independent-review evidence bound to
+  // that exact attempt; implementer self-assessment stays PENDING_REVIEW.
+  const passWithEvidence=(row:ReviewRow)=>row.semanticVerdict==='PASS'&&row.reviewer!==null&&(row.reviewer.kind==='independent_review'||row.reviewer.kind==='human')&&typeof row.reviewer.evidencePath==='string'&&row.reviewer.evidencePath.trim()!==''
+  const committed=uniqueSteps(rows.filter(row=>row.committed))
+  const semanticPass=uniqueSteps(rows.filter(passWithEvidence))
   const known=calls.filter(call=>call.status==='finished'&&typeof call.estimatedCostCny==='number'&&Number.isFinite(call.estimatedCostCny)&&call.estimatedCostCny>=0)
   const knownSubtotalCny=Number(known.reduce((sum,call)=>sum+(call.estimatedCostCny as number),0).toFixed(8))
   const unknownOrPendingCalls=calls.length-known.length
   const per100Committed=committed>0&&calls.length>0&&!unknownOrPendingCalls?Number((knownSubtotalCny/committed*100).toFixed(8)):'unknown'
   const per100Semantic=semanticPass>0&&!unknownOrPendingCalls?Number((knownSubtotalCny/semanticPass*100).toFixed(8)):'NOT_EVALUABLE'
+  const probeCalls=options.probeCalls??[]
+  const knownProbeCny=Number(probeCalls.filter(call=>call.status==='finished'&&typeof call.estimatedCostCny==='number').reduce((sum,call)=>sum+(call.estimatedCostCny as number),0).toFixed(8))
   return {
-    evidence:'ACTUAL_RECEIPTS_TWO_DENOMINATORS',
+    evidence:'ACTUAL_RECEIPTS_TWO_DENOMINATORS_UNIQUE_ACTOR_STEP',
     denominators:{per100CommittedLogicalSteps:'每100提交轮（工程比较口径）',per100SemanticPassLogicalSteps:'每100语义合格轮（需独立审阅PASS）'},
     committedLogicalSteps:committed,
     semanticPassLogicalSteps:semanticPass,
-    pendingReviewLogicalSteps:reviewRows.filter(row=>row.semanticVerdict==='PENDING_REVIEW').length,
+    pendingReviewLogicalSteps:rows.filter(row=>row.semanticVerdict==='PENDING_REVIEW').length,
     providerCalls:calls.length,
     knownSubtotalCny,
     unknownOrPendingCalls,
     costCnyPer100Committed:per100Committed,
     costCnyPer100SemanticPass:per100Semantic,
+    probeCalls:{count:probeCalls.length,knownProbeCny,includedInBusinessCost:'reported_separately'},
     semanticPassEvaluation:semanticPass>0?'SUBSET_REVIEWED_ONLY':'NOT_EVALUABLE_NO_INDEPENDENT_PASS',
   }
 }

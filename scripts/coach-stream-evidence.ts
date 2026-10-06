@@ -14,7 +14,7 @@ export async function collectCoachStream(response:Response,started:number,now=()
         const line=lines.split('\n').find(value=>value.startsWith('data: '));if(!line)continue
         const value=JSON.parse(line.slice(6)),atMs=now()-started;events.push({atMs,value})
         if(value.type==='draft'&&typeof value.text==='string'&&value.text.trim())draft??=atMs
-    // P6.3: loading hints, restatements and internal JSON are not valid first
+    // Loading hints, restatements and internal JSON are not valid first
     // content; a discarded safe draft resets it and never counts as success.
     if(value.type==='draft_discarded')draft=null
         if(value.type==='draft_discarded')draft=null
@@ -34,6 +34,15 @@ export function coachSpeedSummary(turns:{sampleClass:string;status:string;provid
   const quantile=(values:number[],p:number)=>values.length?[...values].sort((a,b)=>a-b)[Math.ceil(p*values.length)-1]!:null
   const first=valid.map(turn=>turn.meaningfulFirstMs!),completion=valid.map(turn=>turn.completionMs!)
   const p50=quantile(first,.5),p95=quantile(first,.95),complete95=quantile(completion,.95)
-  const failedOrdinary=selected.length-valid.length
-  return {evidence:'ACTUAL_HTTP_SSE_TIMINGS_ONLY',predeclaredOrdinary:selected.length,savedOrdinary:valid.length,failedOrdinary,sampleFailureRate:selected.length?Number((failedOrdinary/selected.length).toFixed(4)):null,deterministicZeroModelTurns:selected.filter(turn=>turn.status==='SAVED'&&turn.providerCallCount===0).length,p50MeaningfulFirstMs:p50,p95MeaningfulFirstMs:p95,p95CompletionMs:complete95,status:valid.length>=20&&selected.length===valid.length&&p50!==null&&p50<=3000&&p95!==null&&p95<=5000&&complete95!==null&&complete95<=15000?'PASS':'NOT_READY'}
+  // N4.4 groups: real-model successes, real-model failures, deterministic
+  // zero-model successes (not failures, never in model quantiles), missing
+  // measurements, and indeterminate call states. HTTP failures without a call
+  // count stay visible instead of being dropped for a missing field.
+  const zeroModel=selected.filter(turn=>turn.status==='SAVED'&&turn.providerCallCount===0)
+  const httpFailed=selected.filter(turn=>turn.status!=='SAVED')
+  const modelSuccess=valid
+  const missingMeasurement=selected.filter(turn=>turn.status==='SAVED'&&turn.providerCallCount>0&&(typeof turn.meaningfulFirstMs!=='number'||typeof turn.completionMs!=='number'))
+  const indeterminate=selected.filter(turn=>turn.status==='SAVED'&&turn.providerCallCount<0)
+  const failedOrdinary=httpFailed.length+missingMeasurement.length
+  return {evidence:'ACTUAL_HTTP_SSE_TIMINGS_ONLY',predeclaredOrdinary:selected.length,groups:{realModelSuccess:modelSuccess.length,realModelFailure:httpFailed.length,deterministicZeroModel:zeroModel.length,missingMeasurement:missingMeasurement.length,indeterminateCallState:indeterminate.length},savedOrdinary:valid.length,failedOrdinary,sampleFailureRate:selected.length?Number((failedOrdinary/selected.length).toFixed(4)):null,deterministicZeroModelTurns:zeroModel.length,p50MeaningfulFirstMs:p50,p95MeaningfulFirstMs:p95,p95CompletionMs:complete95,status:valid.length>=20&&selected.length===valid.length&&p50!==null&&p50<=3000&&p95!==null&&p95<=5000&&complete95!==null&&complete95<=15000?'PASS':'NOT_READY'}
 }

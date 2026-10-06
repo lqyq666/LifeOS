@@ -26,7 +26,11 @@ export async function patchConversation(user:string,id:string,patch:{ title?:str
 export async function listConversations(user:string) {
   const chats = (await pool.query('SELECT * FROM conversations WHERE user_id=$1 ORDER BY updated_at DESC,id',[user])).rows
   const messages = (await pool.query('SELECT m.*,CASE WHEN m.role=\'assistant\' AND NOT coach_reply_sources_valid(m.user_id,m.run_request_id) THEN \'这条回复引用的资料已更新或失效，请重新核验。\' ELSE m.content END AS content FROM messages m JOIN runs r ON r.user_id=m.user_id AND r.request_id=m.run_request_id WHERE m.user_id=$1 AND (m.role=\'user\' OR r.status=\'completed\') ORDER BY m.created_at,m.id',[user])).rows
-  return chats.map(chat=>({ ...chat, messages: messages.filter(m=>m.conversation_id===chat.id) }))
+  // N4.1: each assistant message carries ITS OWN run's stateChange receipt —
+  // never the account's latest receipt, never a fabricated demo receipt.
+  const receiptRows = (await pool.query(`SELECT request_id, response->'stateChange' AS \"stateChange\" FROM runs WHERE user_id=$1 AND status='completed' AND response ? 'stateChange'`,[user])).rows as {request_id:string;stateChange:unknown}[]
+  const receipts=new Map<string,unknown>(receiptRows.map(row=>[row.request_id,row.stateChange]))
+  return chats.map(chat=>({ ...chat, messages: messages.filter((m:{conversation_id:string})=>m.conversation_id===chat.id).map((m:Record<string,unknown>)=>m.role==='assistant'&&typeof m.run_request_id==='string'&&receipts.has(m.run_request_id)?{...m,stateChange:receipts.get(m.run_request_id)??null}:m) }))
 }
 export async function decisionVersions(user:string,conversation:string) {
   requireRow((await pool.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2',[user,conversation])).rows[0])
