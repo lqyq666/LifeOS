@@ -13,8 +13,9 @@ export type RequiredEffect =
   // PC07: "这周还剩N小时" is the budget REMAINING inside the current calendar
   // week — never a recurring weekly amount and never a next-week plan. It must
   // persist as a week-scoped constraint, so it expires with the week instead of
-  // silently reshaping future weeks.
-  | {type:'remaining_time';quote:string;minutes:number}
+  // silently reshaping future weeks. weekQuote is the user's own 本周/这周 token
+  // the server can use as calendar evidence.
+  | {type:'remaining_time';quote:string;minutes:number;weekQuote:string}
   | {type:'direction_control';scopes:DirectionScope[];operation:'pause'|'resume'}
   | {type:'grounded_material';materialKind:'resume_portfolio'}
   | {type:'weekly_plan';period:'current'|'this_week'|'next_week';minutes:number}
@@ -99,13 +100,14 @@ const remainingMinutes=(token:string):number|null=>{
   if(direct!==null)return direct
   return parseExactHours(token.replace(/(?:小时|钟头)$/,''))
 }
-export function remainingWeeklyTimeIntent(text:string):{quote:string;minutes:number}|null{
+export function remainingWeeklyTimeIntent(text:string):{quote:string;minutes:number;weekQuote:string}|null{
   for(const sentence of groupBySentence(scanUserClauses(text))){
-    let weekScoped=false
+    let weekScoped=false,weekQuote=''
     for(const clause of sentence){
       const body=clause.text.trim()
       if(!body)continue
-      if(/(?:这|本)周/.test(body))weekScoped=true
+      const ownWeek=/(?:这|本)周/.exec(body)
+      if(ownWeek){weekScoped=true;weekQuote=ownWeek[0]}
       if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther)continue
       if(clause.interrogative)continue
       if(thirdPersonSubject.test(body))continue
@@ -116,7 +118,7 @@ export function remainingWeeklyTimeIntent(text:string):{quote:string;minutes:num
       if(!match)continue
       const minutes=remainingMinutes(match[1]!)
       if(minutes===null||minutes<0||minutes>10080)continue
-      return {quote:body,minutes}
+      return {quote:body,minutes,weekQuote:weekQuote||'这周'}
     }
   }
   return null
@@ -261,6 +263,25 @@ export function controlReplyText(effects:RequiredEffect[]):string{
   for(const effect of effects)if(effect.type==='direction_control')
     parts.push((effect.operation==='pause'?'已暂停':'已恢复')+effect.scopes.map(scope=>scopeLabels[scope]).join('、')+(effect.operation==='pause'?'相关方向的新建议。':'建议。'))
   return parts.join('')||'已更新方向设置。'
+}
+
+// P1: a server-verified weekly/remaining budget the model failed to persist is
+// staged deterministically from the obligation itself — the same trust pattern
+// as explicit direction controls. The quote is the user's own verbatim clause;
+// nothing beyond it is ever written. Returns the supplement deltas to stage.
+export function supplementMissingBudgetDeltas(obligations:TurnObligations,stagedGrowth:import('./growth.ts').GrowthStaged|undefined,currentMessageId:string):import('./growth-model-contracts.ts').GrowthInputDelta[]{
+  if(!obligations.requiredEffects.length)return []
+  const covered=(effect:Extract<RequiredEffect,{type:'weekly_time'|'remaining_time'}>)=>(stagedGrowth?.changes??[]).some(delta=>delta.assertion==='user_reported'
+    &&(effect.type==='remaining_time'?delta.kind==='constraint':['context','constraint'].includes(delta.kind))
+    &&hoursIn(delta.text)===effect.minutes)
+  const deltas:import('./growth-model-contracts.ts').GrowthInputDelta[]=[]
+  for(const effect of obligations.requiredEffects){
+    if(effect.type==='weekly_time'&&!covered(effect))
+      deltas.push({target:{operation:'create'},assertion:'user_reported',kind:'context',source:{messageId:currentMessageId,quote:effect.quote}})
+    if(effect.type==='remaining_time'&&!covered(effect))
+      deltas.push({target:{operation:'create'},assertion:'user_reported',kind:'constraint',source:{messageId:currentMessageId,quote:effect.quote},timeEvidence:{kind:'calendar_week',which:'this',quote:effect.weekQuote}})
+  }
+  return deltas
 }
 
 export class ObligationError extends Error{readonly code:string;constructor(code:string){super(code);this.code=code}}

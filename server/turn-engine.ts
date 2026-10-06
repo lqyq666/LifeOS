@@ -26,7 +26,7 @@ import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKn
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
 import { stageWeeklyPlan } from './weekly-plans.ts'
-import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, isPureControlCommand, controlReplyText, isObligationError, type TurnObligations } from './turn-obligations.ts'
+import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, isPureControlCommand, controlReplyText, isObligationError, type TurnObligations } from './turn-obligations.ts'
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
@@ -327,6 +327,18 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     staged.audit.push({phase:'coach_reply_rendered',narrativeChars,finalChars:result.reply.length,materialChars:result.event?.action&&'draft'in result.event.action&&'content'in result.event.action.draft?result.event.action.draft.content.length:0})
     staged.usedKnowledgeRefs=[...contextKnowledge,...checkedCitations.refs]
     if(result.growthUpdates?.length)staged.growth=await stageGrowthUpdates(run,result.growthUpdates,growth,{allowedDirectionScopes:allowedDirectionScopes})
+    // P1: a server-verified budget the model failed to persist is staged from
+    // the obligation itself (the user's verbatim clause) so an explicit budget
+    // statement never fails its own turn. Same deterministic pattern as
+    // explicit direction controls; audit records the supplement.
+    const budgetSupplement=supplementMissingBudgetDeltas(obligations,staged.growth,run.source_message_id)
+    if(budgetSupplement.length){
+      const stagedSupplement=await stageGrowthUpdates(run,budgetSupplement,growth,{})
+      if(stagedSupplement.changes.length){
+        staged.growth={changes:[...(staged.growth?.changes??[]),...stagedSupplement.changes],prepared:[...(staged.growth?.prepared??[]),...stagedSupplement.prepared],inputIndexBindings:staged.growth?.inputIndexBindings??new Map(),skipped:[...(staged.growth?.skipped??[]),...(stagedSupplement.skipped??[])]}
+        staged.audit.push({phase:'budget_fact_server_staged',effects:stagedSupplement.changes.map(delta=>delta.kind),providerCalls:0})
+      }
+    }
     // P5.3 step 4 (N1.4/N1.5): an explicitly commanded change must exist in
     // the PRE-STAGED batch (staged before generation, never re-read here);
     // answering an old topic instead is a failed turn. Domain obligation

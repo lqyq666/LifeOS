@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,verifyTurnObligations,verifyReplyAgainstObligations} from '../server/turn-obligations.ts'
+import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,verifyTurnObligations,verifyReplyAgainstObligations,supplementMissingBudgetDeltas} from '../server/turn-obligations.ts'
 const pauseChanges=[{scopes:['overseas_study','postgraduate_exam','postgraduate_recommendation','undergraduate_upgrade'] as never,operation:'pause' as const,quote:'先别推升学相关的安排'}]
 
 test('weekly time intent: only the user\'s own explicit weekly budget creates an obligation',()=>{
@@ -66,10 +66,10 @@ test('missing required updates and contradicting replies are hard failures',()=>
 })
 
 test('remaining weekly budget intent: this-week leftover, never weekly or next-week amounts',()=>{
-  assert.deepEqual(remainingWeeklyTimeIntent('这周还剩两小时。'),{quote:'这周还剩两小时',minutes:120})
-  assert.deepEqual(remainingWeeklyTimeIntent('本周只剩1.5小时。'),{quote:'本周只剩1.5小时',minutes:90})
-  assert.deepEqual(remainingWeeklyTimeIntent('这周，只剩下半小时了。'),{quote:'只剩下半小时了',minutes:30},'周期从同句前置分句继承')
-  assert.deepEqual(remainingWeeklyTimeIntent('这周还剩一个半小时。'),{quote:'这周还剩一个半小时',minutes:90})
+  assert.deepEqual(remainingWeeklyTimeIntent('这周还剩两小时。'),{quote:'这周还剩两小时',minutes:120,weekQuote:'这周'})
+  assert.deepEqual(remainingWeeklyTimeIntent('本周只剩1.5小时。'),{quote:'本周只剩1.5小时',minutes:90,weekQuote:'本周'})
+  assert.deepEqual(remainingWeeklyTimeIntent('这周，只剩下半小时了。'),{quote:'只剩下半小时了',minutes:30,weekQuote:'这周'},'周期从同句前置分句继承')
+  assert.deepEqual(remainingWeeklyTimeIntent('这周还剩一个半小时。'),{quote:'这周还剩一个半小时',minutes:90,weekQuote:'这周'})
   for(const negative of [
     '还剩两小时。',
     '下周只剩两小时。',
@@ -106,4 +106,25 @@ test('remaining budget obligations require a week-scoped constraint and bind pla
   verifyReplyAgainstObligations(obligations,'你每周有六小时，这周还剩两小时，先做最小验证。')
   verifyReplyAgainstObligations(obligations,'从剩下的三小时改为两小时来安排。')
   assert.throws(()=>verifyReplyAgainstObligations(obligations,'这周还剩三小时，我们这样安排。'),(error:unknown)=>(error as {code?:string}).code==='REPLY_CONTRADICTS_CURRENT_EFFECT')
+})
+
+test('supplementMissingBudgetDeltas stages only what the model failed to persist',()=>{
+  const weekly=deriveTurnObligations('我每周只有3小时，安排帮我改一下。')
+  // Nothing staged: one context delta from the obligation's own quote.
+  const empty=supplementMissingBudgetDeltas(weekly,undefined,'m1')
+  assert.equal(empty.length,1)
+  assert.equal(empty[0]!.kind,'context')
+  assert.deepEqual((empty[0] as {source:{messageId:string;quote:string}}).source,{messageId:'m1',quote:'我每周只有3小时'})
+  // The model already persisted a 3h context fact: no supplement.
+  const coveredGrowth={changes:[{target:{operation:'create'},kind:'context',assertion:'user_reported',text:'每周只有3小时',source:{messageId:'m1',quote:'我每周只有3小时'}}],prepared:[],inputIndexBindings:new Map()}
+  assert.equal(supplementMissingBudgetDeltas(weekly,coveredGrowth as never,'m1').length,0)
+  // A remaining-this-week budget without a week-scoped constraint is staged as
+  // exactly that, with calendar evidence from the user's own week token.
+  const remaining=deriveTurnObligations('这周课程赶，只剩两小时能用了。')
+  const supplement=supplementMissingBudgetDeltas(remaining,undefined,'m2')
+  assert.equal(supplement.length,1)
+  assert.equal(supplement[0]!.kind,'constraint')
+  assert.deepEqual((supplement[0] as {timeEvidence:{kind:string;which:string;quote:string}}).timeEvidence,{kind:'calendar_week',which:'this',quote:'这周'})
+  const weekScoped={changes:[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',text:'只剩两小时能用了',validUntil:'2026-10-12T16:00:00.000Z',source:{messageId:'m2',quote:'只剩两小时能用了'}}],prepared:[],inputIndexBindings:new Map()}
+  assert.equal(supplementMissingBudgetDeltas(remaining,weekScoped as never,'m2').length,0)
 })
