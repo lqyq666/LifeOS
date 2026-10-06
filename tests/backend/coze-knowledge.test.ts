@@ -44,7 +44,8 @@ test('config states: disabled vs CONFIG_MISSING are distinct and loud',()=>{
 })
 
 test('public query whitelist: structured fields only, unsafe text yields null',()=>{
-  const query=buildPublicKnowledgeQueryFromText('2026年浙江专升本的报名条件是什么？')
+  const query=buildPublicKnowledgeQueryFromText('2026年浙江专升本的报名条件是什么？')!
+  assert.ok(query)
   assert.deepEqual({...query},{topic:'undergraduate_upgrade',year:2026,region:'浙江',questionKind:'requirements'})
   assert.equal(renderPublicKnowledgeQuery(query),'undergraduate_upgrade 2026 浙江 requirements','输出仅由白名单字段构成，不含原文其余内容')
   // No public topic → no query → Coze skipped, raw chat never leaves.
@@ -83,7 +84,8 @@ test('search: fixed origin, pinned version, timeout, byte cap, cancellation',asy
     // direct call with a patched global — simpler: pass mock fetch directly.
     const mockFetch=(async(url:string,init?:RequestInit)=>{
       requests.push({url,authorization:(init?.headers as Record<string,string>)?.Authorization,body:JSON.parse(String(init?.body))})
-      if(respond.delayMs)await new Promise(done=>setTimeout(done,respond.delayMs+400))
+      const delayMs=respond.delayMs??0
+      if(delayMs)await new Promise(done=>setTimeout(done,delayMs+400))
       if(respond.huge)return new Response(new ReadableStream({start(controller){controller.enqueue(Buffer.alloc(300*1024));controller.close()}}),{status:200})
       return new Response(respond.body,{status:respond.status})
     }) as typeof fetch
