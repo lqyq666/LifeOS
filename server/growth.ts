@@ -13,7 +13,7 @@ import type { GrowthDelta,GrowthInputDelta } from './growth-model-contracts.ts'
 import type { Run } from './store.ts'
 
 type DB = Pick<PoolClient, 'query'>
-type Row = { id: string; user_id: string; conversation_id: string; kind: GrowthItem['kind']; text: string; assertion: GrowthItem['assertion']; status: GrowthItem['status']; sources: GrowthItem['sources']; dependencies: GrowthRef[]; valid_until: Date | null; valid_from: Date | null; time_basis: Record<string, unknown> | null; revision: number; created_at: Date; updated_at: Date; limitation?:string;progress_state?:GrowthItem['progressState'] }
+type Row = { id: string; user_id: string; conversation_id: string; kind: GrowthItem['kind']; text: string; assertion: GrowthItem['assertion']; status: GrowthItem['status']; sources: GrowthItem['sources']; dependencies: GrowthRef[]; valid_until: Date | null; valid_from: Date | null; time_basis: Record<string, unknown> | null; direction_scopes: string[] | null; structured_plan: Record<string, unknown> | null; revision: number; created_at: Date; updated_at: Date; limitation?:string;progress_state?:GrowthItem['progressState'] }
 const fingerprint = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 export const lockGrowth = (c: DB, user: string) => c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', ['growth:' + user])
 async function owner(c: DB, user: string, conversation: string) { requireRow((await c.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2', [user, conversation])).rows[0]) }
@@ -28,7 +28,7 @@ function item(row: Row, reason: string | null = null): GrowthItem {
   const hidden = row.status === 'forgotten' || reason === 'source_revoked'
   return { id: row.id, conversationId: row.conversation_id, kind: row.kind, text: hidden ? '' : row.text, assertion: row.assertion,
     status: reason && ['active','proposed'].includes(row.status) ? 'stale' : row.status, sources: hidden ? [] : row.sources, dependencies: hidden ? [] : row.dependencies,
-    validUntil: row.valid_until?.toISOString() ?? null, validFrom: row.valid_from?.toISOString() ?? null, timeBasis: row.time_basis ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null }
+    validUntil: row.valid_until?.toISOString() ?? null, validFrom: row.valid_from?.toISOString() ?? null, timeBasis: row.time_basis ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null,directionScopes:row.direction_scopes??[],structuredPlan:hidden?null:row.structured_plan??null }
 }
 async function availability(c: DB, user: string, row: Row, rows: Map<string, Row>, memoryEnabled: boolean, conversation?: string, seen = new Set<string>()): Promise<string | null> {
   if (['forgotten', 'stale'].includes(row.status)) return row.status === 'forgotten' ? 'source_revoked' : 'changed'
@@ -157,7 +157,7 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
         const dependents = (await c.query("SELECT id FROM growth_items WHERE user_id=$1 AND dependencies @> $2::jsonb", [user, JSON.stringify([{ id: ids[index] }])])).rows
         for (const dependent of dependents) if (!ids.includes(dependent.id)) ids.push(dependent.id)
       }
-      await c.query("UPDATE growth_items SET text='',limitation='',progress_state=NULL,sources='[]',dependencies='[]',status=CASE WHEN id=$2 THEN 'forgotten' ELSE 'stale' END,revision=CASE WHEN id=$2 THEN revision ELSE revision+1 END,updated_at=now() WHERE user_id=$1 AND id=ANY($3::uuid[])", [user, id, ids])
+      await c.query("UPDATE growth_items SET text='',limitation='',progress_state=NULL,sources='[]',dependencies='[]',structured_plan=NULL,direction_scopes='{}',status=CASE WHEN id=$2 THEN 'forgotten' ELSE 'stale' END,revision=CASE WHEN id=$2 THEN revision ELSE revision+1 END,updated_at=now() WHERE user_id=$1 AND id=ANY($3::uuid[])", [user, id, ids])
       await c.query("UPDATE growth_revisions SET snapshot=jsonb_build_object('id',item_id,'revision',revision,'redacted',true) WHERE user_id=$1 AND item_id=ANY($2::uuid[])", [user, ids])
       // Lineage-aware precise forgetting (P1.5): forgetting a changed fragment
       // also retires the exact superseded old fragment from its parent's
@@ -215,7 +215,7 @@ const sameClause=(text:string,left:number,right:number)=>{
 }
 const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
 const toFragmentSources=(sources:GrowthItem['sources']):Source[]=>sources.map(source=>source.type==='message'?{type:'message',id:source.id,quote:source.quote}:{type:'user_edit',quote:source.quote})
-export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[]):Promise<GrowthStaged> {
+export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[],options:{allowedDirectionScopes?:readonly string[]}={}):Promise<GrowthStaged> {
   const current=requireRow((await pool.query("SELECT content,created_at FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0]) as {content:string;created_at:Date}
   // Models routinely re-assert facts the user already stated in an earlier
   // message of this conversation, binding the old quote to the current message
@@ -343,6 +343,11 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
     }else mutation={kind:'ordinary',delta,...(resolvedTime?{time:resolvedTime}:{})}
     if(delta.assertion==='ai_observation'){
       if(!delta.limitation.trim())throw new HttpError(400,'GROWTH_OBSERVATION_INVALID')
+      // N2.4: direction-bearing observations declare their scopes; scopes the
+      // user paused this turn (effective overlay) are refused outright.
+      if('directionScopes'in delta&&Array.isArray(delta.directionScopes)){
+        for(const scope of delta.directionScopes)if(options.allowedDirectionScopes&&!options.allowedDirectionScopes.includes(scope))throw new HttpError(400,'DIRECTION_SCOPE_BLOCKED')
+      }
       if(!delta.dependencies.length)throw new HttpError(400,'GROWTH_DEPENDENCY_INVALID')
       for(const ref of delta.dependencies){
         if('updateIndex'in ref){
@@ -463,7 +468,7 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
     if(delta.target.operation==='create'){
       const existing=(await c.query('SELECT * FROM growth_items WHERE user_id=$1 AND kind=$2 AND text=$3 AND status IN (\'active\',\'proposed\') AND sources @> $4::jsonb AND assertion=$5 AND dependencies=$6::jsonb AND limitation=$7',[run.user_id,delta.kind,delta.text,JSON.stringify([source]),delta.assertion,JSON.stringify(refs),limitation])).rows[0]
       if(existing){ids[index]=existing.id;written.set(index,existing);continue}
-      row=(await c.query('INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,limitation,progress_state,origin_request_id,valid_from,time_basis) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *',[randomUUID(),run.user_id,run.conversation_id,delta.kind,delta.text,delta.assertion,status,JSON.stringify([source]),JSON.stringify(refs),validUntil,limitation,progressState,run.request_id,mutation.time?mutation.time.validFrom:null,mutation.time?JSON.stringify(mutation.time.basis):null])).rows[0]
+      row=(await c.query('INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,limitation,progress_state,origin_request_id,valid_from,time_basis,direction_scopes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) RETURNING *',[randomUUID(),run.user_id,run.conversation_id,delta.kind,delta.text,delta.assertion,status,JSON.stringify([source]),JSON.stringify(refs),validUntil,limitation,progressState,run.request_id,mutation.time?mutation.time.validFrom:null,mutation.time?JSON.stringify(mutation.time.basis):null,delta.assertion==='ai_observation'&&'directionScopes'in delta&&Array.isArray(delta.directionScopes)?delta.directionScopes:[]])).rows[0]
     }else{
       // CAS update: a missing row is a revision conflict, never a silent
       // re-read of the newer revision (P1.6).

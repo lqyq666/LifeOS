@@ -21,6 +21,7 @@ const legacyDraftSchema=Type.Object({
   readiness:Type.Optional(Type.Union([Type.Literal('template'),Type.Literal('draft_for_user_review')],{description:'由服务器渲染简历作品类材料时写入；模型不得自行填写。'})),
   missingRequired:Type.Optional(Type.Array(Type.String({maxLength:40}),{maxItems:8})),
   materialFactIds:Type.Optional(Type.Array(Type.String({maxLength:64}),{maxItems:32})),
+  materialEvidence:Type.Optional(Type.Array(Type.Object({field:Type.String({maxLength:20}),text:Type.String({maxLength:4000}),sourceRef:Type.Object({type:Type.String({maxLength:20})},{additionalProperties:false})},{additionalProperties:false}),{maxItems:32})),
 },{additionalProperties:false})
 export const resumePortfolioDraftSchema=Type.Object({
   kind:Type.Literal('resume_portfolio'),

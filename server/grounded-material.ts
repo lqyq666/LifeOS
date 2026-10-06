@@ -3,11 +3,17 @@ import type { GrowthItem } from '../src/features/growth/types.ts'
 
 /** Renderer accepts server-verified catalogue entries, never free model factual prose. */
 export type MaterialField = 'identity' | 'target' | 'project' | 'skill' | 'contact'
+export type MaterialSourceRef =
+  | {type:'growth'; id:string; revision:number}
+  | {type:'experience'; id:string; revision:number}
+  | {type:'message'; id:string; conversationId:string; quote:string}
 export type VerifiedMaterialFact = {
   catalogueId: string; field: MaterialField; text: string;
   // Created by server catalogue validation; do not deserialize this type from an LLM.
   sourceKind: 'user_reported' | 'user_edit';
   completeForField: boolean; // True only for explicitly provided complete field data.
+  sourceRef: MaterialSourceRef; // N2.5: every fact carries a real, checkable origin.
+  label?: string
 }
 export type MaterialResult = {
   content: string; readiness: 'template' | 'draft_for_user_review';
@@ -46,43 +52,114 @@ export function renderGroundedResume(
   return { content, readiness, missingRequired, usedCatalogueIds: [...selectedIds] }
 }
 
-// ---- P4.3 server catalogue: candidates come only from the user's own verified
-// words, real user edits and confirmed experiences — never AI observations,
-// unknowns, assistant replies or plan inferences.
+// ---- N2.5 server catalogue -------------------------------------------------
+// Candidates come only from the user's own verified words, real user edits,
+// confirmed experiences and EXPLICIT labeled fields of the current message —
+// never AI observations, unknowns, assistant replies or plan inferences.
+
+const fieldLabels:readonly {label:string;field:MaterialField}[]=[
+  {label:'姓名',field:'identity'},
+  {label:'求职意向',field:'target'},
+  {label:'岗位意向',field:'target'},
+  {label:'意向岗位',field:'target'},
+  {label:'作品名称',field:'project'},
+  {label:'项目名称',field:'project'},
+  {label:'本人贡献',field:'project'},
+  {label:'我的贡献',field:'project'},
+  {label:'负责部分',field:'project'},
+  {label:'作品链接',field:'project'},
+  {label:'项目链接',field:'project'},
+  {label:'结果',field:'project'},
+  {label:'技能',field:'skill'},
+  {label:'工具',field:'skill'},
+  {label:'熟练程度',field:'skill'},
+  {label:'邮箱',field:'contact'},
+  {label:'邮件',field:'contact'},
+  {label:'电话',field:'contact'},
+  {label:'手机',field:'contact'},
+  {label:'联系方式',field:'contact'},
+]
+
+export type ExplicitMaterialField={field:MaterialField;label:string;text:string;quote:string}
+
+// Reads only PAIRED explicit labels (标签：值) and keeps each value's
+// contiguous original span verbatim. No free rewriting, no noun-hit promotion.
+export function extractExplicitMaterialFields(text:string):ExplicitMaterialField[]{
+  const found:ExplicitMaterialField[]=[]
+  for(const {label,field} of fieldLabels){
+    const pattern=new RegExp(label+'[：:]([^；;。\\n，,]{1,200})','g')
+    for(const match of text.matchAll(pattern)){
+      const value=(match[1]??'').trim()
+      if(!value)continue
+      found.push({field,label,text:value,quote:value})
+    }
+  }
+  return found
+}
+
+// A project group is complete when ONE source carries BOTH a 作品名称 label and
+// a 本人贡献 label; links/results stay honestly unknown when absent.
+const projectGroupComplete=(fields:readonly ExplicitMaterialField[]):boolean=>{
+  const names=fields.map(field=>field.label)
+  return names.some(name=>name==='作品名称'||name==='项目名称')&&names.some(name=>name==='本人贡献'||name==='我的贡献'||name==='负责部分')
+}
 
 export type ConfirmedExperienceLike={id:string;revision:number;content:{summary?:string}|null;source_quote?:string}
 const catalogueId=(value:string)=>`mf-${createHash('sha256').update(value).digest('hex').slice(0,24)}`
 const kindField:Partial<Record<GrowthItem['kind'],MaterialField>>={
-  goal:'target',direction:'target',ability:'project',preference:'skill',context:'identity',
+  goal:'target',direction:'target',ability:'project',
 }
-// A complete contact is a strictly patterned value the user actually supplied.
-const completeContact=(text:string)=>/(?:[\w.+-]+@[\w-]+\.[\w.-]+)|(?:1[3-9]\d{9})/.test(text)
-const completeIdentity=(text:string)=>/姓名[:：]\s*\S{1,20}/.test(text)
 
-export function buildMaterialFactCatalogue(growth: readonly GrowthItem[], confirmedExperiences: readonly ConfirmedExperienceLike[]=[]):VerifiedMaterialFact[]{
+export function buildMaterialFactCatalogue(growth:readonly GrowthItem[],confirmedExperiences:readonly ConfirmedExperienceLike[]=[],currentMessage?:{id:string;conversationId:string;text:string}):VerifiedMaterialFact[]{
   const catalogue:VerifiedMaterialFact[]=[]
+  const push=(field:MaterialField,text:string,sourceKind:'user_reported'|'user_edit',completeForField:boolean,sourceRef:MaterialSourceRef)=>{
+    if(!text.trim()||text.length>4000)return
+    const id=catalogueId(JSON.stringify([sourceRef,field,text]))
+    if(catalogue.some(fact=>fact.catalogueId===id))return
+    catalogue.push({catalogueId:id,field,text,sourceKind,completeForField,sourceRef})
+  }
+  const labeledBySource:ExplicitMaterialField[][]=[]
   for(const item of growth){
     if(item.unavailableReason||!['active','proposed'].includes(item.status))continue
     if(item.assertion!=='user_reported'&&item.assertion!=='user_edit')continue
-    if(!item.text.trim()||item.text.length>4000)continue
-    const field=item.kind==='constraint'||item.kind==='feedback'||item.kind==='priority'||item.kind==='decision'||item.kind==='unknown'||item.kind==='observation'?null:kindField[item.kind]
-    if(!field)continue
-    // "我有三个作品" only proves works exist — it is never a complete project
-    // entry with role/outcome. Completeness is reserved for patterned values.
-    const completeForField=(field==='contact'&&completeContact(item.text))||(field==='identity'&&completeIdentity(item.text))
-    catalogue.push({catalogueId:catalogueId(`growth:${item.id}:${item.revision}`),field,text:item.text,sourceKind:item.assertion==='user_edit'?'user_edit':'user_reported',completeForField})
+    const sourceRef:MaterialSourceRef={type:'growth',id:item.id,revision:item.revision}
+    const sourceKind=item.assertion==='user_edit'?'user_edit':'user_reported'
+    const labeled=extractExplicitMaterialFields(item.text)
+    if(labeled.length)labeledBySource.push(labeled)
+    for(const field of labeled)push(field.field,field.text,sourceKind,true,sourceRef)
+    const bucket=kindField[item.kind]
+    if(bucket&&!labeled.length)push(bucket,item.text,sourceKind,false,sourceRef)
   }
   for(const experience of confirmedExperiences){
     const text=(experience.content?.summary??experience.source_quote??'').trim()
-    if(!text||text.length>4000)continue
-    catalogue.push({catalogueId:catalogueId(`experience:${experience.id}:${experience.revision}`),field:'project',text,sourceKind:'user_reported',completeForField:false})
+    push('project',text,'user_reported',false,{type:'experience',id:experience.id,revision:experience.revision})
+  }
+  if(currentMessage){
+    const labeled=extractExplicitMaterialFields(currentMessage.text)
+    if(labeled.length)labeledBySource.push(labeled)
+    for(const field of labeled)push(field.field,field.text,'user_reported',true,{type:'message',id:currentMessage.id,conversationId:currentMessage.conversationId,quote:field.quote})
+  }
+  // Project completeness is a GROUP property: a source whose labeled fields
+  // carry name+contribution completes its project entries.
+  if(labeledBySource.some(projectGroupComplete)){
+    const completed=new Set<string>()
+    for(const group of labeledBySource)if(projectGroupComplete(group))for(const field of group)completed.add(field.text)
+    for(const fact of catalogue)if(fact.field==='project'&&completed.has(fact.text))fact.completeForField=true
   }
   return catalogue
 }
 
+// Current-message catalogue: complete labeled fields enter the SAME turn
+// without pre-committing growth (staged facts stay the durable record).
+export function buildMaterialFactCatalogueForMessage(message:{id:string;conversationId:string;text:string}):VerifiedMaterialFact[]{
+  return buildMaterialFactCatalogue([],[],message)
+}
+
 // Resolve a model's selection against THIS turn's server catalogue; any
 // invented, stale or cross-account id is MATERIAL_REFERENCE_INVALID.
-export function resolveSelectedMaterialFacts(selectedIds:readonly string[],catalogue:readonly VerifiedMaterialFact[],ownerId:string,expectedOwnerId:string):MaterialResult{
+export type SelectedMaterialResult=MaterialResult&{facts:VerifiedMaterialFact[]}
+export function resolveSelectedMaterialFacts(selectedIds:readonly string[],catalogue:readonly VerifiedMaterialFact[],ownerId:string,expectedOwnerId:string):SelectedMaterialResult{
   if(ownerId!==expectedOwnerId)throw new Error('MATERIAL_REFERENCE_INVALID')
-  return renderGroundedResume(selectedIds,catalogue)
+  const selected=selectedIds.map(id=>catalogue.find(fact=>fact.catalogueId===id)).filter((fact):fact is VerifiedMaterialFact=>Boolean(fact))
+  return {...renderGroundedResume(selectedIds,catalogue),facts:selected}
 }

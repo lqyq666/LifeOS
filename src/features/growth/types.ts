@@ -14,5 +14,6 @@ export type GrowthItem = {
   sources: GrowthSource[]; dependencies: GrowthRef[]; validUntil: string | null; validFrom?: string | null; timeBasis?: GrowthTimeBasis;
   revision: number; createdAt: string; updatedAt: string; unavailableReason: string | null;
   limitation?: string; progressState?: 'unattempted' | 'attempted' | 'stuck' | 'completed' | 'unknown' | null;
+  directionScopes?: string[]; structuredPlan?: Record<string, unknown> | null;
 }
 export type GrowthView = { memoryEnabled: boolean; items: GrowthItem[] }

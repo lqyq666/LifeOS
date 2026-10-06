@@ -202,7 +202,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   // P4: resume/portfolio materials render from a server-built catalogue of the
   // user's own verified words only; the model selects ids and never authors
   // factual prose for this material class.
-  const materialCatalogue=resumePortfolioMode?buildMaterialFactCatalogue(growth,snapshot.confirmedExperiences):[]
+  const materialCatalogue=resumePortfolioMode?buildMaterialFactCatalogue(growth,snapshot.confirmedExperiences,{id:run.source_message_id,conversationId:run.conversation_id,text:current.content}):[]
   // N1.4: allowed/blocked come from the EFFECTIVE overlay (including this
   // turn's pending pause/resume), not a re-read after generation.
   const blockedDirectionScopes=effectiveControls.filter(row=>row.state==='paused').map(row=>row.scope)
@@ -233,11 +233,16 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     // hard failures, never silently repaired into facts.
     if(result.event?.action&&'draft'in result.event.action){
       const draft=result.event.action.draft as unknown
+      // N2.6: runtime does not trust provider schema compliance — in resume
+      // mode a legacy free-text draft is a hard mode mismatch.
+      if(resumePortfolioMode&&draft&&typeof draft==='object'&&(!('kind'in draft)||(draft as {kind:string}).kind!=='resume_portfolio')){
+        throw new HttpError(400,'MATERIAL_MODE_MISMATCH')
+      }
       if(draft&&typeof draft==='object'&&'kind'in draft&&(draft as {kind:string}).kind==='resume_portfolio'){
         const selection=draft as unknown as {selectedFactIds:string[]}
         try{
           const material=resolveSelectedMaterialFacts(selection.selectedFactIds??[],materialCatalogue,run.user_id,run.user_id)
-          ;(result.event.action as {draft:unknown}).draft={content:material.content,readiness:material.readiness,missingRequired:material.missingRequired,materialFactIds:material.usedCatalogueIds}
+          ;(result.event.action as {draft:unknown}).draft={content:material.content,readiness:material.readiness,missingRequired:material.missingRequired,materialFactIds:material.usedCatalogueIds,materialEvidence:material.facts.map(fact=>({field:fact.field,text:fact.text,sourceRef:fact.sourceRef}))}
         }catch(error){
           throw error instanceof Error&&(error.message==='MATERIAL_REFERENCE_INVALID'||error.message==='MATERIAL_CATALOGUE_INVALID'||error.message==='MATERIAL_OUTPUT_LIMIT')?new HttpError(400,'MATERIAL_REFERENCE_INVALID'):error
         }
@@ -277,7 +282,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     }
     staged.audit.push({phase:'coach_reply_rendered',narrativeChars,finalChars:result.reply.length,materialChars:result.event?.action&&'draft'in result.event.action&&'content'in result.event.action.draft?result.event.action.draft.content.length:0})
     staged.usedKnowledgeRefs=[...contextKnowledge,...checkedCitations.refs]
-    if(result.growthUpdates?.length)staged.growth=await stageGrowthUpdates(run,result.growthUpdates,growth)
+    if(result.growthUpdates?.length)staged.growth=await stageGrowthUpdates(run,result.growthUpdates,growth,{allowedDirectionScopes:allowedDirectionScopes})
     // P5.3 step 4 (N1.4/N1.5): an explicitly commanded change must exist in
     // the PRE-STAGED batch (staged before generation, never re-read here);
     // answering an old topic instead is a failed turn. Domain obligation
