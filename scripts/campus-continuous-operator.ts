@@ -396,10 +396,27 @@ function main(){
   const log=(entry:Record<string,unknown>)=>appendFileSync(logPath,JSON.stringify({...entry,at:new Date().toISOString()})+'\n')
   writeFileSync(resolve(directory,'operator-manifest.json'),JSON.stringify({startedAt:new Date().toISOString(),paid,freezePath,fixturePath,operatorDigest,automaticRetry:false,scenarios:scenarios().map(s=>({id:s.id,turns:s.steps.length}))},null,2))
   log({event:'operator-start',paid,directory,automaticRetry:false})
+  // P1: a turn that failed while the model was in cooldown never reached the
+  // provider. When such a failure carries retryAfter, the operator WAITS that
+  // long before dispatching the NEXT turn (a different input) so one provider
+  // hiccup cannot cascade-void the remaining scenarios. The failed input
+  // itself is still never resent automatically.
+  const sleep=async(ms:number)=>new Promise<void>(done=>setTimeout(done,ms))
 
   const queue=(()=>{const all=scenarios();const i=process.argv.indexOf('--only');if(i<0)return all;const wanted=process.argv[i+1]!.split(',');const filtered=all.filter(s=>wanted.includes(s.id));if(!filtered.length)throw new Error('NO_SCENARIO_SELECTED');return filtered})()
   const child:ChildProcess=spawn(process.execPath,['--import','tsx','scripts/run-action-coach.ts',paid?'--paid':'--preflight','--freeze',freezePath,'--fixture',fixturePath],{stdio:['pipe','pipe','pipe']})
   const send=(line:object)=>{(child.stdin as NonNullable<ChildProcess['stdin']>).write(JSON.stringify(line)+'\n');log({event:'operator-sent',...line})}
+  let cooldownUntil=0
+  let chain=Promise.resolve()
+  const enqueue=(message:any)=>{
+    chain=chain.then(async()=>{
+      const retryAfter=/retryAfter"?\]?\s*:\s*(\d+)/.exec(String(message.error??''))
+      if(retryAfter)cooldownUntil=Math.max(cooldownUntil,Date.now()+(Number(retryAfter[1])+1)*1000)
+      const waitMs=cooldownUntil-Date.now()
+      if(waitMs>0&&message.operation!=='exit'){log({event:'cooldown-wait',ms:waitMs});await sleep(waitMs)}
+      driver.handleChildMessage(message)
+    })
+  }
   const driver=createOperatorDriver({scenarios:queue,log,send})
 
   let buffer='',runId=''
@@ -412,7 +429,7 @@ function main(){
       let message:any
       try{message=JSON.parse(line)}catch{log({event:'child-stdout-unparsed',line:line.slice(0,200)});continue}
       if(message.ready)runId=message.runId
-      driver.handleChildMessage(message)
+      enqueue(message)
     }
   })
   ;(child.stderr as NonNullable<ChildProcess['stderr']>).on('data',(chunk:Buffer)=>{const text=chunk.toString().trim();if(text)log({event:'child-stderr',text:text.slice(0,400)})})
