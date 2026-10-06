@@ -2,34 +2,29 @@ import {spawn,type ChildProcess} from 'node:child_process'
 import {mkdirSync,writeFileSync,appendFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {randomUUID,createHash} from 'node:crypto'
+import {pathToFileURL} from 'node:url'
 
 // Operator driver for the real campus continuous experience. This script is the
 // synthetic adult student: it reads each actual model reply and only then picks
 // the next scripted answer. Hidden fixture facts are revealed only when the
 // reply actually asks about that topic; unasked facts stay hidden. Fixture
 // review criteria are never sent to the model.
-const paid=process.argv.includes('--paid')
-if(!paid&&!process.argv.includes('--preflight'))throw new Error('--paid or --preflight required')
-const arg=(name:string)=>{const i=process.argv.indexOf(name);return process.argv[i+1] as string}
-const freezePath=resolve(arg('--freeze'))
-const fixturePath='tests/fixtures/campus-growth-trajectories.json'
-const stamp=Date.now(),directory=resolve('.local/campus-growth/continuous-'+stamp)
-mkdirSync(directory,{recursive:true})
-const logPath=resolve(directory,'operator-log.jsonl')
-const operatorDigest=createHash('sha256').update(JSON.stringify(scenarios().map(s=>({id:s.id,steps:s.steps.map(t=>({...t,topics:t.kind==='answer'?t.topics.map(x=>({label:x.label,answer:x.answer})):undefined}))})))).digest('hex')
-const log=(entry:Record<string,unknown>)=>appendFileSync(logPath,JSON.stringify({...entry,at:new Date().toISOString()})+'\n')
-writeFileSync(resolve(directory,'operator-manifest.json'),JSON.stringify({startedAt:new Date().toISOString(),paid,freezePath,fixturePath,operatorDigest,scenarios:scenarios().map(s=>({id:s.id,turns:s.steps.length}))},null,2))
-log({event:'operator-start',paid,directory})
+//
+// P0 invariants: every command names its trajectory actor (actorKey), each
+// operator step has a stable logicalStepId, and a failed turn is preserved
+// as-is — the same input is never resent automatically. A later explicit
+// manual retry would be a new attempt under the same logicalStepId, which the
+// unattended batch never triggers.
 
-type AnswerStep={kind:'answer',topics:{match:RegExp,answer:string,label:string}[],volunteer?:string,fallback?:string}
-type FixedStep={kind:'fixed',text:string,newConversation?:boolean,sampleClass?:'opening'|'ordinary_followup'|'long_material'}
-type ReadGrowthStep={kind:'readGrowth'}
-type EnableMemoryStep={kind:'enableMemory'}
-type ForgetStep={kind:'forget',match:RegExp,label:string}
-type Step=AnswerStep|FixedStep|ReadGrowthStep|EnableMemoryStep|ForgetStep
-type Scenario={id:string,steps:Step[]}
+export type AnswerStep={kind:'answer',topics:{match:RegExp,answer:string,label:string}[],volunteer?:string,fallback?:string}
+export type FixedStep={kind:'fixed',text:string,newConversation?:boolean,sampleClass?:'opening'|'ordinary_followup'|'long_material'}
+export type ReadGrowthStep={kind:'readGrowth'}
+export type EnableMemoryStep={kind:'enableMemory'}
+export type ForgetStep={kind:'forget',match:RegExp,label:string}
+export type Step=AnswerStep|FixedStep|ReadGrowthStep|EnableMemoryStep|ForgetStep
+export type Scenario={id:string,steps:Step[]}
 
-function scenarios():Scenario[]{
+export function scenarios():Scenario[]{
   return [
     {id:'C01',steps:[
       {kind:'fixed',text:'我已经成年，读大学但还没确定毕业方向，经历也不多。我不想谈家庭收入。',sampleClass:'opening'},
@@ -165,99 +160,128 @@ function scenarios():Scenario[]{
   ]
 }
 
-const queue=(()=>{const all=scenarios();const i=process.argv.indexOf('--only');if(i<0)return all;const wanted=process.argv[i+1]!.split(',');const filtered=all.filter(s=>wanted.includes(s.id));if(!filtered.length)throw new Error('NO_SCENARIO_SELECTED');return filtered})()
-let scenarioIndex=0,stepIndex=0,retryCount=0
-let lastGrowth:unknown=null,runId='',lastReply='',lastTurnInput:object|null=null
-let pendingMemoryEnable=false,forgetQueue:{itemId:string,expectedRevision:number}[]=[]
-
-const child:ChildProcess=spawn(process.execPath,['--import','tsx','scripts/run-action-coach.ts',paid?'--paid':'--preflight','--freeze',freezePath,'--fixture',fixturePath],{stdio:['pipe','pipe','pipe']})
-const send=(line:object)=>{
-  if('trajectory' in line)lastTurnInput=line
-  ;(child.stdin as NonNullable<ChildProcess['stdin']>).write(JSON.stringify(line)+'\n');log({event:'operator-sent',...line})
-}
-
-function nextCommand(replyText:string|null){
-  while(scenarioIndex<queue.length){
-    const scenario=queue[scenarioIndex]!,step=scenario.steps[stepIndex]
-    if(!step){scenarioIndex++;stepIndex=0;continue}
-    const advance=()=>{stepIndex++;retryCount=0}
-    if(step.kind==='readGrowth'){advance();return{operation:'readGrowth'}as const}
-    if(step.kind==='enableMemory'){advance();pendingMemoryEnable=true;return{operation:'readMemory'} as const}
-    if(step.kind==='forget'){
-      const growth=lastGrowth as {items?:{id:string,text?:string,revision?:number,status?:string}[]}|null
-      const items=growth?.items??[]
-      const targets=items.filter(item=>item.status!=='forgotten'&&step.match.test(String(item.text||'')))
-      log({event:'forget-step',scenario:scenario.id,label:step.label,found:targets.map(t=>t.id),items:items.map(i=>({id:i.id,status:i.status,text:String(i.text||'').slice(0,60)}))})
-      if(!targets.length){advance();return nextCommand(replyText)}
-      advance()
-      forgetQueue=targets.map(t=>({itemId:t.id,expectedRevision:t.revision??1}))
-      const first=forgetQueue.shift()!
-      return{operation:'growthAction',itemId:first.itemId,value:{requestId:randomUUID(),expectedRevision:first.expectedRevision,action:'forget'}} as const
-    }
-    if(step.kind==='fixed'){const text=step.text;advance();return{trajectory:scenario.id,text,sampleClass:step.sampleClass??'ordinary_followup',...(step.newConversation?{newConversation:true}:{})} as const}
-    // answer step: reveal facts only when the reply actually asks about them
-    // (match interrogative sentences only, so the model's own framing like
-    // "经历少" or its boundary acknowledgment never counts as a question); a
-    // student who is never asked may volunteer the core situation once instead
-    const questionText=replyText?replyText.split(/(?<=[。！？!?；;])|\n/).filter(part=>part.includes('？')||part.includes('?')).join(''):''
-    const revealed:string[]=[],answers:string[]=[]
-    for(const topic of step.topics)if(questionText&&topic.match.test(questionText)){revealed.push(topic.label);answers.push(topic.answer)}
-    let text:string
-    if(revealed.length)text=answers.join('')
-    else if(step.volunteer)text=step.volunteer
-    else text=step.fallback??'这个我说不好，先继续。'
-    log({event:'answer-step',scenario:scenario.id,replyAsked:revealed,volunteated:!revealed.length&&Boolean(step.volunteer),hidden:(step.topics.map(t=>t.label).filter(l=>!revealed.includes(l)))})
-    advance()
-    return{trajectory:scenario.id,text,sampleClass:'ordinary_followup'} as const
+// Pure decision state machine, separated from the spawned child process so the
+// operator's actor mapping and no-auto-retry contract are testable offline.
+export function createOperatorDriver(options:{scenarios:Scenario[];log:(entry:Record<string,unknown>)=>void;send:(line:Record<string,unknown>)=>void}){
+  const queue=options.scenarios
+  let scenarioIndex=0,stepIndex=0
+  let lastGrowth:unknown=null
+  let pendingMemoryActor:string|null=null
+  let forgetQueue:{itemId:string,expectedRevision:number,actorKey:string}[]=[]
+  const dispatch=(command:Record<string,unknown>|null)=>{
+    if(!command){options.log({event:'operator-done-sending'});options.send({operation:'exit'});return}
+    options.send(command)
   }
-  return null
-}
-
-let buffer=''
-;(child.stdout as NonNullable<ChildProcess['stdout']>).on('data',(chunk:Buffer)=>{
-  buffer+=chunk.toString()
-  let boundary:number
-  while((boundary=buffer.indexOf('\n'))>=0){
-    const line=buffer.slice(0,boundary).trim();buffer=buffer.slice(boundary+1)
-    if(!line)continue
-    let message:any
-    try{message=JSON.parse(line)}catch{log({event:'child-stdout-unparsed',line:line.slice(0,200)});continue}
-    if(message.ready){runId=message.runId;log({event:'ready',runId});send(nextCommand(null)!);continue}
-    if(message.operation==='readMemory'){
-      if(pendingMemoryEnable){
-        pendingMemoryEnable=false
-        const settings=message.value?.settings
-        if(settings&&!settings.enabled){log({event:'memory-enable',revision:settings.revision});send({operation:'memorySettings',value:{requestId:randomUUID(),enabled:true,expectedRevision:settings.revision}});continue}
-        log({event:'memory-already-enabled'})
-        send(nextCommand(null)!);continue
+  function nextCommand(replyText:string|null):Record<string,unknown>|null{
+    while(scenarioIndex<queue.length){
+      const scenario=queue[scenarioIndex]!,step=scenario.steps[stepIndex]
+      if(!step){scenarioIndex++;stepIndex=0;continue}
+      const logicalStepId=scenario.id+':'+stepIndex
+      const advance=()=>{stepIndex++}
+      if(step.kind==='readGrowth'){advance();return{operation:'readGrowth',actorKey:scenario.id,logicalStepId}}
+      if(step.kind==='enableMemory'){advance();pendingMemoryActor=scenario.id;return{operation:'readMemory',actorKey:scenario.id,logicalStepId}}
+      if(step.kind==='forget'){
+        const growth=lastGrowth as {items?:{id:string,text?:string,revision?:number,status?:string}[]}|null
+        const items=growth?.items??[]
+        const targets=items.filter(item=>item.status!=='forgotten'&&step.match.test(String(item.text||'')))
+        options.log({event:'forget-step',scenario:scenario.id,label:step.label,found:targets.map(t=>t.id),items:items.map(i=>({id:i.id,status:i.status,text:String(i.text||'').slice(0,60)}))})
+        if(!targets.length){advance();return nextCommand(replyText)}
+        advance()
+        forgetQueue=targets.map(t=>({itemId:t.id,expectedRevision:t.revision??1,actorKey:scenario.id}))
+        const first=forgetQueue.shift()!
+        return{operation:'growthAction',actorKey:scenario.id,logicalStepId,itemId:first.itemId,value:{requestId:randomUUID(),expectedRevision:first.expectedRevision,action:'forget'}}
       }
-      log({event:'readMemory',items:(message.value?.items??[]).length});send(nextCommand(null)!);continue
+      if(step.kind==='fixed'){const text=step.text;advance();return{trajectory:scenario.id,actorKey:scenario.id,logicalStepId,text,sampleClass:step.sampleClass??'ordinary_followup',...(step.newConversation?{newConversation:true}:{})}}
+      // answer step: reveal facts only when the reply actually asks about them
+      // (match interrogative sentences only, so the model's own framing like
+      // "经历少" or its boundary acknowledgment never counts as a question); a
+      // student who is never asked may volunteer the core situation once instead
+      const questionText=replyText?replyText.split(/(?<=[。！？!?；;])|\n/).filter(part=>part.includes('？')||part.includes('?')).join(''):''
+      const revealed:string[]=[],answers:string[]=[]
+      for(const topic of step.topics)if(questionText&&topic.match.test(questionText)){revealed.push(topic.label);answers.push(topic.answer)}
+      let text:string
+      if(revealed.length)text=answers.join('')
+      else if(step.volunteer)text=step.volunteer
+      else text=step.fallback??'这个我说不好，先继续。'
+      options.log({event:'answer-step',scenario:scenario.id,replyAsked:revealed,volunteated:!revealed.length&&Boolean(step.volunteer),hidden:(step.topics.map(t=>t.label).filter(l=>!revealed.includes(l)))})
+      advance()
+      return{trajectory:scenario.id,actorKey:scenario.id,logicalStepId,text,sampleClass:'ordinary_followup'}
     }
-    if(message.operation==='memorySettings'){log({event:'memorySettings-result',value:message.value});send(nextCommand(null)!);continue}
-    if(message.operation==='readGrowth'){lastGrowth=message.value;log({event:'readGrowth',items:(message.value?.items??[]).map((i:any)=>({id:i.id,status:i.status,kind:i.kind,assertion:String(i.assertion??i.text??'').slice(0,80),revision:i.revision}))});send(nextCommand(null)!);continue}
+    return null
+  }
+  function handleChildMessage(message:any){
+    if(message.ready){options.log({event:'ready',runId:message.runId});dispatch(nextCommand(null));return}
+    if(message.operation==='readMemory'){
+      if(pendingMemoryActor){
+        const actorKey=pendingMemoryActor
+        pendingMemoryActor=null
+        const settings=message.value?.settings
+        if(settings&&!settings.enabled){options.log({event:'memory-enable',actor:actorKey,revision:settings.revision});options.send({operation:'memorySettings',actorKey,value:{requestId:randomUUID(),enabled:true,expectedRevision:settings.revision}});return}
+        options.log({event:'memory-already-enabled',actor:actorKey})
+        dispatch(nextCommand(null));return
+      }
+      options.log({event:'readMemory',items:(message.value?.items??[]).length});dispatch(nextCommand(null));return
+    }
+    if(message.operation==='memorySettings'){options.log({event:'memorySettings-result',value:message.value});dispatch(nextCommand(null));return}
+    if(message.operation==='readGrowth'){lastGrowth=message.value;options.log({event:'readGrowth',items:(message.value?.items??[]).map((i:any)=>({id:i.id,status:i.status,kind:i.kind,assertion:String(i.assertion??i.text??'').slice(0,80),revision:i.revision}))});dispatch(nextCommand(null));return}
     if(message.operation==='growthAction'){
-      log({event:'growthAction-result',value:message.value})
-      if(forgetQueue.length){const next=forgetQueue.shift()!;send({operation:'growthAction',itemId:next.itemId,value:{requestId:randomUUID(),expectedRevision:next.expectedRevision,action:'forget'}});continue}
-      send(nextCommand(null)!);continue
+      options.log({event:'growthAction-result',value:message.value})
+      if(forgetQueue.length){const next=forgetQueue.shift()!;options.send({operation:'growthAction',actorKey:next.actorKey,itemId:next.itemId,value:{requestId:randomUUID(),expectedRevision:next.expectedRevision,action:'forget'}});return}
+      dispatch(nextCommand(null));return
     }
     if(message.trajectory&&('turn' in message)){
       const failed=Boolean(message.error)
       const delta=(message.events??[]).find((e:any)=>e?.value?.type==='delta'&&e?.value?.saved===true)
       const replyText=typeof delta?.value?.text==='string'?delta.value.text:null
-      log({event:'turn-result',scenario:message.trajectory,turn:message.turn,failed,error:message.error??null,reply:replyText})
-      if(replyText)lastReply=replyText
-      // One operator retry per step: a failed turn consumed a real call, and the
-      // same input is resent exactly once without advancing the script.
-      if(failed&&retryCount<1&&message.error!=='MAXIMUM_USER_TURNS_REACHED'&&lastTurnInput){retryCount++;log({event:'operator-retry-once',scenario:message.trajectory});send(lastTurnInput);continue}
-      retryCount=0
-      const command=nextCommand(replyText)
-      if(!command){log({event:'operator-done-sending'});send({operation:'exit'});continue}
-      if('trajectory' in command)lastTurnInput=command
-      send(command);continue
+      options.log({event:'turn-result',scenario:message.trajectory,actor:message.actorKey??message.trajectory,turn:message.turn,failed,error:message.error??null,reply:replyText})
+      // A failed turn consumed a real call and stays failed: the failure is
+      // preserved as-is and the script advances. The same input is never
+      // resent automatically; an explicit manual retry would be a new attempt
+      // under the same logicalStepId, accounted separately, never inflating
+      // the logical success count.
+      dispatch(nextCommand(replyText));return
     }
-    if(message.closed){log({event:'closed',runId:message.runId,status:message.status});return}
-    log({event:'child-stdout',message})
+    if(message.closed){options.log({event:'closed',runId:message.runId,status:message.status});return}
+    options.log({event:'child-stdout',message})
   }
-})
-;(child.stderr as NonNullable<ChildProcess['stderr']>).on('data',(chunk:Buffer)=>{const text=chunk.toString().trim();if(text)log({event:'child-stderr',text:text.slice(0,400)})})
-child.on('exit',(code,signal)=>{log({event:'child-exit',code,signal});console.log(JSON.stringify({operatorFinished:true,code,signal,logPath,runId}))})
+  return {nextCommand,handleChildMessage}
+}
+
+function main(){
+  const paid=process.argv.includes('--paid')
+  if(!paid&&!process.argv.includes('--preflight'))throw new Error('--paid or --preflight required')
+  const arg=(name:string)=>{const i=process.argv.indexOf(name);return process.argv[i+1] as string}
+  const freezePath=resolve(arg('--freeze'))
+  const fixturePath='tests/fixtures/campus-growth-trajectories.json'
+  const stamp=Date.now(),directory=resolve('.local/campus-growth/continuous-'+stamp)
+  mkdirSync(directory,{recursive:true})
+  const logPath=resolve(directory,'operator-log.jsonl')
+  const operatorDigest=createHash('sha256').update(JSON.stringify(scenarios().map(s=>({id:s.id,steps:s.steps.map(t=>({...t,topics:t.kind==='answer'?t.topics.map(x=>({label:x.label,answer:x.answer})):undefined}))})))).digest('hex')
+  const log=(entry:Record<string,unknown>)=>appendFileSync(logPath,JSON.stringify({...entry,at:new Date().toISOString()})+'\n')
+  writeFileSync(resolve(directory,'operator-manifest.json'),JSON.stringify({startedAt:new Date().toISOString(),paid,freezePath,fixturePath,operatorDigest,automaticRetry:false,scenarios:scenarios().map(s=>({id:s.id,turns:s.steps.length}))},null,2))
+  log({event:'operator-start',paid,directory,automaticRetry:false})
+
+  const queue=(()=>{const all=scenarios();const i=process.argv.indexOf('--only');if(i<0)return all;const wanted=process.argv[i+1]!.split(',');const filtered=all.filter(s=>wanted.includes(s.id));if(!filtered.length)throw new Error('NO_SCENARIO_SELECTED');return filtered})()
+  const child:ChildProcess=spawn(process.execPath,['--import','tsx','scripts/run-action-coach.ts',paid?'--paid':'--preflight','--freeze',freezePath,'--fixture',fixturePath],{stdio:['pipe','pipe','pipe']})
+  const send=(line:object)=>{(child.stdin as NonNullable<ChildProcess['stdin']>).write(JSON.stringify(line)+'\n');log({event:'operator-sent',...line})}
+  const driver=createOperatorDriver({scenarios:queue,log,send})
+
+  let buffer='',runId=''
+  ;(child.stdout as NonNullable<ChildProcess['stdout']>).on('data',(chunk:Buffer)=>{
+    buffer+=chunk.toString()
+    let boundary:number
+    while((boundary=buffer.indexOf('\n'))>=0){
+      const line=buffer.slice(0,boundary).trim();buffer=buffer.slice(boundary+1)
+      if(!line)continue
+      let message:any
+      try{message=JSON.parse(line)}catch{log({event:'child-stdout-unparsed',line:line.slice(0,200)});continue}
+      if(message.ready)runId=message.runId
+      driver.handleChildMessage(message)
+    }
+  })
+  ;(child.stderr as NonNullable<ChildProcess['stderr']>).on('data',(chunk:Buffer)=>{const text=chunk.toString().trim();if(text)log({event:'child-stderr',text:text.slice(0,400)})})
+  child.on('exit',(code,signal)=>{log({event:'child-exit',code,signal});console.log(JSON.stringify({operatorFinished:true,code,signal,logPath,runId}))})
+}
+
+const entryScript=process.argv[1]?pathToFileURL(resolve(process.argv[1])).href:null
+if(entryScript&&import.meta.url===entryScript)main()

@@ -64,3 +64,9 @@ npm audit五项high均沿 pi-ai0.73.1→proxy-agent6.5.0→pac-proxy-agent7.2.0�
 DOCX分别提取2669/591字符，XLSX1611非空单元格；人工核对细则“我省全日制高职高专应届毕业”、Sheet1!A2年度标题/B5哲学代码、登记表身份证号为空表字段。专业类别合并格不自动填充/匹配，不推其他省/2027。独立附件发布日期未知，父通知2026-01-05和适用2026分列。实际HTTPS/Office bytes/隔离PG测试PASS，report:official-attachment-public-1791202570669/report.json，Provider0，没有自动维护核验命题。
 
 解析独立worker10秒/128MiB；ZIP256项/单项4MiB/总12MiB与实际流大小限额，HTTP2MiB/20秒，路径/重复/加密、宏/OLE/ActiveX、外部资源/Word INCLUDETEXT/DDE、DTD实体、XLSX稀疏巨大网格及公式均拒绝，公式不执行、不采用缓存。PDF/旧doc/xls显式unsupported。017两表保存原始文件和每修订payload；父hash/版本CAS、当前链接成员、双24h及状态校验连带暂停附件引用；父失败界面仍保留原附件为暂停历史。没有新公开写接口，不通过浏览器/模型认证来源。新增依赖audit0漏洞。
+
+## P0 身份隔离批（2026-10-06，本地，零Provider）
+
+按用户2026-10-06工单（GLM_EXECUTION_ORDER.md P0）与当日追加指令执行。复用核查：本批不新增外部依赖或新框架——多账号注册复用仓库现有 BetterAuth 1.7.7 email signup 与 fetch（同 scripts/run-action-coach.ts 既有用法），操作员状态机复用原脚本逻辑仅去自动重发。无外部仓库脚本执行。核对 better-auth 1.7.7 实际源码 node_modules/better-auth/dist/api/rate-limiter/index.mjs：/sign-up* 默认特殊限流 window=10s、max=3（同IP同路径共享桶），故 ensureActor 对 429 按响应 Retry-After 有界等待重试本地免费注册（≤8次、单次≤15s），不改生产 auth 配置。
+
+当日用户追加指令：停止扩建自建通用知识库/检索基础设施；新增薄扣子(Coze)公共知识检索接入层（复用现有来源检查与产品界面，不迁移聊天系统、不建第二套长期记忆，原检索保留对照回退）。该新增为用户明示授权的白名单外扩展，单独批次实施并记入 REPAIR-20261006.md。
