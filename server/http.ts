@@ -62,6 +62,11 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
       if(Number(req.headers['content-length']??0)>65536)throw new HttpError(413,'REQUEST_TOO_LARGE')
       if(path.startsWith('/api/auth/')){await authHandler(req,res);return}
       if(path.startsWith('/api/')){
+        // P4 G0: unauthenticated runtime fingerprint (no secrets) for host/skill verification.
+        if(path==='/api/run/version'&&method==='GET'){
+          let head='unknown'
+          try{head=(await import('node:child_process')).execSync('git rev-parse --short HEAD').toString().trim()}catch{}
+          json(res,200,{service:'LifeOS',head,skillVersion:'1.2.0',contractGeneration:'p4',growthApi:true});return}
         const session=await auth.api.getSession({headers:fromNodeHeaders(req.headers)})
         if(!session)throw new HttpError(401,'LOGIN_REQUIRED')
         // Effective identity is always derived here. No body, URL or model field can override it.
