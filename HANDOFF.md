@@ -2,6 +2,9 @@
 
 工作区 D:\aaaLife\LifeOS。当前唯一验收目标是 PRODUCT.md 的校园成长与连续决策完整产品。用户已恢复自主开发，允许在原 grant 剩余额度内选择产品模型；旧固定 qwen3.8-flash 与旧实现顺序已替代。公网 lqynb.xyz 仍是旧 52a4e47 镜像，不代表新产品已发布。
 
+## 2026-10-08 P6 批（GLM）：控制安全与跨会话更正收口
+
+- 提交 `339ec83`：W1 子句级遗忘意图（server/forget-intent.ts：否定/假设/条件/引语/问句不授权；记录保留→pause_use；控制子句评分定位；executed===true 才算成功；确定性 UUIDv5 幂等键；审计不再复制被删原文）——隔离 6/6。W2 replace/amend UPDATE 携带 conversation_id 随新源迁移（checkCampusSource 不削弱）——A→B→C 隔离验证+真实链 T6 readback 首次 active。W3 code_workflow 配置注入（本地优先回退保留）；引擎内本地 guide 卡实际采用（growth applied+个人化回复）。真实链 `coach-15f9ab53`（冻结 06dce92，7/11）。账本余 ¥15.17（≈¥0.18）。未达：p95/20样本/扣子UI扫码/远端 Coze 引擎内触发（本地策略正确）/T9 方差。WIP_NOT_READY。
 ## 2026-10-08 P5 续作 Closeout（GLM）：A/B/C 三线收口
 
 - 提交 `bec847b`+`676be00`：R02 essentials 按用途（无关 feedback 不再挤掉当前科研事实）；R03 预算计完整序列化；R04 方法查询构造器+主题锚；A1 更正目标全量授权回取（L1 T6 正确定位海报更正）；A3 遗忘生命周期（唯一目标轮内执行 actOnGrowthItem(forget)、歧义确认卡、守卫拒绝虚称）；B2 方法渲染中文锚词。
