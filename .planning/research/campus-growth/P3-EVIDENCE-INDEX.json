@@ -1,0 +1,108 @@
+{
+  "kind": "P3_MACHINE_READABLE_EVIDENCE_INDEX",
+  "generatedAt": "2026-10-07T21:30:00+08:00",
+  "baseline": {
+    "startHead": "edc075f1f2704d7ea3692268eb029154b78c52be",
+    "finalHead": "ead99bb (+docs commit)",
+    "branch": "fix/campus-acceptance-contract-20261006",
+    "freezes": {
+      "smallBatch": "d4a9c28567a0174882bb4a78545856ee648ecb2155240affcb513f889121d2af",
+      "lRerun": "66908d1792918825d53a0d1c4f1d47fbb1cb9808c9551cb7bb62d596f8833396"
+    },
+    "modelConfig": "qwen3.8-flash thinking 0 via bailian (all real runs)",
+    "commits": [
+      "f320d71",
+      "d34c5a9",
+      "c43e9e7",
+      "ead99bb"
+    ]
+  },
+  "layers": {
+    "pureFunctions": {
+      "P3_COUNTEREXAMPLES": "9/9 PASS (CP1-CP6 correction family + TM1-TM3 time family); P2 packet 15/15 regression still green",
+      "paths": [
+        "C:/Users/LQY/AppData/Local/Temp/BNZ.6ac5e4a134d5015/P3_COUNTEREXAMPLES.mjs",
+        ".local/p3-probe-9.json"
+      ]
+    },
+    "isolatedPg": {
+      "result": "p2-corrections-budget.test.ts 8/8 (incl. cross-turn outstanding, forget-claim, persist-layer budget mismatch); growth-scale probe 3/3; full backend 50 files green",
+      "growthScaleMeasured": {
+        "activeItems": 201,
+        "promptChars": 97136,
+        "estimatedTokens": 49391,
+        "readMs": 6
+      }
+    },
+    "realModel": {
+      "smallBatch": {
+        "runId": "coach-d228e636-e62c-42ce-9660-109b67a53958",
+        "scenarios": 10,
+        "turns": 44,
+        "saved": 30,
+        "failed": 14,
+        "ordinarySaved": 20,
+        "p50FirstMs": 3533,
+        "p95CompleteMs": 10042
+      },
+      "lRerun": {
+        "runId": "coach-dcc4257a-6fdc-4b49-98ce-10e3da42b968",
+        "scenarios": 5,
+        "turns": 20,
+        "saved": 15,
+        "failed": 5,
+        "ordinarySaved": 15,
+        "p50FirstMs": 5410,
+        "p95CompleteMs": 15637
+      },
+      "paths": [
+        "evidence/v1.3-action-coach/real/coach-d228e636-e62c-42ce-9660-109b67a53958/",
+        "evidence/v1.3-action-coach/real/coach-dcc4257a-6fdc-4b49-98ce-10e3da42b968/"
+      ]
+    },
+    "browser": {
+      "result": "campus-r2-browser PASS (real Chrome+auth+isolated PG)"
+    },
+    "hostSkill": {
+      "zcodingSubagent": "fresh-context subagent read SKILL.md v1.1.0 fully and ran 4 real API turns — but against the stale Docker image (8790) because the dev server (8787) was not running; the subagent honestly reported the old build adds the correction as a new candidate without retiring the old one; current-code correction persistence is proven at the integration layer instead",
+      "coze": "no skill packaging command in CLI (agent subcommand only info); competition entry = deployed workflow https://v8bjn44ynd.coze.site"
+    },
+    "cloud": {
+      "competition": {
+        "deployChain": [
+          "5b8a04b (P1)",
+          "63f85b1 (P2 A06)",
+          "7b272039",
+          "2dd99fc (P3 asset seed)",
+          "+router fix pending",
+          "b2e6a041 (method-question router)"
+        ],
+        "guideVerify": ".local/coze-competition/p3-competition-final2.json — portfolio query hits guide-portfolio-evidence 3 verified; exam no-regress 4 verified; chat stays none/0 cites"
+      },
+      "retrievalService": {
+        "deployChain": [
+          "193ac28",
+          "2b6b17e",
+          "0193036",
+          "04849caa (deterministic asset guide match)"
+        ],
+        "finalVerify": ".local/coze-competition/p3-retrieval-prod-final2.json — guide-hit verified=true score 3 (deterministic asset match); policy query returns guide candidate only no hard answer; news falls back to public vector"
+      },
+      "guidesManifest": "evidence/campus-guides/guides-manifest.json (8 self-authored cards, sha256-bound local cards in guide-cards.json)"
+    }
+  },
+  "cost": {
+    "ledgerReceipts": 1214,
+    "pending": 0,
+    "continuationRemainingCny": 16.5861871,
+    "p3SpendCnyApprox": 1.56,
+    "per100TechSaved": 0.42,
+    "businessDenominator": "scene-level zero-failure: 3/10 small batch"
+  },
+  "reviewIdentity": "GLM (implementer) semantic review; no independent reviewer or user sign-off recorded",
+  "untestedOrBlocked": [
+    "dev-server host multi-turn on current code (server not running)",
+    "native coze Skill packaging (platform UI flow)",
+    "production lqynb.xyz deploy (unchanged)"
+  ]
+}
