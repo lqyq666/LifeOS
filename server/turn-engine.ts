@@ -485,6 +485,15 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         }
       }
     }
+    // P5 (F03/S3.4): cross-turn OUTSTANDING FORGET - a recent prior user message
+    // requested forgetting and no forget action has committed since.
+    let outstandingForget=false
+    {
+      const priorUsers=[...messages].reverse().filter(row=>row.role==='user'&&row.id!==run.source_message_id).slice(0,3)
+      for(const row of priorUsers){
+        if(/(?:忘|删|清|移除|别再用|不再用|不再作为)/.test(row.content)){outstandingForget=true;break}
+      }
+    }
     if(correctionPlan||outstandingCorrection){
       // P2-1: with no actual replace/amend staged, the reply may acknowledge
       // the user's words ("已记录你的原话") but must NOT claim the record was
@@ -497,7 +506,10 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     // plan - a plain 遗忘 request with no correction must be covered too.
     {
       const forgotNow=staged.audit.some(entry=>(entry as {phase?:string}).phase==='growth_action_forget')
-      if(!forgotNow&&/(?:已(?:经)?(?:清掉|清除|删掉|删除|忘掉|忘记|移除)|不再作为.{0,12}依据)/.test(result.reply)&&/(?:忘|删|清|移除|别再用|不再用)/.test(current.content))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_FORGET')
+      // P5 (F03/S3.4): covers the current message AND an outstanding prior forget request.
+      const forgetClaim=/(?:已(?:经)?(?:清掉|清除|删掉|删除|忘掉|忘记|移除|撤下)|不再作为.{0,14}依据|不再.{0,6}(?:判断|建议|使用))/.test(result.reply)
+      const forgetRequested=/(?:忘|删|清|移除|别再用|不再用|不再作为)/.test(current.content)||outstandingForget
+      if(!forgotNow&&forgetClaim&&forgetRequested)throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_FORGET')
     }
     // P2-3 (PC08D T4): a verbatim repeat of the previous assistant reply
     // answers nothing. Legal repeats (explicit re-send/keep-the-original
