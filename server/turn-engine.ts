@@ -27,6 +27,7 @@ import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from '.
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
 import { stageWeeklyPlan } from './weekly-plans.ts'
 import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, type TurnObligations } from './turn-obligations.ts'
+import { scanUserClauses } from './user-command-spans.ts'
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
@@ -346,19 +347,33 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     // words — the two P1 failure shapes that ended as silent skips or
     // COMPOSITE refusals while the old wrong fact stayed active.
     const correctionPlan=planExplicitCorrection(current.content,growth.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text})))
-    if(correctionPlan?.target&&result.growthUpdates?.length){
+    if(correctionPlan&&result.growthUpdates?.length){
       for(const delta of result.growthUpdates){
         if(!('target'in delta))continue
         const target=delta.target as {operation:string;itemId?:string}
         if(target.operation!=='replace'&&target.operation!=='amend')continue
-        if(target.itemId!==correctionPlan.target.itemId)continue
-        if(target.operation==='replace'){
-          const oldItem=growth.find(item=>item.id===correctionPlan.target!.itemId)
-          if(oldItem&&(oldItem.text.match(/[，,；;。！？\n]/)?.length??0)>0)
-            (delta as {target:unknown}).target={operation:'amend',itemId:correctionPlan.target.itemId,expectedRevision:correctionPlan.target.expectedRevision,beforeQuote:correctionPlan.target.beforeQuote}
+        const authorizedItem=growth.find(item=>item.id===target.itemId)
+        if(!authorizedItem)continue
+        const composite=(authorizedItem.text.match(/[，,；;。！？\n]/)?.length??0)>0
+        if(target.operation==='replace'&&composite&&correctionPlan.target&&target.itemId===correctionPlan.target.itemId)
+          (delta as {target:unknown}).target={operation:'amend',itemId:authorizedItem.id,expectedRevision:authorizedItem.revision,beforeQuote:correctionPlan.target.beforeQuote}
+        if((delta.target as {operation:string}).operation==='amend'){
+          // amend never carries a merged text; the server derives it from the quote.
+          delete (delta as {text?:unknown}).text
+          const amendTarget=delta.target as {operation:'amend';itemId:string;expectedRevision:number;beforeQuote:string}
+          // Stale revisions refresh to the authorized current one.
+          amendTarget.expectedRevision=authorizedItem.revision
+          if(correctionPlan.target&&target.itemId===correctionPlan.target.itemId){
+            // The scored clause is authoritative for the scored target.
+            amendTarget.beforeQuote=correctionPlan.target.beforeQuote
+          }else{
+            // A partial beforeQuote inside exactly ONE old clause expands to
+            // that full clause (整体统筹 → 我负责整体统筹).
+            const clauses=scanUserClauses(authorizedItem.text).map(clause=>clause.text.trim()).filter(clause=>/[\p{L}\p{N}]/u.test(clause))
+            const containing=clauses.filter(clause=>clause.includes(amendTarget.beforeQuote))
+            if(containing.length===1)amendTarget.beforeQuote=containing[0]!
+          }
         }
-        // amend never carries a merged text; the server derives it from the quote.
-        if((delta.target as {operation:string}).operation==='amend')delete (delta as {text?:unknown}).text
         if(!current.content.includes(delta.source.quote))(delta as {source:{messageId:string;quote:string}}).source={messageId:run.source_message_id,quote:correctionPlan.newQuote}
       }
     }
@@ -495,6 +510,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const repairable=new Set(['GROWTH_REQUIRED_UPDATE_MISSING','GROWTH_AMENDMENT_AMBIGUOUS','GROWTH_COMPOSITE_REQUIRES_REVIEW','GROWTH_TIME_UNVERIFIED','GROWTH_TIME_REQUIRED','WEEKLY_PLAN_BASIS_INVALID','WEEKLY_PLAN_REQUIRED_MISSING','REPLY_CLAIMS_UNCOMMITTED_CORRECTION','REPLY_REPEATED_VERBATIM','DIRECTION_CONTROL_NOT_APPLIED','MATERIAL_REFERENCE_INVALID','REPLY_CONTRADICTS_CURRENT_EFFECT','GROWTH_SOURCE_INVALID','GROWTH_TARGET_INVALID','GROWTH_UNCHANGED','GROWTH_OBSERVATION_INVALID','GROWTH_DEPENDENCY_INVALID','GROWTH_TIME_INVALID','GROWTH_FEEDBACK_INVALID','COACH_CORRECTION_UNCHANGED','COACH_ACTION_UNCHANGED','COACH_EVENT_TARGET_INVALID','COACH_UNKNOWN_NOT_FOUND','COACH_UNKNOWN_DISPOSITION_CONFLICT','COACH_OUTPUT_INVALID','MODEL_OUTPUT_TRUNCATED','COACH_DELTA_INVALID','COACH_SOURCE_INVALID','COACH_CURRENT_SOURCE_REQUIRED','COACH_NEW_EVENT_TARGET_INVALID','COACH_MATERIAL_NOT_VISIBLE','COACH_MATERIAL_IS_CONVERSATION','COACH_ACTION_DECLINED','COACH_BACKGROUND_INVALID','COACH_CITATION_INVALID','COACH_CITATION_OUTPUT_LIMIT','PLANNED_ACTION_IS_NOT_EXPERIENCE','SKILL_IS_NOT_EXPERIENCE','SOURCE_QUOTE_MISMATCH','EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE'])
     if(process.env.LIFEOS_DEBUG_REPAIR)console.error('REPAIR_GATE',error instanceof HttpError?error.code:String(error).slice(0,80))
     if(process.env.LIFEOS_DEBUG_REPAIR)console.error('REPAIR_GATE',error instanceof HttpError?error.code:String(error).slice(0,100))
+    if(process.env.LIFEOS_DEBUG_REPAIR)console.error('REPAIR_GATE',error instanceof HttpError?error.code:String(error).slice(0,120))
     if(!(error instanceof HttpError)||!repairable.has(error.code)||calls.length!==1)throw error
     if(observer?.allowRepair===false){
       staged.audit.push({phase:'coach_repair_blocked',code:error.code,providerRequestSent:false})
