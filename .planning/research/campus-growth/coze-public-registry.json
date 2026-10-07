@@ -1,4 +1,109 @@
 {
   "schemaVersion": 1,
-  "bindings": []
+  "bindings": [
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-direction-lowtime",
+      "knowledgeCardId": "9defe55f-6687-4cae-b275-92cce03d6672",
+      "expectedRevision": 1,
+      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "sourceType": "self_authored_method",
+      "contentHash": "1da8d99a80f2aef9ad4f6f25b6c0703be19d61837a3ce2ff4fb3b8d0793bb404",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-research-review",
+      "knowledgeCardId": "fbf24484-5938-4d1b-88b8-283596853031",
+      "expectedRevision": 1,
+      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "sourceType": "self_authored_method",
+      "contentHash": "32be189dd58916ec2107c8cdae9b9475b7cfbb2f789291f3802225f25c5329a9",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-portfolio-evidence",
+      "knowledgeCardId": "318d2980-16e7-4d4a-817c-37ca69cbee64",
+      "expectedRevision": 1,
+      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "sourceType": "self_authored_method",
+      "contentHash": "2c103ad700951f195e6539dbf3547f6a6f6348b3d9f09a4f11baf4d8f664cb20",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-intern-first-contact",
+      "knowledgeCardId": "6a367fb8-309e-42ed-a409-664d8ca215b7",
+      "expectedRevision": 1,
+      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "sourceType": "self_authored_method",
+      "contentHash": "4cd0d4cdb264c4f30dbb02e0da2af7c783299199d96706d98be366592d4afc6c",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-exam-course-conflict",
+      "knowledgeCardId": "f05a8cb2-a295-4171-877a-618ff27a3040",
+      "expectedRevision": 1,
+      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "sourceType": "self_authored_method",
+      "contentHash": "fc2a64125878e01e9a003e19f7ef422458baec009ddb8beda94dd7a9ce43b073",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-need-interview",
+      "knowledgeCardId": "e4aa18f7-f030-44d7-b03b-40f1749288a9",
+      "expectedRevision": 1,
+      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "sourceType": "self_authored_method",
+      "contentHash": "55f90cbb75a6af1337af9dfd1dcad35f5413fb778622ef7fd3853323c2f084db",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-competition-review",
+      "knowledgeCardId": "3082d431-a19e-4fc1-97a8-e670481db895",
+      "expectedRevision": 1,
+      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "sourceType": "self_authored_method",
+      "contentHash": "ae24600db6b55a042131f88c992416289b3a7542cd3ffa34206411f239b1f938",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-lowtime-weekly-plan",
+      "knowledgeCardId": "c40921d4-bb1f-4d8c-b254-4ef99c2a5de6",
+      "expectedRevision": 1,
+      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "sourceType": "self_authored_method",
+      "contentHash": "c2f379067122f1da00841a452c0df98a0246d195a8d0400faf2ef9639b7ca317",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+    }
+  ]
 }

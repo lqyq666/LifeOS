@@ -51,6 +51,15 @@ never a settled fact.
 
 ## State: read and write through the real product
 
+### Runtime fingerprint (P4, mandatory)
+
+Before any state read/write, verify the product is the CURRENT build — never
+fall back to whatever port happens to listen:
+1. `GET {origin}/api/run/version` returns `{service:'LifeOS', head, freezeDigest, skillVersion}` — the head must match the repo HEAD you developed against; a mismatch (or an endpoint that 404s, indicating a pre-growth build such as an old Docker image) BLOCKS state operations: report the mismatch and continue conversation-only.
+2. Never substitute 127.0.0.1:8790 (old container), a production domain, or any other reachable service for the configured origin.
+
+
+
 State is real only when the LifeOS backend owns it. Default mode is to drive
 the product engine, which enforces verbatim personal facts, revisions,
 correction/forgetting and same-transaction receipts. Full API contract:
@@ -119,7 +128,7 @@ corrections instead of assuming.
 
 ## Verification & version
 
-- Skill version: 1.1.0 (P2, 2026-10-07). Product contract: same-turn engine at
+- Skill version: 1.2.0 (P4, 2026-10-07): mandatory runtime fingerprint check before state operations; relevance-selected memory context. Product contract: same-turn engine at
   `server/turn-engine.ts`; behavior evidence matrices in
   `P1_BEHAVIOR_ACCEPTANCE.md` / `P2_BEHAVIOR_ACCEPTANCE.md` (repo root).
   P2: corrections must actually persist (never claim 已更正 without a real

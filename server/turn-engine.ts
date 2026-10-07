@@ -19,6 +19,7 @@ import { buildTurnPrompt, providerTurnMessages, turnSystemPrompt } from './turn-
 import { configureProviderPayload, outputTokenLimit, type OutputPath } from './model-payload.ts'
 import { estimateProviderCallCostCny } from './cost-workload.ts'
 import { growthContext, growthBoundaryContext, growthSnapshotKey, stageGrowthUpdates } from './growth.ts'
+import { selectRelevantGrowth } from './growth-selection.ts'
 import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionControls, overlayDirectionChanges, directionControlsSnapshotKey, allScopes } from './growth-controls.ts'
 import { redactGrowthHistory } from './growth-privacy.ts'
 import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCandidates, CozeRetrievalError } from './coze-knowledge.ts'
@@ -249,7 +250,13 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   staged.usedExperienceRefs=snapshot.confirmedExperiences.map(item=>({id:item.id,revision:item.revision}))
   staged.usedEventRefs=[...(currentEvent?[currentEvent]:[]),...historicalEvents].map(event=>({eventId:event.id,revision:event.revision,generation:event.generation}))
   const route=initialModelRoute(current.content,snapshot,capabilityVerified),runtime=resolveModel(route.tier)
-  const growth=await growthContext(run.user_id,run.conversation_id)
+  const growthAll=await growthContext(run.user_id,run.conversation_id)
+  // P4 B1: relevance-based selection within a pre-declared budget; the full
+  // authorized set still drives staging/snapshot checks - only the prompt
+  // context is selected so large archives do not serialize wholesale.
+  const growthSelection=selectRelevantGrowth(growthAll,current.content)
+  const growth=growthSelection.selected
+  if(growthSelection.dropped>0)staged.audit.push({phase:'growth_selection',totalActive:growthSelection.totalActive,selected:growthSelection.selected.length,dropped:growthSelection.dropped,budgetMax:growthSelection.budget.maxItems})
   const growthBoundaries=await growthBoundaryContext(run.user_id,run.conversation_id)
   // P4: resume/portfolio materials render from a server-built catalogue of the
   // user's own verified words only; the model selects ids and never authors
@@ -479,11 +486,13 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
       // corrected/updated while the old fact stays active.
       const amendedNow=Boolean(staged.growth?.prepared.some(entry=>entry.kind==='split_amend'||(entry.kind==='ordinary'&&(entry.delta.target.operation==='replace'||entry.delta.target.operation==='amend'))))
       if(!amendedNow&&/(?:已更正|更正为|更正已记录|已把.{0,10}改|已经?改成|更新为|已更新|已修改)/.test(result.reply))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
-      // P3 (L1): a chat-text forget request only persists through the real
-      // forget action; without one, claim lines like 已清掉/已忘掉 are refused.
-      const forgotNow=staged.audit.some(entry=>(entry as {phase?:string}).phase==='growth_action_forget')
-      if(!forgotNow&&/(?:已(?:终)?(?:清掉|清除|删掉|删除|忘掉|忘记|移除)|不再作为.{0,12}依据)/.test(result.reply)&&/(?:忘|删|清|移除|别再用|不再用)/.test(current.content))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_FORGET')
 
+    }
+    // P4 (F03): the forget-claim guard runs INDEPENDENTLY of any correction
+    // plan - a plain 遗忘 request with no correction must be covered too.
+    {
+      const forgotNow=staged.audit.some(entry=>(entry as {phase?:string}).phase==='growth_action_forget')
+      if(!forgotNow&&/(?:已(?:经)?(?:清掉|清除|删掉|删除|忘掉|忘记|移除)|不再作为.{0,12}依据)/.test(result.reply)&&/(?:忘|删|清|移除|别再用|不再用)/.test(current.content))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_FORGET')
     }
     // P2-3 (PC08D T4): a verbatim repeat of the previous assistant reply
     // answers nothing. Legal repeats (explicit re-send/keep-the-original

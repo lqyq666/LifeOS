@@ -67,7 +67,11 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
         // Effective identity is always derived here. No body, URL or model field can override it.
         const user=session.user.id
         if(path==='/api/access'&&method==='GET'){json(res,200,await entitlementView(user));return}
-        if(path==='/api/session'&&method==='GET'){json(res,200,{id:user,name:session.user.name,email:session.user.email});return}
+        if(path==='/api/run/version'){
+          // P4 G0: safe runtime fingerprint for host/skill verification — commit,
+          // freeze digest, skill version and contract generation only; no secrets.
+          json(res,200,{service:'LifeOS',head:(await import('node:child_process').then(cp=>cp.execSync('git rev-parse --short HEAD').toString().trim(),()=>'unknown')),freezeDigest:process.env.LIFEOS_FREEZE_DIGEST??null,skillVersion:'1.2.0',contractGeneration:'p4'});return}
+                if(path==='/api/session'&&method==='GET'){json(res,200,{id:user,name:session.user.name,email:session.user.email});return}
         if(path==='/api/official-sources'&&method==='GET'){json(res,200,await officialSourcesView());return}
         if(path==='/api/official-paths'&&method==='GET'){json(res,200,{paths:officialPaths});return}
         if(path==='/api/growth'&&method==='GET'){const conversation=url.searchParams.get('conversation');json(res,200,await growthView(user,conversation?validateId(conversation):undefined));return}

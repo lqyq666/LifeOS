@@ -123,8 +123,10 @@ export function remainingWeeklyTimeIntent(text:string):{quote:string;minutes:num
     for(const clause of sentence){
       const body=clause.text.trim()
       if(!body)continue
+      // P4 (R06): the week marker is bidirectional - a LATER 这周/本周
+      // marker re-scopes back from next-week (下周我忙，这周，只剩两小时).
       if(/下周/.test(body)){sentenceWeek='next'}
-      else if(/(?:这|本)周/.test(body)&&sentenceWeek!=='next'){sentenceWeek='this'}
+      else if(/(?:这|本)周/.test(body)){sentenceWeek='this'}
       // P2 (B03): a clause scoped to NEXT week (下周只剩两小时) never becomes a
       // this-week constraint, even when an earlier clause said 这周.
       if(/下周/.test(body))continue
@@ -325,9 +327,22 @@ export function supplementMissingBudgetDeltas(obligations:TurnObligations,staged
       // only-next-week constraint — the verbatim context keeps the from-date
       // readable and the schedule survives past next week. The marker sits in
       // an earlier clause of the message, so detection uses the full text.
-      const recurringFromNextWeek=/(?:从下周起|下周起|下周开始|从下周开始)/.test(effect.quote)||/(?:从下周起|下周起|下周开始|从下周开始)/.test(currentText)
+      // P4 (R05): 从下周起 recurring schedules persist as verbatim context; the
+      // from-marker requirement is handled by quoting the FULL user clause below.
+      const fromNextWeek=/(?:从下周起|下周起|下周开始|从下周开始)/.test(currentText)
+      const recurringFromNextWeek=fromNextWeek
+      // P4 (R05): the persisted quote re-includes the from-marker clause so the
+      // future-start survives reading (verbatim contiguous span of the message).
+      const fromMarkerQuote=(quote:string):string=>{
+        if(!fromNextWeek)return quote
+        const at=currentText.indexOf(quote)
+        if(at<0)return quote
+        const before=currentText.slice(0,at)
+        const m=/(?:从下周起|下周起|下周开始|从下周开始)[，,。]?。?[^，,。]*[，,]?。?$/.exec(before)
+        return m?m[0]+quote:quote
+      }
       if(effect.period==='current'||recurringFromNextWeek)
-        deltas.push({target:{operation:'create'},assertion:'user_reported',kind:'context',source:{messageId:currentMessageId,quote:effect.quote}})
+        deltas.push({target:{operation:'create'},assertion:'user_reported',kind:'context',source:{messageId:currentMessageId,quote:fromMarkerQuote(effect.quote)}})
       else{
         const token=effect.period==='next_week'?'下周':(/(?:这|本)周/.exec(effect.quote)?.[0]??(/(?:这|本)周/.exec(currentText)?.[0]??'这周'))
         deltas.push({target:{operation:'create'},assertion:'user_reported',kind:'constraint',source:{messageId:currentMessageId,quote:effect.quote},timeEvidence:{kind:'calendar_week',which:effect.period==='next_week'?'next':'this',quote:token}})
@@ -407,6 +422,10 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
   // a no-op ONLY when every added character is an emphasis filler: negations
   // (不/没/别/非/无/未), digits and any other new content make it a REAL
   // change (P3 CP1-CP3: 我不喜欢考研 / 我每周13小时 / 我不支持考研).
+  // P4 (R02/R03): hedge words carry REAL certainty changes - they are stripped
+  // for the no-op comparison only, and the comparison additionally requires the
+  // SAVED text to already carry the same hedging. Certainty flips are changes.
+  const hedgeWords=/[大概左左州左右可能应该一定还算差不多]/
   const stripEmphasis=(value:string)=>value.replace(/(?:确实|真的|就是|应该|大概|可能|比较|一定|还算|差不多)/g,'')
   const fillerChars=new Set([...'确实是了的就吧呢啊嘛也很还都'])
   for(const item of authorized){
@@ -416,7 +435,11 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
     for(const char of oldChars)if(!newChars.has(char)){covered=false;break}
     if(!covered)continue
     const added=[...newChars].filter(char=>!oldChars.has(char))
-    if(oldChars.size>=3&&added.every(char=>fillerChars.has(char)))return null
+    const oldHedged=hedgeWords.test(item.text),newHedged=hedgeWords.test(newQuote)
+    const numsOf=(value:string)=>(value.match(/[0-9]+(?:\.[0-9]+)?/g)??[]).join('|')
+    // P4 (R01): identical character sets never prove identical numbers - 13 vs 31.
+    if(numsOf(item.text)!==numsOf(newQuote))continue
+    if(oldChars.size>=3&&added.every(char=>fillerChars.has(char))&&oldHedged===newHedged)return null
   }
   // Deterministic amend target: the old item whose clauses overlap BOTH the
   // new value and the rest of the correction message (the part that usually

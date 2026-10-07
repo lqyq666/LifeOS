@@ -39,10 +39,23 @@ test('growth scale: 200 active records stay selectable and the key old constrain
       const prompt=buildTurnPrompt({currentMessageId:'m',messages:[{id:'m',role:'user',content:'这周怎么安排？',created_at:new Date().toISOString()} as never],growth})
       const chars=prompt.length
       const tokens=estimateTokens(turnSystemPrompt('default')+prompt)
+      console.log(JSON.stringify({phase:'growth_scale_full_serialization',chars,tokens}))
       // Measured facts for the report; the assertion only pins that the number
       // is finite and derivable, not a hard cap (selection work is follow-up).
       assert.ok(Number.isFinite(chars)&&chars>0)
       console.log(JSON.stringify({phase:'growth_scale_probe',activeItems:growth.length,promptChars:chars,estimatedTokens:tokens,readMs:Math.round(readMs)}))
+    })
+    await t.test('P4 B1: relevance selection bounds the prompt while the key old constraint survives',async()=>{
+      const {selectRelevantGrowth,DEFAULT_GROWTH_SELECTION}=await import('../../server/growth-selection.ts')
+      const question='这周时间紧，怎么安排备考和课程？'
+      const sel=selectRelevantGrowth(growth,question,{maxItems:20})
+      assert.equal(sel.totalActive,201)
+      assert.equal(sel.selected.length,20,'selection is bounded by the pre-declared budget')
+      assert.ok(sel.selected.some(item=>item.text.includes('我每周只有三小时')),'the key old constraint survives selection even with zero lexical overlap (essentials net)')
+      const promptSel=buildTurnPrompt({currentMessageId:'m',messages:[{id:'m',role:'user',content:question,created_at:new Date().toISOString()} as never],growth:sel.selected})
+      const promptAll=buildTurnPrompt({currentMessageId:'m',messages:[{id:'m',role:'user',content:question,created_at:new Date().toISOString()} as never],growth})
+      console.log(JSON.stringify({phase:'growth_selection_probe',fullChars:promptAll.length,selectedChars:promptSel.length,fullTokens:estimateTokens(promptAll),selectedTokens:estimateTokens(promptSel),dropped:sel.dropped}))
+      assert.ok(promptSel.length<promptAll.length/3,'selected prompt is a small fraction of full serialization')
     })
     await t.test('the snapshot key is stable across reads of the same state',async()=>{
       const a=growthSnapshotKey(growth),b=growthSnapshotKey(await growthContext(user,chat))
