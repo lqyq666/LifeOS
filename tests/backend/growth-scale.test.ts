@@ -112,7 +112,7 @@ test('P5 S1: >maxItems archive commits an ordinary turn without phantom snapshot
       const result=await engine(input)
       const saved=await store.finishRun(run,staged,result.text,result.usage,input.signal)
       assert.ok(saved,'commit succeeds with no phantom GROWTH_SNAPSHOT_INVALIDATED at 60 items')
-      const sel=staged.audit.find((a:any)=>a.phase==='growth_selection')
+      const sel=staged.audit.find((a:any)=>a.phase==='growth_selection') as {selected:number}|undefined
       assert.ok(sel&&sel.selected<60,'selection audit recorded a real drop')
     })
     await t.test('a REAL concurrent revision change is still rejected',async()=>{
