@@ -14,6 +14,16 @@ export type PublicKnowledgeQuery={
 }
 
 export function renderPublicKnowledgeQuery(query:PublicKnowledgeQuery):string{
+  // P5c B2: method queries render with a Chinese method keyword so the remote
+  // deterministic guide matcher can hit; non-method queries keep their shape.
+  if(query.questionKind==='method'){
+    const anchors:Partial<Record<PublicKnowledgeTopic,string>>={
+      employment:'作品集 实习 方法',postgraduate_exam:'备考 课程 冲突 方法',
+      postgraduate_recommendation:'科研 复盘 方法',undergraduate_upgrade:'备考 方法',
+      public_service:'备考 方法',overseas_study:'申请 方法',method:'课程 时间安排 方法',
+    }
+    return [query.topic,anchors[query.topic]??'方法','method'].filter(Boolean).join(' ')
+  }
   const parts:string[]=[query.topic]
   if(query.year)parts.push(String(query.year))
   if(query.region)parts.push(query.region)
