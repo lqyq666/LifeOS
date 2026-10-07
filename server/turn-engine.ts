@@ -267,8 +267,13 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   const blockedDirectionScopes=effectiveControls.filter(row=>row.state==='paused').map(row=>row.scope)
   const allowedDirectionScopes=allScopes.filter(scope=>!blockedDirectionScopes.includes(scope))
   staged.growthBoundaryKey=growthSnapshotKey(growthBoundaries)
-  staged.usedGrowthRefs=growth.map(item=>({id:item.id,revision:item.revision}))
-  staged.growthSnapshotKey=growthSnapshotKey(growth)
+  // P5 S1/P0: the consistency snapshot, used refs and staged-update
+  // authorization describe the FULL effective authorized state (growthAll) -
+  // the selected subset only narrows what the model READS this turn. Computing
+  // these from the subset made >maxItems archives fail every commit with a
+  // phantom GROWTH_SNAPSHOT_INVALIDATED even with no real change.
+  staged.usedGrowthRefs=growthAll.map(item=>({id:item.id,revision:item.revision}))
+  staged.growthSnapshotKey=growthSnapshotKey(growthAll)
   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id)
   const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth,growthBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)

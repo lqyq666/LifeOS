@@ -48,7 +48,7 @@ test('growth scale: 200 active records stay selectable and the key old constrain
     await t.test('P4 B1: relevance selection bounds the prompt while the key old constraint survives',async()=>{
       const {selectRelevantGrowth,DEFAULT_GROWTH_SELECTION}=await import('../../server/growth-selection.ts')
       const question='这周时间紧，怎么安排备考和课程？'
-      const sel=selectRelevantGrowth(growth,question,{maxItems:20})
+      const sel=selectRelevantGrowth(growth,question,{maxItems:20,maxChars:60000})
       assert.equal(sel.totalActive,201)
       assert.equal(sel.selected.length,20,'selection is bounded by the pre-declared budget')
       assert.ok(sel.selected.some(item=>item.text.includes('我每周只有三小时')),'the key old constraint survives selection even with zero lexical overlap (essentials net)')
@@ -73,4 +73,70 @@ test('growth scale: 200 active records stay selectable and the key old constrain
   }
 })
 
-test.after(async()=>{await pool.end()})
+test('P5 S1: >maxItems archive commits an ordinary turn without phantom snapshot conflicts (isolated PG, simulated provider)',async t=>{
+  const {createServer}=await import('node:http')
+  const {createTurnEngine}=await import('../../server/agent.ts')
+  const {model}=await import('../../server/model.ts')
+  const {config}=await import('../../server/config.ts')
+  const outputs:unknown[]=[]
+  const engine=createTurnEngine({capabilityVerified:()=>true})
+  const fake=createServer((req,res)=>{
+    const chunks:Buffer[]=[];req.on('data',c=>chunks.push(Buffer.from(c)))
+    req.on('end',()=>{
+      const output=outputs.shift()
+      if(output===undefined){res.writeHead(500);res.end();return}
+      res.writeHead(200,{'Content-Type':'text/event-stream'})
+      const base={id:'p5-synth',object:'chat.completion.chunk',created:1,model:model.id}
+      const chunk1='data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(output)},finish_reason:null}]})+'\n\n'
+      const chunk2='data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:80,total_tokens:280,prompt_tokens_details:{cached_tokens:0}}})+'\n\ndata: [DONE]\n\n'
+      res.write(chunk1)
+      res.end(chunk2)
+    })
+  })
+  await new Promise<void>(r=>fake.listen(0,'127.0.0.1',r))
+  const prevURL=model.baseUrl,prevKey=config.apiKey
+  model.baseUrl='http://127.0.0.1:'+(fake.address() as {port:number}).port
+  config.apiKey='synthetic-p5-key-1234567890'
+  const user='p5-s1-'+randomUUID(),chat=randomUUID()
+  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
+  await store.createConversation(user,{id:chat,title:'SYNTHETIC P5 S1'})
+  try{
+    // 60 normal user_edit-sourced records (over the 40-item budget)
+    for(let i=0;i<60;i++)await pool.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies) VALUES($1,$2,$3,'context',$4,'user_edit','active',$5::jsonb,'[]'::jsonb)",
+      [randomUUID(),user,chat,'日常记录第'+i+'条：课程与笔记整理'+('细节'.repeat(3)),JSON.stringify([{type:'user_edit',quote:'记录'+i}])])
+    await t.test('ordinary turn commits with 60 active items and no model growth updates',async()=>{
+      const run=(await store.startRun(user,chat,randomUUID(),'课程报告写作如何开始？')).run
+      const staged:store.Staged={candidates:[],audit:[]}
+      const input={run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}}
+      outputs.push({reply:'先从一个具体段落开始写。'})
+      const result=await engine(input)
+      const saved=await store.finishRun(run,staged,result.text,result.usage,input.signal)
+      assert.ok(saved,'commit succeeds with no phantom GROWTH_SNAPSHOT_INVALIDATED at 60 items')
+      const sel=staged.audit.find((a:any)=>a.phase==='growth_selection')
+      assert.ok(sel&&sel.selected<60,'selection audit recorded a real drop')
+    })
+    await t.test('a REAL concurrent revision change is still rejected',async()=>{
+      const run=(await store.startRun(user,chat,randomUUID(),'再说说方向。')).run
+      const staged:store.Staged={candidates:[],audit:[]}
+      const input={run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}}
+      outputs.push({reply:'好的。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:run.source_message_id,quote:'再说说方向'}}]})
+      const result=await engine(input)
+      // simulate a REAL concurrent revision bump AFTER generation, before commit
+      await pool.query("UPDATE growth_items SET revision=revision+1 WHERE user_id=$1 AND id=(SELECT id FROM growth_items WHERE user_id=$1 ORDER BY updated_at DESC LIMIT 1)",[user])
+      await assert.rejects(store.finishRun(run,staged,result.text,result.usage,input.signal),(e:any)=>e.code==='GROWTH_SNAPSHOT_INVALIDATED')
+    })
+  }finally{
+    model.baseUrl=prevURL;config.apiKey=prevKey
+    await new Promise<void>(d=>fake.close(()=>d()))
+    await pool.query('DELETE FROM growth_source_suppressions WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_item_lineage WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_items WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM growth_revisions WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM runs WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM messages WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM conversations WHERE user_id=$1',[user])
+    await pool.query('DELETE FROM "user" WHERE id=$1',[user])
+  }
+})
+
+test.after(async()=>{try{const {localEmbedding}=await import('../../server/local-embedding.ts');await localEmbedding.close()}catch{}await pool.end()})

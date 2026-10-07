@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pool } from './db.ts'
@@ -138,6 +139,11 @@ export async function searchCozePublicKnowledge(query:PublicKnowledgeQuery,rende
 export type PublicDocumentBinding={
   workflowId:string;datasetId:string;documentId:string
   knowledgeCardId:string;expectedRevision:number;expectedSourceHash:string
+  // P5 S2/K01: audited metadata - enabled=false disables the binding; contentHash
+  // (when present) must additionally match the remote hit content.
+  enabled?:boolean
+  contentHash?:string
+  sourceType?:string
 }
 type RegistryFile={schemaVersion:1;bindings:PublicDocumentBinding[]}
 let registryCache:{at:number;file:RegistryFile}|null=null
@@ -164,6 +170,13 @@ export async function mapCozeCandidates(hits:readonly PublicKnowledgeHit[],confi
   for(const hit of hits){
     const binding=registry.bindings.find(entry=>entry.workflowId===config.workflowId&&entry.documentId===hit.documentId)
     if(!binding){unverified.push(hit.documentId);continue}
+    // P5 S2 (K01): an audited binding can be disabled outright; a pinned
+    // contentHash must match the remote content so appended text never passes.
+    if(binding.enabled===false){unverified.push(hit.documentId);continue}
+    if(binding.contentHash){
+      const contentHash=createHash('sha256').update(hit.content).digest('hex')
+      if(contentHash!==binding.contentHash){unverified.push(hit.documentId);continue}
+    }
     const row=(await c.query('SELECT *,official_knowledge_current(payload) AS official_current FROM campus_knowledge WHERE id=$1',[binding.knowledgeCardId])).rows[0] as (KnowledgeRecord&{official_current?:boolean})|undefined
     if(!row||row.status!=='verified'||row.revision!==binding.expectedRevision||row.payload.sourceHash!==binding.expectedSourceHash||row.official_current===false||(row.valid_until&&Date.parse(String(row.valid_until))<=Date.now())){
       unverified.push(hit.documentId);continue
@@ -172,7 +185,9 @@ export async function mapCozeCandidates(hits:readonly PublicKnowledgeHit[],confi
     if(!normalized(row.payload.excerpt).includes(normalized(hit.content))&&!normalized(hit.content).includes(normalized(row.payload.excerpt))){
       unverified.push(hit.documentId);continue
     }
-    verified.push({card:row,excerpt:hit.content})
+    // P5 S2 (K01): the accepted excerpt is the VERIFIED LOCAL span - appended
+    // remote text cannot inherit trust.
+    verified.push({card:row,excerpt:row.payload.excerpt})
   }
   return {verified,unverifiedDocumentIds:unverified}
 }
