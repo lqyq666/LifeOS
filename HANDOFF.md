@@ -2,6 +2,11 @@
 
 工作区 D:\aaaLife\LifeOS。当前唯一验收目标是 PRODUCT.md 的校园成长与连续决策完整产品。用户已恢复自主开发，允许在原 grant 剩余额度内选择产品模型；旧固定 qwen3.8-flash 与旧实现顺序已替代。公网 lqynb.xyz 仍是旧 52a4e47 镜像，不代表新产品已发布。
 
+## 2026-10-08 P5 续作 Closeout（GLM）：A/B/C 三线收口
+
+- 提交 `bec847b`+`676be00`：R02 essentials 按用途（无关 feedback 不再挤掉当前科研事实）；R03 预算计完整序列化；R04 方法查询构造器+主题锚；A1 更正目标全量授权回取（L1 T6 正确定位海报更正）；A3 遗忘生命周期（唯一目标轮内执行 actOnGrowthItem(forget)、歧义确认卡、守卫拒绝虚称）；B2 方法渲染中文锚词。
+- **在线攻略两 trace 贯通**（当前服务器 bec847b+真实检索 04849caa）：作品集→guide-portfolio-evidence verified=true、备考→guide-exam-course-conflict verified=true，回复个人化；负例（锚词前新闻 docs）正确未核验不引用。
+- 最终链 `coach-4254fc09`（冻结 1e6109d5）：T9 当前问题+证据强度双正确（F01 连续三链两对一错，本链对）；T6 更正 SAVED。未达：扣子原生 Skill 需 code.coze.cn 扫码会话；p95；≥20 单冻结样本。账本余 ≈¥15.1。WIP_NOT_READY。
 ## 2026-10-07/08 P5 批（GLM）：P0 确定性修复（快照一致性/essentials 兜底/registry 边界）
 
 - 提交 `9845034`→`0dd554d`：S1 快照由 growthAll 驱动（子集只缩模型阅读，40/41/200 全 PASS+隔离 PG 60 条回归+真实并发拒绝）；S2 essentials 换入可达（零重叠约束入选）、同分偏新、60k 字符预算；K01 enabled=false/contentHash/excerpt=本地已核验 span；S3.4 跨轮 outstanding-forget 守卫（真实链 T8 触发诚实拒绝）。
