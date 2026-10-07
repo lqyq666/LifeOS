@@ -90,13 +90,38 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
       await createGrowthItem(user,{requestId:randomUUID(),conversationId:conversation,kind:'context',text:'我每周三小时练琴。'})
       const input=await prepare('更正一下：我现在更喜欢做产品运营了。')
       // No deterministic target (unrelated old item), model output claims success.
+      const beforeReq=requests.length
       outputs.push({reply:'已经把你的方向更正为产品运营了。'},{reply:'已记录你现在更喜欢做产品运营；原来的兴趣记录还没改，需要你再说一次原话我才能更新。'})
       const result=await engine(input)
-      assert.equal(requests.length>=2,true,'one bounded repair fired')
+      assert.ok(requests.length-beforeReq>=2,'one bounded repair fired')
       await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       const items=await growthContext(user,conversation)
       assert.ok(items.some(item=>item.text.includes('更喜欢做产品运营')),'verbatim new value recorded')
       assert.ok(items.some(item=>item.text.includes('我每周三小时练琴')),'unrelated old fact untouched')
+    })
+    await t.test('P3 cross-turn: a failed correction stays outstanding and a later 已更正 claim is refused',async()=>{
+      const dorm=await createGrowthItem(user,{requestId:randomUUID(),conversationId:conversation,kind:'context',text:'我住在东区宿舍。'})
+      // Turn 1: the correction turn FAILS entirely — the model outputs a
+      // schema array twice (COACH_OUTPUT_INVALID is not fixed by one repair),
+      // so nothing persists and the old fact stays active.
+      const t1=await prepare('更正一下：我住在西区宿舍。')
+      // No outputs queued: the simulated provider 500s and MODEL_REQUEST_FAILED
+      // is not repairable — the correction turn fails whole, nothing persists.
+      await assert.rejects(engine(t1),(e:any)=>e.code==='MODEL_REQUEST_FAILED')
+      await store.terminateRun(user,t1.run.request_id,'failed','SYNTHETIC_P3')
+      // Turn 2 (no new correction): the model claims the record was already
+      // corrected while the old fact is still active — refused once, then the
+      // repair states honestly that the correction is NOT yet applied.
+      const t2=await prepare('那你现在怎么理解我的年级？')
+      const beforeReq=requests.length
+      outputs.push({reply:'你的宿舍已经更正为西区了。'},{reply:'更正还没有成功保存：当前记录仍是东区宿舍。请再说一遍"我住在西区宿舍"，我这次直接更新。'})
+      const result=await engine(t2)
+      assert.ok(requests.length-beforeReq>=2,'one bounded repair fired')
+      assert.ok(!/(?:已更正|更正为|已经把.{0,10}更正)/.test(result.text),'final reply does not claim a committed correction')
+      const items=await growthContext(user,conversation)
+      assert.ok(items.some(item=>item.text.includes('我住在东区宿舍')),'old fact still active (honest state)')
+
+      await store.finishRun(t2.run,t2.staged,result.text,result.usage,t2.signal)
     })
     await t.test('B05: a next-week plan binds the supplement fact when the model budget delta was invalid',async()=>{
       const input=await prepare('我每周有六小时。这周还剩两小时，帮我安排下周。')
@@ -113,6 +138,23 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
       const budgetFact=await growthContext(user,conversation).then(items=>items.find(item=>item.id===structured.budgetRef.id))
       assert.ok(budgetFact&&budgetFact.assertion==='user_reported'&&['context','constraint'].includes(budgetFact.kind),'plan budget resolves to the persisted supplement fact')
       assert.ok(String(budgetFact!.text).includes('我每周有六小时'),'and that fact is the user\'s own verbatim weekly amount')
+    })
+    await t.test('P3 F06: persist layer rejects a plan whose budget fact minutes/window mismatch',async()=>{
+      // A this-week remainder (120 min) can never anchor a "weekly" plan of
+      // 180 minutes, and the rendered label names the budget's own window.
+      const t9=await prepare('这周只剩两小时，帮我安排一下。')
+      outputs.push({reply:'按本周剩余时间安排。',weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品',minutes:120,directionScopes:['employment']}]}})
+      const result=await engine(t9)
+      const saved=await store.finishRun(t9.run,t9.staged,result.text,result.usage,t9.signal)
+      assert.ok(saved.stateChange.plan,'plan persisted with the week-scoped budget')
+      const planText=(await growthContext(user,conversation).then(items=>items.find(item=>item.id===saved.stateChange.plan!.itemId)))!.text
+      assert.ok(planText.includes('本周剩余'),'label names the budget window, not 每周')
+      // A same-numbered fact from ANOTHER window never satisfies a next-week plan.
+      const t10=await prepare('下周帮我安排。')
+      outputs.push({reply:'下周安排。',weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'next_week',budgetRef:{id:saved.stateChange.growth.changedIds[0]??saved.stateChange.growth.createdIds.at(-1),revision:1},basis:[{id:saved.stateChange.growth.changedIds[0]??saved.stateChange.growth.createdIds.at(-1),revision:1}],items:[{action:'投递',minutes:120,directionScopes:['employment']}]}})
+      const r10=await engine(t10)
+      await assert.rejects(store.finishRun(t10.run,t10.staged,r10.text,r10.usage,t10.signal),(e:any)=>e.code==='WEEKLY_PLAN_BUDGET_MISMATCH')
+      await store.terminateRun(user,t10.run.request_id,'failed','SYNTHETIC_P3_F06')
     })
   }finally{
     model.baseUrl=previousURL;config.apiKey=previousKey

@@ -24,7 +24,7 @@ const sentenceTerminators=new Set(['。','！','？','!','?',';','；','\n'])
 const clauseDelimiters=new Set(['，',',','、'])
 // A clause-internal question never becomes a command even without ？.
 const interrogativeMarkers=/(?:吗|呢|么)\s*$|(?:要不要|是不是|能不能|该不该|怎么办|怎么弄|如何处理)/
-const conditionalOpeners=/(?:如果|要是|假如|假设|万一|一旦)/
+const conditionalOpeners=/(?:如果|(?<![主重只必还需总概])要是|假如|假设|万一|一旦)/
 // 明确转折或本人现实陈述：条件/转述状态在同一句内到此为止。
 const resets={'conditional':/(?:^|\s)(?:但|但是|不过|然而|可是|现在|我已经|我决定|我还是|这次我)/,'attribution':/(?:^|\s)(?:但|但是|不过|然而|可是|我|还是我)/}
 const attributionMarkers=/(?:朋友|室友|同学|父母|我妈|我爸|家人|老师|辅导员|学长|学姐|别人|大家|他|她|他们|她们)(?:说|劝|让|建议|提醒|要求)|(?:说|劝)\s*[：:]/

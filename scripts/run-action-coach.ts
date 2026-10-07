@@ -149,7 +149,12 @@ try{
   const pdfHash=createHash('sha256').update(pdfBytes).digest('hex')
   if(cards.length!==1||cards[0].id!=='a5f7c3ba-0872-4184-a806-7eaacb71576c'||cards[0].revision!==1||cards[0].synthetic!==false||cards[0].sourceHash!==pdfHash)throw new Error('REVIEWED_PRIMARY_SOURCE_CHANGED')
   const {importKnowledge}=await import('../server/campus-knowledge.ts')
-  const imported=await importKnowledge(cards)
+  // P3: self-authored campus guide cards (hash-bound to their manifest) ride
+  // along into the isolated database for the guide retrieval verification chain.
+  const guideCardsFile=JSON.parse(readFileSync(resolve('evidence/campus-guides/guide-cards.json'),'utf8')) as {manifestSha256:string;cards:unknown[]}
+  const guideManifestHash=createHash('sha256').update(readFileSync(resolve('evidence/campus-guides/guides-manifest.json'))).digest('hex')
+  if(guideCardsFile.manifestSha256!==guideManifestHash||!Array.isArray(guideCardsFile.cards)||!guideCardsFile.cards.length)throw new Error('GUIDE_CARDS_MANIFEST_MISMATCH')
+  const imported=await importKnowledge([...cards,...guideCardsFile.cards as never[]])
   report.operations.push({operation:'importVerifiedPrimarySource',evidence:'ACTUAL_VERIFIED_SOURCE_IMPORTED_IN_ISOLATED_DATABASE_NOT_PROVIDER_RESULT',databaseName,cardsSha256:createHash('sha256').update(cardsBytes).digest('hex'),pdfSha256:pdfHash,sources:cards.map((card:any)=>({id:card.id,revision:card.revision,sourceHash:card.sourceHash})),result:imported,paidCalls:0});save()
   const {createTurnEngine}=await import('../server/turn-engine.ts'),{modelCapabilityVerified}=await import('../server/model.ts')
   if(!preflight&&!modelCapabilityVerified('default'))throw new Error('MODEL_CAPABILITY_TEST_REQUIRED')

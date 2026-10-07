@@ -286,6 +286,68 @@ export function scenarios():Scenario[]{
       {kind:'fixed',text:'当时是想攒作品顺便帮忙。对方说内容不符合他们现在的风格需要。',sampleClass:'ordinary_followup'},
       {kind:'fixed',text:'那你现在怎么判断这份内容的质量？',sampleClass:'ordinary_followup'},
     ]},
+    // P3 longitudinal memory trajectories (L1-L3): each spans >=3 authorized
+    // sessions (memory explicitly enabled; newConversation per session) with
+    // old key facts, unrelated topics, similar events, corrections,
+    // refusals/forgetting and new choices — the memory-gain evidence.
+    {id:'L1',steps:[
+      {kind:'enableMemory'},
+      {kind:'fixed',text:'我已经成年，大三，读市场营销，还没想好毕业方向。',sampleClass:'opening'},
+      {kind:'answer',volunteer:'先说基本情况：我每周大概能拿出4小时，给社团做过一次海报，兴趣方向还不确定。',topics:[
+        {match:/专业|学什么|年级/,answer:'市场营销，大三。',label:'major'},
+        {match:/时间|小时|精力/,answer:'每周大概4小时。',label:'hours'},
+        {match:/经历|做过|作品|实践/,answer:'给社团做过一次海报。',label:'poster'},
+        {match:/兴趣|喜欢|好奇/,answer:'还不确定。',label:'interest'},
+      ],fallback:'不确定，你先问吧。'},
+      {kind:'fixed',text:'先不聊这个了，下周社团要招新，我在想要不要去帮忙。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'还是说回方向。上次的社团海报，做完之后他们没用上，我有点怀疑自己。',newConversation:true,sampleClass:'opening'},
+      {kind:'answer',topics:[
+        {match:/海报|做了什么|内容/,answer:'就是迎新宣传海报，我负责排版和打印。',label:'what'},
+        {match:/什么时候|约定|交|时间/,answer:'约好周三交，我周五才给，晚了两天。',label:'timeline'},
+        {match:/反馈|为什么没用|怎么说/,answer:'部长说时间来不及了就没用，内容没细说。',label:'feedback'},
+      ],fallback:'就是晚了两天，别的没说。'},
+      {kind:'fixed',text:'更正一下：那张海报的设计主要是队友做的，我只负责了排版和打印。',newConversation:true,sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'现在有个学院公众号实习在招人，每周要10小时，我要不要报名？',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'上次你建议我先去了解公众号的日常，我去问了一个学长，他说内容主要是排班推送，不是策划。顺便，把海报那次经历的记录忘掉吧，那件事我想放下了。',newConversation:true,sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'现在又有个校园主播运营的兼职，每周4小时，适合我现在报吗？',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'L2',steps:[
+      {kind:'enableMemory'},
+      {kind:'fixed',text:'我对认知方向的研究有兴趣，大二，绩点3.4，在纠结保研还是就业。',sampleClass:'opening'},
+      {kind:'answer',volunteer:'我的情况：进过一次导师的课题组做数据标注，大概做了一个月；导师没具体评价过我的工作。',topics:[
+        {match:/课题组|标注|做了什么/,answer:'数据标注，做了一个月左右。',label:'lab'},
+        {match:/导师|评价|反馈/,answer:'导师没具体说过。',label:'advisor'},
+        {match:/绩点|成绩/,answer:'3.4。',label:'gpa'},
+      ],fallback:'就这些。'},
+      {kind:'fixed',text:'对了，最近食堂二楼新开了个窗口，明天想去试试。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'说回正事：这学期有三门硬课，每周只有6小时了，课题组的标注还要继续吗？',newConversation:true,sampleClass:'ordinary_followup'},
+      {kind:'answer',topics:[
+        {match:/标注|卡在|重复|具体/,answer:'标注主要是重复劳动，上次卡在数据格式对不上，问了好几次才解决。',label:'stuck'},
+        {match:/时间|小时/,answer:'每周6小时，三门硬课。',label:'hours'},
+      ],fallback:'就是重复，没什么别的。'},
+      {kind:'fixed',text:'导师上周说我标注做得仔细，问我愿不愿意下学期继续。更正一下：我之前说的数据标注其实只做了两周。',newConversation:true,sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'那我保研的把握，你现在怎么看？',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'L3',steps:[
+      {kind:'enableMemory'},
+      {kind:'fixed',text:'我在考公和就业之间摇摆，家里希望考公，我自己想试试互联网运营。每月生活费有限，需要兼职。',sampleClass:'opening'},
+      {kind:'answer',volunteer:'基本情况：每周8小时可支配，人在地级市，文案方面有社团推送的编辑经验。',topics:[
+        {match:/时间|小时/,answer:'每周8小时。',label:'hours'},
+        {match:/城市|地方|在哪/,answer:'地级市。',label:'city'},
+        {match:/文案|经验|推送|能力/,answer:'社团推送的编辑经验。',label:'copy'},
+        {match:/兼职|收入|生活/,answer:'每月生活费有限，需要兼职。',label:'money'},
+      ],fallback:'就这些。'},
+      {kind:'fixed',text:'先不聊这个，今晚有个球赛想看。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'说回来。上次你建议我用社团推送练手，我做了两篇，阅读量一般。我不想继续做推送了。',newConversation:true,sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'那运营方向还有什么低成本的试法？',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'现在有个家教兼职，每周6小时有收入，但会占掉我的准备时间。我还想留着考公这个选项，你觉得怎么办？',newConversation:true,sampleClass:'ordinary_followup'},
+    ]},
+    {id:'L1OFF',steps:[
+      // Memory stays OFF: the same opening as L1's first session must not
+      // fabricate knowledge of the L1 actor's history.
+      {kind:'fixed',text:'还是说回方向。上次的社团海报，做完之后他们没用上，我有点怀疑自己。',sampleClass:'opening'},
+      {kind:'fixed',text:'你记得我之前说过什么吗？',sampleClass:'ordinary_followup'},
+    ]},
     {id:'D01',steps:[
       {kind:'fixed',text:'我大三，最近在就业和考研之间犹豫。给社团做了一套招新材料，最后没用上，我开始怀疑自己是不是不行。',sampleClass:'opening'},
       {kind:'answer',topics:[

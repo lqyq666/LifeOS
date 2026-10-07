@@ -116,14 +116,21 @@ const remainingMinutes=(token:string):number|null=>{
 export function remainingWeeklyTimeIntent(text:string):{quote:string;minutes:number;weekQuote:string}|null{
   for(const sentence of groupBySentence(scanUserClauses(text))){
     let weekScoped=false,weekQuote=''
+    // P3 (TM1): a bare week marker re-scopes the REST of the sentence —
+    // "这周我忙，下周，只剩两小时" makes the amount NEXT-week's, overriding the
+    // earlier 这周.
+    let sentenceWeek:'this'|'next'|null=null
     for(const clause of sentence){
       const body=clause.text.trim()
       if(!body)continue
+      if(/下周/.test(body)){sentenceWeek='next'}
+      else if(/(?:这|本)周/.test(body)&&sentenceWeek!=='next'){sentenceWeek='this'}
       // P2 (B03): a clause scoped to NEXT week (下周只剩两小时) never becomes a
       // this-week constraint, even when an earlier clause said 这周.
       if(/下周/.test(body))continue
       const ownWeek=/(?:这|本)周/.exec(body)
       if(ownWeek){weekScoped=true;weekQuote=ownWeek[0]}
+      if(sentenceWeek==='next')continue
       if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther)continue
       if(clause.interrogative)continue
       if(thirdPersonSubject.test(body))continue
@@ -314,7 +321,12 @@ export function supplementMissingBudgetDeltas(obligations:TurnObligations,staged
   const deltas:import('./growth-model-contracts.ts').GrowthInputDelta[]=[]
   for(const effect of obligations.requiredEffects){
     if(effect.type==='weekly_time'&&!covered(effect)){
-      if(effect.period==='current')
+      // P3 (TM2): 从下周起/下周开始 introduces a NEW RECURRING schedule, not an
+      // only-next-week constraint — the verbatim context keeps the from-date
+      // readable and the schedule survives past next week. The marker sits in
+      // an earlier clause of the message, so detection uses the full text.
+      const recurringFromNextWeek=/(?:从下周起|下周起|下周开始|从下周开始)/.test(effect.quote)||/(?:从下周起|下周起|下周开始|从下周开始)/.test(currentText)
+      if(effect.period==='current'||recurringFromNextWeek)
         deltas.push({target:{operation:'create'},assertion:'user_reported',kind:'context',source:{messageId:currentMessageId,quote:effect.quote}})
       else{
         const token=effect.period==='next_week'?'下周':(/(?:这|本)周/.exec(effect.quote)?.[0]??(/(?:这|本)周/.exec(currentText)?.[0]??'这周'))
@@ -363,7 +375,12 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
   for(const [index,clause] of clauses.entries()){
     const body=clause.text.trim()
     if(!body)continue
-    if(clause.quoted||clause.code||clause.attributedToOther||clause.interrogative)continue
+    // P3 (CP6): a conditional clause (如果我说错了，更正一下：…) inherits the
+    // sentence's hypothesis scope and never authorizes changing a fact.
+    if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)continue
+    // A conditional OPENER clause (如果我说错了) itself may contain a marker
+    // word (说错了) — it states a hypothesis, not a correction.
+    if(/(?:如果|(?<![主重只必还需总概])要是|假如|假设|万一|一旦)/.test(body))continue
     if(correctionMarker.test(body)||/^不对[，,。！？]?$/.test(body)){markerIndex=index;break}
   }
   if(markerIndex<0)return null
@@ -387,20 +404,35 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
   // needing a write (合法重复确认不应被强制写入).
   if(authorized.some(item=>(item.assertion==='user_reported'||item.assertion==='user_edit')&&item.text.includes(newQuote)))return null
   // Emphasis-only restatement (我确实是每周三小时 vs saved 我每周三小时) is
-  // likewise a no-op: every old char covered, at most three added.
+  // a no-op ONLY when every added character is an emphasis filler: negations
+  // (不/没/别/非/无/未), digits and any other new content make it a REAL
+  // change (P3 CP1-CP3: 我不喜欢考研 / 我每周13小时 / 我不支持考研).
+  const stripEmphasis=(value:string)=>value.replace(/(?:确实|真的|就是|应该|大概|可能|比较|一定|还算|差不多)/g,'')
+  const fillerChars=new Set([...'确实是了的就吧呢啊嘛也很还都'])
   for(const item of authorized){
     if(item.assertion!=='user_reported'&&item.assertion!=='user_edit')continue
-    const oldChars=new Set(item.text.replace(/[^\p{L}\p{N}]/gu,'')),newChars=new Set(newQuote.replace(/[^\p{L}\p{N}]/gu,''))
-    let covered=true,added=0
+    const oldChars=new Set(stripEmphasis(item.text).replace(/[^\p{L}\p{N}]/gu,'')),newChars=new Set(stripEmphasis(newQuote).replace(/[^\p{L}\p{N}]/gu,''))
+    let covered=true
     for(const char of oldChars)if(!newChars.has(char)){covered=false;break}
-    if(covered)for(const char of newChars)if(!oldChars.has(char))added++
-    if(covered&&oldChars.size>=3&&added<=3)return null
+    if(!covered)continue
+    const added=[...newChars].filter(char=>!oldChars.has(char))
+    if(oldChars.size>=3&&added.every(char=>fillerChars.has(char)))return null
   }
   // Deterministic amend target: the old item whose clauses overlap BOTH the
   // new value and the rest of the correction message (the part that usually
   // names the old value: 刚才说成大三了 / 策划主要是队长做的). Requires a clear
   // margin over the runner-up clause so a wrong item is never rewritten.
   type Scored={item:CorrectionCandidate;clause:string;score:number}
+  // P3: generic pronouns/particles (我/了/的/一…) never count toward target
+  // selection — otherwise an unrelated old item sharing only 我,了,一 scores
+  // high enough to be wrongly amended (相似旧事件误改).
+  const genericChars=new Set([...'我你他她它们了的是一在有就和都也与及还'])
+  const scoreChars=(a:string,b:string)=>{
+    const set=new Set([...a.replace(/[^\p{L}\p{N}]/gu,'')].filter(char=>!genericChars.has(char)))
+    let count=0
+    for(const char of b.replace(/[^\p{L}\p{N}]/gu,''))if(set.has(char)){count++;set.delete(char)}
+    return count
+  }
   const restOfMessage=clauses.map(clause=>clause.text).join('').replace(newQuote,'')
   const scored:Scored[]=[]
   for(const item of authorized){
@@ -408,7 +440,7 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
     if(item.text.includes(newQuote)||newQuote===item.text)continue
     const clausesOfItem=scanUserClauses(item.text).map(clause=>clause.text.trim()).filter(carriesText)
     for(const clause of clausesOfItem){
-      const score=sharedChars(newQuote,clause)+sharedChars(restOfMessage,clause)
+      const score=scoreChars(newQuote,clause)+scoreChars(restOfMessage,clause)
       scored.push({item,clause,score})
     }
   }

@@ -27,8 +27,8 @@ test('campus benchmark fixture covers continuous adult growth and independent co
   assert.equal(fixture.hiddenFactsNeverInjected,true)
   // P1: 13 continuous-experience trajectories + 13 PC matrix additions
   // (PC03 four-branch, PC05/07/08/09/11/12/15/06 singles, D01 demo arc).
-  assert.equal(fixture.trajectories.length,30)
-  assert.equal(new Set(fixture.trajectories.map((row:any)=>row.id)).size,30)
+  assert.equal(fixture.trajectories.length,34)
+  assert.equal(new Set(fixture.trajectories.map((row:any)=>row.id)).size,34)
   assert.ok(fixture.trajectories.every((row:any)=>typeof row.opening==='string'&&row.privateFacts&&row.hardFailures.length))
   assert.ok(fixture.trajectories.every((row:any)=>typeof row.privateFacts.age==='number'&&row.privateFacts.age>=18),'every synthetic student is an adult')
 })

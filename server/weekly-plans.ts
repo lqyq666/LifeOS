@@ -4,6 +4,7 @@ import { HttpError } from './db.ts'
 import type { DirectionScope } from './growth-controls.ts'
 import type { GrowthWriteResult } from './growth.ts'
 import type { Run } from './store.ts'
+import { hoursIn } from './turn-obligations.ts'
 import type { GrowthItem } from '../src/features/growth/types.ts'
 
 // N2.1/N2.2: weekly plans reuse growth_items (kind 'priority', assertion
@@ -95,12 +96,27 @@ export async function persistWeeklyPlan(c:PoolClient,run:Run,prepared:PreparedWe
   const budgetItem=facts.find(item=>item.id===budget.id)
   if(!budgetItem||budgetItem.assertion!=='user_reported'||!['context','constraint'].includes(budgetItem.kind))
     throw new HttpError(400,'WEEKLY_PLAN_BUDGET_INVALID')
+  // P3 (F06): the budget fact must carry THIS plan's semantics - its own
+  // parsed minutes equal availableMinutes, and a week-scoped constraint only
+  // feeds a plan of the matching period. A same-numbered fact from another
+  // task or another week never satisfies this.
+  const budgetMinutes=hoursIn(budgetItem.text)
+  if(budgetMinutes===null||budgetMinutes!==input.availableMinutes)
+    throw new HttpError(400,'WEEKLY_PLAN_BUDGET_MISMATCH')
+  const budgetBasis=budgetItem.timeBasis as {kind?:string;which?:string}|null
+  const budgetWindow=budgetItem.kind==='constraint'&&budgetBasis?.kind==='calendar_week'?budgetBasis.which:null
+  if(budgetWindow==='this'&&!['this_week','current'].includes(input.period))
+    throw new HttpError(400,'WEEKLY_PLAN_BUDGET_MISMATCH')
+  if(budgetWindow==='next'&&input.period!=='next_week')
+    throw new HttpError(400,'WEEKLY_PLAN_BUDGET_MISMATCH')
   const basis=input.basis.map(ref=>resolveRef(ref,writes,facts))
   const dependencies=[budget,...basis.filter(ref=>ref.id!==budget.id)].map(ref=>({id:ref.id,revision:ref.revision}))
   const hours=input.availableMinutes/60
   const hoursText=Number.isInteger(hours)?String(hours):hours.toFixed(2)
-  const periodLabel=input.period==='next_week'?'下周安排':input.period==='this_week'?'本周安排':'每周安排'
-  const content=periodLabel+'（依据已核对的每周'+hoursText+'小时）：\n'+input.items.map(item=>'- '+item.action+'（'+(item.minutes>=60&&item.minutes%60===0?item.minutes/60+'小时':item.minutes+'分钟')+'）').join('\n')
+  // P3 (F05/F06): the label names the budget's OWN window - a this-week
+  // remainder is never presented as the recurring weekly amount.
+  const windowLabel=budgetWindow==='this'?'本周剩余':budgetWindow==='next'?'下周':'每周'
+  const content=windowLabel+'安排（依据已核对的'+windowLabel+hoursText+'小时）：\n'+input.items.map(item=>'- '+item.action+'（'+(item.minutes>=60&&item.minutes%60===0?item.minutes/60+'小时':item.minutes+'分钟')+'）').join('\n')
   const structured={
     schemaVersion:1,
     availableMinutes:input.availableMinutes,
