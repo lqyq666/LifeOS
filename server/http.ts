@@ -139,11 +139,19 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
           if(res.destroyed)closed()
           const staged:store.Staged={candidates:[],audit:[]}
           let release:(()=>void)|undefined
+          // P2-5: observable stage latencies, numeric only, persisted in the
+          // run audit and echoed on done. Stages that did not run stay null —
+          // nothing is inferred by subtraction.
+          const stageClock=performance.now()
+          const mark=()=>{const now=performance.now(),ms=Math.round(now-stageClock);return ms}
+          let queueWaitMs:number|null=null,contextLoadMs:number|null=null,engineTotalMs:number|null=null,finishRunMs:number|null=null,contextMark=0
           try{
             release=await scheduler.acquire(user,controller.signal,()=>sse(res,{type:'queued',requestId:run.request_id}))
             controller.signal.throwIfAborted()
+            queueWaitMs=mark()
             sse(res,{type:'processing',requestId:run.request_id})
             const context=await store.contextForRun(run),versions=await store.decisionVersions(user,conversation)
+            contextMark=mark();contextLoadMs=contextMark-queueWaitMs
             const safeEvents:Record<string,unknown>[]=[]
             const result=await engine({run,staged,context,decision:versions[0]?.payload,signal:controller.signal,emit:event=>{
               if(controller.signal.aborted)return
@@ -151,11 +159,15 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
               if(event.type==='draft_discarded')sse(res,{type:'draft_discarded'})
               if(event.type==='tool'&&typeof event.name==='string'&&typeof event.status==='string')safeEvents.push(event)
             }})
+            engineTotalMs=mark()-contextMark
+            staged.audit.push({phase:'http_stage_timings',queueWaitMs,contextLoadMs,engineTotalMs})
+            const finishStart=performance.now()
             const response=await store.finishRun(run,staged,result.text,result.usage,controller.signal,staged.dialoguePath,staged.upstreamCalls)
+            finishRunMs=Math.round(performance.now()-finishStart)
             if(modelManaged&&staged.upstreamCalls)await recordModelSuccess().catch(()=>{})
             for(const event of safeEvents)sse(res,event)
             sse(res,{type:'delta',text:result.text,replace:true,saved:true})
-            sse(res,{type:'done',...response})
+            sse(res,{type:'done',...response,stageTimings:{queueWaitMs,contextLoadMs,engineTotalMs,finishRunMs}})
           }catch(error){
             const timedOut=controller.signal.reason==='MODEL_TIMEOUT',cancelled=controller.signal.aborted&&!timedOut
             const failure=timedOut?new HttpError(504,'MODEL_TIMEOUT',15):error instanceof HttpError?error:new HttpError(502,'MODEL_REQUEST_FAILED',15)

@@ -262,6 +262,30 @@ export function scenarios():Scenario[]{
     // The P1 demo trajectory from the work order: one synthetic student, one
     // unclear thing, one actual process revealed only when asked, then help,
     // action, feedback and a next choice under changed time conditions.
+    // P2 real-chain additions: correction persistence, budget family and
+    // evidence-strength contrasts. Same synthetic-adult rules as the C/PC set.
+    {id:'P2C01',steps:[
+      {kind:'fixed',text:'我大三，在读数字媒体，最近在梳理毕业后的方向。',sampleClass:'opening'},
+      {kind:'fixed',text:'更正一下：我是大二，刚才说成大三了。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'我每周有六小时。这周还剩两小时，帮我安排下周。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'这周我只有两小时，给我一个现在就能开始的具体行动。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'下周我每周只有四小时，帮我安排本周。',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'P2SEM_N',steps:[
+      {kind:'fixed',text:'我帮学长的工作室做了一份宣传推文，发过去之后他们一直没用，是不是我做得不行？',sampleClass:'opening'},
+      {kind:'fixed',text:'当时是想攒作品顺便帮忙。对方对内容本身没说有什么问题。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'那你现在怎么判断这份内容的质量？',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'P2SEM_P',steps:[
+      {kind:'fixed',text:'我帮学长的工作室做了一份宣传推文，发过去之后他们一直没用，是不是我做得不行？',sampleClass:'opening'},
+      {kind:'fixed',text:'当时是想攒作品顺便帮忙。对方明确说内容做得不错，只是时间没赶上。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'那你现在怎么判断这份内容的质量？',sampleClass:'ordinary_followup'},
+    ]},
+    {id:'P2SEM_G',steps:[
+      {kind:'fixed',text:'我帮学长的工作室做了一份宣传推文，发过去之后他们一直没用，是不是我做得不行？',sampleClass:'opening'},
+      {kind:'fixed',text:'当时是想攒作品顺便帮忙。对方说内容不符合他们现在的风格需要。',sampleClass:'ordinary_followup'},
+      {kind:'fixed',text:'那你现在怎么判断这份内容的质量？',sampleClass:'ordinary_followup'},
+    ]},
     {id:'D01',steps:[
       {kind:'fixed',text:'我大三，最近在就业和考研之间犹豫。给社团做了一套招新材料，最后没用上，我开始怀疑自己是不是不行。',sampleClass:'opening'},
       {kind:'answer',topics:[

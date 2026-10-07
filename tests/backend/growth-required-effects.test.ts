@@ -25,7 +25,10 @@ test('remaining-this-week budget lands as a week-scoped constraint, never open-e
   const text='这周课程赶，只剩两小时能用了，剩下的怎么安排？'
   try{
     const obligations=deriveTurnObligations(text)
-    assert.deepEqual(obligations.requiredEffects.map(effect=>effect.type),['remaining_time'],'只剩N小时+本周标记产生剩余预算义务')
+    // P2 (B02): 怎么安排 is an explicit plan request — remaining budget AND a this-week plan bound to it.
+    assert.deepEqual(obligations.requiredEffects.map(effect=>effect.type),['remaining_time','weekly_plan'],'只剩N小时+本周标记产生剩余预算义务+计划义务')
+    const planEffect=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
+    assert.equal(planEffect&&planEffect.type==='weekly_plan'?planEffect.minutes+'@'+planEffect.period:'','120@this_week')
     await t.test('an open-ended context item never satisfies the remaining obligation',async()=>{
       const attempt=await prepare(text)
       const staged=await stageGrowthUpdates(attempt.run,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:attempt.run.source_message_id,quote:'只剩两小时能用了'}}],attempt.growth)
@@ -35,7 +38,8 @@ test('remaining-this-week budget lands as a week-scoped constraint, never open-e
     await t.test('a week-scoped constraint with sentence-inherited calendar evidence passes and commits',async()=>{
       const attempt=await prepare(text)
       const staged=await stageGrowthUpdates(attempt.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:attempt.run.source_message_id,quote:'只剩两小时能用了'},timeEvidence:{kind:'calendar_week',which:'this',quote:'这周'}}],attempt.growth)
-      verifyTurnObligations(obligations,{growth:staged,controls:undefined,currentText:text,reply:'这周剩下的两小时先做一件最小的事。'})
+      const planInput={availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[],target:{operation:'create'}}
+      verifyTurnObligations(obligations,{growth:staged,controls:undefined,weeklyPlan:{input:planInput},currentText:text,reply:'这周剩下的两小时先做一件最小的事。'})
       const saved=await store.finishRun(attempt.run,{candidates:[],audit:[],growth:staged,turnObligations:obligations},'这周剩下的两小时先做一件最小的事。',null,new AbortController().signal)
       assert.equal(saved.stateChange.growth.status,'applied')
       const item=(await growthContext(user,chat)).find(row=>row.kind==='constraint'&&/两小时/.test(row.text))

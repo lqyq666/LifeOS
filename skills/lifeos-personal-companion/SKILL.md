@@ -107,17 +107,23 @@ correction/forgetting and same-transaction receipts. Full API contract:
 
 ## Worked example (condensed; full script in examples/)
 
+Evidence discipline: only use what the user actually said; keep the strength
+of their words when retelling (没说有问题 ≠ 明确认可), and read back state after
+corrections instead of assuming.
+
 - 用户: "我大三，就业和考研之间犹豫。给社团做了一套招新材料，最后没用上，我是不是不行？"
-- 你（先承接+问关键缺口）: "材料没用上≠你不行。先问一个关键的：那套材料约定什么时候交，实际什么时候交的？"
-- 用户: "约的迎新周前，我晚了两天，当天才给。"
-- 你（修正理解+给可开始的一步）: "那就是交付时间的问题，内容本身还没被评价过。这周你说只有两小时——第一步建议:约外联部长10分钟，只问'内容上哪些能用'。要不要我帮你写这句约见消息？"
-- 用户反馈后 → 把"部长说内容可用、时间来不及"写回该事件与能力观察；下次类似机会的建议要用这条更新后的认识。
+- 你（先承接+问关键缺口）: "材料没用上先不等于你不行——目前只知道'没用上'这一个事实。先问一个关键的：那套材料约定什么时候要用，实际什么时候交的？"
+- 用户: "约的迎新周前，我晚了两天，当天才给。这周我只有两个小时能用。"
+- 你（修正理解+给可开始的一步）: "先按已知的说：交付晚了两天是事实；材料没被用的具体原因还不知道——外联那边有没有说过任何原因？这两个小时里能做的一步：约外联负责人10分钟，只问'这套材料后来为什么没用上、内容上有没有可用的部分'。要不要我帮你写这句约见消息？"
+- 用户反馈后 → 只把对方实际说的话写回该事件（对方说了"时间来不及"才记录时间原因；没说原因就保持未知）；下次类似机会的建议要用更新后的认识。
 
 ## Verification & version
 
-- Skill version: 1.0.0 (P1, 2026-10-06). Product contract: same-turn engine at
-  `server/turn-engine.ts`; behavior evidence matrix PC01–PC16 in
-  `P1_BEHAVIOR_ACCEPTANCE.md` (repo root).
+- Skill version: 1.1.0 (P2, 2026-10-07). Product contract: same-turn engine at
+  `server/turn-engine.ts`; behavior evidence matrices in
+  `P1_BEHAVIOR_ACCEPTANCE.md` / `P2_BEHAVIOR_ACCEPTANCE.md` (repo root).
+  P2: corrections must actually persist (never claim 已更正 without a real
+  committed change); budget semantics distinguish 每周/本周剩余/下周.
 - Runnable multi-turn example: `examples/multirun.mjs` (synthetic adult student,
   drives the real product and prints state diffs).
 - If the host cannot reach the product, this skill degrades to honest

@@ -26,7 +26,7 @@ import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKn
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
 import { stageWeeklyPlan } from './weekly-plans.ts'
-import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, isPureControlCommand, controlReplyText, isObligationError, type TurnObligations } from './turn-obligations.ts'
+import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, type TurnObligations } from './turn-obligations.ts'
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
@@ -155,6 +155,8 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   // N1.4: direction controls are read, derived, overlaid and staged BEFORE
   // any retrieval, embedding, public knowledge or Coze work. The expected
   // snapshot key is the PRE-generation one and is set for every turn.
+  const engineStageClock=performance.now()
+  let preRetrievalMs:number|null=null,knowledgeMs:number|null=null,validationMs:number|null=null
   const controlsBefore=await readDirectionControls(run.user_id)
   const expectedControlKey=directionControlsSnapshotKey(controlsBefore)
   const turnDerivedControls=deriveExplicitDirectionControls(current.content)
@@ -185,7 +187,10 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   const retrieval=await searchCoachEvents(run.user_id,run.conversation_id,{query:current.content},signal)
   staged.audit.push({phase:'coach_retrieval_completed',latencyMs:Math.round(performance.now()-retrievalStarted),eventCount:retrieval.events.length,indexPending:retrieval.indexPending,ambiguous:retrieval.ambiguous,embedding:'local_offline'})
   const historicalEvents=retrieval.events.filter(event=>event.id!==currentEvent?.id)
+  preRetrievalMs=Math.round(performance.now()-engineStageClock)
+  const knowledgeStart=performance.now()
   let knowledge=await retrieveCoachKnowledge(current.content,signal)
+  knowledgeMs=Math.round(performance.now()-knowledgeStart)
   if(!knowledge.length){
     // N3: Coze fallback — only when local retrieval found nothing AND the
     // message safely yields a whitelist public query (never the raw chat).
@@ -270,7 +275,14 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const draft=action.draft as {content?:string;readiness?:string;materialFactIds?:string[]}
     return draft??null
   }
+  // P2-5: one numeric per observable engine stage into the audit. Validation
+  // is wrapped so repair cycles also count.
   async function validateOutput(raw:string):Promise<ActionCoachTurn>{
+    const validationStart=performance.now()
+    try{return await validateOutputInner(raw)}
+    finally{validationMs=Math.round(performance.now()-validationStart)}
+  }
+  async function validateOutputInner(raw:string):Promise<ActionCoachTurn>{
     let result:ActionCoachTurn
     try{result=parseActionCoachTurn(raw)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
     staged.coach=undefined;staged.candidates=[];staged.memoryChanges=[];staged.growth=undefined
@@ -309,10 +321,11 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
       // checked against the verified weekly effect (never rendered from an
       // unverified number), and the durable text comes from persistWeeklyPlan.
       const planInput=result.weeklyPlan as unknown as import('./weekly-plans.ts').WeeklyPlanInput
-      // PC07: the plan's budget is checked against the binding amount (this
-      // week's remaining hours when stated, otherwise the weekly amount).
-      const budgetEffect=obligations.requiredEffects.find(effect=>effect.type==='remaining_time')??obligations.requiredEffects.find(effect=>effect.type==='weekly_time')
-      if(budgetEffect&&(budgetEffect.type==='remaining_time'||budgetEffect.type==='weekly_time')&&planInput.availableMinutes!==budgetEffect.minutes)throw new HttpError(400,'REPLY_CONTRADICTS_CURRENT_EFFECT')
+      // P2 (B05/B10): the plan's budget is the OBLIGATION's binding amount —
+      // the budget applying to the plan's own period, never just the tightest
+      // number found in the message.
+      const planObligation=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
+      if(planObligation&&planObligation.type==='weekly_plan'&&planInput.availableMinutes!==planObligation.minutes)throw new HttpError(400,'REPLY_CONTRADICTS_CURRENT_EFFECT')
       staged.weeklyPlan=await stageWeeklyPlan(run,planInput,{user:run.user_id,expectedControlSnapshotKey:expectedControlKey,effectiveBlockedScopes:blockedDirectionScopes})
     }
     const checkedCitations=await validateCoachCitations(result.reply,result.citations??[],knowledge,current.content,messages.filter(row=>row.role==='user').map(row=>row.content))
@@ -326,28 +339,123 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     }
     staged.audit.push({phase:'coach_reply_rendered',narrativeChars,finalChars:result.reply.length,materialChars:result.event?.action&&'draft'in result.event.action&&'content'in result.event.action.draft?result.event.action.draft.content.length:0})
     staged.usedKnowledgeRefs=[...contextKnowledge,...checkedCitations.refs]
+    // P2-1: an explicit correction carries a REQUIRED state change. Before
+    // staging, normalize the model's own attempts on the scored target: a
+    // wholesale replace of a composite item becomes the deterministic amend,
+    // and a non-verbatim quote is re-anchored to the user's own new-value
+    // words — the two P1 failure shapes that ended as silent skips or
+    // COMPOSITE refusals while the old wrong fact stayed active.
+    const correctionPlan=planExplicitCorrection(current.content,growth.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text})))
+    if(correctionPlan?.target&&result.growthUpdates?.length){
+      for(const delta of result.growthUpdates){
+        if(!('target'in delta))continue
+        const target=delta.target as {operation:string;itemId?:string}
+        if(target.operation!=='replace'&&target.operation!=='amend')continue
+        if(target.itemId!==correctionPlan.target.itemId)continue
+        if(target.operation==='replace'){
+          const oldItem=growth.find(item=>item.id===correctionPlan.target!.itemId)
+          if(oldItem&&(oldItem.text.match(/[，,；;。！？\n]/)?.length??0)>0)
+            (delta as {target:unknown}).target={operation:'amend',itemId:correctionPlan.target.itemId,expectedRevision:correctionPlan.target.expectedRevision,beforeQuote:correctionPlan.target.beforeQuote}
+        }
+        // amend never carries a merged text; the server derives it from the quote.
+        if((delta.target as {operation:string}).operation==='amend')delete (delta as {text?:unknown}).text
+        if(!current.content.includes(delta.source.quote))(delta as {source:{messageId:string;quote:string}}).source={messageId:run.source_message_id,quote:correctionPlan.newQuote}
+      }
+    }
     if(result.growthUpdates?.length)staged.growth=await stageGrowthUpdates(run,result.growthUpdates,growth,{allowedDirectionScopes:allowedDirectionScopes})
     // P1: a server-verified budget the model failed to persist is staged from
     // the obligation itself (the user's verbatim clause) so an explicit budget
     // statement never fails its own turn. Same deterministic pattern as
-    // explicit direction controls; audit records the supplement.
-    const budgetSupplement=supplementMissingBudgetDeltas(obligations,staged.growth,run.source_message_id)
+    // explicit direction controls; audit records the supplement. P2: synthetic
+    // provider positions let a plan reference the supplement fact when the
+    // model's own budget delta was skipped.
+    const budgetSupplement=supplementMissingBudgetDeltas(obligations,staged.growth,run.source_message_id,current.content)
+    let supplementBase=-1
     if(budgetSupplement.length){
       const stagedSupplement=await stageGrowthUpdates(run,budgetSupplement,growth,{})
       if(stagedSupplement.changes.length){
-        staged.growth={changes:[...(staged.growth?.changes??[]),...stagedSupplement.changes],prepared:[...(staged.growth?.prepared??[]),...stagedSupplement.prepared],inputIndexBindings:staged.growth?.inputIndexBindings??new Map(),skipped:[...(staged.growth?.skipped??[]),...(stagedSupplement.skipped??[])]}
+        const mergedChanges=[...(staged.growth?.changes??[]),...stagedSupplement.changes]
+        const mergedBindings=new Map(staged.growth?.inputIndexBindings??[])
+        const syntheticBase=result.growthUpdates?.length??0
+        stagedSupplement.changes.forEach((_,i)=>mergedBindings.set(syntheticBase+i,mergedChanges.length-stagedSupplement.changes.length+i))
+        supplementBase=syntheticBase
+        staged.growth={changes:mergedChanges,prepared:[...(staged.growth?.prepared??[]),...stagedSupplement.prepared],inputIndexBindings:mergedBindings,skipped:[...(staged.growth?.skipped??[]),...(stagedSupplement.skipped??[])]}
         staged.audit.push({phase:'budget_fact_server_staged',effects:stagedSupplement.changes.map(delta=>delta.kind),providerCalls:0})
       }
+    }
+    // P2-1 fallback: the model produced no verifiable correction. Stage the
+    // deterministic amend (or, without a safe target, the verbatim new value)
+    // so a correction turn never ends with the old fact still quietly active.
+    if(correctionPlan&&!staged.growth?.prepared.some(entry=>entry.kind==='split_amend'||(entry.kind==='ordinary'&&(entry.delta.target.operation==='replace'||entry.delta.target.operation==='amend')))&&!staged.growth?.changes.some(delta=>delta.target.operation==='create'&&delta.source.quote===correctionPlan.newQuote)){
+      const amendDelta=correctionPlan.target?{target:{operation:'amend' as const,itemId:correctionPlan.target.itemId,expectedRevision:correctionPlan.target.expectedRevision,beforeQuote:correctionPlan.target.beforeQuote},assertion:'user_reported' as const,kind:correctionPlan.target.kind as 'context',source:{messageId:run.source_message_id,quote:correctionPlan.newQuote}}:null
+      let stagedCorrection=null
+      if(amendDelta){
+        try{stagedCorrection=await stageGrowthUpdates(run,[amendDelta],growth,{})}catch{stagedCorrection=null}
+      }
+      if(!stagedCorrection?.changes.length){
+        stagedCorrection=await stageGrowthUpdates(run,[{target:{operation:'create'},assertion:'user_reported',kind:'context',source:{messageId:run.source_message_id,quote:correctionPlan.newQuote}}],growth,{})
+      }
+      if(stagedCorrection.changes.length){
+        const mergedChanges=[...(staged.growth?.changes??[]),...stagedCorrection.changes]
+        const mergedBindings=new Map(staged.growth?.inputIndexBindings??[])
+        const syntheticBase=Math.max(supplementBase,result.growthUpdates?.length??0)
+        stagedCorrection.changes.forEach((_,i)=>mergedBindings.set(syntheticBase+i,mergedChanges.length-stagedCorrection!.changes.length+i))
+        staged.growth={changes:mergedChanges,prepared:[...(staged.growth?.prepared??[]),...stagedCorrection.prepared],inputIndexBindings:mergedBindings,skipped:[...(staged.growth?.skipped??[]),...(stagedCorrection.skipped??[])]}
+        staged.audit.push({phase:'correction_server_staged',mode:amendDelta&&stagedCorrection.prepared.some(entry=>entry.kind==='split_amend')?'amend':'verbatim_create',providerCalls:0})
+      }
+    }
+    // P2-2: rebind a plan whose updateIndex refs point at model deltas that
+    // were skipped — they must anchor on the facts that actually persisted.
+    if(staged.weeklyPlan&&(supplementBase>=0||staged.audit.some(entry=>(entry as {phase?:string}).phase==='correction_server_staged'))){
+      const bindings=staged.growth?.inputIndexBindings??new Map<number,number>()
+      const syntheticOriginals=[...bindings.keys()].filter(original=>original>=(result.growthUpdates?.length??0)).sort((a,b)=>a-b)
+      const planMinutes=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
+      const minutes=planMinutes&&planMinutes.type==='weekly_plan'?planMinutes.minutes:null
+      const pickBudgetOriginal=():number|null=>{
+        if(minutes!==null&&staged.growth)for(const original of syntheticOriginals){
+          const delta=staged.growth.changes[bindings.get(original)!]
+          if(delta&&delta.assertion==='user_reported'&&['context','constraint'].includes(delta.kind)&&hoursIn(delta.text)===minutes)return original
+        }
+        return syntheticOriginals.at(-1)??null
+      }
+      const remap=(ref:unknown,preferBudget:boolean):unknown=>{
+        if(ref&&typeof ref==='object'&&'updateIndex'in ref&&!bindings.has((ref as {updateIndex:number}).updateIndex)){
+          const chosen=preferBudget?pickBudgetOriginal():(syntheticOriginals.at(-1)??null)
+          if(chosen!==null)return {updateIndex:chosen}
+        }
+        return ref
+      }
+      const planInput=staged.weeklyPlan.input as unknown as {budgetRef:unknown;basis:unknown[]}
+      planInput.budgetRef=remap(planInput.budgetRef,true) as never
+      planInput.basis=planInput.basis.map(ref=>remap(ref,false)) as never
     }
     // P5.3 step 4 (N1.4/N1.5): an explicitly commanded change must exist in
     // the PRE-STAGED batch (staged before generation, never re-read here);
     // answering an old topic instead is a failed turn. Domain obligation
     // errors convert to HttpError at this boundary only.
     try{
-      verifyTurnObligations(obligations,{growth:staged.growth,controls:staged.directionControls,coachActionDraft:materialDraftOf(result),currentText:current.content,reply:result.reply})
+      verifyTurnObligations(obligations,{growth:staged.growth,controls:staged.directionControls,weeklyPlan:staged.weeklyPlan,coachActionDraft:materialDraftOf(result),currentText:current.content,reply:result.reply})
     }catch(error){
       if(isObligationError(error))throw new HttpError(400,error.code)
       throw error
+    }
+    if(correctionPlan){
+      // P2-1: with no actual replace/amend staged, the reply may acknowledge
+      // the user's words ("已记录你的原话") but must NOT claim the record was
+      // corrected/updated while the old fact stays active.
+      const amendedNow=Boolean(staged.growth?.prepared.some(entry=>entry.kind==='split_amend'||(entry.kind==='ordinary'&&(entry.delta.target.operation==='replace'||entry.delta.target.operation==='amend'))))
+      if(!amendedNow&&/(?:已更正|更正为|已把.{0,10}改|已经?改成|更新为|已更新|已修改)/.test(result.reply))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
+    }
+    // P2-3 (PC08D T4): a verbatim repeat of the previous assistant reply
+    // answers nothing. Legal repeats (explicit re-send/keep-the-original
+    // requests) stay allowed.
+    {
+      const previousAssistant=[...messages].reverse().find(row=>row.role==='assistant')?.content?.trim()
+      const previousUser=[...messages].reverse().find(row=>row.role==='user')?.content?.trim()
+      const squash=(text:string)=>text.replace(/\s+/g,'')
+      const resentSameMessage=Boolean(previousUser&&squash(current.content)===squash(previousUser))
+      // Substantive repeat only: a long verbatim repeat while the user asked something new. Short listening acknowledgments (好，我在听) repeating is normal companionship; explicit re-send requests stay legal.
+      if(previousAssistant&&squash(result.reply)===squash(previousAssistant)&&squash(result.reply).length>=40&&/[？?]|怎么|什么|如何|为什么|哪|帮|请|给我/.test(current.content)&&!resentSameMessage&&!/(?:再发|重发|再说一遍|保留原话|原样|复用|不变|和上次的?一样)/.test(current.content))throw new HttpError(400,'REPLY_REPEATED_VERBATIM')
     }
     if(result.background?.length){
       for(const fact of result.background)if(fact.source.messageId!==run.source_message_id||!fact.source.quote.trim()||!current.content.includes(fact.source.quote)||!fact.source.quote.includes(fact.value))throw new HttpError(400,'COACH_BACKGROUND_INVALID')
@@ -384,7 +492,9 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     firstText=await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',actionCoachTurnSchema,'lifeos_action_coach','turn',text=>emit({type:'draft',text,saved:false}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode)
     result=await validateOutput(firstText)
   }catch(error){
-    const repairable=new Set(['GROWTH_REQUIRED_UPDATE_MISSING','GROWTH_AMENDMENT_AMBIGUOUS','GROWTH_COMPOSITE_REQUIRES_REVIEW','GROWTH_TIME_UNVERIFIED','GROWTH_TIME_REQUIRED','WEEKLY_PLAN_BASIS_INVALID','WEEKLY_PLAN_REQUIRED_MISSING','DIRECTION_CONTROL_NOT_APPLIED','MATERIAL_REFERENCE_INVALID','REPLY_CONTRADICTS_CURRENT_EFFECT','GROWTH_SOURCE_INVALID','GROWTH_TARGET_INVALID','GROWTH_UNCHANGED','GROWTH_OBSERVATION_INVALID','GROWTH_DEPENDENCY_INVALID','GROWTH_TIME_INVALID','GROWTH_FEEDBACK_INVALID','COACH_CORRECTION_UNCHANGED','COACH_ACTION_UNCHANGED','COACH_EVENT_TARGET_INVALID','COACH_UNKNOWN_NOT_FOUND','COACH_UNKNOWN_DISPOSITION_CONFLICT','COACH_OUTPUT_INVALID','MODEL_OUTPUT_TRUNCATED','COACH_DELTA_INVALID','COACH_SOURCE_INVALID','COACH_CURRENT_SOURCE_REQUIRED','COACH_NEW_EVENT_TARGET_INVALID','COACH_MATERIAL_NOT_VISIBLE','COACH_MATERIAL_IS_CONVERSATION','COACH_ACTION_DECLINED','COACH_BACKGROUND_INVALID','COACH_CITATION_INVALID','COACH_CITATION_OUTPUT_LIMIT','PLANNED_ACTION_IS_NOT_EXPERIENCE','SKILL_IS_NOT_EXPERIENCE','SOURCE_QUOTE_MISMATCH','EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE'])
+    const repairable=new Set(['GROWTH_REQUIRED_UPDATE_MISSING','GROWTH_AMENDMENT_AMBIGUOUS','GROWTH_COMPOSITE_REQUIRES_REVIEW','GROWTH_TIME_UNVERIFIED','GROWTH_TIME_REQUIRED','WEEKLY_PLAN_BASIS_INVALID','WEEKLY_PLAN_REQUIRED_MISSING','REPLY_CLAIMS_UNCOMMITTED_CORRECTION','REPLY_REPEATED_VERBATIM','DIRECTION_CONTROL_NOT_APPLIED','MATERIAL_REFERENCE_INVALID','REPLY_CONTRADICTS_CURRENT_EFFECT','GROWTH_SOURCE_INVALID','GROWTH_TARGET_INVALID','GROWTH_UNCHANGED','GROWTH_OBSERVATION_INVALID','GROWTH_DEPENDENCY_INVALID','GROWTH_TIME_INVALID','GROWTH_FEEDBACK_INVALID','COACH_CORRECTION_UNCHANGED','COACH_ACTION_UNCHANGED','COACH_EVENT_TARGET_INVALID','COACH_UNKNOWN_NOT_FOUND','COACH_UNKNOWN_DISPOSITION_CONFLICT','COACH_OUTPUT_INVALID','MODEL_OUTPUT_TRUNCATED','COACH_DELTA_INVALID','COACH_SOURCE_INVALID','COACH_CURRENT_SOURCE_REQUIRED','COACH_NEW_EVENT_TARGET_INVALID','COACH_MATERIAL_NOT_VISIBLE','COACH_MATERIAL_IS_CONVERSATION','COACH_ACTION_DECLINED','COACH_BACKGROUND_INVALID','COACH_CITATION_INVALID','COACH_CITATION_OUTPUT_LIMIT','PLANNED_ACTION_IS_NOT_EXPERIENCE','SKILL_IS_NOT_EXPERIENCE','SOURCE_QUOTE_MISMATCH','EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE'])
+    if(process.env.LIFEOS_DEBUG_REPAIR)console.error('REPAIR_GATE',error instanceof HttpError?error.code:String(error).slice(0,80))
+    if(process.env.LIFEOS_DEBUG_REPAIR)console.error('REPAIR_GATE',error instanceof HttpError?error.code:String(error).slice(0,100))
     if(!(error instanceof HttpError)||!repairable.has(error.code)||calls.length!==1)throw error
     if(observer?.allowRepair===false){
       staged.audit.push({phase:'coach_repair_blocked',code:error.code,providerRequestSent:false})
@@ -397,7 +507,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     // The event layer attaches the exact rejected quote and the current user
     // text; a bounded repair then contrasts them instead of guessing.
     const sourceDetails=error instanceof HttpError&&['COACH_SOURCE_INVALID','COACH_CURRENT_SOURCE_REQUIRED'].includes(error.code)&&(error as HttpError).details?` The rejected quote was: ${JSON.stringify((error.details as {quote?:string}).quote??null)}. The current user message text to copy from verbatim is: ${JSON.stringify((error.details as {currentText?:string}).currentText??null)}.`:''
-    const validationGuidance=error.code==='COACH_CORRECTION_UNCHANGED'?'The correction only repeats an unchanged exact fragment of an existing fact and would erase its other details. Omit this correction; preserve the existing node. Add genuinely new current-message information as nodes. Preserve valid reply and source quotes, and do not invent changed facts.':error.code==='COACH_UNKNOWN_NOT_FOUND'?'resolveUnknowns and declineUnknowns may contain only active unknown node IDs in the continued authorized event. Use resolveUnknowns only when the user answered the question; use declineUnknowns when the user explicitly refuses it. A forgotten detail remains active and must not be marked answered or declined. Omit unmatched IDs, preserve valid facts and reply, and do not invent node identities.':error.code==='COACH_UNKNOWN_DISPOSITION_CONFLICT'?'The same unknown cannot be both answered and declined. Keep exactly one disposition supported by the user message; preserve the valid reply and process facts.':error.code==='COACH_MATERIAL_NOT_VISIBLE'?'event.action.draft.content must contain the complete nonblank requested material; the server renders it into the final reply. An explicit instruction to draft now cannot be completed by abstract advice. Preserve the requested purpose and boundaries; do not invent missing facts or completed outcomes. If the user asks only a conversational question, omit event.action entirely.':error.code==='COACH_MATERIAL_IS_CONVERSATION'?'The action draft contains a coaching question but the current user message does not itself request or refine a deliverable, so it reads as a question addressed to the user, not material the user can use. Keep follow-up questions in reply only and omit event.action; deliver material only when the user asks for it, refining an existing action with modify when they do.':error.code==='COACH_ACTION_DECLINED'?'The user has declined material creation, rewriting or contact. Your own delivery preamble cannot authorize an action. Omit action, or close an existing action if the user asked to stop it. Preserve the valid reply and process facts; do not reframe or rewrite the unwanted material.':error.code==='COACH_OUTPUT_INVALID'?'Return one instantiated output object with an actual reply string, never a schema, schema array or field definitions. action is only allowed inside event.action, not at the root. Optional changes must be omitted when absent, not filled with empty placeholders. Material must be nonblank. eventId cannot be used as actionId; modify/reuse/close only an existing action.':error.code==='COACH_BACKGROUND_INVALID'?'For each background entry, source.messageId must be currentUserMessage.id, source.quote must be contiguous current user text, and value must be an exact substring of that quote. Omit unsupported or transient background rather than paraphrasing the quote or inventing stable skills. Preserve the valid reply, action material and current process facts.':error.code==='GROWTH_TIME_UNVERIFIED'||error.code==='GROWTH_TIME_REQUIRED'?'Fix growthUpdates time handling without inventing evidence. A recurring weekly amount (每周N小时) belongs in kind "context" with NO timeEvidence and NO validUntil. Only an explicit period may be a constraint: date_inclusive for 截至…日, duration for a quote starting 从现在起/接下来/未来 plus N天/N周, calendar_week with quote exactly 本周, 这周 or 下周. The evidence quote must be verbatim current-message text in the same clause as the fact. When unsure, omit timeEvidence entirely and use context.':error.code==='WEEKLY_PLAN_BASIS_INVALID'?'The weekly plan\'s budgetRef/basis must reference growth facts that actually persisted this turn (updateIndex of a saved user_reported fact) or existing authorized ids. A constraint whose time evidence was unverifiable is skipped and cannot anchor a plan: save the stated weekly amount as a context fact without timeEvidence, then reference it by updateIndex.':error.code==='WEEKLY_PLAN_REQUIRED_MISSING'?'The user asked to arrange or re-arrange their time: output weeklyPlan with availableMinutes exactly equal to the binding budget minutes (this week\'s remaining hours when just stated, otherwise the stated weekly amount) and a budgetRef/basis pointing at the persisted budget fact by updateIndex.':error.code==='GROWTH_COMPOSITE_REQUIRES_REVIEW'?'The replace target bundles multiple independent facts; replacing it wholesale would erase its other details. Use target.operation "amend" with beforeQuote set to the exact old clause being corrected (it must appear verbatim once in the old item); the server keeps the other clauses and swaps only that one. If the current message states no real correction, omit the update entirely.':error.code==='COACH_SOURCE_INVALID'||error.code==='COACH_CURRENT_SOURCE_REQUIRED'?'Correct each new target.source/node.source/correction/background/candidate reference: messageId must be currentUserMessage.id and quote must be a contiguous exact substring of the last natural user message. Older known facts remain in authorizedContext.currentEvent/history, not new nodes tagged with the current ID. Fix the offending source while preserving valid current facts and requested material; do not invent missing details.'+sourceDetails:undefined
+    const validationGuidance=error.code==='COACH_CORRECTION_UNCHANGED'?'The correction only repeats an unchanged exact fragment of an existing fact and would erase its other details. Omit this correction; preserve the existing node. Add genuinely new current-message information as nodes. Preserve valid reply and source quotes, and do not invent changed facts.':error.code==='COACH_UNKNOWN_NOT_FOUND'?'resolveUnknowns and declineUnknowns may contain only active unknown node IDs in the continued authorized event. Use resolveUnknowns only when the user answered the question; use declineUnknowns when the user explicitly refuses it. A forgotten detail remains active and must not be marked answered or declined. Omit unmatched IDs, preserve valid facts and reply, and do not invent node identities.':error.code==='COACH_UNKNOWN_DISPOSITION_CONFLICT'?'The same unknown cannot be both answered and declined. Keep exactly one disposition supported by the user message; preserve the valid reply and process facts.':error.code==='COACH_MATERIAL_NOT_VISIBLE'?'event.action.draft.content must contain the complete nonblank requested material; the server renders it into the final reply. An explicit instruction to draft now cannot be completed by abstract advice. Preserve the requested purpose and boundaries; do not invent missing facts or completed outcomes. If the user asks only a conversational question, omit event.action entirely.':error.code==='COACH_MATERIAL_IS_CONVERSATION'?'The action draft contains a coaching question but the current user message does not itself request or refine a deliverable, so it reads as a question addressed to the user, not material the user can use. Keep follow-up questions in reply only and omit event.action; deliver material only when the user asks for it, refining an existing action with modify when they do.':error.code==='COACH_ACTION_DECLINED'?'The user has declined material creation, rewriting or contact. Your own delivery preamble cannot authorize an action. Omit action, or close an existing action if the user asked to stop it. Preserve the valid reply and process facts; do not reframe or rewrite the unwanted material.':error.code==='COACH_OUTPUT_INVALID'?'Return one instantiated output object with an actual reply string, never a schema, schema array or field definitions. action is only allowed inside event.action, not at the root. Optional changes must be omitted when absent, not filled with empty placeholders. Material must be nonblank. eventId cannot be used as actionId; modify/reuse/close only an existing action.':error.code==='COACH_BACKGROUND_INVALID'?'For each background entry, source.messageId must be currentUserMessage.id, source.quote must be contiguous current user text, and value must be an exact substring of that quote. Omit unsupported or transient background rather than paraphrasing the quote or inventing stable skills. Preserve the valid reply, action material and current process facts.':error.code==='GROWTH_TIME_UNVERIFIED'||error.code==='GROWTH_TIME_REQUIRED'?'Fix growthUpdates time handling without inventing evidence. A recurring weekly amount (每周N小时) belongs in kind "context" with NO timeEvidence and NO validUntil. Only an explicit period may be a constraint: date_inclusive for 截至…日, duration for a quote starting 从现在起/接下来/未来 plus N天/N周, calendar_week with quote exactly 本周, 这周 or 下周. The evidence quote must be verbatim current-message text in the same clause as the fact. When unsure, omit timeEvidence entirely and use context.':error.code==='WEEKLY_PLAN_BASIS_INVALID'?'The weekly plan\'s budgetRef/basis must reference growth facts that actually persisted this turn (updateIndex of a saved user_reported fact) or existing authorized ids. A constraint whose time evidence was unverifiable is skipped and cannot anchor a plan: save the stated weekly amount as a context fact without timeEvidence, then reference it by updateIndex.':error.code==='WEEKLY_PLAN_REQUIRED_MISSING'?'The user asked to arrange or re-arrange their time: output weeklyPlan with availableMinutes exactly equal to the binding budget minutes (this week\'s remaining hours when just stated, otherwise the stated weekly amount) and a budgetRef/basis pointing at the persisted budget fact by updateIndex.':error.code==='REPLY_CLAIMS_UNCOMMITTED_CORRECTION'?'The reply claims the record was corrected/updated, but no existing fact was actually changed this turn. Either stage the real correction (amend the old item with beforeQuote = the exact old clause and source.quote = the user\'s exact new words from the current message), or rephrase honestly: the new words are recorded, the old item is not yet changed, and state what still needs the exact quote.':error.code==='REPLY_REPEATED_VERBATIM'?'The reply repeats the previous assistant reply verbatim and answers nothing new. Address the current message\'s actual question or request with new content; only repeat the previous text verbatim when the user explicitly asks to resend or keep it.':error.code==='GROWTH_COMPOSITE_REQUIRES_REVIEW'?'The replace target bundles multiple independent facts; replacing it wholesale would erase its other details. Use target.operation "amend" with beforeQuote set to the exact old clause being corrected (it must appear verbatim once in the old item); the server keeps the other clauses and swaps only that one. If the current message states no real correction, omit the update entirely.':error.code==='COACH_SOURCE_INVALID'||error.code==='COACH_CURRENT_SOURCE_REQUIRED'?'Correct each new target.source/node.source/correction/background/candidate reference: messageId must be currentUserMessage.id and quote must be a contiguous exact substring of the last natural user message. Older known facts remain in authorizedContext.currentEvent/history, not new nodes tagged with the current ID. Fix the offending source while preserving valid current facts and requested material; do not invent missing details.'+sourceDetails:undefined
     const specificGuidance=validationGuidance??(error.code==='COACH_ACTION_UNCHANGED'?'The proposed draft exactly matches the existing action. If a rewrite is requested, change the material itself. For a process answer or question, omit action; if explicitly keeping the existing material, use reuse with its actual actionId/revision. Preserve the current reply and valid process changes.':error.code==='COACH_EVENT_TARGET_INVALID'?'Continue only an event ID actually supplied in authorizedContext.currentEvent or authorizedContext.events. If there is no matching event, omit event for a clarification question, or create a genuinely new event using currentUserMessage.id and an exact current quote. Never invent an existing identity.':error.code==='PLANNED_ACTION_IS_NOT_EXPERIENCE'||error.code==='SKILL_IS_NOT_EXPERIENCE'?'Omit experienceCandidate entirely: a future plan or skill is not a completed personal experience. Preserve the requested action material and valid process facts.':error.code==='COACH_CITATION_INVALID'?'Every supplied verified proposition used in reply or material needs citations with its exact sourceId, revision, claim, excerpt quote and scope from authorized knowledge. Never invent a reference. If no valid source supports the claim, state the unverified limitation instead.':undefined)
       const growthGuidance=error.code.startsWith('GROWTH_')?'Repair only growthUpdates: For user_reported, select one exact current-message source.quote and omit redundant text; the server derives text from that verified quote. Any supplied legacy text must remain an exact span of the quote, and source.messageId must be currentUserMessage.id. replace requires an authorized current id/revision and a substantive explicit correction; never shorten away independent details. AI observations remain proposed with explicit limitations and valid personal dependencies. Temporary constraints need a justified timezone expiry; feedback needs the actual reported action state, never inferred from copying. Omit unsupported updates, preserve the valid reply, and do not invent personal facts.':undefined
       // Server-owned error instructions remain system guidance, rather than being
@@ -410,6 +520,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     result=await validateOutput(second)
   }
   staged.dialoguePath='direct';staged.upstreamCalls=calls.length
+  staged.audit.push({phase:'engine_stage_timings',preRetrievalMs,knowledgeMs,validationMs,modelCallsMs:calls.map(call=>call.latencyMs),firstRawDeltaMs:calls.map(call=>call.firstRawDeltaMs),firstQuestionDraftMs:calls.map(call=>call.firstQuestionDraftMs)})
   const usage=usageSummary(calls,contextTokenEstimate,retrieved,route.escalated,route.reason,false,repairReason)
   staged.modelUsage=usage
   return {text:result.reply,usage}

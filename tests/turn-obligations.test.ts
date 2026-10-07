@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,verifyTurnObligations,verifyReplyAgainstObligations,supplementMissingBudgetDeltas} from '../server/turn-obligations.ts'
+import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,verifyTurnObligations,verifyReplyAgainstObligations,supplementMissingBudgetDeltas,planExplicitCorrection} from '../server/turn-obligations.ts'
 const pauseChanges=[{scopes:['overseas_study','postgraduate_exam','postgraduate_recommendation','undergraduate_upgrade'] as never,operation:'pause' as const,quote:'先别推升学相关的安排'}]
 
 test('weekly time intent: only the user\'s own explicit weekly budget creates an obligation',()=>{
@@ -55,11 +55,10 @@ test('missing required updates and contradicting replies are hard failures',()=>
   verifyReplyAgainstObligations(obligations,'按每周3小时安排。')
   // The opportunity's own demanded hours in the reply never contradict the user's budget.
   verifyReplyAgainstObligations(obligations,'这个实习本身要求每周15小时，而你每周只有3小时，缺口很大。')
-  // P1: a different WEEKLY amount in reply text alone is no longer a hard
-  // failure — the lexical guard blocked correct opportunity comparisons three
-  // real runs in a row. Stale planning stays caught structurally via the
-  // required growth update and the plan's availableMinutes binding.
-  verifyReplyAgainstObligations(obligations,'好的，继续保持每周6小时的节奏推进。')
+  // P2 (B13): affirming a DIFFERENT amount of the user's own just-stated
+  // budget is a hard failure again — with escapes for opportunity-attributed
+  // amounts and change framings (the classes P1's removal was for).
+  assert.throws(()=>verifyReplyAgainstObligations(obligations,'好的，继续保持每周6小时的节奏推进。'),(error:unknown)=>(error as {code?:string}).code==='REPLY_CONTRADICTS_CURRENT_EFFECT')
   // Control obligations must actually be staged.
   const controlObligations=deriveTurnObligations('先别推升学相关的安排。',{directionControls:pauseChanges})
   assert.throws(()=>verifyTurnObligations(controlObligations,{growth:undefined,controls:undefined,currentText:'先别推升学相关的安排。',reply:'好的。'}),(error:unknown)=>(error as {code?:string}).code==='DIRECTION_CONTROL_NOT_APPLIED')
@@ -127,4 +126,62 @@ test('supplementMissingBudgetDeltas stages only what the model failed to persist
   assert.deepEqual((supplement[0] as {timeEvidence:{kind:string;which:string;quote:string}}).timeEvidence,{kind:'calendar_week',which:'this',quote:'这周'})
   const weekScoped={changes:[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',text:'只剩两小时能用了',validUntil:'2026-10-12T16:00:00.000Z',source:{messageId:'m2',quote:'只剩两小时能用了'}}],prepared:[],inputIndexBindings:new Map()}
   assert.equal(supplementMissingBudgetDeltas(remaining,weekScoped as never,'m2').length,0)
+})
+
+test('P2 input family: availability without 剩, clock units, decimals, zero budget and wrong-period guards',()=>{
+  // B01 family — 这周我只有N小时 is a this-week availability statement.
+  assert.equal(deriveTurnObligations('这周我只有两小时，给我一个现在就能开始的具体行动。').requiredEffects.some(effect=>effect.type==='remaining_time'&&effect.minutes===120),true)
+  assert.deepEqual(remainingWeeklyTimeIntent('本周就三个钟头能用。'),{quote:'本周就三个钟头能用',minutes:180,weekQuote:'本周'},'钟头单位')
+  assert.deepEqual(remainingWeeklyTimeIntent('这周我还能用两个半小时。'),null,'两个半小时 refuses (ambiguous)')
+  assert.equal(deriveTurnObligations('这周还剩2.5小时。').requiredEffects.some(effect=>effect.type==='remaining_time'&&effect.minutes===150),true,'2.5小时=150')
+  assert.equal(deriveTurnObligations('这周剩0小时，全排满了。').requiredEffects.some(effect=>effect.type==='remaining_time'&&effect.minutes===0),true,'零预算也是明确预算')
+  // B03 family — a 下周 clause never becomes this-week.
+  for(const text of ['这周我忙，下周只剩两小时能做作品。','这周先赶论文，下周就剩一个半小时了。'])
+    assert.equal(remainingWeeklyTimeIntent(text),null,text)
+  // B06 family — the opportunity demanding hours, varied phrasings.
+  for(const text of ['实习要求我每周投入15小时。','这个岗位需要每周工作20小时。','该项目要求我们每周花10小时维护。'])
+    assert.equal(weeklyTimeIntent(text),null,text)
+  // …while the user's own commitment beside an opportunity still counts.
+  assert.deepEqual(weeklyTimeIntent('这个实习我要每周投入10小时去做。'),{quote:'这个实习我要每周投入10小时去做',minutes:600,period:'current'})
+  // B05/B10 — plan period binding.
+  const b05=deriveTurnObligations('我每周有六小时。这周还剩两小时，帮我安排下周。')
+  const b05Plan=b05.requiredEffects.find(effect=>effect.type==='weekly_plan')
+  assert.equal(b05Plan&&b05Plan.type==='weekly_plan'?b05Plan.period+'@'+b05Plan.minutes:'','next_week@360','下周计划用常规预算，不用本周剩余')
+  const b10=deriveTurnObligations('下周我每周只有4小时，帮我安排本周。')
+  assert.equal(b10.requiredEffects.some(effect=>effect.type==='weekly_plan'),false,'本周计划无本周预算→无计划义务（明确缺口）')
+  // B13 escape classes.
+  const stale=deriveTurnObligations('我每周只有2小时。')
+  assert.throws(()=>verifyReplyAgainstObligations(stale,'你每周有6小时，可以按每天一小时继续准备。'),(error:unknown)=>(error as {code?:string}).code==='REPLY_CONTRADICTS_CURRENT_EFFECT')
+  verifyReplyAgainstObligations(stale,'这个实习本身需要每周15小时，你每周只有2小时，需要慎重。')
+  verifyReplyAgainstObligations(stale,'你从每周6小时降到现在只有2小时，安排如下。')
+  // B14 — staged half-hours satisfy the same obligation that parsed them.
+  const half=deriveTurnObligations('这周只剩半小时。')
+  verifyTurnObligations(half,{growth:{changes:[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',text:'这周只剩半小时',validUntil:'2026-10-11T16:00:00.000Z',source:{messageId:'m',quote:'这周只剩半小时'}}],prepared:[]},controls:undefined,currentText:'这周只剩半小时。',reply:''})
+})
+
+test('P2-1: explicit corrections carry a required, deterministic state change',()=>{
+  const yearOld={id:'g-year',revision:1,kind:'context' as const,assertion:'user_reported',text:'我大三，最近在就业和考研之间犹豫。'}
+  // A01 shape: 更正一下：我是大二，刚才说成大三了 → amend the 我大三 clause.
+  const yearPlan=planExplicitCorrection('更正一下：我是大二，刚才说成大三了。',[yearOld])
+  assert.equal(yearPlan?.newQuote,'我是大二')
+  assert.equal(yearPlan?.target?.itemId,'g-year')
+  assert.equal(yearPlan?.target?.beforeQuote,'我大三')
+  // A02 shape: composite team award — the scored clause is the personal role.
+  const teamOld={id:'g-team',revision:1,kind:'ability' as const,assertion:'user_reported',text:'我们团队上学期拿了校园文创设计二等奖，我做的是整体策划。'}
+  const teamPlan=planExplicitCorrection('更正一下：整体策划主要是队长做的，我只负责了宣传物料里的排版部分。',[teamOld])
+  assert.equal(teamPlan?.newQuote,'我只负责了宣传物料中的排版部分'.replace('中','里'))
+  assert.equal(teamPlan?.target?.itemId,'g-team')
+  assert.equal(teamPlan?.target?.beforeQuote,'我做的是整体策划')
+  // Denial-only correction without a safe old target → verbatim create.
+  const observationOnly=[{id:'g-obs',revision:1,kind:'observation' as const,assertion:'ai_observation',text:'可能因为害怕竞争所以暂停投递'}]
+  const denial=planExplicitCorrection('不对，我不是害怕竞争或者不主动，我是想先把作品集改好才暂停投递的。',observationOnly)
+  assert.equal(denial?.target,undefined)
+  assert.equal(denial?.newQuote,'我是想先把作品集改好才暂停投递的')
+  // No marker / re-assertion → null (normal turns and 已记录内容不受影响).
+  assert.equal(planExplicitCorrection('另外我每周还有三小时空闲。',[yearOld]),null)
+  assert.equal(planExplicitCorrection('更正一下，我确实是每周三小时。', [{id:'g-h',revision:1,kind:'context' as const,assertion:'user_reported',text:'我每周三小时'}]),null,'原话已存在=无操作')
+  // Wrong-event safety: a correction naming nothing in the old item falls back
+  // to verbatim create, never a guessed amend.
+  const unrelated=planExplicitCorrection('更正一下：我是大二，刚才说成大三了。',[{id:'g-other',revision:1,kind:'context' as const,assertion:'user_reported',text:'我喜欢视觉设计，每周能投入六小时。'}])
+  assert.equal(unrelated?.target,undefined)
 })
