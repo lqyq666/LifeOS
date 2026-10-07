@@ -52,8 +52,12 @@ export function selectRelevantGrowth(
   budget: GrowthSelectionBudget = DEFAULT_GROWTH_SELECTION,
 ): GrowthSelection {
   const reasons: { id: string; reason: string }[] = []
+  // P5c R03: the budget accounts for the FULL serialized item (sources, deps,
+  // metadata) — not just the visible text — so provenance cannot silently
+  // blow the real prompt size past the declared ceiling.
+  const itemCost = (item: GrowthItem): number => JSON.stringify(item).length
   if (items.length <= budget.maxItems) {
-    const totalChars = items.reduce((sum, item) => sum + item.text.length, 0)
+    const totalChars = items.reduce((sum, item) => sum + itemCost(item), 0)
     if (totalChars <= budget.maxChars) {
       return { selected: [...items], dropped: 0, totalActive: items.length, budget, selectedChars: totalChars, reasons }
     }
@@ -72,17 +76,23 @@ export function selectRelevantGrowth(
   // P5 S2 (M01): essentials swap is now reachable — no premature break. A
   // zero-overlap goal/constraint/feedback/direction replaces a zero-score
   // non-essential pick; when no swappable pick remains the pass stops.
-  const essentials = new Set(['goal', 'constraint', 'feedback', 'direction'])
+  // P5c R02: essentials are chosen by PURPOSE, not bare kind. Globally binding
+  // kinds (goal/constraint/direction) are always essential; feedback becomes
+  // essential only when it is lexically relevant to the CURRENT question —
+  // 45 unrelated canteen feedbacks must not evict the current research fact.
+  const alwaysEssential = new Set(['goal', 'constraint', 'direction'])
+  const isEssential = (kind: string, score: number): boolean =>
+    alwaysEssential.has(kind) || (kind === 'feedback' && score > 0)
   const keptIds = new Set(kept.map(entry => entry.item.id))
   for (const entry of scored) {
     if (keptIds.has(entry.item.id)) continue
-    if (!essentials.has(entry.item.kind)) continue
+    if (!isEssential(entry.item.kind, entry.score)) continue
     // P5 S2 (M01): a zero-overlap essential is globally binding — it swaps out
     // the LOWEST-scoring non-essential pick even when that pick is lexically
     // relevant. kept is score-descending, so the last non-essential is weakest.
     let replaceAt = -1
     for (let i = kept.length - 1; i >= 0; i--) {
-      if (!essentials.has(kept[i]!.item.kind)) { replaceAt = i; break }
+      if (!isEssential(kept[i]!.item.kind, kept[i]!.score)) { replaceAt = i; break }
     }
     if (replaceAt < 0) break
     keptIds.delete(kept[replaceAt]!.item.id)
@@ -92,19 +102,19 @@ export function selectRelevantGrowth(
   }
   // P5 S2 (M04): pre-declared text budget — drop the lowest-scored items until
   // the serialized text fits; essentials are dropped last.
-  let selectedChars = kept.reduce((sum, entry) => sum + entry.item.text.length, 0)
+  let selectedChars = kept.reduce((sum, entry) => sum + itemCost(entry.item), 0)
   while (selectedChars > budget.maxChars && kept.length > 1) {
     let dropAt = -1
     for (let i = kept.length - 1; i >= 0; i--) {
-      if (!essentials.has(kept[i]!.item.kind)) { dropAt = i; break }
+      if (!isEssential(kept[i]!.item.kind, kept[i]!.score)) { dropAt = i; break }
     }
     if (dropAt < 0) {
-      dropAt = kept.reduce((worst, entry, i) => entry.item.text.length > kept[worst]!.item.text.length ? i : worst, 0)
+      dropAt = kept.reduce((worst, entry, i) => itemCost(entry.item) > itemCost(kept[worst]!.item) ? i : worst, 0)
       reasons.push({ id: kept[dropAt]!.item.id, reason: 'char-budget-essential-trim' })
     } else {
       reasons.push({ id: kept[dropAt]!.item.id, reason: 'char-budget' })
     }
-    selectedChars -= kept[dropAt]!.item.text.length
+    selectedChars -= itemCost(kept[dropAt]!.item)
     kept.splice(dropAt, 1)
   }
   kept.sort((a, b) => a.index - b.index)

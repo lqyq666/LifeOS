@@ -1,3 +1,4 @@
+import {randomUUID} from 'node:crypto'
 import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from './provider-spend.ts'
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
@@ -290,6 +291,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   }
   // P2-5: one numeric per observable engine stage into the audit. Validation
   // is wrapped so repair cycles also count.
+  const genericSkip=new Set([...`我你他她它们了的是一在和都也与及还就很不去要这那有没说会被把`])
   async function validateOutput(raw:string):Promise<ActionCoachTurn>{
     const validationStart=performance.now()
     try{return await validateOutputInner(raw)}
@@ -358,7 +360,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     // and a non-verbatim quote is re-anchored to the user's own new-value
     // words — the two P1 failure shapes that ended as silent skips or
     // COMPOSITE refusals while the old wrong fact stayed active.
-    const correctionPlan=planExplicitCorrection(current.content,growth.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text})))
+    const correctionPlan=planExplicitCorrection(current.content,growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text})))
     if(correctionPlan&&result.growthUpdates?.length){
       for(const delta of result.growthUpdates){
         if(!('target'in delta))continue
@@ -366,8 +368,8 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         if(target.operation!=='replace'&&target.operation!=='amend')continue
         // A model replace/amend aimed at a non-authorized id on a correction
         // turn is redirected to the scored target rather than failing blind.
-        if(!growth.some(item=>item.id===target.itemId)&&correctionPlan.target)target.itemId=correctionPlan.target.itemId
-        const authorizedItem=growth.find(item=>item.id===target.itemId)
+        if(!growthAll.some(item=>item.id===target.itemId)&&correctionPlan.target)target.itemId=correctionPlan.target.itemId
+        const authorizedItem=growthAll.find(item=>item.id===target.itemId)
         if(!authorizedItem)continue
         const composite=(authorizedItem.text.match(/[，,；;。！？\n]/)?.length??0)>0
         if(target.operation==='replace'&&composite&&correctionPlan.target&&target.itemId===correctionPlan.target.itemId)
@@ -392,7 +394,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         if(!current.content.includes(delta.source.quote))(delta as {source:{messageId:string;quote:string}}).source={messageId:run.source_message_id,quote:correctionPlan.newQuote}
       }
     }
-    if(result.growthUpdates?.length)staged.growth=await stageGrowthUpdates(run,result.growthUpdates,growth,{allowedDirectionScopes:allowedDirectionScopes})
+    if(result.growthUpdates?.length)staged.growth=await stageGrowthUpdates(run,result.growthUpdates,growthAll,{allowedDirectionScopes:allowedDirectionScopes})
     // P1: a server-verified budget the model failed to persist is staged from
     // the obligation itself (the user's verbatim clause) so an explicit budget
     // statement never fails its own turn. Same deterministic pattern as
@@ -402,7 +404,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const budgetSupplement=supplementMissingBudgetDeltas(obligations,staged.growth,run.source_message_id,current.content)
     let supplementBase=-1
     if(budgetSupplement.length){
-      const stagedSupplement=await stageGrowthUpdates(run,budgetSupplement,growth,{})
+      const stagedSupplement=await stageGrowthUpdates(run,budgetSupplement,growthAll,{})
       if(stagedSupplement.changes.length){
         const mergedChanges=[...(staged.growth?.changes??[]),...stagedSupplement.changes]
         const mergedBindings=new Map(staged.growth?.inputIndexBindings??[])
@@ -420,10 +422,10 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
       const amendDelta=correctionPlan.target?{target:{operation:'amend' as const,itemId:correctionPlan.target.itemId,expectedRevision:correctionPlan.target.expectedRevision,beforeQuote:correctionPlan.target.beforeQuote},assertion:'user_reported' as const,kind:correctionPlan.target.kind as 'context',source:{messageId:run.source_message_id,quote:correctionPlan.newQuote}}:null
       let stagedCorrection=null
       if(amendDelta){
-        try{stagedCorrection=await stageGrowthUpdates(run,[amendDelta],growth,{})}catch{stagedCorrection=null}
+        try{stagedCorrection=await stageGrowthUpdates(run,[amendDelta],growthAll,{})}catch{stagedCorrection=null}
       }
       if(!stagedCorrection?.changes.length){
-        stagedCorrection=await stageGrowthUpdates(run,[{target:{operation:'create'},assertion:'user_reported',kind:'context',source:{messageId:run.source_message_id,quote:correctionPlan.newQuote}}],growth,{})
+        stagedCorrection=await stageGrowthUpdates(run,[{target:{operation:'create'},assertion:'user_reported',kind:'context',source:{messageId:run.source_message_id,quote:correctionPlan.newQuote}}],growthAll,{})
       }
       if(stagedCorrection.changes.length){
         const mergedChanges=[...(staged.growth?.changes??[]),...stagedCorrection.changes]
@@ -476,12 +478,47 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     if(!correctionPlan){
       const previousUser=[...messages].reverse().find(row=>row.role==='user'&&row.id!==run.source_message_id)
       if(previousUser?.content){
-        const prev=planExplicitCorrection(previousUser.content,growth.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text})))
+        const prev=planExplicitCorrection(previousUser.content,growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text})))
         if(prev){
           if(prev.target){
-            const item=growth.find(row=>row.id===prev.target!.itemId)
+            const item=growthAll.find(row=>row.id===prev.target!.itemId)
             if(item&&item.text.includes(prev.target.beforeQuote)&&!item.text.includes(prev.newQuote))outstandingCorrection=prev
-          }else if(!growth.some(row=>row.text.includes(prev.newQuote)))outstandingCorrection=prev
+          }else if(!growthAll.some(row=>row.text.includes(prev.newQuote)))outstandingCorrection=prev
+        }
+      }
+    }
+    // P5c (A3): a CURRENT explicit forget request with a UNIQUE best-matching
+    // target executes the real forget action inside this turn; ambiguity gets a
+    // minimal confirmation card. This is the operation lifecycle the claim
+    // guard checks against (forgotNow audits this execution).
+    let forgetExecutedIds:string[]=[]
+    if(/(?:忘|删|清|移除|别再用|不再用|不再作为)/.test(current.content)&&!/(?:记不清|想不清|列个清单|说个清单)/.test(current.content)){
+      const forgetWords=/(?:海报|经历|记录|成绩单|成绩|方向|目标|约束|反馈|条目|上次|那件事|这件事|它|这些|那些)/.test(current.content)
+      if(forgetWords){
+        const {actOnGrowthItem}=await import('./growth.ts')
+        // Score active user-authored items by lexical overlap with the current
+        // message; a unique clear winner above a margin executes, otherwise the
+        // reply asks a minimal one-question scope confirmation.
+        const scoredForget=growthAll
+          .filter(item=>['active'].includes(item.status)&&['user_reported','user_edit'].includes(item.assertion))
+          .map(item=>{
+            const chars=new Set(item.text.replace(/[^\p{L}\p{N}]/gu,''))
+            let overlap=0
+            for(const char of current.content)if(chars.has(char)&&!genericSkip.has(char))overlap++
+            return {item,overlap}
+          })
+          .sort((a,b)=>b.overlap-a.overlap)
+        const best=scoredForget[0],second=scoredForget[1]
+        if(best&&best.overlap>=3&&(!second||second.overlap<best.overlap)){
+          try{
+            const result=await actOnGrowthItem(run.user_id,best.item.id,{requestId:randomUUID(),expectedRevision:best.item.revision,action:'forget'})
+            forgetExecutedIds.push(result.id)
+            staged.audit.push({phase:'growth_action_forget',itemId:best.item.id,revisionBefore:best.item.revision,executed:true,quote:best.item.text.slice(0,80)})
+          }catch(error){
+            staged.audit.push({phase:'growth_action_forget',itemId:best.item.id,executed:false,code:(error instanceof Error?(error as {code?:string}).code:null)??'FORGET_FAILED'})
+          }
+        }else{
+          staged.pendingForgetConfirmation={candidates:scoredForget.slice(0,3).map(entry=>({id:entry.item.id,text:entry.item.text.slice(0,60)}))}
         }
       }
     }
