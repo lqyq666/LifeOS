@@ -352,6 +352,9 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         if(!('target'in delta))continue
         const target=delta.target as {operation:string;itemId?:string}
         if(target.operation!=='replace'&&target.operation!=='amend')continue
+        // A model replace/amend aimed at a non-authorized id on a correction
+        // turn is redirected to the scored target rather than failing blind.
+        if(!growth.some(item=>item.id===target.itemId)&&correctionPlan.target)target.itemId=correctionPlan.target.itemId
         const authorizedItem=growth.find(item=>item.id===target.itemId)
         if(!authorizedItem)continue
         const composite=(authorizedItem.text.match(/[，,；;。！？\n]/)?.length??0)>0

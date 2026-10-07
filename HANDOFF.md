@@ -2,6 +2,12 @@
 
 工作区 D:\aaaLife\LifeOS。当前唯一验收目标是 PRODUCT.md 的校园成长与连续决策完整产品。用户已恢复自主开发，允许在原 grant 剩余额度内选择产品模型；旧固定 qwen3.8-flash 与旧实现顺序已替代。公网 lqynb.xyz 仍是旧 52a4e47 镜像，不代表新产品已发布。
 
+## 2026-10-07 P2 批（GLM）：更正必达、预算计划链、语义保真、宿主加载
+
+- 提交 `16865c6`→`da68705`（本地，未 push）：P2_BUDGET_REPRO B01–B14 全绿（本周可用无"剩"、怎么安排、下周不入本周、补齐保留周期、计划按周期绑定、机会需求守卫、B13 回归、半小时/钟头一致）；**根因：verifyTurnObligations 从未收到 weeklyPlan（P1 PC07T 反复失败直接原因）已修**；更正必达（planExplicitCorrection 确定性 amend + 引擎规范化四件 + 宣称守卫）；证据强度/记不清推进/实质重复守卫；http+引擎阶段计时。Skill v1.1.0（示例证据干净化）。
+- 真实验证：小批 `coach-3ba99cac` 12/14；全量链 A `coach-559d1293`（冻结 3686b260）86/103、17/30 场景全过、P2C01 五轮闭环、D01 7/7；链 B `coach-be0e0f2d`（交付冻结 de96f7bc）79/103、16/30；更正落库双链复验。浏览器 campus-r2-browser 过。宿主：子代理新会话真实发现+加载技能；产品级多轮 3/4+诚实失败。
+- 云端：A06（未知重复 insert + 记不清走记忆分支）修复部署 `63f85b1` 并复测通过。账本余 ¥17.14（P2 花费 ≈¥1.41）。
+- 交付：P2_DELIVERY.md、P2_BEHAVIOR_ACCEPTANCE.md（双分母）、P2-EVIDENCE-INDEX.json、P1 勘误。WIP_NOT_READY（p95 速度、更正/引文类模型方差、生产未部署）。
 ## 2026-10-06 P1 批（GLM）：个人伙伴主线 + PC 矩阵 + 主 Skill + 云端伙伴化
 
 - 提交 `20dd412`→`382071a`（6 笔本地，未 push）：remaining_time 义务族（本周剩余≠每周≠下周、1.5h=90min、计划绑剩余数、calendar-week 证据同句继承）；PC 场景矩阵（PC03 四分支/PC05/PC07T/PC08D/PC09T/PC12R reject 步/PC15C/PC11N 记忆关对照/PC06M/D01 演示弧，fixture 26 条全成年）；机会时长不误判本人预算；不可核验期限改逐项跳过（constraint 跳过、其他类目无窗保存、有效证据+伪造 legacy 仍硬错）；预算事实服务器补齐（supplementMissingBudgetDeltas，修复"预算轮整轮失败"结构类）；周预算叙述矛盾检查移除（结构性检查保留）；操作员冷却退避。

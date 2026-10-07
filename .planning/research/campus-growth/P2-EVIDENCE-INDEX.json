@@ -1,0 +1,152 @@
+{
+  "kind": "P2_MACHINE_READABLE_EVIDENCE_INDEX",
+  "generatedAt": "2026-10-07T13:30:00+08:00",
+  "baseline": {
+    "startHead": "cd988df394dba6820d29e1ee74d1b4352a469e85",
+    "finalHead": "da68705 (+docs commit)",
+    "branch": "fix/campus-acceptance-contract-20261006",
+    "modelConfig": "qwen3.8-flash thinking 0 via bailian; same for all real runs",
+    "freezeDigest": "de96f7bcd0b99d8b99e2cfb90a71dd9fc2921eab2df194066c20f95a704b796d",
+    "commits": [
+      "16865c6",
+      "45d7923",
+      "da68705"
+    ]
+  },
+  "layers": {
+    "pureFunctions": {
+      "what": "P2_BUDGET_REPRO.mjs B01-B14 probes + extended unit family",
+      "result": "15/15 PASS at commit 45d7923 (see P2_BEHAVIOR_ACCEPTANCE)",
+      "paths": [
+        "C:/Users/LQY/AppData/Local/Temp/BNZ.6ac5b467290ed47/P2_BUDGET_REPRO.mjs",
+        "tests/turn-obligations.test.ts"
+      ],
+      "providerCalls": 0
+    },
+    "isolatedPgIntegration": {
+      "what": "corrections persist + budget/plan supplement binding through the real engine path (simulated provider)",
+      "result": "tests/backend/p2-corrections-budget.test.ts 5/5 PASS; full backend suite 48+1 files green",
+      "paths": [
+        "tests/backend/p2-corrections-budget.test.ts",
+        ".local/campus-growth/p2-final2-backend.log"
+      ],
+      "providerCalls": 0
+    },
+    "realModelSmallBatch": {
+      "runId": "coach-3ba99cac-cba2-4120-b23a-0b4c08d076a0",
+      "freeze": "03d659704f6fcb9322c6ba71fa035c9126128d10ef26de9b0ab41b8a0a1b3fe0",
+      "scenarios": [
+        "P2C01",
+        "P2SEM_N",
+        "P2SEM_P",
+        "P2SEM_G"
+      ],
+      "turns": {
+        "attempted": 14,
+        "saved": 12,
+        "failed": 2,
+        "failedList": [
+          {
+            "scenario": "P2C01",
+            "turnInput": "我每周有六小时。这周还剩两小时，帮我安排下周。",
+            "code": "WEEKLY_PLAN_REQUIRED_MISSING",
+            "note": "prompt lacked weeklyPlan guidance at this freeze; fixed in 45d7923 and covered by the final full chain"
+          },
+          {
+            "scenario": "P2SEM_P",
+            "turn": 2,
+            "code": "GROWTH_COMPOSITE_REQUIRES_REVIEW",
+            "note": "model replace-on-composite without explicit correction marker; server refused correctly; residual class"
+          }
+        ]
+      },
+      "headline": "更正一下：我是大二 actually persisted: composite split, sibling clauses retained, old 大三 item no longer active, reply claim matches committed state (review/P2C01.json turn 2)",
+      "paths": [
+        "evidence/v1.3-action-coach/real/coach-3ba99cac-cba2-4120-b23a-0b4c08d076a0/"
+      ]
+    },
+    "realModelFullChain": {
+      "runIdA": "coach-559d1293-f1bf-48b5-80e8-0343cda5bac6",
+      "freezeA": "3686b260b7030fea91f814893b02fe67bfd99c4ad944a80ed45ad65cc131e761",
+      "runIdB": "coach-be0e0f2d-2b2f-4de0-a85d-9701dffcd14e",
+      "freezeB": "de96f7bcd0b99d8b99e2cfb90a71dd9fc2921eab2df194066c20f95a704b796d",
+      "scenarios": 30,
+      "turns": 103,
+      "techSaved": {
+        "A": 86,
+        "B": 79
+      },
+      "scenariosClean": {
+        "A": 17,
+        "B": 16
+      },
+      "cleanScenarioTurns": {
+        "A": 62,
+        "B": 50
+      },
+      "speed": {
+        "A": {
+          "p50FirstMs": 2988,
+          "p95FirstMs": 8603,
+          "p95CompleteMs": 11382,
+          "ordinarySaved": 57
+        },
+        "B": {
+          "p50FirstMs": 4098,
+          "p95FirstMs": 8608,
+          "p95CompleteMs": 12419,
+          "ordinarySaved": 54
+        }
+      },
+      "cost": {
+        "A": {
+          "savedTurnCny": 0.297221,
+          "per100TechSaved": 0.3456
+        },
+        "B": {
+          "savedTurnCny": 0.269007,
+          "per100TechSaved": 0.3405
+        }
+      },
+      "stageP50Ms": {
+        "queue": 0,
+        "context": 3,
+        "engineNonModel": 119,
+        "finishRun": 26,
+        "providerFirstRawDelta": 1554,
+        "providerFullCall": 5747
+      },
+      "paths": [
+        "evidence/v1.3-action-coach/real/coach-559d1293-f1bf-48b5-80e8-0343cda5bac6/",
+        "evidence/v1.3-action-coach/real/coach-be0e0f2d-2b2f-4de0-a85d-9701dffcd14e/"
+      ]
+    },
+    "hostSkillLoading": {
+      "host": "ZCode subagent context (fresh agent session)",
+      "evidence": "skill visible in the subagent's session skill index (one of 30); full SKILL.md loaded read-only; version 1.1.0 confirmed; host exposes skills as context-injected index without a Skill tool — recorded as host mechanism, not a discovery failure",
+      "multiTurnWithCorrection": "3/4 turns with real state effects (week-scoped constraint + proposed plan); T4 correction honestly failed twice (no false success); logs .local/campus-growth/p2-host-multirun*.log"
+    },
+    "cloudCompetition": {
+      "deploy": {
+        "commit": "63f85b1bd187e98b60e91b6ce67d3d1f58fc6186",
+        "historyId": "7693781275366440960",
+        "status": "Succeeded"
+      },
+      "a06Probe": {
+        "postFix": ".local/coze-competition/p2-a06-probe-result.json",
+        "result": "记不清→companion分支且换环节推进; 同一pending问题不再重复insert; obligations.pending无重复",
+        "preFixNote": "pre-fix probe output was printed to the run log; the result file was overwritten by the post-fix run (gitignored .local) — the pre-fix evidence text is preserved verbatim in the cloud task prompt p2-a06-prompt.txt"
+      },
+      "priorDeployVerify": ".local/coze-competition/p1-deploy-verify-result.json (8/8)"
+    }
+  },
+  "reviewIdentity": "GLM (implementer) semantic review; no independent reviewer or user sign-off recorded",
+  "untested": [
+    "production deploy (unchanged per authorization)",
+    "model configuration comparison (pricing not in approved config; recorded as available, not concluded)"
+  ],
+  "observations": [
+    "one plan rendered text said 每周3小时 while structured availableMinutes/budgetRef correctly bound 120 minutes",
+    "one host-path retelling lifted 没说有问题 to 没问题 (A03 class)"
+  ]
+}
