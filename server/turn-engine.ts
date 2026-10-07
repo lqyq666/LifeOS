@@ -1,4 +1,4 @@
-import {randomUUID} from 'node:crypto'
+import {randomUUID,createHash} from 'node:crypto'
 import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from './provider-spend.ts'
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
@@ -30,6 +30,11 @@ import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grou
 import { stageWeeklyPlan } from './weekly-plans.ts'
 import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, type TurnObligations } from './turn-obligations.ts'
 import { scanUserClauses } from './user-command-spans.ts'
+import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.ts'
+function createUUIDv5(seed:string,namespace:string):string{
+  const hash=createHash('sha256').update(namespace+seed).digest('hex')
+  return [hash.slice(0,8),hash.slice(8,12),'4'+hash.slice(13,16),(parseInt(hash.slice(16,17),16)&0x3|0x8).toString(16)+hash.slice(17,20),hash.slice(20,32)].join('-')
+}
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
@@ -491,35 +496,37 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     // target executes the real forget action inside this turn; ambiguity gets a
     // minimal confirmation card. This is the operation lifecycle the claim
     // guard checks against (forgotNow audits this execution).
+    // P6 W1: forget/pause control runs ONLY on clause-level intent — negated,
+    // hypothetical, quoted and third-party clauses never authorize; targets are
+    // scored against the control clause text, not the whole message; the audit
+    // records executed=true ONLY on a real committed action; failures record
+    // executed=false and the claim guard checks executed, not phase presence.
     let forgetExecutedIds:string[]=[]
-    if(/(?:忘|删|清|移除|别再用|不再用|不再作为)/.test(current.content)&&!/(?:记不清|想不清|列个清单|说个清单)/.test(current.content)){
-      const forgetWords=/(?:海报|经历|记录|成绩单|成绩|方向|目标|约束|反馈|条目|上次|那件事|这件事|它|这些|那些)/.test(current.content)
-      if(forgetWords){
-        const {actOnGrowthItem}=await import('./growth.ts')
-        // Score active user-authored items by lexical overlap with the current
-        // message; a unique clear winner above a margin executes, otherwise the
-        // reply asks a minimal one-question scope confirmation.
-        const scoredForget=growthAll
-          .filter(item=>['active'].includes(item.status)&&['user_reported','user_edit'].includes(item.assertion))
-          .map(item=>{
-            const chars=new Set(item.text.replace(/[^\p{L}\p{N}]/gu,''))
-            let overlap=0
-            for(const char of current.content)if(chars.has(char)&&!genericSkip.has(char))overlap++
-            return {item,overlap}
-          })
-          .sort((a,b)=>b.overlap-a.overlap)
+    {
+      const intentClauses=detectForgetIntentClauses(current.content)
+      const forgetClause=intentClauses.find(clause=>clause.kind==='forget')
+      if(forgetClause){
+        const scoredForget=scoreForgetTargets(growthAll,forgetClause.clauseText,current.content)
         const best=scoredForget[0],second=scoredForget[1]
-        if(best&&best.overlap>=3&&(!second||second.overlap<best.overlap)){
+        if(best&&best.overlap>=2&&(!second||second.overlap<best.overlap)){
+          const {actOnGrowthItem}=await import('./growth.ts')
           try{
-            const result=await actOnGrowthItem(run.user_id,best.item.id,{requestId:randomUUID(),expectedRevision:best.item.revision,action:'forget'})
+            const result=await actOnGrowthItem(run.user_id,best.item.id,{requestId:createUUIDv5(run.request_id,'6d6f6b65-0000-4000-8000-666f72676574'),expectedRevision:best.item.revision,action:'forget'})
             forgetExecutedIds.push(result.id)
-            staged.audit.push({phase:'growth_action_forget',itemId:best.item.id,revisionBefore:best.item.revision,executed:true,quote:best.item.text.slice(0,80)})
+            staged.audit.push({phase:'growth_action_forget',itemId:best.item.id,revisionBefore:best.item.revision,executed:true})
           }catch(error){
             staged.audit.push({phase:'growth_action_forget',itemId:best.item.id,executed:false,code:(error instanceof Error?(error as {code?:string}).code:null)??'FORGET_FAILED'})
           }
-        }else{
+        }else if(scoredForget.length){
           staged.pendingForgetConfirmation={candidates:scoredForget.slice(0,3).map(entry=>({id:entry.item.id,text:entry.item.text.slice(0,60)}))}
         }
+      }
+      // pause_use / stop_recommend intents stage a boundary note, not a delete.
+      const pauseClause=intentClauses.find(clause=>clause.kind==='pause_use'||clause.kind==='stop_recommend')
+      if(pauseClause){
+        const scoredPause=scoreForgetTargets(growthAll,pauseClause.clauseText,current.content)
+        const bestPause=scoredPause[0]
+        if(bestPause&&bestPause.overlap>=2)staged.audit.push({phase:'growth_pause_use_requested',itemId:bestPause.item.id,kind:pauseClause.kind,executed:false,note:'pause boundary recorded; no deletion performed'})
       }
     }
     // P5 (F03/S3.4): cross-turn OUTSTANDING FORGET - a recent prior user message
@@ -542,7 +549,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     // P4 (F03): the forget-claim guard runs INDEPENDENTLY of any correction
     // plan - a plain 遗忘 request with no correction must be covered too.
     {
-      const forgotNow=staged.audit.some(entry=>(entry as {phase?:string}).phase==='growth_action_forget')
+      const forgotNow=staged.audit.some(entry=>(entry as {phase?:string;executed?:boolean}).phase==='growth_action_forget'&&((entry as {executed?:boolean}).executed===true))
       // P5 (F03/S3.4): covers the current message AND an outstanding prior forget request.
       const forgetClaim=/(?:已(?:经)?(?:清掉|清除|删掉|删除|忘掉|忘记|移除|撤下)|不再作为.{0,14}依据|不再.{0,6}(?:判断|建议|使用))/.test(result.reply)
       const forgetRequested=/(?:忘|删|清|移除|别再用|不再用|不再作为)/.test(current.content)||outstandingForget
