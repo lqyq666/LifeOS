@@ -1,0 +1,38 @@
+{
+  "kind": "P5_MACHINE_READABLE_EVIDENCE_INDEX",
+  "generatedAt": "2026-10-08T00:55:00+08:00",
+  "baseline": {
+    "startHead": "33666b3fc13997333b02f801cd9a8d26c8f6b534",
+    "finalHead": "0dd554d (+docs)",
+    "commits": ["9845034", "e31d1e3", "0dd554d"],
+    "freezes": {
+      "lRun": "4e0ad9bb24841fdd604c73391eb6c40c48d7dd0272be3c601c357330424da130",
+      "l1Rerun": "182f3452c7de15ef2a1f0ff6104a3d032c83df6a70bca677f88201d9a2557fa5"
+    },
+    "modelConfig": "qwen3.8-flash thinking 0 via bailian"
+  },
+  "layers": {
+    "pureFunctions": {
+      "P5_ZERO_NETWORK_PROBES": "M01/M02(40|41|200)/M03/M04/K01 all green after fixes",
+      "paths": [".local/p5-probe-*.json"]
+    },
+    "isolatedPg": {
+      "result": "growth-scale.test.ts 7/7 incl. new S1 regression: 60-item ordinary commit + real concurrent revision rejection",
+      "paths": ["tests/backend/growth-scale.test.ts", ".local/campus-growth/p5-s1-test-3.log"]
+    },
+    "realModel": {
+      "runs": [
+        {"runId": "coach-f736cc93-01af-42b2-a79a-e92fcdf44403", "freeze": "4e0ad9bb", "turns": 24, "saved": 17, "ordinarySaved": 12, "p50FirstMs": 4196, "savedTurnCostCny": 0.072063},
+        {"runId": "coach-93cf159e-25e0-4c88-b25d-7ec6b8ac12c0", "freeze": "182f3452", "turns": 11, "saved": 8, "note": "T9 semantic variance (answered old opportunity) honestly recorded; T8 forget-request turn honestly refused by outstanding-forget guard"}
+      ]
+    },
+    "cloud": {
+      "competition": {"deploy": "4aa53641 (suggestive framing + emotion->method recovery)", "verify": ".local/coze-competition/p5-comp-verify.json - hard-residue=false, 4 verified cites; emotion-then-method routes to knowledge"},
+      "retrievalService": {"deploy": "04849caa (unchanged)"},
+      "registry": "8 bindings with enabled/contentHash/sourceType; mapper now enforces all three (K01 probes green)"
+    }
+  },
+  "cost": {"ledgerReceipts": 1326, "pending": 0, "continuationRemainingCny": 15.5238215, "p5SpendCnyApprox": 0.42},
+  "reviewIdentity": "GLM (implementer); no independent reviewer or user sign-off",
+  "untestedOrBlocked": ["coze native Skill platform-UI upload/preview/deploy (needs account-owner platform session; CLI has no command)", "end-to-end online Coze->registry->personalized-action real turn (mapper fixed+probe-verified; real code_workflow env not injected)", ">=20 ordinary samples on a single freeze", "first-content p95 (supplier TTFT)", "current-question dominance is probabilistic not guaranteed (T9 variance recorded)", "production deploy"]
+}
