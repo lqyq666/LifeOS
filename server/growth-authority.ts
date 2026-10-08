@@ -137,7 +137,10 @@ export function resolveGrowthDeltas(input:{
   // next to 我只负责了排版).
   if(input.correctionPlan?.target){
     const plan=input.correctionPlan
-    const index=resolved.findIndex(delta=>delta.target.operation==='create'&&delta.source.quote===plan.newQuote)
+    // The new value may land verbatim (quote===newQuote) or as its whole
+    // clause; accept either as the correction's replacement payload as long
+    // as no amend/replace on the target was already staged.
+    const index=resolved.findIndex(delta=>delta.target.operation==='create'&&(delta.source.quote===plan.newQuote||input.currentText.includes(delta.source.quote)&&delta.source.quote!==plan.target!.beforeQuote&&!resolved.some(other=>other!==delta&&(other.target.operation==='amend'||other.target.operation==='replace')&&'itemId'in other.target&&other.target.itemId===plan.target!.itemId)))
     if(index>=0){
       const delta=resolved[index]!
       const target=input.authorized.find(item=>item.id===plan.target!.itemId)
