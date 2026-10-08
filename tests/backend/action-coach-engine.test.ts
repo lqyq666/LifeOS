@@ -723,7 +723,9 @@ test('the only turn core uses natural replies and event deltas, with one bounded
         const state=JSON.parse(request.messages.find((message:any)=>message.role==='user').content)
         const targets=[state.currentEvent,...state.events??[]].filter(Boolean)
         const expected=new Map(targets.map((event:any)=>[event.id,event.revision]))
-        const continuations=request.response_format.json_schema.schema.properties.event.properties.target.anyOf.filter((branch:any)=>branch.properties.operation.const==='continue')
+        const eventProperties=request.response_format.json_schema.schema.properties.event?.properties
+        if(!eventProperties)continue
+        const continuations=eventProperties.target.anyOf.filter((branch:any)=>branch.properties.operation.const==='continue')
         assert.equal(continuations.length,expected.size)
         for(const branch of continuations){assert.equal(branch.properties.eventId.enum.length,1);assert.deepEqual(branch.properties.expectedRevision.enum,[expected.get(branch.properties.eventId.enum[0])])}
         let bound=0,clauseBound=0
@@ -733,7 +735,6 @@ test('the only turn core uses natural replies and event deltas, with one bounded
           if(value.properties?.clauseId?.enum){clauseBound++;assert.ok(value.properties.clauseId.enum.length>0,'clause bindings enumerate the catalogue')}
           for(const item of Object.values(value))check(item)
         }
-        const eventProperties=request.response_format.json_schema.schema.properties.event.properties
         // Corrections exist only when the authorized context has correctable
         // nodes; without events the remaining message-source bindings are the
         // event create target and node sources (growth and candidate anchors
@@ -743,7 +744,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
         check(request.response_format.json_schema.schema);assert.ok(bound>=required,'messageId identity bindings: '+bound+' < '+required)
         assert.ok(clauseBound>=1,'growth source clause handles are enum-bound')
         assert.equal('corrections' in eventProperties,correctable,'corrections schema presence follows authorized correctable nodes')
-        if(correctable)for(const nodeId of eventProperties.corrections.items.properties.nodeId.enum)assert.ok(targets.some((event:any)=>event.nodes.some((node:any)=>node.id===nodeId)),'corrections enum only contains authorized node IDs')
+        if(correctable&&eventProperties.corrections)for(const nodeId of eventProperties.corrections.items.properties.nodeId.enum)assert.ok(targets.some((event:any)=>event.nodes.some((node:any)=>node.id===nodeId)),'corrections enum only contains authorized node IDs')
       }
     })
   }finally{

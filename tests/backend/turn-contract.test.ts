@@ -1,0 +1,175 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
+import { createServer } from 'node:http'
+import { pool } from '../../server/db.ts'
+import * as store from '../../server/store.ts'
+import { createTurnEngine } from '../../server/agent.ts'
+import { model } from '../../server/model.ts'
+import { config } from '../../server/config.ts'
+import { deriveTurnContract, slimActionCoachSchema } from '../../server/turn-contract.ts'
+import { actionCoachTurnSchema, parseActionCoachTurn } from '../../server/action-coach-contracts.ts'
+import { turnSystemPrompt } from '../../server/turn-prompt.ts'
+import { configureProviderPayload } from '../../server/model-payload.ts'
+import { importKnowledge, type KnowledgeCard } from '../../server/campus-knowledge.ts'
+import { localEmbedding } from '../../server/local-embedding.ts'
+import { Value } from 'typebox/value'
+
+test('turn contract modes derive deterministically from turn facts',()=>{
+  const derive=(text:string,extra:Partial<Parameters<typeof deriveTurnContract>[0]>={})=>deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false,...extra})
+  // A. reply_only shapes
+  assert.equal(derive('你记得我之前说过什么吗？').mode,'reply_only','memory meta query')
+  assert.equal(derive('好的，先这样。').mode,'reply_only','acknowledgement')
+  assert.equal(derive('那我保研的把握，你现在怎么看？').mode,'reply_only','all-interrogative follow-up')
+  assert.equal(derive('我今天只想说说心情。').mode,'reply_only','listening-only opener')
+  // Plan intent wins over an interrogative shape.
+  assert.equal(derive('这周只剩两小时，帮我安排一下。',{planIntent:true}).mode,'planning')
+  // B. default growth lane
+  const growth=derive('我是大三学生，专业是市场营销。')
+  assert.equal(growth.mode,'reply_growth');assert.equal(growth.capabilities.growth,true);assert.equal(growth.capabilities.candidate,true)
+  assert.equal(growth.capabilities.plan,false);assert.equal(growth.capabilities.event,false)
+  // C. planning
+  const plan=derive('我每周只有三小时，帮我安排一下这周。',{planIntent:true})
+  assert.equal(plan.mode,'planning');assert.equal(plan.capabilities.plan,true);assert.equal(plan.capabilities.candidate,false)
+  // D. knowledge
+  const knowledge=derive('我想试试校园二手书项目，帮我看看怎么开始。',{knowledgeCount:2})
+  assert.equal(knowledge.mode,'knowledge');assert.equal(knowledge.capabilities.citations,true)
+  assert.equal(derive('帮我看看怎么开始。',{knowledgeCount:0}).capabilities.citations,false,'no knowledge → no citations lane')
+  // E. material
+  const material=derive('请直接帮我写一句给同学的确认消息。',{material:true})
+  assert.equal(material.mode,'material');assert.equal(material.capabilities.material,true);assert.equal(material.capabilities.event,true)
+  // event/review lane
+  const event=derive('上周我给社团交了海报，他们没用上。')
+  assert.equal(event.capabilities.event,true);assert.equal(event.capabilities.material,false)
+  const continued=derive('当时他具体希望整理什么内容？',{currentEventExists:true})
+  assert.equal(continued.capabilities.event,true,'a continued event keeps the lane open')
+})
+
+test('slimmed schemas make closed lanes unrepresentable while kept lanes stay byte-identical',()=>{
+  const lanes=(schema:Record<string,unknown>)=>Object.keys((schema as {properties:Record<string,unknown>}).properties).sort()
+  // reply_only: only reply exists.
+  const replyOnly=slimActionCoachSchema({growth:false,candidate:false,plan:false,citations:false,event:false,material:false})
+  assert.deepEqual(lanes(replyOnly),['reply'])
+  assert.deepEqual((replyOnly as {required:string[]}).required,['reply'])
+  // reply_growth default: reply + growth + candidate + event-without-action.
+  const growth=slimActionCoachSchema({growth:true,candidate:true,plan:false,citations:false,event:false,material:false})
+  assert.deepEqual(lanes(growth),['experienceCandidate','growthUpdates','reply'],'no event lane without an event signal')
+  const eventNoMaterial=slimActionCoachSchema({growth:true,candidate:true,plan:false,citations:false,event:true,material:false})
+  assert.deepEqual(lanes(eventNoMaterial),['event','experienceCandidate','growthUpdates','reply'])
+  assert.equal((eventNoMaterial.properties as Record<string,{properties:Record<string,unknown>}>).event.properties.action,undefined,'material branch removed')
+  // planning adds weeklyPlan; knowledge adds citations; material restores action.
+  const plan=slimActionCoachSchema({growth:true,candidate:false,plan:true,citations:false,event:false,material:false})
+  assert.ok(lanes(plan).includes('weeklyPlan'))
+  const knowledge=slimActionCoachSchema({growth:true,candidate:true,plan:false,citations:true,event:false,material:false})
+  assert.ok(lanes(knowledge).includes('citations'))
+  const material=slimActionCoachSchema({growth:true,candidate:true,plan:false,citations:false,event:true,material:true})
+  assert.ok((material.properties as Record<string,{properties:Record<string,unknown>}>).event.properties.action,'material keeps the action branch')
+  // background is never offered under the native protocol.
+  for(const caps of [{growth:true,candidate:true,plan:true,citations:true,event:true,material:true},{growth:false,candidate:false,plan:false,citations:false,event:false,material:false}])
+    assert.equal(lanes(slimActionCoachSchema(caps)).includes('background'),false)
+  // Every kept lane is byte-identical to the full contract's lane.
+  const full=(actionCoachTurnSchema as unknown as {properties:Record<string,unknown>}).properties
+  for(const lane of lanes(material))assert.deepEqual((material.properties as Record<string,unknown>)[lane],full[lane],lane+' differs from the full contract')
+  // Slimming shrinks materially vs the full schema.
+  assert.ok(JSON.stringify(replyOnly).length<JSON.stringify(actionCoachTurnSchema).length/10,'reply_only schema is an order smaller')
+})
+
+test('slimmed payloads keep identity bindings and skip absent lanes',()=>{
+  const current='00000000-0000-4000-8000-000000000011'
+  const item={id:'00000000-0000-4000-8000-000000000021',revision:2}
+  const growth=slimActionCoachSchema({growth:true,candidate:true,plan:false,citations:false,event:true,material:false})
+  const payload=configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',growth,undefined,8192,current,[],[item],0,false,undefined,false,['c0','c1']) as any
+  const schema=payload.response_format.json_schema.schema
+  assert.equal(schema.properties.event.properties.action,undefined)
+  const updates=schema.properties.growthUpdates
+  assert.ok(updates.items.anyOf.some((branch:any)=>branch.properties?.target?.anyOf?.some((entry:any)=>entry.properties?.operation?.const==='correct'&&entry.properties?.itemId?.enum?.[0]===item.id)),'correct branch still enum-bound to authorized items')
+  assert.ok(updates.items.anyOf.every((branch:any)=>branch.properties?.source?.properties?.clauseId?.enum?.length===2),'clause handles stay enum-bound')
+  assert.equal(schema.properties.experienceCandidate.properties.source.properties.clauseIds.items.enum.length,2)
+  // Event lane absent: passing event targets must not throw and must not create an event lane.
+  const noEvent=slimActionCoachSchema({growth:true,candidate:false,plan:false,citations:false,event:false,material:false})
+  const payload2=configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',noEvent,undefined,8192,current,[{id:'00000000-0000-4000-8000-000000000031',revision:1}],[],0,false,undefined,false,['c0']) as any
+  assert.equal(payload2.response_format.json_schema.schema.properties.event,undefined)
+  // Model outputs from a slimmed turn still parse against the full contract.
+  const parsed=parseActionCoachTurn(JSON.stringify({reply:'先说说你的情况。'}))
+  assert.equal(parsed.reply,'先说说你的情况。')
+})
+
+test('contract prompts are smaller per mode and the probe prompt stays byte-identical',()=>{
+  const full=turnSystemPrompt('default','qwen3.8-flash')
+  const contract=deriveTurnContract({text:'你记得我之前说过什么吗？',knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
+  const slim=turnSystemPrompt('default','qwen3.8-flash',contract)
+  assert.ok(slim.length<full.length*0.6,'reply_only prompt is materially smaller')
+  for(const section of ['GROWTH','时间预算分类'] as const){
+    assert.equal(slim.includes('时间预算分类'),false,'growth rules absent in reply_only')
+  }
+  const planning=turnSystemPrompt('default','qwen3.8-flash',deriveTurnContract({text:'帮我安排一下这周。',knowledgeCount:0,currentEventExists:false,planIntent:true,material:false}))
+  assert.ok(planning.includes('weeklyPlan'),'planning rules present in planning mode')
+  assert.ok(!planning.includes('复盘时先定位'),'review rules absent in planning mode')
+})
+
+test('engine applies the contract end-to-end: reply_only and planning turns validate and persist',async t=>{
+  await localEmbedding.start()
+  const outputs:unknown[]=[],requests:any[]=[]
+  const engine=createTurnEngine({capabilityVerified:()=>true})
+  const fake=createServer((req,res)=>{
+    const chunks:Buffer[]=[];req.on('data',chunk=>chunks.push(Buffer.from(chunk)))
+    req.on('end',()=>{
+      requests.push(JSON.parse(Buffer.concat(chunks).toString('utf8')))
+      const output=outputs.shift()
+      if(output===undefined){res.writeHead(500);res.end();return}
+      res.writeHead(200,{'Content-Type':'text/event-stream'})
+      const base={id:'contract-'+requests.length,object:'chat.completion.chunk',created:1,model:model.id}
+      res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(output)},finish_reason:null}]})+'\n\n')
+      res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:80,total_tokens:280,prompt_tokens_details:{cached_tokens:20}}})+'\n\ndata: [DONE]\n\n')
+    })
+  })
+  await new Promise<void>(resolve=>fake.listen(0,'127.0.0.1',resolve))
+  const previousURL=model.baseUrl,previousKey=config.apiKey
+  model.baseUrl='http://127.0.0.1:'+(fake.address() as {port:number}).port
+  config.apiKey='synthetic-turn-contract-key'
+  const user='turn-contract-'+randomUUID(),chat=randomUUID()
+  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
+  await store.createConversation(user,{id:chat,title:'SYNTHETIC turn contract'})
+  const prepare=async(text:string)=>{
+    await pool.query("UPDATE runs SET status='failed',error_code='SYNTHETIC_TEST_CLEANUP',finished_at=now() WHERE user_id=$1 AND status='running'",[user])
+    const run=(await store.startRun(user,chat,randomUUID(),text)).run
+    const staged:store.Staged={candidates:[],audit:[]}
+    return {run,staged,input:{run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}}}
+  }
+  try{
+    // reply_only: schema offers ONLY reply; the turn saves with zero growth writes.
+    const meta=await prepare('你记得我之前说过什么吗？')
+    outputs.push({reply:'我这边没有开启跨会话记忆，这次对话里你还没告诉我具体内容。你想先说说哪件事？'})
+    const metaResult=await engine(meta.input)
+    const metaContract=(meta.staged.audit.find((a:any)=>a.phase==='turn_contract')) as any
+    assert.equal(metaContract.mode,'reply_only')
+    assert.deepEqual(Object.keys((requests.at(-1)!.response_format.json_schema.schema.properties)),['reply'],'native schema offers only reply')
+    assert.ok(metaContract.schemaChars<JSON.stringify(actionCoachTurnSchema).length/10)
+    const metaSaved=await store.finishRun(meta.run,meta.staged,metaResult.text,metaResult.usage,new AbortController().signal)
+    assert.deepEqual(metaSaved.growthIds,[])
+    assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1',[user])).rows[0].n,0)
+    await t.test('planning turn keeps weeklyPlan and persists the plan',async()=>{
+      await pool.query('SELECT 1')
+      const plan=await prepare('我每周有三小时，帮我安排一下下周。')
+      outputs.push({reply:'下周按每周三小时安排。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:180,period:'next_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品',minutes:180,directionScopes:['employment']}]}})
+      const planResult=await engine(plan.input)
+      const planContract=(plan.staged.audit.find((a:any)=>a.phase==='turn_contract')) as any
+      assert.equal(planContract.mode,'planning')
+      const lanes=Object.keys((requests.at(-1)!.response_format.json_schema.schema.properties)).sort()
+      assert.deepEqual(lanes,['growthUpdates','reply','weeklyPlan'])
+      const saved=await store.finishRun(plan.run,plan.staged,planResult.text,planResult.usage,new AbortController().signal)
+      assert.equal(saved.growthIds.length,1)
+      assert.ok(saved.stateChange.plan,'plan persisted')
+    })
+  }finally{
+    model.baseUrl=previousURL;config.apiKey=previousKey
+    await new Promise<void>(resolve=>fake.close(()=>resolve()))
+    try{await localEmbedding.close()}catch{}
+    await pool.query('DELETE FROM growth_items WHERE user_id=$1',[user]).catch(()=>{})
+    await pool.query('DELETE FROM runs WHERE user_id=$1',[user]).catch(()=>{})
+    await pool.query('DELETE FROM messages WHERE user_id=$1',[user]).catch(()=>{})
+    await pool.query('DELETE FROM conversations WHERE user_id=$1',[user]).catch(()=>{})
+    await pool.query('DELETE FROM "user" WHERE id=$1',[user]).catch(()=>{})
+    await pool.end()
+  }
+})

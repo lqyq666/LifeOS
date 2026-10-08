@@ -35,7 +35,7 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
     body.temperature=0
     body.presence_penalty=0
     const compiled=providerSchema(schema,currentMessageId) as any
-    if(eventTargets){
+    if(eventTargets&&compiled.properties?.event){
       const target=compiled.properties?.event?.properties?.target
       if(!target?.anyOf)throw new Error('EVENT_TARGET_SCHEMA_REQUIRED')
       const create=target.anyOf.find((branch:any)=>branch.properties?.operation?.const==='create')
