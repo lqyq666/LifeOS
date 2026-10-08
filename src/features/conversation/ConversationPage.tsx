@@ -4,7 +4,6 @@ import { advanceConversation, beginExploration, createDemoConversation, type Con
 import { Companion, type CompanionMotion } from './Companion'
 import { AnswerChoices } from './AnswerChoices'
 import { AutoTextarea } from './AutoTextarea'
-import { ConversationSummary } from './ConversationSummary'
 import { MemoryPanel } from './MemoryPanel'
 import { ControlCards } from './ControlCards'
 import { ReplyMarkdown } from './ReplyMarkdown'
@@ -23,8 +22,6 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [memoryOpen, setMemoryOpen] = useState(false)
   const [growthOpen, setGrowthOpen] = useState(false)
-  const summaryScroll = useRef(0)
-  const summaryTrigger = useRef<HTMLButtonElement>(null)
   const input = useRef<HTMLTextAreaElement>(null)
   const scroll = useRef<HTMLDivElement>(null)
   const follow = useRef(true)
@@ -305,27 +302,6 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
     setDraft('')
     setNotice('')
   }
-  function openSummary() {
-    if (busy || summaryOpen) return
-    voice.cancel()
-    summaryScroll.current = scroll.current?.scrollTop ?? 0
-    setGrowthOpen(false); setSummaryOpen(true)
-  }
-  function closeSummary(topic?: string) {
-    setSummaryOpen(false)
-    setChoicesOpen(false)
-    if (topic) {
-      const prompt = topic
-      const nextDraft = draft.trim() ? draft + '\n\n' + prompt : prompt
-      setDraft(nextDraft)
-
-    }
-    requestAnimationFrame(() => {
-      if (scroll.current) scroll.current.scrollTop = summaryScroll.current
-      if (input.current) input.current.focus({ preventScroll: true })
-      else summaryTrigger.current?.focus()
-    })
-  }
   function closeSidebar() { setSidebarOpen(false); requestAnimationFrame(() => sidebarTrigger.current?.focus()) }
   function selectChat(id: string) {
     if (busy) return
@@ -354,7 +330,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   function openProject(id: string) { voice.cancel(); setSummaryOpen(false); setProjectId(id); setNotice(''); if (mobile) closeSidebar() }
   const voiceButton = <button type="button" className={'qa-voice qa-icon-button' + (voice.listening ? ' is-listening' : '')} onClick={voice.toggle} disabled={busy} aria-label={voice.listening ? '结束语音输入' : '语音输入'} aria-pressed={voice.listening} title="浏览器语音识别 · 仅填入草稿，可能使用在线识别服务"><Icon name={voice.listening ? 'stop' : 'mic'} size={18} /></button>
 
-  return <dialog ref={dialog} tabIndex={-1} className="qa-page" aria-label="LifeOS 聊一聊" onCancel={event => { event.preventDefault(); if (mobile && sidebarOpen) closeSidebar(); else if (growthOpen) setGrowthOpen(false); else if (summaryOpen) closeSummary(); else onClose() }}>
+  return <dialog ref={dialog} tabIndex={-1} className="qa-page" aria-label="LifeOS 聊一聊" onCancel={event => { event.preventDefault(); if (mobile && sidebarOpen) closeSidebar(); else if (growthOpen) setGrowthOpen(false); else onClose() }}>
     <div className="qa-app-layout">
       <WorkspaceSidebar workspace={workspace} busy={busy || connecting} accountConnected={!!user} open={sidebarOpen} mobile={mobile} projectId={projectId} onClose={closeSidebar} onExit={onClose} onSelect={selectChat} onProject={openProject} onNew={createChat} onChat={patchChat}
         onSaveProject={(id, name, description) => {
@@ -372,7 +348,6 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
           {user && !project && <button type="button" disabled={busy} aria-expanded={growthOpen} onClick={() => { voice.cancel(); setSummaryOpen(false); setGrowthOpen(value => !value) }}>我的成长</button>}
           {user && !project && <button type="button" disabled={busy} aria-expanded={memoryOpen} aria-controls="qa-memory-panel" onClick={() => setMemoryOpen(value => !value)}>记忆</button>}
           {user ? <button type="button" disabled={busy} onClick={() => void logout()} title={user.email}>退出登录</button> : <button type="button" disabled={connecting} onClick={() => onRequestAuth(loggedIn)}>登录</button>}
-          {!empty && !project && <button type="button" ref={summaryTrigger} disabled={busy} aria-current={summaryOpen ? 'page' : undefined} onClick={openSummary}>事件与材料</button>}
           {!empty && !project && <button type="button" onClick={fresh} disabled={busy}>新对话</button>}
           <button type="button" className="qa-space-return" onClick={onClose} aria-label="回到认知空间"><Icon name="orbit" /><span>认知空间</span></button>
         </div>
@@ -389,7 +364,6 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
           {!workspace.chats.some(chat => chat.projectId === project.id) && <div className="qa-project-empty"><Icon name="compose" size={24} /><p>还没有对话</p><span>从一件想理清的事开始。</span></div>}
         </section>
       </main> : <>
-      {summaryOpen && <ConversationSummary conversation={conversation} conversationId={active.id} live={!!user && !conversation.demo} onContinue={closeSummary} />}
       <div hidden={summaryOpen || (growthOpen && !!user)} className={`qa-workspace ${empty ? 'is-empty' : ''} ${showChoices ? 'has-choices' : ''}`}>
         <div className="qa-scroll" ref={scroll} onScroll={() => {
           const element = scroll.current
