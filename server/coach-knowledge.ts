@@ -72,19 +72,14 @@ const label=(text:string)=>text.replace(/[\[\]\\\r\n]/g,' ')
 // A claim match tolerates ONLY a missing trailing full stop — nothing else
 // about the proposition text may differ.
 const claimAppears=(reply:string,claim:string)=>reply.includes(claim)||(claim.endsWith('。')&&reply.includes(claim.slice(0,-1)))
-// P5 (D-gate replay C05A): a self-authored METHOD guide personalizes its
-// generic opener (验证一个校园项目/兼职/创业想法，最快的办法是… → 校园二手书
-// 项目…最快的验证办法是…) while keeping the operative instructions verbatim.
-// Official policy claims stay strictly verbatim in full; for method cards the
-// required span is the operative part after the first full-width colon (when
-// that part is substantial), so a personalized but faithful method statement
-// passes and a drifted one still fails.
-const methodRequiredSpan=(claim:string)=>{
-  const colon=claim.indexOf('：')
-  const span=colon>=0?claim.slice(colon+1):claim
-  return span.replace(/\s+/g,'').length>=12?span:claim
-}
-const claimSatisfied=(reply:string,card:KnowledgeCard)=>claimAppears(reply,card.kind==='method'?methodRequiredSpan(card.claim):card.claim)
+// P5 (D-gate replay C05A/T6): a self-authored METHOD guide is personalized
+// when used — the generic opener and framing may be rewritten around the
+// user's own matter, so a cited method card carries NO verbatim-claim
+// requirement (the model only SELECTED the authorized id; the server renders
+// the real claim, source and boundaries in the 依据与边界 note). Official
+// policy claims stay strictly verbatim in full. Writing a FULL claim verbatim
+// still triggers the auto-bind below, cited or not.
+const claimSatisfied=(reply:string,card:KnowledgeCard)=>card.kind!=='policy'||claimAppears(reply,card.claim)
 export async function validateCoachCitations(reply:string,citations:CoachCitation[],available:KnowledgeCard[],currentText:string,userSourceTexts:string[]= [currentText]){
   const refs:CoachKnowledgeRef[]=[],notes:string[]=[]
   // Fix 3: resolve model-selected claimIds (and any legacy sourceId form) to

@@ -55,7 +55,15 @@ test('per-proposition citation provenance, scope and withdrawal use real isolate
       const claimIdChecked=await validateCoachCitations(card.claim,[{claimId:card.id}],[card],'')
       assert.deepEqual(claimIdChecked.refs,[{sourceId:card.id,revision:1}],'claimId selection resolves to the real version')
       assert.ok(claimIdChecked.text.includes(card.url)&&claimIdChecked.text.includes(card.limitations),'server renders url/scope/limitations from the card')
-      await assert.rejects(validateCoachCitations('没有展示命题',[{claimId:card.id}],[card],''),(error:any)=>error.code==='COACH_CITATION_INVALID','claim must still appear verbatim in the reply')
+      // P5: a cited self-authored METHOD card needs no verbatim claim (the
+      // server renders the real claim/boundaries itself); a POLICY claim
+      // still must appear verbatim in the reply.
+      const methodAccepted=await validateCoachCitations('没有展示命题',[{claimId:card.id}],[card],'')
+      assert.deepEqual(methodAccepted.refs,[{sourceId:card.id,revision:1}],'cited method card accepted without verbatim text; note carries the claim')
+      assert.ok(methodAccepted.text.includes(card.claim))
+      const policyCitation={sourceId:policy.id,revision:1,claim:policy.claim,quote:policy.claim,scope:policy.scope}
+      await validateCoachCitations(policy.claim+'。',[policyCitation],[policy],'机构=合成学校 学院=合成学院 项目=合成项目 年份=2026 对象=合成本科生')
+      await assert.rejects(validateCoachCitations('没有展示命题',[policyCitation],[policy],'机构=合成学校 学院=合成学院 项目=合成项目 年份=2026 对象=合成本科生'),(error:any)=>error.code==='COACH_CITATION_INVALID','policy claim must still appear verbatim in the reply')
       assert.deepEqual((await validateCoachCitations('核验过的定义：'+card.claim,[],[card],'')).refs,[{sourceId:card.id,revision:1}])
       await assert.rejects(validateCoachCitations('参考 https://example.invalid/invented',[],[card],''),(error:any)=>error.code==='COACH_CITATION_INVALID')
       assert.equal((await validateCoachCitations('你给的文件 https://example.invalid/user-file',[],[],'请打开 https://example.invalid/user-file')).refs.length,0)
