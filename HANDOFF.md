@@ -285,3 +285,13 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - 本批诊断前唯一账本452条，续期422基线后30条，pending0，严格27.62元阶段保守已计6.4222324、剩余21.1977676元；包含取消未知的最坏reserve，不是发票花费。仍无次数上限、无增预算、无自动收费修复或重试；不部署、不推送，整体WIP_NOT_READY。
 
 - 第十五批最终完整本地检查：40文件217项隔离后端通过，客户端50、服务端类型、构建及diff检查通过；日志material-and-status-full/type/unit/build.log。新Flash0冻结6af9b9c69252300bdb872df221655c23a731e49ea2c15aa2b1eaa31c5efbf119，真实接口与业务仍待验证。
+
+### D-gate closeout：服务器自有协议收权 + 13失败零网络全绿 + 真实小批零修复（f74b5ab→a983676）
+
+- 基线 d37ed46→a983676（fix/campus-acceptance-contract-20261006）。P1-P5全部落地：clause-catalogue（server/clause-catalogue.ts，prompt渲染分句句柄、schema只给clauseId、enum绑定到目录、疑问/假设/引用分句不能锚定user_reported——L1OFF meta-query不可再产生新事实）；growth-authority（server/growth-authority.ts，模型只表达create/correct(itemId)，服务器决定amend/replace/版本、无纠正关系转create、同一旧条目一轮只改一次、marker子句归确定性fallback、correct携带plan剥离后的newQuote、malformed legacy validUntil丢弃）；控制子句不进growth+未提交forget跨轮恢复或识别already_effective（L1:8/9）；reply预算矛盾收窄到本人语音断言（归因/变化/分配豁免，L2:4、D01:4）+weeklyPlan分钟服务器覆盖+计划basis重绑到已保存事实或授权预算事实（C03:3）；method卡引用只选claimId、服务器渲染claim/来源/边界（C05A/T6），policy仍全量逐字。
+- 上批13失败零网络replay 13/13 GREEN：D批DB副本(lifeos_dialogue_live_replay13←6285292666模板)+原始raw输出经确定性适配（quote→连续clause句柄、replace/amend→correct、候选区段展开）驱动真实引擎，本地fake SSE provider，逐turn断言确定性效果（dgate13-replay-result.json；harness .local/campus-growth/dgate-replay.ts）。
+- 能力探针×2 PASS（qwen新接口签名4次、deepseek候选4次，evidence/v1.3-action-coach/provider/coach-probe-default-1791436332086-2eff35c3.json 与 coach-probe-default-1791440196468-ad8d304b.json；freeze source-1791436330980/1791440195377）。
+- 真实小批（dgate-closeout-smallbatch.json，隔离DB lifeos_dialogue_live_424d210bfb3748a9baeee7bb30f172ae保留）：10/10全绿覆盖7类场景（L1OFF双形态/更正/mixed反馈+遗忘[歧义走pending卡且API可发现]/新机会/目标改变/2小时行动[周约束+120分钟计划]/方法引用[T10 claimId+依据与边界]），1条观察（直白"怎么开始"未引用任何卡），0次repair调用，¥0.0337。
+- 速度对比（speed-compare-qwen3.8-flash.json / speed-compare-deepseek-v4.1-flash.json）：同7条普通请求真实引擎，qwen 7/7保存、warm首存p50 3807ms/max 4316ms；deepseek-v4.1-flash 4/7（COACH_SOURCE_INVALID×1、COACH_OUTPUT_INVALID×2，无json_schema约束解码）、warm p50 5457ms/max 6434ms、完整max 15393ms——更慢且合规差，不换，留在qwen3.8-flash。
+- 扣子：LifeOS个人伙伴v1.2在扣子助手会话对全新未讨论话题（每周6小时+社团招新志愿者）自动触发技能行为+纯对话模式降级声明（截图call_082cfff0c4224dd19aa95e79）；"全新独立会话"字面形态被环境阻塞——new-task需桌面端（本地电脑7785离线，环境对话框无云端选项）、助手为单连续会话无新对话入口；如实记录未宣称通过。
+- 账本（唯一）：1489条、accounted ¥15.8907297、remaining ¥14.1092703；曾误登记重复对比条目34条已清除并按cmpq-/cmpd-正确重登（脚本一次性删除）。全套件backend+root 80+typecheck+build全绿。下一D Gate重点：业务失败率与速度（L1/L2/L3与20样本上批已证能达）。
