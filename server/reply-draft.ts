@@ -49,3 +49,47 @@ export function openingQuestionDraft(raw:string):string|null{
   return null
 }
 
+
+// G3 mode-aware early draft: in reply_only turns the schema guarantees the
+// payload is exactly {reply}, so the FIRST complete safe sentence of the
+// streaming reply can reach the user before the whole reply validates. The
+// sentence must carry real substance — politeness-only fillers, status
+// claims, URLs, diagnoses, personality verdicts and policy facts stay gated.
+const unsafeEarly=/(?:https?:\/\/|诊断|症状|抑郁症|焦虑症|你总是|你就是|你其实|你就是.{0,6}人|你一定|已(?:经)?(?:为你|帮你|替你)?(?:保存|记录|完成|发送|报名|起草|发出|发好|更正|更新)|保证|一定可以|肯定能|录取|报名截止|资格)/
+const fillerOnly=/^(?:好的?|嗯+|哦+|行|可以|明白|了解|收到|谢谢|感谢|不客气|没问题|我在听|继续|加油)[。！!，,~\s]*$/
+export function safeEarlySentence(raw:string,maxChars=120):string|null{
+  const opening=/^\s*(?:```(?:json)?\s*)?\{\s*"reply"\s*:\s*"/.exec(raw)
+  if(!opening)return null
+  let encoded=''
+  for(let i=opening[0].length;i<raw.length;i++){
+    const char=raw[i]
+    if(char==='"')break
+    encoded+=char
+    if(char===String.fromCharCode(92)){
+      const next=raw[++i]
+      if(next===undefined)break
+      encoded+=next
+      if(next==='u'){
+        const hex=raw.slice(i+1,i+5)
+        if(!/^[0-9a-f]{4}$/i.test(hex))break
+        encoded+=hex;i+=4
+      }
+    }
+    let decoded:string
+    try{decoded=JSON.parse('"'+encoded+'"')}catch{continue}
+    if(decoded.length>16000)return null
+    // Only a TERMINATED sentence can surface: the first segment is complete
+    // exactly when a terminator exists; the trailing partial never shows.
+    const parts=decoded.split(/([。！!？?\n\r])/)
+    const firstTerminator=parts.findIndex((part,index)=>index%2===1)
+    if(firstTerminator<1)continue
+    const sentence=parts[0]!.trim()
+    if(!sentence)continue
+    if(sentence.length>maxChars)continue
+    if(fillerOnly.test(sentence))continue
+    if(unsafeEarly.test(sentence))continue
+    if(!/[\p{L}]{2,}/u.test(sentence))continue
+    return sentence
+  }
+  return null
+}
