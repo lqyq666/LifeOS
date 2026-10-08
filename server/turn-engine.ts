@@ -32,7 +32,7 @@ import { ignorableConnectives } from './turn-obligations.ts'
 import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
 import { scanUserClauses } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
-import { clauseReportsCompleted, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate } from './experience-content.ts'
+import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate } from './experience-content.ts'
 import { deriveTurnContract } from './turn-contract.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
@@ -794,11 +794,23 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
       // about saving; otherwise it is a real source failure.
       const selection=resolveContiguousClauseRange(current.content,clauseCatalogue,result.experienceCandidate.source.clauseIds)
       if(!selection){
-        const savingRelated=/(?:保存|记录|记下|记住|存入|收录|入库|确认|经历|经验|图谱|长期记忆|experience|remember|record|save|memory)/i
-        const independent=result.event?.action?.operation!=='close'&&!savingRelated.test(current.content)&&!savingRelated.test(result.reply)
-        if(!independent)throw new HttpError(400,'SOURCE_QUOTE_MISMATCH')
-        staged.audit.push({phase:'coach_optional_candidate_rejected',code:'CANDIDATE_CLAUSE_UNRESOLVED',committed:false})
-        delete result.experienceCandidate
+        // Under the required lane the flash tier sometimes names non-adjacent
+        // handles. When the structural fallback can still stage the verbatim
+        // sentence, the user's saving intent is not lost: drop the unusable
+        // selection and let the structural path below carry it. Only a turn
+        // about saving with NOTHING stageable server-side stays a hard source
+        // failure.
+        const covered=selectStructuralCandidate(current.content,clauseCatalogue,new Date(current.created_at).toISOString())
+        if(covered){
+          staged.audit.push({phase:'coach_optional_candidate_rejected',code:'CANDIDATE_CLAUSE_UNRESOLVED',coveredByStructural:true,committed:false})
+          delete result.experienceCandidate
+        }else{
+          const savingRelated=/(?:保存|记录|记下|记住|存入|收录|入库|确认|经历|经验|图谱|长期记忆|experience|remember|record|save|memory)/i
+          const independent=result.event?.action?.operation!=='close'&&!savingRelated.test(current.content)&&!savingRelated.test(result.reply)
+          if(!independent)throw new HttpError(400,'SOURCE_QUOTE_MISMATCH')
+          staged.audit.push({phase:'coach_optional_candidate_rejected',code:'CANDIDATE_CLAUSE_UNRESOLVED',committed:false})
+          delete result.experienceCandidate
+        }
       }else{
         // Structured fields resolve server-side from the same catalogue: the
         // model only named handles, the stored text stays verbatim user words.
@@ -816,7 +828,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         }
         for(const field of extracted.dropped)staged.audit.push({phase:'coach_candidate_field_dropped',code:'CANDIDATE_FIELD_CLAUSE_UNRESOLVED',field,committed:false})
         try{
-          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:span.quote,links:[],content:extracted.content},signal)
+          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:span.quote,links:result.experienceCandidate.links??deriveStructuralLinks(span.quote),content:extracted.content},signal)
         }catch(error){
           // Only an independent semantic candidate error may be dropped. Source,
           // ownership and transaction failures still invalidate the whole turn.
@@ -840,7 +852,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
       const structural=selectStructuralCandidate(current.content,clauseCatalogue,new Date(current.created_at).toISOString())
       if(structural){
         try{
-          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:structural.quote,links:[],content:structural.content},signal)
+          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:structural.quote,links:deriveStructuralLinks(structural.quote),content:structural.content},signal)
           staged.audit.push({phase:'coach_candidate_structural',code:'STRUCTURAL_CANDIDATE_STAGED',quoteChars:structural.quote.length,committed:false})
         }catch(error){
           const savingRelated=/(?:保存|记录|记下|记住|存入|收录|入库|确认|经历|经验|图谱|长期记忆|experience|remember|record|save|memory)/i

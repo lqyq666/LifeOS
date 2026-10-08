@@ -24,6 +24,24 @@ export function clauseReportsCompleted(text: string): boolean {
   return COMPLETED_ACTION.test(text) && !NOT_YET.test(text)
 }
 
+// Category fallback for the star map: the model lane may omit links, but a
+// seamless record still needs a browsing category. Matches quote VERBATIM
+// fragments only; the reason names the fragment so the user sees why, and the
+// disposition stays 'proposed' (adjustable, never presented as user-confirmed).
+const CATEGORY_PATTERNS = [
+  { valueId: 'value-creation', label: '创造', pattern: /做了|做出|做出来|写完|写了|制作|设计|排版|剪辑|录制|开发|搭建|整理出|画了|拍了|一套|作品|海报|推文|视频|文章|代码|方案|课件/ },
+  { valueId: 'value-autonomy', label: '自主', pattern: /主动|自己决定|自己安排|自己联系|自己找|自己报|我决定|我选择|我约了|我联系|我报了|拒绝了?|没答应|自己拿|牵头|张罗/ },
+  { valueId: 'value-growth', label: '成长', pattern: /反馈|评价|学到|下次|改进|反思|建议|教训|意识到|明白了|理解了|吸收|晚了|迟了|按时|提前|效果|收获/ },
+] as const
+export function deriveStructuralLinks(quote: string): { valueId: string; reason: string }[] {
+  const links: { valueId: string; reason: string }[] = []
+  for (const category of CATEGORY_PATTERNS) {
+    const match = category.pattern.exec(quote)
+    if (match) links.push({ valueId: category.valueId, reason: `自动按原话「${match[0]}」先归入「${category.label}」，可调整` })
+  }
+  return links.slice(0, 3)
+}
+
 // Deterministic fallback when the model omits the lane: the candidate is the
 // full sentence containing a detected completed-action clause. The quote stays
 // a server-owned verbatim span; action/result split conservatively by clause

@@ -96,7 +96,7 @@ export async function stageCandidate(run:Run,staged:Staged,input:unknown,signal?
   if(/打算|希望|将要|下次|明天|以后/.test(candidate.quote)||(!completedPast&&/计划|准备|建议/.test(candidate.quote)))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
   if(new Set(candidate.links.map(l=>l.valueId)).size!==candidate.links.length)throw new HttpError(400,'DUPLICATE_VALUE_LINK')
   if(!staged.candidates.some(c=>c.sourceMessageId===candidate.sourceMessageId&&c.quote===candidate.quote))staged.candidates.push(candidate)
-  return {staged:true,status:'candidate',requiresUserConfirmation:true}
+  return {staged:true,status:'confirmed',autoConfirmed:true}
 }
 export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,signal:AbortSignal,dialoguePath:DialoguePath=staged.dialoguePath??'direct',upstreamCalls=staged.upstreamCalls??0) {
   signal.throwIfAborted()
@@ -123,11 +123,11 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     for(const candidate of staged.candidates) {
       const id=randomUUID()
       const content={title:candidate.quote.slice(0,36),summary:candidate.quote,action:candidate.content?.action??'',result:candidate.content?.result??'',reflection:'',occurredAt:candidate.content?.occurredAt??'',source:'用户对话原话',tags:[]}
-      const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status) VALUES($1,$2,$3,$4,$5,$6,$7,\'candidate\') ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,candidate.quote,run.request_id,content])
+      const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status,confirmed_at,confirm_source) VALUES($1,$2,$3,$4,$5,$6,$7,\'confirmed\',now(),\'auto\') ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,candidate.quote,run.request_id,content])
       if(!inserted.rowCount)continue
       candidateIds.push(id)
       for(const link of candidate.links)await c.query('INSERT INTO experience_links(user_id,experience_id,value_id,reason,disposition) VALUES($1,$2,$3,$4,\'proposed\')',[run.user_id,id,link.valueId,link.reason])
-      await c.query('INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,1,\'propose\',$3)',[run.user_id,id,{content,status:'candidate',source:candidate}])
+      await c.query('INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,1,\'propose\',$3),($1,$2,2,\'confirm\',\'{"auto":true}\'::jsonb)',[run.user_id,id,{content,status:'confirmed',source:candidate}])
     }
     for(const ref of knowledgeRefs)await c.query('INSERT INTO coach_reply_sources(user_id,request_id,source_id,revision) VALUES($1,$2,$3,$4)',[run.user_id,run.request_id,ref.sourceId,ref.revision])
     const coach=staged.coach?await persistCoachEvent(c,run,staged.coach):null
@@ -237,9 +237,9 @@ export async function cognitionGraph(user:string) {
   const edges=seed.edges.filter(e=>e.type==='HAS_VALUE').map(e=>({...e,status:'category',reason:'浏览分类，不代表已确认的永久价值观',sourceEvidence:[]}))
   for(const e of experiences){
     const id='exp-'+e.id
-    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision} as any)
+    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision} as any)
     for(const link of e.links.filter((l:any)=>l.disposition!=='rejected'))edges.push({id:'rel-'+e.id+'-'+link.value_id,type:'RELATES_TO_VALUE',sourceId:id,targetId:link.value_id,reason:link.reason,status:link.disposition,sourceEvidence:[e.source_quote],confidence:null} as any)
   }
-  return {...seed,purpose:'当前登录用户的正式经历；价值节点仅作浏览分类',notice:'经历由用户确认，个人解释仍可修改，不是永久价值观。',nodes,edges,
+  return {...seed,purpose:'当前登录用户的正式经历；价值节点仅作浏览分类',notice:'经历由对话自动收入星图，可随时修改或删除；价值分类是可调整的建议，不是永久价值观认定。',nodes,edges,
     viewConfig:{...seed.viewConfig,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false}
 }

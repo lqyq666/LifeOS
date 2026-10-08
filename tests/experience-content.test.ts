@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { buildClauseCatalogue } from '../server/clause-catalogue.ts'
-import { clauseReportsCompleted, requiresExperienceCandidate, resolveCandidateContent, selectStructuralCandidate } from '../server/experience-content.ts'
+import { clauseReportsCompleted, deriveStructuralLinks, requiresExperienceCandidate, resolveCandidateContent, selectStructuralCandidate } from '../server/experience-content.ts'
 
 const ANCHOR='2026-10-08T12:00:00.000Z' // Thursday 20:00 Shanghai
 
@@ -32,4 +32,13 @@ test('model-named handles outside the selected span drop the field, never the ca
   const outside=resolveCandidateContent(catalogue,selection,{action:{clauseId:'c0'}},ANCHOR)
   assert.equal(outside.content.action,'')
   assert.deepEqual(outside.dropped,['action'])
+})
+
+test('structural category links quote verbatim fragments and stay adjustable',()=>{
+  const links=deriveStructuralLinks('上周五我把社团招新的推文和海报整套都交了，比约好的时间晚了两天，部长说整体效果还不错')
+  const ids=links.map(link=>link.valueId)
+  assert.ok(ids.includes('value-creation'),'a delivered poster set is creative work')
+  assert.ok(ids.includes('value-growth'),'explicit feedback and lateness feed growth')
+  for(const link of links)assert.ok(link.reason.includes('「'),'the reason names the verbatim fragment it matched')
+  assert.deepEqual(deriveStructuralLinks('今天天气不错'),[],'small talk categorizes nowhere')
 })
