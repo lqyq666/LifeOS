@@ -304,3 +304,15 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - 最终D Gate：主批121轮(112完成)+D01补跑7/7（用户暂停杀轮，同freeze续跑）；失败9条全部披露（REPLY_CONTRADICTS×3、PLAN_BASIS/BUDGET×3、CITATION×1、传输×1、杀轮×1）。extras 7/9（forget/pause_use/stop_recommend/pending跨账号404/memory-off canary全绿；X-goal/X-time跨轮翻转=模型措辞+种子重复干扰，已披露；更正语义主批L2+单测+STEP6为绿）。浏览器桌面+390px全渲染。账本1796条/余¥12.97（期间误重复登记已清除修正）。
 - 修复链：更正claim guard"nothing-to-correct"容忍（仅限点名旧值且无相关活跃记录；未点名旧值保持严格）、marker子句create排除（correct路径仍受honored处理）、goal supersession（改主意子句新目标create自动retarget替换唯一活跃旧目标）、pause_use意图补"不要再/不要/别再作为…依据/不要拿"句式。
 - 下一步：供应商吞吐恢复窗口重测同冻结版本速度（无需改码）；速度达标后STEP9部署/STEP10材料。
+
+### G1–G8 最终收口（fa158e0→9bc3186，WIP_NOT_READY维持：速度待健康窗口复测）
+
+- G1 独立账号更正门连续三轮 4/4（grade/contribution/goal/time + 刷新/新会话回读）。修复4个真缺陷：①legacy validUntil经spread泄漏持久化（种子目标几分钟后过期→更正轮授权集为空，根因）；②引擎未传item.status给authority视图（goal supersession静默失效）；③更正plan重定向（create新值转为对旧目标的amend/replace，旧错误值不再并存）；④goal-change锚定"我改主意了"marker子句时重定向到下一含我子句。
+- G2 reportsPersonalEvent：报告词表×scanUserClauses结构标志（疑问/第三方/条件/引语/引用提及），正例开event lane、负例（你做过吗/学长说他做过/如果以后/“我做过项目”是什么意思）全拒；测试全绿。
+- G3 mode-aware早草稿：reply_only允许首个完整安全句（终止符门控；礼貌词/状态声明/URL/诊断/人格断言/政策事实全禁；≤120字；段落完成也算终止）；其他模式仍只提前展示安全追问（首问前置规则进GROWTH段）。earlyDraftKind/firstSafeSentenceMs入审计。
+- G4 mode-aware历史选择（server/history-selection.ts）：reply_only保留最近1轮、planning/knowledge/material 3-4轮、event按当前事项2字shingle检索旧用户轮（≤3），孤儿assistant开头不带；数据库/记忆不删；history_selection审计（总数/选中数+字符）。userPrompt从9k+降至≤3.8k（G6实测）。
+- G5 免费回归全绿（13/13 replay、backend全量、root 80、typecheck、build）。
+- G6 速度三批（预声明3批全保留）：健康窗口批1-2 p50 1473–1562ms/max 1673ms MET；批3 provider窗口崩塌（raw TTFT p50 826→2193ms）单独记录。material通道对齐修复：schema何时开material lane与验证器deliverableIntent完全一致（怎么开口类请求knowledge模式schema无event.action永远无法满足COACH_MATERIAL_NOT_VISIBLE）。
+- G7 小批 11/11 businessPass 一次通过（9bc3186）。
+- G8 完整D Gate重跑（freeze 7a9837a6）：127轮/119完成/8失败（6.3%，逐条披露）；L1=4/L2=3/L3=3会话✓；完成p95 11.9s MET；首有效p50 3215ms（本批provider窗口raw p50 1.9s）——健康窗口复测同冻结版本即可判定。账本2001条/余¥11.69。
+- 下一步：在健康供应商窗口用同冻结版本(9bc3186)复测速度（无需改码）；达标后G9部署/G10材料。
