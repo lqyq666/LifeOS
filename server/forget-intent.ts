@@ -30,7 +30,7 @@ export type ForgetIntentClause = {
 // these (不要删除 / 先别删掉) is a REFUSAL handled separately below.
 const forgetCommands = /(?:帮我(?:来)?|请|麻烦)?(?:忘掉|忘记(?!了)|忘了吧|忘记吧|删除|删掉|删了|清除|清掉|移除|去掉|抹掉)|(?:不要|不想|不用|无需|不必|不再)(?:再)?保留/
 // Stop-using commands: the negative wording IS the command.
-const pauseUseCommands = /(?:不再作为[^。！？]{0,10}(?:依据|参考)|不再?用来?作为[^。！？]{0,10}(?:依据|参考)|别再用|别再拿|不要再拿|不想再用|不必再用|不再用|先不用|暂时不用|别拿|停止使用|停止作为[^。！？]{0,10}(?:依据|参考))/
+const pauseUseCommands = /(?:不(?:要再?|再)?(?:用来?)?作为[^。！？]{0,10}(?:依据|参考)|不再作为[^。！？]{0,10}(?:依据|参考)|不再?用来?作为[^。！？]{0,10}(?:依据|参考)|别再?作为[^。！？]{0,10}(?:依据|参考)|别再用|别再拿|不要再拿|不要拿|不想再用|不必再用|不再用|先不用|暂时不用|别拿|停止使用|停止作为[^。！？]{0,10}(?:依据|参考))/
 // Stop-recommending commands (narrower than stop-using: mentions 推/推荐/提).
 const stopRecommendCommands = /(?:别再推荐|不要再推荐|不再推荐|不要再推|先别推|别推|停止推荐|别再提|不要再提|先别提|别提|不再主动提)/
 // A negation directly preceding an erase verb turns the clause into refusal.
