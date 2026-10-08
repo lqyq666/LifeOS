@@ -295,3 +295,12 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - 速度对比（speed-compare-qwen3.8-flash.json / speed-compare-deepseek-v4.1-flash.json）：同7条普通请求真实引擎，qwen 7/7保存、warm首存p50 3807ms/max 4316ms；deepseek-v4.1-flash 4/7（COACH_SOURCE_INVALID×1、COACH_OUTPUT_INVALID×2，无json_schema约束解码）、warm p50 5457ms/max 6434ms、完整max 15393ms——更慢且合规差，不换，留在qwen3.8-flash。
 - 扣子：LifeOS个人伙伴v1.2在扣子助手会话对全新未讨论话题（每周6小时+社团招新志愿者）自动触发技能行为+纯对话模式降级声明（截图call_082cfff0c4224dd19aa95e79）；"全新独立会话"字面形态被环境阻塞——new-task需桌面端（本地电脑7785离线，环境对话框无云端选项）、助手为单连续会话无新对话入口；如实记录未宣称通过。
 - 账本（唯一）：1489条、accounted ¥15.8907297、remaining ¥14.1092703；曾误登记重复对比条目34条已清除并按cmpq-/cmpd-正确重登（脚本一次性删除）。全套件backend+root 80+typecheck+build全绿。下一D Gate重点：业务失败率与速度（L1/L2/L3与20样本上批已证能达）。
+
+### Turn Contract 裁剪 + 最终 D Gate（faad96d→提交FINAL_D_GATE，WIP_NOT_READY维持）
+
+- STEP1-2 turn-contract：server/turn-contract.ts 按轮推导能力（reply_only寒暄/meta/全问句/纯倾听+知识型问句排除、planning、knowledge、event报告标记含"过"体、material显式即时）、schema裁剪（关闭通道不可表示，保留通道与全量逐字节一致）、prompt CORE+分模式段落（无contract路径逐字返回原prompt，探针/契约签名不变——已验证byte-identical）。reply_only schema 346字符（全量~31k），prompt 1918（全量5406）；input tokens 降30–45%。
+- 速度（qwen3.8-flash冻结）：7/7保存，warm draft p50 3114；最终D批128轮 draft p50 3211/p95 8418（目标3000/5000未达——provider首token p50 857ms健康，瓶颈为本窗口生成吞吐+首问抽取前生成积累；完整p95 12787≤15000达标）。deepseek不再测。
+- STEP6 小批三轮迭代修4真问题：知识型问句误入reply_only（关citations）、S10成品即时判定过窄（请直接帮我写…）、成品验收键在response.event.actions[].draft而非stateChange、"顺便"类连接片段锚定垃圾事实→fragment guard。终轮11/11 businessPass。
+- 最终D Gate：主批121轮(112完成)+D01补跑7/7（用户暂停杀轮，同freeze续跑）；失败9条全部披露（REPLY_CONTRADICTS×3、PLAN_BASIS/BUDGET×3、CITATION×1、传输×1、杀轮×1）。extras 7/9（forget/pause_use/stop_recommend/pending跨账号404/memory-off canary全绿；X-goal/X-time跨轮翻转=模型措辞+种子重复干扰，已披露；更正语义主批L2+单测+STEP6为绿）。浏览器桌面+390px全渲染。账本1796条/余¥12.97（期间误重复登记已清除修正）。
+- 修复链：更正claim guard"nothing-to-correct"容忍（仅限点名旧值且无相关活跃记录；未点名旧值保持严格）、marker子句create排除（correct路径仍受honored处理）、goal supersession（改主意子句新目标create自动retarget替换唯一活跃旧目标）、pause_use意图补"不要再/不要/别再作为…依据/不要拿"句式。
+- 下一步：供应商吞吐恢复窗口重测同冻结版本速度（无需改码）；速度达标后STEP9部署/STEP10材料。
