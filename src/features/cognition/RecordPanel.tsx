@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { CodexSelect } from '../../components/ui/CodexSelect'
 import { graph, graphSource, REVIEW_KEY, type Review } from './graph.ts'
 import { api, dataChanged, explainError } from '../../backend/client'
 import { parseRecordDrafts, RECORD_KEY, recordFields, type RecordDraft } from './recordDraft.ts'
@@ -101,13 +100,6 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
         {editing ? <form id="record-edit-form" className="record-editor" onSubmit={event => { event.preventDefault(); void save() }}>
           <label htmlFor="record-summary">经历</label><textarea id="record-summary" maxLength={4000} value={form.summary ?? ''} onChange={e => setForm({ ...form, summary: e.target.value })} />
           <label htmlFor="record-reflection">反思</label><textarea id="record-reflection" maxLength={4000} value={form.reflection ?? ''} onChange={e => setForm({ ...form, reflection: e.target.value })} />
-          <details className="record-extra"><summary>其他信息</summary>
-            {fields.filter(field => field.key !== 'reflection').map(field => <div key={field.key}><label htmlFor={`record-${field.key}`}>{field.label}</label>{field.key === 'occurredAt' ? <input id={`record-${field.key}`} maxLength={200} value={form[field.key] ?? ''} onChange={e => setForm({ ...form, [field.key]: e.target.value })} /> : <textarea id={`record-${field.key}`} maxLength={4000} value={form[field.key] ?? ''} onChange={e => setForm({ ...form, [field.key]: e.target.value })} />}</div>)}
-            <label htmlFor="record-tags">标签（逗号分隔）</label><input id="record-tags" value={(form.tags ?? []).join('，')} onChange={e => setForm({ ...form, tags: e.target.value.split(/[,，]/) })} />
-            <label htmlFor="record-source">依据</label><textarea id="record-source" maxLength={4000} value={form.source ?? ''} onChange={e => setForm({ ...form, source: e.target.value })} />
-          </details>
-          {edge && <details className="record-extra relation-editor"><summary>关联解释</summary><label htmlFor="edited-reason">调整这条关联解释</label><textarea id="edited-reason" maxLength={2000} value={reason} onChange={e => setReason(e.target.value)} /><label htmlFor="relation-disposition">关联判断</label><CodexSelect id="relation-disposition" label="关联判断" value={disposition} onChange={value => setDisposition(value as Review['disposition'] | 'proposed')} options={[{ value: 'proposed', label: '未校准', disabled: !!review }, { value: 'accepted', label: '认可' }, { value: 'edited', label: '修改' }, { value: 'rejected', label: '不符合' }]} /></details>}
-          <p className="record-editor-note">{live ? '保存到你的账户。修改经历后，关联解释需要重新核对。' : '仅保存在此浏览器。'}</p>
           {live && <button type="button" disabled={saving} onClick={async () => {
             setSaving(true)
             try { await api('/api/experiences/' + node.serverId + '/actions', { requestId: crypto.randomUUID(), expectedRevision: revision.current, action: 'delete' }); dataChanged(); onBack() }
@@ -116,7 +108,8 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
         </form> : <>
           {content('occurredAt') && <p className="record-date">{content('occurredAt')}</p>}
           {displaySummary && <p className="record-summary">{displaySummary}</p>}
-          {fields.slice(1).filter(field => content(field.key)).map(field => <section className="record-story" key={field.key}><h3>{field.label}</h3><p>{content(field.key)}</p></section>)}
+          {fields.slice(1, 3).filter(field => content(field.key)).map(field => <section className="record-story" key={field.key}><h3>{field.label}</h3><p>{content(field.key)}</p></section>)}
+          <section className="record-story record-story-reflection" aria-label="反思"><h3>反思</h3>{content('reflection') ? <p>{content('reflection')}</p> : <p className="record-story-empty">还没有反思。点右上角「编辑」，写下这段经历让你看到了什么。</p>}</section>
           {originalValues.length > 0 && <section className="interpretation" aria-label="关联解释"><h3>关联</h3>
             {values.length > 1 ? <div className="angle-options" role="group" aria-label="选择关联角度">{values.map(id => <button key={id} aria-pressed={angleId === id} onClick={() => controller.changeAngle(id)}>{graph.getNode(id)?.title}</button>)}</div> : values.length === 1 && <p className="single-value">{graph.getNode(values[0])?.title}</p>}
             {values.length && edge ? <p className="relation-reason">{review?.editedReason ?? edge.reason}</p> : <p className="relation-empty">暂无关联</p>}

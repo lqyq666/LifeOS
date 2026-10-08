@@ -57,6 +57,7 @@
 .record-content h3 { margin: 0 0 10px; font-size: 13px; line-height: 1.6; color: #aea3c4; font-weight: 400; }
 .record-story { margin-top: 24px; }
 .record-story p { color: #d1cbdc; }
+.record-story .record-story-empty { color: #8f83a3; }
 .record-content .interpretation { margin-top: 36px; padding-top: 24px; border-top: 1px solid #272335; }
 .angle-options { display: flex; gap: 28px; margin-bottom: 14px; }
 .angle-options button { min-height: 44px; border: 0; border-bottom: 1px solid transparent; padding: 0 1px; background: none; color: #ada3c0; font-size: 15px; cursor: pointer; }
