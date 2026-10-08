@@ -68,7 +68,7 @@ export function resolveGrowthDeltas(input:{
     // store the marker prefix (更正一下：…) as a stray fact, so creates are
     // dropped early. A correct aimed at the scored plan target is honored
     // below (the plan supplies the stripped newQuote), so it passes through.
-    if(delta.target.operation!=='correct'&&input.correctionPlan&&/(?:更正|说错了?|搞错了?|记错了?|写错了?|看错了?|不对)/.test(clause.text)&&!clause.interrogative){audit.push({phase:'growth_marker_clause_excluded',inputIndex,clauseId:clause.clauseId});continue}
+    if(delta.target.operation!=='correct'&&input.correctionPlan&&/(?:更正|说错了?|搞错了?|记错了?|写错了?|看错了?|不对|说成|说成过|之前说|以前说|原本是)/.test(clause.text)&&!clause.interrogative){audit.push({phase:'growth_marker_clause_excluded',inputIndex,clauseId:clause.clauseId});continue}
     const timeEvidence=resolveTimeEvidence(delta,input.catalogue)
     // The wire timeEvidence (clauseId form) must never leak through: an
     // unresolvable anchor means NO evidence, and the supplement path covers
@@ -129,6 +129,25 @@ export function resolveGrowthDeltas(input:{
     emittedClauses.add(clause.clauseId)
     indexMap.set(inputIndex,resolved.length)
     resolved.push(next)
+  }
+  // Goal supersession (goal-change semantics): when a change-marker clause
+  // (改主意/不想继续/决定不…) lands a NEW goal/direction via a plain create,
+  // the server retargets it to replace the single active goal record — the
+  // old goal must not stay active beside its declared replacement (两个相反
+  // 的当前目标不能同时有效). With zero or multiple active goals the create
+  // stands as-is.
+  if(input.authorized.length){
+    const activeGoals=input.authorized.filter(item=>['goal','direction'].includes(item.kind)&&item.assertion==='user_reported'&&item.status==='active'&&!item.unavailableReason)
+    if(activeGoals.length===1){
+      for(let index=0;index<resolved.length;index++){
+        const delta=resolved[index]!
+        if(delta.target.operation==='create'&&['goal','direction'].includes(delta.kind)&&goalChangeMarker.test(delta.source.quote)){
+          resolved[index]={...delta,target:{operation:'replace',itemId:activeGoals[0]!.id,expectedRevision:activeGoals[0]!.revision}} as typeof delta
+          audit.push({phase:'growth_goal_superseded',inputIndex:indexMap.size?index:-1,itemId:activeGoals[0]!.id,mode:'create_retarged_to_replace'})
+          break
+        }
+      }
+    }
   }
   return {deltas:resolved,audit,indexMap}
 }
