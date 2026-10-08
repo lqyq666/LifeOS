@@ -576,6 +576,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     // outstanding. The reply on later turns may not claim 已更正/已记录好 while
     // the old fact is still the active one.
     let outstandingCorrection:import('./turn-obligations.ts').CorrectionPlan|null=null
+    let outstandingCorrectionSource:string|null=null
     if(!correctionPlan){
       const previousUser=[...messages].reverse().find(row=>row.role==='user'&&row.id!==run.source_message_id)
       if(previousUser?.content){
@@ -583,8 +584,8 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         if(prev){
           if(prev.target){
             const item=growthAll.find(row=>row.id===prev.target!.itemId)
-            if(item&&item.text.includes(prev.target.beforeQuote)&&!item.text.includes(prev.newQuote))outstandingCorrection=prev
-          }else if(!growthAll.some(row=>row.text.includes(prev.newQuote)))outstandingCorrection=prev
+            if(item&&item.text.includes(prev.target.beforeQuote)&&!item.text.includes(prev.newQuote)){outstandingCorrection=prev;outstandingCorrectionSource=previousUser.content}
+          }else if(!growthAll.some(row=>row.text.includes(prev.newQuote))){outstandingCorrection=prev;outstandingCorrectionSource=previousUser.content}
         }
       }
     }
@@ -663,9 +664,29 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     if(correctionPlan||outstandingCorrection){
       // P2-1: with no actual replace/amend staged, the reply may acknowledge
       // the user's words ("已记录你的原话") but must NOT claim the record was
-      // corrected/updated while the old fact stays active.
+      // corrected/updated while the old fact stays active. Exception: when NO
+      // active record shares the correction's old-value characters, nothing
+      // uncorrected remains — the fallback's verbatim create makes the 更正
+      // claim effectively true (clause-granularity items may not contain the
+      // old value the user named).
       const amendedNow=Boolean(staged.growth?.prepared.some(entry=>entry.kind==='split_amend'||(entry.kind==='ordinary'&&(entry.delta.target.operation==='replace'||entry.delta.target.operation==='amend'))))
-      if(!amendedNow&&/(?:已更正|更正为|更正已记录|已把.{0,10}改|已经?改成|更新为|已更新|已修改)/.test(result.reply))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
+      const claimPlan=correctionPlan??outstandingCorrection
+      const claimSource=correctionPlan?current.content:outstandingCorrectionSource??current.content
+      const oldValueRemainder=claimPlan?claimSource.split(claimPlan.newQuote).join(''):claimSource
+      const oldValueChars=new Set(oldValueRemainder.replace(/[^\p{L}\p{N}]/gu,''))
+      const relatedActiveItem=growthAll.some(item=>{
+        if(!['active','proposed'].includes(item.status))return false
+        const chars=new Set(item.text.replace(/[^\p{L}\p{N}]/gu,''))
+        let shared=0
+        for(const char of oldValueChars)if(chars.has(char))shared++
+        return shared>=2
+      })
+      // Nothing-to-correct tolerance: the user NAMED an old value (说成/说错了…)
+      // that no active record carries — clause-granularity items may legitimately
+      // not contain it. A correction naming no old value at all stays strict.
+      const namesOldValue=/(?:说成|说错|搞错|记错|写错|看错|不对|之前说|以前说|原本是)/.test(oldValueRemainder)
+      const claimDishonest=relatedActiveItem||!namesOldValue
+      if(!amendedNow&&claimDishonest&&/(?:已更正|更正为|更正已记录|已把.{0,10}改|已经?改成|更新为|已更新|已修改)/.test(result.reply))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
 
     }
     // P4 (F03): the forget-claim guard runs INDEPENDENTLY of any correction

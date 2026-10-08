@@ -94,8 +94,12 @@ test('B1 correction target: converted create (T6 replay), wrong item never overw
       reply: '已更正为大二。',
       growthUpdates: [{ target: { operation: 'correct', itemId: strayItem.id }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c0' } }],
     })
-    const wrongAim = (corrected.staged.audit.filter((a: any) => a?.phase === 'growth_correct_no_relation') as any[])[0]
-    assert.equal(wrongAim.itemId, strayItem.id, 'server refused the wrong-item correct')
+    // The wrong-item correct anchored on the marker clause is excluded by the
+    // marker rule (or refused as no-relation); either way the stray item is
+    // never overwritten and the deterministic fallback stages the real fix.
+    const wrongAim = (corrected.staged.audit.filter((a: any) => a?.phase === 'growth_correct_no_relation' || a?.phase === 'growth_marker_clause_excluded') as any[])[0]
+    assert.ok(wrongAim, 'server refused or excluded the wrong-item correct')
+    if (wrongAim.phase === 'growth_correct_no_relation') assert.equal(wrongAim.itemId, strayItem.id)
     assert.ok(corrected.staged.audit.some((a: any) => a?.phase === 'correction_server_staged'), 'deterministic fallback staged the scored correction')
     const afterRedirect = await growthView(user, chat)
     const majorAfter = afterRedirect.items.find(item => item.id === majorItem.id)

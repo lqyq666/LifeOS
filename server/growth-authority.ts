@@ -63,6 +63,12 @@ export function resolveGrowthDeltas(input:{
     // The same clause grounds one fact per turn; a provider echoing one span
     // into several shapes (the C06 duplicate replace shape) keeps the first.
     if(emittedClauses.has(clause.clauseId)){audit.push({phase:'growth_duplicate_clause',inputIndex,clauseId:clause.clauseId});continue}
+    // The marker clause of an active correction plan belongs to the
+    // deterministic fallback staging — a model create anchored there would
+    // store the marker prefix (更正一下：…) as a stray fact, so creates are
+    // dropped early. A correct aimed at the scored plan target is honored
+    // below (the plan supplies the stripped newQuote), so it passes through.
+    if(delta.target.operation!=='correct'&&input.correctionPlan&&/(?:更正|说错了?|搞错了?|记错了?|写错了?|看错了?|不对)/.test(clause.text)&&!clause.interrogative){audit.push({phase:'growth_marker_clause_excluded',inputIndex,clauseId:clause.clauseId});continue}
     const timeEvidence=resolveTimeEvidence(delta,input.catalogue)
     // The wire timeEvidence (clauseId form) must never leak through: an
     // unresolvable anchor means NO evidence, and the supplement path covers
