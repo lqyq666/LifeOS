@@ -316,3 +316,10 @@ https://lqynb.xyz 已上线（细节见 git 历史 3fbd936 的 HANDOFF 版本）
 - G7 小批 11/11 businessPass 一次通过（9bc3186）。
 - G8 完整D Gate重跑（freeze 7a9837a6）：127轮/119完成/8失败（6.3%，逐条披露）；L1=4/L2=3/L3=3会话✓；完成p95 11.9s MET；首有效p50 3215ms（本批provider窗口raw p50 1.9s）——健康窗口复测同冻结版本即可判定。账本2001条/余¥11.69。
 - 下一步：在健康供应商窗口用同冻结版本(9bc3186)复测速度（无需改码）；达标后G9部署/G10材料。
+
+### G8 速度复测与最终交付物（253fc34+）
+
+- 健康窗口复测（同冻结 9bc3186，`g9-speed-remeasure.json`）：raw p50 659ms，7/7 businessPass，warm 首有效全部6值 1200/1234/1307/1330/1966/4788ms → **p50 1330 / p95-max 4788，达标**（≤3000/≤5000）。四批速度数据全保留无挑选：3批健康（p50 1307–1562）+1批供应商崩塌（raw p50 2193，单独记录）。
+- 完整 Gate 判定：**CONDITIONAL PASS**——全部业务项绿；速度达标条件=供应商 TTFT 健康（raw p50<1.5s），已作为运营风险写入 FINAL_PERFORMANCE.md。
+- 最终交付物全部落盘并提交：FINAL_D_GATE.md/json（评估）、FINAL_PERFORMANCE.md（四批速度+窗口风险）、FINAL_COST.md（¥0.2–0.26/100轮）、FINAL_MEMORY_GROWTH_EVIDENCE.md、FINAL_SKILL_COZE_EVIDENCE.md、DEPLOY_READY.md（部署前清单+smoke清单，等待账号所有者确认执行窗口；本轮未做生产变更）。
+- 账本 2008 条 / accounted ¥18.3237 / 剩余 ¥11.6763。
