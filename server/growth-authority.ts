@@ -64,10 +64,15 @@ export function resolveGrowthDeltas(input:{
     const timeEvidence=resolveTimeEvidence(delta,input.catalogue)
     // The wire timeEvidence (clauseId form) must never leak through: an
     // unresolvable anchor means NO evidence, and the supplement path covers
-    // the obligation deterministically.
+    // the obligation deterministically. A legacy validUntil is kept ONLY when
+    // it is well-formed timezone-explicit ISO text — the server owns expiry,
+    // and a malformed model value is dropped instead of poisoning the turn.
     const {timeEvidence:wireTimeEvidence,...deltaWithoutEvidence}=delta
     void wireTimeEvidence
-    const next:ResolvedGrowthDelta={...deltaWithoutEvidence,source:{messageId:input.currentMessageId,quote:clause.text},target:{operation:'create'},...(timeEvidence?{timeEvidence}:{})} as unknown as ResolvedGrowthDelta
+    const legacyValidUntil=typeof deltaWithoutEvidence.validUntil==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(deltaWithoutEvidence.validUntil)?deltaWithoutEvidence.validUntil:undefined
+    const {validUntil:wireValidUntil,...deltaWithoutExpiry}=deltaWithoutEvidence
+    void wireValidUntil
+    const next:ResolvedGrowthDelta={...deltaWithoutExpiry,...(legacyValidUntil?{validUntil:legacyValidUntil}:{}),source:{messageId:input.currentMessageId,quote:clause.text},target:{operation:'create'},...(timeEvidence?{timeEvidence}:{})} as unknown as ResolvedGrowthDelta
     if(delta.target.operation==='correct'){
       const itemId=delta.target.itemId
       const item=input.authorized.find(row=>row.id===itemId)
