@@ -7,6 +7,7 @@ import { AutoTextarea } from './AutoTextarea'
 import { ConversationSummary } from './ConversationSummary'
 import { MemoryPanel } from './MemoryPanel'
 import { ControlCards } from './ControlCards'
+import { ReplyMarkdown } from './ReplyMarkdown'
 import { GrowthWorkspace } from '../growth/GrowthWorkspace'
 import { getAnswerQuestion, type AnswerOption } from './choices.ts'
 import { WORKSPACE_KEY, chatTitle, newChat, newWorkspace, parseWorkspace, updateChat, type Chat } from './workspace.ts'
@@ -403,7 +404,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
             {conversation.demo && <p className="qa-demo-label">示例对话 · 比赛与课程之间的选择</p>}
             {conversation.messages.map(message => <article key={message.id} className={`qa-message is-${message.role}`} aria-label={message.role === 'user' ? '你的消息' : 'LifeOS 的回应'}>
               {message.role === 'assistant' && <div className="qa-assistant-name"><Companion motion={message.id === conversation.messages.at(-1)?.id && !busy ? companionMotion : 'idle'} animated={open && !summaryOpen && !busy && message.id === conversation.messages.at(-1)?.id} /><span>LifeOS</span></div>}
-              <div className="qa-message-body">{message.transient && <small role="status">生成草稿 · 未校验、未保存</small>}{message.text.split('\n\n').map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
+              <div className="qa-message-body">{message.transient && <small role="status">生成草稿 · 未校验、未保存</small>}{message.role === 'assistant' ? <ReplyMarkdown text={message.text} /> : message.text.split('\n\n').map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
             </article>)}
             {busy && <div className="qa-thinking" role="status"><Companion motion={companionMotion} animated={open && !summaryOpen} /><span>{companionMotion === 'received' ? '收到你的想法' : '整理中'}</span>{remote.current && <button type="button" onClick={() => void cancelRemote()}>取消</button>}</div>}
           </div>}
