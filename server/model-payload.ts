@@ -21,7 +21,7 @@ function providerSchema(value:unknown,currentMessageId?:string):unknown{
   ]))
 }
 
-export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false,resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds?:readonly string[]):unknown{
+export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false,resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds?:readonly string[],requireCandidate=false):unknown{
   if(currentMessageId&&!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(currentMessageId))throw new Error('CURRENT_MESSAGE_ID_INVALID')
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return payload
   const body={...payload as Record<string,unknown>}
@@ -128,7 +128,24 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
         })
         const candidate=compiled.properties?.experienceCandidate
         if(candidate?.properties?.source?.properties?.clauseIds&&clauseIds?.length)candidate.properties.source.properties.clauseIds={...candidate.properties.source.properties.clauseIds,items:{...candidate.properties.source.properties.clauseIds.items,enum:[...clauseIds]}}
+        // Structured action/result handles are enum-bound to the same
+        // server-built catalogue; a fabricated clauseId is unrepresentable.
+        for(const field of ['action','result']as const){
+          const handle=candidate?.properties?.[field]?.properties?.clauseId
+          if(handle&&clauseIds?.length)handle.enum=[...clauseIds]
+        }
       }
+    }
+    if(requireCandidate&&!slimUpdateTimeMode&&compiled.properties?.experienceCandidate){
+      // Same pattern as requireMaterial: when the message structurally reports
+      // a completed first-person action, the candidate lane stops being
+      // omittable — the model must select the verbatim clause range.
+      const candidate=compiled.properties.experienceCandidate as {properties?:Record<string,unknown>,required?:string[],description?:string}
+      compiled.required=[...new Set([...compiled.required??[],'experienceCandidate'])]
+      candidate.required=[...new Set([...candidate.required??[],'source'])]
+      const source=candidate.properties?.source as {required?:string[]}|undefined
+      if(source)source.required=[...new Set([...source.required??[],'clauseIds'])]
+      candidate.description='本轮用户报告了本人已完成的行动：必须选择currentUserMessage.clauses中连续相邻的分句作为经历候选原话；行动与结果分不清时省略action/result。'
     }
     if(requireMaterial){
       const event=compiled.properties?.event,action=event?.properties?.action

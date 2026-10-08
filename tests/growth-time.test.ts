@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {resolveTimeWindow,legacyValidUntilMatchesQuote,quoteStatedCutoff,chineseInteger,TimeEvidenceError} from '../server/growth-time.ts'
+import {resolveTimeWindow,legacyValidUntilMatchesQuote,quoteStatedCutoff,chineseInteger,TimeEvidenceError,resolveOccurredDate} from '../server/growth-time.ts'
 
 const ANCHOR='2026-10-06T04:00:00.000Z' // Tuesday 12:00 Shanghai
 const SOURCE='我到2026年10月20日前都要备考，接下来三周很忙，下周只有两小时，本周先赶作业。'
@@ -68,4 +68,25 @@ test('legacy validUntil is accepted only when the quote states the same cutoff',
   assert.equal(legacyValidUntilMatchesQuote('not-a-date',quote,'Asia/Shanghai'),false)
   assert.equal(quoteStatedCutoff('期末忙，先备考','Asia/Shanghai'),null)
   assert.equal(quoteStatedCutoff(quote,'Asia/Shanghai')!.date,'2026-12-31')
+})
+
+test('resolveOccurredDate derives past dates only from explicit user words',()=>{
+  // Thursday 2026-10-08, 20:00 Shanghai.
+  const anchor='2026-10-08T12:00:00.000Z'
+  assert.equal(resolveOccurredDate('约好周五交、我上周五才交过去',anchor,'Asia/Shanghai'),'2026年10月2日（周五）')
+  assert.equal(resolveOccurredDate('昨天把海报交了',anchor,'Asia/Shanghai'),'2026年10月7日（周三）')
+  assert.equal(resolveOccurredDate('前天答辩结束了',anchor,'Asia/Shanghai'),'2026年10月6日（周二）')
+  assert.equal(resolveOccurredDate('今天上午交了报名表',anchor,'Asia/Shanghai'),'2026年10月8日（周四）')
+  assert.equal(resolveOccurredDate('10月2日交的终稿',anchor,'Asia/Shanghai'),'2026年10月2日（周五）')
+  assert.equal(resolveOccurredDate('2026年9月30日签的字',anchor,'Asia/Shanghai'),'2026年9月30日（周三）')
+  assert.equal(resolveOccurredDate('2026-9-30签的字',anchor,'Asia/Shanghai'),'2026年9月30日（周三）')
+  assert.equal(resolveOccurredDate('上个月参加了招新',anchor,'Asia/Shanghai'),'2026年9月')
+  assert.equal(resolveOccurredDate('上周参加了一个工作坊',anchor,'Asia/Shanghai'),'上周')
+  // A month/day already past this year with no year stated belongs to last year.
+  assert.equal(resolveOccurredDate('12月30日交的',anchor,'Asia/Shanghai'),'2025年12月30日（周二）')
+  // Bare weekdays, future weekdays and vague futures stay unresolved.
+  assert.equal(resolveOccurredDate('周五交',anchor,'Asia/Shanghai'),null)
+  assert.equal(resolveOccurredDate('这周五交',anchor,'Asia/Shanghai'),null,'the named day is still ahead: a plan, not an experience')
+  assert.equal(resolveOccurredDate('下个月再说',anchor,'Asia/Shanghai'),null)
+  assert.equal(resolveOccurredDate('上周五交了','2026-10-08 04:00','Asia/Shanghai'),null,'anchor must come from messages.created_at')
 })

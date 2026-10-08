@@ -32,6 +32,7 @@ import { ignorableConnectives } from './turn-obligations.ts'
 import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
 import { scanUserClauses } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
+import { clauseReportsCompleted, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate } from './experience-content.ts'
 import { deriveTurnContract } from './turn-contract.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
@@ -67,7 +68,7 @@ function usageSummary(calls:CallRecord[],contextTokenEstimate:number,retrievedMe
   return {source:calls.length?'provider':zeroLlm?'deterministic':'unknown',provider:last?.provider??null,model:last?.model??null,modelTier:tiers.length?tiers.join('+'):'none',inputTokens:totalInputTokens,totalInputTokens,uncachedInputTokens:input,cacheWriteInputTokens:cacheWrite,outputTokens:sum('outputTokens'),cachedInputTokens:cachedInput,retrievedMemoryCount,contextTokenEstimate,contextTokenEstimateKind:'heuristic',escalated,escalationReason,repairReason,repairCalls:calls.filter(call=>call.purpose==='repair').length,groundingReviewCalls:0,zeroLlm,llmCallCount:calls.length,estimatedCostCny,calls:callLedger}
 }
 
-async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string)=>void,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds:readonly string[]=[],earlyDraftMode:'none'|'safe_sentence'='none'):Promise<string>{
+async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string)=>void,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds:readonly string[]=[],earlyDraftMode:'none'|'safe_sentence'='none',requireCandidate=false):Promise<string>{
   signal.throwIfAborted()
   if(!runtime.available)throw new HttpError(503,'MODEL_TIER_UNAVAILABLE')
   if(!capabilityVerified(runtime.tier))throw new HttpError(503,'MODEL_CAPABILITY_TEST_REQUIRED')
@@ -87,7 +88,7 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     const envelope=JSON.parse(userPrompt),authorized=envelope.authorizedContext??envelope,currentMessageId=authorized.currentUserMessage.id
     const eventTargets=[authorized.currentEvent,...authorized.events??[]].filter(Boolean).map((event:any)=>({id:event.id,revision:event.revision,activeUnknownIds:(event.nodes??[]).filter((node:any)=>node.kind==='unknown'&&node.status==='active').map((node:any)=>node.id),nodeIds:(event.nodes??[]).map((node:any)=>node.id),actionIds:(event.actions??[]).map((action:any)=>action.id)}))
     const source=stream(runtime.model,{systemPrompt,messages},{apiKey:runtime.apiKey,maxTokens:maxOutputTokens,timeoutMs:60000,maxRetries:0,signal,onPayload:(payload,selected)=>{
-      const configured=configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,(authorized.growth??[]).map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(authorized.currentUserMessage.text),resumePortfolioCatalogueIds,slimUpdateTimeMode,clauseIds)
+      const configured=configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,(authorized.growth??[]).map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(authorized.currentUserMessage.text),resumePortfolioCatalogueIds,slimUpdateTimeMode,clauseIds,requireCandidate)
       // Explicit isolated instrumentation only. The observer cannot mutate the
       // actual outgoing body, and the production engine has no payload logger.
       if(observer?.payload)observer.payload(Object.freeze({...record}),structuredClone(configured))
@@ -799,8 +800,23 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         staged.audit.push({phase:'coach_optional_candidate_rejected',code:'CANDIDATE_CLAUSE_UNRESOLVED',committed:false})
         delete result.experienceCandidate
       }else{
+        // Structured fields resolve server-side from the same catalogue: the
+        // model only named handles, the stored text stays verbatim user words.
+        // A comma chain is one sentence: when the model's selection sits inside
+        // a detected experience sentence, the record keeps the whole chain so
+        // the leading clause's action and time words are not lost (the flash
+        // tier routinely selects only the trailing result clauses).
+        const anchorIso=new Date(current.created_at).toISOString()
+        const structural=selectStructuralCandidate(current.content,clauseCatalogue,anchorIso)
+        const span=structural&&structural.start<=selection.start&&selection.end<=structural.end?structural:{quote:selection.quote,start:selection.start,end:selection.end}
+        const extracted=resolveCandidateContent(clauseCatalogue,span,result.experienceCandidate,anchorIso)
+        if(span===structural){
+          if(!clauseReportsCompleted(extracted.content.action))extracted.content.action=structural!.content.action
+          if(!extracted.content.result)extracted.content.result=structural!.content.result
+        }
+        for(const field of extracted.dropped)staged.audit.push({phase:'coach_candidate_field_dropped',code:'CANDIDATE_FIELD_CLAUSE_UNRESOLVED',field,committed:false})
         try{
-          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:selection.quote,links:[]},signal)
+          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:span.quote,links:[],content:extracted.content},signal)
         }catch(error){
           // Only an independent semantic candidate error may be dropped. Source,
           // ownership and transaction failures still invalidate the whole turn.
@@ -815,12 +831,32 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         }
       }
     }
+    if(!result.experienceCandidate&&contract.capabilities.candidate&&!slimUpdateTimeMode&&requiresExperienceCandidate(clauseCatalogue)){
+      // Constrained decoding only guides, it does not force: flash-tier models
+      // keep omitting the optional lane even when the schema requires it. A
+      // structurally unambiguous completed first-person action report still
+      // becomes a candidate here — same server-owned verbatim quote, same
+      // guards, same user-confirmation lifecycle as the model-selected path.
+      const structural=selectStructuralCandidate(current.content,clauseCatalogue,new Date(current.created_at).toISOString())
+      if(structural){
+        try{
+          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:structural.quote,links:[],content:structural.content},signal)
+          staged.audit.push({phase:'coach_candidate_structural',code:'STRUCTURAL_CANDIDATE_STAGED',quoteChars:structural.quote.length,committed:false})
+        }catch(error){
+          const savingRelated=/(?:保存|记录|记下|记住|存入|收录|入库|确认|经历|经验|图谱|长期记忆|experience|remember|record|save|memory)/i
+          const independent=result.event?.action?.operation!=='close'
+            &&!savingRelated.test(current.content)&&!savingRelated.test(result.reply)
+          if(!(error instanceof HttpError)||!['PLANNED_ACTION_IS_NOT_EXPERIENCE','SKILL_IS_NOT_EXPERIENCE'].includes(error.code)||!independent)throw error
+          staged.audit.push({phase:'coach_optional_candidate_rejected',code:error.code,structural:true,committed:false})
+        }
+      }
+    }
     return result
   }
   const slimUpdateTimeMode=obligations.kind==='update_weekly_time'&&!/(?:已经|昨天|已投|已发|投了|发了|完成了|做了|交了)/.test(current.content)
   let result:ActionCoachTurn,firstText:string|undefined
   try{
-    firstText=await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',text=>emit({type:'draft',text,saved:false}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,clauseCatalogue.map(handle=>handle.clauseId),contract.mode==='reply_only'?'safe_sentence':'none')
+    firstText=await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',text=>emit({type:'draft',text,saved:false}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,clauseCatalogue.map(handle=>handle.clauseId),contract.mode==='reply_only'?'safe_sentence':'none',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue))
     result=await validateOutput(firstText)
   }catch(error){
     const repairable=new Set(['GROWTH_REQUIRED_UPDATE_MISSING','GROWTH_AMENDMENT_AMBIGUOUS','GROWTH_COMPOSITE_REQUIRES_REVIEW','GROWTH_TIME_UNVERIFIED','GROWTH_TIME_REQUIRED','WEEKLY_PLAN_BASIS_INVALID','WEEKLY_PLAN_REQUIRED_MISSING','WEEKLY_PLAN_BUDGET_MISMATCH','REPLY_CLAIMS_UNCOMMITTED_CORRECTION','REPLY_CLAIMS_UNCOMMITTED_FORGET','REPLY_REPEATED_VERBATIM','DIRECTION_CONTROL_NOT_APPLIED','MATERIAL_REFERENCE_INVALID','REPLY_CONTRADICTS_CURRENT_EFFECT','GROWTH_SOURCE_INVALID','GROWTH_TARGET_INVALID','GROWTH_UNCHANGED','GROWTH_OBSERVATION_INVALID','GROWTH_DEPENDENCY_INVALID','GROWTH_TIME_INVALID','GROWTH_FEEDBACK_INVALID','COACH_CORRECTION_UNCHANGED','COACH_ACTION_UNCHANGED','COACH_EVENT_TARGET_INVALID','COACH_UNKNOWN_NOT_FOUND','COACH_UNKNOWN_DISPOSITION_CONFLICT','COACH_OUTPUT_INVALID','MODEL_OUTPUT_TRUNCATED','COACH_DELTA_INVALID','COACH_SOURCE_INVALID','COACH_CURRENT_SOURCE_REQUIRED','COACH_NEW_EVENT_TARGET_INVALID','COACH_MATERIAL_NOT_VISIBLE','COACH_MATERIAL_IS_CONVERSATION','COACH_ACTION_DECLINED','COACH_BACKGROUND_INVALID','COACH_CITATION_INVALID','COACH_CITATION_OUTPUT_LIMIT','PLANNED_ACTION_IS_NOT_EXPERIENCE','SKILL_IS_NOT_EXPERIENCE','SOURCE_QUOTE_MISMATCH','EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE'])

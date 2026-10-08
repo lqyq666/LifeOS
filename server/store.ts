@@ -122,7 +122,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     const candidateIds:string[]=[]
     for(const candidate of staged.candidates) {
       const id=randomUUID()
-      const content={title:candidate.quote.slice(0,36),summary:candidate.quote,action:'',result:'',reflection:'',occurredAt:'',source:'用户对话原话',tags:[]}
+      const content={title:candidate.quote.slice(0,36),summary:candidate.quote,action:candidate.content?.action??'',result:candidate.content?.result??'',reflection:'',occurredAt:candidate.content?.occurredAt??'',source:'用户对话原话',tags:[]}
       const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status) VALUES($1,$2,$3,$4,$5,$6,$7,\'candidate\') ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,candidate.quote,run.request_id,content])
       if(!inserted.rowCount)continue
       candidateIds.push(id)

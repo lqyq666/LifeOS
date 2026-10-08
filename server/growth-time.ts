@@ -109,3 +109,66 @@ export function legacyValidUntilMatchesQuote(validUntil: string, quote: string, 
   const stated = quoteStatedCutoff(quote, zone)
   return stated !== null && Date.parse(validUntil) === Date.parse(stated.validUntil)
 }
+
+// When an already-happened experience occurred, derived only from explicit
+// past-time words inside the user's quote. Same refusal rule as the deadline
+// windows: uncovered phrasings return null and the record simply carries no
+// date; bare weekday mentions (周五) stay unresolved on purpose because the
+// speaking day decides what they mean.
+const WEEKDAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+const weekdayIndex = (char: string): number | null => {
+  // Offsets from the week's Monday, matching thisMonday-based arithmetic.
+  const map: Record<string, number> = { 一: 0, 二: 1, 三: 2, 四: 3, 五: 4, 六: 5, 日: 6, 天: 6 }
+  return char in map ? map[char]! : null
+}
+export function resolveOccurredDate(quote: string, requestTimeUtc: string, zone: Zone): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(requestTimeUtc)) return null
+  const now = Date.parse(requestTimeUtc)
+  if (!Number.isFinite(now)) return null
+  const zoneOffset = offset(zone)
+  const local = new Date(now + zoneOffset)
+  const y = local.getUTCFullYear(), m = local.getUTCMonth(), d = local.getUTCDate()
+  const format = (date: Date) => `${date.getUTCFullYear()}年${date.getUTCMonth() + 1}月${date.getUTCDate()}日（${WEEKDAY_NAMES[date.getUTCDay()]}）`
+  const explicit = (year: number | null, month: number, day: number): string | null => {
+    if (month < 1 || month > 12 || day < 1 || day > 31) return null
+    const anchorYear = year ?? y
+    const candidate = new Date(Date.UTC(anchorYear, month - 1, day))
+    if (candidate.getUTCFullYear() !== anchorYear || candidate.getUTCMonth() !== month - 1 || candidate.getUTCDate() !== day) return null
+    // A past event never lands in the future: a month/day already past this
+    // year belongs to last year when no year was stated (12月30日 said in
+    // January). Still future for a stated year is a plan, not an experience.
+    if (Date.UTC(anchorYear, month - 1, day) > Date.UTC(y, m, d)) {
+      if (year !== null || Date.UTC(anchorYear - 1, month - 1, day) > Date.UTC(y, m, d)) return null
+      candidate.setUTCFullYear(anchorYear - 1)
+    }
+    return format(candidate)
+  }
+  const full = /(?:于|在)?\s*(20\d{2})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*[日号]/.exec(quote)
+  if (full) return explicit(+full[1], +full[2], +full[3])
+  const iso = /(20\d{2})-(\d{1,2})-(\d{1,2})/.exec(quote)
+  if (iso) return explicit(+iso[1], +iso[2], +iso[3])
+  const monthDay = /(\d{1,2})\s*月\s*(\d{1,2})\s*[日号]/.exec(quote)
+  if (monthDay) return explicit(null, +monthDay[1], +monthDay[2])
+  const daysSinceMonday = (local.getUTCDay() + 6) % 7
+  const thisMonday = Date.UTC(y, m, d - daysSinceMonday)
+  const lastWeekDay = /上周([一二三四五六日天])/.exec(quote)
+  if (lastWeekDay) {
+    const index = weekdayIndex(lastWeekDay[1]!)
+    return index === null ? null : format(new Date(thisMonday - 7 * DAY + index * DAY))
+  }
+  const thisWeekDay = /[本这]周([一二三四五六日天])/.exec(quote)
+  if (thisWeekDay) {
+    const index = weekdayIndex(thisWeekDay[1]!)
+    if (index === null) return null
+    const target = thisMonday + index * DAY
+    // Naming a day still ahead in the current week describes a plan.
+    return target > Date.UTC(y, m, d) ? null : format(new Date(target))
+  }
+  if (/大前天/.test(quote)) return format(new Date(Date.UTC(y, m, d - 3)))
+  if (/前天/.test(quote)) return format(new Date(Date.UTC(y, m, d - 2)))
+  if (/昨天/.test(quote)) return format(new Date(Date.UTC(y, m, d - 1)))
+  if (/今天/.test(quote)) return format(new Date(Date.UTC(y, m, d)))
+  if (/上个月|上月/.test(quote)) return m === 0 ? `${y - 1}年12月` : `${y}年${m}月`
+  if (/上周/.test(quote)) return '上周'
+  return null
+}

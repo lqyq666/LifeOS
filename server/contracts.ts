@@ -10,7 +10,9 @@ export const memoryKeySchema = Type.Union([
 ])
 export type MemoryKey = Static<typeof memoryKeySchema>
 export const valueId = Type.Union([Type.Literal('value-creation'),Type.Literal('value-autonomy'),Type.Literal('value-growth')])
-export const candidateSchema = Type.Object({ sourceMessageId: uuid, quote: text(), links: Type.Array(Type.Object({ valueId, reason: text(2000) },{ additionalProperties: false }),{ maxItems: 3 }) },{ additionalProperties: false })
+// The content fields carry server-resolved verbatim clause text and the
+// derived occurred date (empty when unresolved); the model never writes them.
+export const candidateSchema = Type.Object({ sourceMessageId: uuid, quote: text(), links: Type.Array(Type.Object({ valueId, reason: text(2000) },{ additionalProperties: false }),{ maxItems: 3 }), content: Type.Optional(Type.Object({ action: Type.String({ maxLength: 4000 }), result: Type.String({ maxLength: 4000 }), occurredAt: Type.String({ maxLength: 200 }) },{ additionalProperties: false })) },{ additionalProperties: false })
 export type Candidate = Static<typeof candidateSchema>
 export const retrievalSchema = Type.Object({ query: Type.String({ maxLength: 200 }), limit: Type.Integer({ minimum: 1, maximum: 10 }) },{ additionalProperties: false })
 export const createChatSchema = Type.Object({ id: uuid, title: text(100) },{ additionalProperties: false })

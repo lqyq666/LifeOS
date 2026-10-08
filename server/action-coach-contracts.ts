@@ -90,8 +90,15 @@ export const actionCoachTurnSchema=Type.Object({
   // Candidates remain opt-in proposals; confirmation still uses the existing
   // experience API and is never implied by a conversation-state update.
   // P1: the source is a contiguous clauseId selection; the server owns the
-  // exact verbatim span and the messageId.
-  experienceCandidate:Type.Optional(Type.Object({source:Type.Object({clauseIds:Type.Array(Type.String({pattern:'^c[0-9]{1,2}$'}),{minItems:1,maxItems:8,description:'currentUserMessage.clauses中连续的clause id，从第一句到最后一句必须相邻。'})},{additionalProperties:false})},{additionalProperties:false})),
+  // exact verbatim span and the messageId. The structured action/result
+  // fields follow the same rule — the model only names clause handles inside
+  // the selected range and the server stores their verbatim text; the
+  // occurred date is derived server-side from explicit words in the quote.
+  experienceCandidate:Type.Optional(Type.Object({
+    source:Type.Object({clauseIds:Type.Array(Type.String({pattern:'^c[0-9]{1,2}$'}),{minItems:1,maxItems:8,description:'currentUserMessage.clauses中连续的clause id，从第一句到最后一句必须相邻。'})},{additionalProperties:false}),
+    action:Type.Optional(Type.Object({clauseId:Type.String({pattern:'^c[0-9]{1,2}$',description:'source范围内写本人做了什么的分句，服务器保存其精确原文；分不清就省略'})},{additionalProperties:false})),
+    result:Type.Optional(Type.Object({clauseId:Type.String({pattern:'^c[0-9]{1,2}$',description:'source范围内写行动直接结果或交付状态的分句，服务器保存其精确原文；分不清就省略'})},{additionalProperties:false})),
+  },{additionalProperties:false,description:'用户报告本人已发生、已完成的具体行为与结果时输出：服务器把所选原话立为经历候选，用户确认后进星图；计划、技能或他人故事不输出。'})),
 },{additionalProperties:false,description:'reply是唯一必填字段。其余字段仅表示真实必要变化；知识或倾听可以只有reply。可选不是要求每轮创建对象，省略未发生的变化，不填空对象或空文案。'})
 export type ActionCoachTurn=Static<typeof actionCoachTurnSchema>
 export type EventDelta=Static<typeof eventDeltaSchema>
