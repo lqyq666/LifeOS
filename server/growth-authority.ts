@@ -54,6 +54,8 @@ export function resolveGrowthDeltas(input:{
     // fact the user asserted — the meta-query shape (你记得我之前说过什么吗)
     // can no longer ground a user_reported create (L1OFF).
     if(delta.assertion==='user_reported'){
+      // A pure connective/adverbial fragment (顺便/然后/另外…) is not a fact.
+      if(/^(?:顺便|然后|另外|同时|所以|但是|而且|接着|其次|最后|还有|而且呢)$/.test(clause.text.trim())||clause.text.trim().length<=2){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'fragment'});continue}
       if(clause.interrogative){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'interrogative'});continue}
       if(clause.conditional){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'conditional'});continue}
       if(clause.quoted||clause.code){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:clause.quoted?'quoted':'code'});continue}

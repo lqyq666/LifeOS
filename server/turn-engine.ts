@@ -768,6 +768,14 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const repairPrompt=JSON.stringify({authorizedContext:JSON.parse(userPrompt),validationError:error.code,validationGuidance,invalidAttempt:error.code==='MODEL_OUTPUT_TRUNCATED'?null:firstText})
     const estimate=estimateTokens(repairSystem+repairPrompt);contextTokenEstimate+=estimate
     staged.audit.push({phase:'coach_repair_started',code:error.code,totalBudget:2})
+    // Structure-only retention of the rejected attempt (never raw text): the
+    // lane shapes that failed let failed-turn replays be diagnosed from the
+    // audit alone.
+    try{
+      const rejected=firstText?JSON.parse(firstText.replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')):null
+      if(rejected&&typeof rejected==='object')
+        staged.audit.push({phase:'model_output_rejected_shape',keys:Object.keys(rejected),growthOps:Array.isArray(rejected.growthUpdates)?rejected.growthUpdates.map((delta:any)=>({op:delta?.target?.operation,itemId:delta?.target?.itemId?delta.target.itemId.slice(0,8):null,clauseId:delta?.source?.clauseId??null,kind:delta?.kind??null})):null,hasEvent:Boolean(rejected.event),hasPlan:Boolean(rejected.weeklyPlan),citations:Array.isArray(rejected.citations)?rejected.citations.length:0,replyClaimsCorrection:/已更正|更正为|已经?改成|更新为/.test(String(rejected.reply??''))})
+    }catch{}
     const second=await runModelCall(runtime,repairSystem,repairPrompt,1,run.request_id,estimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'repair',contract.schema as never,'lifeos_action_coach_repair','repair',undefined,observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,clauseCatalogue.map(handle=>handle.clauseId))
     result=await validateOutput(second)
   }
