@@ -35,8 +35,30 @@ const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
 const greetingOnly=/^(?:好的?|好呀|好嘞|好滴|嗯+|哦+|噢+|行|行的|可以|ok|OK|Okay|谢谢|感谢|辛苦了|收到|明白|了解了?|继续|加油|晚安|早安|抱抱|没问题|听你的|先这样|就这样|都行|随你)(?:[了的呀呢啊嘛吧!！。.,，,~\s]*(?:先这样|就这样|听你的|再?说)?)?(?:[了的呀呢啊嘛吧!！。.,，,~\s]*)*$/
 const metaMemoryQuery=/你(?:还)?记得|我说过什么|你知道我什|记得我(?:以前|之前|上次)?说过/
 const listeningOnly=/^(?:我(?:今天|现在|最近)?(?:只想|就想|只?想)(?:倾诉|聊聊|说说|吐个槽|吐槽|说点心里话|说说不开心的|发发牢骚)|我(?:今天|最近)?(?:心里|有点)(?:.{0,6}不舒服|难过|烦|累|迷茫|委屈))[^。！？]*[。！？?]?$/
-// A first-person past-action report opens the event/review lane.
-const personalEventReport=/(?:做了|做完|做过|交了|交过|发过|发了|投过|写过|整理过|帮过|参加(?:了|过)|弄了|搞了|写了|投了|联系了|问了|试了|试过|没用上?|没效果|没结果|没坚持|卡住了?|上次|昨天|前天|上周|上个月|上学期|去年|导师说|学长说|学姐说|同学说|室友说|对方说|他们没用)/
+// A first-person past-action report opens the event/review lane. The lexicon
+// only flags CANDIDATE clauses; structure (interrogative / attributedToOther /
+// conditional / quoted from scanUserClauses) decides whether the candidate is
+// the USER'S OWN report — a question, a third-party report or a hypothesis
+// never opens the lane.
+const personalEventReportLexicon=/(?:做了|做完|做过|交了|交过|发过|发了|投过|写过|整理过|帮过|参加(?:了|过)|弄了|搞了|写了|投了|联系了|问了|试了|试过|没用上?|没效果|没结果|没坚持|卡住了?|导师说|学长说|学姐说|同学说|室友说|对方说|他们没用)/
+export function reportsPersonalEvent(text:string):boolean{
+  for(const clause of scanUserClauses(text)){
+    if(!carriesClauseText(clause.text))continue
+    // Temporal anchors alone (上次/昨天/上周…) carry no verb: they open the
+    // lane only inside a clause that also reports an action by the speaker.
+    if(clause.interrogative||clause.attributedToOther||clause.conditional||clause.quoted||clause.code)continue
+    // A clause that merely MENTIONS a quoted statement (…这句话是什么意思)
+    // discusses language, not experience; quoted spans inside it disqualify.
+    if(clause.quoteSpans.length)continue
+    if(personalEventReportLexicon.test(clause.text)&&(clause.text.includes('我')||clause.text.includes('本人')))return true
+    if(/(?:上次|昨天|前天|上周|上个月|上学期|去年)/.test(clause.text)){
+      const rest=scanUserClauses(text).slice().find(other=>other.sentenceStart===clause.sentenceStart&&personalEventReportLexicon.test(other.text)&&(other.text.includes('我')||other.text.includes('本人'))&&!other.interrogative&&!other.attributedToOther&&!other.conditional)
+      if(rest)return true
+    }
+  }
+  return false
+}
+const personalEventReport={test:reportsPersonalEvent}
 
 export function deriveTurnContract(input:{
   text:string
