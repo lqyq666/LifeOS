@@ -462,7 +462,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const correctionPlan=planExplicitCorrection(current.content,growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text})))
     const controlClauseTexts=detectForgetIntentClauses(current.content).filter(clause=>clause.kind).map(clause=>clause.clauseText)
     if(result.growthUpdates?.length){
-      const authoritative=resolveGrowthDeltas({deltas:result.growthUpdates,currentMessageId:run.source_message_id,currentText:current.content,catalogue:clauseCatalogue,authorized:growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,unavailableReason:item.unavailableReason})),correctionPlan,controlClauseTexts})
+      const authoritative=resolveGrowthDeltas({deltas:result.growthUpdates,currentMessageId:run.source_message_id,currentText:current.content,catalogue:clauseCatalogue,authorized:growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,unavailableReason:item.unavailableReason,status:item.status})),correctionPlan,controlClauseTexts})
       for(const entry of authoritative.audit)staged.audit.push(entry)
       if(authoritative.deltas.length)staged.growth=await stageGrowthUpdates(run,authoritative.deltas,growthAll,{allowedDirectionScopes:allowedDirectionScopes})
       // Plan refs speak the MODEL's array positions; the persisted bindings are
