@@ -79,8 +79,10 @@ export function safeEarlySentence(raw:string,maxChars=120):string|null{
     try{decoded=JSON.parse('"'+encoded+'"')}catch{continue}
     if(decoded.length>16000)return null
     // Only a TERMINATED sentence can surface: the first segment is complete
-    // exactly when a terminator exists; the trailing partial never shows.
-    const parts=decoded.split(/([。！!？?\n\r])/)
+    // exactly when a terminator exists; the trailing partial never shows. A
+    // completed first PARAGRAPH (double newline) counts as a terminator too.
+    const terminator=/([。！!？?]|\n\n|\r\n\r\n)/
+    const parts=decoded.split(terminator)
     const firstTerminator=parts.findIndex((part,index)=>index%2===1)
     if(firstTerminator<1)continue
     const sentence=parts[0]!.trim()
