@@ -26,7 +26,7 @@ export type GrowthAuthorityAudit=
 
 // A goal/direction change marker in the CURRENT clause: the user is changing
 // course, not asserting a new independent fact alongside the old ones.
-const goalChangeMarker=/(?:改主意|换(?:个)?(?:方向|目标)|不想(?:再)?(?:做|继续|准备)|不打算|决定不|改为|换成|转向|放弃)/
+export const goalChangeMarker=/(?:改主意|换(?:个)?(?:方向|目标)|不想(?:再)?(?:做|继续|准备)|不打算|决定不|改为|换成|转向|放弃)/
 const clauseIsControl=(text:string,controlClauseTexts:readonly string[])=>controlClauseTexts.some(control=>control.trim()===text.trim())
 const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
 

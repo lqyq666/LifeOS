@@ -33,6 +33,7 @@ import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligat
 import { scanUserClauses } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { deriveTurnContract } from './turn-contract.ts'
+import { goalChangeMarker } from './growth-authority.ts'
 import { resolveGrowthDeltas } from './growth-authority.ts'
 import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.ts'
 import { readRecommendationControls } from './memory-controls.ts'
@@ -520,6 +521,37 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         stagedCorrection.changes.forEach((_,i)=>mergedBindings.set(syntheticBase+i,mergedChanges.length-stagedCorrection!.changes.length+i))
         staged.growth={changes:mergedChanges,prepared:[...(staged.growth?.prepared??[]),...stagedCorrection.prepared],inputIndexBindings:mergedBindings,skipped:[...(staged.growth?.skipped??[]),...(stagedCorrection.skipped??[])]}
         staged.audit.push({phase:'correction_server_staged',mode:amendDelta&&stagedCorrection.prepared.some(entry=>entry.kind==='split_amend')?'amend':'verbatim_create',providerCalls:0})
+      }
+    }
+    // Goal-change fallback (G1): a change-marker sentence (我改主意了，现在想
+    // 先就业) with NO correction plan may produce a reply-only model turn —
+    // the reply then names the new direction while the old goal stays active.
+    // The server stages the supersession itself: the next first-person clause
+    // of the same sentence replaces the single active goal record.
+    if(!correctionPlan&&goalChangeMarker.test(current.content)){
+      const activeGoals=growthAll.filter(item=>['goal','direction'].includes(item.kind)&&item.assertion==='user_reported'&&item.status==='active'&&!item.unavailableReason)
+      if(activeGoals.length===1){
+        const goalMutated=staged.growth?.changes.some(delta=>(delta.target.operation==='replace'||delta.target.operation==='amend')&&'itemId'in delta.target&&delta.target.itemId===activeGoals[0]!.id)
+        const goalCreated=staged.growth?.changes.some(delta=>delta.target.operation==='create'&&['goal','direction'].includes(delta.kind))
+        if(!goalMutated&&!goalCreated){
+          const clauses=scanUserClauses(current.content).filter(clause=>/[\p{L}\p{N}]/u.test(clause.text))
+          const markerIndex=clauses.findIndex(clause=>goalChangeMarker.test(clause.text))
+          const newGoalClause=markerIndex>=0?clauses.slice(markerIndex+1).find(clause=>/我/.test(clause.text)&&!clause.interrogative&&!goalChangeMarker.test(clause.text)):undefined
+          if(newGoalClause){
+            const supersedeDelta={target:{operation:'replace' as const,itemId:activeGoals[0]!.id,expectedRevision:activeGoals[0]!.revision},assertion:'user_reported' as const,kind:activeGoals[0]!.kind as 'goal',source:{messageId:run.source_message_id,quote:newGoalClause.text.trim()}}
+            try{
+              const stagedSupersede=await stageGrowthUpdates(run,[supersedeDelta],growthAll,{})
+              if(stagedSupersede.changes.length){
+                const mergedChanges=[...(staged.growth?.changes??[]),...stagedSupersede.changes]
+                const mergedBindings=new Map(staged.growth?.inputIndexBindings??[])
+                const syntheticBase=Math.max(supplementBase,result.growthUpdates?.length??0)+1
+                stagedSupersede.changes.forEach((_,i)=>mergedBindings.set(syntheticBase+i,mergedChanges.length-stagedSupersede.changes.length+i))
+                staged.growth={changes:mergedChanges,prepared:[...(staged.growth?.prepared??[]),...stagedSupersede.prepared],inputIndexBindings:mergedBindings,skipped:[...(staged.growth?.skipped??[]),...(stagedSupersede.skipped??[])]}
+                staged.audit.push({phase:'goal_change_server_staged',itemId:activeGoals[0]!.id,newGoal:newGoalClause.text.trim(),providerCalls:0})
+              }
+            }catch{/* staging conflicts surface through the snapshot assertions */}
+          }
+        }
       }
     }
     // P2-2 (D-gate replay C03:3): rebind a plan whose updateIndex refs point at
