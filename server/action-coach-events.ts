@@ -120,7 +120,12 @@ export function deliverableIntent(text:string,operation:'create'|'modify'){
 export function requiresImmediateMaterial(text:string){
   return deliverableIntent(text,'create')&&text.split(/[，,。！？!?；;\n]/).some(part=>{
     const clause=part.trim()
-    return clause.startsWith('直接起草')||clause.startsWith('请直接起草')
+    // Turn-contract mode E opens the material lane when the user explicitly
+    // demands the deliverable NOW (请直接/马上/现在+写/起草/拟…). A plain
+    // 帮我写一封介绍邮件 may legitimately need a clarification first and
+    // stays non-immediate.
+    return /^(?:请)?(?:直接|马上|现在)(?:帮我|给我|替我)?(?:写|起草|拟|做|生成|整理|改写|润色)/.test(clause)
+      ||clause.startsWith('直接起草')||clause.startsWith('请直接起草')
   })
 }
 
