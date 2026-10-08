@@ -14,6 +14,7 @@ import type { CorrectionPlan } from './turn-obligations.ts'
 export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null}
 
 export type GrowthAuthorityAudit=
+  |{phase:'growth_authority_entry';deltas:number;planTarget:boolean;controlClauses:number}
   |{phase:'growth_clause_unresolved';inputIndex:number;clauseId:string}
   |{phase:'growth_clause_not_anchorable';inputIndex:number;clauseId:string;reason:'interrogative'|'conditional'|'quoted'|'code'}
   |{phase:'growth_control_clause_excluded';inputIndex:number;clauseId:string}
@@ -27,6 +28,7 @@ export type GrowthAuthorityAudit=
 // A goal/direction change marker in the CURRENT clause: the user is changing
 // course, not asserting a new independent fact alongside the old ones.
 export const goalChangeMarker=/(?:改主意|换(?:个)?(?:方向|目标)|不想(?:再)?(?:做|继续|准备)|不打算|决定不|改为|换成|转向|放弃)/
+const goalChangeMarkerReplace=/(?:改为|换成|转向|不想(?:再)?(?:做|继续|准备)|不打算|决定不|放弃)/
 const clauseIsControl=(text:string,controlClauseTexts:readonly string[])=>controlClauseTexts.some(control=>control.trim()===text.trim())
 const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
 
@@ -42,6 +44,7 @@ export function resolveGrowthDeltas(input:{
   const audit:GrowthAuthorityAudit[]=[]
   const resolved:ResolvedGrowthDelta[]=[]
   const indexMap=new Map<number,number>()
+  audit.push({phase:'growth_authority_entry',deltas:input.deltas.length,planTarget:Boolean(input.correctionPlan?.target),controlClauses:input.controlClauseTexts.length})
   const mutatedItems=new Set<string>()
   const emittedClauses=new Set<string>()
   for(const [inputIndex,delta] of input.deltas.entries()){
@@ -107,6 +110,13 @@ export function resolveGrowthDeltas(input:{
         if(input.correctionPlan&&input.correctionPlan.newQuote!==clause.text)next.source={messageId:input.currentMessageId,quote:input.correctionPlan.newQuote}
         audit.push({phase:'growth_correct_honored',inputIndex,itemId,mode:next.target.operation})
       }else if(goalChange){
+        // When the anchor is the marker clause itself (我改主意了), the
+        // replacement value is the NEXT first-person clause of the same
+        // message (现在想先就业) — the marker text never becomes the fact.
+        if(goalChangeMarker.test(clause.text)&&!goalChangeMarkerReplace.test(clause.text)){
+          const follow=input.catalogue.filter(handle=>handle.start>clause.end&&/我/.test(handle.text)&&!handle.interrogative&&!handle.attributedToOther).find(handle=>carriesClauseText(handle.text))
+          if(follow)next.source={messageId:input.currentMessageId,quote:follow.text}
+        }
         next.target={operation:'replace',itemId:item.id,expectedRevision:item.revision}
         audit.push({phase:'growth_correct_goal_change',inputIndex,itemId})
       }else{
