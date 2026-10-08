@@ -114,7 +114,9 @@ export function resolveGrowthDeltas(input:{
         // replacement value is the NEXT first-person clause of the same
         // message (现在想先就业) — the marker text never becomes the fact.
         if(goalChangeMarker.test(clause.text)&&!goalChangeMarkerReplace.test(clause.text)){
-          const follow=input.catalogue.filter(handle=>handle.start>clause.end&&/我/.test(handle.text)&&!handle.interrogative&&!handle.attributedToOther).find(handle=>carriesClauseText(handle.text))
+          // The marker's 我 already scopes the sentence to the user; the
+          // follow clause itself may omit it (现在想先就业).
+          const follow=input.catalogue.filter(handle=>handle.start>clause.end&&!handle.interrogative&&!handle.attributedToOther&&!goalChangeMarker.test(handle.text)).find(handle=>carriesClauseText(handle.text))
           if(follow)next.source={messageId:input.currentMessageId,quote:follow.text}
         }
         next.target={operation:'replace',itemId:item.id,expectedRevision:item.revision}
