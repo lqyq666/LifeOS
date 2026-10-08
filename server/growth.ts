@@ -114,10 +114,18 @@ export async function createGrowthItem(user: string, raw: GrowthCreate): Promise
   })
 }
 export async function actOnGrowthItem(user: string, id: string, raw: GrowthAction): Promise<GrowthItem> {
-  const input = validate(growthActionSchema, raw), hash = fingerprint({ id, ...input })
+  const input = validate(growthActionSchema, raw)
+  return transaction(async c => applyGrowthAction(c, user, id, input))
+}
+// The full action contract on a CALLER-SUPPLIED client: the standalone API
+// wraps it in its own transaction; finishRun executes staged memory controls
+// with the same rules inside the run's final transaction so control and reply
+// commit (or roll back) together.
+export async function applyGrowthAction(c: PoolClient, user: string, id: string, input: GrowthAction): Promise<GrowthItem> {
+  const hash = fingerprint({ id, ...input })
   if (input.action === 'correct' && !input.text?.trim()) throw new HttpError(400, 'GROWTH_TEXT_REQUIRED')
   const validUntil = expiry(input.validUntil)
-  return transaction(async c => {
+  {
     await lockGrowth(c, user)
     const previous = await replay(c, user, input.requestId, hash); if (previous) return previous
     const row = requireRow((await c.query('SELECT * FROM growth_items WHERE user_id=$1 AND id=$2 FOR UPDATE', [user, id])).rows[0]) as Row
@@ -180,7 +188,7 @@ export async function actOnGrowthItem(user: string, id: string, raw: GrowthActio
     await record(c, updated, input.action)
     await c.query('INSERT INTO growth_operations(user_id,request_id,fingerprint,item_id) VALUES($1,$2,$3,$4)', [user, input.requestId, hash, id])
     return item(updated)
-  })
+  }
 }
 
 export type PreparedGrowthMutation =

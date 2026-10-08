@@ -120,3 +120,41 @@ export function selectRelevantGrowth(
   kept.sort((a, b) => a.index - b.index)
   return { selected: kept.map(entry => entry.item), dropped: items.length - kept.length, totalActive: items.length, budget, selectedChars, reasons }
 }
+
+// P6 closeout B2: group the SELECTED records by whether they concern the
+// CURRENT message's own matter. The observed T9 failure: asking about a NEW
+// 4-hour campus streamer job was answered with the OLD 10-hour newsletter
+// record. The confusion axis is TIME/QUANTITY wording (每周/小时/数字) shared
+// by almost every schedule-like record, so coverage is computed over SUBJECT
+// characters only — informative characters minus the closed class of
+// time-quantity morphemes (a function-word class, not a topic word list).
+// Matching subject characters (the entity/name being discussed) distinguish
+// "this record is about what we are discussing" from "this record merely
+// shares schedule wording". Both groups stay in the prompt; the grouping only
+// states which records describe the current matter, so the reply analyzes the
+// CURRENT object with the old ones as comparison, never as a substitute.
+const timeQuantityChars = new Set([...'每周周天时小分钟号次年期月一二两三四五六七八九十百千万几半大概左右约'])
+// Standing-frame kinds describe the person's current frame (goals, direction,
+// constraints, priorities, decisions, feedback) — they legitimately inform ANY
+// question and are never an "old matter" that could substitute for the current
+// one. The coverage split applies to the experience/context-like kinds, which
+// are exactly the records that got mistaken for the current opportunity.
+const standingFrameKind = (kind: GrowthItem['kind']): boolean =>
+  kind === 'goal' || kind === 'direction' || kind === 'constraint' || kind === 'priority' || kind === 'decision' || kind === 'feedback'
+export function splitGrowthByCurrentTopic(
+  items: readonly GrowthItem[],
+  currentMessage: string,
+): { currentTopic: GrowthItem[]; background: GrowthItem[] } {
+  const messageChars = clauseChars(currentMessage)
+  const currentTopic: GrowthItem[] = [], background: GrowthItem[] = []
+  for (const item of items) {
+    if (standingFrameKind(item.kind)) { currentTopic.push(item); continue }
+    const subject = [...clauseChars(item.text)].filter(char => !genericChars.has(char) && !timeQuantityChars.has(char))
+    if (!subject.length) { background.push(item); continue }
+    let covered = 0
+    for (const char of subject) if (messageChars.has(char)) covered++
+    if (covered >= 2 && covered / subject.length >= 0.3) currentTopic.push(item)
+    else background.push(item)
+  }
+  return { currentTopic, background }
+}

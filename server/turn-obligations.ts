@@ -194,6 +194,23 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
 // A pure control message contains nothing but the explicit command clauses and
 // trivial connectives — it can be answered deterministically without a model.
 const ignorableConnectives=new Set(['谢谢','好的','好','请','嗯','哦','ok','OK','Okay','okay'])
+// P6 closeout C2/D: did the user ask to arrange/re-arrange time THIS message?
+// A model-supplied weeklyPlan is spurious only when this is false; a real
+// arrangement request keeps the full plan contract even without a stated
+// amount (the no-binding-amount gap stays honest in the obligation detector).
+export function requestsTimeArrangement(text:string):boolean{
+  for(const clause of scanUserClauses(text)){
+    const body=clause.text.trim()
+    if(!body)continue
+    if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)continue
+    if(/(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|帮我(?:安排|排)|改一下安排|调整.{0,4}安排|重新(?:安排|排)|再(?:安排|排)一?(?:次|下)?|怎么(?:安排|排|规划)/.test(body)){
+      if(/怎么(?:安排|排|规划)的[？?]?$/.test(body))continue
+      return true
+    }
+  }
+  return false
+}
+
 export function isPureControlCommand(currentText:string,obligations:TurnObligations,controlQuotes:readonly string[]):boolean{
   if(obligations.kind!=='direction_control'||!obligations.requiredEffects.length||!controlQuotes.length)return false
   const controlClauses=new Set(controlQuotes)

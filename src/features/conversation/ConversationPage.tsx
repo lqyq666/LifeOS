@@ -6,6 +6,7 @@ import { AnswerChoices } from './AnswerChoices'
 import { AutoTextarea } from './AutoTextarea'
 import { ConversationSummary } from './ConversationSummary'
 import { MemoryPanel } from './MemoryPanel'
+import { ControlCards } from './ControlCards'
 import { GrowthWorkspace } from '../growth/GrowthWorkspace'
 import { getAnswerQuestion, type AnswerOption } from './choices.ts'
 import { WORKSPACE_KEY, chatTitle, newChat, newWorkspace, parseWorkspace, updateChat, type Chat } from './workspace.ts'
@@ -59,6 +60,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   },[user?.id,busy])
   const [previous, setPrevious] = useState<string | null>(null)
   const [notice, setNotice] = useState('')
+  const [controlRefresh, setControlRefresh] = useState(0)
   const [choicesOpen, setChoicesOpen] = useState(() => active.conversation.stage === 'confirm')
   const empty = conversation.messages.length === 0
   const question = getAnswerQuestion(conversation)
@@ -150,7 +152,9 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
             const growthNote=receipt.growth.status==='applied'?'成长档案已更新':receipt.growth.status==='partial'?'本轮部分更新已保存，个别未核项未保存':receipt.growth.status==='needs_confirmation'?'本轮要求的更新未完成，需要确认':'成长档案本轮无新增'
             const controlNote=receipt.controls?.changedScopes?.length?'；已暂停相关方向建议':''
             const materialNote=receipt.material?`；材料${receipt.material.readiness==='template'?'仍为待补模板':'草稿已生成（发送前请核对）'}`:''
-            setNotice(growthNote+controlNote+materialNote)
+            const memoryControlNote=receipt.memoryControl?.status==='executed'?(receipt.memoryControl.kind==='forget'?'；已遗忘你指定的记录':'；已暂停使用该经历作为依据，记录保留'):receipt.memoryControl?.status==='needs_confirmation'?'；有多个相似记录，请在下方确认要操作的那条':''
+            setNotice(growthNote+controlNote+materialNote+memoryControlNote)
+            if(receipt.memoryControl?.status==='needs_confirmation')setControlRefresh(value=>value+1)
           }
         }
       })
@@ -403,6 +407,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
             </article>)}
             {busy && <div className="qa-thinking" role="status"><Companion motion={companionMotion} animated={open && !summaryOpen} /><span>{companionMotion === 'received' ? '收到你的想法' : '整理中'}</span>{remote.current && <button type="button" onClick={() => void cancelRemote()}>取消</button>}</div>}
           </div>}
+          {!conversation.demo && user && !summaryOpen && !growthOpen && !busy && <ControlCards conversationId={active.id} refreshKey={controlRefresh} onResolved={() => setControlRefresh(value => value + 1)} />}
         </div>
 
         <div className="qa-bottom">

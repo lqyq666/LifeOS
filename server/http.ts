@@ -23,6 +23,7 @@ import { RequestScheduler } from './request-scheduler.ts'
 import { coachEventView } from './action-coach-events.ts'
 import { localEmbedding } from './local-embedding.ts'
 import { growthView, createGrowthItem, actOnGrowthItem } from './growth.ts'
+import { listControlRequests, resolveControlRequest, controlRequestActionSchema } from './memory-controls.ts'
 import { readDirectionControls, directionScopeLabel } from './growth-controls.ts'
 import { growthCreateSchema, growthActionSchema } from './growth-contracts.ts'
 import { officialSourcesView } from './official-sources.ts'
@@ -82,6 +83,15 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
         if(path==='/api/growth'&&method==='GET'){const conversation=url.searchParams.get('conversation');json(res,200,await growthView(user,conversation?validateId(conversation):undefined));return}
         if(path==='/api/growth'&&method==='POST'){json(res,201,await createGrowthItem(user,validate(growthCreateSchema,await body(req))));return}
         if(path==='/api/growth/direction-controls'&&method==='GET'){const controls=await readDirectionControls(user);json(res,200,{controls:controls.map(row=>({...row,scopeLabel:directionScopeLabel(row.scope)}))});return}
+        // P6 closeout A2b: durable chat-control confirmations — readable in
+        // this conversation and in a new session; confirmed/cancelled through
+        // the user's own session identity only.
+        if(path==='/api/growth/control-requests'&&method==='GET'){
+          const conversation=url.searchParams.get('conversation')
+          json(res,200,{requests:await listControlRequests(user,conversation?validateId(conversation):undefined)});return
+        }
+        const controlResolve=path.match(/^\/api\/growth\/control-requests\/([^/]+)\/actions$/)
+        if(controlResolve&&method==='POST'){json(res,200,await resolveControlRequest(user,validateId(controlResolve[1]),validate(controlRequestActionSchema,await body(req))));return}
         const growthAction=path.match(/^\/api\/growth\/([^/]+)\/actions$/)
         if(growthAction&&method==='POST'){json(res,200,await actOnGrowthItem(user,validateId(growthAction[1]),validate(growthActionSchema,await body(req))));return}
         const history=path.match(/^\/api\/conversations\/([^/]+)\/history$/)

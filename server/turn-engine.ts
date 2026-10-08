@@ -1,4 +1,4 @@
-import {randomUUID,createHash} from 'node:crypto'
+import {randomUUID} from 'node:crypto'
 import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from './provider-spend.ts'
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
@@ -20,7 +20,7 @@ import { buildTurnPrompt, providerTurnMessages, turnSystemPrompt } from './turn-
 import { configureProviderPayload, outputTokenLimit, type OutputPath } from './model-payload.ts'
 import { estimateProviderCallCostCny } from './cost-workload.ts'
 import { growthContext, growthBoundaryContext, growthSnapshotKey, stageGrowthUpdates } from './growth.ts'
-import { selectRelevantGrowth } from './growth-selection.ts'
+import { selectRelevantGrowth, splitGrowthByCurrentTopic } from './growth-selection.ts'
 import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionControls, overlayDirectionChanges, directionControlsSnapshotKey, allScopes } from './growth-controls.ts'
 import { redactGrowthHistory } from './growth-privacy.ts'
 import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCandidates, CozeRetrievalError } from './coze-knowledge.ts'
@@ -28,13 +28,9 @@ import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKn
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
 import { stageWeeklyPlan } from './weekly-plans.ts'
-import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, type TurnObligations } from './turn-obligations.ts'
+import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
 import { scanUserClauses } from './user-command-spans.ts'
 import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.ts'
-function createUUIDv5(seed:string,namespace:string):string{
-  const hash=createHash('sha256').update(namespace+seed).digest('hex')
-  return [hash.slice(0,8),hash.slice(8,12),'4'+hash.slice(13,16),(parseInt(hash.slice(16,17),16)&0x3|0x8).toString(16)+hash.slice(17,20),hash.slice(20,32)].join('-')
-}
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
@@ -199,6 +195,14 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   const knowledgeStart=performance.now()
   let knowledge=await retrieveCoachKnowledge(current.content,signal)
   knowledgeMs=Math.round(performance.now()-knowledgeStart)
+  // C1 controlled-integration diagnostics ONLY: force the LOCAL candidates to
+  // miss while the verified registry stays intact, so the remote Coze fallback
+  // runs in the same backend request. Explicitly labeled in the audit; never a
+  // natural user-traffic claim and never enabled by default.
+  if(config.diagLocalKnowledgeMiss&&knowledge.length){
+    staged.audit.push({phase:'local_knowledge_miss',reason:'diagnostic_injection',controlledIntegrationOnly:true,localCandidatesSuppressed:knowledge.length})
+    knowledge=[]
+  }
   if(!knowledge.length){
     // N3: Coze fallback — only when local retrieval found nothing AND the
     // message safely yields a whitelist public query (never the raw chat).
@@ -221,7 +225,10 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         try{
           const result=await searchCodeWorkflowKnowledge(rendered,signal,codeConfig)
           const mapped=await mapCozeCandidates(result.hits,{enabled:true,workflowId:codeConfig.projectId,workflowVersion:codeConfig.release,pat:'',timeoutMs:codeConfig.timeoutMs,maxItems:6})
-          staged.audit.push({phase:'coze_knowledge_candidates',transport:'code_workflow',latencyMs:result.latencyMs,workflowVersion:result.release,hits:result.hits.length,verified:mapped.verified.length,unverified:mapped.unverifiedDocumentIds.length,costState:'separate_ledger_unknown_until_real'})
+          // C1 same-request trace: the rendered whitelist query and the exact
+          // document/card identities this request produced — the query contains
+          // only whitelist topics, never the raw private chat text.
+          staged.audit.push({phase:'coze_knowledge_candidates',transport:'code_workflow',latencyMs:result.latencyMs,workflowVersion:result.release,query:rendered,hitDocumentIds:result.hits.map(hit=>hit.documentId),verifiedCardIds:mapped.verified.map(entry=>entry.card.id),unverifiedDocumentIds:mapped.unverifiedDocumentIds,hits:result.hits.length,verified:mapped.verified.length,unverified:mapped.unverifiedDocumentIds.length,costState:'separate_ledger_unknown_until_real'})
           if(mapped.verified.length){
             const existing=new Set(knowledge.map(card=>card.id))
             for(const candidate of mapped.verified)if(!existing.has(candidate.card.id)){knowledge=[...knowledge,candidate.card.payload];existing.add(candidate.card.id)}
@@ -236,7 +243,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         try{
           const result=await searchCozePublicKnowledge(publicQuery,rendered,signal,resourceConfig)
           const mapped=await mapCozeCandidates(result.hits,resourceConfig)
-          staged.audit.push({phase:'coze_knowledge_candidates',transport:'resource_workflow',latencyMs:result.latencyMs,workflowVersion:result.version,hits:result.hits.length,verified:mapped.verified.length,unverified:mapped.unverifiedDocumentIds.length,costState:'separate_ledger_unknown_until_real'})
+          staged.audit.push({phase:'coze_knowledge_candidates',transport:'resource_workflow',latencyMs:result.latencyMs,workflowVersion:result.version,query:rendered,hitDocumentIds:result.hits.map(hit=>hit.documentId),verifiedCardIds:mapped.verified.map(entry=>entry.card.id),unverifiedDocumentIds:mapped.unverifiedDocumentIds,hits:result.hits.length,verified:mapped.verified.length,unverified:mapped.unverifiedDocumentIds.length,costState:'separate_ledger_unknown_until_real'})
           if(mapped.verified.length){
             const existing=new Set(knowledge.map(card=>card.id))
             for(const candidate of mapped.verified)if(!existing.has(candidate.card.id)){knowledge=[...knowledge,candidate.card.payload];existing.add(candidate.card.id)}
@@ -263,6 +270,11 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   const growthSelection=selectRelevantGrowth(growthAll,current.content)
   const growth=growthSelection.selected
   if(growthSelection.dropped>0)staged.audit.push({phase:'growth_selection',totalActive:growthSelection.totalActive,selected:growthSelection.selected.length,dropped:growthSelection.dropped,budgetMax:growthSelection.budget.maxItems})
+  // P6 closeout B2: current-matter grouping for the prompt. Snapshot keys and
+  // used refs below still describe the FULL authorized set (growthAll) — only
+  // how the model READS the records is organized.
+  const growthTopic=splitGrowthByCurrentTopic(growth,current.content)
+  staged.audit.push({phase:'growth_topic_split',currentTopic:growthTopic.currentTopic.length,background:growthTopic.background.length})
   const growthBoundaries=await growthBoundaryContext(run.user_id,run.conversation_id)
   // P4: resume/portfolio materials render from a server-built catalogue of the
   // user's own verified words only; the model selects ids and never authors
@@ -281,7 +293,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   staged.usedGrowthRefs=growthAll.map(item=>({id:item.id,revision:item.revision}))
   staged.growthSnapshotKey=growthSnapshotKey(growthAll)
   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id)
-  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth,growthBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
+  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
   const retrieved=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
   const calls:CallRecord[]=[]
@@ -336,6 +348,16 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     const narrativeChars=result.reply.length
     try{result.reply=renderCoachReply(result)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
     if(result.weeklyPlan){
+      // P6 closeout C2/D: a plan the user did NOT ask for is a spurious model
+      // field — drop it with an audit note instead of failing the whole reply
+      // through plan-basis validation. A real arrangement request (with or
+      // without a stated amount) keeps the full plan contract unchanged.
+      if(!requestsTimeArrangement(current.content)){
+        delete result.weeklyPlan
+        staged.audit.push({phase:'weekly_plan_unsolicited_dropped',providerCalls:0})
+      }
+    }
+    if(result.weeklyPlan){
       // N2.2/N2.3: the structured plan is staged against the pre-generation
       // control snapshot and the EFFECTIVE blocked scopes; the budget is
       // checked against the verified weekly effect (never rendered from an
@@ -369,11 +391,25 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     if(correctionPlan&&result.growthUpdates?.length){
       for(const delta of result.growthUpdates){
         if(!('target'in delta))continue
-        const target=delta.target as {operation:string;itemId?:string}
+        const target=delta.target as {operation:string;itemId?:string;expectedRevision?:number}
         if(target.operation!=='replace'&&target.operation!=='amend')continue
-        // A model replace/amend aimed at a non-authorized id on a correction
-        // turn is redirected to the scored target rather than failing blind.
-        if(!growthAll.some(item=>item.id===target.itemId)&&correctionPlan.target)target.itemId=correctionPlan.target.itemId
+        // B1: on a correction turn the SCORED target is authoritative. A model
+        // replace/amend onto a different item — even an authorized one — is
+        // redirected to the scored target; with NO matching old object the
+        // correction becomes a grounded create from the verified quote, never
+        // a replace of an unrelated record (the T6 shape: a poster correction
+        // overwriting an unrelated uncertainty item).
+        const modelTarget=target.itemId??null
+        if(correctionPlan.target){
+          if(target.itemId!==correctionPlan.target.itemId||target.expectedRevision!==correctionPlan.target.expectedRevision){
+            target.itemId=correctionPlan.target.itemId
+            target.expectedRevision=correctionPlan.target.expectedRevision
+          }
+        }else{
+          ;(delta as {target:unknown}).target={operation:'create'}
+          ;(delta as {source:unknown}).source={messageId:run.source_message_id,quote:correctionPlan.newQuote}
+        }
+        staged.audit.push({phase:'correction_target_normalized',modelTarget,scoredTarget:correctionPlan.target?.itemId??null,finalTarget:target.itemId??null,mode:correctionPlan.target?(modelTarget===correctionPlan.target.itemId?'kept':'redirected'):'converted_to_create'})
         const authorizedItem=growthAll.find(item=>item.id===target.itemId)
         if(!authorizedItem)continue
         const composite=(authorizedItem.text.match(/[，,；;。！？\n]/)?.length??0)>0
@@ -492,41 +528,33 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         }
       }
     }
-    // P5c (A3): a CURRENT explicit forget request with a UNIQUE best-matching
-    // target executes the real forget action inside this turn; ambiguity gets a
-    // minimal confirmation card. This is the operation lifecycle the claim
-    // guard checks against (forgotNow audits this execution).
-    // P6 W1: forget/pause control runs ONLY on clause-level intent — negated,
-    // hypothetical, quoted and third-party clauses never authorize; targets are
-    // scored against the control clause text, not the whole message; the audit
-    // records executed=true ONLY on a real committed action; failures record
-    // executed=false and the claim guard checks executed, not phase presence.
-    let forgetExecutedIds:string[]=[]
+    // P5c (A3) → P6 closeout A2: a CURRENT explicit control clause with a
+    // UNIQUE best-matching target STAGES the operation; the actual commit
+    // happens in finishRun's transaction and its receipt is derived from the
+    // real write. Ambiguity persists a recoverable confirmation request the
+    // normal UI reads in this conversation and in new sessions. Nothing
+    // destructive executes during candidate validation.
     {
       const intentClauses=detectForgetIntentClauses(current.content)
-      const forgetClause=intentClauses.find(clause=>clause.kind==='forget')
-      if(forgetClause){
-        const scoredForget=scoreForgetTargets(growthAll,forgetClause.clauseText,current.content)
-        const best=scoredForget[0],second=scoredForget[1]
+      for(const clause of intentClauses){
+        if(!clause.kind)continue
+        const scored=scoreForgetTargets(growthAll,clause.clauseText,current.content)
+        const best=scored[0],second=scored[1]
         if(best&&best.overlap>=2&&(!second||second.overlap<best.overlap)){
-          const {actOnGrowthItem}=await import('./growth.ts')
-          try{
-            const result=await actOnGrowthItem(run.user_id,best.item.id,{requestId:createUUIDv5(run.request_id,'6d6f6b65-0000-4000-8000-666f72676574'),expectedRevision:best.item.revision,action:'forget'})
-            forgetExecutedIds.push(result.id)
-            staged.audit.push({phase:'growth_action_forget',itemId:best.item.id,revisionBefore:best.item.revision,executed:true})
-          }catch(error){
-            staged.audit.push({phase:'growth_action_forget',itemId:best.item.id,executed:false,code:(error instanceof Error?(error as {code?:string}).code:null)??'FORGET_FAILED'})
+          if(staged.memoryControl){
+            if(staged.memoryControl.itemId===best.item.id&&staged.memoryControl.kind===clause.kind)continue
+            // One executed control per turn; a genuinely different second
+            // request waits for the user instead of guessing.
+            if(!staged.pendingMemoryControl)staged.pendingMemoryControl={kind:clause.kind,clauseText:clause.clauseText,candidates:scored.filter(entry=>entry.overlap>=2).slice(0,3).map(entry=>({itemId:entry.item.id,revision:entry.item.revision,preview:entry.item.text.slice(0,80)}))}
+            staged.audit.push({phase:'memory_control_deferred',kind:clause.kind,itemId:best.item.id,reason:'additional_control_clause'})
+            continue
           }
-        }else if(scoredForget.length){
-          staged.pendingForgetConfirmation={candidates:scoredForget.slice(0,3).map(entry=>({id:entry.item.id,text:entry.item.text.slice(0,60)}))}
+          staged.memoryControl={kind:clause.kind,itemId:best.item.id,expectedRevision:best.item.revision,clauseText:clause.clauseText}
+          staged.audit.push({phase:'memory_control_staged',kind:clause.kind,itemId:best.item.id,revisionBefore:best.item.revision,executed:null,note:'commits in finishRun transaction'})
+        }else if(scored.length){
+          if(!staged.pendingMemoryControl)staged.pendingMemoryControl={kind:clause.kind,clauseText:clause.clauseText,candidates:scored.filter(entry=>entry.overlap>=2).slice(0,3).map(entry=>({itemId:entry.item.id,revision:entry.item.revision,preview:entry.item.text.slice(0,80)}))}
+          staged.audit.push({phase:'memory_control_pending',kind:clause.kind,candidates:scored.filter(entry=>entry.overlap>=2).slice(0,3).map(entry=>entry.item.id)})
         }
-      }
-      // pause_use / stop_recommend intents stage a boundary note, not a delete.
-      const pauseClause=intentClauses.find(clause=>clause.kind==='pause_use'||clause.kind==='stop_recommend')
-      if(pauseClause){
-        const scoredPause=scoreForgetTargets(growthAll,pauseClause.clauseText,current.content)
-        const bestPause=scoredPause[0]
-        if(bestPause&&bestPause.overlap>=2)staged.audit.push({phase:'growth_pause_use_requested',itemId:bestPause.item.id,kind:pauseClause.kind,executed:false,note:'pause boundary recorded; no deletion performed'})
       }
     }
     // P5 (F03/S3.4): cross-turn OUTSTANDING FORGET - a recent prior user message
@@ -548,12 +576,17 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     }
     // P4 (F03): the forget-claim guard runs INDEPENDENTLY of any correction
     // plan - a plain 遗忘 request with no correction must be covered too.
+    // P6 closeout A2: "committed" means a control is STAGED for the finishRun
+    // transaction (its real execution and receipt land there); a reply may
+    // claim deletion only when a forget is staged, and may claim a usage stop
+    // when any control is staged.
     {
-      const forgotNow=staged.audit.some(entry=>(entry as {phase?:string;executed?:boolean}).phase==='growth_action_forget'&&((entry as {executed?:boolean}).executed===true))
-      // P5 (F03/S3.4): covers the current message AND an outstanding prior forget request.
-      const forgetClaim=/(?:已(?:经)?(?:清掉|清除|删掉|删除|忘掉|忘记|移除|撤下)|不再作为.{0,14}依据|不再.{0,6}(?:判断|建议|使用))/.test(result.reply)
+      const controlStaged=staged.memoryControl!==undefined
+      const forgetClaim=/(?:已(?:经)?(?:清掉|清除|删掉|删除|忘掉|忘记|移除|撤下))/.test(result.reply)
+      const pauseClaim=/(?:不再作为.{0,14}依据|不再.{0,6}(?:判断|建议|使用))/.test(result.reply)
       const forgetRequested=/(?:忘|删|清|移除|别再用|不再用|不再作为)/.test(current.content)||outstandingForget
-      if(!forgotNow&&forgetClaim&&forgetRequested)throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_FORGET')
+      if(!controlStaged&&(forgetClaim||pauseClaim)&&forgetRequested)throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_FORGET')
+      if(controlStaged&&staged.memoryControl!.kind!=='forget'&&forgetClaim)throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_FORGET')
     }
     // P2-3 (PC08D T4): a verbatim repeat of the previous assistant reply
     // answers nothing. Legal repeats (explicit re-send/keep-the-original

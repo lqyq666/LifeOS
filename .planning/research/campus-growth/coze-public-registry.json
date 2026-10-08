@@ -7,12 +7,12 @@
       "documentId": "guide-direction-lowtime",
       "knowledgeCardId": "9defe55f-6687-4cae-b275-92cce03d6672",
       "expectedRevision": 1,
-      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
       "sourceType": "self_authored_method",
-      "contentHash": "1da8d99a80f2aef9ad4f6f25b6c0703be19d61837a3ce2ff4fb3b8d0793bb404",
+      "contentHash": "64175b1a29e59ba18472136f345e102349ff900783f6e57cc442dfc4f34fdd61",
       "enabled": true,
       "auditedAt": "2026-10-07",
-      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
     },
     {
       "workflowId": "7693465311558795327",
@@ -20,12 +20,12 @@
       "documentId": "guide-research-review",
       "knowledgeCardId": "fbf24484-5938-4d1b-88b8-283596853031",
       "expectedRevision": 1,
-      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
       "sourceType": "self_authored_method",
-      "contentHash": "32be189dd58916ec2107c8cdae9b9475b7cfbb2f789291f3802225f25c5329a9",
+      "contentHash": "7279c9c27d3c672aa0f81ada9be4fe0f2472f9a844ea4a5549c4be685d82bff6",
       "enabled": true,
       "auditedAt": "2026-10-07",
-      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
     },
     {
       "workflowId": "7693465311558795327",
@@ -33,12 +33,12 @@
       "documentId": "guide-portfolio-evidence",
       "knowledgeCardId": "318d2980-16e7-4d4a-817c-37ca69cbee64",
       "expectedRevision": 1,
-      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
       "sourceType": "self_authored_method",
-      "contentHash": "2c103ad700951f195e6539dbf3547f6a6f6348b3d9f09a4f11baf4d8f664cb20",
+      "contentHash": "7bfdb2b871204a74eba8818c7ee1e0363a10467823720b1b25a6c12ee4bf954a",
       "enabled": true,
       "auditedAt": "2026-10-07",
-      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
     },
     {
       "workflowId": "7693465311558795327",
@@ -46,12 +46,12 @@
       "documentId": "guide-intern-first-contact",
       "knowledgeCardId": "6a367fb8-309e-42ed-a409-664d8ca215b7",
       "expectedRevision": 1,
-      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
       "sourceType": "self_authored_method",
-      "contentHash": "4cd0d4cdb264c4f30dbb02e0da2af7c783299199d96706d98be366592d4afc6c",
+      "contentHash": "5fe09e42827e620328f175a41df79ba5078d1853eda0eb50fc23df8e4a16f529",
       "enabled": true,
       "auditedAt": "2026-10-07",
-      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
     },
     {
       "workflowId": "7693465311558795327",
@@ -59,12 +59,12 @@
       "documentId": "guide-exam-course-conflict",
       "knowledgeCardId": "f05a8cb2-a295-4171-877a-618ff27a3040",
       "expectedRevision": 1,
-      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
       "sourceType": "self_authored_method",
-      "contentHash": "fc2a64125878e01e9a003e19f7ef422458baec009ddb8beda94dd7a9ce43b073",
+      "contentHash": "9e6532811f8dffac0112e188db570517affb30fdd237c5e39c14f536e6402eff",
       "enabled": true,
       "auditedAt": "2026-10-07",
-      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
     },
     {
       "workflowId": "7693465311558795327",
@@ -72,12 +72,12 @@
       "documentId": "guide-need-interview",
       "knowledgeCardId": "e4aa18f7-f030-44d7-b03b-40f1749288a9",
       "expectedRevision": 1,
-      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
       "sourceType": "self_authored_method",
-      "contentHash": "55f90cbb75a6af1337af9dfd1dcad35f5413fb778622ef7fd3853323c2f084db",
+      "contentHash": "e50cbc1b179f7818ed04fc152ce263f86a4b23912abcca5fba088fe650e9c16b",
       "enabled": true,
       "auditedAt": "2026-10-07",
-      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
     },
     {
       "workflowId": "7693465311558795327",
@@ -85,12 +85,12 @@
       "documentId": "guide-competition-review",
       "knowledgeCardId": "3082d431-a19e-4fc1-97a8-e670481db895",
       "expectedRevision": 1,
-      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
       "sourceType": "self_authored_method",
-      "contentHash": "ae24600db6b55a042131f88c992416289b3a7542cd3ffa34206411f239b1f938",
+      "contentHash": "1e2ff6885686724a1e3e73bfb43f85b8e623f758cf3eccfd1c3aba2de7f42e4b",
       "enabled": true,
       "auditedAt": "2026-10-07",
-      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
     },
     {
       "workflowId": "7693465311558795327",
@@ -98,12 +98,12 @@
       "documentId": "guide-lowtime-weekly-plan",
       "knowledgeCardId": "c40921d4-bb1f-4d8c-b254-4ef99c2a5de6",
       "expectedRevision": 1,
-      "expectedSourceHash": "1a18d0a9cb5e15ba9696da82088a8422618cc046278af9dfd5aaa098f75582b8",
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
       "sourceType": "self_authored_method",
-      "contentHash": "c2f379067122f1da00841a452c0df98a0246d195a8d0400faf2ef9639b7ca317",
+      "contentHash": "27b6043b2571018734286923ecda5e5dfcb767b816771635e7d8db354e6a0cbe",
       "enabled": true,
       "auditedAt": "2026-10-07",
-      "note": "P4 audited binding: remote deterministic-asset retrieval verified live (guide hit verified=true); local card hash-bound to manifest"
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
     }
   ]
 }

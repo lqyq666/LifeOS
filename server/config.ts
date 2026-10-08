@@ -55,6 +55,11 @@ export const config = {
   messagesPerDay: Number(env.LIFEOS_MESSAGES_PER_DAY ?? 50),
   generationConcurrency: Number(env.LIFEOS_GENERATION_CONCURRENCY ?? 4),
   generationQueueLimit: Number(env.LIFEOS_GENERATION_QUEUE_LIMIT ?? 32),
+  // C1 controlled-integration diagnostics ONLY (default off, never set in
+  // production): forces LOCAL knowledge candidates to miss so the remote Coze
+  // fallback runs against the intact verified registry. Labeled in the audit;
+  // this is not a natural user-traffic claim.
+  diagLocalKnowledgeMiss: process.env.LIFEOS_DIAG_LOCAL_KNOWLEDGE_MISS === 'true',
 }
 export function validateConfig(){
   const origin=new URL(config.origin)

@@ -168,3 +168,15 @@
   .qa-header-actions button { padding-inline: 8px; }
   .qa-review button { min-height: 44px; }
 }
+
+/* P6 closeout A2b: durable control confirmation cards */
+.qa-control-cards{display:flex;flex-direction:column;gap:10px;margin:10px 0;padding:0 2px}
+.qa-control-card{border:1px solid rgba(125,125,145,.35);border-radius:12px;padding:12px 14px;background:rgba(248,248,252,.6)}
+.qa-control-question{margin:0 0 4px;font-weight:600}
+.qa-control-kind{margin:0 0 8px;color:#5a5a72;font-size:.86em}
+.qa-control-card ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.qa-control-card li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid rgba(125,125,145,.25);border-radius:8px}
+.qa-control-card li span{font-size:.92em;overflow-wrap:anywhere}
+.qa-control-card button{flex:none;cursor:pointer}
+.qa-control-cancel{margin-top:8px;background:none;border:none;color:#5a5a72;text-decoration:underline;cursor:pointer}
+.qa-control-notice{margin:0 0 6px;color:#2f6f4f;font-size:.9em}

@@ -10,6 +10,7 @@ import { persistCoachEvent, invalidateCoachSources, assertCoachEvidence, coachEv
 import { assertCoachKnowledge, type CoachKnowledgeRef } from './coach-knowledge.ts'
 import { assertGrowthSnapshot, persistGrowthUpdates, type GrowthStaged } from './growth.ts'
 import { persistDirectionControls, readDirectionControls, directionControlsSnapshotKey, type PreparedDirectionControls } from './growth-controls.ts'
+import { persistMemoryControl, persistPendingControlRequest, type MemoryControlReceipt, type PendingMemoryControl, type StagedMemoryControl } from './memory-controls.ts'
 import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
@@ -50,7 +51,7 @@ export async function retrieveExperiences(user:string,input:unknown,signal?:Abor
   return { records: rows, method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
 }
 export type Run = { user_id:string; request_id:string; conversation_id:string; source_message_id:string; expected_version:number; status:string; response:any }
-export type Staged = { candidates:Candidate[]; audit:unknown[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations;weeklyPlan?:import('./weekly-plans.ts').PreparedWeeklyPlan;pendingForgetConfirmation?:{candidates:{id:string;text:string}[]} }
+export type Staged = { candidates:Candidate[]; audit:unknown[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations;weeklyPlan?:import('./weekly-plans.ts').PreparedWeeklyPlan;memoryControl?:StagedMemoryControl;pendingMemoryControl?:PendingMemoryControl }
 export async function startRun(user:string,conversation:string,requestId:string,text:string) {
   return transaction(async c=>{
     await lock(c,user+':'+requestId)
@@ -141,6 +142,13 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     const controlsBefore=await readDirectionControls(run.user_id,c)
     if(staged.directionControlSnapshotKey!==undefined&&directionControlsSnapshotKey(controlsBefore)!==staged.directionControlSnapshotKey)throw new HttpError(409,'DIRECTION_CONTROL_CONFLICT')
     const directionControls=staged.directionControls?await persistDirectionControls(c,run,staged.directionControls):null
+    // P6 closeout A2: chat-derived memory controls commit HERE — in the run's
+    // final transaction, after every snapshot assertion — so control and reply
+    // commit or roll back together, and the receipt reflects the real write.
+    // A revision conflict raised by the control fails the whole run instead of
+    // silently dropping the user's operation behind a successful-looking reply.
+    const memoryControlReceipt:MemoryControlReceipt|null=staged.memoryControl?await persistMemoryControl(c,run,staged.memoryControl):null
+    const memoryControl=memoryControlReceipt??(staged.pendingMemoryControl?await persistPendingControlRequest(c,run,staged.pendingMemoryControl):null)
     // P5.5 state-change receipt: what actually committed, computed from real
     // writes — never from the model's own claim of completion.
     const requiredEffects=staged.turnObligations?.requiredEffects??[]
@@ -158,16 +166,17 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     const materialAction=coach?.actions.find(action=>action.status==='proposed'&&action.draft&&action.draft.readiness)
     const controlEffects=directionControls?directionControls.effects:[]
     const changedScopes=controlEffects.filter(effect=>effect.before!==effect.after).map(effect=>effect.scope)
-    const stateChange={
-      growth:{status:growthStatus,createdIds:growth?growth.createdIds:[],changedIds:growth?growth.changedIds:[],retainedIds:growth?growth.retainedIds:[],skipped:(staged.growth?.skipped??[]).map(skip=>({inputIndex:skip.inputIndex,code:skip.reason}))},
-      controls:{changedScopes,effects:controlEffects},
-      material:materialAction&&materialAction.draft?{actionId:materialAction.id,revision:materialAction.revision,readiness:materialAction.draft.readiness as 'template'|'draft_for_user_review',missingRequired:materialAction.draft.missingRequired??[]}:null,
-      plan:plan?{itemId:plan.itemId,revision:plan.revision,status:'proposed',budgetRef:plan.budgetRef}:null,
-    }
+        const stateChange={
+          growth:{status:growthStatus,createdIds:growth?growth.createdIds:[],changedIds:growth?growth.changedIds:[],retainedIds:growth?growth.retainedIds:[],skipped:(staged.growth?.skipped??[]).map(skip=>({inputIndex:skip.inputIndex,code:skip.reason}))},
+          controls:{changedScopes,effects:controlEffects},
+          memoryControl,
+          material:materialAction&&materialAction.draft?{actionId:materialAction.id,revision:materialAction.revision,readiness:materialAction.draft.readiness as 'template'|'draft_for_user_review',missingRequired:materialAction.draft.missingRequired??[]}:null,
+          plan:plan?{itemId:plan.itemId,revision:plan.revision,status:'proposed',budgetRef:plan.budgetRef}:null,
+        }
     const memoryIds=staged.snapshot&&staged.memoryChanges?.length?await persistChanges(c,run.user_id,run.conversation_id,staged.memoryChanges,new Date()):[]
     await consumeEntitlement(c,run.user_id,current.entitlement_reserved)
     await c.query('INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,\'assistant\',$4,$5)',[randomUUID(),run.user_id,run.conversation_id,text,run.request_id])
-    const response={requestId:run.request_id,decisionVersion:version,candidateIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthCreatedIds:growth?growth.createdIds:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],growthWrite:growth??null,stateChange,...(directionControls?{directionControls:{changedScopes,effects:controlEffects}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
+    const response={requestId:run.request_id,decisionVersion:version,candidateIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthCreatedIds:growth?growth.createdIds:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],growthWrite:growth??null,stateChange,...(memoryControl?{memoryControl}:{}),...(directionControls?{directionControls:{changedScopes,effects:controlEffects}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
     await c.query('UPDATE runs SET status=\'completed\',response=$3,usage=$4,tool_audit=$5,finished_at=now() WHERE user_id=$1 AND request_id=$2',[run.user_id,run.request_id,response,usage,JSON.stringify(staged.audit)])
     await c.query('UPDATE conversations SET updated_at=now() WHERE user_id=$1 AND id=$2',[run.user_id,run.conversation_id])
     signal.throwIfAborted()

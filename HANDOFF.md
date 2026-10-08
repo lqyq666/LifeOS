@@ -2,6 +2,10 @@
 
 工作区 D:\aaaLife\LifeOS。当前唯一验收目标是 PRODUCT.md 的校园成长与连续决策完整产品。用户已恢复自主开发，允许在原 grant 剩余额度内选择产品模型；旧固定 qwen3.8-flash 与旧实现顺序已替代。公网 lqynb.xyz 仍是旧 52a4e47 镜像，不代表新产品已发布。
 
+## 2026-10-08 P6 收作批（GLM_CLOSEOUT）：A/B/C 关口闭环
+
+- 详见 `P6_CLOSEOUT_DELIVERY.md`。A：控制提交移入 finishRun 事务（`server/memory-controls.ts`+迁移021；pause_use/stop_recommend 真实 paused 边界；歧义确认卡 `growth_control_requests`+API+`ControlCards.tsx`+新会话可读；forget-intent 重写修 N02-N08+未见表达；完整事务测试含并发409回滚/取消/重放幂等/后继失败可见）。B1：更正目标评分权威化——无旧对象转有据 create（T6 复现：不确定项不被海报覆盖）、错授权ID重定向、`correction_target_normalized` 审计。B2：主题字符覆盖度分组（剔除时间数量功能字）growth/growthBackground+提示词规则（科研课程/两社团对照）。附加：无安排请求的 weeklyPlan 丢弃（`requestsTimeArrangement`）。C1：受控本地miss诊断开关（默认关+审计标注）→真实Coze远端同requestId全链（作品/实习 verified=2、备考 verified=1、反馈轮真实保存；自然未命中→未核验不引用；本地命中零Coze访问）；8份方法卡逐字重建 manifest sha256 绑定+注册表实时重审。C2：主Skill v1.2.0 真实激活（新会话携带3/3事实，记忆开关本人API开启）；扣子已授权会话实况：技能页签+对话式创建（原文零改写+安全校验通过+打包5.2K+预览触发验证）；IAB不能OS文件上传（精确边界）；发布到我的技能库未完成。真实调用20次全部登记唯一账本（余 ¥15.1218）。全套件61文件通过。未达（WIP_NOT_READY）：D关口20样本/p95、扣子技能上架、COACH_CITATION_INVALID 模型方差根因。
+
 ## 2026-10-08 P6 批（GLM）：控制安全与跨会话更正收口
 
 - 提交 `339ec83`：W1 子句级遗忘意图（server/forget-intent.ts：否定/假设/条件/引语/问句不授权；记录保留→pause_use；控制子句评分定位；executed===true 才算成功；确定性 UUIDv5 幂等键；审计不再复制被删原文）——隔离 6/6。W2 replace/amend UPDATE 携带 conversation_id 随新源迁移（checkCampusSource 不削弱）——A→B→C 隔离验证+真实链 T6 readback 首次 active。W3 code_workflow 配置注入（本地优先回退保留）；引擎内本地 guide 卡实际采用（growth applied+个人化回复）。真实链 `coach-15f9ab53`（冻结 06dce92，7/11）。账本余 ¥15.17（≈¥0.18）。未达：p95/20样本/扣子UI扫码/远端 Coze 引擎内触发（本地策略正确）/T9 方差。WIP_NOT_READY。
