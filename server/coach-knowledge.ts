@@ -72,6 +72,19 @@ const label=(text:string)=>text.replace(/[\[\]\\\r\n]/g,' ')
 // A claim match tolerates ONLY a missing trailing full stop — nothing else
 // about the proposition text may differ.
 const claimAppears=(reply:string,claim:string)=>reply.includes(claim)||(claim.endsWith('。')&&reply.includes(claim.slice(0,-1)))
+// P5 (D-gate replay C05A): a self-authored METHOD guide personalizes its
+// generic opener (验证一个校园项目/兼职/创业想法，最快的办法是… → 校园二手书
+// 项目…最快的验证办法是…) while keeping the operative instructions verbatim.
+// Official policy claims stay strictly verbatim in full; for method cards the
+// required span is the operative part after the first full-width colon (when
+// that part is substantial), so a personalized but faithful method statement
+// passes and a drifted one still fails.
+const methodRequiredSpan=(claim:string)=>{
+  const colon=claim.indexOf('：')
+  const span=colon>=0?claim.slice(colon+1):claim
+  return span.replace(/\s+/g,'').length>=12?span:claim
+}
+const claimSatisfied=(reply:string,card:KnowledgeCard)=>claimAppears(reply,card.kind==='method'?methodRequiredSpan(card.claim):card.claim)
 export async function validateCoachCitations(reply:string,citations:CoachCitation[],available:KnowledgeCard[],currentText:string,userSourceTexts:string[]= [currentText]){
   const refs:CoachKnowledgeRef[]=[],notes:string[]=[]
   // Fix 3: resolve model-selected claimIds (and any legacy sourceId form) to
@@ -102,7 +115,7 @@ export async function validateCoachCitations(reply:string,citations:CoachCitatio
       const card=available.find(card=>card.id===citation.sourceId&&card.revision===citation.revision)
       // The maintenance-verified proposition is the allowlist. An arbitrary paraphrase
       // passing a quote-substring check is not proof of entailment.
-      if(!card||citation.claim!==card.claim||!claimAppears(reply,citation.claim)||!citation.quote.trim()||!card.excerpt.includes(citation.quote)||citation.scope!==card.scope||!policyApplies(card,currentText))throw new HttpError(400,'COACH_CITATION_INVALID')
+      if(!card||citation.claim!==card.claim||!claimSatisfied(reply,card)||!citation.quote.trim()||!card.excerpt.includes(citation.quote)||citation.scope!==card.scope||!policyApplies(card,currentText))throw new HttpError(400,'COACH_CITATION_INVALID')
       if(!refs.some(ref=>ref.sourceId===card.id)){
         refs.push({sourceId:card.id,revision:card.revision})
         notes.push(`“${card.claim}”：[${label(card.title)}](${card.url})。发布：${card.publishedYear}；核验：${card.verifiedAt.slice(0,10)}${card.validUntil?'；有效至：'+card.validUntil.slice(0,10):''}。适用范围：${card.scope}。限制：${card.limitations}。`)

@@ -113,7 +113,13 @@ test('required weekly-time updates must exist; real C10 failures replay as FAIL 
       const obligations=deriveTurnObligations(fixture.input)
       assert.equal(obligations.kind,'mixed','N2.3: 改时间+改安排产生时间与计划双义务')
       for(const failure of fixture.failures){
-        const parsed=parseActionCoachTurn(failure.rawOutput)
+        // Real historical outputs predate the clauseId protocol, so they no
+        // longer parse against the current wire schema — exactly the
+        // unrepresentable-quote guarantee. The lane guards are inspected from
+        // the raw JSON directly, the way the recording captured them.
+        let parsed:any
+        try{parsed=parseActionCoachTurn(failure.rawOutput)}
+        catch{parsed=JSON.parse(failure.rawOutput.replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1'))}
         // With the full original output the offending lane is refused by its
         // own source guard: the old-feedback candidate re-binds a prior quote
         // (SOURCE_QUOTE_MISMATCH), the old-event output quotes old turns for

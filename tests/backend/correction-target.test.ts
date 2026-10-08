@@ -10,13 +10,14 @@ import { config } from '../../server/config.ts'
 import { growthContext, growthView } from '../../server/growth.ts'
 import { localEmbedding } from '../../server/local-embedding.ts'
 
-// P6 closeout B1: a correction must land on the RIGHT object. The real T6
-// failure: the poster correction replaced the unrelated “还不确定” item. Now
-// the scored target is authoritative — a wrong-but-authorized model target is
-// redirected; with no matching old object the correction is a grounded create
-// and the unrelated record stays untouched.
+// P6 closeout B1 → P2 authority replay: a correction must land on the RIGHT
+// object. The model only expresses correct(itemId); the server decides the
+// operation. The real T6 failure shape (poster correction aimed at the
+// unrelated “还不确定” item) becomes a grounded create; a correct aimed at the
+// wrong item while the scored plan targets another never overwrites it — the
+// deterministic fallback stages the real correction instead.
 
-test('B1 correction target: converted create (T6 replay), redirect, kept', async () => {
+test('B1 correction target: converted create (T6 replay), wrong item never overwritten, kept', async () => {
   await localEmbedding.start()
   const outputs: unknown[] = []
   const engine = createTurnEngine({ capabilityVerified: () => true })
@@ -46,79 +47,81 @@ test('B1 correction target: converted create (T6 replay), redirect, kept', async
     const staged: store.Staged = { candidates: [], audit: [] }
     return { run: started.run, staged, input: { run: started.run, staged, context: await store.contextForRun(started.run), decision: null, signal: new AbortController().signal, emit: () => {} } }
   }
-  const turn = async (text: string, makeOutput: (messageId: string) => unknown, conv = chat) => {
+  const turn = async (text: string, output: unknown, conv = chat) => {
     const p = await prepare(text, conv)
-    outputs.push(makeOutput(p.run.source_message_id))
+    outputs.push(output)
     const result = await engine(p.input)
     const response = await store.finishRun(p.run, p.staged, result.text, result.usage, p.input.signal)
     return { response, staged: p.staged, run: p.run }
   }
   try {
     // T2 shape: the uncertainty item exists and is active.
-    const t2 = await turn('还不确定。', messageId => ({ reply: '好的，先不确定。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { messageId, quote: '还不确定' } }] }))
+    const t2 = await turn('还不确定。', { reply: '好的，先不确定。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c0' } }] })
     void t2
     const view0 = await growthView(user, chat)
     const uncertainty = view0.items.find(item => item.text === '还不确定')
     assert.ok(uncertainty && uncertainty.status === 'active', 'uncertainty item exists before the correction')
 
     // T6 replay: poster correction; the model wrongly targets the uncertainty
-    // item. No poster fact exists, so the correction must become a grounded
-    // create — the uncertainty record is NOT overwritten.
-    const t6 = await turn('更正一下：那张海报的设计主要是队友做的，我只负责了排版和打印。', messageId => ({
+    // item. No poster relation exists, so the correct intent converts to a
+    // grounded create from the poster clause — the uncertainty record is NOT
+    // overwritten.
+    const t6 = await turn('更正一下：那张海报的设计主要是队友做的，我只负责了排版和打印。', {
       reply: '好的，已记录你的海报分工：设计主要是队友做的，你负责排版和打印。',
-      growthUpdates: [{ target: { operation: 'replace', itemId: uncertainty.id, expectedRevision: uncertainty.revision }, kind: 'context', assertion: 'user_reported', source: { messageId, quote: '我只负责了排版和打印' } }],
-    }))
-    const normalization = t6.staged.audit.filter((a: any) => a?.phase === 'correction_target_normalized') as any[]
-    assert.equal(normalization.length, 1)
-    assert.equal(normalization[0].mode, 'converted_to_create', 'no old object: converted to a grounded create')
-    assert.equal(normalization[0].modelTarget, uncertainty.id, 'the model did aim at the uncertainty item')
-    assert.equal(normalization[0].scoredTarget, null)
+      growthUpdates: [{ target: { operation: 'correct', itemId: uncertainty.id }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c1' } }],
+    })
+    const noRelation = t6.staged.audit.filter((a: any) => a?.phase === 'growth_correct_no_relation') as any[]
+    assert.equal(noRelation.length, 1)
+    assert.equal(noRelation[0].itemId, uncertainty.id, 'the model did aim at the uncertainty item')
     const afterT6 = await growthView(user, chat)
     const uncertaintyAfter = afterT6.items.find(item => item.id === uncertainty.id)
     assert.ok(uncertaintyAfter && uncertaintyAfter.status === 'active' && uncertaintyAfter.text === '还不确定' && uncertaintyAfter.revision === uncertainty.revision, 'uncertainty item untouched by the poster correction')
     const created = afterT6.items.find(item => item.text === '我只负责了排版和打印')
-    assert.ok(created && created.status === 'active' && created.assertion === 'user_reported', 'poster contribution grounded as a NEW fact from the verified quote')
+    assert.ok(created && created.status === 'active' && created.assertion === 'user_reported', 'poster contribution grounded as a NEW fact from the verified clause')
     assert.ok((t6.response.stateChange.growth.createdIds as string[]).includes(created.id), 'receipt reports the create, not a replace')
 
-    // Redirect: the scored target wins over a wrong-but-authorized model target.
-    const major = await turn('我是大三，读市场营销。', messageId => ({ reply: '记下了。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { messageId, quote: '我是大三，读市场营销' } }] }))
+    // Wrong item: the scored plan targets the major item while the model aims
+    // the correct at the unrelated stray item. The stray is never overwritten;
+    // the deterministic fallback stages the real correction on the scored item.
+    const major = await turn('我是大三，读市场营销。', { reply: '记下了。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c0' } }] })
     void major
-    const stray = await turn('我还不确定毕业方向。', messageId => ({ reply: '好的。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { messageId, quote: '我还不确定毕业方向' } }] }))
+    const stray = await turn('我还不确定毕业方向。', { reply: '好的。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c0' } }] })
     void stray
     const before = await growthView(user, chat)
-    const majorItem = before.items.find(item => item.text === '我是大三，读市场营销')!
+    const majorItem = before.items.find(item => item.text === '我是大三')!
     const strayItem = before.items.find(item => item.text === '我还不确定毕业方向')!
-    const corrected = await turn('更正一下：我是大二，刚才说成大三了。', messageId => ({
+    const corrected = await turn('更正一下：我是大二，刚才说成大三了。', {
       reply: '已更正为大二。',
-      growthUpdates: [{ target: { operation: 'replace', itemId: strayItem.id, expectedRevision: strayItem.revision }, kind: 'context', assertion: 'user_reported', source: { messageId, quote: '我是大二' } }],
-    }))
-    const redirect = (corrected.staged.audit.filter((a: any) => a?.phase === 'correction_target_normalized') as any[])[0]
-    assert.equal(redirect.mode, 'redirected', 'wrong-but-authorized target redirected to the scored one')
-    assert.equal(redirect.modelTarget, strayItem.id)
-    assert.equal(redirect.scoredTarget, majorItem.id)
-    assert.equal(redirect.finalTarget, majorItem.id)
+      growthUpdates: [{ target: { operation: 'correct', itemId: strayItem.id }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c0' } }],
+    })
+    const wrongAim = (corrected.staged.audit.filter((a: any) => a?.phase === 'growth_correct_no_relation') as any[])[0]
+    assert.equal(wrongAim.itemId, strayItem.id, 'server refused the wrong-item correct')
+    assert.ok(corrected.staged.audit.some((a: any) => a?.phase === 'correction_server_staged'), 'deterministic fallback staged the scored correction')
     const afterRedirect = await growthView(user, chat)
-    assert.ok(!afterRedirect.items.some(item => item.id === majorItem.id && item.status === 'active'), 'old major fact no longer active (split stale parent)')
+    const majorAfter = afterRedirect.items.find(item => item.id === majorItem.id)
+    assert.ok(!majorAfter || majorAfter.status !== 'active' || majorAfter.text !== '我是大三', 'old major value no longer active (in-place amend or superseded by the staged correction)')
     assert.ok(afterRedirect.items.some(item => item.text === '我是大二' && item.status === 'active'), 'corrected fact active')
     const strayAfter = afterRedirect.items.find(item => item.id === strayItem.id)
     assert.ok(strayAfter && strayAfter.text === '我还不确定毕业方向', 'unrelated record untouched')
+    assert.ok(!afterRedirect.items.some(item => item.text.includes('更正一下')), 'marker prefixes never leak into stored facts')
 
-    // Kept: a model already aiming at the scored target is not redirected.
-    const budget = await turn('我每周有六小时可以做项目。', messageId => ({ reply: '记下了。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { messageId, quote: '我每周有六小时可以做项目' } }] }))
+    // Kept: a correct already aiming at the scored item is honored in place.
+    const budget = await turn('我每周有六小时可以做项目。', { reply: '记下了。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c0' } }] })
     void budget
     const beforeBudget = await growthView(user, chat)
     const budgetItem = beforeBudget.items.find(item => item.text === '我每周有六小时可以做项目')!
-    const kept = await turn('更正一下：我每周有四小时，刚才说成六小时了。', messageId => ({
+    const kept = await turn('更正一下：我每周有四小时，刚才说成六小时了。', {
       reply: '已更正为四小时。',
-      growthUpdates: [{ target: { operation: 'replace', itemId: budgetItem.id, expectedRevision: budgetItem.revision }, kind: 'context', assertion: 'user_reported', source: { messageId, quote: '我每周有四小时' } }],
-    }))
-    const keptAudit = (kept.staged.audit.filter((a: any) => a?.phase === 'correction_target_normalized') as any[])[0]
-    assert.equal(keptAudit.mode, 'kept', 'correct model target kept as-is')
+      growthUpdates: [{ target: { operation: 'correct', itemId: budgetItem.id }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c0' } }],
+    })
+    const keptAudit = (kept.staged.audit.filter((a: any) => a?.phase === 'growth_correct_honored') as any[])[0]
+    assert.equal(keptAudit.itemId, budgetItem.id, 'correct model target honored in place')
+    assert.equal(keptAudit.mode, 'replace', 'single-clause item replaced, not split')
     assert.ok((await growthContext(user, chat)).some(item => item.text === '我每周有四小时'), 'budget replaced in place')
     // New conversation reads the corrected facts, not the overwritten ones.
     const later = await growthContext(user, chatLater)
     assert.ok(later.some(item => item.text === '我是大二'), 'new conversation: corrected major readable')
-    assert.ok(!later.some(item => item.text === '我是大三，读市场营销' && !item.unavailableReason), 'new conversation: superseded major not active')
+    assert.ok(!later.some(item => item.text === '我是大三' && !item.unavailableReason), 'new conversation: superseded major not active')
   } finally {
     model.baseUrl = prevURL; config.apiKey = prevKey
     await new Promise<void>(d => fake.close(() => d()))

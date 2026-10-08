@@ -119,7 +119,7 @@ test('P5 S1: >maxItems archive commits an ordinary turn without phantom snapshot
       const run=(await store.startRun(user,chat,randomUUID(),'再说说方向。')).run
       const staged:store.Staged={candidates:[],audit:[]}
       const input={run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}}
-      outputs.push({reply:'好的。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:run.source_message_id,quote:'再说说方向'}}]})
+      outputs.push({reply:'好的。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}]})
       const result=await engine(input)
       // simulate a REAL concurrent revision bump AFTER generation, before commit
       await pool.query("UPDATE growth_items SET revision=revision+1 WHERE user_id=$1 AND id=(SELECT id FROM growth_items WHERE user_id=$1 ORDER BY updated_at DESC LIMIT 1)",[user])

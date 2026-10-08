@@ -21,7 +21,7 @@ function providerSchema(value:unknown,currentMessageId?:string):unknown{
   ]))
 }
 
-export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false,resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false):unknown{
+export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false,resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds?:readonly string[]):unknown{
   if(currentMessageId&&!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(currentMessageId))throw new Error('CURRENT_MESSAGE_ID_INVALID')
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return payload
   const body={...payload as Record<string,unknown>}
@@ -96,31 +96,39 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
         unique.set(ref.id,ref.revision)
       }
       const updates=compiled.properties?.growthUpdates
-      if(updates)updates.description='只保存本轮最后一条用户消息中的新增本人事实；source.quote必须逐字复制currentUserMessage.text的连续片段，不能取历史消息；本轮没有新事实就输出空数组，寒暄或确认语不是事实。'
+      if(updates)updates.description='只保存本轮新增本人事实：source.clauseId选择currentUserMessage.clauses列出的分句，服务器保存其精确原文；本轮没有新事实就输出空数组，寒暄或确认语不是事实；更正旧条目才用correct并选其itemId。'
       const items=updates?.items
-      if(items?.anyOf)items.anyOf=items.anyOf.filter((branch:any)=>{
-        const properties=branch.properties,target=properties?.target
-        // The server derives user_reported text from the verified quote; the
-        // legacy free-text field only ever let models smuggle stale paraphrases.
-        if(properties?.assertion?.const==='user_reported')delete properties.text
-        if(target?.anyOf){
-          const create=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='create'),replace=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='replace'),amend=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='amend')
-          if(!create||!replace)throw new Error('GROWTH_TARGET_SCHEMA_REQUIRED')
-          // Each authorized item becomes ONE alternative branch binding itemId and
-          // expectedRevision together; the model cannot mix an id from one item
-          // with the revision of another. amend branches carry the same pairing.
-          const pairs=Array.from(unique,([id,revision])=>({id,revision}))
-          const boundReplace=pairs.map(({id,revision})=>({...replace,properties:{...replace.properties,itemId:{...replace.properties.itemId,enum:[id]},expectedRevision:{...replace.properties.expectedRevision,enum:[revision]}}}))
-          const boundAmend=amend?pairs.map(({id,revision})=>({...amend,properties:{...amend.properties,itemId:{...amend.properties.itemId,enum:[id]},expectedRevision:{...amend.properties.expectedRevision,enum:[revision]}}})):[]
-          target.anyOf=[create,...boundReplace,...boundAmend]
+      if(items?.anyOf){
+        // P1/P2: every clause handle the model can name is enum-bound to the
+        // server-built catalogue; a fabricated clauseId (hence a fabricated
+        // quote) is unrepresentable.
+        const bindClauseId=(node:any)=>{
+          if(node?.properties?.clauseId&&clauseIds?.length)node.properties.clauseId={...node.properties.clauseId,enum:[...clauseIds]}
         }
-        if(properties?.assertion?.const==='ai_observation'){
+        items.anyOf=items.anyOf.map((branch:any)=>{
+          const properties=branch.properties,target=properties?.target
+          bindClauseId(properties?.source)
+          if(properties?.timeEvidence?.anyOf)for(const evidence of properties.timeEvidence.anyOf)bindClauseId(evidence)
+          // The server derives user_reported text from the verified clause; the
+          // legacy free-text field only ever let models smuggle stale paraphrases.
+          if(properties?.assertion?.const==='user_reported')delete properties.text
+          if(target?.anyOf){
+            const create=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='create'),correct=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='correct')
+            if(!create||!correct)throw new Error('GROWTH_TARGET_SCHEMA_REQUIRED')
+            // Each authorized item becomes ONE correct alternative; the model
+            // selects the item, never the operation or the revision.
+            target.anyOf=[create,...Array.from(unique,([id])=>({...correct,properties:{...correct.properties,itemId:{...correct.properties.itemId,enum:[id]}}}))]
+          }
+          if(properties?.assertion?.const==='ai_observation'){
             const alternatives=properties.dependencies.items.anyOf
             const dependency=alternatives.find((branch:any)=>branch.properties?.id),local=alternatives.find((branch:any)=>branch.properties?.updateIndex)
             properties.dependencies.items={anyOf:[local,...Array.from(unique,([id,revision])=>({...dependency,properties:{...dependency.properties,id:{...dependency.properties.id,enum:[id]},revision:{...dependency.properties.revision,enum:[revision]}}}))]}
-        }
-        return true
-      })
+          }
+          return branch
+        })
+        const candidate=compiled.properties?.experienceCandidate
+        if(candidate?.properties?.source?.properties?.clauseIds&&clauseIds?.length)candidate.properties.source.properties.clauseIds={...candidate.properties.source.properties.clauseIds,items:{...candidate.properties.source.properties.clauseIds.items,enum:[...clauseIds]}}
+      }
     }
     if(requireMaterial){
       const event=compiled.properties?.event,action=event?.properties?.action

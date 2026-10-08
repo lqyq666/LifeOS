@@ -87,25 +87,32 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       }finally{config.qwenThinkingBudget=previous}
     })
     await t.test('automatic growth changes pass through the SDK schema and durable turn completion',async()=>{
-      const input=await prepare('我是成年大学生，最近在梳理方向。'),source={messageId:input.run.source_message_id,quote:'我是成年大学生'}
-      outputs.push({reply:'先按你目前的时间，从一个小探索开始。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',text:'我是成年大学生',source}]})
+      const input=await prepare('我是成年大学生，最近在梳理方向。')
+      outputs.push({reply:'先按你目前的时间，从一个小探索开始。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}]})
       const before=requests.length,result=await engine(input)
       assert.equal(requests.length-before,1)
       assert.ok(JSON.stringify(requests.at(-1).response_format).includes('growthUpdates'))
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       assert.equal(saved.growthIds.length,1)
-      assert.equal((await pool.query('SELECT text,assertion FROM growth_items WHERE user_id=$1 AND id=$2',[user,saved.growthIds[0]])).rows[0].assertion,'user_reported')
+      const persisted=(await pool.query('SELECT text,assertion FROM growth_items WHERE user_id=$1 AND id=$2',[user,saved.growthIds[0]])).rows[0]
+      assert.equal(persisted.assertion,'user_reported')
+      assert.equal(persisted.text,'我是成年大学生','server saves the exact clause text')
     })
-    await t.test('invalid growth source gets one bounded repair; rejected state is never persisted',async()=>{
-      const input=await prepare('现在还没开始投递。'),source={messageId:input.run.source_message_id,quote:'现在还没开始投递。'}
-      outputs.push({reply:'先核对第一步。',growthUpdates:[{target:{operation:'create'},kind:'ability',assertion:'user_reported',text:'独立完成五个项目',source}]},{reply:'还没开始可以先看看卡在哪。'})
+    await t.test('a contradictory legacy expiry gets one bounded repair; only the verified constraint persists',async()=>{
+      const input=await prepare('本周我只有两小时能做项目。')
+      outputs.push(
+        {reply:'先按本周剩余时间来。',growthUpdates:[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{clauseId:'c0'},timeEvidence:{kind:'calendar_week',which:'this',clauseId:'c0'},validUntil:'2099-01-01T16:00:00.000Z'}]},
+        {reply:'先按本周剩余时间来。',growthUpdates:[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{clauseId:'c0'},timeEvidence:{kind:'calendar_week',which:'this',clauseId:'c0'}}]},
+      )
       const before=requests.length,result=await engine(input)
       assert.equal(requests.length-before,2)
-      assert.equal((result.usage as any).repairReason,'GROWTH_SOURCE_INVALID')
-      assert.ok(requests.at(-1).messages[0].content.includes('Repair only growthUpdates'))
+      assert.equal((result.usage as any).repairReason,'GROWTH_TIME_UNVERIFIED')
+      assert.ok(requests.at(-1).messages[0].content.includes('belongs in kind "context"'),'time-specific repair guidance reaches the repair call')
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
-      assert.deepEqual(saved.growthIds,[])
-      assert.equal((await pool.query('SELECT count(*)::int AS n FROM growth_items WHERE user_id=$1 AND origin_request_id=$2',[user,input.run.request_id])).rows[0].n,0)
+      assert.equal(saved.growthIds.length,1)
+      const persisted=(await pool.query('SELECT text,valid_until FROM growth_items WHERE user_id=$1 AND id=$2',[user,saved.growthIds[0]])).rows[0]
+      assert.equal(persisted.text,'本周我只有两小时能做项目')
+      assert.ok(persisted.valid_until&&Date.parse(persisted.valid_until)<Date.parse('2099-01-01'),'expiry is the verified week window, never the fabricated 2099 date')
     })
     await t.test('a requested artifact delivered inline without action is repaired into the durable material',async()=>{
       const text='同学还需不需要我不知道，请直接帮我写一句确认消息。',input=await prepare(text)
@@ -375,7 +382,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       const text='我想明天打开聊天时先问同学是否还需要资料。',input=await prepare(text),source={messageId:input.run.source_message_id,quote:text},before=requests.length
       const content='如果明天打开聊天，我就先询问同学是否还需要资料。'
       const correct={reply:'可以使用这句话：',event:{target:{operation:'create',title:'询问资料需要',source},action:{operation:'create',draft:{content}}}}
-      outputs.push({...correct,experienceCandidate:{source}})
+      outputs.push({...correct,experienceCandidate:{source:{clauseIds:['c0']}}})
       const result=await engine(input)
       assert.equal(requests.length-before,1)
       assert.equal((result.usage as any).repairCalls,0)
@@ -388,7 +395,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
     })
     await t.test('a skill candidate cannot discard an otherwise usable action or create an experience',async()=>{
       const text='我会Python。请帮我写一句给同学的开场。',input=await prepare(text),source={messageId:input.run.source_message_id,quote:'我会Python。'},before=requests.length
-      outputs.push({reply:'可以这样开口：',event:{target:{operation:'create',title:'联系同学',source},action:{operation:'create',draft:{content:'你现在有需要用Python处理的小任务吗？'}}},experienceCandidate:{source}})
+      outputs.push({reply:'可以这样开口：',event:{target:{operation:'create',title:'联系同学',source},action:{operation:'create',draft:{content:'你现在有需要用Python处理的小任务吗？'}}},experienceCandidate:{source:{clauseIds:['c0']}}})
       const result=await engine(input)
       assert.equal(requests.length-before,1);assert.equal(input.staged.candidates.length,0)
       assert.ok(input.staged.audit.some((entry:any)=>entry.phase==='coach_optional_candidate_rejected'&&entry.code==='SKILL_IS_NOT_EXPERIENCE'))
@@ -399,7 +406,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       for(const explicit of [true,false]){
         const text='我想明天询问同学是否还需要资料。'+(explicit?'请保存为经历。':''),input=await prepare(text),source={messageId:input.run.source_message_id,quote:text},before=requests.length
         const event={target:{operation:'create',title:'询问资料需要',source},action:{operation:'create',draft:{content:'你现在还需要资料吗？'}}}
-        outputs.push({reply:explicit?'可以这样问：':'已保存这段经历。',event,experienceCandidate:{source}},{reply:'这只是未来计划，不能保存为已发生经历。可使用下面的消息：',event})
+        outputs.push({reply:explicit?'可以这样问：':'已保存这段经历。',event,experienceCandidate:{source:{clauseIds:['c0']}}},{reply:'这只是未来计划，不能保存为已发生经历。可使用下面的消息：',event})
         const result=await engine(input)
         assert.equal(requests.length-before,2);assert.equal((result.usage as any).repairReason,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
         assert.match(requests.at(-1).messages[0].content,/具体修复要求：Omit experienceCandidate entirely/)
@@ -408,24 +415,29 @@ test('the only turn core uses natural replies and event deltas, with one bounded
         await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       }
     })
-    await t.test('a candidate with an invalid source cannot bypass validation beside valid material',async()=>{
+    await t.test('an unresolvable clause selection drops on an ordinary turn and repairs on a saving turn',async()=>{
       const text='我想明天询问同学。',input=await prepare(text),source={messageId:input.run.source_message_id,quote:text},before=requests.length
       const event={target:{operation:'create',title:'询问同学',source},action:{operation:'create',draft:{content:'你现在还需要资料吗？'}}}
-      outputs.push({reply:'可以这样问：',event,experienceCandidate:{source:{...source,quote:'我想明天保存不存在的原话。'}}},{reply:'可以这样问：',event})
+      outputs.push({reply:'可以这样问：',event,experienceCandidate:{source:{clauseIds:['c9']}}})
       const result=await engine(input)
-      assert.equal(requests.length-before,2);assert.equal((result.usage as any).repairReason,'SOURCE_QUOTE_MISMATCH')
-      assert.ok(!input.staged.audit.some((entry:any)=>entry.phase==='coach_optional_candidate_rejected'))
+      assert.equal(requests.length-before,1,'an ordinary turn drops the junk selection without another call')
+      assert.ok(input.staged.audit.some((entry:any)=>entry.phase==='coach_optional_candidate_rejected'&&entry.code==='CANDIDATE_CLAUSE_UNRESOLVED'))
       await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      const saving=await prepare('请保存这段经历：'+text),after=requests.length
+      outputs.push({reply:'已保存。',experienceCandidate:{source:{clauseIds:['c9']}}},{reply:'找不到对应的原话分句，请重新选择。'})
+      const repaired=await engine(saving)
+      assert.equal(requests.length-after,2);assert.equal((repaired.usage as any).repairReason,'SOURCE_QUOTE_MISMATCH')
+      assert.ok(!saving.staged.audit.some((entry:any)=>entry.phase==='coach_optional_candidate_rejected'))
+      await store.finishRun(saving.run,saving.staged,repaired.text,repaired.usage,saving.signal)
     })
     await t.test('a saved optional future candidate cannot block a valid reply without an action; source errors and saving intent still require repair',async()=>{
       const fixture=JSON.parse(readFileSync('tests/fixtures/coach-invalid-background.json','utf8'))
       const text='我想在明天下午打开微信时，先询问同学是否还需要资料。请把它写成一句如果……就……，给出核验过的实施意图定义与适用范围，不要声称能保证效果。'
       let input=await prepare(text),before=requests.length
-      const source=(messageId:string)=>({messageId,quote:fixture.experienceCandidate.source.quote})
       const reply={reply:fixture.reply}
-      const proposed=(messageId:string)=>({...reply,experienceCandidate:{source:source(messageId)}})
+      const proposed=()=>({...reply,experienceCandidate:{source:{clauseIds:['c0','c1']}}})
       try{
-        outputs.push(proposed(input.run.source_message_id),reply)
+        outputs.push(proposed(),reply)
         const result=await engine(input)
         if(requests.length-before===1)assert.deepEqual(outputs.shift(),reply)
         assert.equal(requests.length-before,1);assert.equal(result.text,fixture.reply)
@@ -434,22 +446,22 @@ test('the only turn core uses natural replies and event deltas, with one bounded
         await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
         assert.equal((await pool.query('SELECT count(*)::int AS n FROM experiences WHERE request_id=$1',[input.run.request_id])).rows[0].n,0)
         input=await prepare('请保存这项经历：'+text);before=requests.length
-        outputs.push(proposed(input.run.source_message_id),reply)
+        outputs.push(proposed(),reply)
         const explicit=await engine(input)
         assert.equal(requests.length-before,2);assert.equal((explicit.usage as any).repairReason,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
         assert.ok(!input.staged.audit.some((e:any)=>e.phase==='coach_optional_candidate_rejected'))
         await store.finishRun(input.run,input.staged,explicit.text,explicit.usage,input.signal)
         input=await prepare(text);before=requests.length
-        outputs.push({...reply,experienceCandidate:{source:{messageId:input.run.source_message_id,quote:'我明天将引用不存在的原话。'}}},reply)
-        const repaired=await engine(input)
-        assert.equal(requests.length-before,2);assert.equal((repaired.usage as any).repairReason,'SOURCE_QUOTE_MISMATCH')
-        assert.ok(!input.staged.audit.some((e:any)=>e.phase==='coach_optional_candidate_rejected'))
-        await store.finishRun(input.run,input.staged,repaired.text,repaired.usage,input.signal)
+        outputs.push({...reply,experienceCandidate:{source:{clauseIds:['c9']}}})
+        const dropped=await engine(input)
+        assert.equal(requests.length-before,1,'an unresolvable selection on an ordinary turn drops without repair')
+        assert.ok(input.staged.audit.some((e:any)=>e.phase==='coach_optional_candidate_rejected'&&e.code==='CANDIDATE_CLAUSE_UNRESOLVED'))
+        await store.finishRun(input.run,input.staged,dropped.text,dropped.usage,input.signal)
       }finally{await store.terminateRun(user,input.run.request_id,'cancelled','SYNTHETIC_OPTIONAL_CANDIDATE_TEST_CLEANUP')}
     })
     await t.test('a genuine completed experience still becomes a confirmation candidate',async()=>{
-      const text='昨天我完成了资料整理，交付给同学，对方看完后说有帮助。',input=await prepare(text),source={messageId:input.run.source_message_id,quote:text},before=requests.length
-      outputs.push({reply:'这次交付有明确回应。',experienceCandidate:{source}})
+      const text='昨天我完成了资料整理，交付给同学，对方看完后说有帮助。',input=await prepare(text),before=requests.length
+      outputs.push({reply:'这次交付有明确回应。',experienceCandidate:{source:{clauseIds:['c0','c1','c2']}}})
       const result=await engine(input)
       assert.equal(requests.length-before,1);assert.equal(input.staged.candidates.length,1)
       await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
@@ -714,18 +726,22 @@ test('the only turn core uses natural replies and event deltas, with one bounded
         const continuations=request.response_format.json_schema.schema.properties.event.properties.target.anyOf.filter((branch:any)=>branch.properties.operation.const==='continue')
         assert.equal(continuations.length,expected.size)
         for(const branch of continuations){assert.equal(branch.properties.eventId.enum.length,1);assert.deepEqual(branch.properties.expectedRevision.enum,[expected.get(branch.properties.eventId.enum[0])])}
-        let bound=0
+        let bound=0,clauseBound=0
         function check(value:any){
           if(!value||typeof value!=='object')return
           if(value.properties?.messageId){bound++;assert.deepEqual(value.properties.messageId.enum,[state.currentUserMessage.id])}
+          if(value.properties?.clauseId?.enum){clauseBound++;assert.ok(value.properties.clauseId.enum.length>0,'clause bindings enumerate the catalogue')}
           for(const item of Object.values(value))check(item)
         }
         const eventProperties=request.response_format.json_schema.schema.properties.event.properties
         // Corrections exist only when the authorized context has correctable
-        // nodes; without events the remaining source bindings still number four.
+        // nodes; without events the remaining message-source bindings are the
+        // event create target and node sources (growth and candidate anchors
+        // bind clauseId handles instead of messageId under the P1 protocol).
         const correctable=targets.some((event:any)=>event.nodes?.length)
-        const required=correctable?5:4
+        const required=correctable?3:2
         check(request.response_format.json_schema.schema);assert.ok(bound>=required,'messageId identity bindings: '+bound+' < '+required)
+        assert.ok(clauseBound>=1,'growth source clause handles are enum-bound')
         assert.equal('corrections' in eventProperties,correctable,'corrections schema presence follows authorized correctable nodes')
         if(correctable)for(const nodeId of eventProperties.corrections.items.properties.nodeId.enum)assert.ok(targets.some((event:any)=>event.nodes.some((node:any)=>node.id===nodeId)),'corrections enum only contains authorized node IDs')
       }

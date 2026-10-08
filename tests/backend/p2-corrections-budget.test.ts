@@ -45,12 +45,12 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
     return {run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}}
   }
   try{
-    await t.test('A01: year correction with a non-verbatim model quote still amends the real item and keeps siblings',async()=>{
+    await t.test('A01: a correct intent on the scored item amends it and keeps siblings',async()=>{
       const original=await createGrowthItem(user,{requestId:randomUUID(),conversationId:conversation,kind:'context',text:'我大三，最近在就业和考研之间犹豫。'})
       const input=await prepare('更正一下：我是大二，刚才说成大三了。')
-      // The model "corrects" with an invented paraphrase quote — the P1 failure
-      // shape that ended as unverified_span + a reply claiming success.
-      outputs.push({reply:'收到，把“大三”更正为“大二”，其他不变。',growthUpdates:[{target:{operation:'replace',itemId:original.id,expectedRevision:original.revision},kind:'context',assertion:'user_reported',text:'我是大二',source:{messageId:input.run.source_message_id,quote:'我是大二，不是大三'}}]})
+      // The model only names the item; the server derives the operation, the
+      // revision and the marker-stripped verbatim new value.
+      outputs.push({reply:'收到，把“大三”更正为“大二”，其他不变。',growthUpdates:[{target:{operation:'correct',itemId:original.id},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}]})
       const result=await engine(input)
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       assert.ok(saved.stateChange.growth.changedIds.length>=1,'the correction actually changed an item')
@@ -64,7 +64,7 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
     await t.test('A02: composite contribution correction swaps only the scored clause',async()=>{
       const team=await createGrowthItem(user,{requestId:randomUUID(),conversationId:conversation,kind:'ability',text:'我们团队上学期拿了校园文创设计二等奖，我做的是整体策划。'})
       const input=await prepare('更正一下：整体策划主要是队长做的，我只负责了宣传物料里的排版部分。')
-      outputs.push({reply:'明白，策划是队长的，你负责排版部分。',growthUpdates:[{target:{operation:'replace',itemId:team.id,expectedRevision:team.revision},kind:'ability',assertion:'user_reported',text:'我只负责了宣传物料里的排版部分',source:{messageId:input.run.source_message_id,quote:'我只负责了宣传物料里的排版部分'}}]})
+      outputs.push({reply:'明白，策划是队长的，你负责排版部分。',growthUpdates:[{target:{operation:'correct',itemId:team.id},kind:'ability',assertion:'user_reported',source:{clauseId:'c1'}}]})
       const result=await engine(input)
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       const items=await growthContext(user,conversation)
@@ -73,10 +73,10 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
       assert.ok(texts.includes('我只负责了宣传物料里的排版部分'),'personal role corrected')
       assert.ok(!texts.includes('我做的是整体策划'),'old personal-role claim no longer active')
     })
-    await t.test('A02b: a model amend with a bogus beforeQuote is normalized to the scored clause',async()=>{
+    await t.test('A02b: the server derives the amended clause — the model cannot name one',async()=>{
       const team2=await createGrowthItem(user,{requestId:randomUUID(),conversationId:conversation,kind:'ability',text:'我们小组拿了校赛一等奖，我负责整体统筹。'})
       const input=await prepare('更正一下：整体统筹主要是组长做的，我只负责了演示部分。')
-      outputs.push({reply:'明白，统筹是组长的，你负责演示。',growthUpdates:[{target:{operation:'amend',itemId:team2.id,expectedRevision:99,beforeQuote:'整体统筹'},kind:'ability',assertion:'user_reported',source:{messageId:input.run.source_message_id,quote:'我只负责了演示部分'}}]})
+      outputs.push({reply:'明白，统筹是组长的，你负责演示。',growthUpdates:[{target:{operation:'correct',itemId:team2.id},kind:'ability',assertion:'user_reported',source:{clauseId:'c1'}}]})
       const result=await engine(input)
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       assert.ok(saved.stateChange.growth.changedIds.length>=1)
@@ -125,9 +125,10 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
     })
     await t.test('B05: a next-week plan binds the supplement fact when the model budget delta was invalid',async()=>{
       const input=await prepare('我每周有六小时。这周还剩两小时，帮我安排下周。')
-      // Model stages an invalid budget delta (quote not in message → skipped)
-      // but plans correctly for next week with 360 minutes.
-      outputs.push({reply:'下周按你常规的每周六小时安排如下。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',text:'我每周有六小时',source:{messageId:input.run.source_message_id,quote:'每周六小时常规投入'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:360,period:'next_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品集',minutes:180,directionScopes:['employment']},{action:'投两个岗位',minutes:180,directionScopes:['employment']}]}})
+      // The model misses the budget fact entirely (a junk quote is
+      // unrepresentable under the clause protocol) but plans correctly for
+      // next week with 360 minutes; the supplement anchors the budget.
+      outputs.push({reply:'下周按你常规的每周六小时安排如下。',weeklyPlan:{target:{operation:'create'},availableMinutes:360,period:'next_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品集',minutes:180,directionScopes:['employment']},{action:'投两个岗位',minutes:180,directionScopes:['employment']}]}})
       const result=await engine(input)
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       assert.ok(saved.stateChange.plan,'plan persisted')

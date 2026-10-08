@@ -18,7 +18,10 @@ test('explicit local evidence resolves to saved facts and corrections in either 
       const source={messageId:run.source_message_id,quote:'我想先探索就业'}
       const fact={target:{operation:'create' as const},kind:'goal' as const,assertion:'user_reported' as const,source}
       const observation={target:{operation:'create' as const},kind:'priority' as const,assertion:'ai_observation' as const,text:'先核对就业探索的关键缺口',source,dependencies:[{updateIndex:observationFirst?1:0}],limitation:'仅有本人当前目标，具体岗位与经验未知'}
-      const changes=observationFirst?[observation,fact]:[fact,observation]
+      // Wire form: the model selects clause handles; the server owns the span.
+      const wireFact={target:{operation:'create' as const},kind:'goal' as const,assertion:'user_reported' as const,source:{clauseId:'c0'}}
+      const wireObservation={target:{operation:'create' as const},kind:'priority' as const,assertion:'ai_observation' as const,text:'先核对就业探索的关键缺口',source:{clauseId:'c0'},dependencies:[{updateIndex:observationFirst?1:0}],limitation:'仅有本人当前目标，具体岗位与经验未知'}
+      const changes=observationFirst?[wireObservation,wireFact]:[wireFact,wireObservation]
       const parsed=parseActionCoachTurn(JSON.stringify({reply:'先核对就业探索。',growthUpdates:changes}))
       const schema=(configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,run.source_message_id,[],[]) as any).response_format.json_schema.schema
       assert.equal(Value.Check(schema,parsed),true,'an empty initial growth snapshot still permits explicit local fact references')
@@ -26,7 +29,7 @@ test('explicit local evidence resolves to saved facts and corrections in either 
       const deduplicated=await stageGrowthUpdates(run,[fact,fact,{...observation,dependencies:[{updateIndex:1}]}],[])
       assert.equal(deduplicated.changes.length,2)
       assert.deepEqual(deduplicated.changes[1].assertion==='ai_observation'?deduplicated.changes[1].dependencies:[],[{updateIndex:0}],'deduplication keeps the selected fact identity')
-      const staged=await stageGrowthUpdates(run,parsed.growthUpdates!,[])
+      const staged=await stageGrowthUpdates(run,observationFirst?[observation,fact]:[fact,observation],[])
       const saved=await store.finishRun(run,{candidates:[],audit:[],growth:staged,growthSnapshotKey:growthSnapshotKey([])},'先核对就业探索。',null,new AbortController().signal)
       const factId=saved.growthIds[observationFirst?1:0],observationId=saved.growthIds[observationFirst?0:1]
       let view=await growthView(user,chat)

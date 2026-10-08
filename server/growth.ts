@@ -9,7 +9,7 @@ import { scanUserClauses } from './user-command-spans.ts'
 import { resolveTimeWindow, legacyValidUntilMatchesQuote, quoteStatedCutoff, TimeEvidenceError, type TimeWindow, type Zone } from './growth-time.ts'
 import { redactDirectionControlsForMessages } from './growth-controls.ts'
 import type { GrowthItem, GrowthRef, GrowthView } from '../src/features/growth/types.ts'
-import type { GrowthDelta,GrowthInputDelta } from './growth-model-contracts.ts'
+import type { GrowthDelta,ResolvedGrowthDelta } from './growth-model-contracts.ts'
 import type { Run } from './store.ts'
 
 type DB = Pick<PoolClient, 'query'>
@@ -241,7 +241,7 @@ const sameSentence=(text:string,left:number,right:number)=>{
 }
 const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
 const toFragmentSources=(sources:GrowthItem['sources']):Source[]=>sources.map(source=>source.type==='message'?{type:'message',id:source.id,quote:source.quote}:{type:'user_edit',quote:source.quote})
-export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],authorized:GrowthItem[],options:{allowedDirectionScopes?:readonly string[]}={}):Promise<GrowthStaged> {
+export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],authorized:GrowthItem[],options:{allowedDirectionScopes?:readonly string[]}={}):Promise<GrowthStaged> {
   const current=requireRow((await pool.query("SELECT content,created_at FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0]) as {content:string;created_at:Date}
   // Models routinely re-assert facts the user already stated in an earlier
   // message of this conversation, binding the old quote to the current message
@@ -261,7 +261,7 @@ export async function stageGrowthUpdates(run:Run,changes:GrowthInputDelta[],auth
   // so retries never shift a window.
   const zone:Zone='Asia/Shanghai'
   const anchorIso=new Date(current.created_at).toISOString()
-  const resolveGrowthTime=(change:GrowthInputDelta):TimeWindow|null=>{
+  const resolveGrowthTime=(change:ResolvedGrowthDelta):TimeWindow|null=>{
     const evidence='timeEvidence'in change?change.timeEvidence:undefined
     const legacy='validUntil'in change?change.validUntil:undefined
     // P1: unverifiable SUPPLIED time evidence resolves to null for every kind.

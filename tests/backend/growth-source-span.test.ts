@@ -17,18 +17,21 @@ test('source-only reported facts use verified user spans while legacy paraphrase
     const text='我是20岁的大二学生。团队项目拿了奖，但我只做了访谈整理，没有写代码。本周仅两小时。先不联系，可以吗？本学期每周最多四小时。'+academicSpan+'。'
     const run=(await store.startRun(user,chat,randomUUID(),text)).run
     const delta=(quote:string)=>({target:{operation:'create' as const},kind:'context' as const,assertion:'user_reported' as const,source:{messageId:run.source_message_id,quote}})
+    // Internal (resolved) spans for direct staging, and the wire form the
+    // model now emits: clause handles only, server-owned spans.
+    const wireDelta=(clauseId:string)=>({target:{operation:'create' as const},kind:'context' as const,assertion:'user_reported' as const,source:{clauseId}})
     const selected=[delta('团队项目拿了奖，但我只做了访谈整理，没有写代码'),delta('先不联系，可以吗？'),{...delta('本周仅两小时'),kind:'constraint' as const,timeEvidence:{kind:'calendar_week' as const,which:'this' as const,quote:'本周'}}]
-    const parsed=parseActionCoachTurn(JSON.stringify({reply:'保持当前边界，先核对情况。',growthUpdates:selected}))
+    const wireSelected=[wireDelta('c1'),wireDelta('c5'),{...wireDelta('c4'),kind:'constraint' as const,timeEvidence:{kind:'calendar_week' as const,which:'this' as const,clauseId:'c4'}}]
+    const parsed=parseActionCoachTurn(JSON.stringify({reply:'保持当前边界，先核对情况。',growthUpdates:wireSelected}))
     const request=configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,run.source_message_id,[],[]) as any
-    assert.equal(Value.Check(request.response_format.json_schema.schema,parsed),true,'native constrained schema accepts source-only reported facts without authorizing made-up IDs')
-    const missingExpiry={...delta('本周仅两小时'),kind:'constraint'}
-    const parsedMissing=parseActionCoachTurn(JSON.stringify({reply:'期限仍需核对。',growthUpdates:[missingExpiry]}))
+    assert.equal(Value.Check(request.response_format.json_schema.schema,parsed),true,'native constrained schema accepts clause-anchored reported facts without authoring quote text')
+    const parsedMissing=parseActionCoachTurn(JSON.stringify({reply:'期限仍需核对。',growthUpdates:[{...wireDelta('c4'),kind:'constraint' as const}]}))
     assert.equal(Value.Check(request.response_format.json_schema.schema,parsedMissing),true,'the schema defers expiry verification to the server; an unevidenced constraint is dropped there, never saved with a guessed date')
-    assert.equal(Value.Check(request.response_format.json_schema.schema,{reply:'保留原话并核对期限。',growthUpdates:[delta('本学期每周最多四小时')]}),true,'an unbounded semester budget can remain a source-only context')
-    assert.equal(Value.Check(request.response_format.json_schema.schema,{reply:'尚无动作状态。',growthUpdates:[{...delta('本周仅两小时'),kind:'feedback'}]}),false,'feedback requires an explicit progress state in the native schema')
-    assert.equal(Value.Check(request.response_format.json_schema.schema,{reply:'事实没有动作状态。',growthUpdates:[{...delta('本周仅两小时'),progressState:'completed'}]}),false,'non-feedback branches cannot carry progress states')
+    assert.equal(Value.Check(request.response_format.json_schema.schema,{reply:'保留原话并核对期限。',growthUpdates:[wireDelta('c7')]}),true,'an unbounded semester budget can remain a source-only context')
+    assert.equal(Value.Check(request.response_format.json_schema.schema,{reply:'尚无动作状态。',growthUpdates:[{...wireDelta('c4'),kind:'feedback'}]}),false,'feedback requires an explicit progress state in the native schema')
+    assert.equal(Value.Check(request.response_format.json_schema.schema,{reply:'事实没有动作状态。',growthUpdates:[{...wireDelta('c4'),progressState:'completed'}]}),false,'non-feedback branches cannot carry progress states')
     assert.ok(parsed.growthUpdates?.every(row=>!('text'in row)))
-    const staged=await stageGrowthUpdates(run,parsed.growthUpdates!,[])
+    const staged=await stageGrowthUpdates(run,selected,[])
     assert.deepEqual(staged.changes.map(row=>row.text),selected.map(row=>row.source.quote))
     await assert.rejects(stageGrowthUpdates(run,[{...selected[0],text:'我具备稳定技术能力'}],[]),{code:'GROWTH_SOURCE_INVALID'})
     // A spliced quote that is the user's verbatim words nowhere is dropped
@@ -52,7 +55,7 @@ test('source-only reported facts use verified user spans while legacy paraphrase
     const dated=(await stageGrowthUpdates(run,[{...delta(academicSpan),kind:'constraint',timeEvidence:{kind:'date_inclusive',date:`${academicYear}-12-31`,quote:`截至${academicYear}年12月31日`}}],[])).changes[0]!
     assert.equal(dated.text,academicSpan)
     assert.equal('validUntil'in dated?dated.validUntil:null,`${academicYear}-12-31T16:00:00.000Z`)
-    assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:'未知不猜。',growthUpdates:[{...delta('先不联系，可以吗？'),kind:'unknown',assertion:'unknown'}]})),/OUTPUT_INVALID/)
+    assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:'未知不猜。',growthUpdates:[{...wireDelta('c5'),kind:'unknown',assertion:'unknown'}]})),/OUTPUT_INVALID/)
     assert.equal((await growthView(user,chat)).items.length,0,'all validation failures precede any writes')
     await store.finishRun(run,{candidates:[],audit:[],growth:staged},'保持当前边界，先核对情况。',null,new AbortController().signal)
     const view=await growthView(user,chat)

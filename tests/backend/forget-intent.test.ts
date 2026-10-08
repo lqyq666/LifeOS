@@ -241,7 +241,7 @@ withEngineScenario('A3 full path: intent → staging → finishRun commit → GE
   {
     const poster2 = await createGrowthItem(user, { requestId: randomUUID(), conversationId: chat, kind: 'context', text: '我的海报经历记录二' })
     const p = await prepare('学长反馈公众号排版主要是轮值负责。顺便忘掉海报经历记录二。')
-    outputs.push({ reply: '已记录反馈；海报记录已遗忘。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { messageId: p.run.source_message_id, quote: '学长反馈公众号排版主要是轮值负责' } }] })
+    outputs.push({ reply: '已记录反馈；海报记录已遗忘。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c0' } }] })
     const result = await engine(p.input)
     const response = await store.finishRun(p.run, p.staged, result.text, result.usage, p.input.signal)
     assert.equal(response.stateChange.memoryControl?.kind, 'forget')

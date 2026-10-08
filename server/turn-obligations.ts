@@ -285,33 +285,48 @@ export function verifyTurnObligations(obligations:TurnObligations,staged:Obligat
   }
 }
 
-// P5.3 step 8 (P2 revision): a reply must not AFFIRM a different amount of the
-// user's OWN just-stated budget (你每周有6小时 while the user just said 2h).
-// P1 removed this check because it blocked legitimate comparisons; it returns
-// with an escape hatch for amounts attributed to an OPPORTUNITY or a change
-// framing — the classes P1 actually hit. The structural checks (required growth
-// update carries the new amount; a staged plan's availableMinutes equals the
-// binding budget) remain the primary guard.
-const replyAmountEscape=/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|低于|超过|多于|不到|最多|至少|实习|岗位|项目|机会|兼职|这份|该|对方|要求|需要|它| offer)/
+// P5.3 step 8 (P2 revision → D-gate replay P4): a reply must not AFFIRM a
+// different amount of the user's OWN just-stated budget (你每周有6小时 while
+// the user just said 2h). The check is deliberately narrow after the D-batch
+// false positives: an amount attributed to ANOTHER activity (标注每周要占3小时,
+// 三门课每周吃掉N小时) or an ALLOCATION inside the stated budget (两小时里剩下
+// 1小时做备份) is informational planning, never an affirmation of the user's
+// total. Only a span that states the user's own current budget in the reply's
+// own voice may contradict. The structural checks (required growth update
+// carries the new amount; a staged plan's availableMinutes equals the binding
+// budget) remain the primary guard and stay exact.
+const otherActivityAttribution=/(?:实习|岗位|项目|机会|兼职|课题|标注|课程|硬课|学业|功课|这份|该|对方|它|他们|要求|需要|要占|占|吃掉|花|用掉|留给|排给|最多|至少|超过|多于|不到|低于|如果|若|假设|大概|可能)/
+const userBudgetVoice=/(?:你|您)/
+const changeFraming=/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|降为|调整到)/
+// The allocation signal lives in the text BEFORE the amount (排/留/备份…),
+// never in the amount span itself.
+const allocationFraming=/(?:排|留|给|用|花|占|备份|另一|第二|其中|之一|里|中|内|后|做完|发完|完成后)/
 export function verifyReplyAgainstObligations(obligations:TurnObligations,reply:string):void{
   for(const effect of obligations.requiredEffects){
     if(effect.type==='weekly_time'){
       for(const match of reply.matchAll(/每(?:周|星期)[^，,。；;！？!\n]{0,8}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头))/g)){
         const stated=remainingMinutes(match[1]!)
         if(stated===null||stated===effect.minutes)continue
-        const before=reply.slice(Math.max(0,match.index-12),match.index)
-        if(replyAmountEscape.test(before)||replyAmountEscape.test(match[0]))continue
+        const before=reply.slice(Math.max(0,match.index-14),match.index)
+        // Contradiction requires the reply to state the USER's own recurring
+        // budget; anything attached to another activity or a comparison/change
+        // framing stays informational (L2:4 每周要占3小时 shape).
+        if(otherActivityAttribution.test(before)||otherActivityAttribution.test(match[0]))continue
+        if(changeFraming.test(before)||changeFraming.test(match[0]))continue
         throw new ObligationError('REPLY_CONTRADICTS_CURRENT_EFFECT')
       }
     }
     if(effect.type==='remaining_time'){
-      // A different REMAINING amount in the reply contradicts the just-stated
-      // one; a weekly amount never does (每周6小时 with 这周剩2小时 is normal).
+      // A different REMAINING amount contradicts only when the reply restates
+      // the user's week total in its own voice; planning allocations inside
+      // the budget (D01:4 两小时里剩下约1小时) never do. A weekly amount
+      // never contradicts a remaining one (每周6小时 with 这周剩2小时 is normal).
       for(const match of reply.matchAll(/(?:只)?还?剩(?:下|着)?[^，,。；;！？!\n]{0,6}((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头))/g)){
         const stated=remainingMinutes(match[1]!)
         if(stated===null||stated===effect.minutes)continue
-        const before=reply.slice(Math.max(0,match.index-8),match.index)
-        if(/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|低于|超过|多于|不到|最多|至少)/.test(before+match[0]))continue
+        const before=reply.slice(Math.max(0,match.index-10),match.index)
+        if(allocationFraming.test(before)||changeFraming.test(before))continue
+        if(!userBudgetVoice.test(before)&&!/(?:这|本)周/.test(before))continue
         throw new ObligationError('REPLY_CONTRADICTS_CURRENT_EFFECT')
       }
     }
@@ -332,12 +347,12 @@ export function controlReplyText(effects:RequiredEffect[]):string{
 // clause; nothing beyond it is ever written. P2 (B04): a weekly amount scoped
 // to THIS or NEXT week persists as a week-scoped constraint so its applicable
 // period survives; an unscoped recurring amount stays an open context fact.
-export function supplementMissingBudgetDeltas(obligations:TurnObligations,stagedGrowth:import('./growth.ts').GrowthStaged|undefined,currentMessageId:string,currentText=''):import('./growth-model-contracts.ts').GrowthInputDelta[]{
+export function supplementMissingBudgetDeltas(obligations:TurnObligations,stagedGrowth:import('./growth.ts').GrowthStaged|undefined,currentMessageId:string,currentText=''):import('./growth-model-contracts.ts').ResolvedGrowthDelta[]{
   if(!obligations.requiredEffects.length)return []
   const covered=(effect:Extract<RequiredEffect,{type:'weekly_time'|'remaining_time'}>)=>(stagedGrowth?.changes??[]).some(delta=>delta.assertion==='user_reported'
     &&(effect.type==='remaining_time'?delta.kind==='constraint':['context','constraint'].includes(delta.kind))
     &&hoursIn(delta.text)===effect.minutes)
-  const deltas:import('./growth-model-contracts.ts').GrowthInputDelta[]=[]
+  const deltas:import('./growth-model-contracts.ts').ResolvedGrowthDelta[]=[]
   for(const effect of obligations.requiredEffects){
     if(effect.type==='weekly_time'&&!covered(effect)){
       // P3 (TM2): 从下周起/下周开始 introduces a NEW RECURRING schedule, not an

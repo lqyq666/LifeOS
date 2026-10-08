@@ -49,7 +49,7 @@ test('each request binds every new process source to its own current message wit
       if(value.properties?.messageId){bound++;assert.deepEqual(value.properties.messageId.enum,[current]);assert.equal(value.properties.messageId.enum.includes('79c2145f-a7c2-485c-acee-827dfc5f8f39'),false);assert.ok(value.properties.quote)}
       for(const item of Object.values(value))check(item)
     }
-    check(payload.response_format.json_schema.schema);assert.ok(bound>=5)
+    check(payload.response_format.json_schema.schema);assert.ok(bound>=4,'event/background process sources stay identity-bound')
     // Fix 3: citations are a union — the preferred claimId branch has no enum
     // and never leaks request identities; the legacy branch keeps plain strings.
     assert.equal(payload.response_format.json_schema.schema.properties.citations.items.anyOf[0].properties.claimId.enum,undefined)
@@ -58,16 +58,20 @@ test('each request binds every new process source to its own current message wit
   assert.throws(()=>configureProviderPayload({}, {provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,'not-a-source-id'),/CURRENT_MESSAGE_ID_INVALID/)
 })
 
-test('growth replace and observation dependencies bind exact authorized id/revision pairs before generation',()=>{
+test('growth correct selects authorized items and clause handles only; dependencies bind exact id/revision pairs before generation',()=>{
   const current='00000000-0000-4000-8000-000000000011',first={id:'00000000-0000-4000-8000-000000000021',revision:2},second={id:'00000000-0000-4000-8000-000000000031',revision:3}
-  const make=(refs:{id:string;revision:number}[])=>((configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,current,[],refs) as any).response_format.json_schema.schema)
-  const create={target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:current,quote:'每周三小时'}}
+  const make=(refs:{id:string;revision:number}[],clauseIds?:string[])=>((configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,current,[],refs,undefined,false,undefined,false,clauseIds) as any).response_format.json_schema.schema)
+  const create={target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}
   assert.equal(Value.Check(make([]),{reply:'记录明确情况',growthUpdates:[create]}),true)
+  assert.equal(Value.Check(make([]),{reply:'旧协议自写引文不可表示',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:current,quote:'每周三小时'}}]}),false,'the model cannot author quote text or message ids')
   assert.equal(Value.Check(make([]),{reply:'旧协议改写文本不可表示',growthUpdates:[{...create,text:'每周投入三小时'}]}),false,'user_reported text is derived by the server, so the native schema must not represent a free paraphrase')
-  const replace={...create,target:{operation:'replace',itemId:first.id,expectedRevision:first.revision}}
-  assert.equal(Value.Check(make([]),{reply:'无授权目标',growthUpdates:[replace]}),false)
-  assert.equal(Value.Check(make([first,second]),{reply:'更正',growthUpdates:[replace]}),true)
-  assert.equal(Value.Check(make([first,second]),{reply:'混用版本',growthUpdates:[{...replace,target:{...replace.target,expectedRevision:3}}]}),false)
+  assert.equal(Value.Check(make([]),{reply:'旧协议replace不可表示',growthUpdates:[{...create,target:{operation:'replace',itemId:first.id,expectedRevision:first.revision}}]}),false,'the model never names an operation or a revision')
+  const correct={...create,target:{operation:'correct',itemId:first.id}}
+  assert.equal(Value.Check(make([]),{reply:'无授权目标',growthUpdates:[correct]}),false)
+  assert.equal(Value.Check(make([first,second]),{reply:'更正',growthUpdates:[correct]}),true)
+  assert.equal(Value.Check(make([first,second]),{reply:'未知条目',growthUpdates:[{...create,target:{operation:'correct',itemId:current}}]}),false)
+  assert.equal(Value.Check(make([first,second],['c0','c1']),{reply:'更正',growthUpdates:[correct]}),true)
+  assert.equal(Value.Check(make([first,second],['c0','c1']),{reply:'越界分句',growthUpdates:[{...create,source:{clauseId:'c9'}}]}),false,'clause handles outside the server catalogue are unrepresentable')
   const observation={target:{operation:'create'},kind:'observation',assertion:'ai_observation',text:'先缩小投入',source:create.source,dependencies:[first],limitation:'尚不清楚课程安排'}
   assert.equal(Value.Check(make([]),{reply:'没有本人依据',growthUpdates:[observation]}),false)
   assert.equal(Value.Check(make([first]),{reply:'待核对',growthUpdates:[observation]}),true)
@@ -82,9 +86,9 @@ test('reviewed Qwen alternatives retain strict source identity, no thinking and 
     assert.equal(payload.enable_thinking,false);assert.equal(payload.response_format.type,'json_schema');assert.equal(payload.response_format.json_schema.strict,true)
     assert.equal(payload.max_completion_tokens,8192);assert.equal(payload.max_tokens,undefined)
     const schema=payload.response_format.json_schema.schema
-    const change={target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:current,quote:'我是成年大学生'}}
+    const change={target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}
     assert.equal(Value.Check(schema,{reply:'从当前情况开始。',growthUpdates:[change]}),true)
-    assert.equal(Value.Check(schema,{reply:'错误来源',growthUpdates:[{...change,source:{...change.source,messageId:other}}]}),false)
+    assert.equal(Value.Check(schema,{reply:'错误来源',growthUpdates:[{...change,source:{...change.source,clauseId:other}}]}),false)
     assert.equal(Value.Check(schema,{reply:'只聊聊。'}),true)
   }
 })
@@ -159,8 +163,8 @@ test('growth-enabled native generation uses the personal growth lane while legac
   const legacy={reply:'保留当前阶段',background:[{key:'education.stage',value:'大三',source}]}
   assert.equal(Value.Check(native(),legacy),true,'the schema without growth authorization keeps its legacy protocol')
   assert.equal(Value.Check(native([]),legacy),false,'a growth-enabled request cannot divert personal facts into background')
-  assert.equal(Value.Check(native([]),{reply:'保留当前阶段',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source}]}),true)
-  assert.equal(Value.Check(native([]),{reply:'候选经历仍需本人确认',experienceCandidate:{source}}),true)
+  assert.equal(Value.Check(native([]),{reply:'保留当前阶段',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}]}),true)
+  assert.equal(Value.Check(native([]),{reply:'候选经历仍需本人确认',experienceCandidate:{source:{clauseIds:['c0']}}}),true)
 })
 
 test('the existing DeepSeek default candidate carries the same full schema without thinking or extra calls',()=>{

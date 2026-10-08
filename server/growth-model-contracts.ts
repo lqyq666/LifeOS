@@ -2,17 +2,25 @@ import { Type, type Static } from 'typebox'
 
 const id=Type.String({pattern:'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'})
 const text=(maxLength=4000)=>Type.String({minLength:1,maxLength})
-const source=Type.Object({messageId:id,quote:text(8000)},{additionalProperties:false,description:'仅引用最后一条用户消息的连续原文；不能把助手建议或旧消息伪装成本轮用户事实。'})
+// P1: the model only SELECTS a clause handle from
+// currentUserMessage.clauses; the server owns the exact verbatim span and the
+// messageId. Quotes from earlier messages, paraphrases or punctuation drift
+// are unrepresentable.
+const clauseId=Type.String({pattern:'^c[0-9]{1,2}$',description:'currentUserMessage.clauses中的clause id。'})
+const source=Type.Object({clauseId},{additionalProperties:false,description:'选择本轮currentUserMessage.clauses中列出的clauseId；服务器保存其精确原文，不接受自写引文。'})
 export const timeEvidenceSchema=Type.Union([
-  Type.Object({kind:Type.Literal('date_inclusive'),date:Type.String({minLength:10,maxLength:10}),quote:text(4000)},{additionalProperties:false}),
-  Type.Object({kind:Type.Literal('duration'),count:Type.Integer({minimum:1,maximum:366}),unit:Type.Union([Type.Literal('day'),Type.Literal('week')]),quote:text(4000)},{additionalProperties:false}),
-  Type.Object({kind:Type.Literal('calendar_week'),which:Type.Union([Type.Literal('this'),Type.Literal('next')]),quote:text(4000)},{additionalProperties:false}),
-],{description:'期限证据来自本轮用户原话：截至某日/接下来N天N周/本周/下周。服务器据此推导有效期（上海时区，右开区间），模型不再生成validUntil；quote必须是本轮消息中的原文片段。'})
+  Type.Object({kind:Type.Literal('date_inclusive'),date:Type.String({minLength:10,maxLength:10}),clauseId},{additionalProperties:false}),
+  Type.Object({kind:Type.Literal('duration'),count:Type.Integer({minimum:1,maximum:366}),unit:Type.Union([Type.Literal('day'),Type.Literal('week')]),clauseId},{additionalProperties:false}),
+  Type.Object({kind:Type.Literal('calendar_week'),which:Type.Union([Type.Literal('this'),Type.Literal('next')]),clauseId},{additionalProperties:false}),
+],{description:'期限证据来自本轮用户原话：截至某日/接下来N天N周/本周/下周。服务器按clause原文推导有效期（上海时区，右开区间），模型不再生成validUntil。'})
+// P2: the model expresses INTENT only. create = a new fact from a current
+// clause; correct = this update corrects/changes the referenced existing item.
+// The server alone decides the concrete operation (create/amend/replace), the
+// binding revision, and when an unrelated current fact becomes a create.
 const target=Type.Union([
   Type.Object({operation:Type.Literal('create')},{additionalProperties:false}),
-  Type.Object({operation:Type.Literal('replace'),itemId:id,expectedRevision:Type.Integer({minimum:1})},{additionalProperties:false}),
-  Type.Object({operation:Type.Literal('amend'),itemId:id,expectedRevision:Type.Integer({minimum:1}),beforeQuote:text(4000)},{additionalProperties:false,description:'复合旧条目中只改一个分句：beforeQuote必须是该旧条目中唯一出现的完整分句原文。新事实来自本轮source.quote；不要提供拼接后的整条text。同一分句出现两次且对象不明时不要猜测。'}),
-],{description:'新增一项当前信息用create；用户明确改目标/更正同一项才replace授权growth中的真实id/revision；旧条目捆绑多个独立事实、本轮只更正其中一句时用amend并引用旧分句，未提及的其他事实由服务器原样保留。补充另一事实不能覆盖旧项。'})
+  Type.Object({operation:Type.Literal('correct'),itemId:id},{additionalProperties:false,description:'表示本轮内容更正/改变了授权growth中的该条目；服务器决定具体改法与版本，不由模型指定。'}),
+],{description:'新增本人情况用create并锚定本轮clauseId。只有确实在更正/改变旧条目时用correct并选择该条目id；服务器决定amend/replace/版本，无明确纠正关系时转为create；同一旧条目一轮只改一次。'})
 const dependencies=Type.Array(Type.Union([
   Type.Object({id,revision:Type.Integer({minimum:1})},{additionalProperties:false}),
   Type.Object({updateIndex:Type.Integer({minimum:0,maximum:7})},{additionalProperties:false,description:'本轮growthUpdates数组的0基索引；只能引用已核实user_reported增量，不引用unknown或其他观察。服务器在同一事务保存事实后解析到真实id/revision。'}),
@@ -50,4 +58,20 @@ const observation=Type.Object({
 const unknown=Type.Object({target,assertion:Type.Literal('unknown'),kind:Type.Literal('unknown'),text:text(2000),source},{additionalProperties:false,description:'具体仍缺失且影响当前判断的答案；已提供的年级、作品、偏好、时间等保存user_reported，不将已回答的信息标题列为unknown。不把拒答改成未知反复追问。纯知识或日常闲聊不建立档案问题。'})
 export const growthDeltaSchema=Type.Union([reported,constraint,feedback,observation,unknown])
 export type GrowthInputDelta=Static<typeof growthDeltaSchema>
-export type GrowthDelta=GrowthInputDelta&{text:string}
+// P1/P2 server-internal resolved form: clauseId handles are already resolved
+// to exact messageId+quote spans, and the model's correct intent is already
+// decided into a concrete server-owned operation with a real revision.
+export type ResolvedTimeEvidence=
+  |{kind:'date_inclusive';date:string;quote:string}
+  |{kind:'duration';count:number;unit:'day'|'week';quote:string}
+  |{kind:'calendar_week';which:'this'|'next';quote:string}
+export type ResolvedGrowthTarget=
+  |{operation:'create'}
+  |{operation:'replace'|'amend';itemId:string;expectedRevision:number;beforeQuote?:string}
+type DistributiveOmit<T,K extends keyof never>=T extends unknown?Omit<T,K>:never
+export type ResolvedGrowthDelta=DistributiveOmit<GrowthInputDelta,'source'|'target'|'timeEvidence'>&{
+  source:{messageId:string;quote:string}
+  target:ResolvedGrowthTarget
+  timeEvidence?:ResolvedTimeEvidence
+}
+export type GrowthDelta=ResolvedGrowthDelta&{text:string}

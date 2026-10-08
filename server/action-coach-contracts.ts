@@ -89,7 +89,9 @@ export const actionCoachTurnSchema=Type.Object({
   },{additionalProperties:false,description:'仅在用户明确要求安排/修改时间安排时提供：budgetRef/basis引用本轮growthUpdates原始索引或授权id/revision；availableMinutes由服务器对照已核实预算，计划项合计不超过预算，方向不得命中已暂停范围。'})),
   // Candidates remain opt-in proposals; confirmation still uses the existing
   // experience API and is never implied by a conversation-state update.
-  experienceCandidate:Type.Optional(Type.Object({source:processSourceSchema},{additionalProperties:false})),
+  // P1: the source is a contiguous clauseId selection; the server owns the
+  // exact verbatim span and the messageId.
+  experienceCandidate:Type.Optional(Type.Object({source:Type.Object({clauseIds:Type.Array(Type.String({pattern:'^c[0-9]{1,2}$'}),{minItems:1,maxItems:8,description:'currentUserMessage.clauses中连续的clause id，从第一句到最后一句必须相邻。'})},{additionalProperties:false})},{additionalProperties:false})),
 },{additionalProperties:false,description:'reply是唯一必填字段。其余字段仅表示真实必要变化；知识或倾听可以只有reply。可选不是要求每轮创建对象，省略未发生的变化，不填空对象或空文案。'})
 export type ActionCoachTurn=Static<typeof actionCoachTurnSchema>
 export type EventDelta=Static<typeof eventDeltaSchema>
