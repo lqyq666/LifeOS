@@ -364,7 +364,11 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   // derived from what THIS turn can produce; a closed lane is unrepresentable
   // in the native schema instead of a prompt "don't use this".
   const planIntent=requestsTimeArrangement(current.content)||obligations.requiredEffects.some(effect=>effect.type==='weekly_plan')
-  const materialIntent=resumePortfolioMode||requiresImmediateMaterial(current.content)
+  // The contract must offer the material lane exactly when validation can
+  // DEMAND it: deliverableIntent is the same detector the material-visibility
+  // check uses (怎么开口 counts as a deliverable request), so the schema and
+  // the validator can never disagree about the lane.
+  const materialIntent=resumePortfolioMode||deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
   const contract=deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,currentEventExists:currentEvent!==null,planIntent,material:materialIntent})
   // G4 mode-aware history selection: bound the raw dialogue the model reads
   // (the DB and structured lanes keep everything). The current message is
