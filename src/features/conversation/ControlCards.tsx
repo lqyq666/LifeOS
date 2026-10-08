@@ -10,6 +10,7 @@ type ControlRequest = {
   id: string
   requestId: string
   conversationId: string
+  conversationTitle: string | null
   kind: 'forget' | 'pause_use' | 'stop_recommend'
   clauseText: string
   candidates: { itemId: string; preview: string }[]
@@ -23,15 +24,18 @@ const kindText: Record<ControlRequest['kind'], string> = {
   stop_recommend: '停止推荐（记录保留，不再主动推荐）',
 }
 
+// Account-wide: pending confirmations follow the USER, not the conversation —
+// a request raised in another chat (or before this one existed) still shows
+// here, labeled with its source conversation. Never crosses accounts.
 export function ControlCards({ conversationId, refreshKey, onResolved }: { conversationId: string; refreshKey: number; onResolved?: () => void }) {
   const [requests, setRequests] = useState<ControlRequest[]>([])
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState('')
   const load = useCallback(() => {
-    api<{ requests: ControlRequest[] }>('/api/growth/control-requests?conversation=' + encodeURIComponent(conversationId))
+    api<{ requests: ControlRequest[] }>('/api/growth/control-requests')
       .then(value => setRequests(value.requests.filter(row => row.status === 'pending')))
       .catch(() => setRequests([]))
-  }, [conversationId])
+  }, [])
   useEffect(() => { load() }, [load, refreshKey])
   if (!requests.length) return null
   async function act(request: ControlRequest, action: 'confirm' | 'cancel', itemId?: string) {
@@ -51,7 +55,7 @@ export function ControlCards({ conversationId, refreshKey, onResolved }: { conve
     {notice && <p className="qa-control-notice" role="status">{notice}</p>}
     {requests.map(request => <article key={request.id} className="qa-control-card">
       <p className="qa-control-question">你之前说「{request.clauseText}」，匹配到多条相似记录，请选择要操作的那条：</p>
-      <p className="qa-control-kind">操作：{kindText[request.kind]}</p>
+      <p className="qa-control-kind">操作：{kindText[request.kind]}{request.conversationId !== conversationId ? ` · 来自会话：${request.conversationTitle ?? '早前的对话'}` : ''}</p>
       <ul>
         {request.candidates.map(candidate => <li key={candidate.itemId}>
           <span>{candidate.preview}</span>

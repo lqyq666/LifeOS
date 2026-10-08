@@ -47,6 +47,15 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
     } catch (error) { setNotice(explainError(error)); await load().catch(() => {}) }
     finally { setBusy(false) }
   }
+  async function resumeRecommendation(item: GrowthItem) {
+    if (busy) return
+    setBusy(true); setNotice('')
+    try {
+      await api('/api/growth/recommendation-controls/' + item.id + '/actions', { requestId: requestId(JSON.stringify([item.id,'resume-recommendation'])) })
+      await load(); dataChanged(); setNotice('已恢复对这条记录的推荐；事实本身从未被删除。')
+    } catch (error) { setNotice(explainError(error)); await load().catch(() => {}) }
+    finally { setBusy(false) }
+  }
   async function act(item: GrowthItem, action: 'accept' | 'pause' | 'complete' | 'reject' | 'forget') {
     if (busy) return
     setBusy(true); setNotice('')
@@ -68,6 +77,7 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
       <small>{assertions[item.assertion]} · {new Date(item.updatedAt).toLocaleDateString()} · 第 {item.revision} 版</small>
       {item.limitation && <p className="growth-stale">判断局限：{item.limitation}</p>}
       {item.progressState && <small>{progressLabels[item.progressState]}</small>}
+      {item.recommendationStopped && <small className="growth-stale">已按你的要求停止主动推荐；事实保留用于理解。</small>}
       {item.validUntil && <small>适用至 {new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(item.validUntil))}{item.timeBasis?'':'（期限未核验）'}</small>}
       {item.unavailableReason && <p className="growth-stale">依据或适用时间有变化，继续采用前需要核对。</p>}
       {!!item.sources.length && <details><summary>查看依据</summary>{item.sources.map((source, index) => <blockquote key={index}>{source.quote}<small>{source.type === 'user_edit' ? '你在成长工作区填写' : '你的对话原话'}</small></blockquote>)}</details>}
@@ -77,6 +87,7 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
         {item.status==='proposed'&&!item.unavailableReason&&<button disabled={busy} onClick={()=>void act(item,'accept')}>采用这项观察</button>}
         {['goal','direction','priority','decision'].includes(item.kind) && item.status === 'active' && <button disabled={busy} onClick={() => void act(item,'pause')}>暂停</button>}
         {['goal','priority','decision'].includes(item.kind) && item.status === 'active' && <button disabled={busy} onClick={() => void act(item,'complete')}>结束这项</button>}
+        {item.recommendationStopped && <button disabled={busy} onClick={() => void resumeRecommendation(item)}>恢复推荐</button>}
         {item.status !== 'rejected' && <button disabled={busy} onClick={() => void act(item,'reject')}>不再采用</button>}
         <button disabled={busy} onClick={() => void act(item,'forget')}>遗忘这条</button>
       </div>

@@ -119,7 +119,7 @@ function withEngineScenario(name: string, run: (helpers: {
       model.baseUrl = prevURL; config.apiKey = prevKey
       await new Promise<void>(d => fake.close(() => d()))
       try { await localEmbedding.close() } catch {}
-      for (const table of ['growth_control_requests', 'growth_source_suppressions', 'growth_item_lineage', 'growth_items', 'growth_revisions', 'growth_operations', 'user_memory_settings']) await pool.query(`DELETE FROM ${table} WHERE user_id=$1`, [user]).catch(() => {})
+      for (const table of ['growth_control_requests', 'growth_recommendation_controls', 'growth_source_suppressions', 'growth_item_lineage', 'growth_items', 'growth_revisions', 'growth_operations', 'user_memory_settings']) await pool.query(`DELETE FROM ${table} WHERE user_id=$1`, [user]).catch(() => {})
       await pool.query('DELETE FROM coach_reply_sources WHERE user_id=$1', [user]).catch(() => {})
       await pool.query('DELETE FROM runs WHERE user_id=$1', [user])
       await pool.query('DELETE FROM messages WHERE user_id=$1', [user])
@@ -134,6 +134,8 @@ withEngineScenario('A3 full path: intent → staging → finishRun commit → GE
   const newsletter = await createGrowthItem(user, { requestId: randomUUID(), conversationId: chat, kind: 'context', text: '学长反馈公众号主要是排班推送' })
 
   // Refusal keeps state: no staged control, no receipt, item untouched.
+  // (Refusals and lapses are NOT control clauses, so the pure-control shortcut
+  // does not fire; the turn still goes through the model path.)
   {
     const p = await prepare('请不要删除我的海报经历记录。')
     outputs.push({ reply: '好的，保留你的海报记录。' })
@@ -154,11 +156,25 @@ withEngineScenario('A3 full path: intent → staging → finishRun commit → GE
     assert.ok((await growthContext(user, chat)).some(i => i.id === poster.id), 'lapse: nothing forgotten')
   }
 
+  // Pure control command: deterministic zero-model path — no scripted output
+  // exists for these turns; a model call would leave outputs unconsumed.
+  {
+    const p = await prepare('请忘掉我的海报排版打印记录二。')
+    const fresh = await createGrowthItem(user, { requestId: randomUUID(), conversationId: chat, kind: 'context', text: '我的海报排版打印记录二' })
+    const p2 = await prepare('请忘掉我的海报排版打印记录二。')
+    const result = await engine(p2.input)
+    assert.equal((result.usage as any).llmCallCount, 0, 'pure control: zero provider calls')
+    assert.match(result.text, /已遗忘/)
+    const response = await store.finishRun(p2.run, p2.staged, result.text, result.usage, p2.input.signal)
+    assert.equal((response.stateChange.memoryControl as any)?.status, 'executed')
+    assert.ok(!(await growthContext(user, chat)).some(i => i.id === fresh.id), 'pure forget committed')
+    void p
+  }
+
   // pause_use: commits a REAL boundary — data retained, excluded from
   // evidence, readable in the boundary context and via GET.
   {
     const p = await prepare('别再用我的海报经历作为建议依据，记录保留。')
-    outputs.push({ reply: '好的，这条经历会保留，但不再作为建议依据。' })
     const result = await engine(p.input)
     const response = await store.finishRun(p.run, p.staged, result.text, result.usage, p.input.signal)
     assert.equal(response.stateChange.memoryControl?.status, 'executed')
@@ -180,23 +196,32 @@ withEngineScenario('A3 full path: intent → staging → finishRun commit → GE
     assert.ok((await growthBoundaryContext(user, chat2)).some(i => i.id === poster.id), 'new conversation: boundary readable')
   }
 
-  // stop_recommend on a distinct record: same durable pause boundary, kind
-  // recorded for the user.
+  // stop_recommend: a DIFFERENT durable boundary from pause_use — the fact
+  // stays ACTIVE for understanding in this AND new conversations, while a
+  // user-scoped recommendation control blocks proactive suggestions.
   {
     const p = await prepare('不要再推荐公众号那件事。')
-    outputs.push({ reply: '好的，不再推荐。' })
     const result = await engine(p.input)
     const response = await store.finishRun(p.run, p.staged, result.text, result.usage, p.input.signal)
-    assert.equal(response.stateChange.memoryControl?.kind, 'stop_recommend')
-    assert.equal((response.stateChange.memoryControl as any)?.boundary, 'paused')
-    assert.ok(!(await growthContext(user, chat)).some(i => i.id === newsletter.id), 'stop_recommend: newsletter paused')
+    const receipt = response.stateChange.memoryControl as any
+    assert.equal(receipt?.kind, 'stop_recommend')
+    assert.equal(receipt?.boundary, 'recommendation_stopped')
+    const kept = (await growthContext(user, chat)).find(i => i.id === newsletter.id)
+    assert.ok(kept && kept.status === 'active', 'stop_recommend: fact stays ACTIVE for understanding')
+    const controls = await import('../../server/memory-controls.ts')
+    const stopped = await controls.readRecommendationControls(user)
+    assert.ok(stopped.some(row => row.itemId === newsletter.id && row.state === 'stopped'), 'recommendation boundary persisted')
+    const active2 = await growthContext(user, chat2)
+    assert.ok(active2.some(i => i.id === newsletter.id && (i as any).recommendationStopped === true), 'new conversation: fact active AND flagged not-recommended')
+    assert.ok(!(await growthBoundaryContext(user, chat2)).some(i => i.id === newsletter.id), 'stop_recommend is NOT the paused-evidence boundary')
+    await controls.resumeRecommendationControl(user, newsletter.id, { requestId: randomUUID() })
+    assert.equal((await controls.readRecommendationControls(user)).length, 0, 'resume clears the boundary')
   }
 
   // Explicit unique forget: full commit + receipt + refresh + new session.
   {
     const fresh = await createGrowthItem(user, { requestId: randomUUID(), conversationId: chat, kind: 'context', text: '我的海报排版打印记录' })
     const p = await prepare('请忘掉我的海报排版打印记录。')
-    outputs.push({ reply: '已遗忘该记录。' })
     const result = await engine(p.input)
     const stagedAudit = p.staged.audit.filter((a: any) => a?.phase === 'memory_control_staged')
     assert.equal(stagedAudit.length, 1, 'control staged during validation, not executed')
@@ -232,7 +257,6 @@ withEngineScenario('A3 full path: intent → staging → finishRun commit → GE
     const similarA = await createGrowthItem(user, { requestId: randomUUID(), conversationId: chat, kind: 'context', text: '海报排版是我负责的' })
     const similarB = await createGrowthItem(user, { requestId: randomUUID(), conversationId: chat, kind: 'context', text: '海报打印是我负责的' })
     const p = await prepare('忘掉海报那条记录。')
-    outputs.push({ reply: '这条有几条相似记录，需要你确认。' })
     const result = await engine(p.input)
     const response = await store.finishRun(p.run, p.staged, result.text, result.usage, p.input.signal)
     const receipt = response.stateChange.memoryControl as any
@@ -261,7 +285,6 @@ withEngineScenario('A3 full path: intent → staging → finishRun commit → GE
   {
     const target = await createGrowthItem(user, { requestId: randomUUID(), conversationId: chat, kind: 'context', text: '我的比赛准备记录' })
     const p = await prepare('请忘掉我的比赛准备记录。')
-    outputs.push({ reply: '已遗忘比赛记录。' })
     const result = await engine(p.input)
     assert.equal(p.staged.memoryControl?.itemId, target.id, 'control staged against the read revision')
     await pool.query('UPDATE growth_items SET revision=revision+1 WHERE user_id=$1 AND id=$2', [user, target.id])
@@ -279,7 +302,6 @@ withEngineScenario('A3 full path: intent → staging → finishRun commit → GE
   {
     const target = await createGrowthItem(user, { requestId: randomUUID(), conversationId: chat, kind: 'context', text: '我的旧实习记录' })
     const p1 = await prepare('请忘掉我的旧实习记录。')
-    outputs.push({ reply: '已遗忘。' })
     const r1 = await engine(p1.input)
     const response1 = await store.finishRun(p1.run, p1.staged, r1.text, r1.usage, p1.input.signal)
     assert.equal(response1.stateChange.memoryControl?.status, 'executed')
@@ -299,7 +321,6 @@ withEngineScenario('A3 full path: intent → staging → finishRun commit → GE
     const started = await store.startRun(user, chat, randomUUID(), '请忘掉我的志愿时长记录。')
     const staged: store.Staged = { candidates: [], audit: [] }
     const input = { run: started.run, staged, context: await store.contextForRun(started.run), decision: null, signal: controller.signal, emit: () => {} }
-    outputs.push({ reply: '已遗忘。' })
     const result = await engine(input)
     controller.abort()
     await assert.rejects(store.finishRun(started.run, staged, result.text, result.usage, controller.signal), (error: any) => error.code === 'RUN_NO_LONGER_ACTIVE' || error.name === 'AbortError')
@@ -313,7 +334,6 @@ withEngineScenario('A3 full path: intent → staging → finishRun commit → GE
     const target = await createGrowthItem(user, { requestId: randomUUID(), conversationId: chat, kind: 'context', text: '我的社团值班记录' })
     const requestId = randomUUID()
     const first = await store.startRun(user, chat, requestId, '请忘掉我的社团值班记录。')
-    outputs.push({ reply: '已遗忘。' })
     const staged: store.Staged = { candidates: [], audit: [] }
     const engineInput = { run: first.run, staged, context: await store.contextForRun(first.run), decision: null, signal: new AbortController().signal, emit: () => {} }
     const result = await engine(engineInput)

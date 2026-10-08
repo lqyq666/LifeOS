@@ -64,6 +64,11 @@ export async function growthView(user: string, conversation?: string, c: DB = po
     if (row.status === 'forgotten') continue
     items.push(item(row, await availability(c, user, row, byId, memoryEnabled, conversation)))
   }
+  // Fix 2: user-scoped recommendation boundaries ride along on the items so
+  // every session (and the workspace UI) can distinguish "paused evidence"
+  // from "active fact that must not be proactively recommended".
+  const stopped = new Set(((await c.query("SELECT item_id FROM growth_recommendation_controls WHERE user_id=$1 AND state='stopped'", [user])).rows as { item_id: string }[]).map(row => row.item_id))
+  for (const entry of items) if (stopped.has(entry.id)) entry.recommendationStopped = true
   return { memoryEnabled, items }
 }
 export async function growthContext(user: string, conversation: string) {

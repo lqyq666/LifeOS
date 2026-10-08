@@ -193,7 +193,7 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
 
 // A pure control message contains nothing but the explicit command clauses and
 // trivial connectives — it can be answered deterministically without a model.
-const ignorableConnectives=new Set(['谢谢','好的','好','请','嗯','哦','ok','OK','Okay','okay'])
+export const ignorableConnectives=new Set(['谢谢','好的','好','请','嗯','哦','ok','OK','Okay','okay'])
 // P6 closeout C2/D: did the user ask to arrange/re-arrange time THIS message?
 // A model-supplied weeklyPlan is spurious only when this is false; a real
 // arrangement request keeps the full plan contract even without a stated

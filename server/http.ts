@@ -23,7 +23,7 @@ import { RequestScheduler } from './request-scheduler.ts'
 import { coachEventView } from './action-coach-events.ts'
 import { localEmbedding } from './local-embedding.ts'
 import { growthView, createGrowthItem, actOnGrowthItem } from './growth.ts'
-import { listControlRequests, resolveControlRequest, controlRequestActionSchema } from './memory-controls.ts'
+import { listControlRequests, resolveControlRequest, controlRequestActionSchema, readRecommendationControls, resumeRecommendationControl } from './memory-controls.ts'
 import { readDirectionControls, directionScopeLabel } from './growth-controls.ts'
 import { growthCreateSchema, growthActionSchema } from './growth-contracts.ts'
 import { officialSourcesView } from './official-sources.ts'
@@ -92,6 +92,11 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
         }
         const controlResolve=path.match(/^\/api\/growth\/control-requests\/([^/]+)\/actions$/)
         if(controlResolve&&method==='POST'){json(res,200,await resolveControlRequest(user,validateId(controlResolve[1]),validate(controlRequestActionSchema,await body(req))));return}
+        // Fix 2: cross-session recommendation boundaries with an explicit
+        // user-owned resume.
+        if(path==='/api/growth/recommendation-controls'&&method==='GET'){json(res,200,{controls:await readRecommendationControls(user)});return}
+        const recommendationResume=path.match(/^\/api\/growth\/recommendation-controls\/([^/]+)\/actions$/)
+        if(recommendationResume&&method==='POST'){json(res,200,await resumeRecommendationControl(user,validateId(recommendationResume[1]),validate(controlRequestActionSchema,await body(req))));return}
         const growthAction=path.match(/^\/api\/growth\/([^/]+)\/actions$/)
         if(growthAction&&method==='POST'){json(res,200,await actOnGrowthItem(user,validateId(growthAction[1]),validate(growthActionSchema,await body(req))));return}
         const history=path.match(/^\/api\/conversations\/([^/]+)\/history$/)

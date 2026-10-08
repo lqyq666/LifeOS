@@ -134,13 +134,15 @@ export function selectRelevantGrowth(
 // states which records describe the current matter, so the reply analyzes the
 // CURRENT object with the old ones as comparison, never as a substitute.
 const timeQuantityChars = new Set([...'每周周天时小分钟号次年期月一二两三四五六七八九十百千万几半大概左右约'])
-// Standing-frame kinds describe the person's current frame (goals, direction,
-// constraints, priorities, decisions, feedback) — they legitimately inform ANY
-// question and are never an "old matter" that could substitute for the current
-// one. The coverage split applies to the experience/context-like kinds, which
-// are exactly the records that got mistaken for the current opportunity.
+// Standing-frame kinds describe the person's GLOBALLY binding frame (goals,
+// direction, constraints, priorities, decisions) — they legitimately inform
+// ANY question and are never an "old matter" that could substitute for the
+// current one. FEEDBACK is deliberately NOT standing: a past action's feedback
+// belongs to the matter it reports on, so it follows the same current-matter
+// coverage rule as context records (an old club-poster delay must not ride
+// into a research/course question just because its kind is feedback).
 const standingFrameKind = (kind: GrowthItem['kind']): boolean =>
-  kind === 'goal' || kind === 'direction' || kind === 'constraint' || kind === 'priority' || kind === 'decision' || kind === 'feedback'
+  kind === 'goal' || kind === 'direction' || kind === 'constraint' || kind === 'priority' || kind === 'decision'
 export function splitGrowthByCurrentTopic(
   items: readonly GrowthItem[],
   currentMessage: string,

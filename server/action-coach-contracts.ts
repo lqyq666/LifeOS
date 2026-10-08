@@ -46,7 +46,16 @@ export const eventDeltaSchema=Type.Object({
   declineUnknowns:Type.Optional(Type.Array(id,{maxItems:24,description:'仅在用户明确拒绝回答对应问题时标记该问题ID；记不清不是拒答，不标记declined，也不转移到另一个旧问题。原因不想讲可保留为declined，另一个时间记不清仍active。'})),
   action:Type.Optional(actionChangeSchema),
 },{additionalProperties:false,description:'仅在本人具体事件/目标的过程或行动确有变化时使用。不是对话话题分类；纯知识、概念解释、只倾听不建立event。没有事件变化时整字段省略，不只填target来凑结构。'})
-export const coachCitationSchema=Type.Object({sourceId:id,revision:Type.Integer({minimum:1}),claim:text(4000),quote:text(8000),scope:text(4000)},{additionalProperties:false})
+// Fix 3: the model only SELECTS which verified proposition it used (claimId =
+// the knowledge entry id from authorizedContext.knowledge). The server
+// resolves the real revision/claim/excerpt/scope — the model never repeats
+// server-owned fields, so a paraphrased citation can no longer fail the turn.
+// The legacy full form stays accepted for older outputs but is re-derived the
+// same way whenever its sourceId matches an authorized card.
+export const coachCitationSchema=Type.Union([
+  Type.Object({claimId:id},{additionalProperties:false}),
+  Type.Object({sourceId:id,revision:Type.Integer({minimum:1}),claim:text(4000),quote:text(8000),scope:text(4000)},{additionalProperties:false}),
+])
 export type CoachCitation=Static<typeof coachCitationSchema>
 export const actionCoachTurnSchema=Type.Object({
   reply:Type.String({minLength:1,maxLength:16000,description:'自然简洁地回应本轮诉求。复盘先问关键未知问题，已知事实用于理解，不逐句复述。要交付成品时这里只写必要说明，完整可复制文本放event.action.draft.content，服务器展示同一材料。'}),

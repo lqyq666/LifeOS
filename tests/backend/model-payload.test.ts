@@ -50,7 +50,9 @@ test('each request binds every new process source to its own current message wit
       for(const item of Object.values(value))check(item)
     }
     check(payload.response_format.json_schema.schema);assert.ok(bound>=5)
-    assert.equal(payload.response_format.json_schema.schema.properties.citations.items.properties.sourceId.enum,undefined)
+    // Fix 3: citations are a union — the preferred claimId branch has no enum
+    // and never leaks request identities; the legacy branch keeps plain strings.
+    assert.equal(payload.response_format.json_schema.schema.properties.citations.items.anyOf[0].properties.claimId.enum,undefined)
   }
   assert.equal(JSON.stringify(actionCoachTurnSchema),original,'global schema never acquires another request identity')
   assert.throws(()=>configureProviderPayload({}, {provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,'not-a-source-id'),/CURRENT_MESSAGE_ID_INVALID/)
@@ -112,7 +114,8 @@ test('Qwen receives the natural reply contract without required planning or anal
   for(const old of ['analysis','decision','escalation','campus'])assert.equal(schema.properties[old],undefined)
   assert.equal(schema.properties.event.properties.action.anyOf[0].properties.draft.anyOf[0].properties.content.maxLength,12000,'the legacy free-text draft keeps its bounds inside the draft union')
   assert.equal(schema.properties.reply.maxLength,16000)
-  assert.equal(schema.properties.citations.items.properties.sourceId.type,'string')
+  assert.equal(schema.properties.citations.items.anyOf[0].properties.claimId.type,'string')
+  assert.equal(schema.properties.citations.items.anyOf[1].properties.sourceId.type,'string')
   assert.equal(JSON.stringify(payload).includes('~optional'),false)
 })
 

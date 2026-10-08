@@ -28,9 +28,11 @@ import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKn
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
 import { stageWeeklyPlan } from './weekly-plans.ts'
+import { ignorableConnectives } from './turn-obligations.ts'
 import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
 import { scanUserClauses } from './user-command-spans.ts'
 import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.ts'
+import { readRecommendationControls } from './memory-controls.ts'
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
@@ -183,6 +185,47 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     staged.modelUsage=usageSummary([],0,0,false,null,true)
     return {text:controlReplyText(obligations.requiredEffects),usage:staged.modelUsage}
   }
+  // P6 closeout fix: a PURE memory-control message (forget / pause_use /
+  // stop_recommend, optionally with politeness words) takes the same
+  // deterministic zero-model path — control turns are user tasks that must
+  // not be hostage to model business-write variance on the control sentence
+  // itself. Scoring/staging rules are identical to the in-turn path; the
+  // commit still happens only in finishRun's transaction.
+  {
+    const memoryIntents=detectForgetIntentClauses(current.content).filter(clause=>clause.kind)
+    if(memoryIntents.length&&scanUserClauses(current.content).every(clause=>{
+      const body=clause.text.trim()
+      // A bare keep-note clause ("记录保留") accompanies the control without
+      // adding any other business content.
+      const barePreserveNote=body.length<=8&&/^(?:记录保留|保留记录|先不删|不要删|别删|不用删|留着|保留着)$/.test(body)
+      return !body||!/[\p{L}\p{N}]/u.test(body)||memoryIntents.some(intent=>intent.clauseText===body)||ignorableConnectives.has(body)||barePreserveNote
+    })){
+      const growthAllForControl=await growthContext(run.user_id,run.conversation_id)
+      let controlReply='好的，已经处理你的请求。'
+      for(const clause of memoryIntents){
+        const scored=scoreForgetTargets(growthAllForControl,clause.clauseText,current.content).filter(entry=>entry.overlap>=2)
+        const best=scored[0],second=scored[1]
+        if(best&&(!second||second.overlap<best.overlap)){
+          if(staged.memoryControl&&(staged.memoryControl.itemId!==best.item.id||staged.memoryControl.kind!==clause.kind)){controlReply+=' 其中一个请求匹配到多条相似记录，稍后请在卡片里确认。';continue}
+          staged.memoryControl={kind:clause.kind!,itemId:best.item.id,expectedRevision:best.item.revision,clauseText:clause.clauseText}
+          staged.audit.push({phase:'memory_control_staged',kind:clause.kind,itemId:best.item.id,revisionBefore:best.item.revision,executed:null,note:'pure control command: commits in finishRun transaction'})
+          controlReply+=clause.kind==='forget'?'已遗忘这条记录；同一消息里的其他独立情况不受影响。':clause.kind==='pause_use'?'这条记录会保留，但不再作为建议依据。':'这条记录会保留用于理解，但不再主动推荐相关方向或事项。'
+        }else if(scored.length){
+          if(!staged.pendingMemoryControl)staged.pendingMemoryControl={kind:clause.kind!,clauseText:clause.clauseText,candidates:scored.slice(0,3).map(entry=>({itemId:entry.item.id,revision:entry.item.revision,preview:entry.item.text.slice(0,80)}))}
+          controlReply+=' 这条匹配到多条相似记录，请在上方的确认卡片里选择要操作的那条。'
+        }else{
+          staged.audit.push({phase:'memory_control_no_target',kind:clause.kind,reason:'pure control command: no matching record'})
+          controlReply+=' 没有找到与这句话对应的记录；如果你指的是某条具体经历，告诉我它的关键词我再找。'
+        }
+      }
+      staged.usedMemoryRefs=[]
+      staged.usedExperienceRefs=[]
+      staged.usedEventRefs=[]
+      staged.dialoguePath='direct';staged.upstreamCalls=0
+      staged.modelUsage=usageSummary([],0,0,false,null,true)
+      return {text:controlReply,usage:staged.modelUsage}
+    }
+  }
   let currentEvent:CoachEvent|null=null
   try{currentEvent=await coachEventView(run.user_id,run.conversation_id)}catch(error){
     if(!(error instanceof HttpError)||!['NOT_FOUND','MEMORY_DISABLED','COACH_SOURCE_REVOKED'].includes(error.code))throw error
@@ -274,6 +317,11 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   // used refs below still describe the FULL authorized set (growthAll) — only
   // how the model READS the records is organized.
   const growthTopic=splitGrowthByCurrentTopic(growth,current.content)
+  // Fix 2: cross-session recommendation boundaries — stopped items stay in the
+  // evidence set for understanding but are handed to the model as an explicit
+  // no-proactive-recommendation boundary.
+  const recommendationStopped=new Set((await readRecommendationControls(run.user_id)).map(row=>row.itemId))
+  const growthRecommendationBoundaries=recommendationStopped.size?growthAll.filter(row=>recommendationStopped.has(row.id)):[]
   staged.audit.push({phase:'growth_topic_split',currentTopic:growthTopic.currentTopic.length,background:growthTopic.background.length})
   const growthBoundaries=await growthBoundaryContext(run.user_id,run.conversation_id)
   // P4: resume/portfolio materials render from a server-built catalogue of the
@@ -293,7 +341,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   staged.usedGrowthRefs=growthAll.map(item=>({id:item.id,revision:item.revision}))
   staged.growthSnapshotKey=growthSnapshotKey(growthAll)
   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id)
-  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
+  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending}})
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
   const retrieved=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
   const calls:CallRecord[]=[]
@@ -551,9 +599,14 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
           }
           staged.memoryControl={kind:clause.kind,itemId:best.item.id,expectedRevision:best.item.revision,clauseText:clause.clauseText}
           staged.audit.push({phase:'memory_control_staged',kind:clause.kind,itemId:best.item.id,revisionBefore:best.item.revision,executed:null,note:'commits in finishRun transaction'})
-        }else if(scored.length){
+        }else if(scored.filter(entry=>entry.overlap>=2).length){
           if(!staged.pendingMemoryControl)staged.pendingMemoryControl={kind:clause.kind,clauseText:clause.clauseText,candidates:scored.filter(entry=>entry.overlap>=2).slice(0,3).map(entry=>({itemId:entry.item.id,revision:entry.item.revision,preview:entry.item.text.slice(0,80)}))}
           staged.audit.push({phase:'memory_control_pending',kind:clause.kind,candidates:scored.filter(entry=>entry.overlap>=2).slice(0,3).map(entry=>entry.item.id)})
+        }else{
+          // A control clause with NO matching record at all: nothing to bind.
+          // No empty confirmation card; the claim guard below keeps the reply
+          // honest about the absence.
+          staged.audit.push({phase:'memory_control_no_target',kind:clause.kind,reason:'no_matching_record'})
         }
       }
     }
@@ -583,7 +636,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     {
       const controlStaged=staged.memoryControl!==undefined
       const forgetClaim=/(?:已(?:经)?(?:清掉|清除|删掉|删除|忘掉|忘记|移除|撤下))/.test(result.reply)
-      const pauseClaim=/(?:不再作为.{0,14}依据|不再.{0,6}(?:判断|建议|使用))/.test(result.reply)
+      const pauseClaim=/(?:不再作为.{0,14}依据|不再.{0,6}(?:判断|建议|使用|推荐|主动提)|不会再?(?:推荐|主动提))/.test(result.reply)
       const forgetRequested=/(?:忘|删|清|移除|别再用|不再用|不再作为)/.test(current.content)||outstandingForget
       if(!controlStaged&&(forgetClaim||pauseClaim)&&forgetRequested)throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_FORGET')
       if(controlStaged&&staged.memoryControl!.kind!=='forget'&&forgetClaim)throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_FORGET')
@@ -651,7 +704,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     // text; a bounded repair then contrasts them instead of guessing.
     const sourceDetails=error instanceof HttpError&&['COACH_SOURCE_INVALID','COACH_CURRENT_SOURCE_REQUIRED'].includes(error.code)&&(error as HttpError).details?` The rejected quote was: ${JSON.stringify((error.details as {quote?:string}).quote??null)}. The current user message text to copy from verbatim is: ${JSON.stringify((error.details as {currentText?:string}).currentText??null)}.`:''
     const validationGuidance=error.code==='COACH_CORRECTION_UNCHANGED'?'The correction only repeats an unchanged exact fragment of an existing fact and would erase its other details. Omit this correction; preserve the existing node. Add genuinely new current-message information as nodes. Preserve valid reply and source quotes, and do not invent changed facts.':error.code==='COACH_UNKNOWN_NOT_FOUND'?'resolveUnknowns and declineUnknowns may contain only active unknown node IDs in the continued authorized event. Use resolveUnknowns only when the user answered the question; use declineUnknowns when the user explicitly refuses it. A forgotten detail remains active and must not be marked answered or declined. Omit unmatched IDs, preserve valid facts and reply, and do not invent node identities.':error.code==='COACH_UNKNOWN_DISPOSITION_CONFLICT'?'The same unknown cannot be both answered and declined. Keep exactly one disposition supported by the user message; preserve the valid reply and process facts.':error.code==='COACH_MATERIAL_NOT_VISIBLE'?'event.action.draft.content must contain the complete nonblank requested material; the server renders it into the final reply. An explicit instruction to draft now cannot be completed by abstract advice. Preserve the requested purpose and boundaries; do not invent missing facts or completed outcomes. If the user asks only a conversational question, omit event.action entirely.':error.code==='COACH_MATERIAL_IS_CONVERSATION'?'The action draft contains a coaching question but the current user message does not itself request or refine a deliverable, so it reads as a question addressed to the user, not material the user can use. Keep follow-up questions in reply only and omit event.action; deliver material only when the user asks for it, refining an existing action with modify when they do.':error.code==='COACH_ACTION_DECLINED'?'The user has declined material creation, rewriting or contact. Your own delivery preamble cannot authorize an action. Omit action, or close an existing action if the user asked to stop it. Preserve the valid reply and process facts; do not reframe or rewrite the unwanted material.':error.code==='COACH_OUTPUT_INVALID'?'Return one instantiated output object with an actual reply string, never a schema, schema array or field definitions. action is only allowed inside event.action, not at the root. Optional changes must be omitted when absent, not filled with empty placeholders. Material must be nonblank. eventId cannot be used as actionId; modify/reuse/close only an existing action.':error.code==='COACH_BACKGROUND_INVALID'?'For each background entry, source.messageId must be currentUserMessage.id, source.quote must be contiguous current user text, and value must be an exact substring of that quote. Omit unsupported or transient background rather than paraphrasing the quote or inventing stable skills. Preserve the valid reply, action material and current process facts.':error.code==='GROWTH_TIME_UNVERIFIED'||error.code==='GROWTH_TIME_REQUIRED'?'Fix growthUpdates time handling without inventing evidence. A recurring weekly amount (每周N小时) belongs in kind "context" with NO timeEvidence and NO validUntil. Only an explicit period may be a constraint: date_inclusive for 截至…日, duration for a quote starting 从现在起/接下来/未来 plus N天/N周, calendar_week with quote exactly 本周, 这周 or 下周. The evidence quote must be verbatim current-message text in the same clause as the fact. When unsure, omit timeEvidence entirely and use context.':error.code==='WEEKLY_PLAN_BASIS_INVALID'?'The weekly plan\'s budgetRef/basis must reference growth facts that actually persisted this turn (updateIndex of a saved user_reported fact) or existing authorized ids. A constraint whose time evidence was unverifiable is skipped and cannot anchor a plan: save the stated weekly amount as a context fact without timeEvidence, then reference it by updateIndex.':error.code==='WEEKLY_PLAN_REQUIRED_MISSING'?'The user asked to arrange or re-arrange their time: output weeklyPlan with availableMinutes exactly equal to the binding budget minutes (this week\'s remaining hours when just stated, otherwise the stated weekly amount) and a budgetRef/basis pointing at the persisted budget fact by updateIndex.':error.code==='REPLY_CLAIMS_UNCOMMITTED_CORRECTION'?'The reply claims the record was corrected/updated, but no existing fact was actually changed this turn. Either stage the real correction (amend the old item with beforeQuote = the exact old clause and source.quote = the user\'s exact new words from the current message), or rephrase honestly: the new words are recorded, the old item is not yet changed, and state what still needs the exact quote.':error.code==='WEEKLY_PLAN_BUDGET_MISMATCH'?'The plan budget fact does not match the plan: the referenced fact own minutes (or its week window) differ from availableMinutes/period. Reference the fact that actually states this plan budget - the weekly amount for a recurring plan, the this-week remainder for a this-week plan - or fix availableMinutes/period to match the referenced fact.':error.code==='REPLY_CLAIMS_UNCOMMITTED_FORGET'?'The reply claims records were deleted or forgotten, but no forget action ran this turn. Tell the user honestly: forgetting happens through the growth workspace forget control, not chat, so the records remain and the AI will stop using them for now.':error.code==='REPLY_REPEATED_VERBATIM'?'The reply repeats the previous assistant reply verbatim and answers nothing new. Address the current message\'s actual question or request with new content; only repeat the previous text verbatim when the user explicitly asks to resend or keep it.':error.code==='GROWTH_COMPOSITE_REQUIRES_REVIEW'?'The replace target bundles multiple independent facts; replacing it wholesale would erase its other details. Use target.operation "amend" with beforeQuote set to the exact old clause being corrected (it must appear verbatim once in the old item); the server keeps the other clauses and swaps only that one. If the current message states no real correction, omit the update entirely.':error.code==='COACH_SOURCE_INVALID'||error.code==='COACH_CURRENT_SOURCE_REQUIRED'?'Correct each new target.source/node.source/correction/background/candidate reference: messageId must be currentUserMessage.id and quote must be a contiguous exact substring of the last natural user message. Older known facts remain in authorizedContext.currentEvent/history, not new nodes tagged with the current ID. Fix the offending source while preserving valid current facts and requested material; do not invent missing details.'+sourceDetails:undefined
-    const specificGuidance=validationGuidance??(error.code==='COACH_ACTION_UNCHANGED'?'The proposed draft exactly matches the existing action. If a rewrite is requested, change the material itself. For a process answer or question, omit action; if explicitly keeping the existing material, use reuse with its actual actionId/revision. Preserve the current reply and valid process changes.':error.code==='COACH_EVENT_TARGET_INVALID'?'Continue only an event ID actually supplied in authorizedContext.currentEvent or authorizedContext.events. If there is no matching event, omit event for a clarification question, or create a genuinely new event using currentUserMessage.id and an exact current quote. Never invent an existing identity.':error.code==='PLANNED_ACTION_IS_NOT_EXPERIENCE'||error.code==='SKILL_IS_NOT_EXPERIENCE'?'Omit experienceCandidate entirely: a future plan or skill is not a completed personal experience. Preserve the requested action material and valid process facts.':error.code==='COACH_CITATION_INVALID'?'Every supplied verified proposition used in reply or material needs citations with its exact sourceId, revision, claim, excerpt quote and scope from authorized knowledge. Never invent a reference. If no valid source supports the claim, state the unverified limitation instead.':undefined)
+    const specificGuidance=validationGuidance??(error.code==='COACH_ACTION_UNCHANGED'?'The proposed draft exactly matches the existing action. If a rewrite is requested, change the material itself. For a process answer or question, omit action; if explicitly keeping the existing material, use reuse with its actual actionId/revision. Preserve the current reply and valid process changes.':error.code==='COACH_EVENT_TARGET_INVALID'?'Continue only an event ID actually supplied in authorizedContext.currentEvent or authorizedContext.events. If there is no matching event, omit event for a clarification question, or create a genuinely new event using currentUserMessage.id and an exact current quote. Never invent an existing identity.':error.code==='PLANNED_ACTION_IS_NOT_EXPERIENCE'||error.code==='SKILL_IS_NOT_EXPERIENCE'?'Omit experienceCandidate entirely: a future plan or skill is not a completed personal experience. Preserve the requested action material and valid process facts.':error.code==='COACH_CITATION_INVALID'?'Citations must only SELECT verified propositions: each citations entry is {claimId: the knowledge entry id} and the server derives revision/claim/excerpt/scope itself. Use only ids present in authorizedContext.knowledge, ensure the claim text appears verbatim in the reply, and omit citations entirely when no verified source supports the statement.':undefined)
       const growthGuidance=error.code.startsWith('GROWTH_')?'Repair only growthUpdates: For user_reported, select one exact current-message source.quote and omit redundant text; the server derives text from that verified quote. Any supplied legacy text must remain an exact span of the quote, and source.messageId must be currentUserMessage.id. replace requires an authorized current id/revision and a substantive explicit correction; never shorten away independent details. AI observations remain proposed with explicit limitations and valid personal dependencies. Temporary constraints need a justified timezone expiry; feedback needs the actual reported action state, never inferred from copying. Omit unsupported updates, preserve the valid reply, and do not invent personal facts.':undefined
       // Server-owned error instructions remain system guidance, rather than being
     // buried beneath the original user request in a state-data message.

@@ -40,6 +40,20 @@ test('B2 pure: coverage grouping separates current matter from adjacent old reco
   // A time-budget record stays available as background — never dropped.
   const budget = splitGrowthByCurrentTopic([mk('budget', '我每周有六小时可以做项目')], ask)
   assert.deepEqual(budget.background.map(item => item.id), ['budget'])
+  // Regression (reported): feedback about ANOTHER matter must not auto-enter
+  // the current topic by kind, and the on-topic research context must be the
+  // current one.
+  const regression = splitGrowthByCurrentTopic([
+    { ...mk('posterFeedback', '社团海报晚交两天，学长说了时间来不及') as object, kind: 'feedback' } as never,
+    mk('labContext', '我在导师课题组做文献整理，每两周一次组会'),
+  ], '课题组下学期要新开组会带本科生，我要不要报名参加？')
+  assert.ok(regression.currentTopic.some(item => item.id === 'labContext'), 'on-topic research context is current')
+  assert.ok(regression.background.some(item => item.id === 'posterFeedback'), 'unrelated old feedback stays background')
+  // Feedback about the CURRENT matter does join the current topic.
+  const onTopicFeedback = splitGrowthByCurrentTopic([
+    { ...mk('labFeedback', '课题组组会汇报我讲文献整理部分，被导师指出范围太散') as object, kind: 'feedback' } as never,
+  ], '课题组组会又要轮到我讲文献整理了，这次怎么准备？')
+  assert.ok(onTopicFeedback.currentTopic.some(item => item.id === 'labFeedback'), 'on-topic feedback is current')
 })
 
 test('B2 engine: prompt carries the split with the full set still staged', async () => {

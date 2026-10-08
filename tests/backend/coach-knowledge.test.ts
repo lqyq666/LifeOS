@@ -41,8 +41,21 @@ test('per-proposition citation provenance, scope and withdrawal use real isolate
       }finally{await pool.query('DELETE FROM campus_knowledge_revisions WHERE id=$1',[source.id]);await pool.query('DELETE FROM campus_knowledge WHERE id=$1',[source.id])}
     })
     await t.test('a quote substring does not authorize invented effects, scope, IDs, revisions or invisible claims',async()=>{
-      for(const invalid of [{...citation,claim:'分段检查保证用户获得收入'},{...citation,quote:'不存在的原文'},{...citation,scope:'所有大学生'},{...citation,sourceId:randomUUID()},{...citation,revision:2}])await assert.rejects(validateCoachCitations(card.claim,[invalid],[card],''),(error:any)=>error.code==='COACH_CITATION_INVALID')
-      await assert.rejects(validateCoachCitations('没有展示命题',[citation],[card],''),(error:any)=>error.code==='COACH_CITATION_INVALID')
+      // Fix 3: the model only ever SELECTS an id — every server-owned field
+      // (claim/quote/scope/revision) is re-derived from the authorized card,
+      // so a drifted legacy field can no longer fail the turn; authority and
+      // rendering come entirely from the card. Unknown ids still hard-fail.
+      for(const drifted of [{...citation,claim:'分段检查保证用户获得收入'},{...citation,quote:'不存在的原文'},{...citation,scope:'所有大学生'},{...citation,revision:2}]){
+        const rechecked=await validateCoachCitations(card.claim,[drifted],[card],'')
+        assert.deepEqual(rechecked.refs,[{sourceId:card.id,revision:1}],'legacy fields are ignored, the card is authoritative')
+        assert.ok(rechecked.text.includes(card.claim)&&!rechecked.text.includes('保证用户获得收入'),'rendered note uses the CARD claim, never the drifted one')
+      }
+      await assert.rejects(validateCoachCitations(card.claim,[{...citation,sourceId:randomUUID()}],[card],''),(error:any)=>error.code==='COACH_CITATION_INVALID')
+      await assert.rejects(validateCoachCitations(card.claim,[{claimId:randomUUID()}],[card],''),(error:any)=>error.code==='COACH_CITATION_INVALID','unknown claimId fails')
+      const claimIdChecked=await validateCoachCitations(card.claim,[{claimId:card.id}],[card],'')
+      assert.deepEqual(claimIdChecked.refs,[{sourceId:card.id,revision:1}],'claimId selection resolves to the real version')
+      assert.ok(claimIdChecked.text.includes(card.url)&&claimIdChecked.text.includes(card.limitations),'server renders url/scope/limitations from the card')
+      await assert.rejects(validateCoachCitations('没有展示命题',[{claimId:card.id}],[card],''),(error:any)=>error.code==='COACH_CITATION_INVALID','claim must still appear verbatim in the reply')
       assert.deepEqual((await validateCoachCitations('核验过的定义：'+card.claim,[],[card],'')).refs,[{sourceId:card.id,revision:1}])
       await assert.rejects(validateCoachCitations('参考 https://example.invalid/invented',[],[card],''),(error:any)=>error.code==='COACH_CITATION_INVALID')
       assert.equal((await validateCoachCitations('你给的文件 https://example.invalid/user-file',[],[],'请打开 https://example.invalid/user-file')).refs.length,0)

@@ -64,6 +64,13 @@ test('A2b HTTP layer: SSE receipt → persisted pending request → confirm endp
     const pending = listed.requests.find(row => row.status === 'pending')
     assert.ok(pending, 'pending request persisted via the HTTP commit path')
     assert.equal(pending.requestId, requestId, 'receipt requestId matches the run')
+    // Fix 4: the ACCOUNT-scoped listing (what a brand-new conversation reads)
+    // also shows it, labeled with the source conversation.
+    const accountWide = await (await fetch(origin + '/api/growth/control-requests', { headers: { Cookie: main.cookie } })).json() as { requests: { id: string; status: string; conversationId: string; conversationTitle: string | null }[] }
+    const accountPending = accountWide.requests.find(row => row.id === pending.id)
+    assert.ok(accountPending, 'pending visible from any conversation of the same account')
+    assert.equal(accountPending.conversationId, chat)
+    assert.equal(typeof accountPending.conversationTitle, 'string', 'source conversation is labeled')
 
     // Another account never sees it.
     const otherListed = await (await fetch(origin + '/api/growth/control-requests', { headers: { Cookie: other.cookie } })).json() as { requests: unknown[] }
