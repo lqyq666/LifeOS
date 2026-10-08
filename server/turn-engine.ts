@@ -33,6 +33,7 @@ import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligat
 import { scanUserClauses } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { deriveTurnContract } from './turn-contract.ts'
+import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
 import { resolveGrowthDeltas } from './growth-authority.ts'
 import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.ts'
@@ -314,7 +315,10 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
     }
   }
   const contextKnowledge=[...(currentEvent?[currentEvent]:[]),...historicalEvents].flatMap(event=>event.actions.flatMap(action=>action.knowledgeRefs??[]))
-  const messages=await redactGrowthHistory(run.user_id,context.filter(row=>row.id===run.source_message_id||!snapshot.suppressedMessageIds?.includes(row.id)))
+  const allContextMessages=await redactGrowthHistory(run.user_id,context.filter(row=>row.id===run.source_message_id||!snapshot.suppressedMessageIds?.includes(row.id)))
+  // G4 placeholder: selection happens after the contract is derived (it needs
+  // the mode); until then the full bounded context keeps today's behavior.
+  let historySelection:{selected:typeof allContextMessages;totalMessages:number;totalChars:number;selectedChars:number}|null=null
   staged.usedMemoryRefs=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').map(item=>({memoryId:item.id,revision:item.revision}))
   staged.usedExperienceRefs=snapshot.confirmedExperiences.map(item=>({id:item.id,revision:item.revision}))
   staged.usedEventRefs=[...(currentEvent?[currentEvent]:[]),...historicalEvents].map(event=>({eventId:event.id,revision:event.revision,generation:event.generation}))
@@ -362,6 +366,14 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   const planIntent=requestsTimeArrangement(current.content)||obligations.requiredEffects.some(effect=>effect.type==='weekly_plan')
   const materialIntent=resumePortfolioMode||requiresImmediateMaterial(current.content)
   const contract=deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,currentEventExists:currentEvent!==null,planIntent,material:materialIntent})
+  // G4 mode-aware history selection: bound the raw dialogue the model reads
+  // (the DB and structured lanes keep everything). The current message is
+  // always present in buildTurnPrompt regardless of this filter.
+  const historyForSelection=allContextMessages.filter(row=>row.id!==run.source_message_id&&row.role!=='system').map(row=>({id:row.id,role:row.role==='assistant'?'assistant' as const:'user' as const,content:row.content??''}))
+  historySelection=selectHistoryForMode(historyForSelection,contract.mode,current.content)
+  const selectedIds=new Set(historySelection.selected.map(row=>row.id))
+  const messages=allContextMessages.filter(row=>row.id===run.source_message_id||selectedIds.has(row.id))
+  staged.audit.push({phase:'history_selection',mode:contract.mode,historyTotalMessages:historySelection.totalMessages,historySelectedMessages:historySelection.selected.length,historyTotalChars:historySelection.totalChars,historySelectedChars:historySelection.selectedChars,providerCalls:0})
   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id,contract)
   const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text}))})
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
