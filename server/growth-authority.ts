@@ -130,18 +130,38 @@ export function resolveGrowthDeltas(input:{
     indexMap.set(inputIndex,resolved.length)
     resolved.push(next)
   }
-  // Goal supersession (goal-change semantics): when a change-marker clause
+  // Correction-plan retarget: when the scored plan target EXISTS and the
+  // model landed the corrected value as a plain create, that create becomes
+  // the plan's amendment — the refuted old clause must not stay active beside
+  // its replacement (G1-contribution shape: 我做的是整体策划 stayed active
+  // next to 我只负责了排版).
+  if(input.correctionPlan?.target){
+    const plan=input.correctionPlan
+    const index=resolved.findIndex(delta=>delta.target.operation==='create'&&delta.source.quote===plan.newQuote)
+    if(index>=0){
+      const delta=resolved[index]!
+      const target=input.authorized.find(item=>item.id===plan.target!.itemId)
+      if(target&&target.revision===plan.target!.expectedRevision){
+        const composite=(target.text.match(/[，,；;。！？\n]/)?.length??0)>0
+        resolved[index]={...delta,kind:plan.target.kind,target:composite
+          ?{operation:'amend',itemId:target.id,expectedRevision:target.revision,beforeQuote:plan.target!.beforeQuote}
+          :{operation:'replace',itemId:target.id,expectedRevision:target.revision}} as typeof delta
+        audit.push({phase:'growth_correction_plan_retarget',inputIndex:-1,itemId:target.id,mode:composite?'amend':'replace'})
+      }
+    }
+  }
+  // Goal supersession (goal-change semantics): when a change-marker sentence
   // (改主意/不想继续/决定不…) lands a NEW goal/direction via a plain create,
   // the server retargets it to replace the single active goal record — the
   // old goal must not stay active beside its declared replacement (两个相反
-  // 的当前目标不能同时有效). With zero or multiple active goals the create
-  // stands as-is.
+  // 的当前目标不能同时有效). The marker is matched against the WHOLE message:
+  // the anchor clause itself (现在想先就业) may not carry the marker (我改主意了).
   if(input.authorized.length){
     const activeGoals=input.authorized.filter(item=>['goal','direction'].includes(item.kind)&&item.assertion==='user_reported'&&item.status==='active'&&!item.unavailableReason)
     if(activeGoals.length===1){
       for(let index=0;index<resolved.length;index++){
         const delta=resolved[index]!
-        if(delta.target.operation==='create'&&['goal','direction'].includes(delta.kind)&&goalChangeMarker.test(delta.source.quote)){
+        if(delta.target.operation==='create'&&['goal','direction'].includes(delta.kind)&&(goalChangeMarker.test(delta.source.quote)||goalChangeMarker.test(input.currentText))){
           resolved[index]={...delta,target:{operation:'replace',itemId:activeGoals[0]!.id,expectedRevision:activeGoals[0]!.revision}} as typeof delta
           audit.push({phase:'growth_goal_superseded',inputIndex:indexMap.size?index:-1,itemId:activeGoals[0]!.id,mode:'create_retarged_to_replace'})
           break
