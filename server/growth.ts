@@ -338,7 +338,13 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
     const selectedText=change.assertion==='user_reported'&&change.text===undefined?change.source.quote:change.text
     if(typeof selectedText!=='string')throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     const resolvedTime=resolvedTimes.get(index)??null
-    const delta:GrowthDelta={...change,text:selectedText,...(resolvedTime?{validUntil:resolvedTime.validUntil}:{})}
+    // The ONLY expiry that ever persists is the server-resolved window. A
+    // model-supplied legacy validUntil the user's clause never verified must
+    // not leak through the spread (G1: a seeded goal expired minutes after
+    // creation, emptying the authorized set for the later correction turn).
+    const {validUntil:legacyExpiry, ...withoutLegacyExpiry}=change as {validUntil?:unknown}
+    void legacyExpiry
+    const delta:GrowthDelta={...withoutLegacyExpiry,text:selectedText,...(resolvedTime?{validUntil:resolvedTime.validUntil}:{})} as GrowthDelta
     await checkCampusSource(pool,run.user_id,run.conversation_id,true,{type:'message',id:delta.source.messageId,quote:delta.source.quote})
     if(delta.assertion==='user_reported'&&(!delta.text.trim()||delta.text.length>4000||!delta.source.quote.includes(delta.text)))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     let mutation:PreparedGrowthMutation
