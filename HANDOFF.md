@@ -2,6 +2,15 @@
 
 工作区 D:\aaaLife\LifeOS。当前唯一验收目标是 PRODUCT.md 的校园成长与连续决策完整产品。用户已恢复自主开发，允许在原 grant 剩余额度内选择产品模型；旧固定 qwen3.8-flash 与旧实现顺序已替代。公网 lqynb.xyz 仍是旧 52a4e47 镜像，不代表新产品已发布。
 
+## 2026-10-08 P6 收作续批（GLM）：四边界修复+真实小批+扣子发布+D批实测
+
+- 提交 `9d5289b`：①feedback按相关性分组（不自动currentTopic，常驻框架仅goal/direction/constraint/priority/decision）；②pause_use/stop_recommend持久语义分离（迁移022 growth_recommendation_controls：stop保留事实ACTIVE+账号级禁推边界+恢复API+工作台徽标；pause=证据集外）；③引用改claimId选择+服务器解析（scope/revision/verbatim校验不放松，legacy重派生，句号容差）；④pending控制账号级可发现+来源会话标注；⑤纯控制消息零模型确定性路径（含保留注记白名单+空候选memory_control_no_target+禁推措辞声明守卫）。
+- 真实小批（指纹b4442ec→9d5289b，3轮6轮制）：三轮后6/6零失败——技术保存✓当前问题正确✓stop_recommend新会话生效✓（旧feedback经用户真实API种入）；知识采用claimId路径refs=1+自编方法标注。
+- 扣子：www对话创建技能（原文零改写+安全检查无风险）→发布✅→改名**LifeOS个人伙伴 v1.2 我创建的**；会话内实际生效（循环行为+技能卡）；独立新会话触发未单独复测（如实）。
+- D批（coach-9121a82d，冻结9d5289b/ed5ea90f，55轮0传输失败，账本观察器直记）：SAVED 42、普通SAVED **32≥20✓**；L1=4/L2=3/L3=3会话✓；**速度未达**（首内容p50 4354/p95 15349/完整p95 16177 vs 3000/5000/15000，p95被各新账号首轮供应商冷启动15-17s拖高，0次repair）；**L1OFF两轮SOURCE_QUOTE_MISMATCH全败**（记忆关闭对照未完成）；13轮模型契约失败全部如实披露（见p6-closeout-dgate-assessment.json）。账本1454收据/余¥14.7359。
+- UI实况：正常聊天+我的成长桌面✓、390px手机✓（9d5289b+dist，保留库3bfdedf1）。
+- **D Gate未过：WIP_NOT_READY维持**。卡点：首轮延迟（供应商冷启动，候选模型同题比较待做）、L1OFF重放修复、约24%模型契约失败率（SOURCE_QUOTE/GROWTH_TARGET类）。
+
 ## 2026-10-08 P6 收作批（GLM_CLOSEOUT）：A/B/C 关口闭环
 
 - 详见 `P6_CLOSEOUT_DELIVERY.md`。A：控制提交移入 finishRun 事务（`server/memory-controls.ts`+迁移021；pause_use/stop_recommend 真实 paused 边界；歧义确认卡 `growth_control_requests`+API+`ControlCards.tsx`+新会话可读；forget-intent 重写修 N02-N08+未见表达；完整事务测试含并发409回滚/取消/重放幂等/后继失败可见）。B1：更正目标评分权威化——无旧对象转有据 create（T6 复现：不确定项不被海报覆盖）、错授权ID重定向、`correction_target_normalized` 审计。B2：主题字符覆盖度分组（剔除时间数量功能字）growth/growthBackground+提示词规则（科研课程/两社团对照）。附加：无安排请求的 weeklyPlan 丢弃（`requestsTimeArrangement`）。C1：受控本地miss诊断开关（默认关+审计标注）→真实Coze远端同requestId全链（作品/实习 verified=2、备考 verified=1、反馈轮真实保存；自然未命中→未核验不引用；本地命中零Coze访问）；8份方法卡逐字重建 manifest sha256 绑定+注册表实时重审。C2：主Skill v1.2.0 真实激活（新会话携带3/3事实，记忆开关本人API开启）；扣子已授权会话实况：技能页签+对话式创建（原文零改写+安全校验通过+打包5.2K+预览触发验证）；IAB不能OS文件上传（精确边界）；发布到我的技能库未完成。真实调用20次全部登记唯一账本（余 ¥15.1218）。全套件61文件通过。未达（WIP_NOT_READY）：D关口20样本/p95、扣子技能上架、COACH_CITATION_INVALID 模型方差根因。
