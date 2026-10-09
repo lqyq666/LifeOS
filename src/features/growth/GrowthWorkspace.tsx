@@ -52,8 +52,9 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose }: 
     if (busy) return
     setBusy(true); setNotice('')
     try {
-      const settings = await api<{ enabled: boolean; revision: number }>('/api/memory/settings')
-      await api('/api/memory/settings', { requestId: crypto.randomUUID(), enabled, expectedRevision: settings.revision })
+      // GET /api/memory/settings 不存在——revision 从 /api/growth 的 memoryEnabled 上下文获取
+      const memoryView = await api<{ settings: { enabled: boolean; revision: number } }>('/api/memory')
+      await api('/api/memory/settings', { requestId: crypto.randomUUID(), enabled, expectedRevision: memoryView.settings.revision })
       await load(); dataChanged()
       setNotice(enabled ? '已开启跨会话记忆' : '已关闭跨会话记忆；已保存内容仍保留')
     } catch (error) { setNotice(explainError(error)); await load().catch(() => {}) }
