@@ -8,7 +8,7 @@ import { OrbitRail } from './features/cognition/OrbitRail'
 import { RecordPanel } from './features/cognition/RecordPanel'
 import { ThemePanel } from './features/cognition/ThemePanel'
 import { TimeAxis } from './features/cognition/TimeAxis'
-import { Onboarding } from './features/cognition/Onboarding'
+import { LandingGuide } from './features/cognition/LandingGuide'
 import { StarmapDemo } from './features/cognition/StarmapDemo'
 import './features/cognition/onboarding.css'
 import { graph as liveGraph } from './features/cognition/graph'
@@ -185,7 +185,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     return <div className="campus-page is-cognition"><div className="scene-error" role="alert"><h2>星图暂时没能加载</h2><p>{graphError}这里不会用演示数据冒充你的档案。</p><button type="button" onClick={() => { setGraphError(null); window.dispatchEvent(new CustomEvent('lifeos-data-changed')) }}>重试加载</button></div></div>
   }
   return <div className={`campus-page ${landing ? 'is-landing' : 'is-cognition'}`} data-mode={view.mode}>
-    {showOnboarding && <Onboarding onDone={() => { setShowOnboarding(false); localStorage.setItem('lifeos-onboarded', '1') }} />}
+    {showOnboarding && landing && <LandingGuide onDone={() => { setShowOnboarding(false); localStorage.setItem('lifeos-onboarded', '1') }} />}
     {showStarmapDemo && <StarmapDemo onDone={() => { setShowStarmapDemo(false); openConversation() }} />}
     <header className="site-header" inert={conversationOpen || !!authMode} aria-hidden={conversationOpen || !!authMode}>
       <a className="brand" href="#" onClick={event => { event.preventDefault(); if (!landing) back() }} aria-label="LifeOS Campus 首页">

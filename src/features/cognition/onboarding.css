@@ -1,34 +1,75 @@
-/* 新用户引导 */
-.onboarding { position: fixed; inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; border: 0; padding: 0; background: transparent; overflow: hidden; }
-.onboarding::backdrop { background: #050711e6; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.onboarding-card { width: min(92vw, 380px); margin: 20vh auto 0; padding: 40px 32px 28px; border-radius: 24px; background: #0d1018; border: 1px solid #272335; text-align: center; animation: onboarding-enter 400ms cubic-bezier(.22,1.2,.36,1); }
-@keyframes onboarding-enter { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.onboarding-icon { width: 64px; height: 64px; margin: 0 auto 20px; display: grid; place-items: center; border-radius: 20px; background: linear-gradient(135deg, #1c1830, #12101d); color: #b89ad6; }
-.onboarding-icon svg { width: 36px; height: 36px; }
-.onboarding-card h2 { margin: 0 0 10px; font-size: 22px; font-weight: 600; color: #f4f2f8; letter-spacing: -.01em; }
-.onboarding-card p { margin: 0; font-size: 15px; line-height: 1.75; color: #b3a9c5; }
-.onboarding-dots { display: flex; justify-content: center; gap: 8px; margin: 24px 0 20px; }
-.onboarding-dots span { width: 8px; height: 8px; border-radius: 50%; background: #2c2740; transition: all .25s ease; }
-.onboarding-dots span.is-active { background: #b89ad6; transform: scale(1.3); }
-.onboarding-dots span.is-done { background: #6d5f85; }
-.onboarding-actions { display: flex; justify-content: space-between; align-items: center; }
-.onboarding-skip { border: 0; background: none; padding: 10px 16px; color: #6a617e; font-size: 14px; cursor: pointer; }
-.onboarding-skip:hover { color: #9d93b2; }
-.onboarding-next { border: 0; border-radius: 999px; background: linear-gradient(135deg, #8d70d2, #7c5fc0); padding: 12px 32px; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
-.onboarding-next:hover { transform: translateY(-1px); box-shadow: 0 4px 16px #7c5fc040; }
-.onboarding-next:focus-visible { outline: 2px solid #dcc3ff; outline-offset: 4px; }
-@media (prefers-reduced-motion: reduce) { .onboarding-card { animation: none; } }
+/* ═══ 登录后星图内的引导动效（叠加在原有 3D 场景上）═══ */
 
-/* ── 登录后星图演示 ── */
-.starmap-demo { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
-.starmap-demo-label { position: absolute; padding: 10px 18px; border-radius: 14px; background: #0d1018f0; border: 1px solid #3a3350; color: #d1cbdc; font-size: 14px; line-height: 1.6; max-width: 260px; animation: demo-label-in 500ms ease-out; box-shadow: 0 4px 24px #00000040; }
-.starmap-demo-label strong { color: #dcc3ff; display: block; margin-bottom: 4px; font-size: 13px; }
-@keyframes demo-label-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* 径向光束从中心扩散 */
+.landing-guide { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+.landing-guide-beam {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 45%, transparent 30%, rgba(184,154,214,.06) 50%, transparent 70%);
+  opacity: 0;
+}
+.landing-guide-beam.is-phase-0 { animation: beam-pulse 800ms ease-out forwards; }
+.landing-guide-beam.is-phase-1 { animation: beam-pulse 800ms ease-out forwards; background: radial-gradient(ellipse 70% 60% at 50% 45%, transparent 20%, rgba(123,167,212,.08) 50%, transparent 70%); }
+.landing-guide-beam.is-phase-2 { animation: beam-final 1200ms ease-in-out forwards; }
+@keyframes beam-pulse { 0% { opacity: 0; transform: scale(.8); } 40% { opacity: 1; } 100% { opacity: 0; transform: scale(1.1); } }
+@keyframes beam-final { 0% { opacity: .8; } 100% { opacity: 0; } }
+
+/* 引导文字：从星图中心向上浮现 */
+.landing-guide-text {
+  position: absolute; left: 50%; top: 32%;
+  transform: translateX(-50%);
+  font-size: clamp(15px, 2vw, 19px);
+  color: #d1cbdc;
+  text-shadow: 0 0 24px rgba(184,154,214,.5);
+  letter-spacing: .04em;
+  white-space: nowrap;
+  animation: guide-text-in 600ms cubic-bezier(.22,1,.36,1) forwards;
+}
+.landing-guide-text.is-phase-1 { top: 62%; color: #9db8d4; text-shadow: 0 0 24px rgba(123,167,212,.5); }
+@keyframes guide-text-in { from { opacity: 0; transform: translateX(-50%) translateY(14px); filter: blur(6px); } to { opacity: 1; transform: translateX(-50%) translateY(0); filter: blur(0); } }
+@media (prefers-reduced-motion: reduce) { .landing-guide-beam, .landing-guide-text { animation: none; opacity: 0; } }
+
+/* ═══ 登录后星图演示标注（叠加在星图轨道上）═══ */
+.starmap-demo-label {
+  position: absolute;
+  padding: 12px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0d1018ee, #151220ee);
+  border: 1px solid rgba(184,154,214,.2);
+  color: #d1cbdc;
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 240px;
+  backdrop-filter: blur(12px);
+  animation: demo-label-in 500ms cubic-bezier(.22,1.2,.36,1) forwards;
+  box-shadow: 0 4px 32px rgba(0,0,0,.4), 0 0 16px rgba(184,154,214,.08);
+}
+.starmap-demo-label strong {
+  display: block; margin-bottom: 4px;
+  font-size: 13px; font-weight: 500;
+  background: linear-gradient(90deg, #b89ad6, #7ba7d4);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+@keyframes demo-label-in { from { opacity: 0; transform: translateY(16px) scale(.95); filter: blur(4px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
 @media (prefers-reduced-motion: reduce) { .starmap-demo-label { animation: none; } }
 
-/* ── 页面切换过渡 ── */
-@keyframes page-enter { from { opacity: 0; transform: scale(1.015); } to { opacity: 1; transform: scale(1); } }
-@keyframes page-exit { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(.985); } }
-.qa-page { animation: page-enter 320ms cubic-bezier(.22,1,.36,1); }
-.campus-page.is-cognition { animation: page-enter 320ms cubic-bezier(.22,1,.36,1); }
+/* ═══ 页面切换过渡 ═══ */
+@keyframes page-enter { from { opacity: 0; transform: scale(1.012); filter: blur(2px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+.qa-page { animation: page-enter 280ms cubic-bezier(.22,1,.36,1); }
+.campus-page.is-cognition { animation: page-enter 280ms cubic-bezier(.22,1,.36,1); }
 @media (prefers-reduced-motion: reduce) { .qa-page, .campus-page { animation: none !important; } }
+
+/* ═══ 按钮渐变光效 ═══ */
+.enter-button, .qa-entry {
+  position: relative;
+  overflow: hidden;
+}
+.enter-button::after, .qa-entry::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(220,195,255,.12) 50%, transparent 60%);
+  transform: translateX(-100%);
+  animation: button-sheen 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes button-sheen { 0%, 60% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .enter-button::after, .qa-entry::after { animation: none; display: none; } }
