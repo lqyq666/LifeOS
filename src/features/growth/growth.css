@@ -50,10 +50,10 @@
 .growth-primary:disabled { opacity: .5; }
 .growth-form-actions > button:not(.growth-primary) { border: 1px solid #3a3350; border-radius: 10px; background: none; padding: 10px 16px; color: #b3a9c5; cursor: pointer; }
 
-.growth-directions { margin: 0 0 24px; }
-.growth-directions h2 { font-size: 15px; font-weight: 500; color: #c5b9d8; margin: 0 0 10px; }
-.growth-directions .growth-card { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.growth-directions .growth-card button { border: 1px solid #3a3350; border-radius: 8px; background: none; padding: 5px 12px; color: #dcc3ff; font-size: 12px; cursor: pointer; }
+
+
+
+
 
 .growth-history { margin: 0 0 24px; }
 .growth-history summary { cursor: pointer; color: #8f83a3; font-size: 13px; margin-bottom: 10px; }

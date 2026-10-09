@@ -206,12 +206,12 @@
 .qa-msg-flash { animation: qa-msg-flash 2.4s ease-out; }
 @keyframes qa-msg-flash { 0%, 40% { background: #2c2440; } 100% { background: transparent; } }
 
-.qa-insight { position: absolute; z-index: 4; right: 20px; bottom: 148px; max-width: 320px; }
-.qa-insight-toggle { border: 1px solid #6d5f85; border-radius: 10px; background: #171221cc; padding: 8px 14px; color: #dcc3ff; font-size: 13px; cursor: pointer; }
-.qa-insight-toggle span { margin-left: 8px; color: #9d93b2; }
-.qa-insight-body { margin-top: 8px; border: 1px solid #3a3350; border-radius: 10px; background: #131020f2; padding: 12px 14px; color: #d1cbdc; font-size: 13px; line-height: 1.8; }
-.qa-insight-body p { margin: 0 0 4px; }
-.qa-insight-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-.qa-insight-actions button { border: 1px solid #6d5f85; border-radius: 6px; background: none; padding: 6px 12px; color: #dcc3ff; font-size: 12px; cursor: pointer; }
-.qa-insight-note { color: #8f83a3; font-size: 11px; }
-@media (max-width: 700px) { .qa-insight { right: 12px; left: 12px; bottom: 132px; max-width: none; } }
+
+
+
+
+
+
+
+
+@media (max-width: 700px) {  }
