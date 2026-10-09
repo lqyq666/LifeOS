@@ -7,7 +7,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { readFileSync, existsSync } from 'node:fs'
 import { resolve, extname, sep } from 'node:path'
 import { toNodeHandler, fromNodeHeaders } from 'better-auth/node'
-import { auth } from './auth.ts'
+import { auth, getPendingReset } from './auth.ts'
 import { config, credentialReady } from './config.ts'
 import { model, modelCapabilityVerified, availableModelTiers } from './model.ts'
 import { pool, HttpError } from './db.ts'
@@ -61,6 +61,14 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
       if(shuttingDown)throw new HttpError(503,'SERVER_SHUTTING_DOWN',10)
       if(!['GET','HEAD'].includes(method)&&req.headers.origin!==config.origin)throw new HttpError(403,'ORIGIN_REJECTED')
       if(Number(req.headers['content-length']??0)>65536)throw new HttpError(413,'REQUEST_TOO_LARGE')
+      if(path==='/api/auth/pending-reset'&&method==='GET'){
+        // 邮件服务未接入：重置令牌暂存后由此取回。接入邮件后删除此端点。
+        const email=String(url.searchParams.get('email')??'').toLowerCase()
+        if(!email){json(res,400,{error:'EMAIL_REQUIRED'});return}
+        const pending=getPendingReset(email)
+        json(res,200,pending?{token:pending.token,at:pending.at}:{token:null})
+        return
+      }
       if(path.startsWith('/api/auth/')){await authHandler(req,res);return}
       if(path.startsWith('/api/')){
         // P4 G0: unauthenticated runtime fingerprint (no secrets) for host/skill verification.
@@ -131,7 +139,7 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
         if(linkMatch&&method==='POST'){json(res,200,await store.themeLinkAction(user,validateId(linkMatch[1]),validateId(linkMatch[2]),validate(themeLinkActionSchema,await body(req))));return}
         const claimMatch=/^\/api\/identity-claims\/([0-9a-fA-F-]{36})\/actions$/.exec(path)
         if(claimMatch&&method==='POST'){json(res,200,await store.claimAction(user,validateId(claimMatch[1]),validate(identityClaimActionSchema,await body(req))));return}
-        if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGraph(user));return}
+if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGraph(user));return}
         const runStatus=path.match(/^\/api\/runs\/([^/]+)$/)
         if(runStatus&&method==='GET'){json(res,200,await store.runStatus(user,validateId(runStatus[1])));return}
         const cancel=path.match(/^\/api\/runs\/([^/]+)\/cancel$/)
