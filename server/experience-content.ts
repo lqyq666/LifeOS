@@ -13,7 +13,7 @@ export type ResolvedCandidateContent = { action: string; result: string; occurre
 // same clause flags the anchor guards use; no semantics are inferred here.
 // Flash-tier models otherwise treat the optional lane as omittable, and the
 // lane is the only path from a conversation to the star map.
-const COMPLETED_ACTION = /(?:做完|完成|交付|交了|交完|交上去|交过去|交到|交给|补交|补齐|补完|提交了|通过了|发了|发过|发出去|发过去|发到|发给|送到|写完了|写了|写过|赶完|弄完|搞定了|拿到了|参加过|参加了|办了|签了|录了|剪了|排了|整理了|整理过|整理好|准备好|办好|写好|做好|改好|弄好|搞定|送到|寄到|买好|订好|排好|投了|投过|帮过|当过|带过|做过|访谈了|调研了|采访了|申报了|答辩完|办完)/
+const COMPLETED_ACTION = /(?:做完|完成|交付|交了|交完|交上去|交过去|交到|交给|补交|补齐|补完|提交了|通过了|发了|发过|发出去|发过去|发到|发给|送到|写完了|写了|写过|赶完|弄完|搞定了|拿到了|参加过|参加了|办了|签了|录了|考了|考过|剪了|排了|整理了|整理过|整理好|准备好|办好|写好|做好|改好|弄好|搞定|送到|寄到|买好|订好|排好|上线了|发布了|发布过|上线|发布|上线|投了|投过|帮过|当过|带过|做过|做了|访谈了|调研了|采访了|拒绝了|拒绝了?|回绝了|申报了|答辩完|办完)/
 const NOT_YET = /打算|准备|计划|希望|想要|将要|下次|明天|后天|以后|考虑|如果|假设|还没|尚未|没来得及|没写完|没做完|没完成|没交/
 // First person scopes the whole sentence: the action clause itself often
 // drops the pronoun (「迟了一天补交上去」) while a sibling clause carries it.

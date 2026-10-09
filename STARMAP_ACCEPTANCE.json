@@ -1,5 +1,5 @@
 {
- "version": "1.0",
+ "version": "1.1",
  "baseline": "650b086",
  "generatedAt": "2026-10-09T07:47:36.270Z",
  "suites": {
@@ -264,6 +264,31 @@
     "themesIncludeFreelanceOrEmployment": "捕获词表已补(考虑/想试试)，链未重跑——由单测覆盖"
    },
    "evidence": ".local/campus-growth/freelance-chain.json"
+  }
+ },
+ "round2": {
+  "gate": "价值闭环开发与验收 (b59f133 baseline)",
+  "g1": {
+   "sourceVerification": "strpos+抑制表真源校验(隔离DB)",
+   "snapshotOrder": "校验先于写入+含连线修订(隔离DB)",
+   "identityLifecycle": "遗忘退休+原话清除+这不是我API(隔离DB)"
+  },
+  "g2": {
+   "freelanceReplay": "5/5 turns PASS (t1经内容复核,证据见.local/campus-growth/g2-replay.json)"
+  },
+  "g4": {
+   "causalA": "引用真实300元项目+5小时约束",
+   "causalB": "丢失真实项目引用(反复询问已知时间约束)",
+   "tokenDelta": "<200 tokens/turn(≈5%),成本差<¥0.0003",
+   "conclusion": "星图投影提供可测的个性化增量"
+  },
+  "g5": {
+   "trajectories": "16类+复合 全过 (tests/starmap-trajectories.test.ts, zero-network)"
+  },
+  "g6": {
+   "units": "107/107",
+   "backendIsolated": "all selected",
+   "build": "pass"
   }
  }
 }

@@ -69,5 +69,5 @@ test('star map context obeys the memory switch, active links, source validity an
   await projectUserThemes(pool as any, fresh, [{ id: g2, kind: 'goal', text: '我决定考研', assertion: 'user_reported', status: 'active' }])
   const theme = (await pool.query('SELECT id, revision FROM user_themes WHERE user_id=$1', [fresh])).rows[0]!
   await pool.query('UPDATE user_themes SET revision=revision+1 WHERE id=$1', [theme.id]) // 模拟他端并发修改
-  await assert.rejects(() => transaction(async c => assertStarMapSnapshot(c, fresh, [{ id: theme.id, revision: theme.revision }])), (error: any) => error.code === 'STARMAP_SNAPSHOT_INVALIDATED')
+  await assert.rejects(() => transaction(async c => assertStarMapSnapshot(c, fresh, { themes: [{ id: theme.id, revision: theme.revision }], links: [] })), (error: any) => error.code === 'STARMAP_SNAPSHOT_INVALIDATED')
 })

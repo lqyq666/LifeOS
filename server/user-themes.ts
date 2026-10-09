@@ -44,10 +44,14 @@ export function themeTitle(text: string): string {
   let stripped = text.trim()
   for (let round = 0; round < 5; round++) {
     const before = stripped
+    stripped = stripped.replace(/^(?:想了想|想了半天|纠结了?|犹豫了?)/, '')
     stripped = stripped.replace(WISH_PREFIX, '')
     for (const prefix of CONTEXT_PREFIX) stripped = stripped.replace(prefix, '')
     stripped = stripped.replace(/^(?:和|跟|与|先|再|去|要)+/, '').replace(/^(?:同学|朋友|室友)(?:一起)?/, '')
-    stripped = stripped.replace(/^(?:同时)?(?:也)?(?:还)?(?:在)?(?:考虑|想着?|犹豫)/, '')
+    stripped = stripped.replace(/^(?:我)?(?:同时)?(?:也)?(?:还)?(?:在)?(?:考虑|想着?|犹豫)/, '')
+    stripped = stripped.replace(/^(?:要不要|该不该|能不能|是不是)/, '')
+    stripped = stripped.replace(/^(?:想了想|想了半天|纠结了?|犹豫了?)/, '')
+    stripped = stripped.replace(/^(?:我)?(?:还是)?(?:先)?(?:把)?/, '')
     if (stripped === before) break
   }
   stripped = stripped.trim()
@@ -63,7 +67,7 @@ const PAST_EVENT_OPEN = /^(?:上周|上个月|上月|昨天|前天|上次|之前
 const THIRD_PARTY = /(?:他|她|它)(?:说|打算|想|决定|要)|室友说|同学说|朋友说|别人|老师说|父母说|爸妈说/
 // 主题必须带有意图词：目标/想要/打算/不再……。模型的 feedback/direction
 // 误分类（"部长说效果还不错"）没有意图词，进不了主题。
-const INTENT_MARKER = /(?:想|要|打算|准备|希望|计划|决定|争取|目标|重点|优先|不再|不想|追求)/
+const INTENT_MARKER = /(?:想|要|打算|准备|希望|计划|决定|争取|目标|重点|优先|不再|不想|追求|放第一|第一位|以.{0,4}为主)/
 const normalize = (text: string) => text.replace(WISH_PREFIX, '').replace(/[\s，。、！？?！,.\-—]/g, '')
 
 export type ThemeCandidate = { kind: ThemeKind; title: string; sourceGrowthId: string; quote: string }
@@ -74,7 +78,7 @@ export type ThemeCandidate = { kind: ThemeKind; title: string; sourceGrowthId: s
 //   “我不想X/放弃X” → 不是追求，绝不提升成主题；
 //   “不再熬夜”这类边界意图仍是 pursuit；
 //   “先就业，以后再创业”分句后：就业=pursuit，创业=exploration。
-const REJECTED_PURSUIT = /(?:不想|不打算|不考虑|放弃|没兴趣|不走)/
+const REJECTED_PURSUIT = /(?:不想|不打算|不考虑|放弃|没兴趣|不走|不扩大|先不)/
 const BOUNDARY_PURSUIT = /(?:不再|不想再|要避免|要改掉)/
 const FUTURE_MARK = /(?:未来|以后|之后|下一步|毕业后再)/
 const EXPLORING_MARK = /(?:考虑|在想|也许|可能|想试试|试试|了解一下|了解下|探索|纠结|犹豫|倾向|感兴趣)/
@@ -97,6 +101,9 @@ export function deriveThemeCandidates(facts: readonly GrowthFact[]): ThemeCandid
     const quote = fact.text.trim()
     if (!quote) continue
     if (PAST_EVENT_OPEN.test(quote) || THIRD_PARTY.test(quote)) continue
+    // 自我描述（“我是那种……的人”）是身份声明不是追求：不进主题，由
+    // identity 层按原话捕获。
+    if (/我(?:是|算是|觉得自己是|认为自己(?:是|属于)|属于)(?:那种|一个|个)?[^，。；！？]{2,30}?(?:的人|的性格|的类型|做事方式|风格)/.test(quote)) continue
     let kind: ThemeKind, status: 'active' | 'pending'
     if (['goal', 'direction', 'priority', 'decision'].includes(fact.kind)) {
       if (!INTENT_MARKER.test(quote) && !EXPLORING_MARK.test(quote) && !BOUNDARY_PURSUIT.test(quote)) continue
@@ -199,7 +206,7 @@ export async function projectUserThemes(c: PoolClient, user: string, newFacts: r
       if (!matched) continue
       await c.query("UPDATE user_themes SET status='retired', revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2", [user, theme.id])
       await c.query("UPDATE experience_theme_links SET status='retired', revision=revision+1 WHERE user_id=$1 AND theme_id=$2 AND status='active'", [user, theme.id])
-      await recordChangeEvent(c, user, { subjectType: 'theme', subjectId: theme.id, transition: 'retired', oldSnapshot: { title: theme.title, status: theme.status }, reason: '用户明确否定了这个追求', sourceRefs: [{ quote: fact.text }], impact: '主题退休，相关连线失效' })
+      await recordChangeEvent(c, user, { subjectType: 'theme', subjectId: theme.id, transition: 'retired', oldSnapshot: { title: theme.title, status: theme.status }, reason: '用户明确否定了这个追求', sourceRefs: [{ quote: fact.text }], impact: '主题退休，相关连线失效', unknowns: '否定原因未记录', nextStep: '' })
       changed.push(theme.id)
     }
   }
@@ -210,7 +217,7 @@ export async function projectUserThemes(c: PoolClient, user: string, newFacts: r
       user, id, candidate.title, candidate.kind, (candidate as any).status ?? (candidate.kind === 'pursuit' ? 'active' : 'pending'),
       `来自你说的：「${candidate.quote}」`, JSON.stringify([{ growthItemId: candidate.sourceGrowthId, quote: candidate.quote }]),
     ])
-    await recordChangeEvent(c, user, { subjectType: 'theme', subjectId: id, transition: 'created', newSnapshot: { title: candidate.title, kind: (candidate as any).kind ?? candidate.kind, status: (candidate as any).status ?? 'active' }, reason: '用户陈述的目标或追求', sourceRefs: [{ quote: candidate.quote }], impact: '星图内轨新增主题' })
+    await recordChangeEvent(c, user, { subjectType: 'theme', subjectId: id, transition: 'created', newSnapshot: { title: candidate.title, kind: (candidate as any).kind ?? candidate.kind, status: (candidate as any).status ?? 'active' }, reason: '用户陈述的目标或追求', sourceRefs: [{ quote: candidate.quote }], impact: '星图内轨新增主题', unknowns: '这是刚出现的追求，还没有对应行动证据', nextStep: '' })
     changed.push(id)
     // 回填：主题出现在经历之后时，既有经历也按同一验证规则连过来。
     const backfill=(await c.query("SELECT id, source_quote, content FROM experiences WHERE user_id=$1 AND status='confirmed'",[user])).rows
@@ -292,6 +299,7 @@ export type StarMapContext = {
   linkedExperiences: { themeTitle: string; relation: string; candidate: boolean; summary: string }[]
   constraints: string[]
   boundaries: string[]
+  usedLinks: { experienceId: string; themeId: string; revision: number }[]
 }
 export async function readStarMapContext(c: PoolClient, user: string): Promise<StarMapContext | null> {
   // P0 信任边界：与 memory 控制共用同一权限。记忆关闭时不向模型提供任何
@@ -309,13 +317,23 @@ export async function readStarMapContext(c: PoolClient, user: string): Promise<S
   }
   const validThemes=themes.filter((theme:any)=>(theme.source_refs??[]).some((ref:any)=>liveSourceIds.has(ref.growthItemId)))
   if(!validThemes.length)return null
-  const links = (await c.query(`SELECT t.title AS theme_title, l.relation, l.confirmed, left(e.content->>'summary', 80) AS summary, e.source_quote, e.source_message_id
+  const links = (await c.query(`SELECT t.title AS theme_title, l.relation, l.confirmed, l.revision AS link_revision, l.experience_id, l.theme_id,
+    left(e.content->>'summary', 80) AS summary, e.source_quote, e.source_message_id
     FROM experience_theme_links l JOIN user_themes t ON t.user_id=l.user_id AND t.id=l.theme_id
     JOIN experiences e ON e.user_id=l.user_id AND e.id=l.experience_id AND e.status='confirmed'
     JOIN messages m ON m.user_id=l.user_id AND m.id=e.source_message_id AND m.role='user'
-    WHERE l.user_id=$1 AND l.status='active' AND t.status IN ('active','pending') ORDER BY l.created_at DESC LIMIT 6`, [user])).rows
-  // 原话仍在来源消息中可见（未被删除/撤回），否则该经历的引用不可信。
-  const validLinks=links.filter((link:any)=>link.source_quote.trim()&&link.source_quote.length<=(link.summary?.length??0)+400)
+    WHERE l.user_id=$1 AND l.status='active' AND t.status IN ('active','pending')
+      AND btrim(e.source_quote)<>'' AND strpos(m.content, e.source_quote)>0
+    ORDER BY l.created_at DESC LIMIT 6`, [user])).rows
+  // 来源未被遗忘/停止使用（growth 隐私抑制表）；被抑制的引用不可进入决策。
+  const validLinks=[]
+  for(const link of links){
+    // 与 growth 隐私抑制同源的一条查询（内联以保持本模块可在纯函数测试中
+    // 被 strip-types 加载）：被遗忘/停止使用的原话不进入模型上下文。
+    const suppressed=(await c.query('SELECT 1 FROM growth_source_suppressions WHERE user_id=$1 AND message_id=$2 AND (strpos($3,quote)>0 OR strpos(quote,$3)>0) LIMIT 1',[user,link.source_message_id,link.source_quote])).rowCount
+    if(suppressed)continue
+    validLinks.push(link)
+  }
   const constraints = (await c.query("SELECT text FROM growth_items WHERE user_id=$1 AND kind='constraint' AND status='active' ORDER BY updated_at DESC LIMIT 3", [user])).rows.map((row: any) => row.text)
   const boundaries = (await c.query("SELECT title FROM user_themes WHERE user_id=$1 AND status IN ('paused','retired') ORDER BY updated_at DESC LIMIT 5", [user])).rows.map((row: any) => row.title)
   return {
@@ -323,6 +341,7 @@ export async function readStarMapContext(c: PoolClient, user: string): Promise<S
     linkedExperiences: validLinks.map((link: any) => ({ themeTitle: link.theme_title, relation: link.relation, candidate: !link.confirmed, summary: link.summary })),
     constraints,
     boundaries,
+    usedLinks: validLinks.map((link: any) => ({ experienceId: String(link.experience_id), themeId: String(link.theme_id), revision: link.link_revision })),
   }
 }
 

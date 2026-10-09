@@ -15,7 +15,7 @@ import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
 import { derivePatternProposals } from './experience-patterns.ts'
 import { findEpisode, mergeContent } from './experience-episodes.ts'
 import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth } from './user-themes.ts'
-import { projectIdentityClaims, recordChangeEvent } from './identity.ts'
+import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction } from './identity.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -55,7 +55,7 @@ export async function retrieveExperiences(user:string,input:unknown,signal?:Abor
   return { records: rows, method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
 }
 export type Run = { user_id:string; request_id:string; conversation_id:string; source_message_id:string; expected_version:number; status:string; response:any }
-export type Staged = { candidates:Candidate[]; audit:unknown[]; backReferenceMerge?:{experienceId:string;quote:string;result:string;occurredAt:string}; serverGoals?:{text:string;quote:string;messageId:string}[];starMapSnapshot?:{id:string;revision:number}[]; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations;weeklyPlan?:import('./weekly-plans.ts').PreparedWeeklyPlan;memoryControl?:StagedMemoryControl;pendingMemoryControl?:PendingMemoryControl }
+export type Staged = { candidates:Candidate[]; audit:unknown[]; backReferenceMerge?:{experienceId:string;quote:string;result:string;occurredAt:string}; serverGoals?:{text:string;quote:string;messageId:string}[];serverBudgets?:{text:string;quote:string;messageId:string}[];starMapSnapshot?:{themes:{id:string;revision:number}[];links:{experienceId:string;themeId:string;revision:number}[]}; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations;weeklyPlan?:import('./weekly-plans.ts').PreparedWeeklyPlan;memoryControl?:StagedMemoryControl;pendingMemoryControl?:PendingMemoryControl }
 export async function startRun(user:string,conversation:string,requestId:string,text:string) {
   return transaction(async c=>{
     await lock(c,user+':'+requestId)
@@ -123,6 +123,10 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       if(!source||source.revision!==ref.revision)throw new HttpError(409,'EXPERIENCE_SNAPSHOT_INVALIDATED')
     }
     const version=(await c.query('SELECT COALESCE(max(version),0)::int AS version FROM decision_versions WHERE user_id=$1 AND conversation_id=$2',[run.user_id,run.conversation_id])).rows[0].version
+    // G1.3 快照校验先于本轮任何写入：他端在生成期间改动了被使用的主题或
+    // 连线（确认/撤销/更正）时，本轮基于旧证据的建议被阻止提交；本轮自己
+    // 的正常更新发生在校验之后，不会自撞。
+    if(staged.starMapSnapshot?.themes?.length||staged.starMapSnapshot?.links?.length)await assertStarMapSnapshot(c,run.user_id,staged.starMapSnapshot)
     const candidateIds:string[]=[],mergedExperienceIds:string[]=[]
     // 反述直连：命中既有经历的追述在事务内合并（身份不变、只补结果/反思）。
     if(staged.backReferenceMerge){
@@ -177,22 +181,30 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       await c.query("INSERT INTO growth_revisions(user_id,item_id,revision,action,snapshot) VALUES($1,$2,1,'server_capture',$3)",[run.user_id,id,JSON.stringify({text:goal.text,quote:goal.quote,reason:'explicit decision clause not covered by model growth lane'})])
       serverGoalIds.push(id)
     }
-    const themeFactIds=[...(growth?.createdIds??[]),...(growth?.changedIds??[]),...serverGoalIds]
+    const serverBudgetIds:string[]=[]
+    for(const budget of staged.serverBudgets??[]){
+      // 模型通道通常也会保存同一预算事实：同 text 已存在时服务器捕获跳过，
+      // 避免重复行干扰更正打分。
+      if((await c.query("SELECT 1 FROM growth_items WHERE user_id=$1 AND text=$2 AND status='active'",[run.user_id,budget.text])).rowCount)continue
+      const id=randomUUID()
+      await c.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,revision) VALUES($1,$2,$3,'context',$4,'user_reported','active',$5,'[]'::jsonb,1)",[id,run.user_id,run.conversation_id,budget.text,JSON.stringify([{type:'message',id:budget.messageId,quote:budget.quote}])])
+      await c.query("INSERT INTO growth_revisions(user_id,item_id,revision,action,snapshot) VALUES($1,$2,1,'server_capture',$3)",[run.user_id,id,JSON.stringify({text:budget.text,quote:budget.quote,reason:'explicit weekly budget clause not covered by model growth lane'})])
+      serverBudgetIds.push(id)
+    }
+    const themeFactIds=[...(growth?.createdIds??[]),...(growth?.changedIds??[]),...serverGoalIds,...serverBudgetIds]
     let themeChangedIds:string[]=[];let facts:any[]=[]
     if(themeFactIds.length){
       facts=(await c.query('SELECT id,kind,text,assertion,status FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])',[run.user_id,themeFactIds])).rows
       themeChangedIds=await projectUserThemes(c,run.user_id,facts)
     }
-    // 生成期读取的星图在提交时仍须一致：并发修改（他端操作）导致失效时
-    // 阻止本次保存，客户端可安全重试。
-    if(staged.starMapSnapshot?.length)await assertStarMapSnapshot(c,run.user_id,staged.starMapSnapshot)
     if(themeFactIds.length||candidateIds.length||mergedExperienceIds.length)await reconcileThemesWithGrowth(c,run.user_id)
+    await reconcileIdentityClaims(c,run.user_id)
     // 身份投影：本轮自述认同（“我是那种……”）进入身份层，幂等。
     const identityFacts=[...(facts??[]),...(staged.serverGoals??[]).map(goal=>({id:'server-'+goal.messageId+goal.text.length,kind:'goal',text:goal.text,assertion:'user_reported',status:'active'}))]
     await projectIdentityClaims(c,run.user_id,identityFacts as any)
     // 变更事件：经历创建与合并（真实迁移才记录）。
-    for(const id of candidateIds)await recordChangeEvent(c,run.user_id,{subjectType:'experience',subjectId:id,transition:'created',reason:'对话中报告的已发生行动',impact:'星图中外轨新增经历'})
-    for(const id of mergedExperienceIds)await recordChangeEvent(c,run.user_id,{subjectType:'experience',subjectId:id,transition:'merged',reason:'同一事件的后续反馈并入原经历',impact:'经历结果更新，相关连线转为修正'})
+    for(const id of candidateIds)await recordChangeEvent(c,run.user_id,{subjectType:'experience',subjectId:id,transition:'created',reason:'对话中报告的已发生行动',impact:'星图中外轨新增经历',unknowns:'后续反馈和长期意义还未知'})
+    for(const id of mergedExperienceIds)await recordChangeEvent(c,run.user_id,{subjectType:'experience',subjectId:id,transition:'merged',reason:'同一事件的后续反馈并入原经历',impact:'经历结果更新，相关连线转为修正',unknowns:'新反馈是否形成稳定模式仍待更多证据'})
     for(const experienceId of [...candidateIds,...mergedExperienceIds]){
       const row=(await c.query('SELECT source_quote, content FROM experiences WHERE user_id=$1 AND id=$2',[run.user_id,experienceId])).rows[0]
       if(row)await linkExperienceToThemes(c,run.user_id,experienceId,`${row.source_quote} ${row.content?.action??''} ${row.content?.result??''}`,true)
@@ -368,11 +380,27 @@ export async function themeLinkAction(user:string,experienceId:string,themeId:st
 
 // 快照校验：生成（读取星图）与提交（finishRun）之间主题若被并发修改，
 // 阻止保存并要求重试，绝不基于过期理解落盘。
-export async function assertStarMapSnapshot(c: PoolClient, user: string, snapshot: { id: string; revision: number }[]): Promise<void> {
-  for (const entry of snapshot) {
+export async function assertStarMapSnapshot(c: PoolClient, user: string, snapshot: { themes: { id: string; revision: number }[]; links: { experienceId: string; themeId: string; revision: number }[] }): Promise<void> {
+  for (const entry of snapshot.themes ?? []) {
     const row = (await c.query('SELECT revision FROM user_themes WHERE user_id=$1 AND id=$2', [user, entry.id])).rows[0]
     if (!row || row.revision !== entry.revision) throw new HttpError(409, 'STARMAP_SNAPSHOT_INVALIDATED')
   }
+  for (const entry of snapshot.links ?? []) {
+    const row = (await c.query('SELECT revision FROM experience_theme_links WHERE user_id=$1 AND experience_id=$2 AND theme_id=$3', [user, entry.experienceId, entry.themeId])).rows[0]
+    if (!row || row.revision !== entry.revision) throw new HttpError(409, 'STARMAP_SNAPSHOT_INVALIDATED')
+  }
+}
+
+export async function claimAction(user:string,id:string,input:{requestId:string;action:'deny'|'correct'|'stop';text?:string}){
+  return transaction(async c=>{
+    await lock(c,user+':operation:'+input.requestId)
+    const fingerprint=hash({id,...input})
+    const old=(await c.query('SELECT * FROM user_operations WHERE user_id=$1 AND request_id=$2',[user,input.requestId])).rows[0]
+    if(old){if(old.fingerprint!==fingerprint)throw new HttpError(409,'IDEMPOTENCY_KEY_REUSED');return old.response}
+    await identityClaimAction(c,user,id,input)
+    await c.query('INSERT INTO user_operations(user_id,request_id,fingerprint,response) VALUES($1,$2,$3,$4)',[user,input.requestId,fingerprint,{ok:true}])
+    return {ok:true}
+  })
 }
 
 export async function cognitionGraph(user:string) {
@@ -388,7 +416,10 @@ export async function cognitionGraph(user:string) {
   const observations=claims.filter(c=>!c.confirmed_by_user).map(c=>c.text)
   const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[])]
   const self={...selfRow,description:selfDescriptionParts.join('\n')||selfRow.description,identityAccepted:accepted,identityObservations:observations} as any
-  const changeEvents=(await pool.query("SELECT subject_type,subject_id,transition,reason,committed_at,user_confirmation FROM identity_change_events WHERE user_id=$1 ORDER BY committed_at DESC LIMIT 12",[user])).rows
+  const changeEvents=(await pool.query("SELECT subject_type,subject_id,transition,reason,committed_at,user_confirmation,unknowns FROM identity_change_events WHERE user_id=$1 ORDER BY committed_at DESC LIMIT 12",[user])).rows
+  // “下一步”只来自当前有效事实：最旧的进行中追求或最新行动重点；没有就空。
+  const nextStepRow=(await pool.query("SELECT title FROM user_themes WHERE user_id=$1 AND status='active' ORDER BY pinned DESC, updated_at DESC LIMIT 1",[user])).rows[0]
+  const starmapNextStep=nextStepRow?`当前最优先：${nextStepRow.title}（本人设定）`:''
   const nodes=[self] as any[]
   const themes=(await pool.query("SELECT * FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC",[user])).rows
   const edges:any[]=[]
@@ -414,5 +445,5 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
   }
   const valueOrder=themes.slice(0,3).map(theme=>'theme-'+theme.id)
   return {...seed,purpose:'当前登录用户的成长星图：主题来自本人陈述的目标与追求',notice:'主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。',nodes,edges,
-    viewConfig:{...seed.viewConfig,valueOrder,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false,changeEvents:changeEvents.map((event:any)=>({subjectType:event.subject_type,transition:event.transition,reason:event.reason,committedAt:event.committed_at,userConfirmation:event.user_confirmation}))}
+    viewConfig:{...seed.viewConfig,valueOrder,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false,starmapNextStep,changeEvents:changeEvents.map((event:any)=>({subjectType:event.subject_type,transition:event.transition,reason:event.reason,committedAt:event.committed_at,userConfirmation:event.user_confirmation,unknowns:event.unknowns}))}
 }

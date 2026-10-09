@@ -148,3 +148,6 @@
 .timeaxis-chat { margin-top: 6px; border: 1px solid #484055; border-radius: 6px; background: none; padding: 4px 10px; color: #dcc3ff; font-size: 11px; cursor: pointer; }
 @media (max-width: 700px) { .timeaxis-wrap { padding: 0 8px; } .timeaxis-item { min-width: 100px; } }
 @media (prefers-reduced-motion: reduce) { .timeaxis * { animation: none !important; transition: none !important; } }
+
+.timeaxis-before { display: block; color: #9d93b2; margin-top: 1px; }
+.timeaxis-unknowns { display: block; color: #7a90a8; margin-top: 1px; }

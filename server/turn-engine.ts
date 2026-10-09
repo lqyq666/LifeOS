@@ -382,7 +382,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const messages=allContextMessages.filter(row=>row.id===run.source_message_id||selectedIds.has(row.id))
   staged.audit.push({phase:'history_selection',mode:contract.mode,historyTotalMessages:historySelection.totalMessages,historySelectedMessages:historySelection.selected.length,historyTotalChars:historySelection.totalChars,historySelectedChars:historySelection.selectedChars,providerCalls:0})
   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id,contract)
-  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot=ctx.themes.map(theme=>({id:theme.id,revision:(theme as any).revision??0}));return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
+  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
   const retrieved=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
   const calls:CallRecord[]=[]
@@ -408,6 +408,26 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     let result:ActionCoachTurn
     try{result=parseActionCoachTurn(raw)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
     staged.coach=undefined;staged.candidates=[];staged.memoryChanges=[];staged.growth=undefined
+
+    {
+      // 确定性目标捕获：模型对复合句的首个决定子句有稳定的漏存倾向
+      // （三轮实测均只存后半句）。显式决定/否定句若未被本轮 growth 引用
+      // 覆盖，由服务器按分句原话补一条 user_reported 目标事实；身份、
+      // 来源、修订与模型写入完全同构。
+      const covered=(quote:string)=>(staged.growth?.changes??[]).some((change:any)=>'source'in change&&typeof change.source?.quote==='string'&&change.source.quote.includes(quote))
+      // “要不要做X”是自我斟酌不是向AI提问：捕获允许弱疑问形态，只排除
+      // 真提问（带问号/吗/呢）与假设/引用/第三方。
+      const decisionClauses=clauseCatalogue.filter(handle=>!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther&&!/[?？]|吗$|呢$/.test(handle.text)
+        &&sentenceIsFirstPersonPublic(clauseCatalogue,handle)
+        &&/我.{0,10}?(?:决定|确定|定了|的目标是|想要?|打算|不打算|不再|放弃|考虑|在想|想试试|试试|感兴趣|优先|放第一|第一要|先不|暂停|不扩大|以.{0,4}为主)/.test(handle.text))
+      staged.serverGoals=decisionClauses.filter(handle=>!covered(handle.text)).map(handle=>({text:handle.text,quote:handle.text,messageId:run.source_message_id}))
+      if(staged.serverGoals.length)staged.audit.push({phase:'growth_server_goal_captured',count:staged.serverGoals.length,committed:false})
+      // 每周N小时类预算同样有稳定漏存倾向：按原话补 kind=context（不带期限，
+      // 与 growth 时间规则一致）。
+      const budgetClauses=clauseCatalogue.filter(handle=>!handle.conditional&&!handle.quoted&&!/[?？]/.test(handle.text)&&/每周.{0,8}[0-9一二两三四五六七八九十]+\s*小时/.test(handle.text)&&!/^(?:更正(?:一下)?|改一下|修正|说错|刚才说错)/.test(handle.text)&&!(staged.growth?.changes??[]).some((change:any)=>'source'in change&&typeof change.source?.quote==='string'&&change.source.quote.includes(handle.text)))
+      staged.serverBudgets=budgetClauses.map(handle=>({text:handle.text,quote:handle.text,messageId:run.source_message_id}))
+      if(staged.serverBudgets.length)staged.audit.push({phase:'growth_server_budget_captured',count:staged.serverBudgets.length,committed:false})
+    }
     // P4: a resume_portfolio selection renders server-side into the stored
     // draft shape before any material checks or staging; bad references are
     // hard failures, never silently repaired into facts.
@@ -870,18 +890,6 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
           staged.audit.push({phase:'coach_optional_candidate_rejected',code:error.code,structural:true,committed:false})
         }
       }
-    }
-    {
-      // 确定性目标捕获：模型对复合句的首个决定子句有稳定的漏存倾向
-      // （三轮实测均只存后半句）。显式决定/否定句若未被本轮 growth 引用
-      // 覆盖，由服务器按分句原话补一条 user_reported 目标事实；身份、
-      // 来源、修订与模型写入完全同构。
-      const covered=(quote:string)=>(staged.growth?.changes??[]).some((change:any)=>'source'in change&&typeof change.source?.quote==='string'&&change.source.quote.includes(quote))
-      const decisionClauses=clauseCatalogue.filter(handle=>!handle.interrogative&&!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther
-        &&sentenceIsFirstPersonPublic(clauseCatalogue,handle)
-        &&/我(?:决定|确定|定了|的目标是|想要|打算|不打算|不再|放弃|考虑|在想|想试试|试试|感兴趣)/.test(handle.text))
-      staged.serverGoals=decisionClauses.filter(handle=>!covered(handle.text)).map(handle=>({text:handle.text,quote:handle.text,messageId:run.source_message_id}))
-      if(staged.serverGoals.length)staged.audit.push({phase:'growth_server_goal_captured',count:staged.serverGoals.length,committed:false})
     }
     if(!staged.candidates.length&&contract.capabilities.candidate){
       // 反述直连：模型把追述写进 feedback 通道时，事件身份仍由服务器判定——
