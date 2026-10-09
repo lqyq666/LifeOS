@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { graph, subscribeGraph, getGraphRevision } from './graph.ts'
 import { api, dataChanged, explainError } from '../../backend/client'
+import { ClickSpark } from '../../components/animations/ClickSpark'
 
 const KIND_LABELS: Record<string, string> = { goal: '目标', pursuit: '阶段追求', valued_point: '重视点', interest: '兴趣探索' }
 const RELATION_LABELS: Record<string, string> = { exploring: '正在探索', acting_toward: '为目标行动', partial_evidence: '提供局部证据', constraint: '存在限制', correction: '修正既有认识' }
@@ -69,12 +70,13 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
           }) : <p className="record-story-empty">还没有关联经历。聊到与这个主题相关的行动后会自动挂上来。</p>}
         </section>
         <div className="theme-actions">
+          <ClickSpark sparkColor="#b89ad6">
           <button type="button" onClick={() => {
             onClose()
             window.dispatchEvent(new CustomEvent('lifeos-open-conversation'))
             sessionStorage.setItem('lifeos:pending-conversation-draft', `聊聊「${node.title}」这个方向，帮我看看下一步`)
             sessionStorage.setItem('lifeos:focus-context', JSON.stringify({ type: 'theme', id: node.themeId, label: node.title.slice(0, 80) }))
-          }}>继续聊这个主题</button>
+          }}>继续聊这个主题</button></ClickSpark>
           {!renaming && <button type="button" disabled={busy} onClick={() => { setRenaming(true); setTitle(node.title) }}>重命名</button>}
           <button type="button" disabled={busy} onClick={() => void act(node.themePinned ? 'unpin' : 'pin')}>{node.themePinned ? '取消置顶' : '置顶'}</button>
           {node.themeStatus !== 'paused' && node.themeStatus !== 'retired' && <button type="button" disabled={busy} onClick={() => void act('pause')}>暂缓</button>}

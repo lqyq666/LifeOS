@@ -8,6 +8,9 @@ import { OrbitRail } from './features/cognition/OrbitRail'
 import { RecordPanel } from './features/cognition/RecordPanel'
 import { ThemePanel } from './features/cognition/ThemePanel'
 import { TimeAxis } from './features/cognition/TimeAxis'
+import { Onboarding } from './features/cognition/Onboarding'
+import { StarmapDemo } from './features/cognition/StarmapDemo'
+import './features/cognition/onboarding.css'
 import { graph as liveGraph } from './features/cognition/graph'
 import { ConversationPage } from './features/conversation/ConversationPage'
 import './features/cognition/cognition.css'
@@ -27,6 +30,8 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
   const [conversationVisited, setConversationVisited] = useState(() => window.location.hash === '#conversation')
   const [themePanelOpen, setThemePanelOpen] = useState(false)
   const [graphError, setGraphError] = useState<string | null>(null)
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem('lifeos-onboarded'))
+  const [showStarmapDemo, setShowStarmapDemo] = useState(false)
   const [authMode, setAuthMode] = useState<AuthMode | null>(() => window.location.hash === '#signup' ? 'signup' : window.location.hash === '#login' ? 'welcome' : null)
   const sessionRefresh = useRef<(() => Promise<void>) | null>(null)
   const authReturn = useRef<{ snapshot: Snapshot; navigation: Snapshot[]; conversation: boolean; url: string; trigger: HTMLElement | null; onDone?: () => Promise<void> } | null>(null)
@@ -65,7 +70,9 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
   }
   const completeAuth = async () => {
     await (authReturn.current?.onDone ?? sessionRefresh.current)?.()
-    dataChanged(); setAuthMode(null); authReturn.current = null; openConversation()
+    dataChanged(); setAuthMode(null); authReturn.current = null
+    // 登录后先展示星图演示，再进入聊天
+    setShowStarmapDemo(true)
   }
   const openConversation = () => {
     controller.stop()
@@ -178,6 +185,8 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     return <div className="campus-page is-cognition"><div className="scene-error" role="alert"><h2>星图暂时没能加载</h2><p>{graphError}这里不会用演示数据冒充你的档案。</p><button type="button" onClick={() => { setGraphError(null); window.dispatchEvent(new CustomEvent('lifeos-data-changed')) }}>重试加载</button></div></div>
   }
   return <div className={`campus-page ${landing ? 'is-landing' : 'is-cognition'}`} data-mode={view.mode}>
+    {showOnboarding && <Onboarding onDone={() => { setShowOnboarding(false); localStorage.setItem('lifeos-onboarded', '1') }} />}
+    {showStarmapDemo && <StarmapDemo onDone={() => { setShowStarmapDemo(false); openConversation() }} />}
     <header className="site-header" inert={conversationOpen || !!authMode} aria-hidden={conversationOpen || !!authMode}>
       <a className="brand" href="#" onClick={event => { event.preventDefault(); if (!landing) back() }} aria-label="LifeOS Campus 首页">
         <svg className="brand-symbol" viewBox="0 0 42 42" fill="none" aria-hidden="true">
