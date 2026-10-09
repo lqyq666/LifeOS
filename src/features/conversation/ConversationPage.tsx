@@ -155,6 +155,9 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
     try {
       await api('/api/conversations', { id: chatId, title: active.title })
       pending.controller.signal.throwIfAborted()
+      const rawFocus = sessionStorage.getItem('lifeos:focus-context')
+      let focusContext: { type: 'theme' | 'experience'; id: string; label: string } | undefined
+      if (rawFocus) { sessionStorage.removeItem('lifeos:focus-context'); try { const parsed = JSON.parse(rawFocus); if (parsed && (parsed.type === 'theme' || parsed.type === 'experience') && typeof parsed.id === 'string') focusContext = parsed } catch { /* ignore malformed focus */ } }
       await streamChat(chatId, requestId, text, pending.controller.signal, event => {
         if (remote.current !== pending || pending.controller.signal.aborted) return
         if (event.type === 'started') { pending.started = true; sourceId = event.sourceMessageId; setDraft(''); render() }
@@ -186,7 +189,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
             if(receipt.memoryControl?.status==='needs_confirmation')setControlRefresh(value=>value+1)
           }
         }
-      })
+      }, focusContext)
       animateAnswer(true)
     } catch (error) {
       assistant = ''; transient = false; render()

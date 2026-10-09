@@ -179,7 +179,19 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
             const context=await store.contextForRun(run),versions=await store.decisionVersions(user,conversation)
             contextMark=mark();contextLoadMs=contextMark-queueWaitMs
             const safeEvents:Record<string,unknown>[]=[]
-            const result=await engine({run,staged,context,decision:versions[0]?.payload,signal:controller.signal,emit:event=>{
+            // 继续聊：焦点身份只信服务器校验过的归属（本人且未撤销），标签仅展示。
+            let focusContext:null|{type:'theme'|'experience';id:string;label:string}=null
+            if(input.focusContext){
+              const focus=input.focusContext
+              if(focus.type==='theme'){
+                const theme=(await store.themeOwnership(user,focus.id))
+                focusContext=theme?{type:'theme',id:focus.id,label:theme}:null
+              }else{
+                const experience=(await store.experienceOwnership(user,focus.id))
+                focusContext=experience?{type:'experience',id:focus.id,label:experience}:null
+              }
+            }
+            const result=await engine({run,staged,context,decision:versions[0]?.payload,signal:controller.signal,focusContext,emit:event=>{
               if(controller.signal.aborted)return
               if(event.type==='draft'&&typeof event.text==='string'&&event.saved===false&&openingQuestionDraft(JSON.stringify({reply:event.text}))===event.text)sse(res,{type:'draft',text:event.text,saved:false})
               if(event.type==='draft_discarded')sse(res,{type:'draft_discarded'})

@@ -24,6 +24,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
   const [conversationOpen, setConversationOpen] = useState(() => window.location.hash === '#conversation')
   const [conversationVisited, setConversationVisited] = useState(() => window.location.hash === '#conversation')
   const [themePanelOpen, setThemePanelOpen] = useState(false)
+  const [graphError, setGraphError] = useState<string | null>(null)
   const [authMode, setAuthMode] = useState<AuthMode | null>(() => window.location.hash === '#signup' ? 'signup' : window.location.hash === '#login' ? 'welcome' : null)
   const sessionRefresh = useRef<(() => Promise<void>) | null>(null)
   const authReturn = useRef<{ snapshot: Snapshot; navigation: Snapshot[]; conversation: boolean; url: string; trigger: HTMLElement | null; onDone?: () => Promise<void> } | null>(null)
@@ -86,6 +87,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
       try {
         const data = await api<GraphData>('/api/cognition')
         if (current !== generation) return
+        setGraphError(null)
         replaceGraph(data)
         controller.update({ reviews: {}, serial: controller.view.serial + 1 })
         if (controller.view.activeRecordId && !graph.getNode(controller.view.activeRecordId)) {
@@ -94,6 +96,13 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
         controller.reconcilePreview()
       } catch (error) {
         if (current !== generation) return
+        if (!(error instanceof ApiError && error.status === 401)) {
+          // 拉取失败保持上一次的真实图（首次加载则显示重试），绝不回退成
+          // 假装是用户档案的演示数据。
+          setGraphError('星图数据暂时没能加载。' + (error instanceof Error ? '' : ''))
+          return
+        }
+        setGraphError(null)
         if (error instanceof ApiError && error.status === 401) {
           replaceGraph(null)
           let reviews: ReturnType<typeof parseReviews> = {}, storageError: string | null = null
@@ -163,6 +172,9 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     return () => query.removeEventListener('change', changed)
   }, [])
 
+  if (graphError) {
+    return <div className="campus-page is-cognition"><div className="scene-error" role="alert"><h2>星图暂时没能加载</h2><p>{graphError}这里不会用演示数据冒充你的档案。</p><button type="button" onClick={() => { setGraphError(null); window.dispatchEvent(new CustomEvent('lifeos-data-changed')) }}>重试加载</button></div></div>
+  }
   return <div className={`campus-page ${landing ? 'is-landing' : 'is-cognition'}`} data-mode={view.mode}>
     <header className="site-header" inert={conversationOpen || !!authMode} aria-hidden={conversationOpen || !!authMode}>
       <a className="brand" href="#" onClick={event => { event.preventDefault(); if (!landing) back() }} aria-label="LifeOS Campus 首页">

@@ -13,12 +13,13 @@ export type ResolvedCandidateContent = { action: string; result: string; occurre
 // same clause flags the anchor guards use; no semantics are inferred here.
 // Flash-tier models otherwise treat the optional lane as omittable, and the
 // lane is the only path from a conversation to the star map.
-const COMPLETED_ACTION = /(?:做完|完成|交付|交了|交完|交上去|交过去|交到|补交|补齐|补完|提交了|通过了|发了|发过|发出去|发过去|发到|写完了|写了|写过|赶完|弄完|搞定了|拿到了|参加过|参加了|办了|签了|录了|剪了|排了|整理了|整理过|整理好|准备好|办好|写好|做好|改好|弄好|搞定|送到|寄到|买好|订好|排好|投了|投过|帮过|当过|带过|做过|申报了|答辩完|办完)/
+const COMPLETED_ACTION = /(?:做完|完成|交付|交了|交完|交上去|交过去|交到|交给|补交|补齐|补完|提交了|通过了|发了|发过|发出去|发过去|发到|发给|送到|写完了|写了|写过|赶完|弄完|搞定了|拿到了|参加过|参加了|办了|签了|录了|剪了|排了|整理了|整理过|整理好|准备好|办好|写好|做好|改好|弄好|搞定|送到|寄到|买好|订好|排好|投了|投过|帮过|当过|带过|做过|访谈了|调研了|采访了|申报了|答辩完|办完)/
 const NOT_YET = /打算|准备|计划|希望|想要|将要|下次|明天|后天|以后|考虑|如果|假设|还没|尚未|没来得及|没写完|没做完|没完成|没交/
 // First person scopes the whole sentence: the action clause itself often
 // drops the pronoun (「迟了一天补交上去」) while a sibling clause carries it.
-const sentenceIsFirstPerson = (catalogue: readonly ClauseHandle[], handle: ClauseHandle): boolean =>
+export const sentenceIsFirstPersonPublic = (catalogue: readonly ClauseHandle[], handle: ClauseHandle): boolean =>
   catalogue.some(other => other.sentenceStart === handle.sentenceStart && /我/.test(other.text))
+const sentenceIsFirstPerson = sentenceIsFirstPersonPublic
 
 // 对既往经历的追述（上次那套海报后来…）：本身没有新的完成动词，但带着
 // 结果/反馈分句时，应作为候选走相似度合并进原经历。
@@ -61,7 +62,7 @@ export function deriveStructuralLinks(quote: string): { valueId: string; reason:
 // full sentence containing a detected completed-action clause. The quote stays
 // a server-owned verbatim span; action/result split conservatively by clause
 // shape and may legitimately stay empty.
-const RESULT_SHAPE = /说|反馈|评价|效果|结果|还不错|很好|不错|挺好|通过了|被采纳|被表扬|被批评|有问题|有欠缺|按时|晚了|迟了|提前|没回|没用|用上了|采纳|认可|不满意|效果一般|扣分|没扣分/
+const RESULT_SHAPE = /说|反馈|评价|效果|结果|还不错|很好|不错|挺好|通过了|被采纳|被表扬|被批评|有问题|有欠缺|按时|晚了|迟了|提前|没回|没用|用上了|采纳|认可|不满意|效果一般|扣分|没扣分|来问|追问|上线|催了|续了|回应了/
 export function selectStructuralCandidate(sourceText: string, catalogue: readonly ClauseHandle[], anchorIso: string): { quote: string; start: number; end: number; content: ResolvedCandidateContent } | null {
   const matched = catalogue.find(handle =>
     !handle.interrogative && !handle.conditional && !handle.quoted && !handle.code && !handle.attributedToOther

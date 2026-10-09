@@ -116,6 +116,7 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
             onBack()
             sessionStorage.setItem('lifeos:pending-conversation', node.conversationId!)
             sessionStorage.setItem('lifeos:pending-conversation-draft', `继续聊聊「${node.title.slice(0, 20)}」这件事`)
+            if (node.serverId) sessionStorage.setItem('lifeos:focus-context', JSON.stringify({ type: 'experience', id: node.serverId, label: node.title.slice(0, 80) }))
             window.dispatchEvent(new CustomEvent('lifeos-open-conversation'))
           }}>继续聊这件事</button>）</p>}
           {displaySummary && <p className="record-summary">{displaySummary}</p>}

@@ -6,7 +6,7 @@ import { retrieveCoachKnowledge, validateCoachCitations } from './coach-knowledg
 import { openingQuestionDraft, safeEarlySentence } from './reply-draft.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, type AssistantMessage } from '@mariozechner/pi-ai'
-import { HttpError } from './db.ts'
+import { HttpError, pool } from './db.ts'
 import { providerError } from './provider-errors.ts'
 import { parseActionCoachTurn, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
 import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation, type CoachEvent } from './action-coach-events.ts'
@@ -32,14 +32,16 @@ import { ignorableConnectives } from './turn-obligations.ts'
 import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
 import { scanUserClauses } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
-import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate } from './experience-content.ts'
+import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
+import { readStarMapContext } from './user-themes.ts'
 import { deriveTurnContract } from './turn-contract.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
 import { resolveGrowthDeltas } from './growth-authority.ts'
 import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.ts'
 import { readRecommendationControls } from './memory-controls.ts'
-export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void}
+export type FocusContext={type:'theme'|'experience';id:string;label:string}
+export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void;focusContext?:FocusContext|null}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
 type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;firstSafeSentenceMs?:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null}
 export type ProviderCallObserver={allowRepair?:boolean;before:(call:Readonly<CallRecord>)=>void|Promise<void>;after:(call:Readonly<CallRecord>)=>void|Promise<void>;output?:(call:Readonly<CallRecord>,text:string)=>void|Promise<void>;payload?:(call:Readonly<CallRecord>,payload:unknown)=>void}
@@ -160,7 +162,7 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
   }
 }
 
-async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capabilityVerified:(tier:ModelTier)=>boolean,observer?:ProviderCallObserver){
+async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:EngineInput,capabilityVerified:(tier:ModelTier)=>boolean,observer?:ProviderCallObserver){
   signal.throwIfAborted()
   const current=context.find(row=>row.id===run.source_message_id)
   if(!current||current.role!=='user')throw new HttpError(409,'CURRENT_MESSAGE_MISSING')
@@ -380,7 +382,7 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
   const messages=allContextMessages.filter(row=>row.id===run.source_message_id||selectedIds.has(row.id))
   staged.audit.push({phase:'history_selection',mode:contract.mode,historyTotalMessages:historySelection.totalMessages,historySelectedMessages:historySelection.selected.length,historyTotalChars:historySelection.totalChars,historySelectedChars:historySelection.selectedChars,providerCalls:0})
   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id,contract)
-  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text}))})
+  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:await readStarMapContext(pool,run.user_id),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
   const retrieved=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
   const calls:CallRecord[]=[]
@@ -820,11 +822,17 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
         // tier routinely selects only the trailing result clauses).
         const anchorIso=new Date(current.created_at).toISOString()
         const structural=selectStructuralCandidate(current.content,clauseCatalogue,anchorIso)
-        const span=structural&&structural.start<=selection.start&&selection.end<=structural.end?structural:{quote:selection.quote,start:selection.start,end:selection.end}
+        const coveredByStructural=structural&&structural.start<=selection.start&&selection.end<=structural.end
+        // 退化短选段（如只选了「对了」两个字）不足以代表经历：结构句更长时
+        // 采用整句，同一套服务器选段规则。
+        const degenerate=selection.quote.trim().length<6
+        const span=structural&&(coveredByStructural||(degenerate&&structural.quote.length>selection.quote.length))?structural:{quote:selection.quote,start:selection.start,end:selection.end}
         const extracted=resolveCandidateContent(clauseCatalogue,span,result.experienceCandidate,anchorIso)
         if(span===structural){
           if(!clauseReportsCompleted(extracted.content.action))extracted.content.action=structural!.content.action
-          if(!extracted.content.result)extracted.content.result=structural!.content.result
+          // 结果若是回指词本身（模型把“上次那个…访谈”当成了结果），换用
+          // 结构句挑出的真实结果分句。
+          if(!extracted.content.result||/上次那|上次说|那件事|刚才说/.test(extracted.content.result))extracted.content.result=structural!.content.result
         }
         for(const field of extracted.dropped)staged.audit.push({phase:'coach_candidate_field_dropped',code:'CANDIDATE_FIELD_CLAUSE_UNRESOLVED',field,committed:false})
         try{
@@ -860,6 +868,32 @@ async function runDialogueTurn({run,staged,context,signal,emit}:EngineInput,capa
             &&!savingRelated.test(current.content)&&!savingRelated.test(result.reply)
           if(!(error instanceof HttpError)||!['PLANNED_ACTION_IS_NOT_EXPERIENCE','SKILL_IS_NOT_EXPERIENCE'].includes(error.code)||!independent)throw error
           staged.audit.push({phase:'coach_optional_candidate_rejected',code:error.code,structural:true,committed:false})
+        }
+      }
+    }
+    {
+      // 确定性目标捕获：模型对复合句的首个决定子句有稳定的漏存倾向
+      // （三轮实测均只存后半句）。显式决定/否定句若未被本轮 growth 引用
+      // 覆盖，由服务器按分句原话补一条 user_reported 目标事实；身份、
+      // 来源、修订与模型写入完全同构。
+      const covered=(quote:string)=>(staged.growth?.changes??[]).some((change:any)=>'source'in change&&typeof change.source?.quote==='string'&&change.source.quote.includes(quote))
+      const decisionClauses=clauseCatalogue.filter(handle=>!handle.interrogative&&!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther
+        &&sentenceIsFirstPersonPublic(clauseCatalogue,handle)
+        &&/我(?:决定|确定|定了|的目标是|想要|打算|不打算|不再|放弃)/.test(handle.text))
+      staged.serverGoals=decisionClauses.filter(handle=>!covered(handle.text)).map(handle=>({text:handle.text,quote:handle.text,messageId:run.source_message_id}))
+      if(staged.serverGoals.length)staged.audit.push({phase:'growth_server_goal_captured',count:staged.serverGoals.length,committed:false})
+    }
+    if(!staged.candidates.length&&contract.capabilities.candidate){
+      // 反述直连：模型把追述写进 feedback 通道时，事件身份仍由服务器判定——
+      // 原始消息里有明确指代且命中既有经历（同一套区别性词元+时间守卫），
+      // 就 staged 一条合并指令，由 finishRun 在事务里落盘。
+      const rawStructural=selectStructuralCandidate(current.content,clauseCatalogue,new Date(current.created_at).toISOString())
+      if(rawStructural){
+        const episodes=(await pool.query("SELECT id, source_quote FROM experiences WHERE user_id=$1 AND status='confirmed'",[run.user_id])).rows
+        const episode=findEpisode(episodes,rawStructural.quote,'','')
+        if(episode){
+          staged.backReferenceMerge={experienceId:String(episode.id),quote:rawStructural.quote,result:rawStructural.content.result,occurredAt:rawStructural.content.occurredAt}
+          staged.audit.push({phase:'coach_candidate_structural',code:'BACK_REFERENCE_STAGED',experienceId:episode.id,committed:false})
         }
       }
     }

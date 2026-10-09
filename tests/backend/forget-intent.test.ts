@@ -121,6 +121,12 @@ function withEngineScenario(name: string, run: (helpers: {
       try { await localEmbedding.close() } catch {}
       for (const table of ['growth_control_requests', 'growth_recommendation_controls', 'growth_source_suppressions', 'growth_item_lineage', 'growth_items', 'growth_revisions', 'growth_operations', 'user_memory_settings']) await pool.query(`DELETE FROM ${table} WHERE user_id=$1`, [user]).catch(() => {})
       await pool.query('DELETE FROM coach_reply_sources WHERE user_id=$1', [user]).catch(() => {})
+      // 无感入库会在含完成行动的轮次自动创建经历，清理需先删经历及其衍生。
+      await pool.query('DELETE FROM experience_theme_links WHERE user_id=$1', [user]).catch(() => {})
+      await pool.query('DELETE FROM user_themes WHERE user_id=$1', [user]).catch(() => {})
+      await pool.query('DELETE FROM experience_revisions WHERE user_id=$1', [user]).catch(() => {})
+      await pool.query('DELETE FROM experience_links WHERE user_id=$1', [user]).catch(() => {})
+      await pool.query('DELETE FROM experiences WHERE user_id=$1', [user]).catch(() => {})
       await pool.query('DELETE FROM runs WHERE user_id=$1', [user])
       await pool.query('DELETE FROM messages WHERE user_id=$1', [user])
       await pool.query('DELETE FROM conversations WHERE user_id=$1', [user])

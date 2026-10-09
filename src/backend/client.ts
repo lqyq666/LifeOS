@@ -40,8 +40,8 @@ export async function loadWorkspace(user:SessionUser,current?:Workspace):Promise
   void user
   return {version:1,projects:validProjects,chats,activeId:chats.some(c=>c.id===current?.activeId)?current!.activeId:chats[0].id}
 }
-export async function streamChat(conversationId:string,requestId:string,text:string,signal:AbortSignal,onEvent:(event:any)=>void){
-  const response=await fetch('/api/conversations/'+conversationId+'/messages',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({requestId,text}),signal})
+export async function streamChat(conversationId:string,requestId:string,text:string,signal:AbortSignal,onEvent:(event:any)=>void,focusContext?:{type:'theme'|'experience';id:string;label:string}){
+  const response=await fetch('/api/conversations/'+conversationId+'/messages',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({requestId,text,...(focusContext?{focusContext}:{})}),signal})
   if(!response.ok)throw await responseError(response)
   if(!response.body)throw new ApiError('MISSING_STREAM',502)
   const reader=response.body.getReader(),decoder=new TextDecoder();let pending='',finished=false

@@ -11,6 +11,7 @@ import { redactDirectionControlsForMessages } from './growth-controls.ts'
 import type { GrowthItem, GrowthRef, GrowthView } from '../src/features/growth/types.ts'
 import type { GrowthDelta,ResolvedGrowthDelta } from './growth-model-contracts.ts'
 import type { Run } from './store.ts'
+import { reconcileThemesWithGrowth, projectUserThemes } from './user-themes.ts'
 
 type DB = Pick<PoolClient, 'query'>
 type Row = { id: string; user_id: string; conversation_id: string; kind: GrowthItem['kind']; text: string; assertion: GrowthItem['assertion']; status: GrowthItem['status']; sources: GrowthItem['sources']; dependencies: GrowthRef[]; valid_until: Date | null; valid_from: Date | null; time_basis: Record<string, unknown> | null; direction_scopes: string[] | null; structured_plan: Record<string, unknown> | null; revision: number; created_at: Date; updated_at: Date; limitation?:string;progress_state?:GrowthItem['progressState'] }
@@ -115,6 +116,8 @@ export async function createGrowthItem(user: string, raw: GrowthCreate): Promise
     const row = (await c.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,valid_until,progress_state,time_basis) VALUES($1,$2,$3,$4,$5,$6,'active',$7,$8,$9,$10,$11) RETURNING *", [randomUUID(), user, input.conversationId, input.kind, input.text, input.kind === 'unknown' ? 'unknown' : 'user_edit', JSON.stringify([{ type: 'user_edit', quote: input.text }]), JSON.stringify(input.dependencies ?? []), validUntil,input.kind==='feedback'?input.progressState??'unknown':null,validUntil?JSON.stringify({kind:'user_edit',zone:'Asia/Shanghai',anchor:new Date().toISOString()}):null])).rows[0] as Row
     await record(c, row, 'create')
     await c.query('INSERT INTO growth_operations(user_id,request_id,fingerprint,item_id) VALUES($1,$2,$3,$4)', [user, input.requestId, hash, row.id])
+    await projectUserThemes(c, user, [{ id: row.id, kind: row.kind, text: row.text, assertion: row.assertion, status: row.status }])
+    await reconcileThemesWithGrowth(c, user)
     return item(row)
   })
 }
@@ -192,6 +195,7 @@ export async function applyGrowthAction(c: PoolClient, user: string, id: string,
     }
     await record(c, updated, input.action)
     await c.query('INSERT INTO growth_operations(user_id,request_id,fingerprint,item_id) VALUES($1,$2,$3,$4)', [user, input.requestId, hash, id])
+    await reconcileThemesWithGrowth(c, user)
     return item(updated)
   }
 }

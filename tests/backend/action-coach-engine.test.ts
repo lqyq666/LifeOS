@@ -465,8 +465,8 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       const result=await engine(input)
       assert.equal(requests.length-before,1);assert.equal(input.staged.candidates.length,1)
       await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
-      const candidate=(await pool.query('SELECT status FROM experiences WHERE request_id=$1',[input.run.request_id])).rows[0]
-      assert.equal(candidate.status,'candidate')
+      const candidate=(await pool.query('SELECT status, confirm_source FROM experiences WHERE request_id=$1',[input.run.request_id])).rows[0]
+      assert.equal(candidate.status,'confirmed');assert.equal(candidate.confirm_source,'auto')
     })
     await t.test('ordinary listening makes exactly one call and writes no forced business object',async()=>{
       const before=requests.length,input=await prepare('我今天只想倾听，不想复盘或做计划。')
