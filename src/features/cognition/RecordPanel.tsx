@@ -35,8 +35,12 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
   ] as const
   const content = (key: typeof fields[number]['key']) => draft[key] ?? node[key]
   const summary = draft.summary || node.summary || ''
-  const displaySummary = !draft.summary && node.contentStatus === 'draft_summary' ? `${summary.split('；')[0].replace(/。$/, '')}。` : summary
-  const evidence = [...new Set(edge?.sourceEvidence ?? [])]
+  // 每个节点只保留对当次对话的总体总结：原话+结果浓缩为最多两句、约120字。
+  const overallSummary = (() => {
+    const parts = [summary, content('result')].filter(Boolean).join('。').replace(/。。+/g, '。')
+    const sentences = parts.split(/(?<=[。！？])/).slice(0, 2).join('')
+    return sentences.length > 120 ? sentences.slice(0, 118).replace(/[，、；\s]+$/, '') + '…' : sentences
+  })()
   const cancel = () => { setEditing(false); setNotice(''); requestAnimationFrame(() => edit.current?.focus()) }
   const startEdit = () => {
     const next = { ...draft, summary, ...Object.fromEntries(fields.map(field => [field.key, content(field.key) ?? ''])) }
@@ -99,7 +103,6 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
         {error && <p className="storage-error" role="alert">{error}</p>}
         {editing ? <form id="record-edit-form" className="record-editor" onSubmit={event => { event.preventDefault(); void save() }}>
           <label htmlFor="record-summary">经历</label><textarea id="record-summary" maxLength={4000} value={form.summary ?? ''} onChange={e => setForm({ ...form, summary: e.target.value })} />
-          <label htmlFor="record-reflection">反思</label><textarea id="record-reflection" maxLength={4000} value={form.reflection ?? ''} onChange={e => setForm({ ...form, reflection: e.target.value })} />
           {live && <button type="button" disabled={saving} onClick={async () => {
             setSaving(true)
             try { await api('/api/experiences/' + node.serverId + '/actions', { requestId: crypto.randomUUID(), expectedRevision: revision.current, action: 'delete' }); dataChanged(); onBack() }
@@ -119,14 +122,11 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
             if (node.serverId) sessionStorage.setItem('lifeos:focus-context', JSON.stringify({ type: 'experience', id: node.serverId, label: node.title.slice(0, 80) }))
             window.dispatchEvent(new CustomEvent('lifeos-open-conversation'))
           }}>继续聊这件事</button>）</p>}
-          {displaySummary && <p className="record-summary">{displaySummary}</p>}
-          {fields.slice(1, 3).filter(field => content(field.key)).map(field => <section className="record-story" key={field.key}><h3>{field.label}</h3><p>{content(field.key)}</p></section>)}
-          <section className="record-story record-story-reflection" aria-label="反思"><h3>反思</h3>{content('reflection') ? <p>{content('reflection')}</p> : <p className="record-story-empty">还没有反思。点右上角「编辑」，写下这段经历让你看到了什么。</p>}</section>
+          <section className="record-story record-story-summary" aria-label="本次对话总结"><h3>本次对话总结</h3><p>{overallSummary}</p></section>
           {originalValues.length > 0 && <section className="interpretation" aria-label="关联解释"><h3>关联</h3>
             {values.length > 1 ? <div className="angle-options" role="group" aria-label="选择关联角度">{values.map(id => <button key={id} aria-pressed={angleId === id} onClick={() => controller.changeAngle(id)}>{graph.getNode(id)?.title}</button>)}</div> : values.length === 1 && <p className="single-value">{graph.getNode(values[0])?.title}</p>}
             {values.length && edge ? <p className="relation-reason">{review?.editedReason ?? edge.reason}</p> : <p className="relation-empty">暂无关联</p>}
           </section>}
-          {(draft.source || evidence.length > 0) && <section className="record-source"><h3>依据</h3>{draft.source && <p>{draft.source}</p>}{evidence.map(source => <p key={source}>{source}</p>)}</section>}
         </>}
         {notice && <p className="record-notice" role="status">{notice}</p>}
       </main>
