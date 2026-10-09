@@ -16,6 +16,7 @@ import { derivePatternProposals } from './experience-patterns.ts'
 import { findEpisode, mergeContent } from './experience-episodes.ts'
 import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth } from './user-themes.ts'
 import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction } from './identity.ts'
+import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -414,8 +415,9 @@ export async function cognitionGraph(user:string) {
   const claims=(await pool.query("SELECT text, origin, confirmed_by_user FROM identity_claims WHERE user_id=$1 AND status='active' ORDER BY updated_at DESC LIMIT 4",[user])).rows
   const accepted=claims.filter(c=>c.confirmed_by_user).map(c=>c.text)
   const observations=claims.filter(c=>!c.confirmed_by_user).map(c=>c.text)
-  const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[])]
-  const self={...selfRow,description:selfDescriptionParts.join('\n')||selfRow.description,identityAccepted:accepted,identityObservations:observations} as any
+  const skillTagList = await readSkillTags(pool, user)
+  const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[]),...(skillTagList.length?[`有能力证据的：${skillTagList.map(t=>`${t.tag}(${t.count}段)`).join('、')}`]:[])]
+  const self={...selfRow,description:selfDescriptionParts.join('\n')||selfRow.description,identityAccepted:accepted,identityObservations:observations,skillTags:skillTagList} as any
   const changeEvents=(await pool.query("SELECT subject_type,subject_id,transition,reason,committed_at,user_confirmation,unknowns FROM identity_change_events WHERE user_id=$1 ORDER BY committed_at DESC LIMIT 12",[user])).rows
   // “下一步”只来自当前有效事实：最旧的进行中追求或最新行动重点；没有就空。
   const nextStepRow=(await pool.query("SELECT title FROM user_themes WHERE user_id=$1 AND status='active' ORDER BY pinned DESC, updated_at DESC LIMIT 1",[user])).rows[0]
@@ -433,7 +435,11 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
   }
   for(const e of experiences){
     const id='exp-'+e.id
-    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id} as any)
+    const expAction = String(e.content?.action ?? ''), expResult = String(e.content?.result ?? ''), expSummary = String(e.content?.summary ?? '')
+    const expBlocked = isBlockedExperience(expAction, expResult, e.source_quote ?? '')
+    const expExternal = isExternalFeedback(expResult, e.source_quote ?? '')
+    const expSkills = extractSkillTags(expAction, expResult, expSummary)
+    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,skillTags:expSkills} as any)
   }
   const themeLinks=(await pool.query("SELECT * FROM experience_theme_links WHERE user_id=$1 AND status='active'",[user])).rows
   const nodeIds=new Set(nodes.map(n=>n.id))

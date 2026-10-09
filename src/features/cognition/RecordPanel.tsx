@@ -122,7 +122,12 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
             if (node.serverId) sessionStorage.setItem('lifeos:focus-context', JSON.stringify({ type: 'experience', id: node.serverId, label: node.title.slice(0, 80) }))
             window.dispatchEvent(new CustomEvent('lifeos-open-conversation'))
           }}>继续聊这件事</button>）</p>}
-          <section className="record-story record-story-summary" aria-label="本次对话总结"><h3>本次对话总结</h3><p>{overallSummary}</p></section>
+          <section className="record-story record-story-summary" aria-label="本次对话总结"><h3>本次对话总结</h3><p>{overallSummary}</p>
+          <div className="record-badges">
+            {Array.isArray((node as any)?.skillTags) && (node as any).skillTags.length > 0 && <span className="record-badge is-skill">{(node as any).skillTags.join(' · ')}</span>}
+            {(node as any)?.blocked && <span className="record-badge is-blocked">未完成</span>}
+            {(node as any)?.externalFeedback && <span className="record-badge is-external">含他人反馈</span>}
+          </div></section>
           {originalValues.length > 0 && <section className="interpretation" aria-label="关联解释"><h3>关联</h3>
             {values.length > 1 ? <div className="angle-options" role="group" aria-label="选择关联角度">{values.map(id => <button key={id} aria-pressed={angleId === id} onClick={() => controller.changeAngle(id)}>{graph.getNode(id)?.title}</button>)}</div> : values.length === 1 && <p className="single-value">{graph.getNode(values[0])?.title}</p>}
             {values.length && edge ? <p className="relation-reason">{review?.editedReason ?? edge.reason}</p> : <p className="relation-empty">暂无关联</p>}

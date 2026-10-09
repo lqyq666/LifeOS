@@ -57,6 +57,9 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
             return <div key={id} className="theme-experience-block">
               <p className="theme-experience">{experience?.title}{edge && RELATION_LABELS[edge.status] ? <span className="theme-relation"> · {RELATION_LABELS[edge.status]}</span> : null}{(edge as any)?.confirmed ? <span className="theme-confirmed"> · 已确认</span> : <span className="theme-candidate"> · 待核对</span>}</p>
               {edge?.reason ? <span className="theme-evidence">为什么这样连线：{edge.reason}</span> : null}
+              {Array.isArray((experience as any)?.skillTags) && (experience as any).skillTags.length > 0 && <span className="theme-skills">能力证据：{(experience as any).skillTags.join('、')}</span>}
+              {(experience as any)?.blocked && <span className="theme-blocked-tag">未完成</span>}
+              {(experience as any)?.externalFeedback && <span className="theme-external-tag">外部反馈</span>}
               {edge && (edge as any).sourceEvidence?.length ? <span className="theme-evidence">来源原话：「{(edge as any).sourceEvidence[0]}」</span> : null}
               {experience?.serverId && node.themeId && <div className="theme-link-actions">
                 {!(edge as any)?.confirmed && <button type="button" disabled={busy} onClick={() => void actLink(experience.serverId!, node.themeId!, 'confirm')}>确认连线</button>}

@@ -151,3 +151,48 @@
 
 .timeaxis-before { display: block; color: #9d93b2; margin-top: 1px; }
 .timeaxis-unknowns { display: block; color: #7a90a8; margin-top: 1px; }
+
+/* ── 类别色彩体系（贯穿星图所有界面）──
+   主题=紫  经历完成=蓝  卡住=橙  外部反馈=青  能力证据=绿 */
+:root {
+  --node-theme: #b89ad6;
+  --node-experience: #7ba7d4;
+  --node-blocked: #e8a04c;
+  --node-external: #5cc8d4;
+  --node-skill: #7ed491;
+}
+
+/* 记录面板徽章 */
+.record-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.record-badge { font-size: 11px; padding: 3px 10px; border-radius: 999px; }
+.record-badge.is-skill { background: #15271c; color: var(--node-skill); border: 1px solid #2a4a34; }
+.record-badge.is-blocked { background: #2a2318; color: var(--node-blocked); border: 1px solid #4a3a24; }
+.record-badge.is-external { background: #1a2830; color: var(--node-external); border: 1px solid #24404a; }
+
+/* 主题面板标签 */
+.theme-skills { display: block; font-size: 12px; color: var(--node-skill); margin-top: 3px; }
+.theme-blocked-tag { display: inline-block; font-size: 10px; padding: 1px 8px; border-radius: 6px; background: #2a2318; color: var(--node-blocked); margin-left: 6px; }
+.theme-external-tag { display: inline-block; font-size: 10px; padding: 1px 8px; border-radius: 6px; background: #1a2830; color: var(--node-external); margin-left: 6px; }
+
+/* 星图标签按类别着色 */
+.node-label[data-category="blocked"] { color: var(--node-blocked); }
+.node-label[data-category="skill"] { color: var(--node-skill); }
+.node-label[data-category="external"] { color: var(--node-external); }
+
+/* 主题节点标签 */
+.node-label[data-type="value"] { color: var(--node-theme); }
+
+/* ── 类别闪烁（新节点出现时短暂脉冲，reduced-motion 降级为无动画）── */
+@keyframes node-pulse-skill { 0%,100% { box-shadow: 0 0 4px var(--node-skill); } 50% { box-shadow: 0 0 14px var(--node-skill); } }
+@keyframes node-pulse-blocked { 0%,100% { box-shadow: 0 0 4px var(--node-blocked); } 50% { box-shadow: 0 0 14px var(--node-blocked); } }
+@keyframes node-pulse-external { 0%,100% { box-shadow: 0 0 4px var(--node-external); } 50% { box-shadow: 0 0 14px var(--node-external); } }
+@keyframes node-pulse-theme { 0%,100% { box-shadow: 0 0 4px var(--node-theme); } 50% { box-shadow: 0 0 14px var(--node-theme); } }
+@keyframes node-pulse-experience { 0%,100% { box-shadow: 0 0 4px var(--node-experience); } 50% { box-shadow: 0 0 14px var(--node-experience); } }
+
+.record-badge.is-skill { animation: node-pulse-skill 2.4s ease-in-out; }
+.record-badge.is-blocked { animation: node-pulse-blocked 2.4s ease-in-out; }
+.record-badge.is-external { animation: node-pulse-external 2.4s ease-in-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .record-badge.is-skill, .record-badge.is-blocked, .record-badge.is-external { animation: none; }
+}

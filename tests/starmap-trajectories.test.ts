@@ -205,3 +205,20 @@ test('G5 compound: 先有经历后成主题的回填、身份自述后否定、�
   compound.say('这学期不再熬夜赶工')
   assert.ok(compound.themes.some(t => t.kind === 'exploration') && compound.themes.some(t => t.title.includes('熬夜')), '自媒体 exploration 与 休息 boundary pursuit 并存')
 })
+
+test('starmap enrichment: skill tags, blocked detection, external feedback', async () => {
+  const { extractSkillTags, isBlockedExperience, isExternalFeedback } = await import('../server/starmap-enrichment.ts')
+  // 技能标签：从行动/结果原话提取
+  assert.deepEqual(extractSkillTags('我设计了一套海报', '', '设计海报'), ['设计'])
+  assert.deepEqual(extractSkillTags('我写了Python爬虫', '', ''), ['写作', '编程', '数据分析'])
+  assert.deepEqual(extractSkillTags('我去食堂吃了饭', '', '吃饭'), [])
+  // 未完成识别
+  assert.equal(isBlockedExperience('', '', '实验报告还没写完，卡在数据分析'), true)
+  assert.equal(isBlockedExperience('完成了实验报告', '通过了', ''), false)
+  assert.equal(isBlockedExperience('交了海报', '部长说不错', '上周交了海报'), false)
+  // 外部反馈
+  assert.equal(isExternalFeedback('部长说整体效果还不错', ''), true)
+  assert.equal(isExternalFeedback('', '导师夸了我'), true)
+  assert.equal(isExternalFeedback('我觉得做得不错', ''), false)
+  assert.equal(isExternalFeedback('自己感觉还行', ''), false)
+})
