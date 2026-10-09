@@ -9,7 +9,7 @@ import { ControlCards } from './ControlCards'
 import { ReplyMarkdown } from './ReplyMarkdown'
 import { GrowthWorkspace } from '../growth/GrowthWorkspace'
 import { getAnswerQuestion, type AnswerOption } from './choices.ts'
-import { WORKSPACE_KEY, chatTitle, newChat, newWorkspace, parseWorkspace, updateChat, type Chat } from './workspace.ts'
+import { WORKSPACE_KEY, chatTitle, newChat, newWorkspace, parseWorkspace, updateChat, type Chat, type Workspace } from './workspace.ts'
 import { WorkspaceSidebar } from './WorkspaceSidebar'
 import { WorkspaceIcon as Icon } from './WorkspaceIcon'
 import { useVoiceInput } from './useVoiceInput'
@@ -82,17 +82,27 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
       let cached
       try { const raw = localStorage.getItem(WORKSPACE_KEY + '.' + nextUser.id); cached = raw ? parseWorkspace(raw) : undefined }
       catch { if (!cancelled) { setCacheBlocked(true); setStorageNotice('账户草稿未能读取，原保存数据没有被覆盖。') } }
-      const next = await loadWorkspace(nextUser, cached)
+      const next = applyPendingConversation(await loadWorkspace(nextUser, cached))
       if (!cancelled) { setUser(nextUser); setWorkspace(next); setChoicesOpen(false) }
     }).catch(error => { if (!cancelled && !(error instanceof ApiError && error.status === 401)) setNotice(explainError(error)) }).finally(() => { if (!cancelled) setConnecting(false) })
     return () => { cancelled = true; remote.current?.controller.abort() }
   }, [])
+  // Opening a record's source conversation from the star map stashes the id
+  // here; it applies only after the workspace (with all server conversations)
+  // has loaded, and never creates anything.
+  function applyPendingConversation(loaded: Workspace): Workspace {
+    const pending = sessionStorage.getItem('lifeos:pending-conversation')
+    if (!pending) return loaded
+    sessionStorage.removeItem('lifeos:pending-conversation')
+    const chat = loaded.chats.find(item => item.id === pending)
+    return chat ? { ...loaded, activeId: chat.id } : loaded
+  }
   async function loggedIn() {
     const nextUser = await api<SessionUser>('/api/session')
     let cached
     try { const raw = localStorage.getItem(WORKSPACE_KEY + '.' + nextUser.id); cached = raw ? parseWorkspace(raw) : undefined; setCacheBlocked(false) }
     catch { setCacheBlocked(true) }
-    const next = await loadWorkspace(nextUser, cached)
+    const next = applyPendingConversation(await loadWorkspace(nextUser, cached))
     setWorkspace(next); setUser(nextUser); setChoicesOpen(false); setNotice(''); dataChanged()
   }
   useEffect(() => {

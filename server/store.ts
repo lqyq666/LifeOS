@@ -12,6 +12,7 @@ import { assertGrowthSnapshot, persistGrowthUpdates, type GrowthStaged } from '.
 import { persistDirectionControls, readDirectionControls, directionControlsSnapshotKey, type PreparedDirectionControls } from './growth-controls.ts'
 import { persistMemoryControl, persistPendingControlRequest, type MemoryControlReceipt, type PendingMemoryControl, type StagedMemoryControl } from './memory-controls.ts'
 import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
+import { derivePatternProposals } from './experience-patterns.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -39,7 +40,7 @@ export async function decisionVersions(user:string,conversation:string) {
 }
 export async function listExperiences(user:string,conversation?:string) {
   if (conversation) requireRow((await pool.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2',[user,conversation])).rows[0])
-  const rows = (await pool.query('SELECT e.*, m.content AS source_text FROM experiences e JOIN messages m ON m.user_id=e.user_id AND m.id=e.source_message_id WHERE e.user_id=$1 AND e.status<>\'deleted\' AND ($2::uuid IS NULL OR e.conversation_id=$2) ORDER BY e.updated_at DESC,e.id',[user,conversation??null])).rows
+  const rows = (await pool.query('SELECT e.*, m.content AS source_text, c.title AS conversation_title FROM experiences e JOIN messages m ON m.user_id=e.user_id AND m.id=e.source_message_id JOIN conversations c ON c.user_id=e.user_id AND c.id=e.conversation_id WHERE e.user_id=$1 AND e.status<>\'deleted\' AND ($2::uuid IS NULL OR e.conversation_id=$2) ORDER BY e.updated_at DESC,e.id',[user,conversation??null])).rows
   const links = (await pool.query('SELECT * FROM experience_links WHERE user_id=$1',[user])).rows
   return rows.map(e=>({ ...e, links: links.filter(link=>link.experience_id===e.id) }))
 }
@@ -129,6 +130,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       for(const link of candidate.links)await c.query('INSERT INTO experience_links(user_id,experience_id,value_id,reason,disposition) VALUES($1,$2,$3,$4,\'proposed\')',[run.user_id,id,link.valueId,link.reason])
       await c.query('INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,1,\'propose\',$3),($1,$2,2,\'confirm\',\'{"auto":true}\'::jsonb)',[run.user_id,id,{content,status:'confirmed',source:candidate}])
     }
+    for(const id of candidateIds)await proposeExperiencePatterns(c,run.user_id,id)
     for(const ref of knowledgeRefs)await c.query('INSERT INTO coach_reply_sources(user_id,request_id,source_id,revision) VALUES($1,$2,$3,$4)',[run.user_id,run.request_id,ref.sourceId,ref.revision])
     const coach=staged.coach?await persistCoachEvent(c,run,staged.coach):null
     const growth=staged.growth?await persistGrowthUpdates(c,run,staged.growth):null
@@ -231,13 +233,32 @@ export async function experienceAction(user:string,id:string,input:ExperienceAct
     return updated
   })
 }
+// 行为模式生成：同类已确认经历≥2段且新经历参与时，提出一条待核对观察。
+// 已存在同 behaviorKey 的候选（pending/accepted）不重提；被拒绝过的读法不再出现。
+async function proposeExperiencePatterns(c: PoolClient, user: string, newExperienceId: string) {
+  const rows = (await c.query(`SELECT e.id, e.revision, e.conversation_id, e.source_message_id, e.source_quote, e.content, array_remove(array_agg(l.value_id) FILTER (WHERE l.disposition <> 'rejected'), NULL) AS value_ids FROM experiences e LEFT JOIN experience_links l ON l.user_id = e.user_id AND l.experience_id = e.id WHERE e.user_id = $1 AND e.status = 'confirmed' GROUP BY e.id`, [user])).rows
+  const experiences = rows.map((row: any) => ({
+    id: row.id, revision: row.revision, conversationId: row.conversation_id, sourceMessageId: row.source_message_id,
+    quote: row.source_quote, action: String(row.content?.action ?? ''), result: String(row.content?.result ?? ''), valueIds: row.value_ids ?? [],
+  }))
+  for (const proposal of derivePatternProposals(experiences, newExperienceId)) {
+    const existing = (await c.query(`SELECT 1 FROM memory_items WHERE user_id = $1 AND kind = 'pattern_candidate' AND value->>'behaviorKey' = $2`, [user, proposal.behaviorKey])).rowCount
+    if (existing) continue
+    await c.query(`INSERT INTO memory_items(id, user_id, kind, value, assertion, scope, source_refs, observed_at, valid_from, status) VALUES($1, $2, 'pattern_candidate', $3, 'system_pattern_candidate', 'user', $4, now(), now(), 'pending')`, [
+      randomUUID(), user,
+      JSON.stringify({ behaviorKey: proposal.behaviorKey, context: proposal.context, behavior: proposal.behavior, outcome: proposal.outcome, limitations: proposal.limitations }),
+      JSON.stringify(proposal.supporting.map(experience => ({ type: 'experience', experienceId: experience.id, revision: experience.revision, conversationId: experience.conversationId, messageId: experience.sourceMessageId, quote: experience.quote }))),
+    ])
+  }
+}
+
 export async function cognitionGraph(user:string) {
   const experiences=(await listExperiences(user)).filter(e=>e.status==='confirmed')
   const nodes=seed.nodes.filter(n=>n.type!=='experience').map(n=>({...n,description:n.type==='value'?'经历浏览分类；不是永久价值观认定':n.description}))
   const edges=seed.edges.filter(e=>e.type==='HAS_VALUE').map(e=>({...e,status:'category',reason:'浏览分类，不代表已确认的永久价值观',sourceEvidence:[]}))
   for(const e of experiences){
     const id='exp-'+e.id
-    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision} as any)
+    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,conversationId:e.conversation_id,conversationTitle:e.conversation_title} as any)
     for(const link of e.links.filter((l:any)=>l.disposition!=='rejected'))edges.push({id:'rel-'+e.id+'-'+link.value_id,type:'RELATES_TO_VALUE',sourceId:id,targetId:link.value_id,reason:link.reason,status:link.disposition,sourceEvidence:[e.source_quote],confidence:null} as any)
   }
   return {...seed,purpose:'当前登录用户的正式经历；价值节点仅作浏览分类',notice:'经历由对话自动收入星图，可随时修改或删除；价值分类是可调整的建议，不是永久价值观认定。',nodes,edges,

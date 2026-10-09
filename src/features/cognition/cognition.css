@@ -54,6 +54,9 @@
 .record-content p { margin: 0; font-size: 16px; font-weight: 400; line-height: 1.85; white-space: pre-line; overflow-wrap: anywhere; text-wrap: pretty; }
 .record-content .record-summary { margin-top: 20px; color: #d1cbdc; }
 .record-content .record-date { margin-top: 12px; font-size: 13px; color: #aaa0bd; }
+.record-content .record-conversation { margin-top: 6px; font-size: 13px; color: #9d93b2; }
+.record-content .record-conversation button { border: 0; padding: 0; background: none; color: #c3a8f4; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.record-content .record-conversation button:hover { color: #dcc3ff; }
 .record-content h3 { margin: 0 0 10px; font-size: 13px; line-height: 1.6; color: #aea3c4; font-weight: 400; }
 .record-story { margin-top: 24px; }
 .record-story p { color: #d1cbdc; }

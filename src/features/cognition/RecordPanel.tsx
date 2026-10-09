@@ -107,6 +107,11 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
           }}>删除经历</button>}
         </form> : <>
           {content('occurredAt') && <p className="record-date">{content('occurredAt')}</p>}
+          {node.conversationId && node.conversationTitle && <p className="record-conversation">来自对话：{node.conversationTitle}（<button type="button" onClick={() => {
+            onBack()
+            sessionStorage.setItem('lifeos:pending-conversation', node.conversationId!)
+            window.dispatchEvent(new CustomEvent('lifeos-open-conversation'))
+          }}>打开原对话</button>）</p>}
           {displaySummary && <p className="record-summary">{displaySummary}</p>}
           {fields.slice(1, 3).filter(field => content(field.key)).map(field => <section className="record-story" key={field.key}><h3>{field.label}</h3><p>{content(field.key)}</p></section>)}
           <section className="record-story record-story-reflection" aria-label="反思"><h3>反思</h3>{content('reflection') ? <p>{content('reflection')}</p> : <p className="record-story-empty">还没有反思。点右上角「编辑」，写下这段经历让你看到了什么。</p>}</section>

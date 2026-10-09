@@ -117,6 +117,19 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     window.addEventListener('hashchange', changed)
     return () => window.removeEventListener('hashchange', changed)
   }, [controller])
+  // A record on the star map can point back at the conversation it came from;
+  // the pending id itself is consumed by ConversationPage after its workspace
+  // loads, so drafts and remote state are merged before the switch.
+  useEffect(() => {
+    const open = () => {
+      controller.stop()
+      window.history.pushState(null, '', '#conversation')
+      setConversationVisited(true)
+      setConversationOpen(true)
+    }
+    window.addEventListener('lifeos-open-conversation', open)
+    return () => window.removeEventListener('lifeos-open-conversation', open)
+  }, [controller])
   useEffect(() => {
     try { controller.update({ reviews: parseReviews(localStorage.getItem(REVIEW_KEY)) }) }
     catch { controller.update({ storageError: '本地校准记录无法读取，当前显示原始候选解释。未覆盖原有保存数据。' }) }
