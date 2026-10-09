@@ -8,7 +8,6 @@ import { AutoTextarea } from './AutoTextarea'
 import { MemoryPanel } from './MemoryPanel'
 import { ControlCards } from './ControlCards'
 import { ReplyMarkdown } from './ReplyMarkdown'
-import { GrowthWorkspace } from '../growth/GrowthWorkspace'
 import { getAnswerQuestion, type AnswerOption } from './choices.ts'
 import { WORKSPACE_KEY, chatTitle, newChat, newWorkspace, parseWorkspace, updateChat, type Chat, type Workspace } from './workspace.ts'
 import { WorkspaceSidebar } from './WorkspaceSidebar'
@@ -22,7 +21,6 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   const dialog = useRef<HTMLDialogElement>(null)
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [memoryOpen, setMemoryOpen] = useState(false)
-  const [growthOpen, setGrowthOpen] = useState(false)
   const input = useRef<HTMLTextAreaElement>(null)
   const scroll = useRef<HTMLDivElement>(null)
   const follow = useRef(true)
@@ -365,7 +363,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   function openProject(id: string) { voice.cancel(); setSummaryOpen(false); setProjectId(id); setNotice(''); if (mobile) closeSidebar() }
   const voiceButton = <button type="button" className={'qa-voice qa-icon-button' + (voice.listening ? ' is-listening' : '')} onClick={voice.toggle} disabled={busy} aria-label={voice.listening ? '结束语音输入' : '语音输入'} aria-pressed={voice.listening} title="浏览器语音识别 · 仅填入草稿，可能使用在线识别服务"><Icon name={voice.listening ? 'stop' : 'mic'} size={18} /></button>
 
-  return <dialog ref={dialog} tabIndex={-1} className="qa-page" aria-label="LifeOS 聊一聊" onCancel={event => { event.preventDefault(); if (mobile && sidebarOpen) closeSidebar(); else if (growthOpen) setGrowthOpen(false); else onClose() }}>
+  return <dialog ref={dialog} tabIndex={-1} className="qa-page" aria-label="LifeOS 聊一聊" onCancel={event => { event.preventDefault(); if (mobile && sidebarOpen) closeSidebar(); else onClose() }}>
     <div className="qa-app-layout">
       <WorkspaceSidebar workspace={workspace} busy={busy || connecting} accountConnected={!!user} open={sidebarOpen} mobile={mobile} projectId={projectId} onClose={closeSidebar} onExit={onClose} onSelect={selectChat} onProject={openProject} onNew={createChat} onChat={patchChat}
         onSaveProject={(id, name, description) => {
@@ -380,13 +378,11 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
           {project ? <span className="qa-context-title">{project.name}</span> : <><button type="button" className="qa-context-project" disabled={busy} onClick={() => currentProject ? openProject(currentProject.id) : onClose()}>{currentProject?.name ?? 'LifeOS'}</button><span className="qa-context-divider">/</span><span className="qa-context-title">{active.title}</span></>}
         </div>
         <div className="qa-header-actions">
-          {user && !project && <button type="button" disabled={busy} aria-expanded={growthOpen} onClick={() => { voice.cancel(); setSummaryOpen(false); setGrowthOpen(value => !value) }}>我的成长</button>}
           {user ? <button type="button" disabled={busy} onClick={() => void logout()} title={user.email}>退出登录</button> : <button type="button" disabled={connecting} onClick={() => onRequestAuth(loggedIn)}>登录</button>}
           {!empty && !project && <button type="button" onClick={fresh} disabled={busy}>新对话</button>}
           <button type="button" className="qa-space-return" onClick={onClose} aria-label="回到认知空间"><Icon name="orbit" /><span>认知空间</span></button>
         </div>
       </header>
-      {growthOpen && user && !project && <GrowthWorkspace conversationId={active.id} conversationTitle={active.title} onClose={() => setGrowthOpen(false)} />}
       {memoryOpen && user && !project && <MemoryPanel conversationId={!empty&&!conversation.demo?active.id:undefined} messageCount={conversation.messages.length} onClose={() => setMemoryOpen(false)} />}
       {storageNotice && <p className="qa-storage-notice" role="alert">{storageNotice}</p>}
       {starMapUpdate && !busy && <button type="button" className="qa-starmap-chip" onClick={onClose}>✦ {starMapUpdate} · 查看星图</button>}
@@ -400,7 +396,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
           {!workspace.chats.some(chat => chat.projectId === project.id) && <div className="qa-project-empty"><Icon name="compose" size={24} /><p>还没有对话</p><span>从一件想理清的事开始。</span></div>}
         </section>
       </main> : <>
-      <div hidden={summaryOpen || (growthOpen && !!user)} className={`qa-workspace ${empty ? 'is-empty' : ''} ${showChoices ? 'has-choices' : ''}`}>
+      <div hidden={summaryOpen} className={`qa-workspace ${empty ? 'is-empty' : ''} ${showChoices ? 'has-choices' : ''}`}>
         <div className="qa-scroll" ref={scroll} onScroll={() => {
           const element = scroll.current
           if (element) follow.current = element.scrollHeight - element.scrollTop - element.clientHeight < 100
@@ -418,7 +414,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
             </article>)}
             {busy && <div className="qa-thinking" role="status"><Companion motion={companionMotion} animated={open && !summaryOpen} /><span>{companionMotion === 'received' ? '收到你的想法' : '整理中'}</span>{remote.current && <button type="button" onClick={() => void cancelRemote()}>取消</button>}</div>}
           </div>}
-          {!conversation.demo && user && !summaryOpen && !growthOpen && !busy && <ControlCards conversationId={active.id} refreshKey={controlRefresh} onResolved={() => setControlRefresh(value => value + 1)} />}
+          {!conversation.demo && user && !summaryOpen && !busy && <ControlCards conversationId={active.id} refreshKey={controlRefresh} onResolved={() => setControlRefresh(value => value + 1)} />}
         </div>
 
         <div className="qa-bottom">
