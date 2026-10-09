@@ -68,7 +68,7 @@ const PAST_EVENT_OPEN = /^(?:上周|上个月|上月|昨天|前天|上次|之前
 const THIRD_PARTY = /(?:他|她|它)(?:说|打算|想|决定|要)|室友说|同学说|朋友说|别人|老师说|父母说|爸妈说|大家|周围人|他们/
 // 主题必须带有意图词：目标/想要/打算/不再……。模型的 feedback/direction
 // 误分类（"部长说效果还不错"）没有意图词，进不了主题。
-const INTENT_MARKER = /(?:想|要|打算|准备|希望|计划|决定|争取|目标|重点|优先|不再|不想|追求|放第一|第一位|以.{0,4}为主)/
+const INTENT_MARKER = /(?:想|要|打算|准备|希望|计划|决定|争取|目标|重点|优先|不再|不想|追求|放第一|第一位|以.{0,4}为主|觉得.{0,8}适合|觉得自己.{0,8}适合|适合做)/
 const normalize = (text: string) => text.replace(WISH_PREFIX, '').replace(/[\s，。、！？?！,.\-—]/g, '')
 
 export type ThemeCandidate = { kind: ThemeKind; title: string; sourceGrowthId: string; quote: string }

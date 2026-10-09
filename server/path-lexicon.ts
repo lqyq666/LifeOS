@@ -12,7 +12,7 @@ export type PathTheme = {
 export const PATH_THEMES: PathTheme[] = [
   { title: '考研', kind: 'pursuit', words: ['考研', '政治', '英语一', '专业课', '真题', '复习', '数学一', '本校', '考上研究生'], description: '备考研究生' },
   { title: '保研', kind: 'pursuit', words: ['保研', '推免', '绩点', 'rank', '综合测评', '科研训练'], description: '保送研究生' },
-  { title: '就业', kind: 'pursuit', words: ['就业', '实习', '简历', '面试', 'offer', '秋招', '春招', '求职', '笔试'], description: '求职就业准备' },
+  { title: '就业', kind: 'pursuit', words: ['就业', '实习', '简历', '面试', 'offer', '秋招', '春招', '求职', '笔试', '产品经理', '运营', '工程师', '设计师', '互联网', '工作'], description: '求职就业准备' },
   { title: '考公', kind: 'exploration', words: ['考公', '公务员', '行测', '申论', '编制', '国考', '省考'], description: '公务员备考' },
   { title: '留学', kind: 'pursuit', words: ['留学', '雅思', '托福', 'GRE', '文书', '套磁', '申请'], description: '出国留学' },
   { title: '创业', kind: 'exploration', words: ['创业', '需求验证', '访谈', '商业计划', '路演', '种子用户', '摆摊'], description: '创业探索' },
