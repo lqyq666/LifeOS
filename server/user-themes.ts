@@ -235,14 +235,29 @@ export async function projectUserThemes(c: PoolClient, user: string, newFacts: r
   return [...new Set(changed)]
 }
 
-// 事务内连线：把（新或合并后的）经历挂到活跃主题上；同一对已存在则跳过。
+// 事务内连线：先用锚词匹配（快），不中时用语义 embedding 兜底（准），
+// 两种方式都不中才不连。语义连线标记 reason 里的分数供面板展示。
 export async function linkExperienceToThemes(c: PoolClient, user: string, experienceId: number | string, experienceText: string, completedAction: boolean): Promise<number> {
   const themes = (await c.query("SELECT id, kind, title FROM user_themes WHERE user_id=$1 AND status IN ('active','pending')", [user])).rows as { id: string; kind: ThemeKind; title?: string }[]
   let linked = 0
   for (const theme of themes) {
-    const relation = relationForExperience(theme, experienceText, completedAction)
+    // 第一步：锚词匹配（已有逻辑）
+    let relation = relationForExperience(theme, experienceText, completedAction)
+    let reason = relation ? `经历原话提到「${relation.token}」` : ''
+    // 第二步：语义匹配兜底（锚词没中时）
+    if (!relation && theme.title) {
+      try {
+        const { semanticMatch } = await import('./semantic-search.ts')
+        const matches = await semanticMatch(theme.title, [experienceText], 0.55)
+        if (matches.length > 0) {
+          const kind = theme.kind
+          relation = { relation: (kind === 'goal' || kind === 'pursuit') && completedAction ? 'acting_toward' : kind === 'exploration' || kind === 'valued_point' ? 'exploring' : 'partial_evidence', token: '' }
+          reason = `语义相关度 ${(matches[0]!.score * 100).toFixed(0)}%`
+        }
+      } catch { /* embedding 服务不可用时跳过语义兜底 */ }
+    }
     if (!relation) continue
-    const result = await c.query(`INSERT INTO experience_theme_links(user_id, experience_id, theme_id, relation, reason) VALUES($1,$2,$3,$4,$5) ON CONFLICT (user_id, experience_id, theme_id) DO NOTHING`, [user, experienceId, theme.id, relation.relation, `经历原话提到「${relation.token}」`])
+    const result = await c.query(`INSERT INTO experience_theme_links(user_id, experience_id, theme_id, relation, reason) VALUES($1,$2,$3,$4,$5) ON CONFLICT (user_id, experience_id, theme_id) DO NOTHING`, [user, experienceId, theme.id, relation.relation, reason])
     if (result.rowCount) linked++
   }
   return linked

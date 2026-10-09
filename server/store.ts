@@ -17,6 +17,7 @@ import { findEpisode, mergeContent } from './experience-episodes.ts'
 import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth } from './user-themes.ts'
 import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction } from './identity.ts'
 import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
+import { buildExperienceRelations } from './starmap-enrichment.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -160,7 +161,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
         mergedExperienceIds.push(String(episode.id))
         continue
       }
-      const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status,confirmed_at,confirm_source,revision) VALUES($1,$2,$3,$4,$5,$6,$7,\'confirmed\',now(),\'auto\',2) ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,candidate.quote,run.request_id,content])
+      const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status,confirmed_at,confirm_source,revision,extraction_source) VALUES($1,$2,$3,$4,$5,$6,$7,\'confirmed\',now(),\'auto\',2) ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,candidate.quote,run.request_id,content])
       if(!inserted.rowCount)continue
       candidateIds.push(id)
       for(const link of candidate.links)await c.query('INSERT INTO experience_links(user_id,experience_id,value_id,reason,disposition) VALUES($1,$2,$3,$4,\'proposed\')',[run.user_id,id,link.valueId,link.reason])
@@ -173,6 +174,11 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     // 主题投影：本轮已提交的 growth 事实（用户亲述的目标/方向/优先级/偏好）
     // 确定性上投影为“我的成长主题”；随后的经历再挂到主题上。同一事务、
     // 零新增模型调用。
+    // P2: 经历间关联——新经历与既有经历建 similar/follows 边
+    for(const id of candidateIds){
+      const row=(await c.query('SELECT source_quote, content FROM experiences WHERE user_id=$1 AND id=$2',[run.user_id,id])).rows[0]
+      if(row)await buildExperienceRelations(c,run.user_id,String(id),row.source_quote+' '+(row.content?.action??'')+' '+(row.content?.result??''))
+    }
     // 确定性目标捕获落盘：未被模型通道覆盖的显式决定句，按原话写入
     // growth（与模型写入同构：user_reported、来源=当轮消息、修订可追溯）。
     const serverGoalIds:string[]=[]
@@ -439,10 +445,16 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
     const expBlocked = isBlockedExperience(expAction, expResult, e.source_quote ?? '')
     const expExternal = isExternalFeedback(expResult, e.source_quote ?? '')
     const expSkills = extractSkillTags(expAction, expResult, expSummary)
-    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,skillTags:expSkills} as any)
+    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,skillTags:expSkills} as any)
   }
   const themeLinks=(await pool.query("SELECT * FROM experience_theme_links WHERE user_id=$1 AND status='active'",[user])).rows
+  const expRelations=(await pool.query("SELECT * FROM experience_relations WHERE user_id=$1 ORDER BY created_at DESC LIMIT 10",[user])).rows
   const nodeIds=new Set(nodes.map(n=>n.id))
+  for(const rel of expRelations){
+    const sourceId='exp-'+rel.from_experience,targetId='exp-'+rel.to_experience
+    if(!nodeIds.has(sourceId)||!nodeIds.has(targetId))continue
+    edges.push({id:'exp-rel-'+rel.from_experience+'-'+rel.to_experience,type:'RELATES_TO_VALUE',sourceId,targetId,reason:rel.reason||rel.relation,status:rel.relation,sourceEvidence:[],confidence:rel.score,sourceEvidenceType:'experience_relation'} as any)
+  }
   for(const link of themeLinks){
     const sourceId='exp-'+link.experience_id,targetId='theme-'+link.theme_id
     if(!nodeIds.has(sourceId)||!nodeIds.has(targetId))continue

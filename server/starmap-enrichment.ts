@@ -56,3 +56,45 @@ export async function readSkillTags(c: PoolClient, user: string): Promise<{ tag:
   }
   return [...counts.entries()].filter(([, count]) => count > 0).sort((a, b) => b[1] - a[1]).map(([tag, count]) => ({ tag, count }))
 }
+
+// ── P2: 经历间关联（故事线）──
+// 用语义 embedding 找相似经历，用时间顺序建 follows 关系。
+import type { PoolClient } from 'pg'
+
+export async function buildExperienceRelations(c: PoolClient, user: string, newExperienceId: string, newText: string): Promise<number> {
+  const others = (await c.query(
+    "SELECT id, source_quote, content->>'action' as action, content->>'result' as result, created_at FROM experiences WHERE user_id=$1 AND status='confirmed' AND id<>$2 ORDER BY created_at DESC LIMIT 20",
+    [user, newExperienceId]
+  )).rows
+  if (!others.length) return 0
+  const texts = others.map(row => `${row.source_quote} ${row.action ?? ''} ${row.result ?? ''}`)
+  let created = 0
+  try {
+    const { findRelatedExperiences } = await import('./semantic-search.ts')
+    const related = await findRelatedExperiences(newText, texts, 0.65)
+    for (const match of related.slice(0, 3)) {
+      const other = others[match.index]!
+      await c.query(
+        `INSERT INTO experience_relations(user_id, from_experience, to_experience, relation, score, reason) VALUES($1,$2,$3,'similar',$4,$5) ON CONFLICT DO NOTHING`,
+        [user, newExperienceId, other.id, match.score, `语义相似度 ${(match.score * 100).toFixed(0)}%`]
+      )
+      created++
+    }
+  } catch { /* embedding 不可用时跳过 */ }
+  // 时间先后关系：最近的经历跟新经历建立 follows
+  const latest = others[0]
+  if (latest && new Date(latest.created_at) < new Date()) {
+    const existing = (await c.query(
+      "SELECT 1 FROM experience_relations WHERE user_id=$1 AND from_experience=$2 AND to_experience=$3",
+      [user, latest.id, newExperienceId]
+    )).rowCount
+    if (!existing) {
+      await c.query(
+        `INSERT INTO experience_relations(user_id, from_experience, to_experience, relation, score, reason) VALUES($1,$2,$3,'follows',1,'时间上先后发生')`,
+        [user, latest.id, newExperienceId]
+      )
+      created++
+    }
+  }
+  return created
+}
