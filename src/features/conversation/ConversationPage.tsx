@@ -389,7 +389,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
           <button type="button" className="qa-space-return" onClick={onClose} aria-label="回到认知空间"><Icon name="orbit" /><span>认知空间</span></button>
         </div>
       </header>
-      {growthOpen && user && !project && <GrowthWorkspace conversationId={active.id} conversationTitle={active.title} onClose={() => setGrowthOpen(false)} onExplore={text => { setGrowthOpen(false); setDraft(text); requestAnimationFrame(() => input.current?.focus()) }} onSendControl={text => { setGrowthOpen(false); send(text) }} />}
+      {growthOpen && user && !project && <GrowthWorkspace conversationId={active.id} conversationTitle={active.title} onClose={() => setGrowthOpen(false)} onSendControl={text => { setGrowthOpen(false); send(text) }} />}
       {memoryOpen && user && !project && <MemoryPanel conversationId={!empty&&!conversation.demo?active.id:undefined} messageCount={conversation.messages.length} onClose={() => setMemoryOpen(false)} />}
       {storageNotice && <p className="qa-storage-notice" role="alert">{storageNotice}</p>}
       {starMapUpdate && !busy && <button type="button" className="qa-starmap-chip" onClick={onClose}>✦ {starMapUpdate} · 查看星图</button>}
