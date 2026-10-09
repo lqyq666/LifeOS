@@ -419,7 +419,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // 真提问（带问号/吗/呢）与假设/引用/第三方。
       const decisionClauses=clauseCatalogue.filter(handle=>!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther&&!/[?？]|吗$|呢$/.test(handle.text)
         &&sentenceIsFirstPersonPublic(clauseCatalogue,handle)
-        &&/我.{0,10}?(?:决定|确定|定了|的目标是|想要?|打算|不打算|不再|放弃|考虑|在想|想试试|试试|感兴趣|优先|放第一|第一要|先不|暂停|不扩大|以.{0,4}为主)/.test(handle.text))
+        &&/我(?![^，。；！？]{0,8}(?:他|她|它|室友|同学|朋友|老师|父母|别人))(?:.{0,6})?(?:决定|确定|定了|的目标是|想要?|打算|不打算|不再|放弃|考虑|在想|想试试|试试|感兴趣|优先|放第一|第一要|先不|暂停|不扩大|以.{0,4}为主)/.test(handle.text))
       staged.serverGoals=decisionClauses.filter(handle=>!covered(handle.text)).map(handle=>({text:handle.text,quote:handle.text,messageId:run.source_message_id}))
       if(staged.serverGoals.length)staged.audit.push({phase:'growth_server_goal_captured',count:staged.serverGoals.length,committed:false})
       // 每周N小时类预算同样有稳定漏存倾向：按原话补 kind=context（不带期限，

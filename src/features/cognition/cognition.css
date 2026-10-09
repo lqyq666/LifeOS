@@ -197,3 +197,11 @@
   .record-badge.is-skill, .record-badge.is-blocked, .record-badge.is-external { animation: none; }
 }
 .node-label[data-category="self"] { color: #efedf5; }
+
+/* ── 身份认同展示 ── */
+.identity-display { text-align: center; padding: 16px; }
+.identity-icon { font-size: 48px; line-height: 1; display: block; margin-bottom: 8px; }
+.identity-name { font-size: 22px; font-weight: 600; color: #dcc3ff; letter-spacing: -.01em; display: block; }
+.identity-description { font-size: 14px; color: #b3a9c5; margin-top: 6px; line-height: 1.6; display: block; }
+.identity-next { font-size: 12px; color: #7ed491; margin-top: 8px; display: block; }
+.identity-progress { font-size: 11px; color: #6a617e; margin-top: 4px; display: block; }

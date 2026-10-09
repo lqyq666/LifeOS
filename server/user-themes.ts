@@ -3,6 +3,7 @@
 // 证据不足时保持 pending（待核对）。主题身份、来源引用和修订由服务器控制，
 // 用户可置顶、重命名、暂缓、撤销（userThemeAction），全部持久化。
 import type { PoolClient } from 'pg'
+import { matchPathTheme } from './path-lexicon.ts'
 import { recordChangeEvent } from './identity.ts'
 import { distinctiveGrams } from './experience-episodes.ts'
 
@@ -64,7 +65,7 @@ export function themeTitle(text: string): string {
 // 以过去时间词开头的陈述是事件报告，不是追求——不投影为主题。
 const PAST_EVENT_OPEN = /^(?:上周|上个月|上月|昨天|前天|上次|之前|当时|上学期|上年)/
 // 第三方故事不是本人追求（纵深防御：分句归属已挡一道）。
-const THIRD_PARTY = /(?:他|她|它)(?:说|打算|想|决定|要)|室友说|同学说|朋友说|别人|老师说|父母说|爸妈说/
+const THIRD_PARTY = /(?:他|她|它)(?:说|打算|想|决定|要)|室友说|同学说|朋友说|别人|老师说|父母说|爸妈说|大家|周围人|他们/
 // 主题必须带有意图词：目标/想要/打算/不再……。模型的 feedback/direction
 // 误分类（"部长说效果还不错"）没有意图词，进不了主题。
 const INTENT_MARKER = /(?:想|要|打算|准备|希望|计划|决定|争取|目标|重点|优先|不再|不想|追求|放第一|第一位|以.{0,4}为主)/
@@ -82,9 +83,13 @@ const REJECTED_PURSUIT = /(?:不想|不打算|不考虑|放弃|没兴趣|不走|
 const BOUNDARY_PURSUIT = /(?:不再|不想再|要避免|要改掉)/
 const FUTURE_MARK = /(?:未来|以后|之后|下一步|毕业后再)/
 const EXPLORING_MARK = /(?:考虑|在想|也许|可能|想试试|试试|了解一下|了解下|探索|纠结|犹豫|倾向|感兴趣)/
+// 语气不确定时不建主题——用户自己都没想清楚的事不占星图位置。
+const HEDGING = /(?:可能|也许|大概|说不定|不一定|不太确定|还没想清楚|说不好)/
 const DECIDED_MARK = /(?:决定|确定|定了|一定要|铁了心|就选)/
 export function pursuitLevel(quote: string): { kind: 'pursuit' | 'exploration'; status: 'active' | 'pending' } | null {
   if (REJECTED_PURSUIT.test(quote) && !BOUNDARY_PURSUIT.test(quote)) return null
+  // 不确定语气不建主题："我可能在考虑考研" 不占星图
+  if (HEDGING.test(quote)) return null
   if (BOUNDARY_PURSUIT.test(quote)) return { kind: 'pursuit', status: 'active' }
   if (EXPLORING_MARK.test(quote) && !DECIDED_MARK.test(quote)) return { kind: 'exploration', status: 'pending' }
   if (FUTURE_MARK.test(quote) && !DECIDED_MARK.test(quote)) return { kind: 'exploration', status: 'pending' }
@@ -101,6 +106,8 @@ export function deriveThemeCandidates(facts: readonly GrowthFact[]): ThemeCandid
     const quote = fact.text.trim()
     if (!quote) continue
     if (PAST_EVENT_OPEN.test(quote) || THIRD_PARTY.test(quote)) continue
+    // 假设句不建主题："如果考研失败我会考虑就业" 不是当前追求
+    if (/(?:如果|假如|要是|万一|假设)/.test(quote)) continue
     // 自我描述（“我是那种……的人”）是身份声明不是追求：不进主题，由
     // identity 层按原话捕获。
     if (/我(?:是|算是|觉得自己是|认为自己(?:是|属于)|属于)(?:那种|一个|个)?[^，。；！？]{2,30}?(?:的人|的性格|的类型|做事方式|风格)/.test(quote)) continue
@@ -112,7 +119,9 @@ export function deriveThemeCandidates(facts: readonly GrowthFact[]): ThemeCandid
       kind = level.kind; status = level.status
     } else if (fact.kind === 'preference') { kind = 'valued_point'; status = 'pending' }
     else continue
-    const title = themeTitle(quote)
+    // 路径词库优先：命中时用标准化标题（"考研"而不是"认真准备考研"）
+    const pathMatch = matchPathTheme(quote)
+    const title = pathMatch ? pathMatch.title : themeTitle(quote)
     const dedupeKey = kind + '|' + normalize(title)
     if (seen.has(dedupeKey)) continue
     // 同义主题合并：同类且一方标题完整包含另一方（保研 ⊂ 保研成功）只留

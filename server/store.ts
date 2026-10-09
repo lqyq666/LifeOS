@@ -18,6 +18,7 @@ import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth } 
 import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction } from './identity.ts'
 import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
 import { buildExperienceRelations } from './starmap-enrichment.ts'
+import { determineIdentity, IDENTITY_LEVELS } from './identity-levels.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -422,8 +423,24 @@ export async function cognitionGraph(user:string) {
   const accepted=claims.filter(c=>c.confirmed_by_user).map(c=>c.text)
   const observations=claims.filter(c=>!c.confirmed_by_user).map(c=>c.text)
   const skillTagList = await readSkillTags(pool, user)
-  const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[]),...(skillTagList.length?[`有能力证据的：${skillTagList.map(t=>`${t.tag}(${t.count}段)`).join('、')}`]:[])]
-  const self={...selfRow,description:selfDescriptionParts.join('\n')||selfRow.description,identityAccepted:accepted,identityObservations:observations,skillTags:skillTagList} as any
+  // 身份认同：基于证据自动进化
+  const expRowsForIdentity=(await pool.query("SELECT content->>'result' as result, content->>'action' as action, content->>'summary' as summary, source_quote FROM experiences WHERE user_id=$1 AND status='confirmed'",[user])).rows
+  const identityEvidence={
+    experienceCount: expRowsForIdentity.length,
+    experiencesWithResult: expRowsForIdentity.filter(row => (row.result ?? '').trim().length > 0).length,
+    totalSkillTags: skillTagList.reduce((sum,tag) => sum + tag.count, 0),
+    externalFeedbackCount: expRowsForIdentity.filter(row => {
+      const text = `${row.result ?? ''} ${row.source_quote ?? ''}`
+      return /(?:部长|导师|老师|客户|社长|学长|同学|评委|负责人|经理|HR|面试官)(?:说|夸|评价|反馈|表扬|认可)|被(?:夸|表扬|认可)/.test(text)
+    }).length,
+    hasCorrection: (await pool.query("SELECT 1 FROM experiences WHERE user_id=$1 AND revision>2 LIMIT 1",[user])).rowCount>0,
+    themeCount: (await pool.query("SELECT count(*) as n FROM user_themes WHERE user_id=$1 AND status NOT IN ('retired')",[user])).rows[0].n,
+  }
+  const identity=determineIdentity(identityEvidence)
+  const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[]),...(skillTagList.length?[`有能力证据的：${skillTagList.map(t=>`${t.tag}(${t.count}段)`).join('、')}`
+
+${identity.current.icon} ${identity.current.name}：${identity.current.description}``]:[])]
+  const self={...selfRow,description:selfDescriptionParts.join('\n')||selfRow.description,identityAccepted:accepted,identityObservations:observations,skillTags:skillTagList,growthIdentity:{level:identity.current.level,name:identity.current.name,icon:identity.current.icon,description:identity.current.description,nextHint:identity.current.nextHint,progress:identity.progress}} as any
   const changeEvents=(await pool.query("SELECT subject_type,subject_id,transition,reason,committed_at,user_confirmation,unknowns FROM identity_change_events WHERE user_id=$1 ORDER BY committed_at DESC LIMIT 12",[user])).rows
   // “下一步”只来自当前有效事实：最旧的进行中追求或最新行动重点；没有就空。
   const nextStepRow=(await pool.query("SELECT title FROM user_themes WHERE user_id=$1 AND status='active' ORDER BY pinned DESC, updated_at DESC LIMIT 1",[user])).rows[0]
