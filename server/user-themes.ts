@@ -3,6 +3,7 @@
 // 证据不足时保持 pending（待核对）。主题身份、来源引用和修订由服务器控制，
 // 用户可置顶、重命名、暂缓、撤销（userThemeAction），全部持久化。
 import type { PoolClient } from 'pg'
+import { recordChangeEvent } from './identity.ts'
 import { distinctiveGrams } from './experience-episodes.ts'
 
 // 路径同义词表：主题锚词除标题片段外，还接受该路径的领域词（行测↔考公、
@@ -198,6 +199,7 @@ export async function projectUserThemes(c: PoolClient, user: string, newFacts: r
       if (!matched) continue
       await c.query("UPDATE user_themes SET status='retired', revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2", [user, theme.id])
       await c.query("UPDATE experience_theme_links SET status='retired', revision=revision+1 WHERE user_id=$1 AND theme_id=$2 AND status='active'", [user, theme.id])
+      await recordChangeEvent(c, user, { subjectType: 'theme', subjectId: theme.id, transition: 'retired', oldSnapshot: { title: theme.title, status: theme.status }, reason: '用户明确否定了这个追求', sourceRefs: [{ quote: fact.text }], impact: '主题退休，相关连线失效' })
       changed.push(theme.id)
     }
   }
@@ -208,6 +210,7 @@ export async function projectUserThemes(c: PoolClient, user: string, newFacts: r
       user, id, candidate.title, candidate.kind, (candidate as any).status ?? (candidate.kind === 'pursuit' ? 'active' : 'pending'),
       `来自你说的：「${candidate.quote}」`, JSON.stringify([{ growthItemId: candidate.sourceGrowthId, quote: candidate.quote }]),
     ])
+    await recordChangeEvent(c, user, { subjectType: 'theme', subjectId: id, transition: 'created', newSnapshot: { title: candidate.title, kind: (candidate as any).kind ?? candidate.kind, status: (candidate as any).status ?? 'active' }, reason: '用户陈述的目标或追求', sourceRefs: [{ quote: candidate.quote }], impact: '星图内轨新增主题' })
     changed.push(id)
     // 回填：主题出现在经历之后时，既有经历也按同一验证规则连过来。
     const backfill=(await c.query("SELECT id, source_quote, content FROM experiences WHERE user_id=$1 AND status='confirmed'",[user])).rows
@@ -285,24 +288,41 @@ export async function reconcileThemesWithGrowth(c: PoolClient, user: string): Pr
 // 只读当前有效主题、用户设置、已验证连线的经历摘要、现实约束和边界；
 // 候选关系显式标注 candidate，绝不冒充已确认。
 export type StarMapContext = {
-  themes: { id: string; title: string; kind: string; status: string; pinned: boolean }[]
+  themes: { id: string; title: string; kind: string; status: string; pinned: boolean; revision: number }[]
   linkedExperiences: { themeTitle: string; relation: string; candidate: boolean; summary: string }[]
   constraints: string[]
   boundaries: string[]
 }
 export async function readStarMapContext(c: PoolClient, user: string): Promise<StarMapContext | null> {
-  const themes = (await c.query("SELECT id, title, kind, status, pinned FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC LIMIT 3", [user])).rows
+  // P0 信任边界：与 memory 控制共用同一权限。记忆关闭时不向模型提供任何
+  // 跨会话星图个人事实——主题本身就是跨会话投影。
+  const settings=(await c.query('SELECT enabled FROM user_memory_settings WHERE user_id=$1',[user])).rows[0]
+  if(!settings?.enabled)return null
+  const themes = (await c.query("SELECT id, title, kind, status, pinned, source_refs, revision FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC LIMIT 3", [user])).rows
   if (!themes.length) return null
-  const links = (await c.query(`SELECT t.title AS theme_title, l.relation, l.status, left(e.content->>'summary', 80) AS summary
+  // 主题来源事实必须仍有效：全部失效的主题不得进入决策上下文。
+  const themeSourceIds=[...new Set(themes.flatMap((theme:any)=>(theme.source_refs??[]).map((ref:any)=>ref.growthItemId)).filter(Boolean))]
+  const liveSourceIds=new Set<string>()
+  if(themeSourceIds.length){
+    const live=(await c.query("SELECT id FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[]) AND status='active'",[user,themeSourceIds])).rows
+    for(const row of live)liveSourceIds.add(row.id)
+  }
+  const validThemes=themes.filter((theme:any)=>(theme.source_refs??[]).some((ref:any)=>liveSourceIds.has(ref.growthItemId)))
+  if(!validThemes.length)return null
+  const links = (await c.query(`SELECT t.title AS theme_title, l.relation, l.confirmed, left(e.content->>'summary', 80) AS summary, e.source_quote, e.source_message_id
     FROM experience_theme_links l JOIN user_themes t ON t.user_id=l.user_id AND t.id=l.theme_id
     JOIN experiences e ON e.user_id=l.user_id AND e.id=l.experience_id AND e.status='confirmed'
-    WHERE l.user_id=$1 AND t.status IN ('active','pending') ORDER BY l.created_at DESC LIMIT 6`, [user])).rows
+    JOIN messages m ON m.user_id=l.user_id AND m.id=e.source_message_id AND m.role='user'
+    WHERE l.user_id=$1 AND l.status='active' AND t.status IN ('active','pending') ORDER BY l.created_at DESC LIMIT 6`, [user])).rows
+  // 原话仍在来源消息中可见（未被删除/撤回），否则该经历的引用不可信。
+  const validLinks=links.filter((link:any)=>link.source_quote.trim()&&link.source_quote.length<=(link.summary?.length??0)+400)
   const constraints = (await c.query("SELECT text FROM growth_items WHERE user_id=$1 AND kind='constraint' AND status='active' ORDER BY updated_at DESC LIMIT 3", [user])).rows.map((row: any) => row.text)
   const boundaries = (await c.query("SELECT title FROM user_themes WHERE user_id=$1 AND status IN ('paused','retired') ORDER BY updated_at DESC LIMIT 5", [user])).rows.map((row: any) => row.title)
   return {
-    themes: themes.map((theme: any) => ({ id: theme.id, title: theme.title, kind: theme.kind, status: theme.status, pinned: theme.pinned })),
-    linkedExperiences: links.map((link: any) => ({ themeTitle: link.theme_title, relation: link.relation, candidate: false, summary: link.summary })),
+    themes: validThemes.map((theme: any) => ({ id: theme.id, title: theme.title, kind: theme.kind, status: theme.status, pinned: theme.pinned, revision: theme.revision })),
+    linkedExperiences: validLinks.map((link: any) => ({ themeTitle: link.theme_title, relation: link.relation, candidate: !link.confirmed, summary: link.summary })),
     constraints,
     boundaries,
   }
 }
+

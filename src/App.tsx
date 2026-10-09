@@ -7,6 +7,8 @@ import { AuthForm, type AuthMode } from './backend/AuthForm'
 import { OrbitRail } from './features/cognition/OrbitRail'
 import { RecordPanel } from './features/cognition/RecordPanel'
 import { ThemePanel } from './features/cognition/ThemePanel'
+import { TimeAxis } from './features/cognition/TimeAxis'
+import { graph as liveGraph } from './features/cognition/graph'
 import { ConversationPage } from './features/conversation/ConversationPage'
 import './features/cognition/cognition.css'
 
@@ -230,6 +232,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     {!landing && <OrbitRail controller={controller} />}
     {view.mode === 'EXPERIENCE_DETAIL' && <RecordPanel controller={controller} onBack={back} />}
     {themePanelOpen && view.focusValueId?.startsWith('theme-') && <ThemePanel themeNodeId={view.focusValueId} onClose={() => setThemePanelOpen(false)} />}
+    {!landing && view.mode !== 'EXPERIENCE_DETAIL' && <div className="timeaxis-wrap"><TimeAxis events={liveGraph.data.changeEvents ?? []} onJumpChat={openConversation} /></div>}
     {conversationVisited && <ConversationPage open={conversationOpen} onClose={closeConversation} onRequestAuth={onDone => openAuth('login', onDone)} sessionRefresh={sessionRefresh} />}
     {authMode && <AuthForm mode={authMode} onModeChange={changeAuthMode} onDone={completeAuth} onCancel={cancelAuth} />}
   </div>

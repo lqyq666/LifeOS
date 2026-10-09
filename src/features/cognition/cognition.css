@@ -125,3 +125,26 @@
 .theme-relation { color: #c3a8f4; }
 .theme-evidence { display: block; font-size: 13px; color: #9d93b2; margin-top: 2px; }
 .theme-note { margin-top: 16px; font-size: 12px; color: #8f83a3; }
+
+.theme-experience-block { margin: 0 0 14px; }
+.theme-confirmed { color: #9fd8b4; }
+.theme-candidate { color: #d9c08a; }
+.theme-link-actions { display: flex; gap: 8px; margin-top: 6px; }
+.theme-link-actions button { min-height: 32px; border: 1px solid #484055; border-radius: 6px; background: none; padding: 0 12px; color: #d1cbdc; font-size: 13px; cursor: pointer; }
+.theme-link-actions button:hover { color: #fff; border-color: #6d5f85; }
+
+.timeaxis-wrap { position: absolute; left: 0; right: 0; bottom: 12px; z-index: 3; padding: 0 20px; pointer-events: none; }
+.timeaxis { pointer-events: auto; max-width: 720px; margin: 0 auto; border: 1px solid #2c2740; border-radius: 12px; background: #0d0b16d9; padding: 10px 14px; }
+.timeaxis-empty { margin: 0; color: #8f83a3; font-size: 12px; text-align: center; }
+.timeaxis-track { height: 2px; background: #2c2740; margin: 6px 0 4px; }
+.timeaxis-items { list-style: none; display: flex; gap: 6px; margin: 6px 0 4px; padding: 0; overflow-x: auto; }
+.timeaxis-item { min-width: 120px; font-size: 11px; color: #b3a9c5; }
+.timeaxis-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #7a6b9c; margin-right: 6px; }
+.timeaxis-item.is-retired .timeaxis-dot, .timeaxis-item.is-paused .timeaxis-dot { background: #8a8095; }
+.timeaxis-item.is-created .timeaxis-dot { background: #9fd8b4; }
+.timeaxis-change { color: #d1cbdc; margin-right: 4px; }
+.timeaxis-reason { display: block; color: #8f83a3; margin-top: 2px; }
+.timeaxis-next { margin: 4px 0 0; color: #8f83a3; font-size: 11px; }
+.timeaxis-chat { margin-top: 6px; border: 1px solid #484055; border-radius: 6px; background: none; padding: 4px 10px; color: #dcc3ff; font-size: 11px; cursor: pointer; }
+@media (max-width: 700px) { .timeaxis-wrap { padding: 0 8px; } .timeaxis-item { min-width: 100px; } }
+@media (prefers-reduced-motion: reduce) { .timeaxis * { animation: none !important; transition: none !important; } }

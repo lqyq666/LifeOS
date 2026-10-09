@@ -12,7 +12,7 @@ import { config, credentialReady } from './config.ts'
 import { model, modelCapabilityVerified, availableModelTiers } from './model.ts'
 import { pool, HttpError } from './db.ts'
 import { runAgent, type Engine } from './agent.ts'
-import { validate, validateId, createChatSchema, chatPatchSchema, messageSchema, experienceActionSchema, themeActionSchema, memorySettingsSchema, memoryActionSchema } from './contracts.ts'
+import { validate, validateId, createChatSchema, chatPatchSchema, messageSchema, experienceActionSchema, themeActionSchema, themeLinkActionSchema, memorySettingsSchema, memoryActionSchema } from './contracts.ts'
 import * as store from './store.ts'
 import * as memory from './memory.ts'
 import { clientIP, modelState, checkModelCooldown, recordModelFailure, recordModelSuccess, checkMessageLimit } from './operations.ts'
@@ -127,6 +127,8 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
         if(experience&&method==='POST'){json(res,200,await store.experienceAction(user,validateId(experience[1]),validate(experienceActionSchema,await body(req))));return}
         const theme=/^\/api\/themes\/([0-9a-fA-F-]{36})\/actions$/.exec(path)
         if(theme&&method==='POST'){json(res,200,await store.themeAction(user,validateId(theme[1]),validate(themeActionSchema,await body(req))));return}
+        const linkMatch=/^\/api\/theme-links\/([0-9a-fA-F-]{36})\/([0-9a-fA-F-]{36})\/actions$/.exec(path)
+        if(linkMatch&&method==='POST'){json(res,200,await store.themeLinkAction(user,validateId(linkMatch[1]),validateId(linkMatch[2]),validate(themeLinkActionSchema,await body(req))));return}
         if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGraph(user));return}
         const runStatus=path.match(/^\/api\/runs\/([^/]+)$/)
         if(runStatus&&method==='GET'){json(res,200,await store.runStatus(user,validateId(runStatus[1])));return}

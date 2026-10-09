@@ -141,3 +141,9 @@ test('an explicit rejection retires its synonymous theme even without a model co
   const domain = '我不打算考公了'.replace(/^我(?:不想|不打算|放弃|没兴趣)+/, '').replace(/了$/, '')
   assert.equal(domain, '考公', 'the rejection domain extracts the pursuit it denies')
 })
+
+test('considering-statements are captured and become exploration themes', () => {
+  const [candidate] = deriveThemeCandidates([fact({ kind: 'goal', text: '我在考虑要不要做自由职业接单' })])
+  assert.ok(candidate, 'considering freelance work still becomes a pending exploration theme')
+  assert.equal(candidate!.kind, 'exploration')
+})

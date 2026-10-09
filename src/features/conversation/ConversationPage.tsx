@@ -4,6 +4,7 @@ import { advanceConversation, beginExploration, createDemoConversation, type Con
 import { Companion, type CompanionMotion } from './Companion'
 import { AnswerChoices } from './AnswerChoices'
 import { AutoTextarea } from './AutoTextarea'
+import { TurnInsightPanel, type TurnInsight } from './TurnInsightPanel'
 import { MemoryPanel } from './MemoryPanel'
 import { ControlCards } from './ControlCards'
 import { ReplyMarkdown } from './ReplyMarkdown'
@@ -61,6 +62,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   const [controlRefresh, setControlRefresh] = useState(0)
   const [choicesOpen, setChoicesOpen] = useState(() => active.conversation.stage === 'confirm')
   const [starMapUpdate, setStarMapUpdate] = useState('')
+  const [turnInsight, setTurnInsight] = useState<TurnInsight | null>(null)
   const empty = conversation.messages.length === 0
   const question = getAnswerQuestion(conversation)
   const showChoices = choicesOpen && !!question && !busy
@@ -186,6 +188,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
             if(mergedExperiences)starParts.push(`补充了${mergedExperiences}段既有经历`)
             if(themeUpdates)starParts.push('成长主题已更新')
             setStarMapUpdate(starParts.length?starParts.join('，'):'')
+            setTurnInsight({created:[...(receipt.experiences?.createdIds??[]).length?[{kind:'经历' as const,label:'本轮报告的已发生行动'}]:[]],merged:(receipt.experiences?.mergedIds??[]).map(()=>({kind:'经历' as const,label:'同一段经历的新反馈'})),themesChanged:(receipt.themes?.changedIds??[]).map((id: string)=>id),none:!createdExperiences&&!mergedExperiences&&!themeUpdates})
             if(receipt.memoryControl?.status==='needs_confirmation')setControlRefresh(value=>value+1)
           }
         }
@@ -390,6 +393,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
       {memoryOpen && user && !project && <MemoryPanel conversationId={!empty&&!conversation.demo?active.id:undefined} messageCount={conversation.messages.length} onClose={() => setMemoryOpen(false)} />}
       {storageNotice && <p className="qa-storage-notice" role="alert">{storageNotice}</p>}
       {starMapUpdate && !busy && <button type="button" className="qa-starmap-chip" onClick={onClose}>✦ {starMapUpdate} · 查看星图</button>}
+      {turnInsight && !busy && <TurnInsightPanel insight={turnInsight} onViewMap={onClose} />}
       {project ? <main className="qa-project-page">
         <div className="qa-project-title"><Icon name="folder" size={28} /><h1>{project.name}</h1></div>
         <p>{project.description || '把相关的想法和经历放在一起，在同一个项目里继续聊。'}</p>

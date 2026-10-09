@@ -17,6 +17,14 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
   useEffect(() => { dialog.current?.showModal(); close.current?.focus(); const el = dialog.current; return () => el?.close() }, [])
   if (!node) return null
   const revision = node.themeRevision ?? 1
+  const actLink = async (experienceServerId: string, themeId: string, action: 'confirm' | 'revoke') => {
+    if (busy) return
+    setBusy(true); setError('')
+    try {
+      await api(`/api/theme-links/${experienceServerId}/${themeId}/actions`, { requestId: crypto.randomUUID(), action })
+      dataChanged(); onClose()
+    } catch (caught) { setError(explainError(caught)) } finally { setBusy(false) }
+  }
   const act = async (action: string, nextTitle?: string) => {
     if (busy) return
     setBusy(true); setError('')
@@ -46,7 +54,15 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
           <h3>关联经历（{linked.length}）</h3>
           {linked.length ? linked.map(id => {
             const experience = graph.getNode(id)!, edge = edges.find(item => item.sourceId === id)
-            return <p key={id} className="theme-experience">{experience?.title}{edge && RELATION_LABELS[edge.status] ? <span className="theme-relation"> · {RELATION_LABELS[edge.status]}</span> : null}{edge?.reason ? <span className="theme-evidence">依据：{edge.reason}</span> : null}</p>
+            return <div key={id} className="theme-experience-block">
+              <p className="theme-experience">{experience?.title}{edge && RELATION_LABELS[edge.status] ? <span className="theme-relation"> · {RELATION_LABELS[edge.status]}</span> : null}{(edge as any)?.confirmed ? <span className="theme-confirmed"> · 已确认</span> : <span className="theme-candidate"> · 待核对</span>}</p>
+              {edge?.reason ? <span className="theme-evidence">为什么这样连线：{edge.reason}</span> : null}
+              {edge && (edge as any).sourceEvidence?.length ? <span className="theme-evidence">来源原话：「{(edge as any).sourceEvidence[0]}」</span> : null}
+              {experience?.serverId && node.themeId && <div className="theme-link-actions">
+                {!(edge as any)?.confirmed && <button type="button" disabled={busy} onClick={() => void actLink(experience.serverId!, node.themeId!, 'confirm')}>确认连线</button>}
+                <button type="button" disabled={busy} onClick={() => void actLink(experience.serverId!, node.themeId!, 'revoke')}>撤销连线</button>
+              </div>}
+            </div>
           }) : <p className="record-story-empty">还没有关联经历。聊到与这个主题相关的行动后会自动挂上来。</p>}
         </section>
         <div className="theme-actions">
