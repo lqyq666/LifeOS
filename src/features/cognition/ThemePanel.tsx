@@ -78,7 +78,6 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
           {node.themeStatus === 'paused' && <button type="button" disabled={busy} onClick={() => void act('resume')}>恢复</button>}
           {node.themeStatus !== 'retired' && <button type="button" className="theme-danger" disabled={busy} onClick={() => void act('revoke')}>撤销主题</button>}
         </div>
-        <p className="theme-note">撤销后这个主题不再出现在星图，也不会从历史原话自动重建；关联经历本身保留。</p>
       </main>
     </div>
   </dialog>

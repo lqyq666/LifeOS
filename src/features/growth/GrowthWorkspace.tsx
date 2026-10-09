@@ -11,11 +11,9 @@ const sections: { title: string; kinds: GrowthKind[] }[] = [
   { title: '选择与反馈', kinds: ['constraint', 'priority', 'decision', 'feedback'] },
 ]
 
-type DirectionControlRow = { scope: string; scopeLabel: string; state: 'paused' | 'enabled'; revision: number; sourceQuote: string; sourceRedacted: boolean; updatedAt: string }
 
-export function GrowthWorkspace({ conversationId, conversationTitle, onClose, onSendControl }: { conversationId: string; conversationTitle: string; onClose: () => void; onSendControl?: (text: string) => void }) {
+export function GrowthWorkspace({ conversationId, conversationTitle, onClose }: { conversationId: string; conversationTitle: string; onClose: () => void }) {
   const [view, setView] = useState<GrowthView | null>(null)
-  const [directionControls, setDirectionControls] = useState<DirectionControlRow[] | null>(null)
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
   const [kind, setKind] = useState<GrowthKind>('goal')
@@ -30,7 +28,6 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
     dialog.current?.showModal(); closeRef.current?.focus()
     let current = true
     api<GrowthView>('/api/growth').then(next => { if (current) setView(next) }).catch(error => { if (current) setNotice(explainError(error)) })
-    api<{ controls: DirectionControlRow[] }>('/api/growth/direction-controls').then(next => { if (current) setDirectionControls(next.controls) }).catch(() => {})
     return () => { current = false; const el = dialog.current; el?.close() }
   }, [conversationId])
   async function save(event: FormEvent) {
@@ -51,12 +48,14 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
     finally { setBusy(false) }
   }
   async function load() { setView(await api<GrowthView>('/api/growth')) }
-  async function resumeRecommendation(item: GrowthItem) {
+  async function toggleMemory(enabled: boolean) {
     if (busy) return
     setBusy(true); setNotice('')
     try {
-      await api('/api/growth/recommendation-controls/' + item.id + '/actions', { requestId: requestId(JSON.stringify([item.id, 'resume-recommendation'])) })
-      await load(); dataChanged(); setNotice('已恢复推荐')
+      const settings = await api<{ enabled: boolean; revision: number }>('/api/memory/settings')
+      await api('/api/memory/settings', { requestId: crypto.randomUUID(), enabled, expectedRevision: settings.revision })
+      await load(); dataChanged()
+      setNotice(enabled ? '已开启跨会话记忆' : '已关闭跨会话记忆；已保存内容仍保留')
     } catch (error) { setNotice(explainError(error)); await load().catch(() => {}) }
     finally { setBusy(false) }
   }
@@ -87,15 +86,10 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
       <div className="growth-card-actions">
         <button disabled={busy || !item.text} onClick={() => { setEditing(item); setKind(item.kind); setText(item.text); setProgressState(item.progressState ?? 'unknown'); setUntil(item.validUntil ? new Date(Date.parse(item.validUntil) - new Date(item.validUntil).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '') }}>更正</button>
         {item.status === 'proposed' && !item.unavailableReason && <button disabled={busy} onClick={() => void act(item, 'accept')}>采用</button>}
-        {['goal', 'direction', 'priority', 'decision'].includes(item.kind) && item.status === 'active' && <button disabled={busy} onClick={() => void act(item, 'pause')}>暂停</button>}
-        {['goal', 'priority', 'decision'].includes(item.kind) && item.status === 'active' && <button disabled={busy} onClick={() => void act(item, 'complete')}>结束</button>}
-        {item.recommendationStopped && <button disabled={busy} onClick={() => void resumeRecommendation(item)}>恢复推荐</button>}
-        {item.status !== 'rejected' && <button disabled={busy} onClick={() => void act(item, 'reject')}>不再采用</button>}
-        <button className="growth-danger" disabled={busy} onClick={() => void act(item, 'forget')}>遗忘</button>
+        <button className="growth-danger" disabled={busy} onClick={() => void act(item, 'forget')}>删除</button>
       </div>
     </article>
   }
-  const pausedDirections = (directionControls ?? []).filter(row => row.state === 'paused')
   return <dialog ref={dialog} className="growth-page" aria-labelledby="growth-title" onCancel={event => { event.preventDefault(); onClose() }}>
     <div className="growth-body">
       <header className="growth-header">
@@ -104,19 +98,21 @@ export function GrowthWorkspace({ conversationId, conversationTitle, onClose, on
       </header>
       <main className="growth-main">
         {notice && <p className="growth-notice" role="status">{notice}</p>}
-        {view && !view.memoryEnabled && <p className="growth-warn">跨会话记忆未开启，AI 仅使用当前会话的情况。</p>}
+        {view && <div className="growth-memory-row">
+          <span>跨会话记忆{view.memoryEnabled ? '已开启' : '未开启'}</span>
+          <label className="growth-switch"><input type="checkbox" checked={view.memoryEnabled} disabled={busy} onChange={event => void toggleMemory(event.target.checked)} /><span aria-hidden="true" /></label>
+        </div>}
         {!view ? <p className="growth-loading">正在读取…</p> : <div className="growth-grid">{sections.map(section => <section key={section.title}><h2>{section.title}</h2>{currentItems.filter(item => section.kinds.includes(item.kind)).map(card)}{!currentItems.some(item => section.kinds.includes(item.kind)) && <p className="growth-empty">暂无记录</p>}</section>)}</div>}
         <form onSubmit={event => void save(event)} className="growth-form">
           <h2>{editing ? '更正记录' : '添加记录'}</h2>
           <div className="growth-form-row">
-            <label>类型<select value={kind} disabled={busy || !!editing} onChange={event => setKind(event.target.value as GrowthKind)}>{Object.entries(growthLabels).filter(([key]) => key !== 'observation').map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
+            <label>类型<select value={kind} disabled={busy || !!editing} onChange={event => setKind(event.target.value as GrowthKind)}>{([['goal','目标'],['context','近况'],['constraint','约束'],['feedback','反馈']] as [GrowthKind,string][]).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
             <label>适用到{kind === 'constraint' ? '（必填）' : '（选填）'}<input type="datetime-local" value={until} required={kind === 'constraint'} disabled={busy} onChange={event => setUntil(event.target.value)} /></label>
           </div>
           <label>内容<textarea value={text} disabled={busy} onChange={event => setText(event.target.value)} maxLength={4000} required placeholder="例如：还没确定毕业方向；这周优先期末。" /></label>
           {kind === 'feedback' && <label>行动状态<select value={progressState} disabled={busy} onChange={event => setProgressState(event.target.value as NonNullable<GrowthItem['progressState']>)}>{Object.entries(progressLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>}
           <div className="growth-form-actions"><button type="submit" className="growth-primary" disabled={busy || !text.trim()}>{busy ? '保存中…' : '保存'}</button>{editing && <button type="button" disabled={busy} onClick={() => { setEditing(null); setText(''); setUntil(''); setKind('goal') }}>取消</button>}</div>
         </form>
-        {!!pausedDirections.length && <section className="growth-directions"><h2>已暂停的方向</h2>{pausedDirections.map(row => <div key={row.scope} className="growth-card"><p>{row.scopeLabel}{onSendControl && <button disabled={busy} onClick={() => { onSendControl(`恢复${row.scopeLabel}建议`); onClose() }}>恢复建议</button>}</p></div>)}</section>}
         {!!historicalItems.length && <details className="growth-history"><summary>历史记录（{historicalItems.length}）</summary>{historicalItems.map(card)}</details>}
       </main>
     </div>

@@ -60,7 +60,6 @@ export function MemoryPanel({conversationId,messageCount,onClose}:{conversationI
           <div className="qa-memory-switch-heading"><div><h3 id="qa-memory-switch-title">长期记忆</h3><p>{view.settings.enabled?'开启后会复用已确认背景，并整理你明确提供的信息。':'默认关闭。开启后可减少跨对话重复询问。'}</p></div>
             <label className="qa-memory-switch"><span className="qa-visually-hidden">启用长期记忆</span><input type="checkbox" checked={view.settings.enabled} disabled={saving} onChange={event=>void setEnabled(event.target.checked)} /><span aria-hidden="true" /></label>
           </div>
-          <p className="qa-memory-disclosure">关闭只会暂停跨对话读取和整理，已保存内容仍保留。忘记一项会阻止它以后被使用；原始对话不会删除。</p>
         </section>
 
         <section className="qa-memory-section" aria-labelledby="qa-memory-items-title">
