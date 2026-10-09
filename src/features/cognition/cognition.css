@@ -111,3 +111,17 @@
 
 }
 @media (prefers-reduced-motion: reduce) { .flywheel-section { transition: none; } .record-panel { animation: none; } }
+
+.theme-kinds { font-size: 13px; color: #c5b9d8; }
+.theme-rename { margin-top: 20px; }
+.theme-rename label { display: block; margin: 0 0 8px; font-size: 14px; color: #c5b9d8; }
+.theme-rename input { width: 100%; border: 1px solid #484055; border-radius: 6px; background: #10131e; padding: 12px; color: #eee8f6; font: inherit; font-size: 16px; }
+.record-story-controls { display: flex; gap: 12px; margin-top: 10px; }
+.record-story-controls button, .theme-actions button { min-height: 40px; border: 1px solid #484055; border-radius: 6px; background: none; padding: 0 16px; color: #d1cbdc; font-size: 14px; cursor: pointer; }
+.record-story-controls button:hover, .theme-actions button:hover { color: #fff; border-color: #6d5f85; }
+.theme-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; padding-top: 20px; border-top: 1px solid #272335; }
+.theme-actions .theme-danger { color: #f0b9a1; border-color: #6d4636; }
+.theme-experience { margin: 0 0 12px; color: #d1cbdc; }
+.theme-relation { color: #c3a8f4; }
+.theme-evidence { display: block; font-size: 13px; color: #9d93b2; margin-top: 2px; }
+.theme-note { margin-top: 16px; font-size: 12px; color: #8f83a3; }

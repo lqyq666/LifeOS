@@ -1,6 +1,6 @@
 import seed from './data/lifeos-graph.seed.json' with { type: 'json' }
 
-export type Node = typeof seed.nodes[number] & { serverId?: string; serverRevision?: number; conversationId?: string; conversationTitle?: string }
+export type Node = typeof seed.nodes[number] & { serverId?: string; serverRevision?: number; conversationId?: string; conversationTitle?: string; sourceMessageId?: string; themeId?: string; themeKind?: 'goal'|'pursuit'|'valued_point'|'interest'; themeStatus?: 'active'|'pending'|'paused'|'retired'; themePinned?: boolean; themeRevision?: number; themeUpdatedAt?: string }
 export type Edge = typeof seed.edges[number]
 export type GraphData = Omit<typeof seed, 'nodes'> & { nodes: Node[] }
 export type Review = { disposition: 'accepted' | 'edited' | 'rejected'; editedReason?: string; reviewedAt: string }

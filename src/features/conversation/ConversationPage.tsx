@@ -60,6 +60,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   const [notice, setNotice] = useState('')
   const [controlRefresh, setControlRefresh] = useState(0)
   const [choicesOpen, setChoicesOpen] = useState(() => active.conversation.stage === 'confirm')
+  const [starMapUpdate, setStarMapUpdate] = useState('')
   const empty = conversation.messages.length === 0
   const question = getAnswerQuestion(conversation)
   const showChoices = choicesOpen && !!question && !busy
@@ -95,7 +96,19 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
     if (!pending) return loaded
     sessionStorage.removeItem('lifeos:pending-conversation')
     const chat = loaded.chats.find(item => item.id === pending)
-    return chat ? { ...loaded, activeId: chat.id } : loaded
+    if (!chat) return loaded
+    const pendingMessage = sessionStorage.getItem('lifeos:pending-conversation-message')
+    if (pendingMessage) sessionStorage.removeItem('lifeos:pending-conversation-message')
+    const pendingDraft = sessionStorage.getItem('lifeos:pending-conversation-draft')
+    if (pendingDraft) sessionStorage.removeItem('lifeos:pending-conversation-draft')
+    requestAnimationFrame(() => {
+      if (pendingMessage) {
+        const element = document.getElementById('qa-msg-' + pendingMessage)
+        if (element) { element.scrollIntoView({ block: 'center', behavior: 'smooth' }); element.classList.add('qa-msg-flash'); setTimeout(() => element.classList.remove('qa-msg-flash'), 2600) }
+      }
+      if (pendingDraft) input.current?.focus({ preventScroll: true })
+    })
+    return pendingDraft ? updateChat({ ...loaded, activeId: chat.id }, chat.id, { draft: pendingDraft }) : { ...loaded, activeId: chat.id }
   }
   async function loggedIn() {
     const nextUser = await api<SessionUser>('/api/session')
@@ -162,6 +175,14 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
             const materialNote=receipt.material?`；材料${receipt.material.readiness==='template'?'仍为待补模板':'草稿已生成（发送前请核对）'}`:''
             const memoryControlNote=receipt.memoryControl?.status==='executed'?(receipt.memoryControl.kind==='forget'?'；已遗忘你指定的记录':'；已暂停使用该经历作为依据，记录保留'):receipt.memoryControl?.status==='needs_confirmation'?'；有多个相似记录，请在下方确认要操作的那条':''
             setNotice(growthNote+controlNote+materialNote+memoryControlNote)
+            const createdExperiences=receipt.experiences?.createdIds?.length??0
+            const mergedExperiences=receipt.experiences?.mergedIds?.length??0
+            const themeUpdates=receipt.themes?.changedIds?.length??0
+            const starParts:string[]=[]
+            if(createdExperiences)starParts.push(`新增${createdExperiences}段经历`)
+            if(mergedExperiences)starParts.push(`补充了${mergedExperiences}段既有经历`)
+            if(themeUpdates)starParts.push('成长主题已更新')
+            setStarMapUpdate(starParts.length?starParts.join('，'):'')
             if(receipt.memoryControl?.status==='needs_confirmation')setControlRefresh(value=>value+1)
           }
         }
@@ -365,6 +386,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
       {growthOpen && user && !project && <GrowthWorkspace conversationId={active.id} conversationTitle={active.title} onClose={() => setGrowthOpen(false)} onExplore={text => { setGrowthOpen(false); setDraft(text); requestAnimationFrame(() => input.current?.focus()) }} onSendControl={text => { setGrowthOpen(false); send(text) }} />}
       {memoryOpen && user && !project && <MemoryPanel conversationId={!empty&&!conversation.demo?active.id:undefined} messageCount={conversation.messages.length} onClose={() => setMemoryOpen(false)} />}
       {storageNotice && <p className="qa-storage-notice" role="alert">{storageNotice}</p>}
+      {starMapUpdate && !busy && <button type="button" className="qa-starmap-chip" onClick={onClose}>✦ {starMapUpdate} · 查看星图</button>}
       {project ? <main className="qa-project-page">
         <div className="qa-project-title"><Icon name="folder" size={28} /><h1>{project.name}</h1></div>
         <p>{project.description || '把相关的想法和经历放在一起，在同一个项目里继续聊。'}</p>
@@ -386,7 +408,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
             <p className="qa-welcome-note">从眼前的困惑，到过去的经历，一起找找答案。</p>
           </section> : <div className="qa-thread" role="log" aria-label="对话内容" aria-live="polite" aria-relevant="additions text">
             {conversation.demo && <p className="qa-demo-label">示例对话 · 比赛与课程之间的选择</p>}
-            {conversation.messages.map(message => <article key={message.id} className={`qa-message is-${message.role}`} aria-label={message.role === 'user' ? '你的消息' : 'LifeOS 的回应'}>
+            {conversation.messages.map(message => <article key={message.id} id={'qa-msg-' + message.id} className={`qa-message is-${message.role}`} aria-label={message.role === 'user' ? '你的消息' : 'LifeOS 的回应'}>
               {message.role === 'assistant' && <div className="qa-assistant-name"><Companion motion={message.id === conversation.messages.at(-1)?.id && !busy ? companionMotion : 'idle'} animated={open && !summaryOpen && !busy && message.id === conversation.messages.at(-1)?.id} /><span>LifeOS</span></div>}
               <div className="qa-message-body">{message.transient && <small role="status">生成草稿 · 未校验、未保存</small>}{message.role === 'assistant' ? <ReplyMarkdown text={message.text} /> : message.text.split('\n\n').map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
             </article>)}

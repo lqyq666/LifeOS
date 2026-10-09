@@ -13,17 +13,32 @@ export type ResolvedCandidateContent = { action: string; result: string; occurre
 // same clause flags the anchor guards use; no semantics are inferred here.
 // Flash-tier models otherwise treat the optional lane as omittable, and the
 // lane is the only path from a conversation to the star map.
-const COMPLETED_ACTION = /(?:做完|完成|交付|交了|交完|交上去|交过去|补交|补齐|补完|提交了|通过了|发了|发过|发出去|发过去|写完了|写了|赶完|弄完|搞定了|拿到了|参加了|办了|签了|录了|剪了|排了|整理了|投了|申报了|答辩完|办完)/
+const COMPLETED_ACTION = /(?:做完|完成|交付|交了|交完|交上去|交过去|交到|补交|补齐|补完|提交了|通过了|发了|发过|发出去|发过去|发到|写完了|写了|写过|赶完|弄完|搞定了|拿到了|参加过|参加了|办了|签了|录了|剪了|排了|整理了|整理过|整理好|准备好|办好|写好|做好|改好|弄好|搞定|送到|寄到|买好|订好|排好|投了|投过|帮过|当过|带过|做过|申报了|答辩完|办完)/
 const NOT_YET = /打算|准备|计划|希望|想要|将要|下次|明天|后天|以后|考虑|如果|假设|还没|尚未|没来得及|没写完|没做完|没完成|没交/
 // First person scopes the whole sentence: the action clause itself often
 // drops the pronoun (「迟了一天补交上去」) while a sibling clause carries it.
 const sentenceIsFirstPerson = (catalogue: readonly ClauseHandle[], handle: ClauseHandle): boolean =>
   catalogue.some(other => other.sentenceStart === handle.sentenceStart && /我/.test(other.text))
 
+// 对既往经历的追述（上次那套海报后来…）：本身没有新的完成动词，但带着
+// 结果/反馈分句时，应作为候选走相似度合并进原经历。
+const BACK_REFERENCE = /上次那|上次说|上次提到|之前那次|之前说的|那件事|刚才说的|后来/
 export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]): boolean {
-  return catalogue.some(handle =>
+  const completed = catalogue.some(handle =>
     !handle.interrogative && !handle.conditional && !handle.quoted && !handle.code && !handle.attributedToOther
     && sentenceIsFirstPerson(catalogue, handle) && COMPLETED_ACTION.test(handle.text) && !NOT_YET.test(handle.text))
+  if (completed) return true
+  const bySentence = new Map<number, ClauseHandle[]>()
+  for (const handle of catalogue) {
+    const group = bySentence.get(handle.sentenceStart) ?? []
+    group.push(handle)
+    bySentence.set(handle.sentenceStart, group)
+  }
+  for (const handles of bySentence.values()) {
+    const text = handles.map(handle => handle.text).join()
+    if (BACK_REFERENCE.test(text) && handles.some(handle => RESULT_SHAPE.test(handle.text)) && handles.every(handle => !handle.interrogative && !handle.conditional)) return true
+  }
+  return false
 }
 
 export function clauseReportsCompleted(text: string): boolean {
@@ -51,6 +66,7 @@ export function selectStructuralCandidate(sourceText: string, catalogue: readonl
   const matched = catalogue.find(handle =>
     !handle.interrogative && !handle.conditional && !handle.quoted && !handle.code && !handle.attributedToOther
     && sentenceIsFirstPerson(catalogue, handle) && COMPLETED_ACTION.test(handle.text) && !NOT_YET.test(handle.text))
+    ?? catalogue.find(handle => !handle.interrogative && !handle.conditional && BACK_REFERENCE.test(handle.text) && RESULT_SHAPE.test(handle.text))
   if (!matched) return null
   // Commas chain clauses inside one sentence (sentenceStart resets only at
   // terminators), so the candidate is the whole comma chain the action sits in.

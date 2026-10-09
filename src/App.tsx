@@ -6,6 +6,7 @@ import { api, ApiError, dataChanged } from './backend/client'
 import { AuthForm, type AuthMode } from './backend/AuthForm'
 import { OrbitRail } from './features/cognition/OrbitRail'
 import { RecordPanel } from './features/cognition/RecordPanel'
+import { ThemePanel } from './features/cognition/ThemePanel'
 import { ConversationPage } from './features/conversation/ConversationPage'
 import './features/cognition/cognition.css'
 
@@ -22,6 +23,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
   const [paused, setPaused] = useState(false)
   const [conversationOpen, setConversationOpen] = useState(() => window.location.hash === '#conversation')
   const [conversationVisited, setConversationVisited] = useState(() => window.location.hash === '#conversation')
+  const [themePanelOpen, setThemePanelOpen] = useState(false)
   const [authMode, setAuthMode] = useState<AuthMode | null>(() => window.location.hash === '#signup' ? 'signup' : window.location.hash === '#login' ? 'welcome' : null)
   const sessionRefresh = useRef<(() => Promise<void>) | null>(null)
   const authReturn = useRef<{ snapshot: Snapshot; navigation: Snapshot[]; conversation: boolean; url: string; trigger: HTMLElement | null; onDone?: () => Promise<void> } | null>(null)
@@ -176,6 +178,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
         {graphSource === 'database' ? <button type="button" onClick={openConversation}>继续对话</button> : <><button type="button" onClick={() => openAuth()}>登录</button><button className="home-signup" type="button" onClick={() => openAuth('signup')}>创建账户</button></>}
       </nav>}
       {!landing && view.mode !== 'EXPERIENCE_DETAIL' && <button className="qa-entry" type="button" data-focus-key="conversation" onClick={openConversation} disabled={view.transitioning}>聊聊</button>}
+      {view.mode === 'VALUE_FOCUS' && view.focusValueId?.startsWith('theme-') && <button className="qa-entry" type="button" onClick={() => setThemePanelOpen(true)} disabled={view.transitioning}>主题详情</button>}
     </header>
 
     {!landing && <nav className="cognition-nav" aria-label="当前位置" inert={conversationOpen || !!authMode} aria-hidden={conversationOpen || !!authMode}>
@@ -214,6 +217,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
 
     {!landing && <OrbitRail controller={controller} />}
     {view.mode === 'EXPERIENCE_DETAIL' && <RecordPanel controller={controller} onBack={back} />}
+    {themePanelOpen && view.focusValueId?.startsWith('theme-') && <ThemePanel themeNodeId={view.focusValueId} onClose={() => setThemePanelOpen(false)} />}
     {conversationVisited && <ConversationPage open={conversationOpen} onClose={closeConversation} onRequestAuth={onDone => openAuth('login', onDone)} sessionRefresh={sessionRefresh} />}
     {authMode && <AuthForm mode={authMode} onModeChange={changeAuthMode} onDone={completeAuth} onCancel={cancelAuth} />}
   </div>

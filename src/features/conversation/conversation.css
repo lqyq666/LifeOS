@@ -200,3 +200,8 @@
 .qa-md-ul > li::before { content: ''; position: absolute; left: .15em; top: .72em; width: 5px; height: 5px; border-radius: 50%; background: #b9adfa; }
 .qa-md-ol > li { display: flex; gap: .6em; align-items: baseline; }
 .qa-md-num { flex: none; display: inline-flex; align-items: center; justify-content: center; min-width: 1.35em; height: 1.35em; padding: 0 .25em; border-radius: 50%; background: rgba(185, 173, 250, .16); color: #cfc4ff; font-size: .78em; font-weight: 650; }
+
+.qa-starmap-chip { position: absolute; z-index: 4; right: 20px; bottom: 96px; border: 1px solid #6d5f85; border-radius: 999px; background: #171221cc; padding: 8px 16px; color: #dcc3ff; font-size: 13px; cursor: pointer; }
+.qa-starmap-chip:hover { color: #fff; border-color: #9b85c0; }
+.qa-msg-flash { animation: qa-msg-flash 2.4s ease-out; }
+@keyframes qa-msg-flash { 0%, 40% { background: #2c2440; } 100% { background: transparent; } }

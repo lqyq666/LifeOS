@@ -13,6 +13,8 @@ import { persistDirectionControls, readDirectionControls, directionControlsSnaps
 import { persistMemoryControl, persistPendingControlRequest, type MemoryControlReceipt, type PendingMemoryControl, type StagedMemoryControl } from './memory-controls.ts'
 import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
 import { derivePatternProposals } from './experience-patterns.ts'
+import { findEpisode, mergeContent } from './experience-episodes.ts'
+import { projectUserThemes, linkExperienceToThemes } from './user-themes.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -120,11 +122,23 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       if(!source||source.revision!==ref.revision)throw new HttpError(409,'EXPERIENCE_SNAPSHOT_INVALIDATED')
     }
     const version=(await c.query('SELECT COALESCE(max(version),0)::int AS version FROM decision_versions WHERE user_id=$1 AND conversation_id=$2',[run.user_id,run.conversation_id])).rows[0].version
-    const candidateIds:string[]=[]
+    const candidateIds:string[]=[],mergedExperienceIds:string[]=[]
+    // 同一事件的多轮讲述合并进原经历：先在既有已确认经历里找同源片段，
+    // 找到就只更新内容并推进修订，不另立新行。
+    const existingEpisodes=(await c.query("SELECT id, source_quote, content FROM experiences WHERE user_id=$1 AND status='confirmed'",[run.user_id])).rows
     for(const candidate of staged.candidates) {
       const id=randomUUID()
       const content={title:candidate.quote.slice(0,36),summary:candidate.quote,action:candidate.content?.action??'',result:candidate.content?.result??'',reflection:'',occurredAt:candidate.content?.occurredAt??'',source:'用户对话原话',tags:[]}
-      const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status,confirmed_at,confirm_source) VALUES($1,$2,$3,$4,$5,$6,$7,\'confirmed\',now(),\'auto\') ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,candidate.quote,run.request_id,content])
+      const episode=findEpisode(existingEpisodes,candidate.quote,content.action,content.result)
+      if(episode){
+        const merged=mergeContent(episode.content??{},{action:content.action,result:content.result,occurredAt:content.occurredAt})
+        const nextContent={...episode.content,action:merged.action,result:merged.result,reflection:merged.reflection,occurredAt:merged.occurredAt}
+        const updated=(await c.query('UPDATE experiences SET content=$3, revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING revision',[run.user_id,episode.id,nextContent])).rows[0]
+        await c.query("INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,'correct',$4)",[run.user_id,episode.id,updated.revision,{merged:true,fromMessageId:candidate.sourceMessageId,content:nextContent}])
+        mergedExperienceIds.push(String(episode.id))
+        continue
+      }
+      const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status,confirmed_at,confirm_source,revision) VALUES($1,$2,$3,$4,$5,$6,$7,\'confirmed\',now(),\'auto\',2) ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,candidate.quote,run.request_id,content])
       if(!inserted.rowCount)continue
       candidateIds.push(id)
       for(const link of candidate.links)await c.query('INSERT INTO experience_links(user_id,experience_id,value_id,reason,disposition) VALUES($1,$2,$3,$4,\'proposed\')',[run.user_id,id,link.valueId,link.reason])
@@ -134,6 +148,19 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     for(const ref of knowledgeRefs)await c.query('INSERT INTO coach_reply_sources(user_id,request_id,source_id,revision) VALUES($1,$2,$3,$4)',[run.user_id,run.request_id,ref.sourceId,ref.revision])
     const coach=staged.coach?await persistCoachEvent(c,run,staged.coach):null
     const growth=staged.growth?await persistGrowthUpdates(c,run,staged.growth):null
+    // 主题投影：本轮已提交的 growth 事实（用户亲述的目标/方向/优先级/偏好）
+    // 确定性上投影为“我的成长主题”；随后的经历再挂到主题上。同一事务、
+    // 零新增模型调用。
+    const themeFactIds=[...(growth?.createdIds??[]),...(growth?.changedIds??[])]
+    let themeChangedIds:string[]=[]
+    if(themeFactIds.length){
+      const facts=(await c.query('SELECT id,kind,text,assertion,status FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])',[run.user_id,themeFactIds])).rows
+      themeChangedIds=await projectUserThemes(c,run.user_id,facts)
+    }
+    for(const experienceId of [...candidateIds,...mergedExperienceIds]){
+      const row=(await c.query('SELECT source_quote, content FROM experiences WHERE user_id=$1 AND id=$2',[run.user_id,experienceId])).rows[0]
+      if(row)await linkExperienceToThemes(c,run.user_id,experienceId,`${row.source_quote} ${row.content?.action??''} ${row.content?.result??''}`,true)
+    }
     // Direction controls commit in the same transaction, after growth, under
     // the same advisory lock; a control snapshot changed by another device
     // during generation is a 409 conflict, never silently replayed.
@@ -174,11 +201,13 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
           memoryControl,
           material:materialAction&&materialAction.draft?{actionId:materialAction.id,revision:materialAction.revision,readiness:materialAction.draft.readiness as 'template'|'draft_for_user_review',missingRequired:materialAction.draft.missingRequired??[]}:null,
           plan:plan?{itemId:plan.itemId,revision:plan.revision,status:'proposed',budgetRef:plan.budgetRef}:null,
+          experiences:{createdIds:candidateIds,mergedIds:mergedExperienceIds},
+          themes:{changedIds:themeChangedIds},
         }
     const memoryIds=staged.snapshot&&staged.memoryChanges?.length?await persistChanges(c,run.user_id,run.conversation_id,staged.memoryChanges,new Date()):[]
     await consumeEntitlement(c,run.user_id,current.entitlement_reserved)
     await c.query('INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,\'assistant\',$4,$5)',[randomUUID(),run.user_id,run.conversation_id,text,run.request_id])
-    const response={requestId:run.request_id,decisionVersion:version,candidateIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthCreatedIds:growth?growth.createdIds:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],growthWrite:growth??null,stateChange,...(memoryControl?{memoryControl}:{}),...(directionControls?{directionControls:{changedScopes,effects:controlEffects}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
+    const response={requestId:run.request_id,decisionVersion:version,candidateIds,mergedExperienceIds,themeChangedIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthCreatedIds:growth?growth.createdIds:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],growthWrite:growth??null,stateChange,...(memoryControl?{memoryControl}:{}),...(directionControls?{directionControls:{changedScopes,effects:controlEffects}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
     await c.query('UPDATE runs SET status=\'completed\',response=$3,usage=$4,tool_audit=$5,finished_at=now() WHERE user_id=$1 AND request_id=$2',[run.user_id,run.request_id,response,usage,JSON.stringify(staged.audit)])
     await c.query('UPDATE conversations SET updated_at=now() WHERE user_id=$1 AND id=$2',[run.user_id,run.conversation_id])
     signal.throwIfAborted()
@@ -252,15 +281,55 @@ async function proposeExperiencePatterns(c: PoolClient, user: string, newExperie
   }
 }
 
+// 用户对主题的操作：置顶/取消置顶、重命名、暂缓、恢复、撤销。撤销或暂缓
+// 会同步退休其经历连线；恢复则重新激活。修订校验+幂等键，全部持久化。
+export type ThemeAction = { requestId:string; expectedRevision:number; action:'pin'|'unpin'|'rename'|'pause'|'resume'|'revoke'; title?:string }
+export async function themeAction(user:string,id:string,input:ThemeAction) {
+  return transaction(async c=>{
+    await lock(c,user+':operation:'+input.requestId)
+    const fingerprint=hash({id,...input})
+    const old=(await c.query('SELECT * FROM user_operations WHERE user_id=$1 AND request_id=$2',[user,input.requestId])).rows[0]
+    if(old){if(old.fingerprint!==fingerprint)throw new HttpError(409,'IDEMPOTENCY_KEY_REUSED');return old.response}
+    const theme=requireRow((await c.query('SELECT * FROM user_themes WHERE user_id=$1 AND id=$2 FOR UPDATE',[user,id])).rows[0])
+    if(theme.revision!==input.expectedRevision)throw new HttpError(409,'THEME_REVISION_CONFLICT')
+    if(input.action==='rename'&&!input.title?.trim())throw new HttpError(400,'TITLE_REQUIRED')
+    if(input.action!=='rename'&&input.title)throw new HttpError(400,'UNEXPECTED_TITLE')
+    const nextStatus=input.action==='pause'?'paused':input.action==='resume'?(theme.origin==='user_stated'?'active':'pending'):input.action==='revoke'?'retired':theme.status
+    const updated=(await c.query("UPDATE user_themes SET title=COALESCE($3,title), pinned=CASE WHEN $4='pin' THEN true WHEN $4='unpin' THEN false ELSE pinned END, status=$5, revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING *",[user,id,input.action==='rename'?input.title!.trim().slice(0,60):null,input.action,nextStatus])).rows[0]
+    if(input.action==='revoke'||input.action==='pause')await c.query("UPDATE experience_theme_links SET status='retired', revision=revision+1 WHERE user_id=$1 AND theme_id=$2 AND status='active'",[user,id])
+    if(input.action==='resume')await c.query("UPDATE experience_theme_links SET status='active', revision=revision+1 WHERE user_id=$1 AND theme_id=$2 AND status='retired'",[user,id])
+    await c.query('INSERT INTO user_operations(user_id,request_id,fingerprint,response) VALUES($1,$2,$3,$4)',[user,input.requestId,fingerprint,updated])
+    return updated
+  })
+}
+
 export async function cognitionGraph(user:string) {
   const experiences=(await listExperiences(user)).filter(e=>e.status==='confirmed')
-  const nodes=seed.nodes.filter(n=>n.type!=='experience').map(n=>({...n,description:n.type==='value'?'经历浏览分类；不是永久价值观认定':n.description}))
-  const edges=seed.edges.filter(e=>e.type==='HAS_VALUE').map(e=>({...e,status:'category',reason:'浏览分类，不代表已确认的永久价值观',sourceEvidence:[]}))
+  // 登录图的核心节点是“当前自我”+该用户自己的成长主题（最多三个，不足不
+  // 强制）。固定三维度不再作为展示节点；experience_links 的 value 通道继续
+  // 作为内部辅助分类写入，只是不出现在图上。
+  const self=seed.nodes.find(n=>n.type==='self')!
+  const nodes=[{...self}] as any[]
+  const themes=(await pool.query("SELECT * FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC",[user])).rows
+  const THEME_KIND_LABEL:Record<string,string>={goal:'目标',pursuit:'阶段追求',valued_point:'重视点',interest:'兴趣探索'}
+  for(const theme of themes.slice(0,3)){
+    nodes.push({id:'theme-'+theme.id,type:'value',title:theme.title,description:`${THEME_KIND_LABEL[theme.kind]??theme.kind} · ${theme.status==='pending'?'待核对':'进行中'}
+${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.kind,themeStatus:theme.status,themePinned:theme.pinned,themeRevision:theme.revision,themeUpdatedAt:theme.updated_at.toISOString(),media:[]} as any)
+  }
+  const edges:any[]=[]
   for(const e of experiences){
     const id='exp-'+e.id
-    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,conversationId:e.conversation_id,conversationTitle:e.conversation_title} as any)
-    for(const link of e.links.filter((l:any)=>l.disposition!=='rejected'))edges.push({id:'rel-'+e.id+'-'+link.value_id,type:'RELATES_TO_VALUE',sourceId:id,targetId:link.value_id,reason:link.reason,status:link.disposition,sourceEvidence:[e.source_quote],confidence:null} as any)
+    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id} as any)
   }
-  return {...seed,purpose:'当前登录用户的正式经历；价值节点仅作浏览分类',notice:'经历由对话自动收入星图，可随时修改或删除；价值分类是可调整的建议，不是永久价值观认定。',nodes,edges,
-    viewConfig:{...seed.viewConfig,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false}
+  const themeLinks=(await pool.query("SELECT * FROM experience_theme_links WHERE user_id=$1 AND status='active'",[user])).rows
+  const nodeIds=new Set(nodes.map(n=>n.id))
+  for(const link of themeLinks){
+    const sourceId='exp-'+link.experience_id,targetId='theme-'+link.theme_id
+    if(!nodeIds.has(sourceId)||!nodeIds.has(targetId))continue
+    const experience=experiences.find(e=>e.id===link.experience_id)
+    edges.push({id:'rel-'+link.experience_id+'-'+link.theme_id,type:'RELATES_TO_VALUE',sourceId,targetId,reason:link.reason,status:link.relation,sourceEvidence:experience?[experience.source_quote]:[],confidence:null} as any)
+  }
+  const valueOrder=themes.slice(0,3).map(theme=>'theme-'+theme.id)
+  return {...seed,purpose:'当前登录用户的成长星图：主题来自本人陈述的目标与追求',notice:'主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。',nodes,edges,
+    viewConfig:{...seed.viewConfig,valueOrder,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false}
 }

@@ -14,6 +14,7 @@ export const valueId = Type.Union([Type.Literal('value-creation'),Type.Literal('
 // derived occurred date (empty when unresolved); the model never writes them.
 export const candidateSchema = Type.Object({ sourceMessageId: uuid, quote: text(), links: Type.Array(Type.Object({ valueId, reason: text(2000) },{ additionalProperties: false }),{ maxItems: 3 }), content: Type.Optional(Type.Object({ action: Type.String({ maxLength: 4000 }), result: Type.String({ maxLength: 4000 }), occurredAt: Type.String({ maxLength: 200 }) },{ additionalProperties: false })) },{ additionalProperties: false })
 export type Candidate = Static<typeof candidateSchema>
+export const themeActionSchema = Type.Object({ requestId: uuid, expectedRevision: Type.Integer({ minimum: 1 }), action: Type.Union([Type.Literal('pin'),Type.Literal('unpin'),Type.Literal('rename'),Type.Literal('pause'),Type.Literal('resume'),Type.Literal('revoke')]), title: Type.Optional(Type.String({ minLength: 1, maxLength: 60 })) },{ additionalProperties: false })
 export const retrievalSchema = Type.Object({ query: Type.String({ maxLength: 200 }), limit: Type.Integer({ minimum: 1, maximum: 10 }) },{ additionalProperties: false })
 export const createChatSchema = Type.Object({ id: uuid, title: text(100) },{ additionalProperties: false })
 export const chatPatchSchema = Type.Object({ title: Type.Optional(text(100)), renamed: Type.Optional(Type.Boolean()), pinned: Type.Optional(Type.Boolean()), projectId: Type.Optional(Type.Union([Type.Null(),Type.String({ maxLength: 100 })])) },{ additionalProperties: false })

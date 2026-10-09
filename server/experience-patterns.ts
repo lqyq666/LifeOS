@@ -34,18 +34,19 @@ const anchorOf = (experience: PatternExperience, pattern: RegExp): string | null
 type Rule = {
   behaviorKey: string
   behavior: string
-  // Every supporting experience must carry the anchor somewhere in its
-  // verbatim fields; no anchor, no support.
-  anchor: RegExp
+  // Every supporting experience must carry ALL listed anchors somewhere in
+  // its verbatim fields. 两项都见于原话才能支撑这条观察——"收到反馈"不足以
+  // 推断"已经改进"，改进动词必须在同一段经历里。
+  anchors: RegExp[]
   // Optional category gate: the rule only counts experiences linked to it.
   requireValueId?: string
 }
 const RULES: Rule[] = [
-  { behaviorKey: 'feedback-iterate', behavior: '先做出成果，再按反馈调整', anchor: /反馈|意见|评价|建议/ },
-  { behaviorKey: 'deliver-late', behavior: '交付容易压着截止时间，但内容能过关', anchor: /晚了|迟了|推迟|拖了|压线/ },
-  { behaviorKey: 'deliver-ontime', behavior: '能按时或提前交付答应的事', anchor: /按时|提前|如期|赶在/ },
-  { behaviorKey: 'initiate', behavior: '倾向自己主动发起、拿主意', anchor: /主动|自己决定|自己联系|我决定|我选择|牵头/ },
-  { behaviorKey: 'create-output', behavior: '持续把想法做成可交付的作品', anchor: /做了|做出|制作|写完|设计|剪辑|开发|整理出/, requireValueId: 'value-creation' },
+  { behaviorKey: 'feedback-iterate', behavior: '这几段经历里，收到反馈后在原成果上做了调整', anchors: [/反馈|意见|评价|建议/, /调整|修改|改了|重新做|返工/] },
+  { behaviorKey: 'deliver-late', behavior: '这几段经历的交付时间都晚于约定', anchors: [/晚了|迟了|推迟|拖了|压线/] },
+  { behaviorKey: 'deliver-ontime', behavior: '这几段经历都在约定时间内交付', anchors: [/按时|提前|如期|赶在/] },
+  { behaviorKey: 'initiate', behavior: '这几段经历里的事都由本人主动发起', anchors: [/主动|自己决定|自己联系|我决定|我选择|牵头/] },
+  { behaviorKey: 'create-output', behavior: '这几段经历都产出了具体作品', anchors: [/做了|做出|制作|写完|设计|剪辑|开发|整理出/], requireValueId: 'value-creation' },
 ]
 
 export function derivePatternProposals(experiences: readonly PatternExperience[], includeExperienceId?: string): PatternProposal[] {
@@ -53,13 +54,13 @@ export function derivePatternProposals(experiences: readonly PatternExperience[]
   for (const rule of RULES) {
     const supporting = experiences.filter(experience => {
       if (rule.requireValueId && !experience.valueIds.includes(rule.requireValueId)) return false
-      return anchorOf(experience, rule.anchor) !== null
+      return rule.anchors.every(anchor => anchorOf(experience, anchor) !== null)
     })
     if (supporting.length < 2) continue
     // Only propose when the freshly ingested experience is part of the set:
     // old data never churns out proposals on its own.
     if (includeExperienceId && !supporting.some(experience => experience.id === includeExperienceId)) continue
-    const matched = supporting.map(experience => anchorOf(experience, rule.anchor)!)
+    const matched = supporting.map(experience => anchorOf(experience, rule.anchors[0]!)!)
     proposals.push({
       behaviorKey: rule.behaviorKey,
       context: `同类经历${supporting.length}段`,

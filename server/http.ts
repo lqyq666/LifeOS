@@ -12,7 +12,7 @@ import { config, credentialReady } from './config.ts'
 import { model, modelCapabilityVerified, availableModelTiers } from './model.ts'
 import { pool, HttpError } from './db.ts'
 import { runAgent, type Engine } from './agent.ts'
-import { validate, validateId, createChatSchema, chatPatchSchema, messageSchema, experienceActionSchema, memorySettingsSchema, memoryActionSchema } from './contracts.ts'
+import { validate, validateId, createChatSchema, chatPatchSchema, messageSchema, experienceActionSchema, themeActionSchema, memorySettingsSchema, memoryActionSchema } from './contracts.ts'
 import * as store from './store.ts'
 import * as memory from './memory.ts'
 import { clientIP, modelState, checkModelCooldown, recordModelFailure, recordModelSuccess, checkMessageLimit } from './operations.ts'
@@ -125,6 +125,8 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
         }
         const experience=path.match(/^\/api\/experiences\/([^/]+)\/actions$/)
         if(experience&&method==='POST'){json(res,200,await store.experienceAction(user,validateId(experience[1]),validate(experienceActionSchema,await body(req))));return}
+        const theme=/^\/api\/themes\/([0-9a-fA-F-]{36})\/actions$/.exec(path)
+        if(theme&&method==='POST'){json(res,200,await store.themeAction(user,validateId(theme[1]),validate(themeActionSchema,await body(req))));return}
         if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGraph(user));return}
         const runStatus=path.match(/^\/api\/runs\/([^/]+)$/)
         if(runStatus&&method==='GET'){json(res,200,await store.runStatus(user,validateId(runStatus[1])));return}
@@ -193,6 +195,7 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
             sse(res,{type:'delta',text:result.text,replace:true,saved:true})
             sse(res,{type:'done',...response,stageTimings:{queueWaitMs,contextLoadMs,engineTotalMs,finishRunMs}})
           }catch(error){
+            if(process.env.LIFEOS_DEBUG_FINISH)console.error('FINISH_ERR',error)
             const timedOut=controller.signal.reason==='MODEL_TIMEOUT',cancelled=controller.signal.aborted&&!timedOut
             const failure=timedOut?new HttpError(504,'MODEL_TIMEOUT',15):error instanceof HttpError?error:new HttpError(502,'MODEL_REQUEST_FAILED',15)
             const code=cancelled?(controller.signal.reason==='SERVER_SHUTTING_DOWN'?'SERVER_SHUTTING_DOWN':'CANCELLED'):failure.code
