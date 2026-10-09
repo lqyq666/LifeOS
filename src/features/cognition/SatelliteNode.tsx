@@ -12,13 +12,14 @@ export function nodeRing(id: string) {
 export function SatelliteNode({id, registry, controller}: {id: string; registry: Map<string, THREE.Group>; controller: CognitionController}) {
   const root = useRef<THREE.Group>(null), node = graph.getNode(id)!, value = node.type === 'value'
   const radius = value ? 0.085 : 0.038
-  // 类别色彩体系：卡住=橙、含能力证据=绿、含外部反馈=青、普通经历=蓝、主题=紫
+  // 类别色彩体系：中心=白、主题=紫、卡住=橙、能力证据=绿、外部反馈=青、普通经历=蓝
   const isBlocked = !!(node as any).blocked
   const hasExternal = !!(node as any).externalFeedback
-  const hasSkills = Array.isArray((node as any).skillTags) && (node as any).skillTags.length > 0
-  const NODE_COLORS = { blocked: '#e8a04c', skill: '#7ed491', external: '#5cc8d4', experience: '#7ba7d4', theme: '#b89ad6' }
+  const hasSkills = !value && node.type !== 'self' && Array.isArray((node as any).skillTags) && (node as any).skillTags.length > 0
+  const NODE_COLORS = { self: '#efedf5', blocked: '#e8a04c', skill: '#7ed491', external: '#5cc8d4', experience: '#7ba7d4', theme: '#b89ad6' }
   const color = value
     ? NODE_COLORS.theme
+    : node.type === 'self' ? NODE_COLORS.self
     : isBlocked ? NODE_COLORS.blocked
     : hasSkills ? NODE_COLORS.skill
     : hasExternal ? NODE_COLORS.external
