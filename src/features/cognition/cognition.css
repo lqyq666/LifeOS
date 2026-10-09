@@ -205,3 +205,16 @@
 .identity-description { font-size: 14px; color: #b3a9c5; margin-top: 6px; line-height: 1.6; display: block; }
 .identity-next { font-size: 12px; color: #7ed491; margin-top: 8px; display: block; }
 .identity-progress { font-size: 11px; color: #6a617e; margin-top: 4px; display: block; }
+
+/* ── 经历洞察面板 ── */
+.record-insight { margin-top: 20px; padding: 18px 20px; border-radius: 16px; background: linear-gradient(135deg, #12101d, #0d1018); border: 1px solid #2a2438; }
+.record-insight-headline { margin: 0; font-size: 16px; font-weight: 500; color: #dcc3ff; line-height: 1.7; }
+.record-insight-evidence { margin: 10px 0 0; font-size: 13px; color: #9d93b2; line-height: 1.7; }
+.record-related { margin-top: 20px; }
+.record-related h3 { margin: 0 0 8px; font-size: 13px; color: #aea3c4; font-weight: 400; }
+.record-related-item { margin: 4px 0; font-size: 14px; color: #b3a9c5; }
+.record-next { margin-top: 24px; padding: 16px 18px; border-radius: 14px; background: #0e1119; border: 1px solid #272335; }
+.record-next h3 { margin: 0 0 8px; font-size: 13px; color: #7ed491; font-weight: 400; }
+.record-next p { margin: 0 0 12px; font-size: 14px; color: #d1cbdc; line-height: 1.7; }
+.record-continue { border: 0; border-radius: 999px; background: linear-gradient(135deg, #8d70d2, #7c5fc0); padding: 10px 24px; color: #fff; font-size: 14px; cursor: pointer; }
+.record-continue:hover { background: #9d80e2; }

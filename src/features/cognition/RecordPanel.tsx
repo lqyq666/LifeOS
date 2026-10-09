@@ -35,12 +35,6 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
   ] as const
   const content = (key: typeof fields[number]['key']) => draft[key] ?? node[key]
   const summary = draft.summary || node.summary || ''
-  // 每个节点只保留对当次对话的总体总结：原话+结果浓缩为最多两句、约120字。
-  const overallSummary = (() => {
-    const parts = [summary, content('result')].filter(Boolean).join('。').replace(/。。+/g, '。')
-    const sentences = parts.split(/(?<=[。！？])/).slice(0, 2).join('')
-    return sentences.length > 120 ? sentences.slice(0, 118).replace(/[，、；\s]+$/, '') + '…' : sentences
-  })()
   const cancel = () => { setEditing(false); setNotice(''); requestAnimationFrame(() => edit.current?.focus()) }
   const startEdit = () => {
     const next = { ...draft, summary, ...Object.fromEntries(fields.map(field => [field.key, content(field.key) ?? ''])) }
@@ -115,22 +109,34 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
             sessionStorage.setItem('lifeos:pending-conversation', node.conversationId!)
             if (node.sourceMessageId) sessionStorage.setItem('lifeos:pending-conversation-message', node.sourceMessageId)
             window.dispatchEvent(new CustomEvent('lifeos-open-conversation'))
-          }}>打开原对话</button> · <button type="button" onClick={() => {
-            onBack()
-            sessionStorage.setItem('lifeos:pending-conversation', node.conversationId!)
-            sessionStorage.setItem('lifeos:pending-conversation-draft', `继续聊聊「${node.title.slice(0, 20)}」这件事`)
-            if (node.serverId) sessionStorage.setItem('lifeos:focus-context', JSON.stringify({ type: 'experience', id: node.serverId, label: node.title.slice(0, 80) }))
-            window.dispatchEvent(new CustomEvent('lifeos-open-conversation'))
-          }}>继续聊这件事</button>）</p>}
-          <section className="record-story record-story-summary" aria-label="本次对话总结"><h3>本次对话总结</h3><p>{overallSummary}</p>
-          <div className="record-badges">
-            {Array.isArray((node as any)?.skillTags) && (node as any).skillTags.length > 0 && <span className="record-badge is-skill">{(node as any).skillTags.join(' · ')}</span>}
-            {(node as any)?.blocked && <span className="record-badge is-blocked">未完成</span>}
-            {(node as any)?.externalFeedback && <span className="record-badge is-external">含他人反馈</span>}
-          </div></section>
-          {originalValues.length > 0 && <section className="interpretation" aria-label="关联解释"><h3>关联</h3>
+          }}>打开原对话</button>）</p>}
+          {(node as any).insight && <section className="record-insight">
+            <p className="record-insight-headline">{(node as any).insight.headline}</p>
+            {(node as any).insight.evidence && <p className="record-insight-evidence">{(node as any).insight.evidence}</p>}
+            <div className="record-badges">
+              {Array.isArray((node as any).skillTags) && (node as any).skillTags.length > 0 && <span className="record-badge is-skill">{(node as any).skillTags.join(' · ')}</span>}
+              {(node as any).blocked && <span className="record-badge is-blocked">未完成</span>}
+              {(node as any).externalFeedback && <span className="record-badge is-external">含他人反馈</span>}
+            </div>
+          </section>}
+          {originalValues.length > 0 && <section className="interpretation" aria-label="关联解释"><h3>关联的主题</h3>
             {values.length > 1 ? <div className="angle-options" role="group" aria-label="选择关联角度">{values.map(id => <button key={id} aria-pressed={angleId === id} onClick={() => controller.changeAngle(id)}>{graph.getNode(id)?.title}</button>)}</div> : values.length === 1 && <p className="single-value">{graph.getNode(values[0])?.title}</p>}
             {values.length && edge ? <p className="relation-reason">{review?.editedReason ?? edge.reason}</p> : <p className="relation-empty">暂无关联</p>}
+          </section>}
+          {Array.isArray((node as any).insight?.relatedTitles) && (node as any).insight.relatedTitles.length > 0 && <section className="record-related">
+            <h3>相关的经历</h3>
+            {(node as any).insight.relatedTitles.map((title: string, i: number) => <p key={i} className="record-related-item">· {title}</p>)}
+          </section>}
+          {(node as any).insight?.nextStep && <section className="record-next">
+            <h3>下一步</h3>
+            <p>{(node as any).insight.nextStep}</p>
+            {node.conversationId && node.conversationTitle && <button type="button" className="record-continue" onClick={() => {
+              onBack()
+              sessionStorage.setItem('lifeos:pending-conversation', node.conversationId!)
+              sessionStorage.setItem('lifeos:pending-conversation-draft', `关于「${node.title.slice(0, 20)}」这段经历，${(node as any).insight?.nextStep?.slice(0, 30) ?? '帮我看看下一步怎么做'}`)
+              if (node.serverId) sessionStorage.setItem('lifeos:focus-context', JSON.stringify({ type: 'experience', id: node.serverId, label: node.title.slice(0, 80) }))
+              window.dispatchEvent(new CustomEvent('lifeos-open-conversation'))
+            }}>跟 AI 聊聊这件事</button>}
           </section>}
         </>}
         {notice && <p className="record-notice" role="status">{notice}</p>}
