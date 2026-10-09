@@ -86,14 +86,22 @@ export default function LifeFlywheel({core,paused=false,reducedMotion=false,stag
         <CognitionScene controller={controller} labels={labels} core={core} active={active} reducedMotion={reducedMotion} mobile={mobile} stage={stage} interaction={interaction}/>
       </Canvas>
       <div className="node-labels" aria-label="空间节点" inert={landing||view.transitioning||view.mode==='EXPERIENCE_DETAIL'}>
-        {graph.data.nodes.map(node=><button key={node.id} hidden ref={el=>{if(el)labels.set(node.id,el);else labels.delete(node.id)}} data-node={node.id} data-type={node.type} data-focus-key={`node-${node.id}`} className="node-label"
+        {graph.data.nodes.map(node=>{
+          // 类别色彩：卡住=orange、能力证据=green、外部反馈=cyan、经历=blue、主题=purple
+          const category = node.type === 'value' ? 'theme'
+            : node.type === 'self' ? 'self'
+            : (node as any).blocked ? 'blocked'
+            : Array.isArray((node as any).skillTags) && (node as any).skillTags.length > 0 ? 'skill'
+            : (node as any).externalFeedback ? 'external'
+            : 'experience'
+          return <button key={node.id} hidden ref={el=>{if(el)labels.set(node.id,el);else labels.delete(node.id)}} data-node={node.id} data-type={node.type} data-category={category} data-focus-key={`node-${node.id}`} className="node-label"
           onPointerEnter={()=>{controller.hoverId=node.id;controller.invalidate()}}
           onPointerLeave={()=>{if(controller.hoverId===node.id){controller.hoverId=null;controller.invalidate()}}}
           onFocus={()=>{controller.hoverId=node.id;controller.invalidate()}}
           onBlur={()=>{if(controller.hoverId===node.id){controller.hoverId=null;controller.invalidate()}}}
           onClick={()=>controller.open(node.id)} aria-label={`${node.type==='experience'?'阅读':'聚焦'}${node.title}`}>
           <span className="node-label-title">{node.title}</span><span className="node-label-hint">{node.type==='experience'?'阅读记录 ↗':node.type==='value'?'探索经历 ↗':''}</span>
-        </button>)}
+        </button>})}
       </div>
     </SceneBoundary>}
   </div>

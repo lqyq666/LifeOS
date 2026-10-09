@@ -196,3 +196,4 @@
 @media (prefers-reduced-motion: reduce) {
   .record-badge.is-skill, .record-badge.is-blocked, .record-badge.is-external { animation: none; }
 }
+.node-label[data-category="self"] { color: #efedf5; }
