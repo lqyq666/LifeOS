@@ -437,9 +437,7 @@ export async function cognitionGraph(user:string) {
     themeCount: (await pool.query("SELECT count(*) as n FROM user_themes WHERE user_id=$1 AND status NOT IN ('retired')",[user])).rows[0].n,
   }
   const identity=determineIdentity(identityEvidence)
-  const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[]),...(skillTagList.length?[`有能力证据的：${skillTagList.map(t=>`${t.tag}(${t.count}段)`).join('、')}`
-
-${identity.current.icon} ${identity.current.name}：${identity.current.description}``]:[])]
+  const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[]),...(skillTagList.length?[`有能力证据的：${skillTagList.map(t=>`${t.tag}(${t.count}段)`).join('、')}`]:[]),`${identity.current.icon} ${identity.current.name}：${identity.current.description}`]
   const self={...selfRow,description:selfDescriptionParts.join('\n')||selfRow.description,identityAccepted:accepted,identityObservations:observations,skillTags:skillTagList,growthIdentity:{level:identity.current.level,name:identity.current.name,icon:identity.current.icon,description:identity.current.description,nextHint:identity.current.nextHint,progress:identity.progress}} as any
   const changeEvents=(await pool.query("SELECT subject_type,subject_id,transition,reason,committed_at,user_confirmation,unknowns FROM identity_change_events WHERE user_id=$1 ORDER BY committed_at DESC LIMIT 12",[user])).rows
   // “下一步”只来自当前有效事实：最旧的进行中追求或最新行动重点；没有就空。
