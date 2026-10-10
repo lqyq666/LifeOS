@@ -14,7 +14,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "了解大学运行方式，从哪下手？",
-    "negative": "了解大学运行方式让我很烦，只想聊，不要建议。"
+    "negative": "了解大学运行方式让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "该校账号与权限不能迁移到其他学校。"
   },
   {
     "candidate_id": "C01-2",
@@ -31,7 +37,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "寻找可靠校园信息，从哪下手？",
-    "negative": "寻找可靠校园信息让我很烦，只想聊，不要建议。"
+    "negative": "寻找可靠校园信息让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "该校账号与权限不能迁移到其他学校。"
   },
   {
     "candidate_id": "C01-3",
@@ -48,7 +60,13 @@
     "review_status": "needs_review",
     "reason": "原文不能直接支持导师初次邮件、社交破冰、推荐请求和未回复跟进的全部分支；需要相关沟通原文。",
     "positive": "从零建立社交，从哪下手？",
-    "negative": "从零建立社交让我很烦，只想聊，不要建议。"
+    "negative": "从零建立社交让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。"
   },
   {
     "candidate_id": "C01-4",
@@ -65,7 +83,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "适应独立生活，从哪下手？",
-    "negative": "适应独立生活让我很烦，只想聊，不要建议。"
+    "negative": "适应独立生活让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不诊断或宣称治疗，AI不是现实安全支持的替代。"
   },
   {
     "candidate_id": "C02-1",
@@ -82,7 +106,13 @@
     "review_status": "needs_review",
     "reason": "体验专业、海外学习和学术意愿的小接触决策仍缺相关来源，不能由一次活动报告推出适配机制。",
     "positive": "判断专业适配，从哪下手？",
-    "negative": "判断专业适配让我很烦，只想聊，不要建议。"
+    "negative": "判断专业适配让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。"
   },
   {
     "candidate_id": "C02-2",
@@ -99,7 +129,13 @@
     "review_status": "needs_review",
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "了解真实工作，从哪下手？",
-    "negative": "了解真实工作让我很烦，只想聊，不要建议。"
+    "negative": "了解真实工作让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
   },
   {
     "candidate_id": "C02-3",
@@ -116,7 +152,13 @@
     "review_status": "needs_review",
     "reason": "体验专业、海外学习和学术意愿的小接触决策仍缺相关来源，不能由一次活动报告推出适配机制。",
     "positive": "低成本尝试另一专业，从哪下手？",
-    "negative": "低成本尝试另一专业让我很烦，只想聊，不要建议。"
+    "negative": "低成本尝试另一专业让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。"
   },
   {
     "candidate_id": "C02-4",
@@ -133,7 +175,13 @@
     "review_status": "needs_review",
     "reason": "能力缺口识别、跨专业迁移和小作品验证尚缺直接来源；目前只有编辑步骤，暂不批准。",
     "positive": "迁移已有能力，从哪下手？",
-    "negative": "迁移已有能力让我很烦，只想聊，不要建议。"
+    "negative": "迁移已有能力让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "跨专业迁移的成效未被原讲座证明，小作品步骤为待审编辑适配。"
   },
   {
     "candidate_id": "C03-1",
@@ -150,7 +198,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "理解困难课程，从哪下手？",
-    "negative": "理解困难课程让我很烦，只想聊，不要建议。"
+    "negative": "理解困难课程让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不承诺提分，不把学科概念结构当成职业能力。"
   },
   {
     "candidate_id": "C03-2",
@@ -167,7 +221,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "整理知识框架，从哪下手？",
-    "negative": "整理知识框架让我很烦，只想聊，不要建议。"
+    "negative": "整理知识框架让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不承诺提分，不把学科概念结构当成职业能力。"
   },
   {
     "candidate_id": "C03-3",
@@ -184,7 +244,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "期末复习抓重点，从哪下手？",
-    "negative": "期末复习抓重点让我很烦，只想聊，不要建议。"
+    "negative": "期末复习抓重点让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不把示例分钟数、身份或任务数量当最优安排。"
   },
   {
     "candidate_id": "C03-4",
@@ -201,7 +267,13 @@
     "review_status": "needs_review",
     "reason": "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。",
     "positive": "考试失利诊断，从哪下手？",
-    "negative": "考试失利诊断让我很烦，只想聊，不要建议。"
+    "negative": "考试失利诊断让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "科研归因与四类错误的普遍有效性仍缺直接证据。"
   },
   {
     "candidate_id": "C04-1",
@@ -218,7 +290,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "主动回忆，从哪下手？",
-    "negative": "主动回忆让我很烦，只想聊，不要建议。"
+    "negative": "主动回忆让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不固定每天次数或声称所有学科同一收益。"
   },
   {
     "candidate_id": "C04-2",
@@ -235,7 +313,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "间隔复习，从哪下手？",
-    "negative": "间隔复习让我很烦，只想聊，不要建议。"
+    "negative": "间隔复习让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不规定通用最优间隔或继承原文示例日期。"
   },
   {
     "candidate_id": "C04-3",
@@ -252,7 +336,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "从模仿到独立完成，从哪下手？",
-    "negative": "从模仿到独立完成让我很烦，只想聊，不要建议。"
+    "negative": "从模仿到独立完成让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "例题与当前问题结构不同就不强套。"
   },
   {
     "candidate_id": "C04-4",
@@ -269,7 +359,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "通过输出检验理解，从哪下手？",
-    "negative": "通过输出检验理解让我很烦，只想聊，不要建议。"
+    "negative": "通过输出检验理解让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "表达流畅不是掌握证明，不推断人格或教学天赋。"
   },
   {
     "candidate_id": "C05-1",
@@ -286,7 +382,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "多任务排序，从哪下手？",
-    "negative": "多任务排序让我很烦，只想聊，不要建议。"
+    "negative": "多任务排序让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不把示例分钟数、身份或任务数量当最优安排。"
   },
   {
     "candidate_id": "C05-2",
@@ -303,7 +405,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "低时间预算，从哪下手？",
-    "negative": "低时间预算让我很烦，只想聊，不要建议。"
+    "negative": "低时间预算让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不把示例分钟数、身份或任务数量当最优安排。"
   },
   {
     "candidate_id": "C05-3",
@@ -320,7 +428,13 @@
     "review_status": "needs_review",
     "reason": "中断后恢复上下文和环境调整不是所核对页面的机制，需要注意力/任务恢复相关来源。",
     "positive": "被打断后恢复，从哪下手？",
-    "negative": "被打断后恢复让我很烦，只想聊，不要建议。"
+    "negative": "被打断后恢复让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "倒推方法不证明环境调整或注意力疗效；中断恢复是编辑适配。"
   },
   {
     "candidate_id": "C05-4",
@@ -337,7 +451,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "减少或坚持任务，从哪下手？",
-    "negative": "减少或坚持任务让我很烦，只想聊，不要建议。"
+    "negative": "减少或坚持任务让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不保证迭代必成功，拒绝不是人格退步。"
   },
   {
     "candidate_id": "C06-1",
@@ -354,7 +474,13 @@
     "review_status": "needs_review",
     "reason": "缩减动作缓解无法启动的步骤是原创适配，尚缺支持启动机制的相关原文。",
     "positive": "知道该做却无法开始，从哪下手？",
-    "negative": "知道该做却无法开始让我很烦，只想聊，不要建议。"
+    "negative": "知道该做却无法开始让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "步骤是LifeOS适配，不承诺治好拖延或把心理问题归为执行力。"
   },
   {
     "candidate_id": "C06-2",
@@ -371,7 +497,13 @@
     "review_status": "needs_review",
     "reason": "缩减动作缓解无法启动的步骤是原创适配，尚缺支持启动机制的相关原文。",
     "positive": "拆最小行动，从哪下手？",
-    "negative": "拆最小行动让我很烦，只想聊，不要建议。"
+    "negative": "拆最小行动让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "步骤是LifeOS适配，不承诺治好拖延或把心理问题归为执行力。"
   },
   {
     "candidate_id": "C06-3",
@@ -388,7 +520,13 @@
     "review_status": "needs_review",
     "reason": "中断后恢复上下文和环境调整不是所核对页面的机制，需要注意力/任务恢复相关来源。",
     "positive": "改善启动环境，从哪下手？",
-    "negative": "改善启动环境让我很烦，只想聊，不要建议。"
+    "negative": "改善启动环境让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "倒推方法不证明环境调整或注意力疗效；中断恢复是编辑适配。"
   },
   {
     "candidate_id": "C06-4",
@@ -405,7 +543,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "连续失败后调整计划，从哪下手？",
-    "negative": "连续失败后调整计划让我很烦，只想聊，不要建议。"
+    "negative": "连续失败后调整计划让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不保证迭代必成功，拒绝不是人格退步。"
   },
   {
     "candidate_id": "C07-1",
@@ -422,7 +566,13 @@
     "review_status": "needs_review",
     "reason": "体验专业、海外学习和学术意愿的小接触决策仍缺相关来源，不能由一次活动报告推出适配机制。",
     "positive": "不知道未来做什么，从哪下手？",
-    "negative": "不知道未来做什么让我很烦，只想聊，不要建议。"
+    "negative": "不知道未来做什么让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。"
   },
   {
     "candidate_id": "C07-2",
@@ -439,7 +589,13 @@
     "review_status": "needs_review",
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "比较发展方向，从哪下手？",
-    "negative": "比较发展方向让我很烦，只想聊，不要建议。"
+    "negative": "比较发展方向让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
   },
   {
     "candidate_id": "C07-3",
@@ -456,7 +612,13 @@
     "review_status": "needs_review",
     "reason": "原文不能直接支持导师初次邮件、社交破冰、推荐请求和未回复跟进的全部分支；需要相关沟通原文。",
     "positive": "找到行业知情人，从哪下手？",
-    "negative": "找到行业知情人让我很烦，只想聊，不要建议。"
+    "negative": "找到行业知情人让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。"
   },
   {
     "candidate_id": "C07-4",
@@ -473,7 +635,13 @@
     "review_status": "needs_review",
     "reason": "体验专业、海外学习和学术意愿的小接触决策仍缺相关来源，不能由一次活动报告推出适配机制。",
     "positive": "体验后决定是否继续，从哪下手？",
-    "negative": "体验后决定是否继续让我很烦，只想聊，不要建议。"
+    "negative": "体验后决定是否继续让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。"
   },
   {
     "candidate_id": "C08-1",
@@ -490,7 +658,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "区分做过/擅长/喜欢，从哪下手？",
-    "negative": "区分做过/擅长/喜欢让我很烦，只想聊，不要建议。"
+    "negative": "区分做过/擅长/喜欢让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "STAR不支持稳定人格、胜任度或一次经验的终身适配。"
   },
   {
     "candidate_id": "C08-2",
@@ -507,7 +681,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "从经历寻找局部规律，从哪下手？",
-    "negative": "从经历寻找局部规律让我很烦，只想聊，不要建议。"
+    "negative": "从经历寻找局部规律让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "STAR不支持稳定人格、胜任度或一次经验的终身适配。"
   },
   {
     "candidate_id": "C08-3",
@@ -524,7 +704,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "理解他人评价，从哪下手？",
-    "negative": "理解他人评价让我很烦，只想聊，不要建议。"
+    "negative": "理解他人评价让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "STAR不支持稳定人格、胜任度或一次经验的终身适配。"
   },
   {
     "candidate_id": "C08-4",
@@ -541,7 +727,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "改变目标后更新自我认识，从哪下手？",
-    "negative": "改变目标后更新自我认识让我很烦，只想聊，不要建议。"
+    "negative": "改变目标后更新自我认识让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不保证迭代必成功，拒绝不是人格退步。"
   },
   {
     "candidate_id": "C09-1",
@@ -558,7 +750,13 @@
     "review_status": "needs_review",
     "reason": "原文不能直接支持导师初次邮件、社交破冰、推荐请求和未回复跟进的全部分支；需要相关沟通原文。",
     "positive": "首次联系导师，从哪下手？",
-    "negative": "首次联系导师让我很烦，只想聊，不要建议。"
+    "negative": "首次联系导师让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。"
   },
   {
     "candidate_id": "C09-2",
@@ -575,7 +773,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "阅读陌生论文，从哪下手？",
-    "negative": "阅读陌生论文让我很烦，只想聊，不要建议。"
+    "negative": "阅读陌生论文让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "一篇文献不证明研究适配，不替代实验或导师指导。"
   },
   {
     "candidate_id": "C09-3",
@@ -592,7 +796,13 @@
     "review_status": "needs_review",
     "reason": "角色、依赖、验收人以及科研/社团的迁移缺少足够原文定位，8词片段不作为全套团队框架证据。",
     "positive": "进组明确任务，从哪下手？",
-    "negative": "进组明确任务让我很烦，只想聊，不要建议。"
+    "negative": "进组明确任务让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "社团团队材料不证明科研验收标准；技术分支明确退回负责人核对。"
   },
   {
     "candidate_id": "C09-4",
@@ -609,7 +819,13 @@
     "review_status": "needs_review",
     "reason": "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。",
     "positive": "科研受阻复盘，从哪下手？",
-    "negative": "科研受阻复盘让我很烦，只想聊，不要建议。"
+    "negative": "科研受阻复盘让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "科研归因与四类错误的普遍有效性仍缺直接证据。"
   },
   {
     "candidate_id": "C10-1",
@@ -626,7 +842,13 @@
     "review_status": "needs_review",
     "reason": "体验专业、海外学习和学术意愿的小接触决策仍缺相关来源，不能由一次活动报告推出适配机制。",
     "positive": "判断是否愿意走学术道路，从哪下手？",
-    "negative": "判断是否愿意走学术道路让我很烦，只想聊，不要建议。"
+    "negative": "判断是否愿意走学术道路让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。"
   },
   {
     "candidate_id": "C10-2",
@@ -643,7 +865,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "整理科研课程经历，从哪下手？",
-    "negative": "整理科研课程经历让我很烦，只想聊，不要建议。"
+    "negative": "整理科研课程经历让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "STAR不支持稳定人格、胜任度或一次经验的终身适配。"
   },
   {
     "candidate_id": "C10-3",
@@ -660,7 +888,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "说明本人贡献，从哪下手？",
-    "negative": "说明本人贡献让我很烦，只想聊，不要建议。"
+    "negative": "说明本人贡献让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不造奖项、收入、推荐或录用效果。"
   },
   {
     "candidate_id": "C10-4",
@@ -677,7 +911,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "介绍真实研究项目，从哪下手？",
-    "negative": "介绍真实研究项目让我很烦，只想聊，不要建议。"
+    "negative": "介绍真实研究项目让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不造奖项、收入、推荐或录用效果。"
   },
   {
     "candidate_id": "C11-1",
@@ -694,7 +934,13 @@
     "review_status": "needs_review",
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "评估研究方向，从哪下手？",
-    "negative": "评估研究方向让我很烦，只想聊，不要建议。"
+    "negative": "评估研究方向让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
   },
   {
     "candidate_id": "C11-2",
@@ -711,7 +957,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "拆长期备考阶段，从哪下手？",
-    "negative": "拆长期备考阶段让我很烦，只想聊，不要建议。"
+    "negative": "拆长期备考阶段让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不把示例分钟数、身份或任务数量当最优安排。"
   },
   {
     "candidate_id": "C11-3",
@@ -728,7 +980,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "平衡课程与备考，从哪下手？",
-    "negative": "平衡课程与备考让我很烦，只想聊，不要建议。"
+    "negative": "平衡课程与备考让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不把示例分钟数、身份或任务数量当最优安排。"
   },
   {
     "candidate_id": "C11-4",
@@ -745,7 +1003,13 @@
     "review_status": "needs_review",
     "reason": "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。",
     "positive": "诊断模拟练习问题，从哪下手？",
-    "negative": "诊断模拟练习问题让我很烦，只想聊，不要建议。"
+    "negative": "诊断模拟练习问题让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "科研归因与四类错误的普遍有效性仍缺直接证据。"
   },
   {
     "candidate_id": "C12-1",
@@ -762,7 +1026,13 @@
     "review_status": "needs_review",
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "了解实际工作，从哪下手？",
-    "negative": "了解实际工作让我很烦，只想聊，不要建议。"
+    "negative": "了解实际工作让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
   },
   {
     "candidate_id": "C12-2",
@@ -779,7 +1049,13 @@
     "review_status": "needs_review",
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "稳定与自主的取舍，从哪下手？",
-    "negative": "稳定与自主的取舍让我很烦，只想聊，不要建议。"
+    "negative": "稳定与自主的取舍让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
   },
   {
     "candidate_id": "C12-3",
@@ -796,7 +1072,13 @@
     "review_status": "needs_review",
     "reason": "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。",
     "positive": "练习复盘，从哪下手？",
-    "negative": "练习复盘让我很烦，只想聊，不要建议。"
+    "negative": "练习复盘让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "科研归因与四类错误的普遍有效性仍缺直接证据。"
   },
   {
     "candidate_id": "C12-4",
@@ -813,7 +1095,13 @@
     "review_status": "needs_review",
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "与其他发展方向比较，从哪下手？",
-    "negative": "与其他发展方向比较让我很烦，只想聊，不要建议。"
+    "negative": "与其他发展方向比较让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
   },
   {
     "candidate_id": "C13-1",
@@ -830,7 +1118,13 @@
     "review_status": "needs_review",
     "reason": "体验专业、海外学习和学术意愿的小接触决策仍缺相关来源，不能由一次活动报告推出适配机制。",
     "positive": "评估海外学习适配，从哪下手？",
-    "negative": "评估海外学习适配让我很烦，只想聊，不要建议。"
+    "negative": "评估海外学习适配让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。"
   },
   {
     "candidate_id": "C13-2",
@@ -847,7 +1141,13 @@
     "review_status": "needs_review",
     "reason": "岗位、留学项目和付费服务是否值得投入的判断不是STAR证据，需要要求/代价核验来源。",
     "positive": "比较项目内容，从哪下手？",
-    "negative": "比较项目内容让我很烦，只想聊，不要建议。"
+    "negative": "比较项目内容让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原文仅岗位材料；海外项目资格、付费服务价值与法律效力均退回各自资料。"
   },
   {
     "candidate_id": "C13-3",
@@ -864,7 +1164,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "讲真实个人经历，从哪下手？",
-    "negative": "讲真实个人经历让我很烦，只想聊，不要建议。"
+    "negative": "讲真实个人经历让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不造奖项、收入、推荐或录用效果。"
   },
   {
     "candidate_id": "C13-4",
@@ -881,7 +1187,13 @@
     "review_status": "needs_review",
     "reason": "原文不能直接支持导师初次邮件、社交破冰、推荐请求和未回复跟进的全部分支；需要相关沟通原文。",
     "positive": "向老师请求推荐，从哪下手？",
-    "negative": "向老师请求推荐让我很烦，只想聊，不要建议。"
+    "negative": "向老师请求推荐让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。"
   },
   {
     "candidate_id": "C14-1",
@@ -898,7 +1210,13 @@
     "review_status": "needs_review",
     "reason": "AI建议核验、合作风险和个人资料保护的全部分支仍缺相关原文；不能把文学检索讲座当作隐私合规指南。",
     "positive": "寻找并核验岗位信息，从哪下手？",
-    "negative": "寻找并核验岗位信息让我很烦，只想聊，不要建议。"
+    "negative": "寻找并核验岗位信息让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。"
   },
   {
     "candidate_id": "C14-2",
@@ -915,7 +1233,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "无实习时整理经历，从哪下手？",
-    "negative": "无实习时整理经历让我很烦，只想聊，不要建议。"
+    "negative": "无实习时整理经历让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "STAR不支持稳定人格、胜任度或一次经验的终身适配。"
   },
   {
     "candidate_id": "C14-3",
@@ -932,7 +1256,13 @@
     "review_status": "needs_review",
     "reason": "岗位、留学项目和付费服务是否值得投入的判断不是STAR证据，需要要求/代价核验来源。",
     "positive": "判断岗位是否值得投递，从哪下手？",
-    "negative": "判断岗位是否值得投递让我很烦，只想聊，不要建议。"
+    "negative": "判断岗位是否值得投递让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原文仅岗位材料；海外项目资格、付费服务价值与法律效力均退回各自资料。"
   },
   {
     "candidate_id": "C14-4",
@@ -949,7 +1279,13 @@
     "review_status": "needs_review",
     "reason": "招聘分阶段反馈与无回应处理缺乏相关原文；先不批准就业流程分支。",
     "positive": "投递无回应复盘，从哪下手？",
-    "negative": "投递无回应复盘让我很烦，只想聊，不要建议。"
+    "negative": "投递无回应复盘让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "模拟练习不证明录用；投递沉默处理仍缺直接原文，定时追发不作统一规则。"
   },
   {
     "candidate_id": "C15-1",
@@ -966,7 +1302,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "自我介绍，从哪下手？",
-    "negative": "自我介绍让我很烦，只想聊，不要建议。"
+    "negative": "自我介绍让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不造奖项、收入、推荐或录用效果。"
   },
   {
     "candidate_id": "C15-2",
@@ -983,7 +1325,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "讲清项目，从哪下手？",
-    "negative": "讲清项目让我很烦，只想聊，不要建议。"
+    "negative": "讲清项目让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不造奖项、收入、推荐或录用效果。"
   },
   {
     "candidate_id": "C15-3",
@@ -1000,7 +1348,13 @@
     "review_status": "needs_review",
     "reason": "不会回答时澄清与诚实说明未知并非本段原文机制，需要面试沟通来源。",
     "positive": "处理不会回答的问题，从哪下手？",
-    "negative": "处理不会回答的问题让我很烦，只想聊，不要建议。"
+    "negative": "处理不会回答的问题让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "不支持表情识人、必录用或固定回答套路；承认未知另有个人经验佐证。"
   },
   {
     "candidate_id": "C15-4",
@@ -1017,7 +1371,13 @@
     "review_status": "needs_review",
     "reason": "招聘分阶段反馈与无回应处理缺乏相关原文；先不批准就业流程分支。",
     "positive": "面试后复盘，从哪下手？",
-    "negative": "面试后复盘让我很烦，只想聊，不要建议。"
+    "negative": "面试后复盘让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "模拟练习不证明录用；投递沉默处理仍缺直接原文，定时追发不作统一规则。"
   },
   {
     "candidate_id": "C16-1",
@@ -1034,7 +1394,13 @@
     "review_status": "needs_review",
     "reason": "能力缺口识别、跨专业迁移和小作品验证尚缺直接来源；目前只有编辑步骤，暂不批准。",
     "positive": "从原专业进入新领域，从哪下手？",
-    "negative": "从原专业进入新领域让我很烦，只想聊，不要建议。"
+    "negative": "从原专业进入新领域让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "跨专业迁移的成效未被原讲座证明，小作品步骤为待审编辑适配。"
   },
   {
     "candidate_id": "C16-2",
@@ -1051,7 +1417,13 @@
     "review_status": "needs_review",
     "reason": "能力缺口识别、跨专业迁移和小作品验证尚缺直接来源；目前只有编辑步骤，暂不批准。",
     "positive": "识别能力缺口，从哪下手？",
-    "negative": "识别能力缺口让我很烦，只想聊，不要建议。"
+    "negative": "识别能力缺口让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "跨专业迁移的成效未被原讲座证明，小作品步骤为待审编辑适配。"
   },
   {
     "candidate_id": "C16-3",
@@ -1068,7 +1440,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "用小作品验证能力，从哪下手？",
-    "negative": "用小作品验证能力让我很烦，只想聊，不要建议。"
+    "negative": "用小作品验证能力让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "陶瓷个案的图片验证不普遍支持技术能力认证；小作品能力分支退回具体要求。"
   },
   {
     "candidate_id": "C16-4",
@@ -1085,7 +1463,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "解释跨领域经历，从哪下手？",
-    "negative": "解释跨领域经历让我很烦，只想聊，不要建议。"
+    "negative": "解释跨领域经历让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不造奖项、收入、推荐或录用效果。"
   },
   {
     "candidate_id": "C17-1",
@@ -1102,7 +1486,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "发现值得解决的问题，从哪下手？",
-    "negative": "发现值得解决的问题让我很烦，只想聊，不要建议。"
+    "negative": "发现值得解决的问题让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "个案不是全行业验证，也不代表作者每句访谈提问有研究证明；提纲为编辑适配。"
   },
   {
     "candidate_id": "C17-2",
@@ -1119,7 +1509,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "找目标用户，从哪下手？",
-    "negative": "找目标用户让我很烦，只想聊，不要建议。"
+    "negative": "找目标用户让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "个案不是全行业验证，也不代表作者每句访谈提问有研究证明；提纲为编辑适配。"
   },
   {
     "candidate_id": "C17-3",
@@ -1136,7 +1532,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "最小实验，从哪下手？",
-    "negative": "最小实验让我很烦，只想聊，不要建议。"
+    "negative": "最小实验让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "陶瓷个案的图片验证不普遍支持技术能力认证；小作品能力分支退回具体要求。"
   },
   {
     "candidate_id": "C17-4",
@@ -1153,7 +1555,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "项目没人用的诊断，从哪下手？",
-    "negative": "项目没人用的诊断让我很烦，只想聊，不要建议。"
+    "negative": "项目没人用的诊断让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "陶瓷个案的图片验证不普遍支持技术能力认证；小作品能力分支退回具体要求。"
   },
   {
     "candidate_id": "C18-1",
@@ -1170,7 +1578,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "尝试第一单，从哪下手？",
-    "negative": "尝试第一单让我很烦，只想聊，不要建议。"
+    "negative": "尝试第一单让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "实践建议不判断合同效力、退款权利或平台政策；未重新获取全文时不扩写来源主张。"
   },
   {
     "candidate_id": "C18-2",
@@ -1187,7 +1601,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "确认需求与交付范围，从哪下手？",
-    "negative": "确认需求与交付范围让我很烦，只想聊，不要建议。"
+    "negative": "确认需求与交付范围让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "实践建议不判断合同效力、退款权利或平台政策；未重新获取全文时不扩写来源主张。"
   },
   {
     "candidate_id": "C18-3",
@@ -1204,7 +1624,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "处理反复修改，从哪下手？",
-    "negative": "处理反复修改让我很烦，只想聊，不要建议。"
+    "negative": "处理反复修改让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "实践建议不判断合同效力、退款权利或平台政策；未重新获取全文时不扩写来源主张。"
   },
   {
     "candidate_id": "C18-4",
@@ -1221,7 +1647,13 @@
     "review_status": "needs_review",
     "reason": "实际使用、满意、付款与再次委托分列的机制缺直接原文，目前为编辑启发。",
     "positive": "复盘交付与复购，从哪下手？",
-    "negative": "复盘交付与复购让我很烦，只想聊，不要建议。"
+    "negative": "复盘交付与复购让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXACT_ORIGINAL_ATTEMPT_FAILED_OLD_FRAGMENT_ONLY",
+    "remaining_claim": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。"
   },
   {
     "candidate_id": "C19-1",
@@ -1238,7 +1670,13 @@
     "review_status": "needs_review",
     "reason": "到账/未到账、直接成本、必要开支和净收益并非时间手册内容，需要一般预算/财务记录原文。",
     "positive": "判断兼职价值，从哪下手？",
-    "negative": "判断兼职价值让我很烦，只想聊，不要建议。"
+    "negative": "判断兼职价值让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。"
   },
   {
     "candidate_id": "C19-2",
@@ -1255,7 +1693,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "平衡收入/课程/精力，从哪下手？",
-    "negative": "平衡收入/课程/精力让我很烦，只想聊，不要建议。"
+    "negative": "平衡收入/课程/精力让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不把示例分钟数、身份或任务数量当最优安排。"
   },
   {
     "candidate_id": "C19-3",
@@ -1272,7 +1716,13 @@
     "review_status": "needs_review",
     "reason": "到账/未到账、直接成本、必要开支和净收益并非时间手册内容，需要一般预算/财务记录原文。",
     "positive": "记录投入与收益，从哪下手？",
-    "negative": "记录投入与收益让我很烦，只想聊，不要建议。"
+    "negative": "记录投入与收益让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。"
   },
   {
     "candidate_id": "C19-4",
@@ -1289,7 +1739,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "合作问题的事实整理与沟通，从哪下手？",
-    "negative": "合作问题的事实整理与沟通让我很烦，只想聊，不要建议。"
+    "negative": "合作问题的事实整理与沟通让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "宿舍沟通只支持日常边界；导师、客户验收、费用权利与创业访谈另行处理。"
   },
   {
     "candidate_id": "C20-1",
@@ -1306,7 +1762,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "发现小产品问题，从哪下手？",
-    "negative": "发现小产品问题让我很烦，只想聊，不要建议。"
+    "negative": "发现小产品问题让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "个案不是全行业验证，也不代表作者每句访谈提问有研究证明；提纲为编辑适配。"
   },
   {
     "candidate_id": "C20-2",
@@ -1323,7 +1785,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "缩减原型功能，从哪下手？",
-    "negative": "缩减原型功能让我很烦，只想聊，不要建议。"
+    "negative": "缩减原型功能让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "陶瓷个案的图片验证不普遍支持技术能力认证；小作品能力分支退回具体要求。"
   },
   {
     "candidate_id": "C20-3",
@@ -1340,7 +1808,13 @@
     "review_status": "needs_review",
     "reason": "原文不能直接支持导师初次邮件、社交破冰、推荐请求和未回复跟进的全部分支；需要相关沟通原文。",
     "positive": "找首批使用者，从哪下手？",
-    "negative": "找首批使用者让我很烦，只想聊，不要建议。"
+    "negative": "找首批使用者让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。"
   },
   {
     "candidate_id": "C20-4",
@@ -1357,7 +1831,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "根据反馈选择改进，从哪下手？",
-    "negative": "根据反馈选择改进让我很烦，只想聊，不要建议。"
+    "negative": "根据反馈选择改进让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "陶瓷个案的图片验证不普遍支持技术能力认证；小作品能力分支退回具体要求。"
   },
   {
     "candidate_id": "C21-1",
@@ -1374,7 +1854,13 @@
     "review_status": "needs_review",
     "reason": "内容表达主题、受众理解和平台创作反馈的迁移缺直接相关来源；不把商业付款机制等同内容机制。",
     "positive": "选择表达主题，从哪下手？",
-    "negative": "选择表达主题让我很烦，只想聊，不要建议。"
+    "negative": "选择表达主题让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "校园新闻经验不支持所有自媒体平台增长策略；不要继承热度数字。"
   },
   {
     "candidate_id": "C21-2",
@@ -1391,7 +1877,13 @@
     "review_status": "needs_review",
     "reason": "内容表达主题、受众理解和平台创作反馈的迁移缺直接相关来源；不把商业付款机制等同内容机制。",
     "positive": "第一批内容实验，从哪下手？",
-    "negative": "第一批内容实验让我很烦，只想聊，不要建议。"
+    "negative": "第一批内容实验让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "校园新闻经验不支持所有自媒体平台增长策略；不要继承热度数字。"
   },
   {
     "candidate_id": "C21-3",
@@ -1408,7 +1900,13 @@
     "review_status": "needs_review",
     "reason": "内容表达主题、受众理解和平台创作反馈的迁移缺直接相关来源；不把商业付款机制等同内容机制。",
     "positive": "表现不好时复盘，从哪下手？",
-    "negative": "表现不好时复盘让我很烦，只想聊，不要建议。"
+    "negative": "表现不好时复盘让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "校园新闻经验不支持所有自媒体平台增长策略；不要继承热度数字。"
   },
   {
     "candidate_id": "C21-4",
@@ -1425,7 +1923,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "保持可持续创作，从哪下手？",
-    "negative": "保持可持续创作让我很烦，只想聊，不要建议。"
+    "negative": "保持可持续创作让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不把示例分钟数、身份或任务数量当最优安排。"
   },
   {
     "candidate_id": "C22-1",
@@ -1442,7 +1946,13 @@
     "review_status": "needs_review",
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "判断比赛是否值得，从哪下手？",
-    "negative": "判断比赛是否值得让我很烦，只想聊，不要建议。"
+    "negative": "判断比赛是否值得让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
   },
   {
     "candidate_id": "C22-2",
@@ -1459,7 +1969,13 @@
     "review_status": "needs_review",
     "reason": "目前未保存角色、依赖、延期、分歧处理的正文证据；不可只凭文章标题批准整套分工方法。",
     "positive": "选队友，从哪下手？",
-    "negative": "选队友让我很烦，只想聊，不要建议。"
+    "negative": "选队友让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。"
   },
   {
     "candidate_id": "C22-3",
@@ -1476,7 +1992,13 @@
     "review_status": "needs_review",
     "reason": "目前未保存角色、依赖、延期、分歧处理的正文证据；不可只凭文章标题批准整套分工方法。",
     "positive": "分工与贡献，从哪下手？",
-    "negative": "分工与贡献让我很烦，只想聊，不要建议。"
+    "negative": "分工与贡献让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。"
   },
   {
     "candidate_id": "C22-4",
@@ -1493,7 +2015,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "无奖项时提取真实收获，从哪下手？",
-    "negative": "无奖项时提取真实收获让我很烦，只想聊，不要建议。"
+    "negative": "无奖项时提取真实收获让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "STAR不支持稳定人格、胜任度或一次经验的终身适配。"
   },
   {
     "candidate_id": "C23-1",
@@ -1510,7 +2038,13 @@
     "review_status": "needs_review",
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "选择组织，从哪下手？",
-    "negative": "选择组织让我很烦，只想聊，不要建议。"
+    "negative": "选择组织让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
   },
   {
     "candidate_id": "C23-2",
@@ -1527,7 +2061,13 @@
     "review_status": "needs_review",
     "reason": "角色、依赖、验收人以及科研/社团的迁移缺少足够原文定位，8词片段不作为全套团队框架证据。",
     "positive": "新人找到具体任务，从哪下手？",
-    "negative": "新人找到具体任务让我很烦，只想聊，不要建议。"
+    "negative": "新人找到具体任务让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "社团团队材料不证明科研验收标准；技术分支明确退回负责人核对。"
   },
   {
     "candidate_id": "C23-3",
@@ -1544,7 +2084,13 @@
     "review_status": "needs_review",
     "reason": "目前未保存角色、依赖、延期、分歧处理的正文证据；不可只凭文章标题批准整套分工方法。",
     "positive": "组织小活动，从哪下手？",
-    "negative": "组织小活动让我很烦，只想聊，不要建议。"
+    "negative": "组织小活动让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。"
   },
   {
     "candidate_id": "C23-4",
@@ -1561,7 +2107,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "判断活动收获，从哪下手？",
-    "negative": "判断活动收获让我很烦，只想聊，不要建议。"
+    "negative": "判断活动收获让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "STAR不支持稳定人格、胜任度或一次经验的终身适配。"
   },
   {
     "candidate_id": "C24-1",
@@ -1578,7 +2130,13 @@
     "review_status": "needs_review",
     "reason": "目前未保存角色、依赖、延期、分歧处理的正文证据；不可只凭文章标题批准整套分工方法。",
     "positive": "明确共同目标，从哪下手？",
-    "negative": "明确共同目标让我很烦，只想聊，不要建议。"
+    "negative": "明确共同目标让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。"
   },
   {
     "candidate_id": "C24-2",
@@ -1595,7 +2153,13 @@
     "review_status": "needs_review",
     "reason": "目前未保存角色、依赖、延期、分歧处理的正文证据；不可只凭文章标题批准整套分工方法。",
     "positive": "解决分工不清，从哪下手？",
-    "negative": "解决分工不清让我很烦，只想聊，不要建议。"
+    "negative": "解决分工不清让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。"
   },
   {
     "candidate_id": "C24-3",
@@ -1612,7 +2176,13 @@
     "review_status": "needs_review",
     "reason": "目前未保存角色、依赖、延期、分歧处理的正文证据；不可只凭文章标题批准整套分工方法。",
     "positive": "处理延误，从哪下手？",
-    "negative": "处理延误让我很烦，只想聊，不要建议。"
+    "negative": "处理延误让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。"
   },
   {
     "candidate_id": "C24-4",
@@ -1629,7 +2199,13 @@
     "review_status": "needs_review",
     "reason": "目前未保存角色、依赖、延期、分歧处理的正文证据；不可只凭文章标题批准整套分工方法。",
     "positive": "在分歧中确定下一步，从哪下手？",
-    "negative": "在分歧中确定下一步让我很烦，只想聊，不要建议。"
+    "negative": "在分歧中确定下一步让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。"
   },
   {
     "candidate_id": "C25-1",
@@ -1646,7 +2222,13 @@
     "review_status": "needs_review",
     "reason": "原文不能直接支持导师初次邮件、社交破冰、推荐请求和未回复跟进的全部分支；需要相关沟通原文。",
     "positive": "认识新朋友，从哪下手？",
-    "negative": "认识新朋友让我很烦，只想聊，不要建议。"
+    "negative": "认识新朋友让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。"
   },
   {
     "candidate_id": "C25-2",
@@ -1663,7 +2245,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "沟通宿舍冲突，从哪下手？",
-    "negative": "沟通宿舍冲突让我很烦，只想聊，不要建议。"
+    "negative": "沟通宿舍冲突让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "宿舍沟通只支持日常边界；导师、客户验收、费用权利与创业访谈另行处理。"
   },
   {
     "candidate_id": "C25-3",
@@ -1680,7 +2268,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "表达拒绝，从哪下手？",
-    "negative": "表达拒绝让我很烦，只想聊，不要建议。"
+    "negative": "表达拒绝让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "宿舍沟通只支持日常边界；导师、客户验收、费用权利与创业访谈另行处理。"
   },
   {
     "candidate_id": "C25-4",
@@ -1697,7 +2291,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "提出需求与边界，从哪下手？",
-    "negative": "提出需求与边界让我很烦，只想聊，不要建议。"
+    "negative": "提出需求与边界让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "宿舍沟通只支持日常边界；导师、客户验收、费用权利与创业访谈另行处理。"
   },
   {
     "candidate_id": "C26-1",
@@ -1714,7 +2314,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "区分感受与待解决事情，从哪下手？",
-    "negative": "区分感受与待解决事情让我很烦，只想聊，不要建议。"
+    "negative": "区分感受与待解决事情让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不诊断或宣称治疗，AI不是现实安全支持的替代。"
   },
   {
     "candidate_id": "C26-2",
@@ -1731,7 +2337,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "减少过载任务，从哪下手？",
-    "negative": "减少过载任务让我很烦，只想聊，不要建议。"
+    "negative": "减少过载任务让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不把示例分钟数、身份或任务数量当最优安排。"
   },
   {
     "candidate_id": "C26-3",
@@ -1748,7 +2360,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "安排休息，从哪下手？",
-    "negative": "安排休息让我很烦，只想聊，不要建议。"
+    "negative": "安排休息让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不诊断或宣称治疗，AI不是现实安全支持的替代。"
   },
   {
     "candidate_id": "C26-4",
@@ -1765,7 +2383,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "寻找现实支持，从哪下手？",
-    "negative": "寻找现实支持让我很烦，只想聊，不要建议。"
+    "negative": "寻找现实支持让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "不诊断或宣称治疗，AI不是现实安全支持的替代。"
   },
   {
     "candidate_id": "C27-1",
@@ -1782,7 +2406,13 @@
     "review_status": "needs_review",
     "reason": "到账/未到账、直接成本、必要开支和净收益并非时间手册内容，需要一般预算/财务记录原文。",
     "positive": "简单预算，从哪下手？",
-    "negative": "简单预算让我很烦，只想聊，不要建议。"
+    "negative": "简单预算让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。"
   },
   {
     "candidate_id": "C27-2",
@@ -1799,7 +2429,13 @@
     "review_status": "needs_review",
     "reason": "岗位、留学项目和付费服务是否值得投入的判断不是STAR证据，需要要求/代价核验来源。",
     "positive": "评估付费服务，从哪下手？",
-    "negative": "评估付费服务让我很烦，只想聊，不要建议。"
+    "negative": "评估付费服务让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "原文仅岗位材料；海外项目资格、付费服务价值与法律效力均退回各自资料。"
   },
   {
     "candidate_id": "C27-3",
@@ -1816,7 +2452,13 @@
     "review_status": "needs_review",
     "reason": "AI建议核验、合作风险和个人资料保护的全部分支仍缺相关原文；不能把文学检索讲座当作隐私合规指南。",
     "positive": "识别合作可疑信号，从哪下手？",
-    "negative": "识别合作可疑信号让我很烦，只想聊，不要建议。"
+    "negative": "识别合作可疑信号让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。"
   },
   {
     "candidate_id": "C27-4",
@@ -1833,7 +2475,13 @@
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "整理费用争议事实，从哪下手？",
-    "negative": "整理费用争议事实让我很烦，只想聊，不要建议。"
+    "negative": "整理费用争议事实让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
+    "remaining_claim": "宿舍沟通只支持日常边界；导师、客户验收、费用权利与创业访谈另行处理。"
   },
   {
     "candidate_id": "C28-1",
@@ -1850,7 +2498,13 @@
     "review_status": "needs_review",
     "reason": "AI建议核验、合作风险和个人资料保护的全部分支仍缺相关原文；不能把文学检索讲座当作隐私合规指南。",
     "positive": "区分经验和证据，从哪下手？",
-    "negative": "区分经验和证据让我很烦，只想聊，不要建议。"
+    "negative": "区分经验和证据让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。"
   },
   {
     "candidate_id": "C28-2",
@@ -1867,7 +2521,13 @@
     "review_status": "needs_review",
     "reason": "AI建议核验、合作风险和个人资料保护的全部分支仍缺相关原文；不能把文学检索讲座当作隐私合规指南。",
     "positive": "提出具体问题，从哪下手？",
-    "negative": "提出具体问题让我很烦，只想聊，不要建议。"
+    "negative": "提出具体问题让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。"
   },
   {
     "candidate_id": "C28-3",
@@ -1884,7 +2544,13 @@
     "review_status": "needs_review",
     "reason": "AI建议核验、合作风险和个人资料保护的全部分支仍缺相关原文；不能把文学检索讲座当作隐私合规指南。",
     "positive": "核验AI建议，从哪下手？",
-    "negative": "核验AI建议让我很烦，只想聊，不要建议。"
+    "negative": "核验AI建议让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。"
   },
   {
     "candidate_id": "C28-4",
@@ -1901,6 +2567,12 @@
     "review_status": "needs_review",
     "reason": "AI建议核验、合作风险和个人资料保护的全部分支仍缺相关原文；不能把文学检索讲座当作隐私合规指南。",
     "positive": "保护个人资料与作品，从哪下手？",
-    "negative": "保护个人资料与作品让我很烦，只想聊，不要建议。"
+    "negative": "保护个人资料与作品让我很烦，只想聊，不要建议。",
+    "content_revision_candidate": 2,
+    "content_maturity": "SUBSTANTIVE_DRAFT",
+    "independent_review": "NOT_EXECUTED",
+    "human_approval": "NOT_OBTAINED",
+    "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+    "remaining_claim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。"
   }
 ]

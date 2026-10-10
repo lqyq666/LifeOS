@@ -17,3 +17,11 @@ IES四个推荐共21词短引文，学习来源为原始指南；清华备考网
 没有新增产品模块、依赖或联网采集。复用既有Cheerio、guideContentHash/validateEvergreenGuide/validateKnowledge、隔离PG导入器及原SDK；只补局部门禁、说明和验收脚本。原15个registry来源与2份既有MIT正文按已保存字节重新读取，15份正文、2份短片段明确分开。短片段不支持角色/范围/复购的扩大主张；来源支持与LifeOS编辑适配分列，未以正文可读或hash匹配代替独立审批。
 
 逐项材料：`../workflow-integration/evidence/acceptance-20261010/pending-review/SOURCE_REOPEN.json`、`PENDING_16_REVIEW.json`和`MAINLINE_REVISION_CANDIDATES.json`。复用既有华师职业访谈、清华考试检查、MIT读研目的及Upwork项目目标片段形成四份同canonical待审修订；不批准、不发布、不把59缺口改成已覆盖。精确原文位置、字节hash、局限和反馈适配均附在草案中。
+
+## 2026-10-10 连续批次补源与实质修订
+
+`KB_BATCH_SOURCE_READINGS.json`保留34个初次原站请求、5个后续定位请求和全部首次失败：Exa免费限流、Jina401、Upwork403、失效MIT链接、未匹配正文分别记录。29个不同原站页面/正文读回不等于29个可用方法：推荐信页仅嵌入表单，未读取表单；CMU页面标CC BY-NC-SA，商业适配权限未确认；目录页、失效或内容不充分项不扩大主张。未查看任何视频，不编播放量、作者或时间戳。仓库只保存短定位片段、hash和原创提炼；免费回归不依赖系统临时全文。
+
+`KB_CONTENT_REVISIONS.json`为32个原canonical的revision2实质修订，包括原16待审和原16approved的范围复核；没有新增同义卡。每稿补步骤、边界、资源调整、观察及五种反馈；跨领域适用不足明确退回，来源效果与LifeOS步骤分开。`KB_GAP_RESEARCH.json`逐项记录原59项的实际读取或失败、提炼、适用边界和仍缺主张。资料成熟度、独立审阅、人工批准分开；59不因有一次请求就自动清零，新稿不进入学生正式检索。
+
+维护对照入口先检查现有React、Better Auth、PG事务、Cheerio、TypeBox、规范卡导入与缓存索引。通过agent-reach/gh搜索并读取MIT项目relex/json-diff-react的组件源码与测试目录；其额外json-diff依赖对本批按字段比较收益不足，因此复用现有React和文本字段展示，不复制外部代码或迁入管理框架。保留来源与许可核查，不执行外部脚本。

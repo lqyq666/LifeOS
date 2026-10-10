@@ -14,7 +14,7 @@ test('pending review package binds all 16 decisions and 112 destinations without
  const review=read('PENDING_16_REVIEW.json'),map=read('CANDIDATE_112_DISPOSITIONS.json'),pack=read('MAINLINE_REVISION_CANDIDATES.json'),cards=lines('KB_GUIDES.jsonl') as KnowledgeCard[]
  assert.equal(review.cards.length,16);assert.equal(map.rows.length,112);assert.equal(new Set(map.rows.map((r:any)=>r.candidateId)).size,112)
  assert.deepEqual(new Set(review.cards.map((r:any)=>r.guideId)),new Set(cards.filter(c=>c.guide!.reviewStatus==='needs_review').map(c=>c.id)))
- for(const [name,digest] of Object.entries(review.baselineHashes))assert.equal(createHash('sha256').update(readFileSync(corpus+name)).digest('hex'),digest)
+ for(const [name,digest] of Object.entries(review.baselineHashes))assert.equal(createHash('sha256').update(readFileSync(name==='KB_COVERAGE.json'?directory+'baseline-c373/'+name:corpus+name)).digest('hex'),digest,'historical c373 baseline; current coverage carries newer draft/research metadata')
  for(const row of map.rows){const card=cards.find(c=>c.id===row.guideId)!;assert.ok(card.guide!.branches.some(b=>b.id===row.branchId&&b.task===row.task));assert.equal(row.revision,card.revision)}
  assert.equal(map.covered,53);assert.equal(map.awaitingSource,59);assert.equal(pack.revisions.length,4)
  for(const row of review.cards){assert.equal(row.decision,'needs_review');assert.equal(row.independentReviewReceipt,null);assert.equal(row.authenticatedReleaseReceipt,null);assert.ok(row.sourceSupport&&row.remainingGap&&row.nextRevisionWork)}

@@ -1,0 +1,2257 @@
+{
+  "originalGaps": 59,
+  "rows": [
+    {
+      "candidateId": "C01-3",
+      "domain": "新生适应",
+      "task": "从零建立社交",
+      "canonicalKey": "first-contact",
+      "attempts": [
+        {
+          "id": "usst-mentor-email",
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 2224,
+          "bodySha256": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef"
+        }
+      ],
+      "readSource": {
+        "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+        "bodyHash": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef",
+        "locator": {
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "start": 495,
+          "end": 799,
+          "line": 37,
+          "pdfPage": "PAGE 3"
+        },
+        "excerptHash": "8ed458f49525e157bae128fda1dce0e943dcc96ee255ead79e229cbd3cacdb00"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+      ],
+      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C02-1",
+      "domain": "专业认知",
+      "task": "判断专业适配",
+      "canonicalKey": "fit-exploration",
+      "attempts": [
+        {
+          "id": "sdu-career-interview",
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "at": "2026-10-10T10:02:32.696Z",
+          "status": "BODY_READ",
+          "bodyLength": 8669,
+          "bodySha256": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+        "bodyHash": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9",
+        "locator": {
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "start": 99,
+          "end": 403,
+          "line": 18,
+          "pdfPage": null
+        },
+        "excerptHash": "892457fd90e6412166695fdf322ddf6141ef986e16a1c71dcfe7b32034638872"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把“适合”改写成一个可了解的问题，例如日常任务是否愿意尝试。",
+        "对职业问题找一个实际从业者，询问一次典型任务和困难；对学术或专业先读真实课程/研究任务，不拿职业访谈替代。",
+        "实际接触后分列愿意、困难、未知；一次体验只调整这项问题，不下终身适配结论。"
+      ],
+      "applicabilityBoundary": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "stillMissingClaim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C02-2",
+      "domain": "专业认知",
+      "task": "了解真实工作",
+      "canonicalKey": "direction-comparison",
+      "attempts": [
+        {
+          "id": "shu-career-choice",
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 1570,
+          "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        }
+      ],
+      "readSource": {
+        "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+        "bodyHash": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910",
+        "locator": {
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "start": 763,
+          "end": 1066,
+          "line": 81,
+          "pdfPage": null
+        },
+        "excerptHash": "5dd59ddef83ab5dd214414faa8be73e26cd37c81ac75667124f69067cd4c19b6"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+      ],
+      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C02-3",
+      "domain": "专业认知",
+      "task": "低成本尝试另一专业",
+      "canonicalKey": "fit-exploration",
+      "attempts": [
+        {
+          "id": "sdu-career-interview",
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "at": "2026-10-10T10:02:32.696Z",
+          "status": "BODY_READ",
+          "bodyLength": 8669,
+          "bodySha256": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+        "bodyHash": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9",
+        "locator": {
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "start": 99,
+          "end": 403,
+          "line": 18,
+          "pdfPage": null
+        },
+        "excerptHash": "892457fd90e6412166695fdf322ddf6141ef986e16a1c71dcfe7b32034638872"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把“适合”改写成一个可了解的问题，例如日常任务是否愿意尝试。",
+        "对职业问题找一个实际从业者，询问一次典型任务和困难；对学术或专业先读真实课程/研究任务，不拿职业访谈替代。",
+        "实际接触后分列愿意、困难、未知；一次体验只调整这项问题，不下终身适配结论。"
+      ],
+      "applicabilityBoundary": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "stillMissingClaim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C02-4",
+      "domain": "专业认知",
+      "task": "迁移已有能力",
+      "canonicalKey": "skill-gap",
+      "attempts": [
+        {
+          "id": "yangtze-star",
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "at": "2026-10-10T10:02:29.140Z",
+          "status": "BODY_READ",
+          "bodyLength": 1096,
+          "bodySha256": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708"
+        }
+      ],
+      "readSource": {
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "bodyHash": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708",
+        "locator": {
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "start": 592,
+          "end": 903,
+          "line": 56,
+          "pdfPage": null
+        },
+        "excerptHash": "a647a6a6f44aaeb5aa5d398c3b24b3cf57fe371c5c586617c17492fc552bf63d"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "找一条实际岗位/项目要求，保留原文位置；要求未核实就暂停资格判断。",
+        "把本人已有作品按所做部分、证据和未完成环节对照；团队结果不等于本人贡献。",
+        "仅为一个缺口设计可检查的小产物；完成后看实际反馈，不用作品数量证明能力。"
+      ],
+      "applicabilityBoundary": "跨专业迁移的成效未被原讲座证明，小作品步骤为待审编辑适配。",
+      "stillMissingClaim": "跨专业迁移的成效未被原讲座证明，小作品步骤为待审编辑适配。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C03-4",
+      "domain": "课程考试",
+      "task": "考试失利诊断",
+      "canonicalKey": "exam-diagnosis",
+      "attempts": [
+        {
+          "id": "tsinghua-exam",
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "at": "2026-10-10T10:02:29.128Z",
+          "status": "BODY_READ",
+          "bodyLength": 7366,
+          "bodySha256": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3"
+        }
+      ],
+      "readSource": {
+        "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+        "bodyHash": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3",
+        "locator": {
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "start": 887,
+          "end": 1191,
+          "line": 37,
+          "pdfPage": null
+        },
+        "excerptHash": "ee496701163367845209c061aab9f204d560ccc7993a746325d231e94f336880"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "取一道已做题，逐步对照题意、本人过程和可核查答案。",
+        "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+        "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。"
+      ],
+      "applicabilityBoundary": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "stillMissingClaim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C05-3",
+      "domain": "时间安排",
+      "task": "被打断后恢复",
+      "canonicalKey": "restart-task",
+      "attempts": [
+        {
+          "id": "tsinghua-delay",
+          "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 5895,
+          "bodySha256": "ccfea0c847246819e7e90bd03ff8fc74e945683d1a7d22a275283dbb47232a68"
+        }
+      ],
+      "readSource": {
+        "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+        "bodyHash": "ccfea0c847246819e7e90bd03ff8fc74e945683d1a7d22a275283dbb47232a68",
+        "locator": {
+          "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+          "start": 4861,
+          "end": 5165,
+          "line": 240,
+          "pdfPage": "PAGE 8"
+        },
+        "excerptHash": "1290307c6517294da26c6365c53a5b9391da0c34f614a1f274f5248c344dc2c7"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "只读同一任务最后一份产物，记下已完成位置与下一未完成位置。",
+        "缺材料时先核对获取途径；已有材料时只恢复一个可继续的步骤。",
+        "尝试后记下新卡点，若仍无从开始就拆当前阻碍，不能重新发整个计划。"
+      ],
+      "applicabilityBoundary": "倒推方法不证明环境调整或注意力疗效；中断恢复是编辑适配。",
+      "stillMissingClaim": "倒推方法不证明环境调整或注意力疗效；中断恢复是编辑适配。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C06-1",
+      "domain": "行动执行",
+      "task": "知道该做却无法开始",
+      "canonicalKey": "start-small",
+      "attempts": [
+        {
+          "id": "tsinghua-delay",
+          "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 5895,
+          "bodySha256": "ccfea0c847246819e7e90bd03ff8fc74e945683d1a7d22a275283dbb47232a68"
+        }
+      ],
+      "readSource": {
+        "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+        "bodyHash": "ccfea0c847246819e7e90bd03ff8fc74e945683d1a7d22a275283dbb47232a68",
+        "locator": {
+          "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+          "start": 4861,
+          "end": 5165,
+          "line": 240,
+          "pdfPage": "PAGE 8"
+        },
+        "excerptHash": "1290307c6517294da26c6365c53a5b9391da0c34f614a1f274f5248c344dc2c7"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "承接已有任务，核对材料、起点或担忧，不先归因懒惰。",
+        "材料不足只列一个缺项；怕失败可列最坏情况和替代选择，不强迫暴露隐私。",
+        "找到本人能同意的一步，例如写一行问题或打开一份材料；没有意愿就停止。"
+      ],
+      "applicabilityBoundary": "步骤是LifeOS适配，不承诺治好拖延或把心理问题归为执行力。",
+      "stillMissingClaim": "步骤是LifeOS适配，不承诺治好拖延或把心理问题归为执行力。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C06-2",
+      "domain": "行动执行",
+      "task": "拆最小行动",
+      "canonicalKey": "start-small",
+      "attempts": [
+        {
+          "id": "tsinghua-delay",
+          "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 5895,
+          "bodySha256": "ccfea0c847246819e7e90bd03ff8fc74e945683d1a7d22a275283dbb47232a68"
+        }
+      ],
+      "readSource": {
+        "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+        "bodyHash": "ccfea0c847246819e7e90bd03ff8fc74e945683d1a7d22a275283dbb47232a68",
+        "locator": {
+          "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+          "start": 4861,
+          "end": 5165,
+          "line": 240,
+          "pdfPage": "PAGE 8"
+        },
+        "excerptHash": "1290307c6517294da26c6365c53a5b9391da0c34f614a1f274f5248c344dc2c7"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "承接已有任务，核对材料、起点或担忧，不先归因懒惰。",
+        "材料不足只列一个缺项；怕失败可列最坏情况和替代选择，不强迫暴露隐私。",
+        "找到本人能同意的一步，例如写一行问题或打开一份材料；没有意愿就停止。"
+      ],
+      "applicabilityBoundary": "步骤是LifeOS适配，不承诺治好拖延或把心理问题归为执行力。",
+      "stillMissingClaim": "步骤是LifeOS适配，不承诺治好拖延或把心理问题归为执行力。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C06-3",
+      "domain": "行动执行",
+      "task": "改善启动环境",
+      "canonicalKey": "restart-task",
+      "attempts": [
+        {
+          "id": "tsinghua-delay",
+          "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 5895,
+          "bodySha256": "ccfea0c847246819e7e90bd03ff8fc74e945683d1a7d22a275283dbb47232a68"
+        }
+      ],
+      "readSource": {
+        "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+        "bodyHash": "ccfea0c847246819e7e90bd03ff8fc74e945683d1a7d22a275283dbb47232a68",
+        "locator": {
+          "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+          "start": 4861,
+          "end": 5165,
+          "line": 240,
+          "pdfPage": "PAGE 8"
+        },
+        "excerptHash": "1290307c6517294da26c6365c53a5b9391da0c34f614a1f274f5248c344dc2c7"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "只读同一任务最后一份产物，记下已完成位置与下一未完成位置。",
+        "缺材料时先核对获取途径；已有材料时只恢复一个可继续的步骤。",
+        "尝试后记下新卡点，若仍无从开始就拆当前阻碍，不能重新发整个计划。"
+      ],
+      "applicabilityBoundary": "倒推方法不证明环境调整或注意力疗效；中断恢复是编辑适配。",
+      "stillMissingClaim": "倒推方法不证明环境调整或注意力疗效；中断恢复是编辑适配。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C07-1",
+      "domain": "方向探索",
+      "task": "不知道未来做什么",
+      "canonicalKey": "fit-exploration",
+      "attempts": [
+        {
+          "id": "sdu-career-interview",
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "at": "2026-10-10T10:02:32.696Z",
+          "status": "BODY_READ",
+          "bodyLength": 8669,
+          "bodySha256": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+        "bodyHash": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9",
+        "locator": {
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "start": 99,
+          "end": 403,
+          "line": 18,
+          "pdfPage": null
+        },
+        "excerptHash": "892457fd90e6412166695fdf322ddf6141ef986e16a1c71dcfe7b32034638872"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把“适合”改写成一个可了解的问题，例如日常任务是否愿意尝试。",
+        "对职业问题找一个实际从业者，询问一次典型任务和困难；对学术或专业先读真实课程/研究任务，不拿职业访谈替代。",
+        "实际接触后分列愿意、困难、未知；一次体验只调整这项问题，不下终身适配结论。"
+      ],
+      "applicabilityBoundary": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "stillMissingClaim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C07-2",
+      "domain": "方向探索",
+      "task": "比较发展方向",
+      "canonicalKey": "direction-comparison",
+      "attempts": [
+        {
+          "id": "shu-career-choice",
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 1570,
+          "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        }
+      ],
+      "readSource": {
+        "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+        "bodyHash": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910",
+        "locator": {
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "start": 763,
+          "end": 1066,
+          "line": 81,
+          "pdfPage": null
+        },
+        "excerptHash": "5dd59ddef83ab5dd214414faa8be73e26cd37c81ac75667124f69067cd4c19b6"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+      ],
+      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C07-3",
+      "domain": "方向探索",
+      "task": "找到行业知情人",
+      "canonicalKey": "first-contact",
+      "attempts": [
+        {
+          "id": "usst-mentor-email",
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 2224,
+          "bodySha256": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef"
+        }
+      ],
+      "readSource": {
+        "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+        "bodyHash": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef",
+        "locator": {
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "start": 495,
+          "end": 799,
+          "line": 37,
+          "pdfPage": "PAGE 3"
+        },
+        "excerptHash": "8ed458f49525e157bae128fda1dce0e943dcc96ee255ead79e229cbd3cacdb00"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+      ],
+      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C07-4",
+      "domain": "方向探索",
+      "task": "体验后决定是否继续",
+      "canonicalKey": "fit-exploration",
+      "attempts": [
+        {
+          "id": "sdu-career-interview",
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "at": "2026-10-10T10:02:32.696Z",
+          "status": "BODY_READ",
+          "bodyLength": 8669,
+          "bodySha256": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+        "bodyHash": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9",
+        "locator": {
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "start": 99,
+          "end": 403,
+          "line": 18,
+          "pdfPage": null
+        },
+        "excerptHash": "892457fd90e6412166695fdf322ddf6141ef986e16a1c71dcfe7b32034638872"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把“适合”改写成一个可了解的问题，例如日常任务是否愿意尝试。",
+        "对职业问题找一个实际从业者，询问一次典型任务和困难；对学术或专业先读真实课程/研究任务，不拿职业访谈替代。",
+        "实际接触后分列愿意、困难、未知；一次体验只调整这项问题，不下终身适配结论。"
+      ],
+      "applicabilityBoundary": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "stillMissingClaim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C09-1",
+      "domain": "科研导师",
+      "task": "首次联系导师",
+      "canonicalKey": "first-contact",
+      "attempts": [
+        {
+          "id": "usst-mentor-email",
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 2224,
+          "bodySha256": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef"
+        }
+      ],
+      "readSource": {
+        "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+        "bodyHash": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef",
+        "locator": {
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "start": 495,
+          "end": 799,
+          "line": 37,
+          "pdfPage": "PAGE 3"
+        },
+        "excerptHash": "8ed458f49525e157bae128fda1dce0e943dcc96ee255ead79e229cbd3cacdb00"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+      ],
+      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C09-3",
+      "domain": "科研导师",
+      "task": "进组明确任务",
+      "canonicalKey": "research-task",
+      "attempts": [
+        {
+          "id": "nankai-team",
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 1723,
+          "bodySha256": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20"
+        }
+      ],
+      "readSource": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "bodyHash": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20",
+        "locator": {
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "start": 320,
+          "end": 622,
+          "line": 15,
+          "pdfPage": null
+        },
+        "excerptHash": "e1ccdb32031c5dc2b13c6298afe25eac6b874ececaf5f301304d6f31bc579933"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "询问当前组的目标、自己负责部分和可以使用的材料。",
+        "把任务写为一个具体产物，核对谁查看、何时反馈与依赖谁。",
+        "科研技术标准由实际导师/负责人确认；依赖没到时说明受阻，不虚报完成。"
+      ],
+      "applicabilityBoundary": "社团团队材料不证明科研验收标准；技术分支明确退回负责人核对。",
+      "stillMissingClaim": "社团团队材料不证明科研验收标准；技术分支明确退回负责人核对。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C09-4",
+      "domain": "科研导师",
+      "task": "科研受阻复盘",
+      "canonicalKey": "exam-diagnosis",
+      "attempts": [
+        {
+          "id": "tsinghua-exam",
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "at": "2026-10-10T10:02:29.128Z",
+          "status": "BODY_READ",
+          "bodyLength": 7366,
+          "bodySha256": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3"
+        }
+      ],
+      "readSource": {
+        "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+        "bodyHash": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3",
+        "locator": {
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "start": 887,
+          "end": 1191,
+          "line": 37,
+          "pdfPage": null
+        },
+        "excerptHash": "ee496701163367845209c061aab9f204d560ccc7993a746325d231e94f336880"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "取一道已做题，逐步对照题意、本人过程和可核查答案。",
+        "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+        "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。"
+      ],
+      "applicabilityBoundary": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "stillMissingClaim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C10-1",
+      "domain": "保研探索",
+      "task": "判断是否愿意走学术道路",
+      "canonicalKey": "fit-exploration",
+      "attempts": [
+        {
+          "id": "sdu-career-interview",
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "at": "2026-10-10T10:02:32.696Z",
+          "status": "BODY_READ",
+          "bodyLength": 8669,
+          "bodySha256": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+        "bodyHash": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9",
+        "locator": {
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "start": 99,
+          "end": 403,
+          "line": 18,
+          "pdfPage": null
+        },
+        "excerptHash": "892457fd90e6412166695fdf322ddf6141ef986e16a1c71dcfe7b32034638872"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把“适合”改写成一个可了解的问题，例如日常任务是否愿意尝试。",
+        "对职业问题找一个实际从业者，询问一次典型任务和困难；对学术或专业先读真实课程/研究任务，不拿职业访谈替代。",
+        "实际接触后分列愿意、困难、未知；一次体验只调整这项问题，不下终身适配结论。"
+      ],
+      "applicabilityBoundary": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "stillMissingClaim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C11-1",
+      "domain": "考研准备",
+      "task": "评估研究方向",
+      "canonicalKey": "direction-comparison",
+      "attempts": [
+        {
+          "id": "shu-career-choice",
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 1570,
+          "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        }
+      ],
+      "readSource": {
+        "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+        "bodyHash": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910",
+        "locator": {
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "start": 763,
+          "end": 1066,
+          "line": 81,
+          "pdfPage": null
+        },
+        "excerptHash": "5dd59ddef83ab5dd214414faa8be73e26cd37c81ac75667124f69067cd4c19b6"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+      ],
+      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C11-4",
+      "domain": "考研准备",
+      "task": "诊断模拟练习问题",
+      "canonicalKey": "exam-diagnosis",
+      "attempts": [
+        {
+          "id": "tsinghua-exam",
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "at": "2026-10-10T10:02:29.128Z",
+          "status": "BODY_READ",
+          "bodyLength": 7366,
+          "bodySha256": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3"
+        }
+      ],
+      "readSource": {
+        "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+        "bodyHash": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3",
+        "locator": {
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "start": 887,
+          "end": 1191,
+          "line": 37,
+          "pdfPage": null
+        },
+        "excerptHash": "ee496701163367845209c061aab9f204d560ccc7993a746325d231e94f336880"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "取一道已做题，逐步对照题意、本人过程和可核查答案。",
+        "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+        "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。"
+      ],
+      "applicabilityBoundary": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "stillMissingClaim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C12-1",
+      "domain": "公共部门探索",
+      "task": "了解实际工作",
+      "canonicalKey": "direction-comparison",
+      "attempts": [
+        {
+          "id": "shu-career-choice",
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 1570,
+          "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        }
+      ],
+      "readSource": {
+        "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+        "bodyHash": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910",
+        "locator": {
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "start": 763,
+          "end": 1066,
+          "line": 81,
+          "pdfPage": null
+        },
+        "excerptHash": "5dd59ddef83ab5dd214414faa8be73e26cd37c81ac75667124f69067cd4c19b6"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+      ],
+      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C12-2",
+      "domain": "公共部门探索",
+      "task": "稳定与自主的取舍",
+      "canonicalKey": "direction-comparison",
+      "attempts": [
+        {
+          "id": "shu-career-choice",
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 1570,
+          "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        }
+      ],
+      "readSource": {
+        "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+        "bodyHash": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910",
+        "locator": {
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "start": 763,
+          "end": 1066,
+          "line": 81,
+          "pdfPage": null
+        },
+        "excerptHash": "5dd59ddef83ab5dd214414faa8be73e26cd37c81ac75667124f69067cd4c19b6"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+      ],
+      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C12-3",
+      "domain": "公共部门探索",
+      "task": "练习复盘",
+      "canonicalKey": "exam-diagnosis",
+      "attempts": [
+        {
+          "id": "tsinghua-exam",
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "at": "2026-10-10T10:02:29.128Z",
+          "status": "BODY_READ",
+          "bodyLength": 7366,
+          "bodySha256": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3"
+        }
+      ],
+      "readSource": {
+        "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+        "bodyHash": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3",
+        "locator": {
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "start": 887,
+          "end": 1191,
+          "line": 37,
+          "pdfPage": null
+        },
+        "excerptHash": "ee496701163367845209c061aab9f204d560ccc7993a746325d231e94f336880"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "取一道已做题，逐步对照题意、本人过程和可核查答案。",
+        "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+        "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。"
+      ],
+      "applicabilityBoundary": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "stillMissingClaim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C12-4",
+      "domain": "公共部门探索",
+      "task": "与其他发展方向比较",
+      "canonicalKey": "direction-comparison",
+      "attempts": [
+        {
+          "id": "shu-career-choice",
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 1570,
+          "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        }
+      ],
+      "readSource": {
+        "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+        "bodyHash": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910",
+        "locator": {
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "start": 763,
+          "end": 1066,
+          "line": 81,
+          "pdfPage": null
+        },
+        "excerptHash": "5dd59ddef83ab5dd214414faa8be73e26cd37c81ac75667124f69067cd4c19b6"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+      ],
+      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C13-1",
+      "domain": "留学交流",
+      "task": "评估海外学习适配",
+      "canonicalKey": "fit-exploration",
+      "attempts": [
+        {
+          "id": "sdu-career-interview",
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "at": "2026-10-10T10:02:32.696Z",
+          "status": "BODY_READ",
+          "bodyLength": 8669,
+          "bodySha256": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+        "bodyHash": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9",
+        "locator": {
+          "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+          "start": 99,
+          "end": 403,
+          "line": 18,
+          "pdfPage": null
+        },
+        "excerptHash": "892457fd90e6412166695fdf322ddf6141ef986e16a1c71dcfe7b32034638872"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把“适合”改写成一个可了解的问题，例如日常任务是否愿意尝试。",
+        "对职业问题找一个实际从业者，询问一次典型任务和困难；对学术或专业先读真实课程/研究任务，不拿职业访谈替代。",
+        "实际接触后分列愿意、困难、未知；一次体验只调整这项问题，不下终身适配结论。"
+      ],
+      "applicabilityBoundary": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "stillMissingClaim": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C13-2",
+      "domain": "留学交流",
+      "task": "比较项目内容",
+      "canonicalKey": "application-match",
+      "attempts": [
+        {
+          "id": "yangtze-star",
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "at": "2026-10-10T10:02:29.140Z",
+          "status": "BODY_READ",
+          "bodyLength": 1096,
+          "bodySha256": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708"
+        }
+      ],
+      "readSource": {
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "bodyHash": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708",
+        "locator": {
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "start": 592,
+          "end": 903,
+          "line": 56,
+          "pdfPage": null
+        },
+        "excerptHash": "a647a6a6f44aaeb5aa5d398c3b24b3cf57fe371c5c586617c17492fc552bf63d"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "记录岗位或项目官方说明，不用营销文案代替要求。",
+        "把本人已有证据与缺项并列，未知资格不写满足。",
+        "只准备一个所需材料或核实一个缺项；付费服务先核对交付与退出约定，不代作购买决定。"
+      ],
+      "applicabilityBoundary": "原文仅岗位材料；海外项目资格、付费服务价值与法律效力均退回各自资料。",
+      "stillMissingClaim": "原文仅岗位材料；海外项目资格、付费服务价值与法律效力均退回各自资料。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C13-4",
+      "domain": "留学交流",
+      "task": "向老师请求推荐",
+      "canonicalKey": "first-contact",
+      "attempts": [
+        {
+          "id": "usst-mentor-email",
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 2224,
+          "bodySha256": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef"
+        }
+      ],
+      "readSource": {
+        "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+        "bodyHash": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef",
+        "locator": {
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "start": 495,
+          "end": 799,
+          "line": 37,
+          "pdfPage": "PAGE 3"
+        },
+        "excerptHash": "8ed458f49525e157bae128fda1dce0e943dcc96ee255ead79e229cbd3cacdb00"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+      ],
+      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C14-1",
+      "domain": "实习求职",
+      "task": "寻找并核验岗位信息",
+      "canonicalKey": "information-check",
+      "attempts": [
+        {
+          "id": "ncsc-phishing",
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "at": "2026-10-10T10:02:38.958Z",
+          "status": "BODY_READ",
+          "bodyLength": 3507,
+          "bodySha256": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+        "bodyHash": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c",
+        "locator": {
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "start": 0,
+          "end": 293,
+          "line": 1,
+          "pdfPage": null
+        },
+        "excerptHash": "2ffa972a6c5921512e29477309816219382e57af8021f39804428d7726a227dd"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把主张、原始出处和转述分开，先查看负责该事项的正式页面。",
+        "涉及证件、密码、付款或合作承诺时暂停提供敏感资料，经独立已知渠道核对。",
+        "查不到原文就明确未知，不拿AI或同一转载链作独立证据；只记录当前缺项。"
+      ],
+      "applicabilityBoundary": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "stillMissingClaim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C14-3",
+      "domain": "实习求职",
+      "task": "判断岗位是否值得投递",
+      "canonicalKey": "application-match",
+      "attempts": [
+        {
+          "id": "yangtze-star",
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "at": "2026-10-10T10:02:29.140Z",
+          "status": "BODY_READ",
+          "bodyLength": 1096,
+          "bodySha256": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708"
+        }
+      ],
+      "readSource": {
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "bodyHash": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708",
+        "locator": {
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "start": 592,
+          "end": 903,
+          "line": 56,
+          "pdfPage": null
+        },
+        "excerptHash": "a647a6a6f44aaeb5aa5d398c3b24b3cf57fe371c5c586617c17492fc552bf63d"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "记录岗位或项目官方说明，不用营销文案代替要求。",
+        "把本人已有证据与缺项并列，未知资格不写满足。",
+        "只准备一个所需材料或核实一个缺项；付费服务先核对交付与退出约定，不代作购买决定。"
+      ],
+      "applicabilityBoundary": "原文仅岗位材料；海外项目资格、付费服务价值与法律效力均退回各自资料。",
+      "stillMissingClaim": "原文仅岗位材料；海外项目资格、付费服务价值与法律效力均退回各自资料。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C14-4",
+      "domain": "实习求职",
+      "task": "投递无回应复盘",
+      "canonicalKey": "job-feedback",
+      "attempts": [
+        {
+          "id": "mit-job-interview",
+          "url": "https://capd.mit.edu/resources/interviewing/",
+          "at": "2026-10-10T10:02:35.841Z",
+          "status": "BODY_READ",
+          "bodyLength": 21107,
+          "bodySha256": "57821b2a642af4b54817484c673304294e705b1e8d8e1b55f8453540caa14c6c"
+        },
+        {
+          "id": "mit-job-interview",
+          "url": "https://capd.mit.edu/resources/interviewing/",
+          "at": "2026-10-10T10:04:13.046Z",
+          "status": "BODY_READ",
+          "bodyLength": 1672,
+          "bodySha256": "e83b66bbae917c809f9ebea1f511d0ee8b0a1be5fbd8d20055d193eb14fba3bd"
+        }
+      ],
+      "readSource": {
+        "url": "https://capd.mit.edu/resources/interviewing/",
+        "bodyHash": "e83b66bbae917c809f9ebea1f511d0ee8b0a1be5fbd8d20055d193eb14fba3bd",
+        "locator": {
+          "url": "https://capd.mit.edu/resources/interviewing/",
+          "start": 1,
+          "end": 310,
+          "line": 2,
+          "pdfPage": null
+        },
+        "excerptHash": "80b41e405dc8251d9594652b9cabf0aeb52e780dc7b50d01a1a8374132f0c011"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "先记录招聘阶段、原材料和实际反馈；无回应原因未知。",
+        "已有面试反馈时只对照一个回答；无反馈时核对通知与提交状态，不猜淘汰原因。",
+        "选一个可演练片段或请就业指导老师核对；不反复重发所有面试教程。"
+      ],
+      "applicabilityBoundary": "模拟练习不证明录用；投递沉默处理仍缺直接原文，定时追发不作统一规则。",
+      "stillMissingClaim": "模拟练习不证明录用；投递沉默处理仍缺直接原文，定时追发不作统一规则。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C15-3",
+      "domain": "面试展示",
+      "task": "处理不会回答的问题",
+      "canonicalKey": "interview-unknown",
+      "attempts": [
+        {
+          "id": "csu-interview-clarify",
+          "url": "https://mpb.csu.edu.cn/info/1116/1271.htm",
+          "at": "2026-10-10T10:04:13.047Z",
+          "status": "BODY_READ",
+          "bodyLength": 6112,
+          "bodySha256": "aa754cca96c8eb522fea7c27cde284ec41cca3d4b2543746090ee670333f2586"
+        }
+      ],
+      "readSource": {
+        "url": "https://mpb.csu.edu.cn/info/1116/1271.htm",
+        "bodyHash": "aa754cca96c8eb522fea7c27cde284ec41cca3d4b2543746090ee670333f2586",
+        "locator": {
+          "url": "https://mpb.csu.edu.cn/info/1116/1271.htm",
+          "start": 1467,
+          "end": 1772,
+          "line": 36,
+          "pdfPage": null
+        },
+        "excerptHash": "ddd1332216f64dcf9576df03cac4e6af9fdaf9848b38bd3b191f6348cb1d6a34"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "先简短复述问题含义，请对方确认所问范围。",
+        "确实不懂时承认未知，只说明已知部分和可核实方式，不编答案。",
+        "结束后记下缺项，可练一个对应问题；当场诚实不承诺获得好评。"
+      ],
+      "applicabilityBoundary": "不支持表情识人、必录用或固定回答套路；承认未知另有个人经验佐证。",
+      "stillMissingClaim": "不支持表情识人、必录用或固定回答套路；承认未知另有个人经验佐证。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C15-4",
+      "domain": "面试展示",
+      "task": "面试后复盘",
+      "canonicalKey": "job-feedback",
+      "attempts": [
+        {
+          "id": "mit-job-interview",
+          "url": "https://capd.mit.edu/resources/interviewing/",
+          "at": "2026-10-10T10:02:35.841Z",
+          "status": "BODY_READ",
+          "bodyLength": 21107,
+          "bodySha256": "57821b2a642af4b54817484c673304294e705b1e8d8e1b55f8453540caa14c6c"
+        },
+        {
+          "id": "mit-job-interview",
+          "url": "https://capd.mit.edu/resources/interviewing/",
+          "at": "2026-10-10T10:04:13.046Z",
+          "status": "BODY_READ",
+          "bodyLength": 1672,
+          "bodySha256": "e83b66bbae917c809f9ebea1f511d0ee8b0a1be5fbd8d20055d193eb14fba3bd"
+        }
+      ],
+      "readSource": {
+        "url": "https://capd.mit.edu/resources/interviewing/",
+        "bodyHash": "e83b66bbae917c809f9ebea1f511d0ee8b0a1be5fbd8d20055d193eb14fba3bd",
+        "locator": {
+          "url": "https://capd.mit.edu/resources/interviewing/",
+          "start": 1,
+          "end": 310,
+          "line": 2,
+          "pdfPage": null
+        },
+        "excerptHash": "80b41e405dc8251d9594652b9cabf0aeb52e780dc7b50d01a1a8374132f0c011"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "先记录招聘阶段、原材料和实际反馈；无回应原因未知。",
+        "已有面试反馈时只对照一个回答；无反馈时核对通知与提交状态，不猜淘汰原因。",
+        "选一个可演练片段或请就业指导老师核对；不反复重发所有面试教程。"
+      ],
+      "applicabilityBoundary": "模拟练习不证明录用；投递沉默处理仍缺直接原文，定时追发不作统一规则。",
+      "stillMissingClaim": "模拟练习不证明录用；投递沉默处理仍缺直接原文，定时追发不作统一规则。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C16-1",
+      "domain": "职业转向",
+      "task": "从原专业进入新领域",
+      "canonicalKey": "skill-gap",
+      "attempts": [
+        {
+          "id": "yangtze-star",
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "at": "2026-10-10T10:02:29.140Z",
+          "status": "BODY_READ",
+          "bodyLength": 1096,
+          "bodySha256": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708"
+        }
+      ],
+      "readSource": {
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "bodyHash": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708",
+        "locator": {
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "start": 592,
+          "end": 903,
+          "line": 56,
+          "pdfPage": null
+        },
+        "excerptHash": "a647a6a6f44aaeb5aa5d398c3b24b3cf57fe371c5c586617c17492fc552bf63d"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "找一条实际岗位/项目要求，保留原文位置；要求未核实就暂停资格判断。",
+        "把本人已有作品按所做部分、证据和未完成环节对照；团队结果不等于本人贡献。",
+        "仅为一个缺口设计可检查的小产物；完成后看实际反馈，不用作品数量证明能力。"
+      ],
+      "applicabilityBoundary": "跨专业迁移的成效未被原讲座证明，小作品步骤为待审编辑适配。",
+      "stillMissingClaim": "跨专业迁移的成效未被原讲座证明，小作品步骤为待审编辑适配。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C16-2",
+      "domain": "职业转向",
+      "task": "识别能力缺口",
+      "canonicalKey": "skill-gap",
+      "attempts": [
+        {
+          "id": "yangtze-star",
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "at": "2026-10-10T10:02:29.140Z",
+          "status": "BODY_READ",
+          "bodyLength": 1096,
+          "bodySha256": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708"
+        }
+      ],
+      "readSource": {
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "bodyHash": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708",
+        "locator": {
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "start": 592,
+          "end": 903,
+          "line": 56,
+          "pdfPage": null
+        },
+        "excerptHash": "a647a6a6f44aaeb5aa5d398c3b24b3cf57fe371c5c586617c17492fc552bf63d"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "找一条实际岗位/项目要求，保留原文位置；要求未核实就暂停资格判断。",
+        "把本人已有作品按所做部分、证据和未完成环节对照；团队结果不等于本人贡献。",
+        "仅为一个缺口设计可检查的小产物；完成后看实际反馈，不用作品数量证明能力。"
+      ],
+      "applicabilityBoundary": "跨专业迁移的成效未被原讲座证明，小作品步骤为待审编辑适配。",
+      "stillMissingClaim": "跨专业迁移的成效未被原讲座证明，小作品步骤为待审编辑适配。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C18-4",
+      "domain": "自由职业",
+      "task": "复盘交付与复购",
+      "canonicalKey": "delivery-review",
+      "attempts": [
+        {
+          "id": "upwork-delivery",
+          "url": "https://www.upwork.com/resources/project-deliverables",
+          "at": "2026-10-10T10:02:32.695Z",
+          "status": "FAILED",
+          "reason": "HTTP_403"
+        }
+      ],
+      "readSource": null,
+      "result": "EXACT_ORIGINAL_ATTEMPT_FAILED_OLD_FRAGMENT_ONLY",
+      "methodExtracted": [
+        "对照原交付目的与交付物，记录实际发送与是否能打开。",
+        "采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。",
+        "有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。"
+      ],
+      "applicabilityBoundary": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
+      "stillMissingClaim": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C19-1",
+      "domain": "兼职收入",
+      "task": "判断兼职价值",
+      "canonicalKey": "income-ledger",
+      "attempts": [
+        {
+          "id": "gov-budget-tool",
+          "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+          "at": "2026-10-10T10:02:38.958Z",
+          "status": "BODY_READ",
+          "bodyLength": 3734,
+          "bodySha256": "887db8505d10c21c4f3c119f0b7861709914fc8a6a38ed3436a684ac0349a5f2"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+        "bodyHash": "887db8505d10c21c4f3c119f0b7861709914fc8a6a38ed3436a684ac0349a5f2",
+        "locator": {
+          "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+          "start": 351,
+          "end": 657,
+          "line": 5,
+          "pdfPage": null
+        },
+        "excerptHash": "32d33b646bdfa0360055aa6732bf31c5e62e9cf852451d10b81ae12d89129c62"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+        "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+        "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。"
+      ],
+      "applicabilityBoundary": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
+      "stillMissingClaim": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C19-3",
+      "domain": "兼职收入",
+      "task": "记录投入与收益",
+      "canonicalKey": "income-ledger",
+      "attempts": [
+        {
+          "id": "gov-budget-tool",
+          "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+          "at": "2026-10-10T10:02:38.958Z",
+          "status": "BODY_READ",
+          "bodyLength": 3734,
+          "bodySha256": "887db8505d10c21c4f3c119f0b7861709914fc8a6a38ed3436a684ac0349a5f2"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+        "bodyHash": "887db8505d10c21c4f3c119f0b7861709914fc8a6a38ed3436a684ac0349a5f2",
+        "locator": {
+          "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+          "start": 351,
+          "end": 657,
+          "line": 5,
+          "pdfPage": null
+        },
+        "excerptHash": "32d33b646bdfa0360055aa6732bf31c5e62e9cf852451d10b81ae12d89129c62"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+        "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+        "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。"
+      ],
+      "applicabilityBoundary": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
+      "stillMissingClaim": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C20-3",
+      "domain": "独立开发",
+      "task": "找首批使用者",
+      "canonicalKey": "first-contact",
+      "attempts": [
+        {
+          "id": "usst-mentor-email",
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 2224,
+          "bodySha256": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef"
+        }
+      ],
+      "readSource": {
+        "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+        "bodyHash": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef",
+        "locator": {
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "start": 495,
+          "end": 799,
+          "line": 37,
+          "pdfPage": "PAGE 3"
+        },
+        "excerptHash": "8ed458f49525e157bae128fda1dce0e943dcc96ee255ead79e229cbd3cacdb00"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+      ],
+      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C21-1",
+      "domain": "内容创作",
+      "task": "选择表达主题",
+      "canonicalKey": "content-experiment",
+      "attempts": [
+        {
+          "id": "htu-content-feedback",
+          "url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+          "at": "2026-10-10T10:04:14.907Z",
+          "status": "BODY_READ",
+          "bodyLength": 1387,
+          "bodySha256": "0a68980923dd225d74369379b3c55a7b927af8e7b42b49ee6a691b71baa62adb"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+        "bodyHash": "0a68980923dd225d74369379b3c55a7b927af8e7b42b49ee6a691b71baa62adb",
+        "locator": {
+          "url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+          "start": 512,
+          "end": 816,
+          "line": 26,
+          "pdfPage": null
+        },
+        "excerptHash": "a690d8ac78cf9d290c402974f1ec6f390f2e50e35a94b9627c277584a93e1ab0"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "选一个受众问题，用已有真实材料写一份内容；无事实不补故事。",
+        "只选一种表达差异观察理解反馈，不把平台流量当全部价值。",
+        "已有反馈只改读者指出的一处；没人反馈时先核对可见性，不能断言质量差。"
+      ],
+      "applicabilityBoundary": "校园新闻经验不支持所有自媒体平台增长策略；不要继承热度数字。",
+      "stillMissingClaim": "校园新闻经验不支持所有自媒体平台增长策略；不要继承热度数字。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C21-2",
+      "domain": "内容创作",
+      "task": "第一批内容实验",
+      "canonicalKey": "content-experiment",
+      "attempts": [
+        {
+          "id": "htu-content-feedback",
+          "url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+          "at": "2026-10-10T10:04:14.907Z",
+          "status": "BODY_READ",
+          "bodyLength": 1387,
+          "bodySha256": "0a68980923dd225d74369379b3c55a7b927af8e7b42b49ee6a691b71baa62adb"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+        "bodyHash": "0a68980923dd225d74369379b3c55a7b927af8e7b42b49ee6a691b71baa62adb",
+        "locator": {
+          "url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+          "start": 512,
+          "end": 816,
+          "line": 26,
+          "pdfPage": null
+        },
+        "excerptHash": "a690d8ac78cf9d290c402974f1ec6f390f2e50e35a94b9627c277584a93e1ab0"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "选一个受众问题，用已有真实材料写一份内容；无事实不补故事。",
+        "只选一种表达差异观察理解反馈，不把平台流量当全部价值。",
+        "已有反馈只改读者指出的一处；没人反馈时先核对可见性，不能断言质量差。"
+      ],
+      "applicabilityBoundary": "校园新闻经验不支持所有自媒体平台增长策略；不要继承热度数字。",
+      "stillMissingClaim": "校园新闻经验不支持所有自媒体平台增长策略；不要继承热度数字。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C21-3",
+      "domain": "内容创作",
+      "task": "表现不好时复盘",
+      "canonicalKey": "content-experiment",
+      "attempts": [
+        {
+          "id": "htu-content-feedback",
+          "url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+          "at": "2026-10-10T10:04:14.907Z",
+          "status": "BODY_READ",
+          "bodyLength": 1387,
+          "bodySha256": "0a68980923dd225d74369379b3c55a7b927af8e7b42b49ee6a691b71baa62adb"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+        "bodyHash": "0a68980923dd225d74369379b3c55a7b927af8e7b42b49ee6a691b71baa62adb",
+        "locator": {
+          "url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+          "start": 512,
+          "end": 816,
+          "line": 26,
+          "pdfPage": null
+        },
+        "excerptHash": "a690d8ac78cf9d290c402974f1ec6f390f2e50e35a94b9627c277584a93e1ab0"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "选一个受众问题，用已有真实材料写一份内容；无事实不补故事。",
+        "只选一种表达差异观察理解反馈，不把平台流量当全部价值。",
+        "已有反馈只改读者指出的一处；没人反馈时先核对可见性，不能断言质量差。"
+      ],
+      "applicabilityBoundary": "校园新闻经验不支持所有自媒体平台增长策略；不要继承热度数字。",
+      "stillMissingClaim": "校园新闻经验不支持所有自媒体平台增长策略；不要继承热度数字。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C22-1",
+      "domain": "竞赛项目",
+      "task": "判断比赛是否值得",
+      "canonicalKey": "direction-comparison",
+      "attempts": [
+        {
+          "id": "shu-career-choice",
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 1570,
+          "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        }
+      ],
+      "readSource": {
+        "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+        "bodyHash": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910",
+        "locator": {
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "start": 763,
+          "end": 1066,
+          "line": 81,
+          "pdfPage": null
+        },
+        "excerptHash": "5dd59ddef83ab5dd214414faa8be73e26cd37c81ac75667124f69067cd4c19b6"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+      ],
+      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C22-2",
+      "domain": "竞赛项目",
+      "task": "选队友",
+      "canonicalKey": "team-contract",
+      "attempts": [
+        {
+          "id": "nankai-team",
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 1723,
+          "bodySha256": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20"
+        }
+      ],
+      "readSource": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "bodyHash": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20",
+        "locator": {
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "start": 320,
+          "end": 622,
+          "line": 15,
+          "pdfPage": null
+        },
+        "excerptHash": "e1ccdb32031c5dc2b13c6298afe25eac6b874ececaf5f301304d6f31bc579933"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把共同产物、本人负责部分、依赖与确认人列清，双方未确认就保留待核对。",
+        "遇延期只核对实际进度和当前依赖，提出缩范围、调安排或交接的选项。",
+        "发生分歧记录各自理由和共同目标，只协商当前一项；无法获同意就暂停，不替他人承诺。"
+      ],
+      "applicabilityBoundary": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "stillMissingClaim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C22-3",
+      "domain": "竞赛项目",
+      "task": "分工与贡献",
+      "canonicalKey": "team-contract",
+      "attempts": [
+        {
+          "id": "nankai-team",
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 1723,
+          "bodySha256": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20"
+        }
+      ],
+      "readSource": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "bodyHash": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20",
+        "locator": {
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "start": 320,
+          "end": 622,
+          "line": 15,
+          "pdfPage": null
+        },
+        "excerptHash": "e1ccdb32031c5dc2b13c6298afe25eac6b874ececaf5f301304d6f31bc579933"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把共同产物、本人负责部分、依赖与确认人列清，双方未确认就保留待核对。",
+        "遇延期只核对实际进度和当前依赖，提出缩范围、调安排或交接的选项。",
+        "发生分歧记录各自理由和共同目标，只协商当前一项；无法获同意就暂停，不替他人承诺。"
+      ],
+      "applicabilityBoundary": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "stillMissingClaim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C23-1",
+      "domain": "社团公益",
+      "task": "选择组织",
+      "canonicalKey": "direction-comparison",
+      "attempts": [
+        {
+          "id": "shu-career-choice",
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 1570,
+          "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        }
+      ],
+      "readSource": {
+        "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+        "bodyHash": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910",
+        "locator": {
+          "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+          "start": 763,
+          "end": 1066,
+          "line": 81,
+          "pdfPage": null
+        },
+        "excerptHash": "5dd59ddef83ab5dd214414faa8be73e26cd37c81ac75667124f69067cd4c19b6"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+      ],
+      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C23-2",
+      "domain": "社团公益",
+      "task": "新人找到具体任务",
+      "canonicalKey": "research-task",
+      "attempts": [
+        {
+          "id": "nankai-team",
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 1723,
+          "bodySha256": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20"
+        }
+      ],
+      "readSource": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "bodyHash": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20",
+        "locator": {
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "start": 320,
+          "end": 622,
+          "line": 15,
+          "pdfPage": null
+        },
+        "excerptHash": "e1ccdb32031c5dc2b13c6298afe25eac6b874ececaf5f301304d6f31bc579933"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "询问当前组的目标、自己负责部分和可以使用的材料。",
+        "把任务写为一个具体产物，核对谁查看、何时反馈与依赖谁。",
+        "科研技术标准由实际导师/负责人确认；依赖没到时说明受阻，不虚报完成。"
+      ],
+      "applicabilityBoundary": "社团团队材料不证明科研验收标准；技术分支明确退回负责人核对。",
+      "stillMissingClaim": "社团团队材料不证明科研验收标准；技术分支明确退回负责人核对。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C23-3",
+      "domain": "社团公益",
+      "task": "组织小活动",
+      "canonicalKey": "team-contract",
+      "attempts": [
+        {
+          "id": "nankai-team",
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 1723,
+          "bodySha256": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20"
+        }
+      ],
+      "readSource": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "bodyHash": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20",
+        "locator": {
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "start": 320,
+          "end": 622,
+          "line": 15,
+          "pdfPage": null
+        },
+        "excerptHash": "e1ccdb32031c5dc2b13c6298afe25eac6b874ececaf5f301304d6f31bc579933"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把共同产物、本人负责部分、依赖与确认人列清，双方未确认就保留待核对。",
+        "遇延期只核对实际进度和当前依赖，提出缩范围、调安排或交接的选项。",
+        "发生分歧记录各自理由和共同目标，只协商当前一项；无法获同意就暂停，不替他人承诺。"
+      ],
+      "applicabilityBoundary": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "stillMissingClaim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C24-1",
+      "domain": "团队协作",
+      "task": "明确共同目标",
+      "canonicalKey": "team-contract",
+      "attempts": [
+        {
+          "id": "nankai-team",
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 1723,
+          "bodySha256": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20"
+        }
+      ],
+      "readSource": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "bodyHash": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20",
+        "locator": {
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "start": 320,
+          "end": 622,
+          "line": 15,
+          "pdfPage": null
+        },
+        "excerptHash": "e1ccdb32031c5dc2b13c6298afe25eac6b874ececaf5f301304d6f31bc579933"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把共同产物、本人负责部分、依赖与确认人列清，双方未确认就保留待核对。",
+        "遇延期只核对实际进度和当前依赖，提出缩范围、调安排或交接的选项。",
+        "发生分歧记录各自理由和共同目标，只协商当前一项；无法获同意就暂停，不替他人承诺。"
+      ],
+      "applicabilityBoundary": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "stillMissingClaim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C24-2",
+      "domain": "团队协作",
+      "task": "解决分工不清",
+      "canonicalKey": "team-contract",
+      "attempts": [
+        {
+          "id": "nankai-team",
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 1723,
+          "bodySha256": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20"
+        }
+      ],
+      "readSource": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "bodyHash": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20",
+        "locator": {
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "start": 320,
+          "end": 622,
+          "line": 15,
+          "pdfPage": null
+        },
+        "excerptHash": "e1ccdb32031c5dc2b13c6298afe25eac6b874ececaf5f301304d6f31bc579933"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把共同产物、本人负责部分、依赖与确认人列清，双方未确认就保留待核对。",
+        "遇延期只核对实际进度和当前依赖，提出缩范围、调安排或交接的选项。",
+        "发生分歧记录各自理由和共同目标，只协商当前一项；无法获同意就暂停，不替他人承诺。"
+      ],
+      "applicabilityBoundary": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "stillMissingClaim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C24-3",
+      "domain": "团队协作",
+      "task": "处理延误",
+      "canonicalKey": "team-contract",
+      "attempts": [
+        {
+          "id": "nankai-team",
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 1723,
+          "bodySha256": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20"
+        }
+      ],
+      "readSource": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "bodyHash": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20",
+        "locator": {
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "start": 320,
+          "end": 622,
+          "line": 15,
+          "pdfPage": null
+        },
+        "excerptHash": "e1ccdb32031c5dc2b13c6298afe25eac6b874ececaf5f301304d6f31bc579933"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把共同产物、本人负责部分、依赖与确认人列清，双方未确认就保留待核对。",
+        "遇延期只核对实际进度和当前依赖，提出缩范围、调安排或交接的选项。",
+        "发生分歧记录各自理由和共同目标，只协商当前一项；无法获同意就暂停，不替他人承诺。"
+      ],
+      "applicabilityBoundary": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "stillMissingClaim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C24-4",
+      "domain": "团队协作",
+      "task": "在分歧中确定下一步",
+      "canonicalKey": "team-contract",
+      "attempts": [
+        {
+          "id": "nankai-team",
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "at": "2026-10-10T10:02:34.499Z",
+          "status": "BODY_READ",
+          "bodyLength": 1723,
+          "bodySha256": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20"
+        }
+      ],
+      "readSource": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "bodyHash": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20",
+        "locator": {
+          "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+          "start": 320,
+          "end": 622,
+          "line": 15,
+          "pdfPage": null
+        },
+        "excerptHash": "e1ccdb32031c5dc2b13c6298afe25eac6b874ececaf5f301304d6f31bc579933"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把共同产物、本人负责部分、依赖与确认人列清，双方未确认就保留待核对。",
+        "遇延期只核对实际进度和当前依赖，提出缩范围、调安排或交接的选项。",
+        "发生分歧记录各自理由和共同目标，只协商当前一项；无法获同意就暂停，不替他人承诺。"
+      ],
+      "applicabilityBoundary": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "stillMissingClaim": "原讲座MBTI部分不采纳；不会把人格类型作为分工或胜任依据。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C25-1",
+      "domain": "人际边界",
+      "task": "认识新朋友",
+      "canonicalKey": "first-contact",
+      "attempts": [
+        {
+          "id": "usst-mentor-email",
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "at": "2026-10-10T10:02:34.498Z",
+          "status": "BODY_READ",
+          "bodyLength": 2224,
+          "bodySha256": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef"
+        }
+      ],
+      "readSource": {
+        "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+        "bodyHash": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef",
+        "locator": {
+          "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+          "start": 495,
+          "end": 799,
+          "line": 37,
+          "pdfPage": "PAGE 3"
+        },
+        "excerptHash": "8ed458f49525e157bae128fda1dce0e943dcc96ee255ead79e229cbd3cacdb00"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+      ],
+      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C27-1",
+      "domain": "日常经济",
+      "task": "简单预算",
+      "canonicalKey": "income-ledger",
+      "attempts": [
+        {
+          "id": "gov-budget-tool",
+          "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+          "at": "2026-10-10T10:02:38.958Z",
+          "status": "BODY_READ",
+          "bodyLength": 3734,
+          "bodySha256": "887db8505d10c21c4f3c119f0b7861709914fc8a6a38ed3436a684ac0349a5f2"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+        "bodyHash": "887db8505d10c21c4f3c119f0b7861709914fc8a6a38ed3436a684ac0349a5f2",
+        "locator": {
+          "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+          "start": 351,
+          "end": 657,
+          "line": 5,
+          "pdfPage": null
+        },
+        "excerptHash": "32d33b646bdfa0360055aa6732bf31c5e62e9cf852451d10b81ae12d89129c62"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+        "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+        "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。"
+      ],
+      "applicabilityBoundary": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
+      "stillMissingClaim": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C27-2",
+      "domain": "日常经济",
+      "task": "评估付费服务",
+      "canonicalKey": "application-match",
+      "attempts": [
+        {
+          "id": "yangtze-star",
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "at": "2026-10-10T10:02:29.140Z",
+          "status": "BODY_READ",
+          "bodyLength": 1096,
+          "bodySha256": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708"
+        }
+      ],
+      "readSource": {
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "bodyHash": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708",
+        "locator": {
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "start": 592,
+          "end": 903,
+          "line": 56,
+          "pdfPage": null
+        },
+        "excerptHash": "a647a6a6f44aaeb5aa5d398c3b24b3cf57fe371c5c586617c17492fc552bf63d"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "记录岗位或项目官方说明，不用营销文案代替要求。",
+        "把本人已有证据与缺项并列，未知资格不写满足。",
+        "只准备一个所需材料或核实一个缺项；付费服务先核对交付与退出约定，不代作购买决定。"
+      ],
+      "applicabilityBoundary": "原文仅岗位材料；海外项目资格、付费服务价值与法律效力均退回各自资料。",
+      "stillMissingClaim": "原文仅岗位材料；海外项目资格、付费服务价值与法律效力均退回各自资料。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C27-3",
+      "domain": "日常经济",
+      "task": "识别合作可疑信号",
+      "canonicalKey": "information-check",
+      "attempts": [
+        {
+          "id": "ncsc-phishing",
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "at": "2026-10-10T10:02:38.958Z",
+          "status": "BODY_READ",
+          "bodyLength": 3507,
+          "bodySha256": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+        "bodyHash": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c",
+        "locator": {
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "start": 0,
+          "end": 293,
+          "line": 1,
+          "pdfPage": null
+        },
+        "excerptHash": "2ffa972a6c5921512e29477309816219382e57af8021f39804428d7726a227dd"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把主张、原始出处和转述分开，先查看负责该事项的正式页面。",
+        "涉及证件、密码、付款或合作承诺时暂停提供敏感资料，经独立已知渠道核对。",
+        "查不到原文就明确未知，不拿AI或同一转载链作独立证据；只记录当前缺项。"
+      ],
+      "applicabilityBoundary": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "stillMissingClaim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C28-1",
+      "domain": "信息与AI",
+      "task": "区分经验和证据",
+      "canonicalKey": "information-check",
+      "attempts": [
+        {
+          "id": "ncsc-phishing",
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "at": "2026-10-10T10:02:38.958Z",
+          "status": "BODY_READ",
+          "bodyLength": 3507,
+          "bodySha256": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+        "bodyHash": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c",
+        "locator": {
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "start": 0,
+          "end": 293,
+          "line": 1,
+          "pdfPage": null
+        },
+        "excerptHash": "2ffa972a6c5921512e29477309816219382e57af8021f39804428d7726a227dd"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把主张、原始出处和转述分开，先查看负责该事项的正式页面。",
+        "涉及证件、密码、付款或合作承诺时暂停提供敏感资料，经独立已知渠道核对。",
+        "查不到原文就明确未知，不拿AI或同一转载链作独立证据；只记录当前缺项。"
+      ],
+      "applicabilityBoundary": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "stillMissingClaim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C28-2",
+      "domain": "信息与AI",
+      "task": "提出具体问题",
+      "canonicalKey": "information-check",
+      "attempts": [
+        {
+          "id": "ncsc-phishing",
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "at": "2026-10-10T10:02:38.958Z",
+          "status": "BODY_READ",
+          "bodyLength": 3507,
+          "bodySha256": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+        "bodyHash": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c",
+        "locator": {
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "start": 0,
+          "end": 293,
+          "line": 1,
+          "pdfPage": null
+        },
+        "excerptHash": "2ffa972a6c5921512e29477309816219382e57af8021f39804428d7726a227dd"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把主张、原始出处和转述分开，先查看负责该事项的正式页面。",
+        "涉及证件、密码、付款或合作承诺时暂停提供敏感资料，经独立已知渠道核对。",
+        "查不到原文就明确未知，不拿AI或同一转载链作独立证据；只记录当前缺项。"
+      ],
+      "applicabilityBoundary": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "stillMissingClaim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C28-3",
+      "domain": "信息与AI",
+      "task": "核验AI建议",
+      "canonicalKey": "information-check",
+      "attempts": [
+        {
+          "id": "ncsc-phishing",
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "at": "2026-10-10T10:02:38.958Z",
+          "status": "BODY_READ",
+          "bodyLength": 3507,
+          "bodySha256": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+        "bodyHash": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c",
+        "locator": {
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "start": 0,
+          "end": 293,
+          "line": 1,
+          "pdfPage": null
+        },
+        "excerptHash": "2ffa972a6c5921512e29477309816219382e57af8021f39804428d7726a227dd"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把主张、原始出处和转述分开，先查看负责该事项的正式页面。",
+        "涉及证件、密码、付款或合作承诺时暂停提供敏感资料，经独立已知渠道核对。",
+        "查不到原文就明确未知，不拿AI或同一转载链作独立证据；只记录当前缺项。"
+      ],
+      "applicabilityBoundary": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "stillMissingClaim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    },
+    {
+      "candidateId": "C28-4",
+      "domain": "信息与AI",
+      "task": "保护个人资料与作品",
+      "canonicalKey": "information-check",
+      "attempts": [
+        {
+          "id": "ncsc-phishing",
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "at": "2026-10-10T10:02:38.958Z",
+          "status": "BODY_READ",
+          "bodyLength": 3507,
+          "bodySha256": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c"
+        }
+      ],
+      "readSource": {
+        "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+        "bodyHash": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c",
+        "locator": {
+          "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+          "start": 0,
+          "end": 293,
+          "line": 1,
+          "pdfPage": null
+        },
+        "excerptHash": "2ffa972a6c5921512e29477309816219382e57af8021f39804428d7726a227dd"
+      },
+      "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
+      "methodExtracted": [
+        "把主张、原始出处和转述分开，先查看负责该事项的正式页面。",
+        "涉及证件、密码、付款或合作承诺时暂停提供敏感资料，经独立已知渠道核对。",
+        "查不到原文就明确未知，不拿AI或同一转载链作独立证据；只记录当前缺项。"
+      ],
+      "applicabilityBoundary": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "stillMissingClaim": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。",
+      "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
+      "status": "awaiting_source"
+    }
+  ],
+  "publicAttempts": 39,
+  "distinctBodiesRead": 29,
+  "newBodiesRead": 16,
+  "remainingSourceOrScopeGaps": 59,
+  "independentReviews": 0,
+  "humanApprovals": 0
+}
