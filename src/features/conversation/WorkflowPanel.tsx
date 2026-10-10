@@ -40,6 +40,7 @@ export function WorkflowPanel({conversationId,source,refreshKey,onChanged}:{conv
  async function cancel(task:Task){setBusy(true);try{await api('/api/workflows/'+task.id+'/cancel',{});setNotice('已请求取消；已派发节点的用量会保留。')}catch(error){setNotice(explainError(error))}finally{setBusy(false)}}
  if(!tasks.length&&eligible.length<2)return null
  return <section className="qa-workflow" aria-label="深入分析">
+  <p className="qa-workflow-meta">实验性深度分析 · 尚未证实比普通聊天更有帮助，你可以继续普通聊天。</p>
   {eligible.length>=2&&!running&&!selecting&&!tasks.some(task=>task.status==='waiting_user'&&task.conversationId===conversationId&&task.question===source?.text)&&<button type="button" className="qa-workflow-entry" disabled={busy} onClick={()=>{setSelecting(true);setSelected(eligible.slice(0,3))}}>深入分析这些方向</button>}
   {selecting&&<div className="qa-workflow-picker">
    <h2>这次想比较哪几条路？</h2>

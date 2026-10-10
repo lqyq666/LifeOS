@@ -14,11 +14,14 @@ import type {NodeContext,WorkflowNode} from './orchestrator.ts'
 
 const object=<T extends Parameters<typeof Type.Object>[0]>(fields:T)=>Type.Object(fields,{additionalProperties:false})
 const ids=Type.Array(Type.String({minLength:1,maxLength:80}),{maxItems:12,uniqueItems:true})
-const analystSchema=object({evidenceIds:ids,tradeoffIds:ids,unknownIds:ids,actionIds:ids,evidenceRelations:Type.Optional(Type.Array(object({evidenceId:Type.String(),relation:Type.Union([Type.Literal('support'),Type.Literal('limit'),Type.Literal('unknown')])}),{maxItems:12})),actionBasis:Type.Optional(Type.Array(object({actionId:Type.String(),evidenceIds:ids,unknownIds:ids}),{maxItems:12}))})
+const analystSchema=object({evidenceIds:ids,tradeoffIds:ids,unknownIds:ids,actionIds:ids,evidenceRelations:Type.Optional(Type.Array(object({evidenceId:Type.String(),relation:Type.Union([Type.Literal('support'),Type.Literal('limit'),Type.Literal('unknown')])}),{maxItems:12})),actionBasis:Type.Optional(Type.Array(object({actionId:Type.String(),evidenceIds:ids,unknownIds:ids,stageReasonId:Type.Optional(Type.String({minLength:1,maxLength:80}))}),{maxItems:12}))})
 const criticSchema=object({issues:Type.Array(object({severity:Type.Union([Type.Literal('blocker'),Type.Literal('needs_clarification'),Type.Literal('uncertainty')]),issueId:Type.String(),evidenceIds:ids}),{maxItems:12}),rejectedDirections:ids})
 const synthesisSchema=object({directionOrder:ids,actionIds:ids})
 const issueCatalogue={unsupported:'这条判断没有授权来源支持。',contradiction:'两条当前依据互相矛盾，需要本人核对。',motivation:'读研或工作的具体动机仍需核对。',fit:'单次经历不能证明稳定能力或长期适配。',unknown:'尚未提供的条件保持未知，不据此否定路径。',adoption:'实际交付是否被采用、反馈及效果分别缺哪项证据，仍需核对。',role_evidence:'已有作品与目标岗位实际要求如何对应，仍需核对；反馈不能替代岗位要求。',repeatability:'已有结果能否重复、是否愿意承担后续义务仍需核对；暂停时不要求扩大接单。'}
 const commonTradeoffs={parallel:'多条路径同时投入会争用时间；本次仅选择一个可停止的小探索。',cost:'完整准备的时间、资金与退出代价尚未核实，先不承诺长期投入。',transfer:'先检查已有成果能否复用到这条路径；作品存在不等于满足岗位或研究要求，避免重复准备。',priority:'把本周已明确的课程、休息和其他义务放在探索之前；先缩小范围，不要求同时全面投入。',motivation:'先核对这条路径想解决的实际问题；若动机尚未知，先了解具体工作或研究内容，再决定是否准备。',pause:'可以暂缓这条路径，保留重开条件；本次比较不要求立即选定长期方向。'}
+// Bounded editorial reasons selected against personal evidence, then reviewed by
+// the critic. The selection is not proof that a real model classified the stage correctly.
+const stageReasons={explore:'方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。',verify_result:'先核对已有尝试的实际反馈，再决定是否扩大投入；已做或交付不代表采用、付款或有效。',reuse_evidence:'先对照已有实践与目标要求，核对哪些证据能够复用，避免在未知要求上重复准备。',respect_priority:'先核对本次动作是否服务本人当前重点，尊重已改变的阶段选择与暂停边界。'}
 const pathTradeoffs:Record<string,string>={employment:'就业与实习：先核对目标岗位和实际作品证据；在要求不清楚时，不承诺投递数量或就业结果。',postgraduate_exam:'考研：先区分读研想解决的问题与备考投入；报考条件、准备量和学校要求未核实时，不据此宣布适合读研。',postgraduate_recommendation:'保研：本校资格、排名与材料要求需查正式来源；有科研兴趣不等于已经具备推免资格。',entrepreneurship:'创业：想法、用户回应、采用、付款分别核对；没有反馈时先验证一个需求，保持退出选项。',independent_development:'独立开发：作品完成、有人使用与持续收益是不同阶段；先验证一个场景，避免直接承诺商业化。',freelance:'自由职业：交付、采用与付款分开；单次任务结果不自动推为稳定收入，先检查可复用证据。',overseas_study:'留学：先核对项目目标、申请条件和可承受资金；正式来源未查清前保留国内路径。',public_service:'考公考编：先了解实际工作内容并查询当期正式岗位条件；未核实资格时不承诺可报名。',undergraduate_upgrade:'专升本：先核对教育阶段和当地正式政策；通用方法不能替代当期招生要求。'}
 // These are proposed exercises, not claims that a student owns resources or meets
 // requirements. The analyst must choose from actual evidence; the critic reviews
@@ -48,9 +51,9 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
  const reservations=new Map<string,Map<string,Reserved>>()
  const key=(r:WorkflowRequest)=>r.internalActorKey+':'+r.requestId
  const sourceDigest=()=>assertCoachSourceFreeze(input.freezePath)
- const signature=()=>createHash('sha256').update(JSON.stringify({runtime:modelSignatureFor(runtime.tier),pricing:runtime.pricing,outputLimit,schemas:[analystSchema,criticSchema,synthesisSchema],pathActions,pathTradeoffs,issueCatalogue,commonTradeoffs})).digest('hex')
+ const signature=()=>createHash('sha256').update(JSON.stringify({runtime:modelSignatureFor(runtime.tier),pricing:runtime.pricing,outputLimit,schemas:[analystSchema,criticSchema,synthesisSchema],pathActions,pathTradeoffs,issueCatalogue,commonTradeoffs,stageReasons})).digest('hex')
  async function records(r:WorkflowRequest){const authorized=await input.readEvidence(r);validateEvidence(r,r.authorizedEvidenceRefs,authorized);return authorized.filter(x=>r.authorizedEvidenceRefs.some(ref=>refKey(ref)===refKey(x.ref)))}
- const facts=(rs:EvidenceRecord[])=>rs.map((r,index)=>({id:'e'+index,text:r.text,kind:r.ref.type,informationStatus:r.role==='public'?'approved_public_method':'student_original_words_keep_conditions',ref:r.ref}))
+ const facts=(rs:EvidenceRecord[])=>rs.map((r,index)=>({id:'e'+index,text:r.text,kind:r.ref.type,informationStatus:r.role==='public'?'approved_public_method':r.role==='user'?'student_original_words_keep_conditions':'tool_result_not_student_report',ref:r.ref}))
  function select<T extends {id:string}>(catalogue:T[],chosen:string[]):T[]{
   if(new Set(chosen).size!==chosen.length)throw new WorkflowError('invalid_contract')
   return chosen.map(id=>{const value=catalogue.find(x=>x.id===id);if(!value)throw new WorkflowError('source_invalid');return value})
@@ -105,7 +108,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    // demanding an exercise longer than the student's stated available time.
    if(minutes!==0)actions.push({id:path.id+':pause',text:`只记下${path.title}当前最关键的一个未知与重新考虑条件，然后暂停这条探索。`,estimatedMinutes:Math.min(5,minutes??5)})
    const tradeoffCatalogue={...commonTradeoffs,path:pathTradeoffs[path.id]??commonTradeoffs.cost}
-   const output=await call(c,'path:'+path.id,'路径分析者：按本人的当前目的、已有成果、关键缺口与本周义务，选择最能推进当前问题的取舍；用actionBasis把每项行动连接到已选择的个人evidenceIds与仍缺的unknownIds。依据必须来自当前授权事实，未知只选择实际影响这次取舍的项。没有可用时间时行动为空，允许暂缓。相同条件允许同建议；姓名、语气不影响选择。不要把一次成果推为长期适配；缺作品、动机或资格时保留未知。动作时间只是建议投入上限，不是本人已有安排。',analystSchema,{path,facts:source,timeBudget:c.request.budget,controls:c.request.controls,tradeoffs:tradeoffCatalogue,unknowns:issueCatalogue,actions},skill)
+   const output=await call(c,'path:'+path.id,'路径分析者：按本人的当前目的、已有成果、关键缺口与本周义务，选择最能推进当前问题的取舍；用actionBasis把每项行动连接到已选择的个人evidenceIds与仍缺的unknownIds，并选择有本人依据支持的stageReasonId解释为什么适合当前阶段。公共方法与工具结果不能当作本人经历；evidenceRelations逐条说明个人依据是支持、限制还是未知。依据必须来自当前授权事实，未知只选择实际影响这次取舍的项。没有可用时间时行动为空，允许暂缓。相同条件允许同建议；姓名、语气不影响选择。不要把一次成果推为长期适配；缺作品、动机或资格时保留未知。动作时间只是建议投入上限，不是本人已有安排。',analystSchema,{path,facts:source,timeBudget:c.request.budget,controls:c.request.controls,tradeoffs:tradeoffCatalogue,unknowns:issueCatalogue,stageReasons,actions},skill)
    const wire=output.parsed as Static<typeof analystSchema>,chosen=select(source,wire.evidenceIds)
    if(!chosen.length)throw new WorkflowError('source_invalid')
    const tradeoffs=select(Object.entries(tradeoffCatalogue).map(([id,text])=>({id,text})),wire.tradeoffIds),unknowns=select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),wire.unknownIds)
@@ -113,15 +116,17 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    p.evidenceRefs=chosen.map(x=>x.ref)
    const relations=wire.evidenceRelations??[]
    if(new Set(relations.map(x=>x.evidenceId)).size!==relations.length||relations.some(x=>!chosen.some(f=>f.id===x.evidenceId)))throw new WorkflowError('source_invalid')
-   const related=(relation:'support'|'limit'|'unknown')=>chosen.filter(x=>(relations.find(r=>r.evidenceId===x.id)?.relation??'unknown')===relation).map(x=>'本人原话（保留条件）：'+x.text)
+   const related=(relation:'support'|'limit'|'unknown')=>chosen.filter(x=>(relations.find(r=>r.evidenceId===x.id)?.relation??'unknown')===relation).map(x=>(x.informationStatus==='student_original_words_keep_conditions'?'本人原话（保留条件）：':x.informationStatus==='approved_public_method'?'公开方法（不是本人经历）：':'工具结果（不是本人报告）：')+x.text)
    p.alternatives=[{directionId:path.id,title:path.title,pros:related('support'),tradeoffs:[...related('limit'),...tradeoffs.map(x=>x.text)],unknowns:[...related('unknown'),...unknowns.map(x=>x.text)],weeklyMinutes:null,evidenceRefs:p.evidenceRefs}]
    // Generic exercises remain explicitly editorial. Approved public methods are
    // supplied by the host knowledge/guide path, never invented as catalogue IDs.
    const bases=wire.actionBasis??[]
-   if(new Set(bases.map(b=>b.actionId)).size!==bases.length||bases.some(b=>!selectedActions.some(a=>a.id===b.actionId)||!b.evidenceIds.length||b.evidenceIds.some(id=>!chosen.some(f=>f.id===id))||b.unknownIds.some(id=>!wire.unknownIds.includes(id))))throw new WorkflowError('source_invalid')
+   if(new Set(bases.map(b=>b.actionId)).size!==bases.length||bases.some(b=>!selectedActions.some(a=>a.id===b.actionId)||!b.evidenceIds.length||b.evidenceIds.some(id=>!chosen.some(f=>f.id===id&&f.informationStatus==='student_original_words_keep_conditions'))||b.unknownIds.some(id=>!wire.unknownIds.includes(id))||b.stageReasonId&&!Object.hasOwn(stageReasons,b.stageReasonId)))throw new WorkflowError('source_invalid')
    p.nextActions=selectedActions.map(x=>{
     const basis=bases.find(b=>b.actionId===x.id),personal=basis?select(chosen,basis.evidenceIds):[],gaps=basis?select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),basis.unknownIds):[]
-    const connection=basis?`个人依据（原话片段；完整条件见依据）：${personal.slice(0,2).map(f=>f.text.length>120?f.text.slice(0,120)+'…':f.text).join('；')}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；`:'个人依据与行动缺口的具体连接尚未说明；'
+    const labels={support:'支持',limit:'限制',unknown:'未知'}
+    const stage=basis?.stageReasonId?stageReasons[basis.stageReasonId as keyof typeof stageReasons]:'阶段适用性尚未说明，需核对后再采纳。'
+    const connection=basis?`个人依据（原话片段；完整条件见依据）：${personal.map(f=>`[${labels[relations.find(r=>r.evidenceId===f.id)?.relation??'unknown']}] ${f.text.length>120?f.text.slice(0,120)+'…':f.text}`).join('；')}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；阶段适用性（分析候选，尚待核对）：${stage}；`:'个人依据与行动缺口的具体连接尚未说明；阶段适用性尚未说明，需核对后再采纳；'
     return {description:'LifeOS 编辑建议（未绑定公开攻略）：'+x.text,estimatedMinutes:x.estimatedMinutes,stopCondition:`${connection}到可调整的建议投入上限${x.estimatedMinutes}分钟或发现必需材料缺失时停止；不自动对外联系。`,evidenceRefs:basis?personal.map(f=>f.ref):p.evidenceRefs,directionId:path.id}
    })
    return {result:{evidenceRefs:p.evidenceRefs,summary:'已选择该路径的授权依据与小探索',issues:[],proposal:p},costCny:output.costCny,providerCalls:1}
