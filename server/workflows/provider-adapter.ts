@@ -42,7 +42,7 @@ export type ProviderNodeAudit={callId:string;nodeId:string;providerResponseId:st
 
 // Production uses this factory and the existing native SDK, never an alternate
 // HTTP/provider ledger. Synthetic transport tests exercise this exact factory.
-export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;freezePath:string;budget?:CoachProviderBudget;runtime?:ModelRuntime;syntheticTransport?:boolean;audit?:(request:WorkflowRequest,row:ProviderNodeAudit)=>Promise<void>}):DecisionAdapter{
+export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;readMethods?:(request:WorkflowRequest)=>Promise<Record<string,unknown>[]>;freezePath:string;budget?:CoachProviderBudget;runtime?:ModelRuntime;syntheticTransport?:boolean;audit?:(request:WorkflowRequest,row:ProviderNodeAudit)=>Promise<void>}):DecisionAdapter{
  const runtime=input.runtime??resolveModel('default'),budget=input.budget??new CoachProviderBudget(),outputLimit=2048
  if(input.syntheticTransport&&!budget.path.includes('simulation'))throw new WorkflowError('scope_denied')
  if(input.syntheticTransport&&!['127.0.0.1','localhost','::1','[::1]'].includes(new URL(runtime.model.baseUrl!).hostname))throw new WorkflowError('scope_denied')
@@ -102,13 +102,13 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    reservations.delete(key(r))
   },
   async analyze(c,path,skill){
-   const source=facts(await records(c.request)),minutes=c.request.budget?.amountMinutes
+   const source=facts(await records(c.request)),minutes=c.request.budget?.amountMinutes,methodContext=await input.readMethods?.(c.request)??[]
    const actions=(pathActions[path.id]??[]).map(x=>({id:path.id+':'+x.key,text:x.text,estimatedMinutes:x.minutes})).filter(x=>minutes===undefined||x.estimatedMinutes<=minutes)
    // Very small budgets retain a useful inventory/stop option, rather than
    // demanding an exercise longer than the student's stated available time.
    if(minutes!==0)actions.push({id:path.id+':pause',text:`只记下${path.title}当前最关键的一个未知与重新考虑条件，然后暂停这条探索。`,estimatedMinutes:Math.min(5,minutes??5)})
    const tradeoffCatalogue={...commonTradeoffs,path:pathTradeoffs[path.id]??commonTradeoffs.cost}
-   const output=await call(c,'path:'+path.id,'路径分析者：按本人的当前目的、已有成果、关键缺口与本周义务，选择最能推进当前问题的取舍；用actionBasis把每项行动连接到已选择的个人evidenceIds与仍缺的unknownIds，并选择有本人依据支持的stageReasonId解释为什么适合当前阶段。公共方法与工具结果不能当作本人经历；evidenceRelations逐条说明个人依据是支持、限制还是未知。依据必须来自当前授权事实，未知只选择实际影响这次取舍的项。没有可用时间时行动为空，允许暂缓。相同条件允许同建议；姓名、语气不影响选择。不要把一次成果推为长期适配；缺作品、动机或资格时保留未知。动作时间只是建议投入上限，不是本人已有安排。',analystSchema,{path,facts:source,timeBudget:c.request.budget,controls:c.request.controls,tradeoffs:tradeoffCatalogue,unknowns:issueCatalogue,stageReasons,actions},skill)
+   const output=await call(c,'path:'+path.id,'路径分析者：按本人的当前目的、已有成果、关键缺口与本周义务，选择最能推进当前问题的取舍；用actionBasis把每项行动连接到已选择的个人evidenceIds与仍缺的unknownIds，并选择有本人依据支持的stageReasonId解释为什么适合当前阶段。公共方法与工具结果不能当作本人经历；evidenceRelations逐条说明个人依据是支持、限制还是未知。依据必须来自当前授权事实，未知只选择实际影响这次取舍的项。没有可用时间时行动为空，允许暂缓。相同条件允许同建议；姓名、语气不影响选择。不要把一次成果推为长期适配；缺作品、动机或资格时保留未知。动作时间只是建议投入上限，不是本人已有安排。',analystSchema,{path,facts:source,timeBudget:c.request.budget,controls:c.request.controls,methodContext,publicMethodRule:"Use only these canonical approved fragments; editorial exercises remain unbound, public text is not biography",tradeoffs:tradeoffCatalogue,unknowns:issueCatalogue,stageReasons,actions},skill)
    const wire=output.parsed as Static<typeof analystSchema>,chosen=select(source,wire.evidenceIds)
    if(!chosen.length)throw new WorkflowError('source_invalid')
    const tradeoffs=select(Object.entries(tradeoffCatalogue).map(([id,text])=>({id,text})),wire.tradeoffIds),unknowns=select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),wire.unknownIds)
@@ -132,6 +132,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    return {result:{evidenceRefs:p.evidenceRefs,summary:'已选择该路径的授权依据与小探索',issues:[],proposal:p},costCny:output.costCny,providerCalls:1}
   },
   async critic(c,analyses,skill){
+   await input.readMethods?.(c.request)
    const source=facts(await records(c.request)),output=await call(c,'critic','独立审阅者：逐条检查本人归属、条件、矛盾、时间及资料支持，阻塞与未知分开',criticSchema,{facts:source,analyses,timeBudget:c.request.budget,issues:issueCatalogue},skill)
    const wire=output.parsed as Static<typeof criticSchema>,issues:ReviewIssue[]=wire.issues.map(issue=>({severity:issue.severity,category:issue.issueId==='unsupported'?'evidence':issue.issueId==='contradiction'?'constraint':'unknown',affectedClaims:issue.evidenceIds,resolution:issue.severity==='blocker'?'blocked':issue.severity==='needs_clarification'?'ask_user':'keep_unknown',text:select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),[issue.issueId])[0].text,evidenceRefs:select(source,issue.evidenceIds).map(x=>x.ref)}))
    select(c.request.directions,wire.rejectedDirections)
@@ -139,6 +140,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    return {result:{evidenceRefs:c.request.authorizedEvidenceRefs,summary:'独立审阅已完成，未定条件保持未知',issues},costCny:output.costCny,providerCalls:1}
   },
   async synthesize(c,analyses,critic,skill){
+   await input.readMethods?.(c.request)
    const alternatives=analyses.flatMap(x=>x.proposal?.alternatives??[]),actions=analyses.flatMap(x=>x.proposal?.nextActions??[]).map((action,index)=>({id:'a'+index,action}))
    const output=await call(c,'synthesis','最终综合者：排序已审候选，选择可开始的动作；零时间时保留空行动，允许暂缓，不新增事实或自动改目标',synthesisSchema,{alternatives,actions,critic,timeBudget:c.request.budget},skill)
    const wire=output.parsed as Static<typeof synthesisSchema>,p=emptyProposal(c.request)

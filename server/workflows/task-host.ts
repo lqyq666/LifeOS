@@ -18,6 +18,7 @@ import {workflowControls,readWorkflowEvidence,selectWorkflowBudget} from './task
 import {workflowRuntimeVersion} from './runtime-version.ts'
 import {createDirectionWorkflow,type DecisionAdapter} from './direction-decision.ts'
 import {createRuntimeDecisionAdapter} from './provider-adapter.ts'
+import {workflowMethodReader} from './method-context.ts'
 import {postgresJournal} from './task-journal.ts'
 import {advancedWorkflowsEnabled} from './router.ts'
 
@@ -32,7 +33,7 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
  const journal=postgresJournal(),scheduler=new RequestScheduler(config.generationConcurrency,config.generationQueueLimit),active=new Map<string,AbortController>()
  let adapter=options.adapter,blocked='深入分析的候选服务尚未开放，原有聊天仍可继续。'
  if(!adapter&&advancedWorkflowsEnabled()&&process.env.LIFEOS_REAL_WORKFLOWS==='true'&&process.env.LIFEOS_WORKFLOW_FREEZE){
-  try{adapter=createRuntimeDecisionAdapter({readEvidence:readWorkflowEvidence,freezePath:process.env.LIFEOS_WORKFLOW_FREEZE,audit:async(r,row)=>{await pool.query('UPDATE lifeos_workflow_nodes SET provider_usage=$4 WHERE user_id=$1 AND request_id=$2 AND call_id=$3',[r.internalActorKey,r.requestId,row.callId,JSON.stringify(row)])}})}catch{blocked='模型费用或候选版本尚未核验，深入分析暂未开始。'}
+  try{adapter=createRuntimeDecisionAdapter({readEvidence:readWorkflowEvidence,readMethods:workflowMethodReader(),freezePath:process.env.LIFEOS_WORKFLOW_FREEZE,audit:async(r,row)=>{await pool.query('UPDATE lifeos_workflow_nodes SET provider_usage=$4 WHERE user_id=$1 AND request_id=$2 AND call_id=$3',[r.internalActorKey,r.requestId,row.callId,JSON.stringify(row)])}})}catch{blocked='模型费用或候选版本尚未核验，深入分析暂未开始。'}
  }
  const wf=adapter?createDirectionWorkflow(readWorkflowEvidence,adapter,undefined,journal):null
  const key=(user:string,id:string)=>user+':'+id

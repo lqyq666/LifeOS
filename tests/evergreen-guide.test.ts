@@ -63,3 +63,10 @@ test('a continued blocked method retains its branch and exposes feedback instead
  const stale=methodPromptContext([card],'怎么办？',intent,6000,[{...used[0],revision:card.revision+1}]).knowledge[0]
  assert.equal(stale.continuation,undefined,'old revisions never impersonate current use')
 })
+
+test('short failure carries continuation only with prior authorized method; explicit refusal wins',()=>{
+ const intent=knowledgeIntent('还是不行',{eventTitle:'课程复习',hasPriorGuide:true})
+ assert.equal(intent.decision,'NONE');assert.equal(intent.continuation,true);assert.equal(intent.stage,'adjust')
+ assert.equal(knowledgeIntent('还是不行').continuation,false)
+ assert.equal(knowledgeIntent('我不做这个申请了，不要换个办法推我').decision,'NONE')
+})

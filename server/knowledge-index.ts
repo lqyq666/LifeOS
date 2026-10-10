@@ -59,11 +59,15 @@ async function readIndex(signal?:AbortSignal){
 export type KnowledgeTrace={signature:string;epoch:string;candidates:{id:string;keyword:number;semantic:number;rrf:number;reason:string}[];selected:string[];queryEncoded:boolean}
 
 export function rankKnowledgeCandidates(cards:KnowledgeCard[],segments:Segment[],query:string,vector:number[],intent?:KnowledgeIntent){
- const terms=kbTerms(query),querySet=new Set(terms),matches=(text:string)=>kbTerms(text).filter(t=>querySet.has(t)).length
+ const generic=new Set(kbTerms('怎么如何怎样什么哪些方法办法步骤一下一个这个那个上次下次可以应该需要先做先问从哪开始现在已经还有仍然本人实际问题任务知道结果调整比较'))
+ const terms=kbTerms(query).filter(t=>!generic.has(t)),querySet=new Set(terms),matches=(text:string)=>kbTerms(text).filter(t=>querySet.has(t)).length
+ const searchable=(card:KnowledgeCard)=>[card.title,...card.guide?.aliases??[],card.guide?.retrievalSummary??card.claim,card.guide?.oneKeyQuestion??'',card.guide?.smallestAction??'',card.guide?.principle??'',...(card.guide?.branches??[]).flatMap(b=>[b.task,...b.steps.map(s=>s.text)])].join(' ')
+ const documents=cards.map(card=>new Set(kbTerms(searchable(card))))
+ const weights=new Map(terms.map(term=>[term,Math.log(1+(cards.length+1)/(documents.filter(doc=>doc.has(term)).length+1))]))
  const byGuide=new Map<string,Segment[]>()
  for(const segment of segments){const key=segment.guide_id+':'+segment.revision;const group=byGuide.get(key)??[];group.push(segment);byGuide.set(key,group)}
  const scored=cards.filter(guideIsUsable).map(card=>{
-  const keyword=matches([card.title,...card.guide?.aliases??[],card.guide?.retrievalSummary??card.claim].join(' '))
+  const keyword=kbTerms(searchable(card)).filter(t=>querySet.has(t)).reduce((sum,t)=>sum+(weights.get(t)??0),0)
   const semantic=Math.max(-1,...(byGuide.get(card.id+':'+card.revision)??[]).map(s=>dot(s.embedding,vector)))
   const aliasExact=(card.guide?.aliases??[]).filter(a=>a.length>=3&&query.includes(a)).length
   const directTask=(card.guide?.branches??[]).filter(b=>query.includes(b.task)).length

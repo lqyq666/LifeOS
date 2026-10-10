@@ -12,6 +12,7 @@ export type GuideUsageStatus='suggested'|'accepted'|'attempted'|'waiting_result'
 export type GuideUsage={guideId:string;revision:number;branch:string;stepId:string;status:GuideUsageStatus;eventId:string;sourceMessageId:string|null;sourceQuote:string|null}
 export function feedbackMatchesCurrent(text:string,title:string,task:string){
  if(/现在想|换个话题|另外一件|新的任务|新任务/.test(text))return false
+ if(/^(?:还是不行|仍然不行|还是卡住了|还没结果)[。！？?]*$/.test(text.trim()))return true
  const matters=[/考试|期末|复习|备考/,/产品|创业|用户|客户|需求|接单|交付|改稿/,/导师|科研|论文/,/竞赛|比赛|队友|社团/,/岗位|求职|投递|面试/,/宿舍|舍友|人际/,/休息|过载|恢复/]
  const named=matters.filter(pattern=>pattern.test(text))
  if(named.length&&!named.some(pattern=>pattern.test(title+' '+task)))return false
