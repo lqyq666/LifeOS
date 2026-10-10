@@ -238,19 +238,20 @@
     "draftsServed": false,
     "historicalBeforeFollowup": true,
     "followup": {
-      "newUsableSources": 5,
-      "newLocatedQuotes": 5,
-      "draftsSupplemented": 8,
+      "newUsableSources": 8,
+      "newLocatedQuotes": 9,
+      "draftsSupplemented": 9,
       "allReviewPreparations": 32,
-      "sourceScopedDraftReady": 15,
-      "partialImproved": 8,
-      "stillTaskSpecificSourceGap": 44,
+      "sourceScopedDraftReady": 21,
+      "partialImproved": 7,
+      "stillTaskSpecificSourceGap": 38,
       "actualIndependentReviews": 0,
       "actualHumanApprovals": 0,
       "formalCoverageUnchangedUntilApproval": true,
-      "partialImprovedIncludedInRemaining": true
+      "partialImprovedIncludedInRemaining": true,
+      "shortQuoteOnlyCapture": "Upwork delivery original is located short quote, not full HTML capture."
     },
-    "reviewPreparationClaims": 74
+    "reviewPreparationClaims": 77
   },
   "maintenance": {
     "normalEntry": "/#maintenance",
@@ -260,7 +261,8 @@
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
     "actualPublication": false,
-    "reviewPreparation": "32_DRAFTS_74_CLAIMS_BOUND_BY_REVISION_HASH_ACTUAL_INDEPENDENT_EXECUTION_ZERO"
+    "reviewPreparation": "32_DRAFTS_77_CLAIMS_BOUND_BY_REVISION_HASH_ACTUAL_INDEPENDENT_EXECUTION_ZERO",
+    "latestActualBrowserEvidence": "evidence/coze-core-launch-20261011/MAINTENANCE_DELIVERY_REV3.json"
   },
   "realEntry": {
     "status": "ENTRY_IMPLEMENTED_DEFAULT_PAUSED_ZERO_DISPATCH",
@@ -285,13 +287,13 @@
     ]
   },
   "paused": {
-    "realModels": "PAUSED_NOT_RUN",
-    "fourRealChains": "PAUSED_NOT_RUN",
-    "complex20PairedBlind": "PAUSED_NOT_RUN",
-    "ordinary20RealPerformance": "PAUSED_NOT_RUN",
-    "cozeExistingTwoProjects": "PAUSED_NOT_RUN",
-    "cloudSkills": "PAUSED_NOT_RUN",
-    "studentAcceptance": "PAUSED_NOT_RUN"
+    "realModels": "RESTORED_SMALL_FIRST_FAILURES_RETAINED",
+    "fourRealChains": "NOT_TESTED_SMALL_GATE_FAILED",
+    "complex20PairedBlind": "NOT_TESTED_SMALL_GATE_FAILED",
+    "ordinary20RealPerformance": "NOT_TESTED_SMALL_GATE_FAILED",
+    "cozeExistingTwoProjects": "RESTORED_GROWTH_R4_DEVELOPMENT_NOT_ACCEPTED",
+    "cloudSkills": "NOT_TESTED_CURRENT_CLOUD_EXECUTION",
+    "studentAcceptance": "NOT_TESTED"
   },
   "realPerformance": {
     "samples": 0,
@@ -300,12 +302,12 @@
     "completeReplyP95Ms": null,
     "status": "PAUSED_NOT_RUN"
   },
-  "actualPaidCostAddedCny": 0,
-  "realCallsAdded": 0,
+  "actualPaidCostAddedCny": 0.02625,
+  "realCallsAdded": 21,
   "cloudCallsAdded": 0,
   "newBudget": 0,
-  "paidLedgerUnchanged": true,
-  "paidLedgerSha256": "03891a1f7f7da4ae969cf36c5a11777b92b353c012f3a3591a7e2d15f682a1a4",
+  "paidLedgerUnchanged": false,
+  "paidLedgerSha256": "5dee70d12598d8b5d590ca85645716e01d09cdde7ed6f3222d02a221d82e32b3",
   "unknownHistoricalCostsRetained": true,
   "simulatedUsageIsNotActualCost": true,
   "sourceGaps": 59,
@@ -320,23 +322,74 @@
   },
   "historicalAcceptance": "evidence/retrieval-followup-20261010/baseline-519f/WORKFLOW_ACCEPTANCE.json",
   "noPushMergeDeploy": true,
-  "sourceScopedCandidatesReadyPendingReview": 15,
-  "remainingTaskSpecificSourceOrScopeGaps": 44,
+  "sourceScopedCandidatesReadyPendingReview": 21,
+  "remainingTaskSpecificSourceOrScopeGaps": 38,
   "launch": {
-    "runtimeSpendEntry": "BLOCKED_OLD_EXECUTOR_MODEL_CNY_POOL_CANNOT_FUND_COZE_CREDITS",
-    "newBudget": 0,
-    "development": "GROWTH_R1_PROCESSING_FIRST_CLI_CRASH_NOT_REISSUED",
-    "authorization": "LAUNCH_AUTHORIZATION.json",
-    "evidence": "evidence/coze-core-launch-20261011/",
-    "productionWrites": 0,
-    "cozeBusinessCalls": 0,
     "scopeRestored": true,
     "status": "NOT_RELEASED_BLOCKED",
-    "modelCalls": 0,
-    "cozeDevelopmentRequests": 1,
-    "cloudContracts": "AUTHENTICATED_LEGACY_READBACK_ONLY",
-    "previousChecksScope": "preserved pre-restoration regression evidence; not current cloud product acceptance",
-    "latestIncrementCommit": "599490d5a027d0e36979e7ee3342650f394de2e2",
-    "image": "BUILT_CLEAN_COMMIT_cda3571_ISOLATED_STARTUP_PROBE_PASS"
-  }
+    "authorization": "LAUNCH_AUTHORIZATION.json",
+    "latestIncrementCommit": "5bb68a466c817a3047df57b9b44c7256db56532e",
+    "evidence": "evidence/coze-core-launch-20261011/",
+    "productionWrites": 0,
+    "newBudget": 0,
+    "modelCalls": 21,
+    "interfaceCalls": 15,
+    "ordinaryPilotCalls": 6,
+    "ordinaryPilotVersions": 2,
+    "ordinaryTwentyAccepted": 0,
+    "cozeBusinessCalls": 0,
+    "cozeDevelopmentRequests": 4,
+    "development": "GROWTH_R4_HTTP_PROCESSING_FIRST_CLI_CRASH_NOT_REISSUED",
+    "cloudContracts": "LEGACY_READBACK_ONLY_NEW_HTTP_NOT_ACCEPTED",
+    "runtimeSpendEntry": "HOST_SIGNED_ORIGINAL_CNY_RESERVATION_LOCAL_TESTED_CLOUD_BRIDGE_NOT_TESTED",
+    "modelLedgerMetadataOnly": {
+      "sha256": "5dee70d12598d8b5d590ca85645716e01d09cdde7ed6f3222d02a221d82e32b3",
+      "copied": false,
+      "startingCallCount": 2022,
+      "currentCallCount": 2043,
+      "newCalls": 21,
+      "newBudget": 0,
+      "knownEstimatedCostCny": 0.02625,
+      "unknownCalls": 3,
+      "unknownReservedCny": 0.3735552,
+      "remainingCny": 10.8605346
+    },
+    "cozeCredits": {
+      "observedInitial": 151559,
+      "chargedRounded": 16516,
+      "unknownHeld": 135043,
+      "availableUnreserved": 0,
+      "actualR4Bill": "NOT_OBSERVED_PROCESSING"
+    },
+    "image": "4566bb3_CANONICAL_FRESH_IMAGE_AND_ISOLATED_READBACK_NOT_CURRENT_FULL_ACCEPTANCE",
+    "ordinaryPilot": {
+      "sourceCommit": "4566bb3c5c4ebeea9f9ba8015c3de210fec53531",
+      "firstContentP50Ms": 5590.075699999998,
+      "firstContentP95Ms": 8161.217100000002,
+      "status": "FAILED_STATE_SOURCE_AND_FIRST_CONTENT_TARGETS",
+      "independentReview": "NOT_TESTED",
+      "samples": 3
+    },
+    "previousChecksScope": "Historical regression and isolated interface evidence are not real current cloud/student acceptance."
+  },
+  "preRestorationCheckpoint": {
+    "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+    "version": "workflow-v2-integration-0c4ce842100e",
+    "codeCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+    "paused": {
+      "realModels": "PAUSED_NOT_RUN",
+      "fourRealChains": "PAUSED_NOT_RUN",
+      "complex20PairedBlind": "PAUSED_NOT_RUN",
+      "ordinary20RealPerformance": "PAUSED_NOT_RUN",
+      "cozeExistingTwoProjects": "PAUSED_NOT_RUN",
+      "cloudSkills": "PAUSED_NOT_RUN",
+      "studentAcceptance": "PAUSED_NOT_RUN"
+    },
+    "realCallsAdded": 0,
+    "actualPaidCostAddedCny": 0,
+    "paidLedgerSha256": "03891a1f7f7da4ae969cf36c5a11777b92b353c012f3a3591a7e2d15f682a1a4",
+    "checksScope": "PRE_RESTORATION_HISTORICAL_NOT_CURRENT"
+  },
+  "currentImplementationCommit": "5bb68a466c817a3047df57b9b44c7256db56532e",
+  "unknownCostsRetainedCny": 0.3735552
 }
