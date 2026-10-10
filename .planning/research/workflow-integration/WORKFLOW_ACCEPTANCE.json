@@ -328,7 +328,7 @@
     "scopeRestored": true,
     "status": "NOT_RELEASED_BLOCKED",
     "authorization": "LAUNCH_AUTHORIZATION.json",
-    "latestIncrementCommit": "5bb68a466c817a3047df57b9b44c7256db56532e",
+    "latestIncrementCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4",
     "evidence": "evidence/coze-core-launch-20261011/",
     "productionWrites": 0,
     "newBudget": 0,
@@ -339,7 +339,7 @@
     "ordinaryTwentyAccepted": 0,
     "cozeBusinessCalls": 0,
     "cozeDevelopmentRequests": 4,
-    "development": "GROWTH_R4_HTTP_PROCESSING_FIRST_CLI_CRASH_NOT_REISSUED",
+    "development": "GROWTH_R4_HTTP_TERMINAL_REJECTED_HOST_WIRE_SOURCE_FIRST_FAILURE",
     "cloudContracts": "LEGACY_READBACK_ONLY_NEW_HTTP_NOT_ACCEPTED",
     "runtimeSpendEntry": "HOST_SIGNED_ORIGINAL_CNY_RESERVATION_LOCAL_TESTED_CLOUD_BRIDGE_NOT_TESTED",
     "modelLedgerMetadataOnly": {
@@ -356,12 +356,12 @@
     },
     "cozeCredits": {
       "observedInitial": 151559,
-      "chargedRounded": 16516,
-      "unknownHeld": 135043,
-      "availableUnreserved": 0,
-      "actualR4Bill": "NOT_OBSERVED_PROCESSING"
+      "chargedRounded": 25136,
+      "unknownHeld": 0,
+      "availableUnreserved": 126423,
+      "actualR4Bill": "evidence/coze-core-launch-20261011/COZE_R4_DEVELOPMENT_USAGE.json"
     },
-    "image": "4566bb3_CANONICAL_FRESH_IMAGE_AND_ISOLATED_READBACK_NOT_CURRENT_FULL_ACCEPTANCE",
+    "image": "6c5e5d8_FRESH_IMAGE_44_SCOPED_CHECKS_PASS_NOT_REAL_ACCEPTANCE",
     "ordinaryPilot": {
       "sourceCommit": "4566bb3c5c4ebeea9f9ba8015c3de210fec53531",
       "firstContentP50Ms": 5590.075699999998,
@@ -371,7 +371,10 @@
       "samples": 3,
       "observedCompleteReplyP95Ms": 9838.253700000001
     },
-    "previousChecksScope": "Historical regression and isolated interface evidence are not real current cloud/student acceptance."
+    "previousChecksScope": "Historical regression and isolated interface evidence are not real current cloud/student acceptance.",
+    "cloudHttpCommit": "8cd83cd5bd8c464c3e96a20ffcaedb880654a614",
+    "freshReproduction": "evidence/coze-core-launch-20261011/FRESH_6c5_REPRO.json",
+    "sourceReview": "evidence/coze-core-launch-20261011/COZE_R4_SOURCE_REVIEW.json"
   },
   "preRestorationCheckpoint": {
     "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
