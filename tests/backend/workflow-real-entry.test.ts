@@ -7,8 +7,8 @@ import {feedbackMatchesCurrent,classifyGuideFeedback} from '../../server/guide-u
 import {pool} from '../../server/db.ts'
 test.after(()=>pool.end())
 test('real reporting retains first failure, missing useful content, unknown cost and separates deep duration',()=>{
- const report=realMetrics([{firstUsefulMs:2100,wholeTurnMs:5200,costCny:0.01},{firstUsefulMs:null,wholeTurnMs:9000,failure:'CANCELLED',costCny:'unknown'},{deepInput:true,firstUsefulMs:null,wholeTurnMs:14000,costCny:'unknown'}])
- assert.equal(report.ordinaryFirstAttempts,2);assert.equal(report.noFirstContent,1);assert.equal(report.failedOrCancelled,1);assert.equal(report.firstContentP50Ms,2100);assert.equal(report.wholeReplyP95Ms,9000);assert.equal(report.unknownCostSamples,2);assert.equal(report.performanceStatus,'NOT_ACCEPTED_INCOMPLETE_OR_FAILED')
+ const report=realMetrics([{stage:'ordinary20',firstUsefulMs:2100,replyCompleteMs:5000,wholeTurnMs:5200,costCny:0.01},{stage:'ordinary20',firstUsefulMs:null,replyCompleteMs:null,wholeTurnMs:9000,failure:'CANCELLED',costCny:'unknown'},{stage:'complex20_pairs',deepInput:true,firstUsefulMs:null,wholeTurnMs:14000,costCny:'unknown'},{stage:'complex20_pairs',firstUsefulMs:1,replyCompleteMs:2,wholeTurnMs:3,costCny:0.01}])
+ assert.equal(report.ordinaryFirstAttempts,2);assert.equal(report.noFirstContent,1);assert.equal(report.failedOrCancelled,1);assert.equal(report.firstContentP50Ms,2100);assert.equal(report.wholeReplyP95Ms,null);assert.equal(report.observedCompleteReplyP95Ms,5000);assert.equal(report.noCompleteReply,1);assert.equal(report.unknownCostSamples,2);assert.equal(report.performanceStatus,'NOT_ACCEPTED_INCOMPLETE_OR_FAILED')
 })
 test('paused real batch preflight is read-only, preserves unique ledger, and dispatches zero without owner authorization',()=>{
  const path='.local/v1.3-action-coach/paid/provider-calls.json',hash=()=>existsSync(path)?createHash('sha256').update(readFileSync(path)).digest('hex'):'MISSING_NOT_COPIED',before=hash(),report=realBatchPreflight()

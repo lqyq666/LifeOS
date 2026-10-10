@@ -5,3 +5,7 @@
 # Frozen textual corpus hashes must survive a Windows checkout without CRLF conversion.
 .planning/research/evergreen/** text eol=lf
 .planning/research/workflow-integration/evidence/long-batch-20261010/*.log -text -whitespace
+.planning/research/workflow-integration/evidence/long-batch-20261010/** -text -whitespace
+.planning/research/workflow-integration/*.json -text
+.planning/research/workflow-integration/*.md -text
+NEXT_ACCEPTANCE.md text eol=lf
