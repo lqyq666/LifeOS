@@ -152,9 +152,9 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
   const user='turn-contract-'+randomUUID(),chat=randomUUID()
   await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
   await store.createConversation(user,{id:chat,title:'SYNTHETIC turn contract'})
-  const prepare=async(text:string)=>{
+  const prepare=async(text:string,conversationId=chat)=>{
     await pool.query("UPDATE runs SET status='failed',error_code='SYNTHETIC_TEST_CLEANUP',finished_at=now() WHERE user_id=$1 AND status='running'",[user])
-    const run=(await store.startRun(user,chat,randomUUID(),text)).run
+    const run=(await store.startRun(user,conversationId,randomUUID(),text)).run
     const staged:store.Staged={candidates:[],audit:[]}
     return {run,staged,input:{run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}}}
   }
@@ -200,13 +200,19 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.equal((result.usage as any).llmCallCount,1)
     })
     await t.test('missing matching methods are explicit in the actual SDK request without opening citations',async()=>{
-      const turn=await prepare('前天联系了学长，他没回，我下一步怎么办？')
+      const newChat=randomUUID()
+      await store.createConversation(user,{id:newChat,title:'SYNTHETIC separate contact matter'})
+      await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1) ON CONFLICT (user_id) DO UPDATE SET enabled=true',[user])
+      const turn=await prepare('前天联系了学长，他没回，我下一步怎么办？',newChat)
       outputs.push({reply:'先核对原消息的目的和实际等待情况。'})
       const result=await engine(turn.input),request=requests.at(-1)!
       const context=JSON.parse(request.messages.find((m:any)=>m.role==='user').content)
       assert.equal(context.methodSourceAvailability.status,'NO_MATCHING_PUBLIC_METHOD')
       assert.equal(context.methodSourceAvailability.suppliedMethodCount,0)
       assert.deepEqual(context.knowledge,[])
+      assert.ok(context.deferredGrowthRefs.some((ref:any)=>ref.reason==='UNSCOPED_TEMPORARY_TIME_FOR_OTHER_MATTER'))
+      assert.ok(!JSON.stringify(context.growthBackground).includes('我还有两小时准备明天的课堂汇报'),'actual SDK context cannot use the other task budget')
+      assert.equal((await pool.query("SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2",[user,'我还有两小时准备明天的课堂汇报'])).rows[0].n,1,'original saved fact remains available in storage')
       assert.equal(request.response_format.json_schema.schema.properties.citations,undefined)
       assert.equal((result.usage as any).llmCallCount,1)
     })

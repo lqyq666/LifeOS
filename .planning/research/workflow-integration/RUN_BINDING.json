@@ -868,7 +868,7 @@
     "ordinaryTwentyAccepted": 0,
     "cozeBusinessCalls": 0,
     "cozeDevelopmentRequests": 5,
-    "development": "GROWTH_R5_HTTP_REPAIR1_IN_PROGRESS_R4_FIRST_FAILURE_RETAINED",
+    "development": "R5_TERMINAL_REJECTED_SECOND_REPAIR_PREPARED",
     "cloudContracts": "LEGACY_READBACK_ONLY_NEW_HTTP_NOT_ACCEPTED",
     "runtimeSpendEntry": "HOST_SIGNED_ORIGINAL_CNY_RESERVATION_LOCAL_TESTED_CLOUD_BRIDGE_NOT_TESTED",
     "modelLedgerMetadataOnly": {
@@ -885,12 +885,13 @@
     },
     "cozeCredits": {
       "observedInitial": 151559,
-      "chargedRounded": 25136,
+      "chargedRounded": 35464,
       "unknownHeld": 0,
-      "availableUnreserved": 0,
+      "availableUnreserved": 116095,
       "actualR4Bill": "evidence/coze-core-launch-20261011/COZE_R4_DEVELOPMENT_USAGE.json",
       "reservedR5": 126423,
-      "r5ActualCost": null
+      "r5ActualCost": null,
+      "actualR5Bill": "evidence/coze-core-launch-20261011/COZE_R5_DEVELOPMENT_USAGE.json"
     },
     "image": "6c5e5d8_FRESH_IMAGE_44_SCOPED_CHECKS_PASS_NOT_REAL_ACCEPTANCE",
     "ordinaryPilot": {
@@ -910,7 +911,7 @@
     },
     "previousChecksScope": "Historical regression and isolated interface evidence are not real current cloud/student acceptance.",
     "hostBindingDomain": ".planning/research/workflow-integration/COZE_HTTP_HOST_BINDING.json",
-    "cloudHttpCommit": "8cd83cd5bd8c464c3e96a20ffcaedb880654a614",
+    "cloudHttpCommit": "697655773bb6315eb38956a4de12bc1828aa02b1",
     "currentHostRuntimeAndCloudBindingMatch": "NOT_TESTED",
     "latestRealSource": {
       "head": "4566bb3c5c4ebeea9f9ba8015c3de210fec53531",
@@ -919,13 +920,13 @@
     },
     "latestImageSource": {
       "service": "LifeOS",
-      "head": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4",
+      "head": "c468f05112323afc411356e10d7f64bfac70a357",
       "versionSource": "image_build_manifest",
       "skillVersion": "1.2.2-candidate",
       "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
       "workflowVersion": "v2-integration",
-      "sourceDigest": "680e4f08bbf826b4f20679d49e2b96afeb002431c37babb9d925914803c30427",
-      "sourceFreezeDigest": "b5bf7cb59d68ec74ccf86964bd9856b253db15ac3f3e66a04ea5774366de3391",
+      "sourceDigest": "fcc00d8da1d1e6e2b00e5191fe1fb359c204fce633651d825f96c563acd6d541",
+      "sourceFreezeDigest": "a787bc40adfbff985b9d0bb614d4ec4b9cd704683430120d5efc27cb4015aa41",
       "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
       "sourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
       "contentEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
@@ -956,17 +957,16 @@
           "version": "0.2.0-candidate"
         }
       ],
-      "loadedAt": "2026-10-10T15:11:12.904Z",
+      "loadedAt": "2026-10-10T16:11:30.080Z",
       "contractGeneration": "p4+workflow-v2",
-      "growthApi": true,
-      "domain": "CANONICAL_CONTAINER_RUNTIME_CONFIGURATION_NOT_HOST_PILOT_CONFIG"
+      "growthApi": true
     },
     "latestEvidenceHashes": {
       "ordinaryResults": "850f85a23fef7e161c5f7a0555bfcbd5c991153593dea4d4c4216ca070fbbea3",
       "readbackReview": "2852b993005ea9609a7113be8bc71d19b5f48ce894d8ed45376fd66d4b7710a3",
       "interface": "378873a5dd9a1bdf6df52281a64b210519238c877f4ee636722d380d96e1bd4d"
     },
-    "freshReproduction": "evidence/coze-core-launch-20261011/FRESH_6c5_REPRO.json",
+    "freshReproduction": "evidence/coze-core-launch-20261011/FRESH_C468_REPRO.json",
     "sourceReview": "evidence/coze-core-launch-20261011/COZE_R4_SOURCE_REVIEW.json",
     "retrievalIncrement": {
       "status": "LOCAL_EXPOSED_RETRIEVAL_REGRESSION_GATES_PASS",
@@ -1166,6 +1166,9 @@
       "ordinaryPerformance": "PRIOR_FAILED_SMALL_PILOT_RETAINED",
       "changed": "Always-present source boundary; explicit selected method availability in provider context. Revision-specific aria-pressed. Declared test command uses already locked tsx so existing parameter properties are executable."
     },
-    "currentSmallReadbackReview": "evidence/coze-core-launch-20261011/ORDINARY_SOURCE_AVAILABILITY_READBACK_REVIEW.json"
+    "currentSmallReadbackReview": "evidence/coze-core-launch-20261011/ORDINARY_SOURCE_AVAILABILITY_READBACK_REVIEW.json",
+    "cozeR5SourceReview": "evidence/coze-core-launch-20261011/COZE_R5_SOURCE_REVIEW.json",
+    "temporaryTimeScope": "evidence/coze-core-launch-20261011/TEMPORARY_TIME_SCOPE_INCREMENT.json",
+    "ordinaryNextPaidBatch": "PAUSED_TWO_HIGH_REPAIR_ROUNDS_NEW_ROUTE_REQUIRES_FOUNDER"
   }
 }

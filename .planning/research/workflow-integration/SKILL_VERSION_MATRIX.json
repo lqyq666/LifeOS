@@ -281,15 +281,15 @@
       "userInstalledVersion": "1.2.0"
     },
     "process": {
-      "imageCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4",
+      "imageCommit": "c468f05112323afc411356e10d7f64bfac70a357",
       "status": "ISOLATED_NO_PORT_READBACK_ONLY",
-      "evidence": "evidence/coze-core-launch-20261011/FRESH_6c5_RUNTIME_READBACK.json"
+      "evidence": "evidence/coze-core-launch-20261011/FRESH_C468_RUNTIME_READBACK.json"
     },
     "cozeGrowth": {
       "projectId": "7693388932939300905",
       "deployedCommit": "4aa53641b7177604cfa96631b9584de991531324",
-      "candidate": "R4_HTTP_TERMINAL_NOT_ACCEPTED",
-      "newHttpDevelopmentCommit": "8cd83cd5bd8c464c3e96a20ffcaedb880654a614"
+      "candidate": "R5_WIRE_PASS_SOURCE_HIGH_REJECTED",
+      "newHttpDevelopmentCommit": "697655773bb6315eb38956a4de12bc1828aa02b1"
     },
     "cozePublic": {
       "projectId": "7693465311558795327",

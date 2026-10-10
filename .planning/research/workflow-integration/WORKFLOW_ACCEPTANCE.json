@@ -339,7 +339,7 @@
     "ordinaryTwentyAccepted": 0,
     "cozeBusinessCalls": 0,
     "cozeDevelopmentRequests": 5,
-    "development": "GROWTH_R5_HTTP_REPAIR1_IN_PROGRESS_R4_FIRST_FAILURE_RETAINED",
+    "development": "R5_TERMINAL_REJECTED_SECOND_REPAIR_PREPARED",
     "cloudContracts": "LEGACY_READBACK_ONLY_NEW_HTTP_NOT_ACCEPTED",
     "runtimeSpendEntry": "HOST_SIGNED_ORIGINAL_CNY_RESERVATION_LOCAL_TESTED_CLOUD_BRIDGE_NOT_TESTED",
     "modelLedgerMetadataOnly": {
@@ -356,12 +356,13 @@
     },
     "cozeCredits": {
       "observedInitial": 151559,
-      "chargedRounded": 25136,
+      "chargedRounded": 35464,
       "unknownHeld": 0,
-      "availableUnreserved": 0,
+      "availableUnreserved": 116095,
       "actualR4Bill": "evidence/coze-core-launch-20261011/COZE_R4_DEVELOPMENT_USAGE.json",
       "reservedR5": 126423,
-      "r5ActualCost": null
+      "r5ActualCost": null,
+      "actualR5Bill": "evidence/coze-core-launch-20261011/COZE_R5_DEVELOPMENT_USAGE.json"
     },
     "image": "6c5e5d8_FRESH_IMAGE_44_SCOPED_CHECKS_PASS_NOT_REAL_ACCEPTANCE",
     "ordinaryPilot": {
@@ -380,8 +381,8 @@
       "samples": 3
     },
     "previousChecksScope": "Historical regression and isolated interface evidence are not real current cloud/student acceptance.",
-    "cloudHttpCommit": "8cd83cd5bd8c464c3e96a20ffcaedb880654a614",
-    "freshReproduction": "evidence/coze-core-launch-20261011/FRESH_6c5_REPRO.json",
+    "cloudHttpCommit": "697655773bb6315eb38956a4de12bc1828aa02b1",
+    "freshReproduction": "evidence/coze-core-launch-20261011/FRESH_C468_REPRO.json",
     "sourceReview": "evidence/coze-core-launch-20261011/COZE_R4_SOURCE_REVIEW.json",
     "retrievalIncrement": {
       "status": "LOCAL_EXPOSED_RETRIEVAL_REGRESSION_GATES_PASS",
@@ -581,7 +582,53 @@
       "ordinaryPerformance": "PRIOR_FAILED_SMALL_PILOT_RETAINED",
       "changed": "Always-present source boundary; explicit selected method availability in provider context. Revision-specific aria-pressed. Declared test command uses already locked tsx so existing parameter properties are executable."
     },
-    "currentSmallReadbackReview": "evidence/coze-core-launch-20261011/ORDINARY_SOURCE_AVAILABILITY_READBACK_REVIEW.json"
+    "currentSmallReadbackReview": "evidence/coze-core-launch-20261011/ORDINARY_SOURCE_AVAILABILITY_READBACK_REVIEW.json",
+    "cozeR5SourceReview": "evidence/coze-core-launch-20261011/COZE_R5_SOURCE_REVIEW.json",
+    "latestImageSource": {
+      "service": "LifeOS",
+      "head": "c468f05112323afc411356e10d7f64bfac70a357",
+      "versionSource": "image_build_manifest",
+      "skillVersion": "1.2.2-candidate",
+      "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+      "workflowVersion": "v2-integration",
+      "sourceDigest": "fcc00d8da1d1e6e2b00e5191fe1fb359c204fce633651d825f96c563acd6d541",
+      "sourceFreezeDigest": "a787bc40adfbff985b9d0bb614d4ec4b9cd704683430120d5efc27cb4015aa41",
+      "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+      "sourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+      "contentEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+      "skills": [
+        {
+          "name": "lifeos-direction-analysis",
+          "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-action-review",
+          "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-experience-evidence",
+          "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-guide-application",
+          "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-growth-diff",
+          "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+          "version": "0.2.0-candidate"
+        }
+      ],
+      "loadedAt": "2026-10-10T16:11:30.080Z",
+      "contractGeneration": "p4+workflow-v2",
+      "growthApi": true
+    },
+    "temporaryTimeScope": "evidence/coze-core-launch-20261011/TEMPORARY_TIME_SCOPE_INCREMENT.json",
+    "ordinaryNextPaidBatch": "PAUSED_TWO_HIGH_REPAIR_ROUNDS_NEW_ROUTE_REQUIRES_FOUNDER"
   },
   "preRestorationCheckpoint": {
     "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
