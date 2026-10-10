@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "purpose": "EDITORIAL_INDEX_EXPRESSIONS_ONLY_NO_NEW_METHOD_OR_EFFECT_CLAIM",
+  "author": "codex",
+  "basedOn": "Existing canonical title, mechanism and approved branch actions, not query-label lookups",
+  "excludedBenchmarks": [
+    "old235",
+    "natural232",
+    "acceptance2-160"
+  ],
+  "profiles": [
+    {
+      "canonicalKey": "campus-resource",
+      "contentHash": "92bd95009d51a1146577675de0ee38af363c1bd5f59bc284bc366c2f8d19bf55",
+      "revision": 1,
+      "expressions": [
+        "办理一项校园事务，查学校官方部门和咨询渠道",
+        "学生不知道去哪里查教务或图书馆的可靠入口"
+      ]
+    },
+    {
+      "canonicalKey": "first-contact",
+      "contentHash": "e68b2f80000a5ade87270df3c2a704626c25a91b819f517c7c53d1e2a1d826fa",
+      "revision": 1,
+      "expressions": [
+        "向未建立联系的导师或学长提出有限的请求，没回应时核对情况"
+      ]
+    },
+    {
+      "canonicalKey": "fit-exploration",
+      "contentHash": "82eb8128374d1103e06b3d2dd93cd24d210c33702b9a60f13608f3ceaf21ef8d",
+      "revision": 1,
+      "expressions": [
+        "对学业或发展方向不确定，先进行低风险接触再判断适合程度"
+      ]
+    },
+    {
+      "canonicalKey": "skill-gap",
+      "contentHash": "509c7cf62ab4d7386b7afa721c864f39f1be60eb2aa58db6dba3add83a1ade22",
+      "revision": 1,
+      "expressions": [
+        "跨专业进入新领域，识别能力要求与已有经验之间的缺口"
+      ]
+    },
+    {
+      "canonicalKey": "course-frame",
+      "contentHash": "87770cf6377e090c26d4e7476a6df583a749e3d202e1493299172c6e1b01c632",
+      "revision": 1,
+      "expressions": [
+        "学习一门课程，弄清前提、概念和推导的关系，定位知识断点",
+        "先找不懂的前置知识，再把章节内容组织成框架"
+      ]
+    },
+    {
+      "canonicalKey": "exam-diagnosis",
+      "contentHash": "5a2a5af5035945869a2871dc5fbfb0831c13ddc681b16c8b3cea21f572f5849f",
+      "revision": 1,
+      "expressions": [
+        "对已有练习答案和过程进行检查，定位错误类型和待核对原因"
+      ]
+    },
+    {
+      "canonicalKey": "retrieval-practice",
+      "contentHash": "e15b183ad1721750a9008342bfb0f72e0911f7b5af1c088407d8e39f7ce308aa",
+      "revision": 1,
+      "expressions": [
+        "学习过的内容，在不翻书不看笔记时尝试凭记忆回答，检查能记起什么",
+        "不依赖眼前的答案，自己写出或答出学过的知识"
+      ]
+    },
+    {
+      "canonicalKey": "spaced-review",
+      "contentHash": "52d92f72313737e618c05a4f7bdc67c8473c2371197a54bfc076e42ee13248c2",
+      "revision": 1,
+      "expressions": [
+        "把已学内容的重复复习分布在多个时段，而不是一次集中重读",
+        "根据遗忘情况安排多次回看和记忆检查，比较集中与分散学习"
+      ]
+    },
+    {
+      "canonicalKey": "worked-example",
+      "contentHash": "9c1745b3206513dc37e98efa5c5b09224c8e7dcf7eda4e5d066cba4cf58b1001",
+      "revision": 1,
+      "expressions": [
+        "照着示范或教程能够完成，离开示例就不会，逐步减少帮助后独立解决",
+        "从观察完整示例到补全缺失步骤，再独立尝试相似问题"
+      ]
+    },
+    {
+      "canonicalKey": "explain-understanding",
+      "contentHash": "9e7cec87e13aab9fe2932321f5b7ef2d4d710dc9c5e225aa6556f20276f91c00",
+      "revision": 1,
+      "expressions": [
+        "用自己的语言向别人讲解一个概念的原因和条件，发现说不清的地方",
+        "用为什么和因果解释核对理解，不能以背诵和表达流利冒充理解"
+      ]
+    },
+    {
+      "canonicalKey": "priority-budget",
+      "contentHash": "a5a0061953ae44819e3a11924c1044d71515c466b33b2b6a9d0813e6e330b577",
+      "revision": 1,
+      "expressions": [
+        "可用时间有限，多个目标或任务竞争同一预算，根据硬截止和代价取舍",
+        "分配课程、备考、收入或项目探索的时间，避免同时做完所有事情"
+      ]
+    },
+    {
+      "canonicalKey": "restart-task",
+      "contentHash": "a3e5b7608e397654538f1357c2c844a21c9a579bc8253e6d5b609f5aa7a3ff7f",
+      "revision": 1,
+      "expressions": [
+        "任务中断或环境干扰后恢复已做到的位置，调整重新开始的条件"
+      ]
+    },
+    {
+      "canonicalKey": "start-small",
+      "contentHash": "fec2616757d9de1f62f8e574033d2f1c4d7f2c31eae219d4a315207b1d4355d5",
+      "revision": 1,
+      "expressions": [
+        "把庞大任务拆成可以动手的小起点，核对第一步产出"
+      ]
+    },
+    {
+      "canonicalKey": "plan-review",
+      "contentHash": "6b16e3545164e5496c5256f4d6cb670d70c09e712fec95d2208f57e8ffdee6d4",
+      "revision": 1,
+      "expressions": [
+        "原先制定的计划反复无法落实，核对投入和现实约束，修订假设和任务",
+        "目标发生改变时回顾原安排，取消失去意义的计划而不是继续催促"
+      ]
+    },
+    {
+      "canonicalKey": "experience-evidence",
+      "contentHash": "3519764fc02bc8196bcd6f464e6f1e54d8c9ed213fbe12d689c7e5dbf6620f33",
+      "revision": 1,
+      "expressions": [
+        "回看个人做过的事情，将本人行动、团队成果和别人评价分开",
+        "从已有经历和外界反馈提取有边界的证据，不把兴趣或夸奖直接当能力"
+      ]
+    },
+    {
+      "canonicalKey": "research-reading",
+      "contentHash": "6b377fa3131bdb1b84e114eaeafba95e98d608faf177f96f8f880a3306cfeae9",
+      "revision": 1,
+      "expressions": [
+        "为了回答一个具体科研疑问而阅读陌生论文，定位背景和方法原文",
+        "带着问题查找并阅读文献，整理已知、证据和未弄明白的部分"
+      ]
+    },
+    {
+      "canonicalKey": "research-task",
+      "contentHash": "44f6713711712260df94a8d4850dd62e7ef25c8c8ee7bff07f9c15cbee23d27f",
+      "revision": 1,
+      "expressions": [
+        "进入课题组或组织后和负责人明确具体任务、交付与完成标准"
+      ]
+    },
+    {
+      "canonicalKey": "direction-comparison",
+      "contentHash": "32660bc23ffaabd2a3058ce4a3341790039fb26de67aaff6132a541c50d73d72",
+      "revision": 1,
+      "expressions": [
+        "比较不同发展方向的实际工作、代价和本人重视的条件"
+      ]
+    },
+    {
+      "canonicalKey": "application-match",
+      "contentHash": "ecd8b4d9f32942e7929c6112c91563777eb9caa1af94f5071a1db2a51927b799",
+      "revision": 1,
+      "expressions": [
+        "把岗位或项目的真实要求和已有材料逐项核对后判断投入"
+      ]
+    },
+    {
+      "canonicalKey": "project-story",
+      "contentHash": "cd8f53de79d39ac8e78419e26c8e83e106e4213df98c8e7bcf267f7b40b5939c",
+      "revision": 1,
+      "expressions": [
+        "向面试者或其他听众讲述个人经历，组织情境、困难、行动和结果",
+        "介绍项目中的职责和贡献，围绕本人处理的问题陈述，而不是流水账"
+      ]
+    },
+    {
+      "canonicalKey": "job-feedback",
+      "contentHash": "f861b7c75e77358b8ce99c4df98e922de197f8c606d7dd8daefcc8dfc3ac462f",
+      "revision": 1,
+      "expressions": [
+        "投递或面试后尚无回应，区分沉默与拒绝并复盘可改变的环节"
+      ]
+    },
+    {
+      "canonicalKey": "interview-unknown",
+      "contentHash": "62cfc5245aafa4ea6c6381e44238a2866e7532d63f1128b052aa63ceee902081",
+      "revision": 1,
+      "expressions": [
+        "面试或提问时不知道答案，说明确定的部分和仍需核实的边界"
+      ]
+    },
+    {
+      "canonicalKey": "user-interview",
+      "contentHash": "09315caa65cfd6de2857186a4a4b1ed1cfe7108dc07042e51159506d19b6cc53",
+      "revision": 1,
+      "expressions": [
+        "在做产品之前询问目标使用者过去遇到的真实问题，区分口头赞同与实际需求",
+        "通过客户过去的行为、困难和替代办法理解需求，不以喜欢为付款意愿"
+      ]
+    },
+    {
+      "canonicalKey": "prototype-test",
+      "contentHash": "031b4099a58945b60bafa1d5d0b2fb6bee94a72e479c33d44ebefb0a9c881765",
+      "revision": 1,
+      "expressions": [
+        "做少量功能或原型，让人试用来核对关键假设，区分想法、实际使用和付费",
+        "已有小产品后根据真实任务行为和卡点，选择要验证的改动而非继续加功能"
+      ]
+    },
+    {
+      "canonicalKey": "delivery-scope",
+      "contentHash": "fddaa73ecabe5f26962f0c7161b0d4758a84c8846fdd606857bca2c3051bff52",
+      "revision": 1,
+      "expressions": [
+        "接单前明确客户需要的交付物和完成边界，需求改变后对照旧约定",
+        "客户反复要求修改或新增工作时，确认交付范围和时间取舍"
+      ]
+    },
+    {
+      "canonicalKey": "delivery-review",
+      "contentHash": "6ca6b582adbdac758d5af877a9d6f1b986b5908d01bdf370bc1ea824a99f3f5a",
+      "revision": 1,
+      "expressions": [
+        "交付后分别记录文件发出、采用、付款、效果和再次需求"
+      ]
+    },
+    {
+      "canonicalKey": "income-ledger",
+      "contentHash": "3a828bcaf9b8071aee7cc478ff3f4067d3be8ea1dce9542285ecaafd92d68dda",
+      "revision": 1,
+      "expressions": [
+        "记录实际经济收入、到账与时间支出，评估可用预算"
+      ]
+    },
+    {
+      "canonicalKey": "content-experiment",
+      "contentHash": "fb5fc34061eb9d7cf8f68e9eb69ec68855d677d62e469d16f05ac3843b3cbd90",
+      "revision": 1,
+      "expressions": [
+        "针对目标受众做少量内容表达，观察反馈并调整选题"
+      ]
+    },
+    {
+      "canonicalKey": "team-contract",
+      "contentHash": "ed26142c6b41e63287c04ca441775854b550dc5fc3778f528d69b5429465a234",
+      "revision": 1,
+      "expressions": [
+        "团队明确共同目标、分工、责任和延误后的协商"
+      ]
+    },
+    {
+      "canonicalKey": "boundary-request",
+      "contentHash": "357d144b0e84ada81c528eb8634780b3d569968f95f62aabc5eebc6f6c8d4769",
+      "revision": 1,
+      "expressions": [
+        "处理宿舍或人际合作冲突，陈述具体事实、影响、请求或拒绝",
+        "向他人表达自己需要什么以及不能承担什么，不把沟通当安全保证"
+      ]
+    },
+    {
+      "canonicalKey": "recovery-support",
+      "contentHash": "96c452e9c73f6df526b272604f5c844dc10389c7ae6317b35b3de6f6c334e971",
+      "revision": 1,
+      "expressions": [
+        "精力不足、疲惫或压力过载时减少可推迟的任务，安排休息和身边支持",
+        "持续加量与暂停休息之间，先照顾当前负担和恢复需要"
+      ]
+    },
+    {
+      "canonicalKey": "information-check",
+      "contentHash": "8826dff3965a899dda5d969fb00dda965b0ebdc4abbd27b6329f119786747111",
+      "revision": 1,
+      "expressions": [
+        "核对信息的原始来源和范围，区分个人经验、证据和隐私风险"
+      ]
+    }
+  ]
+}

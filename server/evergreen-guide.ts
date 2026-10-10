@@ -85,6 +85,8 @@ export function guideSegments(card:KnowledgeCard){
  const g=card.guide
  if(!g)return [{part:'legacy',text:[card.claim,card.excerpt,card.scope].join('\n'),evidenceIds:[] as string[]}]
  return [
+  {part:'mechanism',text:[card.title,g.mechanism,g.oneKeyQuestion,g.smallestAction,...g.branches.map(b=>b.task)].join('\n'),evidenceIds:g.evidenceIds},
+  ...g.branches.map(b=>({part:'action:'+b.id,text:[card.title,...b.steps.filter(s=>!s.text.startsWith('围绕“')&&!s.text.startsWith('记录观察：')).map(s=>s.text)].join('\n'),evidenceIds:g.evidenceIds})),
   {part:'conditions',text:[card.title,...g.aliases,g.retrievalSummary,...g.prerequisites,...g.exclusions].join('\n'),evidenceIds:g.evidenceIds},
   ...g.branches.map(b=>({part:b.id,text:[b.task,b.stage,...b.steps.map(s=>s.text)].join('\n'),evidenceIds:g.evidenceIds})),
   {part:'feedback',text:JSON.stringify(g.feedbackBranches)+'\n'+g.lowEnergyAlternative,evidenceIds:g.evidenceIds},

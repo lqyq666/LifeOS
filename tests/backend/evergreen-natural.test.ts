@@ -22,7 +22,7 @@ test('prelabelled new natural queries use real local encoder and expose every do
   }
   const metrics=(rs:any[])=>({route:{numerator:rs.filter(x=>x.routeCorrect).length,denominator:rs.length},recall5:{numerator:rs.filter(x=>x.recall5).length,denominator:rs.filter(x=>x.legalTargetAvailable).length},top1:{numerator:rs.filter(x=>x.top1).length,denominator:rs.filter(x=>x.legalTargetAvailable).length},missingTarget:{numerator:rs.filter(x=>x.acceptableKeys.length&&!x.legalTargetAvailable).length,denominator:rs.filter(x=>x.acceptableKeys.length).length},noMatchingMethod:rs.filter(x=>x.expectedRoute==='METHOD'&&!x.acceptableKeys.length).length})
   const group=(field:string)=>Object.fromEntries([...new Set(rows.map(x=>x[field]))].map(k=>[k,metrics(rows.filter(x=>x[field]===k))]))
-  const result={evidence:'LOCAL_ENCODER_ISOLATED_PG_NO_PRODUCT_PROVIDER',paidCalls:0,benchmarkHash:freeze.sha256,split,sealedUsedForTuning:false,independentBlindTest:false,metrics:metrics(rows),byDomain:group('domain'),byStage:group('stage'),rows}
+  const result={evidence:'LOCAL_ENCODER_ISOLATED_PG_NO_PRODUCT_PROVIDER',paidCalls:0,benchmarkHash:freeze.sha256,split,role:'EXPOSED_REGRESSION_ONLY',sealedUsedForTuning:false,independentBlindTest:false,metrics:metrics(rows),byDomain:group('domain'),byStage:group('stage'),rows}
   writeFileSync(out,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result.metrics));assert.equal(rows.length,JSON.parse(bytes).cases.filter((c:any)=>c.split===split).length)
  }finally{await localEmbedding.close();await pool.end();clearKnowledgeIndexMemory()}
 })
