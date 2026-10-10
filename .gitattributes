@@ -9,3 +9,4 @@
 .planning/research/workflow-integration/*.json -text
 .planning/research/workflow-integration/*.md -text
 NEXT_ACCEPTANCE.md text eol=lf
+evidence/v1.3-action-coach/research/*.json -text
