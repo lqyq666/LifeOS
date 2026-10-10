@@ -18,6 +18,24 @@ const ids=Type.Array(Type.String({minLength:1,maxLength:80}),{maxItems:12,unique
 const analystSchema=object({evidenceIds:ids,tradeoffIds:ids,unknownIds:ids,actionIds:ids,evidenceRelations:Type.Optional(Type.Array(object({evidenceId:Type.String(),relation:Type.Union([Type.Literal('support'),Type.Literal('limit'),Type.Literal('unknown')])}),{maxItems:12})),actionBasis:Type.Optional(Type.Array(object({actionId:Type.String(),evidenceIds:ids,unknownIds:ids,stageReasonId:Type.Optional(Type.String({minLength:1,maxLength:80}))}),{maxItems:12}))})
 const criticSchema=object({issues:Type.Array(object({severity:Type.Union([Type.Literal('blocker'),Type.Literal('needs_clarification'),Type.Literal('uncertainty')]),issueId:Type.String(),evidenceIds:ids}),{maxItems:12}),rejectedDirections:ids})
 const synthesisSchema=object({directionOrder:ids,actionIds:ids})
+export function bindWorkflowSelectionSchema(schema:typeof analystSchema|typeof criticSchema|typeof synthesisSchema,context:Record<string,any>){
+ // TypeBox reuses the same ids object in several properties. JSON schema is
+ // declarative; detach those aliases so binding action IDs cannot replace facts.
+ const bound=JSON.parse(JSON.stringify(schema)) as any
+ const list=(target:any,values:string[])=>{if(!target)return;values.length?target.items={...target.items,enum:[...new Set(values)]}:target.maxItems=0}
+ const item=(target:any,values:string[])=>{if(target&&values.length)target.enum=[...new Set(values)]}
+ const facts=(context.facts??[]).map((x:any)=>x.id),actions=(context.actions??[]).map((x:any)=>x.id),unknowns=Object.keys(context.unknowns??{})
+ const p=bound.properties
+ list(p.evidenceIds,facts);list(p.tradeoffIds,Object.keys(context.tradeoffs??{}));list(p.unknownIds,unknowns);list(p.actionIds,actions)
+ item(p.evidenceRelations?.items?.properties?.evidenceId,facts)
+ const basis=p.actionBasis?.items?.properties
+ if(basis){item(basis.actionId,actions);list(basis.evidenceIds,facts);list(basis.unknownIds,unknowns);item(basis.stageReasonId,Object.keys(context.stageReasons??{}))}
+ const issue=p.issues?.items?.properties
+ if(issue){item(issue.issueId,Object.keys(context.issues??{}));list(issue.evidenceIds,facts)}
+ list(p.rejectedDirections,(context.directions??[]).map((x:any)=>x.id))
+ list(p.directionOrder,(context.alternatives??[]).map((x:any)=>x.directionId))
+ return bound as typeof schema
+}
 const issueCatalogue={unsupported:'这条判断没有授权来源支持。',contradiction:'两条当前依据互相矛盾，需要本人核对。',motivation:'读研或工作的具体动机仍需核对。',fit:'单次经历不能证明稳定能力或长期适配。',unknown:'尚未提供的条件保持未知，不据此否定路径。',adoption:'实际交付是否被采用、反馈及效果分别缺哪项证据，仍需核对。',role_evidence:'已有作品与目标岗位实际要求如何对应，仍需核对；反馈不能替代岗位要求。',repeatability:'已有结果能否重复、是否愿意承担后续义务仍需核对；暂停时不要求扩大接单。'}
 const commonTradeoffs={parallel:'多条路径同时投入会争用时间；本次仅选择一个可停止的小探索。',cost:'完整准备的时间、资金与退出代价尚未核实，先不承诺长期投入。',transfer:'先检查已有成果能否复用到这条路径；作品存在不等于满足岗位或研究要求，避免重复准备。',priority:'把本周已明确的课程、休息和其他义务放在探索之前；先缩小范围，不要求同时全面投入。',motivation:'先核对这条路径想解决的实际问题；若动机尚未知，先了解具体工作或研究内容，再决定是否准备。',pause:'可以暂缓这条路径，保留重开条件；本次比较不要求立即选定长期方向。'}
 // Bounded editorial reasons selected against personal evidence, then reviewed by
@@ -66,11 +84,12 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   const frozen=sourceDigest(),modelSignature=signature()
   if(reservation.receipt.signature!==modelSignature||reservation.receipt.sourceDigest!==frozen)throw new WorkflowError('stale_snapshot')
   c.signal.throwIfAborted()
+  const boundSchema=bindWorkflowSelectionSchema(schema,context as Record<string,unknown>)
   reservation.started=true
   let message:AssistantMessage|undefined,outcome='unknown',cost:number|null=null,responseId:string|null=null,failureCode:string|null=null
   try{
    const events=stream(runtime.model,{systemPrompt:`你是 LifeOS 的 ${role}。${skill}\n只输出契约 JSON。只能选择提供的原文和候选 ID，不得生成新个人事实、身份、收入、客户、资格或承诺。原文里的条件、否定、第三方归属保持原样。没有依据的情况保留未知。`,messages:[{role:'user',content:JSON.stringify(context),timestamp:Date.now()}]},
-    {apiKey:runtime.apiKey,signal:c.signal,maxRetries:0,maxTokens:outputLimit,onPayload:payload=>configureProviderPayload(payload,runtime.model,runtime.tier,schema,'lifeos_workflow_selection',outputLimit)})
+    {apiKey:runtime.apiKey,signal:c.signal,maxRetries:0,maxTokens:outputLimit,onPayload:payload=>configureProviderPayload(payload,runtime.model,runtime.tier,boundSchema,'lifeos_workflow_selection',outputLimit)})
    message=await events.result();responseId=message.responseId??null
    outcome=message.stopReason
    const usage=message.usage
@@ -81,6 +100,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    const text=message.content.filter(x=>x.type==='text').map(x=>x.type==='text'?x.text:'').join('')
    const parsed:unknown=JSON.parse(text)
    if(!Value.Check(schema,parsed))throw new WorkflowError('invalid_contract')
+   if(!Value.Check(boundSchema,parsed))throw new WorkflowError('source_invalid')
    c.signal.throwIfAborted();await records(c.request)
    return {parsed,costCny:cost,providerCalls:1}
   }catch(error){
@@ -93,6 +113,10 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   }
  }
  return {executionKind:input.syntheticTransport?'simulated_provider':'real_provider',maxCostPerCallCny:maximum,
+  readNodeAccounting(r,nodeId){
+   const entry=reservations.get(key(r))?.get(nodeId),receipt=entry?budget.snapshot().calls.find((call:CoachCallReceipt)=>call.callId===entry.receipt.callId):undefined
+   return receipt?.status==='finished'&&typeof receipt.estimatedCostCny==='number'?{costCny:receipt.estimatedCostCny,providerCalls:receipt.outcome==='not_sent'?0:1}:null
+  },
   async prepareGraph(r,nodes){
    if(input.syntheticTransport&&!r.synthetic)throw new WorkflowError('scope_denied')
    const frozen=sourceDigest(),paid=nodes.filter(n=>n.executionKind!=='local_deterministic')
@@ -137,7 +161,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   },
   async critic(c,analyses,skill){
    await input.readMethods?.(c.request)
-   const source=facts(await records(c.request)),output=await call(c,'critic','独立审阅者：逐条检查本人归属、条件、矛盾、时间及资料支持，阻塞与未知分开',criticSchema,{facts:source,analyses,timeBudget:c.request.budget,issues:issueCatalogue},skill)
+   const source=facts(await records(c.request)),output=await call(c,'critic','独立审阅者：逐条检查本人归属、条件、矛盾、时间及资料支持，阻塞与未知分开',criticSchema,{facts:source,analyses,directions:c.request.directions,timeBudget:c.request.budget,issues:issueCatalogue},skill)
    const wire=output.parsed as Static<typeof criticSchema>,issues:ReviewIssue[]=wire.issues.map(issue=>({severity:issue.severity,category:issue.issueId==='unsupported'?'evidence':issue.issueId==='contradiction'?'constraint':'unknown',affectedClaims:issue.evidenceIds,resolution:issue.severity==='blocker'?'blocked':issue.severity==='needs_clarification'?'ask_user':'keep_unknown',text:select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),[issue.issueId])[0].text,evidenceRefs:select(source,issue.evidenceIds).map(x=>x.ref)}))
    select(c.request.directions,wire.rejectedDirections)
    if(wire.rejectedDirections.length)issues.push({severity:'blocker',text:'独立审阅未通过其中一项路径判断。',evidenceRefs:c.request.authorizedEvidenceRefs})

@@ -7,9 +7,9 @@ import {routeWorkflow} from './router.ts'
 import type {TraceRow} from './trace.ts'
 import type {TaskJournal} from './task-journal.ts'
 
-export type DecisionAdapter={executionKind:'simulated_provider'|'real_provider';maxCostPerCallCny:number;prepareGraph?:(request:WorkflowRequest,nodes:WorkflowNode[])=>Promise<void>;finishGraph?:(request:WorkflowRequest)=>Promise<void>;analyze:(c:NodeContext,direction:{id:string;title:string},skill:string)=>ReturnType<WorkflowNode['invoke']>;critic:(c:NodeContext,analyses:AgentResult[],skill:string)=>ReturnType<WorkflowNode['invoke']>;synthesize:(c:NodeContext,analyses:AgentResult[],critic:AgentResult,skill:string)=>ReturnType<WorkflowNode['invoke']>}
+export type DecisionAdapter={executionKind:'simulated_provider'|'real_provider';maxCostPerCallCny:number;prepareGraph?:(request:WorkflowRequest,nodes:WorkflowNode[])=>Promise<void>;finishGraph?:(request:WorkflowRequest)=>Promise<void>;readNodeAccounting?:(request:WorkflowRequest,nodeId:string)=>{costCny:number;providerCalls:number}|null;analyze:(c:NodeContext,direction:{id:string;title:string},skill:string)=>ReturnType<WorkflowNode['invoke']>;critic:(c:NodeContext,analyses:AgentResult[],skill:string)=>ReturnType<WorkflowNode['invoke']>;synthesize:(c:NodeContext,analyses:AgentResult[],critic:AgentResult,skill:string)=>ReturnType<WorkflowNode['invoke']>}
 export function createDirectionWorkflow(readEvidence:EvidenceReader,adapter:DecisionAdapter,sink?:(row:TraceRow)=>void,journal?:TaskJournal){
- const runner=createOrchestrator({readEvidence,traceSink:sink,journal,prepareGraph:adapter.prepareGraph,finishGraph:adapter.finishGraph})
+ const runner=createOrchestrator({readEvidence,traceSink:sink,journal,prepareGraph:adapter.prepareGraph,finishGraph:adapter.finishGraph,readNodeAccounting:adapter.readNodeAccounting})
  async function run(raw:WorkflowRequest,signal?:AbortSignal):Promise<WorkflowReceipt>{
   const request=structuredClone(parseRequest(raw))
   if(routeWorkflow(request).route!=='candidate'||request.mode!=='direction_decision')throw new WorkflowError('scope_denied')

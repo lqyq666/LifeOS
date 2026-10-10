@@ -7,7 +7,7 @@ import {simulationJournal,type TaskJournal} from './task-journal.ts'
 export type NodeContext={request:WorkflowRequest;signal:AbortSignal;results:ReadonlyMap<string,AgentResult>;callId?:string}
 export type WorkflowNode={id:string;role:AgentRole;dependencies:string[];executionKind:WorkflowReceipt['executionKind'];maxCostCny:number;callId?:string;invoke:(context:NodeContext)=>Promise<{result:unknown;costCny:number|null;providerCalls:number}>}
 type Entry={digest:string;promise:Promise<WorkflowReceipt>}
-export function createOrchestrator(options:{readEvidence:EvidenceReader;traceSink?:(row:TraceRow)=>void;maxEntries?:number;journal?:TaskJournal;prepareGraph?:(r:WorkflowRequest,nodes:WorkflowNode[])=>Promise<void>;finishGraph?:(r:WorkflowRequest)=>Promise<void>}){
+export function createOrchestrator(options:{readEvidence:EvidenceReader;traceSink?:(row:TraceRow)=>void;maxEntries?:number;journal?:TaskJournal;prepareGraph?:(r:WorkflowRequest,nodes:WorkflowNode[])=>Promise<void>;finishGraph?:(r:WorkflowRequest)=>Promise<void>;readNodeAccounting?:(r:WorkflowRequest,nodeId:string)=>{costCny:number;providerCalls:number}|null}){
  const requests=new Map<string,Entry>(),trace=createTrace(options.traceSink),journal=options.journal??simulationJournal()
  const run=(raw:unknown,nodes:WorkflowNode[],build:(r:WorkflowRequest,results:ReadonlyMap<string,AgentResult>)=>Promise<WorkflowReceipt>,signal?:AbortSignal):Promise<WorkflowReceipt>=>{
   const request=structuredClone(parseRequest(raw)),key=request.internalActorKey+':'+request.requestId
@@ -101,6 +101,11 @@ export function createOrchestrator(options:{readEvidence:EvidenceReader;traceSin
       check();await journal.finishNode(request,node.id,result,nodeCost,invoked?calls:0);results.set(node.id,structuredClone(result));pending.delete(node.id)
       trace.append({...base,providerCalls:invoked?calls:0,outputRefDigest:trace.digest(result),usedEvidenceIds:result.evidenceRefs.map(x=>trace.digest(x)),latencyMs:performance.now()-started,costCny:nodeCost,status:'succeeded'})
      }catch(error){
+      // A completed paid response can fail a later selector/evidence check.
+      // Read its actual unique ledger receipt instead of losing known usage.
+      if(invoked&&nodeCost===null&&options.readNodeAccounting){
+       try{const paid=options.readNodeAccounting(request,node.id);if(paid&&paid.providerCalls===calls&&Number.isFinite(paid.costCny)&&paid.costCny>=0&&paid.costCny<=node.maxCostCny){nodeCost=paid.costCny;cost+=nodeCost}}catch{/* unavailable accounting keeps full unknown reservation */}
+      }
       if(calls&&nodeCost===null)unknownCost=true
       const code=error instanceof WorkflowError?error.code:'unavailable'
       await journal.finishNode(request,node.id,null,nodeCost,invoked?calls:0,code)

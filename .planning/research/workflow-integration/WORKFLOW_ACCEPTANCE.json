@@ -1236,15 +1236,25 @@
     "freshReproductionHead": "a786526a25df4543fee6d80067d161ccc1fb1715",
     "freshReproductionStatus": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
     "complexSmall": {
-      "head": "2b1020c3f063b6f0eca243d110ef9e385602b81e",
-      "status": "FIRST_TWO_FAILED_RETAINED_NATIVE_SCHEMA_LOCAL_REPAIR_PASS",
-      "evidence": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_2b1020c_FIRST_FAILURE.json",
-      "review": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_2b1020c_REVIEW.json",
-      "actualProviderCalls": 2,
-      "unknownCnyHeld": 0.2158592,
+      "head": "5d76c0dd17403a0f415547655de50913291d5ff2",
+      "status": "TWO_SOURCE_FAILURES_RETAINED_BOUNDED_SELECTOR_LOCAL_12_PASS",
+      "evidence": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_5d76c0d_FIRST_FAILURE.json",
+      "review": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_5d76c0d_REVIEW.json",
+      "actualProviderCalls": 7,
+      "knownCostCny": 0.0150756,
       "largerCohorts": "NOT_TESTED"
     },
-    "cozeR7Dispatch": "evidence/coze-core-launch-20261011/COZE_R7_DISPATCH.json"
+    "cozeR7Dispatch": "evidence/coze-core-launch-20261011/COZE_R7_DISPATCH.json",
+    "latestModelFunding": {
+      "receiptEntries": 2066,
+      "entriesAddedThisBatch": 44,
+      "actuallyDispatchedThisBatch": 40,
+      "notSentEntriesThisBatch": 4,
+      "remainingOriginalCny": 10.4909835,
+      "unknownUsageFirstAttempts": 6,
+      "knownNewBatchEstimatedCostCny": 0.0554235,
+      "newBudget": 0
+    }
   },
   "preRestorationCheckpoint": {
     "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",

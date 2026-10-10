@@ -24,6 +24,9 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   const request=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(request.messages[1].content),role=request.messages[0].content
   requests.push({role,context:ctx});assert.equal(budget.snapshot().calls.length,expectedReservations,'all calls reserved before the first wire')
   assert.equal(JSON.stringify(request.response_format).includes('uniqueItems'),false,'actual SDK request uses supported provider schema')
+  const selection=request.response_format?.json_schema?.schema
+  if(ctx.path){assert.deepEqual(selection.properties.evidenceIds.items.enum,ctx.facts.map((x:any)=>x.id));assert.deepEqual(selection.properties.actionIds.items.enum,ctx.actions.map((x:any)=>x.id))}
+  if(ctx.analyses){assert.deepEqual(selection.properties.rejectedDirections.items.enum,ctx.directions.map((x:any)=>x.id));assert.deepEqual(selection.properties.issues.items.properties.issueId.enum,Object.keys(ctx.issues))}
   const output=ctx.path?{evidenceIds:['e0'],tradeoffIds:['parallel'],unknownIds:['fit'],actionIds:[ctx.actions[0].id]}:ctx.analyses?{issues:[{severity:'uncertainty',issueId:'fit',evidenceIds:['e0']}],rejectedDirections:[]}:{directionOrder:ctx.alternatives.map((x:{directionId:string})=>x.directionId),actionIds:['a0']}
   if(duplicateSelection&&ctx.path)output.evidenceIds=['e0','e0']
   res.writeHead(200,{'Content-Type':'text/event-stream'})
@@ -52,6 +55,7 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   const partialCalls=(budget.snapshot().calls as CoachCallReceipt[]).filter(c=>c.runId===f.request.requestId);assert.equal(partialCalls.length,4);assert.ok(partialCalls.some(c=>c.estimatedCostCny==='unknown'&&(c.reservedCostCny??0)>0));assert.ok(partialCalls.filter(c=>c.outcome==='not_sent').every(c=>c.estimatedCostCny===0));assert.ok(partialCalls.filter(c=>c.outcome==='not_sent').length>=2,'critic and synthesis never sent')
   incompleteUsage=false;duplicateSelection=true;expectedReservations=12;f.request.requestId=randomUUID();f.request.traceId=randomUUID();const duplicateWireStart=requests.length
   const duplicate=await wf.run(f.request);assert.equal(duplicate.status,'unavailable');assert.equal(duplicate.failure,'invalid_contract')
+  assert.equal(typeof wf.trace.rows.filter(row=>row.error==='invalid_contract').at(-1)?.costCny,'number','invalid response preserves its known paid usage; a cancelled sibling may still keep the whole graph cost unknown')
   assert.ok(requests.slice(duplicateWireStart).every(row=>row.context.path),'invalid duplicate selections never reach critic/synthesis or retry')
   assert.ok(audits.some(row=>row.failureCode==='WORKFLOW_invalid_contract'))
  }finally{model.baseUrl=previousURL;config.apiKey=previousKey;await new Promise<void>(resolve=>fake.close(()=>resolve()))}
