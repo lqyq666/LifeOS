@@ -183,6 +183,20 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.equal(saved.growthIds.length,1)
       assert.ok(saved.stateChange.plan,'plan persisted')
     })
+    await t.test('unverified two-hour amount stays a verbatim fact and the actual outgoing schema excludes an expiring constraint',async()=>{
+      const text='我还有两小时准备明天的课堂汇报，先做哪一步？',turn=await prepare(text)
+      outputs.push({reply:'先核对汇报主题。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}]})
+      const result=await engine(turn.input),schema=requests.at(-1)!.response_format.json_schema.schema
+      assert.equal(schema.properties.growthUpdates.items.anyOf.some((branch:any)=>branch.properties?.kind?.const==='constraint'),false)
+      const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.equal(saved.growthIds.length,1)
+      const fact=(await pool.query('SELECT kind,text,valid_until,time_basis FROM growth_items WHERE id=$1',[saved.growthIds[0]])).rows[0]
+      assert.equal(fact.kind,'context');assert.equal(fact.text,'我还有两小时准备明天的课堂汇报')
+      assert.equal(fact.valid_until,null);assert.equal(fact.time_basis,null)
+      assert.deepEqual(saved.mergedExperienceIds,[],'an effort budget is not a completed experience')
+      assert.equal((saved.stateChange.growth as any).status,'applied')
+      assert.equal((result.usage as any).llmCallCount,1)
+    })
   }finally{
     model.baseUrl=previousURL;config.apiKey=previousKey
     await new Promise<void>(resolve=>fake.close(()=>resolve()))

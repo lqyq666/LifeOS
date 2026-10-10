@@ -87,6 +87,24 @@ export function resolveTimeWindow(
   }
 }
 
+// Enumerate only the explicit grammar the persistence resolver already accepts.
+// This catalogue narrows model choices; it does not infer a deadline from an
+// amount of effort ("还有两小时") or from a semester/tomorrow mention.
+export function explicitTimeEvidenceCandidates(sourceText:string,requestTimeUtc:string,zone:Zone):TimeEvidence[]{
+  const candidates:TimeEvidence[]=[]
+  for(const match of sourceText.matchAll(/本周|这周|下周/g))candidates.push({kind:'calendar_week',which:match[0]==='下周'?'next':'this',quote:match[0]})
+  const cutoff=quoteStatedCutoff(sourceText,zone)
+  if(cutoff)candidates.push({kind:'date_inclusive',date:cutoff.date,quote:cutoff.quote})
+  for(const match of sourceText.matchAll(/(?:从现在起|接下来|未来)\s*([\d零一二两三四五六七八九十百]+)\s*(天|周)/g)){
+    const count=chineseInteger(match[1]!)
+    if(count!==null)candidates.push({kind:'duration',count,unit:match[2]==='天'?'day':'week',quote:match[0]})
+  }
+  return candidates.filter((candidate,index)=>{
+    if(candidates.findIndex(other=>JSON.stringify(other)===JSON.stringify(candidate))!==index)return false
+    try{resolveTimeWindow(candidate,sourceText,requestTimeUtc,zone);return true}catch(error){if(!(error instanceof TimeEvidenceError))throw error;return false}
+  })
+}
+
 // Extract an explicitly stated cutoff day (截至…日) from a user quote. Used
 // both to cross-check legacy model validUntil values and to synthesize the
 // stored time basis for them. Returns null when the quote states no date.

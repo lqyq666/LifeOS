@@ -5,6 +5,38 @@ import {Value} from 'typebox/value'
 import { turnSystemPrompt } from '../../server/turn-prompt.ts'
 import { actionCoachTurnSchema } from '../../server/action-coach-contracts.ts'
 import { configureProviderPayload, outputTokenLimit } from '../../server/model-payload.ts'
+import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
+
+test('saved two-hour failure cannot select an unverifiable constraint; explicit windows stay paired to their own facts',()=>{
+  const current='00000000-0000-4000-8000-000000000011',anchor='2026-10-10T12:00:00.000Z'
+  const make=(text:string)=>{
+    const clauses=buildClauseCatalogue(text)
+    return (configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,current,[],[],0,false,undefined,false,clauses.map(c=>c.clauseId),false,{clauses,requestTimeUtc:anchor}) as any).response_format.json_schema.schema
+  }
+  const output=(kind:string,clauseId:string,timeEvidence?:unknown)=>({reply:'先核对汇报主题。',growthUpdates:[{target:{operation:'create'},assertion:'user_reported',kind,source:{clauseId},...(timeEvidence?{timeEvidence}:{})}]})
+  const saved=make('我还有两小时准备明天的课堂汇报，先做哪一步？')
+  assert.equal(Value.Check(saved,output('constraint','c0')),false,'actual failed kind is unrepresentable before generation')
+  assert.equal(Value.Check(saved,output('context','c0')),true,'exact user effort amount stays representable without invented expiry')
+  assert.equal(Value.Check(saved,output('constraint','c0',{kind:'duration',count:2,unit:'day',clauseId:'c0'})),false)
+  for(const text of ['我每周有两小时','我最多能花两小时','我估计还有两小时','我现在没有时间','我这学期很忙']){
+    assert.equal(Value.Check(make(text),output('constraint','c0')),false,text)
+    assert.equal(Value.Check(make(text),output('context','c0')),true,text)
+  }
+  const mixed=make('我还有两小时做汇报。这周我能用六小时备考。')
+  const week={kind:'calendar_week',which:'this',clauseId:'c1'}
+  assert.equal(Value.Check(mixed,output('constraint','c0',week)),false,'another matter cannot lend its week window')
+  assert.equal(Value.Check(mixed,output('constraint','c1',week)),true)
+  assert.equal(Value.Check(mixed,output('constraint','c1',{...week,which:'next'})),false,'model cannot change stated period')
+  assert.equal(Value.Check(mixed,output('constraint','c1')),false,'a verified constraint requires its actual evidence')
+  const within=make('这周课程赶，只剩两小时。')
+  assert.equal(Value.Check(within,output('constraint','c1',{kind:'calendar_week',which:'this',clauseId:'c0'})),true,'same-sentence calendar inheritance remains valid')
+  const duration=make('接下来六周我只能投入两小时。')
+  assert.equal(Value.Check(duration,output('constraint','c0',{kind:'duration',count:6,unit:'week',clauseId:'c0'})),true)
+  assert.equal(Value.Check(duration,output('constraint','c0',{kind:'duration',count:8,unit:'week',clauseId:'c0'})),false)
+  const expired=make('截至2026年9月1日我只能投入两小时。')
+  assert.equal(Value.Check(expired,output('constraint','c0',{kind:'date_inclusive',date:'2026-09-01',clauseId:'c0'})),false,'a past date is not a current temporary constraint')
+  assert.equal(Value.Check(expired,output('context','c0')),true)
+})
 
 test('immediate drafting requires an authoritative artifact while ordinary clarification remains possible',()=>{
   const current='00000000-0000-4000-8000-000000000011',eventId='00000000-0000-4000-8000-000000000021',profile={provider:'bailian',id:'qwen3.8-flash'}

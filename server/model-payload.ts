@@ -1,5 +1,7 @@
 import { actionCoachTurnSchema } from './action-coach-contracts.ts'
 import type { ModelTier } from './model.ts'
+import type {ClauseHandle} from './clause-catalogue.ts'
+import {explicitTimeEvidenceCandidates} from './growth-time.ts'
 
 type ProviderProfile={provider:string;id:string}
 export type OutputPath='turn'|'repair'
@@ -21,7 +23,7 @@ function providerSchema(value:unknown,currentMessageId?:string):unknown{
   ]))
 }
 
-export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false,resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds?:readonly string[],requireCandidate=false):unknown{
+export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false,resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds?:readonly string[],requireCandidate=false,growthTimeBinding?:{clauses:readonly ClauseHandle[];requestTimeUtc:string}):unknown{
   if(currentMessageId&&!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(currentMessageId))throw new Error('CURRENT_MESSAGE_ID_INVALID')
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return payload
   const body={...payload as Record<string,unknown>}
@@ -126,6 +128,33 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
           }
           return branch
         })
+        if(growthTimeBinding){
+          const clauses=growthTimeBinding.clauses.filter(c=>!c.interrogative&&!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther)
+          const timed=clauses.flatMap(clause=>explicitTimeEvidenceCandidates(clause.text,growthTimeBinding.requestTimeUtc,'Asia/Shanghai').map(evidence=>({clause,evidence})))
+          const timeSchema=(entry:typeof timed[number])=>{
+            const {quote,...evidence}=entry.evidence,values={...evidence,clauseId:entry.clause.clauseId}
+            return {type:'object',properties:Object.fromEntries(Object.entries(values).map(([key,value])=>[key,{type:typeof value==='number'?'integer':'string',enum:[value]}])),required:Object.keys(values),additionalProperties:false}
+          }
+          items.anyOf=items.anyOf.flatMap((branch:any)=>{
+            const properties=branch.properties
+            if(properties?.assertion?.const!=='user_reported')return [branch]
+            // Native generation never authors a legacy expiry. Legacy input
+            // parsing and the stricter persistence checks stay unchanged.
+            delete properties.validUntil
+            if(properties.kind?.const!=='constraint'){
+              if(timed.length)properties.timeEvidence={anyOf:timed.map(timeSchema)}
+              else delete properties.timeEvidence
+              return [branch]
+            }
+            // Pair each fact anchor with supported time evidence. A week marker
+            // may support another clause in the SAME sentence, as persistence
+            // already allows; a date for another matter can never be borrowed.
+            return clauses.flatMap(fact=>{
+              const support=timed.filter(entry=>entry.clause.clauseId===fact.clauseId||(entry.evidence.kind==='calendar_week'&&entry.clause.sentenceStart===fact.sentenceStart))
+              return support.length?[{...branch,properties:{...properties,source:{...properties.source,properties:{clauseId:{type:'string',enum:[fact.clauseId]}},required:['clauseId'],additionalProperties:false},timeEvidence:{anyOf:support.map(timeSchema)}},required:[...new Set([...branch.required??[],'timeEvidence'])]}]:[]
+            })
+          })
+        }
         const candidate=compiled.properties?.experienceCandidate
         if(candidate?.properties?.source?.properties?.clauseIds&&clauseIds?.length)candidate.properties.source.properties.clauseIds={...candidate.properties.source.properties.clauseIds,items:{...candidate.properties.source.properties.clauseIds.items,enum:[...clauseIds]}}
         // Structured action/result handles are enum-bound to the same
