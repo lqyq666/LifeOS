@@ -1,3 +1,7 @@
 
 # Preserve captured public source bytes for offline evidence hash validation.
 .planning/research/workflow-integration/evidence/public-card/original.html -text -whitespace
+
+# Frozen textual corpus hashes must survive a Windows checkout without CRLF conversion.
+.planning/research/evergreen/** text eol=lf
+.planning/research/workflow-integration/evidence/long-batch-20261010/*.log -text -whitespace
