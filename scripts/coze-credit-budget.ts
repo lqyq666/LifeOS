@@ -1,0 +1,76 @@
+import {openSync,closeSync,readFileSync,writeSync,fsyncSync,unlinkSync} from 'node:fs'
+import {resolve} from 'node:path'
+
+const projects=new Set(['7693388932939300905','7693465311558795327','7693892523869290496'])
+type Row=Record<string,unknown>
+type Reservation={requestId:string;projectId:string;purpose:'development'|'business';reservedCredits:number;payloadDigest:string;sourceDigest:string}
+const positive=(value:unknown):value is number=>typeof value==='number'&&Number.isSafeInteger(value)&&value>0
+const digest=(value:unknown)=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value)
+
+// Coze account credits are a different funding pool from the product-model
+// CNY ledger. An unresolved first attempt continues to hold its full reserve.
+export class CozeCreditBudget{
+ readonly path:string
+ constructor(path:string){this.path=resolve(path)}
+ static initialize(path:string,existingCredits:number,authorizationDigest:string){
+  if(!positive(existingCredits)||!digest(authorizationDigest))throw Error('COZE_EXISTING_FUNDING_INVALID')
+  const fd=openSync(resolve(path),'wx',0o600)
+  try{writeSync(fd,JSON.stringify({type:'existing_credit_balance',budgetUnit:'coze_credits',existingCredits,authorizationDigest,newBudget:0})+'\n');fsyncSync(fd)}finally{closeSync(fd)}
+  return new CozeCreditBudget(path)
+ }
+ private rows():Row[]{return readFileSync(this.path,'utf8').trim().split(/\r?\n/).filter(Boolean).map(line=>JSON.parse(line))}
+ private view(rows:Row[]){
+  const opening=rows[0],initial=opening?.type==='existing_credit_balance'?opening.existingCredits:opening?.type==='development_reserved'?opening.observedAccountBalance:null
+  if(!positive(initial)||opening.budgetUnit!=='coze_credits'||opening.newBudget!==0)throw Error('COZE_LEDGER_FUNDING_INVALID')
+  const reserved=new Map<string,Row>(),settled=new Set<string>();let charged=0,held=0
+  for(const row of rows){
+   if(row.type==='development_reserved'||row.type==='credits_reserved'){
+    if(typeof row.requestId!=='string'||reserved.has(row.requestId)||!positive(row.reservedCredits)||row.budgetUnit!=='coze_credits')throw Error('COZE_LEDGER_RESERVATION_INVALID')
+    reserved.set(row.requestId,row)
+   }else if(row.type==='development_finished'||row.type==='credits_reconciled'){
+    const requestId=String(row.requestId),reservation=reserved.get(requestId)
+    if(!reservation||settled.has(requestId)||!positive(row.accountedCredits)||Number(row.accountedCredits)>Number(reservation.reservedCredits))throw Error('COZE_LEDGER_RECONCILIATION_INVALID')
+    settled.add(requestId);charged+=Number(row.accountedCredits)
+   }else if(row.type!=='existing_credit_balance'&&row.type!=='credits_attempt_finished')throw Error('COZE_LEDGER_ROW_INVALID')
+  }
+  for(const [id,row] of reserved)if(!settled.has(id))held+=Number(row.reservedCredits)
+  if(charged+held>initial)throw Error('COZE_LEDGER_OVERCOMMITTED')
+  return {initialCredits:initial,chargedCredits:charged,heldCredits:held,availableCredits:initial-charged-held,reservations:reserved,settled}
+ }
+ balance(){const {reservations,settled,...balance}=this.view(this.rows());return balance}
+ private append(make:(rows:Row[])=>Row){
+  const lock=this.path+'.lock';let fd:number
+  try{fd=openSync(lock,'wx',0o600)}catch{throw Error('COZE_LEDGER_BUSY_NO_RETRY')}
+  try{
+   const row=make(this.rows()),out=openSync(this.path,'a',0o600)
+   try{writeSync(out,JSON.stringify({...row,recordedAt:new Date().toISOString()})+'\n');fsyncSync(out)}finally{closeSync(out)}
+  }finally{closeSync(fd);unlinkSync(lock)}
+ }
+ reserve(input:Reservation){
+  if(!input.requestId||!projects.has(input.projectId)||!['development','business'].includes(input.purpose)||!positive(input.reservedCredits)||!digest(input.payloadDigest)||!digest(input.sourceDigest))throw Error('COZE_RESERVATION_INVALID')
+  this.append(rows=>{
+   const view=this.view(rows),old=view.reservations.get(input.requestId)
+   if(old)throw Error(old.payloadDigest!==input.payloadDigest?'COZE_REQUEST_CONFLICT':'COZE_FIRST_ATTEMPT_ALREADY_RESERVED')
+   if(input.reservedCredits>view.availableCredits)throw Error('COZE_EXISTING_CREDITS_UNAVAILABLE')
+   return {type:'credits_reserved',budgetUnit:'coze_credits',newBudget:0,...input}
+  })
+ }
+ finishUnknown(requestId:string,outcome:'completed'|'failed'|'cancelled',providerCalls:number|null,receiptId:string|null){
+  if(!['completed','failed','cancelled'].includes(outcome)||!(providerCalls===null||Number.isSafeInteger(providerCalls)&&providerCalls>=0&&providerCalls<=5))throw Error('COZE_ATTEMPT_RESULT_INVALID')
+  this.append(rows=>{
+   const view=this.view(rows)
+   if(!view.reservations.has(requestId)||rows.some(row=>row.type==='credits_attempt_finished'&&row.requestId===requestId))throw Error('COZE_ATTEMPT_NOT_RESERVED_OR_ALREADY_FINISHED')
+   return {type:'credits_attempt_finished',requestId,outcome,providerCalls,receiptId,costCredits:'unknown',costCny:'unknown_not_converted',reservationRetained:true}
+  })
+ }
+ // Only an independently observed account bill can release a reservation.
+ // A workflow's self-reported boolean/zero cost cannot settle this ledger.
+ reconcile(requestId:string,observedCredits:number,billEvidenceDigest:string){
+  if(!Number.isFinite(observedCredits)||observedCredits<=0||!digest(billEvidenceDigest))throw Error('COZE_BILL_EVIDENCE_REQUIRED')
+  this.append(rows=>{
+   const view=this.view(rows),reservation=view.reservations.get(requestId),accountedCredits=Math.ceil(observedCredits)
+   if(!reservation||view.settled.has(requestId)||accountedCredits>Number(reservation.reservedCredits))throw Error('COZE_BILL_RESERVATION_CONFLICT')
+   return {type:'credits_reconciled',requestId,observedCredits,accountedCredits,billEvidenceDigest,budgetUnit:'coze_credits',costCny:'unknown_not_converted'}
+  })
+ }
+}
