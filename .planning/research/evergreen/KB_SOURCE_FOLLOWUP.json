@@ -414,17 +414,43 @@
     }
   ],
   "summary": {
-    "newUsableSources": 5,
-    "newLocatedQuotes": 5,
+    "newUsableSources": 7,
+    "newLocatedQuotes": 7,
     "draftsSupplemented": 8,
     "allReviewPreparations": 32,
-    "sourceScopedDraftReady": 15,
+    "sourceScopedDraftReady": 17,
     "partialImproved": 8,
-    "stillTaskSpecificSourceGap": 44,
+    "stillTaskSpecificSourceGap": 42,
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
-    "formalCoverageUnchangedUntilApproval": true
+    "formalCoverageUnchangedUntilApproval": true,
+    "previous": {
+      "newUsableSources": 5,
+      "newLocatedQuotes": 5,
+      "draftsSupplemented": 8,
+      "allReviewPreparations": 32,
+      "sourceScopedDraftReady": 15,
+      "partialImproved": 8,
+      "stillTaskSpecificSourceGap": 44,
+      "actualIndependentReviews": 0,
+      "actualHumanApprovals": 0,
+      "formalCoverageUnchangedUntilApproval": true
+    },
+    "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true
   },
   "fullPublicCapturesRequiredForRuntime": false,
-  "firstToolFailure": "bs4 unavailable; replaced by built-in HTMLParser, not a source reading attempt"
+  "firstToolFailure": "bs4 unavailable; replaced by built-in HTMLParser, not a source reading attempt",
+  "branchCorrection": {
+    "at": "2026-10-10T14:06:45.704Z",
+    "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
+    "revision": 3,
+    "previousDraftHash": "9a34e588c454ce4c979fe7e0ea6586bf8afd1d591c68889bccb7c1096cf1195a",
+    "newContentHash": "1774f66c3b211cf61f0abcb26e61fe019167fd2b7fa95b18733bf0c1239eb7b0",
+    "substantivelyCorrectedBranches": 6,
+    "newUsableSources": 2,
+    "newLocatedQuotes": 2,
+    "independentReviews": 0,
+    "humanApprovals": 0,
+    "published": 0
+  }
 }

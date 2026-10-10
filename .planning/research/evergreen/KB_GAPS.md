@@ -1,4 +1,6 @@
-本轮补源：新增5个可用原文、5条定位引用，8稿补充来源；原59项中15项形成范围收窄的来源候选、8项部分补充，仍44项（其中8项部分改善）缺任务对应来源或范围依据。15项仍须独立审阅及本人批准，正式112去向仍53 covered/59 awaiting_source；不是已发布覆盖。逐项新增状态见KB_GAP_RESEARCH.json.followup与KB_COVERAGE.json.source_followup。32稿逐主张对照材料已加入KB_CONTENT_REVISIONS.json.reviewPreparation，执行回执/真人批准均为null。
+本轮补源累计新增7个可用原文、7条定位引用，8稿补充来源；原59项中17项形成范围收窄的来源候选、8项部分补充，仍42项（其中8项部分改善）缺任务对应来源或范围依据。17项指逐任务候选，不能当整卡批准；正式112去向仍53 covered/59 awaiting_source。逐项状态见KB_GAP_RESEARCH.json.followup与KB_COVERAGE.json.source_followup。32稿逐主张对照材料在KB_CONTENT_REVISIONS.json.reviewPreparation，执行回执/真人批准均为null。
+
+首次联系稿升为待审revision 3，六个分支不再共用导师步骤。职业知情人用课堂作者经验，早期使用者用创业作者经验；新增北大教师个人推荐材料说明与科大教师个人导师选择看法，仅支持对应局部陈述，不代表高校规则，不采用成绩、日期、数量、资格或价格。未回复、拒绝和后续观察是明确标记的LifeOS编辑适配。社交C01-3/C25-1的步骤不再挂导师证据，仍缺任务对应来源。逐分支反馈和原文对照准备6项，独立审阅0、真人批准0、发布0。
 
 # 待处理缺口
 

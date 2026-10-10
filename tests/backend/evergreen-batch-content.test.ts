@@ -11,7 +11,7 @@ test.after(()=>pool.end())
 test('32 substantive revisions, 59 actual research outcomes and unchanged 112 tasks remain distinct from approval',()=>{
  const pack=json('KB_CONTENT_REVISIONS.json'),research=json('KB_GAP_RESEARCH.json'),original=lines('KB_GUIDES.jsonl'),coverage=json('KB_COVERAGE.json')
  assert.equal(pack.baselineHash,kbHash(readFileSync(dir+'KB_GUIDES.jsonl','utf8')));assert.equal(pack.drafts.length,32);assert.equal(pack.decisions.length,32);assert.equal(coverage.length,112);assert.equal(research.rows.length,59)
- for(const card of pack.drafts){const old=original.find(x=>x.id===card.id);assert.ok(old);assert.equal(card.revision,old.revision+1);assert.notEqual(card.guide.contentHash,old.guide.contentHash);assert.equal(card.guide.contentHash,guideContentHash(card.guide));assert.equal(card.status,'unverified');assert.equal(card.guide.reviewStatus,'needs_review');assert.equal(card.guide.review,null);assert.ok(card.guide.branches.every((b:any)=>b.steps.length>=3));assert.ok(card.guide.referenceBody.includes('什么时候不用'));for(const key of ['not_started','blocked','waiting_result','result','declined'])assert.ok(card.guide.feedbackBranches[key].length>15)}
+ for(const card of pack.drafts){const old=original.find(x=>x.id===card.id);assert.ok(old);assert.ok(card.revision>old.revision);assert.equal(card.revision,pack.decisions.find((d:any)=>d.guideId===card.id).revision);assert.notEqual(card.guide.contentHash,old.guide.contentHash);assert.equal(card.guide.contentHash,guideContentHash(card.guide));assert.equal(card.status,'unverified');assert.equal(card.guide.reviewStatus,'needs_review');assert.equal(card.guide.review,null);assert.ok(card.guide.branches.every((b:any)=>b.steps.length>=3));assert.ok(card.guide.referenceBody.includes('什么时候不用'));for(const key of ['not_started','blocked','waiting_result','result','declined'])assert.ok(card.guide.feedbackBranches[key].length>15)}
  for(const row of research.rows){assert.ok(row.attempts.length||row.readSource);assert.ok(row.methodExtracted.length>=3);assert.ok(row.stillMissingClaim);assert.equal(row.approval,'WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL')}
  for(const e of pack.evidence)assert.equal(kbHash(e.quote),e.content_hash)
  assert.equal(pack.independentReviews,0);assert.equal(pack.humanApprovals,0)
@@ -20,6 +20,16 @@ test('32 substantive revisions, 59 actual research outcomes and unchanged 112 ta
  const contact=pack.drafts.find((c:any)=>c.guide.canonicalKey==='first-contact');assert.ok(contact.limitations.includes('推荐信'));assert.ok(contact.guide.referenceBody.includes('导师联系'))
  const delivery=pack.drafts.find((c:any)=>c.guide.canonicalKey==='delivery-review');assert.ok(delivery.guide.referenceBody.includes('付款'));assert.ok(delivery.guide.referenceBody.includes('效果'))
  const team=pack.drafts.find((c:any)=>c.guide.canonicalKey==='team-contract');assert.ok(team.limitations.includes('MBTI'));assert.equal(team.guide.branches.find((b:any)=>b.id==='C24-4').stage,'adjust')
+})
+test('first-contact branches cannot borrow mentor evidence for social, career or startup steps',()=>{
+ const pack=json('KB_CONTENT_REVISIONS.json'),card=pack.drafts.find((c:any)=>c.guide.canonicalKey==='first-contact'),prep=pack.reviewPreparation.find((p:any)=>p.guideId===card.id)
+ const branch=(id:string)=>card.guide.branches.find((b:any)=>b.candidateId===id)
+ for(const id of ['C01-3','C25-1']){assert.ok(branch(id).steps.every((s:any)=>!s.text.includes('导师')&&s.evidenceIds.length===0));assert.equal(prep.branchChecks.find((b:any)=>b.candidateId===id).sourceStatus,'UNCHANGED_TASK_SPECIFIC_SOURCE_GAP')}
+ for(const [id,source] of [['C07-3','career-author'],['C13-4','pku-recommendation'],['C20-3','pg-first-users']])assert.ok(branch(id).steps.every((s:any)=>s.evidenceIds.length>0&&s.evidenceIds.every((e:string)=>e.startsWith(source))))
+ assert.ok(branch('C09-1').steps.some((s:any)=>s.evidenceIds.some((id:string)=>id.startsWith('ustc-mentor-choice'))))
+ assert.equal(new Set(prep.branchChecks.map((b:any)=>b.candidateId)).size,6)
+ for(const b of prep.branchChecks){assert.equal(b.independentExecution,null);assert.equal(b.humanApproval,null);for(const k of ['not_started','blocked','waiting_result','result','declined'])assert.ok(b.feedback[k])}
+ for(const e of pack.evidence.filter((e:any)=>/branch-20261011/.test(e.evidence_id))){assert.equal(e.locator.end-e.locator.start,e.quote.length);assert.equal(kbHash(e.quote),e.content_hash);assert.match(e.locator.normalizedBodySha256,/^[a-f0-9]{64}$/)}
 })
 test('drafts and located source snapshots import idempotently only into the disposable database and deny student reads',async()=>{
  const pack=json('KB_CONTENT_REVISIONS.json'),cards=lines('KB_GUIDES.jsonl'),sources=lines('KB_SOURCE_REGISTRY.jsonl'),evidence=lines('KB_EVIDENCE.jsonl')

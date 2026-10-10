@@ -30,15 +30,29 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
-        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
-        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+        "先由本人选一个愿意接触的日常场景；不想接触就不安排社交任务。",
+        "只提出与当时场景有关、允许对方不答的一句小问题，不索取隐私。",
+        "先记录是否交谈和本人感受；未回复不判拒绝，明确拒绝则停止。"
       ],
-      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
-      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "applicabilityBoundary": "从零社交的任务对应原文仍缺；下列仅编辑建议，不由导师材料背书。",
+      "stillMissingClaim": "从零社交的任务对应原文仍缺；下列仅编辑建议，不由导师材料背书。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:06:45.703Z",
+        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+        "evidenceIds": [],
+        "methodExtracted": [
+          "先由本人选一个愿意接触的日常场景；不想接触就不安排社交任务。",
+          "只提出与当时场景有关、允许对方不答的一句小问题，不索取隐私。",
+          "先记录是否交谈和本人感受；未回复不判拒绝，明确拒绝则停止。"
+        ],
+        "scope": "从零社交的任务对应原文仍缺；下列仅编辑建议，不由导师材料背书。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
@@ -669,15 +683,31 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
-        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
-        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+        "先写本人想了解的职业问题，以及这个对象为什么能提供相关经历。",
+        "用真实身份提出一个具体访谈问题并询问是否方便；不给对方虚构研究或职位。",
+        "若已联系却没回，核对原请求与实际状态；若得到回答，分别记录亲历信息与对方判断。"
       ],
-      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
-      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "applicabilityBoundary": "课堂作者实践只支持选对象和问题；邀约文案与后续分支是编辑适配，不保证录用。",
+      "stillMissingClaim": "课堂作者实践只支持选对象和问题；邀约文案与后续分支是编辑适配，不保证录用。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:06:45.703Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "career-author-followup-e1"
+        ],
+        "methodExtracted": [
+          "先写本人想了解的职业问题，以及这个对象为什么能提供相关经历。",
+          "用真实身份提出一个具体访谈问题并询问是否方便；不给对方虚构研究或职位。",
+          "若已联系却没回，核对原请求与实际状态；若得到回答，分别记录亲历信息与对方判断。"
+        ],
+        "scope": "课堂作者实践只支持选对象和问题；邀约文案与后续分支是编辑适配，不保证录用。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "independentReview": null,
@@ -770,6 +800,23 @@
           "status": "BODY_READ",
           "bodyLength": 2224,
           "bodySha256": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef"
+        },
+        {
+          "id": "ustc-mentor-choice-branch-20261011",
+          "url": "https://faculty.ustc.edu.cn/yqliang/files/teaching.htm",
+          "at": "2026-10-10T14:04:09.359Z",
+          "status": "BODY_READ",
+          "bodySha256": "6fd4ac9aab4a3fb06a56ddccbab708d81ad36d1a2da8f7dcc45866efb891d41b",
+          "locator": {
+            "url": "https://faculty.ustc.edu.cn/yqliang/files/teaching.htm",
+            "normalization": "HTMLParser BLOCKS whitespace collapsed",
+            "normalizedBodySha256": "123c5fb8d5ef5bc2e90bea773702790e304d941564a6f1cd2b7e232e6f9c2c4e",
+            "start": 4577,
+            "end": 4590,
+            "line": 98
+          },
+          "shortQuoteHash": "50c2d74c4a0e4a4f5c7cee25dbaee45e97b443da3c5a6ad3b2df6c9f0d990cd9",
+          "excludesDynamicRules": true
         }
       ],
       "readSource": {
@@ -786,15 +833,32 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
-        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
-        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+        "导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。",
+        "起草一个具体问题；若想核对指导方式，可询问本人能合法接触的往届学生，不虚构其评价。",
+        "同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。"
       ],
-      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
-      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "applicabilityBoundary": "国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。",
+      "stillMissingClaim": "国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:06:45.703Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "usst-mentor-email-batch-first-contact-e1",
+          "ustc-mentor-choice-branch-20261011-e1"
+        ],
+        "methodExtracted": [
+          "导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。",
+          "起草一个具体问题；若想核对指导方式，可询问本人能合法接触的往届学生，不虚构其评价。",
+          "同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。"
+        ],
+        "scope": "国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
@@ -1418,6 +1482,23 @@
           "status": "BODY_READ",
           "bodyLength": 2224,
           "bodySha256": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef"
+        },
+        {
+          "id": "pku-recommendation-branch-20261011",
+          "url": "https://math.pku.edu.cn/teachers/dayue/Homepage/recommendation.htm",
+          "at": "2026-10-10T14:04:09.176Z",
+          "status": "BODY_READ",
+          "bodySha256": "58af17f0f894cabbd940caa48079b429690ae66ee8d0054f7a2d5fa7614fc7a2",
+          "locator": {
+            "url": "https://math.pku.edu.cn/teachers/dayue/Homepage/recommendation.htm",
+            "normalization": "HTMLParser BLOCKS whitespace collapsed",
+            "normalizedBodySha256": "ff9c1bed86b081ba55a008d4969de5a72b67f6c497581d9ec06a87340865096d",
+            "start": 135,
+            "end": 144,
+            "line": 4
+          },
+          "shortQuoteHash": "bdd561f46e29dc95df4fc01b0f15a856a061db5138406068a2b5f4cfb5cdcab7",
+          "excludesDynamicRules": true
         }
       ],
       "readSource": {
@@ -1434,15 +1515,31 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
-        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
-        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+        "核对该老师是否有本人真实课程或项目接触，以及推荐用途；不虚构认识程度。",
+        "整理可核对的本人贡献和材料，询问老师是否愿意推荐及其自己的要求；不代作老师评价。",
+        "区分未回复、拒绝、同意与实际提交；目标或用途变化先核对旧委托是否仍有效。"
       ],
-      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
-      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "applicabilityBoundary": "推荐信原文是单一教师个人要求，不能普遍要求代写、查阅或限定分数和期限。",
+      "stillMissingClaim": "推荐信原文是单一教师个人要求，不能普遍要求代写、查阅或限定分数和期限。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:06:45.704Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "pku-recommendation-branch-20261011-e1"
+        ],
+        "methodExtracted": [
+          "核对该老师是否有本人真实课程或项目接触，以及推荐用途；不虚构认识程度。",
+          "整理可核对的本人贡献和材料，询问老师是否愿意推荐及其自己的要求；不代作老师评价。",
+          "区分未回复、拒绝、同意与实际提交；目标或用途变化先核对旧委托是否仍有效。"
+        ],
+        "scope": "推荐信原文是单一教师个人要求，不能普遍要求代写、查阅或限定分数和期限。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
@@ -1960,15 +2057,31 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
-        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
-        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+        "选一个确有该问题线索、本人能够合法接触的潜在使用者；先标需求尚未验证。",
+        "提出一次可拒绝的接触或试用请求，说明当前可展示什么，不把想做的产品说成已完成。",
+        "把愿意谈、实际试用、采用、付款和使用效果分别观察；失败时回到原请求或实验卡点，不重发全部入门。"
       ],
-      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
-      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "applicabilityBoundary": "创业作者经验只支持早期主动寻找使用者，不保证招募、需求成立或付费。",
+      "stillMissingClaim": "创业作者经验只支持早期主动寻找使用者，不保证招募、需求成立或付费。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:06:45.704Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "pg-first-users-followup-e1"
+        ],
+        "methodExtracted": [
+          "选一个确有该问题线索、本人能够合法接触的潜在使用者；先标需求尚未验证。",
+          "提出一次可拒绝的接触或试用请求，说明当前可展示什么，不把想做的产品说成已完成。",
+          "把愿意谈、实际试用、采用、付款和使用效果分别观察；失败时回到原请求或实验卡点，不重发全部入门。"
+        ],
+        "scope": "创业作者经验只支持早期主动寻找使用者，不保证招募、需求成立或付费。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "independentReview": null,
@@ -2743,15 +2856,29 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
-        "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
-        "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。"
+        "只在本人愿意的共同活动中选择自然接触，不把认识朋友变成必须完成的指标。",
+        "用真实共同话题问一句可不回答的问题，不预设对方兴趣、意图或关系。",
+        "本人不舒服或对方拒绝就停止；有交流只记实际经过，不宣称已经建立友谊。"
       ],
-      "applicabilityBoundary": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
-      "stillMissingClaim": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "applicabilityBoundary": "普通交友的任务对应原文仍缺；下列是待审编辑建议，不能借导师或创业来源批准。",
+      "stillMissingClaim": "普通交友的任务对应原文仍缺；下列是待审编辑建议，不能借导师或创业来源批准。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:06:45.704Z",
+        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+        "evidenceIds": [],
+        "methodExtracted": [
+          "只在本人愿意的共同活动中选择自然接触，不把认识朋友变成必须完成的指标。",
+          "用真实共同话题问一句可不回答的问题，不预设对方兴趣、意图或关系。",
+          "本人不舒服或对方拒绝就停止；有交流只记实际经过，不宣称已经建立友谊。"
+        ],
+        "scope": "普通交友的任务对应原文仍缺；下列是待审编辑建议，不能借导师或创业来源批准。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
