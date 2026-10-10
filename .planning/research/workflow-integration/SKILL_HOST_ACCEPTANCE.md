@@ -1,3 +1,7 @@
+当前候选 workflow-v2-integration-e545e51c8df0：96轮实际宿主SDK loopback读回四业务Skill；真实HTTP深入链读回方向Skill，均核对0.2.0-candidate及SHA。错版/缺失/失败降级保留合法已提交事实。新轨迹为同提交629c6b0、16类48会话本地合同，不是模型质量。主仓库1.2.2-candidate；用户安装主1.2.0、五业务未安装；临时HTTP已关闭，常驻NOT_TESTED，云全部PAUSED_NOT_RUN。矩阵见SKILL_VERSION_MATRIX.json。
+
+以下为历史Skill记录：
+
 # 当前候选补充（workflow-v2-integration-ce4d0b08a4b6）
 
 当前仓库主Skill1.2.2-candidate、5专业Skill0.2.0-candidate，字节hash未变。方向Skill在本轮原SDK loopback业务路径实际加载7次，版本/SHA及合法候选、越权依据/公共方法/伪造阶段的失败回执、缺阶段说明的诚实降级均读回；证据为`evidence/acceptance-20261010/pending-review/PERSONAL_BASIS_ABC.json`。源文件fingerprint与新候选一致。这是宿主加载/执行合同，真实模型遵循Skill仍PAUSED_NOT_RUN。

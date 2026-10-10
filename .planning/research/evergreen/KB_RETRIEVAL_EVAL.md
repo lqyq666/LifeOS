@@ -1,3 +1,7 @@
+当前新查询集是KB_NATURAL_QUERIES.json的232项；封存116首次结果及全部领域/阶段/缺卡分子分母见workflow-integration/evidence/long-batch-20261010/NATURAL_sealed_final.json。路由112/116=96.55%，Recall35/48=72.92%、Top1 31/48=64.58%未达门槛；方法请求缺合法目标卡48/96。此封存集未用于调参，同一生成者出题不算独立盲测；首次失败保留，不能以缺卡项不入Recall分母就宣称全库通过。
+
+下面235项为已曝光回归。KB_RETRIEVAL_EVAL.json是当前本地重放，非新的盲测；下面表格保留其此前运行记录：
+
 # 本地检索评估
 
 证据：真实离线编码器、隔离PostgreSQL，真实Provider调用0。

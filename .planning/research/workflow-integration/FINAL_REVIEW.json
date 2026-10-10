@@ -1,61 +1,126 @@
 {
-  "version": "workflow-v2-integration-ce4d0b08a4b6",
-  "at": "2026-10-10T09:38:54.822Z",
-  "head": "e0dc40a609baec20446fe98be9e54bbd14a2c8b4",
-  "status": "PASS_CHANGED_LOCAL_SCOPE_WIP_NOT_READY",
-  "reviewKind": "MAIN_CODEX_LOCAL_DIFF_REVIEW_NOT_INDEPENDENT_SEMANTIC_REVIEW",
-  "blocker": [],
-  "high": [],
-  "reviewedPaths": [
-    "server/workflows/knowledge-maintenance.ts",
-    "server/workflows/provider-adapter.ts",
-    "src/features/conversation/WorkflowPanel.tsx",
-    "scripts/workflow-pending-review.ts",
-    "tests/backend/workflow-growth-knowledge.test.ts",
-    "tests/backend/workflow-personal-basis.test.ts",
-    "tests/backend/workflow-pending-review.test.ts"
+  "version": "workflow-v2-integration-e545e51c8df0",
+  "at": "2026-10-10T11:13:15.527346+00:00",
+  "head": "629c6b08183c299558a06b6528ae3da78f81faf0",
+  "status": "PASS_CHANGED_TECHNICAL_SCOPE_WITH_FAILED_QUALITY_GATE_WIP_NOT_READY",
+  "reviewKind": "MAIN_CODEX_DIFF_REVIEW_NOT_INDEPENDENT_SOURCE_OR_MODEL_REVIEW",
+  "codeBlocker": [],
+  "codeHigh": [],
+  "acceptanceFailures": [
+    "New sealed Recall@5 35/48 and Top1 31/48 below 90%",
+    "59 source/scope gaps and 32 revisions not independently approved",
+    "Four same-budget profile selections are scripted SDK contracts, not proof of real model personalization",
+    "Real models, four real chains, paired benefit/performance and current cloud copies remain paused"
   ],
   "validation": {
     "root": {
-      "passed": 117,
-      "evidence": "pending-review-root-final.log"
+      "passed": 118,
+      "evidence": "evidence/long-batch-20261010/final-root.log"
     },
-    "authenticatedReviewReceiptGate": {
-      "passed": 8,
-      "evidence": "independent-review-final.log",
-      "kind": "LOCAL_HOST_JOURNAL_FIXTURE_NOT_REAL_APPROVAL"
-    },
-    "pendingGuidePreparation": {
-      "passed": 2,
-      "evidence": "pending-review-import-first.log",
-      "kind": "REAL_ISOLATED_POSTGRESQL_NO_PROVIDER"
-    },
-    "directionActionBasis": {
-      "passed": 1,
-      "evidence": "action-stage-skill-readback.log",
-      "provider": "SCRIPTED_LOOPBACK_ONLY"
-    },
-    "relatedDirection": {
-      "passed": 13,
-      "evidence": "action-stage-related-final.log",
-      "provider": "LOCAL_SCRIPTED_OR_DETERMINISTIC",
-      "notDisjointFromOtherSuites": true
-    },
-    "typecheckServer": "PASS",
-    "typecheckFrontend": "PASS_BUILD_TSC",
+    "serverTypes": "PASS",
+    "frontendTypes": "PASS_BUILD_TSC",
     "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
-    "currentCandidateBrowser": "NOT_TESTED_COPY_CHANGE_BUILT_ONLY"
+    "maintenanceApi": {
+      "passed": 1,
+      "evidence": "evidence/long-batch-20261010/final-entry-browser.log",
+      "syntheticApprovalsOnly": true
+    },
+    "realEntry": {
+      "passed": 4,
+      "evidence": "evidence/long-batch-20261010/final-performance-cloud-entry.log",
+      "actualPaidCalls": 0
+    },
+    "cozeEntry": {
+      "passed": 2,
+      "evidence": "evidence/long-batch-20261010/final-performance-cloud-entry.log",
+      "actualCloudCalls": 0
+    },
+    "canonicalIndex": {
+      "passed": 4,
+      "evidence": "evidence/long-batch-20261010/final-canonical-index.log"
+    },
+    "deepCanonicalContext": {
+      "passed": 1,
+      "evidence": "evidence/long-batch-20261010/final-method-entry-green.log"
+    },
+    "safetyAndSkills": {
+      "passed": 26,
+      "evidence": "evidence/long-batch-20261010/final-safety-skills.log"
+    },
+    "personalBasisAndDirection": {
+      "evidence": "evidence/long-batch-20261010/final-personal-basis.log",
+      "fourSameBudgetProfiles": "PASS_NATIVE_SDK_LOCAL_SCRIPTED_ABCD_NOT_REAL_CHOICE_QUALITY",
+      "fourProfilesEvidence": "evidence/long-batch-20261010/PERSONAL_BASIS_ABCD.json"
+    },
+    "currentCandidateBrowser": {
+      "status": "PASS_CURRENT_CHROME_SIMULATED_PROVIDER",
+      "widths": [
+        1440,
+        390
+      ],
+      "maintenance": "evidence/long-batch-20261010/MAINTENANCE_BROWSER.json",
+      "student": "evidence/long-batch-20261010/BROWSER_CHAIN.json",
+      "shortAnswer": "evidence/long-batch-20261010/WAITING_BROWSER_GREEN.json",
+      "physicalPhone": false
+    },
+    "student16": {
+      "status": "PASS_LOCAL_CONTRACT",
+      "rounds": 96,
+      "sessions": 48,
+      "students": 16,
+      "coreFourIncludedOnce": true,
+      "testedCodeCommit": "8bdd7408b8913724fefed7c56160c4bb2b1bdfdb",
+      "productSourceEquivalentToFinalCode": true,
+      "productionFilesCompared": 219,
+      "annotationRevision": 2,
+      "blind": false,
+      "apiReadback": true,
+      "provider": "SCRIPTED_LOOPBACK_ONLY",
+      "evidence": "evidence/long-batch-20261010/student16-final/STUDENT16_TRAJECTORIES.json",
+      "firstFailuresPreserved": true
+    },
+    "reproduction": {
+      "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
+      "codeCommit": "629c6b08183c299558a06b6528ae3da78f81faf0",
+      "evidence": "evidence/long-batch-20261010/reproduction/REPRODUCTION.json",
+      "ledgerPrivateDbKeysCopied": false
+    },
+    "retrievalQuality": {
+      "status": "FAIL_RECALL_AND_TOP1",
+      "metrics": {
+        "route": {
+          "numerator": 112,
+          "denominator": 116
+        },
+        "recall5": {
+          "numerator": 35,
+          "denominator": 48
+        },
+        "top1": {
+          "numerator": 31,
+          "denominator": 48
+        },
+        "missingTarget": {
+          "numerator": 48,
+          "denominator": 96
+        },
+        "noMatchingMethod": 1
+      },
+      "newLabels": 232,
+      "sealedFirstFinal": 116,
+      "independentBlind": false,
+      "sealedUsedForTuning": false
+    }
   },
   "risks": [
-    "Stage reason is selected from bounded editorial catalogue; actual classification and personal benefit not verified with real models.",
-    "Maintenance host receipts fail closed by default; no authenticated real review/release adapter or receipt obtained.",
-    "16 pending cards and 59 source gaps remain; four prepared revisions are not imported to the product.",
-    "User-installed main Skill remains 1.2.0; five business Skills not installed there; current persistent service version not verified.",
-    "24 rounds and Chrome demo are retained baseline only; current UI copy change built, not browser accepted.",
-    "Historical outstanding usage retained, not zero-settled."
+    "Authorized paid path has not been exercised against a real provider",
+    "Cloud current runtime contract has not been read back",
+    "Independent external evidence authenticity cannot be inferred from the locally checked receipt format",
+    "Terminated real batches retain attempts and cannot be reissued; keep one authorized process alive for intervening reviews"
   ],
-  "realModels": "PAUSED_NOT_RUN",
-  "coze": "PAUSED_NOT_RUN",
+  "actualIndependentReview": 0,
+  "humanApproval": 0,
   "studentAcceptance": "NOT_TESTED",
-  "baselineReview": "evidence/acceptance-20261010/pending-review/baseline-c373/FINAL_REVIEW.json"
+  "realModels": "PAUSED_NOT_RUN",
+  "coze": "PAUSED_NOT_RUN"
 }

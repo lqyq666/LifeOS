@@ -5,7 +5,7 @@
   "uploads": 0,
   "privateData": false,
   "adultSyntheticOnly": true,
-  "sourceDigest": "36cfe6b14b64260104b9f3e4a5393e053443439d1ed87b442029216e8144aef7",
+  "sourceDigest": "73aa2d9406609cb009b07011d3cc867a66c70f74733c0db6e9054ad0c481ce97",
   "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
   "skills": [
     {
@@ -34,6 +34,41 @@
       "version": "0.2.0-candidate"
     }
   ],
+  "receiptContract": {
+    "runtimeRequired": [
+      "projectId",
+      "release",
+      "sourceDigest",
+      "contentHash"
+    ],
+    "receiptRequired": [
+      "id",
+      "usageCompleteness"
+    ],
+    "usageCompleteness": [
+      "complete",
+      "unknown"
+    ],
+    "knowledgeItemRequired": [
+      "documentId",
+      "content",
+      "revision",
+      "contentHash"
+    ],
+    "workflowReceiptRequired": [
+      "providerCalls",
+      "skills"
+    ],
+    "skillReceiptFields": [
+      "name",
+      "version",
+      "sha256"
+    ],
+    "maximumDeepProviderCalls": 5,
+    "studentStateCommitAllowed": false,
+    "unknownCost": "retain full authorized reservation until independent reconciliation",
+    "description": "Expected output examples below are business subsets; these runtime and receipt fields are mandatory in the current copy."
+  },
   "projects": [
     {
       "projectId": "7693388932939300905",

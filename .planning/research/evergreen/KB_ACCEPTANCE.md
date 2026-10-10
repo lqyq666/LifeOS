@@ -1,3 +1,7 @@
+2026-10-10长批次当前结论：32张实质revision2、59项逐项公开资料研究、19来源记录（11个新增URL）、30定位引用已准备；32新稿独审0/真人批准0/发布0。正式32卡仍16历史approved/16待审，112候选53覆盖/59来源或适用范围缺口。正常维护入口和当前浏览器/隔离PG已测试，但不能当独立审阅或本人批准。新232查询在执行前标注，116封存首次路由112/116；Recall35/48与Top1 31/48失败。整体WIP_NOT_READY，真实模型/扣子PAUSED_NOT_RUN。绑定见workflow-integration/CONTENT_MANIFEST.json和WORKFLOW_ACCEPTANCE.json。
+
+以下为原235及更早已曝光验收记录，不是新盲测：
+
 # 2026-10-10 开发验收
 
 状态：MODIFIED / TESTED；前端BUILT；整个任务WIP_NOT_READY。未DEPLOYED、未ONLINE_VERIFIED、未ACCEPTED。

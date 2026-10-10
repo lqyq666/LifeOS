@@ -1,3 +1,7 @@
+当前检查点：workflow-v2-integration-e545e51c8df0，WIP_NOT_READY。96本地脚本轮、当前浏览器与新目录免费相关范围通过；Recall/Top1失败，32稿待独审/批准，59缺口保留，真实/云均PAUSED_NOT_RUN。详见WORKFLOW_ACCEPTANCE.json。
+
+以下为历史Gate记录：
+
 当前记录：候选workflow-v2-integration-ce4d0b08a4b6，WIP_NOT_READY。回执门禁、个人依据作用/阶段解释、16待审结论、112去向和4份主线修订的隔离读回完成；独立审批与发布NOT_TESTED，59来源缺口未关闭。真实模型/扣子/20配对/20普通性能PAUSED_NOT_RUN。旧24轮及Chrome是c373保留基线。完整矩阵见WORKFLOW_ACCEPTANCE.json，测试绑定见RUN_BINDING.json。
 
 以下为历史候选workflow-v2-integration-ee442ef15ffa记录：

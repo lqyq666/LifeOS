@@ -1,3 +1,7 @@
+本批首次失败与新结果均在evidence/long-batch-20261010保留：自然查询development_first、sealed_final（Recall/Top1未达）；student16-first与78轮标注失败；新目录CRLF；合批注册429；Chrome SSE body读取工具错误。没有收费重试或补测替换真实失败。修复后只有对应本地合同通过；独立审核/本人批准/真实模型与扣子仍缺。FINAL_REVIEW.json为主Codex技术Review，不能算独立业务盲评。
+
+以下为历史记录：
+
 当前记录：workflow-v2-integration-ce4d0b08a4b6的变更范围本地Review通过，无剩余BLOCKER/HIGH；不是独立语义Review或学生验收。新增回执反例先红：原门禁只凭不同审阅名可放行，已修为宿主回执绑定；8项隔离测试通过。阶段解释专项原schema无法读取stageReasonId的首失败保留，候选扩展后原SDK脚本与相关方向回归通过。公共攻略或工具结果不能当作本人原话；未说明阶段适用性诚实降级，界面统一实验性。
 
 本轮16逐卡结论发现3张Upwork外部主张超出8词片段，5处复盘阶段仍标start；四主线修订保留needs_review，临时库读回且学生读取拒绝。没有改原32卡或112覆盖，缺口未被标绿。

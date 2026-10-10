@@ -1,76 +1,673 @@
 {
-  "version": "workflow-v2-integration-ce4d0b08a4b6",
-  "at": "2026-10-10T09:38:54.822Z",
-  "mainCorpusModified": false,
-  "newIndependentReview": false,
-  "guideReviewCounts": {
+  "version": "workflow-v2-integration-e545e51c8df0",
+  "at": "2026-10-10T11:13:15.527346+00:00",
+  "formalCorpusModified": false,
+  "formalGuideReviewCounts": {
     "approved": 16,
     "needs_review": 16
   },
   "coverageTotal": 112,
   "covered": 53,
   "awaitingSource": 59,
+  "longBatch": {
+    "revisedCards": 32,
+    "previousApprovedRechecked": 16,
+    "previousPendingRevised": 16,
+    "structuredEditorialDrafts": 32,
+    "newSourceRecords": 19,
+    "distinctNewSourceUrls": 11,
+    "locatedEvidenceFragments": 30,
+    "sourceAttempts": 39,
+    "failedSourceAttempts": 9,
+    "distinctBodiesRead": 29,
+    "newBodiesRead": 16,
+    "gapsResearched": 59,
+    "sourceOrScopeGapsRemaining": 59,
+    "formalApproved": 16,
+    "formalPending": 16,
+    "newIndependentReviews": 0,
+    "newHumanApprovals": 0,
+    "newPublished": 0,
+    "draftsServed": false
+  },
   "files": {
-    ".planning/research/evergreen/KB_ACCEPTANCE.md": "267351d3bb61aeba928653eaae1afa65aa4d2c047a0f9c7eec5e7c18c30e5c73",
+    ".planning/research/evergreen/DEVELOPMENT_SPEC.md": "6424d382c972e0e5afa11de105c1be7ee9bbcd890e39de07d169e68ebf0822cc",
+    ".planning/research/evergreen/HANDOFF.md": "831d1abadb7b585058a237b1db421e8983f46bb8a069223dfeadaa83cfe21724",
+    ".planning/research/evergreen/KB_ACCEPTANCE.md": "5c26695dd6313a18bc8855a087c1eab7c3a444fc6daa365df3f3a276246a647e",
     ".planning/research/evergreen/KB_BACKEND_REPORT.json": "87c5244fd9bf21696644074337979ec3b5e6cbb00b3de67ef0f39dccb083e8d7",
     ".planning/research/evergreen/KB_BASELINE_CHECKS.json": "dcffdbcba624725f983269158dc81126e3e6a4554312d96b931e37d18a608547",
+    ".planning/research/evergreen/KB_BATCH_SOURCE_READINGS.json": "e0e9e9d8c7b6901152839b9e04d4dc77cc92bdaacaa728f340093a557c04c8e9",
     ".planning/research/evergreen/KB_BROWSER_REPORT.json": "68f5e928118e050c0b908b632bb3256c7a2961adc87728e49f9ab090c80e62e3",
     ".planning/research/evergreen/KB_CARD_REGRESSIONS.json": "732850de84b366d6ea24eb764bf04f0ced63749b80dc80fc7adc2f9c38f3f708",
+    ".planning/research/evergreen/KB_CONTENT_REVISIONS.json": "c1d9bd80f806c5ad3fd4de730e46f984592fca79a626ee5fcb57691da139e1d8",
     ".planning/research/evergreen/KB_CONTEXT_DESIGN.md": "448b227f53fa2c8bda6e0f5b9012e97de294a99b30774b444bba555e2949ce3c",
-    ".planning/research/evergreen/KB_COVERAGE.json": "8741e5beafad19f4640117e723542c0aa942993c2bd71dbb73aaa6f6c8275f24",
+    ".planning/research/evergreen/KB_COVERAGE.json": "524183a736c93208227c822308077a3b96658ddbecff575067cc59920d1fc149",
     ".planning/research/evergreen/KB_DUPLICATES_REPORT.md": "e127c4815589b7acc366d69ba1a20ca023f63229781bbf1998e200c6b60cd07f",
     ".planning/research/evergreen/KB_EVIDENCE.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
     ".planning/research/evergreen/KB_EVIDENCE_REOPEN.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
     ".planning/research/evergreen/KB_FREEZE.json": "ea1bff4f950427b151e850f57cae7841736d72940d2d9c22536179bff3eed806",
-    ".planning/research/evergreen/KB_GAPS.md": "2d91bbe4b39b0510ce63ccd1ccc85d5a0d10cc81922252185b1757c8d6f83941",
+    ".planning/research/evergreen/KB_GAP_RESEARCH.json": "207860f8974adaffd86bbb954e5ca5d886fdfd08c87882fb909ce276cdfecfcc",
+    ".planning/research/evergreen/KB_GAPS.md": "af7a738a863f59e8ad88d1300c1d1c949db833a313d56b1e9e549f2ab076e17a",
     ".planning/research/evergreen/KB_GUIDES.jsonl": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
     ".planning/research/evergreen/KB_IMPLEMENTATION_FREEZE.json": "648de33f8de5c3c36124c3fa750e091c22066eab1dab7f3a687d9e4b2322b0ad",
     ".planning/research/evergreen/KB_INDEX_LOAD_REPORT.json": "50a589965504298c69966aed04193a53b4439cd211b90706ab85648f368725b7",
     ".planning/research/evergreen/KB_LEGACY_MAP.json": "e236b232abd9c5c7de1f64a6dd688d0640d272841dcdccbe0a42c7172e43c2fd",
+    ".planning/research/evergreen/KB_NATURAL_FREEZE.json": "2032267b6ea6e03883abc34dea1cad82d2d1aa6d19b9490f3495f13c9dd08bf0",
+    ".planning/research/evergreen/KB_NATURAL_QUERIES.json": "96d55543c183f118048d42b3851a4ad125126fa3a806c793f7172ce799c4f332",
     ".planning/research/evergreen/KB_PROVIDER_PREFLIGHT.json": "058a043c2b8446ba43fad6370e33e9cfe944ce1df89e3d1a86f49ec47c257871",
     ".planning/research/evergreen/KB_QUERY_BENCHMARK.json": "51d0ed528443144a1f10640712b55222e5ca4e2cec3c2d304fa72ac473ae6d51",
-    ".planning/research/evergreen/KB_RETRIEVAL_EVAL.json": "4b0731a082f88f4727ed2df3265b5c27ab2b8f0124356cde3ae71163d0ffe739",
-    ".planning/research/evergreen/KB_RETRIEVAL_EVAL.md": "f03978084de5035234acda1e7852044f7641029f733d4d56736f93fcb42e40eb",
+    ".planning/research/evergreen/KB_RETRIEVAL_EVAL.json": "2121448072199c166884de4cf1fda76a6aa76a7de40a36f0262308b16b9275c6",
+    ".planning/research/evergreen/KB_RETRIEVAL_EVAL.md": "83080eed797f95c0a4976bb48216cd93b1cfbf97d722dc280ba3c81e50f236b5",
     ".planning/research/evergreen/KB_SEMANTIC_REVIEW.json": "1098fcb1688768f6a343eac608aa09342dd132de27faed729668d7729e62ff43",
     ".planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
     ".planning/research/evergreen/KB_SOURCE_REOPEN.jsonl": "4bb93c3397ae690400c16cba4a66c39d8e2db1d7c65677f375354cb6bd81f509",
     ".planning/research/evergreen/KB_TAXONOMY.json": "63d6cf11f2b7633035b3044a2e233a2470b49d79abcd13c290a46699c6845e70",
-    ".planning/research/evergreen/sources.md": "59d4f5bfa85f3e128038e57abdc95e239987aee94d9d55ceb5e334c7cdf011ab",
-    ".planning/research/workflow-integration/evidence/continuation/BASELINE_SOURCE_MANIFEST.json": "31518c8b4137094ad0568388902b44a6934252bd782f5a93f02de5782fd61e90"
+    ".planning/research/evergreen/sources.md": "fce5009a0345eec989d7bd087c52f97e7a83d2c9a37a27d908fd70f3a6096705"
   },
-  "pendingAdaptations": {
-    "file": ".planning/research/workflow-integration/evidence/local-time-20261010/PRIORITY_BRANCH_REVIEW_CANDIDATES.json",
-    "sha256": "9520df256bed86edfaced45a0a4309b78ab1b87613f5d6ed167e812d604d5293",
-    "status": "needs_review",
-    "served": false
-  },
-  "sourceAudit": {
-    "file": ".planning/research/workflow-integration/evidence/local-time-20261010/LOCAL_SOURCE_BRANCH_AUDIT.json",
-    "sha256": "9d6f34c8784f1bc8b7815f5c77320d5521d63f37a11665aa08945eace827cb90",
-    "scope": "OFFLINE_EXISTING_ARCHIVED_EXCERPTS",
-    "priorityGuides": 13,
-    "newSourceOrIndependentApprovalClaimed": false
-  },
-  "pendingReviewPreparation": {
-    "scope": "OFFLINE_ARCHIVED_ORIGINAL_READ_EDITORIAL_REVIEW_NOT_INDEPENDENT",
-    "pendingCards": 16,
-    "candidateDestinations": 112,
-    "sourceBodiesReopened": 15,
-    "fragmentsOnly": 2,
-    "revisionCandidates": 4,
-    "independentReviewReceipt": null,
-    "releaseReceipt": null,
-    "served": false,
-    "files": {
-      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/CANDIDATE_112_DISPOSITIONS.json": "8cb84e36b4e83935c9418ca5113fbf89a0138dc3878eb165c29af728249aa44f",
-      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/CURRENT_VERSION_INSPECTION.json": "e36530bedbcfaf1ed84ab2c8e6916724dd538145f7ec8f9d67a06c55197eca6d",
-      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/MAINLINE_REVISION_CANDIDATES.json": "caedb6048b17a5b47b0a8c87a5bb196834655fc4062597ea402e3ca8126727c1",
-      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/PENDING_16_REVIEW.json": "a765772d10b39e917a77206be617ca294b0f56cf4dc90f216f46426ad7ddfde1",
-      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/PENDING_IMPORT_READBACK.json": "4702cbfba4dd92014907d60bc431c208513a92b2168217cb12742f719c26cb90",
-      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/PERSONALIZATION_CONTRAST.json": "6e789df0779788e5ff5804f06d2820d32446094a8cd1bed076c03b1ac8e23184",
-      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/PERSONAL_BASIS_ABC.json": "17d215ed9a6c7549b2cd703442c565b3e36ce3c605df2dd005461eb0bf8caa29",
-      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/SOURCE_REOPEN.json": "e3db45097b54f49db5b4623911f77d3ae0dd04031d9308f868159bc95059cb34",
-      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/VERIFICATION.json": "69e947d6ae93b4755e48d5a1b469a96eb2fd7af5161a964bde5439dfbf8503c6"
+  "draftRelease": "WAITING_ACTUAL_INDEPENDENT_EXECUTION_AND_HUMAN_APPROVAL",
+  "sourceBodyEvidence": "Short located excerpts/body hashes committed; full public authoring captures in TEMP are not required for tests. Actual reviewer must reopen original links.",
+  "oldRetrievalBenchmark": "235 previously exposed cases, regression only; never new blind evidence",
+  "newRetrievalBenchmark": {
+    "total": 232,
+    "authoredBeforeExecution": true,
+    "development": 116,
+    "sealedFirstFinal": 116,
+    "independentBlindTest": false,
+    "sealedUsedForTuning": false,
+    "report": "evidence/long-batch-20261010/NATURAL_sealed_final.json",
+    "quality": "FAIL_RECALL_AND_TOP1",
+    "metrics": {
+      "route": {
+        "numerator": 112,
+        "denominator": 116
+      },
+      "recall5": {
+        "numerator": 35,
+        "denominator": 48
+      },
+      "top1": {
+        "numerator": 31,
+        "denominator": 48
+      },
+      "missingTarget": {
+        "numerator": 48,
+        "denominator": 96
+      },
+      "noMatchingMethod": 1
+    },
+    "byDomain": {
+      "10": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "noMatchingMethod": 0
+      },
+      "12": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "13": {
+        "route": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "missingTarget": {
+          "numerator": 3,
+          "denominator": 5
+        },
+        "noMatchingMethod": 0
+      },
+      "14": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "15": {
+        "route": {
+          "numerator": 6,
+          "denominator": 6
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 6,
+          "denominator": 6
+        },
+        "noMatchingMethod": 0
+      },
+      "16": {
+        "route": {
+          "numerator": 6,
+          "denominator": 6
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "missingTarget": {
+          "numerator": 3,
+          "denominator": 5
+        },
+        "noMatchingMethod": 0
+      },
+      "17": {
+        "route": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "noMatchingMethod": 0
+      },
+      "18": {
+        "route": {
+          "numerator": 6,
+          "denominator": 7
+        },
+        "recall5": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "top1": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "missingTarget": {
+          "numerator": 3,
+          "denominator": 6
+        },
+        "noMatchingMethod": 0
+      },
+      "19": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "top1": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "20": {
+        "route": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "recall5": {
+          "numerator": 3,
+          "denominator": 4
+        },
+        "top1": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 4
+        },
+        "noMatchingMethod": 0
+      },
+      "21": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "noMatchingMethod": 0
+      },
+      "22": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "23": {
+        "route": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "noMatchingMethod": 0
+      },
+      "24": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "noMatchingMethod": 0
+      },
+      "25": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "26": {
+        "route": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "recall5": {
+          "numerator": 3,
+          "denominator": 4
+        },
+        "top1": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 4
+        },
+        "noMatchingMethod": 0
+      },
+      "27": {
+        "route": {
+          "numerator": 5,
+          "denominator": 6
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 5,
+          "denominator": 6
+        },
+        "noMatchingMethod": 0
+      },
+      "28": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "noMatchingMethod": 0
+      },
+      "01": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "top1": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 3
+        },
+        "noMatchingMethod": 0
+      },
+      "07": {
+        "route": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "noMatchingMethod": 0
+      },
+      "03": {
+        "route": {
+          "numerator": 2,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 2,
+          "denominator": 3
+        },
+        "top1": {
+          "numerator": 2,
+          "denominator": 3
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 3
+        },
+        "noMatchingMethod": 0
+      },
+      "09": {
+        "route": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "recall5": {
+          "numerator": 2,
+          "denominator": 3
+        },
+        "top1": {
+          "numerator": 2,
+          "denominator": 3
+        },
+        "missingTarget": {
+          "numerator": 2,
+          "denominator": 5
+        },
+        "noMatchingMethod": 0
+      },
+      "04": {
+        "route": {
+          "numerator": 12,
+          "denominator": 13
+        },
+        "recall5": {
+          "numerator": 8,
+          "denominator": 12
+        },
+        "top1": {
+          "numerator": 7,
+          "denominator": 12
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 12
+        },
+        "noMatchingMethod": 0
+      },
+      "05": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "06": {
+        "route": {
+          "numerator": 8,
+          "denominator": 8
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 6,
+          "denominator": 7
+        },
+        "noMatchingMethod": 0
+      },
+      "08": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "02": {
+        "route": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "noMatchingMethod": 0
+      },
+      "boundary": {
+        "route": {
+          "numerator": 6,
+          "denominator": 6
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "noMatchingMethod": 1
+      }
+    },
+    "byStage": {
+      "start": {
+        "route": {
+          "numerator": 48,
+          "denominator": 52
+        },
+        "recall5": {
+          "numerator": 11,
+          "denominator": 16
+        },
+        "top1": {
+          "numerator": 8,
+          "denominator": 16
+        },
+        "missingTarget": {
+          "numerator": 16,
+          "denominator": 32
+        },
+        "noMatchingMethod": 1
+      },
+      "adjust": {
+        "route": {
+          "numerator": 64,
+          "denominator": 64
+        },
+        "recall5": {
+          "numerator": 24,
+          "denominator": 32
+        },
+        "top1": {
+          "numerator": 23,
+          "denominator": 32
+        },
+        "missingTarget": {
+          "numerator": 32,
+          "denominator": 64
+        },
+        "noMatchingMethod": 0
+      }
     }
   }
 }

@@ -1,66 +1,184 @@
 {
-  "schemaVersion": 5,
-  "version": "workflow-v2-integration-ce4d0b08a4b6",
-  "head": "e0dc40a609baec20446fe98be9e54bbd14a2c8b4",
+  "schemaVersion": 6,
+  "version": "workflow-v2-integration-e545e51c8df0",
+  "head": "629c6b08183c299558a06b6528ae3da78f81faf0",
+  "codeCommit": "629c6b08183c299558a06b6528ae3da78f81faf0",
   "status": "WIP_NOT_READY",
   "highestStatus": [
     "MODIFIED",
     "TESTED_LOCAL",
     "BUILT",
-    "COMMITTED_LOCAL"
+    "COMMITTED_LOCAL",
+    "FRESH_CHECKOUT_RELEVANT_FREE_SCOPE_REPRODUCED"
   ],
   "notClaimed": [
+    "LOCAL_CANDIDATE_VERIFIED_ALL_GATES",
     "DEPLOYED",
     "ONLINE_VERIFIED",
-    "ACCEPTED"
+    "ACCEPTED",
+    "REAL_MODEL_BENEFIT"
   ],
-  "evidenceRoot": "evidence/acceptance-20261010/",
+  "evidenceRoot": "evidence/long-batch-20261010/",
   "checks": {
     "root": {
-      "passed": 117,
-      "evidence": "pending-review-root-final.log"
+      "passed": 118,
+      "evidence": "evidence/long-batch-20261010/final-root.log"
     },
-    "authenticatedReviewReceiptGate": {
-      "passed": 8,
-      "evidence": "independent-review-final.log",
-      "kind": "LOCAL_HOST_JOURNAL_FIXTURE_NOT_REAL_APPROVAL"
-    },
-    "pendingGuidePreparation": {
-      "passed": 2,
-      "evidence": "pending-review-import-first.log",
-      "kind": "REAL_ISOLATED_POSTGRESQL_NO_PROVIDER"
-    },
-    "directionActionBasis": {
-      "passed": 1,
-      "evidence": "action-stage-skill-readback.log",
-      "provider": "SCRIPTED_LOOPBACK_ONLY"
-    },
-    "relatedDirection": {
-      "passed": 13,
-      "evidence": "action-stage-related-final.log",
-      "provider": "LOCAL_SCRIPTED_OR_DETERMINISTIC",
-      "notDisjointFromOtherSuites": true
-    },
-    "typecheckServer": "PASS",
-    "typecheckFrontend": "PASS_BUILD_TSC",
+    "serverTypes": "PASS",
+    "frontendTypes": "PASS_BUILD_TSC",
     "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
-    "currentCandidateBrowser": "NOT_TESTED_COPY_CHANGE_BUILT_ONLY"
+    "maintenanceApi": {
+      "passed": 1,
+      "evidence": "evidence/long-batch-20261010/final-entry-browser.log",
+      "syntheticApprovalsOnly": true
+    },
+    "realEntry": {
+      "passed": 4,
+      "evidence": "evidence/long-batch-20261010/final-performance-cloud-entry.log",
+      "actualPaidCalls": 0
+    },
+    "cozeEntry": {
+      "passed": 2,
+      "evidence": "evidence/long-batch-20261010/final-performance-cloud-entry.log",
+      "actualCloudCalls": 0
+    },
+    "canonicalIndex": {
+      "passed": 4,
+      "evidence": "evidence/long-batch-20261010/final-canonical-index.log"
+    },
+    "deepCanonicalContext": {
+      "passed": 1,
+      "evidence": "evidence/long-batch-20261010/final-method-entry-green.log"
+    },
+    "safetyAndSkills": {
+      "passed": 26,
+      "evidence": "evidence/long-batch-20261010/final-safety-skills.log"
+    },
+    "personalBasisAndDirection": {
+      "evidence": "evidence/long-batch-20261010/final-personal-basis.log",
+      "fourSameBudgetProfiles": "PASS_NATIVE_SDK_LOCAL_SCRIPTED_ABCD_NOT_REAL_CHOICE_QUALITY",
+      "fourProfilesEvidence": "evidence/long-batch-20261010/PERSONAL_BASIS_ABCD.json"
+    },
+    "currentCandidateBrowser": {
+      "status": "PASS_CURRENT_CHROME_SIMULATED_PROVIDER",
+      "widths": [
+        1440,
+        390
+      ],
+      "maintenance": "evidence/long-batch-20261010/MAINTENANCE_BROWSER.json",
+      "student": "evidence/long-batch-20261010/BROWSER_CHAIN.json",
+      "shortAnswer": "evidence/long-batch-20261010/WAITING_BROWSER_GREEN.json",
+      "physicalPhone": false
+    },
+    "student16": {
+      "status": "PASS_LOCAL_CONTRACT",
+      "rounds": 96,
+      "sessions": 48,
+      "students": 16,
+      "coreFourIncludedOnce": true,
+      "testedCodeCommit": "8bdd7408b8913724fefed7c56160c4bb2b1bdfdb",
+      "productSourceEquivalentToFinalCode": true,
+      "productionFilesCompared": 219,
+      "annotationRevision": 2,
+      "blind": false,
+      "apiReadback": true,
+      "provider": "SCRIPTED_LOOPBACK_ONLY",
+      "evidence": "evidence/long-batch-20261010/student16-final/STUDENT16_TRAJECTORIES.json",
+      "firstFailuresPreserved": true
+    },
+    "reproduction": {
+      "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
+      "codeCommit": "629c6b08183c299558a06b6528ae3da78f81faf0",
+      "evidence": "evidence/long-batch-20261010/reproduction/REPRODUCTION.json",
+      "ledgerPrivateDbKeysCopied": false
+    },
+    "retrievalQuality": {
+      "status": "FAIL_RECALL_AND_TOP1",
+      "metrics": {
+        "route": {
+          "numerator": 112,
+          "denominator": 116
+        },
+        "recall5": {
+          "numerator": 35,
+          "denominator": 48
+        },
+        "top1": {
+          "numerator": 31,
+          "denominator": 48
+        },
+        "missingTarget": {
+          "numerator": 48,
+          "denominator": 96
+        },
+        "noMatchingMethod": 1
+      },
+      "newLabels": 232,
+      "sealedFirstFinal": 116,
+      "independentBlind": false,
+      "sealedUsedForTuning": false
+    }
+  },
+  "content": {
+    "revisedCards": 32,
+    "previousApprovedRechecked": 16,
+    "previousPendingRevised": 16,
+    "structuredEditorialDrafts": 32,
+    "newSourceRecords": 19,
+    "distinctNewSourceUrls": 11,
+    "locatedEvidenceFragments": 30,
+    "sourceAttempts": 39,
+    "failedSourceAttempts": 9,
+    "distinctBodiesRead": 29,
+    "newBodiesRead": 16,
+    "gapsResearched": 59,
+    "sourceOrScopeGapsRemaining": 59,
+    "formalApproved": 16,
+    "formalPending": 16,
+    "newIndependentReviews": 0,
+    "newHumanApprovals": 0,
+    "newPublished": 0,
+    "draftsServed": false
+  },
+  "maintenance": {
+    "normalEntry": "/#maintenance",
+    "actualDraftState": "WAITING_INDEPENDENT_REVIEW",
+    "technicallyCanReachOwnerApprovalCheckpoint": true,
+    "checkpointEvidence": "MAINTENANCE_HTTP.json_SYNTHETIC_ACCOUNTS_ONLY",
+    "actualIndependentReviews": 0,
+    "actualHumanApprovals": 0,
+    "actualPublication": false
+  },
+  "realEntry": {
+    "status": "ENTRY_IMPLEMENTED_DEFAULT_PAUSED_ZERO_DISPATCH",
+    "modelBlocks": [
+      "EXPLICIT_MODEL_PAUSE_NOT_LIFTED",
+      "MODEL_CONFIGURATION_UNAVAILABLE",
+      "CURRENT_MODEL_CAPABILITY_NOT_VERIFIED"
+    ],
+    "cozeBlocks": [
+      "EXPLICIT_COZE_PAUSE_NOT_LIFTED"
+    ],
+    "configuredAfterAuthorizationRunRequiresNoSourceEdit": true,
+    "independentReviewRequiredBetweenStages": true,
+    "cozeCurrentCopyReadbackStillRequired": true,
+    "actualPaidExecution": "PAUSED_NOT_RUN",
+    "actualCloudExecution": "PAUSED_NOT_RUN",
+    "unverifiedExecutionRisks": [
+      "Authorized paid path has not been exercised against a real provider",
+      "Cloud current runtime contract has not been read back",
+      "Independent external evidence authenticity cannot be inferred from the locally checked receipt format",
+      "Terminated real batches retain attempts and cannot be reissued; keep one authorized process alive for intervening reviews"
+    ]
   },
   "paused": {
     "realModels": "PAUSED_NOT_RUN",
-    "cozeExistingTwoProjects": "PAUSED_NOT_RUN",
-    "cloudSkills": "PAUSED_NOT_RUN",
+    "fourRealChains": "PAUSED_NOT_RUN",
     "complex20PairedBlind": "PAUSED_NOT_RUN",
     "ordinary20RealPerformance": "PAUSED_NOT_RUN",
+    "cozeExistingTwoProjects": "PAUSED_NOT_RUN",
+    "cloudSkills": "PAUSED_NOT_RUN",
     "studentAcceptance": "PAUSED_NOT_RUN"
-  },
-  "acceptanceByGoal": {
-    "A": "BASELINE_LOCAL_SCRIPTED_CONTINUITY_RETAINED_REAL_SEMANTICS_PAUSED",
-    "B": "PASS_LOCAL_BASIS_RELATION_STAGE_CATALOGUE_AND_PROVENANCE_CONTRACT_REAL_GAIN_PAUSED",
-    "C": "BASELINE_LOCAL_LIFECYCLE_RETAINED_CURRENT_REAL_COMPREHENSION_NOT_TESTED",
-    "D": "16_EXPLICIT_PENDING_DECISIONS_112_DESTINATIONS_4_REVISION_CANDIDATES_59_GAPS_NOT_CLOSED_NO_INDEPENDENT_RELEASE",
-    "E": "CURRENT_REPO_USER_INSTALL_AND_PROCESS_SEPARATED_DIRECTION_SKILL_SCRIPTED_READBACK_OTHER_FOUR_BASELINE_CLOUD_PAUSED",
-    "F": "PASS_CURRENT_LOCAL_TECHNICAL_SCOPE_REAL20_PERFORMANCE_PAUSED"
   },
   "realPerformance": {
     "samples": 0,
@@ -69,131 +187,24 @@
     "completeReplyP95Ms": null,
     "status": "PAUSED_NOT_RUN"
   },
-  "realMultiAgentComparison": {
-    "pairs": 0,
-    "status": "PAUSED_NOT_RUN"
-  },
   "actualPaidCostAddedCny": 0,
-  "simulatedUsageFieldsAreNotActualCosts": true,
   "realCallsAdded": 0,
   "cloudCallsAdded": 0,
   "newBudget": 0,
   "paidLedgerUnchanged": true,
+  "paidLedgerSha256": "03891a1f7f7da4ae969cf36c5a11777b92b353c012f3a3591a7e2d15f682a1a4",
+  "unknownHistoricalCostsRetained": true,
+  "simulatedUsageIsNotActualCost": true,
   "sourceGaps": 59,
-  "needsReviewCards": 16,
-  "independentReviewAdded": false,
+  "needsReviewFormalCards": 16,
+  "needsReviewRevisions": 32,
+  "newIndependentReview": false,
+  "humanApproval": false,
   "historicalProtocolsUnchanged": {
     "COMPLEX_DECISION_AB_EVAL.json": "6c3252608e2b70166388767849d2e28cb708f479e5cde0bd546737bcf519734b",
     "ORDINARY_PERFORMANCE_PROTOCOL.json": "e8ef483b0b1b499b0420f6a8b44acd03d0dd9c5755343e63c29f5c590ce57fd4",
     "SAFETY_EVAL.json": "bdedbb8328298dc21ae9d9ddf473c1d8503152c68969a5a9400b7abb07235b28"
   },
-  "historicalAcceptance": "evidence/acceptance-20261010/baseline-0670/WORKFLOW_ACCEPTANCE.json",
-  "noPushMergeDeploy": true,
-  "codeCommit": "e0dc40a609baec20446fe98be9e54bbd14a2c8b4",
-  "continuationBaseline": {
-    "version": "workflow-v2-integration-c373290f0265",
-    "reportedHead": "aea83005182604f71e56543c0196f1940d06ab78",
-    "codeCommit": "b66b29a73594455862ec181e3a3cd78366a24ecc",
-    "acceptance": "evidence/acceptance-20261010/pending-review/baseline-c373/WORKFLOW_ACCEPTANCE.json",
-    "fourChains": {
-      "rounds": 24,
-      "sessions": 12,
-      "provider": "SCRIPTED_LOOPBACK_ONLY",
-      "status": "BASELINE_RETAINED_NOT_RERUN_NOT_REAL_MODEL_EFFECT"
-    },
-    "otherChecks": {
-      "root": {
-        "passed": 117,
-        "evidence": "root-final3.log"
-      },
-      "related": {
-        "passed": 96,
-        "suites": {
-          "related-action-coach-engine.log": 44,
-          "related-action-coach-material-boundary.log": 9,
-          "related-coze-code-workflow.log": 5,
-          "related-guide-usage-http.log": 1,
-          "related-workflow-action.log": 6,
-          "related-workflow-contracts.log": 14,
-          "related-workflow-direction.log": 10,
-          "related-workflow-growth-knowledge.log": 6,
-          "related-workflow-main-entry.log": 1
-        },
-        "note": "action-coach-engine rerun after final wish guard; other eight unchanged modules retained from this turn"
-      },
-      "newBackendContracts": {
-        "passed": 6,
-        "evidence": "wish-backend-final2.log",
-        "overlapsOtherSuites": true
-      },
-      "finalBackendBatch": {
-        "passed": 73,
-        "evidence": "wish-backend-final2.log"
-      },
-      "retrievalAndWorkflowSafety": {
-        "passed": 14,
-        "evidence": "retrieval-safety-final.log"
-      },
-      "persistedReplyReadback": {
-        "passed": 1,
-        "rounds": 24,
-        "evidence": "round-readback-final.log",
-        "provider": "SCRIPTED_LOOPBACK_ONLY"
-      },
-      "httpBrowser": {
-        "passed": 3,
-        "evidence": "browser-demo-final4.log",
-        "widths": [
-          1440,
-          390
-        ],
-        "physicalPhone": false
-      },
-      "fourChains": {
-        "rounds": 24,
-        "sessions": 12,
-        "screenshots": 24,
-        "provider": "SCRIPTED_LOOPBACK_ONLY",
-        "evidence": "FOUR_ROUND_READBACKS.json"
-      },
-      "typecheckFrontend": "PASS",
-      "typecheckServer": "PASS",
-      "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
-      "savedFailure13": {
-        "status": "BASELINE_RETAINED",
-        "newRun": false
-      },
-      "demo": {
-        "seconds": 184.374,
-        "video": "demo/local-campus-story.mp4",
-        "provider": "SCRIPTED_LOOPBACK_ONLY"
-      }
-    }
-  },
-  "pendingCardDecisions": 16,
-  "pendingRevisionCandidates": 4,
-  "pendingRevisionsServed": false,
-  "mainCorpusModified": false,
-  "deepMode": "EXPERIMENTAL_REAL_GAIN_NOT_PROVEN",
-  "firstFailuresPreserved": [
-    "independent-review-red.log",
-    "pending-review-preparation-first.log",
-    "action-stage-red.log",
-    "action-stage-related.log"
-  ],
-  "realSmallBatch": {
-    "status": "PAUSED_NOT_RUN",
-    "twoDirectionAttempts": 0,
-    "threeDirectionAttempts": 0,
-    "ordinaryAttempts": 0,
-    "reviewAttempts": 0
-  },
-  "perTurnQuality": {
-    "technical": "TESTED_LOCAL_CHANGED_SCOPE",
-    "semantic": "PAUSED_NOT_RUN_REAL_MODEL",
-    "source": "READ_LOCAL_ORIGINALS_SUPPORT_BOUNDED_NOT_ALL_GAPS_CLOSED",
-    "requiredStateCommit": "TESTED_LOCAL_NO_NEW_CHAT_OR_GROWTH_WRITE",
-    "intent": "RELATED_LOCAL_REFUSAL_ZERO_BUDGET_CANCEL_PROTECTIONS",
-    "continuity": "24_ROUND_SCRIPTED_BASELINE_ONLY_CURRENT_REAL_NOT_TESTED"
-  }
+  "historicalAcceptance": "evidence/long-batch-20261010/baseline-ce4d/WORKFLOW_ACCEPTANCE.json",
+  "noPushMergeDeploy": true
 }
