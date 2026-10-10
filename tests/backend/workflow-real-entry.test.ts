@@ -29,6 +29,12 @@ test('restored scope without a frozen batch remains read-only and preserves uniq
  assert.equal(report.status,'BLOCKED_CONFIG_NOT_RUN');assert.equal(report.scopeRestored,true);assert.ok(report.blocks.includes('TARGET_BATCH_AUTHORIZATION_BINDING_MISSING'));assert.equal(report.productDispatches,0);assert.equal(report.cloudDispatches,0);assert.equal(hash(),before)
  const dir=process.env.LIFEOS_WORKFLOW_EVIDENCE;if(dir){mkdirSync(dir,{recursive:true});writeFileSync(dir+'/REAL_PREFLIGHT.json',JSON.stringify({...report,authorization:undefined},null,2)+'\n')}
 })
+
+test('small ordinary first attempts remain visible and never fill the separate twenty-sample cohort',()=>{
+ const report=realMetrics([{stage:'small',caseId:'ORD01',firstUsefulMs:8161,replyCompleteMs:9838,costCny:0.001},{stage:'small',caseId:'ORD02',firstUsefulMs:null,replyCompleteMs:null,failure:'CANCELLED',costCny:'unknown'},{stage:'small',caseId:'PAIR',deepInput:true,wholeTurnMs:14000,costCny:'unknown'}])
+ assert.equal(report.smallOrdinary.firstAttempts,2);assert.equal(report.smallOrdinary.firstContentP95Ms,8161);assert.equal(report.smallOrdinary.noFirstContent,1);assert.equal(report.smallOrdinary.noCompleteReply,1);assert.equal(report.smallOrdinary.countedTowardOrdinary20,false)
+ assert.equal(report.ordinaryFirstAttempts,0);assert.equal(report.firstContentP50Ms,null);assert.equal(report.unknownCostSamples,2);assert.equal(report.performanceStatus,'NOT_ACCEPTED_INCOMPLETE_OR_FAILED')
+})
 test('saved natural refusal rejects continuation for another named matter, closes the same event; no ownership guessing',()=>{
  const raw='我现在不想继续扩大功能，先停在这里。'
  assert.equal(classifyGuideFeedback(raw),'declined');assert.equal(feedbackMatchesCurrent(raw,'校园工具开发','最小实验'),true)

@@ -2063,27 +2063,31 @@
     "reason": "实际使用、满意、付款与再次委托分列的机制缺直接原文，目前为编辑启发。",
     "positive": "复盘交付与复购，从哪下手？",
     "negative": "复盘交付与复购让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SUBSTANTIVE_DRAFT",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "EXACT_ORIGINAL_ATTEMPT_FAILED_OLD_FRAGMENT_ONLY",
-    "remaining_claim": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
+    "remaining_claim": "复购与职业收益效果没有证据，已撤回这些主张；当前只准备有来源的交付核对及明确编辑分支。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
-      "sourceGapStatus": "PARTIAL_SOURCE_STILL_MISSING_TASK_SPECIFIC_CLAIM",
+      "at": "2026-10-10T14:52:36.010Z",
+      "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+      "evidenceIds": [
+        "upwork-close-review-20261011-e1"
+      ],
+      "originalUrl": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+      "scope": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
+      "cannotInfer": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。",
+      "methodExtracted": [
+        "读回同一客户的初始约定、任务说明或原型与已有沟通记录；缺资料先列缺项，不补造承诺。",
+        "对照本人实际交付与约定，记录已完成、已发出、能否打开及遗漏的修改；团队结果与本人贡献分开。",
+        "逐项核对采用、满意、付款、效果和再次委托的原话或合法记录；未回复只说明未回复，不推成未采用或失败。",
+        "已经报告打不开、内容不符或交付太晚时，只核对那个实际卡点与可能修订；未知原因先问一项，不再发送全套接单教程。",
+        "把本人认可的一个修订与需要观察的结果写下；未获同意不发送跟进或扩大免费修改范围。"
+      ],
       "independentReview": null,
       "humanApproval": null,
-      "publication": false,
-      "evidenceId": "atlassian-retro-followup-e1",
-      "originalUrl": "https://www.atlassian.com/team-playbook/plays/retrospective",
-      "scope": "团队迭代复盘中记录实际反馈并给改进行动确定责任与节点；校园协作为编辑迁移。",
-      "cannotInfer": "不证明必然提升成绩、促成复购、款项到账或任何软件产品效果。",
-      "methodExtracted": [
-        "该复盘指南把反馈讨论后的改进行动另行记录，并明确责任人与节点。",
-        "LifeOS仅迁移该陈述支持的局部核对程序；不是效果证明。",
-        "保留当前原始缺口作为独立审阅的否定检查，未批准前不开放检索。"
-      ]
+      "publication": false
     }
   },
   {

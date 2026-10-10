@@ -2061,20 +2061,76 @@
           "bodySha256": "553fe1241bba28c5e270738bae310b4b701856a6d59ac5ce8080c512b0abdb20",
           "length": 19510,
           "rawSha256": "8a57f062fc40919133853a3d0fadada643f981548ef4986f969b97c67baded11"
+        },
+        {
+          "id": "upwork-close-review-20261011",
+          "url": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+          "at": "2026-10-10T14:52:36.010Z",
+          "status": "LOCATED_ORIGINAL_PARAGRAPH_READ_SCOPE_CHECKED",
+          "fullBodyCaptured": false,
+          "fingerprintScope": "LOCATED_SHORT_QUOTE_SNAPSHOT_NOT_FULL_HTML",
+          "snapshotSha256": "7051b05315dd562666f39190f57e3ef348d721655eb8856eb7a9e71583eaa239",
+          "shortQuoteHash": "af1ebc58759b7847b5916903af4bcb6fe765389e7e260be8b587830a6fdfe519",
+          "locator": {
+            "url": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+            "heading": "Make sure you fulfilled your work contract",
+            "line": 147,
+            "quoteMatch": "exact substring in original paragraph"
+          },
+          "backendAttempts": [
+            {
+              "backend": "AGENT_REACH_JINA_READER",
+              "status": 401,
+              "usable": false
+            },
+            {
+              "backend": "ORIGINAL_SITE",
+              "status": 403,
+              "usable": false
+            },
+            {
+              "backend": "WEB_RUN_ORIGINAL_PAGE",
+              "status": "LOCATED_PARAGRAPH_READ",
+              "heading": "Make sure you fulfilled your work contract",
+              "line": 147
+            }
+          ]
         }
       ],
       "readSource": null,
       "result": "EXACT_ORIGINAL_ATTEMPT_FAILED_OLD_FRAGMENT_ONLY",
       "methodExtracted": [
-        "对照原交付目的与交付物，记录实际发送与是否能打开。",
-        "采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。",
-        "有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。"
+        "读回同一客户的初始约定、任务说明或原型与已有沟通记录；缺资料先列缺项，不补造承诺。",
+        "对照本人实际交付与约定，记录已完成、已发出、能否打开及遗漏的修改；团队结果与本人贡献分开。",
+        "逐项核对采用、满意、付款、效果和再次委托的原话或合法记录；未回复只说明未回复，不推成未采用或失败。",
+        "已经报告打不开、内容不符或交付太晚时，只核对那个实际卡点与可能修订；未知原因先问一项，不再发送全套接单教程。",
+        "把本人认可的一个修订与需要观察的结果写下；未获同意不发送跟进或扩大免费修改范围。"
       ],
-      "applicabilityBoundary": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
-      "stillMissingClaim": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
+      "applicabilityBoundary": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。",
+      "stillMissingClaim": "复购与职业收益效果没有证据，已撤回这些主张；当前只准备有来源的交付核对及明确编辑分支。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:52:36.010Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "upwork-close-review-20261011-e1"
+        ],
+        "originalUrl": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+        "scope": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
+        "cannotInfer": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。",
+        "methodExtracted": [
+          "读回同一客户的初始约定、任务说明或原型与已有沟通记录；缺资料先列缺项，不补造承诺。",
+          "对照本人实际交付与约定，记录已完成、已发出、能否打开及遗漏的修改；团队结果与本人贡献分开。",
+          "逐项核对采用、满意、付款、效果和再次委托的原话或合法记录；未回复只说明未回复，不推成未采用或失败。",
+          "已经报告打不开、内容不符或交付太晚时，只核对那个实际卡点与可能修订；未知原因先问一项，不再发送全套接单教程。",
+          "把本人认可的一个修订与需要观察的结果写下；未获同意不发送跟进或扩大免费修改范围。"
+        ],
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "PARTIAL_SOURCE_STILL_MISSING_TASK_SPECIFIC_CLAIM",
         "independentReview": null,
@@ -3371,13 +3427,13 @@
   "independentReviews": 0,
   "humanApprovals": 0,
   "followupSummary": {
-    "newUsableSources": 7,
-    "newLocatedQuotes": 8,
+    "newUsableSources": 8,
+    "newLocatedQuotes": 9,
     "draftsSupplemented": 9,
     "allReviewPreparations": 32,
-    "sourceScopedDraftReady": 20,
-    "partialImproved": 8,
-    "stillTaskSpecificSourceGap": 39,
+    "sourceScopedDraftReady": 21,
+    "partialImproved": 7,
+    "stillTaskSpecificSourceGap": 38,
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
     "formalCoverageUnchangedUntilApproval": true,

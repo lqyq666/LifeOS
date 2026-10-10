@@ -488,6 +488,25 @@
       "original_fingerprint": "a27cff1e346bf8e1ef3c7ff2244d7f9ed224e84058f17fa2288ba92fc660d755",
       "semantic_scope": "高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。",
       "cannot_infer": "不采用固定记忆周期、收益保证、分数、资格或日期；不把此考试建议套到实验或创业。"
+    },
+    {
+      "source_id": "upwork-close-review-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+      "platform": "www.upwork.com",
+      "original_work_id": "/resources/what-to-do-before-contract-closes",
+      "title": "What To Do Before a Contract Closes on Upwork",
+      "publisher": "Upwork",
+      "author": "Cassie Moorhead",
+      "published_at": null,
+      "retrieved_at": "2026-10-10T14:52:36.010Z",
+      "source_group": "upwork-practice",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_AND_BOUNDED_SYNTHESIS_ONLY",
+      "original_fingerprint": "7051b05315dd562666f39190f57e3ef348d721655eb8856eb7a9e71583eaa239",
+      "fingerprint_scope": "LOCATED_SHORT_QUOTE_SNAPSHOT_NOT_FULL_HTML",
+      "semantic_scope": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
+      "cannot_infer": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。"
     }
   ],
   "evidence": [
@@ -1110,6 +1129,23 @@
       "context": "高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。",
       "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
       "content_hash": "76a7161bb7ad23050c570fc8c1218300f5e055a2cf629bbaa4ac3880de1fe128"
+    },
+    {
+      "evidence_id": "upwork-close-review-20261011-e1",
+      "source_id": "upwork-close-review-20261011",
+      "source_revision": 1,
+      "quote": "Review the client’s initial offer, project briefs or mockups, and message history",
+      "locator": {
+        "url": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+        "heading": "Make sure you fulfilled your work contract",
+        "line": 147,
+        "quoteMatch": "exact substring in original paragraph",
+        "normalization": "WEB_ORIGINAL_PARAGRAPH_SHORT_QUOTE_ONLY",
+        "fullBodyCaptured": false
+      },
+      "context": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
+      "acquisition": "WEB_RUN_ORIGINAL_PAGE_LOCATED_PARAGRAPH_READ",
+      "content_hash": "af1ebc58759b7847b5916903af4bcb6fe765389e7e260be8b587830a6fdfe519"
     }
   ],
   "drafts": [
@@ -6654,24 +6690,24 @@
     },
     {
       "id": "ee6a3e12-bedb-4386-8fd1-03ae06fb19ab",
-      "revision": 2,
+      "revision": 3,
       "kind": "method",
       "status": "unverified",
       "synthetic": false,
-      "title": "交付后核对实际使用与复购线索",
-      "url": "https://www.upwork.com/resources/project-deliverables",
+      "title": "交付复盘：约定、实际使用、付款与效果逐项核对",
+      "url": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
       "publisher": "Upwork",
       "publishedYear": "未知（不以获取年份冒充发布时间）",
       "verifiedAt": "2026-10-10T10:08:23.553Z",
       "validUntil": null,
-      "excerpt": "The purpose and objectives of the project",
-      "claim": "旧片段只提项目目的与目标，不能支持整套交付或复购机制。",
-      "scope": "对照原交付目的与交付物，记录实际发送与是否能打开。；适用范围按每个分支核对。",
-      "limitations": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
+      "excerpt": "Review the client’s initial offer, project briefs or mockups, and message history",
+      "claim": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
+      "scope": "已有一项自由职业交付或交付约定，需要核对实际过程与客户反馈。",
+      "limitations": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。",
       "mechanisms": [
         "目标交付物与反馈对照"
       ],
-      "sourceHash": "74e42597cc08d64188c6568a7e6b3447b1f1eb8dc689767f8b15058407012e3b",
+      "sourceHash": "5c17dc500f881fea1945743259041167ecf65d2d2b6dca0af4521b0620e81347",
       "guide": {
         "schemaVersion": 1,
         "guideId": "ee6a3e12-bedb-4386-8fd1-03ae06fb19ab",
@@ -6686,39 +6722,38 @@
         "domains": [
           "18"
         ],
-        "task": "交付后核对实际使用与复购线索",
-        "stage": "start/adjust/compare",
+        "task": "交付复盘：约定、实际使用、付款与效果逐项核对",
+        "stage": "adjust",
         "mechanism": "目标交付物与反馈对照",
         "prerequisites": [
-          "同一客户的交付、采用、付款和效果分别有什么证据？",
-          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+          "这次交付原本约定做什么，对方现在实际回应了什么？",
+          "已有同一事件的交付约定或实际尝试，本人请求复盘或调整。"
         ],
         "exclusions": [
-          "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
-          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+          "尚无需求或交付约定时，不将本卡当作寻找客户或完整接单入门方法。",
+          "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。",
+          "本人只想倾听、拒绝、暂停或要求遗忘的事情。"
         ],
         "evidenceIds": [
-          "upwork-delivery-e1",
+          "upwork-close-review-20261011-e1",
           "atlassian-retro-followup-e1"
         ],
         "claims": [
           {
-            "id": "delivery-review-scope",
-            "text": "旧片段只提项目目的与目标，不能支持整套交付或复购机制。",
-            "basis": "editorial_adaptation",
+            "id": "delivery-review-original-agreement",
+            "text": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
+            "basis": "source_supported",
             "evidenceIds": [
-              "upwork-delivery-e1"
+              "upwork-close-review-20261011-e1"
             ],
-            "scope": "已读短片段与待审说明，不继承原过宽主张",
-            "limitations": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。"
+            "scope": "仅作者的交付收尾核对建议，不是收益或合同效力证明。",
+            "limitations": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。"
           },
           {
             "id": "delivery-review-editorial",
-            "text": "对照原交付目的与交付物，记录实际发送与是否能打开。；采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。；有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。",
+            "text": "交付、能否打开、采用、满意、付款、效果和再次委托分别记录本人实际证据；缺一项保留未知。对已报告的一个卡点只改对应步骤，等待或拒绝时停止推进。",
             "basis": "editorial_adaptation",
-            "evidenceIds": [
-              "upwork-delivery-e1"
-            ],
+            "evidenceIds": [],
             "scope": "LifeOS任务操作与反馈适配，未经效果验证",
             "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
           },
@@ -6737,7 +6772,7 @@
           "upwork-practice",
           "www.atlassian.com"
         ],
-        "principle": "旧片段只提项目目的与目标，不能支持整套交付或复购机制。 具体步骤为LifeOS编辑适配。",
+        "principle": "先核对同一客户的原约定与实际交付，后续只沿已有反馈调整；不同结果各自保留证据或未知。",
         "branches": [
           {
             "id": "C18-4",
@@ -6746,56 +6781,66 @@
             "stage": "adjust",
             "steps": [
               {
-                "id": "C18-4-r2-1",
-                "text": "当前任务「复盘交付与复购」：对照原交付目的与交付物，记录实际发送与是否能打开。",
+                "id": "C18-4-r3-1",
+                "text": "读回同一客户的初始约定、任务说明或原型与已有沟通记录；缺资料先列缺项，不补造承诺。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "upwork-delivery-e1"
+                  "upwork-close-review-20261011-e1"
                 ]
               },
               {
-                "id": "C18-4-r2-2",
-                "text": "采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。",
+                "id": "C18-4-r3-2",
+                "text": "对照本人实际交付与约定，记录已完成、已发出、能否打开及遗漏的修改；团队结果与本人贡献分开。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "upwork-delivery-e1"
+                  "upwork-close-review-20261011-e1"
                 ]
               },
               {
-                "id": "C18-4-r2-3",
-                "text": "有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。",
+                "id": "C18-4-r3-3",
+                "text": "逐项核对采用、满意、付款、效果和再次委托的原话或合法记录；未回复只说明未回复，不推成未采用或失败。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "upwork-delivery-e1"
-                ]
+                "evidenceIds": []
+              },
+              {
+                "id": "C18-4-r3-4",
+                "text": "已经报告打不开、内容不符或交付太晚时，只核对那个实际卡点与可能修订；未知原因先问一项，不再发送全套接单教程。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": []
+              },
+              {
+                "id": "C18-4-r3-5",
+                "text": "把本人认可的一个修订与需要观察的结果写下；未获同意不发送跟进或扩大免费修改范围。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": []
               }
             ]
           }
         ],
-        "oneKeyQuestion": "同一客户的交付、采用、付款和效果分别有什么证据？",
-        "smallestAction": "对照原交付目的与交付物，记录实际发送与是否能打开。",
+        "oneKeyQuestion": "这次交付原本约定做什么，对方现在实际回应了什么？",
+        "smallestAction": "只对照原约定与一份实际交付，圈出一个已有反馈或仍未知的问题。",
         "exampleBudgetOnly": true,
-        "lowEnergyAlternative": "不必完成全套；只处理“同一客户的交付、采用、付款和效果分别有什么证据？”中的一项已有材料，零时间保留未知并暂停。",
+        "lowEnergyAlternative": "只打开一条原约定与对应交付记录；没有时间保留未知并暂停，不催客户、不启动新订单。",
         "stopConditions": [
-          "本人拒绝、暂停或零资源时停止。",
-          "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
-          "缺少原文或适用条件时只列未知，不承诺效果。"
+          "本人拒绝、暂停、零资源或遗忘时停止。",
+          "约定缺失不补承诺；私人记录未经授权不外发。",
+          "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。"
         ],
         "feedbackBranches": {
-          "not_started": "尚未开始「交付后核对实际使用与复购线索」时，先核对：同一客户的交付、采用、付款和效果分别有什么证据？只准备本人认可的一步，不写成执行。",
-          "blocked": "沿同一事件、原步骤及实际卡点核对：采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。只调整卡住处，不重送入门全套。",
-          "waiting_result": "已尝试不等于有效。等待「新增的是哪项反馈；付款不等于有效或稳定收入。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。",
-          "result": "只用本人报告的新反馈检查：新增的是哪项反馈；付款不等于有效或稳定收入。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
-          "declined": "停止「交付后核对实际使用与复购线索」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+          "not_started": "还没实际交付时只核对已有约定与待准备项，不形成已执行、已采用或已付款记录。",
+          "blocked": "读回同一客户、原交付物、上次修订和这次实际反馈。打不开只核对打开条件，内容不符核对原需求，时间问题核对实际约定；缺原因只问一个关键未知，不重送接单入门。",
+          "waiting_result": "已发出只代表发送，不代表采用、满意、付款或有效。分别列未知；本人愿意时先拟一项核实问题，未经同意不追发。",
+          "result": "对照原约定与新增的本人反馈，逐项更新实际使用、满意、付款和效果；付款不能代替效果，单次委托不能证明稳定复购或职业适配。",
+          "declined": "停止被拒绝的修订、追问、跟进或扩大接单；保留合法交付历史及未知，不换话术继续推动。"
         },
-        "expectedObservation": "新增的是哪项反馈；付款不等于有效或稳定收入。",
-        "retrievalSummary": "交付后核对实际使用与复购线索；delivery-review；同一客户的交付、采用、付款和效果分别有什么证据？；复盘交付与复购；对照原交付目的与交付物，记录实际发送与是否能打开。；采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。；有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。",
-        "referenceBody": "交付后核对实际使用与复购线索\n原文范围：旧片段只提项目目的与目标，不能支持整套交付或复购机制。\n什么时候用：同一客户的交付、采用、付款和效果分别有什么证据？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：同一客户的交付、采用、付款和效果分别有什么证据？\nLifeOS编辑步骤：\n对照原交付目的与交付物，记录实际发送与是否能打开。\n采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。\n有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。\n资源不足：不必完成全套；只处理“同一客户的交付、采用、付款和效果分别有什么证据？”中的一项已有材料，零时间保留未知并暂停。\n观察：新增的是哪项反馈；付款不等于有效或稳定收入。\nnot_started：尚未开始「交付后核对实际使用与复购线索」时，先核对：同一客户的交付、采用、付款和效果分别有什么证据？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「新增的是哪项反馈；付款不等于有效或稳定收入。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。\nresult：只用本人报告的新反馈检查：新增的是哪项反馈；付款不等于有效或稳定收入。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「交付后核对实际使用与复购线索」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。",
+        "expectedObservation": "新增了哪项实际交付、使用、满意、付款或效果证据；是否只修正了原卡点，哪些仍未知。",
+        "retrievalSummary": "交付复盘：约定、实际使用、付款与效果逐项核对；这次交付原本约定做什么，对方现在实际回应了什么？；读回同一客户的初始约定、任务说明或原型与已有沟通记录；缺资料先列缺项，不补造承诺。；对照本人实际交付与约定，记录已完成、已发出、能否打开及遗漏的修改；团队结果与本人贡献分开。；逐项核对采用、满意、付款、效果和再次委托的原话或合法记录；未回复只说明未回复，不推成未采用或失败。；已经报告打不开、内容不符或交付太晚时，只核对那个实际卡点与可能修订；未知原因先问一项，不再发送全套接单教程。；把本人认可的一个修订与需要观察的结果写下；未获同意不发送跟进或扩大免费修改范围。",
+        "referenceBody": "交付复盘：约定、实际使用、付款与效果逐项核对\n外部原文范围：\n作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。 限制：不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。\n该复盘指南把反馈讨论后的改进行动另行记录，并明确责任人与节点。 限制：不证明必然提升成绩、促成复购、款项到账或任何软件产品效果。\n什么时候用：这次交付原本约定做什么，对方现在实际回应了什么？；已有同一事件的交付约定或实际尝试，本人请求复盘或调整。\n什么时候不用：尚无需求或交付约定时，不将本卡当作寻找客户或完整接单入门方法。；不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。；本人只想倾听、拒绝、暂停或要求遗忘的事情。\n先核对：这次交付原本约定做什么，对方现在实际回应了什么？\nLifeOS编辑适配：\n读回同一客户的初始约定、任务说明或原型与已有沟通记录；缺资料先列缺项，不补造承诺。\n对照本人实际交付与约定，记录已完成、已发出、能否打开及遗漏的修改；团队结果与本人贡献分开。\n逐项核对采用、满意、付款、效果和再次委托的原话或合法记录；未回复只说明未回复，不推成未采用或失败。\n已经报告打不开、内容不符或交付太晚时，只核对那个实际卡点与可能修订；未知原因先问一项，不再发送全套接单教程。\n把本人认可的一个修订与需要观察的结果写下；未获同意不发送跟进或扩大免费修改范围。\n最小一步：只对照原约定与一份实际交付，圈出一个已有反馈或仍未知的问题。\n资源不足：只打开一条原约定与对应交付记录；没有时间保留未知并暂停，不催客户、不启动新订单。\n观察：新增了哪项实际交付、使用、满意、付款或效果证据；是否只修正了原卡点，哪些仍未知。\nnot_started：还没实际交付时只核对已有约定与待准备项，不形成已执行、已采用或已付款记录。\nblocked：读回同一客户、原交付物、上次修订和这次实际反馈。打不开只核对打开条件，内容不符核对原需求，时间问题核对实际约定；缺原因只问一个关键未知，不重送接单入门。\nwaiting_result：已发出只代表发送，不代表采用、满意、付款或有效。分别列未知；本人愿意时先拟一项核实问题，未经同意不追发。\nresult：对照原约定与新增的本人反馈，逐项更新实际使用、满意、付款和效果；付款不能代替效果，单次委托不能证明稳定复购或职业适配。\ndeclined：停止被拒绝的修订、追问、跟进或扩大接单；保留合法交付历史及未知，不换话术继续推动。",
         "reviewStatus": "needs_review",
         "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
         "review": null,
-        "contentHash": "173beee36477aedb6b2f33504c30c11d167ec6c0c87408897804c7ba188765f0",
-        "indexSignature": "27a85f7b1c9af0212f42a612391f360d78417b2fa369e91fb5b6e1b9cff69de4",
+        "contentHash": "d46c0109459337875f5d34b86c0a161366a0a58e184ce95ce91c775c71ac1211",
+        "indexSignature": "5dfad59918f33598489a7f9f58dbdc7383a6547c95bc44a17dce1d982f5c9ae6",
         "legacyIds": [],
         "replaces": []
       }
@@ -8940,7 +8985,7 @@
       "guideId": "ee6a3e12-bedb-4386-8fd1-03ae06fb19ab",
       "canonicalKey": "delivery-review",
       "baseRevision": 1,
-      "revision": 2,
+      "revision": 3,
       "previousStatus": "needs_review",
       "decision": "SUBSTANTIVE_REVISION_PENDING_INDEPENDENT_REVIEW",
       "changed": [
@@ -8948,14 +8993,23 @@
         "task_steps",
         "feedback_branches",
         "limits",
-        "resource_alternative"
+        "resource_alternative",
+        "actual_delivery_agreement_source",
+        "overbroad_repurchase_claim_removed",
+        "specific_failed_delivery_branches",
+        "short_snapshot_not_full_html"
       ],
       "sourceId": "upwork-delivery",
       "sourceRead": false,
-      "remainingClaim": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
+      "remainingClaim": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。",
       "independentReview": null,
       "humanApproval": null,
-      "served": false
+      "served": false,
+      "previousDraftHash": "173beee36477aedb6b2f33504c30c11d167ec6c0c87408897804c7ba188765f0",
+      "sourceIds": [
+        "upwork-close-review-20261011",
+        "atlassian-retro-followup"
+      ]
     },
     {
       "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
@@ -11418,52 +11472,44 @@
     {
       "canonicalKey": "delivery-review",
       "guideId": "ee6a3e12-bedb-4386-8fd1-03ae06fb19ab",
-      "revision": 2,
-      "contentHash": "173beee36477aedb6b2f33504c30c11d167ec6c0c87408897804c7ba188765f0",
-      "previousDraftHash": "dbda63d99856280e8d77197d21278753d0b7c594c0c1fd4949502962b66a64af",
+      "revision": 3,
+      "contentHash": "d46c0109459337875f5d34b86c0a161366a0a58e184ce95ce91c775c71ac1211",
+      "previousDraftHash": "173beee36477aedb6b2f33504c30c11d167ec6c0c87408897804c7ba188765f0",
       "status": "PREPARED_NOT_INDEPENDENTLY_EXECUTED",
       "claimChecks": [
         {
-          "claimId": "delivery-review-scope",
-          "basis": "editorial_adaptation",
-          "claim": "旧片段只提项目目的与目标，不能支持整套交付或复购机制。",
-          "scope": "已读短片段与待审说明，不继承原过宽主张",
-          "limitations": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
+          "claimId": "delivery-review-original-agreement",
+          "basis": "source_supported",
+          "claim": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
+          "scope": "仅作者的交付收尾核对建议，不是收益或合同效力证明。",
+          "limitations": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。",
           "originals": [
             {
-              "url": "https://www.upwork.com/resources/project-deliverables",
-              "sourceHash": "57283e3c9131a8d0f282ee69c21859f88d27d8f009070e03c634564d28b056b7",
-              "quoteHash": "57283e3c9131a8d0f282ee69c21859f88d27d8f009070e03c634564d28b056b7",
+              "url": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+              "sourceHash": "7051b05315dd562666f39190f57e3ef348d721655eb8856eb7a9e71583eaa239",
+              "fingerprintScope": "LOCATED_SHORT_QUOTE_SNAPSHOT_NOT_FULL_HTML",
+              "quoteHash": "af1ebc58759b7847b5916903af4bcb6fe765389e7e260be8b587830a6fdfe519",
               "locator": {
-                "kind": "web_original_body_line",
-                "line": 173,
-                "url": "https://www.upwork.com/resources/project-deliverables"
+                "url": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+                "heading": "Make sure you fulfilled your work contract",
+                "line": 147,
+                "quoteMatch": "exact substring in original paragraph",
+                "normalization": "WEB_ORIGINAL_PARAGRAPH_SHORT_QUOTE_ONLY",
+                "fullBodyCaptured": false
               },
-              "quote": "The purpose and objectives of the project"
+              "quote": "Review the client’s initial offer, project briefs or mockups, and message history"
             }
           ],
-          "reviewQuestion": "核对这些编辑步骤是否保持学生意图、当前阶段和未知；不能将它们记作经研究证明的效果。"
+          "reviewQuestion": "核对作者原文仅支持原约定与遗漏任务的交付收尾检查；付款、使用、效果是本人证据字段，不是收益保证、平台政策或因果结论。"
         },
         {
           "claimId": "delivery-review-editorial",
           "basis": "editorial_adaptation",
-          "claim": "对照原交付目的与交付物，记录实际发送与是否能打开。；采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。；有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。",
+          "claim": "交付、能否打开、采用、满意、付款、效果和再次委托分别记录本人实际证据；缺一项保留未知。对已报告的一个卡点只改对应步骤，等待或拒绝时停止推进。",
           "scope": "LifeOS任务操作与反馈适配，未经效果验证",
           "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。",
-          "originals": [
-            {
-              "url": "https://www.upwork.com/resources/project-deliverables",
-              "sourceHash": "57283e3c9131a8d0f282ee69c21859f88d27d8f009070e03c634564d28b056b7",
-              "quoteHash": "57283e3c9131a8d0f282ee69c21859f88d27d8f009070e03c634564d28b056b7",
-              "locator": {
-                "kind": "web_original_body_line",
-                "line": 173,
-                "url": "https://www.upwork.com/resources/project-deliverables"
-              },
-              "quote": "The purpose and objectives of the project"
-            }
-          ],
-          "reviewQuestion": "核对这些编辑步骤是否保持学生意图、当前阶段和未知；不能将它们记作经研究证明的效果。"
+          "originals": [],
+          "reviewQuestion": "核对作者原文仅支持原约定与遗漏任务的交付收尾检查；付款、使用、效果是本人证据字段，不是收益保证、平台政策或因果结论。"
         },
         {
           "claimId": "delivery-review-atlassian-retro-followup",
@@ -11475,6 +11521,7 @@
             {
               "url": "https://www.atlassian.com/team-playbook/plays/retrospective",
               "sourceHash": "553fe1241bba28c5e270738bae310b4b701856a6d59ac5ce8080c512b0abdb20",
+              "fingerprintScope": "EXISTING_ORIGINAL_CAPTURE",
               "quoteHash": "82609bf4f9a5b96523eb860b1ca3533638c1d3bfd6b8856dc63d7ff03b25541a",
               "locator": {
                 "url": "https://www.atlassian.com/team-playbook/plays/retrospective",
@@ -11488,26 +11535,49 @@
               "quote": "As you document changes and action items, be sure to assign owners and deadlines to kickstart progress."
             }
           ],
-          "reviewQuestion": "核对原文是否只支持这条有边界的陈述；逐项排除限制中的推断。"
+          "reviewQuestion": "核对作者原文仅支持原约定与遗漏任务的交付收尾检查；付款、使用、效果是本人证据字段，不是收益保证、平台政策或因果结论。"
         }
       ],
       "questions": [
         {
           "target": "scope",
-          "text": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。"
+          "text": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。"
         },
         {
-          "target": "steps",
-          "text": "核对复盘交付与复购的前置缺口、最小一步与停止条件；相似机制不得覆盖不适用分支。"
+          "target": "failure",
+          "text": "核对打不开、内容不符、时间问题是否只按本人实际报告分支，未知与拒绝不得继续催促。"
         },
         {
-          "target": "feedback",
-          "text": "逐一核对未开始、卡住、等待、有结果、拒绝分支；未知结果不能记成成功，拒绝不能继续催促。"
+          "target": "source",
+          "text": "原站GET403/Jina401已保存，实际原文段落经网页读取定位；fingerprint只代表短引文快照，不冒充完整HTML指纹。"
         }
       ],
       "executionRecord": null,
       "humanApproval": null,
-      "sourceChangeRequiresReturn": true
+      "sourceChangeRequiresReturn": true,
+      "branchChecks": [
+        {
+          "candidateId": "C18-4",
+          "stage": "adjust",
+          "evidenceIds": [
+            "upwork-close-review-20261011-e1"
+          ],
+          "remainingClaim": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。",
+          "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+          "firstUnknown": "这次交付原本约定做什么，对方现在实际回应了什么？",
+          "smallestStep": "只对照原约定与一份实际交付，圈出一个已有反馈或仍未知的问题。",
+          "observation": "新增了哪项实际交付、使用、满意、付款或效果证据；是否只修正了原卡点，哪些仍未知。",
+          "feedback": {
+            "not_started": "还没实际交付时只核对已有约定与待准备项，不形成已执行、已采用或已付款记录。",
+            "blocked": "读回同一客户、原交付物、上次修订和这次实际反馈。打不开只核对打开条件，内容不符核对原需求，时间问题核对实际约定；缺原因只问一个关键未知，不重送接单入门。",
+            "waiting_result": "已发出只代表发送，不代表采用、满意、付款或有效。分别列未知；本人愿意时先拟一项核实问题，未经同意不追发。",
+            "result": "对照原约定与新增的本人反馈，逐项更新实际使用、满意、付款和效果；付款不能代替效果，单次委托不能证明稳定复购或职业适配。",
+            "declined": "停止被拒绝的修订、追问、跟进或扩大接单；保留合法交付历史及未知，不换话术继续推动。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        }
+      ]
     },
     {
       "canonicalKey": "income-ledger",
@@ -12572,6 +12642,154 @@
         "review": null,
         "contentHash": "98571ed3a844e17db41fef3d424944a40fe189b171cb9499a6def6818cb9167f",
         "indexSignature": "3727f2eb904b19f65ad212bf9c7143de13edcc754bb377bc12c2fb8eb203c3d9",
+        "legacyIds": [],
+        "replaces": []
+      }
+    },
+    {
+      "id": "ee6a3e12-bedb-4386-8fd1-03ae06fb19ab",
+      "revision": 2,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "交付后核对实际使用与复购线索",
+      "url": "https://www.upwork.com/resources/project-deliverables",
+      "publisher": "Upwork",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.553Z",
+      "validUntil": null,
+      "excerpt": "The purpose and objectives of the project",
+      "claim": "旧片段只提项目目的与目标，不能支持整套交付或复购机制。",
+      "scope": "对照原交付目的与交付物，记录实际发送与是否能打开。；适用范围按每个分支核对。",
+      "limitations": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
+      "mechanisms": [
+        "目标交付物与反馈对照"
+      ],
+      "sourceHash": "74e42597cc08d64188c6568a7e6b3447b1f1eb8dc689767f8b15058407012e3b",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "ee6a3e12-bedb-4386-8fd1-03ae06fb19ab",
+        "canonicalKey": "delivery-review",
+        "aliases": [
+          "交付复盘",
+          "复购",
+          "客户付款",
+          "交付结果",
+          "复盘交付与复购"
+        ],
+        "domains": [
+          "18"
+        ],
+        "task": "交付后核对实际使用与复购线索",
+        "stage": "start/adjust/compare",
+        "mechanism": "目标交付物与反馈对照",
+        "prerequisites": [
+          "同一客户的交付、采用、付款和效果分别有什么证据？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "upwork-delivery-e1",
+          "atlassian-retro-followup-e1"
+        ],
+        "claims": [
+          {
+            "id": "delivery-review-scope",
+            "text": "旧片段只提项目目的与目标，不能支持整套交付或复购机制。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "upwork-delivery-e1"
+            ],
+            "scope": "已读短片段与待审说明，不继承原过宽主张",
+            "limitations": "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。"
+          },
+          {
+            "id": "delivery-review-editorial",
+            "text": "对照原交付目的与交付物，记录实际发送与是否能打开。；采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。；有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "upwork-delivery-e1"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          },
+          {
+            "id": "delivery-review-atlassian-retro-followup",
+            "text": "该复盘指南把反馈讨论后的改进行动另行记录，并明确责任人与节点。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "atlassian-retro-followup-e1"
+            ],
+            "scope": "团队迭代复盘中记录实际反馈并给改进行动确定责任与节点；校园协作为编辑迁移。",
+            "limitations": "不证明必然提升成绩、促成复购、款项到账或任何软件产品效果。"
+          }
+        ],
+        "sourceGroups": [
+          "upwork-practice",
+          "www.atlassian.com"
+        ],
+        "principle": "旧片段只提项目目的与目标，不能支持整套交付或复购机制。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C18-4",
+            "candidateId": "C18-4",
+            "task": "复盘交付与复购",
+            "stage": "adjust",
+            "steps": [
+              {
+                "id": "C18-4-r2-1",
+                "text": "当前任务「复盘交付与复购」：对照原交付目的与交付物，记录实际发送与是否能打开。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "upwork-delivery-e1"
+                ]
+              },
+              {
+                "id": "C18-4-r2-2",
+                "text": "采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "upwork-delivery-e1"
+                ]
+              },
+              {
+                "id": "C18-4-r2-3",
+                "text": "有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "upwork-delivery-e1"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "同一客户的交付、采用、付款和效果分别有什么证据？",
+        "smallestAction": "对照原交付目的与交付物，记录实际发送与是否能打开。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“同一客户的交付、采用、付款和效果分别有什么证据？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「交付后核对实际使用与复购线索」时，先核对：同一客户的交付、采用、付款和效果分别有什么证据？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。只调整卡住处，不重送入门全套。",
+          "waiting_result": "已尝试不等于有效。等待「新增的是哪项反馈；付款不等于有效或稳定收入。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。",
+          "result": "只用本人报告的新反馈检查：新增的是哪项反馈；付款不等于有效或稳定收入。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
+          "declined": "停止「交付后核对实际使用与复购线索」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "新增的是哪项反馈；付款不等于有效或稳定收入。",
+        "retrievalSummary": "交付后核对实际使用与复购线索；delivery-review；同一客户的交付、采用、付款和效果分别有什么证据？；复盘交付与复购；对照原交付目的与交付物，记录实际发送与是否能打开。；采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。；有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。",
+        "referenceBody": "交付后核对实际使用与复购线索\n原文范围：旧片段只提项目目的与目标，不能支持整套交付或复购机制。\n什么时候用：同一客户的交付、采用、付款和效果分别有什么证据？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：退回过宽复购主张；区分结果字段是编辑设计，仍需独立审阅。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：同一客户的交付、采用、付款和效果分别有什么证据？\nLifeOS编辑步骤：\n对照原交付目的与交付物，记录实际发送与是否能打开。\n采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。\n有实际反馈只改一个问题；无反馈可以拟一个核实问题或等待，未获同意不催促。\n资源不足：不必完成全套；只处理“同一客户的交付、采用、付款和效果分别有什么证据？”中的一项已有材料，零时间保留未知并暂停。\n观察：新增的是哪项反馈；付款不等于有效或稳定收入。\nnot_started：尚未开始「交付后核对实际使用与复购线索」时，先核对：同一客户的交付、采用、付款和效果分别有什么证据？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：采用、满意、付款、效果和再次委托分别记录；任何未知不补成否定或成功。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「新增的是哪项反馈；付款不等于有效或稳定收入。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。\nresult：只用本人报告的新反馈检查：新增的是哪项反馈；付款不等于有效或稳定收入。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「交付后核对实际使用与复购线索」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "173beee36477aedb6b2f33504c30c11d167ec6c0c87408897804c7ba188765f0",
+        "indexSignature": "27a85f7b1c9af0212f42a612391f360d78417b2fa369e91fb5b6e1b9cff69de4",
         "legacyIds": [],
         "replaces": []
       }
