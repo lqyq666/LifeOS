@@ -182,3 +182,7 @@ R1结束，但仅交付旁路模拟Provider包，未接实际/run，六Skill仅1
 R2开发终态done，UI版本9d669a8。主执行者直接读provider.py/host.py发现串行分析、同步不可取消、派发后记账、两个模式漏记第二调用、幂等只含mode/intent及坏refs自动补全部授权依据。37模拟检查不接受为真业务通过；逐源码证据GROWTH_R2_SOURCE_REVIEW.json。项目终态UI累计8,886.84积分，相对此前R1 2,436.06，R2 6,450.78，累计保守入账8,888。R3是第二次HIGH/BLOCKER修复，只发送一次且Windows sent后CLI退出异常保留，status确认processing；余142,671积分全部预留，未知费用不得新派其他收费任务。剩余HIGH时按两轮修复边界停止该候选，其他事项继续。
 
 实际运行分区接口第二批3请求：倾听与纯知识通过，成品模式把已有事件新建，整批FAIL并立即停止，取消项没有派发。三个已知费用共0.0042594元，完整首次回执MODEL_RUNTIME_SUBSET_FIRST_FAIL.json保留；不替换第一批，也不算普通质量样本。诊断发现material裁剪提示缺少event.target同事继续及当前来源规则，现局部补回，未放宽结构、身份或来源检查。8项turn-contract隔离数据库检查与类型检查通过。下一次有偿核查的可证伪假设：在此新源码上，同一合成成品场景应继续授权事件及revision，任一失败即停；仍只作接口证据，不冒充真实学生收益。
+
+5cdf311源码实际分区接口4项通过，含成品继续同一授权事件。累计11次真实接口调用；余额10.9971862元，取消未知仍足额预留，非20普通性能。MODEL_RUNTIME_MATERIAL_FIXED_PASS保留新候选证据，前两批FAIL不替换。
+
+普通真实小批入口第一次在注册时因Better Auth仍持旧Origin拒绝，产品模型派发0；保存ORDINARY_ORIGIN_FIRST_FAIL。局部修为加载HTTP认证模块前确定实际loopback端口与Origin，不取消来源校验。相关4项隔离测试和typecheck通过。首次验证命令误用了--files导致展开全部后端免费套件，已中断并保留ordinary-origin-test.log，随后正确--file单项通过；不把中断套件报告为全部通过。

@@ -42,8 +42,15 @@ export function realBatchPreflight(authorizationPath?:string){
 export async function executeRealBatch(authPath:string,directory:string){
  const preflight=realBatchPreflight(authPath);if(preflight.status!=='READY_FOR_AUTHORIZED_STAGES')return preflight
  const auth=preflight.authorization,freezePath=resolve(directory,'source-freeze.json');writeFileSync(freezePath,JSON.stringify(captureCoachSource()))
- const {createApp}=await import('../server/http.ts'),{createTurnEngine}=await import('../server/agent.ts'),{config}=await import('../server/config.ts'),{pool}=await import('../server/db.ts'),{createWorkflowHost}=await import('../server/workflows/task-host.ts'),{createRuntimeDecisionAdapter}=await import('../server/workflows/provider-adapter.ts'),{readWorkflowEvidence}=await import('../server/workflows/task-sources.ts'),{workflowMethodReader}=await import('../server/workflows/method-context.ts'),store=await import('../server/store.ts')
+ const {config}=await import('../server/config.ts')
  if(!/^lifeos_dialogue_test_/.test(new URL(config.databaseUrl).pathname.slice(1)))throw new Error('REAL_ACCEPTANCE_REQUIRES_DISPOSABLE_DATABASE')
+ // Bind the exact local origin before Better Auth is constructed. Keep its
+ // origin guard intact; changing config after importing HTTP left it stale.
+ const {createServer}=await import('node:net'),portProbe=createServer()
+ await new Promise<void>(r=>portProbe.listen(0,'127.0.0.1',r));const port=(portProbe.address() as {port:number}).port
+ await new Promise<void>((r,j)=>portProbe.close(e=>e?j(e):r()))
+ const oldOrigin=config.origin,origin='http://127.0.0.1:'+port;config.origin=origin
+ const {createApp}=await import('../server/http.ts'),{createTurnEngine}=await import('../server/agent.ts'),{pool}=await import('../server/db.ts'),{createWorkflowHost}=await import('../server/workflows/task-host.ts'),{createRuntimeDecisionAdapter}=await import('../server/workflows/provider-adapter.ts'),{readWorkflowEvidence}=await import('../server/workflows/task-sources.ts'),{workflowMethodReader}=await import('../server/workflows/method-context.ts'),store=await import('../server/store.ts')
  class BatchBudget extends CoachProviderBudget {override reserveGraph(inputs:Parameters<CoachProviderBudget['reserveGraph']>[0]){if(inputs.reduce((s,x)=>s+(x.reservedCostCny??Infinity),0)>remaining())throw new Error('BATCH_EXISTING_BUDGET_EXHAUSTED');return super.reserveGraph(inputs)}}
  const ledger=new BatchBudget(),starting=ledger.snapshot(),calls=new Map<string,any>(),counts=new Map<string,number>(),journal=resolve(directory,'attempts.jsonl')
  const record=(row:unknown)=>appendFileSync(journal,JSON.stringify(row)+'\n')
@@ -56,7 +63,7 @@ export async function executeRealBatch(authPath:string,directory:string){
   const rt=resolveModel(call.tier),maximum=maximumProviderCallCostCny(rt.model.contextWindow,call.outputTokenLimit,rt.pricing);if(typeof maximum!=='number'||maximum>remaining())throw new Error('BATCH_EXISTING_BUDGET_EXHAUSTED')
   const receipt=ledger.reserve({runId:call.requestId,purpose:'turn',tier:call.tier,provider:call.provider,model:call.model,signature:modelSignatureFor(call.tier),sourceDigest:preflight.sourceDigest,logicalCallId:call.requestId+':ordinary',reservedCostCny:maximum});calls.set(call.callId,receipt);counts.set(call.requestId,n+1);record({type:'ordinary_started',callId:receipt.callId,requestId:call.requestId,reservedCostCny:maximum})
  },after:call=>{const receipt=calls.get(call.callId);if(!receipt)return;const complete=call.usageCompleteness==='complete',rt=resolveModel(call.tier),cost=complete?estimateProviderCallCostCny((call.uncachedInputTokens??0)+(call.cacheWriteInputTokens??0),call.cachedInputTokens??0,call.outputTokens??0,rt.pricing):'unknown';ledger.finish(receipt.callId,{outcome:call.outcome,usage:call,estimatedCostCny:cost,providerResponseId:call.providerResponseId});record({type:'ordinary_finished',receiptId:receipt.callId,costCny:cost,outcome:call.outcome})}}})
- const app=createApp(engine,120000,host);await new Promise<void>(r=>app.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+(app.address() as any).port,oldOrigin=config.origin;config.origin=origin
+ const app=createApp(engine,120000,host);await new Promise<void>((r,j)=>{app.once('error',j);app.listen(port,'127.0.0.1',r)})
  let cookie='',actor='';const request=(path:string,body?:unknown)=>fetch(origin+path,{method:body===undefined?'GET':'POST',headers:{Cookie:cookie,Origin:origin,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})})
  const json=async(path:string,body?:unknown)=>{const response=await request(path,body),out=await response.json();if(!response.ok)throw new Error(out.error??'HTTP_FAILED');return out}
  const chat=async()=>{const id=randomUUID();await json('/api/conversations',{id,title:'SYNTHETIC ADULT REAL ACCEPTANCE'});return id}
