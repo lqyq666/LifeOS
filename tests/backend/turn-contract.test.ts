@@ -14,6 +14,18 @@ import { configureProviderPayload } from '../../server/model-payload.ts'
 import { importKnowledge, type KnowledgeCard } from '../../server/campus-knowledge.ts'
 import { localEmbedding } from '../../server/local-embedding.ts'
 import { Value } from 'typebox/value'
+import {readFileSync} from 'node:fs'
+
+test('retained actual knowledge probe candidate is unrepresentable in the ordinary runtime contract',()=>{
+  const retained=JSON.parse(readFileSync('evidence/coze-core-launch-20261011/MODEL_CAPABILITY_FIRST_FAIL.json','utf8'))
+  assert.equal(retained.checks.freeOutput.passed,false)
+  const output=retained.checks.freeOutput.output
+  assert.ok(output.experienceCandidate,'actual first failure retained')
+  const contract=deriveTurnContract({text:'请简短解释递归是什么，只回答知识，不需要个人记录或计划。',knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
+  assert.equal(contract.mode,'reply_only')
+  assert.equal(Value.Check(contract.schema as any,output),false,'public explanation must not create a personal experience')
+  assert.equal(Value.Check(contract.schema as any,{reply:output.reply}),true)
+})
 
 test('turn contract modes derive deterministically from turn facts',()=>{
   const derive=(text:string,extra:Partial<Parameters<typeof deriveTurnContract>[0]>={})=>deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false,...extra})

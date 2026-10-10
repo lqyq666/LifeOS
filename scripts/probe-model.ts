@@ -14,8 +14,10 @@ import {assertCoachSourceFreeze} from './coach-source-freeze.ts'
 import {config} from '../server/config.ts'
 import {requiresImmediateMaterial} from '../server/action-coach-events.ts'
 import {buildClauseCatalogue} from '../server/clause-catalogue.ts'
+import {deriveTurnContract} from '../server/turn-contract.ts'
 
 const args=process.argv.slice(2),arg=(name:string)=>args[args.indexOf(name)+1]
+const runtimeContracts=args.includes('--runtime-contracts')
 const requested=process.env.LIFEOS_MODEL_PROBE_TIER??(args.includes('--tier')?arg('--tier'):'default')
 if(!['default','reasoning'].includes(requested))throw new Error('Use --tier default or reasoning')
 if(!args.includes('--paid'))throw new Error('This is a paid probe. Review the frozen source/configuration and remaining budget, then explicitly invoke --paid. No provider call was made.')
@@ -34,7 +36,7 @@ mkdirSync(directory,{recursive:true})
 const path=resolve(directory,runId+'.json'),signature=modelSignatureFor(tier)
 const redact=(value:unknown)=>redactProbeText(value,[resolveModel('default').apiKey,resolveModel('reasoning').apiKey])
 const serialize=(value:unknown)=>JSON.stringify(redactProbeValue(value,[resolveModel('default').apiKey,resolveModel('reasoning').apiKey]),null,2)+'\n'
-const report:any={at:new Date().toISOString(),runId,status:'RUNNING',evidence:'REAL_PROVIDER_API',contract:'action-coach-v1.3',sourceFreeze:{path:resolve(freezePath),digest:sourceDigest},contractSignature:coachContractSignatureFor(tier),interfaceSignature:coachInterfaceSignatureFor(tier),signature,tier,provider:runtime.model.provider,model:runtime.model.id,thinkingBudget:tier==='default'?config.qwenThinkingBudget:0,maxRetries:0,authorization,checks:{},calls:[],note:'Capability/transport evidence only; not A01–A08 quality or the 20-sample speed acceptance.'}
+const report:any={at:new Date().toISOString(),runId,status:'RUNNING',evidence:'REAL_PROVIDER_API',contract:'action-coach-v1.3',probeContractMode:runtimeContracts?'actual_runtime_subsets':'legacy_full_contract',sourceFreeze:{path:resolve(freezePath),digest:sourceDigest},contractSignature:coachContractSignatureFor(tier),interfaceSignature:coachInterfaceSignatureFor(tier),signature,tier,provider:runtime.model.provider,model:runtime.model.id,thinkingBudget:tier==='default'?config.qwenThinkingBudget:0,maxRetries:0,authorization,checks:{},calls:[],note:'Capability/transport evidence only; not A01–A08 quality or the 20-sample speed acceptance.'}
 const save=()=>writeFileSync(path,serialize(report))
 save()
 const messageId='00000000-0000-4000-8000-000000000011'
@@ -48,9 +50,11 @@ async function call(id:keyof typeof inputs){
   const receipt=budget.reserve({...(typeof maximum==='number'?{reservedCostCny:maximum}:{}),runId,purpose:'capability',tier,provider:runtime.model.provider,model:runtime.model.id,signature,sourceDigest})
   report.calls.push(receipt);save() // Reservation precedes any network request.
   let answer:AssistantMessage|null=null,thrown:unknown,firstMs:number|null=null,deltas=0,cancelled=false
+  const material=requiresImmediateMaterial(inputs[id]),catalogue=buildClauseCatalogue(inputs[id])
+  const contract=runtimeContracts?deriveTurnContract({text:inputs[id],knowledgeCount:0,currentEventExists:id==='R3',planIntent:false,material}):undefined
   const timer=setTimeout(()=>controller.abort(),60000)
   try{
-    const source=stream(runtime.model,{systemPrompt:turnSystemPrompt(tier==='reasoning'?'reasoning':'default',runtime.model.id),messages:providerTurnMessages(buildTurnPrompt({currentMessageId:messageId,messages:[{id:messageId,role:'user',content:inputs[id]}],currentEvent:id==='R3'?existingEvent:null}),runtime.model)},{apiKey:runtime.apiKey,maxTokens:outputTokenLimit(runtime.model,tier),maxRetries:0,timeoutMs:60000,signal:controller.signal,onPayload:(payload,profile)=>configureProviderPayload(payload,profile,tier,undefined,undefined,outputTokenLimit(runtime.model,tier),messageId,id==='R3'?[existingEvent]:[],[],tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(inputs[id]))})
+    const source=stream(runtime.model,{systemPrompt:turnSystemPrompt(tier==='reasoning'?'reasoning':'default',runtime.model.id,contract),messages:providerTurnMessages(buildTurnPrompt({currentMessageId:messageId,messages:[{id:messageId,role:'user',content:inputs[id]}],currentEvent:id==='R3'?existingEvent:null}),runtime.model)},{apiKey:runtime.apiKey,maxTokens:outputTokenLimit(runtime.model,tier),maxRetries:0,timeoutMs:60000,signal:controller.signal,onPayload:(payload,profile)=>configureProviderPayload(payload,profile,tier,contract?.schema,undefined,outputTokenLimit(runtime.model,tier),messageId,id==='R3'?[existingEvent]:[],[],tier==='default'?config.qwenThinkingBudget:0,material,undefined,false,runtimeContracts?catalogue.map(c=>c.clauseId):undefined)})
     for await(const event of source)if(event.type==='text_delta'){
       deltas++;firstMs??=Math.round(performance.now()-started)
       if(id==='R4'&&!cancelled){cancelled=true;controller.abort()}
@@ -74,7 +78,7 @@ async function call(id:keyof typeof inputs){
   assertCoachSourceFreeze(freezePath!)
   let result:ReturnType<typeof parseActionCoachTurn>|undefined
   try{result=parseActionCoachTurn(text)}catch{}
-  const diagnostics={stopReason:stop,elapsedMs:Math.round(performance.now()-started),firstRawDeltaMs:firstMs,deltas,usage:recordedUsage??'unknown',estimatedCostCny:cost,callId:receipt.callId,cancelledAfterDelta:cancelled,errorCategory:thrown||stop==='error'?probeErrorCategory(redact(answer?.errorMessage??thrown)):null}
+  const diagnostics={stopReason:stop,elapsedMs:Math.round(performance.now()-started),firstRawDeltaMs:firstMs,deltas,usage:recordedUsage??'unknown',estimatedCostCny:cost,callId:receipt.callId,cancelledAfterDelta:cancelled,actualContractMode:contract?.mode??null,schemaSha256:contract?createHash('sha256').update(JSON.stringify(contract.schema)).digest('hex'):null,errorCategory:thrown||stop==='error'?probeErrorCategory(redact(answer?.errorMessage??thrown)):null}
   if(id==='R1')report.checks.streaming={passed:stop==='stop'&&deltas>1&&Boolean(result&&/[\u4e00-\u9fff]/.test(result.reply)),...diagnostics,reply:result?.reply??null,note:'Raw delta timing is transport evidence, not meaningful first content.'}
   if(id==='R2')report.checks.freeOutput={passed:stop==='stop'&&Boolean(result&&!result.event&&!result.background?.length&&!result.growthUpdates?.length&&!result.experienceCandidate&&!result.citations?.length),...diagnostics,reply:result?.reply??null,output:result??null}
   if(id==='R3'){
@@ -89,9 +93,9 @@ async function call(id:keyof typeof inputs){
   }
   if(id==='R4')report.checks.cancel={passed:cancelled&&stop==='aborted',...diagnostics,note:'Provider final billing is unknown unless nonempty usage is actually reported.'}
   save();console.log(JSON.stringify({check:id,tier,passed:Object.values(report.checks).at(-1)&& (Object.values(report.checks).at(-1) as any).passed,elapsedMs:diagnostics.elapsedMs}))
-  // An account/transport error cannot be repaired by sending the other fixtures.
-  // Stop after its settled receipt; never repeat an unsupported paid request.
-  if(stop==='error'||thrown)throw new Error('PROVIDER_PROBE_STOPPED_AFTER_FAILED_REQUEST')
+  // A failed business contract also stops the remaining paid fixtures. Keep
+  // this first report/receipt; a later candidate must never replace it.
+  if(stop==='error'||thrown||(Object.values(report.checks).at(-1) as {passed:boolean}).passed!==true)throw new Error('PROVIDER_PROBE_STOPPED_AFTER_FAILED_REQUEST')
 }
 try{for(const id of selected)await call(id as keyof typeof inputs)}catch(error){report.errorCategory=probeErrorCategory(redact(error));report.status='FAIL';save();throw error}
 report.status=Object.values(report.checks).every((value:any)=>value.passed===true)?check?'CHECK_PASS':'PASS':'FAIL'

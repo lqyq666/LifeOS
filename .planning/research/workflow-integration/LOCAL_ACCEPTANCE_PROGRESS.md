@@ -174,3 +174,9 @@ R1结束，但仅交付旁路模拟Provider包，未接实际/run，六Skill仅1
 
 付费核查预声明：假设当前已冻结qwen3.8-flash接口在原SDK下仍能stream/freeOutput/actionOutput/cancel，原签名不同使旧证据不能证明当前接口。计划一次4检查，maxRetries=0，现有11.2603398元额度内逐次预留最坏费用，任一首次失败即停止，不重发；取消/无usage继续unknown和足额预留。仅合成成年场景，结果是接口证据，不是学生收益或20普通性能通过。此段记录准备状态，实际派发以原唯一账本及后续回执为准。
 官方只读API依据：https://help.aliyun.com/zh/simple-application-server/developer-reference/api-swas-open-2020-06-01-listinstances 和 https://help.aliyun.com/zh/simple-application-server/developer-reference/api-swas-open-2020-06-01-endpoint 。
+
+当前真实接口首次核查4请求：R1流式、R3成品、R4取消符合各自接口检查，R2纯知识输出不当experienceCandidate，整批FAIL。原4回执及答复保留MODEL_CAPABILITY_FIRST_FAIL.json；已知估算0.0068891元，取消未知0.1245184元全额预留，现有额度余额11.1289323元。原探测器只在传输错误停，R2契约失败后仍发R3/R4，现修为任一契约失败即停；没有删除后两调用或重置账本。
+
+诊断确认正常聊天已用deriveTurnContract，R2原句实际reply_only仅reply；旧探测默认完整旧契约仍允许experienceCandidate，是探测入口与真实快速路径差异。新增实际首次产物保存回归，检查该候选被运行契约拒绝；新增显式--runtime-contracts接口核查使用同一实际分区prompt/schema/clause句柄，并记录模式/schema摘要。旧默认核查与首次FAIL保留，不把新接口核查当旧样本替换；两者均不证明20普通质量。
+
+R2开发终态done，UI版本9d669a8。主执行者直接读provider.py/host.py发现串行分析、同步不可取消、派发后记账、两个模式漏记第二调用、幂等只含mode/intent及坏refs自动补全部授权依据。37模拟检查不接受为真业务通过；逐源码证据GROWTH_R2_SOURCE_REVIEW.json。项目终态UI累计8,886.84积分，相对此前R1 2,436.06，R2 6,450.78，累计保守入账8,888。R3是第二次HIGH/BLOCKER修复，只发送一次且Windows sent后CLI退出异常保留，status确认processing；余142,671积分全部预留，未知费用不得新派其他收费任务。剩余HIGH时按两轮修复边界停止该候选，其他事项继续。
