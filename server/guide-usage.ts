@@ -13,9 +13,10 @@ export type GuideUsage={guideId:string;revision:number;branch:string;stepId:stri
 export function feedbackMatchesCurrent(text:string,title:string,task:string){
  if(/现在想|换个话题|另外一件|新的任务|新任务/.test(text))return false
  if(/^(?:还是不行|仍然不行|还是卡住了|还没结果)[。！？?]*$/.test(text.trim()))return true
- const matters=[/考试|期末|复习|备考/,/产品|创业|用户|客户|需求|接单|交付|改稿/,/导师|科研|论文/,/竞赛|比赛|队友|社团/,/岗位|求职|投递|面试/,/宿舍|舍友|人际/,/休息|过载|恢复/]
+ const matters=[/考试|期末|复习|备考|考研|考公/,/产品|创业|用户|客户|需求|接单|交付|改稿/,/导师|科研|论文/,/竞赛|比赛|队友|社团/,/岗位|求职|投递|面试/,/宿舍|舍友|人际/,/休息|过载|恢复/]
  const named=matters.filter(pattern=>pattern.test(text))
  if(named.length&&!named.some(pattern=>pattern.test(title+' '+task)))return false
+ if(/(?:我|这次)[^，。；]{0,20}(?:不想继续|不再试|拒绝继续)|先停在这里/.test(text))return true
  if(/按上次|这个方法|这次行动|我愿意试|我不想继续|我不做了/.test(text))return true
  const taskTerms=new Set(kbTerms(title+' '+task))
  return kbTerms(text).filter(t=>taskTerms.has(t)).length>=2

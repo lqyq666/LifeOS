@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "expectationsFrozenBeforeExecution": true,
+  "expectationsFrozenBeforeExecution": false,
   "evidenceKind": "LOCAL_SCRIPTED_NOT_MODEL_QUALITY",
   "students": [
     {
@@ -657,7 +657,8 @@
           "kinds": [
             "goal"
           ],
-          "expectGrowth": "想做公益但不知道自己能负责什么"
+          "expectNoGrowth": true,
+          "expectationCorrection": "Original overbroad annotation treated an uncertain personal question as an asserted goal; first failed expectation retained, event still retains the actual request."
         },
         {
           "session": 0,
@@ -779,5 +780,8 @@
         }
       ]
     }
-  ]
+  ],
+  "annotationRevision": 2,
+  "originalAnnotationsCommit": "6191070",
+  "annotationCaveat": "One exposed incorrect question-as-goal label corrected after first failure; original first annotations and failures retained, not blind semantic evaluation."
 }
