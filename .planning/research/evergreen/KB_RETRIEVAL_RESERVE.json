@@ -1,0 +1,361 @@
+{
+  "schemaVersion": 1,
+  "author": "codex",
+  "role": "RESERVE_NOT_EXECUTED_NOT_USED_FOR_TUNING",
+  "independentBlindTest": false,
+  "createdAfterRankingFreezeCommit": "32d9b2a",
+  "cases": [
+    {
+      "id": "reserve-campus-resource",
+      "domain": "01",
+      "stage": "start",
+      "text": "借阅服务各群说法矛盾，怎样确认自己学校哪个页面和窗口说了算？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-first-contact",
+      "domain": "01",
+      "stage": "start",
+      "text": "想向做过这个岗位的前辈请教一次具体困难，怎样提出有限而真实的请求？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-fit-exploration",
+      "domain": "02",
+      "stage": "start",
+      "text": "有点想做研究却不了解真实日常，怎样先接触一件小事而不把兴趣当适合？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-skill-gap",
+      "domain": "02",
+      "stage": "start",
+      "text": "原来学过的技能只符合新领域要求的一部分，怎么列清还缺什么？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-course-frame",
+      "domain": "03",
+      "stage": "start",
+      "text": "课程中的几个定理彼此有关，但我找不出连接，怎么整理前提和关系？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-exam-diagnosis",
+      "domain": "03",
+      "stage": "adjust",
+      "text": "答题失分有些是概念有些是过程，怎么对照实际答卷而不先定原因？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-retrieval-practice",
+      "domain": "04",
+      "stage": "start",
+      "text": "知道看书能想起，但不确定离开书还记住多少，如何进行一次作答检查？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-spaced-review",
+      "domain": "04",
+      "stage": "start",
+      "text": "每次全在最后一天重复看，怎样把同样内容的复习放到不同日子？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-worked-example",
+      "domain": "04",
+      "stage": "start",
+      "text": "模仿范例能成功，自己重做就得回去看，怎么逐渐拿掉示范？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-explain-understanding",
+      "domain": "04",
+      "stage": "start",
+      "text": "我要解释一个结论为什么成立，怎样找出自己理解里的空白？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-priority-budget",
+      "domain": "03",
+      "stage": "start",
+      "text": "准备考试和参加项目都想保留，怎样按不可挪的期限和剩余时间分配？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-restart-task",
+      "domain": "05",
+      "stage": "start",
+      "text": "刚回到被打断的工作，不知道从哪里接上，怎样恢复已经完成的步骤？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-start-small",
+      "domain": "06",
+      "stage": "start",
+      "text": "大任务让我一直等准备充分，怎样选一个能动手的小起点？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-plan-review",
+      "domain": "05",
+      "stage": "adjust",
+      "text": "原计划的目标已经变了，怎样回看哪些安排应该撤下或重新核对？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-experience-evidence",
+      "domain": "08",
+      "stage": "start",
+      "text": "团队整体成绩不错，但我只负责其中一部分，怎么整理属于我的真实证据？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-research-reading",
+      "domain": "09",
+      "stage": "start",
+      "text": "准备读一篇长文献，怎样按当前疑问定位背景和方法，而不从头泛读？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-research-task",
+      "domain": "09",
+      "stage": "start",
+      "text": "进组后负责人只给了模糊方向，怎么确认一项具体任务及谁来验收？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-direction-comparison",
+      "domain": "02",
+      "stage": "start",
+      "text": "两种职业都有人推荐，怎样核对日常工作和本人愿意承担的代价？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-application-match",
+      "domain": "13",
+      "stage": "start",
+      "text": "项目介绍很吸引人，怎样和我已有成果及实际要求对照再决定投入？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-project-story",
+      "domain": "10",
+      "stage": "start",
+      "text": "要向面试者介绍一个经历，怎么让他看清我处理的困难、行动和结果？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-job-feedback",
+      "domain": "14",
+      "stage": "adjust",
+      "text": "招聘暂时没有下文，怎样核对可以改进的材料环节而不推测对方意图？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-interview-unknown",
+      "domain": "15",
+      "stage": "start",
+      "text": "被问到一个没用过的技术，怎么陈述已知与待核实而不装懂？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-user-interview",
+      "domain": "17",
+      "stage": "start",
+      "text": "有人赞同我的产品点子，怎样追问他们过去实际处理问题的方式？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-prototype-test",
+      "domain": "16",
+      "stage": "start",
+      "text": "有个可试用版本但不知道关键假设成立没有，怎样观察一次真实任务？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-delivery-scope",
+      "domain": "18",
+      "stage": "start",
+      "text": "客户想要的成品边界越来越大，怎样把这次变更与旧约定并列核对？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-delivery-review",
+      "domain": "18",
+      "stage": "adjust",
+      "text": "发出了作品，但采用、款项与实际效果都没有一起确认，怎样分开复盘？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-income-ledger",
+      "domain": "19",
+      "stage": "start",
+      "text": "报酬还没到账又有成本支出，怎样记清实际收入和当前可用预算？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-content-experiment",
+      "domain": "21",
+      "stage": "start",
+      "text": "想用几条内容了解读者是否看懂一个主题，怎样安排小批表达和反馈？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-team-contract",
+      "domain": "22",
+      "stage": "start",
+      "text": "团队每个人理解的责任不一样，怎么保留未确认的工作并对齐分工？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-boundary-request",
+      "domain": "19",
+      "stage": "start",
+      "text": "一项协作要求超出我愿意承担的部分，怎么清楚提出请求或拒绝？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-recovery-support",
+      "domain": "01",
+      "stage": "start",
+      "text": "已经疲惫还在不断加任务，怎样安排恢复并找到现实支持？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {}
+    },
+    {
+      "id": "reserve-information-check",
+      "domain": "14",
+      "stage": "start",
+      "text": "一段经验贴被当成通用依据转发，怎么回到原文核对范围与证据？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {}
+    }
+  ]
+}
