@@ -6,23 +6,26 @@ import {localEmbedding} from '../../server/local-embedding.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {retrieveIndexedKnowledge,clearKnowledgeIndexMemory} from '../../server/knowledge-index.ts'
 import {knowledgeIntent,kbHash} from '../../server/evergreen-guide.ts'
-test('exposed natural regression uses local encoder and reports every domain, stage and unavailable target',async()=>{
- const root='.planning/research/evergreen/',read=(n:string)=>readFileSync(root+n,'utf8').trim().split('\n').map(x=>JSON.parse(x)),cards=read('KB_GUIDES.jsonl'),bytes=readFileSync(root+'KB_NATURAL_QUERIES.json','utf8'),freeze=JSON.parse(readFileSync(root+'KB_NATURAL_FREEZE.json','utf8'))
- assert.equal(kbHash(bytes),freeze.sha256);assert.ok(freeze.count>=200)
- const split=process.env.LIFEOS_QUERY_SPLIT??'development';assert.ok(['development','sealed'].includes(split))
+test('frozen natural labels report every domain, stage and unavailable target with exposure recorded',async()=>{
+ const split=process.env.LIFEOS_QUERY_SPLIT??'development';assert.ok(['development','sealed','reserve'].includes(split))
+ const reserve=split==='reserve'
+ const root='.planning/research/evergreen/',read=(n:string)=>readFileSync(root+n,'utf8').trim().split('\n').map(x=>JSON.parse(x)),cards=read('KB_GUIDES.jsonl'),bytes=readFileSync(root+(reserve?'KB_RETRIEVAL_RESERVE.json':'KB_NATURAL_QUERIES.json'),'utf8'),freeze=JSON.parse(readFileSync(root+(reserve?'KB_RETRIEVAL_RESERVE_FREEZE.json':'KB_NATURAL_FREEZE.json'),'utf8'))
+ assert.equal(kbHash(bytes),freeze.sha256);assert.ok(reserve?freeze.count===32:freeze.count>=200)
+ if(reserve){assert.equal(freeze.executions,0,'first untuned acceptance only');assert.equal(freeze.usedForTuning,false);assert.equal(existsSync('.planning/research/workflow-integration/evidence/retrieval-reserve-20261011/NATURAL_reserve_first-final.json'),false,'published first result cannot be replaced')}
+ const selected=JSON.parse(bytes).cases.filter((c:any)=>reserve||c.split===split)
  const directory=process.env.LIFEOS_WORKFLOW_EVIDENCE??'.local/natural-queries';mkdirSync(directory,{recursive:true})
  const out=directory+'/NATURAL_'+split+'_'+(process.env.LIFEOS_QUERY_RUN??'first')+'.json';if(existsSync(out))throw new Error('EVIDENCE_ALREADY_EXISTS')
  const rows:any[]=[],approved=new Set(cards.filter(c=>c.status==='verified').map(c=>c.guide.canonicalKey))
  try{
   await importEvergreenCorpus(cards,read('KB_SOURCE_REGISTRY.jsonl'),read('KB_EVIDENCE.jsonl'))
-  for(const c of JSON.parse(bytes).cases.filter((c:any)=>c.split===split)){
+  for(const c of selected){
    const intent=knowledgeIntent(c.text,c.context),found=!['NONE','CLARIFY'].includes(intent.decision)?await retrieveIndexedKnowledge(intent.query,undefined,intent):null,keys=found?.cards.map(c=>c.guide?.canonicalKey)??[]
    const available=c.acceptableKeys.some((k:string)=>approved.has(k)),target=cards.filter(x=>c.acceptableKeys.includes(x.guide.canonicalKey)).map(x=>x.id)
    rows.push({...c,actualRoute:intent.decision,actualStage:intent.stage,routeCorrect:c.expectedRoute===intent.decision,keys,legalTargetAvailable:available,recall5:available&&Boolean(found?.trace.candidates.some(x=>x.reason==='eligible'&&target.includes(x.id))),top1:available&&c.acceptableKeys.includes(keys[0]),trace:found?.trace??null})
   }
   const metrics=(rs:any[])=>({route:{numerator:rs.filter(x=>x.routeCorrect).length,denominator:rs.length},recall5:{numerator:rs.filter(x=>x.recall5).length,denominator:rs.filter(x=>x.legalTargetAvailable).length},top1:{numerator:rs.filter(x=>x.top1).length,denominator:rs.filter(x=>x.legalTargetAvailable).length},missingTarget:{numerator:rs.filter(x=>x.acceptableKeys.length&&!x.legalTargetAvailable).length,denominator:rs.filter(x=>x.acceptableKeys.length).length},noMatchingMethod:rs.filter(x=>x.expectedRoute==='METHOD'&&!x.acceptableKeys.length).length})
   const group=(field:string)=>Object.fromEntries([...new Set(rows.map(x=>x[field]))].map(k=>[k,metrics(rows.filter(x=>x[field]===k))]))
-  const result={evidence:'LOCAL_ENCODER_ISOLATED_PG_NO_PRODUCT_PROVIDER',paidCalls:0,benchmarkHash:freeze.sha256,split,role:'EXPOSED_REGRESSION_ONLY',sealedUsedForTuning:true,independentBlindTest:false,metrics:metrics(rows),byDomain:group('domain'),byStage:group('stage'),rows}
-  writeFileSync(out,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result.metrics));assert.equal(rows.length,JSON.parse(bytes).cases.filter((c:any)=>c.split===split).length);assert.ok(result.metrics.route.numerator/result.metrics.route.denominator>=0.95,'route regression gate');assert.ok(result.metrics.recall5.numerator/result.metrics.recall5.denominator>=0.90,'recall5 regression gate');assert.ok(result.metrics.top1.numerator/result.metrics.top1.denominator>=0.90,'top1 regression gate')
+  const result={evidence:'LOCAL_ENCODER_ISOLATED_PG_NO_PRODUCT_PROVIDER',paidCalls:0,benchmarkHash:freeze.sha256,split,role:reserve?'FINAL_PREDECLARED_UNTUNED_RESERVE':'EXPOSED_REGRESSION_ONLY',sealedUsedForTuning:!reserve,usedForTuning:!reserve,labelsAuthor:'current-main-codex',independentBlindTest:false,metrics:metrics(rows),byDomain:group('domain'),byStage:group('stage'),rows}
+  writeFileSync(out,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result.metrics));assert.equal(rows.length,selected.length);assert.ok(result.metrics.route.numerator/result.metrics.route.denominator>=0.95,'route gate');assert.ok(result.metrics.recall5.numerator/result.metrics.recall5.denominator>=0.90,'recall5 gate');assert.ok(result.metrics.top1.numerator/result.metrics.top1.denominator>=0.90,'top1 gate')
  }finally{await localEmbedding.close();await pool.end();clearKnowledgeIndexMemory()}
 })
