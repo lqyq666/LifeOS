@@ -11,3 +11,9 @@
 IES四个推荐共21词短引文，学习来源为原始指南；清华备考网页标明转载Reading University，故不作两个独立来源。Upwork两篇同平台实践文章同属upwork-practice。MVP、宿舍沟通、职业访谈报道明确是实践/教育材料，不冒充随机研究或个人效果证明。平台观看/点赞/收藏数据未获取时保持null。
 
 32张逐卡语义审阅已记录在KB_SEMANTIC_REVIEW.json，审核者为Codex，非独立人工验收。12张标杆加4张有边界的方法获审；其余16张将原文确能支持的部分与缺口逐项写清，因缺任务相关证据保持needs_review，不能检索或引用。
+
+## 2026-10-10 本地待审复核增量
+
+没有新增产品模块、依赖或联网采集。复用既有Cheerio、guideContentHash/validateEvergreenGuide/validateKnowledge、隔离PG导入器及原SDK；只补局部门禁、说明和验收脚本。原15个registry来源与2份既有MIT正文按已保存字节重新读取，15份正文、2份短片段明确分开。短片段不支持角色/范围/复购的扩大主张；来源支持与LifeOS编辑适配分列，未以正文可读或hash匹配代替独立审批。
+
+逐项材料：`../workflow-integration/evidence/acceptance-20261010/pending-review/SOURCE_REOPEN.json`、`PENDING_16_REVIEW.json`和`MAINLINE_REVISION_CANDIDATES.json`。复用既有华师职业访谈、清华考试检查、MIT读研目的及Upwork项目目标片段形成四份同canonical待审修订；不批准、不发布、不把59缺口改成已覆盖。精确原文位置、字节hash、局限和反馈适配均附在草案中。

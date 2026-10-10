@@ -1,8 +1,8 @@
 {
-  "version": "workflow-v2-integration-c373290f0265",
-  "at": "2026-10-10T08:52:19.101944+00:00",
+  "version": "workflow-v2-integration-ce4d0b08a4b6",
+  "at": "2026-10-10T09:38:54.822Z",
   "signature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v1",
-  "contentManifestSha256": "7a93fdfc5facfb7ef9b9ca6380c47b0c9bb676f68e0725541912acc92d88842c",
+  "contentManifestSha256": "a3e48448e278f67415f15bed394e727e9f7ed173e12e85b3494c1447274d0267",
   "indexCode": {
     "server/knowledge-index.ts": "60210947986e2f992cedc05d9579f951b02c15e383eb06bd7e5fab4519b1e0c4",
     "server/embedding-signature.ts": "252b71fc865862a2634adb9e53cc81f0810b323fd257059c9b070ee1c632f8be",
@@ -11,9 +11,10 @@
   },
   "acceptanceDatabase": "DISPOSABLE_PG_ONLY",
   "primaryDatabaseMigration": false,
-  "retrievalInFourChains": "APPROVED_HOST_GUIDE_USAGE_24_OF_24",
+  "retrievalInFourChains": "BASELINE_RETAINED_24_LOCAL_SCRIPTED_NOT_RERUN_CURRENT_CANDIDATE",
   "freshProductionIndexAudit": "PAUSED_NOT_RUN",
   "completeIndexLatencyAndRetrievalQuality": "PAUSED_NOT_RUN",
   "historicalIndexEvidence": "KB_INDEX_LOAD_REPORT.json remains historical, not current performance",
-  "actualRetrievalEvidence": "evidence/acceptance-20261010/retrieval-safety-final.log"
+  "actualRetrievalEvidence": "evidence/acceptance-20261010/retrieval-safety-final.log",
+  "indexCodeUnchangedComparedToBaseline": true
 }

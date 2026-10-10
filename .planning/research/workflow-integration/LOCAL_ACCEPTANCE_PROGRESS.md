@@ -1,5 +1,25 @@
 # 当前本地验收增量
 
+本轮接续HEAD `aea83005182604f71e56543c0196f1940d06ab78`，新候选`workflow-v2-integration-ce4d0b08a4b6`，产品代码提交`c72edab`，验收源提交`e0dc40a`。唯一伙伴、4条工作流、5个专业Skill保持。整个任务仍`WIP_NOT_READY`；最高状态为本地`MODIFIED / TESTED_LOCAL / BUILT / COMMITTED_LOCAL`，无push、合并或部署。
+
+| 本轮有效增量 | 实际证据与边界 |
+|---|---|
+| 独立审阅/发布回执 | 宿主真实记录须匹配两种独立角色、制作人、canonical、revision、内容hash、原文hash及完成/批准终态；角色名、布尔值、取消/失败/错版本均不放行。8项本地合同通过。宿主journal为测试夹具，实际独立审核/发布回执未取得，NOT_TESTED。 |
+| 关键行动的解释 | 个人依据逐条带支持/限制/未知，保留原话与条件、待核实事项及阶段理由；公共方法和工具结果不能冒充个人经历。理由由有界编辑候选选择，仍须真实语义核验；未说明时明确提示。深度入口统一显示实验性。A/B/C固定120分钟的原SDK脚本读回与缺理由/伪造理由/公共依据反例通过，不证明真实个性化收益。 |
+| 16待审与112去向 | 逐卡保存支持、限制、过宽主张、下一修订及阶段问题。112项均有canonical、分支、阶段和去向；53 covered、59 awaiting_source原样保留。3张Upwork主张超出8词片段、5处阶段待修订明确保留，未自动批准。同义归并沿原canonical；精确别名无重合不等于语义去重已通过。 |
+| 四主线的内容候选 | 沿原canonical准备revision2，联系、交付复盘、就业/升学比较、课程练习分别具备有范围的原文、编辑步骤及5类反馈分支。缺直接来源的跨领域分支仍待审；隔离PG导入/幂等/实际payload读回、原revision快照保留及学生拒绝读取通过。未导入主库或发布。 |
+| 版本与Skill | 仓库主1.2.2-candidate、五专业0.2.0-candidate；本轮方向Skill实际7次加载/version/SHA/结果与失败回执读回，Provider是loopback脚本。其他四Skill沿原基线。用户只安装主1.2.0，五业务Skill未安装；8787不可达、3001版本接口404，常驻版本NOT_TESTED；扣子及云Skill PAUSED_NOT_RUN，无新hash。 |
+
+本轮检查：root117/117；回执门禁8/8；准备与隔离读回2/2；原方向相关13/13及新专项1/1；前后端类型与build通过，既有Three chunk提示保留。测试有交叉，不相加为唯一总数。最新只增加版本/SHA trace导出的验收文件另通过专项与server类型检查。UI新增一行实验性提示仅BUILT，未声称新浏览器验收。
+
+证据均在`evidence/acceptance-20261010/`：`independent-review-{red,final}.log`、`pending-review-preparation-{first,final}.log`、`pending-review-import-first.log`、`action-stage-{red,related,related-final,skill-readback,skill-types}.log`、`pending-review-{root,build,server}-final.log`。结构化材料在`pending-review/`：`PENDING_16_REVIEW.json`、`CANDIDATE_112_DISPOSITIONS.json`、`SOURCE_REOPEN.json`、`MAINLINE_REVISION_CANDIDATES.json`、`PENDING_IMPORT_READBACK.json`、`PERSONAL_BASIS_ABC.json`、`CURRENT_VERSION_INSPECTION.json`及`FOLLOWUP_BINDING.json`。
+
+首次失败保留：旧schema不含stageReasonId、审阅名可代替回执；准备脚本的MIT多块正文归一化错误、相关测试选错文件名属于本地工具错误，均未改原文或触发付费，未替换首失败。唯一付费账本hash仍与原检查相同；历史未知用量和预留未补零，新增真实/云调用0、费用0、预算0、收费重试0。用户暂停优先于账本历史paused标记。
+
+真实小批的两方向/三方向、普通聊天与复盘为PAUSED_NOT_RUN；四条真实连续链、20组真实盲配对及同版20普通交互均未运行。真实性能samples=0，p50/p95保持null。建议/采纳/执行/有效及结果状态的真实语义、真实学生对星图变化的理解仍未通过。下一步先完成独立原文审阅与剩余范围补证；恢复授权后才按原协议做小批，保留全部首次失败、取消和未知费用。
+
+## c373原本地基线（以下保留，不视为新候选重跑）
+
 候选workflow-v2-integration-c373290f0265；代码/验收提交b66b29a（后续报告提交不改变产品代码）。6次本地增量提交，无push/合并/部署。当前source436文件、内容、索引与实际测试分别由SOURCE_MANIFEST.json、CONTENT_MANIFEST.json、INDEX_BINDING.json及RUN_BINDING.json绑定；旧0670清单/结果按原字节保存在evidence/acceptance-20261010/baseline-0670，旧评估协议未改。
 
 | 验收项 | 当前实际结果 | 证据，均位于evidence/acceptance-20261010 |
@@ -68,4 +88,4 @@ A/B/C保持相同120分钟：A把作品/多次客户反馈连接到岗位证据�
 
 证据：PERSONAL_BASIS_ABC.json、basis-green-attempt2.log（新增1项与原personalization/zero/runtime共4项通过）、basis-types.log。原已提交适配器回放actionBasis契约红测在basis-old-contract-red.log；测试夹具的scope/quote初始失败仍保留。SDK选择是固定脚本，不证明真实模型产生上述收益，20组真实对照不得标绿。
 
-整体WIP_NOT_READY。真实模型、扣子两项目、云Skill、20组盲配对、20真实普通样本性能与学生签收均PAUSED_NOT_RUN。授权缺口一次汇总：须明确恢复已有真实模型/扣子暂停，继续开发或提交不构成恢复。本轮保持暂停，继续其他本地验收。
+基线整体WIP_NOT_READY。真实模型、扣子两项目、云Skill、20组盲配对、20真实普通样本性能与学生签收均PAUSED_NOT_RUN。授权缺口一次汇总：须明确恢复已有真实模型/扣子暂停，继续开发或提交不构成恢复。当前增量保持暂停，见本文件开头，不重复原基线模拟链。

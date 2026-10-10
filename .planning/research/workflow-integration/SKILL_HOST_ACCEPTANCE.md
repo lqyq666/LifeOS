@@ -1,4 +1,12 @@
-最新候选workflow-v2-integration-c373290f0265：实际启动版本与每次执行SHA校验，缺失/替换失败及可选growth解释降级通过红绿测。正常宿主24轮执行guide-application 4次、action-review 5次、growth-diff与experience-evidence各21次；direction-analysis在原SDK深入任务中执行并持久读回。证据为evidence/acceptance-20261010/round-readback/SKILL_HOST_EXECUTIONS.json、DIRECTION_SKILL_EXECUTION.json和skill-red/fallback-red/wish-backend-final2日志。当前root117、最终隔离后端73通过（范围重叠）；SCRIPTED_ONLY，不是五Skill真实模型/云执行效果。
+# 当前候选补充（workflow-v2-integration-ce4d0b08a4b6）
+
+当前仓库主Skill1.2.2-candidate、5专业Skill0.2.0-candidate，字节hash未变。方向Skill在本轮原SDK loopback业务路径实际加载7次，版本/SHA及合法候选、越权依据/公共方法/伪造阶段的失败回执、缺阶段说明的诚实降级均读回；证据为`evidence/acceptance-20261010/pending-review/PERSONAL_BASIS_ABC.json`。源文件fingerprint与新候选一致。这是宿主加载/执行合同，真实模型遵循Skill仍PAUSED_NOT_RUN。
+
+其余4专业Skill原执行与缺失/替换降级证据保留为c373基线，没有重新调用或提升结论。用户安装主Skill仍1.2.0，5专业Skill未安装；只是只读metadata核查，未声称用户宿主发现/触发通过。8787不可达、3001版本接口404，常驻当前版本NOT_TESTED，无重启或部署。扣子现有两个项目、主Skill/业务Skill云副本继续PAUSED_NOT_RUN，无新hash；旧1.2.0云记录仅历史。版本矩阵与`CURRENT_VERSION_INSPECTION.json`分开保存这四层事实。
+
+以下原宿主验收保留为历史基线。
+
+原候选workflow-v2-integration-c373290f0265：实际启动版本与每次执行SHA校验，缺失/替换失败及可选growth解释降级通过红绿测。正常宿主24轮执行guide-application 4次、action-review 5次、growth-diff与experience-evidence各21次；direction-analysis在原SDK深入任务中执行并持久读回。证据为evidence/acceptance-20261010/round-readback/SKILL_HOST_EXECUTIONS.json、DIRECTION_SKILL_EXECUTION.json和skill-red/fallback-red/wish-backend-final2日志。原root117、最终隔离后端73通过（范围重叠）；SCRIPTED_ONLY，不是五Skill真实模型/云执行效果。
 
 用户安装1.2.0、仓库主Skill1.2.2-candidate及五专业Skill0.2.0-candidate、实际临时HTTP进程、云历史1.2.0分开见SKILL_VERSION_MATRIX.json。临时服务已关闭，常驻服务未经新版本核验；未覆盖安装、同步云端或改Skill原文件。
 

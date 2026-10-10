@@ -1,6 +1,6 @@
 {
-  "version": "workflow-v2-integration-c373290f0265",
-  "at": "2026-10-10T08:52:19.101944+00:00",
+  "version": "workflow-v2-integration-ce4d0b08a4b6",
+  "at": "2026-10-10T09:38:54.822Z",
   "mainCorpusModified": false,
   "newIndependentReview": false,
   "guideReviewCounts": {
@@ -35,7 +35,7 @@
     ".planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
     ".planning/research/evergreen/KB_SOURCE_REOPEN.jsonl": "4bb93c3397ae690400c16cba4a66c39d8e2db1d7c65677f375354cb6bd81f509",
     ".planning/research/evergreen/KB_TAXONOMY.json": "63d6cf11f2b7633035b3044a2e233a2470b49d79abcd13c290a46699c6845e70",
-    ".planning/research/evergreen/sources.md": "4d570e700067e3bba9a8bc666784fb17f658826a099002f48eb6992008e0d69a",
+    ".planning/research/evergreen/sources.md": "59d4f5bfa85f3e128038e57abdc95e239987aee94d9d55ceb5e334c7cdf011ab",
     ".planning/research/workflow-integration/evidence/continuation/BASELINE_SOURCE_MANIFEST.json": "31518c8b4137094ad0568388902b44a6934252bd782f5a93f02de5782fd61e90"
   },
   "pendingAdaptations": {
@@ -50,5 +50,27 @@
     "scope": "OFFLINE_EXISTING_ARCHIVED_EXCERPTS",
     "priorityGuides": 13,
     "newSourceOrIndependentApprovalClaimed": false
+  },
+  "pendingReviewPreparation": {
+    "scope": "OFFLINE_ARCHIVED_ORIGINAL_READ_EDITORIAL_REVIEW_NOT_INDEPENDENT",
+    "pendingCards": 16,
+    "candidateDestinations": 112,
+    "sourceBodiesReopened": 15,
+    "fragmentsOnly": 2,
+    "revisionCandidates": 4,
+    "independentReviewReceipt": null,
+    "releaseReceipt": null,
+    "served": false,
+    "files": {
+      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/CANDIDATE_112_DISPOSITIONS.json": "8cb84e36b4e83935c9418ca5113fbf89a0138dc3878eb165c29af728249aa44f",
+      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/CURRENT_VERSION_INSPECTION.json": "e36530bedbcfaf1ed84ab2c8e6916724dd538145f7ec8f9d67a06c55197eca6d",
+      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/MAINLINE_REVISION_CANDIDATES.json": "caedb6048b17a5b47b0a8c87a5bb196834655fc4062597ea402e3ca8126727c1",
+      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/PENDING_16_REVIEW.json": "a765772d10b39e917a77206be617ca294b0f56cf4dc90f216f46426ad7ddfde1",
+      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/PENDING_IMPORT_READBACK.json": "4702cbfba4dd92014907d60bc431c208513a92b2168217cb12742f719c26cb90",
+      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/PERSONALIZATION_CONTRAST.json": "6e789df0779788e5ff5804f06d2820d32446094a8cd1bed076c03b1ac8e23184",
+      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/PERSONAL_BASIS_ABC.json": "17d215ed9a6c7549b2cd703442c565b3e36ce3c605df2dd005461eb0bf8caa29",
+      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/SOURCE_REOPEN.json": "e3db45097b54f49db5b4623911f77d3ae0dd04031d9308f868159bc95059cb34",
+      ".planning/research/workflow-integration/evidence/acceptance-20261010/pending-review/VERIFICATION.json": "69e947d6ae93b4755e48d5a1b469a96eb2fd7af5161a964bde5439dfbf8503c6"
+    }
   }
 }

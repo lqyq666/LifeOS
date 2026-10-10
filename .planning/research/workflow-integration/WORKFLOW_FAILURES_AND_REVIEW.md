@@ -1,4 +1,12 @@
-当前记录：本轮新增已复现失败：时间360取首项、自然六小时缺上下文承接、零动作invalid_contract、SDK句柄丢失、星图经验边类型阻断。对应红/绿/原UI证据保存在evidence/local-time-20261010；两轮内修复后相关验收及最终Review无BLOCKER/HIGH。旧失败如下保留。
+当前记录：workflow-v2-integration-ce4d0b08a4b6的变更范围本地Review通过，无剩余BLOCKER/HIGH；不是独立语义Review或学生验收。新增回执反例先红：原门禁只凭不同审阅名可放行，已修为宿主回执绑定；8项隔离测试通过。阶段解释专项原schema无法读取stageReasonId的首失败保留，候选扩展后原SDK脚本与相关方向回归通过。公共攻略或工具结果不能当作本人原话；未说明阶段适用性诚实降级，界面统一实验性。
+
+本轮16逐卡结论发现3张Upwork外部主张超出8词片段，5处复盘阶段仍标start；四主线修订保留needs_review，临时库读回且学生读取拒绝。没有改原32卡或112覆盖，缺口未被标绿。
+
+工具错误另列：MIT原文准备时未沿原`.entry-content.first()`与移除header的归一化方式，产生MIT_QUOTE_CHANGED，原始HTML hash实际未变；修正后全文/片段均对应。第一次相关后端命令选择不存在的workflow-zero-budget.test.ts，隔离运行器在创建DB前拒绝；改用实际workflow-zero.test.ts。`pending-review-preparation-first.log`、`action-stage-related.log`均保留，不计产品失败或真实模型尝试。
+
+以下旧失败与验收均保留为历史。原时间360取首项、自然六小时缺承接、零动作invalid_contract、SDK句柄丢失、星图经验边问题证据在evidence/local-time-20261010，不再重跑替代当前业务进展。
+
+提交前独立哈希核对脚本首次误用localeCompare排序，重算为50566b4b…，与原协议字节序ce4d0b08…不符；逐文件438项均相同。改用原协议的字符序后526项文件哈希核对通过，没有改源清单或证据。属于检查工具错误，不是新产品失败或模型调用。
 
 以下为历史候选workflow-v2-integration-ee442ef15ffa记录：
 

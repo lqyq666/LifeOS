@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 4,
-  "version": "workflow-v2-integration-c373290f0265",
-  "head": "b66b29a73594455862ec181e3a3cd78366a24ecc",
+  "schemaVersion": 5,
+  "version": "workflow-v2-integration-ce4d0b08a4b6",
+  "head": "e0dc40a609baec20446fe98be9e54bbd14a2c8b4",
   "status": "WIP_NOT_READY",
   "highestStatus": [
     "MODIFIED",
@@ -18,70 +18,33 @@
   "checks": {
     "root": {
       "passed": 117,
-      "evidence": "root-final3.log"
+      "evidence": "pending-review-root-final.log"
     },
-    "related": {
-      "passed": 96,
-      "suites": {
-        "related-action-coach-engine.log": 44,
-        "related-action-coach-material-boundary.log": 9,
-        "related-coze-code-workflow.log": 5,
-        "related-guide-usage-http.log": 1,
-        "related-workflow-action.log": 6,
-        "related-workflow-contracts.log": 14,
-        "related-workflow-direction.log": 10,
-        "related-workflow-growth-knowledge.log": 6,
-        "related-workflow-main-entry.log": 1
-      },
-      "note": "action-coach-engine rerun after final wish guard; other eight unchanged modules retained from this turn"
+    "authenticatedReviewReceiptGate": {
+      "passed": 8,
+      "evidence": "independent-review-final.log",
+      "kind": "LOCAL_HOST_JOURNAL_FIXTURE_NOT_REAL_APPROVAL"
     },
-    "newBackendContracts": {
-      "passed": 6,
-      "evidence": "wish-backend-final2.log",
-      "overlapsOtherSuites": true
+    "pendingGuidePreparation": {
+      "passed": 2,
+      "evidence": "pending-review-import-first.log",
+      "kind": "REAL_ISOLATED_POSTGRESQL_NO_PROVIDER"
     },
-    "finalBackendBatch": {
-      "passed": 73,
-      "evidence": "wish-backend-final2.log"
-    },
-    "retrievalAndWorkflowSafety": {
-      "passed": 14,
-      "evidence": "retrieval-safety-final.log"
-    },
-    "persistedReplyReadback": {
+    "directionActionBasis": {
       "passed": 1,
-      "rounds": 24,
-      "evidence": "round-readback-final.log",
+      "evidence": "action-stage-skill-readback.log",
       "provider": "SCRIPTED_LOOPBACK_ONLY"
     },
-    "httpBrowser": {
-      "passed": 3,
-      "evidence": "browser-demo-final4.log",
-      "widths": [
-        1440,
-        390
-      ],
-      "physicalPhone": false
+    "relatedDirection": {
+      "passed": 13,
+      "evidence": "action-stage-related-final.log",
+      "provider": "LOCAL_SCRIPTED_OR_DETERMINISTIC",
+      "notDisjointFromOtherSuites": true
     },
-    "fourChains": {
-      "rounds": 24,
-      "sessions": 12,
-      "screenshots": 24,
-      "provider": "SCRIPTED_LOOPBACK_ONLY",
-      "evidence": "FOUR_ROUND_READBACKS.json"
-    },
-    "typecheckFrontend": "PASS",
     "typecheckServer": "PASS",
+    "typecheckFrontend": "PASS_BUILD_TSC",
     "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
-    "savedFailure13": {
-      "status": "BASELINE_RETAINED",
-      "newRun": false
-    },
-    "demo": {
-      "seconds": 184.374,
-      "video": "demo/local-campus-story.mp4",
-      "provider": "SCRIPTED_LOOPBACK_ONLY"
-    }
+    "currentCandidateBrowser": "NOT_TESTED_COPY_CHANGE_BUILT_ONLY"
   },
   "paused": {
     "realModels": "PAUSED_NOT_RUN",
@@ -92,12 +55,12 @@
     "studentAcceptance": "PAUSED_NOT_RUN"
   },
   "acceptanceByGoal": {
-    "A": "PASS_LOCAL_SCRIPTED_CONTINUITY_REAL_SEMANTICS_PAUSED",
-    "B": "PASS_BASIS_LINK_CONTRACT_REAL_GAIN_PAUSED",
-    "C": "PASS_LOCAL_LIFECYCLE_AND_AVAILABILITY_STUDENT_COMPREHENSION_PENDING",
-    "D": "PARTIAL_APPROVED_METHOD_CONTINUATION_59_SOURCE_GAPS_16_PENDING",
-    "E": "PASS_LOCAL_HOST_FIVE_SKILLS_CLOUD_PAUSED",
-    "F": "PASS_LOCAL_TECHNICAL_SCOPE_REAL20_PERFORMANCE_PAUSED"
+    "A": "BASELINE_LOCAL_SCRIPTED_CONTINUITY_RETAINED_REAL_SEMANTICS_PAUSED",
+    "B": "PASS_LOCAL_BASIS_RELATION_STAGE_CATALOGUE_AND_PROVENANCE_CONTRACT_REAL_GAIN_PAUSED",
+    "C": "BASELINE_LOCAL_LIFECYCLE_RETAINED_CURRENT_REAL_COMPREHENSION_NOT_TESTED",
+    "D": "16_EXPLICIT_PENDING_DECISIONS_112_DESTINATIONS_4_REVISION_CANDIDATES_59_GAPS_NOT_CLOSED_NO_INDEPENDENT_RELEASE",
+    "E": "CURRENT_REPO_USER_INSTALL_AND_PROCESS_SEPARATED_DIRECTION_SKILL_SCRIPTED_READBACK_OTHER_FOUR_BASELINE_CLOUD_PAUSED",
+    "F": "PASS_CURRENT_LOCAL_TECHNICAL_SCOPE_REAL20_PERFORMANCE_PAUSED"
   },
   "realPerformance": {
     "samples": 0,
@@ -125,5 +88,112 @@
     "SAFETY_EVAL.json": "bdedbb8328298dc21ae9d9ddf473c1d8503152c68969a5a9400b7abb07235b28"
   },
   "historicalAcceptance": "evidence/acceptance-20261010/baseline-0670/WORKFLOW_ACCEPTANCE.json",
-  "noPushMergeDeploy": true
+  "noPushMergeDeploy": true,
+  "codeCommit": "e0dc40a609baec20446fe98be9e54bbd14a2c8b4",
+  "continuationBaseline": {
+    "version": "workflow-v2-integration-c373290f0265",
+    "reportedHead": "aea83005182604f71e56543c0196f1940d06ab78",
+    "codeCommit": "b66b29a73594455862ec181e3a3cd78366a24ecc",
+    "acceptance": "evidence/acceptance-20261010/pending-review/baseline-c373/WORKFLOW_ACCEPTANCE.json",
+    "fourChains": {
+      "rounds": 24,
+      "sessions": 12,
+      "provider": "SCRIPTED_LOOPBACK_ONLY",
+      "status": "BASELINE_RETAINED_NOT_RERUN_NOT_REAL_MODEL_EFFECT"
+    },
+    "otherChecks": {
+      "root": {
+        "passed": 117,
+        "evidence": "root-final3.log"
+      },
+      "related": {
+        "passed": 96,
+        "suites": {
+          "related-action-coach-engine.log": 44,
+          "related-action-coach-material-boundary.log": 9,
+          "related-coze-code-workflow.log": 5,
+          "related-guide-usage-http.log": 1,
+          "related-workflow-action.log": 6,
+          "related-workflow-contracts.log": 14,
+          "related-workflow-direction.log": 10,
+          "related-workflow-growth-knowledge.log": 6,
+          "related-workflow-main-entry.log": 1
+        },
+        "note": "action-coach-engine rerun after final wish guard; other eight unchanged modules retained from this turn"
+      },
+      "newBackendContracts": {
+        "passed": 6,
+        "evidence": "wish-backend-final2.log",
+        "overlapsOtherSuites": true
+      },
+      "finalBackendBatch": {
+        "passed": 73,
+        "evidence": "wish-backend-final2.log"
+      },
+      "retrievalAndWorkflowSafety": {
+        "passed": 14,
+        "evidence": "retrieval-safety-final.log"
+      },
+      "persistedReplyReadback": {
+        "passed": 1,
+        "rounds": 24,
+        "evidence": "round-readback-final.log",
+        "provider": "SCRIPTED_LOOPBACK_ONLY"
+      },
+      "httpBrowser": {
+        "passed": 3,
+        "evidence": "browser-demo-final4.log",
+        "widths": [
+          1440,
+          390
+        ],
+        "physicalPhone": false
+      },
+      "fourChains": {
+        "rounds": 24,
+        "sessions": 12,
+        "screenshots": 24,
+        "provider": "SCRIPTED_LOOPBACK_ONLY",
+        "evidence": "FOUR_ROUND_READBACKS.json"
+      },
+      "typecheckFrontend": "PASS",
+      "typecheckServer": "PASS",
+      "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
+      "savedFailure13": {
+        "status": "BASELINE_RETAINED",
+        "newRun": false
+      },
+      "demo": {
+        "seconds": 184.374,
+        "video": "demo/local-campus-story.mp4",
+        "provider": "SCRIPTED_LOOPBACK_ONLY"
+      }
+    }
+  },
+  "pendingCardDecisions": 16,
+  "pendingRevisionCandidates": 4,
+  "pendingRevisionsServed": false,
+  "mainCorpusModified": false,
+  "deepMode": "EXPERIMENTAL_REAL_GAIN_NOT_PROVEN",
+  "firstFailuresPreserved": [
+    "independent-review-red.log",
+    "pending-review-preparation-first.log",
+    "action-stage-red.log",
+    "action-stage-related.log"
+  ],
+  "realSmallBatch": {
+    "status": "PAUSED_NOT_RUN",
+    "twoDirectionAttempts": 0,
+    "threeDirectionAttempts": 0,
+    "ordinaryAttempts": 0,
+    "reviewAttempts": 0
+  },
+  "perTurnQuality": {
+    "technical": "TESTED_LOCAL_CHANGED_SCOPE",
+    "semantic": "PAUSED_NOT_RUN_REAL_MODEL",
+    "source": "READ_LOCAL_ORIGINALS_SUPPORT_BOUNDED_NOT_ALL_GAPS_CLOSED",
+    "requiredStateCommit": "TESTED_LOCAL_NO_NEW_CHAT_OR_GROWTH_WRITE",
+    "intent": "RELATED_LOCAL_REFUSAL_ZERO_BUDGET_CANCEL_PROTECTIONS",
+    "continuity": "24_ROUND_SCRIPTED_BASELINE_ONLY_CURRENT_REAL_NOT_TESTED"
+  }
 }

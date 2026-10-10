@@ -1,9 +1,9 @@
 {
   "schemaVersion": 2,
   "baseline": "evidence/acceptance-20261010/baseline-0670/SKILL_VERSION_MATRIX.json",
-  "at": "2026-10-10T08:52:19.101944+00:00",
-  "candidate": "workflow-v2-integration-c373290f0265",
-  "repositoryCommit": "b66b29a73594455862ec181e3a3cd78366a24ecc",
+  "at": "2026-10-10T09:38:54.822Z",
+  "candidate": "workflow-v2-integration-ce4d0b08a4b6",
+  "repositoryCommit": "e0dc40a609baec20446fe98be9e54bbd14a2c8b4",
   "mainRepository": {
     "version": "1.2.2-candidate",
     "sha256": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
@@ -73,7 +73,8 @@
     "loadedAt": "2026-10-10T08:47:15.313Z",
     "contractGeneration": "p4+workflow-v2",
     "growthApi": true,
-    "processKind": "ACTUAL_AUTHENTICATED_TEST_HTTP_SERVER_CLOSED_AFTER_ACCEPTANCE"
+    "processKind": "ACTUAL_AUTHENTICATED_TEST_HTTP_SERVER_CLOSED_AFTER_ACCEPTANCE",
+    "historicalOnly": true
   },
   "directionTestProcess": {
     "service": "LifeOS",
@@ -112,18 +113,30 @@
     ],
     "loadedAt": "2026-10-10T08:44:09.081Z",
     "contractGeneration": "p4+workflow-v2",
-    "growthApi": true
+    "growthApi": true,
+    "historicalOnly": true
   },
   "installedUserMainSkill": {
-    "path": "C:\\Users\\LQY\\.agents\\skills\\lifeos-personal-companion\\SKILL.md",
+    "path": "C:/Users/LQY/.agents/skills/lifeos-personal-companion/SKILL.md",
     "version": "1.2.0",
     "sha256": "6c3bfbb6517273188f84db9c0f9cb0a2f081f45afa80d2c014094556b11571cf",
     "modified": false,
-    "verifiedAt": "2026-10-10T08:52:19.101944+00:00"
+    "verifiedAt": "2026-10-10T09:38:53.909Z",
+    "execution": "NOT_TESTED_THIS_TURN"
   },
   "persistentServiceCheck": {
-    "8787": "CONNECTION_REFUSED",
-    "3001": "VERSION_ENDPOINT_404_SERVICE_NOT_VERIFIED",
+    "checkedAt": "2026-10-10T09:38:53.909Z",
+    "ports": [
+      {
+        "port": 8787,
+        "status": "UNREACHABLE_NO_RESTART"
+      },
+      {
+        "port": 3001,
+        "status": "HTTP_404_SERVICE_VERSION_NOT_VERIFIED"
+      }
+    ],
+    "currentServiceVersion": "NOT_TESTED",
     "action": "READ_ONLY_NO_RESTART_NO_DEPLOY"
   },
   "cloudMainSkill": {
@@ -135,5 +148,137 @@
   "cloudProfessionalSkills": {
     "status": "PAUSED_NOT_RUN",
     "actualLoadVersions": null
+  },
+  "latestReadOnlyInspection": {
+    "kind": "CURRENT_READ_ONLY_VERSION_AND_LEDGER_INSPECTION",
+    "at": "2026-10-10T09:38:53.909Z",
+    "head": "e0dc40a609baec20446fe98be9e54bbd14a2c8b4",
+    "repository": [
+      {
+        "name": "lifeos-personal-companion",
+        "path": "skills/lifeos-personal-companion/SKILL.md",
+        "status": "PRESENT_METADATA_READ_ONLY_NOT_EXECUTION",
+        "version": "1.2.2-candidate",
+        "sha256": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
+      },
+      {
+        "name": "lifeos-direction-analysis",
+        "path": "skills/lifeos-direction-analysis/SKILL.md",
+        "status": "PRESENT_METADATA_READ_ONLY_NOT_EXECUTION",
+        "version": "0.2.0-candidate",
+        "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89"
+      },
+      {
+        "name": "lifeos-action-review",
+        "path": "skills/lifeos-action-review/SKILL.md",
+        "status": "PRESENT_METADATA_READ_ONLY_NOT_EXECUTION",
+        "version": "0.2.0-candidate",
+        "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f"
+      },
+      {
+        "name": "lifeos-experience-evidence",
+        "path": "skills/lifeos-experience-evidence/SKILL.md",
+        "status": "PRESENT_METADATA_READ_ONLY_NOT_EXECUTION",
+        "version": "0.2.0-candidate",
+        "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494"
+      },
+      {
+        "name": "lifeos-guide-application",
+        "path": "skills/lifeos-guide-application/SKILL.md",
+        "status": "PRESENT_METADATA_READ_ONLY_NOT_EXECUTION",
+        "version": "0.2.0-candidate",
+        "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c"
+      },
+      {
+        "name": "lifeos-growth-diff",
+        "path": "skills/lifeos-growth-diff/SKILL.md",
+        "status": "PRESENT_METADATA_READ_ONLY_NOT_EXECUTION",
+        "version": "0.2.0-candidate",
+        "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333"
+      }
+    ],
+    "installedUser": [
+      {
+        "name": "lifeos-personal-companion",
+        "path": "C:/Users/LQY/.agents/skills/lifeos-personal-companion/SKILL.md",
+        "status": "PRESENT_METADATA_READ_ONLY_NOT_EXECUTION",
+        "version": "1.2.0",
+        "sha256": "6c3bfbb6517273188f84db9c0f9cb0a2f081f45afa80d2c014094556b11571cf"
+      },
+      {
+        "name": "lifeos-direction-analysis",
+        "path": "C:/Users/LQY/.agents/skills/lifeos-direction-analysis/SKILL.md",
+        "status": "NOT_INSTALLED",
+        "version": null,
+        "sha256": null
+      },
+      {
+        "name": "lifeos-action-review",
+        "path": "C:/Users/LQY/.agents/skills/lifeos-action-review/SKILL.md",
+        "status": "NOT_INSTALLED",
+        "version": null,
+        "sha256": null
+      },
+      {
+        "name": "lifeos-experience-evidence",
+        "path": "C:/Users/LQY/.agents/skills/lifeos-experience-evidence/SKILL.md",
+        "status": "NOT_INSTALLED",
+        "version": null,
+        "sha256": null
+      },
+      {
+        "name": "lifeos-guide-application",
+        "path": "C:/Users/LQY/.agents/skills/lifeos-guide-application/SKILL.md",
+        "status": "NOT_INSTALLED",
+        "version": null,
+        "sha256": null
+      },
+      {
+        "name": "lifeos-growth-diff",
+        "path": "C:/Users/LQY/.agents/skills/lifeos-growth-diff/SKILL.md",
+        "status": "NOT_INSTALLED",
+        "version": null,
+        "sha256": null
+      }
+    ],
+    "persistentProcesses": [
+      {
+        "port": 8787,
+        "status": "UNREACHABLE_NO_RESTART"
+      },
+      {
+        "port": 3001,
+        "status": "HTTP_404_SERVICE_VERSION_NOT_VERIFIED"
+      }
+    ],
+    "cloud": {
+      "status": "PAUSED_NOT_RUN",
+      "historicalMainVersion": "1.2.0",
+      "freshHash": null,
+      "historicalVersionIsCurrentProof": false
+    },
+    "ledger": {
+      "path": ".local/v1.3-action-coach/paid/provider-calls.json",
+      "sha256": "03891a1f7f7da4ae969cf36c5a11777b92b353c012f3a3591a7e2d15f682a1a4",
+      "previousInspectionSha256": "03891a1f7f7da4ae969cf36c5a11777b92b353c012f3a3591a7e2d15f682a1a4",
+      "unchangedSincePreviousInspection": true,
+      "realCallsAdded": 0,
+      "cloudCallsAdded": 0,
+      "costAddedCny": 0,
+      "outstandingHistoricalUsage": "UNRESOLVED_RETAINED_NO_ZERO_SETTLEMENT"
+    },
+    "newBudget": 0,
+    "paidRetries": 0,
+    "sourceOrInstalledSkillsModified": false
+  },
+  "historicalLocalTestProcessesAreCurrentServiceProof": false,
+  "latestDirectionSkillReadback": {
+    "status": "PASS_LOCAL_SCRIPTED_HOST",
+    "file": "evidence/acceptance-20261010/pending-review/PERSONAL_BASIS_ABC.json",
+    "sourceFilesFingerprint": "ce4d0b08a4b6bc21780cd413d7b2359eb40e8131a31791c84da991476a88f960",
+    "actualLoads": 7,
+    "version": "0.2.0-candidate",
+    "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+    "realModelCompliance": "PAUSED_NOT_RUN"
   }
 }
