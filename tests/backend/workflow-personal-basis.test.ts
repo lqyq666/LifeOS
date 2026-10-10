@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createServer} from 'node:http'
 import {randomUUID,createHash} from 'node:crypto'
-import {writeFileSync} from 'node:fs'
+import {readFileSync,writeFileSync} from 'node:fs'
 import {dirname} from 'node:path'
 import {fixture} from '../workflows/fixtures.ts'
 import {model,resolveModel} from '../../server/model.ts'
@@ -33,7 +33,7 @@ test('A/B/C personal basis binds the reviewed action to the actual missing evide
   res.writeHead(200,{'Content-Type':'text/event-stream'});res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(out)},finish_reason:null}]})+'\n\ndata: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:300,completion_tokens:100,total_tokens:400}})+'\n\ndata: [DONE]\n\n')
  })})
  await new Promise<void>(r=>fake.listen(0,'127.0.0.1',r));model.baseUrl='http://127.0.0.1:'+(fake.address() as any).port;config.apiKey='synthetic-loopback-only'
- const freezePath=dirname(budget.path)+'/freeze.json';writeFileSync(freezePath,JSON.stringify(captureCoachSource()))
+ const freezePath=dirname(budget.path)+'/freeze.json',frozen=captureCoachSource();writeFileSync(freezePath,JSON.stringify(frozen))
  try{
   const wf=createDirectionWorkflow(async()=>f.records,createRuntimeDecisionAdapter({readEvidence:async()=>f.records,freezePath,budget,syntheticTransport:true,runtime:{...resolveModel('default'),pricing:{inputCnyPerMillion:1,outputCnyPerMillion:2}}}))
   for(const spec of [
@@ -59,6 +59,9 @@ test('A/B/C personal basis binds the reviewed action to the actual missing evide
   malicious=false;publicBasis=true;f.request.requestId=randomUUID();f.request.traceId=randomUUID();const borrowed=await wf.run(f.request);assert.equal(borrowed.status,'unavailable');assert.equal(borrowed.failure,'source_invalid');assert.equal(borrowed.proposal,undefined,'public methods are not personal evidence')
   publicBasis=false;invalidStage=true;f.request.requestId=randomUUID();f.request.traceId=randomUUID();const fabricatedStage=await wf.run(f.request);assert.equal(fabricatedStage.failure,'source_invalid');assert.equal(fabricatedStage.proposal,undefined)
   invalidStage=false;noStage=true;f.request.requestId=randomUUID();f.request.traceId=randomUUID();const missingStage=await wf.run(f.request);assert.equal(missingStage.status,'proposed');assert.match(missingStage.proposal!.nextActions[0].stopCondition,/阶段适用性尚未说明/)
-  writeFileSync((process.env.LIFEOS_WORKFLOW_EVIDENCE??'.planning/research/workflow-integration/evidence/acceptance-20261010')+'/PERSONAL_BASIS_ABC.json',JSON.stringify({evidence:'NATIVE_SDK_SCRIPTED_SELECTION_CONTRACT_ONLY_NOT_REAL_MODEL_GAIN',paidCalls:0,cloudCalls:0,cases,malicious:bad,borrowedPublic:borrowed,fabricatedStage,missingStage},null,2))
+  const loadedSkills=wf.trace.rows.filter(x=>x.agentRole==='skill');assert.equal(loadedSkills.length,7)
+  for(const row of loadedSkills){assert.equal(row.skill,'lifeos-direction-analysis');assert.equal(row.status,'succeeded');assert.equal(row.skillVersion,'0.2.0-candidate');assert.equal(row.skillDigest,createHash('sha256').update(readFileSync('skills/lifeos-direction-analysis/SKILL.md')).digest('hex'))}
+  const sourceFiles=Object.fromEntries(frozen.files.map(x=>[x.path,x.sha256]).sort(([a],[b])=>a<b?-1:a>b?1:0))
+  writeFileSync((process.env.LIFEOS_WORKFLOW_EVIDENCE??'.planning/research/workflow-integration/evidence/acceptance-20261010')+'/PERSONAL_BASIS_ABC.json',JSON.stringify({evidence:'NATIVE_SDK_SCRIPTED_SELECTION_CONTRACT_ONLY_NOT_REAL_MODEL_GAIN',paidCalls:0,cloudCalls:0,sourceFilesFingerprint:createHash('sha256').update(JSON.stringify(sourceFiles)).digest('hex'),loadedSkills,cases,malicious:bad,borrowedPublic:borrowed,fabricatedStage,missingStage},null,2))
  }finally{model.baseUrl=old.url;config.apiKey=old.key;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()))}
 })
