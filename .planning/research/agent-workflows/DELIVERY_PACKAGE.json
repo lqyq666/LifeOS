@@ -1,0 +1,13 @@
+{
+  "version": "workflow-v2-ffd2186a2231",
+  "path": "D:\\aaaLife\\workflow-v2-ffd2186a2231-local-candidate.zip",
+  "sha256": "c6fe02f8f6927ecabfb241338f3e4d688317f362a1968b6d964009b9b54a9ab5",
+  "files": 514,
+  "sizeBytes": 5397476,
+  "verifiedEntries": 514,
+  "invalid": [],
+  "credentialFilesIncluded": false,
+  "providerLedgerIncluded": false,
+  "gitCommitCreated": false,
+  "head": "70914b1cbd55b75a4d0f74785163d33519f70f71"
+}

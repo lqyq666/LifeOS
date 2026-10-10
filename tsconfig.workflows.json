@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", "lib": ["ES2022", "DOM"], "module": "ESNext", "moduleResolution": "Bundler",
+    "strict": true, "skipLibCheck": true, "noEmit": true, "esModuleInterop": true,
+    "allowImportingTsExtensions": true, "types": ["node"]
+  },
+  "include": ["server/workflows/contracts.ts", "server/workflows/router.ts", "server/workflows/evidence-gate.ts", "server/workflows/trace.ts", "server/workflows/receipts.ts", "server/workflows/orchestrator.ts", "server/workflows/action-review.ts", "server/workflows/action-workflow.ts", "server/workflows/direction-decision.ts", "server/workflows/growth-diff.ts", "server/workflows/guide-application.ts", "server/workflows/knowledge-maintenance.ts", "server/workflows/skills.ts", "tests/workflows/fixtures.ts", "tests/backend/workflow-contracts.test.ts", "tests/backend/workflow-direction.test.ts", "scripts/workflow-demo.ts"]
+}

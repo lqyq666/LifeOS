@@ -1,0 +1,531 @@
+{
+  "checkedAt": "2026-10-10T04:02:17.413Z",
+  "root": "D:\\aaaLife\\LifeOS",
+  "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
+  "branch": "fix/campus-acceptance-contract-20261006",
+  "status": "READY_FOR_CONTRACT_ONLY",
+  "integration": "INTEGRATION_BLOCKED",
+  "protectedFiles": [
+    {
+      "file": "server/campus-knowledge.ts",
+      "status": " M",
+      "sha256": "7f840dc5f5970958a7bc5e2be003cd00f1a0747011f092635edcff6157c4fc2d"
+    },
+    {
+      "file": "server/coach-knowledge.ts",
+      "status": " M",
+      "sha256": "ff68f2aca4b2848d29080053349809407afa90c864d73cff8b4a1ec93fd3f3ed"
+    },
+    {
+      "file": "server/coze-knowledge.ts",
+      "status": " M",
+      "sha256": "84e5ce9d089a6df57904baaa2184da6a9274115d224e8b9a23b064dbe6672057"
+    },
+    {
+      "file": "server/http.ts",
+      "status": " M",
+      "sha256": "f03d8822bd5092c9a741caab32bdd04da78217def0932abbe7520a9bedf3eaa1"
+    },
+    {
+      "file": "server/store.ts",
+      "status": " M",
+      "sha256": "0b99396e6e86a3c42b447263332bca24aee3accf293d174bf8c00fd0c09ab3c4"
+    },
+    {
+      "file": "server/turn-contract.ts",
+      "status": " M",
+      "sha256": "c39238d98298ce19e8bb6ef4488f888348f88316c95e0979b6cdbfa732fe6553"
+    },
+    {
+      "file": "server/turn-engine.ts",
+      "status": " M",
+      "sha256": "d40c3babb9e6b2a2c5592018a11840ba9152fcd39a241432fce7cd91b9fad3fb"
+    },
+    {
+      "file": "server/turn-prompt.ts",
+      "status": " M",
+      "sha256": "f5acc95e29f56d9e28c4fec71cd4ea1627435b37be233aee4f828583743ddc82"
+    },
+    {
+      "file": "skills/lifeos-personal-companion/SKILL.md",
+      "status": " M",
+      "sha256": "8af5077d661b99f857e0e61eb137b2df80a5c68b08549b90b6d57fb15f10518e"
+    },
+    {
+      "file": "skills/lifeos-personal-companion/references/host-api.md",
+      "status": " M",
+      "sha256": "3cce1d72f71ffed9353065e526f1648dde273787381fcbff5c2ab6a860851699"
+    },
+    {
+      "file": "src/features/conversation/ReplyMarkdown.tsx",
+      "status": " M",
+      "sha256": "25167aa63f8ece0dacd9ccb405e93a4c6730590b8a178294ae877857e68e18c2"
+    },
+    {
+      "file": "src/features/conversation/conversation.css",
+      "status": " M",
+      "sha256": "8880efd83804144b05d50db505bfab89628be41a65c92fd695187ba923f5c351"
+    },
+    {
+      "file": "tests/backend/coze-knowledge.test.ts",
+      "status": " M",
+      "sha256": "84ce4f975788a48ac02617dffca68b9ce8e82f6834cf71e97e0e53e351d85288"
+    },
+    {
+      "file": "tests/backend/starmap-g1.test.ts",
+      "status": " M",
+      "sha256": "1c0040d0b4de62707d8f9e9949164ab503623b15613ff5bbd09fde119dc19df3"
+    },
+    {
+      "file": "tests/backend/starmap-trust.test.ts",
+      "status": " M",
+      "sha256": "ca36b8e7b2dbfc5a56d718311950b9eebd111d94ea323b0018d495b849bba0dd"
+    },
+    {
+      "file": "tests/backend/theme-lifecycle.test.ts",
+      "status": " M",
+      "sha256": "5bc2c68e1e1d23b93bc5c3475ddfa81cb827459e7dfc2e911dfba6271fb4ea5c"
+    },
+    {
+      "file": ".planning/research/coze-codex/COZE_ACCESS_AUDIT.json",
+      "status": "??",
+      "sha256": "c6738f8a44daf1d333716041227df6563c9a97cd7d3c76c07d9dbce7660d8c50"
+    },
+    {
+      "file": ".planning/research/coze-codex/COZE_INTEGRATION_FREEZE.json",
+      "status": "??",
+      "sha256": "cebaff7513b7586ec68ccbc3b50216e10c3733f3f9ca22d369a3e9b229a10662"
+    },
+    {
+      "file": ".planning/research/coze-codex/COZE_MIRROR_PLAN.json",
+      "status": "??",
+      "sha256": "1ca6f5150fb7ea478b9c71cac482931d5ae25a9016be7611253e17b12b6c1133"
+    },
+    {
+      "file": ".planning/research/coze-codex/COZE_VERIFICATION_REPORT.json",
+      "status": "??",
+      "sha256": "0099c3db2d6ef47af7e72a16d874238894065f2bb132e3a31c190b1ac5a2b13d"
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/backend-round2.log",
+      "status": "??",
+      "sha256": "938637069e746a372646179f257d8b693efb96549afb67282258a35550b361d0"
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/backend.log",
+      "status": "??",
+      "sha256": "f813d75c58911cda140f3ca469b8418ee1aed224b8e93dd3dfd3b98f72d23ec1"
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/evergreen-pure.log",
+      "status": "??",
+      "sha256": "b8bb8048714b229ccee418fabfa4e34f95e7e06aa80d50a72fe58b12a354c53a"
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/frontend-typecheck.log",
+      "status": "??",
+      "sha256": "bd965414e423411b589b243fcdf164f97a180c0189533c2724c34c8caa16cb4d"
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/server-typecheck.log",
+      "status": "??",
+      "sha256": "83e54b6c5b908beaa21d4bbe94a479530410c34cf934c6a1c1d1e0667a0ed118"
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/starmap-final.log",
+      "status": "??",
+      "sha256": "ceacbbc40aaff72902afa31ab65b00ecc06cd2b706d57545b78735ac6d1e8082"
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/starmap.log",
+      "status": "??",
+      "sha256": "30629dc79a056e53c32607df4aedf73f4eb50de189f236fe4a7bad19ffc4d9e8"
+    },
+    {
+      "file": ".planning/research/evergreen/DEVELOPMENT_SPEC.md",
+      "status": "??",
+      "sha256": "6424d382c972e0e5afa11de105c1be7ee9bbcd890e39de07d169e68ebf0822cc"
+    },
+    {
+      "file": ".planning/research/evergreen/HANDOFF.md",
+      "status": "??",
+      "sha256": "dc70431081505a5a8b2ea8d06aa3456794938de5e0a5f70ba01f932a65e4e85d"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_ACCEPTANCE.md",
+      "status": "??",
+      "sha256": "ac2813f86597b8953cfde77f171a2dc5e0085fa5387abbf50023b49f2f867693"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_BACKEND_REPORT.json",
+      "status": "??",
+      "sha256": "87c5244fd9bf21696644074337979ec3b5e6cbb00b3de67ef0f39dccb083e8d7"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_BASELINE_CHECKS.json",
+      "status": "??",
+      "sha256": "dcffdbcba624725f983269158dc81126e3e6a4554312d96b931e37d18a608547"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_BROWSER_REPORT.json",
+      "status": "??",
+      "sha256": "68f5e928118e050c0b908b632bb3256c7a2961adc87728e49f9ab090c80e62e3"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_CARD_REGRESSIONS.json",
+      "status": "??",
+      "sha256": "732850de84b366d6ea24eb764bf04f0ced63749b80dc80fc7adc2f9c38f3f708"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_CONTEXT_DESIGN.md",
+      "status": "??",
+      "sha256": "448b227f53fa2c8bda6e0f5b9012e97de294a99b30774b444bba555e2949ce3c"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_COVERAGE.json",
+      "status": "??",
+      "sha256": "8741e5beafad19f4640117e723542c0aa942993c2bd71dbb73aaa6f6c8275f24"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_DUPLICATES_REPORT.md",
+      "status": "??",
+      "sha256": "e127c4815589b7acc366d69ba1a20ca023f63229781bbf1998e200c6b60cd07f"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_EVIDENCE.jsonl",
+      "status": "??",
+      "sha256": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_EVIDENCE_REOPEN.jsonl",
+      "status": "??",
+      "sha256": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_FREEZE.json",
+      "status": "??",
+      "sha256": "ea1bff4f950427b151e850f57cae7841736d72940d2d9c22536179bff3eed806"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_GAPS.md",
+      "status": "??",
+      "sha256": "18a0a60ef207bfacb6533261f1be7389f3e271c8539cfdbf93c2a39fccbd5b51"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_GUIDES.jsonl",
+      "status": "??",
+      "sha256": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_IMPLEMENTATION_FREEZE.json",
+      "status": "??",
+      "sha256": "648de33f8de5c3c36124c3fa750e091c22066eab1dab7f3a687d9e4b2322b0ad"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_INDEX_LOAD_REPORT.json",
+      "status": "??",
+      "sha256": "50a589965504298c69966aed04193a53b4439cd211b90706ab85648f368725b7"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_LEGACY_MAP.json",
+      "status": "??",
+      "sha256": "e236b232abd9c5c7de1f64a6dd688d0640d272841dcdccbe0a42c7172e43c2fd"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_PROVIDER_PREFLIGHT.json",
+      "status": "??",
+      "sha256": "058a043c2b8446ba43fad6370e33e9cfe944ce1df89e3d1a86f49ec47c257871"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_QUERY_BENCHMARK.json",
+      "status": "??",
+      "sha256": "51d0ed528443144a1f10640712b55222e5ca4e2cec3c2d304fa72ac473ae6d51"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_RETRIEVAL_EVAL.json",
+      "status": "??",
+      "sha256": "4b0731a082f88f4727ed2df3265b5c27ab2b8f0124356cde3ae71163d0ffe739"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_RETRIEVAL_EVAL.md",
+      "status": "??",
+      "sha256": "f03978084de5035234acda1e7852044f7641029f733d4d56736f93fcb42e40eb"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_SEMANTIC_REVIEW.json",
+      "status": "??",
+      "sha256": "1098fcb1688768f6a343eac608aa09342dd132de27faed729668d7729e62ff43"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl",
+      "status": "??",
+      "sha256": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_SOURCE_REOPEN.jsonl",
+      "status": "??",
+      "sha256": "4bb93c3397ae690400c16cba4a66c39d8e2db1d7c65677f375354cb6bd81f509"
+    },
+    {
+      "file": ".planning/research/evergreen/KB_TAXONOMY.json",
+      "status": "??",
+      "sha256": "63d6cf11f2b7633035b3044a2e233a2470b49d79abcd13c290a46699c6845e70"
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/corpus-and-browser.log",
+      "status": "??",
+      "sha256": "1c45c79ced2c9fccf915d1c1813c7d16d80ac12e8efeafa4ee21a3ae43eab342"
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/desktop.png",
+      "status": "??",
+      "sha256": "a8b7a2ea684114901983b10efeb3de6870be4636b528704b286c0af9d5cd15e5"
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/frontend-build.log",
+      "status": "??",
+      "sha256": "10ec5c659830e6652407978312cefdc2318d3d86d2d11312e6da47e2aee7545f"
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/index-load.log",
+      "status": "??",
+      "sha256": "573604ec4ca2f90da3a4988986dd15aaa7b25ef708b769975b06415bc5c5e85c"
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/legacy-knowledge.log",
+      "status": "??",
+      "sha256": "09e78b035405dbad391c79562c8b9ab51d137dbae99bb182b410b5ec3302142c"
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/mobile.png",
+      "status": "??",
+      "sha256": "fa744c8a2c809c10bf421f6179ee9de0b8fa963ad35978fb121fac737fa7f342"
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/root-tests.log",
+      "status": "??",
+      "sha256": "ea8a03ecdb7c90fcdaf37c26198dcc0ed8c3d65734bb6b4876ccb9d0b72b1456"
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/server-typecheck.log",
+      "status": "??",
+      "sha256": "497444754e1b862596b7d74c7931f44c6c0ed3225c53cc27e9cf6cedd721fe6a"
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/simulated-provider.log",
+      "status": "??",
+      "sha256": "3122655f027a062e77389b9a88d8fa8eab4cc3605126205f5f9c60f3808cfc7c"
+    },
+    {
+      "file": ".planning/research/evergreen/sources.md",
+      "status": "??",
+      "sha256": "4d570e700067e3bba9a8bc666784fb17f658826a099002f48eb6992008e0d69a"
+    },
+    {
+      "file": "COZE_CODEX_HANDOFF.md",
+      "status": "??",
+      "sha256": "5735d8336cc5769fed9ab19c00a7bfc34a26d05d2448a69d9814517096a809ad"
+    },
+    {
+      "file": "scripts/coze-access-audit.ps1",
+      "status": "??",
+      "sha256": "737455f85b489c23b298a029268a1f2ecaaba561302cc4d16e79850ad294474f"
+    },
+    {
+      "file": "scripts/coze-prepare-mirror.ts",
+      "status": "??",
+      "sha256": "a02ccfab2c3f39300c397bd53d4910b2a64c3aa448949cf9183d3205411017f5"
+    },
+    {
+      "file": "scripts/evergreen-audit.ts",
+      "status": "??",
+      "sha256": "b624d4ae117dd7e4b80ca59f054f02dcef51be477ec6b1b9f6da0b4e2fb588bd"
+    },
+    {
+      "file": "scripts/evergreen-evaluation.ts",
+      "status": "??",
+      "sha256": "77080cefdf9b73ffd1bf685377dbd6b4ab778d697e63c66459fc905fbe78448f"
+    },
+    {
+      "file": "scripts/evergreen-evidence-enrichment.ts",
+      "status": "??",
+      "sha256": "31ac65ded8abcb09f8a9fa31239fb4d4a899e09c04179931c475223beb086876"
+    },
+    {
+      "file": "scripts/evergreen-knowledge.ts",
+      "status": "??",
+      "sha256": "2119b453688437cd47373c609af66720a019a704faade42391f98897190ee0c2"
+    },
+    {
+      "file": "scripts/evergreen-seed.ts",
+      "status": "??",
+      "sha256": "a0b50f4e78c345c4d1a5963d6af0024e673185d4a4e9be6e2178d8ed8af5cd95"
+    },
+    {
+      "file": "scripts/evergreen-semantic-review.ts",
+      "status": "??",
+      "sha256": "128e9b11e23ccfef6d548b02df57b6efe92907a50de38d836fde0bf43786cf0d"
+    },
+    {
+      "file": "scripts/evergreen-web-fragments.ts",
+      "status": "??",
+      "sha256": "e967bf69773be5acab18e3c99456f01015c19d4362e28b35d09cfee6d92921f4"
+    },
+    {
+      "file": "server/evergreen-guide.ts",
+      "status": "??",
+      "sha256": "948f1d19d3c49fea6d18b70b4f8169a8405e4f9e1d1f277c8664deb1559ac52e"
+    },
+    {
+      "file": "server/evergreen-maintenance.ts",
+      "status": "??",
+      "sha256": "3555d316a1da4000fc2eb2772b299879c591ca215f44bcefc59f6c5228707171"
+    },
+    {
+      "file": "server/evergreen-scope-guard.ts",
+      "status": "??",
+      "sha256": "8751ac14a39bf7ff4acc7f69bc36b63a00edca814de7a6ef4b60ce94a4931c0a"
+    },
+    {
+      "file": "server/guide-usage.ts",
+      "status": "??",
+      "sha256": "1ee38b6f2bf2e3f57cd18281f3197589988417925b6e0d8dc326aee2c3cfb7c3"
+    },
+    {
+      "file": "server/knowledge-index.ts",
+      "status": "??",
+      "sha256": "60210947986e2f992cedc05d9579f951b02c15e383eb06bd7e5fab4519b1e0c4"
+    },
+    {
+      "file": "server/migrations/029-evergreen-knowledge.sql",
+      "status": "??",
+      "sha256": "0612e8d823adcd7b85cc2eaa9f29b81f5a80ad68cfe41a5db3b51aa606c9882d"
+    },
+    {
+      "file": "src/features/conversation/FullMethod.tsx",
+      "status": "??",
+      "sha256": "93fb7e843d10d08f1860ac2e2f20837d5679605bd07ab579ebec3bf59c0423be"
+    },
+    {
+      "file": "tests/backend/evergreen-browser.test.ts",
+      "status": "??",
+      "sha256": "7ea49cc0afb1c761f9f7d6ee0b3759191ed96f7f2176498b9daa3f8e9306b52a"
+    },
+    {
+      "file": "tests/backend/evergreen-index-load.test.ts",
+      "status": "??",
+      "sha256": "91203eeaf18e83ee8029928f3389f99683526fa2a83ba4a52771967feebef2b4"
+    },
+    {
+      "file": "tests/backend/evergreen-knowledge.test.ts",
+      "status": "??",
+      "sha256": "ec387856a0635549c5131209a45d49436457131f4b3774856690f1ed6839c35b"
+    },
+    {
+      "file": "tests/backend/guide-usage-http.test.ts",
+      "status": "??",
+      "sha256": "2b034b9d7f5041575307d7cc2824501307dcb1b819205b6143ee2ec160143247"
+    },
+    {
+      "file": "tests/evergreen-guide.test.ts",
+      "status": "??",
+      "sha256": "5a8afb0adc5fdd61b7b129dbaa545da6c10fad613211d9f52d63eb000e0f4b5d"
+    }
+  ],
+  "serverTypecheck": {
+    "errors": 62,
+    "classes": [
+      "scripts/probe-model.ts(LINE): error TS2339: Property 'messageId' does not exist on type '{ clauseIds: string[]; }'.\r",
+      "scripts/probe-model.ts(LINE): error TS2339: Property 'quote' does not exist on type '{ clauseIds: string[]; }'.\r",
+      "server/growth-authority.ts(LINE): error TS2322: Type '\"fragment\"' is not assignable to type '\"code\" | \"interrogative\" | \"conditional\" | \"quoted\"'.\r",
+      "server/growth-authority.ts(LINE): error TS2820: Type '\"growth_marker_clause_excluded\"' is not assignable to type '\"growth_authority_entry\" | \"growth_clause_unresolved\" | \"growth_clause_not_anchorable\" | \"growth_control_clause_excluded\" | \"growth_duplicate_clause\" | \"growth_correct_unknown_item\" | \"growth_correct_no_relation\" | \"growth_correct_duplicate_target\" | \"growth_correct_goal_change\" | \"growth_correct_honored\"'. Did you mean '\"growth_control_clause_excluded\"'?\r",
+      "server/growth-authority.ts(LINE): error TS2339: Property 'timeEvidence' does not exist on type '{ validUntil?: string | undefined; text?: string | undefined; timeEvidence?: { clauseId: string; kind: \"date_inclusive\"; date: string; } | { clauseId: string; kind: \"duration\"; count: number; unit: \"day\" | \"week\"; } | { ...; } | undefined; kind: \"context\" | ... 3 more ... | \"direction\"; target: { ...; } | { ...; }; ...'.\r",
+      "server/growth-authority.ts(LINE): error TS2339: Property 'validUntil' does not exist on type '{ validUntil?: string | undefined; text?: string | undefined; kind: \"context\" | \"ability\" | \"preference\" | \"goal\" | \"direction\"; target: { operation: \"create\"; } | { operation: \"correct\"; itemId: string; }; assertion: \"user_reported\"; source: { ...; }; } | { ...; } | { ...; } | { ...; } | { ...; }'.\r",
+      "server/growth-authority.ts(LINE): error TS18048: 'plan.target' is possibly 'undefined'.\r",
+      "server/growth-authority.ts(LINE): error TS2820: Type '\"growth_correction_plan_retarget\"' is not assignable to type '\"growth_authority_entry\" | \"growth_clause_unresolved\" | \"growth_clause_not_anchorable\" | \"growth_control_clause_excluded\" | \"growth_duplicate_clause\" | \"growth_correct_unknown_item\" | \"growth_correct_no_relation\" | \"growth_correct_duplicate_target\" | \"growth_correct_goal_change\" | \"growth_correct_honored\"'. Did you mean '\"growth_correct_duplicate_target\"'?\r",
+      "server/growth-authority.ts(LINE): error TS2339: Property 'status' does not exist on type 'AuthorityItemView'.\r",
+      "server/growth-authority.ts(LINE): error TS2322: Type '\"growth_goal_superseded\"' is not assignable to type '\"growth_authority_entry\" | \"growth_clause_unresolved\" | \"growth_clause_not_anchorable\" | \"growth_control_clause_excluded\" | \"growth_duplicate_clause\" | \"growth_correct_unknown_item\" | \"growth_correct_no_relation\" | \"growth_correct_duplicate_target\" | \"growth_correct_goal_change\" | \"growth_correct_honored\"'.\r",
+      "server/growth-authority.ts(LINE): error TS2322: Type '\"create_retarged_to_replace\"' is not assignable to type '\"replace\" | \"amend\"'.\r",
+      "server/growth.ts(LINE): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.\r",
+      "server/growth.ts(LINE): error TS2322: Type '{ time?: TimeWindow | undefined; kind: \"split_amend\"; normalizedIndex: number; parent: { id: string; revision: number; }; beforeQuote: string | undefined; currentSource: { messageId: string; quote: string; }; fragments: Fragment[]; changedFragmentIndex: number; }' is not assignable to type 'PreparedGrowthMutation'.\r",
+      "server/starmap-enrichment.ts(LINE): error TS2300: Duplicate identifier 'PoolClient'.\r",
+      "server/store.ts(LINE): error TS2345: Argument of type 'Pool' is not assignable to parameter of type 'PoolClient'.\r",
+      "server/store.ts(LINE): error TS2531: Object is possibly 'null'.\r",
+      "server/turn-engine.ts(LINE): error TS2367: This comparison appears to be unintentional because the types '\"user\" | \"assistant\"' and '\"system\"' have no overlap.\r",
+      "server/turn-engine.ts(LINE): error TS2345: Argument of type 'Pool' is not assignable to parameter of type 'PoolClient'.\r",
+      "server/turn-engine.ts(LINE): error TS2339: Property 'itemId' does not exist on type '{ operation: \"create\"; } | { operation: \"correct\"; itemId: string; }'.\r",
+      "server/turn-engine.ts(LINE): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.\r",
+      "server/turn-engine.ts(LINE): error TS2304: Cannot find name 'findEpisode'.\r",
+      "tests/backend/growth-amendment.test.ts(LINE): error TS2345: Argument of type '({ validUntil?: string | undefined; text?: string | undefined; timeEvidence?: { clauseId: string; kind: \"date_inclusive\"; date: string; } | { clauseId: string; kind: \"duration\"; count: number; unit: \"day\" | \"week\"; } | { ...; } | undefined; kind: \"context\" | ... 3 more ... | \"direction\"; target: { ...; } | { ...; };...' is not assignable to parameter of type 'ResolvedGrowthDelta[]'.\r",
+      "tests/backend/growth-amendment.test.ts(LINE): error TS2741: Property 'clauseId' is missing in type '{ messageId: string; quote: string; }' but required in type '{ clauseId: string; }'.\r",
+      "tests/backend/growth-amendment.test.ts(LINE): error TS2322: Type '\"amend\"' is not assignable to type '\"create\" | \"correct\"'.\r",
+      "tests/backend/growth-amendment.test.ts(LINE): error TS2353: Object literal may only specify known properties, and 'messageId' does not exist in type '{ clauseId: string; }'.\r",
+      "tests/backend/growth-model.test.ts(LINE): error TS2345: Argument of type '({ validUntil?: string | undefined; text?: string | undefined; timeEvidence?: { clauseId: string; kind: \"date_inclusive\"; date: string; } | { clauseId: string; kind: \"duration\"; count: number; unit: \"day\" | \"week\"; } | { ...; } | undefined; kind: \"context\" | ... 3 more ... | \"direction\"; target: { ...; } | { ...; };...' is not assignable to parameter of type 'ResolvedGrowthDelta[]'.\r",
+      "tests/backend/growth-model.test.ts(LINE): error TS2345: Argument of type 'GrowthDelta[]' is not assignable to parameter of type '({ validUntil?: string | undefined; text?: string | undefined; timeEvidence?: { clauseId: string; kind: \"date_inclusive\"; date: string; } | { clauseId: string; kind: \"duration\"; count: number; unit: \"day\" | \"week\"; } | { ...; } | undefined; kind: \"context\" | ... 3 more ... | \"direction\"; target: { ...; } | { ...; };...'.\r",
+      "tests/backend/growth-model.test.ts(LINE): error TS2741: Property 'clauseId' is missing in type '{ messageId: string; quote: string; }' but required in type '{ clauseId: string; }'.\r",
+      "tests/backend/growth-model.test.ts(LINE): error TS2322: Type '\"replace\"' is not assignable to type '\"create\" | \"correct\"'.\r",
+      "tests/backend/growth-model.test.ts(LINE): error TS2353: Object literal may only specify known properties, and 'messageId' does not exist in type '{ clauseId: string; }'.\r",
+      "tests/backend/growth-model.test.ts(LINE): error TS2353: Object literal may only specify known properties, and 'quote' does not exist in type '{ clauseId: string; kind: \"calendar_week\"; which: \"this\" | \"next\"; }'.\r",
+      "tests/backend/growth-r2-integration.test.ts(LINE): error TS2345: Argument of type '({ validUntil?: string | undefined; text?: string | undefined; timeEvidence?: { clauseId: string; kind: \"date_inclusive\"; date: string; } | { clauseId: string; kind: \"duration\"; count: number; unit: \"day\" | \"week\"; } | { ...; } | undefined; kind: \"context\" | ... 3 more ... | \"direction\"; target: { ...; } | { ...; };...' is not assignable to parameter of type 'ResolvedGrowthDelta[]'.\r",
+      "tests/backend/growth-r2-integration.test.ts(LINE): error TS2353: Object literal may only specify known properties, and 'messageId' does not exist in type '{ clauseId: string; }'.\r",
+      "tests/backend/growth-r2-integration.test.ts(LINE): error TS2322: Type '\"amend\"' is not assignable to type '\"create\" | \"correct\"'.\r",
+      "tests/backend/growth-required-effects.test.ts(LINE): error TS7006: Parameter 'node' implicitly has an 'any' type.\r",
+      "tests/backend/starmap-trust.test.ts(LINE): error TS18047: 'on' is possibly 'null'.\r",
+      "tests/backend/starmap-trust.test.ts(LINE): error TS18047: 'confirmed' is possibly 'null'.\r",
+      "tests/backend/starmap-trust.test.ts(LINE): error TS18047: 'revoked' is possibly 'null'.\r"
+    ]
+  },
+  "ledger": {
+    "path": ".local\\v1.3-action-coach\\paid\\provider-calls.json",
+    "sha256": "03891a1f7f7da4ae969cf36c5a11777b92b353c012f3a3591a7e2d15f682a1a4",
+    "shape": [
+      "evidence",
+      "authorization",
+      "maxNewCalls",
+      "calls",
+      "remaining",
+      "planAdjustments",
+      "purposePlanAdjustments",
+      "purposeLimits",
+      "additional",
+      "currentGrant",
+      "comparisonRestriction",
+      "continuation"
+    ],
+    "count": 2022,
+    "statusCounts": {
+      "finished": 2021,
+      "reserved": 1
+    },
+    "paidGate": "BLOCKED_UNSETTLED_RECEIPT_AND_BALANCE_UNVERIFIED"
+  },
+  "skills": [
+    {
+      "file": "skills/lifeos-personal-companion/SKILL.md",
+      "sha256": "8af5077d661b99f857e0e61eb137b2df80a5c68b08549b90b6d57fb15f10518e"
+    },
+    {
+      "file": "C:/Users/LQY/.agents/skills/lifeos-personal-companion/SKILL.md",
+      "sha256": "6c3bfbb6517273188f84db9c0f9cb0a2f081f45afa80d2c014094556b11571cf"
+    }
+  ],
+  "featureDefault": false,
+  "otherTask": {
+    "id": "01a123aa-875b-7173-b270-43189e53240f",
+    "state": "idle",
+    "checkpoint": "Coze integration freeze and existing delivery package; no Git commit for dirty files; no shared integration authorized by checkpoint alone"
+  },
+  "knowledge": {
+    "approved": 16,
+    "needsReview": 16,
+    "covered": 53,
+    "total": 112,
+    "status": "WIP_NOT_READY",
+    "humanRelease": "PENDING"
+  },
+  "networkAndWriteSideEffects": {
+    "paidCalls": 0,
+    "cloudWrite": false,
+    "productionWrite": false
+  }
+}

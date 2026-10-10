@@ -5,9 +5,25 @@ import { pool, transaction } from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import { readStarMapContext, projectUserThemes, linkExperienceToThemes } from '../../server/user-themes.ts'
 import { assertStarMapSnapshot } from '../../server/store.ts'
-import { reconcileIdentityClaims, projectIdentityClaims, identityClaimAction } from '../../server/identity.ts'
+import { reconcileIdentityClaims, projectIdentityClaims, identityClaimAction,deriveIdentityClaims } from '../../server/identity.ts'
 import { setMemorySettings } from '../../server/memory.ts'
-import { applyGrowthAction } from '../../server/growth.ts'
+import { applyGrowthAction,createGrowthItem,actOnGrowthItem } from '../../server/growth.ts'
+import {localEmbedding} from '../../server/local-embedding.ts'
+
+test.after(async()=>{await localEmbedding.close();await pool.end()})
+
+test('explicit identity edits keep their own authority; conditional, quoted and third-party words never become identity',async()=>{
+ for(const text of ['如果我是那种先做再想的人，会不会更好？','我是那种先做再想的人？','同学说我是那种先做再想的人。','我引用“我是那种先做再想的人”。'])assert.deepEqual(deriveIdentityClaims([{id:randomUUID(),kind:'preference',text,assertion:'user_edit',status:'active'}]),[],text)
+ const user=await seedUser('identity-own-edit'),chat=randomUUID();await store.createConversation(user,{id:chat,title:'Synthetic identity authority'})
+ const old='我是那种先动手试再想清楚的人',edited='我是那种先查证再行动的人',fact=await createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind:'preference',text:old})
+ const claim=(await pool.query("SELECT id FROM identity_claims WHERE user_id=$1 AND status='active'",[user])).rows[0]
+ assert.ok(claim)
+ await transaction(async c=>{await identityClaimAction(c,user,claim.id,{action:'correct',text:edited});await reconcileIdentityClaims(c,user)})
+ assert.equal((await pool.query("SELECT text FROM identity_claims WHERE user_id=$1 AND status='active'",[user])).rows[0].text,edited)
+ await actOnGrowthItem(user,fact.id,{requestId:randomUUID(),expectedRevision:fact.revision,action:'forget'})
+ assert.equal((await pool.query("SELECT text FROM identity_claims WHERE user_id=$1 AND status='active'",[user])).rows[0].text,edited,'later explicit owner edit is independent of the forgotten old source')
+ assert.ok(!JSON.stringify((await pool.query('SELECT old_snapshot,new_snapshot,source_refs FROM identity_change_events WHERE user_id=$1',[user])).rows).includes(old),'forgetting old source redacts its event quotes even after direct claim correction')
+})
 
 async function seedUser(name: string) {
   const user = name + '-' + randomUUID()

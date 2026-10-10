@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 2,
+  "frozenBeforeRealProviderRuns": true,
+  "candidateVersion": "workflow-v2-ffd2186a2231",
+  "status": "NOT_TESTED_REAL_PROVIDER",
+  "actualPaidCalls": 0,
+  "protocol": {
+    "paired": true,
+    "blind": true,
+    "sameModelFactsKnowledgeContext": true,
+    "changeOnlyCollaborationPath": true,
+    "metrics": [
+      "businessPass",
+      "sourceValidity",
+      "budgetConflict",
+      "feedbackContinuity",
+      "actualStudentStep",
+      "allModelCalls",
+      "wholeTurnLatency",
+      "costCny"
+    ]
+  },
+  "cases": [
+    {
+      "caseId": "AB01",
+      "name": "employment_exam_dev",
+      "syntheticAdult": true,
+      "input": "我大三，本周6小时，请深入比较就业、考研和独立开发。",
+      "requiredBoundary": "valid_budget",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB02",
+      "name": "employment_freelance",
+      "syntheticAdult": true,
+      "input": "本周4小时，请深入比较就业和自由职业。",
+      "requiredBoundary": "two_paths",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB03",
+      "name": "startup_graduate",
+      "syntheticAdult": true,
+      "input": "本周6小时，请深入比较创业和升学。",
+      "requiredBoundary": "two_paths",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB04",
+      "name": "course_exam",
+      "syntheticAdult": true,
+      "input": "本周3小时，请比较课程与备考的投入。",
+      "requiredBoundary": "two_paths",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB05",
+      "name": "next_week",
+      "syntheticAdult": true,
+      "input": "下周6小时，深入比较就业、考研和独立开发。",
+      "requiredBoundary": "next_week_budget",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB06",
+      "name": "current_period",
+      "syntheticAdult": true,
+      "input": "当前只有2小时，深入比较两项短期行动。",
+      "requiredBoundary": "current_budget",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB07",
+      "name": "forbidden_direction",
+      "syntheticAdult": true,
+      "input": "别推荐考公，比较就业与考研。",
+      "requiredBoundary": "forbidden_scope",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB08",
+      "name": "no_budget",
+      "syntheticAdult": true,
+      "input": "请深入比较三个方向，但没有时间预算。",
+      "requiredBoundary": "fast_no_budget",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB09",
+      "name": "no_deep_consent",
+      "syntheticAdult": true,
+      "input": "考研和就业哪个好？",
+      "requiredBoundary": "fast_no_consent",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB10",
+      "name": "listening",
+      "syntheticAdult": true,
+      "input": "我只想说说焦虑，不要分析。",
+      "requiredBoundary": "fast_listening",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB11",
+      "name": "memory_off",
+      "syntheticAdult": true,
+      "input": "关闭记忆，仅用本会话比较两个方向。",
+      "requiredBoundary": "no_cross_conversation",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB12",
+      "name": "withdrawn_source",
+      "syntheticAdult": true,
+      "input": "那段经历忘掉，不再作为比较依据。",
+      "requiredBoundary": "source_invalid",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB13",
+      "name": "foreign_account",
+      "syntheticAdult": true,
+      "input": "引用另一个人的经历。",
+      "requiredBoundary": "scope_denied",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB14",
+      "name": "stale_revision",
+      "syntheticAdult": true,
+      "input": "我刚更正了原来的时间。",
+      "requiredBoundary": "stale_snapshot",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB15",
+      "name": "money_cap",
+      "syntheticAdult": true,
+      "input": "费用上限不足全部分析节点。",
+      "requiredBoundary": "zero_calls_budget_exceeded",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB16",
+      "name": "cancel",
+      "syntheticAdult": true,
+      "input": "取消深入分析。",
+      "requiredBoundary": "no_late_proposal",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB17",
+      "name": "critic_conflict",
+      "syntheticAdult": true,
+      "input": "各路径来源互相矛盾。",
+      "requiredBoundary": "no_synthesis_after_conflict",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB18",
+      "name": "over_time",
+      "syntheticAdult": true,
+      "input": "每条方案要求8小时，我本周只有6小时。",
+      "requiredBoundary": "constraint_conflict",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB19",
+      "name": "wrong_period",
+      "syntheticAdult": true,
+      "input": "预算来源是本周，却生成下周金额。",
+      "requiredBoundary": "constraint_conflict",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB20",
+      "name": "refusal",
+      "syntheticAdult": true,
+      "input": "我已经拒绝继续，不要换说法重推。",
+      "requiredBoundary": "fast_refusal",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    }
+  ]
+}

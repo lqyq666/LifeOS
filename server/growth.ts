@@ -12,6 +12,7 @@ import type { GrowthItem, GrowthRef, GrowthView } from '../src/features/growth/t
 import type { GrowthDelta,ResolvedGrowthDelta } from './growth-model-contracts.ts'
 import type { Run } from './store.ts'
 import { reconcileThemesWithGrowth, projectUserThemes } from './user-themes.ts'
+import {reconcileIdentityClaims,projectIdentityClaims} from './identity.ts'
 
 type DB = Pick<PoolClient, 'query'>
 type Row = { id: string; user_id: string; conversation_id: string; kind: GrowthItem['kind']; text: string; assertion: GrowthItem['assertion']; status: GrowthItem['status']; sources: GrowthItem['sources']; dependencies: GrowthRef[]; valid_until: Date | null; valid_from: Date | null; time_basis: Record<string, unknown> | null; direction_scopes: string[] | null; structured_plan: Record<string, unknown> | null; revision: number; created_at: Date; updated_at: Date; limitation?:string;progress_state?:GrowthItem['progressState'] }
@@ -100,11 +101,11 @@ async function replay(c: DB, user: string, requestId: string, hash: string): Pro
   if (operation.fingerprint !== hash) throw new HttpError(409, 'REQUEST_ID_REUSED')
   return item(requireRow((await c.query('SELECT * FROM growth_items WHERE user_id=$1 AND id=$2', [user, operation.item_id])).rows[0]))
 }
-export async function createGrowthItem(user: string, raw: GrowthCreate): Promise<GrowthItem> {
+export async function createGrowthItem(user: string, raw: GrowthCreate, client?:PoolClient): Promise<GrowthItem> {
   const input = validate(growthCreateSchema, raw), hash = fingerprint(input), validUntil = expiry(input.validUntil)
   if (input.kind === 'constraint' && !validUntil) throw new HttpError(400, 'GROWTH_TIME_REQUIRED')
   if(input.kind!=='feedback'&&input.progressState!==undefined)throw new HttpError(400,'GROWTH_FEEDBACK_INVALID')
-  return transaction(async c => {
+  const write=async(c:PoolClient)=>{
     await lockGrowth(c, user)
     const previous = await replay(c, user, input.requestId, hash); if (previous) return previous
     await owner(c, user, input.conversationId)
@@ -118,8 +119,10 @@ export async function createGrowthItem(user: string, raw: GrowthCreate): Promise
     await c.query('INSERT INTO growth_operations(user_id,request_id,fingerprint,item_id) VALUES($1,$2,$3,$4)', [user, input.requestId, hash, row.id])
     await projectUserThemes(c, user, [{ id: row.id, kind: row.kind, text: row.text, assertion: row.assertion, status: row.status }])
     await reconcileThemesWithGrowth(c, user)
+    await projectIdentityClaims(c,user,[row])
     return item(row)
-  })
+  }
+  return client?write(client):transaction(write)
 }
 export async function actOnGrowthItem(user: string, id: string, raw: GrowthAction): Promise<GrowthItem> {
   const input = validate(growthActionSchema, raw)
@@ -196,6 +199,8 @@ export async function applyGrowthAction(c: PoolClient, user: string, id: string,
     await record(c, updated, input.action)
     await c.query('INSERT INTO growth_operations(user_id,request_id,fingerprint,item_id) VALUES($1,$2,$3,$4)', [user, input.requestId, hash, id])
     await reconcileThemesWithGrowth(c, user)
+    await reconcileIdentityClaims(c,user,[id])
+    await projectIdentityClaims(c,user,[updated])
     return item(updated)
   }
 }
@@ -364,6 +369,7 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
         if(personalClauses.length>1)throw new HttpError(400,'GROWTH_COMPOSITE_REQUIRES_REVIEW')
       }
       if(selected.operation==='amend'){
+        if(!selected.beforeQuote?.trim())throw new HttpError(400,'GROWTH_SOURCE_INVALID')
         // amend corrects ONE clause of a user-supplied composite of the same
         // field; unknown→answer and explicit whole-item rewrites stay on replace,
         // and the model never supplies the merged text.

@@ -4,6 +4,7 @@
 // 权威事实仍在 growth/experiences/coach_events——这里不建第二份人格档案。
 import type { PoolClient } from 'pg'
 import { randomUUID } from 'node:crypto'
+import {scanUserClauses} from './user-command-spans.ts'
 
 // 用户自述认同的句式：我是/我认为自己是/我算是……的（人/性格/学生/做事方式）。
 const SELF_DESCRIPTION = /我(?:是|算是|觉得自己是|认为自己(?:是|属于)|属于)(?:那种|一个|个)?[^，。；！？]{2,30}?(?:的人|的性格|的类型|做事方式|风格)/
@@ -14,7 +15,8 @@ export function deriveIdentityClaims(facts: readonly IdentitySourceFact[]): { te
   const claims: { text: string; sourceGrowthId: string; quote: string }[] = []
   for (const fact of facts) {
     if (fact.status !== 'active' || !['user_reported', 'user_edit'].includes(fact.assertion)) continue
-    const match = SELF_DESCRIPTION.exec(fact.text)
+    const clause=scanUserClauses(fact.text).find(part=>!part.conditional&&!part.interrogative&&!['？','?'].includes(part.delimiter)&&!part.attributedToOther&&!part.quoted&&!part.code&&!part.quoteSpans.length&&SELF_DESCRIPTION.test(part.text))
+    const match = clause?SELF_DESCRIPTION.exec(clause.text):null
     if (!match) continue
     claims.push({ text: match[0], sourceGrowthId: fact.id, quote: fact.text })
   }
@@ -76,12 +78,23 @@ export async function readIdentityClaims(c: PoolClient, user: string) {
 // 描述不再出现在任何可见位置；来源更正 → 若自述句式已不存在则撤回；用户
 // 明确否定/停止使用走 claimAction。变更事件中被遗忘的原话同步清除，只留
 // 不含私人内容的技术回执。
-export async function reconcileIdentityClaims(c: PoolClient, user: string): Promise<void> {
+export async function reconcileIdentityClaims(c: PoolClient, user: string, changedSourceIds:string[]=[]): Promise<void> {
   const claims=(await c.query("SELECT id, text, source_refs, status FROM identity_claims WHERE user_id=$1 AND status='active'",[user])).rows
-  if(!claims.length)return
-  const refIds=[...new Set(claims.flatMap((claim:any)=>(claim.source_refs??[]).map((ref:any)=>ref.growthItemId)).filter(Boolean))]
+  if(!claims.length&&!changedSourceIds.length)return
+  const refIds=[...new Set([...changedSourceIds,...claims.flatMap((claim:any)=>(claim.source_refs??[]).map((ref:any)=>ref.growthItemId)).filter(Boolean)])]
   const facts=new Map(refIds.length?(await c.query('SELECT id, text, status FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])',[user,refIds])).rows.map((row:any)=>[row.id,row]):[])
+  // Earlier corrections may have retired claims sharing this source. Forgetting
+  // must redact those earlier event quotes, not just the active claim's quote.
+  for(const id of refIds){
+    if(!['forgotten','rejected','missing'].includes(facts.get(id)?.status??'missing'))continue
+    const related=(await c.query('SELECT text,source_refs FROM identity_claims WHERE user_id=$1 AND source_refs @> $2::jsonb',[user,JSON.stringify([{growthItemId:id}])])).rows as {text:string;source_refs:{quote?:string}[]}[]
+    const events=(await c.query('SELECT source_refs FROM identity_change_events WHERE user_id=$1 AND source_refs @> $2::jsonb',[user,JSON.stringify([{growthItemId:id}])])).rows as {source_refs:{quote?:string}[]}[]
+    const quotes=[...related.map(row=>row.text),...[...related,...events].flatMap(row=>row.source_refs.map(ref=>ref.quote).filter((quote):quote is string=>Boolean(quote)))]
+    await purgeForgottenFromEvents(c,user,[...quotes,...quotes.flatMap(quote=>{const match=SELF_DESCRIPTION.exec(quote);return match?[match[0]]:[]})])
+  }
   for(const claim of claims){
+    // A direct authenticated identity edit is its own new user testimony.
+    if((claim.source_refs??[]).some((ref:{type?:string;quote?:string})=>ref.type==='user_edit'&&ref.quote===claim.text))continue
     const statuses=(claim.source_refs??[]).map((ref:any)=>facts.get(ref.growthItemId)?.status??'missing')
     const live=(claim.source_refs??[]).filter((_:any,index:number)=>statuses[index]==='active')
     if(!live.length){
@@ -92,7 +105,7 @@ export async function reconcileIdentityClaims(c: PoolClient, user: string): Prom
       continue
     }
     // 来源更正后自述句式消失 → 撤回该声明。
-    const stillDescribed=live.some((ref:any)=>SELF_DESCRIPTION.test(ref.quote))
+    const stillDescribed=live.some((ref:any)=>deriveIdentityClaims([{id:ref.growthItemId,kind:'preference',text:facts.get(ref.growthItemId)?.text??'',assertion:'user_reported',status:'active'}]).some(current=>current.text===claim.text))
     if(!stillDescribed){
       await c.query("UPDATE identity_claims SET status='retired', revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2",[user,claim.id])
       await recordChangeEvent(c,user,{subjectType:'identity_claim',subjectId:claim.id,transition:'retired',oldSnapshot:{status:'active'},newSnapshot:{status:'retired'},reason:'来源更正后不再包含该自我描述',impact:'中央身份同步更新'})
@@ -129,7 +142,7 @@ export async function identityClaimAction(c: PoolClient, user: string, claimId: 
   if(!claim)throw Object.assign(new Error('NOT_FOUND'),{status:404})
   if(input.action==='correct'){
     if(!input.text?.trim())throw Object.assign(new Error('TEXT_REQUIRED'),{status:400})
-    await c.query("UPDATE identity_claims SET text=$3, confirmed_by_user=true, origin='user_stated', revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2",[user,claimId,input.text.trim().slice(0,400)])
+    await c.query("UPDATE identity_claims SET text=$3, source_refs=$4, confirmed_by_user=true, origin='user_stated', revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2",[user,claimId,input.text.trim().slice(0,400),JSON.stringify([{type:'user_edit',quote:input.text.trim().slice(0,400)}])])
     await recordChangeEvent(c,user,{subjectType:'identity_claim',subjectId:claimId,transition:'corrected',oldSnapshot:{text:claim.text},newSnapshot:{text:input.text.trim()},reason:'用户纠正了自己的描述',userConfirmation:'confirmed',impact:'中央身份与模型上下文使用纠正后的描述'})
   }else{
     await c.query("UPDATE identity_claims SET status='retired', revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2",[user,claimId])

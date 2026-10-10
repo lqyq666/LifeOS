@@ -150,7 +150,7 @@ test('legacy auto-verified coze cards are excluded from valid knowledge',async()
   // worker here wedged the full local suite on this machine (see NEXT report).
   const {localEmbedding}=await import('../../server/local-embedding.ts')
   const realEncode=localEmbedding.encode.bind(localEmbedding)
-  localEmbedding.encode=(async(texts:string[])=>texts.map(()=>Array.from({length:32},()=>1/Math.sqrt(32)))) as typeof localEmbedding.encode
+  localEmbedding.encode=(async(texts:string[])=>texts.map(()=>Array.from({length:512},()=>1/Math.sqrt(512)))) as typeof localEmbedding.encode
   try{
     const found=await retrieveCoachKnowledge('专升本报名条件是什么')
     assert.ok(!found.some(entry=>entry.id===legacy.id),'legacy coze机制卡不再可引用')

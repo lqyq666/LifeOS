@@ -1,0 +1,4546 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-10T03:49:34.040Z",
+  "state": "LOCAL_PLAN_NOT_SYNCED",
+  "targetProjectId": "7693465311558795327",
+  "datasetId": null,
+  "authorization": "Separate mirror sync authorization required; this plan performs no external write.",
+  "privateDataIncluded": false,
+  "corpusFileHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+  "documents": [
+    {
+      "documentId": "evergreen-campus-resource",
+      "canonicalId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+      "revision": 1,
+      "guideContentHash": "92bd95009d51a1146577675de0ee38af363c1bd5f59bc284bc366c2f8d19bf55",
+      "sourceHash": "64f5f4a3f9430d3b2079fea30d6239f860a25e48fe3105447b3046d42a7eec9d",
+      "sourceRevisions": {
+        "yangtze-library": 1
+      },
+      "evidenceIds": [
+        "yangtze-library-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "找到可核验的校园信息",
+        "url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+        "publisher": "长江大学图书馆",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.177Z",
+        "validUntil": null,
+        "excerpt": "馆藏查询",
+        "claim": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "该校具体权限不适用于所有学校；只借鉴查官方资源的方法。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "寻找官方入口"
+        ],
+        "sourceHash": "64f5f4a3f9430d3b2079fea30d6239f860a25e48fe3105447b3046d42a7eec9d",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+          "canonicalKey": "campus-resource",
+          "aliases": [
+            "新生",
+            "选课",
+            "教务",
+            "校园信息",
+            "运行方式",
+            "可靠信息",
+            "图书馆",
+            "了解大学运行方式",
+            "寻找可靠校园信息"
+          ],
+          "domains": [
+            "01"
+          ],
+          "task": "找到可核验的校园信息",
+          "stage": "start/adjust/compare",
+          "mechanism": "寻找官方入口",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "yangtze-library-e1"
+          ],
+          "claims": [
+            {
+              "id": "campus-resource-source",
+              "text": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "yangtze-library-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "该校具体权限不适用于所有学校；只借鉴查官方资源的方法。"
+            },
+            {
+              "id": "campus-resource-adaptation",
+              "text": "列出问题所属部门，打开本人学校官方页面或咨询入口，保存出处及尚未确认项。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "yangtze-library-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "yangtze-library"
+          ],
+          "principle": "寻找官方入口；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C01-1",
+              "candidateId": "C01-1",
+              "task": "了解大学运行方式",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C01-1-1",
+                  "text": "围绕“了解大学运行方式”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                },
+                {
+                  "id": "C01-1-2",
+                  "text": "列出问题所属部门，打开本人学校官方页面或咨询入口，保存出处及尚未确认项。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                },
+                {
+                  "id": "C01-1-3",
+                  "text": "记录观察：知道该向谁确认，区分本校信息与他校示例。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C01-2",
+              "candidateId": "C01-2",
+              "task": "寻找可靠校园信息",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C01-2-1",
+                  "text": "围绕“寻找可靠校园信息”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                },
+                {
+                  "id": "C01-2-2",
+                  "text": "列出问题所属部门，打开本人学校官方页面或咨询入口，保存出处及尚未确认项。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                },
+                {
+                  "id": "C01-2-3",
+                  "text": "记录观察：知道该向谁确认，区分本校信息与他校示例。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "你现在最需要弄清哪件具体校园事务？",
+          "smallestAction": "只找到一个官方咨询入口即可。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "只找到一个官方咨询入口即可。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "知道该向谁确认，区分本校信息与他校示例。",
+          "retrievalSummary": "找到可核验的校园信息；新生 选课 教务 校园信息 运行方式 可靠信息 图书馆；了解大学运行方式；寻找可靠校园信息",
+          "referenceBody": "找到可核验的校园信息\n原理：寻找官方入口\nLifeOS适配步骤：列出问题所属部门，打开本人学校官方页面或咨询入口，保存出处及尚未确认项。\n低精力替代：只找到一个官方咨询入口即可。\n观察：知道该向谁确认，区分本校信息与他校示例。\n来源支持：图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。\n不能推出：该校具体权限不适用于所有学校；只借鉴查官方资源的方法。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "yangtze-library": 1
+            },
+            "supports": [
+              "图书馆原文描述馆藏查询与电子资源获取实操；支持先找本人学校可核验入口。"
+            ],
+            "cannotInfer": [
+              "不能推出他校权限或全校事务均由图书馆办理；按部门查入口是编辑适配。"
+            ]
+          },
+          "contentHash": "92bd95009d51a1146577675de0ee38af363c1bd5f59bc284bc366c2f8d19bf55",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-course-frame",
+      "canonicalId": "7ff3638d-87dc-4842-8908-352ea1ed308e",
+      "revision": 1,
+      "guideContentHash": "87770cf6377e090c26d4e7476a6df583a749e3d202e1493299172c6e1b01c632",
+      "sourceHash": "32b4d137c1db14004e0642bb313000ebb050592a96d22ae3f22381c600920c4c",
+      "sourceRevisions": {
+        "tsinghua-exam": 1
+      },
+      "evidenceIds": [
+        "tsinghua-exam-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "7ff3638d-87dc-4842-8908-352ea1ed308e",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "困难课程的知识框架",
+        "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+        "publisher": "清华大学学生学习与发展指导中心",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.178Z",
+        "validUntil": null,
+        "excerpt": "积极阅读",
+        "claim": "该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不能保证成绩或推断能力、方向适配。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "围绕问题主动学习"
+        ],
+        "sourceHash": "32b4d137c1db14004e0642bb313000ebb050592a96d22ae3f22381c600920c4c",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "7ff3638d-87dc-4842-8908-352ea1ed308e",
+          "canonicalKey": "course-frame",
+          "aliases": [
+            "困难课程",
+            "知识框架",
+            "听不懂",
+            "微积分",
+            "整理知识",
+            "理解困难课程",
+            "整理知识框架"
+          ],
+          "domains": [
+            "03"
+          ],
+          "task": "困难课程的知识框架",
+          "stage": "start/adjust/compare",
+          "mechanism": "围绕问题主动学习",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "tsinghua-exam-e1"
+          ],
+          "claims": [
+            {
+              "id": "course-frame-source",
+              "text": "该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "tsinghua-exam-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不能保证成绩或推断能力、方向适配。"
+            },
+            {
+              "id": "course-frame-adaptation",
+              "text": "从课程目标和目录画出关系，选一个断点写已知与未知，查教材或向助教询问该断点。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "tsinghua-exam-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "tsinghua-exam"
+          ],
+          "principle": "围绕问题主动学习；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C03-1",
+              "candidateId": "C03-1",
+              "task": "理解困难课程",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C03-1-1",
+                  "text": "围绕“理解困难课程”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-exam-e1"
+                  ]
+                },
+                {
+                  "id": "C03-1-2",
+                  "text": "从课程目标和目录画出关系，选一个断点写已知与未知，查教材或向助教询问该断点。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-exam-e1"
+                  ]
+                },
+                {
+                  "id": "C03-1-3",
+                  "text": "记录观察：能否解释关键关系以及仍缺的前置概念。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-exam-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C03-2",
+              "candidateId": "C03-2",
+              "task": "整理知识框架",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C03-2-1",
+                  "text": "围绕“整理知识框架”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-exam-e1"
+                  ]
+                },
+                {
+                  "id": "C03-2-2",
+                  "text": "从课程目标和目录画出关系，选一个断点写已知与未知，查教材或向助教询问该断点。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-exam-e1"
+                  ]
+                },
+                {
+                  "id": "C03-2-3",
+                  "text": "记录观察：能否解释关键关系以及仍缺的前置概念。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-exam-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "具体在哪一个概念或推导处断开？",
+          "smallestAction": "只写下一个不懂的问题。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "只写下一个不懂的问题。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "能否解释关键关系以及仍缺的前置概念。",
+          "retrievalSummary": "困难课程的知识框架；困难课程 知识框架 听不懂 微积分 整理知识；理解困难课程；整理知识框架",
+          "referenceBody": "困难课程的知识框架\n原理：围绕问题主动学习\nLifeOS适配步骤：从课程目标和目录画出关系，选一个断点写已知与未知，查教材或向助教询问该断点。\n低精力替代：只写下一个不懂的问题。\n观察：能否解释关键关系以及仍缺的前置概念。\n来源支持：该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。\n不能推出：不能保证成绩或推断能力、方向适配。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "tsinghua-exam": 1
+            },
+            "supports": [
+              "清华转载学习材料提出写已知和未知、带问题积极阅读。"
+            ],
+            "cannotInfer": [
+              "知识关系图、课程目标和助教求助是编辑适配，原文未验证其效果。"
+            ]
+          },
+          "contentHash": "87770cf6377e090c26d4e7476a6df583a749e3d202e1493299172c6e1b01c632",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-retrieval-practice",
+      "canonicalId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+      "revision": 1,
+      "guideContentHash": "e15b183ad1721750a9008342bfb0f72e0911f7b5af1c088407d8e39f7ce308aa",
+      "sourceHash": "d2bd2dd81e774efb0ceb1e214305c73396e5d970c1b4526c8c4d7030e4794d49",
+      "sourceRevisions": {
+        "ies-learning": 1
+      },
+      "evidenceIds": [
+        "ies-learning-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "e6ad610b-549e-4b09-89bc-34223577fb49",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "合上材料检查记忆",
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "publisher": "美国教育科学研究院 WWC",
+        "publishedYear": "2007",
+        "verifiedAt": "2026-10-10T03:21:13.178Z",
+        "validUntil": null,
+        "excerpt": "Space learning over time.\nInterleave worked example solutions with problem-solving exercises.\nUse quizzing to promote learning.\nAsk deep explanatory questions.",
+        "claim": "IES指南建议使用测验促进学习。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不继承个人最优时间、录取概率或人格结论。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "提取练习"
+        ],
+        "sourceHash": "d2bd2dd81e774efb0ceb1e214305c73396e5d970c1b4526c8c4d7030e4794d49",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+          "canonicalKey": "retrieval-practice",
+          "aliases": [
+            "主动回忆",
+            "提取练习",
+            "不看答案",
+            "自测",
+            "记不住",
+            "主动回忆"
+          ],
+          "domains": [
+            "04"
+          ],
+          "task": "合上材料检查记忆",
+          "stage": "start/adjust/compare",
+          "mechanism": "提取练习",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "ies-learning-e1"
+          ],
+          "claims": [
+            {
+              "id": "retrieval-practice-source",
+              "text": "IES指南建议使用测验促进学习。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "ies-learning-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不继承个人最优时间、录取概率或人格结论。"
+            },
+            {
+              "id": "retrieval-practice-adaptation",
+              "text": "挑一个已学问题，合上材料作答，再对照原资料标出缺失或错误并修正。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "ies-learning"
+          ],
+          "principle": "提取练习；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C04-1",
+              "candidateId": "C04-1",
+              "task": "主动回忆",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C04-1-1",
+                  "text": "围绕“主动回忆”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                },
+                {
+                  "id": "C04-1-2",
+                  "text": "挑一个已学问题，合上材料作答，再对照原资料标出缺失或错误并修正。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                },
+                {
+                  "id": "C04-1-3",
+                  "text": "记录观察：能独立回忆的部分和需要查回的部分。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "你要检查哪部分知识，是否已经初步理解？",
+          "smallestAction": "只回答一个问题。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "只回答一个问题。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "能独立回忆的部分和需要查回的部分。",
+          "retrievalSummary": "合上材料检查记忆；主动回忆 提取练习 不看答案 自测 记不住；主动回忆",
+          "referenceBody": "合上材料检查记忆\n原理：提取练习\nLifeOS适配步骤：挑一个已学问题，合上材料作答，再对照原资料标出缺失或错误并修正。\n低精力替代：只回答一个问题。\n观察：能独立回忆的部分和需要查回的部分。\n来源支持：指南提出分散学习、测验和解释性问题；保留原教学范围。\n不能推出：不继承个人最优时间、录取概率或人格结论。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "ies-learning": 1
+            },
+            "supports": [
+              "IES推荐测验促进学习，原文推荐段说明主动提取。"
+            ],
+            "cannotInfer": [
+              "不能推出个人最佳题量、复习时间或考试提分；合上材料的步骤属于编辑适配。"
+            ]
+          },
+          "contentHash": "e15b183ad1721750a9008342bfb0f72e0911f7b5af1c088407d8e39f7ce308aa",
+          "indexSignature": "",
+          "legacyIds": [
+            "12000000-0000-4000-8000-000000000002"
+          ],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-spaced-review",
+      "canonicalId": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+      "revision": 1,
+      "guideContentHash": "52d92f72313737e618c05a4f7bdc67c8473c2371197a54bfc076e42ee13248c2",
+      "sourceHash": "e51deffdc9867f97fa5c81173839ae31abb347fb1a562c5e080536f04233c5d2",
+      "sourceRevisions": {
+        "ies-learning": 1
+      },
+      "evidenceIds": [
+        "ies-learning-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "把复习分散到不同时间",
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "publisher": "美国教育科学研究院 WWC",
+        "publishedYear": "2007",
+        "verifiedAt": "2026-10-10T03:21:13.178Z",
+        "validUntil": null,
+        "excerpt": "Space learning over time.\nInterleave worked example solutions with problem-solving exercises.\nUse quizzing to promote learning.\nAsk deep explanatory questions.",
+        "claim": "IES指南建议把学习分散到不同时间。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不继承个人最优时间、录取概率或人格结论。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "分散学习"
+        ],
+        "sourceHash": "e51deffdc9867f97fa5c81173839ae31abb347fb1a562c5e080536f04233c5d2",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+          "canonicalKey": "spaced-review",
+          "aliases": [
+            "间隔复习",
+            "分散复习",
+            "反复忘记",
+            "复习节奏",
+            "间隔复习"
+          ],
+          "domains": [
+            "04"
+          ],
+          "task": "把复习分散到不同时间",
+          "stage": "start/adjust/compare",
+          "mechanism": "分散学习",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "ies-learning-e1"
+          ],
+          "claims": [
+            {
+              "id": "spaced-review-source",
+              "text": "IES指南建议把学习分散到不同时间。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "ies-learning-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不继承个人最优时间、录取概率或人格结论。"
+            },
+            {
+              "id": "spaced-review-adaptation",
+              "text": "选一组已学内容，分开安排回看与自测，根据忘记和作答情况调整下一次，不固定所有人的间隔。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "ies-learning"
+          ],
+          "principle": "分散学习；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C04-2",
+              "candidateId": "C04-2",
+              "task": "间隔复习",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C04-2-1",
+                  "text": "围绕“间隔复习”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                },
+                {
+                  "id": "C04-2-2",
+                  "text": "选一组已学内容，分开安排回看与自测，根据忘记和作答情况调整下一次，不固定所有人的间隔。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                },
+                {
+                  "id": "C04-2-3",
+                  "text": "记录观察：间隔后实际回忆情况，不保证考试效果。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "下一次需要使用这些知识是什么时候？",
+          "smallestAction": "给一个知识点安排下一次检查。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "给一个知识点安排下一次检查。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "间隔后实际回忆情况，不保证考试效果。",
+          "retrievalSummary": "把复习分散到不同时间；间隔复习 分散复习 反复忘记 复习节奏；间隔复习",
+          "referenceBody": "把复习分散到不同时间\n原理：分散学习\nLifeOS适配步骤：选一组已学内容，分开安排回看与自测，根据忘记和作答情况调整下一次，不固定所有人的间隔。\n低精力替代：给一个知识点安排下一次检查。\n观察：间隔后实际回忆情况，不保证考试效果。\n来源支持：指南提出分散学习、测验和解释性问题；保留原教学范围。\n不能推出：不继承个人最优时间、录取概率或人格结论。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "ies-learning": 1
+            },
+            "supports": [
+              "IES第1项明确提出分散学习。"
+            ],
+            "cannotInfer": [
+              "不继承原文几周至几月为个人最优间隔；安排按实际任务与反馈调整。"
+            ]
+          },
+          "contentHash": "52d92f72313737e618c05a4f7bdc67c8473c2371197a54bfc076e42ee13248c2",
+          "indexSignature": "",
+          "legacyIds": [
+            "12000000-0000-4000-8000-000000000001"
+          ],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-worked-example",
+      "canonicalId": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+      "revision": 1,
+      "guideContentHash": "9c1745b3206513dc37e98efa5c5b09224c8e7dcf7eda4e5d066cba4cf58b1001",
+      "sourceHash": "e90adae7aeb2d032b8feaa1cc256dbdb7286d4f2fcec76d063955e3f16bf80bb",
+      "sourceRevisions": {
+        "ies-learning": 1
+      },
+      "evidenceIds": [
+        "ies-learning-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "从示例走向独立完成",
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "publisher": "美国教育科学研究院 WWC",
+        "publishedYear": "2007",
+        "verifiedAt": "2026-10-10T03:21:13.178Z",
+        "validUntil": null,
+        "excerpt": "Space learning over time.\nInterleave worked example solutions with problem-solving exercises.\nUse quizzing to promote learning.\nAsk deep explanatory questions.",
+        "claim": "IES指南建议交替阅读已解示例与独立解题练习。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不继承个人最优时间、录取概率或人格结论。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "主动学习与对照"
+        ],
+        "sourceHash": "e90adae7aeb2d032b8feaa1cc256dbdb7286d4f2fcec76d063955e3f16bf80bb",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+          "canonicalKey": "worked-example",
+          "aliases": [
+            "模仿",
+            "独立完成",
+            "看答案",
+            "做不出",
+            "例题",
+            "从模仿到独立完成"
+          ],
+          "domains": [
+            "04"
+          ],
+          "task": "从示例走向独立完成",
+          "stage": "start/adjust/compare",
+          "mechanism": "主动学习与对照",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "ies-learning-e1"
+          ],
+          "claims": [
+            {
+              "id": "worked-example-source",
+              "text": "IES指南建议交替阅读已解示例与独立解题练习。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "ies-learning-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不继承个人最优时间、录取概率或人格结论。"
+            },
+            {
+              "id": "worked-example-adaptation",
+              "text": "先解释示例每一步为何这样做，再遮住一部分独立补齐，最后换一个相似问题检验。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "ies-learning"
+          ],
+          "principle": "主动学习与对照；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C04-3",
+              "candidateId": "C04-3",
+              "task": "从模仿到独立完成",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C04-3-1",
+                  "text": "围绕“从模仿到独立完成”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                },
+                {
+                  "id": "C04-3-2",
+                  "text": "先解释示例每一步为何这样做，再遮住一部分独立补齐，最后换一个相似问题检验。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                },
+                {
+                  "id": "C04-3-3",
+                  "text": "记录观察：哪一步依赖模仿，能否迁移到相似问题。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "目前能独立做到示例的哪一步？",
+          "smallestAction": "只独立补齐示例的一步。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "只独立补齐示例的一步。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "哪一步依赖模仿，能否迁移到相似问题。",
+          "retrievalSummary": "从示例走向独立完成；模仿 独立完成 看答案 做不出 例题；从模仿到独立完成",
+          "referenceBody": "从示例走向独立完成\n原理：主动学习与对照\nLifeOS适配步骤：先解释示例每一步为何这样做，再遮住一部分独立补齐，最后换一个相似问题检验。\n低精力替代：只独立补齐示例的一步。\n观察：哪一步依赖模仿，能否迁移到相似问题。\n来源支持：指南提出分散学习、测验和解释性问题；保留原教学范围。\n不能推出：不继承个人最优时间、录取概率或人格结论。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "ies-learning": 1
+            },
+            "supports": [
+              "IES第2项要求已解示例与自行解题交替。"
+            ],
+            "cannotInfer": [
+              "遮住一部分和相似题是编辑实施建议；不能保证迁移成功。"
+            ]
+          },
+          "contentHash": "9c1745b3206513dc37e98efa5c5b09224c8e7dcf7eda4e5d066cba4cf58b1001",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-explain-understanding",
+      "canonicalId": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+      "revision": 1,
+      "guideContentHash": "9e7cec87e13aab9fe2932321f5b7ef2d4d710dc9c5e225aa6556f20276f91c00",
+      "sourceHash": "37edf0a270cade7e8a072283831e243e49348cd0335a7fe95d9f327515dfdd98",
+      "sourceRevisions": {
+        "ies-learning": 1
+      },
+      "evidenceIds": [
+        "ies-learning-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "用输出检查理解",
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "publisher": "美国教育科学研究院 WWC",
+        "publishedYear": "2007",
+        "verifiedAt": "2026-10-10T03:21:13.178Z",
+        "validUntil": null,
+        "excerpt": "Space learning over time.\nInterleave worked example solutions with problem-solving exercises.\nUse quizzing to promote learning.\nAsk deep explanatory questions.",
+        "claim": "IES指南提出深层解释性问题以帮助理解。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不继承个人最优时间、录取概率或人格结论。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "解释性问题"
+        ],
+        "sourceHash": "37edf0a270cade7e8a072283831e243e49348cd0335a7fe95d9f327515dfdd98",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+          "canonicalKey": "explain-understanding",
+          "aliases": [
+            "输出",
+            "检验理解",
+            "讲不清",
+            "费曼",
+            "原理",
+            "因果",
+            "通过输出检验理解"
+          ],
+          "domains": [
+            "04"
+          ],
+          "task": "用输出检查理解",
+          "stage": "start/adjust/compare",
+          "mechanism": "解释性问题",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "ies-learning-e1"
+          ],
+          "claims": [
+            {
+              "id": "explain-understanding-source",
+              "text": "IES指南提出深层解释性问题以帮助理解。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "ies-learning-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不继承个人最优时间、录取概率或人格结论。"
+            },
+            {
+              "id": "explain-understanding-adaptation",
+              "text": "用自己的话说明一个概念的因果关系，标出解释不下去的地方，再查原材料并重述。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "ies-learning"
+          ],
+          "principle": "解释性问题；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C04-4",
+              "candidateId": "C04-4",
+              "task": "通过输出检验理解",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C04-4-1",
+                  "text": "围绕“通过输出检验理解”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                },
+                {
+                  "id": "C04-4-2",
+                  "text": "用自己的话说明一个概念的因果关系，标出解释不下去的地方，再查原材料并重述。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                },
+                {
+                  "id": "C04-4-3",
+                  "text": "记录观察：能否回答为什么与条件变化，不以流畅表达代替正确性。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ies-learning-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "你要向谁解释哪个概念？",
+          "smallestAction": "录下或写出一句原理解释。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "录下或写出一句原理解释。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "能否回答为什么与条件变化，不以流畅表达代替正确性。",
+          "retrievalSummary": "用输出检查理解；输出 检验理解 讲不清 费曼 原理 因果；通过输出检验理解",
+          "referenceBody": "用输出检查理解\n原理：解释性问题\nLifeOS适配步骤：用自己的话说明一个概念的因果关系，标出解释不下去的地方，再查原材料并重述。\n低精力替代：录下或写出一句原理解释。\n观察：能否回答为什么与条件变化，不以流畅表达代替正确性。\n来源支持：指南提出分散学习、测验和解释性问题；保留原教学范围。\n不能推出：不继承个人最优时间、录取概率或人格结论。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "ies-learning": 1
+            },
+            "supports": [
+              "IES第7项提出深层解释性问题。"
+            ],
+            "cannotInfer": [
+              "用自己的话、录音或写一句为校园适配；流畅表达不证明正确理解。"
+            ]
+          },
+          "contentHash": "9e7cec87e13aab9fe2932321f5b7ef2d4d710dc9c5e225aa6556f20276f91c00",
+          "indexSignature": "",
+          "legacyIds": [
+            "12000000-0000-4000-8000-000000000003"
+          ],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-priority-budget",
+      "canonicalId": "5fde19ca-e307-478c-8a96-5781df392991",
+      "revision": 1,
+      "guideContentHash": "a5a0061953ae44819e3a11924c1044d71515c466b33b2b6a9d0813e6e330b577",
+      "sourceHash": "fde96436dedc432036cbdfde88714bc2048170913d58c8929ac42742140e43fe",
+      "sourceRevisions": {
+        "tsinghua-efficiency": 1
+      },
+      "evidenceIds": [
+        "tsinghua-efficiency-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "5fde19ca-e307-478c-8a96-5781df392991",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "预算有限时排任务",
+        "url": "https://learning.tsinghua.edu.cn/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+        "publisher": "清华大学学生学习与发展指导中心",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.178Z",
+        "validUntil": null,
+        "excerpt": "PDCA",
+        "claim": "效率手册介绍任务优先、计划执行检查调整及舍弃或委派任务。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不证明一半时间留白或某个时间数值对所有人最优。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "优先级与约束分配"
+        ],
+        "sourceHash": "fde96436dedc432036cbdfde88714bc2048170913d58c8929ac42742140e43fe",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "5fde19ca-e307-478c-8a96-5781df392991",
+          "canonicalKey": "priority-budget",
+          "aliases": [
+            "多任务",
+            "排序",
+            "时间预算",
+            "备考",
+            "课程冲突",
+            "考研规划",
+            "每周",
+            "低时间",
+            "可持续",
+            "期末复习抓重点",
+            "多任务排序",
+            "低时间预算",
+            "拆长期备考阶段",
+            "平衡课程与备考",
+            "平衡收入/课程/精力",
+            "保持可持续创作",
+            "减少过载任务"
+          ],
+          "domains": [
+            "03",
+            "05",
+            "11",
+            "19",
+            "21",
+            "26"
+          ],
+          "task": "预算有限时排任务",
+          "stage": "start/adjust/compare",
+          "mechanism": "优先级与约束分配",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "tsinghua-efficiency-e1"
+          ],
+          "claims": [
+            {
+              "id": "priority-budget-source",
+              "text": "效率手册介绍任务优先、计划执行检查调整及舍弃或委派任务。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "tsinghua-efficiency-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不证明一半时间留白或某个时间数值对所有人最优。"
+            },
+            {
+              "id": "priority-budget-adaptation",
+              "text": "列硬节点、任务代价与可用预算，先保底必要事项；余量选一个可缩减的推进项，反馈后重算。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "tsinghua-efficiency-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "tsinghua-efficiency"
+          ],
+          "principle": "优先级与约束分配；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C03-3",
+              "candidateId": "C03-3",
+              "task": "期末复习抓重点",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C03-3-1",
+                  "text": "围绕“期末复习抓重点”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C03-3-2",
+                  "text": "列硬节点、任务代价与可用预算，先保底必要事项；余量选一个可缩减的推进项，反馈后重算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C03-3-3",
+                  "text": "记录观察：实际投入、冲突与可持续程度，不能把示例时间当用户预算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C05-1",
+              "candidateId": "C05-1",
+              "task": "多任务排序",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C05-1-1",
+                  "text": "围绕“多任务排序”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C05-1-2",
+                  "text": "列硬节点、任务代价与可用预算，先保底必要事项；余量选一个可缩减的推进项，反馈后重算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C05-1-3",
+                  "text": "记录观察：实际投入、冲突与可持续程度，不能把示例时间当用户预算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C05-2",
+              "candidateId": "C05-2",
+              "task": "低时间预算",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C05-2-1",
+                  "text": "围绕“低时间预算”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C05-2-2",
+                  "text": "列硬节点、任务代价与可用预算，先保底必要事项；余量选一个可缩减的推进项，反馈后重算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C05-2-3",
+                  "text": "记录观察：实际投入、冲突与可持续程度，不能把示例时间当用户预算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C11-2",
+              "candidateId": "C11-2",
+              "task": "拆长期备考阶段",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C11-2-1",
+                  "text": "围绕“拆长期备考阶段”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C11-2-2",
+                  "text": "列硬节点、任务代价与可用预算，先保底必要事项；余量选一个可缩减的推进项，反馈后重算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C11-2-3",
+                  "text": "记录观察：实际投入、冲突与可持续程度，不能把示例时间当用户预算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C11-3",
+              "candidateId": "C11-3",
+              "task": "平衡课程与备考",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C11-3-1",
+                  "text": "围绕“平衡课程与备考”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C11-3-2",
+                  "text": "列硬节点、任务代价与可用预算，先保底必要事项；余量选一个可缩减的推进项，反馈后重算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C11-3-3",
+                  "text": "记录观察：实际投入、冲突与可持续程度，不能把示例时间当用户预算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C19-2",
+              "candidateId": "C19-2",
+              "task": "平衡收入/课程/精力",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C19-2-1",
+                  "text": "围绕“平衡收入/课程/精力”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C19-2-2",
+                  "text": "列硬节点、任务代价与可用预算，先保底必要事项；余量选一个可缩减的推进项，反馈后重算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C19-2-3",
+                  "text": "记录观察：实际投入、冲突与可持续程度，不能把示例时间当用户预算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C21-4",
+              "candidateId": "C21-4",
+              "task": "保持可持续创作",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C21-4-1",
+                  "text": "围绕“保持可持续创作”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C21-4-2",
+                  "text": "列硬节点、任务代价与可用预算，先保底必要事项；余量选一个可缩减的推进项，反馈后重算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C21-4-3",
+                  "text": "记录观察：实际投入、冲突与可持续程度，不能把示例时间当用户预算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C26-2",
+              "candidateId": "C26-2",
+              "task": "减少过载任务",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C26-2-1",
+                  "text": "围绕“减少过载任务”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C26-2-2",
+                  "text": "列硬节点、任务代价与可用预算，先保底必要事项；余量选一个可缩减的推进项，反馈后重算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C26-2-3",
+                  "text": "记录观察：实际投入、冲突与可持续程度，不能把示例时间当用户预算。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "本轮还有多少可用时间及不可移动的节点？",
+          "smallestAction": "只列最近硬节点和今天可用时间。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "只列最近硬节点和今天可用时间。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "实际投入、冲突与可持续程度，不能把示例时间当用户预算。",
+          "retrievalSummary": "预算有限时排任务；多任务 排序 时间预算 备考 课程冲突 考研规划 每周 低时间 可持续；期末复习抓重点；多任务排序；低时间预算；拆长期备考阶段；平衡课程与备考；平衡收入/课程/精力；保持可持续创作；减少过载任务",
+          "referenceBody": "预算有限时排任务\n原理：优先级与约束分配\nLifeOS适配步骤：列硬节点、任务代价与可用预算，先保底必要事项；余量选一个可缩减的推进项，反馈后重算。\n低精力替代：只列最近硬节点和今天可用时间。\n观察：实际投入、冲突与可持续程度，不能把示例时间当用户预算。\n来源支持：效率手册介绍任务优先、计划执行检查调整及舍弃或委派任务。\n不能推出：不证明一半时间留白或某个时间数值对所有人最优。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "tsinghua-efficiency": 1
+            },
+            "supports": [
+              "清华PDF第12页展示优先排序、实际用时与反馈以及PDCA。"
+            ],
+            "cannotInfer": [
+              "原文时间表是示例，不能赋给用户；保底必要事项和缩减推进项是编辑判断。"
+            ]
+          },
+          "contentHash": "a5a0061953ae44819e3a11924c1044d71515c466b33b2b6a9d0813e6e330b577",
+          "indexSignature": "",
+          "legacyIds": [
+            "f05a8cb2-a295-4171-877a-618ff27a3040",
+            "guide-exam-course-conflict",
+            "c40921d4-bb1f-4d8c-b254-4ef99c2a5de6",
+            "guide-lowtime-weekly-plan"
+          ],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-plan-review",
+      "canonicalId": "48e4e604-8fd8-4016-862c-f6d3219c776d",
+      "revision": 1,
+      "guideContentHash": "6b16e3545164e5496c5256f4d6cb670d70c09e712fec95d2208f57e8ffdee6d4",
+      "sourceHash": "53d509a0f48c6f123e857983a524892065eb6207ea2c07180d15e1b4a4812b42",
+      "sourceRevisions": {
+        "tsinghua-efficiency": 1
+      },
+      "evidenceIds": [
+        "tsinghua-efficiency-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "48e4e604-8fd8-4016-862c-f6d3219c776d",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "连续受阻后修订计划",
+        "url": "https://learning.tsinghua.edu.cn/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+        "publisher": "清华大学学生学习与发展指导中心",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.178Z",
+        "validUntil": null,
+        "excerpt": "PDCA",
+        "claim": "效率手册介绍任务优先、计划执行检查调整及舍弃或委派任务。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不证明一半时间留白或某个时间数值对所有人最优。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "检查现实约束再调整"
+        ],
+        "sourceHash": "53d509a0f48c6f123e857983a524892065eb6207ea2c07180d15e1b4a4812b42",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "48e4e604-8fd8-4016-862c-f6d3219c776d",
+          "canonicalKey": "plan-review",
+          "aliases": [
+            "连续失败",
+            "调整计划",
+            "减少任务",
+            "坚持任务",
+            "目标改变",
+            "自我认识更新",
+            "减少或坚持任务",
+            "连续失败后调整计划",
+            "改变目标后更新自我认识"
+          ],
+          "domains": [
+            "05",
+            "06",
+            "08"
+          ],
+          "task": "连续受阻后修订计划",
+          "stage": "start/adjust/compare",
+          "mechanism": "检查现实约束再调整",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "tsinghua-efficiency-e1"
+          ],
+          "claims": [
+            {
+              "id": "plan-review-source",
+              "text": "效率手册介绍任务优先、计划执行检查调整及舍弃或委派任务。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "tsinghua-efficiency-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不证明一半时间留白或某个时间数值对所有人最优。"
+            },
+            {
+              "id": "plan-review-adaptation",
+              "text": "对照预期与实际，保留已完成部分，找一条时间、范围或目标假设做调整；不再适用时允许停止。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "tsinghua-efficiency-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "tsinghua-efficiency"
+          ],
+          "principle": "检查现实约束再调整；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C05-4",
+              "candidateId": "C05-4",
+              "task": "减少或坚持任务",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C05-4-1",
+                  "text": "围绕“减少或坚持任务”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C05-4-2",
+                  "text": "对照预期与实际，保留已完成部分，找一条时间、范围或目标假设做调整；不再适用时允许停止。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C05-4-3",
+                  "text": "记录观察：调整后能否继续及代价，停止不是人格结论。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C06-4",
+              "candidateId": "C06-4",
+              "task": "连续失败后调整计划",
+              "stage": "adjust",
+              "steps": [
+                {
+                  "id": "C06-4-1",
+                  "text": "围绕“连续失败后调整计划”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C06-4-2",
+                  "text": "对照预期与实际，保留已完成部分，找一条时间、范围或目标假设做调整；不再适用时允许停止。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C06-4-3",
+                  "text": "记录观察：调整后能否继续及代价，停止不是人格结论。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C08-4",
+              "candidateId": "C08-4",
+              "task": "改变目标后更新自我认识",
+              "stage": "adjust",
+              "steps": [
+                {
+                  "id": "C08-4-1",
+                  "text": "围绕“改变目标后更新自我认识”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C08-4-2",
+                  "text": "对照预期与实际，保留已完成部分，找一条时间、范围或目标假设做调整；不再适用时允许停止。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                },
+                {
+                  "id": "C08-4-3",
+                  "text": "记录观察：调整后能否继续及代价，停止不是人格结论。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-efficiency-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "原计划哪条假设与实际不一致？",
+          "smallestAction": "只圈出一条失效假设。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "只圈出一条失效假设。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "调整后能否继续及代价，停止不是人格结论。",
+          "retrievalSummary": "连续受阻后修订计划；连续失败 调整计划 减少任务 坚持任务 目标改变 自我认识更新；减少或坚持任务；连续失败后调整计划；改变目标后更新自我认识",
+          "referenceBody": "连续受阻后修订计划\n原理：检查现实约束再调整\nLifeOS适配步骤：对照预期与实际，保留已完成部分，找一条时间、范围或目标假设做调整；不再适用时允许停止。\n低精力替代：只圈出一条失效假设。\n观察：调整后能否继续及代价，停止不是人格结论。\n来源支持：效率手册介绍任务优先、计划执行检查调整及舍弃或委派任务。\n不能推出：不证明一半时间留白或某个时间数值对所有人最优。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "tsinghua-efficiency": 1
+            },
+            "supports": [
+              "清华PDF第12页PDCA与计划反馈支持检查执行再修订。"
+            ],
+            "cannotInfer": [
+              "停止任务与圈出假设是编辑适配，不声称这些是作者原句或科学效果。"
+            ]
+          },
+          "contentHash": "6b16e3545164e5496c5256f4d6cb670d70c09e712fec95d2208f57e8ffdee6d4",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-experience-evidence",
+      "canonicalId": "6262d479-9403-4140-8910-48de23cd2600",
+      "revision": 1,
+      "guideContentHash": "3519764fc02bc8196bcd6f464e6f1e54d8c9ed213fbe12d689c7e5dbf6620f33",
+      "sourceHash": "4113eaf09fe06554f6ab1d6d7f1918594a683ff4c17c6151355f1b7630260705",
+      "sourceRevisions": {
+        "yangtze-star": 1
+      },
+      "evidenceIds": [
+        "yangtze-star-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "6262d479-9403-4140-8910-48de23cd2600",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "从经历整理本人贡献",
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "publisher": "长江大学文理学院管理学院",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.178Z",
+        "validUntil": null,
+        "excerpt": "背景、任务、行动和结果",
+        "claim": "指导讲座以岗位要求对照简历，并用背景、任务、行动和结果说明经历。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不证明使用STAR必获录用；没有结果时不能造数字。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "背景任务行动结果分开"
+        ],
+        "sourceHash": "4113eaf09fe06554f6ab1d6d7f1918594a683ff4c17c6151355f1b7630260705",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "6262d479-9403-4140-8910-48de23cd2600",
+          "canonicalKey": "experience-evidence",
+          "aliases": [
+            "做过",
+            "擅长",
+            "喜欢",
+            "经历",
+            "他人评价",
+            "科研课程",
+            "无实习",
+            "竞赛无奖",
+            "活动收获",
+            "区分做过/擅长/喜欢",
+            "从经历寻找局部规律",
+            "理解他人评价",
+            "整理科研课程经历",
+            "无实习时整理经历",
+            "无奖项时提取真实收获",
+            "判断活动收获"
+          ],
+          "domains": [
+            "08",
+            "10",
+            "14",
+            "22",
+            "23"
+          ],
+          "task": "从经历整理本人贡献",
+          "stage": "start/adjust/compare",
+          "mechanism": "背景任务行动结果分开",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "yangtze-star-e1"
+          ],
+          "claims": [
+            {
+              "id": "experience-evidence-source",
+              "text": "指导讲座以岗位要求对照简历，并用背景、任务、行动和结果说明经历。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "yangtze-star-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不证明使用STAR必获录用；没有结果时不能造数字。"
+            },
+            {
+              "id": "experience-evidence-adaptation",
+              "text": "按背景、本人任务、实际行动、真实反馈整理；团队结果与本人贡献分列，缺结果就如实未知。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "yangtze-star-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "yangtze-star"
+          ],
+          "principle": "背景任务行动结果分开；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C08-1",
+              "candidateId": "C08-1",
+              "task": "区分做过/擅长/喜欢",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C08-1-1",
+                  "text": "围绕“区分做过/擅长/喜欢”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C08-1-2",
+                  "text": "按背景、本人任务、实际行动、真实反馈整理；团队结果与本人贡献分列，缺结果就如实未知。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C08-1-3",
+                  "text": "记录观察：可核验贡献及不同情境下的表现，不把做过直接写成擅长。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C08-2",
+              "candidateId": "C08-2",
+              "task": "从经历寻找局部规律",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C08-2-1",
+                  "text": "围绕“从经历寻找局部规律”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C08-2-2",
+                  "text": "按背景、本人任务、实际行动、真实反馈整理；团队结果与本人贡献分列，缺结果就如实未知。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C08-2-3",
+                  "text": "记录观察：可核验贡献及不同情境下的表现，不把做过直接写成擅长。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C08-3",
+              "candidateId": "C08-3",
+              "task": "理解他人评价",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C08-3-1",
+                  "text": "围绕“理解他人评价”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C08-3-2",
+                  "text": "按背景、本人任务、实际行动、真实反馈整理；团队结果与本人贡献分列，缺结果就如实未知。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C08-3-3",
+                  "text": "记录观察：可核验贡献及不同情境下的表现，不把做过直接写成擅长。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C10-2",
+              "candidateId": "C10-2",
+              "task": "整理科研课程经历",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C10-2-1",
+                  "text": "围绕“整理科研课程经历”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C10-2-2",
+                  "text": "按背景、本人任务、实际行动、真实反馈整理；团队结果与本人贡献分列，缺结果就如实未知。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C10-2-3",
+                  "text": "记录观察：可核验贡献及不同情境下的表现，不把做过直接写成擅长。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C14-2",
+              "candidateId": "C14-2",
+              "task": "无实习时整理经历",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C14-2-1",
+                  "text": "围绕“无实习时整理经历”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C14-2-2",
+                  "text": "按背景、本人任务、实际行动、真实反馈整理；团队结果与本人贡献分列，缺结果就如实未知。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C14-2-3",
+                  "text": "记录观察：可核验贡献及不同情境下的表现，不把做过直接写成擅长。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C22-4",
+              "candidateId": "C22-4",
+              "task": "无奖项时提取真实收获",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C22-4-1",
+                  "text": "围绕“无奖项时提取真实收获”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C22-4-2",
+                  "text": "按背景、本人任务、实际行动、真实反馈整理；团队结果与本人贡献分列，缺结果就如实未知。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C22-4-3",
+                  "text": "记录观察：可核验贡献及不同情境下的表现，不把做过直接写成擅长。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C23-4",
+              "candidateId": "C23-4",
+              "task": "判断活动收获",
+              "stage": "compare",
+              "steps": [
+                {
+                  "id": "C23-4-1",
+                  "text": "围绕“判断活动收获”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C23-4-2",
+                  "text": "按背景、本人任务、实际行动、真实反馈整理；团队结果与本人贡献分列，缺结果就如实未知。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C23-4-3",
+                  "text": "记录观察：可核验贡献及不同情境下的表现，不把做过直接写成擅长。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "这段经历中本人负责了什么？",
+          "smallestAction": "只写本人做过的一件事和对应产物。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "只写本人做过的一件事和对应产物。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "可核验贡献及不同情境下的表现，不把做过直接写成擅长。",
+          "retrievalSummary": "从经历整理本人贡献；做过 擅长 喜欢 经历 他人评价 科研课程 无实习 竞赛无奖 活动收获；区分做过/擅长/喜欢；从经历寻找局部规律；理解他人评价；整理科研课程经历；无实习时整理经历；无奖项时提取真实收获；判断活动收获",
+          "referenceBody": "从经历整理本人贡献\n原理：背景任务行动结果分开\nLifeOS适配步骤：按背景、本人任务、实际行动、真实反馈整理；团队结果与本人贡献分列，缺结果就如实未知。\n低精力替代：只写本人做过的一件事和对应产物。\n观察：可核验贡献及不同情境下的表现，不把做过直接写成擅长。\n来源支持：指导讲座以岗位要求对照简历，并用背景、任务、行动和结果说明经历。\n不能推出：不证明使用STAR必获录用；没有结果时不能造数字。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "yangtze-star": 1
+            },
+            "supports": [
+              "长江大学原文明确STAR的背景、任务、行动、结果四部分。"
+            ],
+            "cannotInfer": [
+              "不推出所有经历都证明能力；团队与个人分列、保留未知为防夸大编辑适配。"
+            ]
+          },
+          "contentHash": "3519764fc02bc8196bcd6f464e6f1e54d8c9ed213fbe12d689c7e5dbf6620f33",
+          "indexSignature": "",
+          "legacyIds": [
+            "fbf24484-5938-4d1b-88b8-283596853031",
+            "guide-research-review",
+            "318d2980-16e7-4d4a-817c-37ca69cbee64",
+            "guide-portfolio-evidence",
+            "3082d431-a19e-4fc1-97a8-e670481db895",
+            "guide-competition-review"
+          ],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-research-reading",
+      "canonicalId": "563bc621-e36d-416b-8176-c82bbe0469f3",
+      "revision": 1,
+      "guideContentHash": "6b377fa3131bdb1b84e114eaeafba95e98d608faf177f96f8f880a3306cfeae9",
+      "sourceHash": "fcb5cfa9f61b97a51899c435a066eedb0443c366311798ff29d76781aa22aede",
+      "sourceRevisions": {
+        "ecnu-literature": 1
+      },
+      "evidenceIds": [
+        "ecnu-literature-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "563bc621-e36d-416b-8176-c82bbe0469f3",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "带着问题阅读陌生文献",
+        "url": "https://soci.ecnu.edu.cn/af/61/c10712a438113/page.htm",
+        "publisher": "华东师范大学社会发展学院",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.178Z",
+        "validUntil": null,
+        "excerpt": "如何查找文献",
+        "claim": "科研训练介绍查找、整理和评论文献，建议利用图书馆资源并关注论著关系。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不继承成效数字，也不能将阅读一篇论文当成研究适配结论。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "查找整理评论"
+        ],
+        "sourceHash": "fcb5cfa9f61b97a51899c435a066eedb0443c366311798ff29d76781aa22aede",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "563bc621-e36d-416b-8176-c82bbe0469f3",
+          "canonicalKey": "research-reading",
+          "aliases": [
+            "陌生论文",
+            "阅读文献",
+            "科研",
+            "综述",
+            "原文",
+            "阅读陌生论文"
+          ],
+          "domains": [
+            "09"
+          ],
+          "task": "带着问题阅读陌生文献",
+          "stage": "start/adjust/compare",
+          "mechanism": "查找整理评论",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "ecnu-literature-e1"
+          ],
+          "claims": [
+            {
+              "id": "research-reading-source",
+              "text": "科研训练介绍查找、整理和评论文献，建议利用图书馆资源并关注论著关系。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "ecnu-literature-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不继承成效数字，也不能将阅读一篇论文当成研究适配结论。"
+            },
+            {
+              "id": "research-reading-adaptation",
+              "text": "先确定问题，查综述与相关原文，记录问题、证据与限制；需引用或复现时回到原文相应方法。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ecnu-literature-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "ecnu-literature"
+          ],
+          "principle": "查找整理评论；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C09-2",
+              "candidateId": "C09-2",
+              "task": "阅读陌生论文",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C09-2-1",
+                  "text": "围绕“阅读陌生论文”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ecnu-literature-e1"
+                  ]
+                },
+                {
+                  "id": "C09-2-2",
+                  "text": "先确定问题，查综述与相关原文，记录问题、证据与限制；需引用或复现时回到原文相应方法。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ecnu-literature-e1"
+                  ]
+                },
+                {
+                  "id": "C09-2-3",
+                  "text": "记录观察：能指出结论依赖的证据和未理解处，不假装读完全篇。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "ecnu-literature-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "这次读论文是为了理解背景还是复现某个方法？",
+          "smallestAction": "先记录摘要中的问题和一个未知术语。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "先记录摘要中的问题和一个未知术语。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "能指出结论依赖的证据和未理解处，不假装读完全篇。",
+          "retrievalSummary": "带着问题阅读陌生文献；陌生论文 阅读文献 科研 综述 原文；阅读陌生论文",
+          "referenceBody": "带着问题阅读陌生文献\n原理：查找整理评论\nLifeOS适配步骤：先确定问题，查综述与相关原文，记录问题、证据与限制；需引用或复现时回到原文相应方法。\n低精力替代：先记录摘要中的问题和一个未知术语。\n观察：能指出结论依赖的证据和未理解处，不假装读完全篇。\n来源支持：科研训练介绍查找、整理和评论文献，建议利用图书馆资源并关注论著关系。\n不能推出：不继承成效数字，也不能将阅读一篇论文当成研究适配结论。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "ecnu-literature": 1
+            },
+            "supports": [
+              "华东师大讲座原文分查找、整理、评论，提醒非官方资料局限并推荐数据库。"
+            ],
+            "cannotInfer": [
+              "具体论文复现和未知术语处理是编辑适配；未读取的全文不可声称读完。"
+            ]
+          },
+          "contentHash": "6b377fa3131bdb1b84e114eaeafba95e98d608faf177f96f8f880a3306cfeae9",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-project-story",
+      "canonicalId": "4795f7b2-f739-4ba5-8052-2d04f5894bbe",
+      "revision": 1,
+      "guideContentHash": "cd8f53de79d39ac8e78419e26c8e83e106e4213df98c8e7bcf267f7b40b5939c",
+      "sourceHash": "bd0bd3a9d93d40c44add360a922a1e0a36149a271f2fd83a50f29c1e23f1bf05",
+      "sourceRevisions": {
+        "yangtze-star": 1
+      },
+      "evidenceIds": [
+        "yangtze-star-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "4795f7b2-f739-4ba5-8052-2d04f5894bbe",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "把真实项目讲清楚",
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "publisher": "长江大学文理学院管理学院",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.179Z",
+        "validUntil": null,
+        "excerpt": "背景、任务、行动和结果",
+        "claim": "指导讲座以岗位要求对照简历，并用背景、任务、行动和结果说明经历。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不证明使用STAR必获录用；没有结果时不能造数字。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "以贡献和结果组织表达"
+        ],
+        "sourceHash": "bd0bd3a9d93d40c44add360a922a1e0a36149a271f2fd83a50f29c1e23f1bf05",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "4795f7b2-f739-4ba5-8052-2d04f5894bbe",
+          "canonicalKey": "project-story",
+          "aliases": [
+            "自我介绍",
+            "讲清项目",
+            "面试展示",
+            "本人贡献",
+            "研究项目",
+            "跨领域经历",
+            "说明本人贡献",
+            "介绍真实研究项目",
+            "讲真实个人经历",
+            "自我介绍",
+            "讲清项目",
+            "解释跨领域经历"
+          ],
+          "domains": [
+            "10",
+            "13",
+            "15",
+            "16"
+          ],
+          "task": "把真实项目讲清楚",
+          "stage": "start/adjust/compare",
+          "mechanism": "以贡献和结果组织表达",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "yangtze-star-e1"
+          ],
+          "claims": [
+            {
+              "id": "project-story-source",
+              "text": "指导讲座以岗位要求对照简历，并用背景、任务、行动和结果说明经历。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "yangtze-star-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不证明使用STAR必获录用；没有结果时不能造数字。"
+            },
+            {
+              "id": "project-story-adaptation",
+              "text": "按情境、任务、本人行动与真实结果说明项目；保留一个具体困难及处理，未知结果不编造。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "yangtze-star-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "yangtze-star"
+          ],
+          "principle": "以贡献和结果组织表达；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C10-3",
+              "candidateId": "C10-3",
+              "task": "说明本人贡献",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C10-3-1",
+                  "text": "围绕“说明本人贡献”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C10-3-2",
+                  "text": "按情境、任务、本人行动与真实结果说明项目；保留一个具体困难及处理，未知结果不编造。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C10-3-3",
+                  "text": "记录观察：听者能否区分团队产出与本人工作，不保证面试通过。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C10-4",
+              "candidateId": "C10-4",
+              "task": "介绍真实研究项目",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C10-4-1",
+                  "text": "围绕“介绍真实研究项目”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C10-4-2",
+                  "text": "按情境、任务、本人行动与真实结果说明项目；保留一个具体困难及处理，未知结果不编造。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C10-4-3",
+                  "text": "记录观察：听者能否区分团队产出与本人工作，不保证面试通过。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C13-3",
+              "candidateId": "C13-3",
+              "task": "讲真实个人经历",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C13-3-1",
+                  "text": "围绕“讲真实个人经历”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C13-3-2",
+                  "text": "按情境、任务、本人行动与真实结果说明项目；保留一个具体困难及处理，未知结果不编造。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C13-3-3",
+                  "text": "记录观察：听者能否区分团队产出与本人工作，不保证面试通过。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C15-1",
+              "candidateId": "C15-1",
+              "task": "自我介绍",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C15-1-1",
+                  "text": "围绕“自我介绍”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C15-1-2",
+                  "text": "按情境、任务、本人行动与真实结果说明项目；保留一个具体困难及处理，未知结果不编造。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C15-1-3",
+                  "text": "记录观察：听者能否区分团队产出与本人工作，不保证面试通过。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C15-2",
+              "candidateId": "C15-2",
+              "task": "讲清项目",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C15-2-1",
+                  "text": "围绕“讲清项目”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C15-2-2",
+                  "text": "按情境、任务、本人行动与真实结果说明项目；保留一个具体困难及处理，未知结果不编造。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C15-2-3",
+                  "text": "记录观察：听者能否区分团队产出与本人工作，不保证面试通过。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C16-4",
+              "candidateId": "C16-4",
+              "task": "解释跨领域经历",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C16-4-1",
+                  "text": "围绕“解释跨领域经历”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C16-4-2",
+                  "text": "按情境、任务、本人行动与真实结果说明项目；保留一个具体困难及处理，未知结果不编造。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                },
+                {
+                  "id": "C16-4-3",
+                  "text": "记录观察：听者能否区分团队产出与本人工作，不保证面试通过。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-star-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "听众最需要了解你承担的哪部分？",
+          "smallestAction": "先说清本人职责的一句话。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "先说清本人职责的一句话。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "听者能否区分团队产出与本人工作，不保证面试通过。",
+          "retrievalSummary": "把真实项目讲清楚；自我介绍 讲清项目 面试展示 本人贡献 研究项目 跨领域经历；说明本人贡献；介绍真实研究项目；讲真实个人经历；自我介绍；讲清项目；解释跨领域经历",
+          "referenceBody": "把真实项目讲清楚\n原理：以贡献和结果组织表达\nLifeOS适配步骤：按情境、任务、本人行动与真实结果说明项目；保留一个具体困难及处理，未知结果不编造。\n低精力替代：先说清本人职责的一句话。\n观察：听者能否区分团队产出与本人工作，不保证面试通过。\n来源支持：指导讲座以岗位要求对照简历，并用背景、任务、行动和结果说明经历。\n不能推出：不证明使用STAR必获录用；没有结果时不能造数字。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "yangtze-star": 1
+            },
+            "supports": [
+              "STAR教学原文明确情境、任务、本人行动与结果，支持在面试中有序介绍真实项目。"
+            ],
+            "cannotInfer": [
+              "听众选择、困难处理与未知保留是编辑适配；不保证录用，与经历整理共用同一来源而非独立研究。"
+            ]
+          },
+          "contentHash": "cd8f53de79d39ac8e78419e26c8e83e106e4213df98c8e7bcf267f7b40b5939c",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-user-interview",
+      "canonicalId": "43e47ad6-3543-4c97-84f6-42bb0a1e6cb3",
+      "revision": 1,
+      "guideContentHash": "09315caa65cfd6de2857186a4a4b1ed1cfe7108dc07042e51159506d19b6cc53",
+      "sourceHash": "9226493106352933c632786cecf0702281a46f98e046edfa349df4821f1c0f4a",
+      "sourceRevisions": {
+        "nsf-interview": 1
+      },
+      "evidenceIds": [
+        "nsf-interview-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "43e47ad6-3543-4c97-84f6-42bb0a1e6cb3",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "从过去行为发现具体问题",
+        "url": "https://www.nsf.gov/funding/initiatives/i-corps/about-teams",
+        "publisher": "美国国家科学基金会 NSF",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.179Z",
+        "validUntil": null,
+        "excerpt": "talking to potential customers, partners and other industry stakeholders",
+        "claim": "I-Corps团队通过客户发现与接触相关方探索商业化机会。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "项目描述不是校园访谈成功率；表达喜欢不等于愿意付款。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "客户发现"
+        ],
+        "sourceHash": "9226493106352933c632786cecf0702281a46f98e046edfa349df4821f1c0f4a",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "43e47ad6-3543-4c97-84f6-42bb0a1e6cb3",
+          "canonicalKey": "user-interview",
+          "aliases": [
+            "创业",
+            "目标用户",
+            "需求",
+            "访谈",
+            "独立开发",
+            "发现问题",
+            "发现值得解决的问题",
+            "找目标用户",
+            "发现小产品问题"
+          ],
+          "domains": [
+            "17",
+            "20"
+          ],
+          "task": "从过去行为发现具体问题",
+          "stage": "start/adjust/compare",
+          "mechanism": "客户发现",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "nsf-interview-e1"
+          ],
+          "claims": [
+            {
+              "id": "user-interview-source",
+              "text": "I-Corps团队通过客户发现与接触相关方探索商业化机会。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "nsf-interview-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "项目描述不是校园访谈成功率；表达喜欢不等于愿意付款。"
+            },
+            {
+              "id": "user-interview-adaptation",
+              "text": "围绕最近一次真实情境询问怎么做、哪里受阻、用了什么替代办法；记录原话与行为，不把喜欢当付费需求。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "nsf-interview-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "nsf-interview"
+          ],
+          "principle": "客户发现；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C17-1",
+              "candidateId": "C17-1",
+              "task": "发现值得解决的问题",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C17-1-1",
+                  "text": "围绕“发现值得解决的问题”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "nsf-interview-e1"
+                  ]
+                },
+                {
+                  "id": "C17-1-2",
+                  "text": "围绕最近一次真实情境询问怎么做、哪里受阻、用了什么替代办法；记录原话与行为，不把喜欢当付费需求。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "nsf-interview-e1"
+                  ]
+                },
+                {
+                  "id": "C17-1-3",
+                  "text": "记录观察：问题频次、代价与已有解决行为，样本少时只作线索。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "nsf-interview-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C17-2",
+              "candidateId": "C17-2",
+              "task": "找目标用户",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C17-2-1",
+                  "text": "围绕“找目标用户”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "nsf-interview-e1"
+                  ]
+                },
+                {
+                  "id": "C17-2-2",
+                  "text": "围绕最近一次真实情境询问怎么做、哪里受阻、用了什么替代办法；记录原话与行为，不把喜欢当付费需求。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "nsf-interview-e1"
+                  ]
+                },
+                {
+                  "id": "C17-2-3",
+                  "text": "记录观察：问题频次、代价与已有解决行为，样本少时只作线索。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "nsf-interview-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C20-1",
+              "candidateId": "C20-1",
+              "task": "发现小产品问题",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C20-1-1",
+                  "text": "围绕“发现小产品问题”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "nsf-interview-e1"
+                  ]
+                },
+                {
+                  "id": "C20-1-2",
+                  "text": "围绕最近一次真实情境询问怎么做、哪里受阻、用了什么替代办法；记录原话与行为，不把喜欢当付费需求。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "nsf-interview-e1"
+                  ]
+                },
+                {
+                  "id": "C20-1-3",
+                  "text": "记录观察：问题频次、代价与已有解决行为，样本少时只作线索。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "nsf-interview-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "你能接触到哪类真正遇到这个问题的人？",
+          "smallestAction": "先问一个人上次如何处理该问题。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "先问一个人上次如何处理该问题。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "问题频次、代价与已有解决行为，样本少时只作线索。",
+          "retrievalSummary": "从过去行为发现具体问题；创业 目标用户 需求 访谈 独立开发 发现问题；发现值得解决的问题；找目标用户；发现小产品问题",
+          "referenceBody": "从过去行为发现具体问题\n原理：客户发现\nLifeOS适配步骤：围绕最近一次真实情境询问怎么做、哪里受阻、用了什么替代办法；记录原话与行为，不把喜欢当付费需求。\n低精力替代：先问一个人上次如何处理该问题。\n观察：问题频次、代价与已有解决行为，样本少时只作线索。\n来源支持：I-Corps团队通过客户发现与接触相关方探索商业化机会。\n不能推出：项目描述不是校园访谈成功率；表达喜欢不等于愿意付款。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "nsf-interview": 1
+            },
+            "supports": [
+              "NSF原文描述与潜在客户、合作伙伴和相关方交流以评估商业潜力。"
+            ],
+            "cannotInfer": [
+              "过去情境访谈为校园编辑步骤；喜欢不等于付款，未联系不算已执行，样本不推算成功率。"
+            ]
+          },
+          "contentHash": "09315caa65cfd6de2857186a4a4b1ed1cfe7108dc07042e51159506d19b6cc53",
+          "indexSignature": "",
+          "legacyIds": [
+            "e4aa18f7-f030-44d7-b03b-40f1749288a9",
+            "guide-need-interview",
+            "12000000-0000-4000-8000-000000000004"
+          ],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-prototype-test",
+      "canonicalId": "061bf547-823f-492e-89c2-cf11daf153b5",
+      "revision": 1,
+      "guideContentHash": "031b4099a58945b60bafa1d5d0b2fb6bee94a72e479c33d44ebefb0a9c881765",
+      "sourceHash": "cf946da06ed44d6304115172a178a4690ef3d27c22a6656530e5e44feb6373a3",
+      "sourceRevisions": {
+        "tsinghua-mvp": 1
+      },
+      "evidenceIds": [
+        "tsinghua-mvp-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "061bf547-823f-492e-89c2-cf11daf153b5",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "用最小原型检验一个假设",
+        "url": "https://www.sem.tsinghua.edu.cn/info/1171/38255.htm",
+        "publisher": "清华大学经济管理学院",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.179Z",
+        "validUntil": null,
+        "excerpt": "最小可行产品",
+        "claim": "作者讨论亲自验证产品与真实客户反馈，AI模拟不能替代用户行为。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "作者经验而非科学证明；不继承一周、五人、报价和收入数字。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "真实行为反馈"
+        ],
+        "sourceHash": "cf946da06ed44d6304115172a178a4690ef3d27c22a6656530e5e44feb6373a3",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "061bf547-823f-492e-89c2-cf11daf153b5",
+          "canonicalKey": "prototype-test",
+          "aliases": [
+            "最小实验",
+            "原型",
+            "MVP",
+            "缩减功能",
+            "没人用",
+            "产品反馈",
+            "小作品验证",
+            "用小作品验证能力",
+            "最小实验",
+            "项目没人用的诊断",
+            "缩减原型功能",
+            "根据反馈选择改进"
+          ],
+          "domains": [
+            "16",
+            "17",
+            "20"
+          ],
+          "task": "用最小原型检验一个假设",
+          "stage": "start/adjust/compare",
+          "mechanism": "真实行为反馈",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "tsinghua-mvp-e1"
+          ],
+          "claims": [
+            {
+              "id": "prototype-test-source",
+              "text": "作者讨论亲自验证产品与真实客户反馈，AI模拟不能替代用户行为。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "tsinghua-mvp-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "作者经验而非科学证明；不继承一周、五人、报价和收入数字。"
+            },
+            {
+              "id": "prototype-test-adaptation",
+              "text": "删去不验证此假设的功能，让真实使用者完成一项任务，记录是否开始、卡点与实际使用；据证据再改。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "tsinghua-mvp-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "tsinghua-mvp"
+          ],
+          "principle": "真实行为反馈；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C16-3",
+              "candidateId": "C16-3",
+              "task": "用小作品验证能力",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C16-3-1",
+                  "text": "围绕“用小作品验证能力”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                },
+                {
+                  "id": "C16-3-2",
+                  "text": "删去不验证此假设的功能，让真实使用者完成一项任务，记录是否开始、卡点与实际使用；据证据再改。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                },
+                {
+                  "id": "C16-3-3",
+                  "text": "记录观察：实际任务行为与失败步骤，试用不等于付费。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C17-3",
+              "candidateId": "C17-3",
+              "task": "最小实验",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C17-3-1",
+                  "text": "围绕“最小实验”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                },
+                {
+                  "id": "C17-3-2",
+                  "text": "删去不验证此假设的功能，让真实使用者完成一项任务，记录是否开始、卡点与实际使用；据证据再改。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                },
+                {
+                  "id": "C17-3-3",
+                  "text": "记录观察：实际任务行为与失败步骤，试用不等于付费。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C17-4",
+              "candidateId": "C17-4",
+              "task": "项目没人用的诊断",
+              "stage": "adjust",
+              "steps": [
+                {
+                  "id": "C17-4-1",
+                  "text": "围绕“项目没人用的诊断”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                },
+                {
+                  "id": "C17-4-2",
+                  "text": "删去不验证此假设的功能，让真实使用者完成一项任务，记录是否开始、卡点与实际使用；据证据再改。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                },
+                {
+                  "id": "C17-4-3",
+                  "text": "记录观察：实际任务行为与失败步骤，试用不等于付费。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C20-2",
+              "candidateId": "C20-2",
+              "task": "缩减原型功能",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C20-2-1",
+                  "text": "围绕“缩减原型功能”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                },
+                {
+                  "id": "C20-2-2",
+                  "text": "删去不验证此假设的功能，让真实使用者完成一项任务，记录是否开始、卡点与实际使用；据证据再改。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                },
+                {
+                  "id": "C20-2-3",
+                  "text": "记录观察：实际任务行为与失败步骤，试用不等于付费。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C20-4",
+              "candidateId": "C20-4",
+              "task": "根据反馈选择改进",
+              "stage": "compare",
+              "steps": [
+                {
+                  "id": "C20-4-1",
+                  "text": "围绕“根据反馈选择改进”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                },
+                {
+                  "id": "C20-4-2",
+                  "text": "删去不验证此假设的功能，让真实使用者完成一项任务，记录是否开始、卡点与实际使用；据证据再改。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                },
+                {
+                  "id": "C20-4-3",
+                  "text": "记录观察：实际任务行为与失败步骤，试用不等于付费。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "tsinghua-mvp-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "现在最需要验证的一个假设是什么？",
+          "smallestAction": "先画一张只含关键步骤的草图。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "先画一张只含关键步骤的草图。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "实际任务行为与失败步骤，试用不等于付费。",
+          "retrievalSummary": "用最小原型检验一个假设；最小实验 原型 MVP 缩减功能 没人用 产品反馈 小作品验证；用小作品验证能力；最小实验；项目没人用的诊断；缩减原型功能；根据反馈选择改进",
+          "referenceBody": "用最小原型检验一个假设\n原理：真实行为反馈\nLifeOS适配步骤：删去不验证此假设的功能，让真实使用者完成一项任务，记录是否开始、卡点与实际使用；据证据再改。\n低精力替代：先画一张只含关键步骤的草图。\n观察：实际任务行为与失败步骤，试用不等于付费。\n来源支持：作者讨论亲自验证产品与真实客户反馈，AI模拟不能替代用户行为。\n不能推出：作者经验而非科学证明；不继承一周、五人、报价和收入数字。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "tsinghua-mvp": 1
+            },
+            "supports": [
+              "清华经管作者要求亲自做最小可行产品，并强调是否付费无法由AI替代回答。"
+            ],
+            "cannotInfer": [
+              "只采用真实行为验证与最小原型的机制；不继承一周、五人、报价或收入数字，不把试用认作付款。"
+            ]
+          },
+          "contentHash": "031b4099a58945b60bafa1d5d0b2fb6bee94a72e479c33d44ebefb0a9c881765",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-delivery-scope",
+      "canonicalId": "ea53cc08-3420-442f-8e5c-98070be7909a",
+      "revision": 1,
+      "guideContentHash": "fddaa73ecabe5f26962f0c7161b0d4758a84c8846fdd606857bca2c3051bff52",
+      "sourceHash": "ecc209e67759e0d469bd168c9a3f9ddcfd06353444c0cfbc6968ad2d1865db31",
+      "sourceRevisions": {
+        "upwork-scope": 1
+      },
+      "evidenceIds": [
+        "upwork-scope-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "ea53cc08-3420-442f-8e5c-98070be7909a",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "第一单与反复改稿的交付范围",
+        "url": "https://www.upwork.com/resources/managing-client-expectations",
+        "publisher": "Upwork",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.179Z",
+        "validUntil": null,
+        "excerpt": "Specify how many revisions are included and what constitutes a change in scope.",
+        "claim": "平台作者建议明确包含的修改次数与什么构成范围变更。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "属于专业实践建议；不输出合同效力、退款权利或价格规则。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "确认范围及变更"
+        ],
+        "sourceHash": "ecc209e67759e0d469bd168c9a3f9ddcfd06353444c0cfbc6968ad2d1865db31",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "ea53cc08-3420-442f-8e5c-98070be7909a",
+          "canonicalKey": "delivery-scope",
+          "aliases": [
+            "自由职业",
+            "第一单",
+            "接单",
+            "客户",
+            "改需求",
+            "反复修改",
+            "一直改稿",
+            "交付范围",
+            "尝试第一单",
+            "确认需求与交付范围",
+            "处理反复修改"
+          ],
+          "domains": [
+            "18"
+          ],
+          "task": "第一单与反复改稿的交付范围",
+          "stage": "start/adjust/compare",
+          "mechanism": "确认范围及变更",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "upwork-scope-e1"
+          ],
+          "claims": [
+            {
+              "id": "delivery-scope-source",
+              "text": "平台作者建议明确包含的修改次数与什么构成范围变更。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "upwork-scope-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "属于专业实践建议；不输出合同效力、退款权利或价格规则。"
+            },
+            {
+              "id": "delivery-scope-adaptation",
+              "text": "把交付物、完成标准、节点与修改边界写清；已有变更先逐项对照，再与对方确认范围和时间取舍。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "upwork-scope-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "upwork-practice"
+          ],
+          "principle": "确认范围及变更；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C18-1",
+              "candidateId": "C18-1",
+              "task": "尝试第一单",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C18-1-1",
+                  "text": "围绕“尝试第一单”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "upwork-scope-e1"
+                  ]
+                },
+                {
+                  "id": "C18-1-2",
+                  "text": "把交付物、完成标准、节点与修改边界写清；已有变更先逐项对照，再与对方确认范围和时间取舍。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "upwork-scope-e1"
+                  ]
+                },
+                {
+                  "id": "C18-1-3",
+                  "text": "记录观察：对方明确同意了什么及仍有分歧处，不给法律或付款保证。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "upwork-scope-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C18-2",
+              "candidateId": "C18-2",
+              "task": "确认需求与交付范围",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C18-2-1",
+                  "text": "围绕“确认需求与交付范围”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "upwork-scope-e1"
+                  ]
+                },
+                {
+                  "id": "C18-2-2",
+                  "text": "把交付物、完成标准、节点与修改边界写清；已有变更先逐项对照，再与对方确认范围和时间取舍。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "upwork-scope-e1"
+                  ]
+                },
+                {
+                  "id": "C18-2-3",
+                  "text": "记录观察：对方明确同意了什么及仍有分歧处，不给法律或付款保证。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "upwork-scope-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C18-3",
+              "candidateId": "C18-3",
+              "task": "处理反复修改",
+              "stage": "adjust",
+              "steps": [
+                {
+                  "id": "C18-3-1",
+                  "text": "围绕“处理反复修改”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "upwork-scope-e1"
+                  ]
+                },
+                {
+                  "id": "C18-3-2",
+                  "text": "把交付物、完成标准、节点与修改边界写清；已有变更先逐项对照，再与对方确认范围和时间取舍。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "upwork-scope-e1"
+                  ]
+                },
+                {
+                  "id": "C18-3-3",
+                  "text": "记录观察：对方明确同意了什么及仍有分歧处，不给法律或付款保证。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "upwork-scope-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "新增要求与原先确认的交付物差在哪？",
+          "smallestAction": "只并列原需求和这次新增的一项。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "只并列原需求和这次新增的一项。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "对方明确同意了什么及仍有分歧处，不给法律或付款保证。",
+          "retrievalSummary": "第一单与反复改稿的交付范围；自由职业 第一单 接单 客户 改需求 反复修改 一直改稿 交付范围；尝试第一单；确认需求与交付范围；处理反复修改",
+          "referenceBody": "第一单与反复改稿的交付范围\n原理：确认范围及变更\nLifeOS适配步骤：把交付物、完成标准、节点与修改边界写清；已有变更先逐项对照，再与对方确认范围和时间取舍。\n低精力替代：只并列原需求和这次新增的一项。\n观察：对方明确同意了什么及仍有分歧处，不给法律或付款保证。\n来源支持：平台作者建议在工作前明确范围、交付物、节点和修改范围。\n不能推出：属于专业实践建议；不输出合同效力、退款权利或价格规则。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "upwork-scope": 1
+            },
+            "supports": [
+              "Upwork原句要求明确包含的修改次数与范围变更的定义。"
+            ],
+            "cannotInfer": [
+              "只批准修改与范围对照机制；节点、完成标准为LifeOS适配，不输出合同效力、费用规则或付款保证。"
+            ]
+          },
+          "contentHash": "fddaa73ecabe5f26962f0c7161b0d4758a84c8846fdd606857bca2c3051bff52",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-boundary-request",
+      "canonicalId": "349634c2-27c1-4a99-8f54-3f8e072d5ce0",
+      "revision": 1,
+      "guideContentHash": "357d144b0e84ada81c528eb8634780b3d569968f95f62aabc5eebc6f6c8d4769",
+      "sourceHash": "be7ecd8897673898a97d622aeab5227bdbd0c3afb6ece3186016318fa3ccc6bc",
+      "sourceRevisions": {
+        "sdu-boundaries": 1
+      },
+      "evidenceIds": [
+        "sdu-boundaries-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "349634c2-27c1-4a99-8f54-3f8e072d5ce0",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "表达需求、拒绝与合作冲突",
+        "url": "https://www.xljk.sdu.edu.cn/info/1008/10852.htm",
+        "publisher": "山东大学学生心理健康教育与咨询中心",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.179Z",
+        "validUntil": null,
+        "excerpt": "明确表达自己的诉求",
+        "claim": "宿舍沟通材料提出表达诉求、协商共同生活边界。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不保证对方接受；威胁或侵害不靠继续让步解决。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "事实与请求分开"
+        ],
+        "sourceHash": "be7ecd8897673898a97d622aeab5227bdbd0c3afb6ece3186016318fa3ccc6bc",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "349634c2-27c1-4a99-8f54-3f8e072d5ce0",
+          "canonicalKey": "boundary-request",
+          "aliases": [
+            "宿舍冲突",
+            "拒绝",
+            "人际边界",
+            "提出需求",
+            "合作问题",
+            "费用争议",
+            "合作问题的事实整理与沟通",
+            "沟通宿舍冲突",
+            "表达拒绝",
+            "提出需求与边界",
+            "整理费用争议事实"
+          ],
+          "domains": [
+            "19",
+            "25",
+            "27"
+          ],
+          "task": "表达需求、拒绝与合作冲突",
+          "stage": "start/adjust/compare",
+          "mechanism": "事实与请求分开",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "sdu-boundaries-e1"
+          ],
+          "claims": [
+            {
+              "id": "boundary-request-source",
+              "text": "宿舍沟通材料提出表达诉求、协商共同生活边界。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "sdu-boundaries-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不保证对方接受；威胁或侵害不靠继续让步解决。"
+            },
+            {
+              "id": "boundary-request-adaptation",
+              "text": "描述可核对事实及对自己的影响，提出清晰请求或拒绝；涉及威胁、强迫或持续侵害先寻求现实支持。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "sdu-boundaries-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "sdu-boundaries"
+          ],
+          "principle": "事实与请求分开；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C19-4",
+              "candidateId": "C19-4",
+              "task": "合作问题的事实整理与沟通",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C19-4-1",
+                  "text": "围绕“合作问题的事实整理与沟通”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                },
+                {
+                  "id": "C19-4-2",
+                  "text": "描述可核对事实及对自己的影响，提出清晰请求或拒绝；涉及威胁、强迫或持续侵害先寻求现实支持。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                },
+                {
+                  "id": "C19-4-3",
+                  "text": "记录观察：对方回应及边界能否落实，不把沟通当成安全保证。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C25-2",
+              "candidateId": "C25-2",
+              "task": "沟通宿舍冲突",
+              "stage": "adjust",
+              "steps": [
+                {
+                  "id": "C25-2-1",
+                  "text": "围绕“沟通宿舍冲突”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                },
+                {
+                  "id": "C25-2-2",
+                  "text": "描述可核对事实及对自己的影响，提出清晰请求或拒绝；涉及威胁、强迫或持续侵害先寻求现实支持。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                },
+                {
+                  "id": "C25-2-3",
+                  "text": "记录观察：对方回应及边界能否落实，不把沟通当成安全保证。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C25-3",
+              "candidateId": "C25-3",
+              "task": "表达拒绝",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C25-3-1",
+                  "text": "围绕“表达拒绝”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                },
+                {
+                  "id": "C25-3-2",
+                  "text": "描述可核对事实及对自己的影响，提出清晰请求或拒绝；涉及威胁、强迫或持续侵害先寻求现实支持。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                },
+                {
+                  "id": "C25-3-3",
+                  "text": "记录观察：对方回应及边界能否落实，不把沟通当成安全保证。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C25-4",
+              "candidateId": "C25-4",
+              "task": "提出需求与边界",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C25-4-1",
+                  "text": "围绕“提出需求与边界”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                },
+                {
+                  "id": "C25-4-2",
+                  "text": "描述可核对事实及对自己的影响，提出清晰请求或拒绝；涉及威胁、强迫或持续侵害先寻求现实支持。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                },
+                {
+                  "id": "C25-4-3",
+                  "text": "记录观察：对方回应及边界能否落实，不把沟通当成安全保证。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C27-4",
+              "candidateId": "C27-4",
+              "task": "整理费用争议事实",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C27-4-1",
+                  "text": "围绕“整理费用争议事实”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                },
+                {
+                  "id": "C27-4-2",
+                  "text": "描述可核对事实及对自己的影响，提出清晰请求或拒绝；涉及威胁、强迫或持续侵害先寻求现实支持。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                },
+                {
+                  "id": "C27-4-3",
+                  "text": "记录观察：对方回应及边界能否落实，不把沟通当成安全保证。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "sdu-boundaries-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "你最需要对方改变哪个具体行为？",
+          "smallestAction": "先写一句事实和一句边界。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "先写一句事实和一句边界。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "对方回应及边界能否落实，不把沟通当成安全保证。",
+          "retrievalSummary": "表达需求、拒绝与合作冲突；宿舍冲突 拒绝 人际边界 提出需求 合作问题 费用争议；合作问题的事实整理与沟通；沟通宿舍冲突；表达拒绝；提出需求与边界；整理费用争议事实",
+          "referenceBody": "表达需求、拒绝与合作冲突\n原理：事实与请求分开\nLifeOS适配步骤：描述可核对事实及对自己的影响，提出清晰请求或拒绝；涉及威胁、强迫或持续侵害先寻求现实支持。\n低精力替代：先写一句事实和一句边界。\n观察：对方回应及边界能否落实，不把沟通当成安全保证。\n来源支持：宿舍沟通材料提出表达诉求、协商共同生活边界。\n不能推出：不保证对方接受；威胁或侵害不靠继续让步解决。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "sdu-boundaries": 1
+            },
+            "supports": [
+              "山大宿舍材料明确提出表达诉求、协商和共同建立学习生活边界。"
+            ],
+            "cannotInfer": [
+              "保护安全、表达拒绝与事实请求分开是编辑适配；不能保证冲突解决或代替法律意见。"
+            ]
+          },
+          "contentHash": "357d144b0e84ada81c528eb8634780b3d569968f95f62aabc5eebc6f6c8d4769",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    },
+    {
+      "documentId": "evergreen-recovery-support",
+      "canonicalId": "1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a",
+      "revision": 1,
+      "guideContentHash": "96c452e9c73f6df526b272604f5c844dc10389c7ae6317b35b3de6f6c334e971",
+      "sourceHash": "202995945b8fc241971242dbbd3c35eee04b3c01ceda4f384506265d712c60ae",
+      "sourceRevisions": {
+        "situ-recovery": 1
+      },
+      "evidenceIds": [
+        "situ-recovery-e1"
+      ],
+      "remoteConfirmed": false,
+      "registryEnabled": false,
+      "card": {
+        "id": "1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "过载时安排恢复和现实支持",
+        "url": "https://xlzx.situ.edu.cn/info/1079/2963.htm",
+        "publisher": "上海应用技术大学大学生心理咨询与发展中心",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.179Z",
+        "validUntil": null,
+        "excerpt": "休息\n勇敢求助",
+        "claim": "开学调适指南建议平衡休息、社交和学习，并主动求助。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "不提炼诊断、治疗、热线时段或放松方法的疗效结论。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "平衡任务与支持"
+        ],
+        "sourceHash": "202995945b8fc241971242dbbd3c35eee04b3c01ceda4f384506265d712c60ae",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a",
+          "canonicalKey": "recovery-support",
+          "aliases": [
+            "生活恢复",
+            "独立生活",
+            "感受",
+            "过载",
+            "休息",
+            "现实支持",
+            "适应独立生活",
+            "区分感受与待解决事情",
+            "安排休息",
+            "寻找现实支持"
+          ],
+          "domains": [
+            "01",
+            "26"
+          ],
+          "task": "过载时安排恢复和现实支持",
+          "stage": "start/adjust/compare",
+          "mechanism": "平衡任务与支持",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "situ-recovery-e1"
+          ],
+          "claims": [
+            {
+              "id": "recovery-support-source",
+              "text": "开学调适指南建议平衡休息、社交和学习，并主动求助。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "situ-recovery-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "不提炼诊断、治疗、热线时段或放松方法的疗效结论。"
+            },
+            {
+              "id": "recovery-support-adaptation",
+              "text": "区分感受与可处理事情，按本人意愿留出休息，减少一个可延后任务；持续影响生活时联系现实支持。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "situ-recovery-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "situ-recovery"
+          ],
+          "principle": "平衡任务与支持；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C01-4",
+              "candidateId": "C01-4",
+              "task": "适应独立生活",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C01-4-1",
+                  "text": "围绕“适应独立生活”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                },
+                {
+                  "id": "C01-4-2",
+                  "text": "区分感受与可处理事情，按本人意愿留出休息，减少一个可延后任务；持续影响生活时联系现实支持。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                },
+                {
+                  "id": "C01-4-3",
+                  "text": "记录观察：休息与支持是否可获得，不诊断、不把情绪当人格。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C26-1",
+              "candidateId": "C26-1",
+              "task": "区分感受与待解决事情",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C26-1-1",
+                  "text": "围绕“区分感受与待解决事情”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                },
+                {
+                  "id": "C26-1-2",
+                  "text": "区分感受与可处理事情，按本人意愿留出休息，减少一个可延后任务；持续影响生活时联系现实支持。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                },
+                {
+                  "id": "C26-1-3",
+                  "text": "记录观察：休息与支持是否可获得，不诊断、不把情绪当人格。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C26-3",
+              "candidateId": "C26-3",
+              "task": "安排休息",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C26-3-1",
+                  "text": "围绕“安排休息”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                },
+                {
+                  "id": "C26-3-2",
+                  "text": "区分感受与可处理事情，按本人意愿留出休息，减少一个可延后任务；持续影响生活时联系现实支持。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                },
+                {
+                  "id": "C26-3-3",
+                  "text": "记录观察：休息与支持是否可获得，不诊断、不把情绪当人格。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C26-4",
+              "candidateId": "C26-4",
+              "task": "寻找现实支持",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C26-4-1",
+                  "text": "围绕“寻找现实支持”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                },
+                {
+                  "id": "C26-4-2",
+                  "text": "区分感受与可处理事情，按本人意愿留出休息，减少一个可延后任务；持续影响生活时联系现实支持。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                },
+                {
+                  "id": "C26-4-3",
+                  "text": "记录观察：休息与支持是否可获得，不诊断、不把情绪当人格。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "situ-recovery-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "你现在更需要被听见、减少任务还是找人支持？",
+          "smallestAction": "只向可信任的人表达当前需要。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "只向可信任的人表达当前需要。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "休息与支持是否可获得，不诊断、不把情绪当人格。",
+          "retrievalSummary": "过载时安排恢复和现实支持；生活恢复 独立生活 感受 过载 休息 现实支持；适应独立生活；区分感受与待解决事情；安排休息；寻找现实支持",
+          "referenceBody": "过载时安排恢复和现实支持\n原理：平衡任务与支持\nLifeOS适配步骤：区分感受与可处理事情，按本人意愿留出休息，减少一个可延后任务；持续影响生活时联系现实支持。\n低精力替代：只向可信任的人表达当前需要。\n观察：休息与支持是否可获得，不诊断、不把情绪当人格。\n来源支持：开学调适指南建议平衡休息、社交和学习，并主动求助。\n不能推出：不提炼诊断、治疗、热线时段或放松方法的疗效结论。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "situ-recovery": 1
+            },
+            "supports": [
+              "上海应用技术大学材料提出平衡休息、运动、社交、学习并主动寻求帮助。"
+            ],
+            "cannotInfer": [
+              "只是一般生活支持，不能解释病因、诊断或治疗；休息时长和求助方式由本人实际情境决定。"
+            ]
+          },
+          "contentHash": "96c452e9c73f6df526b272604f5c844dc10389c7ae6317b35b3de6f6c334e971",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "tsinghua-exam",
+      "source_revision": 1,
+      "canonical_url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+      "platform": "learning.tsinghua.edu.cn",
+      "original_work_id": "/xxyfzzy/wdxkszzb.htm",
+      "title": "为大学考试做准备-学生学习与发展指导中心",
+      "publisher": "清华大学学生学习与发展指导中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T02:47:36.927Z",
+      "source_group": "tsinghua-exam",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "2d582e5daa1f09a12870ef9dee3b8a837371d63907dba1ab5fc0161739287bb4",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:36.927Z"
+      },
+      "semantic_scope": "该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。",
+      "cannot_infer": "不能保证成绩或推断能力、方向适配。"
+    },
+    {
+      "source_id": "tsinghua-efficiency",
+      "source_revision": 1,
+      "canonical_url": "https://learning.tsinghua.edu.cn/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+      "platform": "learning.tsinghua.edu.cn",
+      "original_work_id": "/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+      "title": "清华大学学生学习与发展指导中心",
+      "publisher": "清华大学学生学习与发展指导中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T02:47:36.936Z",
+      "source_group": "tsinghua-efficiency",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "1809d0b048bc93620de579ece6023aa48fff7a263d14d5608d84c185dd0b9989",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:36.936Z"
+      },
+      "semantic_scope": "效率手册介绍任务优先、计划执行检查调整及舍弃或委派任务。",
+      "cannot_infer": "不证明一半时间留白或某个时间数值对所有人最优。"
+    },
+    {
+      "source_id": "yangtze-star",
+      "source_revision": 1,
+      "canonical_url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+      "platform": "wlxy.yangtzeu.edu.cn",
+      "original_work_id": "/gsgl/info/1094/5348.htm",
+      "title": "【职引未来辅导员工作室】简历，面试指导培训-长江大学文理学院-管理学院",
+      "publisher": "长江大学文理学院管理学院",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T02:47:36.937Z",
+      "source_group": "yangtze-star",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "0351b8b62e2593207bc73326da68ae3c10e88eab12300ad578d431ae7afb460c",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:36.937Z"
+      },
+      "semantic_scope": "指导讲座以岗位要求对照简历，并用背景、任务、行动和结果说明经历。",
+      "cannot_infer": "不证明使用STAR必获录用；没有结果时不能造数字。"
+    },
+    {
+      "source_id": "ecnu-literature",
+      "source_revision": 1,
+      "canonical_url": "https://soci.ecnu.edu.cn/af/61/c10712a438113/page.htm",
+      "platform": "soci.ecnu.edu.cn",
+      "original_work_id": "/af/61/c10712a438113/page.htm",
+      "title": "科研训练营第二期：文献阅读与撰写规范",
+      "publisher": "华东师范大学社会发展学院",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T02:47:39.289Z",
+      "source_group": "ecnu-literature",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "3a8cd1b834e532780faa7ad707fa0882f2408b6267a32c94cab6919dead262bc",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:39.289Z"
+      },
+      "semantic_scope": "科研训练介绍查找、整理和评论文献，建议利用图书馆资源并关注论著关系。",
+      "cannot_infer": "不继承成效数字，也不能将阅读一篇论文当成研究适配结论。"
+    },
+    {
+      "source_id": "sdu-boundaries",
+      "source_revision": 1,
+      "canonical_url": "https://www.xljk.sdu.edu.cn/info/1008/10852.htm",
+      "platform": "www.xljk.sdu.edu.cn",
+      "original_work_id": "/info/1008/10852.htm",
+      "title": "刻意疏远？NO！宿舍关系也需要“边界感”-山东大学学生心理健康教育与咨询中心",
+      "publisher": "山东大学学生心理健康教育与咨询中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T02:47:39.290Z",
+      "source_group": "sdu-boundaries",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "34ad1a32f73833e4db7569e31347d0bc92da691a11cd59ae858de1119022d3e3",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:39.290Z"
+      },
+      "semantic_scope": "宿舍沟通材料提出表达诉求、协商共同生活边界。",
+      "cannot_infer": "不保证对方接受；威胁或侵害不靠继续让步解决。"
+    },
+    {
+      "source_id": "yangtze-library",
+      "source_revision": 1,
+      "canonical_url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+      "platform": "lib.yangtzeu.edu.cn",
+      "original_work_id": "/info/1045/5116.htm",
+      "title": "新生入馆教育，我们在行动-图书馆",
+      "publisher": "长江大学图书馆",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T02:47:39.293Z",
+      "source_group": "yangtze-library",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "c8b4c607716e61bf5831c3af3568c36c101f42432af659b3f2ca542a485cc0d0",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:39.293Z"
+      },
+      "semantic_scope": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。",
+      "cannot_infer": "该校具体权限不适用于所有学校；只借鉴查官方资源的方法。"
+    },
+    {
+      "source_id": "situ-recovery",
+      "source_revision": 1,
+      "canonical_url": "https://xlzx.situ.edu.cn/info/1079/2963.htm",
+      "platform": "xlzx.situ.edu.cn",
+      "original_work_id": "/info/1079/2963.htm",
+      "title": "新学期，新篇章，“心”动力 ——开学心理调适指南-大学生心理咨询与发展中心",
+      "publisher": "上海应用技术大学大学生心理咨询与发展中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T02:47:39.875Z",
+      "source_group": "situ-recovery",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "ff2a6c091aa4bcc6129efb5e4e856101c9ae075769cb1a62b289b33c1f127e2a",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:39.875Z"
+      },
+      "semantic_scope": "开学调适指南建议平衡休息、社交和学习，并主动求助。",
+      "cannot_infer": "不提炼诊断、治疗、热线时段或放松方法的疗效结论。"
+    },
+    {
+      "source_id": "nsf-interview",
+      "source_revision": 1,
+      "canonical_url": "https://www.nsf.gov/funding/initiatives/i-corps/about-teams",
+      "platform": "www.nsf.gov",
+      "original_work_id": "/funding/initiatives/i-corps/about-teams",
+      "title": "About Teams - NSF I-Corps™ | NSF - U.S. National Science FoundationLock",
+      "publisher": "美国国家科学基金会 NSF",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T02:47:39.876Z",
+      "source_group": "nsf-interview",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "c5b6a137d3ebe6031718e405b75cc6e82c89e5d2b67d464c8b2d5c673e024da2",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:39.876Z"
+      },
+      "semantic_scope": "I-Corps团队通过客户发现与接触相关方探索商业化机会。",
+      "cannot_infer": "项目描述不是校园访谈成功率；表达喜欢不等于愿意付款。"
+    },
+    {
+      "source_id": "tsinghua-mvp",
+      "source_revision": 1,
+      "canonical_url": "https://www.sem.tsinghua.edu.cn/info/1171/38255.htm",
+      "platform": "www.sem.tsinghua.edu.cn",
+      "original_work_id": "/info/1171/38255.htm",
+      "title": "一人创业时代：组织能力依托AI压缩至个体-清华大学经济管理学院",
+      "publisher": "清华大学经济管理学院",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T02:47:39.876Z",
+      "source_group": "tsinghua-mvp",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "61b6aca0a50dc1af3c735687eca04a12e321d19bab75abec94ec3d55b938ed7f",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:39.876Z"
+      },
+      "semantic_scope": "作者讨论亲自验证产品与真实客户反馈，AI模拟不能替代用户行为。",
+      "cannot_infer": "作者经验而非科学证明；不继承一周、五人、报价和收入数字。"
+    },
+    {
+      "source_id": "upwork-scope",
+      "source_revision": 1,
+      "canonical_url": "https://www.upwork.com/resources/managing-client-expectations",
+      "platform": "www.upwork.com",
+      "original_work_id": "/resources/managing-client-expectations",
+      "title": "How To Set Clear Expectations for Stronger Client Relationships",
+      "publisher": "Upwork",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T02:55:00Z",
+      "source_group": "upwork-practice",
+      "access_status": "body_accessible",
+      "save_scope": "short_primary_body_excerpt_only",
+      "original_fingerprint": "a4793868910d519e799d17540775d090fe98e0a22de4816534d4bf1e05cb8718",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:39.877Z"
+      },
+      "fingerprint_scope": "reviewed_fragment_not_whole_document",
+      "semantic_scope": "平台作者建议在工作前明确范围、交付物、节点和修改范围。",
+      "cannot_infer": "属于专业实践建议；不输出合同效力、退款权利或价格规则。",
+      "direct_access_error": "HTTP_403",
+      "acquisition": "web original body extraction; direct GET denied"
+    },
+    {
+      "source_id": "ies-learning",
+      "source_revision": 1,
+      "canonical_url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "platform": "ies.ed.gov",
+      "original_work_id": "/ncee/wwc/PracticeGuide/1",
+      "title": "WWC | Organizing Instruction and Study to Improve Student Learning",
+      "publisher": "美国教育科学研究院 WWC",
+      "author": "Harold Pashler (Chair) and practice-guide panel",
+      "published_at": "2007-09",
+      "retrieved_at": "2026-10-10T02:47:41.452Z",
+      "source_group": "ies-learning",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "f6ab19c256c8d99262b1b3ccd5cfb8b55c9b48299cdf1f3a83504454adb00e70",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-10T02:47:41.452Z"
+      },
+      "semantic_scope": "指南提出分散学习、测验和解释性问题；保留原教学范围。",
+      "cannot_infer": "不继承个人最优时间、录取概率或人格结论。",
+      "publication_date_precision": "month",
+      "author_locator": "original body: panel listing"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "tsinghua-exam-e1",
+      "source_id": "tsinghua-exam",
+      "source_revision": 1,
+      "quote": "积极阅读",
+      "locator": {
+        "kind": "extracted_body_line",
+        "line": 42,
+        "reader_url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm"
+      },
+      "context": "除你的知识盲点 复习不仅包括对你所学的知识进行回顾，同时能够系统地帮你发现需要填补的知识盲点： Ø 积极阅读：写下你对某个问题已知的信息，同时列出你想要知道的其他东西（方法，理论等），在阅读中寻找答案。如果你对某个问题完全不了解，可以先搜索一些概括性的介绍知识（如查阅百科辞典）。 结合考题进行阅读，以明确这些阅读是否解决了相关问题，是不是对某个疑惑点的解释证明。 Ø",
+      "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+      "content_hash": "b95065d8aa69f6a075a2cee35ae6419d4964b77b744f56e90cbc1543b8adffb1",
+      "extraction_coverage": [
+        {
+          "locator": "quoted sentence and surrounding paragraph",
+          "disposition": "adopted_for_bounded_method",
+          "reason": "该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。"
+        },
+        {
+          "locator": "remaining original body",
+          "disposition": "not_adopted",
+          "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+        }
+      ]
+    },
+    {
+      "evidence_id": "tsinghua-efficiency-e1",
+      "source_id": "tsinghua-efficiency",
+      "source_revision": 1,
+      "quote": "PDCA",
+      "locator": {
+        "kind": "pdf_page",
+        "line": 720,
+        "reader_url": "https://learning.tsinghua.edu.cn/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+        "page": 12,
+        "visualChecked": true
+      },
+      "context": "要和紧急的事，做完再说。 六点优先工作法 计划Plan、执行Do、检查Check、处理Act PDCA循环 一种针对每天的事务进行管理的工作方法 4D工作法 Do 就是做 DO 就是干 Delete 不要做 Delay 推迟做 Delegate 委派做 短时间内可以完成的事 马上做，不拖延 舍弃一些没有价值的事情 无法委派，短时",
+      "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+      "content_hash": "a360145f85d50118ef6f812b7fd1e4384ce3c8cd58fe66b7d5261f55f8f1e787",
+      "extraction_coverage": [
+        {
+          "locator": "quoted sentence and surrounding paragraph",
+          "disposition": "adopted_for_bounded_method",
+          "reason": "效率手册介绍任务优先、计划执行检查调整及舍弃或委派任务。"
+        },
+        {
+          "locator": "remaining original body",
+          "disposition": "not_adopted",
+          "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+        }
+      ]
+    },
+    {
+      "evidence_id": "yangtze-star-e1",
+      "source_id": "yangtze-star",
+      "source_revision": 1,
+      "quote": "背景、任务、行动和结果",
+      "locator": {
+        "kind": "extracted_body_line",
+        "line": 58,
+        "reader_url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm"
+      },
+      "context": "技巧以及面试时哪些基本礼仪可以为自己加分。杨琪老师重点强调了“STAR”法则，在面试时可以利用法则从背景、任务、行动和结果四个方面来介绍自己，将自己的陈述引向深入，让面试官对你加深印象。 培训结束后，参赛选手们纷纷表示收获颇丰。杨琪老师对真实求职面试中的具体问题都进行了针对性解答指导，在帮助同学们切实掌握了简历制作的实用知识和技巧的同时，拓宽了职业视野，让他们能更好地适应真实职场",
+      "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+      "content_hash": "4cec2e09523d293eb633a31e79175178d9c124d3eb66d1e0043fdd32bd67411d",
+      "extraction_coverage": [
+        {
+          "locator": "quoted sentence and surrounding paragraph",
+          "disposition": "adopted_for_bounded_method",
+          "reason": "指导讲座以岗位要求对照简历，并用背景、任务、行动和结果说明经历。"
+        },
+        {
+          "locator": "remaining original body",
+          "disposition": "not_adopted",
+          "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+        }
+      ]
+    },
+    {
+      "evidence_id": "ecnu-literature-e1",
+      "source_id": "ecnu-literature",
+      "source_revision": 1,
+      "quote": "如何查找文献",
+      "locator": {
+        "kind": "extracted_body_line",
+        "line": 51,
+        "reader_url": "https://soci.ecnu.edu.cn/af/61/c10712a438113/page.htm"
+      },
+      "context": "个序，并帮助大家简单分析三篇论文的结构让大家直观感受文献综述的优劣。黄老师从“文献综述三问”---“如何查找文献”，“如何整理文献”，“如何评论”三部分展开讲解。如何查找文献？黄老师为同学们提供了文献资料来源的多种渠道，指出百度百科等非官方资料的不严谨，为大家推荐了常用的数据库资源，鼓励大家向图书馆学习查阅资料的方法，参与图书馆的培训与课程。在提高搜索和阅读效率的技巧方",
+      "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+      "content_hash": "98da655c3d5a2ad5b350f513eac13dfecb897ae192d001355a1159e7f263853f",
+      "extraction_coverage": [
+        {
+          "locator": "quoted sentence and surrounding paragraph",
+          "disposition": "adopted_for_bounded_method",
+          "reason": "科研训练介绍查找、整理和评论文献，建议利用图书馆资源并关注论著关系。"
+        },
+        {
+          "locator": "remaining original body",
+          "disposition": "not_adopted",
+          "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+        }
+      ]
+    },
+    {
+      "evidence_id": "sdu-boundaries-e1",
+      "source_id": "sdu-boundaries",
+      "source_revision": 1,
+      "quote": "明确表达自己的诉求",
+      "locator": {
+        "kind": "extracted_body_line",
+        "line": 52,
+        "reader_url": "https://www.xljk.sdu.edu.cn/info/1008/10852.htm"
+      },
+      "context": "难单一地指责某一方，也不能带着个人的揣测由此对舍友产生偏见，激化矛盾。 因此，这种情况下就需要我们明确表达自己的诉求，敞开心扉地与舍友交谈，主动与舍友进行协商，共同建立宿舍个人学习、生活的边界。有了明确的宿舍规则和边界划分，也会减少相互间的恶意揣测和无意义内耗。同时，对于让自己不舒服的行为，也可以通过幽默、反问等手段巧妙化解，无形中提醒对方注意边界和分寸。 “有边界但没有隔",
+      "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+      "content_hash": "23b660fd3224aa9ff7c42bd78cd1fb0e1d02725811cd72029fa12b85a14bd360",
+      "extraction_coverage": [
+        {
+          "locator": "quoted sentence and surrounding paragraph",
+          "disposition": "adopted_for_bounded_method",
+          "reason": "宿舍沟通材料提出表达诉求、协商共同生活边界。"
+        },
+        {
+          "locator": "remaining original body",
+          "disposition": "not_adopted",
+          "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+        }
+      ]
+    },
+    {
+      "evidence_id": "yangtze-library-e1",
+      "source_id": "yangtze-library",
+      "source_revision": 1,
+      "quote": "馆藏查询",
+      "locator": {
+        "kind": "extracted_body_line",
+        "line": 19,
+        "reader_url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm"
+      },
+      "context": "务提供依据。此外，东校区还拍摄图书馆宣传视频，既展示图书阅览区、自习区等功能空间，又通过实操演示呈现馆藏查询、电子资源获取等操作，让新生直观了解图书馆使用方法。 西校区分馆通过大学生阅读学社，以“线上学习一周 + 馆内现场体验”模式推进入馆教育。线上帮助新生初步了解资源，线下结合老师讲解与实地参观，介绍《中图法》分类、自助借还机操作、书籍排架及电子资源情况。活动历时",
+      "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+      "content_hash": "4274dee3100dcdbf3791070488ca27d35a2656bc6c106d9101da3bae3802073d",
+      "extraction_coverage": [
+        {
+          "locator": "quoted sentence and surrounding paragraph",
+          "disposition": "adopted_for_bounded_method",
+          "reason": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。"
+        },
+        {
+          "locator": "remaining original body",
+          "disposition": "not_adopted",
+          "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+        }
+      ]
+    },
+    {
+      "evidence_id": "situ-recovery-e1",
+      "source_id": "situ-recovery",
+      "source_revision": 1,
+      "quote": "休息\n勇敢求助",
+      "locator": {
+        "kind": "extracted_body_lines",
+        "lines": [
+          32,
+          35
+        ],
+        "reader_url": "https://xlzx.situ.edu.cn/info/1079/2963.htm"
+      },
+      "context": "原文生活平衡段提到休息，求助段提出在无法应对困扰时向学校老师、家人或朋友寻求支持；诊断和疗效内容不采用。",
+      "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+      "content_hash": "3b7056886a1840d047d0a7292ee48cfea545231dd070f34b05ad033afd00b6c7",
+      "extraction_coverage": [
+        {
+          "locator": "quoted sentence and surrounding paragraph",
+          "disposition": "adopted_for_bounded_method",
+          "reason": "开学调适指南建议平衡休息、社交和学习，并主动求助。"
+        },
+        {
+          "locator": "remaining original body",
+          "disposition": "not_adopted",
+          "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+        }
+      ]
+    },
+    {
+      "evidence_id": "nsf-interview-e1",
+      "source_id": "nsf-interview",
+      "source_revision": 1,
+      "quote": "talking to potential customers, partners and other industry stakeholders",
+      "locator": {
+        "kind": "extracted_body_line",
+        "line": 10,
+        "reader_url": "https://www.nsf.gov/funding/initiatives/i-corps/about-teams"
+      },
+      "context": "原段描述与潜在客户、合作伙伴及相关方交流，用访谈结果评估商业化潜力；不声称访谈人数或成功率。",
+      "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+      "content_hash": "e9de88e0e8ea9ee864418e4c5926501c62f70293bff8697b27ebb5d1c517d8ad",
+      "extraction_coverage": [
+        {
+          "locator": "quoted sentence and surrounding paragraph",
+          "disposition": "adopted_for_bounded_method",
+          "reason": "I-Corps团队通过客户发现与接触相关方探索商业化机会。"
+        },
+        {
+          "locator": "remaining original body",
+          "disposition": "not_adopted",
+          "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+        }
+      ]
+    },
+    {
+      "evidence_id": "tsinghua-mvp-e1",
+      "source_id": "tsinghua-mvp",
+      "source_revision": 1,
+      "quote": "最小可行产品",
+      "locator": {
+        "kind": "extracted_body_line",
+        "line": 193,
+        "reader_url": "https://www.sem.tsinghua.edu.cn/info/1171/38255.htm"
+      },
+      "context": "创业者必须做以下这些：①判断哪两个领域放在一起“真的成立”，而非只是AI拼出来的巧合；②亲自做一周的最小可行产品（MVP），验证是否有人愿意付费——是否付费是AI永远不能替你回答的问题；③判断产品方向是否值得继续投入，而不是被AI的“看似很顺”误导。 第三步：说客户语言（Translation）——市场转化机制 翻译点是把产品功能转化为客户付费理由的关键。专才的典型",
+      "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+      "content_hash": "22da7168e4b0746d3e21688cc138d81707949201ff8b2b1c2790ffc2a45a62e1",
+      "extraction_coverage": [
+        {
+          "locator": "quoted sentence and surrounding paragraph",
+          "disposition": "adopted_for_bounded_method",
+          "reason": "作者讨论亲自验证产品与真实客户反馈，AI模拟不能替代用户行为。"
+        },
+        {
+          "locator": "remaining original body",
+          "disposition": "not_adopted",
+          "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+        }
+      ]
+    },
+    {
+      "evidence_id": "ies-learning-e1",
+      "source_id": "ies-learning",
+      "source_revision": 1,
+      "quote": "Space learning over time.\nInterleave worked example solutions with problem-solving exercises.\nUse quizzing to promote learning.\nAsk deep explanatory questions.",
+      "locator": {
+        "kind": "extracted_body_lines",
+        "lines": [
+          15,
+          19,
+          31,
+          47
+        ],
+        "reader_url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1"
+      },
+      "context": "指南的四项推荐分别为分散学习、示例与独立练习交替、测验和解释性问题；大学生个人实施属于校园适配，不继承统一复习间隔。",
+      "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+      "content_hash": "840a5d88ecc43ff6d736f7811cd61b08a82221bb1d219fbe7c91c7ca63a579b3",
+      "extraction_coverage": [
+        {
+          "locator": "quoted sentence and surrounding paragraph",
+          "disposition": "adopted_for_bounded_method",
+          "reason": "指南提出分散学习、测验和解释性问题；保留原教学范围。"
+        },
+        {
+          "locator": "remaining original body",
+          "disposition": "not_adopted",
+          "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+        }
+      ]
+    },
+    {
+      "evidence_id": "upwork-scope-e1",
+      "source_id": "upwork-scope",
+      "source_revision": 1,
+      "quote": "Specify how many revisions are included and what constitutes a change in scope.",
+      "context": "平台作者建议在工作前明确范围、交付物、节点和修改范围。",
+      "locator": {
+        "kind": "web_original_body_line",
+        "line": 157,
+        "url": "https://www.upwork.com/resources/managing-client-expectations"
+      },
+      "acquisition": "web__run open original page body, not search snippet",
+      "content_hash": "a4793868910d519e799d17540775d090fe98e0a22de4816534d4bf1e05cb8718",
+      "extraction_coverage": [
+        {
+          "locator": "indicated body line",
+          "disposition": "adopted",
+          "reason": "平台作者建议在工作前明确范围、交付物、节点和修改范围。"
+        },
+        {
+          "locator": "remaining original",
+          "disposition": "not_adopted",
+          "reason": "No platform price, payment rules, contract or guarantee claims adopted."
+        }
+      ]
+    }
+  ],
+  "excludedCards": [
+    {
+      "id": "257bea5b-e782-427a-82c0-39e84e086ad9",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "3c534028-eb02-48bd-8dd4-3dd9473a4a29",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "cce58304-bb40-41bb-8ad3-b98f0c14c2bb",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "ac31c643-eece-4bb4-828e-50e444c71395",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "33b6356e-3d80-4881-80da-1892555bea86",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "56cdf864-c703-4fed-8200-29e54c988800",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "d9c8179d-ccc5-4c09-8503-a17eeade5ae9",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "9937b7ed-f6bc-46a1-8fab-defd18b06e30",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "cf3647df-1e36-4645-8b90-f894a0348be3",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "ee6a3e12-bedb-4386-8fd1-03ae06fb19ab",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "a59f8d87-9b86-4fb3-8dcd-c0e65a084e39",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "f691bcc0-526e-4588-8e42-3390fbabecbd",
+      "revision": 1,
+      "reason": "needs_review"
+    },
+    {
+      "id": "bec572cf-e158-4501-8062-3d62021eb952",
+      "revision": 1,
+      "reason": "needs_review"
+    }
+  ],
+  "activationChecks": [
+    "Confirm cloud dataset and explicit sync scope",
+    "Revalidate approved status, source revision, canonical ID and hash against current local authority",
+    "Import exact public content idempotently; preserve historical revisions",
+    "Read remote content back and compare canonical ID/revision/hash",
+    "Enable registry bindings only after successful content comparison",
+    "Prove public query whitelist and zero student memory upload; do not make this workflow a second companion"
+  ]
+}

@@ -1,0 +1,382 @@
+{
+  "card": {
+    "id": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+    "revision": 2,
+    "kind": "method",
+    "status": "unverified",
+    "synthetic": false,
+    "title": "失败练习与任务卡点诊断",
+    "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+    "publisher": "Institute of Education Sciences",
+    "publishedYear": "未知（本捕获未核验）",
+    "verifiedAt": "2026-10-10T03:21:13.178Z",
+    "validUntil": null,
+    "excerpt": "Use quizzing to promote learning.",
+    "claim": "IES指南建议使用测验促进学习。",
+    "scope": "所读教学与学习情境；不外推考试失败的具体原因。",
+    "limitations": "IES所读段落只支持用测验促进学习，不能支持知识/操作/时间/外部四类错误诊断及科研/任务受阻归因；需要直接原文与独立审阅。",
+    "mechanisms": [
+      "执行检查与修订"
+    ],
+    "sourceHash": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+    "guide": {
+      "schemaVersion": 1,
+      "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+      "canonicalKey": "exam-diagnosis",
+      "aliases": [
+        "考试失利",
+        "模拟练习",
+        "错题",
+        "科研受阻",
+        "练习复盘",
+        "失败",
+        "考试失利诊断",
+        "科研受阻复盘",
+        "诊断模拟练习问题",
+        "练习复盘"
+      ],
+      "domains": [
+        "03",
+        "09",
+        "11",
+        "12"
+      ],
+      "task": "失败练习与任务卡点诊断",
+      "stage": "start/adjust/compare",
+      "mechanism": "执行检查与修订",
+      "prerequisites": [
+        "本人愿意接受方法；当前有对应的具体任务。"
+      ],
+      "exclusions": [
+        "明确只想倾听或拒绝建议。",
+        "医疗、法律、投资结论或个人成功率预测。"
+      ],
+      "evidenceIds": [
+        "ies-learning-r2-workflow-original"
+      ],
+      "claims": [
+        {
+          "id": "exam-diagnosis-source",
+          "text": "IES指南建议使用测验促进学习。",
+          "basis": "source_supported",
+          "evidenceIds": [
+            "ies-learning-r2-workflow-original"
+          ],
+          "scope": "所读教学与学习情境；不外推考试失败的具体原因。",
+          "limitations": "IES所读段落只支持用测验促进学习，不能支持知识/操作/时间/外部四类错误诊断及科研/任务受阻归因；需要直接原文与独立审阅。"
+        },
+        {
+          "id": "exam-diagnosis-adaptation",
+          "text": "保留实际尝试和反馈，分清未理解、操作错误、时间不足与外部未知；只选一个可改变环节再试。",
+          "basis": "editorial_adaptation",
+          "evidenceIds": [
+            "ies-learning-r2-workflow-original"
+          ],
+          "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+          "limitations": "IES所读段落只支持用测验促进学习，不能支持知识/操作/时间/外部四类错误诊断及科研/任务受阻归因；需要直接原文与独立审阅。"
+        }
+      ],
+      "sourceGroups": [
+        "ies-learning"
+      ],
+      "principle": "执行检查与修订；公开方法与本人经历分开。",
+      "branches": [
+        {
+          "id": "C03-4",
+          "candidateId": "C03-4",
+          "task": "考试失利诊断",
+          "stage": "adjust",
+          "steps": [
+            {
+              "id": "C03-4-1",
+              "text": "围绕“考试失利诊断”确认当前对象与已做到的步骤；已知信息不重复追问。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            },
+            {
+              "id": "C03-4-2",
+              "text": "保留实际尝试和反馈，分清未理解、操作错误、时间不足与外部未知；只选一个可改变环节再试。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            },
+            {
+              "id": "C03-4-3",
+              "text": "记录观察：同一环节下一次是否改变，不把分数或沉默直接归因于能力。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "C09-4",
+          "candidateId": "C09-4",
+          "task": "科研受阻复盘",
+          "stage": "adjust",
+          "steps": [
+            {
+              "id": "C09-4-1",
+              "text": "围绕“科研受阻复盘”确认当前对象与已做到的步骤；已知信息不重复追问。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            },
+            {
+              "id": "C09-4-2",
+              "text": "保留实际尝试和反馈，分清未理解、操作错误、时间不足与外部未知；只选一个可改变环节再试。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            },
+            {
+              "id": "C09-4-3",
+              "text": "记录观察：同一环节下一次是否改变，不把分数或沉默直接归因于能力。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "C11-4",
+          "candidateId": "C11-4",
+          "task": "诊断模拟练习问题",
+          "stage": "start",
+          "steps": [
+            {
+              "id": "C11-4-1",
+              "text": "围绕“诊断模拟练习问题”确认当前对象与已做到的步骤；已知信息不重复追问。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            },
+            {
+              "id": "C11-4-2",
+              "text": "保留实际尝试和反馈，分清未理解、操作错误、时间不足与外部未知；只选一个可改变环节再试。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            },
+            {
+              "id": "C11-4-3",
+              "text": "记录观察：同一环节下一次是否改变，不把分数或沉默直接归因于能力。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "C12-3",
+          "candidateId": "C12-3",
+          "task": "练习复盘",
+          "stage": "adjust",
+          "steps": [
+            {
+              "id": "C12-3-1",
+              "text": "围绕“练习复盘”确认当前对象与已做到的步骤；已知信息不重复追问。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            },
+            {
+              "id": "C12-3-2",
+              "text": "保留实际尝试和反馈，分清未理解、操作错误、时间不足与外部未知；只选一个可改变环节再试。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            },
+            {
+              "id": "C12-3-3",
+              "text": "记录观察：同一环节下一次是否改变，不把分数或沉默直接归因于能力。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            }
+          ]
+        }
+      ],
+      "oneKeyQuestion": "最近一次尝试具体卡在哪一步？",
+      "smallestAction": "回看一处错误或一个受阻步骤。",
+      "exampleBudgetOnly": true,
+      "lowEnergyAlternative": "回看一处错误或一个受阻步骤。",
+      "stopConditions": [
+        "本人拒绝继续。",
+        "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+      ],
+      "feedbackBranches": {
+        "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+        "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+        "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+        "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+        "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+      },
+      "expectedObservation": "同一环节下一次是否改变，不把分数或沉默直接归因于能力。",
+      "retrievalSummary": "失败练习与任务卡点诊断；考试失利 模拟练习 错题 科研受阻 练习复盘 失败；考试失利诊断；科研受阻复盘；诊断模拟练习问题；练习复盘",
+      "referenceBody": "失败练习与任务卡点诊断\n原理：执行检查与修订\nLifeOS适配步骤：保留实际尝试和反馈，分清未理解、操作错误、时间不足与外部未知；只选一个可改变环节再试。\n低精力替代：回看一处错误或一个受阻步骤。\n观察：同一环节下一次是否改变，不把分数或沉默直接归因于能力。\n来源支持：效率手册介绍任务优先、计划执行检查调整及舍弃或委派任务。\n不能推出：不证明一半时间留白或某个时间数值对所有人最优。\n本次新增来源核对：IES指南建议使用测验促进学习。\n未解决来源缺口：IES所读段落只支持用测验促进学习，不能支持知识/操作/时间/外部四类错误诊断及科研/任务受阻归因；需要直接原文与独立审阅。",
+      "reviewStatus": "needs_review",
+      "reviewReason": "IES所读段落只支持用测验促进学习，不能支持知识/操作/时间/外部四类错误诊断及科研/任务受阻归因；需要直接原文与独立审阅。",
+      "review": null,
+      "contentHash": "d5116177a93487a6c3473c4f2c8a35806fb4be0218a6cbc252648db182c498b4",
+      "indexSignature": "",
+      "legacyIds": [],
+      "replaces": []
+    }
+  },
+  "source": {
+    "source_id": "ies-learning",
+    "source_revision": 2,
+    "canonical_url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+    "platform": "ies.ed.gov",
+    "original_work_id": "/ncee/wwc/PracticeGuide/1",
+    "title": "WWC | Organizing Instruction and Study to Improve Student Learning",
+    "publisher": "美国教育科学研究院 WWC",
+    "author": "Harold Pashler (Chair) and practice-guide panel",
+    "published_at": "2007-09",
+    "retrieved_at": "2026-10-10T02:47:41.452Z",
+    "source_group": "ies-learning",
+    "access_status": "body_accessible",
+    "save_scope": "short_excerpt_and_original_synthesis_only",
+    "original_fingerprint": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+    "observed_metrics": {
+      "views": null,
+      "likes": null,
+      "favorites": null,
+      "observed_at": "2026-10-10T02:47:41.452Z"
+    },
+    "semantic_scope": "指南提出分散学习、测验和解释性问题；保留原教学范围。",
+    "cannot_infer": "不继承个人最优时间、录取概率或人格结论。",
+    "publication_date_precision": "month",
+    "author_locator": "original body: panel listing"
+  },
+  "evidence": {
+    "evidence_id": "ies-learning-r2-workflow-original",
+    "source_id": "ies-learning",
+    "source_revision": 2,
+    "quote": "Use quizzing to promote learning.",
+    "locator": "Recommendations, section 5a/5b",
+    "context": "指南的四项推荐分别为分散学习、示例与独立练习交替、测验和解释性问题；大学生个人实施属于校园适配，不继承统一复习间隔。",
+    "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+    "content_hash": "d8f5dbf2f630e7d3eb12713bde66107cca4d8be98aa6a1a92a4e8edbf276176e",
+    "extraction_coverage": [
+      {
+        "locator": "quoted sentence and surrounding paragraph",
+        "disposition": "adopted_for_bounded_method",
+        "reason": "指南提出分散学习、测验和解释性问题；保留原教学范围。"
+      },
+      {
+        "locator": "remaining original body",
+        "disposition": "not_adopted",
+        "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+      }
+    ],
+    "retrieved_at": "2026-10-10T05:28:07.950Z"
+  },
+  "candidate": {
+    "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+    "revision": 2,
+    "contentHash": "d5116177a93487a6c3473c4f2c8a35806fb4be0218a6cbc252648db182c498b4",
+    "readings": [
+      {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "canonicalOrigin": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "revision": 1,
+        "sourceHash": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+        "readerId": "http-original-reader",
+        "quote": "Use quizzing to promote learning.",
+        "actuallyRead": true,
+        "withdrawn": false
+      }
+    ],
+    "claims": [
+      {
+        "id": "exam-source",
+        "text": "IES指南建议使用测验促进学习。",
+        "sourceHash": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+        "quote": "Use quizzing to promote learning.",
+        "support": "source_supported"
+      },
+      {
+        "id": "exam-adaptation",
+        "text": "保留实际尝试和反馈，分清未理解、操作错误、时间不足与外部未知；只选一个可改变环节再试。",
+        "sourceHash": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+        "quote": "Use quizzing to promote learning.",
+        "support": "lifeos_adaptation"
+      }
+    ],
+    "coverage": [
+      {
+        "candidateId": "C03-4",
+        "status": "awaiting_source",
+        "destination": null
+      },
+      {
+        "candidateId": "C09-4",
+        "status": "awaiting_source",
+        "destination": null
+      },
+      {
+        "candidateId": "C11-4",
+        "status": "awaiting_source",
+        "destination": null
+      },
+      {
+        "candidateId": "C12-3",
+        "status": "awaiting_source",
+        "destination": null
+      }
+    ],
+    "producerId": "local-card-extractor",
+    "skeptic": {
+      "reviewerId": "separate-source-scope-validator",
+      "reviewedContentHash": "d5116177a93487a6c3473c4f2c8a35806fb4be0218a6cbc252648db182c498b4",
+      "issues": [
+        "IES所读段落只支持用测验促进学习，不能支持知识/操作/时间/外部四类错误诊断及科研/任务受阻归因；需要直接原文与独立审阅。"
+      ]
+    },
+    "release": {
+      "humanReviewerId": null,
+      "reviewedContentHash": null,
+      "approved": false
+    }
+  },
+  "gate": {
+    "publishEligible": false,
+    "status": "needs_review",
+    "issues": [
+      "skeptic_unresolved",
+      "independent_human_release_required",
+      "authenticated_host_release_required"
+    ],
+    "independentSourceCount": 1
+  },
+  "originalStatus": "needs_review",
+  "reading": {
+    "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+    "responseStatus": 200,
+    "capturedOriginalReused": true,
+    "capturedAt": "2026-10-10T05:25:42.860Z",
+    "bodySha256": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+    "quoteSha256": "d8f5dbf2f630e7d3eb12713bde66107cca4d8be98aa6a1a92a4e8edbf276176e",
+    "locator": "Recommendations, section 5a/5b",
+    "offsetInExtractedText": 833,
+    "actuallyReadVerified": true
+  },
+  "unresolvedSourceGap": "IES所读段落只支持用测验促进学习，不能支持知识/操作/时间/外部四类错误诊断及科研/任务受阻归因；需要直接原文与独立审阅。",
+  "independentAgentReview": "NOT_TESTED",
+  "originalCorpusModified": false
+}

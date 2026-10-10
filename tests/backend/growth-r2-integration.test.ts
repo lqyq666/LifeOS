@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto'
 import { pool } from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import { growthContext, growthView, stageGrowthUpdates, growthSnapshotKey, type GrowthWriteResult } from '../../server/growth.ts'
-import type { GrowthInputDelta } from '../../server/growth-model-contracts.ts'
+import type { ResolvedGrowthDelta } from '../../server/growth-model-contracts.ts'
 
 // N1.3/N1.6 integration regressions (isolated PG, no provider): composite
 // replace is blocked, write results distinguish created/changed/retained with
@@ -19,7 +19,7 @@ test('growth write wiring: composite guards, exact write results, time columns (
     const run=(await store.startRun(user,chat,randomUUID(),text)).run
     return {run,growth:await growthContext(user,chat)}
   }
-  const commit=async(input:Awaited<ReturnType<typeof prepare>>,changes:GrowthInputDelta[])=>{
+  const commit=async(input:Awaited<ReturnType<typeof prepare>>,changes:ResolvedGrowthDelta[])=>{
     const staged=await stageGrowthUpdates(input.run,changes,input.growth)
     const signal=new AbortController().signal
     const response=await store.finishRun(input.run,{candidates:[],audit:[],growth:staged,usedGrowthRefs:input.growth.map(row=>({id:row.id,revision:row.revision})),growthSnapshotKey:growthSnapshotKey(input.growth)},'合成回复。',null,signal)

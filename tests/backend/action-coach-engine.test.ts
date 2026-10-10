@@ -22,6 +22,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
   const observed:{phase:string;call:any}[]=[],captured:{callId:string;text:string}[]=[],payloads:any[]=[],oldURL=model.baseUrl,oldKey=config.apiKey,user='coach-engine-'+randomUUID()
   let denyCall=false
   const engine=createTurnEngine({capabilityVerified:()=>true,providerCallObserver:{
+    allowRepair:true, // Explicitly synthetic bounded-repair regression, never the normal paid policy.
     before(call){if(denyCall)throw new Error('SYNTHETIC_BUDGET_DENIED');observed.push({phase:'before',call})},
     after(call){observed.push({phase:'after',call})},
     output(call,text){captured.push({callId:call.callId,text})},

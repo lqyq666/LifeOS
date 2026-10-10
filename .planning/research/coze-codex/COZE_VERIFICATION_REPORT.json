@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-10T03:51:50.745Z",
+  "state": "WIP_NOT_READY",
+  "suites": [
+    {
+      "file": "backend-round2.log",
+      "tests": 28,
+      "passed": 28,
+      "failed": 0
+    },
+    {
+      "file": "starmap-final.log",
+      "tests": 6,
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "evergreen-pure.log",
+      "tests": 5,
+      "passed": 5,
+      "failed": 0
+    }
+  ],
+  "serverTypecheck": {
+    "status": "FAILED_EXISTING_ERRORS",
+    "priorErrorClasses": 38,
+    "currentErrorClasses": 38,
+    "normalizedDifference": []
+  },
+  "frontendTypecheck": "PASS",
+  "mirror": {
+    "documents": 16,
+    "allEvidenceBound": true,
+    "allRevisionBound": true,
+    "allInactive": true
+  },
+  "realProviderCalls": 0,
+  "normalModelTrigger": "NOT_TESTED",
+  "cozeBusinessRuntime": "NOT_TESTED",
+  "productionDatabaseModified": false,
+  "cloudWrite": false
+}

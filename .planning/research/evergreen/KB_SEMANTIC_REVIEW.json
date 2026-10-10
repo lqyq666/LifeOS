@@ -1,0 +1,390 @@
+{
+  "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+  "reviewed_at": "2026-10-10T03:21:13.651Z",
+  "cards": [
+    {
+      "guide_id": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+      "content_hash": "92bd95009d51a1146577675de0ee38af363c1bd5f59bc284bc366c2f8d19bf55",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "图书馆原文描述馆藏查询与电子资源获取实操；支持先找本人学校可核验入口。"
+      ],
+      "cannot_infer": [
+        "不能推出他校权限或全校事务均由图书馆办理；按部门查入口是编辑适配。"
+      ]
+    },
+    {
+      "guide_id": "257bea5b-e782-427a-82c0-39e84e086ad9",
+      "content_hash": "e68b2f80000a5ade87270df3c2a704626c25a91b819f517c7c53d1e2a1d826fa",
+      "disposition": "needs_review",
+      "reason": "原文不能直接支持导师初次邮件、社交破冰、推荐请求和未回复跟进的全部分支；需要相关沟通原文。",
+      "supports": [
+        "职业访谈准备与提纲设计有原文支持。"
+      ],
+      "cannot_infer": [
+        "原文不能直接支持导师初次邮件、社交破冰、推荐请求和未回复跟进的全部分支；需要相关沟通原文。"
+      ]
+    },
+    {
+      "guide_id": "3c534028-eb02-48bd-8dd4-3dd9473a4a29",
+      "content_hash": "82eb8128374d1103e06b3d2dd93cd24d210c33702b9a60f13608f3ceaf21ef8d",
+      "disposition": "needs_review",
+      "reason": "体验专业、海外学习和学术意愿的小接触决策仍缺相关来源，不能由一次活动报告推出适配机制。",
+      "supports": [
+        "了解自己后访谈职业信息有支持。"
+      ],
+      "cannot_infer": [
+        "体验专业、海外学习和学术意愿的小接触决策仍缺相关来源，不能由一次活动报告推出适配机制。"
+      ]
+    },
+    {
+      "guide_id": "cce58304-bb40-41bb-8ad3-b98f0c14c2bb",
+      "content_hash": "509c7cf62ab4d7386b7afa721c864f39f1be60eb2aa58db6dba3add83a1ade22",
+      "disposition": "needs_review",
+      "reason": "能力缺口识别、跨专业迁移和小作品验证尚缺直接来源；目前只有编辑步骤，暂不批准。",
+      "supports": [
+        "STAR可整理已有职责和成果。"
+      ],
+      "cannot_infer": [
+        "能力缺口识别、跨专业迁移和小作品验证尚缺直接来源；目前只有编辑步骤，暂不批准。"
+      ]
+    },
+    {
+      "guide_id": "7ff3638d-87dc-4842-8908-352ea1ed308e",
+      "content_hash": "87770cf6377e090c26d4e7476a6df583a749e3d202e1493299172c6e1b01c632",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "清华转载学习材料提出写已知和未知、带问题积极阅读。"
+      ],
+      "cannot_infer": [
+        "知识关系图、课程目标和助教求助是编辑适配，原文未验证其效果。"
+      ]
+    },
+    {
+      "guide_id": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+      "content_hash": "5a2a5af5035945869a2871dc5fbfb0831c13ddc681b16c8b3cea21f572f5849f",
+      "disposition": "needs_review",
+      "reason": "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。",
+      "supports": [
+        "PDCA支持检查与修订过程。"
+      ],
+      "cannot_infer": [
+        "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。"
+      ]
+    },
+    {
+      "guide_id": "e6ad610b-549e-4b09-89bc-34223577fb49",
+      "content_hash": "e15b183ad1721750a9008342bfb0f72e0911f7b5af1c088407d8e39f7ce308aa",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "IES推荐测验促进学习，原文推荐段说明主动提取。"
+      ],
+      "cannot_infer": [
+        "不能推出个人最佳题量、复习时间或考试提分；合上材料的步骤属于编辑适配。"
+      ]
+    },
+    {
+      "guide_id": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+      "content_hash": "52d92f72313737e618c05a4f7bdc67c8473c2371197a54bfc076e42ee13248c2",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "IES第1项明确提出分散学习。"
+      ],
+      "cannot_infer": [
+        "不继承原文几周至几月为个人最优间隔；安排按实际任务与反馈调整。"
+      ]
+    },
+    {
+      "guide_id": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+      "content_hash": "9c1745b3206513dc37e98efa5c5b09224c8e7dcf7eda4e5d066cba4cf58b1001",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "IES第2项要求已解示例与自行解题交替。"
+      ],
+      "cannot_infer": [
+        "遮住一部分和相似题是编辑实施建议；不能保证迁移成功。"
+      ]
+    },
+    {
+      "guide_id": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+      "content_hash": "9e7cec87e13aab9fe2932321f5b7ef2d4d710dc9c5e225aa6556f20276f91c00",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "IES第7项提出深层解释性问题。"
+      ],
+      "cannot_infer": [
+        "用自己的话、录音或写一句为校园适配；流畅表达不证明正确理解。"
+      ]
+    },
+    {
+      "guide_id": "5fde19ca-e307-478c-8a96-5781df392991",
+      "content_hash": "a5a0061953ae44819e3a11924c1044d71515c466b33b2b6a9d0813e6e330b577",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "清华PDF第12页展示优先排序、实际用时与反馈以及PDCA。"
+      ],
+      "cannot_infer": [
+        "原文时间表是示例，不能赋给用户；保底必要事项和缩减推进项是编辑判断。"
+      ]
+    },
+    {
+      "guide_id": "ac31c643-eece-4bb4-828e-50e444c71395",
+      "content_hash": "a3e5b7608e397654538f1357c2c844a21c9a579bc8253e6d5b609f5aa7a3ff7f",
+      "disposition": "needs_review",
+      "reason": "中断后恢复上下文和环境调整不是所核对页面的机制，需要注意力/任务恢复相关来源。",
+      "supports": [
+        "PDF提供时间管理与PDCA框架。"
+      ],
+      "cannot_infer": [
+        "中断后恢复上下文和环境调整不是所核对页面的机制，需要注意力/任务恢复相关来源。"
+      ]
+    },
+    {
+      "guide_id": "33b6356e-3d80-4881-80da-1892555bea86",
+      "content_hash": "fec2616757d9de1f62f8e574033d2f1c4d7f2c31eae219d4a315207b1d4355d5",
+      "disposition": "needs_review",
+      "reason": "缩减动作缓解无法启动的步骤是原创适配，尚缺支持启动机制的相关原文。",
+      "supports": [
+        "PDCA提供执行与反馈框架。"
+      ],
+      "cannot_infer": [
+        "缩减动作缓解无法启动的步骤是原创适配，尚缺支持启动机制的相关原文。"
+      ]
+    },
+    {
+      "guide_id": "48e4e604-8fd8-4016-862c-f6d3219c776d",
+      "content_hash": "6b16e3545164e5496c5256f4d6cb670d70c09e712fec95d2208f57e8ffdee6d4",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "清华PDF第12页PDCA与计划反馈支持检查执行再修订。"
+      ],
+      "cannot_infer": [
+        "停止任务与圈出假设是编辑适配，不声称这些是作者原句或科学效果。"
+      ]
+    },
+    {
+      "guide_id": "6262d479-9403-4140-8910-48de23cd2600",
+      "content_hash": "3519764fc02bc8196bcd6f464e6f1e54d8c9ed213fbe12d689c7e5dbf6620f33",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "长江大学原文明确STAR的背景、任务、行动、结果四部分。"
+      ],
+      "cannot_infer": [
+        "不推出所有经历都证明能力；团队与个人分列、保留未知为防夸大编辑适配。"
+      ]
+    },
+    {
+      "guide_id": "563bc621-e36d-416b-8176-c82bbe0469f3",
+      "content_hash": "6b377fa3131bdb1b84e114eaeafba95e98d608faf177f96f8f880a3306cfeae9",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "华东师大讲座原文分查找、整理、评论，提醒非官方资料局限并推荐数据库。"
+      ],
+      "cannot_infer": [
+        "具体论文复现和未知术语处理是编辑适配；未读取的全文不可声称读完。"
+      ]
+    },
+    {
+      "guide_id": "56cdf864-c703-4fed-8200-29e54c988800",
+      "content_hash": "44f6713711712260df94a8d4850dd62e7ef25c8c8ee7bff07f9c15cbee23d27f",
+      "disposition": "needs_review",
+      "reason": "角色、依赖、验收人以及科研/社团的迁移缺少足够原文定位，8词片段不作为全套团队框架证据。",
+      "supports": [
+        "Upwork片段可确认项目目的和目标。"
+      ],
+      "cannot_infer": [
+        "角色、依赖、验收人以及科研/社团的迁移缺少足够原文定位，8词片段不作为全套团队框架证据。"
+      ]
+    },
+    {
+      "guide_id": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
+      "content_hash": "32660bc23ffaabd2a3058ce4a3341790039fb26de67aaff6132a541c50d73d72",
+      "disposition": "needs_review",
+      "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
+      "supports": [
+        "职业访谈报告支持加工职业信息。"
+      ],
+      "cannot_infer": [
+        "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。"
+      ]
+    },
+    {
+      "guide_id": "d9c8179d-ccc5-4c09-8503-a17eeade5ae9",
+      "content_hash": "ecd8b4d9f32942e7929c6112c91563777eb9caa1af94f5071a1db2a51927b799",
+      "disposition": "needs_review",
+      "reason": "岗位、留学项目和付费服务是否值得投入的判断不是STAR证据，需要要求/代价核验来源。",
+      "supports": [
+        "STAR支持面试自我陈述。"
+      ],
+      "cannot_infer": [
+        "岗位、留学项目和付费服务是否值得投入的判断不是STAR证据，需要要求/代价核验来源。"
+      ]
+    },
+    {
+      "guide_id": "4795f7b2-f739-4ba5-8052-2d04f5894bbe",
+      "content_hash": "cd8f53de79d39ac8e78419e26c8e83e106e4213df98c8e7bcf267f7b40b5939c",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "STAR教学原文明确情境、任务、本人行动与结果，支持在面试中有序介绍真实项目。"
+      ],
+      "cannot_infer": [
+        "听众选择、困难处理与未知保留是编辑适配；不保证录用，与经历整理共用同一来源而非独立研究。"
+      ]
+    },
+    {
+      "guide_id": "9937b7ed-f6bc-46a1-8fab-defd18b06e30",
+      "content_hash": "f861b7c75e77358b8ce99c4df98e922de197f8c606d7dd8daefcc8dfc3ac462f",
+      "disposition": "needs_review",
+      "reason": "招聘分阶段反馈与无回应处理缺乏相关原文；先不批准就业流程分支。",
+      "supports": [
+        "PDCA支持计划与实际对照。"
+      ],
+      "cannot_infer": [
+        "招聘分阶段反馈与无回应处理缺乏相关原文；先不批准就业流程分支。"
+      ]
+    },
+    {
+      "guide_id": "cf3647df-1e36-4645-8b90-f894a0348be3",
+      "content_hash": "62cfc5245aafa4ea6c6381e44238a2866e7532d63f1128b052aa63ceee902081",
+      "disposition": "needs_review",
+      "reason": "不会回答时澄清与诚实说明未知并非本段原文机制，需要面试沟通来源。",
+      "supports": [
+        "STAR支持组织已有经历。"
+      ],
+      "cannot_infer": [
+        "不会回答时澄清与诚实说明未知并非本段原文机制，需要面试沟通来源。"
+      ]
+    },
+    {
+      "guide_id": "43e47ad6-3543-4c97-84f6-42bb0a1e6cb3",
+      "content_hash": "09315caa65cfd6de2857186a4a4b1ed1cfe7108dc07042e51159506d19b6cc53",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "NSF原文描述与潜在客户、合作伙伴和相关方交流以评估商业潜力。"
+      ],
+      "cannot_infer": [
+        "过去情境访谈为校园编辑步骤；喜欢不等于付款，未联系不算已执行，样本不推算成功率。"
+      ]
+    },
+    {
+      "guide_id": "061bf547-823f-492e-89c2-cf11daf153b5",
+      "content_hash": "031b4099a58945b60bafa1d5d0b2fb6bee94a72e479c33d44ebefb0a9c881765",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "清华经管作者要求亲自做最小可行产品，并强调是否付费无法由AI替代回答。"
+      ],
+      "cannot_infer": [
+        "只采用真实行为验证与最小原型的机制；不继承一周、五人、报价或收入数字，不把试用认作付款。"
+      ]
+    },
+    {
+      "guide_id": "ea53cc08-3420-442f-8e5c-98070be7909a",
+      "content_hash": "fddaa73ecabe5f26962f0c7161b0d4758a84c8846fdd606857bca2c3051bff52",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "Upwork原句要求明确包含的修改次数与范围变更的定义。"
+      ],
+      "cannot_infer": [
+        "只批准修改与范围对照机制；节点、完成标准为LifeOS适配，不输出合同效力、费用规则或付款保证。"
+      ]
+    },
+    {
+      "guide_id": "ee6a3e12-bedb-4386-8fd1-03ae06fb19ab",
+      "content_hash": "6ca6b582adbdac758d5af877a9d6f1b986b5908d01bdf370bc1ea824a99f3f5a",
+      "disposition": "needs_review",
+      "reason": "实际使用、满意、付款与再次委托分列的机制缺直接原文，目前为编辑启发。",
+      "supports": [
+        "Upwork片段支持按目标确认交付物。"
+      ],
+      "cannot_infer": [
+        "实际使用、满意、付款与再次委托分列的机制缺直接原文，目前为编辑启发。"
+      ]
+    },
+    {
+      "guide_id": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+      "content_hash": "3a828bcaf9b8071aee7cc478ff3f4067d3be8ea1dce9542285ecaafd92d68dda",
+      "disposition": "needs_review",
+      "reason": "到账/未到账、直接成本、必要开支和净收益并非时间手册内容，需要一般预算/财务记录原文。",
+      "supports": [
+        "时间手册支持记录实际投入与反馈。"
+      ],
+      "cannot_infer": [
+        "到账/未到账、直接成本、必要开支和净收益并非时间手册内容，需要一般预算/财务记录原文。"
+      ]
+    },
+    {
+      "guide_id": "a59f8d87-9b86-4fb3-8dcd-c0e65a084e39",
+      "content_hash": "fb5fc34061eb9d7cf8f68e9eb69ec68855d677d62e469d16f05ac3843b3cbd90",
+      "disposition": "needs_review",
+      "reason": "内容表达主题、受众理解和平台创作反馈的迁移缺直接相关来源；不把商业付款机制等同内容机制。",
+      "supports": [
+        "MVP文章支持以真实客户行为验证假设。"
+      ],
+      "cannot_infer": [
+        "内容表达主题、受众理解和平台创作反馈的迁移缺直接相关来源；不把商业付款机制等同内容机制。"
+      ]
+    },
+    {
+      "guide_id": "f691bcc0-526e-4588-8e42-3390fbabecbd",
+      "content_hash": "ed26142c6b41e63287c04ca441775854b550dc5fc3778f528d69b5429465a234",
+      "disposition": "needs_review",
+      "reason": "目前未保存角色、依赖、延期、分歧处理的正文证据；不可只凭文章标题批准整套分工方法。",
+      "supports": [
+        "Upwork已核对片段支持项目目的与目标。"
+      ],
+      "cannot_infer": [
+        "目前未保存角色、依赖、延期、分歧处理的正文证据；不可只凭文章标题批准整套分工方法。"
+      ]
+    },
+    {
+      "guide_id": "349634c2-27c1-4a99-8f54-3f8e072d5ce0",
+      "content_hash": "357d144b0e84ada81c528eb8634780b3d569968f95f62aabc5eebc6f6c8d4769",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "山大宿舍材料明确提出表达诉求、协商和共同建立学习生活边界。"
+      ],
+      "cannot_infer": [
+        "保护安全、表达拒绝与事实请求分开是编辑适配；不能保证冲突解决或代替法律意见。"
+      ]
+    },
+    {
+      "guide_id": "1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a",
+      "content_hash": "96c452e9c73f6df526b272604f5c844dc10389c7ae6317b35b3de6f6c334e971",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "上海应用技术大学材料提出平衡休息、运动、社交、学习并主动寻求帮助。"
+      ],
+      "cannot_infer": [
+        "只是一般生活支持，不能解释病因、诊断或治疗；休息时长和求助方式由本人实际情境决定。"
+      ]
+    },
+    {
+      "guide_id": "bec572cf-e158-4501-8062-3d62021eb952",
+      "content_hash": "8826dff3965a899dda5d969fb00dda965b0ebdc4abbd27b6329f119786747111",
+      "disposition": "needs_review",
+      "reason": "AI建议核验、合作风险和个人资料保护的全部分支仍缺相关原文；不能把文学检索讲座当作隐私合规指南。",
+      "supports": [
+        "华东师大材料强调查找/整理/评论文献与来源可靠性。"
+      ],
+      "cannot_infer": [
+        "AI建议核验、合作风险和个人资料保护的全部分支仍缺相关原文；不能把文学检索讲座当作隐私合规指南。"
+      ]
+    }
+  ]
+}

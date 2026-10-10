@@ -7,7 +7,7 @@ import { growthContext, growthBoundaryContext, growthView, stageGrowthUpdates, a
 import { transaction } from '../../server/db.ts'
 import { buildTurnPrompt } from '../../server/turn-prompt.ts'
 import { redactGrowthHistory, growthQuoteSuppressed } from '../../server/growth-privacy.ts'
-import type { GrowthDelta, GrowthInputDelta } from '../../server/growth-model-contracts.ts'
+import type { GrowthDelta, ResolvedGrowthDelta } from '../../server/growth-model-contracts.ts'
 
 test('conversation growth changes are grounded, atomic and selectively forgettable (isolated PG, no provider)',async t=>{
   const user='growth-model-'+randomUUID(),chat=randomUUID()
@@ -18,7 +18,7 @@ test('conversation growth changes are grounded, atomic and selectively forgettab
     const growth=await growthContext(user,chat)
     return {run,growth,source:{messageId:run.source_message_id,quote:text}}
   }
-  const finish=async(input:Awaited<ReturnType<typeof prepare>>,changes:GrowthInputDelta[])=>{
+  const finish=async(input:Awaited<ReturnType<typeof prepare>>,changes:ResolvedGrowthDelta[])=>{
     const staged=await stageGrowthUpdates(input.run,changes,input.growth)
     return store.finishRun(input.run,{candidates:[],audit:[],growth:staged,usedGrowthRefs:input.growth.map(row=>({id:row.id,revision:row.revision})),growthSnapshotKey:growthSnapshotKey(input.growth)},'先保留明确情况，未知再核对。',null,new AbortController().signal)
   }

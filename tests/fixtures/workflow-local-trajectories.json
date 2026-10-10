@@ -1,0 +1,34 @@
+[
+ {"id":"contact","title":"联系学长甲请教项目课","guide":"boundary-request","rounds":[
+  {"session":0,"text":"我是成年大学生，想向学长甲请教项目课对实习的帮助。我想先提出需求与边界，怎么开始？","reply":"可以只提出一个具体请求，渠道和对方是否愿意回应仍未知。方法适用到表达请求，不保证回复。","kinds":["context","goal"]},
+  {"session":0,"text":"我愿意试这个方法。","reply":"先保留这个选择，尚未发送和收到回复。","kinds":["preference"]},
+  {"session":1,"text":"按上次办法，我已经发了消息，三天还没有回复。","reply":"发出和回复是两件事；现在回复未知，可以核对原请求和渠道，暂不催促。","experience":true},
+  {"session":1,"text":"我通过学校邮箱请教学长甲，原请求是想知道项目课能否提供实习作品。对方已经读了，但没有回复，也没有采用。","reply":"具体请求和邮箱渠道已经明确。已读、回复和采用分别保存，原因与效果仍未知。","experience":true},
+  {"session":2,"text":"我更正，对方是否采用我不知道。","reply":"采用目前未知，原来的发送、已读和没有回复仍保留，效果没有依据。"},
+  {"session":2,"text":"按上次办法，我不想继续了。","reply":"好，这件事先停下，不再催促或安排新的联系。"}
+ ]},
+ {"id":"freelance","title":"社团海报接单与就业取舍","guide":"delivery-scope","rounds":[
+  {"session":0,"text":"我是成年大学生，想探索自由职业接单。我想先确认需求与交付范围，怎么开始？","reply":"先限定交付内容和验收问题；金额、客户使用与付款未知，暂不推断收入。","kinds":["context","goal"]},
+  {"session":0,"text":"我愿意试这个方法。","reply":"已选择这个办法，尚未交付，不等于已收款。"},
+  {"session":1,"text":"我已经交付了一张社团海报，对方已经采用，已经付款300元。","reply":"本次交付、采用和付款分别有原话；只支持这一单，不说明稳定收入。","experience":true},
+  {"session":1,"text":"我这周课程优先，只剩两小时可用。","reply":"课程是当前限制，探索只在本周剩余120分钟内考虑，作品事实继续保留。","kinds":["constraint"],"week":"this"},
+  {"session":2,"text":"我改变方向，我决定本阶段就业优先，不再把自由职业作为主线。","reply":"当前选择以就业为阶段重点；海报交付保留为作品证据，接过一次单不证明长期适配。","kinds":["direction","goal","preference"]},
+  {"session":2,"text":"我收到一个新的海报机会，需要每周十小时。我本周只有两小时，仍然就业优先。","reply":"新机会要求十小时，本人这周只有两小时；先按就业重点核对旧作品能补哪个岗位证据，可以拒绝新单。","kinds":["context","constraint","goal"],"week":"this"}
+ ]},
+ {"id":"startup","title":"校园产品需求与升学取舍","guide":"user-interview","rounds":[
+  {"session":0,"text":"我是成年大学生，想做一个校园产品。我想先发现值得解决的问题，怎么开始？","reply":"先核对一次实际任务与困难，想法保持假设，不当作已有需求。","kinds":["context","goal"]},
+  {"session":0,"text":"我愿意试这个方法。","reply":"先保留一次访谈选择，没有访谈和使用证据时继续未知。"},
+  {"session":1,"text":"我已经访谈了一名同学，对方说感兴趣，但没有使用，也没有付费。","reply":"这次访谈说明对方表达兴趣，使用与付款为否定；不能把兴趣当商业成功。","experience":true},
+  {"session":1,"text":"我想把验证问题改成上一次遇到什么困难，不再问愿不愿意用。","reply":"下次可回到具体困难和已有做法；这是方法适配，实际是否发生仍未知。","kinds":["goal","preference"]},
+  {"session":2,"text":"我这周备考优先，只剩一小时可用。","reply":"本周剩余60分钟是限制，可以缩小验证范围或暂缓；升学条件仍需正式来源。","kinds":["constraint"],"week":"this"},
+  {"session":2,"text":"我这周零小时可用，先别分析创业了，只想说说压力。","reply":"先陪你缓一缓，不新增行动；访谈保留原有证据强度。"}
+ ]},
+ {"id":"course","title":"课程与备考时间安排","guide":"priority-budget","rounds":[
+  {"session":0,"text":"我是成年大学生，我每周能拿出六小时。我想平衡课程与课外并做低时间预算，怎么开始？","reply":"先选当前最重要的一项，常规周时间保存为条件，不代表本周仍有六小时。","kinds":["context","context","goal"]},
+  {"session":0,"text":"我每周能拿出六小时，但这周只剩两小时，请帮我安排本周课程与备考。","reply":"先给当前课程一个20分钟尝试；本周预算为120分钟，常规360分钟另行保留。","kinds":["context","constraint"],"week":"this","plan":{"minutes":120,"budgetIndex":1,"period":"this_week","actionMinutes":20}},
+  {"session":1,"text":"我没有开始上次课程复习，材料打不开。","reply":"当前是未开始，打不开是具体阻力；先核对可访问的材料，暂不增加练习量。","kinds":["feedback","context"],"progress":"unattempted"},
+  {"session":1,"text":"我已经尝试课程复习，但遇到第一题卡住了。","reply":"已经尝试与卡住分别保留，不能据这一题判断长期能力；可以缩到一段例题。","kinds":["feedback","feedback"],"progress":"stuck","experience":true},
+  {"session":2,"text":"我这周零小时可用，请帮我安排本周课程与备考。","reply":"本周预算为零，可以暂缓，不新增行动；原常规周预算继续保留。","kinds":["constraint"],"week":"this","plan":{"minutes":0,"budgetIndex":0,"period":"this_week","actionMinutes":0}},
+  {"session":2,"text":"下周我有六小时可用，我想重新判断课程与备考。","reply":"下周有360分钟，与本周零时间分别保存。先按下周的实际重点重新判断，不把本周限制永久延续。","kinds":["constraint","goal"],"week":"next"}
+ ]}
+]

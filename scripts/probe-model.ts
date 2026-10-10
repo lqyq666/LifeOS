@@ -13,6 +13,7 @@ import {CoachProviderBudget,readCoachAuthorization,activeCoachFunding} from './c
 import {assertCoachSourceFreeze} from './coach-source-freeze.ts'
 import {config} from '../server/config.ts'
 import {requiresImmediateMaterial} from '../server/action-coach-events.ts'
+import {buildClauseCatalogue} from '../server/clause-catalogue.ts'
 
 const args=process.argv.slice(2),arg=(name:string)=>args[args.indexOf(name)+1]
 const requested=process.env.LIFEOS_MODEL_PROBE_TIER??(args.includes('--tier')?arg('--tier'):'default')
@@ -82,7 +83,7 @@ async function call(id:keyof typeof inputs){
     const nodesValid=(result?.event?.nodes??[]).every(node=>node.kind==='unknown'||node.source.messageId===messageId&&inputs.R3.includes(node.source.quote))
     const draft=action&&'draft'in action?action.draft:null
     const material=draft&&'content'in draft?draft.content:null
-    const candidate=result?.experienceCandidate?.source,candidateValid=!candidate||candidate.messageId===messageId&&inputs.R3.includes(candidate.quote)
+    const catalogue=buildClauseCatalogue(inputs.R3),candidate=result?.experienceCandidate?.source,candidateValid=!candidate||candidate.clauseIds.length>0&&candidate.clauseIds.every(id=>catalogue.some(clause=>clause.clauseId===id&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther))
     const rendered=result?renderCoachReply(result):null
     report.checks.actionOutput={passed:stop==='stop'&&Boolean(result&&validSource&&nodesValid&&candidateValid&&action?.operation==='create'&&material&&rendered?.includes(material)&&!result.citations?.length),...diagnostics,fixture:{evidence:'SYNTHETIC_API_CONTRACT_STATE_NOT_PERSISTED_TRAJECTORY',eventId:existingEvent.id,revision:existingEvent.revision},output:result??null,renderedReply:rendered,note:'Existing event identity/revision, exact new source and one authoritative material. Optional candidate remains unconfirmed. Final quality still needs trajectory review.'}
   }

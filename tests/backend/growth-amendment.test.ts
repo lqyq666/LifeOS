@@ -5,7 +5,7 @@ import { pool } from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import { growthContext, growthView, stageGrowthUpdates, actOnGrowthItem, growthSnapshotKey } from '../../server/growth.ts'
 import { growthQuoteSuppressed } from '../../server/growth-privacy.ts'
-import type { GrowthDelta, GrowthInputDelta } from '../../server/growth-model-contracts.ts'
+import type { GrowthDelta, ResolvedGrowthDelta } from '../../server/growth-model-contracts.ts'
 
 // P1 amendment regressions (isolated PG, no provider): correcting one clause of
 // a composite user-reported fact must preserve its untouched sibling facts with
@@ -22,7 +22,7 @@ test('amend corrects one clause of a composite fact without erasing siblings (SR
     const growth=await growthContext(user,chat)
     return {run,growth,source:{messageId:run.source_message_id,quote:text}}
   }
-  const finish=async(input:Awaited<ReturnType<typeof prepare>>,changes:GrowthInputDelta[],signal:AbortSignal=new AbortController().signal)=>{
+  const finish=async(input:Awaited<ReturnType<typeof prepare>>,changes:ResolvedGrowthDelta[],signal:AbortSignal=new AbortController().signal)=>{
     const staged=await stageGrowthUpdates(input.run,changes,input.growth)
     return store.finishRun(input.run,{candidates:[],audit:[],growth:staged,usedGrowthRefs:input.growth.map(row=>({id:row.id,revision:row.revision})),growthSnapshotKey:growthSnapshotKey(input.growth)},'已按你的新时间更新安排。',null,signal)
   }

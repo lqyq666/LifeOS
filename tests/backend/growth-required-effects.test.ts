@@ -129,7 +129,7 @@ test('required weekly-time updates must exist; real C10 failures replay as FAIL 
           await assert.rejects(store.stageCandidate(attempt.run,{candidates:[],audit:[]},{sourceMessageId:priorMessageId,quote:parsed.experienceCandidate.source.quote,links:[]}),(error:unknown)=>error instanceof Error&&['SOURCE_QUOTE_MISMATCH','EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE','CAMPUS_SOURCE_INVALID'].includes((error as {code?:string}).code??''),failure.code+': the old-feedback candidate must be refused by a source guard')
         }else{
           const nodes=parsed.event?.nodes??[]
-          assert.ok(nodes.length>0&&nodes.some(node=>'source'in node&&!fixture.input.includes(node.source.quote)),failure.code+': the original output binds old-turn quotes as current')
+          assert.ok(nodes.length>0&&nodes.some((node:{source?:{quote:string}})=>node.source&&!fixture.input.includes(node.source.quote)),failure.code+': the original output binds old-turn quotes as current')
         }
         await store.terminateRun(user,attempt.run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')
         // With the optional candidate/event lanes removed and no growth update

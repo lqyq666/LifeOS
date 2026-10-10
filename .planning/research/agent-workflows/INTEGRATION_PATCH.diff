@@ -1,0 +1,38 @@
+--- a/server/turn-engine.ts
++++ b/server/turn-engine.ts
+@@ -35,9 +35,11 @@
+ import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
+ import { readStarMapContext } from './user-themes.ts'
+ import { deriveTurnContract } from './turn-contract.ts'
++import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback } from './workflows/host.ts'
+ import { selectHistoryForMode } from './history-selection.ts'
+ import { goalChangeMarker } from './growth-authority.ts'
+ import { resolveGrowthDeltas } from './growth-authority.ts'
++import { findEpisode } from './experience-episodes.ts'
+ import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.ts'
+ import { readRecommendationControls } from './memory-controls.ts'
+ import {knowledgeIntent,deduplicateGuides,methodPromptContext} from './evergreen-guide.ts'
+@@ -395,7 +397,9 @@
+   const messages=allContextMessages.filter(row=>row.id===run.source_message_id||selectedIds.has(row.id))
+   staged.audit.push({phase:'history_selection',mode:contract.mode,historyTotalMessages:historySelection.totalMessages,historySelectedMessages:historySelection.selected.length,historyTotalChars:historySelection.totalChars,historySelectedChars:historySelection.selectedChars,providerCalls:0})
+   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id,contract)
+-  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,methodContext:methodContext.knowledge,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
++  const baseUserPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,methodContext:methodContext.knowledge,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
++  const workflowHints=await actionReviewHints({run,staged,text:current.content,memoryEnabled:snapshot.settings.enabled,currentEvent,historicalEvents,ambiguous:retrieval.ambiguous,listeningOnly:contract.mode==='reply_only',signal})
++  const userPrompt=workflowHints?JSON.stringify({...JSON.parse(baseUserPrompt),workflowHints}):baseUserPrompt
+   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
+   const retrieved=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
+   const calls:CallRecord[]=[]
+@@ -826,7 +830,11 @@
+     if(usageEventId){
+       const feedback=classifyGuideFeedback(current.content),previous=previousGuideUsage[0]
+       // A different named current task never changes the old task's usage.
+-      if(feedback&&previous&&currentEvent&&feedbackMatchesCurrent(current.content,currentEvent.title,previous.branch_task??'')&&usageEventId===currentEvent.id)staged.guideUsage.push({guideId:previous.guide_id,revision:previous.revision,branch:previous.branch,stepId:previous.step_id,status:feedback,eventId:usageEventId,sourceMessageId:run.source_message_id,sourceQuote:current.content})
++      if(feedback&&previous&&currentEvent&&canContinueGuideFeedback(previous.status,feedback)&&feedbackMatchesCurrent(current.content,currentEvent.title,previous.branch_task??'')&&usageEventId===currentEvent.id)staged.guideUsage.push({guideId:previous.guide_id,revision:previous.revision,branch:previous.branch,stepId:previous.step_id,status:feedback,eventId:usageEventId,sourceMessageId:run.source_message_id,sourceQuote:current.content})
++      if(!staged.guideUsage.length&&!currentEvent&&historicalEvents.length===1&&historicalEvents[0].id===usageEventId&&result.event?.target.operation==='continue'){
++        const continued=await continuedActionUsage({run,text:current.content,event:historicalEvents[0],ambiguous:retrieval.ambiguous})
++        if(continued)staged.guideUsage.push(continued)
++      }
+       for(const card of knowledge.filter(card=>staged.usedKnowledgeRefs?.some(ref=>ref.sourceId===card.id))){
+         if(staged.guideUsage.some(u=>u.guideId===card.id)||latestUsage.some(u=>u.guide_id===card.id&&u.status!=='declined'))continue
+         if(!staged.coach&&currentEvent&&!feedbackMatchesCurrent(current.content,currentEvent.title,card.guide?.branches[0]?.task??''))continue

@@ -25,47 +25,45 @@ export function generateInsight(data: {
   nextIdentity: string
   identityNextHint: string
 }): ExperienceInsight {
-  const { skillTags, blocked, externalFeedback, connectedThemes, relatedExperiences, identityLevel, nextIdentity, identityNextHint } = data
+  const { skillTags, blocked, externalFeedback, connectedThemes, relatedExperiences } = data
 
   // 1. 核心洞察——用不同维度的一句话让学生看到"这件事的价值"
   let headline: string
   if (blocked) {
-    headline = '这件事还在进行中——卡住的地方往往就是下一步的突破口。'
+    headline = '这次记录包含一个卡点；具体原因仍需核对。'
   } else if (externalFeedback && skillTags.length > 0) {
-    headline = `你的${skillTags[0]}能力得到了外部认可——这不是自我感觉，是别人说的。`
+    headline = '这次任务有外部反馈，含义以具体原话为准。'
   } else if (skillTags.length > 0) {
-    headline = `这是一段有实际产出的经历，证明你有${skillTags.slice(0, 2).join('和')}的动手能力。`
+    headline = `这次记录涉及${skillTags.slice(0, 2).join('和')}；它说明本次任务中的尝试。`
   } else if (data.result) {
-    headline = '你完成了这件事，而且知道了结果——完成的经历比计划中的想法有价值得多。'
+    headline = '这次经历记录了一个结果；它能说明的范围以实际经过为准。'
   } else {
-    headline = '每一段做过的经历都在帮你缩小"适合什么"的范围。'
+    headline = '这是一条经历记录，可以继续核对当时的经过。'
   }
 
   // 2. 证据解释——把标签翻译成人话
   const evidenceParts: string[] = []
   if (connectedThemes.length > 0) {
     const theme = connectedThemes[0]!
-    if (theme.relation === 'acting_toward') evidenceParts.push(`这段经历直接支持了你的「${theme.title}」方向`)
+    if (theme.relation === 'acting_toward') evidenceParts.push(`这段经历记录了向「${theme.title}」方向的一次行动`)
     else if (theme.relation === 'exploring') evidenceParts.push(`这是你探索「${theme.title}」方向的一次尝试`)
     else evidenceParts.push(`这段经历和你的「${theme.title}」方向相关`)
   }
-  if (skillTags.length > 0) evidenceParts.push(`积累了${skillTags.join('、')}方面的证据`)
-  if (externalFeedback) evidenceParts.push('有人给了你反馈——外部的声音比自我评价更可靠')
+  if (skillTags.length > 0) evidenceParts.push(`任务标签为${skillTags.join('、')}，稳定能力仍需更多证据`)
+  if (externalFeedback) evidenceParts.push('已有反馈记录；是否使用、是否认可和实际效果分别核对')
   if (data.occurredAt) evidenceParts.push(`发生在${data.occurredAt}`)
 
   // 3. 相关经历
   const relatedTitles = relatedExperiences.map(rel => rel.title)
 
-  // 4. 下一步——基于身份等级和当前缺口
+  // 4. 下一步只基于具体任务，不以身份等级奖励更多行为。
   let nextStep: string
-  if (identityLevel === 0) {
-    nextStep = '再多做一件事，你就从「出发者」变成「探索者」了。跟 AI 聊聊下一步可以试什么。'
-  } else if (blocked) {
+  if (blocked) {
     nextStep = '这件事卡在哪了？跟 AI 聊聊卡点，拆成最小的一步。'
   } else if (connectedThemes.length > 0) {
-    nextStep = `这段经历支持了「${connectedThemes[0]!.title}」。要不要聊聊怎么继续推进？`
+    nextStep = `如果你愿意，可以核对这次经历与「${connectedThemes[0]!.title}」的关系。`
   } else {
-    nextStep = identityNextHint || '跟 AI 聊聊这段经历带来的想法。'
+    nextStep = '如果你愿意，可以聊聊这次经过增加了哪些信息、还缺哪些信息。'
   }
 
   return {
@@ -73,6 +71,6 @@ export function generateInsight(data: {
     evidence: evidenceParts.join('；'),
     relatedTitles,
     nextStep,
-    skillNote: skillTags.length > 0 ? `${skillTags.join(' · ')} — 有证据的能力` : '',
+    skillNote: skillTags.length > 0 ? `${skillTags.join(' · ')} · 本次任务标签，稳定能力仍待核对` : '',
   }
 }

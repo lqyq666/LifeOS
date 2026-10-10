@@ -35,11 +35,15 @@ import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle }
 import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
 import { deriveTurnContract } from './turn-contract.ts'
+import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
 import { resolveGrowthDeltas } from './growth-authority.ts'
+import { findEpisode } from './experience-episodes.ts'
 import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.ts'
 import { readRecommendationControls } from './memory-controls.ts'
+import {knowledgeIntent,deduplicateGuides,methodPromptContext} from './evergreen-guide.ts'
+import {readGuideUsage,classifyGuideFeedback,feedbackMatchesCurrent} from './guide-usage.ts'
 export type FocusContext={type:'theme'|'experience';id:string;label:string}
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void;focusContext?:FocusContext|null}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
@@ -253,7 +257,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const historicalEvents=retrieval.events.filter(event=>event.id!==currentEvent?.id)
   preRetrievalMs=Math.round(performance.now()-engineStageClock)
   const knowledgeStart=performance.now()
-  let knowledge=await retrieveCoachKnowledge(current.content,signal)
+  const previousGuideUsage=currentEvent?await readGuideUsage(run.user_id,run.conversation_id,currentEvent.id):[]
+  const methodIntent=knowledgeIntent(current.content,{eventTitle:currentEvent?.title,hasPriorGuide:previousGuideUsage.length>0})
+  const needsKnowledge=!['NONE','CLARIFY'].includes(methodIntent.decision)
+  let knowledge=needsKnowledge?await retrieveCoachKnowledge(methodIntent.query,signal,methodIntent):[]
+  staged.audit.push({phase:'knowledge_intent',decision:methodIntent.decision,reason:methodIntent.reason,stage:methodIntent.stage,providerCalls:0})
   knowledgeMs=Math.round(performance.now()-knowledgeStart)
   // C1 controlled-integration diagnostics ONLY: force the LOCAL candidates to
   // miss while the verified registry stays intact, so the remote Coze fallback
@@ -263,7 +271,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     staged.audit.push({phase:'local_knowledge_miss',reason:'diagnostic_injection',controlledIntegrationOnly:true,localCandidatesSuppressed:knowledge.length})
     knowledge=[]
   }
-  if(!knowledge.length){
+  if(needsKnowledge&&!knowledge.length){
     // N3: Coze fallback — only when local retrieval found nothing AND the
     // message safely yields a whitelist public query (never the raw chat).
     // Failures are audit-only; candidates map through the reviewed registry.
@@ -317,6 +325,13 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       }
     }
   }
+  knowledge=deduplicateGuides(knowledge)
+  const latestUsage=[...new Map(previousGuideUsage.slice().reverse().map(row=>[row.guide_id,row])).values()]
+  const stopped=new Set(latestUsage.filter(row=>row.status==='declined').map(row=>row.guide_id))
+  if(!/(?:重新|再试|继续使用).{0,12}(?:方法|办法|攻略)|我想再/.test(current.content))knowledge=knowledge.filter(card=>!stopped.has(card.id))
+  const methodContext=methodPromptContext(knowledge,current.content,methodIntent,Number(process.env.LIFEOS_METHOD_TOKEN_BUDGET)||1800)
+  knowledge=knowledge.filter(card=>methodContext.knowledge.some(row=>row.id===card.id))
+  staged.audit.push({phase:'method_context',budgetTokens:methodContext.budgetTokens,estimatedTokens:methodContext.estimatedTokens,estimateKind:methodContext.estimateKind,dropped:methodContext.dropped,cardIds:knowledge.map(card=>card.id)})
   const contextKnowledge=[...(currentEvent?[currentEvent]:[]),...historicalEvents].flatMap(event=>event.actions.flatMap(action=>action.knowledgeRefs??[]))
   const allContextMessages=await redactGrowthHistory(run.user_id,context.filter(row=>row.id===run.source_message_id||!snapshot.suppressedMessageIds?.includes(row.id)))
   // G4 placeholder: selection happens after the contract is derived (it needs
@@ -376,13 +391,15 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // G4 mode-aware history selection: bound the raw dialogue the model reads
   // (the DB and structured lanes keep everything). The current message is
   // always present in buildTurnPrompt regardless of this filter.
-  const historyForSelection=allContextMessages.filter(row=>row.id!==run.source_message_id&&row.role!=='system').map(row=>({id:row.id,role:row.role==='assistant'?'assistant' as const:'user' as const,content:row.content??''}))
+  const historyForSelection=allContextMessages.filter(row=>row.id!==run.source_message_id).map(row=>({id:row.id,role:row.role==='assistant'?'assistant' as const:'user' as const,content:row.content??''}))
   historySelection=selectHistoryForMode(historyForSelection,contract.mode,current.content)
   const selectedIds=new Set(historySelection.selected.map(row=>row.id))
   const messages=allContextMessages.filter(row=>row.id===run.source_message_id||selectedIds.has(row.id))
   staged.audit.push({phase:'history_selection',mode:contract.mode,historyTotalMessages:historySelection.totalMessages,historySelectedMessages:historySelection.selected.length,historyTotalChars:historySelection.totalChars,historySelectedChars:historySelection.selectedChars,providerCalls:0})
   const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id,contract)
-  const userPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
+  const baseUserPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,methodContext:methodContext.knowledge,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
+  const workflowHints=await actionReviewHints({run,staged,text:current.content,memoryEnabled:snapshot.settings.enabled,currentEvent,historicalEvents,ambiguous:retrieval.ambiguous,listeningOnly:contract.mode==='reply_only',signal})
+  const userPrompt=workflowHints?JSON.stringify({...JSON.parse(baseUserPrompt),workflowHints}):baseUserPrompt
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
   const retrieved=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
   const calls:CallRecord[]=[]
@@ -514,7 +531,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       staged.audit.push({phase:'growth_plan_context',authorizedCount:growthAll.length,authorizedKinds:growthAll.map(item=>item.kind),planTargetItem:correctionPlan?.target?.itemId??null,newQuote:correctionPlan?.newQuote??null,providerCalls:0})
       const authoritative=resolveGrowthDeltas({deltas:result.growthUpdates,currentMessageId:run.source_message_id,currentText:current.content,catalogue:clauseCatalogue,authorized:growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,unavailableReason:item.unavailableReason,status:item.status})),correctionPlan,controlClauseTexts})
       for(const entry of authoritative.audit)staged.audit.push(entry)
-      staged.audit.push({phase:'growth_model_input_shape',ops:result.growthUpdates.map((delta)=>({op:delta&&delta.target?delta.target.operation:null,itemId:delta&&delta.target&&delta.target.itemId?String(delta.target.itemId).slice(0,8):null,clauseId:delta&&delta.source?delta.source.clauseId:null,kind:delta?delta.kind:null})),providerCalls:0})
+      staged.audit.push({phase:'growth_model_input_shape',ops:result.growthUpdates.map((delta)=>({op:delta.target.operation,itemId:delta.target.operation==='correct'?delta.target.itemId.slice(0,8):null,clauseId:delta.source.clauseId,kind:delta.kind})),providerCalls:0})
       if(authoritative.deltas.length)staged.growth=await stageGrowthUpdates(run,authoritative.deltas,growthAll,{allowedDirectionScopes:allowedDirectionScopes})
       // Plan refs speak the MODEL's array positions; the persisted bindings are
       // keyed by the resolved positions. Translate surviving refs forward so
@@ -755,7 +772,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       const claimPlan=correctionPlan??outstandingCorrection
       const claimSource=correctionPlan?current.content:outstandingCorrectionSource??current.content
       const oldValueRemainder=claimPlan?claimSource.split(claimPlan.newQuote).join(''):claimSource
-      const oldValueChars=new Set(oldValueRemainder.replace(/[^\p{L}\p{N}]/gu,''))
+      const oldValueChars=new Set<string>(String(oldValueRemainder).replace(/[^\p{L}\p{N}]/gu,''))
       const relatedActiveItem=growthAll.some(item=>{
         if(!['active','proposed'].includes(item.status))return false
         const chars=new Set(item.text.replace(/[^\p{L}\p{N}]/gu,''))
@@ -807,6 +824,23 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       const target=result.event.target
       if(target.operation==='continue'&&!staged.usedEventRefs?.some(ref=>ref.eventId===target.eventId))throw new HttpError(400,'COACH_EVENT_TARGET_INVALID')
       staged.coach=await stageCoachEvent(run,result.event,result.reply);staged.coach.knowledgeRefs=staged.usedKnowledgeRefs
+    }
+    const usageEventId=staged.coach?.eventId??currentEvent?.id
+    staged.guideUsage=[]
+    if(usageEventId){
+      const feedback=classifyGuideFeedback(current.content),previous=previousGuideUsage[0]
+      // A different named current task never changes the old task's usage.
+      if(feedback&&previous&&currentEvent&&canContinueGuideFeedback(previous.status,feedback)&&feedbackMatchesCurrent(current.content,currentEvent.title,previous.branch_task??'')&&usageEventId===currentEvent.id)staged.guideUsage.push({guideId:previous.guide_id,revision:previous.revision,branch:previous.branch,stepId:previous.step_id,status:feedback,eventId:usageEventId,sourceMessageId:run.source_message_id,sourceQuote:current.content})
+      if(!staged.guideUsage.length&&!currentEvent&&historicalEvents.length===1&&historicalEvents[0].id===usageEventId&&result.event?.target.operation==='continue'){
+        const continued=await continuedActionUsage({run,text:current.content,event:historicalEvents[0],ambiguous:retrieval.ambiguous})
+        if(continued)staged.guideUsage.push(continued)
+      }
+      for(const card of knowledge.filter(card=>staged.usedKnowledgeRefs?.some(ref=>ref.sourceId===card.id))){
+        if(staged.guideUsage.some(u=>u.guideId===card.id)||latestUsage.some(u=>u.guide_id===card.id&&u.status!=='declined'))continue
+        if(!staged.coach&&currentEvent&&!feedbackMatchesCurrent(current.content,currentEvent.title,card.guide?.branches[0]?.task??''))continue
+        const selected=methodContext.knowledge.find(k=>k.id===card.id),suggestion=authorizedGuideApplication(run,staged,card,usageEventId,typeof selected?.branch==='string'?selected.branch:undefined,contract.mode==='reply_only')
+        if(suggestion)staged.guideUsage.push(suggestion)
+      }
     }
     if(result.experienceCandidate){
       // P1: the candidate's source is a contiguous clauseId selection; the
@@ -918,7 +952,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(process.env.LIFEOS_DEBUG_REPAIR)console.error('REPAIR_GATE',error instanceof HttpError?error.code:String(error).slice(0,100))
     if(process.env.LIFEOS_DEBUG_REPAIR)console.error('REPAIR_GATE',error instanceof HttpError?error.code:String(error).slice(0,120))
     if(!(error instanceof HttpError)||!repairable.has(error.code)||calls.length!==1)throw error
-    if(observer?.allowRepair===false){
+    if(observer?.allowRepair!==true){
       staged.audit.push({phase:'coach_repair_blocked',code:error.code,providerRequestSent:false})
       staged.modelUsage=usageSummary(calls,contextTokenEstimate,retrieved,route.escalated,route.reason,false,error.code)
       throw error

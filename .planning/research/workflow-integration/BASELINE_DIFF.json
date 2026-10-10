@@ -1,0 +1,1196 @@
+{
+  "protectedFiles": [
+    {
+      "file": "server/campus-knowledge.ts",
+      "baselineSha256": "7f840dc5f5970958a7bc5e2be003cd00f1a0747011f092635edcff6157c4fc2d",
+      "currentSha256": "7f840dc5f5970958a7bc5e2be003cd00f1a0747011f092635edcff6157c4fc2d",
+      "changed": false
+    },
+    {
+      "file": "server/coach-knowledge.ts",
+      "baselineSha256": "ff68f2aca4b2848d29080053349809407afa90c864d73cff8b4a1ec93fd3f3ed",
+      "currentSha256": "ff68f2aca4b2848d29080053349809407afa90c864d73cff8b4a1ec93fd3f3ed",
+      "changed": false
+    },
+    {
+      "file": "server/coze-knowledge.ts",
+      "baselineSha256": "84e5ce9d089a6df57904baaa2184da6a9274115d224e8b9a23b064dbe6672057",
+      "currentSha256": "84e5ce9d089a6df57904baaa2184da6a9274115d224e8b9a23b064dbe6672057",
+      "changed": false
+    },
+    {
+      "file": "server/experience-insight.ts",
+      "baselineSha256": "672c4e5e87c01aee4335f4ef519a1bf3624e9b11410f6835ac0c973fbc1343ec",
+      "currentSha256": "672c4e5e87c01aee4335f4ef519a1bf3624e9b11410f6835ac0c973fbc1343ec",
+      "changed": false
+    },
+    {
+      "file": "server/http.ts",
+      "baselineSha256": "f03d8822bd5092c9a741caab32bdd04da78217def0932abbe7520a9bedf3eaa1",
+      "currentSha256": "2720dbc9db7f6b05f74c720bfd212cfe84f04a4a50bac9ee01032471d50ff911",
+      "changed": true
+    },
+    {
+      "file": "server/store.ts",
+      "baselineSha256": "0b99396e6e86a3c42b447263332bca24aee3accf293d174bf8c00fd0c09ab3c4",
+      "currentSha256": "7f69c0c76f22b5416d9a832cdb968fbbbdb1123865daaec5e4c4067c57c824e8",
+      "changed": true
+    },
+    {
+      "file": "server/turn-contract.ts",
+      "baselineSha256": "c39238d98298ce19e8bb6ef4488f888348f88316c95e0979b6cdbfa732fe6553",
+      "currentSha256": "c39238d98298ce19e8bb6ef4488f888348f88316c95e0979b6cdbfa732fe6553",
+      "changed": false
+    },
+    {
+      "file": "server/turn-engine.ts",
+      "baselineSha256": "b4b915ca3fa70593922edbd4c64d632c7c6968087c3224ac94e0e28af67dbb86",
+      "currentSha256": "308e3c1ff8d2428fbefd3c3eef3e460b81bad7a3cab174811702a13fa2aa0681",
+      "changed": true
+    },
+    {
+      "file": "server/turn-prompt.ts",
+      "baselineSha256": "f5acc95e29f56d9e28c4fec71cd4ea1627435b37be233aee4f828583743ddc82",
+      "currentSha256": "5379a28b486368358ad47068cf85c47b4647b7d4321161c47a49b1c116147639",
+      "changed": true
+    },
+    {
+      "file": "skills/lifeos-personal-companion/SKILL.md",
+      "baselineSha256": "8af5077d661b99f857e0e61eb137b2df80a5c68b08549b90b6d57fb15f10518e",
+      "currentSha256": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+      "changed": true
+    },
+    {
+      "file": "skills/lifeos-personal-companion/references/host-api.md",
+      "baselineSha256": "3cce1d72f71ffed9353065e526f1648dde273787381fcbff5c2ab6a860851699",
+      "currentSha256": "3cce1d72f71ffed9353065e526f1648dde273787381fcbff5c2ab6a860851699",
+      "changed": false
+    },
+    {
+      "file": "src/features/conversation/ReplyMarkdown.tsx",
+      "baselineSha256": "25167aa63f8ece0dacd9ccb405e93a4c6730590b8a178294ae877857e68e18c2",
+      "currentSha256": "25167aa63f8ece0dacd9ccb405e93a4c6730590b8a178294ae877857e68e18c2",
+      "changed": false
+    },
+    {
+      "file": "src/features/conversation/conversation.css",
+      "baselineSha256": "8880efd83804144b05d50db505bfab89628be41a65c92fd695187ba923f5c351",
+      "currentSha256": "8880efd83804144b05d50db505bfab89628be41a65c92fd695187ba923f5c351",
+      "changed": false
+    },
+    {
+      "file": "tests/backend/coze-knowledge.test.ts",
+      "baselineSha256": "84ce4f975788a48ac02617dffca68b9ce8e82f6834cf71e97e0e53e351d85288",
+      "currentSha256": "84ce4f975788a48ac02617dffca68b9ce8e82f6834cf71e97e0e53e351d85288",
+      "changed": false
+    },
+    {
+      "file": "tests/backend/starmap-g1.test.ts",
+      "baselineSha256": "1c0040d0b4de62707d8f9e9949164ab503623b15613ff5bbd09fde119dc19df3",
+      "currentSha256": "c52a48aa8c735dabec8f83e357f571e3ab72f9fc98cfda4a557893c71d57b990",
+      "changed": true
+    },
+    {
+      "file": "tests/backend/starmap-trust.test.ts",
+      "baselineSha256": "ca36b8e7b2dbfc5a56d718311950b9eebd111d94ea323b0018d495b849bba0dd",
+      "currentSha256": "a9335ce7114d9b546b79937f02c0f72839bf20457769af5f8bc679d55fe5754e",
+      "changed": true
+    },
+    {
+      "file": "tests/backend/theme-lifecycle.test.ts",
+      "baselineSha256": "5bc2c68e1e1d23b93bc5c3475ddfa81cb827459e7dfc2e911dfba6271fb4ea5c",
+      "currentSha256": "5bc2c68e1e1d23b93bc5c3475ddfa81cb827459e7dfc2e911dfba6271fb4ea5c",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/AGENT_WORKFLOW_ARCHITECTURE.md",
+      "baselineSha256": "0a1819975941f3b1891e28b45d2ca629388a307b34b99b9e6b2f0389a2ca9658",
+      "currentSha256": "0a1819975941f3b1891e28b45d2ca629388a307b34b99b9e6b2f0389a2ca9658",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/AGENT_WORKFLOW_BASELINE.md",
+      "baselineSha256": "af15588ff331474ea0b29244e9a5964207fcd095a23caf4d168ac5c91c7e500a",
+      "currentSha256": "af15588ff331474ea0b29244e9a5964207fcd095a23caf4d168ac5c91c7e500a",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/AGENT_WORKFLOW_CONTRACTS.md",
+      "baselineSha256": "112ddd2f4b8287fce1ead4d5610b3ccfdecfd45ca34d8a6ae04b4ee924d6d3a9",
+      "currentSha256": "112ddd2f4b8287fce1ead4d5610b3ccfdecfd45ca34d8a6ae04b4ee924d6d3a9",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/AGENT_WORKFLOW_FINAL_GATE.md",
+      "baselineSha256": "addea79286c2130b690e819b0be081b6596f430de487b9a9066ee8149cc19cfc",
+      "currentSha256": "addea79286c2130b690e819b0be081b6596f430de487b9a9066ee8149cc19cfc",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/AGENT_WORKFLOW_ROUTING.md",
+      "baselineSha256": "cfad740c3ba2591a81a6164d2a7156d3caa3f3c4b666546701bed5d39ff2e085",
+      "currentSha256": "cfad740c3ba2591a81a6164d2a7156d3caa3f3c4b666546701bed5d39ff2e085",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/CHECKPOINT_VERIFICATION.json",
+      "baselineSha256": "2e4c6a1cbbf57e555922b7521bba47df740cf2b5436de0144f2190adcc5e4e94",
+      "currentSha256": "2e4c6a1cbbf57e555922b7521bba47df740cf2b5436de0144f2190adcc5e4e94",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/COMPETITION_DEMO_SCRIPT.md",
+      "baselineSha256": "dd4629f537118eef81f7998c5c91d45ae9b688d6891398483df172eebed81b68",
+      "currentSha256": "dd4629f537118eef81f7998c5c91d45ae9b688d6891398483df172eebed81b68",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/COZE_MULTIAGENT_CANDIDATE.md",
+      "baselineSha256": "8e0586e8b756bb2eeeef5927761159f1497b0671d396c3da0132e7231abed65c",
+      "currentSha256": "8e0586e8b756bb2eeeef5927761159f1497b0671d396c3da0132e7231abed65c",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/DELIVERY_PACKAGE.json",
+      "baselineSha256": "e690e93e634ca743d0db8769717fcecee6f8faf7073365bd116aa5bee29c6520",
+      "currentSha256": "e690e93e634ca743d0db8769717fcecee6f8faf7073365bd116aa5bee29c6520",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/DELIVERY_README.md",
+      "baselineSha256": "48bcf7f4bc45f90a37d270dde0e55a75f2daa848c6f3103c08eb12215c84985b",
+      "currentSha256": "48bcf7f4bc45f90a37d270dde0e55a75f2daa848c6f3103c08eb12215c84985b",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/DEVELOPMENT_SPEC.md",
+      "baselineSha256": "3c3a740387dd6323c1423268e7f299cb1efa7aefa80ec38a3bd401c419e9cb03",
+      "currentSha256": "3c3a740387dd6323c1423268e7f299cb1efa7aefa80ec38a3bd401c419e9cb03",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/G0_BASELINE.json",
+      "baselineSha256": "7b16871ce6bbd44e69707eed2d3e94acefa35124adb7b798ddfc0b6217220391",
+      "currentSha256": "7b16871ce6bbd44e69707eed2d3e94acefa35124adb7b798ddfc0b6217220391",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/G1_GATE.md",
+      "baselineSha256": "fda2ed290c1d833e778f087476ec3f9c0875fb5f1cbc56342a34be19a09c35f7",
+      "currentSha256": "fda2ed290c1d833e778f087476ec3f9c0875fb5f1cbc56342a34be19a09c35f7",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/G2_GATE.md",
+      "baselineSha256": "b586ce3f11dee3cafb16a275bd8b2c3f72518690a95882359b59d6f65c5e490b",
+      "currentSha256": "b586ce3f11dee3cafb16a275bd8b2c3f72518690a95882359b59d6f65c5e490b",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/G3_GATE.md",
+      "baselineSha256": "196bc30ce8876f3bb626ddbf4ec2f400120c652f327302f54aeeac6a0ac2d939",
+      "currentSha256": "196bc30ce8876f3bb626ddbf4ec2f400120c652f327302f54aeeac6a0ac2d939",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/INTEGRATION_PATCH.diff",
+      "baselineSha256": "65a0e4b7ca63495964d1fac922e7bb26bf60d5414b694582d5dc31a982b1fd3d",
+      "currentSha256": "65a0e4b7ca63495964d1fac922e7bb26bf60d5414b694582d5dc31a982b1fd3d",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/MULTIAGENT_AB_EVAL.json",
+      "baselineSha256": "d90565e9dd89166e2e463e59898c4ee28fbb7df32be988123cd9c39a876fabf5",
+      "currentSha256": "d90565e9dd89166e2e463e59898c4ee28fbb7df32be988123cd9c39a876fabf5",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/MULTIAGENT_COST_SPEED.md",
+      "baselineSha256": "fedcdbb4f20da29607f73d3f60c89997cf0a7a7827c19ea68a3eb588632e8e54",
+      "currentSha256": "fedcdbb4f20da29607f73d3f60c89997cf0a7a7827c19ea68a3eb588632e8e54",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/PROTECTION_VERIFICATION.json",
+      "baselineSha256": "4b38c3d6ab577452533eca6fe0b08984443ea07acaff26bcf82b3ff5bfed40ca",
+      "currentSha256": "4b38c3d6ab577452533eca6fe0b08984443ea07acaff26bcf82b3ff5bfed40ca",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/SKILL_REGISTRY.md",
+      "baselineSha256": "ddcd79b4ab8c77bfa867dc34f6aa024dc358eb48ac6982fd9d66c941c503340d",
+      "currentSha256": "ddcd79b4ab8c77bfa867dc34f6aa024dc358eb48ac6982fd9d66c941c503340d",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/SOURCE_MANIFEST.json",
+      "baselineSha256": "bbef591cff0c0c531d64d4f7a054a6f64fc17ce117fdf09e95c3e7f88baf78e4",
+      "currentSha256": "bbef591cff0c0c531d64d4f7a054a6f64fc17ce117fdf09e95c3e7f88baf78e4",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/STARMAP_WORKFLOW_DIFF.md",
+      "baselineSha256": "17b3ab246aaba6fb03b0f6ddc813d58e03c65dea78a2a053545476f4aff357b3",
+      "currentSha256": "17b3ab246aaba6fb03b0f6ddc813d58e03c65dea78a2a053545476f4aff357b3",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/DEMO_RUN.json",
+      "baselineSha256": "387f98ea9583db868c60d38e1309006b30beea5fd205d5779d82eb7bc6460fed",
+      "currentSha256": "387f98ea9583db868c60d38e1309006b30beea5fd205d5779d82eb7bc6460fed",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/DEMO_SIMULATED_TRACES.jsonl",
+      "baselineSha256": "6621ff4bd5b8f62bd30be9461efabb6025cc5f5f66c8c9128cda7e2f39ef3ca3",
+      "currentSha256": "6621ff4bd5b8f62bd30be9461efabb6025cc5f5f66c8c9128cda7e2f39ef3ca3",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/D_GATE_REPLAY_METADATA.json",
+      "baselineSha256": "3a97ac2a9642602addb9d760f37bc49dd80e97044d4be6b4d9301a384784f6e8",
+      "currentSha256": "3a97ac2a9642602addb9d760f37bc49dd80e97044d4be6b4d9301a384784f6e8",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/D_GATE_REPLAY_RESULT.json",
+      "baselineSha256": "7012b21fa027bf9e878068b2a2f7af9f237a44674853b02642351d6eeebc8078",
+      "currentSha256": "7012b21fa027bf9e878068b2a2f7af9f237a44674853b02642351d6eeebc8078",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/G2_CONTINUOUS_CHAIN.jsonl",
+      "baselineSha256": "27b0b59a44609ea58fa1a392928f0bb023c863ebb463790744809083a2cffd76",
+      "currentSha256": "100bc7c1001074b4ea7a451c997d1010207116a7b1fa5fe0b26d9bcb66a8c27a",
+      "changed": true
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/G2_MAIN_ENTRY.jsonl",
+      "baselineSha256": "7a0b5acc149b2a1ef9b050da83f3ed92bd90b85a28abea852fbf8700fe9b840a",
+      "currentSha256": "bf6384f88a881e0177ac8bbcda5b25ad6da45ad48a0092cd9f25d780446ecc45",
+      "changed": true
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/G3_SIMULATED_RUNS.jsonl",
+      "baselineSha256": "84119c503277ce9a1e9826f46579a59b269cbe6dbcd19004b236c9127100c2d0",
+      "currentSha256": "afd385a348286a882fd0002c8b04e08181678d4d1c14ff20b9e50ae542678f10",
+      "changed": true
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/HISTORY_G2_CONTINUOUS_CHAIN.jsonl",
+      "baselineSha256": "91d331f4bd584d79e3281f97a68b0974a2b8df603c9e636cfdeac3ece27f5c37",
+      "currentSha256": "91d331f4bd584d79e3281f97a68b0974a2b8df603c9e636cfdeac3ece27f5c37",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/HISTORY_G2_MAIN_ENTRY.jsonl",
+      "baselineSha256": "9ccec8a17c1c8a769fc9b9142498efb0b5b390629bebfb087fefabae62f5fe9c",
+      "currentSha256": "9ccec8a17c1c8a769fc9b9142498efb0b5b390629bebfb087fefabae62f5fe9c",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/HISTORY_G3_SIMULATED_RUNS.jsonl",
+      "baselineSha256": "4c9663e8822e52ad3dd55749cfa0430be1ce2bfea5b6f4a2ede5d4479e25f18c",
+      "currentSha256": "4c9663e8822e52ad3dd55749cfa0430be1ce2bfea5b6f4a2ede5d4479e25f18c",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/HISTORY_WORKFLOW_EXECUTION_TRACES.jsonl",
+      "baselineSha256": "c502623e6f5db498b5df923d44aa08ca21e61ee8209c8abe478c508410c8ad9d",
+      "currentSha256": "c502623e6f5db498b5df923d44aa08ca21e61ee8209c8abe478c508410c8ad9d",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/SERVER_BASELINE_COMPARISON.json",
+      "baselineSha256": "63028f05f97a38bc1af59902bb14373c8513e5157ae9bfff2c97cfc7c85dd15e",
+      "currentSha256": "63028f05f97a38bc1af59902bb14373c8513e5157ae9bfff2c97cfc7c85dd15e",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/VERIFICATION_REPORT.json",
+      "baselineSha256": "7c30b194e7c90fbc686ea1d43da172c9d2b980d3830c0eb93168ca03a5b31375",
+      "currentSha256": "7c30b194e7c90fbc686ea1d43da172c9d2b980d3830c0eb93168ca03a5b31375",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/WORKFLOW_EXECUTION_TRACES.jsonl",
+      "baselineSha256": "24a7c9550c59fcbe567b1fa9076e6c76787191324df4a0e532bf08e74e308661",
+      "currentSha256": "84f2d42520bcf98fa6a12e296d542bc1299c65dc187d61a910c8fdf85c217891",
+      "changed": true
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/coze-baseline.json",
+      "baselineSha256": "b7102bfe153949357c4b132716d40c5e79ab7a2212d41c19fb785a3c7d3bc121",
+      "currentSha256": "b7102bfe153949357c4b132716d40c5e79ab7a2212d41c19fb785a3c7d3bc121",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/coze-tasks-skills.json",
+      "baselineSha256": "e7149dcadd1cb410bc5018218fa0b88883b51d2d42da4f77fb47e718ce85ab92",
+      "currentSha256": "e7149dcadd1cb410bc5018218fa0b88883b51d2d42da4f77fb47e718ce85ab92",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/dgate13-before-clone-migrations.log",
+      "baselineSha256": "3ce1e112dbdb39d0db90f9f4fd13c2107ea7a9f23dddd93cd3b6a3f46cac595f",
+      "currentSha256": "3ce1e112dbdb39d0db90f9f4fd13c2107ea7a9f23dddd93cd3b6a3f46cac595f",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/dgate13-clone-migration.log",
+      "baselineSha256": "f7f02d89ea3043b9f3c951586f379282f7e7e3ce1462e8f82c3ef033640cce9b",
+      "currentSha256": "f7f02d89ea3043b9f3c951586f379282f7e7e3ce1462e8f82c3ef033640cce9b",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/dgate13-missing-import-red.log",
+      "baselineSha256": "cd296322a720b6294a4634eea98b7d9afe51d2afddec7c40972299df72ec6901",
+      "currentSha256": "cd296322a720b6294a4634eea98b7d9afe51d2afddec7c40972299df72ec6901",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/dgate13-replay.log",
+      "baselineSha256": "ecc4654a60c66e598d0293b069dbf4c77b964b2c92b2a2e4d085e480151756fb",
+      "currentSha256": "ecc4654a60c66e598d0293b069dbf4c77b964b2c92b2a2e4d085e480151756fb",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/final-backend.log",
+      "baselineSha256": "35d717d8ba9ae8f90e5c8f846b9a494868765a99735f67ef9a73527879775aa5",
+      "currentSha256": "35d717d8ba9ae8f90e5c8f846b9a494868765a99735f67ef9a73527879775aa5",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/final-frontend-build.log",
+      "baselineSha256": "223f053e200046246b9e166e542246c1f6897033d859a87d114da9b56440506b",
+      "currentSha256": "223f053e200046246b9e166e542246c1f6897033d859a87d114da9b56440506b",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/final-server-typecheck.log",
+      "baselineSha256": "8e1caf78e8a1996a396e7846862a9bd8c57bf9423ad6e40b85f5798e31564c8f",
+      "currentSha256": "8e1caf78e8a1996a396e7846862a9bd8c57bf9423ad6e40b85f5798e31564c8f",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g0-server-typecheck.log",
+      "baselineSha256": "090842e9dc70d6b30d40b2e31c5d0d0bc7be09502cc23bb7aaa98f41ed58b5c4",
+      "currentSha256": "090842e9dc70d6b30d40b2e31c5d0d0bc7be09502cc23bb7aaa98f41ed58b5c4",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g1-budget-final.log",
+      "baselineSha256": "88684c79b56f90aaa1c929cfadcd97af7ef93d292ba654d8b1ae9f975e9e70de",
+      "currentSha256": "88684c79b56f90aaa1c929cfadcd97af7ef93d292ba654d8b1ae9f975e9e70de",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g1-contracts-round1.log",
+      "baselineSha256": "0509d4d01cc6ea37cf5ccfd0421501057c6da47d7f0e0b70556b3851219d02b7",
+      "currentSha256": "0509d4d01cc6ea37cf5ccfd0421501057c6da47d7f0e0b70556b3851219d02b7",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g1-g3-round2.log",
+      "baselineSha256": "6eb9301b2401c09558f9305131dd54811557f377b54a530e2cf0efc539660031",
+      "currentSha256": "6eb9301b2401c09558f9305131dd54811557f377b54a530e2cf0efc539660031",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g2-action-round1.log",
+      "baselineSha256": "5e8a07c1dd10a6ee0f3061343ba4f585963973c8915b1953d0c9338c7062c40c",
+      "currentSha256": "5e8a07c1dd10a6ee0f3061343ba4f585963973c8915b1953d0c9338c7062c40c",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g2-action-round2.log",
+      "baselineSha256": "27734f587abad68390d0c5e78b6869e6bfbdaf3c847ce90162fa7a8667353697",
+      "currentSha256": "27734f587abad68390d0c5e78b6869e6bfbdaf3c847ce90162fa7a8667353697",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g2-boundary-final.log",
+      "baselineSha256": "5a407286e2cbdd0456fa09ea32fe99f5f8a56950bde7f48901037f86e9d923e2",
+      "currentSha256": "5a407286e2cbdd0456fa09ea32fe99f5f8a56950bde7f48901037f86e9d923e2",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g2-main-entry-final.log",
+      "baselineSha256": "d18879dc91ee5d87f15e744ef68767c2ca1180f19ea31c122b0483ad6425480e",
+      "currentSha256": "d18879dc91ee5d87f15e744ef68767c2ca1180f19ea31c122b0483ad6425480e",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g2-main-entry-fixed.log",
+      "baselineSha256": "0e06c58309020421c74142a509428be847e129b8cd2aff6e5178bd9af1c6388c",
+      "currentSha256": "0e06c58309020421c74142a509428be847e129b8cd2aff6e5178bd9af1c6388c",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g2-main-entry-round1.log",
+      "baselineSha256": "3091088936927274eaaf7147193ce2dc505814c4b786cb895264d668d7a70cf9",
+      "currentSha256": "3091088936927274eaaf7147193ce2dc505814c4b786cb895264d668d7a70cf9",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g2-main-entry-round2.log",
+      "baselineSha256": "0067015219109551683e62f06bd684cabc76f38f189f71db4c3f22000dfde233",
+      "currentSha256": "0067015219109551683e62f06bd684cabc76f38f189f71db4c3f22000dfde233",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g2-main-entry-round3.log",
+      "baselineSha256": "00c225429b5fc1887c43d95a51cb07870fa6b03219a873a84ea58781ffd119f0",
+      "currentSha256": "00c225429b5fc1887c43d95a51cb07870fa6b03219a873a84ea58781ffd119f0",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g2-main-entry-round4.log",
+      "baselineSha256": "582236ed6ba63b6d00b5c8897b42a550a3e2039c821e2f4dcb3c30f774ac0aa6",
+      "currentSha256": "582236ed6ba63b6d00b5c8897b42a550a3e2039c821e2f4dcb3c30f774ac0aa6",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g2-snapshot-final.log",
+      "baselineSha256": "23e8cb2213759d458f9f051e3b2ebd5b542315cdf9dd83d72e3adae2463959c3",
+      "currentSha256": "23e8cb2213759d458f9f051e3b2ebd5b542315cdf9dd83d72e3adae2463959c3",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g3-direction-round1.log",
+      "baselineSha256": "677186a24470e9fa4374b01e59688dee057de52749dc178f1b327b030a962b95",
+      "currentSha256": "677186a24470e9fa4374b01e59688dee057de52749dc178f1b327b030a962b95",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/g4-g5-local.log",
+      "baselineSha256": "702a68ac8dae9d29962c985b153edda2b1d8fe5c18853a150fa35335cb85d41d",
+      "currentSha256": "702a68ac8dae9d29962c985b153edda2b1d8fe5c18853a150fa35335cb85d41d",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/root-tests.log",
+      "baselineSha256": "524a300513dacdb375ddd587f055502f8555d13df1b35253860acf5d71c63535",
+      "currentSha256": "524a300513dacdb375ddd587f055502f8555d13df1b35253860acf5d71c63535",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/server-after-g2-fixed.log",
+      "baselineSha256": "090842e9dc70d6b30d40b2e31c5d0d0bc7be09502cc23bb7aaa98f41ed58b5c4",
+      "currentSha256": "090842e9dc70d6b30d40b2e31c5d0d0bc7be09502cc23bb7aaa98f41ed58b5c4",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/server-after-g2.log",
+      "baselineSha256": "36997bfd607aaf996a31f10b023d7c33b4ad591f62aec8611125b33c8af1c4f1",
+      "currentSha256": "36997bfd607aaf996a31f10b023d7c33b4ad591f62aec8611125b33c8af1c4f1",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/server-integration-round1.log",
+      "baselineSha256": "305a44120e3da97ad3d053a7a5c410cf4636a8797e31193dfabb57ce89915b01",
+      "currentSha256": "305a44120e3da97ad3d053a7a5c410cf4636a8797e31193dfabb57ce89915b01",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/skills-validation.log",
+      "baselineSha256": "6a0e55acf3f0d7bd9122c487196717f07a0ebdced4e1bcc9837803828872ccf8",
+      "currentSha256": "6a0e55acf3f0d7bd9122c487196717f07a0ebdced4e1bcc9837803828872ccf8",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/verified-action-coach-engine.log",
+      "baselineSha256": "9054c8cb3bc43ed0a483b7df2a7932324a2def3acbca0e079d37082ac4d611f7",
+      "currentSha256": "9054c8cb3bc43ed0a483b7df2a7932324a2def3acbca0e079d37082ac4d611f7",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/verified-action-coach-material-boundary.log",
+      "baselineSha256": "98fbe8679b83cc4acf56b7a4dea7487382ac344625db04980010124a2b2d31d1",
+      "currentSha256": "98fbe8679b83cc4acf56b7a4dea7487382ac344625db04980010124a2b2d31d1",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/verified-coze-code-workflow.log",
+      "baselineSha256": "196674d8af399b367400237399b1e063d9adf02b90edf275423d3f8e1562a53b",
+      "currentSha256": "196674d8af399b367400237399b1e063d9adf02b90edf275423d3f8e1562a53b",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/verified-guide-usage-http.log",
+      "baselineSha256": "514cdf8baeeecbedf42dc7e2c253211ff5d1eb60e60d97b17560a8849f62171a",
+      "currentSha256": "514cdf8baeeecbedf42dc7e2c253211ff5d1eb60e60d97b17560a8849f62171a",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/verified-workflow-action.log",
+      "baselineSha256": "cb3cb45501de40be895e0b3e55cb8ef58e4460d14a23215d850d647caff6486e",
+      "currentSha256": "cb3cb45501de40be895e0b3e55cb8ef58e4460d14a23215d850d647caff6486e",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/verified-workflow-contracts.log",
+      "baselineSha256": "04ad68e35ab642916b1eb94ba3ee58a557ab89b6aba91d705594dc808b518e58",
+      "currentSha256": "04ad68e35ab642916b1eb94ba3ee58a557ab89b6aba91d705594dc808b518e58",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/verified-workflow-direction.log",
+      "baselineSha256": "26be17758d01c943fd1c5a2a5fa1010394ba1fb81c9a1bdccd5dcc9f5cc0ebdc",
+      "currentSha256": "26be17758d01c943fd1c5a2a5fa1010394ba1fb81c9a1bdccd5dcc9f5cc0ebdc",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/verified-workflow-growth-knowledge.log",
+      "baselineSha256": "22f26232e1e8c43329b6c9444023f1f580202437b2859e20b311c05643cf1fa3",
+      "currentSha256": "22f26232e1e8c43329b6c9444023f1f580202437b2859e20b311c05643cf1fa3",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/verified-workflow-main-entry.log",
+      "baselineSha256": "619dff2ba5dd88948a94e1faef8f4a88f5c7691b3ccff6a534cbee858936264d",
+      "currentSha256": "619dff2ba5dd88948a94e1faef8f4a88f5c7691b3ccff6a534cbee858936264d",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/workflow-typecheck-fixed.log",
+      "baselineSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "currentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/evidence/workflow-typecheck.log",
+      "baselineSha256": "70515143c413f53e15e16fceeaf775b05e12b6f5b458a2ad2343c06e1f923631",
+      "currentSha256": "70515143c413f53e15e16fceeaf775b05e12b6f5b458a2ad2343c06e1f923631",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/agent-workflows/sources.md",
+      "baselineSha256": "e016a39b13fe6d4f4b69144be7dc3f304adb5c6290199ef34e4091f478bf155e",
+      "currentSha256": "e016a39b13fe6d4f4b69144be7dc3f304adb5c6290199ef34e4091f478bf155e",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/COZE_ACCESS_AUDIT.json",
+      "baselineSha256": "c6738f8a44daf1d333716041227df6563c9a97cd7d3c76c07d9dbce7660d8c50",
+      "currentSha256": "c6738f8a44daf1d333716041227df6563c9a97cd7d3c76c07d9dbce7660d8c50",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/COZE_INTEGRATION_FREEZE.json",
+      "baselineSha256": "cebaff7513b7586ec68ccbc3b50216e10c3733f3f9ca22d369a3e9b229a10662",
+      "currentSha256": "cebaff7513b7586ec68ccbc3b50216e10c3733f3f9ca22d369a3e9b229a10662",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/COZE_MIRROR_PLAN.json",
+      "baselineSha256": "1ca6f5150fb7ea478b9c71cac482931d5ae25a9016be7611253e17b12b6c1133",
+      "currentSha256": "1ca6f5150fb7ea478b9c71cac482931d5ae25a9016be7611253e17b12b6c1133",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/COZE_VERIFICATION_REPORT.json",
+      "baselineSha256": "0099c3db2d6ef47af7e72a16d874238894065f2bb132e3a31c190b1ac5a2b13d",
+      "currentSha256": "0099c3db2d6ef47af7e72a16d874238894065f2bb132e3a31c190b1ac5a2b13d",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/backend-round2.log",
+      "baselineSha256": "938637069e746a372646179f257d8b693efb96549afb67282258a35550b361d0",
+      "currentSha256": "938637069e746a372646179f257d8b693efb96549afb67282258a35550b361d0",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/backend.log",
+      "baselineSha256": "f813d75c58911cda140f3ca469b8418ee1aed224b8e93dd3dfd3b98f72d23ec1",
+      "currentSha256": "f813d75c58911cda140f3ca469b8418ee1aed224b8e93dd3dfd3b98f72d23ec1",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/evergreen-pure.log",
+      "baselineSha256": "b8bb8048714b229ccee418fabfa4e34f95e7e06aa80d50a72fe58b12a354c53a",
+      "currentSha256": "b8bb8048714b229ccee418fabfa4e34f95e7e06aa80d50a72fe58b12a354c53a",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/frontend-typecheck.log",
+      "baselineSha256": "bd965414e423411b589b243fcdf164f97a180c0189533c2724c34c8caa16cb4d",
+      "currentSha256": "bd965414e423411b589b243fcdf164f97a180c0189533c2724c34c8caa16cb4d",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/server-typecheck.log",
+      "baselineSha256": "83e54b6c5b908beaa21d4bbe94a479530410c34cf934c6a1c1d1e0667a0ed118",
+      "currentSha256": "83e54b6c5b908beaa21d4bbe94a479530410c34cf934c6a1c1d1e0667a0ed118",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/starmap-final.log",
+      "baselineSha256": "ceacbbc40aaff72902afa31ab65b00ecc06cd2b706d57545b78735ac6d1e8082",
+      "currentSha256": "ceacbbc40aaff72902afa31ab65b00ecc06cd2b706d57545b78735ac6d1e8082",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/coze-codex/evidence/starmap.log",
+      "baselineSha256": "30629dc79a056e53c32607df4aedf73f4eb50de189f236fe4a7bad19ffc4d9e8",
+      "currentSha256": "30629dc79a056e53c32607df4aedf73f4eb50de189f236fe4a7bad19ffc4d9e8",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/DEVELOPMENT_SPEC.md",
+      "baselineSha256": "6424d382c972e0e5afa11de105c1be7ee9bbcd890e39de07d169e68ebf0822cc",
+      "currentSha256": "6424d382c972e0e5afa11de105c1be7ee9bbcd890e39de07d169e68ebf0822cc",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/HANDOFF.md",
+      "baselineSha256": "dc70431081505a5a8b2ea8d06aa3456794938de5e0a5f70ba01f932a65e4e85d",
+      "currentSha256": "dc70431081505a5a8b2ea8d06aa3456794938de5e0a5f70ba01f932a65e4e85d",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_ACCEPTANCE.md",
+      "baselineSha256": "ac2813f86597b8953cfde77f171a2dc5e0085fa5387abbf50023b49f2f867693",
+      "currentSha256": "ac2813f86597b8953cfde77f171a2dc5e0085fa5387abbf50023b49f2f867693",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_BACKEND_REPORT.json",
+      "baselineSha256": "87c5244fd9bf21696644074337979ec3b5e6cbb00b3de67ef0f39dccb083e8d7",
+      "currentSha256": "87c5244fd9bf21696644074337979ec3b5e6cbb00b3de67ef0f39dccb083e8d7",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_BASELINE_CHECKS.json",
+      "baselineSha256": "dcffdbcba624725f983269158dc81126e3e6a4554312d96b931e37d18a608547",
+      "currentSha256": "dcffdbcba624725f983269158dc81126e3e6a4554312d96b931e37d18a608547",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_BROWSER_REPORT.json",
+      "baselineSha256": "68f5e928118e050c0b908b632bb3256c7a2961adc87728e49f9ab090c80e62e3",
+      "currentSha256": "68f5e928118e050c0b908b632bb3256c7a2961adc87728e49f9ab090c80e62e3",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_CARD_REGRESSIONS.json",
+      "baselineSha256": "732850de84b366d6ea24eb764bf04f0ced63749b80dc80fc7adc2f9c38f3f708",
+      "currentSha256": "732850de84b366d6ea24eb764bf04f0ced63749b80dc80fc7adc2f9c38f3f708",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_CONTEXT_DESIGN.md",
+      "baselineSha256": "448b227f53fa2c8bda6e0f5b9012e97de294a99b30774b444bba555e2949ce3c",
+      "currentSha256": "448b227f53fa2c8bda6e0f5b9012e97de294a99b30774b444bba555e2949ce3c",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_COVERAGE.json",
+      "baselineSha256": "8741e5beafad19f4640117e723542c0aa942993c2bd71dbb73aaa6f6c8275f24",
+      "currentSha256": "8741e5beafad19f4640117e723542c0aa942993c2bd71dbb73aaa6f6c8275f24",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_DUPLICATES_REPORT.md",
+      "baselineSha256": "e127c4815589b7acc366d69ba1a20ca023f63229781bbf1998e200c6b60cd07f",
+      "currentSha256": "e127c4815589b7acc366d69ba1a20ca023f63229781bbf1998e200c6b60cd07f",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_EVIDENCE.jsonl",
+      "baselineSha256": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+      "currentSha256": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_EVIDENCE_REOPEN.jsonl",
+      "baselineSha256": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+      "currentSha256": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_FREEZE.json",
+      "baselineSha256": "ea1bff4f950427b151e850f57cae7841736d72940d2d9c22536179bff3eed806",
+      "currentSha256": "ea1bff4f950427b151e850f57cae7841736d72940d2d9c22536179bff3eed806",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_GAPS.md",
+      "baselineSha256": "18a0a60ef207bfacb6533261f1be7389f3e271c8539cfdbf93c2a39fccbd5b51",
+      "currentSha256": "18a0a60ef207bfacb6533261f1be7389f3e271c8539cfdbf93c2a39fccbd5b51",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_GUIDES.jsonl",
+      "baselineSha256": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+      "currentSha256": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_IMPLEMENTATION_FREEZE.json",
+      "baselineSha256": "648de33f8de5c3c36124c3fa750e091c22066eab1dab7f3a687d9e4b2322b0ad",
+      "currentSha256": "648de33f8de5c3c36124c3fa750e091c22066eab1dab7f3a687d9e4b2322b0ad",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_INDEX_LOAD_REPORT.json",
+      "baselineSha256": "50a589965504298c69966aed04193a53b4439cd211b90706ab85648f368725b7",
+      "currentSha256": "50a589965504298c69966aed04193a53b4439cd211b90706ab85648f368725b7",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_LEGACY_MAP.json",
+      "baselineSha256": "e236b232abd9c5c7de1f64a6dd688d0640d272841dcdccbe0a42c7172e43c2fd",
+      "currentSha256": "e236b232abd9c5c7de1f64a6dd688d0640d272841dcdccbe0a42c7172e43c2fd",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_PROVIDER_PREFLIGHT.json",
+      "baselineSha256": "058a043c2b8446ba43fad6370e33e9cfe944ce1df89e3d1a86f49ec47c257871",
+      "currentSha256": "058a043c2b8446ba43fad6370e33e9cfe944ce1df89e3d1a86f49ec47c257871",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_QUERY_BENCHMARK.json",
+      "baselineSha256": "51d0ed528443144a1f10640712b55222e5ca4e2cec3c2d304fa72ac473ae6d51",
+      "currentSha256": "51d0ed528443144a1f10640712b55222e5ca4e2cec3c2d304fa72ac473ae6d51",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_RETRIEVAL_EVAL.json",
+      "baselineSha256": "4b0731a082f88f4727ed2df3265b5c27ab2b8f0124356cde3ae71163d0ffe739",
+      "currentSha256": "4b0731a082f88f4727ed2df3265b5c27ab2b8f0124356cde3ae71163d0ffe739",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_RETRIEVAL_EVAL.md",
+      "baselineSha256": "f03978084de5035234acda1e7852044f7641029f733d4d56736f93fcb42e40eb",
+      "currentSha256": "f03978084de5035234acda1e7852044f7641029f733d4d56736f93fcb42e40eb",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_SEMANTIC_REVIEW.json",
+      "baselineSha256": "1098fcb1688768f6a343eac608aa09342dd132de27faed729668d7729e62ff43",
+      "currentSha256": "1098fcb1688768f6a343eac608aa09342dd132de27faed729668d7729e62ff43",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl",
+      "baselineSha256": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+      "currentSha256": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_SOURCE_REOPEN.jsonl",
+      "baselineSha256": "4bb93c3397ae690400c16cba4a66c39d8e2db1d7c65677f375354cb6bd81f509",
+      "currentSha256": "4bb93c3397ae690400c16cba4a66c39d8e2db1d7c65677f375354cb6bd81f509",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/KB_TAXONOMY.json",
+      "baselineSha256": "63d6cf11f2b7633035b3044a2e233a2470b49d79abcd13c290a46699c6845e70",
+      "currentSha256": "63d6cf11f2b7633035b3044a2e233a2470b49d79abcd13c290a46699c6845e70",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/corpus-and-browser.log",
+      "baselineSha256": "1c45c79ced2c9fccf915d1c1813c7d16d80ac12e8efeafa4ee21a3ae43eab342",
+      "currentSha256": "1c45c79ced2c9fccf915d1c1813c7d16d80ac12e8efeafa4ee21a3ae43eab342",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/desktop.png",
+      "baselineSha256": "a8b7a2ea684114901983b10efeb3de6870be4636b528704b286c0af9d5cd15e5",
+      "currentSha256": "a8b7a2ea684114901983b10efeb3de6870be4636b528704b286c0af9d5cd15e5",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/frontend-build.log",
+      "baselineSha256": "10ec5c659830e6652407978312cefdc2318d3d86d2d11312e6da47e2aee7545f",
+      "currentSha256": "10ec5c659830e6652407978312cefdc2318d3d86d2d11312e6da47e2aee7545f",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/index-load.log",
+      "baselineSha256": "573604ec4ca2f90da3a4988986dd15aaa7b25ef708b769975b06415bc5c5e85c",
+      "currentSha256": "573604ec4ca2f90da3a4988986dd15aaa7b25ef708b769975b06415bc5c5e85c",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/legacy-knowledge.log",
+      "baselineSha256": "09e78b035405dbad391c79562c8b9ab51d137dbae99bb182b410b5ec3302142c",
+      "currentSha256": "09e78b035405dbad391c79562c8b9ab51d137dbae99bb182b410b5ec3302142c",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/mobile.png",
+      "baselineSha256": "fa744c8a2c809c10bf421f6179ee9de0b8fa963ad35978fb121fac737fa7f342",
+      "currentSha256": "fa744c8a2c809c10bf421f6179ee9de0b8fa963ad35978fb121fac737fa7f342",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/root-tests.log",
+      "baselineSha256": "ea8a03ecdb7c90fcdaf37c26198dcc0ed8c3d65734bb6b4876ccb9d0b72b1456",
+      "currentSha256": "ea8a03ecdb7c90fcdaf37c26198dcc0ed8c3d65734bb6b4876ccb9d0b72b1456",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/server-typecheck.log",
+      "baselineSha256": "497444754e1b862596b7d74c7931f44c6c0ed3225c53cc27e9cf6cedd721fe6a",
+      "currentSha256": "497444754e1b862596b7d74c7931f44c6c0ed3225c53cc27e9cf6cedd721fe6a",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/evidence/simulated-provider.log",
+      "baselineSha256": "3122655f027a062e77389b9a88d8fa8eab4cc3605126205f5f9c60f3808cfc7c",
+      "currentSha256": "3122655f027a062e77389b9a88d8fa8eab4cc3605126205f5f9c60f3808cfc7c",
+      "changed": false
+    },
+    {
+      "file": ".planning/research/evergreen/sources.md",
+      "baselineSha256": "4d570e700067e3bba9a8bc666784fb17f658826a099002f48eb6992008e0d69a",
+      "currentSha256": "4d570e700067e3bba9a8bc666784fb17f658826a099002f48eb6992008e0d69a",
+      "changed": false
+    },
+    {
+      "file": "COZE_CODEX_HANDOFF.md",
+      "baselineSha256": "5735d8336cc5769fed9ab19c00a7bfc34a26d05d2448a69d9814517096a809ad",
+      "currentSha256": "5735d8336cc5769fed9ab19c00a7bfc34a26d05d2448a69d9814517096a809ad",
+      "changed": false
+    },
+    {
+      "file": "scripts/coze-access-audit.ps1",
+      "baselineSha256": "737455f85b489c23b298a029268a1f2ecaaba561302cc4d16e79850ad294474f",
+      "currentSha256": "737455f85b489c23b298a029268a1f2ecaaba561302cc4d16e79850ad294474f",
+      "changed": false
+    },
+    {
+      "file": "scripts/coze-prepare-mirror.ts",
+      "baselineSha256": "a02ccfab2c3f39300c397bd53d4910b2a64c3aa448949cf9183d3205411017f5",
+      "currentSha256": "a02ccfab2c3f39300c397bd53d4910b2a64c3aa448949cf9183d3205411017f5",
+      "changed": false
+    },
+    {
+      "file": "scripts/evergreen-audit.ts",
+      "baselineSha256": "b624d4ae117dd7e4b80ca59f054f02dcef51be477ec6b1b9f6da0b4e2fb588bd",
+      "currentSha256": "b624d4ae117dd7e4b80ca59f054f02dcef51be477ec6b1b9f6da0b4e2fb588bd",
+      "changed": false
+    },
+    {
+      "file": "scripts/evergreen-evaluation.ts",
+      "baselineSha256": "77080cefdf9b73ffd1bf685377dbd6b4ab778d697e63c66459fc905fbe78448f",
+      "currentSha256": "77080cefdf9b73ffd1bf685377dbd6b4ab778d697e63c66459fc905fbe78448f",
+      "changed": false
+    },
+    {
+      "file": "scripts/evergreen-evidence-enrichment.ts",
+      "baselineSha256": "31ac65ded8abcb09f8a9fa31239fb4d4a899e09c04179931c475223beb086876",
+      "currentSha256": "31ac65ded8abcb09f8a9fa31239fb4d4a899e09c04179931c475223beb086876",
+      "changed": false
+    },
+    {
+      "file": "scripts/evergreen-knowledge.ts",
+      "baselineSha256": "2119b453688437cd47373c609af66720a019a704faade42391f98897190ee0c2",
+      "currentSha256": "2119b453688437cd47373c609af66720a019a704faade42391f98897190ee0c2",
+      "changed": false
+    },
+    {
+      "file": "scripts/evergreen-seed.ts",
+      "baselineSha256": "a0b50f4e78c345c4d1a5963d6af0024e673185d4a4e9be6e2178d8ed8af5cd95",
+      "currentSha256": "a0b50f4e78c345c4d1a5963d6af0024e673185d4a4e9be6e2178d8ed8af5cd95",
+      "changed": false
+    },
+    {
+      "file": "scripts/evergreen-semantic-review.ts",
+      "baselineSha256": "128e9b11e23ccfef6d548b02df57b6efe92907a50de38d836fde0bf43786cf0d",
+      "currentSha256": "128e9b11e23ccfef6d548b02df57b6efe92907a50de38d836fde0bf43786cf0d",
+      "changed": false
+    },
+    {
+      "file": "scripts/evergreen-web-fragments.ts",
+      "baselineSha256": "e967bf69773be5acab18e3c99456f01015c19d4362e28b35d09cfee6d92921f4",
+      "currentSha256": "e967bf69773be5acab18e3c99456f01015c19d4362e28b35d09cfee6d92921f4",
+      "changed": false
+    },
+    {
+      "file": "scripts/workflow-baseline.ts",
+      "baselineSha256": "56d6b4367aca0274a817d9783e7f5c55bb1bfb3793f01b43681a73e002eb0d32",
+      "currentSha256": "56d6b4367aca0274a817d9783e7f5c55bb1bfb3793f01b43681a73e002eb0d32",
+      "changed": false
+    },
+    {
+      "file": "scripts/workflow-coze-readonly.ps1",
+      "baselineSha256": "8d954a8f46f927125e7246389a35a65ce3785d231bad646f823513d96cba41ca",
+      "currentSha256": "8d954a8f46f927125e7246389a35a65ce3785d231bad646f823513d96cba41ca",
+      "changed": false
+    },
+    {
+      "file": "scripts/workflow-deliver.py",
+      "baselineSha256": "c1d1bc5a5b3baad6e5f3882b1a9121ed896be32847b8b3ea6418d03e07c46e7d",
+      "currentSha256": "c1d1bc5a5b3baad6e5f3882b1a9121ed896be32847b8b3ea6418d03e07c46e7d",
+      "changed": false
+    },
+    {
+      "file": "scripts/workflow-demo.ts",
+      "baselineSha256": "357c1c6d07d1c091b33eb3977838f682954c8f1277fcaf188c916a3673aa5cd6",
+      "currentSha256": "357c1c6d07d1c091b33eb3977838f682954c8f1277fcaf188c916a3673aa5cd6",
+      "changed": false
+    },
+    {
+      "file": "scripts/workflow-replay-dgate.ts",
+      "baselineSha256": "0d6cb4bba15d8977f9c211a958695bb733e1a0a119469458c065959e8211c80d",
+      "currentSha256": "0955a675215e0e9389ccb5ea2789f1940443a73a5ec65908bfa571f716424b32",
+      "changed": true
+    },
+    {
+      "file": "scripts/workflow-verify.ps1",
+      "baselineSha256": "f51abc1db0de7d92428aacff0d2c9545e9ef7b2e8db5efe271ab63ac64bb3372",
+      "currentSha256": "e21d0c786ed33de63f7aed6cdc07c50e6ecf65580c8d9b17ad68e7031445e7c8",
+      "changed": true
+    },
+    {
+      "file": "server/evergreen-guide.ts",
+      "baselineSha256": "948f1d19d3c49fea6d18b70b4f8169a8405e4f9e1d1f277c8664deb1559ac52e",
+      "currentSha256": "948f1d19d3c49fea6d18b70b4f8169a8405e4f9e1d1f277c8664deb1559ac52e",
+      "changed": false
+    },
+    {
+      "file": "server/evergreen-maintenance.ts",
+      "baselineSha256": "3555d316a1da4000fc2eb2772b299879c591ca215f44bcefc59f6c5228707171",
+      "currentSha256": "3555d316a1da4000fc2eb2772b299879c591ca215f44bcefc59f6c5228707171",
+      "changed": false
+    },
+    {
+      "file": "server/evergreen-scope-guard.ts",
+      "baselineSha256": "8751ac14a39bf7ff4acc7f69bc36b63a00edca814de7a6ef4b60ce94a4931c0a",
+      "currentSha256": "8751ac14a39bf7ff4acc7f69bc36b63a00edca814de7a6ef4b60ce94a4931c0a",
+      "changed": false
+    },
+    {
+      "file": "server/guide-usage.ts",
+      "baselineSha256": "1ee38b6f2bf2e3f57cd18281f3197589988417925b6e0d8dc326aee2c3cfb7c3",
+      "currentSha256": "1ee38b6f2bf2e3f57cd18281f3197589988417925b6e0d8dc326aee2c3cfb7c3",
+      "changed": false
+    },
+    {
+      "file": "server/knowledge-index.ts",
+      "baselineSha256": "60210947986e2f992cedc05d9579f951b02c15e383eb06bd7e5fab4519b1e0c4",
+      "currentSha256": "60210947986e2f992cedc05d9579f951b02c15e383eb06bd7e5fab4519b1e0c4",
+      "changed": false
+    },
+    {
+      "file": "server/migrations/029-evergreen-knowledge.sql",
+      "baselineSha256": "0612e8d823adcd7b85cc2eaa9f29b81f5a80ad68cfe41a5db3b51aa606c9882d",
+      "currentSha256": "0612e8d823adcd7b85cc2eaa9f29b81f5a80ad68cfe41a5db3b51aa606c9882d",
+      "changed": false
+    },
+    {
+      "file": "server/workflows/action-review.ts",
+      "baselineSha256": "e88bd843192b353d5b21e7e36720c42cab304cbc8c71b2fc9bd61b13273fbc25",
+      "currentSha256": "5078a32ce2904b03e6baa20b012b25cd11434a3ff6964ac9746fafa50b224b04",
+      "changed": true
+    },
+    {
+      "file": "server/workflows/action-workflow.ts",
+      "baselineSha256": "55f75446b0c63590ed80c88e7e5672871ed323b390169c37019f736b7a7bb516",
+      "currentSha256": "bc5cdbd8cd18683ffba1dad23ff89e50e5e0773626bf65bf488c79f76d1bb553",
+      "changed": true
+    },
+    {
+      "file": "server/workflows/adapters.ts",
+      "baselineSha256": "dcbc0b0c384584cf88669dff5726dc0b3e91aed6e5a8cee3db8c9497fa876556",
+      "currentSha256": "0d8a4385a7c1b5e10619c55c0a549144adb0e782195e12e7d0a079e38fe0d6f3",
+      "changed": true
+    },
+    {
+      "file": "server/workflows/contracts.ts",
+      "baselineSha256": "1dd339f9d32e727c1b649e1b7efb0ee6881a9f5739b3199222c2d526e2e60059",
+      "currentSha256": "3bd56045c639ee2639edac844834d389a5d24552cfb5fe1b786fc7da1b6c9a25",
+      "changed": true
+    },
+    {
+      "file": "server/workflows/direction-decision.ts",
+      "baselineSha256": "fc14509f87cd77d606031b542da7e0460ec20e9637798f9422a5771fcf805c68",
+      "currentSha256": "2e1fe0f4bd7875c1e40f34d5c93239d56b31efc439d62b20da619cc9a837bb73",
+      "changed": true
+    },
+    {
+      "file": "server/workflows/evidence-gate.ts",
+      "baselineSha256": "f04b3c317b59280237c7d08adbe1727f4b672059a7b05369bf2181eca88e004e",
+      "currentSha256": "f04b3c317b59280237c7d08adbe1727f4b672059a7b05369bf2181eca88e004e",
+      "changed": false
+    },
+    {
+      "file": "server/workflows/growth-diff.ts",
+      "baselineSha256": "75e46e2372d2e337bf147055db7450b5776d224de586b65ae00ef57f78b56187",
+      "currentSha256": "b821954b4be3973a5a6de4bfbe5ed821bb7f9b7fdb8f7e6a150c6da740a194a1",
+      "changed": true
+    },
+    {
+      "file": "server/workflows/guide-application.ts",
+      "baselineSha256": "9063e03a4be05df197c6431e1c6804b93f18a3b308556045cdad2541584c122f",
+      "currentSha256": "9063e03a4be05df197c6431e1c6804b93f18a3b308556045cdad2541584c122f",
+      "changed": false
+    },
+    {
+      "file": "server/workflows/host.ts",
+      "baselineSha256": "8bc28406b4e39cd97854fd5741d0dc03017e84ef87265793e5ac374f02c5db52",
+      "currentSha256": "dc9539292a22818b8bc36ce9b92abb6f6cda1018554579bfc2148ce25e8e0212",
+      "changed": true
+    },
+    {
+      "file": "server/workflows/knowledge-maintenance.ts",
+      "baselineSha256": "65abd40f91a0db6882b3786c4a0b03ec75cb8a0b60a20c366ef3334b35083d31",
+      "currentSha256": "dc70c9e3bf81596e352b5a7615e71f67b4ee9400c8226b4f6070f825f9280fb2",
+      "changed": true
+    },
+    {
+      "file": "server/workflows/orchestrator.ts",
+      "baselineSha256": "81b7927f411b9cc3126a0d7ae7c90152664f8d6ae4c47e3840f152a41539f45e",
+      "currentSha256": "e66b5a2910a2d2feca7899877854740d2158958aea57d0ab3051d28126ba8345",
+      "changed": true
+    },
+    {
+      "file": "server/workflows/receipts.ts",
+      "baselineSha256": "2252f7f9276f7c1cd9f382297d8eaeadd96d80772bb0ab79cf1c8689f8cccccd",
+      "currentSha256": "2252f7f9276f7c1cd9f382297d8eaeadd96d80772bb0ab79cf1c8689f8cccccd",
+      "changed": false
+    },
+    {
+      "file": "server/workflows/router.ts",
+      "baselineSha256": "64487d0c0ab4f6e29f4a70ecb17c283b7637460a24d95cff93964c9bade4de59",
+      "currentSha256": "64487d0c0ab4f6e29f4a70ecb17c283b7637460a24d95cff93964c9bade4de59",
+      "changed": false
+    },
+    {
+      "file": "server/workflows/skills.ts",
+      "baselineSha256": "67bda6d059e2fd41cbc2b967cc3930a295962ed94432c7ac0d3df3467838b433",
+      "currentSha256": "67bda6d059e2fd41cbc2b967cc3930a295962ed94432c7ac0d3df3467838b433",
+      "changed": false
+    },
+    {
+      "file": "server/workflows/trace.ts",
+      "baselineSha256": "bdd067161466e81f334462cf759e1fe14040c3e5b1142b0c3f38804189ceae6b",
+      "currentSha256": "0c9c0ed0022348ba2f4a5f2fdb89441512b7f1097eba216dac9b1ce937091b65",
+      "changed": true
+    },
+    {
+      "file": "skills/lifeos-action-review/SKILL.md",
+      "baselineSha256": "f6adbd08c0f783bdc4cfe9847b33a2f5b39f6ba056e643a561e99ebf4e986a67",
+      "currentSha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+      "changed": true
+    },
+    {
+      "file": "skills/lifeos-direction-analysis/SKILL.md",
+      "baselineSha256": "b99add02a782b914569a19a6c0e204ed4b3c130cd4999c62810dbbaa7ece8f4e",
+      "currentSha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+      "changed": true
+    },
+    {
+      "file": "skills/lifeos-experience-evidence/SKILL.md",
+      "baselineSha256": "eed9026d5bb992ab8485e8227c3eb09ff75fe36ce7a68947775b919083d00275",
+      "currentSha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+      "changed": true
+    },
+    {
+      "file": "skills/lifeos-growth-diff/SKILL.md",
+      "baselineSha256": "e13114356e7170089cc12618621ca45bc4d72072c93615c5a1e80d22fa2e8d8b",
+      "currentSha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+      "changed": true
+    },
+    {
+      "file": "skills/lifeos-guide-application/SKILL.md",
+      "baselineSha256": "dea1e9d10d4f1b116aa77356edf08e6e44bf0b17ecb8df7e79720cf9512683f9",
+      "currentSha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+      "changed": true
+    },
+    {
+      "file": "src/features/conversation/FullMethod.tsx",
+      "baselineSha256": "93fb7e843d10d08f1860ac2e2f20837d5679605bd07ab579ebec3bf59c0423be",
+      "currentSha256": "93fb7e843d10d08f1860ac2e2f20837d5679605bd07ab579ebec3bf59c0423be",
+      "changed": false
+    },
+    {
+      "file": "tests/backend/evergreen-browser.test.ts",
+      "baselineSha256": "7ea49cc0afb1c761f9f7d6ee0b3759191ed96f7f2176498b9daa3f8e9306b52a",
+      "currentSha256": "7ea49cc0afb1c761f9f7d6ee0b3759191ed96f7f2176498b9daa3f8e9306b52a",
+      "changed": false
+    },
+    {
+      "file": "tests/backend/evergreen-index-load.test.ts",
+      "baselineSha256": "91203eeaf18e83ee8029928f3389f99683526fa2a83ba4a52771967feebef2b4",
+      "currentSha256": "91203eeaf18e83ee8029928f3389f99683526fa2a83ba4a52771967feebef2b4",
+      "changed": false
+    },
+    {
+      "file": "tests/backend/evergreen-knowledge.test.ts",
+      "baselineSha256": "ec387856a0635549c5131209a45d49436457131f4b3774856690f1ed6839c35b",
+      "currentSha256": "ec387856a0635549c5131209a45d49436457131f4b3774856690f1ed6839c35b",
+      "changed": false
+    },
+    {
+      "file": "tests/backend/guide-usage-http.test.ts",
+      "baselineSha256": "2b034b9d7f5041575307d7cc2824501307dcb1b819205b6143ee2ec160143247",
+      "currentSha256": "2b034b9d7f5041575307d7cc2824501307dcb1b819205b6143ee2ec160143247",
+      "changed": false
+    },
+    {
+      "file": "tests/backend/workflow-action.test.ts",
+      "baselineSha256": "08489e4dd6493f3a7f27074af24f827eda7b0a62744bc2b76fbd25cf9e502bfb",
+      "currentSha256": "d5f93311896bd89f053403e6f19997d3c5199a491e1c09fc0e90b5bb34cc2ea8",
+      "changed": true
+    },
+    {
+      "file": "tests/backend/workflow-contracts.test.ts",
+      "baselineSha256": "1345caa2bdc46a66b7d4947a82a9c83f0d31497d985c8fd2703e6362bbafa6a1",
+      "currentSha256": "1bf27980f601f2124911cac99db09bc0f9ad7ce560e5b234e5a12705ec813393",
+      "changed": true
+    },
+    {
+      "file": "tests/backend/workflow-direction.test.ts",
+      "baselineSha256": "fa51a3a8f03d95df4b37a7c01de141c4280d4462504894f711e31c035b3f3fce",
+      "currentSha256": "7d0fcf65633da275a232273bafd85739a7880ea200fdbdeb5c5d839d5a1ca5e6",
+      "changed": true
+    },
+    {
+      "file": "tests/backend/workflow-growth-knowledge.test.ts",
+      "baselineSha256": "d9c9dcdb219bb5142612b37f801d6953501fa4d78333fa548c37b66f37161500",
+      "currentSha256": "d4e6a55727b89f99884b0fca33f3bd6155b2bcfe7e1aa9eea0eeea1793c5c96a",
+      "changed": true
+    },
+    {
+      "file": "tests/backend/workflow-main-entry.test.ts",
+      "baselineSha256": "a4cc1e709f96178ce1713b83adad75301c31c150d02a67686c5a1279f1e0fa5b",
+      "currentSha256": "430d02b3988166d351e1d32eaa88a40ba9fca53c1d7d6e4c3351c4dfafcc8f76",
+      "changed": true
+    },
+    {
+      "file": "tests/evergreen-guide.test.ts",
+      "baselineSha256": "5a8afb0adc5fdd61b7b129dbaa545da6c10fad613211d9f52d63eb000e0f4b5d",
+      "currentSha256": "5a8afb0adc5fdd61b7b129dbaa545da6c10fad613211d9f52d63eb000e0f4b5d",
+      "changed": false
+    },
+    {
+      "file": "tests/fixtures/workflow-routing-v2.json",
+      "baselineSha256": "248024a9a46b82b400b04184f03cff6132ad1122915737b7281bf259f2e4ca79",
+      "currentSha256": "248024a9a46b82b400b04184f03cff6132ad1122915737b7281bf259f2e4ca79",
+      "changed": false
+    },
+    {
+      "file": "tests/workflows/fixtures.ts",
+      "baselineSha256": "6523b7683716698638e819d8e7388abd094eff298ab3b14f6a45b7aca8c8cbdf",
+      "currentSha256": "6523b7683716698638e819d8e7388abd094eff298ab3b14f6a45b7aca8c8cbdf",
+      "changed": false
+    },
+    {
+      "file": "tsconfig.workflows.json",
+      "baselineSha256": "5f4810cf8205997db9fbd3196d9321c7eadd5652c541f27e29b0909b73906c8e",
+      "currentSha256": "5f4810cf8205997db9fbd3196d9321c7eadd5652c541f27e29b0909b73906c8e",
+      "changed": false
+    }
+  ],
+  "deleted": 0,
+  "baselineArchive": "D:/aaaLife/workflow-integration-baseline-ffd2186a2231.zip",
+  "baselineArchiveSha256": "f0366bd332eccded3a6eecc71f87bb5784343f12e8b7f819a263f1cc0d5b5b57",
+  "changed": 33
+}

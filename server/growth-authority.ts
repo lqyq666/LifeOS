@@ -11,12 +11,12 @@ import { resolveClause } from './clause-catalogue.ts'
 import type { GrowthInputDelta, ResolvedGrowthDelta, ResolvedGrowthTarget } from './growth-model-contracts.ts'
 import type { CorrectionPlan } from './turn-obligations.ts'
 
-export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null}
+export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null;status?:string}
 
 export type GrowthAuthorityAudit=
   |{phase:'growth_authority_entry';deltas:number;planTarget:boolean;controlClauses:number}
   |{phase:'growth_clause_unresolved';inputIndex:number;clauseId:string}
-  |{phase:'growth_clause_not_anchorable';inputIndex:number;clauseId:string;reason:'interrogative'|'conditional'|'quoted'|'code'}
+  |{phase:'growth_clause_not_anchorable';inputIndex:number;clauseId:string;reason:'interrogative'|'conditional'|'quoted'|'code'|'fragment'}
   |{phase:'growth_control_clause_excluded';inputIndex:number;clauseId:string}
   |{phase:'growth_duplicate_clause';inputIndex:number;clauseId:string}
   |{phase:'growth_correct_unknown_item';inputIndex:number;itemId:string}
@@ -24,6 +24,9 @@ export type GrowthAuthorityAudit=
   |{phase:'growth_correct_duplicate_target';inputIndex:number;itemId:string}
   |{phase:'growth_correct_goal_change';inputIndex:number;itemId:string}
   |{phase:'growth_correct_honored';inputIndex:number;itemId:string;mode:'amend'|'replace'}
+  |{phase:'growth_marker_clause_excluded';inputIndex:number;clauseId:string}
+  |{phase:'growth_correction_plan_retarget';inputIndex:number;itemId:string;mode:'amend'|'replace'}
+  |{phase:'growth_goal_superseded';inputIndex:number;itemId:string;mode:'create_retarged_to_replace'}
 
 // A goal/direction change marker in the CURRENT clause: the user is changing
 // course, not asserting a new independent fact alongside the old ones.
@@ -78,11 +81,11 @@ export function resolveGrowthDeltas(input:{
     // the obligation deterministically. A legacy validUntil is kept ONLY when
     // it is well-formed timezone-explicit ISO text — the server owns expiry,
     // and a malformed model value is dropped instead of poisoning the turn.
-    const {timeEvidence:wireTimeEvidence,...deltaWithoutEvidence}=delta
-    void wireTimeEvidence
-    const legacyValidUntil=typeof deltaWithoutEvidence.validUntil==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(deltaWithoutEvidence.validUntil)?deltaWithoutEvidence.validUntil:undefined
-    const {validUntil:wireValidUntil,...deltaWithoutExpiry}=deltaWithoutEvidence
-    void wireValidUntil
+    const deltaWithoutExpiry={...delta}
+    if('timeEvidence'in deltaWithoutExpiry)delete deltaWithoutExpiry.timeEvidence
+    const expiry='validUntil'in delta?delta.validUntil:undefined
+    const legacyValidUntil=typeof expiry==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(expiry)?expiry:undefined
+    if('validUntil'in deltaWithoutExpiry)delete deltaWithoutExpiry.validUntil
     const next:ResolvedGrowthDelta={...deltaWithoutExpiry,...(legacyValidUntil?{validUntil:legacyValidUntil}:{}),source:{messageId:input.currentMessageId,quote:clause.text},target:{operation:'create'},...(timeEvidence?{timeEvidence}:{})} as unknown as ResolvedGrowthDelta
     if(delta.target.operation==='correct'){
       const itemId=delta.target.itemId
@@ -148,7 +151,7 @@ export function resolveGrowthDeltas(input:{
   // its replacement (G1-contribution shape: 我做的是整体策划 stayed active
   // next to 我只负责了排版).
   if(input.correctionPlan?.target){
-    const plan=input.correctionPlan
+    const plan=input.correctionPlan,targetPlan=input.correctionPlan.target
     // The new value may land verbatim (quote===newQuote) or as its whole
     // clause; accept either as the correction's replacement payload as long
     // as no amend/replace on the target was already staged.
@@ -158,7 +161,7 @@ export function resolveGrowthDeltas(input:{
       const target=input.authorized.find(item=>item.id===plan.target!.itemId)
       if(target&&target.revision===plan.target!.expectedRevision){
         const composite=(target.text.match(/[，,；;。！？\n]/)?.length??0)>0
-        resolved[index]={...delta,kind:plan.target.kind,target:composite
+        resolved[index]={...delta,kind:targetPlan.kind,target:composite
           ?{operation:'amend',itemId:target.id,expectedRevision:target.revision,beforeQuote:plan.target!.beforeQuote}
           :{operation:'replace',itemId:target.id,expectedRevision:target.revision}} as typeof delta
         audit.push({phase:'growth_correction_plan_retarget',inputIndex:-1,itemId:target.id,mode:composite?'amend':'replace'})

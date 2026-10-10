@@ -21,6 +21,8 @@ import { isKnownMajorQuestion, readKnownMajor } from './model-router.ts'
 import {campusView} from './campus.ts'
 import { RequestScheduler } from './request-scheduler.ts'
 import { coachEventView } from './action-coach-events.ts'
+import {readFullMethod} from './coach-knowledge.ts'
+import {readGuideUsage} from './guide-usage.ts'
 import { localEmbedding } from './local-embedding.ts'
 import { growthView, createGrowthItem, actOnGrowthItem } from './growth.ts'
 import { listControlRequests, resolveControlRequest, controlRequestActionSchema, readRecommendationControls, resumeRecommendationControl } from './memory-controls.ts'
@@ -28,6 +30,9 @@ import { readDirectionControls, directionScopeLabel } from './growth-controls.ts
 import { growthCreateSchema, growthActionSchema } from './growth-contracts.ts'
 import { officialSourcesView } from './official-sources.ts'
 import { officialPaths } from './official-paths.ts'
+import {createWorkflowHost,type WorkflowHost} from './workflows/task-host.ts'
+import {workflowRuntimeVersion} from './workflows/runtime-version.ts'
+import {WorkflowError} from './workflows/contracts.ts'
 
 export function modelReady() {
   return credentialReady()&&modelCapabilityVerified('default')
@@ -40,7 +45,8 @@ async function body(req:IncomingMessage){
 }
 function json(res:ServerResponse,status:number,value:unknown){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(value))}
 function sse(res:ServerResponse,event:unknown){if(!res.destroyed&&!res.writableEnded)res.write('data: '+JSON.stringify(event)+'\n\n')}
-export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
+export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHost?:WorkflowHost){
+  const workflows=workflowHost??createWorkflowHost()
   const modelManaged=engine.modelManaged===true,engineReady=()=>engine.modelReadiness?.()??modelReady()
   const active=new Map<string,AbortController>()
   const scheduler=new RequestScheduler(config.generationConcurrency,config.generationQueueLimit)
@@ -73,21 +79,32 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000){
       if(path.startsWith('/api/')){
         // P4 G0: unauthenticated runtime fingerprint (no secrets) for host/skill verification.
         if(path==='/api/run/version'&&method==='GET'){
-          let head='unknown'
-          try{head=(await import('node:child_process')).execSync('git rev-parse --short HEAD').toString().trim()}catch{}
-          json(res,200,{service:'LifeOS',head,skillVersion:'1.2.0',contractGeneration:'p4',growthApi:true});return}
+          json(res,200,workflowRuntimeVersion);return}
         const session=await auth.api.getSession({headers:fromNodeHeaders(req.headers)})
         if(!session)throw new HttpError(401,'LOGIN_REQUIRED')
         // Effective identity is always derived here. No body, URL or model field can override it.
         const user=session.user.id
         if(path==='/api/access'&&method==='GET'){json(res,200,await entitlementView(user));return}
-        if(path==='/api/run/version'){
-          // P4 G0: safe runtime fingerprint for host/skill verification — commit,
-          // freeze digest, skill version and contract generation only; no secrets.
-          json(res,200,{service:'LifeOS',head:(await import('node:child_process').then(cp=>cp.execSync('git rev-parse --short HEAD').toString().trim(),()=>'unknown')),freezeDigest:process.env.LIFEOS_FREEZE_DIGEST??null,skillVersion:'1.2.0',contractGeneration:'p4'});return}
+        if(path==='/api/workflows/capabilities'&&method==='GET'){json(res,200,workflows.capabilities());return}
+        if(path==='/api/workflows'&&method==='POST'){json(res,201,await workflows.create(user,await body(req)));return}
+        if(path==='/api/workflows'&&method==='GET'){json(res,200,await workflows.list(user,validateId(url.searchParams.get('conversationId')??'')));return}
+        const workflowTask=/^\/api\/workflows\/([0-9a-fA-F-]{36})(?:\/(cancel|actions|resume))?$/.exec(path)
+        if(workflowTask){const taskId=validateId(workflowTask[1]);if(!workflowTask[2]&&method==='GET'){const conversation=url.searchParams.get('conversationId');json(res,200,await workflows.read(user,taskId,conversation?validateId(conversation):undefined));return}if(workflowTask[2]==='cancel'&&method==='POST'){json(res,200,await workflows.cancel(user,taskId));return}if(workflowTask[2]==='resume'&&method==='POST'){json(res,200,await workflows.resume(user,taskId,await body(req)));return}if(workflowTask[2]==='actions'&&method==='POST'){json(res,200,await workflows.act(user,taskId,await body(req)));return}}
                 if(path==='/api/session'&&method==='GET'){json(res,200,{id:user,name:session.user.name,email:session.user.email});return}
         if(path==='/api/official-sources'&&method==='GET'){json(res,200,await officialSourcesView());return}
+        const methodCard=/^\/api\/knowledge\/([0-9a-f-]{36})$/i.exec(path)
+        if(methodCard&&method==='GET'){
+          const revision=url.searchParams.get('revision')??''
+          if(!/^[1-9]\d{0,8}$/.test(revision))throw new HttpError(400,'KNOWLEDGE_REVISION_INVALID')
+          json(res,200,await readFullMethod(validateId(methodCard[1]),Number(revision)));return
+        }
         if(path==='/api/official-paths'&&method==='GET'){json(res,200,{paths:officialPaths});return}
+        const guideUsage=path.match(/^\/api\/conversations\/([^/]+)\/guide-usage$/)
+        if(guideUsage&&method==='GET'){
+          const event=url.searchParams.get('event')
+          if(!event)throw new HttpError(400,'KB_EVENT_REQUIRED')
+          json(res,200,{items:await readGuideUsage(user,validateId(guideUsage[1]),validateId(event))});return
+        }
         if(path==='/api/growth'&&method==='GET'){const conversation=url.searchParams.get('conversation');json(res,200,await growthView(user,conversation?validateId(conversation):undefined));return}
         if(path==='/api/growth'&&method==='POST'){json(res,201,await createGrowthItem(user,validate(growthCreateSchema,await body(req))));return}
         if(path==='/api/growth/direction-controls'&&method==='GET'){const controls=await readDirectionControls(user);json(res,200,{controls:controls.map(row=>({...row,scopeLabel:directionScopeLabel(row.scope)}))});return}
@@ -247,14 +264,14 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
       }
       throw new HttpError(404,'NOT_FOUND')
     }catch(error){
-      const status=error instanceof HttpError?error.status:500,code=error instanceof HttpError?error.code:'INTERNAL_ERROR'
+      const status=error instanceof HttpError?error.status:error instanceof WorkflowError?409:500,code=error instanceof HttpError?error.code:error instanceof WorkflowError?'WORKFLOW_'+error.code.toUpperCase():'INTERNAL_ERROR'
       const retryAfter=error instanceof HttpError?error.retryAfter:undefined
       if(retryAfter&&!res.headersSent)res.setHeader('Retry-After',String(retryAfter))
       if(res.headersSent){sse(res,{type:'error',code,status,retryAfter});res.end()}else json(res,status,{error:code,retryAfter})
       if(status===500)console.error('INTERNAL_ERROR',error instanceof Error?error.name:'unknown')
     }
   })
-  server.on('close',()=>{for(const controller of active.values())controller.abort()})
+  server.on('close',()=>{workflows.close();for(const controller of active.values())controller.abort()})
   server.headersTimeout=15000
   server.requestTimeout=60000
   return Object.assign(server,{drain:async()=>{

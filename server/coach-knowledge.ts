@@ -3,20 +3,17 @@ import { pool, transaction, HttpError } from './db.ts'
 import { config } from './config.ts'
 import { validPolicyScope, validPolicyScopeRules, policyScopeEvidence, type KnowledgeCard, type KnowledgeRecord } from './campus-knowledge.ts'
 import type { CoachCitation } from './action-coach-contracts.ts'
-import { localEmbedding, embeddingSignature } from './local-embedding.ts'
+import {retrieveIndexedKnowledge} from './knowledge-index.ts'
+import {guideIsUsable,type KnowledgeIntent} from './evergreen-guide.ts'
+import {unsupportedMethodAssertion} from './evergreen-scope-guard.ts'
 
 export type CoachKnowledgeRef={sourceId:string;revision:number}
 const isolated=/^lifeos_dialogue_(?:test|live)_/.test(new URL(config.databaseUrl).pathname.slice(1))
-const valid=(row:KnowledgeRecord&{official_current?:boolean})=>row.status==='verified'&&row.official_current!==false&&(!row.synthetic||isolated)&&(!row.valid_until||Date.parse(row.valid_until)>Date.now())
+const valid=(row:KnowledgeRecord&{official_current?:boolean;kb_current?:boolean})=>row.status==='verified'&&row.official_current!==false&&row.kb_current!==false&&guideIsUsable(row.payload)&&(!row.synthetic||isolated)&&(!row.valid_until||Date.parse(row.valid_until)>Date.now())
   // N3.1: legacy cards auto-imported from the old Coze path (retrieval-year
   // pseudo-verification) are excluded from valid knowledge — data kept for
   // audit, never citable again.
   &&!(row.payload.mechanisms??[]).includes('coze_public_knowledge_retrieval')
-const cache=new Map<string,number[]>()
-// Calibrated against the pinned local encoder and frozen relevance cases.
-// Ranking alone always returns something, even for an unrelated conversation.
-// This is a retrieval cutoff, not proof that a proposition applies to the user.
-const minimumKnowledgeScore=0.5
 // Policy scope is a lookup prerequisite, never inferred from a school/major or a similar event.
 export function coachPolicyScope(text:string){
   const labels:Record<string,string>={institution:'institution|机构',department:'department|学院',project:'project|项目',year:'year|年份',population:'population|对象'}
@@ -39,23 +36,9 @@ export function policyApplies(card:KnowledgeCard,text:string){
   return validPolicyScope(card.scopeKeys)&&Object.entries(card.scopeKeys).every(([key,value])=>value===current[key])
 }
 
-export async function retrieveCoachKnowledge(query:string,signal?:AbortSignal):Promise<KnowledgeCard[]>{
-  const rows=((await pool.query("SELECT *,official_knowledge_current(payload) AS official_current FROM campus_knowledge WHERE status='verified' AND (valid_until IS NULL OR valid_until>now()) AND official_knowledge_current(payload) ORDER BY id")).rows as KnowledgeRecord[]).filter(row=>valid(row)&&policyApplies(row.payload,query))
-  if(!rows.length)return []
-  const queryVector=(await localEmbedding.encode([query],true,signal))[0]
-  const ranked:{card:KnowledgeCard;score:number}[]=[]
-  for(let i=0;i<rows.length;i+=32){
-    signal?.throwIfAborted()
-    const batch=rows.slice(i,i+32),key=(row:KnowledgeRecord)=>`${embeddingSignature}:${row.id}:${row.revision}:${row.payload.sourceHash}`
-    const missing=batch.filter(row=>!cache.has(key(row)))
-    if(missing.length){
-      const vectors=await localEmbedding.encode(missing.map(row=>[row.payload.claim,row.payload.excerpt,row.payload.scope].join('\n')),false,signal)
-      missing.forEach((row,index)=>{cache.set(key(row),vectors[index])})
-    }
-    for(const row of batch){const vector=cache.get(key(row))!;ranked.push({card:row.payload,score:vector.reduce((sum,value,index)=>sum+value*queryVector[index],0)})}
-    while(cache.size>128)cache.delete(cache.keys().next().value!)
-  }
-  return ranked.filter(item=>item.score>=minimumKnowledgeScore).sort((a,b)=>b.score-a.score||a.card.id.localeCompare(b.card.id)).slice(0,4).map(item=>item.card)
+export async function retrieveCoachKnowledge(query:string,signal?:AbortSignal,intent?:KnowledgeIntent):Promise<KnowledgeCard[]>{
+  const result=await retrieveIndexedKnowledge(query,signal,intent,card=>policyApplies(card,query)&&!(card.mechanisms??[]).includes('coze_public_knowledge_retrieval'))
+  return result.cards
 }
 
 export async function assertCoachKnowledge(c:PoolClient,refs:CoachKnowledgeRef[]){
@@ -63,11 +46,23 @@ export async function assertCoachKnowledge(c:PoolClient,refs:CoachKnowledgeRef[]
   for(const ref of refs){if(versions.has(ref.sourceId)&&versions.get(ref.sourceId)!==ref.revision)throw new HttpError(409,'COACH_KNOWLEDGE_INVALIDATED');versions.set(ref.sourceId,ref.revision)}
   // Sorted shared row locks serialize with local maintenance updates through commit.
   for(const ref of [...new Map(refs.map(ref=>[ref.sourceId,ref])).values()].sort((a,b)=>a.sourceId.localeCompare(b.sourceId))){
-    const row=(await c.query('SELECT *,official_knowledge_current(payload) AS official_current FROM campus_knowledge WHERE id=$1 FOR SHARE',[ref.sourceId])).rows[0] as KnowledgeRecord|undefined
+    const row=(await c.query('SELECT *,official_knowledge_current(payload) AS official_current,kb_knowledge_current(payload) AS kb_current FROM campus_knowledge WHERE id=$1 FOR SHARE',[ref.sourceId])).rows[0] as KnowledgeRecord|undefined
     if(!row||!valid(row)||row.revision!==ref.revision)throw new HttpError(409,'COACH_KNOWLEDGE_INVALIDATED')
+    for(const [id,revision] of Object.entries(row.payload.guide?.review?.sourceRevisions??{}).sort(([a],[b])=>a.localeCompare(b))){
+      const source=(await c.query('SELECT status FROM kb_sources WHERE source_id=$1 AND revision=$2 FOR SHARE',[id,revision])).rows[0]
+      if(source?.status!=='body_accessible')throw new HttpError(409,'COACH_KNOWLEDGE_INVALIDATED')
+    }
   }
 }
 
+export async function readFullMethod(id:string,revision:number){
+  return transaction(async c=>{
+    await assertCoachKnowledge(c,[{sourceId:id,revision}])
+    const card=(await c.query('SELECT payload FROM campus_knowledge WHERE id=$1 AND revision=$2',[id,revision])).rows[0]?.payload as KnowledgeCard|undefined
+    if(!card?.guide||!guideIsUsable(card))throw new HttpError(404,'METHOD_UNAVAILABLE')
+    return {title:card.title,revision,scope:card.scope,limitations:card.limitations,url:card.url,guide:card.guide}
+  })
+}
 const label=(text:string)=>text.replace(/[\[\]\\\r\n]/g,' ')
 // A claim match tolerates ONLY a missing trailing full stop — nothing else
 // about the proposition text may differ.
@@ -105,6 +100,7 @@ export async function validateCoachCitations(reply:string,citations:CoachCitatio
     if(available.filter(other=>other.claim===card.claim).length!==1)throw new HttpError(400,'COACH_CITATION_INVALID')
     resolvedCitations.push({sourceId:card.id,revision:card.revision,claim:card.claim,quote:card.excerpt,scope:card.scope})
   }
+  if(resolvedCitations.some(c=>available.some(card=>card.id===c.sourceId&&card.guide))&&unsupportedMethodAssertion(reply))throw new HttpError(400,'COACH_CITATION_SCOPE_UNSUPPORTED')
   await transaction(async c=>{
     for(const citation of resolvedCitations){
       const card=available.find(card=>card.id===citation.sourceId&&card.revision===citation.revision)
@@ -114,6 +110,7 @@ export async function validateCoachCitations(reply:string,citations:CoachCitatio
       if(!refs.some(ref=>ref.sourceId===card.id)){
         refs.push({sourceId:card.id,revision:card.revision})
         notes.push(`“${card.claim}”：[${label(card.title)}](${card.url})。发布：${card.publishedYear}；核验：${card.verifiedAt.slice(0,10)}${card.validUntil?'；有效至：'+card.validUntil.slice(0,10):''}。适用范围：${card.scope}。限制：${card.limitations}。`)
+        if(card.guide)notes.push(`[查看完整方法](/api/knowledge/${card.id}?revision=${card.revision})`)
       }
     }
     await assertCoachKnowledge(c,refs)

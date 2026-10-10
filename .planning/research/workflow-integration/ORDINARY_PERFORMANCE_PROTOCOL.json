@@ -1,0 +1,184 @@
+{
+  "status": "PREDECLARED_PAUSED_NOT_RUN",
+  "syntheticAdult": true,
+  "realAttempts": 0,
+  "paidCalls": 0,
+  "sameFrozenVersionRequired": true,
+  "eligibility": "ordinary short task/follow-up, no deep consent, no policy lookup or complex long analysis; first-attempt only, record all failures",
+  "maxGenerationCalls": 1,
+  "measures": [
+    "firstUsefulMs",
+    "wholeTurnMs",
+    "allTokens",
+    "costCny",
+    "failure",
+    "technicalSaved",
+    "semanticCorrect",
+    "requiredStateCommitted",
+    "sourceSupported"
+  ],
+  "thresholds": {
+    "minimumBusinessEligibleRealSamples": 20,
+    "firstUsefulP50Ms": 3000,
+    "firstUsefulP95Ms": 5000,
+    "wholeTurnP95Ms": 15000
+  },
+  "cases": [
+    {
+      "caseId": "ORD01",
+      "input": "我还有两小时准备明天的课堂汇报，先做哪一步？",
+      "result": null
+    },
+    {
+      "caseId": "ORD02",
+      "input": "我发给学长的问题还没有回复，今天还要催吗？",
+      "result": null
+    },
+    {
+      "caseId": "ORD03",
+      "input": "我今天没按原计划做完作业，想调整一个小步骤。",
+      "result": null
+    },
+    {
+      "caseId": "ORD04",
+      "input": "我只交付了海报，还不知道对方有没有采用。",
+      "result": null
+    },
+    {
+      "caseId": "ORD05",
+      "input": "这周还剩三小时，我想先整理一个实习作品。",
+      "result": null
+    },
+    {
+      "caseId": "ORD06",
+      "input": "我有一份课程笔记，想用一次主动回忆检查缺口。",
+      "result": null
+    },
+    {
+      "caseId": "ORD07",
+      "input": "我已经列了三个问题，下一步怎么查资料？",
+      "result": null
+    },
+    {
+      "caseId": "ORD08",
+      "input": "我准备约同学讨论项目，怎么把问题说清楚？",
+      "result": null
+    },
+    {
+      "caseId": "ORD09",
+      "input": "我只愿意先试十分钟，不想承诺长期做。",
+      "result": null
+    },
+    {
+      "caseId": "ORD10",
+      "input": "我想了解一个岗位，但还没看正式要求。",
+      "result": null
+    },
+    {
+      "caseId": "ORD11",
+      "input": "我刚把简历第一段改好，接下来先检查什么？",
+      "result": null
+    },
+    {
+      "caseId": "ORD12",
+      "input": "我完成了一个课程网页，怎么描述我具体做的部分？",
+      "result": null
+    },
+    {
+      "caseId": "ORD13",
+      "input": "团队做完了项目，但我不确定自己的贡献怎么表述。",
+      "result": null
+    },
+    {
+      "caseId": "ORD14",
+      "input": "我想准备一次课堂展示，手头只有三张素材图。",
+      "result": null
+    },
+    {
+      "caseId": "ORD15",
+      "input": "我把任务拆成两步，但第一步仍然打不开文件。",
+      "result": null
+    },
+    {
+      "caseId": "ORD16",
+      "input": "我愿意做一个小原型，先核对哪个使用场景？",
+      "result": null
+    },
+    {
+      "caseId": "ORD17",
+      "input": "我查到了两条资料，怎么区分适用年份和对象？",
+      "result": null
+    },
+    {
+      "caseId": "ORD18",
+      "input": "我调整了今天晚上的安排，想留下一个停止条件。",
+      "result": null
+    },
+    {
+      "caseId": "ORD19",
+      "input": "我向对方发了一个需求问题，实际付款情况未知。",
+      "result": null
+    },
+    {
+      "caseId": "ORD20",
+      "input": "我整理了一次练习中的错误，想选一个环节再试。",
+      "result": null
+    }
+  ],
+  "notPoolWithDeepTasks": true,
+  "candidateVersion": "workflow-v2-integration-ad0a9b50209e",
+  "runtimeSourceDigest": "23f2235a83eaf976a69f82439c6437e349d4f5315835c95e1ffb0c0afe532e71",
+  "frozenModels": [
+    {
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-flash",
+      "available": false,
+      "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "contractSignature": "53658f4096f345b9b3d6433105b2a039c5c5de98747aff74fa96492ff65c1f6a",
+      "interfaceSignature": "e5e50226ae4eae5c347730c928748e3d8aa7236e218a9ed6234f1e7827c97cb2",
+      "pricing": {
+        "inputCnyPerMillion": 0.8,
+        "outputCnyPerMillion": 2.7,
+        "cachedInputCnyPerMillion": 0.1
+      }
+    },
+    {
+      "tier": "reasoning",
+      "provider": "bailian",
+      "model": "deepseek-v4.1-flash",
+      "available": false,
+      "signature": "bailian:deepseek-v4.1-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "contractSignature": "1c45235c32f29904cda903d6f34b819cde4abaf8723f68e8d81570f649ff6a12",
+      "interfaceSignature": "5fda22cd892f4dd3fdaf96ca53dc8464312611e3f1ddee98976eeb318cb5e51b",
+      "pricing": {
+        "inputCnyPerMillion": 2,
+        "outputCnyPerMillion": 8,
+        "cachedInputCnyPerMillion": 0.2
+      }
+    }
+  ],
+  "approvedCorpusFingerprints": {
+    ".planning/research/evergreen/KB_BACKEND_REPORT.json": "87c5244fd9bf21696644074337979ec3b5e6cbb00b3de67ef0f39dccb083e8d7",
+    ".planning/research/evergreen/KB_BASELINE_CHECKS.json": "dcffdbcba624725f983269158dc81126e3e6a4554312d96b931e37d18a608547",
+    ".planning/research/evergreen/KB_BROWSER_REPORT.json": "68f5e928118e050c0b908b632bb3256c7a2961adc87728e49f9ab090c80e62e3",
+    ".planning/research/evergreen/KB_CARD_REGRESSIONS.json": "732850de84b366d6ea24eb764bf04f0ced63749b80dc80fc7adc2f9c38f3f708",
+    ".planning/research/evergreen/KB_COVERAGE.json": "8741e5beafad19f4640117e723542c0aa942993c2bd71dbb73aaa6f6c8275f24",
+    ".planning/research/evergreen/KB_EVIDENCE.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+    ".planning/research/evergreen/KB_EVIDENCE_REOPEN.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+    ".planning/research/evergreen/KB_FREEZE.json": "ea1bff4f950427b151e850f57cae7841736d72940d2d9c22536179bff3eed806",
+    ".planning/research/evergreen/KB_GUIDES.jsonl": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+    ".planning/research/evergreen/KB_IMPLEMENTATION_FREEZE.json": "648de33f8de5c3c36124c3fa750e091c22066eab1dab7f3a687d9e4b2322b0ad",
+    ".planning/research/evergreen/KB_INDEX_LOAD_REPORT.json": "50a589965504298c69966aed04193a53b4439cd211b90706ab85648f368725b7",
+    ".planning/research/evergreen/KB_LEGACY_MAP.json": "e236b232abd9c5c7de1f64a6dd688d0640d272841dcdccbe0a42c7172e43c2fd",
+    ".planning/research/evergreen/KB_PROVIDER_PREFLIGHT.json": "058a043c2b8446ba43fad6370e33e9cfe944ce1df89e3d1a86f49ec47c257871",
+    ".planning/research/evergreen/KB_QUERY_BENCHMARK.json": "51d0ed528443144a1f10640712b55222e5ca4e2cec3c2d304fa72ac473ae6d51",
+    ".planning/research/evergreen/KB_RETRIEVAL_EVAL.json": "4b0731a082f88f4727ed2df3265b5c27ab2b8f0124356cde3ae71163d0ffe739",
+    ".planning/research/evergreen/KB_SEMANTIC_REVIEW.json": "1098fcb1688768f6a343eac608aa09342dd132de27faed729668d7729e62ff43",
+    ".planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+    ".planning/research/evergreen/KB_SOURCE_REOPEN.jsonl": "4bb93c3397ae690400c16cba4a66c39d8e2db1d7c65677f375354cb6bd81f509",
+    ".planning/research/evergreen/KB_TAXONOMY.json": "63d6cf11f2b7633035b3044a2e233a2470b49d79abcd13c290a46699c6845e70"
+  },
+  "executionGate": "CURRENT_USER_PAUSE_NOT_LIFTED; SMALL_BATCH_MUST_PASS_FIRST",
+  "candidateSourceVersion": "workflow-v2-integration-ee442ef15ffa"
+}

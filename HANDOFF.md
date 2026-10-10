@@ -1,3 +1,5 @@
+> 2026-10-10 最新本地集成检查点：workflow-v2-integration-0670b2f68bf8。当前验收结果见 `.planning/research/workflow-integration/WORKFLOW_ACCEPTANCE.json`；下一阶段只读 `NEXT_ACCEPTANCE.md`。下面保留历史交接，不以旧百分比或旧Final报告替代当前验收。真实模型/扣子仍暂停，状态WIP_NOT_READY。
+
 # LifeOS 开发交接
 
 工作区 D:\aaaLife\LifeOS。当前唯一验收目标是 PRODUCT.md 的校园成长与连续决策完整产品。用户已恢复自主开发，允许在原 grant 剩余额度内选择产品模型；旧固定 qwen3.8-flash 与旧实现顺序已替代。公网 lqynb.xyz 仍是旧 52a4e47 镜像，不代表新产品已发布。

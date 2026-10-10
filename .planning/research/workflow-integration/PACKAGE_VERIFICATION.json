@@ -1,0 +1,19 @@
+{
+  "version": "workflow-v2-integration-0670b2f68bf8",
+  "at": "2026-10-10T07:54:29.342509+00:00",
+  "path": "D:\\aaaLife\\workflow-v2-integration-0670b2f68bf8.zip",
+  "sha256": "d3a789fd78474d7b2e22a574210d6969b8eb0235f420b4b7650922fa92f1f6b0",
+  "sizeBytes": 14137015,
+  "fileCount": 760,
+  "verifiedFileHashes": 757,
+  "zipCRC": "PASS",
+  "secretValueScan": "PASS_NO_VALUES_PRINTED",
+  "unsafePaths": [],
+  "sourceFiles": 431,
+  "originalPaidLedgerUnchanged": true,
+  "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
+  "status": "WIP_NOT_READY",
+  "realModel": "PAUSED_NOT_RUN",
+  "cloud": "PAUSED_NOT_RUN",
+  "oldPackagePreserved": "D:\\aaaLife\\workflow-v2-integration-ee442ef15ffa.zip"
+}

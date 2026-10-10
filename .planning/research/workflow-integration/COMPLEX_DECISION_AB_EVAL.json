@@ -1,0 +1,624 @@
+{
+  "status": "PREDECLARED_PAUSED_NOT_RUN",
+  "paidCalls": 0,
+  "participants": 0,
+  "cases": [
+    {
+      "caseId": "VALUE01",
+      "name": "就业/考研",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。",
+      "directions": [
+        "employment",
+        "postgraduate_exam"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-01",
+          "revision": 1,
+          "text": "我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 360,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE02",
+      "name": "自由职业/就业",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我做过一张海报收到300元，长期客户和稳定收入未知。本周可用4小时，请深入比较自由职业/就业。",
+      "directions": [
+        "freelance",
+        "employment"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-02",
+          "revision": 1,
+          "text": "我是成年大学生，我做过一张海报收到300元，长期客户和稳定收入未知。本周可用4小时，请深入比较自由职业/就业。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 240,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE03",
+      "name": "创业/考研",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我有一个校园服务想法，尚未开始付费验证。本周可用5小时，请深入比较创业/考研。",
+      "directions": [
+        "entrepreneurship",
+        "postgraduate_exam"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-03",
+          "revision": 1,
+          "text": "我是成年大学生，我有一个校园服务想法，尚未开始付费验证。本周可用5小时，请深入比较创业/考研。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 300,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE04",
+      "name": "独立开发/实习",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我完成过课程网页，实际岗位要求未知。本周可用8小时，请深入比较独立开发/实习。",
+      "directions": [
+        "independent_development",
+        "employment"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-04",
+          "revision": 1,
+          "text": "我是成年大学生，我完成过课程网页，实际岗位要求未知。本周可用8小时，请深入比较独立开发/实习。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 480,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE05",
+      "name": "科研探索/就业准备",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我愿意联系实验室，但导师回应未知。本周可用3小时，请深入比较科研探索/就业准备。",
+      "directions": [
+        "postgraduate_recommendation",
+        "employment"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-05",
+          "revision": 1,
+          "text": "我是成年大学生，我愿意联系实验室，但导师回应未知。本周可用3小时，请深入比较科研探索/就业准备。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 180,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE06",
+      "name": "留学/考研",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我还没核实项目费用和申请要求。本周可用6小时，请深入比较留学/考研。",
+      "directions": [
+        "overseas_study",
+        "postgraduate_exam"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-06",
+          "revision": 1,
+          "text": "我是成年大学生，我还没核实项目费用和申请要求。本周可用6小时，请深入比较留学/考研。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 360,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE07",
+      "name": "保研/自由职业收入",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我需要了解本校政策，也希望探索收入来源。本周可用4小时，请深入比较保研/自由职业收入。",
+      "directions": [
+        "postgraduate_recommendation",
+        "freelance"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-07",
+          "revision": 1,
+          "text": "我是成年大学生，我需要了解本校政策，也希望探索收入来源。本周可用4小时，请深入比较保研/自由职业收入。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 240,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE08",
+      "name": "考公/就业",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我希望工作地点近家，实际岗位资格未核实。本周可用5小时，请深入比较考公/就业。",
+      "directions": [
+        "public_service",
+        "employment"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-08",
+          "revision": 1,
+          "text": "我是成年大学生，我希望工作地点近家，实际岗位资格未核实。本周可用5小时，请深入比较考公/就业。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 300,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE09",
+      "name": "专升本/就业",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我在专科阶段，考试报名条件仍需查官方原文。本周可用7小时，请深入比较专升本/就业。",
+      "directions": [
+        "undergraduate_upgrade",
+        "employment"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-09",
+          "revision": 1,
+          "text": "我是成年大学生，我在专科阶段，考试报名条件仍需查官方原文。本周可用7小时，请深入比较专升本/就业。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 420,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE10",
+      "name": "创业/就业",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我与同学讨论过产品，但没有客户和营收证据。本周可用6小时，请深入比较创业/就业。",
+      "directions": [
+        "entrepreneurship",
+        "employment"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-10",
+          "revision": 1,
+          "text": "我是成年大学生，我与同学讨论过产品，但没有客户和营收证据。本周可用6小时，请深入比较创业/就业。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 360,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE11",
+      "name": "独立开发/自由职业",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我写过一个小工具，有没有人愿意付费未知。本周可用5小时，请深入比较独立开发/自由职业。",
+      "directions": [
+        "independent_development",
+        "freelance"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-11",
+          "revision": 1,
+          "text": "我是成年大学生，我写过一个小工具，有没有人愿意付费未知。本周可用5小时，请深入比较独立开发/自由职业。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 300,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE12",
+      "name": "留学/就业",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我愿意了解海外学习，长期预算尚未确认。本周可用4小时，请深入比较留学/就业。",
+      "directions": [
+        "overseas_study",
+        "employment"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-12",
+          "revision": 1,
+          "text": "我是成年大学生，我愿意了解海外学习，长期预算尚未确认。本周可用4小时，请深入比较留学/就业。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 240,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE13",
+      "name": "保研/考研",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我只知道当前课程成绩，不能保证推免资格。本周可用6小时，请深入比较保研/考研。",
+      "directions": [
+        "postgraduate_recommendation",
+        "postgraduate_exam"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-13",
+          "revision": 1,
+          "text": "我是成年大学生，我只知道当前课程成绩，不能保证推免资格。本周可用6小时，请深入比较保研/考研。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 360,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE14",
+      "name": "考公/考研",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我仍在了解两条路，不等于已经选定。本周可用4小时，请深入比较考公/考研。",
+      "directions": [
+        "public_service",
+        "postgraduate_exam"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-14",
+          "revision": 1,
+          "text": "我是成年大学生，我仍在了解两条路，不等于已经选定。本周可用4小时，请深入比较考公/考研。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 240,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE15",
+      "name": "自由职业/考研",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我交付过设计，对方是否采用仍未知。本周可用3小时，请深入比较自由职业/考研。",
+      "directions": [
+        "freelance",
+        "postgraduate_exam"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-15",
+          "revision": 1,
+          "text": "我是成年大学生，我交付过设计，对方是否采用仍未知。本周可用3小时，请深入比较自由职业/考研。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 180,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE16",
+      "name": "独立开发/考研",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我愿意做原型，也想了解研究内容。本周可用7小时，请深入比较独立开发/考研。",
+      "directions": [
+        "independent_development",
+        "postgraduate_exam"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-16",
+          "revision": 1,
+          "text": "我是成年大学生，我愿意做原型，也想了解研究内容。本周可用7小时，请深入比较独立开发/考研。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 420,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE17",
+      "name": "创业/留学",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我只完成一次访谈，不能推断产品适配。本周可用5小时，请深入比较创业/留学。",
+      "directions": [
+        "entrepreneurship",
+        "overseas_study"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-17",
+          "revision": 1,
+          "text": "我是成年大学生，我只完成一次访谈，不能推断产品适配。本周可用5小时，请深入比较创业/留学。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 300,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE18",
+      "name": "就业/保研",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，本周课程压力较大，需要缩小探索而非同时全投入。本周可用2小时，请深入比较就业/保研。",
+      "directions": [
+        "employment",
+        "postgraduate_recommendation"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-18",
+          "revision": 1,
+          "text": "我是成年大学生，本周课程压力较大，需要缩小探索而非同时全投入。本周可用2小时，请深入比较就业/保研。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 120,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE19",
+      "name": "就业/考研/独立开发",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。",
+      "directions": [
+        "employment",
+        "postgraduate_exam",
+        "independent_development"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-19",
+          "revision": 1,
+          "text": "我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 360,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "VALUE20",
+      "name": "自由职业/就业/留学",
+      "syntheticAdult": true,
+      "input": "我是成年大学生，我还想了解留学，有偿任务不等于选择了自由职业。本周可用5小时，请深入比较自由职业/就业/留学。",
+      "directions": [
+        "freelance",
+        "employment",
+        "overseas_study"
+      ],
+      "authorizedEvidence": [
+        {
+          "type": "message",
+          "id": "synthetic-value-20",
+          "revision": 1,
+          "text": "我是成年大学生，我还想了解留学，有偿任务不等于选择了自由职业。本周可用5小时，请深入比较自由职业/就业/留学。"
+        }
+      ],
+      "consent": true,
+      "budgetMinutes": 300,
+      "memoryEnabled": true,
+      "forbiddenDirections": [],
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    }
+  ],
+  "paired": true,
+  "modelPolicy": "same original configured runtime and frozen pricing",
+  "contextPolicy": "same minimum authorized student facts and approved public source snapshots; freeze once before runs",
+  "anonymousOrder": "randomized A/B presentation; reviewer does not see mode or trace; all attempts retained",
+  "generationLimits": {
+    "ordinaryMaxCalls": 1,
+    "twoDirectionsMaxCalls": 4,
+    "threeDirectionsMaxCalls": 5,
+    "automaticPaidRetries": 0
+  },
+  "acceptanceBeforeRuns": {
+    "personalFabrication": 0,
+    "crossAccountOrWithdrawnDisclosure": 0,
+    "budgetOrConsentViolations": 0,
+    "allTaskCriticalBoundariesPass": true,
+    "metrics": [
+      "currentQuestion",
+      "sourceSupported",
+      "unknownHandling",
+      "keyTradeoffs",
+      "actionFeasibility",
+      "feedbackContinuity",
+      "autonomy"
+    ],
+    "scoring": "each metric 0/1/2 by separate human reviewer with evidence; exploratory paired differences only; no statistical superiority claim",
+    "costLatency": "all tokens, fees including failures and each whole graph latency recorded separately"
+  },
+  "actualStudentValue": "NOT_STARTED; synthetic blind review cannot stand in for student study",
+  "ordinaryPerformance": "NOT_TESTED_REAL_PROVIDER; predeclare at least20 ordinary samples; first useful p50<=3s p95<=5s and full p95<=15s; do not pool deep nodes",
+  "candidateVersion": "workflow-v2-integration-377e87a9bc39",
+  "runtimeSourceDigest": "23f2235a83eaf976a69f82439c6437e349d4f5315835c95e1ffb0c0afe532e71",
+  "frozenModels": [
+    {
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-flash",
+      "available": false,
+      "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "contractSignature": "53658f4096f345b9b3d6433105b2a039c5c5de98747aff74fa96492ff65c1f6a",
+      "interfaceSignature": "e5e50226ae4eae5c347730c928748e3d8aa7236e218a9ed6234f1e7827c97cb2",
+      "pricing": {
+        "inputCnyPerMillion": 0.8,
+        "outputCnyPerMillion": 2.7,
+        "cachedInputCnyPerMillion": 0.1
+      }
+    },
+    {
+      "tier": "reasoning",
+      "provider": "bailian",
+      "model": "deepseek-v4.1-flash",
+      "available": false,
+      "signature": "bailian:deepseek-v4.1-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "contractSignature": "1c45235c32f29904cda903d6f34b819cde4abaf8723f68e8d81570f649ff6a12",
+      "interfaceSignature": "5fda22cd892f4dd3fdaf96ca53dc8464312611e3f1ddee98976eeb318cb5e51b",
+      "pricing": {
+        "inputCnyPerMillion": 2,
+        "outputCnyPerMillion": 8,
+        "cachedInputCnyPerMillion": 0.2
+      }
+    }
+  ],
+  "approvedCorpusFingerprints": {
+    ".planning/research/evergreen/KB_BACKEND_REPORT.json": "87c5244fd9bf21696644074337979ec3b5e6cbb00b3de67ef0f39dccb083e8d7",
+    ".planning/research/evergreen/KB_BASELINE_CHECKS.json": "dcffdbcba624725f983269158dc81126e3e6a4554312d96b931e37d18a608547",
+    ".planning/research/evergreen/KB_BROWSER_REPORT.json": "68f5e928118e050c0b908b632bb3256c7a2961adc87728e49f9ab090c80e62e3",
+    ".planning/research/evergreen/KB_CARD_REGRESSIONS.json": "732850de84b366d6ea24eb764bf04f0ced63749b80dc80fc7adc2f9c38f3f708",
+    ".planning/research/evergreen/KB_COVERAGE.json": "8741e5beafad19f4640117e723542c0aa942993c2bd71dbb73aaa6f6c8275f24",
+    ".planning/research/evergreen/KB_EVIDENCE.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+    ".planning/research/evergreen/KB_EVIDENCE_REOPEN.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+    ".planning/research/evergreen/KB_FREEZE.json": "ea1bff4f950427b151e850f57cae7841736d72940d2d9c22536179bff3eed806",
+    ".planning/research/evergreen/KB_GUIDES.jsonl": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+    ".planning/research/evergreen/KB_IMPLEMENTATION_FREEZE.json": "648de33f8de5c3c36124c3fa750e091c22066eab1dab7f3a687d9e4b2322b0ad",
+    ".planning/research/evergreen/KB_INDEX_LOAD_REPORT.json": "50a589965504298c69966aed04193a53b4439cd211b90706ab85648f368725b7",
+    ".planning/research/evergreen/KB_LEGACY_MAP.json": "e236b232abd9c5c7de1f64a6dd688d0640d272841dcdccbe0a42c7172e43c2fd",
+    ".planning/research/evergreen/KB_PROVIDER_PREFLIGHT.json": "058a043c2b8446ba43fad6370e33e9cfe944ce1df89e3d1a86f49ec47c257871",
+    ".planning/research/evergreen/KB_QUERY_BENCHMARK.json": "51d0ed528443144a1f10640712b55222e5ca4e2cec3c2d304fa72ac473ae6d51",
+    ".planning/research/evergreen/KB_RETRIEVAL_EVAL.json": "4b0731a082f88f4727ed2df3265b5c27ab2b8f0124356cde3ae71163d0ffe739",
+    ".planning/research/evergreen/KB_SEMANTIC_REVIEW.json": "1098fcb1688768f6a343eac608aa09342dd132de27faed729668d7729e62ff43",
+    ".planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+    ".planning/research/evergreen/KB_SOURCE_REOPEN.jsonl": "4bb93c3397ae690400c16cba4a66c39d8e2db1d7c65677f375354cb6bd81f509",
+    ".planning/research/evergreen/KB_TAXONOMY.json": "63d6cf11f2b7633035b3044a2e233a2470b49d79abcd13c290a46699c6845e70"
+  },
+  "modelRuntimeSnapshot": [
+    {
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-flash",
+      "available": false,
+      "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "contractSignature": "53658f4096f345b9b3d6433105b2a039c5c5de98747aff74fa96492ff65c1f6a",
+      "interfaceSignature": "e5e50226ae4eae5c347730c928748e3d8aa7236e218a9ed6234f1e7827c97cb2",
+      "pricing": {
+        "inputCnyPerMillion": 0.8,
+        "outputCnyPerMillion": 2.7,
+        "cachedInputCnyPerMillion": 0.1
+      }
+    },
+    {
+      "tier": "reasoning",
+      "provider": "bailian",
+      "model": "deepseek-v4.1-flash",
+      "available": false,
+      "signature": "bailian:deepseek-v4.1-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "contractSignature": "1c45235c32f29904cda903d6f34b819cde4abaf8723f68e8d81570f649ff6a12",
+      "interfaceSignature": "5fda22cd892f4dd3fdaf96ca53dc8464312611e3f1ddee98976eeb318cb5e51b",
+      "pricing": {
+        "inputCnyPerMillion": 2,
+        "outputCnyPerMillion": 8,
+        "cachedInputCnyPerMillion": 0.2
+      }
+    }
+  ],
+  "sourceFreezeDigest": "93b756e2c5e0432819849f8b5790c085cccb7b4a3e0fc748da34cf97bccec2cf",
+  "executionGate": "CURRENT_USER_PAUSE_NOT_LIFTED; SMALL_BATCH_MUST_PASS_FIRST",
+  "candidateSourceVersion": "workflow-v2-integration-ee442ef15ffa"
+}

@@ -4,7 +4,7 @@ import { HttpError } from './db.ts'
 import type { DirectionScope } from './growth-controls.ts'
 import type { GrowthWriteResult } from './growth.ts'
 import type { Run } from './store.ts'
-import { hoursIn } from './turn-obligations.ts'
+import { applicableTimeBudget } from './turn-obligations.ts'
 import type { GrowthItem } from '../src/features/growth/types.ts'
 
 // N2.1/N2.2: weekly plans reuse growth_items (kind 'priority', assertion
@@ -100,7 +100,10 @@ export async function persistWeeklyPlan(c:PoolClient,run:Run,prepared:PreparedWe
   // parsed minutes equal availableMinutes, and a week-scoped constraint only
   // feeds a plan of the matching period. A same-numbered fact from another
   // task or another week never satisfies this.
-  const budgetMinutes=hoursIn(budgetItem.text)
+  const budgetScope=budgetItem.timeBasis as {kind?:string;which?:string;anchor?:string}|null
+  const budgetContext=budgetScope?.kind==='calendar_week'?{period:budgetScope.which==='next'?'next_week' as const:'this_week' as const,question:'本人可用或剩余时间',anchor:budgetScope.anchor??new Date().toISOString()}:undefined
+  const selectedBudget=applicableTimeBudget(budgetItem.text,budgetContext,input.period==='next_week'?'next_week':input.period==='this_week'?'this_week':undefined)
+  const budgetMinutes=selectedBudget?.amountMinutes??null
   if(budgetMinutes===null||budgetMinutes!==input.availableMinutes)
     throw new HttpError(400,'WEEKLY_PLAN_BUDGET_MISMATCH')
   const budgetBasis=budgetItem.timeBasis as {kind?:string;which?:string}|null

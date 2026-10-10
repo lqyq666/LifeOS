@@ -152,7 +152,7 @@ const TRAJECTORIES: { label: string; stages: Stage[] }[] = [
   },
   {
     label: '生活平衡', stages: [
-      { name: '边界追求', input: '这学期不再熬夜赶工', expect: t => t.themes.some(x => t.title === '生活平衡' || t.title.includes('熬夜') || t.status === 'active' && x.status === 'active') },
+      { name: '边界追求', input: '这学期不再熬夜赶工', expect: t => t.themes.some(x => x.title === '生活平衡' && x.status === 'active') },
       { name: '行动', input: '昨天我拒绝了社团的第三次加班请求，早点回去休息了', expect: t => t.experiences.length >= 1 },
     ],
   },
@@ -203,7 +203,7 @@ test('G5 compound: 先有经历后成主题的回填、身份自述后否定、�
   const compound = new Trajectory('compound')
   compound.say('我想试试做知识区自媒体')
   compound.say('这学期不再熬夜赶工')
-  assert.ok(compound.themes.some(t => t.kind === 'exploration') && compound.themes.some(t => t.title.includes('熬夜')), '自媒体 exploration 与 休息 boundary pursuit 并存')
+  assert.ok(compound.themes.some(t => t.title==='自媒体'&&t.kind === 'exploration') && compound.themes.some(t => t.title==='生活平衡'&&t.status==='active'), '自媒体 exploration 与 休息 boundary pursuit 并存')
 })
 
 test('starmap enrichment: skill tags, blocked detection, external feedback', async () => {

@@ -7,6 +7,7 @@ import { AutoTextarea } from './AutoTextarea'
 
 import { MemoryPanel } from './MemoryPanel'
 import { ControlCards } from './ControlCards'
+import {WorkflowPanel} from './WorkflowPanel'
 import { ReplyMarkdown } from './ReplyMarkdown'
 import { getAnswerQuestion, type AnswerOption } from './choices.ts'
 import { WORKSPACE_KEY, chatTitle, newChat, newWorkspace, parseWorkspace, updateChat, type Chat, type Workspace } from './workspace.ts'
@@ -415,6 +416,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
             {busy && <div className="qa-thinking" role="status"><Companion motion={companionMotion} animated={open && !summaryOpen} /><span>{companionMotion === 'received' ? '收到你的想法' : '整理中'}</span>{remote.current && <button type="button" onClick={() => void cancelRemote()}>取消</button>}</div>}
           </div>}
           {!conversation.demo && user && !summaryOpen && !busy && <ControlCards conversationId={active.id} refreshKey={controlRefresh} onResolved={() => setControlRefresh(value => value + 1)} />}
+          {!conversation.demo&&user&&!summaryOpen&&!busy&&<WorkflowPanel conversationId={active.id} refreshKey={controlRefresh} source={(()=>{const message=conversation.messages.filter(x=>x.role==='user'&&x.sourceId).at(-1);return message?.sourceId?{id:message.sourceId,text:message.text}:null})()} onChanged={()=>{setControlRefresh(value=>value+1);setStarMapUpdate('已同步你明确确认的计划或阶段方向。')}}/>}
         </div>
 
         <div className="qa-bottom">

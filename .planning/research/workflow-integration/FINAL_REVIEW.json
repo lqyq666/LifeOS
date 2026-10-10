@@ -1,0 +1,152 @@
+{
+  "version": "workflow-v2-integration-0670b2f68bf8",
+  "at": "2026-10-10T07:54:29.342509+00:00",
+  "status": "PASS_LOCAL_REVIEW_WIP_NOT_READY",
+  "blocker": [],
+  "high": [],
+  "reviewedPaths": [
+    "server/store.ts",
+    "server/turn-obligations.ts",
+    "server/turn-prompt.ts",
+    "server/weekly-plans.ts",
+    "server/workflows/action-review.ts",
+    "server/workflows/contracts.ts",
+    "server/workflows/provider-adapter.ts",
+    "server/workflows/task-host.ts",
+    "server/workflows/task-sources.ts",
+    "src/features/cognition/graph.ts",
+    "src/features/conversation/WorkflowPanel.tsx",
+    "tests/backend/workflow-continuity-browser.test.ts",
+    "tests/backend/workflow-continuity.test.ts",
+    "tests/backend/workflow-http-chain.test.ts",
+    "tests/backend/workflow-personalization.test.ts"
+  ],
+  "savedFailureToRepair": [
+    "time selector",
+    "short scoped supplement",
+    "zero empty actions",
+    "source handles",
+    "tri-state unknown wording",
+    "experience graph edge"
+  ],
+  "validation": {
+    "rootTests": {
+      "passed": 114,
+      "failed": 0,
+      "containsOriginal113": true,
+      "additionalSavedGraphRegression": 1,
+      "evidence": "root-current.log"
+    },
+    "relatedTests": {
+      "passed": 96,
+      "failed": 0,
+      "evidence": "VERIFICATION_REPORT.json",
+      "provider": "LOCAL_SIMULATED"
+    },
+    "focusedTests": {
+      "passed": 65,
+      "failed": 0,
+      "suites": 9,
+      "evidence": "product-final.log",
+      "notDisjointFromOtherSuites": true
+    },
+    "oldSavedFailureReplay": {
+      "passed": 13,
+      "failed": 0,
+      "evidence": "dgate13-replay.log",
+      "provider": "SAVED_REPLAY_LOCAL_SIMULATED"
+    },
+    "httpBrowserSuites": {
+      "passed": 4,
+      "failed": 0,
+      "evidence": "browser-http-current.log"
+    },
+    "authorizedAdoptionBrowserRerun": {
+      "passed": 1,
+      "failed": 0,
+      "evidence": "adoption-ui-current.log",
+      "overlapsHttpSuite": true
+    },
+    "longitudinalChains": {
+      "chains": 4,
+      "sessionsPerChain": 3,
+      "rounds": 24,
+      "chromeScreenshots": 24,
+      "evidence": "FOUR_TRAJECTORIES.json",
+      "provider": "SCRIPTED_LOOPBACK_ONLY",
+      "semanticQualityAccepted": false
+    },
+    "serverTypecheck": {
+      "status": "PASS",
+      "evidence": "server-current.log"
+    },
+    "frontendTypecheck": {
+      "status": "PASS",
+      "evidence": "frontend-current.log"
+    },
+    "build": {
+      "status": "PASS",
+      "evidence": "build-current.log",
+      "knownWarning": "Existing Three chunk exceeds 500 kB"
+    },
+    "sourceAudit": {
+      "priorityGuides": 13,
+      "pendingCandidates": 4,
+      "missingSources": 59,
+      "mainCorpusModified": false
+    }
+  },
+  "protectedSourceCheck": {
+    "at": "2026-10-10T07:54:29.342509+00:00",
+    "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
+    "headUnchanged": true,
+    "protectedSourceFiles": 450,
+    "baselineSourceFilesVerified": 423,
+    "changedBaselineFiles": [
+      "server/store.ts",
+      "server/turn-obligations.ts",
+      "server/turn-prompt.ts",
+      "server/weekly-plans.ts",
+      "server/workflows/action-review.ts",
+      "server/workflows/contracts.ts",
+      "server/workflows/provider-adapter.ts",
+      "server/workflows/task-host.ts",
+      "server/workflows/task-sources.ts",
+      "src/features/cognition/graph.ts",
+      "src/features/conversation/WorkflowPanel.tsx",
+      "tests/backend/workflow-continuity-browser.test.ts",
+      "tests/backend/workflow-continuity.test.ts",
+      "tests/backend/workflow-http-chain.test.ts",
+      "tests/backend/workflow-personalization.test.ts"
+    ],
+    "unexpectedChanged": [],
+    "beforeSourceArchiveSha256": "fb21f2ff14eb4436b231a9cdacf07159fa224562bc7d913f46357ebf6ee55ae7",
+    "originalPaidLedgerUnchanged": true,
+    "originalPaidLedgerSha256": "03891a1f7f7da4ae969cf36c5a11777b92b353c012f3a3591a7e2d15f682a1a4",
+    "realCalls": 0,
+    "cloudCalls": 0,
+    "budgetAddedCny": 0,
+    "cloudWrite": false,
+    "productionDeployment": false,
+    "gitResetCleanPushMerge": false
+  },
+  "limitations": [
+    "Scripted Provider verifies local contracts, not real-model reasoning quality.",
+    "Five Skills and four workflows retained; no install/cloud publication.",
+    "59 awaiting_source gaps and 16 needs_review guides retained; adaptation candidates not self-approved.",
+    "No persistent HTTP service started as a delivery claim; acceptance used temporary real servers and disposable PG."
+  ],
+  "historicalReviewSnapshot": "evidence/local-time-20261010/history-before-final-freeze/FINAL_REVIEW.json",
+  "remaining": {
+    "realModel": "PAUSED_NOT_RUN",
+    "cozeCloudCandidate": "PAUSED_NOT_RUN",
+    "cloudSkill": "PAUSED_NOT_RUN",
+    "productionDeployment": "PAUSED_NOT_RUN",
+    "finalPerformance": "PAUSED_NOT_RUN",
+    "blindEvaluation": "PAUSED_NOT_RUN",
+    "realStudentAcceptance": "PAUSED_NOT_RUN"
+  },
+  "warning": [
+    "Existing build chunk warning remains; no final performance or real model quality claim."
+  ]
+}

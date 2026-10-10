@@ -105,7 +105,7 @@ export function weeklyTimeIntent(text:string):{quote:string;minutes:number;perio
 // sit in an earlier clause of the same sentence (这周，只剩两小时). Next-week
 // clauses and marker-less statements stay out rather than being guessed into
 // this week. Spent time (花了/用了) and attached nouns (两小时课) never count.
-const remainingBudget=/((?:只)?还?剩(?:下|着)?|(?:只|就)?有|(?:只|就))[^，,。；;！？!?\n]{0,4}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头))(?![课班])/
+const remainingBudget=/((?:只)?还?剩(?:下|着)?|(?:只|就)?有|(?:只|就)|可用)[^，,。；;！？!?\n]{0,4}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头))(?![课班])/
 // 半小时=30, 一个半小时=90 resolve through parseExactHours on the whole token
 // first; bare amounts (两小时) strip the unit. Ambiguous forms (两个半小时) refuse.
 const remainingMinutes=(token:string):number|null=>{
@@ -147,6 +147,54 @@ export function remainingWeeklyTimeIntent(text:string):{quote:string;minutes:num
     }
   }
   return null
+}
+
+// The workflow and its evidence gate share this selector. Amount conversion,
+// clause protection and explicit recurring/remainder effects stay in this file.
+export type BudgetContext={period:'this_week'|'next_week';question:string;anchor:string}
+export type ApplicableBudget={period:'current'|'this_week'|'next_week';amountMinutes:number;scope:'recurring'|'available'|'remaining';qualification:'exact'|'estimate'|'upper_bound';quote:string;reason:string}
+export function applicableTimeBudget(text:string,context?:BudgetContext,target?:'this_week'|'next_week'):ApplicableBudget|undefined{
+ const clauses=scanUserClauses(text),valid=clauses.filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&!c.interrogative)
+ if(valid.some(c=>/先别分析|不要分析|不想继续|拒绝继续|取消|只想倾诉|只听我说|不要建议|不想要建议/.test(c.text)))return undefined
+ const candidates:ApplicableBudget[]=[]
+ let sentence=-1,period:'this_week'|'next_week'|undefined,correction=false,mentionsOpportunity=false
+ for(const clause of clauses){
+  if(clause.sentenceStart!==sentence){sentence=clause.sentenceStart;period=undefined;mentionsOpportunity=false}
+  if(!valid.includes(clause))continue
+  const original=clause.text.trim(),body=original.replace(/^(?:但是|不过|但|其实|更正一下|更正|改为)\s*/,'')
+  if(/下周/.test(body))period='next_week';else if(/这周|本周/.test(body))period='this_week'
+  if(opportunityNoun.test(body))mentionsOpportunity=true
+  if(thirdPersonSubject.test(body)||opportunityDemand.test(body)||/已经|已花|花了|用了|用掉|用完|不是|并非|至少|到八|到十/.test(body)||clause.quoteSpans.length||clause.codeSpans.length)continue
+  if(/更正|改为|其实/.test(original))correction=true
+  if(mentionsOpportunity&&/每周|每星期/.test(body)&&(!ownAvailability.test(body)||opportunityDemand.test(body)))continue
+  const qualification=/大概|大约|左右/.test(body)?'estimate':/最多|不超过|上限/.test(body)?'upper_bound':'exact'
+  const exact=body.replace(/大概|大约|左右|最多|不超过|上限/g,'')
+  const recurring=weeklyTimeIntent(exact)
+  const remainder=remainingWeeklyTimeIntent((period==='this_week'&&!/这周|本周/.test(exact)?'这周':'')+exact)
+  let candidate:ApplicableBudget|undefined
+  if(recurring)candidate={period:/每周|每星期/.test(exact)&&!/下周|这周|本周/.test(exact)?'current':recurring.period,amountMinutes:recurring.minutes,scope:'recurring',qualification,quote:original,reason:'本人常规周投入'}
+  else if(remainder)candidate={period:'this_week',amountMinutes:remainder.minutes,scope:/剩/.test(exact)?'remaining':'available',qualification,quote:original,reason:'指定周本人可用或剩余时间'}
+  else {
+   // Omitted answers require a durable, explicit own-availability question.
+   const scoped=period??(context&&/本人.*(?:可用|剩余)/.test(context.question)?context.period:undefined)
+   const match=/^(?:我|本人)?(?:(?:这周|本周|下周))?(?:我|本人)?(?:有|可用|能用|只有|能拿出|可拿出|只剩|还剩)?\s*([0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+)(?:个)?(小时|钟头|分钟)(?:可用)?$/.exec(exact)
+   const amount=match?(match[2]==='分钟'?chineseInteger(match[1]!):parseExactHours(match[1]!)):null
+   const noTime=/^(?:我|本人)?(?:这周|本周|下周)?(?:我|本人)?(?:没空|没有空闲时间|没有可用时间)$/.test(exact)
+   if(scoped&&(noTime||amount!==null))candidate={period:scoped,amountMinutes:noTime?0:amount!,scope:/剩/.test(exact)?'remaining':'available',qualification,quote:original,reason:period?'指定周本人可用时间':'承接持久任务的本人可用时间追问'}
+  }
+  if(candidate&&Number.isSafeInteger(candidate.amountMinutes)&&candidate.amountMinutes>=0&&candidate.amountMinutes<=10080){
+   if(correction){for(let i=candidates.length-1;i>=0;i--)if(candidates[i]!.period===candidate.period)candidates.splice(i,1);correction=false}
+   candidates.push(candidate)
+  }
+ }
+ const plan=weeklyPlanIntent(text)?.period
+ const wanted=target??(plan==='next_week'?'next_week':plan==='this_week'?'this_week':context?.period??(candidates.some(c=>c.period==='this_week')?'this_week':candidates.some(c=>c.period==='next_week')?'next_week':'this_week'))
+ const eligible=candidates.filter(c=>c.period==='current'||c.period===wanted)
+ const rank=(c:ApplicableBudget)=>c.period==='current'?1:c.scope==='remaining'?3:2
+ const strongest=eligible.filter(c=>rank(c)===Math.max(...eligible.map(rank)))
+ if(!strongest.length||new Set(strongest.map(c=>c.amountMinutes)).size>1)return undefined
+ const chosen=strongest.at(-1)!
+ return {...chosen,period:chosen.period==='current'&&plan&&plan!=='current'?wanted:chosen.period}
 }
 
 function groupBySentence(clauses:readonly UserClauseLike[]):UserClauseLike[][]{

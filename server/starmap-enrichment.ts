@@ -1,6 +1,6 @@
 // 星图增强：能力标签提取、未完成经历识别、外部反馈标记——全部从
 // 已提交经历的原文字段确定性提取，零新增模型调用。
-import type { PoolClient } from 'pg'
+import type { PoolClient,Pool } from 'pg'
 import { randomUUID } from 'node:crypto'
 import { recordChangeEvent } from './identity.ts'
 
@@ -45,7 +45,7 @@ export function isExternalFeedback(result: string, quote: string): boolean {
 // ── 数据库读写 ──
 
 // 从已确认经历中汇总能力标签（有证据的那种），返回 {tag, count} 列表。
-export async function readSkillTags(c: PoolClient, user: string): Promise<{ tag: string; count: number }[]> {
+export async function readSkillTags(c: PoolClient|Pool, user: string): Promise<{ tag: string; count: number }[]> {
   const rows = (await c.query("SELECT content FROM experiences WHERE user_id=$1 AND status='confirmed'", [user])).rows
   const counts = new Map<string, number>()
   for (const row of rows) {
@@ -59,7 +59,6 @@ export async function readSkillTags(c: PoolClient, user: string): Promise<{ tag:
 
 // ── P2: 经历间关联（故事线）──
 // 用语义 embedding 找相似经历，用时间顺序建 follows 关系。
-import type { PoolClient } from 'pg'
 
 export async function buildExperienceRelations(c: PoolClient, user: string, newExperienceId: string, newText: string): Promise<number> {
   const others = (await c.query(

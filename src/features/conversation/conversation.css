@@ -189,6 +189,14 @@
 .qa-md-code { font-family: var(--font-mono); font-size: .85em; padding: .1em .4em; border-radius: 6px; background: var(--qa-surface); color: var(--qa-ink); }
 .qa-md-link { color: #b9adfa; text-underline-offset: 3px; }
 .qa-md-lead { font-size: 1.02rem; font-weight: 600; color: var(--qa-ink); letter-spacing: -.01em; }
+.qa-full-method { color: var(--qa-ink); border-top: 1px solid var(--qa-line); padding-block: .6rem; overflow-wrap: anywhere; }
+.qa-full-method summary { cursor: pointer; padding-block: .4rem; }
+.qa-full-method summary:hover { text-decoration: underline; }
+.qa-full-method-body { display: grid; gap: .8rem; padding-block: .8rem; max-width: 70ch; }
+.qa-full-method-body h3 { margin: 0; font-size: 1rem; }
+.qa-full-method-body ol { padding-left: 1.5rem; }
+.qa-full-method-body li { margin-block: .5rem; }
+.qa-full-method button { margin-left: .6rem; padding: .2rem .6rem; color: inherit; background: none; border: 1px solid var(--qa-line); border-radius: .4rem; }
 .qa-md-h { margin: .2em 0 0; font-weight: 650; color: var(--qa-ink); letter-spacing: -.01em; }
 .qa-md-h1 { font-size: 1.18rem; }
 .qa-md-h2 { font-size: 1.1rem; }

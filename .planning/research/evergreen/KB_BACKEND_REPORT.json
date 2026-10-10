@@ -1,0 +1,68 @@
+{
+  "evidence": "REAL_ISOLATED_POSTGRESQL_AND_LOCAL_ENCODER",
+  "realProviderCalls": 0,
+  "coldIndex": {
+    "signature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v1",
+    "epoch": "119",
+    "corpusHash": "90391b4e91d0f237a7d98cd68c8043a5393d14a0d74bcce04b51df0e907e792c",
+    "cards": 16,
+    "segments": 101,
+    "encodedSegments": 101,
+    "cacheHits": 0
+  },
+  "warmIndex": {
+    "signature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v1",
+    "epoch": "119",
+    "corpusHash": "90391b4e91d0f237a7d98cd68c8043a5393d14a0d74bcce04b51df0e907e792c",
+    "cards": 16,
+    "segments": 101,
+    "encodedSegments": 0,
+    "cacheHits": 101
+  },
+  "sampleTrace": {
+    "signature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v1",
+    "epoch": "119",
+    "candidates": [
+      {
+        "id": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+        "keyword": 8,
+        "semantic": 0.5592633679231981,
+        "rrf": 0.03278688524590164,
+        "reason": "eligible"
+      }
+    ],
+    "selected": [
+      "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d"
+    ],
+    "queryEncoded": true
+  },
+  "frozenEvaluation": {
+    "routing": {
+      "numerator": 235,
+      "denominator": 235
+    },
+    "recall5": {
+      "numerator": 56,
+      "denominator": 56
+    },
+    "top1": {
+      "numerator": 56,
+      "denominator": 56
+    },
+    "corpus": {
+      "drafts": 32,
+      "approved": 16,
+      "unavailablePositiveTargets": 59
+    }
+  },
+  "ownedFeedback": {
+    "suggested": true,
+    "blocked": true,
+    "privateExperienceNotInvented": true
+  },
+  "withdrawal": {
+    "usageHidden": true,
+    "retrievalHidden": true
+  },
+  "status": "PASS"
+}

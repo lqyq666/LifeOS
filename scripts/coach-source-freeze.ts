@@ -15,7 +15,7 @@ export function captureCoachSource(root=process.cwd()){
     if(lstatSync(exact).isDirectory()){for(const entry of readdirSync(exact).sort())visit(resolve(exact,entry));return}
     files.push({path:relative(base,exact).replaceAll('\\','/'),sha256:hash(readFileSync(exact))})
   }
-  for(const directory of ['server','scripts','src','tests','public','deploy'])if(existsSync(resolve(base,directory)))visit(resolve(base,directory))
+  for(const directory of ['server','scripts','src','tests','public','deploy','skills'])if(existsSync(resolve(base,directory)))visit(resolve(base,directory))
   for(const entry of readdirSync(base).sort())if(/^(?:package(?:-lock)?\.json|tsconfig.*\.json|vite\.config\..*|index\.html|AGENTS\.md|PRODUCT\.md|Dockerfile|compose\.yaml|\.dockerignore)$/.test(entry))visit(resolve(base,entry))
   for(const name of ['OBJECTIVE_V1_3_ACTION_COACH.md','GOAL_V1_3_ACTION_COACH.txt'])if(existsSync(resolve(base,'docs/v1.3-action-coach',name)))visit(resolve(base,'docs/v1.3-action-coach',name))
   for(const name of ['source-verification.json','verified-method-cards.json'])if(existsSync(resolve(base,'evidence/v1.3-action-coach/research',name)))visit(resolve(base,'evidence/v1.3-action-coach/research',name))

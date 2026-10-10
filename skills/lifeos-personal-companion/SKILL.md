@@ -55,7 +55,7 @@ never a settled fact.
 
 Before any state read/write, verify the product is the CURRENT build — never
 fall back to whatever port happens to listen:
-1. `GET {origin}/api/run/version` returns `{service:'LifeOS', head, freezeDigest, skillVersion}` — the head must match the repo HEAD you developed against; a mismatch (or an endpoint that 404s, indicating a pre-growth build such as an old Docker image) BLOCKS state operations: report the mismatch and continue conversation-only.
+1. `GET {origin}/api/run/version` returns `{service:'LifeOS', head, skillVersion, contractGeneration}`. Compare the reported Git head with the developed commit (the backend reports a short hash; require a hexadecimal prefix of at least seven characters). A mismatch, unknown head or missing endpoint blocks state operations: report it and continue conversation-only. A matching commit does not identify uncommitted WIP; verify the specific evergreen endpoints before relying on this extension.
 2. Never substitute 127.0.0.1:8790 (old container), a production domain, or any other reachable service for the configured origin.
 
 
@@ -83,6 +83,22 @@ correction/forgetting and same-transaction receipts. Full API contract:
 5. Show the user, on request, "我现在怎么理解你" straight from growth items —
    facts (user words), observations (AI, with limits), unknowns — not a rewritten
    flattering profile.
+
+### Evergreen methods and real feedback
+
+When suggesting a method or continuing its feedback, read the current event
+and the guide-use contract in `references/host-api.md`. Use the exact approved
+guide ID and revision returned by the product. Read the full method before
+expanding its steps; distinguish source-supported claims from LifeOS editorial
+adaptations, and fit the selected branch to the person's actual constraints.
+
+Guide progress belongs to one owned event. A recommendation is `suggested`;
+the other six states require the user's actual report. Continue from that
+branch and step, including refusal and waiting for results. A saved suggestion
+does not mean the person accepted or tried it. Claim a saved change only after
+the committed `stateChange.guideUsage` receipt, then read back the owned log.
+When the method or evidence is unavailable, explain the gap and keep any
+personal feedback distinct from a validated method recommendation.
 
 ### Honesty boundaries (hard rules)
 
@@ -128,7 +144,12 @@ corrections instead of assuming.
 
 ## Verification & version
 
-- Skill version: 1.2.0 (P4, 2026-10-07): mandatory runtime fingerprint check before state operations; relevance-selected memory context. Product contract: same-turn engine at
+- Skill version: 1.2.2-candidate (local WIP, 2026-10-10): preserve the evergreen
+  readback and feedback extension; add durable deep-task selection and actual
+  post-commit star-map diffs. The candidate process reports this main Skill hash,
+  five business Skill hashes and its startup sourceDigest. User-level and Coze
+  copies have not been synchronized; runtime fingerprints do not imply deployment.
+  Mandatory runtime fingerprint check before state operations; relevance-selected memory context. Product contract: same-turn engine at
   `server/turn-engine.ts`; behavior evidence matrices in
   `P1_BEHAVIOR_ACCEPTANCE.md` / `P2_BEHAVIOR_ACCEPTANCE.md` (repo root).
   P2: corrections must actually persist (never claim 已更正 without a real
@@ -137,3 +158,13 @@ corrections instead of assuming.
   drives the real product and prints state diffs).
 - If the host cannot reach the product, this skill degrades to honest
   conversation-only mode per the boundaries above.
+
+## Workflow candidate integration
+
+The student continues with this one companion. Five internal business Skills do not create five chatbots. Ordinary chat performs zero or one generation; explicit deep comparison permits two or three analysts, one independent critic, and one synthesis, at most five calls. Synthesis selects only reviewed facts and server-owned statements. Preserve unknowns and refusals.
+
+Before state operations verify the candidate process sourceDigest and mainSkillDigest against the frozen local package, not only Git HEAD. GET /api/workflows/capabilities tells whether the candidate is enabled. POST /api/workflows requires a stable requestId, owned conversationId/currentMessageId, two or three supported directions and consent=true; the server derives authorization, available time and budget. Read GET /api/workflows/:id for actual progress, cancel via POST /api/workflows/:id/cancel.
+
+Analysis leaves personal state unchanged. Only an explicit user selection calls POST /api/workflows/:id/actions with kind=action, direction or reject and a stable confirmation requestId. Saved action plans remain unexecuted. Direction changes use the original authorized finishRun transaction with current snapshots. GET after refresh/new session is authoritative. Source withdrawal, cancellation or version conflict stops old suggestions. Never silently invoke a paid retry or write user identity yourself.
+
+Cloud candidate calls are paused by the user in this run. Local synthetic transport evidence is not real Provider acceptance. Full status remains WIP_NOT_READY.

@@ -206,7 +206,19 @@ export class CoachProviderBudget {
     })
   }
   reserve(input:Omit<CoachCallReceipt,'callId'|'startedAt'|'status'>,restriction?:ComparisonRestriction){
-    return this.change(ledger=>{
+    return this.change(ledger=>this.reserveWithin(ledger,input,restriction))
+  }
+  // One lock and one atomic replacement for the whole graph. If any node
+  // fails authorization, the callback throws and none of the new rows persist.
+  reserveGraph(inputs:Omit<CoachCallReceipt,'callId'|'startedAt'|'status'>[]){
+    if(inputs.length<1||inputs.length>5||new Set(inputs.map(x=>x.logicalCallId)).size!==inputs.length||inputs.some(x=>!x.logicalCallId||x.runId!==inputs[0].runId||x.sourceDigest!==inputs[0].sourceDigest||x.signature!==inputs[0].signature))throw new Error('WORKFLOW_GRAPH_INVALID')
+    return this.change(ledger=>inputs.map(input=>{
+      const receipt=this.reserveWithin(ledger,input)
+      this.refreshAdditional(ledger);this.refreshCurrentGrant(ledger);this.refreshContinuation(ledger)
+      return receipt
+    }))
+  }
+  private reserveWithin(ledger:any,input:Omit<CoachCallReceipt,'callId'|'startedAt'|'status'>,restriction?:ComparisonRestriction){
       restriction=ledger.continuation?undefined:ledger.comparisonRestriction??restriction
       if(restriction){
         const allowance=comparisonAllowance(ledger,restriction)
@@ -230,7 +242,6 @@ export class CoachProviderBudget {
       if(!additional&&requestId&&['turn','repair'].includes(input.purpose)&&!userRequests.has(requestId)&&userRequests.size>=limits.generation)throw new Error('USER_TURN_RESERVATION_EXHAUSTED')
       const receipt:CoachCallReceipt={...input,funding:ledger.currentGrant?'current_grant':additional?'additional_cny':undefined,callId:randomUUID(),startedAt:new Date().toISOString(),status:'reserved'}
       ledger.calls.push(receipt);return receipt
-    })
   }
   finish(callId:string,details:{outcome:string;usage:unknown;estimatedCostCny:number|'unknown';providerResponseId:string|null}){
     return this.change(ledger=>{

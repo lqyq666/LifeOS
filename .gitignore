@@ -13,3 +13,16 @@ dist/
 /V1_1_NOT_ACCEPTED.md
 /HANDOFF_V1_1_NOT_ACCEPTED.md
 /LifeOS-V1.1.2-Cost-Slim-20261002.zip
+
+# Generated local acceptance evidence stays outside version control.
+# Preserve reviewed public source fixtures required by the offline tests.
+/.planning/research/*/evidence/*
+!/.planning/research/workflow-integration/evidence/public-card/
+/.planning/research/workflow-integration/evidence/public-card/*
+!/.planning/research/workflow-integration/evidence/public-card/candidate.json
+!/.planning/research/workflow-integration/evidence/public-card/needs-review-candidate.json
+!/.planning/research/workflow-integration/evidence/public-card/original.html
+/.planning/research/**/*.log
+/.planning/research/**/*.zip
+/.planning/research/**/WORKFLOW_REAL_TRACES_*.json
+/.planning/research/workflow-integration/probe-original.jsonl

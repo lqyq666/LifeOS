@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import { pool } from './db.ts'
 import type { PublicKnowledgeQuery } from './coze-public-query.ts'
 import type { KnowledgeRecord } from './campus-knowledge.ts'
+import {guideIsUsable,deduplicateGuides} from './evergreen-guide.ts'
 
 // N3: Coze is a PUBLIC-knowledge retrieval candidate source only. Nothing here
 // ever writes campus_knowledge, marks anything verified, or extends an
@@ -177,8 +178,8 @@ export async function mapCozeCandidates(hits:readonly PublicKnowledgeHit[],confi
       const contentHash=createHash('sha256').update(hit.content).digest('hex')
       if(contentHash!==binding.contentHash){unverified.push(hit.documentId);continue}
     }
-    const row=(await c.query('SELECT *,official_knowledge_current(payload) AS official_current FROM campus_knowledge WHERE id=$1',[binding.knowledgeCardId])).rows[0] as (KnowledgeRecord&{official_current?:boolean})|undefined
-    if(!row||row.status!=='verified'||row.revision!==binding.expectedRevision||row.payload.sourceHash!==binding.expectedSourceHash||row.official_current===false||(row.valid_until&&Date.parse(String(row.valid_until))<=Date.now())){
+    const row=(await c.query('SELECT *,official_knowledge_current(payload) AS official_current,kb_knowledge_current(payload) AS kb_current FROM campus_knowledge WHERE id=$1',[binding.knowledgeCardId])).rows[0] as (KnowledgeRecord&{official_current?:boolean;kb_current?:boolean})|undefined
+    if(!row||!guideIsUsable(row.payload)||row.kb_current===false||row.status!=='verified'||row.revision!==binding.expectedRevision||row.payload.sourceHash!==binding.expectedSourceHash||row.official_current===false||(row.valid_until&&Date.parse(String(row.valid_until))<=Date.now())){
       unverified.push(hit.documentId);continue
     }
     const normalized=(text:string)=>text.replace(/\r\n/g,'\n')
@@ -189,5 +190,6 @@ export async function mapCozeCandidates(hits:readonly PublicKnowledgeHit[],confi
     // remote text cannot inherit trust.
     verified.push({card:row,excerpt:row.payload.excerpt})
   }
-  return {verified,unverifiedDocumentIds:unverified}
+  const ids=new Set(deduplicateGuides(verified.map(v=>v.card.payload),6).map(c=>c.id))
+  return {verified:verified.filter((v,i)=>ids.has(v.card.id)&&verified.findIndex(other=>other.card.id===v.card.id)===i),unverifiedDocumentIds:unverified}
 }

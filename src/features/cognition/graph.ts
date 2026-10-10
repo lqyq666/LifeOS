@@ -2,7 +2,7 @@ import seed from './data/lifeos-graph.seed.json' with { type: 'json' }
 
 export type Node = typeof seed.nodes[number] & { serverId?: string; serverRevision?: number; conversationId?: string; conversationTitle?: string; sourceMessageId?: string; themeId?: string; themeKind?: 'goal'|'pursuit'|'valued_point'|'interest'; themeStatus?: 'active'|'pending'|'paused'|'retired'; themePinned?: boolean; themeRevision?: number; themeUpdatedAt?: string }
 export type Edge = typeof seed.edges[number]
-export type GraphData = Omit<typeof seed, 'nodes'> & { nodes: Node[]; changeEvents?: { subjectType: string; transition: string; reason: string; committedAt: string; userConfirmation: string; unknowns?: string }[]
+export type GraphData = Omit<typeof seed, 'nodes'> & { nodes: Node[]; changeEvents?: { subjectType: string; transition: string; reason: string; committedAt: string; userConfirmation: string; before?:string; now?:string; unknowns?: string }[]
   starmapNextStep?: string }
 export type Review = { disposition: 'accepted' | 'edited' | 'rejected'; editedReason?: string; reviewedAt: string }
 export type Reviews = Record<string, Review>
@@ -16,7 +16,12 @@ export function createGraph(data: GraphData) {
   const edgeIds = new Set<string>(), pairs = new Set<string>()
   for (const e of data.edges) {
     const source = nodes.get(e.sourceId), target = nodes.get(e.targetId)
-    if (!source || !target || target.type !== 'value' || !((e.type === 'HAS_VALUE' && source.type === 'self') || (e.type === 'RELATES_TO_VALUE' && source.type === 'experience'))) throw new Error(`Invalid edge ${e.id}`)
+    const legacyExperienceRelation=e.type==='RELATES_TO_VALUE'&&(e as Edge&{sourceEvidenceType?:string}).sourceEvidenceType==='experience_relation'
+    const experienceRelation=e.type==='RELATES_TO_EXPERIENCE'||legacyExperienceRelation
+    const valid=source&&target&&(experienceRelation
+      ?source.type==='experience'&&target.type==='experience'&&source.id!==target.id
+      :target.type==='value'&&((e.type==='HAS_VALUE'&&source.type==='self')||(e.type==='RELATES_TO_VALUE'&&source.type==='experience')))
+    if (!valid) throw new Error(`Invalid edge ${e.id}`)
     const pair = `${e.type}:${e.sourceId}:${e.targetId}`
     if (edgeIds.has(e.id) || pairs.has(pair)) throw new Error(`Duplicate edge ${e.id}`)
     edgeIds.add(e.id); pairs.add(pair)

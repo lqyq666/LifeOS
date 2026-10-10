@@ -6,6 +6,8 @@ import * as store from '../../server/store.ts'
 import { createGrowthItem, applyGrowthAction } from '../../server/growth.ts'
 import { getMemoryView, setMemorySettings } from '../../server/memory.ts'
 
+test.after(async()=>{await pool.end()})
+
 async function seedUser(name: string) {
   const user = name + '-' + randomUUID()
   await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())', [user, user + '@example.invalid'])

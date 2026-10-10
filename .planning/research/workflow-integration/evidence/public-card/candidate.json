@@ -1,0 +1,267 @@
+{
+  "card": {
+    "id": "e6ad610b-549e-4b09-89bc-34223577fb49",
+    "revision": 2,
+    "kind": "method",
+    "status": "unverified",
+    "synthetic": false,
+    "title": "合上材料检查记忆",
+    "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+    "publisher": "美国教育科学研究院 WWC",
+    "publishedYear": "2007",
+    "verifiedAt": "2026-10-10T03:21:13.178Z",
+    "validUntil": null,
+    "excerpt": "Space learning over time.\nInterleave worked example solutions with problem-solving exercises.\nUse quizzing to promote learning.\nAsk deep explanatory questions.",
+    "claim": "IES指南建议使用测验促进学习。",
+    "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+    "limitations": "不继承个人最优时间、录取概率或人格结论。；全部操作步骤为LifeOS编辑适配。",
+    "mechanisms": [
+      "提取练习"
+    ],
+    "sourceHash": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+    "guide": {
+      "schemaVersion": 1,
+      "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+      "canonicalKey": "retrieval-practice",
+      "aliases": [
+        "主动回忆",
+        "提取练习",
+        "不看答案",
+        "自测",
+        "记不住",
+        "主动回忆"
+      ],
+      "domains": [
+        "04"
+      ],
+      "task": "合上材料检查记忆",
+      "stage": "start/adjust/compare",
+      "mechanism": "提取练习",
+      "prerequisites": [
+        "本人愿意接受方法；当前有对应的具体任务。"
+      ],
+      "exclusions": [
+        "明确只想倾听或拒绝建议。",
+        "医疗、法律、投资结论或个人成功率预测。"
+      ],
+      "evidenceIds": [
+        "ies-learning-r2-workflow-original"
+      ],
+      "claims": [
+        {
+          "id": "retrieval-practice-source",
+          "text": "IES指南建议使用测验促进学习。",
+          "basis": "source_supported",
+          "evidenceIds": [
+            "ies-learning-r2-workflow-original"
+          ],
+          "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+          "limitations": "不继承个人最优时间、录取概率或人格结论。"
+        },
+        {
+          "id": "retrieval-practice-adaptation",
+          "text": "挑一个已学问题，合上材料作答，再对照原资料标出缺失或错误并修正。",
+          "basis": "editorial_adaptation",
+          "evidenceIds": [
+            "ies-learning-r2-workflow-original"
+          ],
+          "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+          "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+        }
+      ],
+      "sourceGroups": [
+        "ies-learning"
+      ],
+      "principle": "提取练习；公开方法与本人经历分开。",
+      "branches": [
+        {
+          "id": "C04-1",
+          "candidateId": "C04-1",
+          "task": "主动回忆",
+          "stage": "start",
+          "steps": [
+            {
+              "id": "C04-1-1",
+              "text": "围绕“主动回忆”确认当前对象与已做到的步骤；已知信息不重复追问。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            },
+            {
+              "id": "C04-1-2",
+              "text": "挑一个已学问题，合上材料作答，再对照原资料标出缺失或错误并修正。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            },
+            {
+              "id": "C04-1-3",
+              "text": "记录观察：能独立回忆的部分和需要查回的部分。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "ies-learning-r2-workflow-original"
+              ]
+            }
+          ]
+        }
+      ],
+      "oneKeyQuestion": "你要检查哪部分知识，是否已经初步理解？",
+      "smallestAction": "只回答一个问题。",
+      "exampleBudgetOnly": true,
+      "lowEnergyAlternative": "只回答一个问题。",
+      "stopConditions": [
+        "本人拒绝继续。",
+        "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+      ],
+      "feedbackBranches": {
+        "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+        "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+        "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+        "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+        "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+      },
+      "expectedObservation": "能独立回忆的部分和需要查回的部分。",
+      "retrievalSummary": "合上材料检查记忆；主动回忆 提取练习 不看答案 自测 记不住；主动回忆",
+      "referenceBody": "合上材料检查记忆\n原理：提取练习\nLifeOS适配步骤：挑一个已学问题，合上材料作答，再对照原资料标出缺失或错误并修正。\n低精力替代：只回答一个问题。\n观察：能独立回忆的部分和需要查回的部分。\n来源支持：指南提出分散学习、测验和解释性问题；保留原教学范围。\n不能推出：不继承个人最优时间、录取概率或人格结论。",
+      "reviewStatus": "needs_review",
+      "reviewReason": "实际读取 IES 原文，技术审阅完成；独立人类审批尚未取得。",
+      "review": null,
+      "contentHash": "61e4ef68bcea5d4dfa868475efc077ce569a354730c4710e62c8db3683fa27c3",
+      "indexSignature": "",
+      "legacyIds": [
+        "12000000-0000-4000-8000-000000000002"
+      ],
+      "replaces": []
+    }
+  },
+  "source": {
+    "source_id": "ies-learning",
+    "source_revision": 2,
+    "canonical_url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+    "platform": "ies.ed.gov",
+    "original_work_id": "/ncee/wwc/PracticeGuide/1",
+    "title": "WWC | Organizing Instruction and Study to Improve Student Learning",
+    "publisher": "美国教育科学研究院 WWC",
+    "author": "Harold Pashler (Chair) and practice-guide panel",
+    "published_at": "2007-09",
+    "retrieved_at": "2026-10-10T02:47:41.452Z",
+    "source_group": "ies-learning",
+    "access_status": "body_accessible",
+    "save_scope": "short_excerpt_and_original_synthesis_only",
+    "original_fingerprint": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+    "observed_metrics": {
+      "views": null,
+      "likes": null,
+      "favorites": null,
+      "observed_at": "2026-10-10T02:47:41.452Z"
+    },
+    "semantic_scope": "指南提出分散学习、测验和解释性问题；保留原教学范围。",
+    "cannot_infer": "不继承个人最优时间、录取概率或人格结论。",
+    "publication_date_precision": "month",
+    "author_locator": "original body: panel listing"
+  },
+  "evidence": {
+    "evidence_id": "ies-learning-r2-workflow-original",
+    "source_id": "ies-learning",
+    "source_revision": 2,
+    "quote": "Use quizzing to promote learning.",
+    "locator": "Recommendations, section 5a/5b",
+    "context": "指南的四项推荐分别为分散学习、示例与独立练习交替、测验和解释性问题；大学生个人实施属于校园适配，不继承统一复习间隔。",
+    "acquisition": "Public original GET after agent-reach/Jina 401; cheerio or PyMuPDF extraction, not watched video",
+    "content_hash": "d8f5dbf2f630e7d3eb12713bde66107cca4d8be98aa6a1a92a4e8edbf276176e",
+    "extraction_coverage": [
+      {
+        "locator": "quoted sentence and surrounding paragraph",
+        "disposition": "adopted_for_bounded_method",
+        "reason": "指南提出分散学习、测验和解释性问题；保留原教学范围。"
+      },
+      {
+        "locator": "remaining original body",
+        "disposition": "not_adopted",
+        "reason": "Not reviewed as a full-document claim; no dates, prices, success claims, diagnostic or legal content extracted."
+      }
+    ],
+    "retrieved_at": "2026-10-10T05:28:07.950Z"
+  },
+  "candidate": {
+    "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+    "revision": 2,
+    "contentHash": "61e4ef68bcea5d4dfa868475efc077ce569a354730c4710e62c8db3683fa27c3",
+    "readings": [
+      {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "canonicalOrigin": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "revision": 1,
+        "sourceHash": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+        "readerId": "http-original-reader",
+        "quote": "Use quizzing to promote learning.",
+        "actuallyRead": true,
+        "withdrawn": false
+      }
+    ],
+    "claims": [
+      {
+        "id": "retrieval-source",
+        "text": "指南建议通过测验促进学习；保留教学范围。",
+        "sourceHash": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+        "quote": "Use quizzing to promote learning.",
+        "support": "source_supported"
+      },
+      {
+        "id": "retrieval-adaptation",
+        "text": "合上材料回答一个已学问题，再对照资料检查；具体步骤是 LifeOS 适配，不保证个人成绩。",
+        "sourceHash": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+        "quote": "Use quizzing to promote learning.",
+        "support": "lifeos_adaptation"
+      }
+    ],
+    "coverage": [
+      {
+        "candidateId": "C04-1",
+        "status": "covered",
+        "destination": "e6ad610b-549e-4b09-89bc-34223577fb49"
+      }
+    ],
+    "producerId": "local-card-extractor",
+    "skeptic": {
+      "reviewerId": "deterministic-source-and-scope-checker",
+      "reviewedContentHash": "61e4ef68bcea5d4dfa868475efc077ce569a354730c4710e62c8db3683fa27c3",
+      "issues": []
+    },
+    "release": {
+      "humanReviewerId": null,
+      "reviewedContentHash": null,
+      "approved": false
+    }
+  },
+  "gate": {
+    "publishEligible": false,
+    "status": "needs_review",
+    "issues": [
+      "independent_human_release_required",
+      "authenticated_host_release_required"
+    ],
+    "independentSourceCount": 1
+  },
+  "reading": {
+    "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+    "responseStatus": 200,
+    "capturedOriginalReused": true,
+    "capturedAt": "2026-10-10T05:25:42.860Z",
+    "bodySha256": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+    "quoteSha256": "d8f5dbf2f630e7d3eb12713bde66107cca4d8be98aa6a1a92a4e8edbf276176e",
+    "locator": "Recommendations, section 5a/5b",
+    "offsetInExtractedText": 833,
+    "actuallyReadVerified": true
+  },
+  "reviewLayers": {
+    "sourceRead": "REAL_PUBLIC_HTTP",
+    "extraction": "LOCAL_CODEX_EDITORIAL_ADAPTATION",
+    "skeptic": "DETERMINISTIC_SOURCE_SCOPE_REVIEW_NOT_INDEPENDENT_AGENT",
+    "humanApproval": "NOT_OBTAINED",
+    "publication": "NOT_PUBLISHED"
+  },
+  "originalCorpusModified": false
+}

@@ -1,0 +1,60 @@
+{
+  "evidence": "REAL_OFFLINE_ENCODER_AND_ISOLATED_POSTGRESQL_SYNTHETIC_CORPUS",
+  "realProviderCalls": 0,
+  "rows": [
+    {
+      "size": 32,
+      "coldBuildMs": 6198,
+      "newEncodedSegments": 32,
+      "warmEncodedSegments": 0,
+      "cacheHits": 32,
+      "queries": 20,
+      "queryP50Ms": 8.88,
+      "queryP95Ms": 10.17,
+      "queryTimingScope": "SQL validation plus real local query encoding and ranking; excludes provider and browser"
+    },
+    {
+      "size": 112,
+      "coldBuildMs": 376,
+      "newEncodedSegments": 80,
+      "warmEncodedSegments": 0,
+      "cacheHits": 112,
+      "queries": 20,
+      "queryP50Ms": 9.86,
+      "queryP95Ms": 13.71,
+      "queryTimingScope": "SQL validation plus real local query encoding and ranking; excludes provider and browser"
+    },
+    {
+      "size": 500,
+      "coldBuildMs": 1848,
+      "newEncodedSegments": 388,
+      "warmEncodedSegments": 0,
+      "cacheHits": 500,
+      "queries": 20,
+      "queryP50Ms": 12.32,
+      "queryP95Ms": 16.56,
+      "queryTimingScope": "SQL validation plus real local query encoding and ranking; excludes provider and browser"
+    },
+    {
+      "size": 1000,
+      "coldBuildMs": 2401,
+      "newEncodedSegments": 500,
+      "warmEncodedSegments": 0,
+      "cacheHits": 1000,
+      "queries": 20,
+      "queryP50Ms": 15.64,
+      "queryP95Ms": 18.9,
+      "queryTimingScope": "SQL validation plus real local query encoding and ranking; excludes provider and browser"
+    }
+  ],
+  "incremental": {
+    "signature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v1",
+    "epoch": "2002",
+    "corpusHash": "62a894feb2e63ef8e8299eb6d8b23304d5bc6d7a6cf22875b6cada178a643980",
+    "cards": 1000,
+    "segments": 1000,
+    "encodedSegments": 1,
+    "cacheHits": 999
+  },
+  "status": "PASS"
+}

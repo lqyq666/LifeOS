@@ -1,0 +1,13 @@
+{
+  "package": "D:/aaaLife/coze-evergreen-development-20261010-d870fcf3.zip",
+  "sha256": "4f81bf2c8443a1decd478bd6d8a48beba4a37e585cc1f14b8029c544c9b99fd7",
+  "protectedFiles": 85,
+  "missing": [],
+  "mismatch": [],
+  "integrationAllowed": "SINGLE_INTEGRATOR_MINIMAL_FLAGGED_HOOK",
+  "originalBaselineStatus": "READY_FOR_CONTRACT_ONLY / INTEGRATION_BLOCKED",
+  "sharedChangedFiles": [
+    "server/turn-engine.ts"
+  ],
+  "productionEnabled": false
+}

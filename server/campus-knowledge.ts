@@ -1,5 +1,7 @@
 import {createHash} from 'node:crypto'
+import type {PoolClient} from 'pg'
 import {pool,transaction,HttpError} from './db.ts'
+import {validateEvergreenGuide,type EvergreenGuide} from './evergreen-guide.ts'
 export type PolicyScopeRule=
   |{status:'specific';value:string;quote:string}
   |{status:'all';quote:string}
@@ -7,6 +9,7 @@ export type PolicyScopeRule=
   |{status:'unknown';reason:string}
 export type PolicyScopeRules=Record<'institution'|'department'|'project'|'year'|'population',PolicyScopeRule>
 export type KnowledgeCard={
+  guide?:EvergreenGuide;
   id:string;revision:number;kind:'method'|'case'|'policy';status:'verified'|'unverified'|'revoked';synthetic:boolean;
   title:string;url:string;publisher:string;publishedYear:string;verifiedAt:string;validUntil:string|null;
   excerpt:string;claim:string;scope:string;limitations:string;mechanisms:string[];comparisonGroup?:string;outcome?:'support'|'boundary';
@@ -40,6 +43,7 @@ export function validPolicyScopeRules(value:unknown,excerpt:string):value is Pol
 }
 export function policyScopeEvidence(card:KnowledgeCard){return card.scopeEvidence?.join('\n')??card.excerpt}
 export function validateKnowledge(card:KnowledgeCard,allowSynthetic=false){
+  validateEvergreenGuide(card)
   if(!/^[0-9a-f-]{36}$/i.test(card.id)||!Number.isInteger(card.revision)||card.revision<1)throw new HttpError(400,'KNOWLEDGE_ID_INVALID')
   if(!['method','case','policy'].includes(card.kind)||!['verified','unverified','revoked'].includes(card.status))throw new HttpError(400,'KNOWLEDGE_STATUS_INVALID')
   if(card.synthetic&&!allowSynthetic)throw new HttpError(400,'SYNTHETIC_KNOWLEDGE_FORBIDDEN')
@@ -57,7 +61,9 @@ export function validateKnowledge(card:KnowledgeCard,allowSynthetic=false){
 export async function importKnowledge(cards:KnowledgeCard[],allowSynthetic=false){
   if(allowSynthetic&&!/^lifeos_dialogue_(?:test|live)_/.test(new URL((await import('./config.ts')).config.databaseUrl).pathname.slice(1)))throw new HttpError(400,'SYNTHETIC_IMPORT_REQUIRES_ISOLATION')
   for(const card of cards)validateKnowledge(card,allowSynthetic)
-  return transaction(async c=>{
+  return transaction(c=>importKnowledgeWithin(c,cards))
+}
+export async function importKnowledgeWithin(c:PoolClient,cards:KnowledgeCard[]){
     let changed=0
     for(const card of cards){
       await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['knowledge:'+card.id])
@@ -71,5 +77,4 @@ export async function importKnowledge(cards:KnowledgeCard[],allowSynthetic=false
       changed++
     }
     return {changed,total:cards.length}
-  })
 }

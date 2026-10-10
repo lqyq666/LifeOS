@@ -1,0 +1,24 @@
+.qa-workflow { margin: 24px 0; color: var(--qa-body); font-size: .875rem; line-height: 1.65; overflow-wrap: anywhere; }
+.qa-workflow h2 { margin: 0 0 8px; font-size: 1rem; font-weight: 600; color: var(--qa-ink); text-wrap: balance; }
+.qa-workflow h3 { margin: 18px 0 8px; font-size: .9375rem; font-weight: 600; color: var(--qa-ink); }
+.qa-workflow p { margin: 8px 0; }
+.qa-workflow button { min-height: 44px; padding: 9px 14px; border: 1px solid var(--qa-line); border-radius: 8px; background: var(--qa-surface); color: var(--qa-ink); font: inherit; cursor: pointer; }
+.qa-workflow button:hover { border-color: var(--qa-muted); }
+.qa-workflow button:focus-visible,.qa-workflow summary:focus-visible { outline: 2px solid var(--qa-ink); outline-offset: 3px; }
+.qa-workflow button:disabled { opacity: .55; cursor: default; }
+.qa-workflow-picker,.qa-workflow-task { margin-top: 16px; padding: 20px; border: 1px solid var(--qa-line); border-radius: 12px; }
+.qa-workflow-picker fieldset { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 16px 0; padding: 0; border: 0; }
+.qa-workflow-picker legend { margin-bottom: 8px; color: var(--qa-ink); }
+.qa-workflow-picker label { display: flex; gap: 8px; align-items: center; min-height: 44px; }
+.qa-workflow-picker input { width: 18px; height: 18px; accent-color: var(--qa-ink); }
+.qa-workflow-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+.qa-workflow-buttons p { flex-basis: 100%; }
+.qa-workflow-meta { color: var(--qa-muted); font-size: .8125rem; }
+.qa-workflow-notice { color: var(--qa-ink); }
+.qa-workflow summary { cursor: pointer; padding: 10px 0; min-height: 44px; color: var(--qa-ink); }
+.qa-workflow-progress { padding-left: 20px; }
+.qa-workflow-progress li { padding: 4px 0; }
+.qa-workflow-progress li span:last-child { margin-left: 12px; color: var(--qa-muted); }
+.qa-workflow-alternatives>section { padding: 0 0 16px; border-bottom: 1px solid var(--qa-line); }
+.qa-workflow-action { padding: 8px 0 16px; }
+@media(max-width:600px) { .qa-workflow-picker,.qa-workflow-task { padding: 16px; } .qa-workflow-buttons button { flex: 1 1 auto; } }

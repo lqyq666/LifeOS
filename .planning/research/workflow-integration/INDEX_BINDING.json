@@ -1,0 +1,18 @@
+{
+  "version": "workflow-v2-integration-0670b2f68bf8",
+  "at": "2026-10-10T07:54:29.342509+00:00",
+  "signature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v1",
+  "contentManifestSha256": "31ecab9c72277dda22aec3014bc06d790c842e9ef8c117fc3600754eec4cf6c1",
+  "indexCode": {
+    "server/knowledge-index.ts": "60210947986e2f992cedc05d9579f951b02c15e383eb06bd7e5fab4519b1e0c4",
+    "server/embedding-signature.ts": "252b71fc865862a2634adb9e53cc81f0810b323fd257059c9b070ee1c632f8be",
+    "server/coach-knowledge.ts": "ff68f2aca4b2848d29080053349809407afa90c864d73cff8b4a1ec93fd3f3ed",
+    "server/evergreen-guide.ts": "948f1d19d3c49fea6d18b70b4f8169a8405e4f9e1d1f277c8664deb1559ac52e"
+  },
+  "acceptanceDatabase": "DISPOSABLE_PG_ONLY",
+  "primaryDatabaseMigration": false,
+  "retrievalInFourChains": "APPROVED_HOST_GUIDE_USAGE_24_OF_24",
+  "freshProductionIndexAudit": "PAUSED_NOT_RUN",
+  "completeIndexLatencyAndRetrievalQuality": "PAUSED_NOT_RUN",
+  "historicalIndexEvidence": "KB_INDEX_LOAD_REPORT.json remains historical, not a current performance result"
+}

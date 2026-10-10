@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from 'react'
+import {FullMethod} from './FullMethod'
 
 // Structured reply rendering: companion replies already carry markdown-shaped
 // emphasis (bold leads, numbered steps, quotes, citation links). Rendering
@@ -16,6 +17,7 @@ type Block =
 
 const INLINE_CODE = /`([^`]+)`/
 const LINK = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g
+const FULL_METHOD=/^\[查看完整方法\]\((\/api\/knowledge\/[0-9a-f-]{36}\?revision=[1-9]\d{0,8})\)$/i
 
 // Inline spans: links, **bold**, *italic*, `code`. A lone unmatched marker
 // stays literal text — nothing is ever dropped.
@@ -94,6 +96,8 @@ export function ReplyMarkdown({ text }: { text: string }) {
       // A paragraph that is only a bold lead renders as an emphasized lead
       // line — the layered look the replies actually intend.
       const joined = block.lines.join('\n')
+      const method=FULL_METHOD.exec(joined.trim())
+      if(method)return <FullMethod key={key} url={method[1]} />
       const boldOnly = block.lines.length === 1 && /^\*\*[^*]+\*\*$/.test(joined.trim())
       if (boldOnly) return <p key={key} className="qa-md-lead">{inline(joined, key)}</p>
       return <p key={key}>{inline(joined.replace(/\n/g, ' '), key)}</p>

@@ -1,0 +1,35 @@
+import {Type,type Static} from 'typebox'
+import {Value} from 'typebox/value'
+
+const object=<T extends Parameters<typeof Type.Object>[0]>(fields:T)=>Type.Object(fields,{additionalProperties:false})
+const text=(maxLength=2000)=>Type.String({minLength:1,maxLength})
+const id=Type.String({pattern:'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'})
+const strings=(maxItems=12)=>Type.Array(text(),{maxItems})
+const modes=['action_review','direction_decision','growth_diff','kb_maintenance'] as const
+export type WorkflowMode=typeof modes[number]
+export type ActionUsageStatus='suggested'|'accepted'|'attempted'|'waiting_result'|'completed'|'declined'|'blocked'
+export const evidenceRefSchema=object({type:Type.Union([Type.Literal('message'),Type.Literal('event'),Type.Literal('growth'),Type.Literal('experience'),Type.Literal('knowledge')]),id:text(128),revision:Type.Integer({minimum:1}),quote:Type.Optional(text(8000))})
+export type EvidenceRef=Static<typeof evidenceRefSchema>
+export const requestSchema=object({schemaVersion:Type.Literal(2),traceId:id,requestId:id,mode:Type.Union([Type.Literal('action_review'),Type.Literal('direction_decision'),Type.Literal('growth_diff'),Type.Literal('kb_maintenance')]),internalActorKey:text(128),conversationId:id,eventId:Type.Optional(id),authorizedEvidenceRefs:Type.Array(evidenceRefSchema,{maxItems:64}),hostSnapshot:Type.Optional(object({controlsDigest:text(64),runtimeDigest:text(64),budgetQuestion:Type.Optional(object({period:Type.Union([Type.Literal('this_week'),Type.Literal('next_week')]),question:text(),anchor:text(80)}))})),currentIntent:text(8000),consent:object({continueReview:Type.Boolean(),deepAnalysis:Type.Boolean()}),controls:object({memoryEnabled:Type.Boolean(),listeningOnly:Type.Boolean(),refuseAdvice:Type.Boolean(),memoryControl:Type.Boolean(),recommendationsPaused:Type.Boolean(),forbiddenDirections:strings(16)}),budget:Type.Union([Type.Null(),object({period:Type.Union([Type.Literal('this_week'),Type.Literal('next_week'),Type.Literal('current')]),amountMinutes:Type.Integer({minimum:0,maximum:10080}),source:evidenceRefSchema,scope:Type.Optional(Type.Union([Type.Literal('recurring'),Type.Literal('available'),Type.Literal('remaining')])),qualification:Type.Optional(Type.Union([Type.Literal('exact'),Type.Literal('estimate'),Type.Literal('upper_bound')])),quote:Type.Optional(text()),reason:Type.Optional(text())})]),modelBudget:object({maxProviderCalls:Type.Integer({minimum:0,maximum:5}),maxCostCny:Type.Number({minimum:0,maximum:30}),deadlineMs:Type.Integer({minimum:1,maximum:120000})}),directions:Type.Array(object({id:text(80),title:text(200)}),{maxItems:3}),synthetic:Type.Boolean()})
+export type WorkflowRequest=Static<typeof requestSchema>
+const actionSchema=object({description:text(),estimatedMinutes:Type.Union([Type.Null(),Type.Integer({minimum:1,maximum:10080})]),stopCondition:text(),evidenceRefs:Type.Array(evidenceRefSchema,{maxItems:12}),directionId:Type.Optional(text(80))})
+export const proposalSchema=object({schemaVersion:Type.Literal(2),traceId:id,evidenceRefs:Type.Array(evidenceRefSchema,{maxItems:64}),hypotheses:Type.Array(object({text:text(),limitation:text(),needsConfirmation:Type.Literal(true)}),{maxItems:12}),alternatives:Type.Array(object({directionId:text(80),title:text(200),pros:strings(),tradeoffs:strings(),unknowns:strings(),weeklyMinutes:Type.Union([Type.Null(),Type.Integer({minimum:0,maximum:10080})]),evidenceRefs:Type.Array(evidenceRefSchema,{maxItems:12})}),{maxItems:3}),nextActions:Type.Array(actionSchema,{maxItems:6}),suggestedStateChanges:Type.Array(Type.Never(),{maxItems:0})})
+export type WorkflowProposal=Static<typeof proposalSchema>
+export const reviewIssueSchema=object({severity:Type.Union([Type.Literal('blocker'),Type.Literal('needs_clarification'),Type.Literal('uncertainty')]),text:text(),evidenceRefs:Type.Array(evidenceRefSchema,{maxItems:12}),category:Type.Optional(Type.Union([Type.Literal('evidence'),Type.Literal('constraint'),Type.Literal('unknown')])),affectedClaims:Type.Optional(strings()),resolution:Type.Optional(Type.Union([Type.Literal('blocked'),Type.Literal('ask_user'),Type.Literal('keep_unknown')]))})
+export type ReviewIssue=Static<typeof reviewIssueSchema>
+export const agentResultSchema=object({evidenceRefs:Type.Array(evidenceRefSchema,{maxItems:64}),summary:text(8000),issues:Type.Array(Type.Union([text(),reviewIssueSchema]),{maxItems:24}),proposal:Type.Optional(proposalSchema)})
+export type AgentResult=Static<typeof agentResultSchema>
+export type FailureCode='invalid_contract'|'unavailable'|'cancelled'|'timeout'|'stale_snapshot'|'source_invalid'|'scope_denied'|'budget_exceeded'|'request_conflict'|'constraint_conflict'|'unsupported_mode'|'ambiguous_event'
+export class WorkflowError extends Error{constructor(readonly code:FailureCode){super(code)}}
+export function parseRequest(value:unknown):WorkflowRequest{if(!Value.Check(requestSchema,value))throw new WorkflowError('invalid_contract');return value}
+export function parseProposal(value:unknown):WorkflowProposal{if(!Value.Check(proposalSchema,value))throw new WorkflowError('invalid_contract');return value}
+export function parseAgentResult(value:unknown):AgentResult{if(!Value.Check(agentResultSchema,value))throw new WorkflowError('invalid_contract');return value}
+export type ReceiptStatus='waiting_user'|'proposed'|'approved_by_user'|'persisted'|'rejected'|'unavailable'
+export type WorkflowReceipt={schemaVersion:2;traceId:string;status:ReceiptStatus;failure?:FailureCode;proposal?:WorkflowProposal;reviewIssues?:ReviewIssue[];providerCalls:number;costCny:number|null;reservedCostCny:number;fallback:'existing_single_agent'|'none';executionKind:'local_deterministic'|'simulated_provider'|'real_provider';skills:string[]}
+export type EvidenceRecord={ref:EvidenceRef;owner:string|null;conversationId:string|null;status:'active'|'withdrawn'|'paused'|'rejected';role:'user'|'tool'|'assistant'|'public';text:string;approved?:boolean;eventId?:string;budget?:{period:'current'|'this_week'|'next_week';amountMinutes:number;scope?:'recurring'|'available'|'remaining';qualification?:'exact'|'estimate'|'upper_bound';quote?:string;reason?:string}}
+export type EvidenceReader=(request:WorkflowRequest)=>Promise<EvidenceRecord[]>
+export function normalizeReviewIssue(issue:string|ReviewIssue):ReviewIssue{
+ if(typeof issue==='string')return {severity:'uncertainty',category:'unknown',affectedClaims:[],resolution:'keep_unknown',text:issue,evidenceRefs:[]}
+ return {...issue,category:issue.category??(issue.severity==='blocker'?'evidence':'unknown'),affectedClaims:issue.affectedClaims??issue.evidenceRefs.map(ref=>ref.id),resolution:issue.resolution??(issue.severity==='blocker'?'blocked':issue.severity==='needs_clarification'?'ask_user':'keep_unknown')}
+}
+export function emptyProposal(request:WorkflowRequest):WorkflowProposal{return {schemaVersion:2,traceId:request.traceId,evidenceRefs:[],hypotheses:[],alternatives:[],nextActions:[],suggestedStateChanges:[]}}

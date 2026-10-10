@@ -44,8 +44,10 @@ test('negations, hypotheses and third-party stories never become themes', () => 
     fact({ kind: 'goal', text: '如果保研失败我会考虑考研' }),
     fact({ kind: 'goal', text: '上周我投过三份简历' }),
   ])
-  assert.equal(candidates.length, 1, 'only the hypothesis-clause pursuit survives, and it stays exploration')
-  assert.equal(candidates[0]!.kind, 'exploration')
+  assert.equal(candidates.length, 0, 'conditional choices are not current personal pursuits')
+  const explicit=deriveThemeCandidates([fact({kind:'goal',text:'我在考虑考研'})])
+  assert.equal(explicit[0]!.kind,'exploration')
+  assert.equal(explicit[0]!.status,'pending')
 })
 
 test('titles are short and specific while the full quote stays as evidence', () => {

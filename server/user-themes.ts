@@ -2,7 +2,7 @@
 // 只有用户亲口说的 goal/direction/priority 成为 active 主题；preference/interest
 // 证据不足时保持 pending（待核对）。主题身份、来源引用和修订由服务器控制，
 // 用户可置顶、重命名、暂缓、撤销（userThemeAction），全部持久化。
-import type { PoolClient } from 'pg'
+import type { PoolClient,Pool } from 'pg'
 import { matchPathTheme } from './path-lexicon.ts'
 import { recordChangeEvent } from './identity.ts'
 import { distinctiveGrams } from './experience-episodes.ts'
@@ -71,7 +71,7 @@ const THIRD_PARTY = /(?:他|她|它)(?:说|打算|想|决定|要)|室友说|同�
 const INTENT_MARKER = /(?:想|要|打算|准备|希望|计划|决定|争取|目标|重点|优先|不再|不想|追求|放第一|第一位|以.{0,4}为主|觉得.{0,8}适合|觉得自己.{0,8}适合|适合做)/
 const normalize = (text: string) => text.replace(WISH_PREFIX, '').replace(/[\s，。、！？?！,.\-—]/g, '')
 
-export type ThemeCandidate = { kind: ThemeKind; title: string; sourceGrowthId: string; quote: string }
+export type ThemeCandidate = { kind: ThemeKind; status:'active'|'pending'; title: string; sourceGrowthId: string; quote: string }
 
 // 语义分级（P1）：
 //   “我决定X/目标是X” → pursuit（active 明确追求）；
@@ -325,7 +325,7 @@ export type StarMapContext = {
   boundaries: string[]
   usedLinks: { experienceId: string; themeId: string; revision: number }[]
 }
-export async function readStarMapContext(c: PoolClient, user: string): Promise<StarMapContext | null> {
+export async function readStarMapContext(c: PoolClient|Pool, user: string): Promise<StarMapContext | null> {
   // P0 信任边界：与 memory 控制共用同一权限。记忆关闭时不向模型提供任何
   // 跨会话星图个人事实——主题本身就是跨会话投影。
   const settings=(await c.query('SELECT enabled FROM user_memory_settings WHERE user_id=$1',[user])).rows[0]

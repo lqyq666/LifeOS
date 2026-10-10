@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 3,
+  "version": "workflow-v2-integration-0670b2f68bf8",
+  "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
+  "at": "2026-10-10T07:54:29.342509+00:00",
+  "status": "WIP_NOT_READY",
+  "highestStatus": [
+    "MODIFIED",
+    "TESTED_LOCAL",
+    "BUILT"
+  ],
+  "notClaimed": [
+    "DEPLOYED",
+    "ONLINE_VERIFIED",
+    "ACCEPTED"
+  ],
+  "evidenceRoot": "evidence/local-time-20261010/",
+  "checks": {
+    "rootTests": {
+      "passed": 114,
+      "failed": 0,
+      "containsOriginal113": true,
+      "additionalSavedGraphRegression": 1,
+      "evidence": "root-current.log"
+    },
+    "relatedTests": {
+      "passed": 96,
+      "failed": 0,
+      "evidence": "VERIFICATION_REPORT.json",
+      "provider": "LOCAL_SIMULATED"
+    },
+    "focusedTests": {
+      "passed": 65,
+      "failed": 0,
+      "suites": 9,
+      "evidence": "product-final.log",
+      "notDisjointFromOtherSuites": true
+    },
+    "oldSavedFailureReplay": {
+      "passed": 13,
+      "failed": 0,
+      "evidence": "dgate13-replay.log",
+      "provider": "SAVED_REPLAY_LOCAL_SIMULATED"
+    },
+    "httpBrowserSuites": {
+      "passed": 4,
+      "failed": 0,
+      "evidence": "browser-http-current.log"
+    },
+    "authorizedAdoptionBrowserRerun": {
+      "passed": 1,
+      "failed": 0,
+      "evidence": "adoption-ui-current.log",
+      "overlapsHttpSuite": true
+    },
+    "longitudinalChains": {
+      "chains": 4,
+      "sessionsPerChain": 3,
+      "rounds": 24,
+      "chromeScreenshots": 24,
+      "evidence": "FOUR_TRAJECTORIES.json",
+      "provider": "SCRIPTED_LOOPBACK_ONLY",
+      "semanticQualityAccepted": false
+    },
+    "serverTypecheck": {
+      "status": "PASS",
+      "evidence": "server-current.log"
+    },
+    "frontendTypecheck": {
+      "status": "PASS",
+      "evidence": "frontend-current.log"
+    },
+    "build": {
+      "status": "PASS",
+      "evidence": "build-current.log",
+      "knownWarning": "Existing Three chunk exceeds 500 kB"
+    },
+    "sourceAudit": {
+      "priorityGuides": 13,
+      "pendingCandidates": 4,
+      "missingSources": 59,
+      "mainCorpusModified": false
+    }
+  },
+  "paused": {
+    "realModel": "PAUSED_NOT_RUN",
+    "cozeCloudCandidate": "PAUSED_NOT_RUN",
+    "cloudSkill": "PAUSED_NOT_RUN",
+    "productionDeployment": "PAUSED_NOT_RUN",
+    "finalPerformance": "PAUSED_NOT_RUN",
+    "blindEvaluation": "PAUSED_NOT_RUN",
+    "realStudentAcceptance": "PAUSED_NOT_RUN"
+  },
+  "baselineAcceptanceSnapshot": "evidence/local-time-20261010/history-before-final-freeze/WORKFLOW_ACCEPTANCE.json",
+  "baselineCandidate": "workflow-v2-integration-ee442ef15ffa",
+  "factsPreserved": [
+    "waiting_user identity, cancellation, parallelism and no redispatch",
+    "tri-state correction",
+    "graded critic",
+    "final fact handles",
+    "durable tasks",
+    "authorized adoption",
+    "growth and star-map projections"
+  ],
+  "limitations": [
+    "Scripted Provider verifies local contracts, not real-model reasoning quality.",
+    "Five Skills and four workflows retained; no install/cloud publication.",
+    "59 awaiting_source gaps and 16 needs_review guides retained; adaptation candidates not self-approved.",
+    "No persistent HTTP service started as a delivery claim; acceptance used temporary real servers and disposable PG."
+  ]
+}

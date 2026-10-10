@@ -110,11 +110,15 @@ export function scanUserClauses(text:string):UserClause[]{
     if(attributionMarkers.test(body))clause.attributedToOther=true
     if(resetsConditionalHere)clause.conditional=false
     if(resetsAttributionHere)clause.attributedToOther=false
+    // The opening conditional clause is hypothetical too, not only the clauses
+    // following it. A realistic reset cannot override its own new condition.
+    const opensConditionalHere=conditionalOpeners.test(body)
+    if(opensConditionalHere)clause.conditional=true
     clauses.push(clause)
     // Sentence-level state transitions for the NEXT clause in this sentence.
-    if(conditionalOpeners.test(body))sentenceConditional=true
+    if(opensConditionalHere)sentenceConditional=true
     if(attributionMarkers.test(body))sentenceAttributed=true
-    if(resetsConditionalHere)sentenceConditional=false
+    if(resetsConditionalHere&&!opensConditionalHere)sentenceConditional=false
     if(resetsAttributionHere)sentenceAttributed=false
     clauseStart=end+1
   }

@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "version": "workflow-v2-integration-0670b2f68bf8",
+  "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
+  "at": "2026-10-10T07:54:29.342509+00:00",
+  "status": "TESTED_LOCAL_BUILT_WIP_NOT_READY",
+  "sourceManifestSha256": "9f0c5498fcb82ef446719372cd11841d3e92621a781748f711c46af9b185aeec",
+  "contentManifestSha256": "31ecab9c72277dda22aec3014bc06d790c842e9ef8c117fc3600754eec4cf6c1",
+  "indexBindingSha256": "65446ffa70fcc4235f40ca2acb5da9fe222ec8f8d427437957ad0bd7ad0eaaeb",
+  "skillVersionMatrixSha256": "99dfdbfa6247fbd3546a5a8539489b54487fe4b101785501aa0db285e3bb3066",
+  "runtimeSourceDigest": "cf706bcaaf362be14e735576c2fb81d1723fc5bf89697f10f2ac88457e671ae6",
+  "processMetadata": {
+    "service": "LifeOS",
+    "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
+    "skillVersion": "1.2.2-candidate",
+    "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+    "workflowVersion": "v2-integration",
+    "sourceDigest": "cf706bcaaf362be14e735576c2fb81d1723fc5bf89697f10f2ac88457e671ae6",
+    "sourceFreezeDigest": "6a2543c852e2e97bc710484391b03d202d25ce693367fa6e70b56ba8e0b638cd",
+    "skills": [
+      {
+        "name": "lifeos-direction-analysis",
+        "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89"
+      },
+      {
+        "name": "lifeos-action-review",
+        "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f"
+      },
+      {
+        "name": "lifeos-experience-evidence",
+        "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494"
+      },
+      {
+        "name": "lifeos-guide-application",
+        "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c"
+      },
+      {
+        "name": "lifeos-growth-diff",
+        "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333"
+      }
+    ],
+    "loadedAt": "2026-10-10T07:48:32.043Z",
+    "contractGeneration": "p4+workflow-v2",
+    "growthApi": true,
+    "knowledgeIndexSignature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v1",
+    "processKind": "READ_ONLY_FRESH_MODULE_CAPTURE_NO_PROVIDER_NO_PERSISTENT_SERVICE"
+  },
+  "processNote": "sourceDigest is code-based; sourceFreezeDigest also binds process configuration; compare each process to its own captured configuration.",
+  "tests": {
+    "root": {
+      "file": "evidence/local-time-20261010/root-current.log",
+      "sha256": "a369333b7647b84c54d85977e8c6eb68af09325e5b0e19f320e1db5abe9cca74"
+    },
+    "focused": {
+      "file": "evidence/local-time-20261010/product-final.log",
+      "sha256": "6f4cfdf066671128e1f4fa241b256997690193e7f21801cb59f668dcaf9fe0e8"
+    },
+    "serverTypecheck": {
+      "file": "evidence/local-time-20261010/server-current.log",
+      "sha256": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612"
+    },
+    "frontendTypecheck": {
+      "file": "evidence/local-time-20261010/frontend-current.log",
+      "sha256": "bd965414e423411b589b243fcdf164f97a180c0189533c2724c34c8caa16cb4d"
+    },
+    "build": {
+      "file": "evidence/local-time-20261010/build-current.log",
+      "sha256": "409561caaa36d7afa7f94ced26564c3586b71429981034e94b1f03f95defa4fc"
+    },
+    "related96": {
+      "file": "evidence/local-time-20261010/VERIFICATION_REPORT.json",
+      "sha256": "47cdbae6d512b3071a3c884d92e24b8641a2de8c93f880fe4458f5ee260ae1fd"
+    },
+    "dgateReplay": {
+      "file": "evidence/local-time-20261010/dgate13-replay.log",
+      "sha256": "5c4766ddbf1798cb6ae99305480409d3677507f164dc974ab611fa9128504562"
+    },
+    "httpBrowser": {
+      "file": "evidence/local-time-20261010/browser-http-current.log",
+      "sha256": "06d28ea3726bee04b7108060e3c84ad7cbd418c3380caa9afbd95ba8f63500bf"
+    },
+    "authorizedAdoptionBrowser": {
+      "file": "evidence/local-time-20261010/adoption-ui-current.log",
+      "sha256": "cc882cc0ff2f5637f32b559b2c8228c5cd1e30a47ee7ebf03d885819c0edc99a"
+    }
+  },
+  "priorFourRegressions": {
+    "continuity": 2,
+    "personalization": 1,
+    "browserContinuity": 1,
+    "passed": 4,
+    "evidence": [
+      "product-final.log",
+      "browser-http-current.log"
+    ],
+    "notCountedAsFourExtraDisjointTests": true
+  },
+  "redEvidence": {
+    "time-red.log": "d2254fc6e930777e53de8e630f5b6c860e066f04f30fd48174d474a6ee64524d",
+    "ZERO_RED.json": "ba43fad069d12ad0653f695bc4daaacca375dcfa3ce07a85bcb2e536edfd2ef6",
+    "zero-red.log": "a1fc38cbcf138ef3a5b28019017b55f5aca556a9d872ba788e2dc5bc5628847a",
+    "provider-clause-red.log": "887844840598fb690205a737a59f0c1f0338df44673795a0a8ac1718547d87ea",
+    "graph-red.log": "3abc2f611fc241cfad615b77ade0c1063ff00180ea8aae366bf332da4e5e6ce9",
+    "TRAJECTORY_UI_FAILURE.json": "9e904f496b615dd87be1a969f8dca416a7e7ea0edf502eb0e175a5a8f8005f1d"
+  },
+  "currentTrajectoryEvidence": {
+    "file": "evidence/local-time-20261010/FOUR_TRAJECTORIES.json",
+    "sha256": "3cbb7a2060fd3b7e04dfa0c6ffe0bdef3a381acea6bef374642abfda442d95b3"
+  },
+  "historicalProtocols": {
+    "COMPLEX_DECISION_AB_EVAL.json": {
+      "sha256": "6c3252608e2b70166388767849d2e28cb708f479e5cde0bd546737bcf519734b",
+      "status": "HISTORICAL_FROZEN_UNEXECUTED_FOR_CURRENT_CANDIDATE"
+    },
+    "ORDINARY_PERFORMANCE_PROTOCOL.json": {
+      "sha256": "e8ef483b0b1b499b0420f6a8b44acd03d0dd9c5755343e63c29f5c590ce57fd4",
+      "status": "HISTORICAL_FROZEN_UNEXECUTED_FOR_CURRENT_CANDIDATE"
+    },
+    "SAFETY_EVAL.json": {
+      "sha256": "bdedbb8328298dc21ae9d9ddf473c1d8503152c68969a5a9400b7abb07235b28",
+      "status": "HISTORICAL_FROZEN_UNEXECUTED_FOR_CURRENT_CANDIDATE"
+    }
+  },
+  "realProvider": false,
+  "cozeCloud": false,
+  "paused": {
+    "realModel": "PAUSED_NOT_RUN",
+    "cozeCloudCandidate": "PAUSED_NOT_RUN",
+    "cloudSkill": "PAUSED_NOT_RUN",
+    "productionDeployment": "PAUSED_NOT_RUN",
+    "finalPerformance": "PAUSED_NOT_RUN",
+    "blindEvaluation": "PAUSED_NOT_RUN",
+    "realStudentAcceptance": "PAUSED_NOT_RUN"
+  },
+  "mismatchRule": "STOP: verify source, corpus, index, Skill and evidence hashes before replay. A changed candidate requires a new binding. Historical protocols cannot be relabeled as current results.",
+  "commands": [
+    "npm test",
+    "npm run typecheck:server",
+    "npm run typecheck",
+    "npm run build",
+    "npm run test:backend -- --file=workflow-time.test.ts --file=workflow-time-host.test.ts --file=workflow-zero.test.ts --file=workflow-personalization.test.ts --file=weekly-plans.test.ts --file=context-budget.test.ts --file=workflow-continuity.test.ts --file=workflow-audit-boundaries.test.ts --file=workflow-runtime-adapter.test.ts",
+    "npm run test:backend -- --file=workflow-continuity-browser.test.ts --file=workflow-time-browser.test.ts --file=workflow-http-chain.test.ts --file=workflow-trajectories.test.ts",
+    "LIFEOS_WORKFLOW_BROWSER=true npm run test:backend -- --file=workflow-http-chain.test.ts (set variable using PowerShell syntax)"
+  ],
+  "environment": "Existing installed local dependencies, local disposable PostgreSQL at 55432, Chrome/CDP helpers. No credentials or databases included in archive."
+}

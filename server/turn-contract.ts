@@ -81,7 +81,7 @@ export function deriveTurnContract(input:{
   const eventLane=input.currentEventExists||personalEventReport.test(input.text)
   // A pure-listening turn never carries plan/material/event intent by
   // definition; a question can still be a plan request, so plan intent wins.
-  const replyOnly=replyOnlyShape&&!input.planIntent&&!input.material&&!eventLane
+  const replyOnly=replyOnlyShape&&!input.planIntent&&!input.material&&!eventLane&&input.knowledgeCount===0
   const capabilities:TurnContractCapabilities={
     growth:!replyOnly,
     candidate:!replyOnly&&!input.planIntent,

@@ -8,7 +8,8 @@ import type { DialoguePath } from './dialogue.ts'
 import seed from '../src/features/cognition/data/lifeos-graph.seed.json' with { type: 'json' }
 import { persistCoachEvent, invalidateCoachSources, assertCoachEvidence, coachEventView, type CoachStaged } from './action-coach-events.ts'
 import { assertCoachKnowledge, type CoachKnowledgeRef } from './coach-knowledge.ts'
-import { assertGrowthSnapshot, persistGrowthUpdates, type GrowthStaged } from './growth.ts'
+import {persistGuideUsage,type GuideUsage} from './guide-usage.ts'
+import { assertGrowthSnapshot, persistGrowthUpdates, growthView, type GrowthStaged } from './growth.ts'
 import { persistDirectionControls, readDirectionControls, directionControlsSnapshotKey, type PreparedDirectionControls } from './growth-controls.ts'
 import { persistMemoryControl, persistPendingControlRequest, type MemoryControlReceipt, type PendingMemoryControl, type StagedMemoryControl } from './memory-controls.ts'
 import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
@@ -18,8 +19,10 @@ import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth } 
 import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction } from './identity.ts'
 import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
 import { buildExperienceRelations } from './starmap-enrichment.ts'
-import { determineIdentity, IDENTITY_LEVELS } from './identity-levels.ts'
 import { generateInsight } from './experience-insight.ts'
+import {commitWorkflowSelection,type WorkflowAdoption} from './workflows/task-commit.ts'
+import {committedGrowthDiff,committedSnapshot,validGrowthDiff} from './workflows/committed-growth-diff.ts'
+import {advancedWorkflowsEnabled} from './workflows/router.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -38,7 +41,7 @@ export async function listConversations(user:string) {
   // N4.1: each assistant message carries ITS OWN run's stateChange receipt —
   // never the account's latest receipt, never a fabricated demo receipt.
   const receiptRows = (await pool.query(`SELECT request_id, response->'stateChange' AS \"stateChange\" FROM runs WHERE user_id=$1 AND status='completed' AND response ? 'stateChange'`,[user])).rows as {request_id:string;stateChange:unknown}[]
-  const receipts=new Map<string,unknown>(receiptRows.map(row=>[row.request_id,row.stateChange]))
+  const receipts=new Map<string,unknown>(await Promise.all(receiptRows.map(async row=>{const state=row.stateChange as {growthDiff?:import('./workflows/growth-diff.ts').GrowthDelta[]};const message=messages.find(m=>m.run_request_id===row.request_id);return [row.request_id,state?.growthDiff?.length&&message?{...state,growthDiff:await validGrowthDiff(user,message.conversation_id,state.growthDiff)}:state] as const})))
   return chats.map(chat=>({ ...chat, messages: messages.filter((m:{conversation_id:string})=>m.conversation_id===chat.id).map((m:Record<string,unknown>)=>m.role==='assistant'&&typeof m.run_request_id==='string'&&receipts.has(m.run_request_id)?{...m,stateChange:receipts.get(m.run_request_id)??null}:m) }))
 }
 export async function decisionVersions(user:string,conversation:string) {
@@ -59,7 +62,7 @@ export async function retrieveExperiences(user:string,input:unknown,signal?:Abor
   return { records: rows, method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
 }
 export type Run = { user_id:string; request_id:string; conversation_id:string; source_message_id:string; expected_version:number; status:string; response:any }
-export type Staged = { candidates:Candidate[]; audit:unknown[]; backReferenceMerge?:{experienceId:string;quote:string;result:string;occurredAt:string}; serverGoals?:{text:string;quote:string;messageId:string}[];serverBudgets?:{text:string;quote:string;messageId:string}[];starMapSnapshot?:{themes:{id:string;revision:number}[];links:{experienceId:string;themeId:string;revision:number}[]}; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations;weeklyPlan?:import('./weekly-plans.ts').PreparedWeeklyPlan;memoryControl?:StagedMemoryControl;pendingMemoryControl?:PendingMemoryControl }
+export type Staged = { workflowAdoption?:WorkflowAdoption; guideUsage?:GuideUsage[]; candidates:Candidate[]; audit:unknown[]; backReferenceMerge?:{experienceId:string;quote:string;result:string;occurredAt:string}; serverGoals?:{text:string;quote:string;messageId:string}[];serverBudgets?:{text:string;quote:string;messageId:string}[];starMapSnapshot?:{themes:{id:string;revision:number}[];links:{experienceId:string;themeId:string;revision:number}[]}; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations;weeklyPlan?:import('./weekly-plans.ts').PreparedWeeklyPlan;memoryControl?:StagedMemoryControl;pendingMemoryControl?:PendingMemoryControl }
 export async function startRun(user:string,conversation:string,requestId:string,text:string) {
   return transaction(async c=>{
     await lock(c,user+':'+requestId)
@@ -131,6 +134,10 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     // 连线（确认/撤销/更正）时，本轮基于旧证据的建议被阻止提交；本轮自己
     // 的正常更新发生在校验之后，不会自撞。
     if(staged.starMapSnapshot?.themes?.length||staged.starMapSnapshot?.links?.length)await assertStarMapSnapshot(c,run.user_id,staged.starMapSnapshot)
+    const diffEnabled=advancedWorkflowsEnabled()&&Boolean(staged.growth||staged.serverGoals?.length||staged.serverBudgets?.length||staged.workflowAdoption||staged.candidates.length||staged.backReferenceMerge)
+    const diffBefore=diffEnabled?await committedSnapshot(c,run.user_id,run.conversation_id):[]
+    const themesBeforeAdoption=staged.workflowAdoption?(await c.query('SELECT id,revision FROM user_themes WHERE user_id=$1',[run.user_id])).rows:[]
+    const workflowCommit=staged.workflowAdoption?await commitWorkflowSelection(c,run,staged.workflowAdoption):null
     const candidateIds:string[]=[],mergedExperienceIds:string[]=[]
     // 反述直连：命中既有经历的追述在事务内合并（身份不变、只补结果/反思）。
     if(staged.backReferenceMerge){
@@ -163,7 +170,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
         mergedExperienceIds.push(String(episode.id))
         continue
       }
-      const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status,confirmed_at,confirm_source,revision,extraction_source) VALUES($1,$2,$3,$4,$5,$6,$7,\'confirmed\',now(),\'auto\',2) ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,candidate.quote,run.request_id,content])
+      const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status,confirmed_at,confirm_source,revision) VALUES($1,$2,$3,$4,$5,$6,$7,\'confirmed\',now(),\'auto\',2) ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,candidate.quote,run.request_id,content])
       if(!inserted.rowCount)continue
       candidateIds.push(id)
       for(const link of candidate.links)await c.query('INSERT INTO experience_links(user_id,experience_id,value_id,reason,disposition) VALUES($1,$2,$3,$4,\'proposed\')',[run.user_id,id,link.valueId,link.reason])
@@ -172,6 +179,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     for(const id of candidateIds)await proposeExperiencePatterns(c,run.user_id,id)
     for(const ref of knowledgeRefs)await c.query('INSERT INTO coach_reply_sources(user_id,request_id,source_id,revision) VALUES($1,$2,$3,$4)',[run.user_id,run.request_id,ref.sourceId,ref.revision])
     const coach=staged.coach?await persistCoachEvent(c,run,staged.coach):null
+    if(staged.guideUsage?.length)await persistGuideUsage(c,run,staged.guideUsage)
     const growth=staged.growth?await persistGrowthUpdates(c,run,staged.growth):null
     // 主题投影：本轮已提交的 growth 事实（用户亲述的目标/方向/优先级/偏好）
     // 确定性上投影为“我的成长主题”；随后的经历再挂到主题上。同一事务、
@@ -200,12 +208,13 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       await c.query("INSERT INTO growth_revisions(user_id,item_id,revision,action,snapshot) VALUES($1,$2,1,'server_capture',$3)",[run.user_id,id,JSON.stringify({text:budget.text,quote:budget.quote,reason:'explicit weekly budget clause not covered by model growth lane'})])
       serverBudgetIds.push(id)
     }
-    const themeFactIds=[...(growth?.createdIds??[]),...(growth?.changedIds??[]),...serverGoalIds,...serverBudgetIds]
+    const themeFactIds=[...(growth?.createdIds??[]),...(growth?.changedIds??[]),...serverGoalIds,...serverBudgetIds,...(workflowCommit?[workflowCommit.itemId]:[])]
     let themeChangedIds:string[]=[];let facts:any[]=[]
     if(themeFactIds.length){
       facts=(await c.query('SELECT id,kind,text,assertion,status FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])',[run.user_id,themeFactIds])).rows
       themeChangedIds=await projectUserThemes(c,run.user_id,facts)
     }
+    if(workflowCommit){const now=(await c.query('SELECT id,revision FROM user_themes WHERE user_id=$1',[run.user_id])).rows;themeChangedIds=[...new Set([...themeChangedIds,...now.filter(row=>!themesBeforeAdoption.some(old=>old.id===row.id&&old.revision===row.revision)).map(row=>row.id)])]}
     if(themeFactIds.length||candidateIds.length||mergedExperienceIds.length)await reconcileThemesWithGrowth(c,run.user_id)
     await reconcileIdentityClaims(c,run.user_id)
     // 身份投影：本轮自述认同（“我是那种……”）进入身份层，幂等。
@@ -252,7 +261,10 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     const materialAction=coach?.actions.find(action=>action.status==='proposed'&&action.draft&&action.draft.readiness)
     const controlEffects=directionControls?directionControls.effects:[]
     const changedScopes=controlEffects.filter(effect=>effect.before!==effect.after).map(effect=>effect.scope)
+    const growthDiff=diffEnabled?await committedGrowthDiff(c,run.user_id,run.conversation_id,run.request_id,diffBefore,[...themeFactIds,...candidateIds,...mergedExperienceIds],row=>staged.audit.push({phase:'workflow_trace',...row})):[]
         const stateChange={
+          growthDiff,
+          workflow:workflowCommit,
           growth:{status:growthStatus,createdIds:growth?growth.createdIds:[],changedIds:growth?growth.changedIds:[],retainedIds:growth?growth.retainedIds:[],skipped:(staged.growth?.skipped??[]).map(skip=>({inputIndex:skip.inputIndex,code:skip.reason}))},
           controls:{changedScopes,effects:controlEffects},
           memoryControl,
@@ -260,11 +272,13 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
           plan:plan?{itemId:plan.itemId,revision:plan.revision,status:'proposed',budgetRef:plan.budgetRef}:null,
           experiences:{createdIds:candidateIds,mergedIds:mergedExperienceIds},
           themes:{changedIds:themeChangedIds},
+          guideUsage:{status:staged.guideUsage?.length?'applied':'not_requested',items:(staged.guideUsage??[]).map(({guideId,revision,branch,stepId,status,eventId})=>({guideId,revision,branch,stepId,status,eventId}))},
         }
     const memoryIds=staged.snapshot&&staged.memoryChanges?.length?await persistChanges(c,run.user_id,run.conversation_id,staged.memoryChanges,new Date()):[]
     await consumeEntitlement(c,run.user_id,current.entitlement_reserved)
     await c.query('INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,\'assistant\',$4,$5)',[randomUUID(),run.user_id,run.conversation_id,text,run.request_id])
     const response={requestId:run.request_id,decisionVersion:version,candidateIds,mergedExperienceIds,themeChangedIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthCreatedIds:growth?growth.createdIds:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],growthWrite:growth??null,stateChange,...(memoryControl?{memoryControl}:{}),...(directionControls?{directionControls:{changedScopes,effects:controlEffects}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
+    if(workflowCommit)await c.query("UPDATE lifeos_workflow_tasks SET host_commit=$3,receipt=jsonb_set(receipt,'{status}','\"persisted\"'::jsonb) WHERE user_id=$1 AND request_id=$2",[run.user_id,workflowCommit.taskId,JSON.stringify(response)])
     await c.query('UPDATE runs SET status=\'completed\',response=$3,usage=$4,tool_audit=$5,finished_at=now() WHERE user_id=$1 AND request_id=$2',[run.user_id,run.request_id,response,usage,JSON.stringify(staged.audit)])
     await c.query('UPDATE conversations SET updated_at=now() WHERE user_id=$1 AND id=$2',[run.user_id,run.conversation_id])
     signal.throwIfAborted()
@@ -282,6 +296,7 @@ export async function runStatus(user:string,id:string) {
 export async function validRunResponse(user:string,id:string,response:any){
   requireRow((await pool.query('SELECT 1 FROM runs WHERE user_id=$1 AND request_id=$2',[user,id])).rows[0])
   const valid=(await pool.query('SELECT coach_reply_sources_valid($1,$2) AS valid',[user,id])).rows[0].valid
+  if(response?.stateChange?.growthDiff?.length){const run=(await pool.query('SELECT conversation_id FROM runs WHERE user_id=$1 AND request_id=$2',[user,id])).rows[0];response={...response,stateChange:{...response.stateChange,growthDiff:await validGrowthDiff(user,run.conversation_id,response.stateChange.growthDiff)}}}
   if(!valid)return {...response,event:null,sourcesInvalidated:true}
   if(response?.event){
     try{return {...response,event:await coachEventView(user,response.event.conversationId,response.event.id)}}catch(error){if(error instanceof HttpError&&['NOT_FOUND','COACH_SOURCE_REVOKED','MEMORY_DISABLED'].includes(error.code))return {...response,event:null,sourcesInvalidated:true};throw error}
@@ -420,27 +435,14 @@ export async function cognitionGraph(user:string) {
   const selfRow=seed.nodes.find(n=>n.type==='self')!
   // 中央“当前的我”三分组：用户认可的自述 / 正在探索的身份可能 / 有证据
   // 待核对的观察（当前 AI 观察不自动生成，组保持空白而非编造）。
-  const claims=(await pool.query("SELECT text, origin, confirmed_by_user FROM identity_claims WHERE user_id=$1 AND status='active' ORDER BY updated_at DESC LIMIT 4",[user])).rows
+  const claims=(await pool.query("SELECT id, text, origin, confirmed_by_user FROM identity_claims WHERE user_id=$1 AND status='active' ORDER BY updated_at DESC LIMIT 4",[user])).rows
   const accepted=claims.filter(c=>c.confirmed_by_user).map(c=>c.text)
   const observations=claims.filter(c=>!c.confirmed_by_user).map(c=>c.text)
   const skillTagList = await readSkillTags(pool, user)
-  // 身份认同：基于证据自动进化
-  const expRowsForIdentity=(await pool.query("SELECT content->>'result' as result, content->>'action' as action, content->>'summary' as summary, source_quote FROM experiences WHERE user_id=$1 AND status='confirmed'",[user])).rows
-  const identityEvidence={
-    experienceCount: expRowsForIdentity.length,
-    experiencesWithResult: expRowsForIdentity.filter(row => (row.result ?? '').trim().length > 0).length,
-    totalSkillTags: skillTagList.reduce((sum,tag) => sum + tag.count, 0),
-    externalFeedbackCount: expRowsForIdentity.filter(row => {
-      const text = `${row.result ?? ''} ${row.source_quote ?? ''}`
-      return /(?:部长|导师|老师|客户|社长|学长|同学|评委|负责人|经理|HR|面试官)(?:说|夸|评价|反馈|表扬|认可)|被(?:夸|表扬|认可)/.test(text)
-    }).length,
-    hasCorrection: (await pool.query("SELECT 1 FROM experiences WHERE user_id=$1 AND revision>2 LIMIT 1",[user])).rowCount>0,
-    themeCount: (await pool.query("SELECT count(*) as n FROM user_themes WHERE user_id=$1 AND status NOT IN ('retired')",[user])).rows[0].n,
-  }
-  const identity=determineIdentity(identityEvidence)
-  const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[]),...(skillTagList.length?[`有能力证据的：${skillTagList.map(t=>`${t.tag}(${t.count}段)`).join('、')}`]:[]),`${identity.current.icon} ${identity.current.name}：${identity.current.description}`]
-  const self={...selfRow,description:selfDescriptionParts.join('\n')||selfRow.description,identityAccepted:accepted,identityObservations:observations,skillTags:skillTagList,growthIdentity:{level:identity.current.level,name:identity.current.name,icon:identity.current.icon,description:identity.current.description,nextHint:identity.current.nextHint,progress:identity.progress}} as any
-  const changeEvents=(await pool.query("SELECT subject_type,subject_id,transition,reason,committed_at,user_confirmation,unknowns FROM identity_change_events WHERE user_id=$1 ORDER BY committed_at DESC LIMIT 12",[user])).rows
+  // Recorded tasks establish evidence about those tasks, not an identity level.
+  const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[]),...(skillTagList.length?[`本次任务涉及：${skillTagList.map(t=>t.tag).join('、')}；稳定能力仍未知`]:[])]
+  const self={...selfRow,description:selfDescriptionParts.join('\n')||'当前还没有本人确认的自我描述。',identityAccepted:accepted,identityObservations:observations,skillTags:skillTagList} as any
+  const changeEvents=(await pool.query("SELECT subject_type,subject_id,transition,reason,committed_at,user_confirmation,unknowns,old_snapshot FROM identity_change_events WHERE user_id=$1 ORDER BY committed_at DESC LIMIT 12",[user])).rows
   // “下一步”只来自当前有效事实：最旧的进行中追求或最新行动重点；没有就空。
   const nextStepRow=(await pool.query("SELECT title FROM user_themes WHERE user_id=$1 AND status='active' ORDER BY pinned DESC, updated_at DESC LIMIT 1",[user])).rows[0]
   const starmapNextStep=nextStepRow?`当前最优先：${nextStepRow.title}（本人设定）`:''
@@ -470,9 +472,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
       blocked: expBlocked, externalFeedback: expExternal,
       connectedThemes: expThemes.map(t => ({ title: t.title, relation: t.relation })),
       relatedExperiences: expRelated.map(r => ({ title: String(r.title ?? ''), score: Number(r.score) })),
-      identityLevel: identity.current.level, identityName: identity.current.name,
-      nextIdentity: IDENTITY_LEVELS[Math.min(identity.current.level + 1, 4)]?.name ?? '',
-      identityNextHint: identity.current.nextHint,
+      identityLevel: 0, identityName: '', nextIdentity: '', identityNextHint: '',
     })
     nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,skillTags:expSkills,insight:expInsight} as any)
   }
@@ -482,7 +482,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
   for(const rel of expRelations){
     const sourceId='exp-'+rel.from_experience,targetId='exp-'+rel.to_experience
     if(!nodeIds.has(sourceId)||!nodeIds.has(targetId))continue
-    edges.push({id:'exp-rel-'+rel.from_experience+'-'+rel.to_experience,type:'RELATES_TO_VALUE',sourceId,targetId,reason:rel.reason||rel.relation,status:rel.relation,sourceEvidence:[],confidence:rel.score,sourceEvidenceType:'experience_relation'} as any)
+    edges.push({id:'exp-rel-'+rel.from_experience+'-'+rel.to_experience,type:'RELATES_TO_EXPERIENCE',sourceId,targetId,reason:rel.reason||rel.relation,status:rel.relation,sourceEvidence:[],confidence:rel.score,sourceEvidenceType:'experience_relation'} as any)
   }
   for(const link of themeLinks){
     const sourceId='exp-'+link.experience_id,targetId='theme-'+link.theme_id
@@ -492,5 +492,8 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
   }
   const valueOrder=themes.slice(0,3).map(theme=>'theme-'+theme.id)
   return {...seed,purpose:'当前登录用户的成长星图：主题来自本人陈述的目标与追求',notice:'主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。',nodes,edges,
-    viewConfig:{...seed.viewConfig,valueOrder,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false,starmapNextStep,changeEvents:changeEvents.map((event:any)=>({subjectType:event.subject_type,transition:event.transition,reason:event.reason,committedAt:event.committed_at,userConfirmation:event.user_confirmation,unknowns:event.unknowns}))}
+    viewConfig:{...seed.viewConfig,valueOrder,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false,starmapNextStep,changeEvents:changeEvents.map(event=>{
+      const current=event.subject_type==='theme'?themes.find(x=>x.id===event.subject_id)?.title:event.subject_type==='experience'?experiences.find(x=>x.id===event.subject_id)?.content?.title:event.subject_type==='identity_claim'?claims.find(x=>x.id===event.subject_id)?.text:undefined
+      return {subjectType:event.subject_type,transition:event.transition,reason:current?event.reason:'原记录已改变、结束或撤回，不再展示历史原话。',committedAt:event.committed_at,userConfirmation:event.user_confirmation,before:event.old_snapshot?'此前记录已被更新；历史原话不在此重新展示。':undefined,now:current?String(current):'这项记录当前不可用于建议。',unknowns:current?event.unknowns:''}
+    })}
 }
