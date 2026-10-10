@@ -4,6 +4,8 @@
 
 ## 攻略跨会话反馈承接
 
+最新连续链还逐轮核对实际已提交助手消息，24轮全部通过（round-readback-final.log及round-readback/FOUR_TRAJECTORIES.json）。已去掉原先比较两个未提供reply字段的无效断言；回复、事件revision、攻略使用、成长状态与实际Skill trace一起保存，避免只看run completed。3分05秒演示的原录屏来自修复后同一产品代码；录屏后的增量只完善该验收脚本，两个进程指纹分别记录。
+
 正常认证HTTP、隔离PG、原SDK的三会话链：采纳 → 未开始且材料打不开 → 拒绝继续。保持实际guide/revision/branch/step，受阻提示只带对应反馈分支，不重送入门教程；当前本人反馈与第三方/引用分开。没有回复为waiting_result，不误记completed。待审卡、已撤回来源和不同任务不会获得承接授权；同义去重沿用原机制。
 
 红证据：evidence/acceptance-20261010/guide-context-red.log、guide-feedback-red.log。后续quote保护及拒绝提示失败也保留在guide-pg-green.log、guide-http-green.log。

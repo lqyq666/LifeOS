@@ -65,7 +65,9 @@ test('four continuous trajectories, three sessions each, normal authenticated HT
     const res=await request('/api/conversations/'+chat+'/messages',{requestId:id,text:round.text});assert.equal(res.status,200)
     const frames=(await res.text()).split('\n').filter(x=>x.startsWith('data: ')).map(x=>JSON.parse(x.slice(6))),done=frames.find(x=>x.type==='done')
     assert.ok(done,JSON.stringify({chain:chain.id,index,frames,wire:wire.slice(before)}));assert.equal(wire.length-before,1,'no extra repair call hidden in trajectory')
-    const run=await json('/api/runs/'+id);assert.equal(run.status,'completed');assert.deepEqual(run.response.reply,done.reply)
+    const run=await json('/api/runs/'+id);assert.equal(run.status,'completed')
+    const savedReply=(await pool.query("SELECT content FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[user,id])).rows[0]?.content
+    assert.ok(savedReply?.includes(round.reply),'each scripted reply must exist in the actual committed assistant message')
     if(done.event)event=done.event
     const view=await json('/api/conversations/'+chat+'/event?id='+event.id)
     assert.equal(view.id,event.id);assert.equal(view.revision,event.revision)
@@ -82,7 +84,7 @@ test('four continuous trajectories, three sessions each, normal authenticated HT
     if(chain.id==='freelance'&&index===5){assert.ok(JSON.stringify(wire.at(-1).context).includes('就业'));assert.ok(JSON.stringify(wire.at(-1).context).includes('海报'))}
     assert.ok(Object.values(state).every(Boolean),JSON.stringify({chain:chain.id,index,state,used}))
     const toolAudit=(await pool.query('SELECT tool_audit FROM runs WHERE user_id=$1 AND request_id=$2',[user,id])).rows[0].tool_audit
-    results.push({chain:chain.id,round:index+1,session:round.session+1,requestId:id,input:round.text,reply:done.reply,state,event:view,guideUsage:used,growth:facts,runResponse:run.response,skillExecutionAudit:toolAudit.filter((a:any)=>a.phase==='workflow_trace'),scriptedProviderCalls:wire.length-before,methodSupport:initialMethod?'APPROVED_HOST_GUIDE_USAGE':'EDITORIAL_NO_MATCHING_APPROVED_METHOD'})
+    results.push({chain:chain.id,round:index+1,session:round.session+1,requestId:id,input:round.text,reply:savedReply,state,event:view,guideUsage:used,growth:facts,runResponse:run.response,skillExecutionAudit:toolAudit.filter((a:any)=>a.phase==='workflow_trace'),scriptedProviderCalls:wire.length-before,methodSupport:initialMethod?'APPROVED_HOST_GUIDE_USAGE':'EDITORIAL_NO_MATCHING_APPROVED_METHOD'})
     latestFacts=facts;persist();await indexCoachEventOnce()
    }
    assert.ok(initialMethod,'initial approved method did not connect to authenticated guide usage: '+chain.id)
