@@ -15,6 +15,8 @@ import { importKnowledge, type KnowledgeCard } from '../../server/campus-knowled
 import { localEmbedding } from '../../server/local-embedding.ts'
 import { Value } from 'typebox/value'
 import {readFileSync} from 'node:fs'
+import {boundedOrdinaryReply} from '../../server/bounded-reply.ts'
+import {knowledgeIntent} from '../../server/evergreen-guide.ts'
 
 test('retained actual knowledge probe candidate is unrepresentable in the ordinary runtime contract',()=>{
   const retained=JSON.parse(readFileSync('evidence/coze-core-launch-20261011/MODEL_CAPABILITY_FIRST_FAIL.json','utf8'))
@@ -187,8 +189,11 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
     })
     await t.test('unverified two-hour amount stays a verbatim fact and the actual outgoing schema excludes an expiring constraint',async()=>{
       const text='我还有两小时准备明天的课堂汇报，先做哪一步？',turn=await prepare(text)
-      outputs.push({reply:'先核对汇报主题。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}]})
+      const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
+      outputs.push({reply:choice,growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}]})
       const result=await engine(turn.input),schema=requests.at(-1)!.response_format.json_schema.schema
+      assert.ok(schema.properties.reply.enum.includes(choice),'actual SDK carries the bounded reply enum')
+      assert.equal(result.text,choice,'selected authorized editorial action is read back unchanged')
       assert.equal(schema.properties.growthUpdates.items.anyOf.some((branch:any)=>branch.properties?.kind?.const==='constraint'),false)
       const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
       assert.equal(saved.growthIds.length,1)
@@ -203,8 +208,9 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       const newChat=randomUUID()
       await store.createConversation(user,{id:newChat,title:'SYNTHETIC separate contact matter'})
       await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1) ON CONFLICT (user_id) DO UPDATE SET enabled=true',[user])
-      const turn=await prepare('前天联系了学长，他没回，我下一步怎么办？',newChat)
-      outputs.push({reply:'先核对原消息的目的和实际等待情况。'})
+      const text='前天联系了学长，他没回，我下一步怎么办？',turn=await prepare(text,newChat)
+      const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
+      outputs.push({reply:choice})
       const result=await engine(turn.input),request=requests.at(-1)!
       const context=JSON.parse(request.messages.find((m:any)=>m.role==='user').content)
       assert.equal(context.methodSourceAvailability.status,'NO_MATCHING_PUBLIC_METHOD')
@@ -214,7 +220,18 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.ok(!JSON.stringify(context.growthBackground).includes('我还有两小时准备明天的课堂汇报'),'actual SDK context cannot use the other task budget')
       assert.equal((await pool.query("SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2",[user,'我还有两小时准备明天的课堂汇报'])).rows[0].n,1,'original saved fact remains available in storage')
       assert.equal(request.response_format.json_schema.schema.properties.citations,undefined)
+      assert.equal(context.boundedReply.sourceStatus,'NO_PUBLIC_METHOD')
+      assert.ok(request.response_format.json_schema.schema.properties.reply.enum.includes(choice))
       assert.equal((result.usage as any).llmCallCount,1)
+    })
+    await t.test('out-of-catalogue model prose is rejected without retry or losing a saved fact',async()=>{
+      const newChat=randomUUID();await store.createConversation(user,{id:newChat,title:'SYNTHETIC bounded rejection'})
+      const before=(await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1',[user])).rows[0].n
+      const turn=await prepare('我发给学长的问题还没有回复，今天还要催吗？',newChat),requestCount=requests.length
+      outputs.push({reply:'明天再发，语气轻一点反而更容易得到回应。'})
+      await assert.rejects(engine(turn.input),(error:any)=>error.code==='BOUNDED_REPLY_INVALID')
+      assert.equal(requests.length-requestCount,1,'invalid prose is not a paid automatic repair')
+      assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1',[user])).rows[0].n,before)
     })
   }finally{
     model.baseUrl=previousURL;config.apiKey=previousKey

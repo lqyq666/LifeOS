@@ -628,7 +628,7 @@
       "growthApi": true
     },
     "temporaryTimeScope": "evidence/coze-core-launch-20261011/TEMPORARY_TIME_SCOPE_INCREMENT.json",
-    "ordinaryNextPaidBatch": "AUTHORIZED_BOUNDED_REPLY_ROUTE_PENDING_LOCAL_VALIDATION",
+    "ordinaryNextPaidBatch": "AUTHORIZED_BOUNDED_REPLY_ROUTE_LOCAL_VERIFIED_PENDING_FROZEN_SMALL_REAL_BATCH",
     "scienceRecordCorrection": {
       "at": "2026-10-10T16:27:37.097Z",
       "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
@@ -673,6 +673,33 @@
       "status": "DRAFT_REVISED_PENDING_INDEPENDENT_REVIEW_AND_OWNER_APPROVAL",
       "contentTest": "6/6 isolated PostgreSQL content/import/deny-student-read checks PASS",
       "evidence": "evidence/coze-core-launch-20261011/SCIENCE_RECORD_CONTENT_PASS.log"
+    },
+    "boundedOrdinaryReply": {
+      "status": "LOCAL_BOUNDED_REPLY_ROUTE_VERIFIED_NOT_REAL_MODEL_ACCEPTANCE",
+      "sourceBaseCommit": "d21f4bc",
+      "scope": "ordinary action/process questions without an authorized public method; delivery/planning/sourced methods/listening/controls/comparison retain original contracts",
+      "mechanism": "server editorial action/question catalogue binds native reply enum; server rejects out-of-catalogue prose before state staging; early question must be an authorized suffix",
+      "checks": {
+        "pure": 3,
+        "actualLoopbackSdkAndIsolatedPg": 15,
+        "serverTypes": "PASS"
+      },
+      "firstFailure": "initial local action-question detection missed clauses marked declarative by shared parser; quoted/attributed spans still excluded, explicit action grammar added; original failure log retained",
+      "limits": [
+        "No real quality or performance acceptance for this source yet",
+        "This bounded editorial subset does not prove personalized multi-direction decisions",
+        "Model transport latency remains to be measured"
+      ],
+      "sourceFiles": {
+        "server/bounded-reply.ts": "3b240ad3b3b2095905fc512d30f5f998ed652c8d81fa9255fc742c2aec31352b",
+        "server/turn-engine.ts": "0ac26c8b64540c28de90fafd5d841619b2fef228a327874566fa15d19e47c1f4",
+        "tests/bounded-reply.test.ts": "a159c32100056200f096f58c25a0b91adea1d76eb7b23dc33b99a67a8b188f67",
+        "tests/backend/turn-contract.test.ts": "dd9d77a8836e6a57fd494e68a164fb3b97b54cfb715929cfd1dc9d0c78ee09a5"
+      },
+      "realModelCallsAdded": 0,
+      "automaticPaidRetry": false,
+      "newBudget": 0,
+      "published": false
     }
   },
   "preRestorationCheckpoint": {
