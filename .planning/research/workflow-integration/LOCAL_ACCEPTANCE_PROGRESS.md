@@ -1,6 +1,6 @@
 # 当前本地验收增量
 
-2026-10-10完整长批次本地检查点：workflow-v2-integration-519f4aec7841，代码提交ec3326f，整体WIP_NOT_READY。保留唯一伙伴、4工作流、5专业Skill；没有push、合main、部署、新预算或恢复模型/扣子调用。
+2026-10-10完整长批次本地检查点：workflow-v2-integration-519f4aec7841，代码提交b88dd9f，整体WIP_NOT_READY。保留唯一伙伴、4工作流、5专业Skill；没有push、合main、部署、新预算或恢复模型/扣子调用。
 
 | 本批成果 | 实际完成与边界 |
 |---|---|

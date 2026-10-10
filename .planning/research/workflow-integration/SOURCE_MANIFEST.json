@@ -1,10 +1,10 @@
 {
   "schemaVersion": 6,
   "version": "workflow-v2-integration-519f4aec7841",
-  "head": "ec3326f35fc42a29ab2d220a1cf3eb8b4bd2b8a6",
-  "codeCommit": "ec3326f35fc42a29ab2d220a1cf3eb8b4bd2b8a6",
+  "head": "b88dd9f6e5151204b1b13f6f87c61c4d51dcb6c2",
+  "codeCommit": "b88dd9f6e5151204b1b13f6f87c61c4d51dcb6c2",
   "status": "WIP_NOT_READY",
-  "at": "2026-10-10T11:21:27.295583+00:00",
+  "at": "2026-10-10T11:24:12.978832+00:00",
   "baselineManifest": "evidence/long-batch-20261010/baseline-ce4d/SOURCE_MANIFEST.json",
   "sourceFingerprint": "519f4aec7841bf1bcf426d9c33385cadcdf1d350e90abceb646422206f34f8e7",
   "fingerprintAlgorithm": "sha256(UTF8 sorted-key compact JSON path-to-sha256 map of committed Git blob bytes)",
