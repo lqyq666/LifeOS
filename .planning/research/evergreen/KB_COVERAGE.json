@@ -1032,22 +1032,24 @@
     "reason": "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。",
     "positive": "科研受阻复盘，从哪下手？",
     "negative": "科研受阻复盘让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 3,
+    "content_revision_candidate": 4,
     "content_maturity": "SUBSTANTIVE_DRAFT",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "科研任务的直接复盘来源仍缺；仅保留整理本人过程的编辑建议。",
+    "remaining_claim": "实验记录整理已有直接培训原文；科研失败归因、代码调试、文献阅读和写作方法仍缺直接材料。",
     "source_followup": {
-      "at": "2026-10-10T14:28:22.748Z",
-      "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
-      "evidenceIds": [],
-      "methodExtracted": [
-        "由本人选具体实验、代码、文献阅读或写作任务，读回已有操作和实际产物；不要求找一道考试题。",
-        "分开本人预期、已做过程、实际观察和仍未知；缺原始材料时先补材料，不猜失败原因。",
-        "只整理一个可向导师或合作者核对的问题；需获准的实验不自行执行，本人拒绝就停止。"
+      "at": "2026-10-10T16:27:37.097Z",
+      "sourceGapStatus": "PARTIAL_SOURCE_STILL_MISSING_TASK_SPECIFIC_CLAIM",
+      "evidenceIds": [
+        "hzau-experiment-records-20261011-e1"
       ],
-      "scope": "科研任务的直接复盘来源仍缺；仅保留整理本人过程的编辑建议。",
+      "methodExtracted": [
+        "先核对具体课题和任务类型，读回本人已有过程与产物；实验记录与代码、文献或写作分别处理，不串两个相似课题。",
+        "属于实验记录时，保留本人实际操作与观察，标出异常现象和本人提出的改进思路；未记下的细节标未知，不补造原始数据或失败原因。",
+        "只整理一个可向有权限导师或合作者核对的记录片段和问题；是否调整实验待实际核对，未获准不执行。代码、文献和写作仅整理原材料，不声称已提供有来源的科研方法。"
+      ],
+      "scope": "实验记录整理已有直接培训原文；科研失败归因、代码调试、文献阅读和写作方法仍缺直接材料。",
       "independentReview": null,
       "humanApproval": null,
       "publication": false

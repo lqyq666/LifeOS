@@ -414,12 +414,12 @@
     }
   ],
   "summary": {
-    "newUsableSources": 9,
-    "newLocatedQuotes": 10,
-    "draftsSupplemented": 10,
+    "newUsableSources": 10,
+    "newLocatedQuotes": 11,
+    "draftsSupplemented": 11,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
-    "partialImproved": 7,
+    "partialImproved": 8,
     "stillTaskSpecificSourceGap": 38,
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
@@ -497,6 +497,20 @@
       "C22-1",
       "C23-1"
     ],
+    "independentReviews": 0,
+    "humanApprovals": 0,
+    "published": 0
+  },
+  "scienceRecordCorrection": {
+    "at": "2026-10-10T16:27:37.097Z",
+    "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+    "revision": 4,
+    "previousDraftHash": "566a7da6b824000a804f6a4dfc2e1d9c99a7f24d8b169a204aa37ce8c0047b99",
+    "newContentHash": "299b0a324888fe7ae2a671220aed4e5ad0fc5e79679ca8b48146c0c1653e5f54",
+    "newDistinctOriginals": 1,
+    "newLocatedQuotes": 1,
+    "partialTask": "C09-4",
+    "remainingClaim": "实验记录整理已有直接培训原文；科研失败归因、代码调试、文献阅读和写作方法仍缺直接材料。",
     "independentReviews": 0,
     "humanApprovals": 0,
     "published": 0
