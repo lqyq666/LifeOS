@@ -1,0 +1,18 @@
+{
+  "kind": "PREDECLARED_NEW_REPAIRED_CANDIDATE_FIRST_ATTEMPTS",
+  "priorFailureEvidence": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_2b1020c_FIRST_FAILURE.json",
+  "hypothesis": "Bailian wire without unsupported uniqueItems can execute bounded analyst/critic/synthesis while server rejects duplicates; safe failure codes disclose actual remaining transport/contract errors. The first failure's original HTTP reason remains unknown.",
+  "prepaidLocalEvidence": "COMPLEX_SCHEMA_NATIVE_17_PASS.log + COMPLEX_SCHEMA_TYPES_PASS.log",
+  "scope": "Same predeclared one two-direction and one three-direction synthetic-adult business case, fresh request identifiers and a new frozen candidate; original two failed outcomes preserved, no existing request resent",
+  "pilotReservationCeilingCny": 1,
+  "reservationReason": "Worst-case two-direction four slots plus three-direction five slots at 0.1079296 CNY requires 0.9713664; previous agent-selected 0.5 pilot ceiling cannot reserve this. This is allocation within the original funding, not new budget or an added grant.",
+  "budgetAddedCny": 0,
+  "remainingOriginalCnyBeforeNewBatch": 10.5060591,
+  "normalCallsMaximum": 9,
+  "repairCalls": 0,
+  "ordinaryCalls": 0,
+  "unknownFees": "All prior unknown calls keep their full original reservations; do not settle to zero",
+  "independentReview": "PENDING_ACTUAL_EXECUTION",
+  "expansion": "NOT_TESTED_UNTIL_SMALL_GATE",
+  "production": "NOT_RELEASED"
+}

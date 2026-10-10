@@ -5,7 +5,9 @@ import {explicitTimeEvidenceCandidates} from './growth-time.ts'
 
 type ProviderProfile={provider:string;id:string}
 export type OutputPath='turn'|'repair'
-const nonProviderSchemaKeys=new Set(['~optional','$schema','$id'])
+// Bailian strict JSON Schema returns HTTP 400 for uniqueItems. Keep it in the
+// authoritative TypeBox schema and local selector validation; omit only on wire.
+const nonProviderSchemaKeys=new Set(['~optional','$schema','$id','uniqueItems'])
 
 export function outputTokenLimit(profile:ProviderProfile,tier:ModelTier){
   return profile.provider==='bailian'&&profile.id==='deepseek-v4.1-flash'&&tier==='reasoning'?16384:8192

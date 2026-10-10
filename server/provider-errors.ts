@@ -7,5 +7,6 @@ export function providerError(message: string): HttpError {
   if (/\b1302\b|\b429\b|rate.?limit/i.test(message)) return new HttpError(429,'MODEL_RATE_LIMITED',60)
   if (/timed?\s*out|timeout/i.test(message)) return new HttpError(504,'MODEL_TIMEOUT',15)
   if (/\b40[13]\b/.test(message)) return new HttpError(503,'MODEL_CONFIGURATION_ERROR',300)
+  if (/\b400\b/.test(message)&&/schema|uniqueItems|response_format/i.test(message)) return new HttpError(502,'MODEL_SCHEMA_UNSUPPORTED',0)
   return new HttpError(502,'MODEL_REQUEST_FAILED',15)
 }

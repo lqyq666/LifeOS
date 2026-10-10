@@ -106,3 +106,7 @@ P6/P7 无新依赖：双分母/ReviewRow/速度口径复用现有 scripts 结构
 ## 扣子AI编程工作流批次（2026-10-06，真实CLI操作）
 
 按 GLM_COZE_AUTOMATION.md C1 执行。官方 Coze CLI 0.3.11（用户升级），设备授权流程由用户确认后 logged_in=true。空间：个人空间 7651603600241836078（唯一，无歧义）。无既有 LifeOS 项目 → 创建 AI编程workflow 项目 7693465311558795327（一次性 create，session 363941496948738）。云端使用官方 KnowledgeClient（coze-coding-dev-sdk 0.5.25，/v1/knowledge_base/batch_import + recall，新版 Knowledge 数据库，非旧版 datasets），8份gov.cn公开资料（幂等复验：同版本重复导入零新增、doc_id不变）。部署 7693525668302422058（commit 7cf4bd7b...，域名 https://7hdbk4bb24.coze.site，状态 Succeeded，未自动fix/redeploy）。本地新增 server/coze-code-workflow.ts（code_workflow 传输适配器：固定端点校验 .coze.cn/.coze.run/.coze.site + /run 路径、redirect:error、256KiB累计字节上限、CANCELLED/401/403/429/超时独立错误类别、专用运行时Token不与CLI OAuth混用）+ scripts/validate-coze-code-workflow.ts（默认零联网 preflight，--real 显式分支）+ tests/backend/coze-code-workflow.test.ts（传输边界全mock）。引擎传输选择互斥：code_workflow 配置齐全时独用，失败不自动切换另一种传输。全量本地检查通过（74单测+适配器5+引擎44+coze 6+typecheck×2+build）。
+
+## 2026-10-11 百炼结构化工作流兼容修复
+
+原始官方文档 https://help.aliyun.com/en/model-studio/qwen-structured-output 的Supported JSON Schema keywords明确uniqueItems不支持且会返回400。Jina Reader401保留，实际原文经web工具与直接公开GET读回，完整HTML哈希见COMPLEX_SMALL_2b1020c_REVIEW。复用现有TypeBox、providerSchema编译器、Pi SDK 0.73.1及唯一账本；不迁入另一框架、不新增依赖。仅在wire省略该关键词，服务端唯一性校验保留；actual loopback SDK检查真正请求与恶意重复返回，17项通过。新failureCode仅枚举不导出原错误/Key。首次真实失败具体响应未知，不把官方原因反推为已观察HTTP400。

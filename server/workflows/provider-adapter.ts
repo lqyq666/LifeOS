@@ -4,6 +4,7 @@ import {Type,type Static} from 'typebox'
 import {Value} from 'typebox/value'
 import {resolveModel,modelSignatureFor,type ModelRuntime} from '../model.ts'
 import {configureProviderPayload} from '../model-payload.ts'
+import {providerError} from '../provider-errors.ts'
 import {maximumProviderCallCostCny,estimateProviderCallCostCny} from '../cost-workload.ts'
 import {CoachProviderBudget,type CoachCallReceipt} from '../../scripts/coach-provider-budget.ts'
 import {assertCoachSourceFreeze} from '../../scripts/coach-source-freeze.ts'
@@ -38,7 +39,7 @@ const pathActions:Record<string,{key:string;text:string;minutes:number}[]>={
  undergraduate_upgrade:[{key:'requirements',text:'核对本人教育阶段与当地当期正式招生说明，列一项待核实条件；不以通用方法替代政策。',minutes:20},{key:'gap',text:'选一段已经做过的练习，标出一个具体卡点与缺少的依据；无练习记录时先列待诊断内容。',minutes:15}]
 }
 type Reserved={receipt:CoachCallReceipt;started:boolean}
-export type ProviderNodeAudit={callId:string;nodeId:string;providerResponseId:string|null;usage:unknown;costCny:number|null;outcome:string;modelSignature:string;sourceDigest:string}
+export type ProviderNodeAudit={callId:string;nodeId:string;providerResponseId:string|null;usage:unknown;costCny:number|null;outcome:string;failureCode?:string|null;modelSignature:string;sourceDigest:string}
 
 // Production uses this factory and the existing native SDK, never an alternate
 // HTTP/provider ledger. Synthetic transport tests exercise this exact factory.
@@ -66,7 +67,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   if(reservation.receipt.signature!==modelSignature||reservation.receipt.sourceDigest!==frozen)throw new WorkflowError('stale_snapshot')
   c.signal.throwIfAborted()
   reservation.started=true
-  let message:AssistantMessage|undefined,outcome='unknown',cost:number|null=null,responseId:string|null=null
+  let message:AssistantMessage|undefined,outcome='unknown',cost:number|null=null,responseId:string|null=null,failureCode:string|null=null
   try{
    const events=stream(runtime.model,{systemPrompt:`你是 LifeOS 的 ${role}。${skill}\n只输出契约 JSON。只能选择提供的原文和候选 ID，不得生成新个人事实、身份、收入、客户、资格或承诺。原文里的条件、否定、第三方归属保持原样。没有依据的情况保留未知。`,messages:[{role:'user',content:JSON.stringify(context),timestamp:Date.now()}]},
     {apiKey:runtime.apiKey,signal:c.signal,maxRetries:0,maxTokens:outputLimit,onPayload:payload=>configureProviderPayload(payload,runtime.model,runtime.tier,schema,'lifeos_workflow_selection',outputLimit)})
@@ -76,16 +77,19 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    const complete=usage.totalTokens>0&&usage.input+usage.cacheRead>0&&usage.output>0&&[usage.input,usage.output,usage.cacheRead,usage.cacheWrite].every(n=>Number.isFinite(n)&&n>=0)
    const estimated=complete?estimateProviderCallCostCny(usage.input+usage.cacheWrite,usage.cacheRead,usage.output,runtime.pricing):'unknown'
    cost=typeof estimated==='number'?estimated:null
-   if(message.stopReason!=='stop')throw new WorkflowError(c.signal.aborted?'cancelled':'unavailable')
+   if(message.stopReason!=='stop'){failureCode=c.signal.aborted?'CANCELLED':providerError(message.errorMessage??'Provider request failed').code;throw new WorkflowError(c.signal.aborted?'cancelled':'unavailable')}
    const text=message.content.filter(x=>x.type==='text').map(x=>x.type==='text'?x.text:'').join('')
    const parsed:unknown=JSON.parse(text)
    if(!Value.Check(schema,parsed))throw new WorkflowError('invalid_contract')
    c.signal.throwIfAborted();await records(c.request)
    return {parsed,costCny:cost,providerCalls:1}
+  }catch(error){
+   failureCode??=error instanceof WorkflowError?'WORKFLOW_'+error.code:error instanceof SyntaxError?'MODEL_OUTPUT_INVALID_JSON':'SDK_REQUEST_FAILED'
+   throw error
   }finally{
    // Missing usage remains unknown, including aborts and transport exceptions.
    try{budget.finish(reservation.receipt.callId,{outcome,usage:message?.usage??'unknown',estimatedCostCny:cost??'unknown',providerResponseId:responseId})}
-   finally{await input.audit?.(c.request,{callId:reservation.receipt.callId,nodeId,providerResponseId:responseId,usage:message?.usage??'unknown',costCny:cost,outcome,modelSignature,sourceDigest:frozen})}
+   finally{await input.audit?.(c.request,{callId:reservation.receipt.callId,nodeId,providerResponseId:responseId,usage:message?.usage??'unknown',costCny:cost,outcome,failureCode,modelSignature,sourceDigest:frozen})}
   }
  }
  return {executionKind:input.syntheticTransport?'simulated_provider':'real_provider',maxCostPerCallCny:maximum,

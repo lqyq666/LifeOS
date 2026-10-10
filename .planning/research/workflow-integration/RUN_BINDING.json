@@ -868,7 +868,7 @@
     "ordinaryTwentyAccepted": 0,
     "cozeBusinessCalls": 0,
     "cozeDevelopmentRequests": 5,
-    "development": "GROWTH_R6_TERMINAL_SOURCE_REJECTED_R7_AUTHORIZED_REPAIR_PREPARED",
+    "development": "GROWTH_R7_PROCESSING_ACK_CONFIRMED_NO_DUPLICATE",
     "cloudContracts": "LEGACY_READBACK_ONLY_NEW_HTTP_NOT_ACCEPTED",
     "runtimeSpendEntry": "HOST_SIGNED_ORIGINAL_CNY_RESERVATION_LOCAL_TESTED_CLOUD_BRIDGE_NOT_TESTED",
     "modelLedgerMetadataOnly": {
@@ -886,8 +886,8 @@
     "cozeCredits": {
       "observedInitial": 151559,
       "chargedRounded": 42397,
-      "unknownHeld": 0,
-      "availableUnreserved": 109162,
+      "unknownHeld": 109162,
+      "availableUnreserved": 0,
       "actualR6Bill": "evidence/coze-core-launch-20261011/COZE_R6_DEVELOPMENT_USAGE.json"
     },
     "image": "6c5e5d8_FRESH_IMAGE_44_SCOPED_CHECKS_PASS_NOT_REAL_ACCEPTANCE",
@@ -1775,6 +1775,16 @@
       "futureUse": "Exposed after this execution; any later tuning informed by these labels or outcomes must mark this as regression, never a new unseen cohort."
     },
     "freshReproductionHead": "a786526a25df4543fee6d80067d161ccc1fb1715",
-    "freshReproductionStatus": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE"
+    "freshReproductionStatus": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
+    "complexSmall": {
+      "head": "2b1020c3f063b6f0eca243d110ef9e385602b81e",
+      "status": "FIRST_TWO_FAILED_RETAINED_NATIVE_SCHEMA_LOCAL_REPAIR_PASS",
+      "evidence": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_2b1020c_FIRST_FAILURE.json",
+      "review": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_2b1020c_REVIEW.json",
+      "actualProviderCalls": 2,
+      "unknownCnyHeld": 0.2158592,
+      "largerCohorts": "NOT_TESTED"
+    },
+    "cozeR7Dispatch": "evidence/coze-core-launch-20261011/COZE_R7_DISPATCH.json"
   }
 }

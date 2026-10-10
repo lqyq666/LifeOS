@@ -7,6 +7,15 @@ import { actionCoachTurnSchema } from '../../server/action-coach-contracts.ts'
 import { configureProviderPayload, outputTokenLimit } from '../../server/model-payload.ts'
 import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
 
+test('Bailian wire omits unsupported uniqueItems while the authoritative schema still rejects duplicate selections',()=>{
+ const schema={type:'object',properties:{actionIds:{type:'array',items:{type:'string'},uniqueItems:true,maxItems:12}},required:['actionIds'],additionalProperties:false}
+ const before=JSON.stringify(schema),wire=(configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',schema,'workflow',2048) as any).response_format.json_schema.schema
+ assert.equal(JSON.stringify(wire).includes('uniqueItems'),false)
+ assert.equal(Value.Check(schema,{actionIds:['a','a']}),false)
+ assert.equal(Value.Check(schema,{actionIds:['a']}),true)
+ assert.equal(JSON.stringify(schema),before)
+})
+
 test('saved two-hour failure cannot select an unverifiable constraint; explicit windows stay paired to their own facts',()=>{
   const current='00000000-0000-4000-8000-000000000011',anchor='2026-10-10T12:00:00.000Z'
   const make=(text:string)=>{
