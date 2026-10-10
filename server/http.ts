@@ -33,6 +33,7 @@ import { officialPaths } from './official-paths.ts'
 import {createWorkflowHost,type WorkflowHost} from './workflows/task-host.ts'
 import {workflowRuntimeVersion} from './workflows/runtime-version.ts'
 import {WorkflowError} from './workflows/contracts.ts'
+import {queueMaintenancePack,listMaintenanceDrafts,readMaintenanceDraft,actOnMaintenanceDraft} from './kb-maintenance.ts'
 
 export function modelReady() {
   return credentialReady()&&modelCapabilityVerified('default')
@@ -84,6 +85,10 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHos
         if(!session)throw new HttpError(401,'LOGIN_REQUIRED')
         // Effective identity is always derived here. No body, URL or model field can override it.
         const user=session.user.id
+        if(path==='/api/maintenance/guides'&&method==='GET'){json(res,200,await listMaintenanceDrafts(user));return}
+        if(path==='/api/maintenance/guides/queue'&&method==='POST'){await body(req);json(res,200,await queueMaintenancePack(user));return}
+        const maintenance=path.match(/^\/api\/maintenance\/guides\/([0-9a-f-]{36})\/(\d+)(\/actions)?$/)
+        if(maintenance){const id=validateId(maintenance[1]),revision=Number(maintenance[2]);if(method==='GET'&&!maintenance[3]){json(res,200,await readMaintenanceDraft(user,id,revision));return}if(method==='POST'&&maintenance[3]){json(res,200,await actOnMaintenanceDraft(user,id,revision,await body(req)));return}}
         if(path==='/api/access'&&method==='GET'){json(res,200,await entitlementView(user));return}
         if(path==='/api/workflows/capabilities'&&method==='GET'){json(res,200,workflows.capabilities());return}
         if(path==='/api/workflows'&&method==='POST'){json(res,201,await workflows.create(user,await body(req)));return}

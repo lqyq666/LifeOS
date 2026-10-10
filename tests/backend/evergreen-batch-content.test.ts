@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
+import {randomUUID} from 'node:crypto'
 import {pool} from '../../server/db.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {readApprovedGuide} from '../../server/coach-knowledge.ts'
@@ -20,9 +21,11 @@ test('32 substantive revisions, 59 actual research outcomes and unchanged 112 ta
 })
 test('drafts and located source snapshots import idempotently only into the disposable database and deny student reads',async()=>{
  const pack=json('KB_CONTENT_REVISIONS.json'),cards=lines('KB_GUIDES.jsonl'),sources=lines('KB_SOURCE_REGISTRY.jsonl'),evidence=lines('KB_EVIDENCE.jsonl')
+ // Each suite owns its card identities, even when the isolated runner shares its disposable DB.
+ const ids=new Map(cards.map((c:any)=>[c.id,randomUUID()]));for(const c of [...cards,...pack.drafts]){c.id=ids.get(c.id);c.guide.guideId=c.id;c.guide.canonicalKey='batch-fixture-'+c.guide.canonicalKey;c.guide.aliases=c.guide.aliases.map((a:string)=>'batch-fixture-'+a);c.guide.legacyIds=c.guide.legacyIds.map((a:string)=>'batch-fixture-'+a);c.guide.contentHash=guideContentHash(c.guide)}
  assert.equal((await importEvergreenCorpus(cards,sources,evidence)).changed,32)
  assert.equal((await importEvergreenCorpus(pack.drafts,[...sources,...pack.sources],[...evidence,...pack.evidence])).changed,32)
  assert.equal((await importEvergreenCorpus(pack.drafts,[...sources,...pack.sources],[...evidence,...pack.evidence])).changed,0)
  for(const card of pack.drafts){await assert.rejects(readApprovedGuide(card.id,card.revision));assert.deepEqual((await pool.query('SELECT snapshot FROM campus_knowledge_revisions WHERE id=$1 AND revision=1',[card.id])).rows[0].snapshot,cards.find(x=>x.id===card.id))}
- assert.equal((await pool.query("SELECT count(*)::int AS n FROM campus_knowledge WHERE status='verified'")).rows[0].n,0)
+ assert.equal((await pool.query("SELECT count(*)::int AS n FROM campus_knowledge WHERE id=ANY($1::uuid[]) AND status='verified'",[[...ids.values()]])).rows[0].n,0)
 })

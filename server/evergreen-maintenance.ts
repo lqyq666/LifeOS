@@ -1,9 +1,13 @@
 import {pool,transaction,HttpError} from './db.ts'
 import {importKnowledgeWithin,validateKnowledge,type KnowledgeCard} from './campus-knowledge.ts'
 import {kbHash,stableJson,validateEvergreenGuide} from './evergreen-guide.ts'
+import type {PoolClient} from 'pg'
 
 // No chat/HTTP route invokes this controlled maintenance entry point.
 export async function importEvergreenCorpus(cards:KnowledgeCard[],sources:any[],evidence:any[]){
+ return transaction(c=>importEvergreenWithin(c,cards,sources,evidence))
+}
+export async function importEvergreenWithin(c:PoolClient,cards:KnowledgeCard[],sources:any[],evidence:any[]){
  for(const card of cards){
   validateKnowledge(card)
   if(!card.guide)throw new HttpError(400,'EVERGREEN_GUIDE_REQUIRED')
@@ -17,7 +21,6 @@ export async function importEvergreenCorpus(cards:KnowledgeCard[],sources:any[],
   }
  }
  // Metadata, immutable revisions and aliases commit together or not at all.
- return transaction(async c=>{
   for(const s of sources){const old=(await c.query('SELECT payload,status FROM kb_sources WHERE source_id=$1 AND revision=$2 FOR SHARE',[s.source_id,s.source_revision])).rows[0]
    if(old){if(stableJson(old.payload)!==stableJson(s))throw new HttpError(409,'KB_SOURCE_REVISION_CONFLICT');if(old.status!==s.access_status)throw new HttpError(409,'KB_SOURCE_WITHDRAWN');continue}
    await c.query('INSERT INTO kb_sources(source_id,revision,source_group,canonical_url,status,content_hash,payload) VALUES($1,$2,$3,$4,$5,$6,$7)',[s.source_id,s.source_revision,s.source_group,s.canonical_url,s.access_status,s.original_fingerprint,s])
@@ -33,7 +36,6 @@ export async function importEvergreenCorpus(cards:KnowledgeCard[],sources:any[],
    await c.query('INSERT INTO kb_aliases(alias,guide_id,reason) VALUES($1,$2,$3) ON CONFLICT DO NOTHING',[alias,card.id,'旧自拟攻略按机制归并；保留原行和历史引用，不删除。'])
   }
  return result
- })
 }
 export async function resolveKnowledgeAlias(alias:string){
  const row=(await pool.query('SELECT guide_id FROM kb_aliases WHERE alias=$1',[alias])).rows[0]

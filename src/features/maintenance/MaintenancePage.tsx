@@ -1,0 +1,36 @@
+import {useEffect,useState} from 'react'
+import {api,ApiError} from '../../backend/client'
+import './maintenance.css'
+type Summary={guide_id:string;revision:number;content_hash:string;status:string;title:string}
+type Permission={edit:boolean;review:boolean;publish:boolean}
+type Detail={guideId:string;revision:number;contentHash:string;status:string;permissions:Permission;bundle:{card:any;base:any;sources:any[];evidence:any[]};receipts:any[]}
+const labels:Record<string,string>={needs_review:'待独立审阅',waiting_approval:'等待本人批准',published:'已批准发布',rejected:'已拒绝',cancelled:'已取消'}
+const explain=(e:unknown)=>e instanceof ApiError&&e.code==='KB_MAINTENANCE_FORBIDDEN'?'当前账户没有攻略维护权限。请由账户所有者配置维护、独立审阅和发布权限。':e instanceof ApiError&&e.code==='LOGIN_REQUIRED'?'请先在正常登录页面登录，然后回来刷新。':e instanceof Error?e.message:'读取失败，请刷新。'
+export function MaintenancePage(){
+ const [items,setItems]=useState<Summary[]>([]),[permission,setPermission]=useState<Permission>({edit:false,review:false,publish:false}),[detail,setDetail]=useState<Detail|null>(null),[notes,setNotes]=useState(''),[checked,setChecked]=useState<string[]>([]),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true)
+ async function refresh(){setLoading(true);try{const result=await api<{items:Summary[];permissions:Permission}>('/api/maintenance/guides');setItems(result.items);setPermission(result.permissions);setNotice('')}catch(e){setNotice(explain(e))}finally{setLoading(false)}}
+ useEffect(()=>{void refresh()},[])
+ async function open(item:Summary){setBusy(true);try{setDetail(await api<Detail>('/api/maintenance/guides/'+item.guide_id+'/'+item.revision));setChecked([]);setNotes('');setNotice('')}catch(e){setNotice(explain(e))}finally{setBusy(false)}}
+ async function queue(){setBusy(true);try{await api('/api/maintenance/guides/queue',{});await refresh()}catch(e){setNotice(explain(e))}finally{setBusy(false)}}
+ async function act(action:string){if(!detail)return;setBusy(true);try{const hashes=[...new Set(detail.bundle.sources.map(s=>s.original_fingerprint))].sort();await api('/api/maintenance/guides/'+detail.guideId+'/'+detail.revision+'/actions',{action,contentHash:detail.contentHash,sourceHashes:hashes,notes,claimChecks:checked});setDetail(await api<Detail>('/api/maintenance/guides/'+detail.guideId+'/'+detail.revision));await refresh();setNotes('');setChecked([])}catch(e){setNotice(explain(e))}finally{setBusy(false)}}
+ return <main className="kb-maintenance">
+  <header><div><h1>攻略审阅</h1><p>对照原文、适用范围和修订，再由不同的有权账户审阅与批准。</p></div><a href="/">返回LifeOS</a></header>
+  <nav aria-label="攻略维护"><button onClick={()=>void refresh()} disabled={busy}>刷新</button><a href="/#login" target="_blank" rel="noreferrer">打开登录</a>{permission.edit&&<button onClick={()=>void queue()} disabled={busy}>载入本批修订稿</button>}</nav>
+  {notice&&<p role="alert">{notice}</p>}
+  {loading&&<p role="status">正在读取待审内容…</p>}
+  {!loading&&!items.length&&!notice&&<p>暂无待审稿。维护账户可以载入本批修订，正式聊天仍使用已获审的规范卡。</p>}
+  <div className="kb-maintenance-layout"><aside aria-label="待审卡列表"><ul>{items.map(item=><li key={item.guide_id+item.revision}><button aria-pressed={detail?.guideId===item.guide_id} onClick={()=>void open(item)} disabled={busy}>{item.title}<span>v{item.revision} · {labels[item.status]??item.status}</span></button></li>)}</ul></aside>
+   <section aria-label="原文与修订对照">{detail?<>
+    <h2>{detail.bundle.card.title}</h2><p role="status">{labels[detail.status]} · v{detail.revision}</p>
+    <p>生成者的审核说明不能代替独立执行。勾选表示当前登录人已核对这项主张和原文，不会代替发布批准。</p>
+    <details><summary>版本与来源指纹</summary><code>{detail.contentHash}</code>{detail.bundle.sources.map(s=><p key={s.source_id}><code>{s.source_id} · {s.original_fingerprint}</code></p>)}</details>
+    <h3>原文定位</h3>{detail.bundle.evidence.map(e=>{const s=detail.bundle.sources.find(s=>s.source_id===e.source_id);return <article key={e.evidence_id}><a href={s.canonical_url} target="_blank" rel="noreferrer">{s.title} · 打开原文</a><p>{e.locator.pdfPage??(e.locator.line?'正文行 '+e.locator.line:'原文定位')} · {e.locator.start!==undefined?'字符 '+e.locator.start+'–'+e.locator.end:''}</p><blockquote>{e.quote}</blockquote><p>{s.cannot_infer}</p></article>})}
+    <h3>修订差异</h3>{['claim','scope','limitations'].map(key=><article key={key}><h4>{{claim:'外部主张',scope:'适用范围',limitations:'限制'}[key]}</h4><div className="kb-maintenance-diff"><div><strong>原版本</strong><p>{detail.bundle.base[key]}</p></div><div><strong>当前修订</strong><p>{detail.bundle.card[key]}</p></div></div></article>)}
+    <details open><summary>具体步骤与五种反馈</summary><pre>{detail.bundle.card.guide.referenceBody}</pre></details>
+    <fieldset disabled={busy||['published','rejected','cancelled'].includes(detail.status)}><legend>主张核对</legend>{detail.bundle.card.guide.claims.map((c:any)=><label key={c.id}><input type="checkbox" checked={checked.includes(c.id)} onChange={e=>setChecked(e.target.checked?[...checked,c.id]:checked.filter(x=>x!==c.id))}/><span>{c.text}<small>{c.basis==='editorial_adaptation'?'LifeOS编辑适配，未证明效果':'外部主张，需核对原文'} · {c.limitations}</small></span></label>)}
+    <label htmlFor="kb-review-notes">审阅问题、范围核对或批准理由</label><textarea id="kb-review-notes" value={notes} onChange={e=>setNotes(e.target.value)} rows={4}/>
+    <div className="kb-maintenance-actions">{['question','return','reject'].map(a=><button key={a} disabled={notes.trim().length<8} onClick={()=>void act(a)}>{{question:'提出问题',return:'退回改稿',reject:'拒绝本版'}[a]}</button>)}{permission.edit&&<button disabled={notes.trim().length<8} onClick={()=>void act('cancel')}>取消本版</button>}{permission.review&&<button disabled={notes.trim().length<8||checked.length!==detail.bundle.card.guide.claims.length} onClick={()=>void act('review')}>提交独立审阅，交有权人批准</button>}{permission.publish&&<button disabled={detail.status!=='waiting_approval'||notes.trim().length<8||checked.length!==detail.bundle.card.guide.claims.length} onClick={()=>void act('approve')}>本人确认批准并发布此版本</button>}</div></fieldset>
+    <h3>执行回执</h3>{!detail.receipts.length?<p>尚无独立审阅或批准回执。</p>:<ul>{detail.receipts.map(r=><li key={r.id}>{r.kind} · {r.actor_id} · {r.created_at}<p>{r.notes}</p><code>{r.id}</code></li>)}</ul>}
+   </>:<p>选择一张待审卡，查看原文、主张、边界与实际修订。</p>}</section></div>
+ </main>
+}
