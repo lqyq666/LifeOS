@@ -31,6 +31,18 @@ test('first-contact branches cannot borrow mentor evidence for social, career or
  for(const b of prep.branchChecks){assert.equal(b.independentExecution,null);assert.equal(b.humanApproval,null);for(const k of ['not_started','blocked','waiting_result','result','declined'])assert.ok(b.feedback[k])}
  for(const e of pack.evidence.filter((e:any)=>/branch-20261011/.test(e.evidence_id))){assert.equal(e.locator.end-e.locator.start,e.quote.length);assert.equal(kbHash(e.quote),e.content_hash);assert.match(e.locator.normalizedBodySha256,/^[a-f0-9]{64}$/)}
 })
+test('research obstacles cannot inherit exam evidence or a made-up solved exercise',()=>{
+ const pack=json('KB_CONTENT_REVISIONS.json'),card=pack.drafts.find((c:any)=>c.guide.canonicalKey==='exam-diagnosis'),prep=pack.reviewPreparation.find((p:any)=>p.guideId===card.id)
+ const research=card.guide.branches.find((b:any)=>b.candidateId==='C09-4')
+ assert.ok(research.steps.every((s:any)=>s.evidenceIds.length===0&&!s.text.includes('已做题')))
+ assert.equal(prep.branchChecks.find((b:any)=>b.candidateId==='C09-4').sourceStatus,'UNCHANGED_TASK_SPECIFIC_SOURCE_GAP')
+ for(const id of ['C03-4','C11-4','C12-3'])assert.ok(prep.branchChecks.find((b:any)=>b.candidateId===id).evidenceIds.includes('tsinghua-exam-reflection-20261011-e1'))
+ const previous=pack.draftHistory.find((c:any)=>c.id===card.id&&c.revision===card.revision-1)
+ assert.equal(previous.guide.contentHash,guideContentHash(previous.guide));assert.equal(prep.previousDraftHash,previous.guide.contentHash)
+ const located=pack.evidence.find((e:any)=>e.evidence_id==='tsinghua-exam-reflection-20261011-e1')
+ assert.equal(located.locator.end-located.locator.start,located.quote.length);assert.equal(kbHash(located.quote),located.content_hash)
+ for(const b of prep.branchChecks){assert.equal(b.independentExecution,null);assert.equal(b.humanApproval,null);assert.ok(b.feedback.waiting_result.includes('不判有效'));assert.ok(b.feedback.declined.includes('停止'))}
+})
 test('drafts and located source snapshots import idempotently only into the disposable database and deny student reads',async()=>{
  const pack=json('KB_CONTENT_REVISIONS.json'),cards=lines('KB_GUIDES.jsonl'),sources=lines('KB_SOURCE_REGISTRY.jsonl'),evidence=lines('KB_EVIDENCE.jsonl')
  // Each suite owns its card identities, even when the isolated runner shares its disposable DB.

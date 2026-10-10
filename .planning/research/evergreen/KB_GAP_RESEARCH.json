@@ -307,6 +307,31 @@
           "status": "BODY_READ",
           "bodyLength": 7366,
           "bodySha256": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3"
+        },
+        {
+          "id": "tsinghua-exam-reflection-20261011",
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "at": "2026-10-10T14:28:22.748Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "a27cff1e346bf8e1ef3c7ff2244d7f9ed224e84058f17fa2288ba92fc660d755",
+          "locator": {
+            "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+            "line": 50,
+            "start": 1769,
+            "end": 1801
+          },
+          "shortQuoteHash": "76a7161bb7ad23050c570fc8c1218300f5e055a2cf629bbaa4ac3880de1fe128",
+          "appliesToThisTask": true,
+          "backendAttempts": [
+            {
+              "backend": "AGENT_REACH_JINA_READER",
+              "status": "HTTP_401_NO_USABLE_BODY"
+            },
+            {
+              "backend": "ORIGINAL_SITE",
+              "status": "BODY_READ"
+            }
+          ]
         }
       ],
       "readSource": {
@@ -323,15 +348,31 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "取一道已做题，逐步对照题意、本人过程和可核查答案。",
-        "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
-        "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。"
+        "保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。",
+        "选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。",
+        "只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。"
       ],
-      "applicabilityBoundary": "科研归因与四类错误的普遍有效性仍缺直接证据。",
-      "stillMissingClaim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "applicabilityBoundary": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
+      "stillMissingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:28:22.748Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "tsinghua-exam-reflection-20261011-e1"
+        ],
+        "methodExtracted": [
+          "保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。",
+          "选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。",
+          "只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。"
+        ],
+        "scope": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
@@ -942,6 +983,31 @@
           "status": "BODY_READ",
           "bodyLength": 7366,
           "bodySha256": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3"
+        },
+        {
+          "id": "tsinghua-exam-reflection-20261011",
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "at": "2026-10-10T14:28:22.748Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "a27cff1e346bf8e1ef3c7ff2244d7f9ed224e84058f17fa2288ba92fc660d755",
+          "locator": {
+            "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+            "line": 50,
+            "start": 1769,
+            "end": 1801
+          },
+          "shortQuoteHash": "76a7161bb7ad23050c570fc8c1218300f5e055a2cf629bbaa4ac3880de1fe128",
+          "appliesToThisTask": false,
+          "backendAttempts": [
+            {
+              "backend": "AGENT_REACH_JINA_READER",
+              "status": "HTTP_401_NO_USABLE_BODY"
+            },
+            {
+              "backend": "ORIGINAL_SITE",
+              "status": "BODY_READ"
+            }
+          ]
         }
       ],
       "readSource": {
@@ -958,15 +1024,29 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "取一道已做题，逐步对照题意、本人过程和可核查答案。",
-        "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
-        "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。"
+        "由本人选具体实验、代码、文献阅读或写作任务，读回已有操作和实际产物；不要求找一道考试题。",
+        "分开本人预期、已做过程、实际观察和仍未知；缺原始材料时先补材料，不猜失败原因。",
+        "只整理一个可向导师或合作者核对的问题；需获准的实验不自行执行，本人拒绝就停止。"
       ],
-      "applicabilityBoundary": "科研归因与四类错误的普遍有效性仍缺直接证据。",
-      "stillMissingClaim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "applicabilityBoundary": "科研任务的直接复盘来源仍缺；仅保留整理本人过程的编辑建议。",
+      "stillMissingClaim": "科研任务的直接复盘来源仍缺；仅保留整理本人过程的编辑建议。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:28:22.748Z",
+        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+        "evidenceIds": [],
+        "methodExtracted": [
+          "由本人选具体实验、代码、文献阅读或写作任务，读回已有操作和实际产物；不要求找一道考试题。",
+          "分开本人预期、已做过程、实际观察和仍未知；缺原始材料时先补材料，不猜失败原因。",
+          "只整理一个可向导师或合作者核对的问题；需获准的实验不自行执行，本人拒绝就停止。"
+        ],
+        "scope": "科研任务的直接复盘来源仍缺；仅保留整理本人过程的编辑建议。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
@@ -1095,6 +1175,31 @@
           "status": "BODY_READ",
           "bodyLength": 7366,
           "bodySha256": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3"
+        },
+        {
+          "id": "tsinghua-exam-reflection-20261011",
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "at": "2026-10-10T14:28:22.748Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "a27cff1e346bf8e1ef3c7ff2244d7f9ed224e84058f17fa2288ba92fc660d755",
+          "locator": {
+            "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+            "line": 50,
+            "start": 1769,
+            "end": 1801
+          },
+          "shortQuoteHash": "76a7161bb7ad23050c570fc8c1218300f5e055a2cf629bbaa4ac3880de1fe128",
+          "appliesToThisTask": true,
+          "backendAttempts": [
+            {
+              "backend": "AGENT_REACH_JINA_READER",
+              "status": "HTTP_401_NO_USABLE_BODY"
+            },
+            {
+              "backend": "ORIGINAL_SITE",
+              "status": "BODY_READ"
+            }
+          ]
         }
       ],
       "readSource": {
@@ -1111,15 +1216,31 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "取一道已做题，逐步对照题意、本人过程和可核查答案。",
-        "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
-        "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。"
+        "读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。",
+        "对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。",
+        "只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。"
       ],
-      "applicabilityBoundary": "科研归因与四类错误的普遍有效性仍缺直接证据。",
-      "stillMissingClaim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "applicabilityBoundary": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
+      "stillMissingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:28:22.748Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "tsinghua-exam-reflection-20261011-e1"
+        ],
+        "methodExtracted": [
+          "读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。",
+          "对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。",
+          "只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。"
+        ],
+        "scope": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
@@ -1266,6 +1387,31 @@
           "status": "BODY_READ",
           "bodyLength": 7366,
           "bodySha256": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3"
+        },
+        {
+          "id": "tsinghua-exam-reflection-20261011",
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "at": "2026-10-10T14:28:22.748Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "a27cff1e346bf8e1ef3c7ff2244d7f9ed224e84058f17fa2288ba92fc660d755",
+          "locator": {
+            "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+            "line": 50,
+            "start": 1769,
+            "end": 1801
+          },
+          "shortQuoteHash": "76a7161bb7ad23050c570fc8c1218300f5e055a2cf629bbaa4ac3880de1fe128",
+          "appliesToThisTask": true,
+          "backendAttempts": [
+            {
+              "backend": "AGENT_REACH_JINA_READER",
+              "status": "HTTP_401_NO_USABLE_BODY"
+            },
+            {
+              "backend": "ORIGINAL_SITE",
+              "status": "BODY_READ"
+            }
+          ]
         }
       ],
       "readSource": {
@@ -1282,15 +1428,31 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "取一道已做题，逐步对照题意、本人过程和可核查答案。",
-        "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
-        "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。"
+        "选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。",
+        "先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。",
+        "只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。"
       ],
-      "applicabilityBoundary": "科研归因与四类错误的普遍有效性仍缺直接证据。",
-      "stillMissingClaim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "applicabilityBoundary": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
+      "stillMissingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T14:28:22.748Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "tsinghua-exam-reflection-20261011-e1"
+        ],
+        "methodExtracted": [
+          "选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。",
+          "先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。",
+          "只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。"
+        ],
+        "scope": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
@@ -3209,15 +3371,29 @@
   "independentReviews": 0,
   "humanApprovals": 0,
   "followupSummary": {
-    "newUsableSources": 5,
-    "newLocatedQuotes": 5,
-    "draftsSupplemented": 8,
+    "newUsableSources": 7,
+    "newLocatedQuotes": 8,
+    "draftsSupplemented": 9,
     "allReviewPreparations": 32,
-    "sourceScopedDraftReady": 15,
+    "sourceScopedDraftReady": 20,
     "partialImproved": 8,
-    "stillTaskSpecificSourceGap": 44,
+    "stillTaskSpecificSourceGap": 39,
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
-    "formalCoverageUnchangedUntilApproval": true
+    "formalCoverageUnchangedUntilApproval": true,
+    "previous": {
+      "newUsableSources": 5,
+      "newLocatedQuotes": 5,
+      "draftsSupplemented": 8,
+      "allReviewPreparations": 32,
+      "sourceScopedDraftReady": 15,
+      "partialImproved": 8,
+      "stillTaskSpecificSourceGap": 44,
+      "actualIndependentReviews": 0,
+      "actualHumanApprovals": 0,
+      "formalCoverageUnchangedUntilApproval": true
+    },
+    "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
+    "reReadExistingOriginals": 1
   }
 }

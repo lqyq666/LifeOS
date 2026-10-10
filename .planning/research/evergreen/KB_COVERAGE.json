@@ -337,15 +337,24 @@
     "reason": "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。",
     "positive": "考试失利诊断，从哪下手？",
     "negative": "考试失利诊断让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SUBSTANTIVE_DRAFT",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+    "remaining_claim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
-      "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+      "at": "2026-10-10T14:28:22.748Z",
+      "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+      "evidenceIds": [
+        "tsinghua-exam-reflection-20261011-e1"
+      ],
+      "methodExtracted": [
+        "保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。",
+        "选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。",
+        "只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。"
+      ],
+      "scope": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "independentReview": null,
       "humanApproval": null,
       "publication": false
@@ -1021,15 +1030,22 @@
     "reason": "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。",
     "positive": "科研受阻复盘，从哪下手？",
     "negative": "科研受阻复盘让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SUBSTANTIVE_DRAFT",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+    "remaining_claim": "科研任务的直接复盘来源仍缺；仅保留整理本人过程的编辑建议。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
+      "at": "2026-10-10T14:28:22.748Z",
       "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+      "evidenceIds": [],
+      "methodExtracted": [
+        "由本人选具体实验、代码、文献阅读或写作任务，读回已有操作和实际产物；不要求找一道考试题。",
+        "分开本人预期、已做过程、实际观察和仍未知；缺原始材料时先补材料，不猜失败原因。",
+        "只整理一个可向导师或合作者核对的问题；需获准的实验不自行执行，本人拒绝就停止。"
+      ],
+      "scope": "科研任务的直接复盘来源仍缺；仅保留整理本人过程的编辑建议。",
       "independentReview": null,
       "humanApproval": null,
       "publication": false
@@ -1235,15 +1251,24 @@
     "reason": "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。",
     "positive": "诊断模拟练习问题，从哪下手？",
     "negative": "诊断模拟练习问题让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SUBSTANTIVE_DRAFT",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+    "remaining_claim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
-      "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+      "at": "2026-10-10T14:28:22.748Z",
+      "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+      "evidenceIds": [
+        "tsinghua-exam-reflection-20261011-e1"
+      ],
+      "methodExtracted": [
+        "读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。",
+        "对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。",
+        "只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。"
+      ],
+      "scope": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "independentReview": null,
       "humanApproval": null,
       "publication": false
@@ -1343,15 +1368,24 @@
     "reason": "知识错误、操作错误、时间与外部未知的分类尚缺学习或考试诊断原文；不由通用管理框架自动批准。",
     "positive": "练习复盘，从哪下手？",
     "negative": "练习复盘让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SUBSTANTIVE_DRAFT",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+    "remaining_claim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
-      "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+      "at": "2026-10-10T14:28:22.748Z",
+      "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+      "evidenceIds": [
+        "tsinghua-exam-reflection-20261011-e1"
+      ],
+      "methodExtracted": [
+        "选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。",
+        "先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。",
+        "只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。"
+      ],
+      "scope": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "independentReview": null,
       "humanApproval": null,
       "publication": false

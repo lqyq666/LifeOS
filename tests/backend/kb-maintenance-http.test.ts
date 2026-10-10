@@ -20,6 +20,18 @@ test('normal authenticated maintenance API binds actual account receipts, denies
   assert.equal((await call(editor.cookie,'/api/maintenance/guides/queue',{})).body.queued,0)
   const list=(await call(editor.cookie,'/api/maintenance/guides')).body.items;assert.equal(list.length,32)
   const pack=JSON.parse(readFileSync('.planning/research/evergreen/KB_CONTENT_REVISIONS.json','utf8')),card=pack.drafts.find((c:any)=>c.guide.canonicalKey==='first-contact'),path='/api/maintenance/guides/'+card.id+'/'+card.revision
+  const originalBundle=(await pool.query('SELECT bundle FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision=$2',[card.id,card.revision])).rows[0].bundle
+  assert.equal(originalBundle.coverage.length,card.guide.branches.length)
+  // A legacy full-library bundle remains usable after unrelated research. Its
+  // own task's scope change still conflicts and cannot reuse a review receipt.
+  const legacyCoverage=JSON.parse(readFileSync('.planning/research/evergreen/KB_COVERAGE.json','utf8'))
+  legacyCoverage.find((x:any)=>!card.guide.branches.some((b:any)=>b.candidateId===x.candidate_id)).remaining_claim='Synthetic unrelated card revision only'
+  await pool.query('UPDATE kb_maintenance_drafts SET bundle=$3 WHERE guide_id=$1 AND revision=$2',[card.id,card.revision,{...originalBundle,coverage:legacyCoverage}])
+  assert.equal((await call(editor.cookie,'/api/maintenance/guides/queue',{})).body.queued,0)
+  legacyCoverage.find((x:any)=>x.candidate_id===card.guide.branches[0].candidateId).remaining_claim='Synthetic incompatible scope for THIS revision'
+  await pool.query('UPDATE kb_maintenance_drafts SET bundle=$3 WHERE guide_id=$1 AND revision=$2',[card.id,card.revision,{...originalBundle,coverage:legacyCoverage}])
+  assert.equal((await call(editor.cookie,'/api/maintenance/guides/queue',{})).body.error,'KB_DRAFT_REVISION_CONFLICT')
+  await pool.query('UPDATE kb_maintenance_drafts SET bundle=$3 WHERE guide_id=$1 AND revision=$2',[card.id,card.revision,originalBundle])
   const detail=(await call(reviewer.cookie,path)).body,sourceHashes=[...new Set(detail.bundle.sources.map((s:any)=>s.original_fingerprint))].sort(),action={contentHash:detail.contentHash,sourceHashes,notes:'SYNTHETIC fixture only, explicitly checked every bounded claim and original source locator',claimChecks:card.guide.claims.map((c:any)=>c.id)}
   assert.equal(detail.bundle.reviewPreparation.contentHash,detail.contentHash)
   assert.equal(detail.bundle.reviewPreparation.status,'PREPARED_NOT_INDEPENDENTLY_EXECUTED')

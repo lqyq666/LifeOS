@@ -415,12 +415,12 @@
   ],
   "summary": {
     "newUsableSources": 7,
-    "newLocatedQuotes": 7,
-    "draftsSupplemented": 8,
+    "newLocatedQuotes": 8,
+    "draftsSupplemented": 9,
     "allReviewPreparations": 32,
-    "sourceScopedDraftReady": 17,
+    "sourceScopedDraftReady": 20,
     "partialImproved": 8,
-    "stillTaskSpecificSourceGap": 42,
+    "stillTaskSpecificSourceGap": 39,
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
     "formalCoverageUnchangedUntilApproval": true,
@@ -436,7 +436,8 @@
       "actualHumanApprovals": 0,
       "formalCoverageUnchangedUntilApproval": true
     },
-    "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true
+    "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
+    "reReadExistingOriginals": 1
   },
   "fullPublicCapturesRequiredForRuntime": false,
   "firstToolFailure": "bs4 unavailable; replaced by built-in HTMLParser, not a source reading attempt",
@@ -449,6 +450,20 @@
     "substantivelyCorrectedBranches": 6,
     "newUsableSources": 2,
     "newLocatedQuotes": 2,
+    "independentReviews": 0,
+    "humanApprovals": 0,
+    "published": 0
+  },
+  "practiceCorrection": {
+    "at": "2026-10-10T14:28:22.748Z",
+    "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+    "revision": 3,
+    "previousDraftHash": "98571ed3a844e17db41fef3d424944a40fe189b171cb9499a6def6818cb9167f",
+    "newContentHash": "566a7da6b824000a804f6a4dfc2e1d9c99a7f24d8b169a204aa37ce8c0047b99",
+    "substantivelyCorrectedBranches": 4,
+    "reReadExistingOriginals": 1,
+    "newDistinctOriginals": 0,
+    "newLocatedQuotes": 1,
     "independentReviews": 0,
     "humanApprovals": 0,
     "published": 0

@@ -470,6 +470,24 @@
       "original_fingerprint": "6fd4ac9aab4a3fb06a56ddccbab708d81ad36d1a2da8f7dcc45866efb891d41b",
       "semantic_scope": "作者明示为个人看法，选择导师时可向其曾经的学生了解指导方式。",
       "cannot_infer": "仅作者经验；不保证科研或就业收益，不推招生资格或导师普遍规则。"
+    },
+    {
+      "source_id": "tsinghua-exam-reflection-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+      "platform": "learning.tsinghua.edu.cn",
+      "original_work_id": "/xxyfzzy/wdxkszzb.htm",
+      "title": "为大学考试做准备：限时练习与回顾困难",
+      "publisher": "清华大学学生学习与发展指导中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T14:28:22.748Z",
+      "source_group": "tsinghua-exam",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_AND_BOUNDED_SYNTHESIS_ONLY",
+      "original_fingerprint": "a27cff1e346bf8e1ef3c7ff2244d7f9ed224e84058f17fa2288ba92fc660d755",
+      "semantic_scope": "高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。",
+      "cannot_infer": "不采用固定记忆周期、收益保证、分数、资格或日期；不把此考试建议套到实验或创业。"
     }
   ],
   "evidence": [
@@ -1076,6 +1094,22 @@
       "context": "作者明示为个人看法，选择导师时可向其曾经的学生了解指导方式。",
       "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
       "content_hash": "50c2d74c4a0e4a4f5c7cee25dbaee45e97b443da3c5a6ad3b2df6c9f0d990cd9"
+    },
+    {
+      "evidence_id": "tsinghua-exam-reflection-20261011-e1",
+      "source_id": "tsinghua-exam-reflection-20261011",
+      "source_revision": 1,
+      "quote": "不要参考笔记， 做完之后回想自己遇到的困难，思考应该如何去解决。",
+      "locator": {
+        "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+        "line": 50,
+        "start": 1769,
+        "end": 1801,
+        "normalizedBodySha256": "176d0ed91a67c7eefc19d28b6898a633f066a45b30385cc5e653ade386ede019"
+      },
+      "context": "高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "76a7161bb7ad23050c570fc8c1218300f5e055a2cf629bbaa4ac3880de1fe128"
     }
   ],
   "drafts": [
@@ -2305,11 +2339,11 @@
     },
     {
       "id": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
-      "revision": 2,
+      "revision": 3,
       "kind": "method",
       "status": "unverified",
       "synthetic": false,
-      "title": "失败练习与任务卡点诊断",
+      "title": "考试与练习回顾；科研卡点单独核对",
       "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
       "publisher": "清华大学学生学习与发展指导中心",
       "publishedYear": "未知（不以获取年份冒充发布时间）",
@@ -2317,12 +2351,12 @@
       "validUntil": null,
       "excerpt": "仔细检查一下问题和答案，防止出现审题或拼写错误。\n与论文写作相比，简答题 要求你的答案简洁、全面而不是在某个话题上长篇大论。\nØ 根据每道简答题的分值将时间按比例分配。\nØ 如果有那种既有简答又有论述的题目，一定要仔细审题，不要漏掉任何一部分。\nØ 努力的回答好每道题目的每个部分，尽可能提高分数，也要注意不要浪费太多时间在分值很少的难题上。\nØ 利用答案中的定义或解释部分来辅助其他需要自己发表看法的部分， 切记不要重复写一遍，指代一下即可。\nØ 如果有个问题让你“简单谈谈”，",
       "claim": "该考试指南提醒回看问题和答案，检查审题或拼写错误。",
-      "scope": "取一道已做题，逐步对照题意、本人过程和可核查答案。；适用范围按每个分支核对。",
-      "limitations": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "scope": "已完成的考试或模拟练习回顾；科研分支仅整理本人过程，不借用考试材料诊断。",
+      "limitations": "原文只支持练习后回想困难。四类错误是编辑提问，不是有效性证明；科研任务的直接复盘来源仍缺。",
       "mechanisms": [
         "执行检查与修订"
       ],
-      "sourceHash": "9343a9bb97e87f20e24338558846af7a1b14f4f5b5cd46017a28b835827d2451",
+      "sourceHash": "7dde2ef30cc2fc8cdc60763f9708640a1d938b3421c84dd938675988e107c8e2",
       "guide": {
         "schemaVersion": 1,
         "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
@@ -2345,19 +2379,20 @@
           "11",
           "12"
         ],
-        "task": "失败练习与任务卡点诊断",
+        "task": "考试与练习回顾；科研卡点单独核对",
         "stage": "start/adjust/compare",
         "mechanism": "执行检查与修订",
         "prerequisites": [
-          "是哪次实际作答，是否已有题目、答案和反馈？",
-          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+          "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
+          "本人请求复盘或调整；已有具体过程，不补成已执行。"
         ],
         "exclusions": [
-          "科研归因与四类错误的普遍有效性仍缺直接证据。",
-          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+          "原文只支持练习后回想困难。四类错误是编辑提问，不是有效性证明；科研任务的直接复盘来源仍缺。",
+          "仅倾听、明确拒绝、暂停或已遗忘的事情。"
         ],
         "evidenceIds": [
-          "tsinghua-exam-batch-exam-diagnosis-e1"
+          "tsinghua-exam-batch-exam-diagnosis-e1",
+          "tsinghua-exam-reflection-20261011-e1"
         ],
         "claims": [
           {
@@ -2372,19 +2407,29 @@
           },
           {
             "id": "exam-diagnosis-editorial",
-            "text": "取一道已做题，逐步对照题意、本人过程和可核查答案。；把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。；只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+            "text": "试卷、模拟练习、单次练习和科研任务分别读回已有过程，只改一个本人想核对的卡点；科研分支不借考试来源诊断。",
             "basis": "editorial_adaptation",
             "evidenceIds": [
               "tsinghua-exam-batch-exam-diagnosis-e1"
             ],
             "scope": "LifeOS任务操作与反馈适配，未经效果验证",
             "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          },
+          {
+            "id": "exam-diagnosis-reflection",
+            "text": "该公开考试指南在限时练习段落建议做完后回想遇到的困难，并思考如何解决。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "tsinghua-exam-reflection-20261011-e1"
+            ],
+            "scope": "高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。",
+            "limitations": "不采用固定记忆周期、收益保证、分数、资格或日期；不把此考试建议套到实验或创业。"
           }
         ],
         "sourceGroups": [
           "tsinghua-exam"
         ],
-        "principle": "该考试指南提醒回看问题和答案，检查审题或拼写错误。 具体步骤为LifeOS编辑适配。",
+        "principle": "回看本人实际过程与可核查反馈，先找一个具体卡点。考试回顾不判定科研失败原因。",
         "branches": [
           {
             "id": "C03-4",
@@ -2393,27 +2438,27 @@
             "stage": "adjust",
             "steps": [
               {
-                "id": "C03-4-r2-1",
-                "text": "当前任务「考试失利诊断」：取一道已做题，逐步对照题意、本人过程和可核查答案。",
+                "id": "C03-4-r3-1",
+                "text": "保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                  "tsinghua-exam-reflection-20261011-e1"
                 ]
               },
               {
-                "id": "C03-4-r2-2",
-                "text": "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+                "id": "C03-4-r3-2",
+                "text": "选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                  "tsinghua-exam-reflection-20261011-e1"
                 ]
               },
               {
-                "id": "C03-4-r2-3",
-                "text": "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+                "id": "C03-4-r3-3",
+                "text": "只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                  "tsinghua-exam-reflection-20261011-e1"
                 ]
               }
             ]
@@ -2425,28 +2470,22 @@
             "stage": "adjust",
             "steps": [
               {
-                "id": "C09-4-r2-1",
-                "text": "当前任务「科研受阻复盘」：取一道已做题，逐步对照题意、本人过程和可核查答案。",
+                "id": "C09-4-r3-1",
+                "text": "由本人选具体实验、代码、文献阅读或写作任务，读回已有操作和实际产物；不要求找一道考试题。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
-                ]
+                "evidenceIds": []
               },
               {
-                "id": "C09-4-r2-2",
-                "text": "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+                "id": "C09-4-r3-2",
+                "text": "分开本人预期、已做过程、实际观察和仍未知；缺原始材料时先补材料，不猜失败原因。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
-                ]
+                "evidenceIds": []
               },
               {
-                "id": "C09-4-r2-3",
-                "text": "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+                "id": "C09-4-r3-3",
+                "text": "只整理一个可向导师或合作者核对的问题；需获准的实验不自行执行，本人拒绝就停止。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
-                ]
+                "evidenceIds": []
               }
             ]
           },
@@ -2457,27 +2496,27 @@
             "stage": "adjust",
             "steps": [
               {
-                "id": "C11-4-r2-1",
-                "text": "当前任务「诊断模拟练习问题」：取一道已做题，逐步对照题意、本人过程和可核查答案。",
+                "id": "C11-4-r3-1",
+                "text": "读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                  "tsinghua-exam-reflection-20261011-e1"
                 ]
               },
               {
-                "id": "C11-4-r2-2",
-                "text": "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+                "id": "C11-4-r3-2",
+                "text": "对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                  "tsinghua-exam-reflection-20261011-e1"
                 ]
               },
               {
-                "id": "C11-4-r2-3",
-                "text": "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+                "id": "C11-4-r3-3",
+                "text": "只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                  "tsinghua-exam-reflection-20261011-e1"
                 ]
               }
             ]
@@ -2489,56 +2528,56 @@
             "stage": "adjust",
             "steps": [
               {
-                "id": "C12-3-r2-1",
-                "text": "当前任务「练习复盘」：取一道已做题，逐步对照题意、本人过程和可核查答案。",
+                "id": "C12-3-r3-1",
+                "text": "选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                  "tsinghua-exam-reflection-20261011-e1"
                 ]
               },
               {
-                "id": "C12-3-r2-2",
-                "text": "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+                "id": "C12-3-r3-2",
+                "text": "先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                  "tsinghua-exam-reflection-20261011-e1"
                 ]
               },
               {
-                "id": "C12-3-r2-3",
-                "text": "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+                "id": "C12-3-r3-3",
+                "text": "只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                  "tsinghua-exam-reflection-20261011-e1"
                 ]
               }
             ]
           }
         ],
-        "oneKeyQuestion": "是哪次实际作答，是否已有题目、答案和反馈？",
-        "smallestAction": "取一道已做题，逐步对照题意、本人过程和可核查答案。",
+        "oneKeyQuestion": "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
+        "smallestAction": "只选一次实际过程中的一个卡点与已有反馈；材料不足时先核对材料。",
         "exampleBudgetOnly": true,
-        "lowEnergyAlternative": "不必完成全套；只处理“是哪次实际作答，是否已有题目、答案和反馈？”中的一项已有材料，零时间保留未知并暂停。",
+        "lowEnergyAlternative": "只整理一个已有过程片段；没有时间就保留卡点，不安排新练习或实验。",
         "stopConditions": [
-          "本人拒绝、暂停或零资源时停止。",
-          "科研归因与四类错误的普遍有效性仍缺直接证据。",
-          "缺少原文或适用条件时只列未知，不承诺效果。"
+          "本人拒绝、暂停或零时间停止。",
+          "原文只支持练习后回想困难。四类错误是编辑提问，不是有效性证明；科研任务的直接复盘来源仍缺。",
+          "没有实际反馈不能判有效；科研实验权限不足不执行。"
         ],
         "feedbackBranches": {
-          "not_started": "尚未开始「失败练习与任务卡点诊断」时，先核对：是哪次实际作答，是否已有题目、答案和反馈？只准备本人认可的一步，不写成执行。",
-          "blocked": "沿同一事件、原步骤及实际卡点核对：把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。只调整卡住处，不重送入门全套。",
-          "waiting_result": "已尝试不等于有效。等待「实际错误环节和后续作答是否变化；总分与能力另行核对。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。",
-          "result": "只用本人报告的新反馈检查：实际错误环节和后续作答是否变化；总分与能力另行核对。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
-          "declined": "停止「失败练习与任务卡点诊断」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+          "not_started": "先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。",
+          "blocked": "沿原事件、原步骤和本人反馈核对一个卡点，只调整那里；“还是不行”先找上次实际尝试，不发整套教程。",
+          "waiting_result": "只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。",
+          "result": "核对本人实际过程和反馈，分开正确性、用时与认识变化；单次局部改变不判长期适配。",
+          "declined": "停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。"
         },
-        "expectedObservation": "实际错误环节和后续作答是否变化；总分与能力另行核对。",
-        "retrievalSummary": "失败练习与任务卡点诊断；exam-diagnosis；是哪次实际作答，是否已有题目、答案和反馈？；考试失利诊断；科研受阻复盘；诊断模拟练习问题；练习复盘；取一道已做题，逐步对照题意、本人过程和可核查答案。；把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。；只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
-        "referenceBody": "失败练习与任务卡点诊断\n原文范围：该考试指南提醒回看问题和答案，检查审题或拼写错误。\n什么时候用：是哪次实际作答，是否已有题目、答案和反馈？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：科研归因与四类错误的普遍有效性仍缺直接证据。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：是哪次实际作答，是否已有题目、答案和反馈？\nLifeOS编辑步骤：\n取一道已做题，逐步对照题意、本人过程和可核查答案。\n把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。\n只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。\n资源不足：不必完成全套；只处理“是哪次实际作答，是否已有题目、答案和反馈？”中的一项已有材料，零时间保留未知并暂停。\n观察：实际错误环节和后续作答是否变化；总分与能力另行核对。\nnot_started：尚未开始「失败练习与任务卡点诊断」时，先核对：是哪次实际作答，是否已有题目、答案和反馈？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「实际错误环节和后续作答是否变化；总分与能力另行核对。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。\nresult：只用本人报告的新反馈检查：实际错误环节和后续作答是否变化；总分与能力另行核对。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「失败练习与任务卡点诊断」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。",
+        "expectedObservation": "按任务分开过程、正确性、用时和实际反馈，未知原因不写成认识已经改变。",
+        "retrievalSummary": "考试与练习回顾；科研卡点单独核对；是哪次练习或科研任务，已经有哪些实际过程和反馈？；考试失利诊断；保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。；选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。；只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。；科研受阻复盘；由本人选具体实验、代码、文献阅读或写作任务，读回已有操作和实际产物；不要求找一道考试题。；分开本人预期、已做过程、实际观察和仍未知；缺原始材料时先补材料，不猜失败原因。；只整理一个可向导师或合作者核对的问题；需获准的实验不自行执行，本人拒绝就停止。；诊断模拟练习问题；读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。；对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。；只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。；练习复盘；选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。；先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。；只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。",
+        "referenceBody": "考试与练习回顾；科研卡点单独核对\n原文范围：\n该考试指南提醒回看问题和答案，检查审题或拼写错误。 范围：该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。 限制：科研归因与四类错误的普遍有效性仍缺直接证据。\n该公开考试指南在限时练习段落建议做完后回想遇到的困难，并思考如何解决。 范围：高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。 限制：不采用固定记忆周期、收益保证、分数、资格或日期；不把此考试建议套到实验或创业。\n什么时候用：是哪次练习或科研任务，已经有哪些实际过程和反馈？；本人请求复盘或调整；已有具体过程，不补成已执行。\n什么时候不用：原文只支持练习后回想困难。四类错误是编辑提问，不是有效性证明；科研任务的直接复盘来源仍缺。；仅倾听、明确拒绝、暂停或已遗忘的事情。\n先核对：是哪次练习或科研任务，已经有哪些实际过程和反馈？\nLifeOS编辑步骤（不同任务不得借证据）：\n任务：考试失利诊断\n保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。\n选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。\n只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。\n观察：原困难能否说明；修订后同类作答的实际反馈，未评分仍未知。\n任务：科研受阻复盘\n由本人选具体实验、代码、文献阅读或写作任务，读回已有操作和实际产物；不要求找一道考试题。\n分开本人预期、已做过程、实际观察和仍未知；缺原始材料时先补材料，不猜失败原因。\n只整理一个可向导师或合作者核对的问题；需获准的实验不自行执行，本人拒绝就停止。\n观察：本人过程与观察能否核对；原因和下一次结果仍未知。\n任务：诊断模拟练习问题\n读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。\n对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。\n只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。\n观察：同类题的作答困难、实际用时和核对结果分别怎样变化。\n任务：练习复盘\n选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。\n先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。\n只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。\n观察：这一处是否有新反馈；正确性与速度是否各自已核对。\n最小一步：只选一次实际过程中的一个卡点与已有反馈；材料不足时先核对材料。\n资源不足：只整理一个已有过程片段；没有时间就保留卡点，不安排新练习或实验。\nnot_started：先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。\nblocked：沿原事件、原步骤和本人反馈核对一个卡点，只调整那里；“还是不行”先找上次实际尝试，不发整套教程。\nwaiting_result：只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。\nresult：核对本人实际过程和反馈，分开正确性、用时与认识变化；单次局部改变不判长期适配。\ndeclined：停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。",
         "reviewStatus": "needs_review",
         "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
         "review": null,
-        "contentHash": "98571ed3a844e17db41fef3d424944a40fe189b171cb9499a6def6818cb9167f",
-        "indexSignature": "3727f2eb904b19f65ad212bf9c7143de13edcc754bb377bc12c2fb8eb203c3d9",
+        "contentHash": "566a7da6b824000a804f6a4dfc2e1d9c99a7f24d8b169a204aa37ce8c0047b99",
+        "indexSignature": "7879ff46bc77a0297083b158a1b4fb782405cdb67190f21616f1e25790204dd1",
         "legacyIds": [],
         "replaces": []
       }
@@ -8470,7 +8509,7 @@
       "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
       "canonicalKey": "exam-diagnosis",
       "baseRevision": 1,
-      "revision": 2,
+      "revision": 3,
       "previousStatus": "needs_review",
       "decision": "SUBSTANTIVE_REVISION_PENDING_INDEPENDENT_REVIEW",
       "changed": [
@@ -8479,14 +8518,22 @@
         "feedback_branches",
         "limits",
         "resource_alternative",
-        "stage"
+        "stage",
+        "exact_practice_reflection_source",
+        "research_branch_exam_evidence_removed",
+        "per_branch_feedback_review"
       ],
       "sourceId": "tsinghua-exam",
       "sourceRead": true,
-      "remainingClaim": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "remainingClaim": "原文只支持练习后回想困难。四类错误是编辑提问，不是有效性证明；科研任务的直接复盘来源仍缺。",
       "independentReview": null,
       "humanApproval": null,
-      "served": false
+      "served": false,
+      "previousDraftHash": "98571ed3a844e17db41fef3d424944a40fe189b171cb9499a6def6818cb9167f",
+      "sourceIds": [
+        "tsinghua-exam-batch",
+        "tsinghua-exam-reflection-20261011"
+      ]
     },
     {
       "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
@@ -9712,8 +9759,8 @@
     {
       "canonicalKey": "exam-diagnosis",
       "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
-      "revision": 2,
-      "contentHash": "98571ed3a844e17db41fef3d424944a40fe189b171cb9499a6def6818cb9167f",
+      "revision": 3,
+      "contentHash": "566a7da6b824000a804f6a4dfc2e1d9c99a7f24d8b169a204aa37ce8c0047b99",
       "previousDraftHash": "98571ed3a844e17db41fef3d424944a40fe189b171cb9499a6def6818cb9167f",
       "status": "PREPARED_NOT_INDEPENDENTLY_EXECUTED",
       "claimChecks": [
@@ -9738,12 +9785,12 @@
               "quote": "仔细检查一下问题和答案，防止出现审题或拼写错误。\n与论文写作相比，简答题 要求你的答案简洁、全面而不是在某个话题上长篇大论。\nØ 根据每道简答题的分值将时间按比例分配。\nØ 如果有那种既有简答又有论述的题目，一定要仔细审题，不要漏掉任何一部分。\nØ 努力的回答好每道题目的每个部分，尽可能提高分数，也要注意不要浪费太多时间在分值很少的难题上。\nØ 利用答案中的定义或解释部分来辅助其他需要自己发表看法的部分， 切记不要重复写一遍，指代一下即可。\nØ 如果有个问题让你“简单谈谈”，"
             }
           ],
-          "reviewQuestion": "核对原文是否只支持这条有边界的陈述；逐项排除限制中的推断。"
+          "reviewQuestion": "核对原文仅支持考试练习建议，不支持因果诊断、提分或科研归因；编辑步骤逐分支审阅。"
         },
         {
           "claimId": "exam-diagnosis-editorial",
           "basis": "editorial_adaptation",
-          "claim": "取一道已做题，逐步对照题意、本人过程和可核查答案。；把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。；只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+          "claim": "试卷、模拟练习、单次练习和科研任务分别读回已有过程，只改一个本人想核对的卡点；科研分支不借考试来源诊断。",
           "scope": "LifeOS任务操作与反馈适配，未经效果验证",
           "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。",
           "originals": [
@@ -9761,26 +9808,129 @@
               "quote": "仔细检查一下问题和答案，防止出现审题或拼写错误。\n与论文写作相比，简答题 要求你的答案简洁、全面而不是在某个话题上长篇大论。\nØ 根据每道简答题的分值将时间按比例分配。\nØ 如果有那种既有简答又有论述的题目，一定要仔细审题，不要漏掉任何一部分。\nØ 努力的回答好每道题目的每个部分，尽可能提高分数，也要注意不要浪费太多时间在分值很少的难题上。\nØ 利用答案中的定义或解释部分来辅助其他需要自己发表看法的部分， 切记不要重复写一遍，指代一下即可。\nØ 如果有个问题让你“简单谈谈”，"
             }
           ],
-          "reviewQuestion": "核对这些编辑步骤是否保持学生意图、当前阶段和未知；不能将它们记作经研究证明的效果。"
+          "reviewQuestion": "核对原文仅支持考试练习建议，不支持因果诊断、提分或科研归因；编辑步骤逐分支审阅。"
+        },
+        {
+          "claimId": "exam-diagnosis-reflection",
+          "basis": "source_supported",
+          "claim": "该公开考试指南在限时练习段落建议做完后回想遇到的困难，并思考如何解决。",
+          "scope": "高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。",
+          "limitations": "不采用固定记忆周期、收益保证、分数、资格或日期；不把此考试建议套到实验或创业。",
+          "originals": [
+            {
+              "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+              "sourceHash": "a27cff1e346bf8e1ef3c7ff2244d7f9ed224e84058f17fa2288ba92fc660d755",
+              "quoteHash": "76a7161bb7ad23050c570fc8c1218300f5e055a2cf629bbaa4ac3880de1fe128",
+              "locator": {
+                "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+                "line": 50,
+                "start": 1769,
+                "end": 1801,
+                "normalizedBodySha256": "176d0ed91a67c7eefc19d28b6898a633f066a45b30385cc5e653ade386ede019"
+              },
+              "quote": "不要参考笔记， 做完之后回想自己遇到的困难，思考应该如何去解决。"
+            }
+          ],
+          "reviewQuestion": "核对原文仅支持考试练习建议，不支持因果诊断、提分或科研归因；编辑步骤逐分支审阅。"
         }
       ],
       "questions": [
         {
-          "target": "scope",
-          "text": "科研归因与四类错误的普遍有效性仍缺直接证据。"
+          "target": "branch-scope",
+          "text": "原文只支持练习后回想困难。四类错误是编辑提问，不是有效性证明；科研任务的直接复盘来源仍缺。"
         },
         {
-          "target": "steps",
-          "text": "核对考试失利诊断的前置缺口、最小一步与停止条件；相似机制不得覆盖不适用分支。"
-        },
-        {
-          "target": "feedback",
-          "text": "逐一核对未开始、卡住、等待、有结果、拒绝分支；未知结果不能记成成功，拒绝不能继续催促。"
+          "target": "failure",
+          "text": "考试复盘与科研卡点分别审；无结果时不声称有效。"
         }
       ],
       "executionRecord": null,
       "humanApproval": null,
-      "sourceChangeRequiresReturn": true
+      "sourceChangeRequiresReturn": true,
+      "branchChecks": [
+        {
+          "candidateId": "C03-4",
+          "stage": "adjust",
+          "evidenceIds": [
+            "tsinghua-exam-reflection-20261011-e1"
+          ],
+          "remainingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
+          "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+          "firstUnknown": "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
+          "smallestStep": "保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。",
+          "observation": "原困难能否说明；修订后同类作答的实际反馈，未评分仍未知。",
+          "feedback": {
+            "not_started": "先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。",
+            "blocked": "沿原事件、原步骤和本人反馈核对一个卡点，只调整那里；“还是不行”先找上次实际尝试，不发整套教程。",
+            "waiting_result": "只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。",
+            "result": "核对本人实际过程和反馈，分开正确性、用时与认识变化；单次局部改变不判长期适配。",
+            "declined": "停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        },
+        {
+          "candidateId": "C09-4",
+          "stage": "adjust",
+          "evidenceIds": [],
+          "remainingClaim": "科研任务的直接复盘来源仍缺；仅保留整理本人过程的编辑建议。",
+          "sourceStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+          "firstUnknown": "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
+          "smallestStep": "由本人选具体实验、代码、文献阅读或写作任务，读回已有操作和实际产物；不要求找一道考试题。",
+          "observation": "本人过程与观察能否核对；原因和下一次结果仍未知。",
+          "feedback": {
+            "not_started": "先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。",
+            "blocked": "沿原事件、原步骤和本人反馈核对一个卡点，只调整那里；“还是不行”先找上次实际尝试，不发整套教程。",
+            "waiting_result": "只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。",
+            "result": "核对本人实际过程和反馈，分开正确性、用时与认识变化；单次局部改变不判长期适配。",
+            "declined": "停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        },
+        {
+          "candidateId": "C11-4",
+          "stage": "adjust",
+          "evidenceIds": [
+            "tsinghua-exam-reflection-20261011-e1"
+          ],
+          "remainingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
+          "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+          "firstUnknown": "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
+          "smallestStep": "读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。",
+          "observation": "同类题的作答困难、实际用时和核对结果分别怎样变化。",
+          "feedback": {
+            "not_started": "先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。",
+            "blocked": "沿原事件、原步骤和本人反馈核对一个卡点，只调整那里；“还是不行”先找上次实际尝试，不发整套教程。",
+            "waiting_result": "只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。",
+            "result": "核对本人实际过程和反馈，分开正确性、用时与认识变化；单次局部改变不判长期适配。",
+            "declined": "停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        },
+        {
+          "candidateId": "C12-3",
+          "stage": "adjust",
+          "evidenceIds": [
+            "tsinghua-exam-reflection-20261011-e1"
+          ],
+          "remainingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
+          "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+          "firstUnknown": "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
+          "smallestStep": "选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。",
+          "observation": "这一处是否有新反馈；正确性与速度是否各自已核对。",
+          "feedback": {
+            "not_started": "先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。",
+            "blocked": "沿原事件、原步骤和本人反馈核对一个卡点，只调整那里；“还是不行”先找上次实际尝试，不发整套教程。",
+            "waiting_result": "只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。",
+            "result": "核对本人实际过程和反馈，分开正确性、用时与认识变化；单次局部改变不判长期适配。",
+            "declined": "停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        }
+      ]
     },
     {
       "canonicalKey": "retrieval-practice",
@@ -12183,6 +12333,246 @@
           "6a367fb8-309e-42ed-a409-664d8ca215b7",
           "guide-intern-first-contact"
         ],
+        "replaces": []
+      }
+    },
+    {
+      "id": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+      "revision": 2,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "失败练习与任务卡点诊断",
+      "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+      "publisher": "清华大学学生学习与发展指导中心",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.547Z",
+      "validUntil": null,
+      "excerpt": "仔细检查一下问题和答案，防止出现审题或拼写错误。\n与论文写作相比，简答题 要求你的答案简洁、全面而不是在某个话题上长篇大论。\nØ 根据每道简答题的分值将时间按比例分配。\nØ 如果有那种既有简答又有论述的题目，一定要仔细审题，不要漏掉任何一部分。\nØ 努力的回答好每道题目的每个部分，尽可能提高分数，也要注意不要浪费太多时间在分值很少的难题上。\nØ 利用答案中的定义或解释部分来辅助其他需要自己发表看法的部分， 切记不要重复写一遍，指代一下即可。\nØ 如果有个问题让你“简单谈谈”，",
+      "claim": "该考试指南提醒回看问题和答案，检查审题或拼写错误。",
+      "scope": "取一道已做题，逐步对照题意、本人过程和可核查答案。；适用范围按每个分支核对。",
+      "limitations": "科研归因与四类错误的普遍有效性仍缺直接证据。",
+      "mechanisms": [
+        "执行检查与修订"
+      ],
+      "sourceHash": "9343a9bb97e87f20e24338558846af7a1b14f4f5b5cd46017a28b835827d2451",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+        "canonicalKey": "exam-diagnosis",
+        "aliases": [
+          "考试失利",
+          "模拟练习",
+          "错题",
+          "科研受阻",
+          "练习复盘",
+          "失败",
+          "考试失利诊断",
+          "科研受阻复盘",
+          "诊断模拟练习问题",
+          "练习复盘"
+        ],
+        "domains": [
+          "03",
+          "09",
+          "11",
+          "12"
+        ],
+        "task": "失败练习与任务卡点诊断",
+        "stage": "start/adjust/compare",
+        "mechanism": "执行检查与修订",
+        "prerequisites": [
+          "是哪次实际作答，是否已有题目、答案和反馈？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "科研归因与四类错误的普遍有效性仍缺直接证据。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "tsinghua-exam-batch-exam-diagnosis-e1"
+        ],
+        "claims": [
+          {
+            "id": "exam-diagnosis-scope",
+            "text": "该考试指南提醒回看问题和答案，检查审题或拼写错误。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "tsinghua-exam-batch-exam-diagnosis-e1"
+            ],
+            "scope": "该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。",
+            "limitations": "科研归因与四类错误的普遍有效性仍缺直接证据。"
+          },
+          {
+            "id": "exam-diagnosis-editorial",
+            "text": "取一道已做题，逐步对照题意、本人过程和可核查答案。；把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。；只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "tsinghua-exam-batch-exam-diagnosis-e1"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "tsinghua-exam"
+        ],
+        "principle": "该考试指南提醒回看问题和答案，检查审题或拼写错误。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C03-4",
+            "candidateId": "C03-4",
+            "task": "考试失利诊断",
+            "stage": "adjust",
+            "steps": [
+              {
+                "id": "C03-4-r2-1",
+                "text": "当前任务「考试失利诊断」：取一道已做题，逐步对照题意、本人过程和可核查答案。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              },
+              {
+                "id": "C03-4-r2-2",
+                "text": "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              },
+              {
+                "id": "C03-4-r2-3",
+                "text": "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C09-4",
+            "candidateId": "C09-4",
+            "task": "科研受阻复盘",
+            "stage": "adjust",
+            "steps": [
+              {
+                "id": "C09-4-r2-1",
+                "text": "当前任务「科研受阻复盘」：取一道已做题，逐步对照题意、本人过程和可核查答案。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              },
+              {
+                "id": "C09-4-r2-2",
+                "text": "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              },
+              {
+                "id": "C09-4-r2-3",
+                "text": "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C11-4",
+            "candidateId": "C11-4",
+            "task": "诊断模拟练习问题",
+            "stage": "adjust",
+            "steps": [
+              {
+                "id": "C11-4-r2-1",
+                "text": "当前任务「诊断模拟练习问题」：取一道已做题，逐步对照题意、本人过程和可核查答案。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              },
+              {
+                "id": "C11-4-r2-2",
+                "text": "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              },
+              {
+                "id": "C11-4-r2-3",
+                "text": "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C12-3",
+            "candidateId": "C12-3",
+            "task": "练习复盘",
+            "stage": "adjust",
+            "steps": [
+              {
+                "id": "C12-3-r2-1",
+                "text": "当前任务「练习复盘」：取一道已做题，逐步对照题意、本人过程和可核查答案。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              },
+              {
+                "id": "C12-3-r2-2",
+                "text": "把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              },
+              {
+                "id": "C12-3-r2-3",
+                "text": "只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-batch-exam-diagnosis-e1"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "是哪次实际作答，是否已有题目、答案和反馈？",
+        "smallestAction": "取一道已做题，逐步对照题意、本人过程和可核查答案。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“是哪次实际作答，是否已有题目、答案和反馈？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "科研归因与四类错误的普遍有效性仍缺直接证据。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「失败练习与任务卡点诊断」时，先核对：是哪次实际作答，是否已有题目、答案和反馈？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。只调整卡住处，不重送入门全套。",
+          "waiting_result": "已尝试不等于有效。等待「实际错误环节和后续作答是否变化；总分与能力另行核对。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。",
+          "result": "只用本人报告的新反馈检查：实际错误环节和后续作答是否变化；总分与能力另行核对。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
+          "declined": "停止「失败练习与任务卡点诊断」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "实际错误环节和后续作答是否变化；总分与能力另行核对。",
+        "retrievalSummary": "失败练习与任务卡点诊断；exam-diagnosis；是哪次实际作答，是否已有题目、答案和反馈？；考试失利诊断；科研受阻复盘；诊断模拟练习问题；练习复盘；取一道已做题，逐步对照题意、本人过程和可核查答案。；把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。；只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。",
+        "referenceBody": "失败练习与任务卡点诊断\n原文范围：该考试指南提醒回看问题和答案，检查审题或拼写错误。\n什么时候用：是哪次实际作答，是否已有题目、答案和反馈？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：科研归因与四类错误的普遍有效性仍缺直接证据。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：是哪次实际作答，是否已有题目、答案和反馈？\nLifeOS编辑步骤：\n取一道已做题，逐步对照题意、本人过程和可核查答案。\n把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。\n只改这一题的一个环节，再看下一次同类作答；科研受阻转到具体实验/文献任务，不能套考试错误分类。\n资源不足：不必完成全套；只处理“是哪次实际作答，是否已有题目、答案和反馈？”中的一项已有材料，零时间保留未知并暂停。\n观察：实际错误环节和后续作答是否变化；总分与能力另行核对。\nnot_started：尚未开始「失败练习与任务卡点诊断」时，先核对：是哪次实际作答，是否已有题目、答案和反馈？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：把“没效果”分成看不懂、不会做、时间不够或结果未知等待核对问题；分类是编辑观察，不是诊断结论。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「实际错误环节和后续作答是否变化；总分与能力另行核对。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。\nresult：只用本人报告的新反馈检查：实际错误环节和后续作答是否变化；总分与能力另行核对。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「失败练习与任务卡点诊断」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "98571ed3a844e17db41fef3d424944a40fe189b171cb9499a6def6818cb9167f",
+        "indexSignature": "3727f2eb904b19f65ad212bf9c7143de13edcc754bb377bc12c2fb8eb203c3d9",
+        "legacyIds": [],
         "replaces": []
       }
     }
