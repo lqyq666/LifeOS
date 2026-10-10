@@ -368,7 +368,8 @@
       "firstContentP95Ms": 8161.217100000002,
       "status": "FAILED_STATE_SOURCE_AND_FIRST_CONTENT_TARGETS",
       "independentReview": "NOT_TESTED",
-      "samples": 3
+      "samples": 3,
+      "observedCompleteReplyP95Ms": 9838.253700000001
     },
     "previousChecksScope": "Historical regression and isolated interface evidence are not real current cloud/student acceptance."
   },
