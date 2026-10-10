@@ -11848,5 +11848,343 @@
       "sourceChangeRequiresReturn": true
     }
   ],
-  "sourceFollowupAt": "2026-10-10T11:43:46.158054+00:00"
+  "sourceFollowupAt": "2026-10-10T11:43:46.158054+00:00",
+  "draftHistory": [
+    {
+      "id": "257bea5b-e782-427a-82c0-39e84e086ad9",
+      "revision": 2,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "第一次联系与未回应跟进",
+      "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+      "publisher": "上海理工大学国际学生办公室",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.546Z",
+      "validUntil": null,
+      "excerpt": "介绍你自己的学术背景、研究方向、研究计划\r\n等。你的研究方向和计划是导师了解你的重要途径重\r\n点，导师们通常更愿意接收那些研究方向契合自己的\r\n学生。\r\n02、介绍选择该导师的原因，着重突出你有能力在\r\n导师的研究领域进行深入学术研究，并表达对导师研\r\n究方向的兴趣并提出希望成为其学生的意愿。\r\n03、最后你可以对导师研究领域发表自己的观点，以\r\n便于导师更好地了解你的研究方向和学术背景。\r\n3 / 4\r\nMAIL \r\nCONTENT\r\n• 3.撰写邮件的内容：\r\n\r\nPAG",
+      "claim": "该国际申请教育材料建议介绍学术背景、研究兴趣、选择该导师的原因，并针对不同导师修改邮件。",
+      "scope": "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。；适用范围按每个分支核对。",
+      "limitations": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+      "mechanisms": [
+        "准备具体的小请求"
+      ],
+      "sourceHash": "018b1985113f3c1392d6a9fe5dc91d12bbfc5ad86599c432e1f101c07fa619b1",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
+        "canonicalKey": "first-contact",
+        "aliases": [
+          "联系导师",
+          "联系学长",
+          "找知情人",
+          "认识朋友",
+          "首批使用者",
+          "推荐信",
+          "没人回",
+          "从零建立社交",
+          "找到行业知情人",
+          "首次联系导师",
+          "向老师请求推荐",
+          "找首批使用者",
+          "认识新朋友"
+        ],
+        "domains": [
+          "01",
+          "07",
+          "09",
+          "13",
+          "20",
+          "25"
+        ],
+        "task": "第一次联系与未回应跟进",
+        "stage": "start/adjust/compare",
+        "mechanism": "准备具体的小请求",
+        "prerequisites": [
+          "联系对象、目的和是否已发送分别是什么？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "usst-mentor-email-batch-first-contact-e1",
+          "career-author-followup-e1",
+          "pg-first-users-followup-e1"
+        ],
+        "claims": [
+          {
+            "id": "first-contact-scope",
+            "text": "该国际申请教育材料建议介绍学术背景、研究兴趣、选择该导师的原因，并针对不同导师修改邮件。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "usst-mentor-email-batch-first-contact-e1"
+            ],
+            "scope": "导师自荐邮件的背景、兴趣与选择原因；不含申请资格规则。",
+            "limitations": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。"
+          },
+          {
+            "id": "first-contact-editorial",
+            "text": "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。；用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。；已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "usst-mentor-email-batch-first-contact-e1"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          },
+          {
+            "id": "first-contact-career-author-followup",
+            "text": "作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "career-author-followup-e1"
+            ],
+            "scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
+            "limitations": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。"
+          },
+          {
+            "id": "first-contact-pg-first-users-followup",
+            "text": "Paul Graham按创业实践经验建议早期主动寻找使用者，而非被动等待。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "pg-first-users-followup-e1"
+            ],
+            "scope": "创业作者关于早期寻找使用者的经验性建议；只作人工接触线索，不套用增长数字。",
+            "limitations": "不保证找到付费用户；不把创业用户招募当普通陌生社交或导师联系。"
+          }
+        ],
+        "sourceGroups": [
+          "usst-mentor-email",
+          "www.tianxingacademy.com",
+          "paulgraham.com"
+        ],
+        "principle": "该国际申请教育材料建议介绍学术背景、研究兴趣、选择该导师的原因，并针对不同导师修改邮件。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C01-3",
+            "candidateId": "C01-3",
+            "task": "从零建立社交",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C01-3-r2-1",
+                "text": "当前任务「从零建立社交」：导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C01-3-r2-2",
+                "text": "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C01-3-r2-3",
+                "text": "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C07-3",
+            "candidateId": "C07-3",
+            "task": "找到行业知情人",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C07-3-r2-1",
+                "text": "当前任务「找到行业知情人」：导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C07-3-r2-2",
+                "text": "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C07-3-r2-3",
+                "text": "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C09-1",
+            "candidateId": "C09-1",
+            "task": "首次联系导师",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C09-1-r2-1",
+                "text": "当前任务「首次联系导师」：导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C09-1-r2-2",
+                "text": "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C09-1-r2-3",
+                "text": "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C13-4",
+            "candidateId": "C13-4",
+            "task": "向老师请求推荐",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C13-4-r2-1",
+                "text": "当前任务「向老师请求推荐」：导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C13-4-r2-2",
+                "text": "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C13-4-r2-3",
+                "text": "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C20-3",
+            "candidateId": "C20-3",
+            "task": "找首批使用者",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C20-3-r2-1",
+                "text": "当前任务「找首批使用者」：导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C20-3-r2-2",
+                "text": "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C20-3-r2-3",
+                "text": "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C25-1",
+            "candidateId": "C25-1",
+            "task": "认识新朋友",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C25-1-r2-1",
+                "text": "当前任务「认识新朋友」：导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C25-1-r2-2",
+                "text": "用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              },
+              {
+                "id": "C25-1-r2-3",
+                "text": "已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "联系对象、目的和是否已发送分别是什么？",
+        "smallestAction": "导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“联系对象、目的和是否已发送分别是什么？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「第一次联系与未回应跟进」时，先核对：联系对象、目的和是否已发送分别是什么？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。只调整卡住处，不重送入门全套。",
+          "waiting_result": "已尝试不等于有效。等待「草稿是否明确一个请求；发送、已读、回复、获准各自记录。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。",
+          "result": "只用本人报告的新反馈检查：草稿是否明确一个请求；发送、已读、回复、获准各自记录。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
+          "declined": "停止「第一次联系与未回应跟进」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "草稿是否明确一个请求；发送、已读、回复、获准各自记录。",
+        "retrievalSummary": "第一次联系与未回应跟进；first-contact；联系对象、目的和是否已发送分别是什么？；从零建立社交；找到行业知情人；首次联系导师；向老师请求推荐；找首批使用者；认识新朋友；导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。；用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。；已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。",
+        "referenceBody": "第一次联系与未回应跟进\n原文范围：该国际申请教育材料建议介绍学术背景、研究兴趣、选择该导师的原因，并针对不同导师修改邮件。\n什么时候用：联系对象、目的和是否已发送分别是什么？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：联系对象、目的和是否已发送分别是什么？\nLifeOS编辑步骤：\n导师联系：先读其官方研究简介，选一个确实与本人问题有关的点；不虚构读过论文。\n用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。\n已发送但没回：先核对原请求与实际回复状态；不猜原因，不自动换渠道轰炸。\n资源不足：不必完成全套；只处理“联系对象、目的和是否已发送分别是什么？”中的一项已有材料，零时间保留未知并暂停。\n观察：草稿是否明确一个请求；发送、已读、回复、获准各自记录。\nnot_started：尚未开始「第一次联系与未回应跟进」时，先核对：联系对象、目的和是否已发送分别是什么？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：用已有事实写身份、准备和一个明确请求；未提供成果就留空，不把兴趣写成研究能力。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「草稿是否明确一个请求；发送、已读、回复、获准各自记录。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。\nresult：只用本人报告的新反馈检查：草稿是否明确一个请求；发送、已读、回复、获准各自记录。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「第一次联系与未回应跟进」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "9a34e588c454ce4c979fe7e0ea6586bf8afd1d591c68889bccb7c1096cf1195a",
+        "indexSignature": "eb2fb4018b0c17e2d392126a183418452cb95eb85566487eeaa79b5958781aab",
+        "legacyIds": [
+          "6a367fb8-309e-42ed-a409-664d8ca215b7",
+          "guide-intern-first-contact"
+        ],
+        "replaces": []
+      }
+    }
+  ]
 }

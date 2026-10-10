@@ -23,7 +23,9 @@ export async function queueMaintenancePack(actor:string){
  return transaction(async c=>{
   let queued=0
   for(const card of pack.drafts as KnowledgeCard[]){
-   const refs=card.guide!.evidenceIds,ev=evidence.filter(e=>refs.includes(e.evidence_id)),ss=sources.filter(s=>ev.some(e=>e.source_id===s.source_id&&e.source_revision===s.source_revision)),bundle:Bundle={card,base:base.find(x=>x.id===card.id),producerId:pack.producerId,sources:ss,evidence:ev,coverage,reviewPreparation:pack.reviewPreparation?.find((p:any)=>p.guideId===card.id&&p.revision===card.revision)}
+   const prior=(pack.draftHistory as KnowledgeCard[]|undefined)?.find(x=>x.id===card.id&&x.revision===card.revision-1)
+   if(prior){validateKnowledge(prior);if(!prior.guide||prior.guide.contentHash!==guideContentHash(prior.guide)||prior.status!=='unverified'||prior.guide.reviewStatus!=='needs_review')throw new HttpError(400,'KB_DRAFT_HISTORY_INVALID')}
+   const refs=card.guide!.evidenceIds,ev=evidence.filter(e=>refs.includes(e.evidence_id)),ss=sources.filter(s=>ev.some(e=>e.source_id===s.source_id&&e.source_revision===s.source_revision)),bundle:Bundle={card,base:prior??base.find(x=>x.id===card.id),producerId:pack.producerId,sources:ss,evidence:ev,coverage,reviewPreparation:pack.reviewPreparation?.find((p:any)=>p.guideId===card.id&&p.revision===card.revision)}
    verifyBundle(bundle);const old=(await c.query('SELECT bundle FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision=$2 FOR UPDATE',[card.id,card.revision])).rows[0]
    if(old){if(stableJson(old.bundle)!==stableJson(bundle))throw new HttpError(409,'KB_DRAFT_REVISION_CONFLICT');continue}
    await c.query("INSERT INTO kb_maintenance_drafts(guide_id,revision,content_hash,producer_id,queued_by,status,bundle) VALUES($1,$2,$3,$4,$5,'needs_review',$6)",[card.id,card.revision,card.guide!.contentHash,pack.producerId,actor,bundle]);queued++
