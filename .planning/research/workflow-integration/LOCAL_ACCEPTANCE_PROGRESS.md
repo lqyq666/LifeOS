@@ -180,3 +180,5 @@ R1结束，但仅交付旁路模拟Provider包，未接实际/run，六Skill仅1
 诊断确认正常聊天已用deriveTurnContract，R2原句实际reply_only仅reply；旧探测默认完整旧契约仍允许experienceCandidate，是探测入口与真实快速路径差异。新增实际首次产物保存回归，检查该候选被运行契约拒绝；新增显式--runtime-contracts接口核查使用同一实际分区prompt/schema/clause句柄，并记录模式/schema摘要。旧默认核查与首次FAIL保留，不把新接口核查当旧样本替换；两者均不证明20普通质量。
 
 R2开发终态done，UI版本9d669a8。主执行者直接读provider.py/host.py发现串行分析、同步不可取消、派发后记账、两个模式漏记第二调用、幂等只含mode/intent及坏refs自动补全部授权依据。37模拟检查不接受为真业务通过；逐源码证据GROWTH_R2_SOURCE_REVIEW.json。项目终态UI累计8,886.84积分，相对此前R1 2,436.06，R2 6,450.78，累计保守入账8,888。R3是第二次HIGH/BLOCKER修复，只发送一次且Windows sent后CLI退出异常保留，status确认processing；余142,671积分全部预留，未知费用不得新派其他收费任务。剩余HIGH时按两轮修复边界停止该候选，其他事项继续。
+
+实际运行分区接口第二批3请求：倾听与纯知识通过，成品模式把已有事件新建，整批FAIL并立即停止，取消项没有派发。三个已知费用共0.0042594元，完整首次回执MODEL_RUNTIME_SUBSET_FIRST_FAIL.json保留；不替换第一批，也不算普通质量样本。诊断发现material裁剪提示缺少event.target同事继续及当前来源规则，现局部补回，未放宽结构、身份或来源检查。8项turn-contract隔离数据库检查与类型检查通过。下一次有偿核查的可证伪假设：在此新源码上，同一合成成品场景应继续授权事件及revision，任一失败即停；仍只作接口证据，不冒充真实学生收益。

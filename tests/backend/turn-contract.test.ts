@@ -27,6 +27,16 @@ test('retained actual knowledge probe candidate is unrepresentable in the ordina
   assert.equal(Value.Check(contract.schema as any,{reply:output.reply}),true)
 })
 
+test('material subset retains event identity and current-source rules from the event lane',()=>{
+  const contract=deriveTurnContract({text:'现在我只想问他还需要哪一部分，请直接起草一段可以发送的消息。',knowledgeCount:0,currentEventExists:true,planIntent:false,material:true})
+  const prompt=turnSystemPrompt('default','qwen3.8-flash',contract)
+  assert.equal(contract.mode,'material')
+  assert.match(prompt,/event\.target用continue/)
+  assert.match(prompt,/授权eventId\/revision/)
+  assert.match(prompt,/source\.messageId和quote取当轮原话/)
+  assert.match(prompt,/首次报告的新事情才create/)
+})
+
 test('turn contract modes derive deterministically from turn facts',()=>{
   const derive=(text:string,extra:Partial<Parameters<typeof deriveTurnContract>[0]>={})=>deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false,...extra})
   // A. reply_only shapes
