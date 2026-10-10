@@ -333,12 +333,11 @@ export async function readStarMapContext(c: PoolClient|Pool, user: string): Prom
   const themes = (await c.query("SELECT id, title, kind, status, pinned, source_refs, revision FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC LIMIT 3", [user])).rows
   if (!themes.length) return null
   // 主题来源事实必须仍有效：全部失效的主题不得进入决策上下文。
-  const themeSourceIds=[...new Set(themes.flatMap((theme:any)=>(theme.source_refs??[]).map((ref:any)=>ref.growthItemId)).filter(Boolean))]
-  const liveSourceIds=new Set<string>()
-  if(themeSourceIds.length){
-    const live=(await c.query("SELECT id FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[]) AND status='active'",[user,themeSourceIds])).rows
-    for(const row of live)liveSourceIds.add(row.id)
-  }
+  // Share the existing availability gate: raw status='active' does not establish
+  // that a time window, source or dependency is still applicable today.
+  const {growthView}=await import('./growth.ts')
+  const effective=(await growthView(user,undefined,c)).items.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped)
+  const liveSourceIds=new Set(effective.map(item=>item.id))
   const validThemes=themes.filter((theme:any)=>(theme.source_refs??[]).some((ref:any)=>liveSourceIds.has(ref.growthItemId)))
   if(!validThemes.length)return null
   const links = (await c.query(`SELECT t.title AS theme_title, l.relation, l.confirmed, l.revision AS link_revision, l.experience_id, l.theme_id,
@@ -358,7 +357,7 @@ export async function readStarMapContext(c: PoolClient|Pool, user: string): Prom
     if(suppressed)continue
     validLinks.push(link)
   }
-  const constraints = (await c.query("SELECT text FROM growth_items WHERE user_id=$1 AND kind='constraint' AND status='active' ORDER BY updated_at DESC LIMIT 3", [user])).rows.map((row: any) => row.text)
+  const constraints = effective.filter(item=>item.kind==='constraint'&&['user_reported','user_edit'].includes(item.assertion)).slice(0,3).map(item=>item.text)
   const boundaries = (await c.query("SELECT title FROM user_themes WHERE user_id=$1 AND status IN ('paused','retired') ORDER BY updated_at DESC LIMIT 5", [user])).rows.map((row: any) => row.title)
   return {
     themes: validThemes.map((theme: any) => ({ id: theme.id, title: theme.title, kind: theme.kind, status: theme.status, pinned: theme.pinned, revision: theme.revision })),

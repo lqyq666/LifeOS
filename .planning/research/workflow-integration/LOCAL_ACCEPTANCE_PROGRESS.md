@@ -10,6 +10,12 @@
 
 绿证据：guide-final.log（新增2项、原main-entry1项、原guide-usage-http1项），GUIDE_CONTINUATION_HTTP.json实际三会话读回；root-guide.log 115/115，server-guide.log、frontend-guide.log、build-guide.log通过。模型响应来自loopback脚本；token/估算成本是合同字段，不是真实付费。未新增依赖、Agent或预算，未改公共攻略审批。
 
+## 星图采用同一有效状态
+
+已复现星图决策上下文直接读取raw active约束，导致过期“零小时”和尚未生效“下周六小时”同时进入当前帮助。改为复用growthView已有来源/时间窗口/依赖/暂停门禁；过期目标不能凭主题投影继续生效。没有增加另一套时间解析或星图事实。
+
+starmap-time-red.log保留原失败；starmap-green.log含新增时间项、原trust/g1与growth-knowledge回归通过，starmap-types.log与root-starmap.log通过。Memory OFF、跨账号、遗忘、连线撤销与快照冲突原保护继续成立。
+
 ## 个人依据与行动缺口
 
 路径分析沿用原SDK、4–5次调用和现有候选动作。新增可校验的actionBasis选择：每个动作只可连接已选个人证据及已选未知；综合者继续只选已审候选，不编写新事实。UI现有停止条件展示实际原话与缺口；未给具体连接时诚实提示尚未说明。
