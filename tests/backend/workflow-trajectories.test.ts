@@ -70,6 +70,7 @@ test('four continuous trajectories, three sessions each, normal authenticated HT
     const view=await json('/api/conversations/'+chat+'/event?id='+event.id)
     assert.equal(view.id,event.id);assert.equal(view.revision,event.revision)
     if(index===0)initialMethod=done.stateChange.guideUsage?.items?.some((x:any)=>x.guideId===card.id)??false
+    if(chain.id==='freelance'&&index===0)assert.deepEqual(done.candidateIds,[],'a wish to clarify delivery scope is not a completed personal action')
     const facts=(await pool.query("SELECT id,text,kind,revision,status,valid_until FROM growth_items WHERE user_id=$1 ORDER BY created_at,id",[user])).rows
     const used=await json('/api/conversations/'+chat+'/guide-usage?event='+event.id)
     const state={technicalSaved:run.status==='completed',currentTaskCorrect:wire.at(-1).text===round.text,sourceSupported:/只想说说/.test(round.text)||view.nodes.some((n:any)=>n.source?.messageId===wire.at(-1).context.currentUserMessage.id&&round.text.includes(n.source.quote)),stateCorrect:true,userIntentRespected:round.text.includes('不想继续')?used.items[0]?.status==='declined':true,nextSessionContinuity:index===0||JSON.stringify(wire.at(-1).context).includes(event.id)}
@@ -86,6 +87,7 @@ test('four continuous trajectories, three sessions each, normal authenticated HT
    }
    assert.ok(initialMethod,'initial approved method did not connect to authenticated guide usage: '+chain.id)
    const cognition=await request('/api/cognition');const cognitionBody=await cognition.json();writeFileSync(directory+'/'+chain.id+'-COGNITION_READ.json',JSON.stringify({status:cognition.status,body:cognitionBody},null,2));assert.equal(cognition.status,200,JSON.stringify(cognitionBody))
+   if(chain.id==='freelance')assert.ok(!cognitionBody.nodes.some((n:any)=>n.type==='value'&&/不再把自由职业作为主线/.test(n.title)),'ending a main path must not become a current pursuit')
    for(const session of [0,1,2]){
     const sessionContext=await browser.newContext({viewport:{width:1440,height:900}})
     await sessionContext.addCookies(cookie.split('; ').map(part=>{const at=part.indexOf('=');return {name:part.slice(0,at),value:part.slice(at+1),url:origin}}))

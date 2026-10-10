@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto'
 import { createApp } from '../../server/http.ts'
 import { config } from '../../server/config.ts'
 import { pool } from '../../server/db.ts'
+import {localEmbedding} from '../../server/local-embedding.ts'
 import * as store from '../../server/store.ts'
 import { validate, messageSchema, candidateSchema } from '../../server/contracts.ts'
 import { actionCoachTurnSchema } from '../../server/action-coach-contracts.ts'
@@ -184,6 +185,12 @@ test('real PostgreSQL and Better Auth enforce ownership, provenance, versions, i
       const planChat=randomUUID(),planId=randomUUID();await store.createConversation(a.id,{id:planChat,title:'计划源'})
       const plan=await store.startRun(a.id,planChat,planId,'我计划明天完成一项练习。')
       await assert.rejects(()=>store.stageCandidate(plan.run,staged,{sourceMessageId:plan.run.source_message_id,quote:'我计划明天完成一项练习。',links:[]}))
+      for(const text of ['我想先确认需求与交付范围。','我想交付一张海报。']){
+        const wishChat=randomUUID();await store.createConversation(a.id,{id:wishChat,title:'愿望不是经历'})
+        const wish=await store.startRun(a.id,wishChat,randomUUID(),text)
+        await assert.rejects(()=>store.stageCandidate(wish.run,staged,{sourceMessageId:wish.run.source_message_id,quote:text,links:[]}), (error:any)=>error.code==='PLANNED_ACTION_IS_NOT_EXPERIENCE')
+        await store.terminateRun(a.id,wish.run.request_id,'cancelled','TEST_CLEANUP')
+      }
       await store.terminateRun(a.id,planId,'cancelled','TEST_CLEANUP')
     })
     const confirmation={requestId:randomUUID(),expectedRevision:2,action:'confirm' as const}
@@ -262,6 +269,7 @@ test('real PostgreSQL and Better Auth enforce ownership, provenance, versions, i
       await pool.query('DELETE FROM runs WHERE user_id=$1',[account.id])
       await pool.query('DELETE FROM "user" WHERE id=$1',[account.id])
     }
+    await localEmbedding.close()
     config.trustedProxy=oldProxy;await pool.end()
   }
 })

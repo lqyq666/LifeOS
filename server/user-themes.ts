@@ -86,7 +86,9 @@ const EXPLORING_MARK = /(?:考虑|在想|也许|可能|想试试|试试|了解�
 // 语气不确定时不建主题——用户自己都没想清楚的事不占星图位置。
 const HEDGING = /(?:可能|也许|大概|说不定|不一定|不太确定|还没想清楚|说不好)/
 const DECIDED_MARK = /(?:决定|确定|定了|一定要|铁了心|就选)/
+const endedMainPath=(quote:string):boolean=>/不再.{0,20}(?:作为|当作).{0,4}(?:主线|重点)|暂停(?:扩大)?接单/.test(quote)
 export function pursuitLevel(quote: string): { kind: 'pursuit' | 'exploration'; status: 'active' | 'pending' } | null {
+  if(endedMainPath(quote))return null
   if (REJECTED_PURSUIT.test(quote) && !BOUNDARY_PURSUIT.test(quote)) return null
   // 不确定语气不建主题："我可能在考虑考研" 不占星图
   if (HEDGING.test(quote)) return null
@@ -105,6 +107,9 @@ export function deriveThemeCandidates(facts: readonly GrowthFact[]): ThemeCandid
     if (fact.status !== 'active' || !['user_reported', 'user_edit'].includes(fact.assertion)) continue
     const quote = fact.text.trim()
     if (!quote) continue
+    // Ending a main path is a current boundary, not a new goal to promote.
+    // The original growth fact remains available as a limitation in dialogue.
+    if(endedMainPath(quote))continue
     if (PAST_EVENT_OPEN.test(quote) || THIRD_PARTY.test(quote)) continue
     // 假设句不建主题："如果考研失败我会考虑就业" 不是当前追求
     if (/(?:如果|假如|要是|万一|假设)/.test(quote)) continue
@@ -297,9 +302,9 @@ export async function reconcileThemesWithGrowth(c: PoolClient, user: string): Pr
       // 只保留仍有效的来源；summary 由剩余原话重建，被遗忘的话不再可见。
       await c.query('UPDATE user_themes SET source_refs=$3, summary=$4, revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2', [user, theme.id, JSON.stringify(live), live.map(ref => `「${ref.quote}」`).join('')])
     }
-    if (!theme.title_locked) {
-      const primary = facts.get(live[live.length - 1]!.growthItemId)
-      if (!primary) continue
+    const primary = facts.get(live[live.length - 1]!.growthItemId)
+    if (!primary) continue
+    if (!theme.title_locked || endedMainPath(primary.text)) {
       // 更正可能改写追求本身：重新分级。被明确否定的追求（“我不打算考公了”）
       // 退休主题；从决定降为考虑则转为 exploration/pending。
       const level = pursuitLevel(primary.text)

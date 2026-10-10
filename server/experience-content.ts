@@ -15,6 +15,9 @@ export type ResolvedCandidateContent = { action: string; result: string; occurre
 // lane is the only path from a conversation to the star map.
 const COMPLETED_ACTION = /(?:做完|完成|交付|交了|交完|交上去|交过去|交到|交给|补交|补齐|补完|提交了|通过了|发了|发过|发出去|发过去|发到|发给|送到|写完了|写了|写过|赶完|弄完|搞定了|拿到了|参加过|参加了|办了|签了|录了|考了|考过|剪了|排了|整理了|整理过|整理好|准备好|办好|写好|做好|改好|弄好|搞定|送到|寄到|买好|订好|排好|上线了|发布了|发布过|上线|发布|上线|投了|投过|帮过|当过|带过|做过|做了|访谈了|调研了|采访了|拒绝了|拒绝了?|回绝了|申报了|答辩完|办完)/
 const NOT_YET = /打算|准备|计划|希望|想要|将要|下次|明天|后天|以后|考虑|如果|假设|还没|尚未|没来得及|没写完|没做完|没完成|没交/
+// “交付范围” names an action but “想先确认” has not performed it.
+// Shared by the structural fallback and the actual candidate persistence gate.
+export const clauseExpressesWishToAct=(text:string):boolean=>/(?:想|要)(?:先|去|尝试|试试|交付|提交|上线|发布|确认|核对|了解)/.test(text)
 // First person scopes the whole sentence: the action clause itself often
 // drops the pronoun (「迟了一天补交上去」) while a sibling clause carries it.
 export const sentenceIsFirstPersonPublic = (catalogue: readonly ClauseHandle[], handle: ClauseHandle): boolean =>
@@ -27,7 +30,7 @@ const BACK_REFERENCE = /上次那|上次说|上次提到|之前那次|之前说�
 export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]): boolean {
   const completed = catalogue.some(handle =>
     !handle.interrogative && !handle.conditional && !handle.quoted && !handle.code && !handle.attributedToOther
-    && sentenceIsFirstPerson(catalogue, handle) && COMPLETED_ACTION.test(handle.text) && !NOT_YET.test(handle.text))
+    && sentenceIsFirstPerson(catalogue, handle) && clauseReportsCompleted(handle.text))
   if (completed) return true
   const bySentence = new Map<number, ClauseHandle[]>()
   for (const handle of catalogue) {
@@ -43,7 +46,7 @@ export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]):
 }
 
 export function clauseReportsCompleted(text: string): boolean {
-  return COMPLETED_ACTION.test(text) && !NOT_YET.test(text)
+  return COMPLETED_ACTION.test(text) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
 }
 
 // Category fallback for the star map: the model lane may omit links, but a
@@ -66,7 +69,7 @@ const RESULT_SHAPE = /说|反馈|评价|效果|结果|还不错|很好|不错|�
 export function selectStructuralCandidate(sourceText: string, catalogue: readonly ClauseHandle[], anchorIso: string): { quote: string; start: number; end: number; content: ResolvedCandidateContent } | null {
   const matched = catalogue.find(handle =>
     !handle.interrogative && !handle.conditional && !handle.quoted && !handle.code && !handle.attributedToOther
-    && sentenceIsFirstPerson(catalogue, handle) && COMPLETED_ACTION.test(handle.text) && !NOT_YET.test(handle.text))
+    && sentenceIsFirstPerson(catalogue, handle) && clauseReportsCompleted(handle.text))
     ?? catalogue.find(handle => !handle.interrogative && !handle.conditional && BACK_REFERENCE.test(handle.text) && RESULT_SHAPE.test(handle.text))
   if (!matched) return null
   // Commas chain clauses inside one sentence (sentenceStart resets only at
@@ -74,7 +77,7 @@ export function selectStructuralCandidate(sourceText: string, catalogue: readonl
   const inSentence = catalogue.filter(handle => handle.sentenceStart === matched.sentenceStart)
   const end = Math.max(...inSentence.map(handle => handle.end))
   const quote = sourceText.slice(matched.sentenceStart, end)
-  const action = inSentence.find(handle => COMPLETED_ACTION.test(handle.text) && !NOT_YET.test(handle.text))
+  const action = inSentence.find(handle => clauseReportsCompleted(handle.text))
   const resultCandidates = inSentence.filter(handle => RESULT_SHAPE.test(handle.text) && handle !== action)
   const result = resultCandidates.at(-1)
   return {

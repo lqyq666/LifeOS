@@ -8,6 +8,12 @@ import { buildClauseCatalogue } from '../server/clause-catalogue.ts'
 
 const fact = (over: Partial<GrowthFact>): GrowthFact => ({ id: 'g-' + Math.random().toString(36).slice(2, 8), kind: 'goal', text: '我要准备保研', assertion: 'user_reported', status: 'active', ...over })
 
+test('ending a main path stays a boundary rather than becoming the next pursuit',()=>{
+ const rows=deriveThemeCandidates([fact({text:'我决定本阶段就业优先'}),fact({text:'不再把自由职业作为主线'}),fact({kind:'preference',text:'不再把自由职业作为主线'}),fact({kind:'preference',text:'我暂停扩大接单'})])
+ assert.deepEqual(rows.map(x=>x.title),['就业'])
+ assert.equal(deriveThemeCandidates([fact({text:'我不再熬夜'})]).length,1,'a positive habit boundary remains a pursuit')
+})
+
 test('only user-stated goals and pursuits project into themes', () => {
   const candidates = deriveThemeCandidates([
     fact({ kind: 'goal', text: '我要准备保研' }),

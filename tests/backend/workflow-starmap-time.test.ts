@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
 import {pool,transaction} from '../../server/db.ts'
 import * as store from '../../server/store.ts'
-import {projectUserThemes,readStarMapContext} from '../../server/user-themes.ts'
+import {projectUserThemes,readStarMapContext,reconcileThemesWithGrowth} from '../../server/user-themes.ts'
 test.after(()=>pool.end())
 test('star-map decision context uses the same effective time/source state as growth, not expired or future raw active rows',async()=>{
  const user='synthetic-time-'+randomUUID(),chat=randomUUID(),goal=randomUUID()
@@ -20,4 +20,10 @@ test('star-map decision context uses the same effective time/source state as gro
  const current=await readStarMapContext(pool,user);assert.ok(current);assert.deepEqual(current.constraints,['这周只剩两小时'])
  await pool.query("UPDATE growth_items SET valid_until=now()-interval '1 second' WHERE id=$1",[goal])
  assert.equal(await readStarMapContext(pool,user),null,'expired goal cannot survive as an active decision theme')
+ await pool.query("UPDATE growth_items SET text='不再把自由职业作为主线',valid_until=NULL,revision=revision+1 WHERE id=$1",[goal])
+ await pool.query("UPDATE user_themes SET title_locked=true,status='active' WHERE user_id=$1",[user])
+ await transaction(c=>reconcileThemesWithGrowth(c,user))
+ assert.equal((await pool.query('SELECT status FROM user_themes WHERE user_id=$1',[user])).rows[0].status,'retired','an old locked title does not keep an ended pursuit alive')
+ assert.equal(await readStarMapContext(pool,user),null)
+ assert.equal((await pool.query('SELECT status FROM growth_items WHERE id=$1',[goal])).rows[0].status,'active','the boundary original remains available, rather than being deleted')
 })

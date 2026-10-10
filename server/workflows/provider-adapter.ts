@@ -121,7 +121,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    if(new Set(bases.map(b=>b.actionId)).size!==bases.length||bases.some(b=>!selectedActions.some(a=>a.id===b.actionId)||!b.evidenceIds.length||b.evidenceIds.some(id=>!chosen.some(f=>f.id===id))||b.unknownIds.some(id=>!wire.unknownIds.includes(id))))throw new WorkflowError('source_invalid')
    p.nextActions=selectedActions.map(x=>{
     const basis=bases.find(b=>b.actionId===x.id),personal=basis?select(chosen,basis.evidenceIds):[],gaps=basis?select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),basis.unknownIds):[]
-    const connection=basis?`个人依据（原话，保留条件）：${personal.slice(0,2).map(f=>f.text.slice(0,120)).join('；')}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；`:'个人依据与行动缺口的具体连接尚未说明；'
+    const connection=basis?`个人依据（原话片段；完整条件见依据）：${personal.slice(0,2).map(f=>f.text.length>120?f.text.slice(0,120)+'…':f.text).join('；')}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；`:'个人依据与行动缺口的具体连接尚未说明；'
     return {description:'LifeOS 编辑建议（未绑定公开攻略）：'+x.text,estimatedMinutes:x.estimatedMinutes,stopCondition:`${connection}到可调整的建议投入上限${x.estimatedMinutes}分钟或发现必需材料缺失时停止；不自动对外联系。`,evidenceRefs:basis?personal.map(f=>f.ref):p.evidenceRefs,directionId:path.id}
    })
    return {result:{evidenceRefs:p.evidenceRefs,summary:'已选择该路径的授权依据与小探索',issues:[],proposal:p},costCny:output.costCny,providerCalls:1}

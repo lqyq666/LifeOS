@@ -20,6 +20,10 @@ root-final.log 115/115、原九套相关96/96、前后端类型/build通过；re
 
 ## 星图采用同一有效状态
 
+录屏核查新增两处真实误投影已修复：愿望“我想先确认需求与交付范围”不会再变成已发生经历；“不再把自由职业作为主线”留作原话边界，不占当前追求。已有主题也按同一规则退出，即使用户锁定过标题；已交付仍可记录，“不再熬夜”这类本人积极习惯目标继续保留。个人依据截取时显式标明原话片段与省略号，完整条件仍在引用中。
+
+experience-wish-red.log、starmap-ended-path-red.log保留原失败，纯函数绿测及wish-backend-final2.log通过；后者含安全18、原核心44、新专项6、原星图trust/g1回归，所有断言通过后正常退出。前次安全检查通过后因测试未关闭embedding子进程挂起，已核对仅关闭本次测试子进程；该日志保留，测试补上正常清理后重新完整通过。root-final3.log 117/117、前后端typecheck与build通过。
+
 已复现星图决策上下文直接读取raw active约束，导致过期“零小时”和尚未生效“下周六小时”同时进入当前帮助。改为复用growthView已有来源/时间窗口/依赖/暂停门禁；过期目标不能凭主题投影继续生效。没有增加另一套时间解析或星图事实。
 
 starmap-time-red.log保留原失败；starmap-green.log含新增时间项、原trust/g1与growth-knowledge回归通过，starmap-types.log与root-starmap.log通过。Memory OFF、跨账号、遗忘、连线撤销与快照冲突原保护继续成立。

@@ -5,6 +5,14 @@ import { clauseReportsCompleted, deriveStructuralLinks, requiresExperienceCandid
 
 const ANCHOR='2026-10-08T12:00:00.000Z' // Thursday 20:00 Shanghai
 
+test('the saved campus wish to clarify delivery scope is not a completed experience',()=>{
+ const wishes=['我是成年大学生，想探索自由职业接单。我想先确认需求与交付范围，怎么开始？','我想交付一张海报。','我想先上线作品。']
+ for(const text of wishes){const clauses=buildClauseCatalogue(text);assert.equal(requiresExperienceCandidate(clauses),false,text);assert.equal(selectStructuralCandidate(text,clauses,ANCHOR),null,text)}
+ const mixed='我已经交付了一张海报。我想先确认下一单的交付范围，怎么开始？'
+ const actual=selectStructuralCandidate(mixed,buildClauseCatalogue(mixed),ANCHOR)
+ assert.equal(actual?.quote,'我已经交付了一张海报');assert.equal(requiresExperienceCandidate(buildClauseCatalogue(mixed)),true)
+})
+
 test('a completed first-person action report structurally requires a candidate',()=>{
   assert.equal(requiresExperienceCandidate(buildClauseCatalogue('上周五我把社团招新的推文和海报整套都交了，比约好的时间晚了两天，部长说整体效果还不错。')),true)
   assert.equal(requiresExperienceCandidate(buildClauseCatalogue('我打算下周交海报，还没做完。')),false,'plans are not experiences')
