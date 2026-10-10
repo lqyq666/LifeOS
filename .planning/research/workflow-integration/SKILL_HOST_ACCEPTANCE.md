@@ -1,4 +1,8 @@
-当前记录：本轮五专业Skill与主Skill原文件hash保持；实际通过65项 focused、原96项及四条跨3会话HTTP/PG/Chrome链。SCRIPTED_ONLY，不是Skill真实模型语义效果。用户安装1.2.0、仓库1.2.2-candidate、云历史1.2.0分开，详见SKILL_VERSION_MATRIX.json。
+最新候选workflow-v2-integration-c373290f0265：实际启动版本与每次执行SHA校验，缺失/替换失败及可选growth解释降级通过红绿测。正常宿主24轮执行guide-application 4次、action-review 5次、growth-diff与experience-evidence各21次；direction-analysis在原SDK深入任务中执行并持久读回。证据为evidence/acceptance-20261010/round-readback/SKILL_HOST_EXECUTIONS.json、DIRECTION_SKILL_EXECUTION.json和skill-red/fallback-red/wish-backend-final2日志。当前root117、最终隔离后端73通过（范围重叠）；SCRIPTED_ONLY，不是五Skill真实模型/云执行效果。
+
+用户安装1.2.0、仓库主Skill1.2.2-candidate及五专业Skill0.2.0-candidate、实际临时HTTP进程、云历史1.2.0分开见SKILL_VERSION_MATRIX.json。临时服务已关闭，常驻服务未经新版本核验；未覆盖安装、同步云端或改Skill原文件。
+
+以下为0670及更早候选的历史验收：
 
 以下为历史候选workflow-v2-integration-ee442ef15ffa记录：
 

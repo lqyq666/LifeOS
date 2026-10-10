@@ -1,5 +1,17 @@
 # LifeOS 本地集成：2026-10-10 时间与连续链验收
 
+**最新已提交增量：workflow-v2-integration-c373290f0265，代码/验收提交b66b29a。** 从42a255f继续，6次本地增量提交。攻略反馈跨会话承接、可校验的个人依据—行动缺口连接、有效星图时间窗口、实际Skill版本门禁/降级，以及录屏暴露的愿望误收和退出方向误投影已修复；保留原4工作流/5专业Skill。
+
+当前root117/117、原相关96/96、本轮最终隔离后端73/73及检索/工作流边界14/14通过，范围重叠；类型与build通过。四条各3会话24轮在真实本地认证HTTP、隔离PG、原SDK、Chrome1440/390通过，逐轮实际助手消息/事件/成长/guide usage/Skill执行读回。旧专项65与保存失败13保留为历史起点。视频3分05秒且持续标明模拟Provider，不能称为真实AI效果。
+
+完整结果、逐项表和所有红/绿日志见[LOCAL_ACCEPTANCE_PROGRESS.md](LOCAL_ACCEPTANCE_PROGRESS.md)；436源码、内容、索引、Skill版本与证据hash在SOURCE_MANIFEST.json、CONTENT_MANIFEST.json、INDEX_BINDING.json、SKILL_VERSION_MATRIX.json、RUN_BINDING.json。视频及逐轮状态在evidence/acceptance-20261010/demo/local-campus-story.mp4、FOUR_ROUND_READBACKS.json。录屏进程和后续只完善读回的验收进程分别绑定，不混用候选。旧清单和协议均保留，旧压缩包校验只适用于旧包。
+
+**WIP_NOT_READY / MODIFIED / TESTED_LOCAL / BUILT / COMMITTED_LOCAL。** 真实模型、已有两Coze项目、云Skill、20组真实对照、20真实普通性能和学生签收仍PAUSED_NOT_RUN；59来源缺口、16待审和独立审核未取得继续保留。新增真实模型/云调用、真实预算、收费重试均0；未push、合并、部署或覆盖用户安装。常驻新服务未经核验，临时验收服务已关闭。
+
+---
+
+以下为原0670候选的历史交付，原HEAD、数字与包操作仅适用于当时：
+
 候选 **workflow-v2-integration-0670b2f68bf8**，HEAD仍 `70914b1cbd55b75a4d0f74785163d33519f70f71`。实际最高状态 MODIFIED / TESTED_LOCAL / BUILT；完整未验收，**WIP_NOT_READY**。旧候选 `workflow-v2-integration-ee442ef15ffa` 与旧协议/失败证据保留，不混合计分。
 
 本轮完成实际代码和本地链路：

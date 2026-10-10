@@ -1,146 +1,348 @@
 {
-  "schemaVersion": 1,
-  "version": "workflow-v2-integration-0670b2f68bf8",
-  "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
-  "at": "2026-10-10T07:54:29.342509+00:00",
-  "status": "TESTED_LOCAL_BUILT_WIP_NOT_READY",
-  "sourceManifestSha256": "9f0c5498fcb82ef446719372cd11841d3e92621a781748f711c46af9b185aeec",
-  "contentManifestSha256": "31ecab9c72277dda22aec3014bc06d790c842e9ef8c117fc3600754eec4cf6c1",
-  "indexBindingSha256": "65446ffa70fcc4235f40ca2acb5da9fe222ec8f8d427437957ad0bd7ad0eaaeb",
-  "skillVersionMatrixSha256": "99dfdbfa6247fbd3546a5a8539489b54487fe4b101785501aa0db285e3bb3066",
-  "runtimeSourceDigest": "cf706bcaaf362be14e735576c2fb81d1723fc5bf89697f10f2ac88457e671ae6",
-  "processMetadata": {
-    "service": "LifeOS",
-    "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
-    "skillVersion": "1.2.2-candidate",
-    "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
-    "workflowVersion": "v2-integration",
-    "sourceDigest": "cf706bcaaf362be14e735576c2fb81d1723fc5bf89697f10f2ac88457e671ae6",
-    "sourceFreezeDigest": "6a2543c852e2e97bc710484391b03d202d25ce693367fa6e70b56ba8e0b638cd",
-    "skills": [
-      {
-        "name": "lifeos-direction-analysis",
-        "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89"
-      },
-      {
-        "name": "lifeos-action-review",
-        "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f"
-      },
-      {
-        "name": "lifeos-experience-evidence",
-        "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494"
-      },
-      {
-        "name": "lifeos-guide-application",
-        "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c"
-      },
-      {
-        "name": "lifeos-growth-diff",
-        "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333"
-      }
-    ],
-    "loadedAt": "2026-10-10T07:48:32.043Z",
-    "contractGeneration": "p4+workflow-v2",
-    "growthApi": true,
-    "knowledgeIndexSignature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v1",
-    "processKind": "READ_ONLY_FRESH_MODULE_CAPTURE_NO_PROVIDER_NO_PERSISTENT_SERVICE"
-  },
-  "processNote": "sourceDigest is code-based; sourceFreezeDigest also binds process configuration; compare each process to its own captured configuration.",
-  "tests": {
-    "root": {
-      "file": "evidence/local-time-20261010/root-current.log",
-      "sha256": "a369333b7647b84c54d85977e8c6eb68af09325e5b0e19f320e1db5abe9cca74"
+  "schemaVersion": 2,
+  "version": "workflow-v2-integration-c373290f0265",
+  "codeCommit": "b66b29a73594455862ec181e3a3cd78366a24ecc",
+  "sourceFingerprint": "c373290f0265ea88b9a632312098f4ba319ad780a39c021e667c0b41932b09cc",
+  "sourceManifestSha256": "83ba5a42824e5b47076c9637ffe0c077b7aab06ddc1455c1216ad529de280d56",
+  "contentManifestSha256": "7a93fdfc5facfb7ef9b9ca6380c47b0c9bb676f68e0725541912acc92d88842c",
+  "indexBindingSha256": "e6d8d72c6195ef07ed9910ff896d9de18863242f117634b2a90614e12e5b2913",
+  "skillVersionMatrixSha256": "105fc3a89dc78f7bb54635fbefe7ad8d79cda55b4f05f608d7b9d22f627ba3a7",
+  "acceptanceSha256": "bc8cd2f9dfb5f281378a28dc1e269c32ba536917c705b0cdcd109757fc68f9b7",
+  "testProcessVersions": {
+    "fourChains": {
+      "service": "LifeOS",
+      "head": "ccdf7760eec853970ebacb412b850d0de6a21bfd",
+      "skillVersion": "1.2.2-candidate",
+      "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+      "workflowVersion": "v2-integration",
+      "sourceDigest": "7c484fde9776c1a550fb0bc94f5e369253a2879b8824f24e76af4656dc90ba52",
+      "sourceFreezeDigest": "26c13ec83d94b77af046e3e38495533548a3007d82e622d613a4b4dff2fee69e",
+      "skills": [
+        {
+          "name": "lifeos-direction-analysis",
+          "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-action-review",
+          "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-experience-evidence",
+          "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-guide-application",
+          "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-growth-diff",
+          "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+          "version": "0.2.0-candidate"
+        }
+      ],
+      "loadedAt": "2026-10-10T08:47:15.313Z",
+      "contractGeneration": "p4+workflow-v2",
+      "growthApi": true
     },
-    "focused": {
-      "file": "evidence/local-time-20261010/product-final.log",
-      "sha256": "6f4cfdf066671128e1f4fa241b256997690193e7f21801cb59f668dcaf9fe0e8"
+    "recordedDemo": {
+      "service": "LifeOS",
+      "head": "4b5c924c639bd833990482befd8e97df3ed229d8",
+      "skillVersion": "1.2.2-candidate",
+      "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+      "workflowVersion": "v2-integration",
+      "sourceDigest": "500595de4637c613768557ead63e7183f59e4cadd64f313bf591b1a6f715497f",
+      "sourceFreezeDigest": "07d1ef5eee723575ae8c99b8c21d1c39ec19f71fe62a34f28cc08966ebc251ab",
+      "skills": [
+        {
+          "name": "lifeos-direction-analysis",
+          "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-action-review",
+          "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-experience-evidence",
+          "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-guide-application",
+          "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-growth-diff",
+          "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+          "version": "0.2.0-candidate"
+        }
+      ],
+      "loadedAt": "2026-10-10T08:40:12.015Z",
+      "contractGeneration": "p4+workflow-v2",
+      "growthApi": true
     },
-    "serverTypecheck": {
-      "file": "evidence/local-time-20261010/server-current.log",
-      "sha256": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612"
-    },
-    "frontendTypecheck": {
-      "file": "evidence/local-time-20261010/frontend-current.log",
-      "sha256": "bd965414e423411b589b243fcdf164f97a180c0189533c2724c34c8caa16cb4d"
-    },
-    "build": {
-      "file": "evidence/local-time-20261010/build-current.log",
-      "sha256": "409561caaa36d7afa7f94ced26564c3586b71429981034e94b1f03f95defa4fc"
-    },
-    "related96": {
-      "file": "evidence/local-time-20261010/VERIFICATION_REPORT.json",
-      "sha256": "47cdbae6d512b3071a3c884d92e24b8641a2de8c93f880fe4458f5ee260ae1fd"
-    },
-    "dgateReplay": {
-      "file": "evidence/local-time-20261010/dgate13-replay.log",
-      "sha256": "5c4766ddbf1798cb6ae99305480409d3677507f164dc974ab611fa9128504562"
-    },
-    "httpBrowser": {
-      "file": "evidence/local-time-20261010/browser-http-current.log",
-      "sha256": "06d28ea3726bee04b7108060e3c84ad7cbd418c3380caa9afbd95ba8f63500bf"
-    },
-    "authorizedAdoptionBrowser": {
-      "file": "evidence/local-time-20261010/adoption-ui-current.log",
-      "sha256": "cc882cc0ff2f5637f32b559b2c8228c5cd1e30a47ee7ebf03d885819c0edc99a"
+    "direction": {
+      "service": "LifeOS",
+      "head": "ccdf7760eec853970ebacb412b850d0de6a21bfd",
+      "skillVersion": "1.2.2-candidate",
+      "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+      "workflowVersion": "v2-integration",
+      "sourceDigest": "500595de4637c613768557ead63e7183f59e4cadd64f313bf591b1a6f715497f",
+      "sourceFreezeDigest": "07d1ef5eee723575ae8c99b8c21d1c39ec19f71fe62a34f28cc08966ebc251ab",
+      "skills": [
+        {
+          "name": "lifeos-direction-analysis",
+          "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-action-review",
+          "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-experience-evidence",
+          "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-guide-application",
+          "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-growth-diff",
+          "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+          "version": "0.2.0-candidate"
+        }
+      ],
+      "loadedAt": "2026-10-10T08:44:09.081Z",
+      "contractGeneration": "p4+workflow-v2",
+      "growthApi": true
     }
   },
-  "priorFourRegressions": {
-    "continuity": 2,
-    "personalization": 1,
-    "browserContinuity": 1,
-    "passed": 4,
-    "evidence": [
-      "product-final.log",
-      "browser-http-current.log"
-    ],
-    "notCountedAsFourExtraDisjointTests": true
-  },
-  "redEvidence": {
-    "time-red.log": "d2254fc6e930777e53de8e630f5b6c860e066f04f30fd48174d474a6ee64524d",
-    "ZERO_RED.json": "ba43fad069d12ad0653f695bc4daaacca375dcfa3ce07a85bcb2e536edfd2ef6",
-    "zero-red.log": "a1fc38cbcf138ef3a5b28019017b55f5aca556a9d872ba788e2dc5bc5628847a",
-    "provider-clause-red.log": "887844840598fb690205a737a59f0c1f0338df44673795a0a8ac1718547d87ea",
-    "graph-red.log": "3abc2f611fc241cfad615b77ade0c1063ff00180ea8aae366bf332da4e5e6ce9",
-    "TRAJECTORY_UI_FAILURE.json": "9e904f496b615dd87be1a969f8dca416a7e7ea0edf502eb0e175a5a8f8005f1d"
-  },
-  "currentTrajectoryEvidence": {
-    "file": "evidence/local-time-20261010/FOUR_TRAJECTORIES.json",
-    "sha256": "3cbb7a2060fd3b7e04dfa0c6ffe0bdef3a381acea6bef374642abfda442d95b3"
-  },
+  "sourceChangeAfterProductChecks": [
+    "tests/backend/workflow-trajectories.test.ts"
+  ],
+  "afterChangeVerification": [
+    "round-readback-final.log",
+    "server-readback-final.log"
+  ],
+  "runtimeCaveat": "process digests include that isolated process config; source manifest covers current file bytes. Test process HEAD was pre-commit, not deployment. Demo/script changes change freeze even if model adapter unchanged.",
   "historicalProtocols": {
-    "COMPLEX_DECISION_AB_EVAL.json": {
-      "sha256": "6c3252608e2b70166388767849d2e28cb708f479e5cde0bd546737bcf519734b",
-      "status": "HISTORICAL_FROZEN_UNEXECUTED_FOR_CURRENT_CANDIDATE"
-    },
-    "ORDINARY_PERFORMANCE_PROTOCOL.json": {
-      "sha256": "e8ef483b0b1b499b0420f6a8b44acd03d0dd9c5755343e63c29f5c590ce57fd4",
-      "status": "HISTORICAL_FROZEN_UNEXECUTED_FOR_CURRENT_CANDIDATE"
-    },
-    "SAFETY_EVAL.json": {
-      "sha256": "bdedbb8328298dc21ae9d9ddf473c1d8503152c68969a5a9400b7abb07235b28",
-      "status": "HISTORICAL_FROZEN_UNEXECUTED_FOR_CURRENT_CANDIDATE"
-    }
+    "COMPLEX_DECISION_AB_EVAL.json": "6c3252608e2b70166388767849d2e28cb708f479e5cde0bd546737bcf519734b",
+    "ORDINARY_PERFORMANCE_PROTOCOL.json": "e8ef483b0b1b499b0420f6a8b44acd03d0dd9c5755343e63c29f5c590ce57fd4",
+    "SAFETY_EVAL.json": "bdedbb8328298dc21ae9d9ddf473c1d8503152c68969a5a9400b7abb07235b28"
   },
-  "realProvider": false,
-  "cozeCloud": false,
-  "paused": {
-    "realModel": "PAUSED_NOT_RUN",
-    "cozeCloudCandidate": "PAUSED_NOT_RUN",
-    "cloudSkill": "PAUSED_NOT_RUN",
-    "productionDeployment": "PAUSED_NOT_RUN",
-    "finalPerformance": "PAUSED_NOT_RUN",
-    "blindEvaluation": "PAUSED_NOT_RUN",
-    "realStudentAcceptance": "PAUSED_NOT_RUN"
+  "reportHashes": {
+    "LOCAL_ACCEPTANCE_PROGRESS.md": "e39b2767a686df8736a395abe63595b2fddf3e5440248a5cc399b5cd1db4584b",
+    "WORKFLOW_INTEGRATION_DELIVERY.md": "51ed1e58b21e990aeab4550ffa8bcd1cb2ffb0829608c94b2547b97f8be0e4de",
+    "SKILL_HOST_ACCEPTANCE.md": "ca8f6437b71a8330982789b742a4190b895447ddd1a464995ebeb360275e6b7c",
+    "WORKFLOW_DEMO_SCRIPT.md": "7292eaaf5f5ffbaf92b71de63516500fbd0b0d97ee23743d8192c3fab75d599f"
   },
-  "mismatchRule": "STOP: verify source, corpus, index, Skill and evidence hashes before replay. A changed candidate requires a new binding. Historical protocols cannot be relabeled as current results.",
-  "commands": [
+  "nextAcceptanceSha256": "cb70f16aae801602f2e4d81f86ec0a589f60230c7f4f8f5a39ffea2d883aeba9",
+  "logHashes": {
+    "basis-green-attempt2.log": "bf39c10516032a50c47b1c06f766dfcea85fa63d9ecf0884565f6781c4e72c82",
+    "basis-green.log": "9e9f519a75eb17d5fb850d53fbe8acb5264d771fe362d14c77673cc32c5f2688",
+    "basis-old-contract-red.log": "81ff20590bfb70612794b1d2926dc3f301953a2914bdec3057b60e54c4420407",
+    "basis-red-attempt2.log": "21dde9540e0894078ab06ae1730a1363cdc7025936703c9dd6fda16fff7a9cc1",
+    "basis-red.log": "37c0109b73a3ceebe72efbee5e586bf99757e742ce81aea00f224d922b37b424",
+    "basis-types.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
+    "browser-demo-final.log": "97c7b7f6d704d4e3297b5b3aa091dd9669beea1f7509c93dfc8f0f74ea6a5bf3",
+    "browser-demo-final3.log": "734c248eacb030bae88328bc88cd8d61ed8a839a7f3fad8fa3d0ae4b7a6e4dc2",
+    "browser-demo-final4.log": "36069be80f80c11e1ce0c08f892d932851a181ca1c570620f1b6ec3560efa3ef",
+    "browser-probe-stages.log": "c388e969c116755aaaa9784184317be62cd5e591e8e77012ddbe101d786f455d",
+    "build-final.log": "d797c827a9233f6cf8c949219da3f42986ae09109022976509bf960d99e80d7b",
+    "build-final2.log": "5fbc7d86867b2ea7e36622b3d15f29d07940f52220162706b0713b278ed686b9",
+    "build-final3.log": "4feee4dba4216ac0e8080f1615e7535a5064e9ecb30e1e816d4b6b31fcd83c10",
+    "build-guide.log": "e96cf605241a21c4a331df361faa995e3462076769e5014c614dd5a62791afa3",
+    "experience-wish-green.log": "66838c8907fac7a79cdf1e7a6065e58d81d38b248ba9e0049fe6df578c5d68f1",
+    "experience-wish-red.log": "9c1ad072859d3228f9762db6ebcdf657491a9489df70d76955a086199eb07c19",
+    "frontend-final.log": "bd965414e423411b589b243fcdf164f97a180c0189533c2724c34c8caa16cb4d",
+    "frontend-final2.log": "bd965414e423411b589b243fcdf164f97a180c0189533c2724c34c8caa16cb4d",
+    "frontend-final3.log": "bd965414e423411b589b243fcdf164f97a180c0189533c2724c34c8caa16cb4d",
+    "frontend-guide.log": "bd965414e423411b589b243fcdf164f97a180c0189533c2724c34c8caa16cb4d",
+    "guide-context-green.log": "f26862a6a1f801c74cb17ed09c5041db13a7546951b7008957471473533dba57",
+    "guide-context-red.log": "ae6a0eb9a5ad40a030ac32c1a65fb2ee79e5c52c1403f960632810c812b47dc9",
+    "guide-feedback-red.log": "09b4f5ac9393a55788c14907dfdb3bdf46795b29aaeae09b856071723b1937d7",
+    "guide-final.log": "7cdd11cffdb8831738702ad010d5d9f86d5cd7f3d3587c9fa6d270fd4af3fd93",
+    "guide-http-green.log": "72cae57f26e662519a7e3d259016fe4e724106b35b070c4a5b52ddc32ce4072b",
+    "guide-pg-green-attempt2.log": "a459ebb96cc8099e7808d314bb5ba791c734ac9564b71289e7f9c19149a328f7",
+    "guide-pg-green.log": "9a3726bfe73a5562c385e4e7b49bfa8639ab18767997d5b6816801a33486be11",
+    "guide-types.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
+    "related-action-coach-engine.log": "29008727cf4b982b1a477dd712e243de77eaedd9cbfb51798142cb228b292e3b",
+    "related-action-coach-material-boundary.log": "2fa946ca0507dd13d2b9d1a422b3fd8fd48d0370115a81cdd0ca6aee191da29f",
+    "related-coze-code-workflow.log": "ac9cffe79dc1498f7c1805047f9a488d03a50a57c37fdd350a4dd97263432c1f",
+    "related-guide-usage-http.log": "a078c6b2e18441fbabd7e22d864a914fe03ef41490b7e664224f9a8b85406d60",
+    "related-workflow-action.log": "d8b282f6f67de3da67cc4f360061bc631b61ab4d141a29b761d1bcea34a6959f",
+    "related-workflow-contracts.log": "66cde0310063d410ba9ff3e305c5b101b4d39887c3151e4936e033e16ebc281a",
+    "related-workflow-direction.log": "8073ef5c6b4ac824e24eb5f9041198d0cfc9650a7b46e3b3099cb479b7bdcc6a",
+    "related-workflow-growth-knowledge.log": "109d99ca2227d4f7401f155c0f44445f668876b0a64cd3ae416c2af43c7fe896",
+    "related-workflow-main-entry.log": "b72e71323aa820210c36cff9fc7967057b52f84f1bdf4522a266df79d577e1a7",
+    "retrieval-safety-final.log": "91f48d75d0bb62dbc8a5330667e03f775f0d2b78e1d63120716a0a26619cd30e",
+    "root-final.log": "6b286b80ec329edd99ffb2b332ec565a86815dff5ffbebd467753deb7cd67065",
+    "root-final2.log": "6a5922ba39203ebe857887aaebf5734d81009c65ad297dc0a33aeb405236cf45",
+    "root-final3.log": "6ad12d28a546b74d065284b3ef322be37840572b8c5cc5015349b112698b3536",
+    "root-guide.log": "c3498a3add89b249da8403ee7db3faaf11e98007c3e1575330bf17d416b0b414",
+    "root-starmap.log": "f8e54a3616aaaebe1a115ccdefaf9f784a7841d477ef3caf609c2e4ae264a1bf",
+    "round-readback-final.log": "d68c8f54126d9239aa3194a11416433f4456a7f16554a9d5e0e0ebb103efc310",
+    "server-demo-final.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
+    "server-final.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
+    "server-final2.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
+    "server-final3.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
+    "server-guide.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
+    "server-readback-final.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
+    "skill-fallback-red.log": "7121c3fe5006d2ef162f6a2d7079fbbd0346a1ceebbe8ab558e57aba33f7db40",
+    "skill-final.log": "d424fcdc128aa1aab398a56e52db11e1a97b91ac67abcd48b4614ee77c49b7cc",
+    "skill-green.log": "19a18afbe7b0b4bdfcf02a22fb00b75d8ebfc9d34739dacf9cee4f945d683e9f",
+    "skill-red.log": "2109f3c92dfb0e0e25cd834d285394e44432c7a0d840481ad98c47a1e6a42b7a",
+    "skill-types.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
+    "starmap-ended-path-green.log": "1b9c5246cf8aad5793152635fdca48bbd94bc41a0388fb411cb5d1ab05705fb3",
+    "starmap-ended-path-red.log": "53ec42fbe2a0af0d1205f12e19bde1e56726523308c9c80bfb0b9fcb65e468de",
+    "starmap-green.log": "13615b8e328252448d5a160b4bd836275781ad2aefc8ed52fafed0efb4f1d031",
+    "starmap-time-red.log": "87bd9ae308b449cdf6393ee3525d6bce321795f3b0b6287ba96d8868592a2341",
+    "starmap-types.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
+    "trajectories-demo-attempt2.log": "23098ca12f518f0609f42757d90213bb297c8dedced730a4431393143c8f53e5",
+    "wish-backend-final.log": "c50d2f98fad28d264734074c670125f13fb08881b84d4ee015813b54e3b76a24",
+    "wish-backend-final2.log": "cc6c170d1172c90f790a49b454e16834c0c053faefda1149987068ddd315b207"
+  },
+  "artifactHashes": {
+    "evidence/acceptance-20261010/BINDING_REVIEW_NOTES.json": "94011d8e341c992b03b06d5b3f6393174eb29a3e33e63d2fee1416607d9f497d",
+    "evidence/acceptance-20261010/BROWSER_CHAIN.json": "de496922d8a10f4278ea2e2d38f2de1f238800572ebf696650e182112ac84b91",
+    "evidence/acceptance-20261010/contact-COGNITION_READ.json": "3c12ef582eb79113798737f016a022d14859961b709d514546c02fde1a775d46",
+    "evidence/acceptance-20261010/contact-session1-1440.png": "9cf51f8068d0adb1ba43b59cb69d5b913be672e2c44071d106296d4f6921be1d",
+    "evidence/acceptance-20261010/contact-session1-390.png": "0a56e22af1ad72d2855c26f4d61530aca66326e644761cf1ce54d5dacecd993a",
+    "evidence/acceptance-20261010/contact-session2-1440.png": "6d1e1bf14e97f512fbb082368127962e164721779ba5391dc7583d4e725ddd93",
+    "evidence/acceptance-20261010/contact-session2-390.png": "b73906f365fd95a45646f013461b3d5b0ae7a7107afc74edaa107f3eef1aa290",
+    "evidence/acceptance-20261010/contact-session3-1440.png": "005a886bbd9d8029da2618609d9c6ca45165e058d5e75cbcaf9aa1f2c483e614",
+    "evidence/acceptance-20261010/contact-session3-390.png": "f4339820787816b12c06ec95c1f13ecc006d94a8953cfd80025b74dbb95007d5",
+    "evidence/acceptance-20261010/CONTENT_AND_BUDGET_CHECK.json": "ecc91ab46c4ab40e7f1ba52d0156dbc225d8caef2b26304d76304d193665806e",
+    "evidence/acceptance-20261010/course-COGNITION_READ.json": "694872bdcd88a6a5d64b335a3b30900abde333f174f503a11e98addf47fb47fc",
+    "evidence/acceptance-20261010/course-session1-1440.png": "30dc55d9fa6990c4aa6b48179ce4c6a543a6c9c06a8359446f15a8e00dbfde6f",
+    "evidence/acceptance-20261010/course-session1-390.png": "4bc9fc21c1af9701632b8a06a75ce9bf9e3cbde343399208b040dd220f0d8631",
+    "evidence/acceptance-20261010/course-session2-1440.png": "7e0ba0dea0f86077f697d6b42731cafe3ed274b95492d7f2238d98ae02e2e72c",
+    "evidence/acceptance-20261010/course-session2-390.png": "e9f9a7ce5cf39fb1904543b09b1cfc4c446355c9d017f33a6f6f739e7ddb5ac7",
+    "evidence/acceptance-20261010/course-session3-1440.png": "0f3b485788e708e0f88de362377585aef8de2254d605834d86502efce9a56ff1",
+    "evidence/acceptance-20261010/course-session3-390.png": "e17611843473f0c0ffc2102d2123d9560e98b83cb0b38a3332e1b8d9c5c70315",
+    "evidence/acceptance-20261010/CURRENT_ARCHIVED_BODY_REOPEN.json": "b5b57c8168eef33c34106a7b2c31734c33d6921f9a56728bba99daa40c3cf156",
+    "evidence/acceptance-20261010/CURRENT_MAINLINE_SOURCE_AUDIT.json": "b23e14aaf5ea08d33e9cbb700e764732d9e55db4fce4da32688ab64a61931bfa",
+    "evidence/acceptance-20261010/DIRECTION_SKILL_EXECUTION.json": "178d58dbf7ae304fd33776704e099947376d10dcd00ab14cf92aef350fac1c1d",
+    "evidence/acceptance-20261010/FINAL_SOURCE_FREEZE.json": "6863de186454ae77d78fac142c47820c7ce348dcbc50235afbd54b57030b54d3",
+    "evidence/acceptance-20261010/FOUR_ROUND_READBACKS.json": "4cbdf3ee12002729cab9dc29e9aa2daa0183dd0570e237ceec1172604664703e",
+    "evidence/acceptance-20261010/FOUR_TRAJECTORIES.json": "35c89d9bd67acd5679b237aa19ac8b5915f9d8b40c3c26e18d258db6d97671b0",
+    "evidence/acceptance-20261010/freelance-COGNITION_READ.json": "8f603fa4a52fc7bdf9f46f32364a650d4d13facd90cd75c8e72c5ae4d53fc7ef",
+    "evidence/acceptance-20261010/freelance-session1-1440.png": "a89d12daf2ce9a5bf29dc9351533a1c16a51e73bee6d13b2c56e044dff07c9d3",
+    "evidence/acceptance-20261010/freelance-session1-390.png": "9012f812c421dbddb95f25354bc9a1db52ce8febb5b86b431665101537e5eaec",
+    "evidence/acceptance-20261010/freelance-session2-1440.png": "530ccbe540178d181f145085998e5bc34402bf05436f39a5727f293700cd3d13",
+    "evidence/acceptance-20261010/freelance-session2-390.png": "ca722cddbec921f25ad97a36656a17fb6af6d4ea20883adcc014a18ec7408bdc",
+    "evidence/acceptance-20261010/freelance-session3-1440.png": "4a5e68cf59439a881718723c94d410568d80f9a714d97cd2a9c001e6099fe362",
+    "evidence/acceptance-20261010/freelance-session3-390.png": "2f4ff79ffae365ffacf298ba81e9a8fcfeab429cced65d5d6bfdc468ef053850",
+    "evidence/acceptance-20261010/G2_CONTINUOUS_CHAIN.jsonl": "27b0b59a44609ea58fa1a392928f0bb023c863ebb463790744809083a2cffd76",
+    "evidence/acceptance-20261010/G2_MAIN_ENTRY.jsonl": "6313c9389333640bc604e51dba099ec0e01d091beb19542c58539b63868bca61",
+    "evidence/acceptance-20261010/G3_SIMULATED_RUNS.jsonl": "84119c503277ce9a1e9826f46579a59b269cbe6dbcd19004b236c9127100c2d0",
+    "evidence/acceptance-20261010/GUIDE_CONTINUATION_HTTP.json": "5828eab15ff3a6d3b708f1dfa5f8ae353c2d5ede405bea7e18326225eebf559f",
+    "evidence/acceptance-20261010/HTTP_CHAIN.json": "a75afa4c8e5c337d7aea015c9e2d4eb9459117b878852265df07acb734935805",
+    "evidence/acceptance-20261010/next-week-1440.png": "a932e03bcfd83e14efbe734f56bddf8aa1bfff5b119ef31efb620ebc6ab3245f",
+    "evidence/acceptance-20261010/next-week-390.png": "dbb7afa338a0f4cd226620a1bfe6ec794ab0ce6c559247b215dea3f3aac42549",
+    "evidence/acceptance-20261010/next-week-HTTP_UI.json": "09d97e134f6d3db75be58de7598a0506f7651365a3fe7cf72ee08f6d6ddcf46b",
+    "evidence/acceptance-20261010/PERSONALIZATION_CONTRAST.json": "e6ebb766062e96468de040ab4687ddc7c25c9f84aefe87ac1fa218888cc0212b",
+    "evidence/acceptance-20261010/PERSONAL_BASIS_ABC.json": "d50a7f561d3b4706a569a478326bc879135499b5d78ae0d146dd85f40ea60cb9",
+    "evidence/acceptance-20261010/remainder-1440.png": "6b9efcade1a362a25e6087df0364f80c45c8a5926e4310c27fb4563daafd9aa3",
+    "evidence/acceptance-20261010/remainder-390.png": "4d77785f56af350bdaacc2c32ea27796e58bba23e43f90b8a91a2f1661047b32",
+    "evidence/acceptance-20261010/remainder-HTTP_UI.json": "07dca885a5b8f6f25d3fac1c2f18892b94399263be2d099b5a0a9ff6413158ee",
+    "evidence/acceptance-20261010/SKILL_HOST_EXECUTIONS.json": "ebf9e80092f17d1490ab801c808d5909a0654f73ba05909e1493997cdf34a92c",
+    "evidence/acceptance-20261010/STARMAP_BEFORE_AFTER.json": "1fdd0251ab6f91576a15151cf162bd096042a98469ba998149de6d4d77144610",
+    "evidence/acceptance-20261010/startup-COGNITION_READ.json": "7135f5bc4f295b34cd1b34b974aecf70e231c60e1372ca8c7fb9cc150c513a63",
+    "evidence/acceptance-20261010/startup-session1-1440.png": "e6605179d65a39410cd640368e0bc7ff14f12e448f245a6d15912a31223a179c",
+    "evidence/acceptance-20261010/startup-session1-390.png": "f322924f07849cc401b13f221f951d4801d3eb3ff3ce6392024206632191936a",
+    "evidence/acceptance-20261010/startup-session2-1440.png": "5ecb757bccce4407298b8c0e12eda4c68c64a03cebcfe6b01da3102fdcc80812",
+    "evidence/acceptance-20261010/startup-session2-390.png": "b8ee7ba36b25a9f5f0bd17d97895e381dba3afb4cc8fcb5187a13759fb0eeb21",
+    "evidence/acceptance-20261010/startup-session3-1440.png": "93ae24226423742eb71f8d375c9c135431fbbd7eb199317c1206910be31597f1",
+    "evidence/acceptance-20261010/startup-session3-390.png": "5e738c40c24354e1b4d889a5018c982edb68fe2d608c3e4b1e655c2d9c056883",
+    "evidence/acceptance-20261010/TRAJECTORY_PROCESS_VERSION.json": "ecf08b37f8fa5af9a113d92723d080f4280eedca1de61dd76f498760dd3080fe",
+    "evidence/acceptance-20261010/waiting-before-input.png": "e349507a8ab451ac9e1e966d8591c5a08a9c6662c37d75e38330d329ebb8913a",
+    "evidence/acceptance-20261010/waiting-filled.png": "a4e5b6efe10dd52b6a10453c1200ec6e26c3d0ea5d34d1e1bae1758313d4fad6",
+    "evidence/acceptance-20261010/waiting-resumed-mobile.png": "09dd3db06d63b867ccaea3be9bc9bc50a2a632de867935e94a6ca9bf65605bc2",
+    "evidence/acceptance-20261010/waiting-short-supplement.png": "0de7c0199678a1606f388eb95bb037182a8c0f21130fb334f0986c615bde5a52",
+    "evidence/acceptance-20261010/WAITING_BROWSER_GREEN.json": "4a9b340d94c8860dc11bec1ab1476455aca38fc9bd211d21b66dd4868d36e760",
+    "evidence/acceptance-20261010/WAITING_BROWSER_REPRO.json": "31ec022b68f8d5591088615decb96338131ffccda2c3f71d239a89bf6ab3f243",
+    "evidence/acceptance-20261010/workflow-desktop-progress.png": "88b0d7d79a787aae89c836375f434b9224c1c4dc773bb86db93cd3ad43a5427d",
+    "evidence/acceptance-20261010/workflow-desktop-proposal.png": "017072c906db310f978d47a213d7659f0403746f32df2e48b16e4c475e8e6261",
+    "evidence/acceptance-20261010/workflow-mobile-adopted.png": "d9f3c86ddd0bd88f63ddb463d7749273184fc07b767217cfbda0087a9946e0e8",
+    "evidence/acceptance-20261010/WORKFLOW_EXECUTION_TRACES.jsonl": "a76e898fce615f4e911bb5d0d37462a2949b16e0c5639637067ec4f1db4b3abf",
+    "evidence/acceptance-20261010/zero-1440.png": "01a681a8fa3fd4a12eb30d0903e25723392abd135d4d8b81f25c65e3bf5113d1",
+    "evidence/acceptance-20261010/zero-390.png": "2f6e554b9cfedecc6a582592232b4554d86b6fe5d7cea05332b8644cbe25b8e1",
+    "evidence/acceptance-20261010/zero-HTTP_UI.json": "beea62201b1fceca1c19364c617ece4ccdc8f83a28497bfd9f7fd841fcdb92a4",
+    "evidence/acceptance-20261010/demo/local-campus-story.mp4": "9bf9629896baac4adc25ab05ac875e2c47c7689a1dcaa748bf6c5d2039e8c1c1",
+    "evidence/acceptance-20261010/demo/local-campus-story.webm": "91a1019e31d49b06e212db5b91496d9718c156a52df708b3fe4083d1bff2674f",
+    "evidence/acceptance-20261010/demo/page@254de23999a2da827e65d137cc2e6832.webm": "91a1019e31d49b06e212db5b91496d9718c156a52df708b3fe4083d1bff2674f",
+    "evidence/acceptance-20261010/demo/page@3d288749161005e8760d0c75570cc057.webm": "60f2c5d10d1d20d7b215cb273bf62cf8989f3b649672eb5c5e51d5fa64489537",
+    "evidence/acceptance-20261010/demo/page@a0f93372edb1fba1e5c3bb768cced36c.webm": "4a0063fcb3e4d85fb096fcba1312fba0f4d7be6b41a23c4b12d6ea89a1450fef",
+    "evidence/acceptance-20261010/demo/page@d716cac228c49a30e7342c8311754c67.webm": "1ca7aa8434348f47664960051e767284d15f1f122bf3965880e08d6d95daad32",
+    "evidence/acceptance-20261010/demo/starmap.png": "746ba62d1523177b528d6973e5e7dfb26a31e6de4f1065bd443583c04a54eaa8",
+    "evidence/acceptance-20261010/demo/TIMELINE.json": "24bf045cc16cc1746130bea1ca069a6c2f44e488dfa0c18f0ec19b94a07d8459",
+    "evidence/acceptance-20261010/demo/verify-100.png": "1f5f9a1d190c49364aae881e4bf832d8e39c3c7e6e53a1b23cfd9751de8e661c",
+    "evidence/acceptance-20261010/demo/verify-140.png": "1d0ceaf7f2feb2ba4b430be5ad15eb9ca5cbdbd6dcde187ced2ca4ff6e523846",
+    "evidence/acceptance-20261010/demo/verify-15.png": "e9dea9491a501f7dbd192f90b3db3d4b4e752969365ba8a15ca2be8479052f75",
+    "evidence/acceptance-20261010/demo/verify-170.png": "8ce19110d35c5ff555b26f3b8218a942069f27dcfd739d578e33096b2e086867",
+    "evidence/acceptance-20261010/demo/verify-60.png": "e39addb53f89dd403ee4c7f54bd5c638afc2ac8cc944525b4e4def0650967302",
+    "evidence/acceptance-20261010/demo/VIDEO_VERIFICATION.json": "8d7b32c77e0c79ea2550ee9cda23bc51dd6a5f3160e040daffdbf381be90272e",
+    "evidence/acceptance-20261010/round-readback/contact-COGNITION_READ.json": "6da34d6ad6a01bb7664ecf5e8eac12d80bd0c5e0778c83a1be414dec74d4248f",
+    "evidence/acceptance-20261010/round-readback/contact-session1-1440.png": "9cf51f8068d0adb1ba43b59cb69d5b913be672e2c44071d106296d4f6921be1d",
+    "evidence/acceptance-20261010/round-readback/contact-session1-390.png": "0a56e22af1ad72d2855c26f4d61530aca66326e644761cf1ce54d5dacecd993a",
+    "evidence/acceptance-20261010/round-readback/contact-session2-1440.png": "6d1e1bf14e97f512fbb082368127962e164721779ba5391dc7583d4e725ddd93",
+    "evidence/acceptance-20261010/round-readback/contact-session2-390.png": "b73906f365fd95a45646f013461b3d5b0ae7a7107afc74edaa107f3eef1aa290",
+    "evidence/acceptance-20261010/round-readback/contact-session3-1440.png": "005a886bbd9d8029da2618609d9c6ca45165e058d5e75cbcaf9aa1f2c483e614",
+    "evidence/acceptance-20261010/round-readback/contact-session3-390.png": "f4339820787816b12c06ec95c1f13ecc006d94a8953cfd80025b74dbb95007d5",
+    "evidence/acceptance-20261010/round-readback/course-COGNITION_READ.json": "51cd70e85b510b7d6b5909af07e28bb5bb3bf350106352b6b6e20f71b7a4ab5b",
+    "evidence/acceptance-20261010/round-readback/course-session1-1440.png": "30dc55d9fa6990c4aa6b48179ce4c6a543a6c9c06a8359446f15a8e00dbfde6f",
+    "evidence/acceptance-20261010/round-readback/course-session1-390.png": "4bc9fc21c1af9701632b8a06a75ce9bf9e3cbde343399208b040dd220f0d8631",
+    "evidence/acceptance-20261010/round-readback/course-session2-1440.png": "7e0ba0dea0f86077f697d6b42731cafe3ed274b95492d7f2238d98ae02e2e72c",
+    "evidence/acceptance-20261010/round-readback/course-session2-390.png": "e9f9a7ce5cf39fb1904543b09b1cfc4c446355c9d017f33a6f6f739e7ddb5ac7",
+    "evidence/acceptance-20261010/round-readback/course-session3-1440.png": "0f3b485788e708e0f88de362377585aef8de2254d605834d86502efce9a56ff1",
+    "evidence/acceptance-20261010/round-readback/course-session3-390.png": "e17611843473f0c0ffc2102d2123d9560e98b83cb0b38a3332e1b8d9c5c70315",
+    "evidence/acceptance-20261010/round-readback/FOUR_TRAJECTORIES.json": "bc292ce7e140499fdfb6f4ee3d93ff54e0cfbbae683820acf19968eca89565a0",
+    "evidence/acceptance-20261010/round-readback/freelance-COGNITION_READ.json": "e2d43dd21b6b3cd971ea1897cf6b4534608289169aeb57f0d125e953b16f0cfb",
+    "evidence/acceptance-20261010/round-readback/freelance-session1-1440.png": "a89d12daf2ce9a5bf29dc9351533a1c16a51e73bee6d13b2c56e044dff07c9d3",
+    "evidence/acceptance-20261010/round-readback/freelance-session1-390.png": "9012f812c421dbddb95f25354bc9a1db52ce8febb5b86b431665101537e5eaec",
+    "evidence/acceptance-20261010/round-readback/freelance-session2-1440.png": "530ccbe540178d181f145085998e5bc34402bf05436f39a5727f293700cd3d13",
+    "evidence/acceptance-20261010/round-readback/freelance-session2-390.png": "ca722cddbec921f25ad97a36656a17fb6af6d4ea20883adcc014a18ec7408bdc",
+    "evidence/acceptance-20261010/round-readback/freelance-session3-1440.png": "4a5e68cf59439a881718723c94d410568d80f9a714d97cd2a9c001e6099fe362",
+    "evidence/acceptance-20261010/round-readback/freelance-session3-390.png": "2f4ff79ffae365ffacf298ba81e9a8fcfeab429cced65d5d6bfdc468ef053850",
+    "evidence/acceptance-20261010/round-readback/SKILL_HOST_EXECUTIONS.json": "a1c8bbbfd49c7e2a2585f1c172aeb6bd897ece97abc37712a95c77c3dcbd7016",
+    "evidence/acceptance-20261010/round-readback/startup-COGNITION_READ.json": "2220a4fee165430159ea25be189937f9befb1177a22e16bc6a9e57d8275963ab",
+    "evidence/acceptance-20261010/round-readback/startup-session1-1440.png": "aa3a49b940e46f40f2d7b1f2f6efa45151be1b090b98cabd3375a1da1e513fdf",
+    "evidence/acceptance-20261010/round-readback/startup-session1-390.png": "f322924f07849cc401b13f221f951d4801d3eb3ff3ce6392024206632191936a",
+    "evidence/acceptance-20261010/round-readback/startup-session2-1440.png": "5ecb757bccce4407298b8c0e12eda4c68c64a03cebcfe6b01da3102fdcc80812",
+    "evidence/acceptance-20261010/round-readback/startup-session2-390.png": "b8ee7ba36b25a9f5f0bd17d97895e381dba3afb4cc8fcb5187a13759fb0eeb21",
+    "evidence/acceptance-20261010/round-readback/startup-session3-1440.png": "93ae24226423742eb71f8d375c9c135431fbbd7eb199317c1206910be31597f1",
+    "evidence/acceptance-20261010/round-readback/startup-session3-390.png": "5e738c40c24354e1b4d889a5018c982edb68fe2d608c3e4b1e655c2d9c056883",
+    "evidence/acceptance-20261010/round-readback/TRAJECTORY_PROCESS_VERSION.json": "287d4c2400d20b7792ff2bcc2c37b04cf46a10802430f28a5ed408b08c2c140f",
+    "evidence/acceptance-20261010/demo/attempt1-landing/local-campus-story.webm": "1ca7aa8434348f47664960051e767284d15f1f122bf3965880e08d6d95daad32",
+    "evidence/acceptance-20261010/demo/attempt1-landing/starmap.png": "3241e50d11001dabc2db6e3b8d32cc0b154a0ef4eaa3e651146bb6c3088ddb72",
+    "evidence/acceptance-20261010/demo/attempt1-landing/TIMELINE.json": "349bb9454a81046688e644d5e5e8a64b02f26bfd782aef16d3acfbc89ff9933f",
+    "evidence/acceptance-20261010/demo/attempt2-wish-experience/local-campus-story.webm": "60f2c5d10d1d20d7b215cb273bf62cf8989f3b649672eb5c5e51d5fa64489537",
+    "evidence/acceptance-20261010/demo/attempt2-wish-experience/starmap.png": "10ec39625b014b9012698c74a4582d7402297bc9edc9c02f9fbe240bb5412e15",
+    "evidence/acceptance-20261010/demo/attempt2-wish-experience/TIMELINE.json": "d4fe2b6d4202d06506ccc71eb74b86e133efa4a1d329de4b9b7a51c3e85be767",
+    "evidence/acceptance-20261010/demo/attempt3-ended-path-theme/local-campus-story.webm": "4a0063fcb3e4d85fb096fcba1312fba0f4d7be6b41a23c4b12d6ea89a1450fef",
+    "evidence/acceptance-20261010/demo/attempt3-ended-path-theme/starmap.png": "e12e7b16b08aad84623497e4220ebbdec237e55b33d2bd97e9abb030312460c9",
+    "evidence/acceptance-20261010/demo/attempt3-ended-path-theme/TIMELINE.json": "2bb060ce21e5e1a19b6b6ef2b9442586e895ef59bf16cd9d7e5e777862bdf3b8"
+  },
+  "reproduce": [
     "npm test",
     "npm run typecheck:server",
     "npm run typecheck",
     "npm run build",
-    "npm run test:backend -- --file=workflow-time.test.ts --file=workflow-time-host.test.ts --file=workflow-zero.test.ts --file=workflow-personalization.test.ts --file=weekly-plans.test.ts --file=context-budget.test.ts --file=workflow-continuity.test.ts --file=workflow-audit-boundaries.test.ts --file=workflow-runtime-adapter.test.ts",
-    "npm run test:backend -- --file=workflow-continuity-browser.test.ts --file=workflow-time-browser.test.ts --file=workflow-http-chain.test.ts --file=workflow-trajectories.test.ts",
-    "LIFEOS_WORKFLOW_BROWSER=true npm run test:backend -- --file=workflow-http-chain.test.ts (set variable using PowerShell syntax)"
+    "npm run test:backend -- --file=workflow-guide-continuation.test.ts --file=workflow-personal-basis.test.ts --file=workflow-starmap-time.test.ts --file=workflow-skill-runtime.test.ts --file=safety.test.ts --file=action-coach-engine.test.ts",
+    "$env:LIFEOS_WORKFLOW_EVIDENCE=\".planning/research/workflow-integration/evidence/acceptance-replay\"; $env:LIFEOS_RECORD_DEMO=\"true\"; npm run test:backend -- --file=workflow-trajectories.test.ts --file=workflow-time-browser.test.ts --file=workflow-http-chain.test.ts"
   ],
-  "environment": "Existing installed local dependencies, local disposable PostgreSQL at 55432, Chrome/CDP helpers. No credentials or databases included in archive."
+  "requirements": "Existing local dependencies, disposable local PG on 55432, local embedding runtime, Chrome and FFmpeg; never call real providers/cloud for these commands",
+  "uniquePaidLedgerSha256": "03891a1f7f7da4ae969cf36c5a11777b92b353c012f3a3591a7e2d15f682a1a4",
+  "status": "TESTED_LOCAL_BUILT_COMMITTED_WIP_NOT_READY"
 }

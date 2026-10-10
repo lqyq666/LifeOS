@@ -1,111 +1,129 @@
 {
-  "schemaVersion": 3,
-  "version": "workflow-v2-integration-0670b2f68bf8",
-  "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
-  "at": "2026-10-10T07:54:29.342509+00:00",
+  "schemaVersion": 4,
+  "version": "workflow-v2-integration-c373290f0265",
+  "head": "b66b29a73594455862ec181e3a3cd78366a24ecc",
   "status": "WIP_NOT_READY",
   "highestStatus": [
     "MODIFIED",
     "TESTED_LOCAL",
-    "BUILT"
+    "BUILT",
+    "COMMITTED_LOCAL"
   ],
   "notClaimed": [
     "DEPLOYED",
     "ONLINE_VERIFIED",
     "ACCEPTED"
   ],
-  "evidenceRoot": "evidence/local-time-20261010/",
+  "evidenceRoot": "evidence/acceptance-20261010/",
   "checks": {
-    "rootTests": {
-      "passed": 114,
-      "failed": 0,
-      "containsOriginal113": true,
-      "additionalSavedGraphRegression": 1,
-      "evidence": "root-current.log"
+    "root": {
+      "passed": 117,
+      "evidence": "root-final3.log"
     },
-    "relatedTests": {
+    "related": {
       "passed": 96,
-      "failed": 0,
-      "evidence": "VERIFICATION_REPORT.json",
-      "provider": "LOCAL_SIMULATED"
+      "suites": {
+        "related-action-coach-engine.log": 44,
+        "related-action-coach-material-boundary.log": 9,
+        "related-coze-code-workflow.log": 5,
+        "related-guide-usage-http.log": 1,
+        "related-workflow-action.log": 6,
+        "related-workflow-contracts.log": 14,
+        "related-workflow-direction.log": 10,
+        "related-workflow-growth-knowledge.log": 6,
+        "related-workflow-main-entry.log": 1
+      },
+      "note": "action-coach-engine rerun after final wish guard; other eight unchanged modules retained from this turn"
     },
-    "focusedTests": {
-      "passed": 65,
-      "failed": 0,
-      "suites": 9,
-      "evidence": "product-final.log",
-      "notDisjointFromOtherSuites": true
+    "newBackendContracts": {
+      "passed": 6,
+      "evidence": "wish-backend-final2.log",
+      "overlapsOtherSuites": true
     },
-    "oldSavedFailureReplay": {
-      "passed": 13,
-      "failed": 0,
-      "evidence": "dgate13-replay.log",
-      "provider": "SAVED_REPLAY_LOCAL_SIMULATED"
+    "finalBackendBatch": {
+      "passed": 73,
+      "evidence": "wish-backend-final2.log"
     },
-    "httpBrowserSuites": {
-      "passed": 4,
-      "failed": 0,
-      "evidence": "browser-http-current.log"
+    "retrievalAndWorkflowSafety": {
+      "passed": 14,
+      "evidence": "retrieval-safety-final.log"
     },
-    "authorizedAdoptionBrowserRerun": {
+    "persistedReplyReadback": {
       "passed": 1,
-      "failed": 0,
-      "evidence": "adoption-ui-current.log",
-      "overlapsHttpSuite": true
-    },
-    "longitudinalChains": {
-      "chains": 4,
-      "sessionsPerChain": 3,
       "rounds": 24,
-      "chromeScreenshots": 24,
-      "evidence": "FOUR_TRAJECTORIES.json",
+      "evidence": "round-readback-final.log",
+      "provider": "SCRIPTED_LOOPBACK_ONLY"
+    },
+    "httpBrowser": {
+      "passed": 3,
+      "evidence": "browser-demo-final4.log",
+      "widths": [
+        1440,
+        390
+      ],
+      "physicalPhone": false
+    },
+    "fourChains": {
+      "rounds": 24,
+      "sessions": 12,
+      "screenshots": 24,
       "provider": "SCRIPTED_LOOPBACK_ONLY",
-      "semanticQualityAccepted": false
+      "evidence": "FOUR_ROUND_READBACKS.json"
     },
-    "serverTypecheck": {
-      "status": "PASS",
-      "evidence": "server-current.log"
+    "typecheckFrontend": "PASS",
+    "typecheckServer": "PASS",
+    "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
+    "savedFailure13": {
+      "status": "BASELINE_RETAINED",
+      "newRun": false
     },
-    "frontendTypecheck": {
-      "status": "PASS",
-      "evidence": "frontend-current.log"
-    },
-    "build": {
-      "status": "PASS",
-      "evidence": "build-current.log",
-      "knownWarning": "Existing Three chunk exceeds 500 kB"
-    },
-    "sourceAudit": {
-      "priorityGuides": 13,
-      "pendingCandidates": 4,
-      "missingSources": 59,
-      "mainCorpusModified": false
+    "demo": {
+      "seconds": 184.374,
+      "video": "demo/local-campus-story.mp4",
+      "provider": "SCRIPTED_LOOPBACK_ONLY"
     }
   },
   "paused": {
-    "realModel": "PAUSED_NOT_RUN",
-    "cozeCloudCandidate": "PAUSED_NOT_RUN",
-    "cloudSkill": "PAUSED_NOT_RUN",
-    "productionDeployment": "PAUSED_NOT_RUN",
-    "finalPerformance": "PAUSED_NOT_RUN",
-    "blindEvaluation": "PAUSED_NOT_RUN",
-    "realStudentAcceptance": "PAUSED_NOT_RUN"
+    "realModels": "PAUSED_NOT_RUN",
+    "cozeExistingTwoProjects": "PAUSED_NOT_RUN",
+    "cloudSkills": "PAUSED_NOT_RUN",
+    "complex20PairedBlind": "PAUSED_NOT_RUN",
+    "ordinary20RealPerformance": "PAUSED_NOT_RUN",
+    "studentAcceptance": "PAUSED_NOT_RUN"
   },
-  "baselineAcceptanceSnapshot": "evidence/local-time-20261010/history-before-final-freeze/WORKFLOW_ACCEPTANCE.json",
-  "baselineCandidate": "workflow-v2-integration-ee442ef15ffa",
-  "factsPreserved": [
-    "waiting_user identity, cancellation, parallelism and no redispatch",
-    "tri-state correction",
-    "graded critic",
-    "final fact handles",
-    "durable tasks",
-    "authorized adoption",
-    "growth and star-map projections"
-  ],
-  "limitations": [
-    "Scripted Provider verifies local contracts, not real-model reasoning quality.",
-    "Five Skills and four workflows retained; no install/cloud publication.",
-    "59 awaiting_source gaps and 16 needs_review guides retained; adaptation candidates not self-approved.",
-    "No persistent HTTP service started as a delivery claim; acceptance used temporary real servers and disposable PG."
-  ]
+  "acceptanceByGoal": {
+    "A": "PASS_LOCAL_SCRIPTED_CONTINUITY_REAL_SEMANTICS_PAUSED",
+    "B": "PASS_BASIS_LINK_CONTRACT_REAL_GAIN_PAUSED",
+    "C": "PASS_LOCAL_LIFECYCLE_AND_AVAILABILITY_STUDENT_COMPREHENSION_PENDING",
+    "D": "PARTIAL_APPROVED_METHOD_CONTINUATION_59_SOURCE_GAPS_16_PENDING",
+    "E": "PASS_LOCAL_HOST_FIVE_SKILLS_CLOUD_PAUSED",
+    "F": "PASS_LOCAL_TECHNICAL_SCOPE_REAL20_PERFORMANCE_PAUSED"
+  },
+  "realPerformance": {
+    "samples": 0,
+    "firstContentP50Ms": null,
+    "firstContentP95Ms": null,
+    "completeReplyP95Ms": null,
+    "status": "PAUSED_NOT_RUN"
+  },
+  "realMultiAgentComparison": {
+    "pairs": 0,
+    "status": "PAUSED_NOT_RUN"
+  },
+  "actualPaidCostAddedCny": 0,
+  "simulatedUsageFieldsAreNotActualCosts": true,
+  "realCallsAdded": 0,
+  "cloudCallsAdded": 0,
+  "newBudget": 0,
+  "paidLedgerUnchanged": true,
+  "sourceGaps": 59,
+  "needsReviewCards": 16,
+  "independentReviewAdded": false,
+  "historicalProtocolsUnchanged": {
+    "COMPLEX_DECISION_AB_EVAL.json": "6c3252608e2b70166388767849d2e28cb708f479e5cde0bd546737bcf519734b",
+    "ORDINARY_PERFORMANCE_PROTOCOL.json": "e8ef483b0b1b499b0420f6a8b44acd03d0dd9c5755343e63c29f5c590ce57fd4",
+    "SAFETY_EVAL.json": "bdedbb8328298dc21ae9d9ddf473c1d8503152c68969a5a9400b7abb07235b28"
+  },
+  "historicalAcceptance": "evidence/acceptance-20261010/baseline-0670/WORKFLOW_ACCEPTANCE.json",
+  "noPushMergeDeploy": true
 }

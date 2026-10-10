@@ -1,7 +1,9 @@
 # LifeOS 下一阶段验收目标
 
 > 2026-10-10；本轮只规定验收结果，不指定实现方案。
-> 当前已验收的本地候选：workflow-v2-integration-0670b2f68bf8。
+> 最新本地增量：workflow-v2-integration-c373290f0265，代码与验收提交b66b29a；原0670候选仍保留为起点基线。
+> 最新结果：root117、相关96、本轮隔离后端73（范围重叠）、24轮实际回复/状态读回和Chrome1440/390通过；3分05秒模拟Provider演示。完整状态仍WIP_NOT_READY，真实模型/扣子/20组对照/真实性能未恢复。
+> 当前证据入口：.planning/research/workflow-integration/LOCAL_ACCEPTANCE_PROGRESS.md、WORKFLOW_ACCEPTANCE.json、RUN_BINDING.json。下方“已有基础”数字为起点记录。
 > 这是本地开发检查点，不是发布通过；具体提交以 git log 为准。
 
 ## 已有基础，不重复开发

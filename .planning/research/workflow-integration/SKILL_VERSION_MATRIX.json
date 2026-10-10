@@ -1,174 +1,139 @@
 {
+  "schemaVersion": 2,
+  "baseline": "evidence/acceptance-20261010/baseline-0670/SKILL_VERSION_MATRIX.json",
+  "at": "2026-10-10T08:52:19.101944+00:00",
+  "candidate": "workflow-v2-integration-c373290f0265",
+  "repositoryCommit": "b66b29a73594455862ec181e3a3cd78366a24ecc",
   "mainRepository": {
     "version": "1.2.2-candidate",
     "sha256": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
   },
+  "businessRepository": [
+    {
+      "name": "lifeos-direction-analysis",
+      "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+      "version": "0.2.0-candidate"
+    },
+    {
+      "name": "lifeos-action-review",
+      "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+      "version": "0.2.0-candidate"
+    },
+    {
+      "name": "lifeos-experience-evidence",
+      "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+      "version": "0.2.0-candidate"
+    },
+    {
+      "name": "lifeos-guide-application",
+      "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+      "version": "0.2.0-candidate"
+    },
+    {
+      "name": "lifeos-growth-diff",
+      "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+      "version": "0.2.0-candidate"
+    }
+  ],
   "localCandidateProcess": {
     "service": "LifeOS",
-    "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
+    "head": "ccdf7760eec853970ebacb412b850d0de6a21bfd",
     "skillVersion": "1.2.2-candidate",
     "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
     "workflowVersion": "v2-integration",
-    "sourceDigest": "cf706bcaaf362be14e735576c2fb81d1723fc5bf89697f10f2ac88457e671ae6",
-    "sourceFreezeDigest": "6a2543c852e2e97bc710484391b03d202d25ce693367fa6e70b56ba8e0b638cd",
+    "sourceDigest": "7c484fde9776c1a550fb0bc94f5e369253a2879b8824f24e76af4656dc90ba52",
+    "sourceFreezeDigest": "26c13ec83d94b77af046e3e38495533548a3007d82e622d613a4b4dff2fee69e",
     "skills": [
       {
         "name": "lifeos-direction-analysis",
-        "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89"
+        "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+        "version": "0.2.0-candidate"
       },
       {
         "name": "lifeos-action-review",
-        "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f"
+        "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+        "version": "0.2.0-candidate"
       },
       {
         "name": "lifeos-experience-evidence",
-        "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494"
+        "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+        "version": "0.2.0-candidate"
       },
       {
         "name": "lifeos-guide-application",
-        "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c"
+        "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+        "version": "0.2.0-candidate"
       },
       {
         "name": "lifeos-growth-diff",
-        "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333"
+        "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+        "version": "0.2.0-candidate"
       }
     ],
-    "loadedAt": "2026-10-10T07:48:32.043Z",
+    "loadedAt": "2026-10-10T08:47:15.313Z",
     "contractGeneration": "p4+workflow-v2",
     "growthApi": true,
-    "knowledgeIndexSignature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v1",
-    "processKind": "READ_ONLY_FRESH_MODULE_CAPTURE_NO_PROVIDER_NO_PERSISTENT_SERVICE"
+    "processKind": "ACTUAL_AUTHENTICATED_TEST_HTTP_SERVER_CLOSED_AFTER_ACCEPTANCE"
+  },
+  "directionTestProcess": {
+    "service": "LifeOS",
+    "head": "ccdf7760eec853970ebacb412b850d0de6a21bfd",
+    "skillVersion": "1.2.2-candidate",
+    "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+    "workflowVersion": "v2-integration",
+    "sourceDigest": "500595de4637c613768557ead63e7183f59e4cadd64f313bf591b1a6f715497f",
+    "sourceFreezeDigest": "07d1ef5eee723575ae8c99b8c21d1c39ec19f71fe62a34f28cc08966ebc251ab",
+    "skills": [
+      {
+        "name": "lifeos-direction-analysis",
+        "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+        "version": "0.2.0-candidate"
+      },
+      {
+        "name": "lifeos-action-review",
+        "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+        "version": "0.2.0-candidate"
+      },
+      {
+        "name": "lifeos-experience-evidence",
+        "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+        "version": "0.2.0-candidate"
+      },
+      {
+        "name": "lifeos-guide-application",
+        "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+        "version": "0.2.0-candidate"
+      },
+      {
+        "name": "lifeos-growth-diff",
+        "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+        "version": "0.2.0-candidate"
+      }
+    ],
+    "loadedAt": "2026-10-10T08:44:09.081Z",
+    "contractGeneration": "p4+workflow-v2",
+    "growthApi": true
   },
   "installedUserMainSkill": {
     "path": "C:\\Users\\LQY\\.agents\\skills\\lifeos-personal-companion\\SKILL.md",
     "version": "1.2.0",
     "sha256": "6c3bfbb6517273188f84db9c0f9cb0a2f081f45afa80d2c014094556b11571cf",
     "modified": false,
-    "verifiedAt": "2026-10-10T07:54:29.342509+00:00"
+    "verifiedAt": "2026-10-10T08:52:19.101944+00:00"
+  },
+  "persistentServiceCheck": {
+    "8787": "CONNECTION_REFUSED",
+    "3001": "VERSION_ENDPOINT_404_SERVICE_NOT_VERIFIED",
+    "action": "READ_ONLY_NO_RESTART_NO_DEPLOY"
   },
   "cloudMainSkill": {
     "version": "1.2.0",
-    "evidence": "HISTORICAL_VERSION_NOT_FRESH_CONTENT_HASH_CLOUD_PAUSED",
-    "modified": false,
-    "verifiedAt": null,
-    "status": "PAUSED_NOT_RUN"
+    "provenance": "HISTORICAL_ONLY_NO_FRESH_HASH",
+    "status": "PAUSED_NOT_RUN",
+    "changed": false
   },
-  "businessSkills": [
-    {
-      "name": "lifeos-action-review",
-      "version": "0.2.0-candidate",
-      "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
-      "globallyInstalled": false,
-      "cloudPublished": false,
-      "cloudState": "PAUSED_NOT_RUN"
-    },
-    {
-      "name": "lifeos-direction-analysis",
-      "version": "0.2.0-candidate",
-      "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
-      "globallyInstalled": false,
-      "cloudPublished": false,
-      "cloudState": "PAUSED_NOT_RUN"
-    },
-    {
-      "name": "lifeos-experience-evidence",
-      "version": "0.2.0-candidate",
-      "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
-      "globallyInstalled": false,
-      "cloudPublished": false,
-      "cloudState": "PAUSED_NOT_RUN"
-    },
-    {
-      "name": "lifeos-guide-application",
-      "version": "0.2.0-candidate",
-      "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
-      "globallyInstalled": false,
-      "cloudPublished": false,
-      "cloudState": "PAUSED_NOT_RUN"
-    },
-    {
-      "name": "lifeos-growth-diff",
-      "version": "0.2.0-candidate",
-      "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
-      "globallyInstalled": false,
-      "cloudPublished": false,
-      "cloudState": "PAUSED_NOT_RUN"
-    }
-  ],
-  "at": "2026-10-10T07:54:29.342509+00:00",
-  "repositorySourceVersion": "workflow-v2-integration-ee442ef15ffa",
-  "previousCandidateProcess": {
-    "service": "LifeOS",
-    "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
-    "skillVersion": "1.2.2-candidate",
-    "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
-    "workflowVersion": "v2-integration",
-    "sourceDigest": "a00cffc179a1d8cc228a3539214d1e55e6e2e0faa2c02ae245dfa1093740a768",
-    "sourceFreezeDigest": "93b756e2c5e0432819849f8b5790c085cccb7b4a3e0fc748da34cf97bccec2cf",
-    "skills": [
-      {
-        "name": "lifeos-direction-analysis",
-        "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89"
-      },
-      {
-        "name": "lifeos-action-review",
-        "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f"
-      },
-      {
-        "name": "lifeos-experience-evidence",
-        "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494"
-      },
-      {
-        "name": "lifeos-guide-application",
-        "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c"
-      },
-      {
-        "name": "lifeos-growth-diff",
-        "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333"
-      }
-    ],
-    "loadedAt": "2026-10-10T06:13:34.178Z",
-    "contractGeneration": "p4+workflow-v2",
-    "growthApi": true
-  },
-  "candidateVersion": "workflow-v2-integration-0670b2f68bf8",
-  "acceptanceHTTPProcess": {
-    "service": "LifeOS",
-    "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
-    "skillVersion": "1.2.2-candidate",
-    "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
-    "workflowVersion": "v2-integration",
-    "sourceDigest": "cf706bcaaf362be14e735576c2fb81d1723fc5bf89697f10f2ac88457e671ae6",
-    "sourceFreezeDigest": "6a2543c852e2e97bc710484391b03d202d25ce693367fa6e70b56ba8e0b638cd",
-    "skills": [
-      {
-        "name": "lifeos-direction-analysis",
-        "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89"
-      },
-      {
-        "name": "lifeos-action-review",
-        "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f"
-      },
-      {
-        "name": "lifeos-experience-evidence",
-        "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494"
-      },
-      {
-        "name": "lifeos-guide-application",
-        "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c"
-      },
-      {
-        "name": "lifeos-growth-diff",
-        "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333"
-      }
-    ],
-    "loadedAt": "2026-10-10T07:47:37.834Z",
-    "contractGeneration": "p4+workflow-v2",
-    "growthApi": true
-  },
-  "persistentLocalService": {
-    "status": "NOT_STARTED_FOR_DELIVERY",
-    "temporaryAcceptanceProcesses": "CLOSED_AFTER_TESTS",
-    "note": "Fresh read-only module metadata does not claim a running HTTP service."
+  "cloudProfessionalSkills": {
+    "status": "PAUSED_NOT_RUN",
+    "actualLoadVersions": null
   }
 }

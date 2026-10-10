@@ -1,4 +1,15 @@
-# 3–5分钟本地演示脚本（未拍摄成片）
+# 最新实际录屏（2026-10-10）
+
+evidence/acceptance-20261010/demo/local-campus-story.mp4，185秒，真实本地认证UI；始终标记模拟Provider、非真实模型验收。先看方向与获准方法，再看交付/采用/300元及课程时间边界，随后就业优先、星图新增证据与未知，最后更新后的会话帮助。TIMELINE.json与VIDEO_VERIFICATION.json绑定实际时间、画面及编码。
+
+原首页误录、愿望误收与退出方向误投影版本分别保留在demo/attempt1-landing、attempt2-wish-experience、attempt3-ended-path-theme，不作为最终画面。录屏后只完善逐轮消息保存断言，产品代码未变；不同进程指纹在RUN_BINDING.json。
+
+以下为历史演示脚本：
+
+
+---
+
+# 历史演示脚本（原候选，未拍摄成片）
 
 全程画面标“合成成年样例 / 本地候选 / 模拟Provider / WIP_NOT_READY”。不展示真实学生、Secret、隐藏思维链。实际证据截图在evidence/workflow-desktop-progress.png、workflow-desktop-proposal.png、workflow-mobile-adopted.png；真实节点、事务与来源JSON可展开。
 

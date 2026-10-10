@@ -1,5 +1,35 @@
 # 当前本地验收增量
 
+候选workflow-v2-integration-c373290f0265；代码/验收提交b66b29a（后续报告提交不改变产品代码）。6次本地增量提交，无push/合并/部署。当前source436文件、内容、索引与实际测试分别由SOURCE_MANIFEST.json、CONTENT_MANIFEST.json、INDEX_BINDING.json及RUN_BINDING.json绑定；旧0670清单/结果按原字节保存在evidence/acceptance-20261010/baseline-0670，旧评估协议未改。
+
+| 验收项 | 当前实际结果 | 证据，均位于evidence/acceptance-20261010 |
+|---|---|---|
+| 根测试 | 117/117，原113及后续绿测保持 | root-final3.log |
+| 原相关九套 | 96/96；其中核心44在最终修复后再次通过，其余52为本轮前段通过，不能累加独立总数 | related-*.log、wish-backend-final2.log |
+| 本轮最终隔离后端 | 73/73：安全18、原核心44、新专项6、原星图5；范围重叠 | wish-backend-final2.log |
+| 检索与工作流安全 | 14/14 | retrieval-safety-final.log |
+| 正常HTTP/Chrome | 3/3，1440/390无横向溢出；不是实体手机 | browser-demo-final4.log |
+| 四条连续链 | 每条6轮/3会话，共24轮/12会话，逐轮实际保存回复与状态读回 | round-readback-final.log、FOUR_ROUND_READBACKS.json、round-readback/FOUR_TRAJECTORIES.json |
+| 类型/构建 | 前后端PASS、build PASS，既有Three chunk警告保留 | server-final3.log、server-readback-final.log、frontend-final3.log、build-final3.log |
+| 演示 | 185秒，H264，持续标明模拟Provider；方向→行动反馈→星图→更新后的帮助 | demo/local-campus-story.mp4、demo/TIMELINE.json、demo/VIDEO_VERIFICATION.json |
+
+这些是本地合同、来源门禁、状态提交、跨会话与界面证据。脚本夹具的stateCorrect标志不是独立语义评审；模拟token、费用与模型名不是实际付费数据。20组真实单/多Agent收益、20普通真实性能及真实学生签收均不得据此推为通过。
+
+| 用户验收目标 | 本轮可证明的结果 | 尚未通过 |
+|---|---|---|
+| A 连续使用 | 四条各3会话、短答接回原任务、更正/拒绝、事件/反馈分开，逐轮消息持久读回；相似对象不自动选定 | 真实模型连续语义与学生使用签收 |
+| B 多Agent价值 | A/B/C同预算连接不同个人原话与缺口，越权依据拒绝；分析不改目标、采纳仅计划，快速路径保留 | 预声明20组真实收益盲评与全部实测成本/时延 |
+| C 星图影响帮助 | 有效时间/来源状态共用；愿望不算经历、退出路径不算优先追求；更正/遗忘/Memory OFF/跨账号原保护通过 | 真实学生是否理解变化、真实模型是否正确使用更新 |
+| D 攻略适用与复盘 | approved原修订/步骤承接到受阻/等待/拒绝分支，编辑适配与来源主张分开；112逐项去向保留 | 59来源缺口、16待审、新候选独立审核未取得 |
+| E Skill与扣子 | 五Skill正常本地任务实际版本、SHA、能力执行与读回；缺失/替换及可选解释降级测试 | 云端两项目及五Skill真实发现、加载、取消/异常兼容 |
+| F 最终验收 | 技术绿测、来源门禁、合法状态实际提交与界面证据；本轮真实费用0，首次失败/取消全保留 | 同一版本20真实普通样本性能、最终学生验收 |
+
+资料核查：四条链实际approved卡的原文短引文、revision、位置、scope/limitations及编辑适配分开保存于CURRENT_MAINLINE_SOURCE_AUDIT.json；NSF/Upwork的context是中文摘要，未把它冒充英文原文上下文。另实际重读本机已保存的MIT就业/升学原HTML，正文/引文位置及hash匹配，CURRENT_ARCHIVED_BODY_REOPEN.json；对应候选仍needs_review。53覆盖、59来源缺口、16待审及112逐项去向不变，未自批或发布。
+
+仓库主Skill1.2.2-candidate、五业务Skill0.2.0-candidate；用户安装主Skill1.2.0只读未覆盖；云1.2.0仅历史记录，未取得新hash。验收临时HTTP进程真实读回指纹并已关闭；8787无服务、3001版本接口404，常驻新服务未经核验。各进程分别绑定，不把读模块当部署。
+
+旧保存失败13/13和原专项65继续保留为起点证据，未重新混算当前分数。首版停首页、第二版愿望误收、第三版退出方向误投影的原视频、全部红测、夹具失败及安全进程清理问题均保留。当前唯一真实付费账本SHA未变，新增真实模型/云调用0、真实预算0、收费重试0。
+
 起点提交：42a255f4790c875630b547a19eb1b9acb698d37f。原0670候选24轮保留为SCRIPTED本地集成基线，不改写为真实模型效果。
 
 ## 攻略跨会话反馈承接

@@ -1,6 +1,6 @@
 {
-  "version": "workflow-v2-integration-0670b2f68bf8",
-  "at": "2026-10-10T07:54:29.342509+00:00",
+  "version": "workflow-v2-integration-c373290f0265",
+  "at": "2026-10-10T08:52:19.101944+00:00",
   "mainCorpusModified": false,
   "newIndependentReview": false,
   "guideReviewCounts": {
@@ -11,7 +11,7 @@
   "covered": 53,
   "awaitingSource": 59,
   "files": {
-    ".planning/research/evergreen/KB_ACCEPTANCE.md": "ac2813f86597b8953cfde77f171a2dc5e0085fa5387abbf50023b49f2f867693",
+    ".planning/research/evergreen/KB_ACCEPTANCE.md": "267351d3bb61aeba928653eaae1afa65aa4d2c047a0f9c7eec5e7c18c30e5c73",
     ".planning/research/evergreen/KB_BACKEND_REPORT.json": "87c5244fd9bf21696644074337979ec3b5e6cbb00b3de67ef0f39dccb083e8d7",
     ".planning/research/evergreen/KB_BASELINE_CHECKS.json": "dcffdbcba624725f983269158dc81126e3e6a4554312d96b931e37d18a608547",
     ".planning/research/evergreen/KB_BROWSER_REPORT.json": "68f5e928118e050c0b908b632bb3256c7a2961adc87728e49f9ab090c80e62e3",
