@@ -1169,6 +1169,6 @@
     "currentSmallReadbackReview": "evidence/coze-core-launch-20261011/ORDINARY_SOURCE_AVAILABILITY_READBACK_REVIEW.json",
     "cozeR5SourceReview": "evidence/coze-core-launch-20261011/COZE_R5_SOURCE_REVIEW.json",
     "temporaryTimeScope": "evidence/coze-core-launch-20261011/TEMPORARY_TIME_SCOPE_INCREMENT.json",
-    "ordinaryNextPaidBatch": "PAUSED_TWO_HIGH_REPAIR_ROUNDS_NEW_ROUTE_REQUIRES_FOUNDER"
+    "ordinaryNextPaidBatch": "AUTHORIZED_BOUNDED_REPLY_ROUTE_PENDING_LOCAL_VALIDATION"
   }
 }

@@ -628,7 +628,7 @@
       "growthApi": true
     },
     "temporaryTimeScope": "evidence/coze-core-launch-20261011/TEMPORARY_TIME_SCOPE_INCREMENT.json",
-    "ordinaryNextPaidBatch": "PAUSED_TWO_HIGH_REPAIR_ROUNDS_NEW_ROUTE_REQUIRES_FOUNDER"
+    "ordinaryNextPaidBatch": "AUTHORIZED_BOUNDED_REPLY_ROUTE_PENDING_LOCAL_VALIDATION"
   },
   "preRestorationCheckpoint": {
     "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",

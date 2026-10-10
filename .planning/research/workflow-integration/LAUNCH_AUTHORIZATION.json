@@ -47,5 +47,33 @@
     "loginConfirmedByHuman": "登录好了",
     "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
     "noNewBudget": true
+  },
+  "boundedOrdinaryReplyRouteApproval": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[\"request_user_input_async\",\"call_928c54ab58c64e07b2bf1f5d4a85c2f1\",0]",
+    "exactAnswer": "批准新路线，仅用既有额度",
+    "scope": "Server limits current event evidence and legal methods/editor actions; existing model selects and expresses within bounds; local validation precedes small new first samples.",
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "publishBeforeCoreGates": false
+  },
+  "repairRoundPolicy": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REQUEST",
+    "exactRequest": "把两次修复的上限都去掉.从相关文件中去掉这个限制",
+    "recordedDate": "2026-10-11",
+    "maximumRepairRounds": null,
+    "continueUntil": "Acceptance passes or essential resources, rule conflict, business/legal/core product decision requires human input.",
+    "firstFailuresRetained": true,
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "publishBeforeCoreGates": false,
+    "globalRules": {
+      "path": "C:\\Users\\LQY\\.codex\\AGENTS.md",
+      "beforeSha256": "49db4e16e74aef2986f0bbb767a33cc09e155a5b59a9f28481a9bcc32c97854c",
+      "afterSha256": "b3b378c501e5e8ded004930740c0ae906cbdcabcb5b481c81955ff12911c8b04",
+      "localBackupPath": ".local\\launch-20261011\\policy-backup\\AGENTS.before-round-cap-removal.md"
+    },
+    "frozenHistoricalReproductionsChanged": false,
+    "alreadyDispatchedCozeAttachment": "Historical snapshot retained; no paid duplicate dispatch. Subsequent repair instructions use current policy."
   }
 }
