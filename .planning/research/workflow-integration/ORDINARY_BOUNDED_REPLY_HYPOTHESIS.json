@@ -1,0 +1,21 @@
+{
+  "kind": "PREDECLARED_NEW_FIRST_ATTEMPTS_NOT_REISSUED_REQUESTS",
+  "implementationCommit": "8eff950",
+  "ownerApproval": "LAUNCH_AUTHORIZATION.json#boundedOrdinaryReplyRouteApproval",
+  "scope": "Three synthetic adult ordinary interactions from ORD01-ORD03 in separate conversations, Memory ON, same existing model and formal corpus",
+  "hypothesis": "Native reply enum and server validation constrain source-free replies to legal editorial action/process choices, without invented effectiveness, follow-up dates, emotion or another event's time; factual updates still persist from exact current clauses.",
+  "expected": [
+    "ORD01 stores the two-hour report preparation fact verbatim, not as completed experience; reply belongs to the preparation catalogue",
+    "ORD02 uses the waiting-result catalogue, no tomorrow follow-up or more-likely-response claim, no old classroom-report budget",
+    "ORD03 uses the blocked catalogue and asks about the actual unfinished step, without assumed self-blame or normality",
+    "One normal generation per first attempt, zero automatic paid repair, all failures/cancellations retained",
+    "Report first effective p50 <= 3000ms, p95 <= 5000ms and complete p95 <= 15000ms with the full cohort denominator"
+  ],
+  "existingBatchCeilingCny": 0.5,
+  "budgetAmountAddedCny": 0,
+  "originalLedger": ".local/v1.3-action-coach/paid/provider-calls.json",
+  "interfaceProof": "Reuse exact matching actual interface signature from source-availability-capabilities; no new probe dispatch",
+  "independentReview": "PENDING_ACTUAL_EXECUTION_NOT_GENERATOR_SELF_RATING",
+  "largerCohorts": "NOT_TESTED_UNTIL_SMALL_GATE_PASSES",
+  "publication": "BLOCKED_UNTIL_REQUIRED_CORE_GATES"
+}
