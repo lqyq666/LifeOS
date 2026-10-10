@@ -1,4 +1,4 @@
-当前检查点：workflow-v2-integration-e545e51c8df0，WIP_NOT_READY。96本地脚本轮、当前浏览器与新目录免费相关范围通过；Recall/Top1失败，32稿待独审/批准，59缺口保留，真实/云均PAUSED_NOT_RUN。详见WORKFLOW_ACCEPTANCE.json。
+当前检查点：workflow-v2-integration-519f4aec7841，WIP_NOT_READY。96本地脚本轮、当前浏览器与新目录免费相关范围通过；Recall/Top1失败，32稿待独审/批准，59缺口保留，真实/云均PAUSED_NOT_RUN。详见WORKFLOW_ACCEPTANCE.json。
 
 以下为历史Gate记录：
 

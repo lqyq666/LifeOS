@@ -1,7 +1,7 @@
 {
-  "version": "workflow-v2-integration-e545e51c8df0",
-  "at": "2026-10-10T11:13:15.527346+00:00",
-  "head": "629c6b08183c299558a06b6528ae3da78f81faf0",
+  "version": "workflow-v2-integration-519f4aec7841",
+  "at": "2026-10-10T11:21:27.295583+00:00",
+  "head": "ec3326f35fc42a29ab2d220a1cf3eb8b4bd2b8a6",
   "status": "PASS_CHANGED_TECHNICAL_SCOPE_WITH_FAILED_QUALITY_GATE_WIP_NOT_READY",
   "reviewKind": "MAIN_CODEX_DIFF_REVIEW_NOT_INDEPENDENT_SOURCE_OR_MODEL_REVIEW",
   "codeBlocker": [],
@@ -81,7 +81,7 @@
     },
     "reproduction": {
       "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
-      "codeCommit": "629c6b08183c299558a06b6528ae3da78f81faf0",
+      "codeCommit": "ec3326f35fc42a29ab2d220a1cf3eb8b4bd2b8a6",
       "evidence": "evidence/long-batch-20261010/reproduction/REPRODUCTION.json",
       "ledgerPrivateDbKeysCopied": false
     },

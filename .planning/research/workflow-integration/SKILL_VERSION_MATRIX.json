@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
-  "at": "2026-10-10T11:13:15.527346+00:00",
-  "candidate": "workflow-v2-integration-e545e51c8df0",
-  "repositoryCommit": "629c6b08183c299558a06b6528ae3da78f81faf0",
+  "at": "2026-10-10T11:21:27.295583+00:00",
+  "candidate": "workflow-v2-integration-519f4aec7841",
+  "repositoryCommit": "ec3326f35fc42a29ab2d220a1cf3eb8b4bd2b8a6",
   "mainRepository": {
     "version": "1.2.2-candidate",
     "sha256": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
