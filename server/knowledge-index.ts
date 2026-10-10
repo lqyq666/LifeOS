@@ -68,7 +68,7 @@ export function rankKnowledgeCandidates(cards:KnowledgeCard[],segments:Segment[]
  const terms=kbTerms(query).filter(t=>!generic.has(t)),querySet=new Set(terms)
  // Rank the requested mechanism, not repeated generic instructions in every
  // feedback/step paragraph. Full boundaries still travel with the selected card.
- const searchable=(card:KnowledgeCard)=>[card.title,...card.guide?.aliases??[],card.guide?.retrievalSummary??card.claim,...(card.guide?.branches??[]).map(b=>b.task)].join(' ')
+ const searchable=(card:KnowledgeCard)=>[card.title,...card.guide?.aliases??[],card.guide?.retrievalSummary??card.claim,...(card.guide?.branches??[]).map(b=>b.task),...retrievalExpressions(card)].join(' ')
  const documents=cards.map(card=>new Set(kbTerms(searchable(card))))
  const weights=new Map(terms.map(term=>[term,Math.log(1+(cards.length+1)/(documents.filter(doc=>doc.has(term)).length+1))]))
  const byGuide=new Map<string,Segment[]>()
@@ -85,7 +85,10 @@ export function rankKnowledgeCandidates(cards:KnowledgeCard[],segments:Segment[]
  const lexical=scored.filter(s=>s.keyword>=5).sort((a,b)=>b.keyword-a.keyword||a.card.id.localeCompare(b.card.id)).slice(0,20)
  const semantic=scored.filter(s=>s.semantic>=0.43).sort((a,b)=>b.semantic-a.semantic||a.card.id.localeCompare(b.card.id)).slice(0,20)
  const fused=reciprocalRankFusion([lexical.map(s=>s.card.id),semantic.map(s=>s.card.id)])
- const ranked=fused.map(([id,rrf])=>({...scored.find(s=>s.card.id===id)!,rrf})).sort((a,b)=>b.rrf-a.rrf||b.keyword-a.keyword||a.card.id.localeCompare(b.card.id))
+ // RRF supplies candidates; preserve cosine confidence in final ordering.
+ // Rank-only fusion discards large semantic gaps and overweights a noisy
+ // lexical hit. The capped lexical contribution cannot swamp meaning.
+ const ranked=fused.map(([id,rrf])=>({...scored.find(s=>s.card.id===id)!,rrf})).sort((a,b)=>(b.semantic+Math.min(b.keyword,15)*0.012)-(a.semantic+Math.min(a.keyword,15)*0.012)||b.rrf-a.rrf||b.keyword-a.keyword||a.card.id.localeCompare(b.card.id))
  // Applicability unknowns are kept. A case-only ask may use a bounded method
  // for comparison, but no made-up case is returned.
  const candidates=ranked.slice(0,20),eligible=candidates.filter(s=>s.card.guide?(s.keyword>=5||s.semantic>=0.43):s.semantic>=0.5)

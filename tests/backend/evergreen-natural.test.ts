@@ -6,7 +6,7 @@ import {localEmbedding} from '../../server/local-embedding.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {retrieveIndexedKnowledge,clearKnowledgeIndexMemory} from '../../server/knowledge-index.ts'
 import {knowledgeIntent,kbHash} from '../../server/evergreen-guide.ts'
-test('prelabelled new natural queries use real local encoder and expose every domain, stage and unavailable target',async()=>{
+test('exposed natural regression uses local encoder and reports every domain, stage and unavailable target',async()=>{
  const root='.planning/research/evergreen/',read=(n:string)=>readFileSync(root+n,'utf8').trim().split('\n').map(x=>JSON.parse(x)),cards=read('KB_GUIDES.jsonl'),bytes=readFileSync(root+'KB_NATURAL_QUERIES.json','utf8'),freeze=JSON.parse(readFileSync(root+'KB_NATURAL_FREEZE.json','utf8'))
  assert.equal(kbHash(bytes),freeze.sha256);assert.ok(freeze.count>=200)
  const split=process.env.LIFEOS_QUERY_SPLIT??'development';assert.ok(['development','sealed'].includes(split))
@@ -22,7 +22,7 @@ test('prelabelled new natural queries use real local encoder and expose every do
   }
   const metrics=(rs:any[])=>({route:{numerator:rs.filter(x=>x.routeCorrect).length,denominator:rs.length},recall5:{numerator:rs.filter(x=>x.recall5).length,denominator:rs.filter(x=>x.legalTargetAvailable).length},top1:{numerator:rs.filter(x=>x.top1).length,denominator:rs.filter(x=>x.legalTargetAvailable).length},missingTarget:{numerator:rs.filter(x=>x.acceptableKeys.length&&!x.legalTargetAvailable).length,denominator:rs.filter(x=>x.acceptableKeys.length).length},noMatchingMethod:rs.filter(x=>x.expectedRoute==='METHOD'&&!x.acceptableKeys.length).length})
   const group=(field:string)=>Object.fromEntries([...new Set(rows.map(x=>x[field]))].map(k=>[k,metrics(rows.filter(x=>x[field]===k))]))
-  const result={evidence:'LOCAL_ENCODER_ISOLATED_PG_NO_PRODUCT_PROVIDER',paidCalls:0,benchmarkHash:freeze.sha256,split,role:'EXPOSED_REGRESSION_ONLY',sealedUsedForTuning:false,independentBlindTest:false,metrics:metrics(rows),byDomain:group('domain'),byStage:group('stage'),rows}
-  writeFileSync(out,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result.metrics));assert.equal(rows.length,JSON.parse(bytes).cases.filter((c:any)=>c.split===split).length)
+  const result={evidence:'LOCAL_ENCODER_ISOLATED_PG_NO_PRODUCT_PROVIDER',paidCalls:0,benchmarkHash:freeze.sha256,split,role:'EXPOSED_REGRESSION_ONLY',sealedUsedForTuning:true,independentBlindTest:false,metrics:metrics(rows),byDomain:group('domain'),byStage:group('stage'),rows}
+  writeFileSync(out,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result.metrics));assert.equal(rows.length,JSON.parse(bytes).cases.filter((c:any)=>c.split===split).length);assert.ok(result.metrics.route.numerator/result.metrics.route.denominator>=0.95,'route regression gate');assert.ok(result.metrics.recall5.numerator/result.metrics.recall5.denominator>=0.90,'recall5 regression gate');assert.ok(result.metrics.top1.numerator/result.metrics.top1.denominator>=0.90,'top1 regression gate')
  }finally{await localEmbedding.close();await pool.end();clearKnowledgeIndexMemory()}
 })
