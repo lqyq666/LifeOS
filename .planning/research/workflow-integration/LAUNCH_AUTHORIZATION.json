@@ -27,6 +27,21 @@
   ],
   "budgetAmountAddedCny": 0,
   "doesNotConstituteGuideApproval": true,
+  "directHttpRouteApproval": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[\"request_user_input_async\",\"call_JkoBkQVo7Q8CourQYHXZrBWV\",0]",
+    "exactAnswer": "批准新的实现路线，仍只用已有额度",
+    "scope": [
+      "existing two projects use official Bailian asynchronous HTTP",
+      "securely configure the existing Bailian key in growth project development environment",
+      "model consumption uses original unique CNY ledger",
+      "Coze development consumption uses original credits ledger"
+    ],
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "publishBeforeCoreGates": false,
+    "retainedPreviousRepairRounds": 2
+  },
   "browserAuthorization": {
     "exactAnswer": "你自己打开扣子有内置浏览器，然后获取相关权限，我批准你获取所有的需要开发的权限，你自己打开扣子内置浏览器获取吧。",
     "loginConfirmedByHuman": "登录好了",
