@@ -85,10 +85,11 @@ export function rankKnowledgeCandidates(cards:KnowledgeCard[],segments:Segment[]
  const lexical=scored.filter(s=>s.keyword>=5).sort((a,b)=>b.keyword-a.keyword||a.card.id.localeCompare(b.card.id)).slice(0,20)
  const semantic=scored.filter(s=>s.semantic>=0.43).sort((a,b)=>b.semantic-a.semantic||a.card.id.localeCompare(b.card.id)).slice(0,20)
  const fused=reciprocalRankFusion([lexical.map(s=>s.card.id),semantic.map(s=>s.card.id)])
- // RRF supplies candidates; preserve cosine confidence in final ordering.
- // Rank-only fusion discards large semantic gaps and overweights a noisy
- // lexical hit. The capped lexical contribution cannot swamp meaning.
- const ranked=fused.map(([id,rrf])=>({...scored.find(s=>s.card.id===id)!,rrf})).sort((a,b)=>(b.semantic+Math.min(b.keyword,15)*0.012)-(a.semantic+Math.min(a.keyword,15)*0.012)||b.rrf-a.rrf||b.keyword-a.keyword||a.card.id.localeCompare(b.card.id))
+ // RRF provides candidates. Only lexical evidence strong enough to enter
+ // the lexical candidate list may affect ordering; an incidental single
+ // word must not overturn the semantic match of the actual problem.
+ const lexicalSupport=(keyword:number)=>keyword>=5?Math.min(keyword,15)*0.012:0
+ const ranked=fused.map(([id,rrf])=>({...scored.find(s=>s.card.id===id)!,rrf})).sort((a,b)=>(b.semantic+lexicalSupport(b.keyword))-(a.semantic+lexicalSupport(a.keyword))||b.rrf-a.rrf||b.keyword-a.keyword||a.card.id.localeCompare(b.card.id))
  // Applicability unknowns are kept. A case-only ask may use a bounded method
  // for comparison, but no made-up case is returned.
  const candidates=ranked.slice(0,20),eligible=candidates.filter(s=>s.card.guide?(s.keyword>=5||s.semantic>=0.43):s.semantic>=0.5)

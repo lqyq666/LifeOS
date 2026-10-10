@@ -13,6 +13,9 @@ test('frozen intent benchmark keeps listening, feedback, privacy and mixed reque
  assert.match(knowledgeIntent('那客户又改需求了',{eventTitle:'第一笔设计交付',hasPriorGuide:true}).query,/第一笔设计交付/)
  assert.equal(knowledgeIntent('现在想验证创业需求，怎么开始？',{eventTitle:'准备考试'}).query.includes('准备考试'),false)
  assert.equal(knowledgeIntent('有什么依据支持先核验手机能否打开文件？').decision,'METHOD')
+ for(const text of ['只会跟着答案抄，有什么循序练法？','想把一章概念连起来，有什么学法？','做过一次仍没把握，找个练法'])assert.equal(knowledgeIntent(text).decision,'METHOD')
+ assert.equal(knowledgeIntent('只是想说说，不要给我练法').decision,'NONE')
+ assert.equal(knowledgeIntent('有什么新鲜事？').decision,'NONE')
 })
 test('content edits invalidate review and all 112 branches retain conditions and executable steps',()=>{
  assert.equal(cards.length,32)

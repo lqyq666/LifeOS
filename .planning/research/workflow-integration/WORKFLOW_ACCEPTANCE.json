@@ -338,8 +338,8 @@
     "ordinaryPilotVersions": 2,
     "ordinaryTwentyAccepted": 0,
     "cozeBusinessCalls": 0,
-    "cozeDevelopmentRequests": 4,
-    "development": "GROWTH_R4_HTTP_TERMINAL_REJECTED_HOST_WIRE_SOURCE_FIRST_FAILURE",
+    "cozeDevelopmentRequests": 5,
+    "development": "GROWTH_R5_HTTP_REPAIR1_IN_PROGRESS_R4_FIRST_FAILURE_RETAINED",
     "cloudContracts": "LEGACY_READBACK_ONLY_NEW_HTTP_NOT_ACCEPTED",
     "runtimeSpendEntry": "HOST_SIGNED_ORIGINAL_CNY_RESERVATION_LOCAL_TESTED_CLOUD_BRIDGE_NOT_TESTED",
     "modelLedgerMetadataOnly": {
@@ -358,8 +358,10 @@
       "observedInitial": 151559,
       "chargedRounded": 25136,
       "unknownHeld": 0,
-      "availableUnreserved": 126423,
-      "actualR4Bill": "evidence/coze-core-launch-20261011/COZE_R4_DEVELOPMENT_USAGE.json"
+      "availableUnreserved": 0,
+      "actualR4Bill": "evidence/coze-core-launch-20261011/COZE_R4_DEVELOPMENT_USAGE.json",
+      "reservedR5": 126423,
+      "r5ActualCost": null
     },
     "image": "6c5e5d8_FRESH_IMAGE_44_SCOPED_CHECKS_PASS_NOT_REAL_ACCEPTANCE",
     "ordinaryPilot": {
@@ -374,7 +376,117 @@
     "previousChecksScope": "Historical regression and isolated interface evidence are not real current cloud/student acceptance.",
     "cloudHttpCommit": "8cd83cd5bd8c464c3e96a20ffcaedb880654a614",
     "freshReproduction": "evidence/coze-core-launch-20261011/FRESH_6c5_REPRO.json",
-    "sourceReview": "evidence/coze-core-launch-20261011/COZE_R4_SOURCE_REVIEW.json"
+    "sourceReview": "evidence/coze-core-launch-20261011/COZE_R4_SOURCE_REVIEW.json",
+    "retrievalIncrement": {
+      "status": "LOCAL_EXPOSED_RETRIEVAL_REGRESSION_GATES_PASS",
+      "baseCommit": "a681dd84baf977930e9e77545b1746690ce9961b",
+      "scope": "Offline BGE encoder, isolated PostgreSQL, canonical historical approved cards. No real product model calls; no new blind-test claim.",
+      "files": {
+        "SEMANTIC_ONLY_FIRST_FAIL_160.json": "2027cd8ec4ab2baba83566d319dabf50119601aa99008e728bbba0a9039b45e2",
+        "SEMANTIC_ONLY_FIRST_FAIL_DEVELOPMENT.json": "c505b03a04e2608117fd5a9aa31a647a192a18d796a8531e5b74773d9761452c",
+        "REGRESSION160.json": "9df5ec4fa338beff01fb794f3902c94046f73caaa24ded6db12e07ba06515ace",
+        "REGRESSION_DEVELOPMENT116.json": "b144656ece0eadaf255fff65e82a65a816b380a804ae0f2a5322ab464689da5e",
+        "REGRESSION_EXPOSED_SEALED116.json": "94724792748e1309f0749f3a87baa81d1a619aca1aa74bf33af7a90ed1484c36",
+        "REGRESSION_LEGACY235.json": "5f08121c3c5ab238d4f81e60a84a23a1568d2ef820c5f40538392922ed364215",
+        "READONLY_TEST_ARTIFACT_FIRST_FAIL.log": "6cff94b4fc8e0a13b3c1399b3a4d689e1c987d7c124a341069a975f132d60c46",
+        "ISOLATED_SAFETY_LEGACY_SEALED_PASS.log": "42a7a560db907cebf5a992e99d79532219bcfca36b07bdd6cc82a49aa076caa1",
+        "ROOT_METHOD_REQUEST_PASS.log": "660738f8be09caa81bd32db442a8f3391c71b2a298a52183b89f55d3be06bd10",
+        "SERVER_TYPES_PASS.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612"
+      },
+      "patchedSourceHashes": {
+        "server/evergreen-guide.ts": "3bf1e40d22dcdfd3bd5b862a3790592c7a311705d7afc4adfef7ef000814505c",
+        "server/knowledge-index.ts": "c73897deb5f8f5cd35279241692e20cb1eeb6cea83c13e320545c2207112995d",
+        "scripts/evergreen-evaluation.ts": "cffca96cec18b23727fed59142af3dc5d8ba42b521de9b196beac5a505355b2e",
+        "tests/backend/evergreen-knowledge.test.ts": "b7c12538c497a0fe8036d09582447dbe3887cefc572aaea11b948b6aeb0ec87e",
+        "tests/backend/evergreen-legacy-regression.test.ts": "8e276d191f22cb15d70ac76fb3c2c5fcd988f2bb12737eb30e9c96ca9913f9c0",
+        "tests/evergreen-guide.test.ts": "84f39f242f8815e51574826eec9cb548331703ab2c47a73564d64b4bf04d11af"
+      },
+      "metrics": {
+        "exposed160": {
+          "route": {
+            "numerator": 160,
+            "denominator": 160
+          },
+          "recall5": {
+            "numerator": 64,
+            "denominator": 64
+          },
+          "top1": {
+            "numerator": 62,
+            "denominator": 64
+          },
+          "missingTarget": {
+            "numerator": 64,
+            "denominator": 128
+          },
+          "noMatchingMethod": 7,
+          "controls": 0
+        },
+        "development116": {
+          "route": {
+            "numerator": 116,
+            "denominator": 116
+          },
+          "recall5": {
+            "numerator": 48,
+            "denominator": 48
+          },
+          "top1": {
+            "numerator": 44,
+            "denominator": 48
+          },
+          "missingTarget": {
+            "numerator": 49,
+            "denominator": 97
+          },
+          "noMatchingMethod": 1
+        },
+        "exposedSealed116": {
+          "route": {
+            "numerator": 116,
+            "denominator": 116
+          },
+          "recall5": {
+            "numerator": 48,
+            "denominator": 48
+          },
+          "top1": {
+            "numerator": 47,
+            "denominator": 48
+          },
+          "missingTarget": {
+            "numerator": 48,
+            "denominator": 96
+          },
+          "noMatchingMethod": 1
+        },
+        "legacy235": {
+          "routing": {
+            "numerator": 235,
+            "denominator": 235
+          },
+          "recall5": {
+            "numerator": 56,
+            "denominator": 56
+          },
+          "top1": {
+            "numerator": 55,
+            "denominator": 56
+          },
+          "unavailablePositiveTargets": 59
+        }
+      },
+      "untunedReserve": {
+        "path": ".planning/research/evergreen/KB_RETRIEVAL_RESERVE.json",
+        "count": 32,
+        "executions": 0,
+        "tuningUse": 0,
+        "independentBlind": false
+      },
+      "firstFailuresRetained": true,
+      "wholeKnowledgeBaseComplete": false,
+      "paidCallsAdded": 0
+    }
   },
   "preRestorationCheckpoint": {
     "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",

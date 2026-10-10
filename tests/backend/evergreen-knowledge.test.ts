@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs'
 import {randomUUID} from 'node:crypto'
+import {join} from 'node:path'
 import {pool} from '../../server/db.ts'
 import {importEvergreenCorpus,resolveKnowledgeAlias} from '../../server/evergreen-maintenance.ts'
 import {buildKnowledgeIndex,retrieveIndexedKnowledge,clearKnowledgeIndexMemory,knowledgeIndexSignature} from '../../server/knowledge-index.ts'
@@ -16,6 +17,8 @@ const root='.planning/research/evergreen/'
 const read=(name:string)=>readFileSync(root+name,'utf8').trim().split('\n').map(s=>JSON.parse(s))
 test('evergreen import, persistent real encoder index, withdrawal and owned action feedback',async t=>{
  const cards=read('KB_GUIDES.jsonl') as KnowledgeCard[],sources=read('KB_SOURCE_REGISTRY.jsonl'),evidence=read('KB_EVIDENCE.jsonl')
+ const reportDir=process.env.LIFEOS_WORKFLOW_EVIDENCE??'.local/evergreen'
+ mkdirSync(reportDir,{recursive:true})
  const user='evergreen-'+randomUUID(),chat=randomUUID(),signal=new AbortController().signal,report:any={evidence:'REAL_ISOLATED_POSTGRESQL_AND_LOCAL_ENCODER',realProviderCalls:0}
  try{
   await t.test('corpus import is atomic and idempotent; unreviewed cards stay unusable',async()=>{
@@ -42,7 +45,7 @@ test('evergreen import, persistent real encoder index, withdrawal and owned acti
    assert.equal(queried.trace.queryEncoded,true)
    report.sampleTrace=queried.trace
    const {evaluateEvergreen}=await import('../../scripts/evergreen-evaluation.ts')
-   const evaluation=await evaluateEvergreen(cards)
+   const evaluation=await evaluateEvergreen(cards,{jsonPath:join(reportDir,'KNOWLEDGE_LEGACY235_REGRESSION.json'),markdownPath:join(reportDir,'KNOWLEDGE_LEGACY235_REGRESSION.md')})
    report.frozenEvaluation={routing:evaluation.routing,recall5:evaluation.recall5,top1:evaluation.top1,corpus:evaluation.corpus}
    const indexBefore=(await pool.query('SELECT indexed_epoch FROM kb_index_state')).rows[0].indexed_epoch
    const aborted=new AbortController();aborted.abort()
@@ -108,9 +111,9 @@ test('evergreen import, persistent real encoder index, withdrawal and owned acti
    assert.ok(!(await retrieveIndexedKnowledge('如何访谈创业用户？',signal)).cards.some(c=>c.id===card.id))
    report.withdrawal={usageHidden:true,retrievalHidden:true}
   })
-  report.status='PASS'
+  report.status='OBSERVATIONS_ONLY_TEST_RUNNER_IS_VERDICT'
  }finally{
-  mkdirSync('.local/evergreen',{recursive:true});writeFileSync('.local/evergreen/backend-report.json',JSON.stringify(report,null,2)+'\n')
+  try{writeFileSync(join(reportDir,'backend-report.json'),JSON.stringify(report,null,2)+'\n',{flag:'wx'})}finally{
   await localEmbedding.close()
   await pool.query('DELETE FROM "user" WHERE id=$1',[user])
   const ids=cards.map(c=>c.id)
@@ -120,5 +123,6 @@ test('evergreen import, persistent real encoder index, withdrawal and owned acti
   await pool.query('DELETE FROM kb_evidence WHERE evidence_id=ANY($1::text[])',[evidence.map(e=>e.evidence_id)])
   await pool.query('DELETE FROM kb_sources WHERE source_id=ANY($1::text[])',[sources.map(s=>s.source_id)])
   clearKnowledgeIndexMemory();await pool.end()
+  }
  }
 })
