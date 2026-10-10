@@ -133,3 +133,11 @@ A/B/C保持相同120分钟：A把作品/多次客户反馈连接到岗位证据�
 证据：PERSONAL_BASIS_ABC.json、basis-green-attempt2.log（新增1项与原personalization/zero/runtime共4项通过）、basis-types.log。原已提交适配器回放actionBasis契约红测在basis-old-contract-red.log；测试夹具的scope/quote初始失败仍保留。SDK选择是固定脚本，不证明真实模型产生上述收益，20组真实对照不得标绿。
 
 基线整体WIP_NOT_READY。真实模型、扣子两项目、云Skill、20组盲配对、20真实普通样本性能与学生签收均PAUSED_NOT_RUN。授权缺口一次汇总：须明确恢复已有真实模型/扣子暂停，继续开发或提交不构成恢复。当前增量保持暂停，见本文件开头，不重复原基线模拟链。
+
+## 扣子核心上线批次：授权恢复与生产镜像探测
+
+本人回复“批准上述完整范围，仅用各自既有额度”，随后授权通过扣子内置浏览器获取开发所需配置并完成登录。真实模型与扣子暂停已经解除；当前缺配置或实际额度依据时只阻止对应调用，不能继续把已解除的暂停写成权限未获准。原PAUSED_NOT_RUN证据保留为恢复前历史。资料审批不由此自动批准。
+
+生产镜像补入当前运行需要的主Skill、五专业Skill、规范攻略文件与冻结/预算依赖，并增加无.git镜像的提交版本读回。实际Docker构建、非root只读启动、隔离PostgreSQL迁移及重启持久性、离线BGE 512维编码、三项HTTP容器内读回通过。内部无外联网络使主机端口未开放，首次连接失败已保留；未改网络安全来获得通过。探测使用合成启动凭据，真实模型及云业务调用为0，不证明普通聊天质量或Coze协作。
+
+探测镜像基于尚未提交的局部修改，明确BUILD_PROBE_DIRTY_NOT_RELEASE；正式镜像必须从clean提交重建。deploy/build-image.ps1拒绝dirty源码，使用精确HEAD构建。证据在evidence/coze-core-launch-20261011/。旧RUN_BINDING仍描述恢复前检索候选，不作为新镜像或云端验收依据。

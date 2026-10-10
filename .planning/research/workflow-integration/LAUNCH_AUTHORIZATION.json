@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "kind": "OWNER_APPROVED_LIFEOS_COZE_CORE_LAUNCH",
+  "approvalSource": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+  "questionItemId": "[\"request_user_input_async\",\"call_6561d2ef49114229a6d754ba91851c24\",0]",
+  "exactAnswer": "批准上述完整范围，仅用各自既有额度",
+  "recordedAt": "2026-10-10T21:04:14.842445+08:00",
+  "productModelPauseLifted": true,
+  "cozePauseLifted": true,
+  "projectIds": [
+    "7693388932939300905",
+    "7693465311558795327"
+  ],
+  "scope": [
+    "existing-budget real acceptance",
+    "existing Coze project development and candidate runtime",
+    "after core gates, verified backup and rollback of existing LifeOS app/database and these project releases"
+  ],
+  "limits": [
+    "no added budget",
+    "separate authorized cost pools",
+    "no automatic paid retry",
+    "synthetic adults only for acceptance",
+    "no DNS change",
+    "no unrelated services",
+    "no push or merge main"
+  ],
+  "budgetAmountAddedCny": 0,
+  "doesNotConstituteGuideApproval": true,
+  "browserAuthorization": {
+    "exactAnswer": "你自己打开扣子有内置浏览器，然后获取相关权限，我批准你获取所有的需要开发的权限，你自己打开扣子内置浏览器获取吧。",
+    "loginConfirmedByHuman": "登录好了",
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "noNewBudget": true
+  }
+}

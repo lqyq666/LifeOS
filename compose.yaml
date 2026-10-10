@@ -22,7 +22,10 @@ services:
       options: {max-size: 10m, max-file: '3'}
   app:
     image: lifeos:v1.3-fast-launch-candidate
-    build: .
+    build:
+      context: .
+      args:
+        LIFEOS_BUILD_COMMIT: ${LIFEOS_BUILD_COMMIT:?Set the exact source commit before building}
     restart: unless-stopped
     init: true
     stop_grace_period: 20s
@@ -61,6 +64,16 @@ services:
       LIFEOS_MESSAGES_PER_DAY: ${LIFEOS_MESSAGES_PER_DAY:-50}
       LIFEOS_GENERATION_CONCURRENCY: ${LIFEOS_GENERATION_CONCURRENCY:-2}
       LIFEOS_GENERATION_QUEUE_LIMIT: ${LIFEOS_GENERATION_QUEUE_LIMIT:-8}
+      LIFEOS_WORKFLOW_V2: ${LIFEOS_WORKFLOW_V2:-false}
+      LIFEOS_REAL_WORKFLOWS: ${LIFEOS_REAL_WORKFLOWS:-false}
+      LIFEOS_WORKFLOW_FREEZE: ${LIFEOS_WORKFLOW_FREEZE:-}
+      LIFEOS_COZE_KNOWLEDGE: ${LIFEOS_COZE_KNOWLEDGE:-false}
+      LIFEOS_COZE_TRANSPORT: ${LIFEOS_COZE_TRANSPORT:-code_workflow}
+      LIFEOS_COZE_CODE_ENDPOINT: ${LIFEOS_COZE_CODE_ENDPOINT:-}
+      LIFEOS_COZE_CODE_PROJECT_ID: ${LIFEOS_COZE_CODE_PROJECT_ID:-}
+      LIFEOS_COZE_CODE_RELEASE: ${LIFEOS_COZE_CODE_RELEASE:-}
+      LIFEOS_COZE_CODE_TOKEN: ${LIFEOS_COZE_CODE_TOKEN:-}
+      LIFEOS_COZE_TIMEOUT_MS: ${LIFEOS_COZE_TIMEOUT_MS:-2000}
     command: [sh, -c, 'node --import tsx scripts/migrate-db.ts && exec node --import tsx server/index.ts']
     ports: ['127.0.0.1:${LIFEOS_HTTP_PORT:-8787}:8787']
     read_only: true

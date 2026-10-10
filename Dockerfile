@@ -6,6 +6,7 @@ RUN npm ci --include=dev --ignore-scripts
 COPY index.html companion-preview.html vite.config.ts tsconfig*.json ./
 COPY src ./src
 COPY server ./server
+COPY skills ./skills
 COPY public ./public
 RUN npm run build
 
@@ -28,11 +29,15 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json package-lock.json ./
 COPY server ./server
-COPY src/features/cognition/data/lifeos-graph.seed.json ./src/features/cognition/data/lifeos-graph.seed.json
-COPY scripts/migrate-db.ts scripts/probe-model.ts scripts/create-user.ts scripts/manage-access.ts scripts/manage-provider-budget.ts ./scripts/
+COPY src ./src
+COPY skills ./skills
+COPY .planning/research/evergreen/KB_GUIDES.jsonl .planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl .planning/research/evergreen/KB_EVIDENCE.jsonl .planning/research/evergreen/KB_CONTENT_REVISIONS.json .planning/research/evergreen/KB_COVERAGE.json .planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json ./.planning/research/evergreen/
+COPY scripts/migrate-db.ts scripts/probe-model.ts scripts/create-user.ts scripts/manage-access.ts scripts/manage-provider-budget.ts scripts/coach-provider-budget.ts scripts/coach-source-freeze.ts ./scripts/
 COPY evidence/v1.3-action-coach/provider/qwen-default/coach-capabilities-default.json evidence/v1.3-action-coach/provider/qwen-default/coach-capabilities-default.json.interface-proof.json ./evidence/v1.3-action-coach/provider/qwen-default/
 COPY .local/models/bge-small-zh-v1.5 ./.local/models/bge-small-zh-v1.5
 COPY deploy/requirements-embedding.lock ./deploy/requirements-embedding.lock
+ARG LIFEOS_BUILD_COMMIT
+RUN node -e "const fs=require('node:fs');const commit=process.env.LIFEOS_BUILD_COMMIT;if(!/^[a-f0-9]{40}$/.test(commit||''))throw Error('BUILD_COMMIT_REQUIRED');fs.writeFileSync('deploy/build-version.json',JSON.stringify({commit}));"
 USER node
 EXPOSE 8787
 CMD ["node","--import","tsx","server/index.ts"]
