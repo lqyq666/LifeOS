@@ -6,3 +6,9 @@
 - 原 LifeOS：复用 `scanUserClauses`、`readCoachEvent`、`readGuideUsage`、`growthQuoteSuppressed`、原模型 SDK、`finishRun`、`coach_events`、`kb_guide_usage`、隔离测试运行器和 evergreen corpus/importer。工作流不新建事实数据库。
 
 外部核查是只读；没有执行外部仓库脚本。源码来源与本地依赖版本分开报告，上游默认分支不能代替本地版本验收。
+
+### 2026-10-10：扣子核心上线兼容核查
+
+通过agent-reach的gh CLI读取官方MIT仓库coze-dev/coze-js（main，最近push时间2026-05-18），package @coze/api版本1.3.9，以及src/resources/workflows/runs/runs.ts和test/resources/workflows.spec.ts。其SDK及对应测试面向workflow_id的/v1/workflow/run、stream_run；当前两个扣子编程项目实际认证OpenAPI和graph_parameter是部署域名/run等接口，不能把code项目ID误当资源workflow_id。继续复用已有fetch、端点白名单、取消与业务解析器，不引入RTC/语音等无关SDK依赖，不复制外部代码。节省另建HTTP客户端及大SDK依赖；角色与回执使用实际部署读回，不能据项目名称或测试夹具宣称运行契约已通过。
+
+来源：https://github.com/coze-dev/coze-js/blob/main/packages/coze-js/src/resources/workflows/runs/runs.ts 和 https://github.com/coze-dev/coze-js/blob/main/packages/coze-js/test/resources/workflows.spec.ts 。原始读取只用于兼容性判断，未执行外部仓库脚本。

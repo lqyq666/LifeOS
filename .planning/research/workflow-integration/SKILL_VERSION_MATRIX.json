@@ -270,5 +270,36 @@
     "runtimeFreeze": "evidence/retrieval-followup-20261010/CURRENT_SOURCE_FREEZE.json",
     "state": "TEMPORARY_ISOLATED_TEST_PROCESSES_CLOSED",
     "realModelQuality": "PAUSED_NOT_RUN"
+  },
+  "launch": {
+    "scopeRestored": true,
+    "repositoryCommit": "599490d",
+    "repositoryMainVersion": "1.2.2-candidate",
+    "userInstallation": {
+      "sha256": "6c3bfbb6517273188f84db9c0f9cb0a2f081f45afa80d2c014094556b11571cf",
+      "overwritten": false,
+      "userInstalledVersion": "1.2.0"
+    },
+    "process": {
+      "imageCommit": "cda3571da7fb0d4d7f78b3bb46af5dc1d378200f",
+      "status": "ISOLATED_IMAGE_READBACK_ONLY_NOT_USER_SERVICE",
+      "evidence": "evidence/coze-core-launch-20261011/IMAGE_INTERNAL_READBACK.json"
+    },
+    "cozeGrowth": {
+      "projectId": "7693388932939300905",
+      "deployedCommit": "4aa53641b7177604cfa96631b9584de991531324",
+      "candidate": "R1_PROCESSING_NOT_ACCEPTED"
+    },
+    "cozePublic": {
+      "projectId": "7693465311558795327",
+      "deployedCommit": "04849caa93a33f4584ce5637acba864e97757a46",
+      "candidate": "NOT_TESTED"
+    },
+    "cozeMainSkill": {
+      "projectId": "7693892523869290496",
+      "metadata": "OWNED_EXISTING_PROJECT_READBACK",
+      "deployedSkillVersion": "NOT_TESTED"
+    },
+    "fiveRealCloudExecutions": "NOT_TESTED"
   }
 }

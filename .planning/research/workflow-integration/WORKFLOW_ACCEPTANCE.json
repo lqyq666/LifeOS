@@ -321,5 +321,22 @@
   "historicalAcceptance": "evidence/retrieval-followup-20261010/baseline-519f/WORKFLOW_ACCEPTANCE.json",
   "noPushMergeDeploy": true,
   "sourceScopedCandidatesReadyPendingReview": 15,
-  "remainingTaskSpecificSourceOrScopeGaps": 44
+  "remainingTaskSpecificSourceOrScopeGaps": 44,
+  "launch": {
+    "runtimeSpendEntry": "BLOCKED_OLD_EXECUTOR_MODEL_CNY_POOL_CANNOT_FUND_COZE_CREDITS",
+    "newBudget": 0,
+    "development": "GROWTH_R1_PROCESSING_FIRST_CLI_CRASH_NOT_REISSUED",
+    "authorization": "LAUNCH_AUTHORIZATION.json",
+    "evidence": "evidence/coze-core-launch-20261011/",
+    "productionWrites": 0,
+    "cozeBusinessCalls": 0,
+    "scopeRestored": true,
+    "status": "NOT_RELEASED_BLOCKED",
+    "modelCalls": 0,
+    "cozeDevelopmentRequests": 1,
+    "cloudContracts": "AUTHENTICATED_LEGACY_READBACK_ONLY",
+    "previousChecksScope": "preserved pre-restoration regression evidence; not current cloud product acceptance",
+    "latestIncrementCommit": "599490d5a027d0e36979e7ee3342650f394de2e2",
+    "image": "BUILT_CLEAN_COMMIT_cda3571_ISOLATED_STARTUP_PROBE_PASS"
+  }
 }
