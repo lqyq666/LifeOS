@@ -2,11 +2,19 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs'
 import {createHash} from 'node:crypto'
-import {realBatchPreflight,executeRealBatch,realMetrics,startRealAcceptanceHttp} from '../../scripts/workflow-real-batch.ts'
+import {realBatchPreflight,executeRealBatch,realMetrics,startRealAcceptanceHttp,selectRealPilotCases} from '../../scripts/workflow-real-batch.ts'
 import {createServer} from 'node:http'
 import {feedbackMatchesCurrent,classifyGuideFeedback} from '../../server/guide-usage.ts'
 import {pool} from '../../server/db.ts'
 test.after(()=>pool.end())
+test('complex pilot selects one two-direction and one three-direction case without reissuing ordinary calls',()=>{
+ const pairs=[{caseId:'two',directions:['employment','freelance']},{caseId:'three',directions:['employment','freelance','postgraduate_exam']}],ordinary=[{caseId:'ordinary1'},{caseId:'ordinary2'},{caseId:'ordinary3'}]
+ const pilot=selectRealPilotCases({smallComplexOnly:true},pairs,ordinary)
+ assert.deepEqual(pilot.complex.map(c=>c.caseId),['two','three']);assert.deepEqual(pilot.ordinary,[])
+ assert.deepEqual(selectRealPilotCases({smallOrdinaryOnly:true},pairs,ordinary).complex,[])
+ assert.throws(()=>selectRealPilotCases({smallOrdinaryOnly:true,smallComplexOnly:true},pairs,ordinary),/SCOPE_CONFLICT_ZERO_DISPATCH/)
+ assert.throws(()=>selectRealPilotCases({smallComplexOnly:true},pairs.slice(0,1),ordinary),/CASES_MISSING/)
+})
 test('real acceptance serves only after retrieval startup; failed startup dispatches nothing',async()=>{
  let ready!:()=>void,closed=0
  const app=createServer(),embedding={start:()=>new Promise<void>(resolve=>{ready=resolve}),close:async()=>{closed++}}

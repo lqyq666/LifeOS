@@ -7,6 +7,12 @@ import {modelCapabilityVerified,resolveModel,modelSignatureFor} from '../server/
 import {maximumProviderCallCostCny,estimateProviderCallCostCny} from '../server/cost-workload.ts'
 import {CoachProviderBudget,activeCoachFunding} from './coach-provider-budget.ts'
 export const realBatchStages=['small','four_chains','complex20_pairs','ordinary20','coze_two_projects'] as const
+export function selectRealPilotCases(auth:{smallOrdinaryOnly?:boolean;smallComplexOnly?:boolean},pairs:any[],ordinary:any[]){
+ if(auth.smallOrdinaryOnly&&auth.smallComplexOnly)throw new Error('PILOT_SCOPE_CONFLICT_ZERO_DISPATCH')
+ const complex=auth.smallOrdinaryOnly?[]:[pairs.find(x=>x.directions.length===2),pairs.find(x=>x.directions.length===3)]
+ if(complex.some(x=>!x))throw new Error('PILOT_TWO_THREE_DIRECTION_CASES_MISSING')
+ return {complex,ordinary:auth.smallComplexOnly?[]:ordinary.slice(0,3)}
+}
 export function realMetrics(rows:any[]){
  const percentile=(values:number[],p:number)=>values.length?[...values].sort((a,b)=>a-b)[Math.ceil(p*values.length)-1]:null
  const ordinary=rows.filter(r=>r.stage==='ordinary20'&&!r.deepInput),first=ordinary.map(r=>r.firstUsefulMs).filter((n):n is number=>typeof n==='number'&&n>0),whole=ordinary.map(r=>r.replyCompleteMs).filter((n):n is number=>typeof n==='number'&&n>0)
@@ -44,6 +50,7 @@ export function realBatchPreflight(authorizationPath?:string){
  const runtime=resolveModel('default');if(!runtime.available)blocks.push('MODEL_CONFIGURATION_UNAVAILABLE');if(!runtime.pricing)blocks.push('MODEL_PRICE_UNKNOWN')
  if(!modelCapabilityVerified('default'))blocks.push('CURRENT_MODEL_CAPABILITY_NOT_VERIFIED')
  if(auth&&auth.modelSignature!==modelSignatureFor('default'))blocks.push('MODEL_SIGNATURE_MISMATCH')
+ if(auth?.smallOrdinaryOnly&&auth?.smallComplexOnly)blocks.push('PILOT_SCOPE_CONFLICT_ZERO_DISPATCH')
  const ordinary=JSON.parse(readFileSync(root+'ORDINARY_PERFORMANCE_PROTOCOL.json','utf8')),pairs=JSON.parse(readFileSync(root+'COMPLEX_DECISION_AB_EVAL.json','utf8'))
  if(ordinary.cases.length<20||pairs.cases.length<20)blocks.push('COHORT_INCOMPLETE')
  const status=blocks.length?(scopeRestored?'BLOCKED_CONFIG_NOT_RUN':'PAUSED_NOT_RUN'):'READY_FOR_AUTHORIZED_STAGES'
@@ -128,9 +135,11 @@ export async function executeRealBatch(authPath:string,directory:string){
  try{
   const signup=await request('/api/auth/sign-up/email',{email:'real-synthetic-'+randomUUID()+'@example.invalid',password:'Synthetic-'+randomUUID(),name:'Synthetic adult'});if(!signup.ok)throw new Error('SYNTHETIC_ACCOUNT_NOT_AVAILABLE');actor=(await signup.json()).user.id;cookie=signup.headers.getSetCookie().map(x=>x.split(';')[0]).join('; ');await json('/api/memory/settings',{requestId:randomUUID(),enabled:true,expectedRevision:0})
   const pairs=JSON.parse(readFileSync(root+'COMPLEX_DECISION_AB_EVAL.json','utf8')).cases,ordinary=JSON.parse(readFileSync(root+'ORDINARY_PERFORMANCE_PROTOCOL.json','utf8')).cases
-  if(!auth.smallOrdinaryOnly)for(const c of [pairs.find((x:any)=>x.directions.length===2),pairs.find((x:any)=>x.directions.length===3)])await turn('small',c.caseId,await chat(),c.input,c.directions)
-  for(const c of ordinary.slice(0,3))await turn('small',c.caseId,await chat(),c.input)
+  const pilot=selectRealPilotCases(auth,pairs,ordinary)
+  for(const c of pilot.complex)await turn('small',c.caseId,await chat(),c.input,c.directions)
+  for(const c of pilot.ordinary)await turn('small',c.caseId,await chat(),c.input)
   if(auth.smallOrdinaryOnly)return {status:'REAL_ORDINARY_SMALL_WAITING_INDEPENDENT_REVIEW',results:results.length,cozeComplex:'NOT_TESTED_SEPARATE_CURRENT_CLOUD_ENTRY_REQUIRED',fullPerformanceAcceptance:'NOT_TESTED_LESS_THAN_TWENTY',autoContinuation:false}
+  if(auth.smallComplexOnly)return {status:'REAL_COMPLEX_SMALL_WAITING_INDEPENDENT_REVIEW',results:results.length,ordinarySamples:'PREVIOUS_FIRST3_PRESERVED_NOT_REISSUED',cozeComplex:'NOT_TESTED_SEPARATE_CURRENT_CLOUD_ENTRY_REQUIRED',autoContinuation:false}
   if(!await waitForReview('small'))return {status:'WAITING_INDEPENDENT_SMALL_BATCH_REVIEW',results:results.length,stagesRemaining:realBatchStages.slice(1)}
   const chains=JSON.parse(readFileSync('tests/fixtures/workflow-student16.json','utf8')).students.slice(0,4)
   for(const chain of chains){const chats=[await chat(),await chat(),await chat()];for(const [i,r]of chain.rounds.entries())await turn('four_chains',chain.id+'-'+i,chats[r.session],r.text)}
