@@ -1,0 +1,430 @@
+{
+  "attempts": [
+    {
+      "id": "ccnu-career",
+      "url": "https://xgb.ccnu.edu.cn/info/1025/4554.htm",
+      "attempts": [
+        {
+          "backend": "ORIGINAL_SITE",
+          "status": "FAILED",
+          "error": "HTTPError:403 Client Error: Forbidden for url: https://xgb.ccnu.edu.cn/info/1025/4554.htm"
+        },
+        {
+          "backend": "AGENT_REACH_JINA_READER",
+          "status": "FAILED",
+          "error": "HTTPError:401 Client Error: Unauthorized for url: https://r.jina.ai/https://xgb.ccnu.edu.cn/info/1025/4554.htm"
+        }
+      ],
+      "status": "NO_BODY"
+    },
+    {
+      "id": "career-author",
+      "url": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
+      "retrievedAt": "2026-10-10T11:38:04.353847+00:00",
+      "title": "职涯漫谈丨生涯人物访谈怎么做？这次来点不一样的（一）_原创专栏_天行专栏_天行",
+      "author": null,
+      "attempts": [
+        {
+          "backend": "ORIGINAL_SITE",
+          "status": "BODY_READ",
+          "httpStatus": 200,
+          "finalUrl": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
+          "bodySha256": "f75bcd6129cee5bf5da5280bc87b7692f39d4ad99351f25204b5b8c46f5f6ace",
+          "length": 4471,
+          "rawSha256": "5f30fadf33bece23c21446c7616149823c71b6dd7184baebcb7b1e66200d232e"
+        }
+      ]
+    },
+    {
+      "id": "pg-first-users",
+      "url": "https://paulgraham.com/ds.html",
+      "retrievedAt": "2026-10-10T11:38:05.078471+00:00",
+      "title": "Do Things that Don't Scale",
+      "author": null,
+      "attempts": [
+        {
+          "backend": "ORIGINAL_SITE",
+          "status": "BODY_READ",
+          "httpStatus": 200,
+          "finalUrl": "https://paulgraham.com/ds.html",
+          "bodySha256": "7fab8cd721346fa0fa56e41564ccc6f7755668e626923bf94717f9251bd09d06",
+          "length": 25035,
+          "rawSha256": "5bc874a93a8888e755726f1960d8d857418750b107c790127ec894754b30b4a1"
+        }
+      ]
+    },
+    {
+      "id": "pg-startup-ideas",
+      "url": "https://paulgraham.com/startupideas.html",
+      "retrievedAt": "2026-10-10T11:38:05.216614+00:00",
+      "title": "How to Get Startup Ideas",
+      "author": null,
+      "attempts": [
+        {
+          "backend": "ORIGINAL_SITE",
+          "status": "BODY_READ",
+          "httpStatus": 200,
+          "finalUrl": "https://paulgraham.com/startupideas.html",
+          "bodySha256": "560b97c22ea60ff0220509095079b2d11fff5becc093bed163b24885b93a56c2",
+          "length": 40447,
+          "rawSha256": "1f8c8ce2352e322db3cf43b06dde225b0e8744906dc9ef6fa5f25ea555b9bcf4"
+        }
+      ]
+    },
+    {
+      "id": "cmu-wrappers",
+      "url": "https://www.cmu.edu/teaching/designteach/teach/examwrappers/",
+      "retrievedAt": "2026-10-10T11:38:05.342879+00:00",
+      "title": "\n            Exam Wrappers - \n                Eberly Center - Carnegie Mellon University\n        ",
+      "author": null,
+      "attempts": [
+        {
+          "backend": "ORIGINAL_SITE",
+          "status": "BODY_READ",
+          "httpStatus": 200,
+          "finalUrl": "https://www.cmu.edu/teaching/designteach/teach/examwrappers/",
+          "bodySha256": "9006e7fa4ff5ebd79e2de7b6d0bf0ff48d0b6d0d0a115b886f70dc0fccb607d9",
+          "length": 3514,
+          "rawSha256": "7d070f6fc7f12f075af02222c03de3181bc9f82e91aacd1716038aca54feaa28"
+        }
+      ]
+    },
+    {
+      "id": "mit-recommendation",
+      "url": "https://capd.mit.edu/resources/asking-for-recommendation-letters/",
+      "attempts": [
+        {
+          "backend": "ORIGINAL_SITE",
+          "status": "FAILED",
+          "error": "HTTPError:404 Client Error: Not Found for url: https://capd.mit.edu/resources/asking-for-recommendation-letters/"
+        },
+        {
+          "backend": "AGENT_REACH_JINA_READER",
+          "status": "FAILED",
+          "error": "HTTPError:401 Client Error: Unauthorized for url: https://r.jina.ai/https://capd.mit.edu/resources/asking-for-recommendation-letters/"
+        }
+      ],
+      "status": "NO_BODY"
+    },
+    {
+      "id": "berkeley-recommendation",
+      "url": "https://career.berkeley.edu/grad-school/letters-of-recommendation/",
+      "retrievedAt": "2026-10-10T11:38:09.004374+00:00",
+      "title": "Letters of Recommendation for Grad Students & Postdocs - Career Engagement",
+      "author": null,
+      "attempts": [
+        {
+          "backend": "ORIGINAL_SITE",
+          "status": "BODY_READ",
+          "httpStatus": 200,
+          "finalUrl": "https://career.berkeley.edu/grad-students-postdocs/academic-job-search/letters-of-recommendation-for-grad-students-postdocs/",
+          "bodySha256": "97f7491c0a0e3d5359fb90a009e8af5bbf767b848aafdef3173174904ded7bdb",
+          "length": 25216,
+          "rawSha256": "22b8a500c39d73f47ad3daa816ef3de43d544e2e973b754757d3c378db9015b8"
+        }
+      ]
+    },
+    {
+      "id": "atlassian-roles",
+      "url": "https://www.atlassian.com/team-playbook/plays/roles-and-responsibilities",
+      "retrievedAt": "2026-10-10T11:38:06.841917+00:00",
+      "title": " How to Define Team Roles and Responsibilities | Atlassian ",
+      "author": null,
+      "attempts": [
+        {
+          "backend": "ORIGINAL_SITE",
+          "status": "BODY_READ",
+          "httpStatus": 200,
+          "finalUrl": "https://www.atlassian.com/team-playbook/plays/roles-and-responsibilities",
+          "bodySha256": "4e907a655146f651f9d8469831ce5112905808f9be5beb7e1283f4270536d1c4",
+          "length": 15717,
+          "rawSha256": "690908e197d84340a722cb0d12865c67147c43daed281c32e0d3ae2a19c3b96e"
+        }
+      ]
+    },
+    {
+      "id": "atlassian-retro",
+      "url": "https://www.atlassian.com/team-playbook/plays/retrospective",
+      "retrievedAt": "2026-10-10T11:38:06.921813+00:00",
+      "title": " Sprint Retrospective: How to Hold an Effective Meeting | Atlassian ",
+      "author": null,
+      "attempts": [
+        {
+          "backend": "ORIGINAL_SITE",
+          "status": "BODY_READ",
+          "httpStatus": 200,
+          "finalUrl": "https://www.atlassian.com/team-playbook/plays/retrospective",
+          "bodySha256": "553fe1241bba28c5e270738bae310b4b701856a6d59ac5ce8080c512b0abdb20",
+          "length": 19510,
+          "rawSha256": "8a57f062fc40919133853a3d0fadada643f981548ef4986f969b97c67baded11"
+        }
+      ]
+    },
+    {
+      "id": "cfpb-budget",
+      "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+      "retrievedAt": "2026-10-10T11:38:08.416345+00:00",
+      "title": "Your Money, Your Goals toolkit | Consumer Financial Protection Bureau",
+      "author": null,
+      "attempts": [
+        {
+          "backend": "ORIGINAL_SITE",
+          "status": "BODY_READ",
+          "httpStatus": 200,
+          "finalUrl": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+          "bodySha256": "712b1e189c177e7a3dd52620093a57fe267c1f1e2fb9c4762fa6e4e9eae65849",
+          "length": 6224,
+          "rawSha256": "82389bc07577f814a000a3462902aad93379ff89f76f37b5438ea78fe8d36b9b"
+        }
+      ]
+    }
+  ],
+  "usable": [
+    {
+      "id": "career-author",
+      "sourceId": "career-author-followup",
+      "evidenceId": "career-author-followup-e1",
+      "claim": "作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。",
+      "source": {
+        "source_id": "career-author-followup",
+        "source_revision": 1,
+        "canonical_url": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
+        "platform": "public_web",
+        "original_work_id": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
+        "title": "职涯漫谈丨生涯人物访谈怎么做？这次来点不一样的（一）_原创专栏_天行专栏_天行",
+        "publisher": "天行学院",
+        "author": "Savannah",
+        "published_at": null,
+        "retrieved_at": "2026-10-10T11:38:04.353847+00:00",
+        "source_group": "www.tianxingacademy.com",
+        "access_status": "body_accessible",
+        "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FOR_REVIEW_NOT_FULL_BODY_OR_LICENSE_GRANT",
+        "original_fingerprint": "f75bcd6129cee5bf5da5280bc87b7692f39d4ad99351f25204b5b8c46f5f6ace",
+        "semantic_scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
+        "cannot_infer": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。"
+      },
+      "evidence": {
+        "evidence_id": "career-author-followup-e1",
+        "source_id": "career-author-followup",
+        "source_revision": 1,
+        "quote": "同时思考，为什么选择这个人访谈，选择访谈对象的标准是什么？",
+        "locator": {
+          "url": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
+          "normalizedBodySha256": "f75bcd6129cee5bf5da5280bc87b7692f39d4ad99351f25204b5b8c46f5f6ace",
+          "normalization": "EXTRACTED_HTML_BLOCK_LINES",
+          "start": 912,
+          "end": 941,
+          "line": 37,
+          "pdfPage": null
+        },
+        "context": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
+        "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+        "content_hash": "86338d0d65f6814bc36edce138e0a6bb1f0ce6beec3fc39c72ac65c678279f10"
+      }
+    },
+    {
+      "id": "pg-first-users",
+      "sourceId": "pg-first-users-followup",
+      "evidenceId": "pg-first-users-followup-e1",
+      "claim": "Paul Graham按创业实践经验建议早期主动寻找使用者，而非被动等待。",
+      "source": {
+        "source_id": "pg-first-users-followup",
+        "source_revision": 1,
+        "canonical_url": "https://paulgraham.com/ds.html",
+        "platform": "public_web",
+        "original_work_id": "https://paulgraham.com/ds.html",
+        "title": "Do Things that Don't Scale",
+        "publisher": "Paul Graham个人网站",
+        "author": "Paul Graham",
+        "published_at": null,
+        "retrieved_at": "2026-10-10T11:38:05.078471+00:00",
+        "source_group": "paulgraham.com",
+        "access_status": "body_accessible",
+        "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FOR_REVIEW_NOT_FULL_BODY_OR_LICENSE_GRANT",
+        "original_fingerprint": "7fab8cd721346fa0fa56e41564ccc6f7755668e626923bf94717f9251bd09d06",
+        "semantic_scope": "创业作者关于早期寻找使用者的经验性建议；只作人工接触线索，不套用增长数字。",
+        "cannot_infer": "不保证找到付费用户；不把创业用户招募当普通陌生社交或导师联系。"
+      },
+      "evidence": {
+        "evidence_id": "pg-first-users-followup-e1",
+        "source_id": "pg-first-users-followup",
+        "source_revision": 1,
+        "quote": "The most common unscalable thing founders have to do at the start is to recruit users manually.",
+        "locator": {
+          "url": "https://paulgraham.com/ds.html",
+          "normalizedBodySha256": "1bcd114fc4a6e2d179feb11403c78b89522f5d83c7282f39ba0bb83add9405dd",
+          "normalization": "EXTRACTED_LINES_JOINED_WITH_SPACE",
+          "start": 837,
+          "end": 932,
+          "line": 1,
+          "pdfPage": null
+        },
+        "context": "创业作者关于早期寻找使用者的经验性建议；只作人工接触线索，不套用增长数字。",
+        "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+        "content_hash": "e824f4bbfb6bee11c03809ab9cf1b1f2412147ead52c2d62f4ea25c0678bf95a"
+      }
+    },
+    {
+      "id": "pg-startup-ideas",
+      "sourceId": "pg-startup-ideas-followup",
+      "evidenceId": "pg-startup-ideas-followup-e1",
+      "claim": "作者以自己的画廊项目描述忽略用户、到请求付费时才发现模型不符的经历。",
+      "source": {
+        "source_id": "pg-startup-ideas-followup",
+        "source_revision": 1,
+        "canonical_url": "https://paulgraham.com/startupideas.html",
+        "platform": "public_web",
+        "original_work_id": "https://paulgraham.com/startupideas.html",
+        "title": "How to Get Startup Ideas",
+        "publisher": "Paul Graham个人网站",
+        "author": "Paul Graham",
+        "published_at": null,
+        "retrieved_at": "2026-10-10T11:38:05.216614+00:00",
+        "source_group": "paulgraham.com",
+        "access_status": "body_accessible",
+        "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FOR_REVIEW_NOT_FULL_BODY_OR_LICENSE_GRANT",
+        "original_fingerprint": "560b97c22ea60ff0220509095079b2d11fff5becc093bed163b24885b93a56c2",
+        "semantic_scope": "作者反省自己的画廊网站项目没有充分注意用户；是本人失败经验，非一般因果证明。",
+        "cannot_infer": "不推出所有想法都会失败、一次访谈证明需求或试用等于付费。"
+      },
+      "evidence": {
+        "evidence_id": "pg-startup-ideas-followup-e1",
+        "source_id": "pg-startup-ideas-followup",
+        "source_revision": 1,
+        "quote": "I invented a model of the world that didn't correspond to reality, and worked from that.",
+        "locator": {
+          "url": "https://paulgraham.com/startupideas.html",
+          "normalizedBodySha256": "7ed005206b817a5ea6c27e946f598e8db041af5dae3ca796c9d6fc3da6792232",
+          "normalization": "EXTRACTED_LINES_JOINED_WITH_SPACE",
+          "start": 1011,
+          "end": 1099,
+          "line": 1,
+          "pdfPage": null
+        },
+        "context": "作者反省自己的画廊网站项目没有充分注意用户；是本人失败经验，非一般因果证明。",
+        "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+        "content_hash": "e73acceb458ef4735bec6c3e44a26bed72c76009d8e3eb984d58f3a773052b0c"
+      }
+    },
+    {
+      "id": "atlassian-roles",
+      "sourceId": "atlassian-roles-followup",
+      "evidenceId": "atlassian-roles-followup-e1",
+      "claim": "该团队指南保留未认领或未接受的职责，不把讨论直接写成已承诺。",
+      "source": {
+        "source_id": "atlassian-roles-followup",
+        "source_revision": 1,
+        "canonical_url": "https://www.atlassian.com/team-playbook/plays/roles-and-responsibilities",
+        "platform": "public_web",
+        "original_work_id": "https://www.atlassian.com/team-playbook/plays/roles-and-responsibilities",
+        "title": "How to Define Team Roles and Responsibilities | Atlassian",
+        "publisher": "Atlassian",
+        "author": null,
+        "published_at": null,
+        "retrieved_at": "2026-10-10T11:38:06.841917+00:00",
+        "source_group": "www.atlassian.com",
+        "access_status": "body_accessible",
+        "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FOR_REVIEW_NOT_FULL_BODY_OR_LICENSE_GRANT",
+        "original_fingerprint": "4e907a655146f651f9d8469831ce5112905808f9be5beb7e1283f4270536d1c4",
+        "semantic_scope": "团队工作中核对角色、自认职责、他人预期和未认领事项的原始操作指南。",
+        "cannot_infer": "不把角色协商当能力鉴定；科研实验正确性与技术验收仍由真实负责人确认。"
+      },
+      "evidence": {
+        "evidence_id": "atlassian-roles-followup-e1",
+        "source_id": "atlassian-roles-followup",
+        "source_revision": 1,
+        "quote": "Any responsibilities that remain unclaimed or unaccepted are relocated to the unassigned section.",
+        "locator": {
+          "url": "https://www.atlassian.com/team-playbook/plays/roles-and-responsibilities",
+          "normalizedBodySha256": "4e907a655146f651f9d8469831ce5112905808f9be5beb7e1283f4270536d1c4",
+          "normalization": "EXTRACTED_HTML_BLOCK_LINES",
+          "start": 10166,
+          "end": 10263,
+          "line": 300,
+          "pdfPage": null
+        },
+        "context": "团队工作中核对角色、自认职责、他人预期和未认领事项的原始操作指南。",
+        "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+        "content_hash": "cb29358586211d663544329bd4074817309fb639b7f3e802ac536586dfbc5c0a"
+      }
+    },
+    {
+      "id": "atlassian-retro",
+      "sourceId": "atlassian-retro-followup",
+      "evidenceId": "atlassian-retro-followup-e1",
+      "claim": "该复盘指南把反馈讨论后的改进行动另行记录，并明确责任人与节点。",
+      "source": {
+        "source_id": "atlassian-retro-followup",
+        "source_revision": 1,
+        "canonical_url": "https://www.atlassian.com/team-playbook/plays/retrospective",
+        "platform": "public_web",
+        "original_work_id": "https://www.atlassian.com/team-playbook/plays/retrospective",
+        "title": "Sprint Retrospective: How to Hold an Effective Meeting | Atlassian",
+        "publisher": "Atlassian",
+        "author": null,
+        "published_at": null,
+        "retrieved_at": "2026-10-10T11:38:06.921813+00:00",
+        "source_group": "www.atlassian.com",
+        "access_status": "body_accessible",
+        "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FOR_REVIEW_NOT_FULL_BODY_OR_LICENSE_GRANT",
+        "original_fingerprint": "553fe1241bba28c5e270738bae310b4b701856a6d59ac5ce8080c512b0abdb20",
+        "semantic_scope": "团队迭代复盘中记录实际反馈并给改进行动确定责任与节点；校园协作为编辑迁移。",
+        "cannot_infer": "不证明必然提升成绩、促成复购、款项到账或任何软件产品效果。"
+      },
+      "evidence": {
+        "evidence_id": "atlassian-retro-followup-e1",
+        "source_id": "atlassian-retro-followup",
+        "source_revision": 1,
+        "quote": "As you document changes and action items, be sure to assign owners and deadlines to kickstart progress.",
+        "locator": {
+          "url": "https://www.atlassian.com/team-playbook/plays/retrospective",
+          "normalizedBodySha256": "553fe1241bba28c5e270738bae310b4b701856a6d59ac5ce8080c512b0abdb20",
+          "normalization": "EXTRACTED_HTML_BLOCK_LINES",
+          "start": 14245,
+          "end": 14348,
+          "line": 327,
+          "pdfPage": null
+        },
+        "context": "团队迭代复盘中记录实际反馈并给改进行动确定责任与节点；校园协作为编辑迁移。",
+        "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+        "content_hash": "82609bf4f9a5b96523eb860b1ca3533638c1d3bfd6b8856dc63d7ff03b25541a"
+      }
+    }
+  ],
+  "readingOnlyExcluded": [
+    {
+      "id": "cmu-wrappers",
+      "reason": "CC-BY-NC-SA worksheet license; source read but no worksheet/derivative is imported or effect claim approved."
+    },
+    {
+      "id": "berkeley-recommendation",
+      "reason": "Redirected to academic job search for graduates/postdocs; does not close undergraduate recommendation-request scope."
+    },
+    {
+      "id": "cfpb-budget",
+      "reason": "Toolkit index read only; no new full-tool steps extracted, not counted as new usable method."
+    },
+    {
+      "id": "ccnu-career",
+      "reason": "Original403 and Jina401 retained; existing browser-reader body confirms lecture only, no new original body fingerprint fabricated."
+    },
+    {
+      "id": "mit-recommendation",
+      "reason": "Original404 and Jina401, no body."
+    }
+  ],
+  "summary": {
+    "newUsableSources": 5,
+    "newLocatedQuotes": 5,
+    "draftsSupplemented": 8,
+    "allReviewPreparations": 32,
+    "sourceScopedDraftReady": 15,
+    "partialImproved": 8,
+    "stillTaskSpecificSourceGap": 44,
+    "actualIndependentReviews": 0,
+    "actualHumanApprovals": 0,
+    "formalCoverageUnchangedUntilApproval": true
+  },
+  "fullPublicCapturesRequiredForRuntime": false,
+  "firstToolFailure": "bs4 unavailable; replaced by built-in HTMLParser, not a source reading attempt"
+}

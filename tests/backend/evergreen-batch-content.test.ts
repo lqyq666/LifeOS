@@ -15,6 +15,8 @@ test('32 substantive revisions, 59 actual research outcomes and unchanged 112 ta
  for(const row of research.rows){assert.ok(row.attempts.length||row.readSource);assert.ok(row.methodExtracted.length>=3);assert.ok(row.stillMissingClaim);assert.equal(row.approval,'WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL')}
  for(const e of pack.evidence)assert.equal(kbHash(e.quote),e.content_hash)
  assert.equal(pack.independentReviews,0);assert.equal(pack.humanApprovals,0)
+ assert.equal(pack.reviewPreparation.length,32)
+ for(const prep of pack.reviewPreparation){const card=pack.drafts.find((c:any)=>c.id===prep.guideId);assert.equal(prep.contentHash,card.guide.contentHash);assert.deepEqual(prep.claimChecks.map((c:any)=>c.claimId).sort(),card.guide.claims.map((c:any)=>c.id).sort());assert.equal(prep.executionRecord,null);assert.equal(prep.humanApproval,null);assert.ok(prep.claimChecks.every((c:any)=>c.originals.length))}
  const contact=pack.drafts.find((c:any)=>c.guide.canonicalKey==='first-contact');assert.ok(contact.limitations.includes('推荐信'));assert.ok(contact.guide.referenceBody.includes('导师联系'))
  const delivery=pack.drafts.find((c:any)=>c.guide.canonicalKey==='delivery-review');assert.ok(delivery.guide.referenceBody.includes('付款'));assert.ok(delivery.guide.referenceBody.includes('效果'))
  const team=pack.drafts.find((c:any)=>c.guide.canonicalKey==='team-contract');assert.ok(team.limitations.includes('MBTI'));assert.equal(team.guide.branches.find((b:any)=>b.id==='C24-4').stage,'adjust')

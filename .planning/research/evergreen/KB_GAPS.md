@@ -1,3 +1,5 @@
+本轮补源：新增5个可用原文、5条定位引用，8稿补充来源；原59项中15项形成范围收窄的来源候选、8项部分补充，仍44项缺任务对应来源或范围依据。15项仍须独立审阅及本人批准，正式112去向仍53 covered/59 awaiting_source；不是已发布覆盖。逐项新增状态见KB_GAP_RESEARCH.json.followup与KB_COVERAGE.json.source_followup。32稿逐主张对照材料已加入KB_CONTENT_REVISIONS.json.reviewPreparation，执行回执/真人批准均为null。
+
 # 待处理缺口
 
 本批59项均已实际研究，逐项见`KB_GAP_RESEARCH.json`；已有读取、失败、提炼与仍缺主张。32个revision2具体改稿见`KB_CONTENT_REVISIONS.json`。下方保留原缺口描述，不因读到通用材料就覆盖跨领域机制；独立审阅与真人批准尚未取得。

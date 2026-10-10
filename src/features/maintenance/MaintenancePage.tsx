@@ -3,7 +3,7 @@ import {api,ApiError} from '../../backend/client'
 import './maintenance.css'
 type Summary={guide_id:string;revision:number;content_hash:string;status:string;title:string}
 type Permission={edit:boolean;review:boolean;publish:boolean}
-type Detail={guideId:string;revision:number;contentHash:string;status:string;permissions:Permission;bundle:{card:any;base:any;sources:any[];evidence:any[]};receipts:any[]}
+type Detail={guideId:string;revision:number;contentHash:string;status:string;permissions:Permission;bundle:{card:any;base:any;sources:any[];evidence:any[];reviewPreparation?:{questions:{target:string;text:string}[]}};receipts:any[]}
 const labels:Record<string,string>={needs_review:'待独立审阅',waiting_approval:'等待本人批准',published:'已批准发布',rejected:'已拒绝',cancelled:'已取消'}
 const explain=(e:unknown)=>e instanceof ApiError&&e.code==='KB_MAINTENANCE_FORBIDDEN'?'当前账户没有攻略维护权限。请由账户所有者配置维护、独立审阅和发布权限。':e instanceof ApiError&&e.code==='LOGIN_REQUIRED'?'请先在正常登录页面登录，然后回来刷新。':e instanceof Error?e.message:'读取失败，请刷新。'
 export function MaintenancePage(){
@@ -26,6 +26,7 @@ export function MaintenancePage(){
     <details><summary>版本与来源指纹</summary><code>{detail.contentHash}</code>{detail.bundle.sources.map(s=><p key={s.source_id}><code>{s.source_id} · {s.original_fingerprint}</code></p>)}</details>
     <h3>原文定位</h3>{detail.bundle.evidence.map(e=>{const s=detail.bundle.sources.find(s=>s.source_id===e.source_id);return <article key={e.evidence_id}><a href={s.canonical_url} target="_blank" rel="noreferrer">{s.title} · 打开原文</a><p>{e.locator.pdfPage??(e.locator.line?'正文行 '+e.locator.line:'原文定位')} · {e.locator.start!==undefined?'字符 '+e.locator.start+'–'+e.locator.end:''}</p><blockquote>{e.quote}</blockquote><p>{s.cannot_infer}</p></article>})}
     <h3>修订差异</h3>{['claim','scope','limitations'].map(key=><article key={key}><h4>{{claim:'外部主张',scope:'适用范围',limitations:'限制'}[key]}</h4><div className="kb-maintenance-diff"><div><strong>原版本</strong><p>{detail.bundle.base[key]}</p></div><div><strong>当前修订</strong><p>{detail.bundle.card[key]}</p></div></div></article>)}
+    {detail.bundle.reviewPreparation&&<section aria-label="独立审阅准备"><h3>本稿待核对事项</h3><p>这些是编辑准备的问题，尚未取得独立执行回执。</p><ul>{detail.bundle.reviewPreparation.questions.map(q=><li key={q.target}>{q.text}</li>)}</ul></section>}
     <details open><summary>具体步骤与五种反馈</summary><pre>{detail.bundle.card.guide.referenceBody}</pre></details>
     <fieldset disabled={busy||['published','rejected','cancelled'].includes(detail.status)}><legend>主张核对</legend>{detail.bundle.card.guide.claims.map((c:any)=><label key={c.id}><input type="checkbox" checked={checked.includes(c.id)} onChange={e=>setChecked(e.target.checked?[...checked,c.id]:checked.filter(x=>x!==c.id))}/><span>{c.text}<small>{c.basis==='editorial_adaptation'?'LifeOS编辑适配，未证明效果':'外部主张，需核对原文'} · {c.limitations}</small></span></label>)}
     <label htmlFor="kb-review-notes">审阅问题、范围核对或批准理由</label><textarea id="kb-review-notes" value={notes} onChange={e=>setNotes(e.target.value)} rows={4}/>

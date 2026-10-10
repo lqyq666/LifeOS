@@ -11,10 +11,10 @@ let snapshot:Snapshot|undefined,building:Promise<unknown>|undefined
 const activeCardsSql=`SELECT payload FROM campus_knowledge k WHERE status='verified' AND (valid_until IS NULL OR valid_until>now()) AND official_knowledge_current(payload) AND kb_knowledge_current(payload)
  AND (NOT synthetic OR current_database() ~ '^lifeos_dialogue_(test|live)_')
  AND NOT EXISTS(SELECT 1 FROM kb_aliases a JOIN campus_knowledge target ON target.id=a.guide_id WHERE a.alias=k.id::text AND target.status='verified' AND target.payload#>>'{guide,reviewStatus}'='approved' AND kb_knowledge_current(target.payload)) ORDER BY id`
-export const knowledgeIndexSignature=embeddingSignature+':evergreen-segments-v3-expressions'
 // Index-only editorial paraphrases carry no steps, sources or effect claims.
 // Bind them to the exact canonical body; a new revision cannot inherit stale cues.
 const expressionProfiles=JSON.parse(readFileSync(new URL('../.planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json',import.meta.url),'utf8')).profiles as {canonicalKey:string;contentHash:string;revision:number;expressions:string[]}[]
+export const knowledgeIndexSignature=embeddingSignature+':evergreen-segments-v3-expressions:'+kbHash(stableJson(expressionProfiles))
 function retrievalExpressions(card:KnowledgeCard){return expressionProfiles.find(p=>p.canonicalKey===card.guide?.canonicalKey&&p.contentHash===card.guide?.contentHash&&p.revision===card.revision)?.expressions??[]}
 const dot=(a:number[],b:number[])=>a.reduce((sum,x,i)=>sum+x*b[i],0)
 

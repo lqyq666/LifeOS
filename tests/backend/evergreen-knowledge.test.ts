@@ -4,7 +4,7 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs'
 import {randomUUID} from 'node:crypto'
 import {pool} from '../../server/db.ts'
 import {importEvergreenCorpus,resolveKnowledgeAlias} from '../../server/evergreen-maintenance.ts'
-import {buildKnowledgeIndex,retrieveIndexedKnowledge,clearKnowledgeIndexMemory} from '../../server/knowledge-index.ts'
+import {buildKnowledgeIndex,retrieveIndexedKnowledge,clearKnowledgeIndexMemory,knowledgeIndexSignature} from '../../server/knowledge-index.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
 import {classifyGuideFeedback,feedbackMatchesCurrent,suggestedGuideUsage,readGuideUsage} from '../../server/guide-usage.ts'
 import {stageCoachEvent} from '../../server/action-coach-events.ts'
@@ -48,6 +48,24 @@ test('evergreen import, persistent real encoder index, withdrawal and owned acti
    const aborted=new AbortController();aborted.abort()
    await assert.rejects(buildKnowledgeIndex(aborted.signal))
    assert.equal((await pool.query('SELECT indexed_epoch FROM kb_index_state')).rows[0].indexed_epoch,indexBefore)
+  })
+  await t.test('recipe upgrades reuse old vectors and one revision does not encode the whole corpus',async()=>{
+   const legacySignature=knowledgeIndexSignature.split(':evergreen-segments-')[0]+':evergreen-segments-v1'
+   await pool.query("INSERT INTO kb_segments(guide_id,revision,signature,part,content_hash,body,evidence_ids,embedding) SELECT guide_id,revision,$1,part,content_hash,body,evidence_ids,embedding FROM kb_segments WHERE signature=$2 AND part NOT LIKE 'expression:%' AND part NOT LIKE 'action:%' AND part<>'mechanism' ON CONFLICT DO NOTHING",[legacySignature,knowledgeIndexSignature])
+   await pool.query('DELETE FROM kb_segments WHERE signature=$1',[knowledgeIndexSignature])
+   let encoded=0
+   const upgrade=await buildKnowledgeIndex(signal,async texts=>{encoded+=texts.length;return localEmbedding.encode(texts,false,signal)})
+   assert.equal(encoded,upgrade.encodedSegments);assert.ok(upgrade.cacheHits>0);assert.ok(encoded<upgrade.segments)
+   const revised=structuredClone(cards.find(c=>c.guide!.canonicalKey==='course-frame')!)
+   revised.revision=2;revised.guide!.oneKeyQuestion='SYNTHETIC revised question: 哪个概念断开？'
+   const {guideContentHash}=await import('../../server/evergreen-guide.ts');revised.guide!.contentHash=guideContentHash(revised.guide!)
+   await importEvergreenCorpus([revised],sources,evidence)
+   const change=await buildKnowledgeIndex(signal)
+   assert.ok(change.encodedSegments>0);assert.ok(change.encodedSegments<upgrade.segments/2)
+   const found=await retrieveIndexedKnowledge('怎么整理困难课程的知识框架？',signal)
+   assert.ok(found.cards.every(c=>c.id!==revised.id||c.revision===2))
+   assert.equal((await pool.query("SELECT count(*)::int n FROM kb_segments WHERE guide_id=$1 AND revision=2 AND part LIKE 'expression:%'",[revised.id])).rows[0].n,0)
+   report.recipeUpgrade=upgrade;report.singleRevision=change
   })
   await t.test('only user reports move the same event; question, third-party and negative-result boundaries hold',async()=>{
    assert.equal(classifyGuideFeedback('如果我发了，没人回复怎么办？'),null)

@@ -25,3 +25,6 @@ IES四个推荐共21词短引文，学习来源为原始指南；清华备考网
 `KB_CONTENT_REVISIONS.json`为32个原canonical的revision2实质修订，包括原16待审和原16approved的范围复核；没有新增同义卡。每稿补步骤、边界、资源调整、观察及五种反馈；跨领域适用不足明确退回，来源效果与LifeOS步骤分开。`KB_GAP_RESEARCH.json`逐项记录原59项的实际读取或失败、提炼、适用边界和仍缺主张。资料成熟度、独立审阅、人工批准分开；59不因有一次请求就自动清零，新稿不进入学生正式检索。
 
 维护对照入口先检查现有React、Better Auth、PG事务、Cheerio、TypeBox、规范卡导入与缓存索引。通过agent-reach/gh搜索并读取MIT项目relex/json-diff-react的组件源码与测试目录；其额外json-diff依赖对本批按字段比较收益不足，因此复用现有React和文本字段展示，不复制外部代码或迁入管理框架。保留来源与许可核查，不执行外部脚本。
+
+
+本轮公共原文补充：KB_SOURCE_FOLLOWUP.json保存10个目标网页的具体尝试（8正文读取，2原站失败与2Reader失败）；只有5个页面作为有范围的候选来源，新增5条短引用。天行原作者Savannah的课堂经验；Paul Graham两篇个人创业经验；Atlassian两份原始团队操作指南。CMU worksheet的NC-SA许可、Berkeley学术求职重定向和CFPB目录页面分别限制用途，不作为该缺口补齐。没有视频时间戳、效果承诺、当期资格或中国法律推断。

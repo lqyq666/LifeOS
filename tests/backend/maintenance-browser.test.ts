@@ -19,8 +19,10 @@ test('current maintenance UI in Chrome: real auth, empty queue, source locators,
   await context.route('**/*',(r:any)=>r.request().url().startsWith(origin)?r.continue():r.abort())
   await page.goto(origin+'/#maintenance',{waitUntil:'networkidle'});await page.getByText('暂无待审稿。',{exact:false}).waitFor();checks.push({emptyQueue:'PASS_REAL_GET'})
   await page.getByRole('button',{name:'载入本批修订稿'}).click();await page.locator('aside li').first().waitFor();assert.equal(await page.locator('aside li').count(),32)
-  await page.locator('aside button').first().click();await page.getByRole('heading',{name:'原文定位'}).waitFor()
-  const originals=await page.locator('section a[target="_blank"]').evaluateAll((els:any[])=>els.map(x=>x.href));assert.ok(originals.length&&originals.every((x:string)=>x.startsWith('https://')))
+  await page.getByRole('button',{name:/第一次联系与未回应跟进/}).click();await page.getByRole('heading',{name:'原文定位'}).waitFor()
+  await page.getByRole('region',{name:'独立审阅准备'}).getByRole('heading',{name:'本稿待核对事项'}).waitFor()
+  const originals=await page.locator('section a[target="_blank"]').evaluateAll((els:any[])=>els.map(x=>x.href));assert.ok(originals.length&&originals.every((x:string)=>/^https?:\/\//.test(x)))
+  checks.push({reviewPreparation:'PASS_REAL_AUTHENTICATED_READBACK',actualIndependentExecution:false})
   assert.equal(await page.getByRole('button',{name:'本人确认批准并发布此版本'}).count(),0,'editor cannot approve')
   for(const width of [1440,390]){await page.setViewportSize({width,height:width===390?844:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);await page.screenshot({path:resolve(directory,'maintenance-'+width+'.png'),fullPage:true});checks.push({width,overflow:false,sourceLinks:originals.length})}
   await page.keyboard.press('Tab');assert.ok(await page.evaluate(()=>document.activeElement?.tagName!=='BODY'));assert.ok(await page.evaluate(()=>matchMedia('(prefers-reduced-motion: reduce)').matches));checks.push({keyboard:'PASS_FOCUS',reducedMotion:'PASS_MEDIA'})

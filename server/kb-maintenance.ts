@@ -5,7 +5,7 @@ import {validateKnowledge,type KnowledgeCard} from './campus-knowledge.ts'
 import {guideContentHash,kbHash,stableJson} from './evergreen-guide.ts'
 import {importEvergreenWithin} from './evergreen-maintenance.ts'
 import {checkMaintenance,type MaintenanceCandidate,type MaintenanceReviewReceipt} from './workflows/knowledge-maintenance.ts'
-type Bundle={card:KnowledgeCard;base:KnowledgeCard;producerId:string;sources:any[];evidence:any[];coverage:any[]}
+type Bundle={card:KnowledgeCard;base:KnowledgeCard;producerId:string;sources:any[];evidence:any[];coverage:any[];reviewPreparation?:{contentHash:string;status:string;questions:{target:string;text:string}[];claimChecks:{claimId:string}[]}}
 const allowed=(name:string,actor:string)=>(process.env[name]??'').split(',').map(x=>x.trim()).filter(Boolean).includes(actor)
 export const maintenancePermissions=(actor:string)=>({edit:allowed('LIFEOS_KB_MAINTAINER_IDS',actor),review:allowed('LIFEOS_KB_REVIEWER_IDS',actor),publish:allowed('LIFEOS_KB_PUBLISHER_IDS',actor)})
 function requirePermission(actor:string,permission:'edit'|'review'|'publish'|'read'){
@@ -15,6 +15,7 @@ const sourceHashes=(bundle:Bundle)=>[...new Set(bundle.sources.map(s=>s.original
 function verifyBundle(b:Bundle){
  validateKnowledge(b.card);if(!b.card.guide||b.card.guide.reviewStatus==='approved'||b.card.status!=='unverified'||b.card.guide.contentHash!==guideContentHash(b.card.guide)||b.base.id!==b.card.id||b.card.revision!==b.base.revision+1)throw new HttpError(400,'KB_DRAFT_INVALID')
  for(const id of b.card.guide.evidenceIds){const e=b.evidence.find(x=>x.evidence_id===id),s=e&&b.sources.find(x=>x.source_id===e.source_id&&x.source_revision===e.source_revision);if(!e||!s||s.access_status!=='body_accessible'||kbHash(e.quote)!==e.content_hash||!e.locator)throw new HttpError(400,'KB_EVIDENCE_UNAVAILABLE')}
+ if(b.reviewPreparation&&(b.reviewPreparation.contentHash!==b.card.guide.contentHash||stableJson(b.reviewPreparation.claimChecks.map(c=>c.claimId).sort())!==stableJson(b.card.guide.claims.map(c=>c.id).sort())))throw new HttpError(400,'KB_REVIEW_PREPARATION_STALE')
 }
 export async function queueMaintenancePack(actor:string){
  requirePermission(actor,'edit')
@@ -22,7 +23,7 @@ export async function queueMaintenancePack(actor:string){
  return transaction(async c=>{
   let queued=0
   for(const card of pack.drafts as KnowledgeCard[]){
-   const refs=card.guide!.evidenceIds,ev=evidence.filter(e=>refs.includes(e.evidence_id)),ss=sources.filter(s=>ev.some(e=>e.source_id===s.source_id&&e.source_revision===s.source_revision)),bundle:Bundle={card,base:base.find(x=>x.id===card.id),producerId:pack.producerId,sources:ss,evidence:ev,coverage}
+   const refs=card.guide!.evidenceIds,ev=evidence.filter(e=>refs.includes(e.evidence_id)),ss=sources.filter(s=>ev.some(e=>e.source_id===s.source_id&&e.source_revision===s.source_revision)),bundle:Bundle={card,base:base.find(x=>x.id===card.id),producerId:pack.producerId,sources:ss,evidence:ev,coverage,reviewPreparation:pack.reviewPreparation?.find((p:any)=>p.guideId===card.id&&p.revision===card.revision)}
    verifyBundle(bundle);const old=(await c.query('SELECT bundle FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision=$2 FOR UPDATE',[card.id,card.revision])).rows[0]
    if(old){if(stableJson(old.bundle)!==stableJson(bundle))throw new HttpError(409,'KB_DRAFT_REVISION_CONFLICT');continue}
    await c.query("INSERT INTO kb_maintenance_drafts(guide_id,revision,content_hash,producer_id,queued_by,status,bundle) VALUES($1,$2,$3,$4,$5,'needs_review',$6)",[card.id,card.revision,card.guide!.contentHash,pack.producerId,actor,bundle]);queued++

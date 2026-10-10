@@ -21,6 +21,9 @@ test('normal authenticated maintenance API binds actual account receipts, denies
   const list=(await call(editor.cookie,'/api/maintenance/guides')).body.items;assert.equal(list.length,32)
   const pack=JSON.parse(readFileSync('.planning/research/evergreen/KB_CONTENT_REVISIONS.json','utf8')),card=pack.drafts.find((c:any)=>c.guide.canonicalKey==='first-contact'),path='/api/maintenance/guides/'+card.id+'/'+card.revision
   const detail=(await call(reviewer.cookie,path)).body,sourceHashes=[...new Set(detail.bundle.sources.map((s:any)=>s.original_fingerprint))].sort(),action={contentHash:detail.contentHash,sourceHashes,notes:'SYNTHETIC fixture only, explicitly checked every bounded claim and original source locator',claimChecks:card.guide.claims.map((c:any)=>c.id)}
+  assert.equal(detail.bundle.reviewPreparation.contentHash,detail.contentHash)
+  assert.equal(detail.bundle.reviewPreparation.status,'PREPARED_NOT_INDEPENDENTLY_EXECUTED')
+  assert.equal(detail.bundle.reviewPreparation.claimChecks.length,card.guide.claims.length)
   await assert.rejects(readApprovedGuide(card.id,card.revision))
   assert.equal((await call(editor.cookie,path+'/actions',{...action,action:'review'})).body.error,'KB_INDEPENDENT_EXECUTION_REQUIRED')
   assert.equal((await call(publisher.cookie,path+'/actions',{...action,action:'approve',reviewerId:reviewer.id,receiptId:randomUUID()})).body.error,'KB_ACTION_INVALID')
