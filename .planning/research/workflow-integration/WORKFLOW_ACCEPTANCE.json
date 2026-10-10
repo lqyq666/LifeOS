@@ -813,6 +813,428 @@
       "newBudget": 0,
       "productionWrites": 0,
       "temporaryAcceptanceHttpClosed": true
+    },
+    "untunedRetrievalReserve": {
+      "status": "LOCAL_UNTUNED_RESERVE_RETRIEVAL_GATES_PASS",
+      "evaluatedCommit": "8a12342",
+      "benchmarkHash": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
+      "firstExecutionOnly": true,
+      "usedForTuning": false,
+      "independentBlindTest": false,
+      "labelsAuthor": "current-main-codex",
+      "metrics": {
+        "route": {
+          "numerator": 32,
+          "denominator": 32
+        },
+        "recall5": {
+          "numerator": 16,
+          "denominator": 16
+        },
+        "top1": {
+          "numerator": 16,
+          "denominator": 16
+        },
+        "missingTarget": {
+          "numerator": 16,
+          "denominator": 32
+        },
+        "noMatchingMethod": 0
+      },
+      "byDomain": {
+        "10": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "13": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "14": {
+          "route": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "noMatchingMethod": 0
+        },
+        "15": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "16": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "17": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "18": {
+          "route": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "noMatchingMethod": 0
+        },
+        "19": {
+          "route": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "noMatchingMethod": 0
+        },
+        "21": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "22": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "01": {
+          "route": {
+            "numerator": 3,
+            "denominator": 3
+          },
+          "recall5": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "top1": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 3
+          },
+          "noMatchingMethod": 0
+        },
+        "02": {
+          "route": {
+            "numerator": 3,
+            "denominator": 3
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 3,
+            "denominator": 3
+          },
+          "noMatchingMethod": 0
+        },
+        "03": {
+          "route": {
+            "numerator": 3,
+            "denominator": 3
+          },
+          "recall5": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "top1": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 3
+          },
+          "noMatchingMethod": 0
+        },
+        "04": {
+          "route": {
+            "numerator": 4,
+            "denominator": 4
+          },
+          "recall5": {
+            "numerator": 4,
+            "denominator": 4
+          },
+          "top1": {
+            "numerator": 4,
+            "denominator": 4
+          },
+          "missingTarget": {
+            "numerator": 0,
+            "denominator": 4
+          },
+          "noMatchingMethod": 0
+        },
+        "05": {
+          "route": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "noMatchingMethod": 0
+        },
+        "06": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "08": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "09": {
+          "route": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "noMatchingMethod": 0
+        }
+      },
+      "byStage": {
+        "start": {
+          "route": {
+            "numerator": 28,
+            "denominator": 28
+          },
+          "recall5": {
+            "numerator": 15,
+            "denominator": 15
+          },
+          "top1": {
+            "numerator": 15,
+            "denominator": 15
+          },
+          "missingTarget": {
+            "numerator": 13,
+            "denominator": 28
+          },
+          "noMatchingMethod": 0
+        },
+        "adjust": {
+          "route": {
+            "numerator": 4,
+            "denominator": 4
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 3,
+            "denominator": 4
+          },
+          "noMatchingMethod": 0
+        }
+      },
+      "missingCardsRemainExplicit": true,
+      "rankingFiles": {
+        "server/knowledge-index.ts": "c73897deb5f8f5cd35279241692e20cb1eeb6cea83c13e320545c2207112995d",
+        "server/evergreen-guide.ts": "3bf1e40d22dcdfd3bd5b862a3790592c7a311705d7afc4adfef7ef000814505c",
+        ".planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json": "281b9dbd6db49e0364be55148b4965e97c62b5aac0aa2e6956aa023a41cd3bee"
+      },
+      "productCalls": 0,
+      "newBudget": 0,
+      "evidence": ".planning/research/workflow-integration/evidence/retrieval-reserve-20261011/NATURAL_reserve_first-final.json",
+      "futureUse": "Exposed after this execution; any later tuning informed by these labels or outcomes must mark this as regression, never a new unseen cohort."
     }
   },
   "preRestorationCheckpoint": {

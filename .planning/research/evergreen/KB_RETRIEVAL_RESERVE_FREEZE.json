@@ -2,7 +2,12 @@
   "sha256": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
   "count": 32,
   "createdAt": "2026-10-10T11:52:46.540005+00:00",
-  "executions": 0,
+  "executions": 1,
   "usedForTuning": false,
-  "independentBlindTest": false
+  "independentBlindTest": false,
+  "firstExecutionCommit": "8a12342",
+  "firstExecutionEvidence": ".planning/research/workflow-integration/evidence/retrieval-reserve-20261011/NATURAL_reserve_first-final.json",
+  "resultSha256": "870bfd1f2c4e2b3f70ec37aead3333b1ea901a9058a08d6b32257ae76beb486c",
+  "exposedAfterFirstExecution": true,
+  "futureUse": "Exposed after this execution; any later tuning informed by these labels or outcomes must mark this as regression, never a new unseen cohort."
 }
