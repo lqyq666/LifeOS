@@ -3,11 +3,20 @@ import {WorkflowError} from './contracts.ts'
 // Public maintenance only. Existing evergreen importer/reviewer owns publication.
 export type SourceReading={url:string;canonicalOrigin:string;revision:number;sourceHash:string;readerId:string;quote:string;actuallyRead:boolean;withdrawn:boolean}
 export type PublicClaim={id:string;text:string;sourceHash:string;quote:string;support:'source_supported'|'lifeos_adaptation'}
-export type MaintenanceCandidate={guideId:string;revision:number;contentHash:string;readings:SourceReading[];claims:PublicClaim[];coverage:{candidateId:string;status:'covered'|'merged'|'awaiting_source'|'excluded';destination:string|null}[];producerId:string;skeptic:{reviewerId:string;issues:string[];reviewedContentHash:string};release:{humanReviewerId:string|null;reviewedContentHash:string|null;approved:boolean}}
-export function checkMaintenance(candidate:MaintenanceCandidate,frozenCandidateIds:string[],verifyHostHumanRelease:(release:MaintenanceCandidate['release'],contentHash:string)=>boolean=()=>false,verifyCapturedSource:(reading:SourceReading)=>boolean=()=>false):{publishEligible:boolean;status:'needs_review'|'eligible_for_host_release';issues:string[];independentSourceCount:number}{
+export type MaintenanceCandidate={guideId:string;revision:number;contentHash:string;readings:SourceReading[];claims:PublicClaim[];coverage:{candidateId:string;status:'covered'|'merged'|'awaiting_source'|'excluded';destination:string|null}[];producerId:string;skeptic:{reviewerId:string;issues:string[];reviewedContentHash:string;receiptId?:string};release:{humanReviewerId:string|null;reviewedContentHash:string|null;approved:boolean;receiptId?:string}}
+// Resolved by a trusted host journal, never from candidate/model-provided receipt bodies.
+export type MaintenanceReviewReceipt={id:string;kind:'independent_review'|'human_release';reviewerId:string;producerId:string;guideId:string;revision:number;contentHash:string;sourceHashes:string[];status:'completed'|'cancelled'|'failed';decision:'approve'|'needs_review'|'reject'}
+export function checkMaintenance(candidate:MaintenanceCandidate,frozenCandidateIds:string[],verifyHostHumanRelease:(release:MaintenanceCandidate['release'],contentHash:string)=>boolean=()=>false,verifyCapturedSource:(reading:SourceReading)=>boolean=()=>false,readHostReviewReceipt:(id:string)=>MaintenanceReviewReceipt|null=()=>null):{publishEligible:boolean;status:'needs_review'|'eligible_for_host_release';issues:string[];independentSourceCount:number}{
  if(!candidate.guideId||!Number.isInteger(candidate.revision)||candidate.revision<1||!/^[a-f0-9]{64}$/.test(candidate.contentHash))throw new WorkflowError('invalid_contract')
  const issues:string[]=[]
+ const sourceHashes=[...new Set(candidate.readings.filter(s=>s.actuallyRead&&!s.withdrawn).map(s=>s.sourceHash))].sort()
+ function matchesReceipt(id:string|undefined,kind:MaintenanceReviewReceipt['kind'],reviewerId:string|null){
+  if(!id?.trim()||!reviewerId?.trim())return false
+  const receipt=readHostReviewReceipt(id)
+  return !!receipt&&receipt.id===id&&receipt.kind===kind&&receipt.reviewerId===reviewerId&&receipt.producerId===candidate.producerId&&receipt.guideId===candidate.guideId&&receipt.revision===candidate.revision&&receipt.contentHash===candidate.contentHash&&receipt.status==='completed'&&receipt.decision==='approve'&&JSON.stringify([...new Set(receipt.sourceHashes)].sort())===JSON.stringify(sourceHashes)
+ }
  if(candidate.skeptic.reviewerId===candidate.producerId||candidate.skeptic.reviewedContentHash!==candidate.contentHash)issues.push('independent_skeptic_required')
+ if(!matchesReceipt(candidate.skeptic.receiptId,'independent_review',candidate.skeptic.reviewerId))issues.push('authenticated_skeptic_receipt_required')
  issues.push(...candidate.skeptic.issues.map(()=> 'skeptic_unresolved'))
  for(const claim of candidate.claims){
   const readings=candidate.readings.filter(s=>s.sourceHash===claim.sourceHash&&s.actuallyRead&&!s.withdrawn)
@@ -25,6 +34,7 @@ export function checkMaintenance(candidate:MaintenanceCandidate,frozenCandidateI
  if(candidate.coverage.some(x=>['covered','merged'].includes(x.status)&&!x.destination))issues.push('coverage_destination_required')
  if(!candidate.release.approved||!candidate.release.humanReviewerId||candidate.release.humanReviewerId===candidate.producerId||candidate.release.humanReviewerId===candidate.skeptic.reviewerId||candidate.release.reviewedContentHash!==candidate.contentHash)issues.push('independent_human_release_required')
  if(!verifyHostHumanRelease(candidate.release,candidate.contentHash))issues.push('authenticated_host_release_required')
+ if(!matchesReceipt(candidate.release.receiptId,'human_release',candidate.release.humanReviewerId))issues.push('authenticated_release_receipt_required')
  const independentSourceCount=new Set(candidate.readings.filter(x=>x.actuallyRead&&!x.withdrawn).map(x=>x.canonicalOrigin)).size
  return {publishEligible:!issues.length,status:issues.length?'needs_review':'eligible_for_host_release',issues:[...new Set(issues)],independentSourceCount}
 }

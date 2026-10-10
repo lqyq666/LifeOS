@@ -4,7 +4,7 @@ import {appendFileSync,readFileSync} from 'node:fs'
 import {fixture} from '../workflows/fixtures.ts'
 import {growthDiff,type GrowthSnapshotItem} from '../../server/workflows/growth-diff.ts'
 import {applyGuide} from '../../server/workflows/guide-application.ts'
-import {checkMaintenance,publicContentHash,type MaintenanceCandidate} from '../../server/workflows/knowledge-maintenance.ts'
+import {checkMaintenance,publicContentHash,type MaintenanceCandidate,type MaintenanceReviewReceipt} from '../../server/workflows/knowledge-maintenance.ts'
 import type {EvidenceRecord} from '../../server/workflows/contracts.ts'
 import {generateInsight} from '../../server/experience-insight.ts'
 const sink=(row:unknown)=>appendFileSync((process.env.LIFEOS_WORKFLOW_EVIDENCE??'.planning/research/agent-workflows/evidence')+'/WORKFLOW_EXECUTION_TRACES.jsonl',JSON.stringify(row)+'\n')
@@ -37,10 +37,30 @@ test('G5 only current approved host guide may apply, candidate status stays sugg
 function maintenance():MaintenanceCandidate{return {guideId:'public-only',revision:1,contentHash:'a'.repeat(64),readings:[{url:'https://example.invalid/original',canonicalOrigin:'https://example.invalid/original',revision:1,sourceHash:'b'.repeat(64),readerId:'reader',quote:'先确认对方当前需求。',actuallyRead:true,withdrawn:false}],claims:[{id:'claim',text:'需求核对',sourceHash:'b'.repeat(64),quote:'先确认对方当前需求',support:'source_supported'}],coverage:[{candidateId:'x',status:'covered',destination:'public-only'}],producerId:'producer',skeptic:{reviewerId:'independent',issues:[],reviewedContentHash:'a'.repeat(64)},release:{humanReviewerId:null,reviewedContentHash:null,approved:false}}}
 test('G5 local maintenance gate prevents model self-approval, false original support and silent coverage gaps',()=>{
  const m=maintenance();assert.equal(checkMaintenance(m,['x']).publishEligible,false)
- m.release={humanReviewerId:'human-fixture',reviewedContentHash:m.contentHash,approved:true};assert.equal(checkMaintenance(m,['x']).publishEligible,false,'model-provided humanReviewerId is not authenticated approval');assert.equal(checkMaintenance(m,['x'],()=>true).publishEligible,false,'actuallyRead boolean alone is not original reading proof');assert.equal(checkMaintenance(m,['x'],()=>true,()=>true).publishEligible,true,'only simulated host approval plus captured-source verification fixtures')
+ m.release={humanReviewerId:'human-fixture',reviewedContentHash:m.contentHash,approved:true};assert.equal(checkMaintenance(m,['x']).publishEligible,false,'model-provided humanReviewerId is not authenticated approval');assert.equal(checkMaintenance(m,['x'],()=>true).publishEligible,false,'actuallyRead boolean alone is not original reading proof');assert.equal(checkMaintenance(m,['x'],()=>true,()=>true).publishEligible,false,'a different role name does not prove independent review')
  m.skeptic.reviewerId=m.producerId;assert.equal(checkMaintenance(m,['x']).publishEligible,false)
  m.skeptic.reviewerId='independent';m.claims[0].quote='并保证成功';assert.ok(checkMaintenance(m,['x']).issues.includes('claim_without_read_source'))
  assert.ok(checkMaintenance(m,['x','missing']).issues.includes('coverage_incomplete_or_changed'))
+})
+test('G5 independent review needs a host receipt, even with captured sources and release approval',()=>{
+ const m=maintenance();m.release={humanReviewerId:'human-fixture',reviewedContentHash:m.contentHash,approved:true}
+ const gate=checkMaintenance(m,['x'],()=>true,()=>true)
+ assert.equal(gate.publishEligible,false)
+ assert.ok(gate.issues.includes('authenticated_skeptic_receipt_required'))
+ assert.ok(gate.issues.includes('authenticated_release_receipt_required'))
+})
+test('G5 host journal binds independent review and human release to exact revision, sources and outcome',()=>{
+ const m=maintenance();m.skeptic.receiptId='review-run';m.release={humanReviewerId:'human-fixture',reviewedContentHash:m.contentHash,approved:true,receiptId:'release-run'}
+ const review:MaintenanceReviewReceipt={id:'review-run',kind:'independent_review',reviewerId:m.skeptic.reviewerId,producerId:m.producerId,guideId:m.guideId,revision:m.revision,contentHash:m.contentHash,sourceHashes:[m.readings[0].sourceHash],status:'completed',decision:'approve'}
+ const release:MaintenanceReviewReceipt={...review,id:'release-run',kind:'human_release',reviewerId:'human-fixture'}
+ const journal=new Map([[review.id,review],[release.id,release]]),check=()=>checkMaintenance(m,['x'],()=>true,()=>true,id=>journal.get(id)??null)
+ assert.equal(check().publishEligible,true,'local host-journal fixture only, no real approval obtained')
+ for(const changed of [{status:'cancelled' as const},{status:'failed' as const},{decision:'needs_review' as const},{decision:'reject' as const},{revision:2},{contentHash:'c'.repeat(64)},{sourceHashes:['c'.repeat(64)]},{producerId:'another-producer'},{reviewerId:'producer'},{kind:'human_release' as const},{id:'another-run'}]){
+  journal.set(review.id,{...review,...changed});assert.equal(check().publishEligible,false,JSON.stringify(changed))
+ }
+ journal.set(review.id,review);journal.delete(release.id);assert.equal(check().publishEligible,false,'missing real release receipt')
+ journal.set(release.id,{...release,revision:2});assert.equal(check().publishEligible,false,'release for another revision')
+ journal.set(release.id,release);m.skeptic.receiptId=m.release.receiptId;assert.equal(check().publishEligible,false,'one receipt cannot stand for two independent roles')
 })
 test('G4 existing insight UI generator no longer asserts external recognition, stable ability or identity upgrades',()=>{
  const base={title:'海报',summary:'一次任务',action:'我交付了一张海报',result:'收到50元',occurredAt:'2026-10-10',skillTags:['设计'],blocked:false,externalFeedback:true,connectedThemes:[],relatedExperiences:[],identityLevel:0,identityName:'出发者',nextIdentity:'探索者',identityNextHint:'再做一件升级'}
