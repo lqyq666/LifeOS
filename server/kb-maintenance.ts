@@ -34,7 +34,7 @@ export async function listMaintenanceDrafts(actor:string){requirePermission(acto
 export async function readMaintenanceDraft(actor:string,id:string,revision:number){
  requirePermission(actor,'read');const row=(await pool.query('SELECT * FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision=$2',[id,revision])).rows[0];if(!row)throw new HttpError(404,'KB_DRAFT_NOT_FOUND')
  const receipts=(await pool.query('SELECT * FROM kb_maintenance_receipts WHERE guide_id=$1 AND revision=$2 ORDER BY created_at,id',[id,revision])).rows
- return {guideId:id,revision,contentHash:row.content_hash,status:row.status,permissions:maintenancePermissions(actor),bundle:row.bundle,receipts,publicationGate:row.status==='waiting_approval'?'WAITING_AUTHORIZED_HUMAN_APPROVAL':'WAITING_INDEPENDENT_REVIEW',independentExecutionProof:'Authenticated distinct account execution only; synthetic tests never count as actual review.'}
+ return {guideId:id,revision,contentHash:row.content_hash,status:row.status,permissions:maintenancePermissions(actor),bundle:row.bundle,receipts,publicationGate:row.status==='waiting_approval'?'WAITING_AUTHORIZED_HUMAN_APPROVAL':['published','rejected','cancelled'].includes(row.status)?row.status.toUpperCase():'WAITING_INDEPENDENT_REVIEW',independentExecutionProof:'Authenticated distinct account execution only; synthetic tests never count as actual review.'}
 }
 export async function actOnMaintenanceDraft(actor:string,id:string,revision:number,input:unknown){
  if(!input||typeof input!=='object'||Array.isArray(input))throw new HttpError(400,'KB_ACTION_INVALID')

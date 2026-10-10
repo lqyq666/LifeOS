@@ -2,10 +2,14 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs'
 import {createHash} from 'node:crypto'
-import {realBatchPreflight,executeRealBatch} from '../../scripts/workflow-real-batch.ts'
+import {realBatchPreflight,executeRealBatch,realMetrics} from '../../scripts/workflow-real-batch.ts'
 import {feedbackMatchesCurrent,classifyGuideFeedback} from '../../server/guide-usage.ts'
 import {pool} from '../../server/db.ts'
 test.after(()=>pool.end())
+test('real reporting retains first failure, missing useful content, unknown cost and separates deep duration',()=>{
+ const report=realMetrics([{firstUsefulMs:2100,wholeTurnMs:5200,costCny:0.01},{firstUsefulMs:null,wholeTurnMs:9000,failure:'CANCELLED',costCny:'unknown'},{deepInput:true,firstUsefulMs:null,wholeTurnMs:14000,costCny:'unknown'}])
+ assert.equal(report.ordinaryFirstAttempts,2);assert.equal(report.noFirstContent,1);assert.equal(report.failedOrCancelled,1);assert.equal(report.firstContentP50Ms,2100);assert.equal(report.wholeReplyP95Ms,9000);assert.equal(report.unknownCostSamples,2);assert.equal(report.performanceStatus,'NOT_ACCEPTED_INCOMPLETE_OR_FAILED')
+})
 test('paused real batch preflight is read-only, preserves unique ledger, and dispatches zero without owner authorization',()=>{
  const path='.local/v1.3-action-coach/paid/provider-calls.json',hash=()=>existsSync(path)?createHash('sha256').update(readFileSync(path)).digest('hex'):'MISSING_NOT_COPIED',before=hash(),report=realBatchPreflight()
  assert.equal(report.status,'PAUSED_NOT_RUN');assert.ok(report.blocks.includes('EXPLICIT_MODEL_PAUSE_NOT_LIFTED'));assert.equal(report.productDispatches,0);assert.equal(report.cloudDispatches,0);assert.equal(hash(),before)

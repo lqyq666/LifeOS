@@ -31,3 +31,15 @@
 恢复时由本人提供私有授权文件，kind为`OWNER_APPROVED_LIFEOS_REAL_BATCH`，含`pauseLifted`、`head`、`sourceDigest`、`contentHash`、`ledgerSha256`、`modelSignature`、`expiresAt`、`maxSpendCny`及`ownerApprovalEvidence`与其`ownerApprovalSha256`。数值须在现有可核验剩余预算内；文件不能由生成者自签。当前模型能力检查必须匹配该配置。设置`LIFEOS_REAL_BATCH_AUTHORIZATION`为该文件、`LIFEOS_REAL_BATCH_OUTPUT`为新的证据目录、`LIFEOS_REAL_BATCH_EXECUTE=owner_authorized`后执行 `npm run test:backend -- --file=workflow-real-entry.test.ts`，自动使用隔离数据库与原宿主。不需修改产品代码。
 
 入口顺序为小批、四连续链、20复杂配对、20普通交互；每阶段保留首次失败和取消，普通最多一次生成，未知费用按预留占用。独立六轴审阅回执须绑定实际阶段转录hash及执行证据，缺回执后续质量阶段暂停，不能以生成者打分放行。扣子当前副本和真实Skill运行仍须另行解除云暂停及获取对应版本，当前入口不会自动上传或部署；云执行准备与已完成实际验收分别记录。
+
+本批真实入口（暂停期间只运行 preflight，零模型/云派发）：
+
+```powershell
+npx tsx scripts/workflow-real-batch.ts
+npx tsx scripts/workflow-coze-candidate.ts
+npx tsx scripts/workflow-coze-real.ts
+```
+
+恢复产品模型后，现有 `workflow-real-entry.test.ts` 是隔离数据库执行入口。授权需绑定 HEAD、sourceDigest、contentHash、原账本 SHA、模型签名、到期时间、既有余额以内的 maxSpendCny，以及本人批准证据文件及其 SHA。需连续完成一次批准批次时，设置 `waitForIndependentReview:true`，并预先配置 `reviewReceipts.small/four_chains/complex20_pairs` 的本地文件路径。执行进程保留隔离账号和数据库等待实际独立审阅，读取真实结果的六轴回执后继续，不另申请同一批权限。审阅不通过、授权到期则停止后续派发；停止后不得重发已有尝试。深入任务使用明确标注的合成输入预存接口夹具，零预备生成，两方向4次、三方向5次；这不能代替真实普通聊天或界面效果验收。结果保留失败、无首内容的 null、未知费用与预留。`BLIND_REVIEW_INPUT.json` 不含单/多模式映射；实际映射只在执行日志，不能交给盲评者。代码检查回执格式不能证明真人独立性，需要实际外部审阅证据。
+
+扣子入口独立需要明确解除云暂停与当前副本配置。先生成本地兼容候选，再以 `npx tsx scripts/workflow-coze-real.ts --authorization=<private-authorization.json> --output=<unique-output> --execute` 运行获准的首次尝试；无授权准确返回 PAUSED_NOT_RUN。授权 kind=`OWNER_APPROVED_LIFEOS_COZE_BATCH`，含 pauseLifted、head/sourceDigest/contentHash/ledgerSha256、ownerApprovalEvidence/ownerApprovalSha256、expiresAt、maxSpendCny、fundingScopeAllowsCoze，以及仅两个现有 projectId 的 endpoint、tokenEnv（仅环境变量名）、release、maxCostPerRequestCny、copyReadbackEvidence/copyReadbackSha256。总六次请求的足额上限必须落在既有获准余额内，不增加预算。副本 `/run` 必须返回 runtime 的 projectId/release/sourceDigest/contentHash；receipt 包含实际 id 和 complete/unknown 用量状态。知识项需对应 allowlist 的 documentId/revision/contentHash；工作流不得提交学生状态、不得超过5次生成，Skill 回执须匹配对应版本。输入为合成成年数据，场景包括正常、来源冲突和在途取消；异常回执在本地拒绝。费用未经真实核对保留 unknown 和全部预留，不信任响应自行声称的零费用，不收费重试。入口不上传/更新/部署副本；当前副本兼容内容需在解除暂停后于原项目实际准备并读回，旧部署不算本候选。

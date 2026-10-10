@@ -1,6 +1,9 @@
 {
   "schemaVersion": 1,
   "expectationsFrozenBeforeExecution": false,
+  "annotationRevision": 2,
+  "originalAnnotationsCommit": "6191070",
+  "annotationCaveat": "One exposed mixed-question label corrected after retained first failure; not a blind cohort.",
   "evidenceKind": "LOCAL_SCRIPTED_NOT_MODEL_QUALITY",
   "students": [
     {
@@ -658,7 +661,7 @@
             "goal"
           ],
           "expectNoGrowth": true,
-          "expectationCorrection": "Original overbroad annotation treated an uncertain personal question as an asserted goal; first failed expectation retained, event still retains the actual request."
+          "expectationCorrection": "Original overbroad question-as-goal label corrected; actual request remains in event, initial failure retained."
         },
         {
           "session": 0,
@@ -780,8 +783,5 @@
         }
       ]
     }
-  ],
-  "annotationRevision": 2,
-  "originalAnnotationsCommit": "6191070",
-  "annotationCaveat": "One exposed incorrect question-as-goal label corrected after first failure; original first annotations and failures retained, not blind semantic evaluation."
+  ]
 }
