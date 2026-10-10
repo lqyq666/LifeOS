@@ -12,7 +12,10 @@ test('SIMULATED source/config freeze stops changed cohorts while retaining alrea
   const root=resolve('.local/v1.3-action-coach/simulation-freeze-'+randomUUID()),freeze=resolve(root,'freeze.json')
   const names=['package.json','server/turn-engine.ts','server/action-coach-contracts.ts','src/backend/client.ts','Dockerfile','compose.yaml','.dockerignore','deploy/nginx.conf.example']
   const extra=resolve(root,'server/added.ts')
-  const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()})
+  const authorization=resolve(root,'evidence/v1.2.1-reliability/20261003-authorized300-11/PROVIDER_AUTHORIZATION.json')
+  // A free guard test must not depend on the owner's historical grant/receipts.
+  mkdirSync(dirname(authorization),{recursive:true});writeFileSync(authorization,JSON.stringify({kind:'SYNTHETIC_TEST_ONLY',runs:[],batchMaximumCalls:300,observedStarts:0,unknownInterruptedCallMaximum:0,reservedMaximumActiveRun:0,unreservedRemaining:300,unknownUsageCalls:0,knownEstimatedSubtotalCny:0,activeRun:null}))
+  const budget=new CoachProviderBudget({root,simulation:true,testDirectory:'simulation-'+randomUUID()})
   const oldConcurrency=config.generationConcurrency
   for(const name of names){mkdirSync(dirname(resolve(root,name)),{recursive:true});writeFileSync(resolve(root,name),'synthetic '+name)}
   try{
@@ -48,7 +51,7 @@ test('SIMULATED source/config freeze stops changed cohorts while retaining alrea
   }finally{
     config.generationConcurrency=oldConcurrency
     // Exact synthetic files and empty directories only; no recursive removal.
-    for(const path of [...names.map(name=>resolve(root,name)),extra,freeze,budget.path,budget.path+'.lock'])if(existsSync(path))unlinkSync(path)
-    for(const path of [resolve(root,'src/backend'),resolve(root,'src'),resolve(root,'server'),resolve(root,'deploy'),root,dirname(budget.path)])if(existsSync(path))rmdirSync(path)
+    for(const path of [...names.map(name=>resolve(root,name)),extra,freeze,authorization,budget.path,budget.path+'.lock'])if(existsSync(path))unlinkSync(path)
+    for(const path of [resolve(root,'src/backend'),resolve(root,'src'),resolve(root,'server'),resolve(root,'deploy'),dirname(authorization),resolve(root,'evidence/v1.2.1-reliability'),resolve(root,'evidence'),dirname(budget.path),resolve(root,'.local/v1.3-action-coach'),resolve(root,'.local'),root])if(existsSync(path))rmdirSync(path)
   }
 })
