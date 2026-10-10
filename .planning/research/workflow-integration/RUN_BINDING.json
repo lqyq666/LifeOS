@@ -857,14 +857,14 @@
     "scopeRestored": true,
     "status": "NOT_RELEASED_BLOCKED",
     "authorization": "LAUNCH_AUTHORIZATION.json",
-    "latestIncrementCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4",
+    "latestIncrementCommit": "c468f05112323afc411356e10d7f64bfac70a357",
     "evidence": "evidence/coze-core-launch-20261011/",
     "productionWrites": 0,
     "newBudget": 0,
-    "modelCalls": 21,
-    "interfaceCalls": 15,
-    "ordinaryPilotCalls": 6,
-    "ordinaryPilotVersions": 2,
+    "modelCalls": 28,
+    "interfaceCalls": 19,
+    "ordinaryPilotCalls": 9,
+    "ordinaryPilotVersions": 3,
     "ordinaryTwentyAccepted": 0,
     "cozeBusinessCalls": 0,
     "cozeDevelopmentRequests": 5,
@@ -872,16 +872,16 @@
     "cloudContracts": "LEGACY_READBACK_ONLY_NEW_HTTP_NOT_ACCEPTED",
     "runtimeSpendEntry": "HOST_SIGNED_ORIGINAL_CNY_RESERVATION_LOCAL_TESTED_CLOUD_BRIDGE_NOT_TESTED",
     "modelLedgerMetadataOnly": {
-      "sha256": "5dee70d12598d8b5d590ca85645716e01d09cdde7ed6f3222d02a221d82e32b3",
+      "sha256": "82a81897e67adc8e0dc172554854f55ce08235ec3b34f2362a8b652961613646",
       "copied": false,
       "startingCallCount": 2022,
-      "currentCallCount": 2043,
-      "newCalls": 21,
+      "currentCallCount": 2050,
+      "newCalls": 28,
       "newBudget": 0,
-      "knownEstimatedCostCny": 0.02625,
-      "unknownCalls": 3,
-      "unknownReservedCny": 0.3735552,
-      "remainingCny": 10.8605346
+      "knownEstimatedCostCny": 0.0348158,
+      "unknownCalls": 4,
+      "unknownReservedCny": 0.4980736,
+      "remainingCny": 10.7274504
     },
     "cozeCredits": {
       "observedInitial": 151559,
@@ -894,13 +894,19 @@
     },
     "image": "6c5e5d8_FRESH_IMAGE_44_SCOPED_CHECKS_PASS_NOT_REAL_ACCEPTANCE",
     "ordinaryPilot": {
-      "sourceCommit": "4566bb3c5c4ebeea9f9ba8015c3de210fec53531",
-      "firstContentP50Ms": 5590.075699999998,
-      "firstContentP95Ms": 8161.217100000002,
-      "status": "FAILED_STATE_SOURCE_AND_FIRST_CONTENT_TARGETS",
+      "sourceCommit": "c468f05112323afc411356e10d7f64bfac70a357",
+      "firstAttempts": 3,
+      "firstContentObserved": 3,
+      "noFirstContent": 0,
+      "completeReplyObserved": 3,
+      "noCompleteReply": 0,
+      "firstContentP50Ms": 3504.5131,
+      "firstContentP95Ms": 4453.771700000001,
+      "observedCompleteReplyP95Ms": 5382.983400000001,
+      "countedTowardOrdinary20": false,
+      "status": "FAILED_SOURCE_CURRENT_EVENT_AND_FIRST_CONTENT_P50",
       "independentReview": "NOT_TESTED",
-      "samples": 3,
-      "observedCompleteReplyP95Ms": 9838.253700000001
+      "samples": 3
     },
     "previousChecksScope": "Historical regression and isolated interface evidence are not real current cloud/student acceptance.",
     "hostBindingDomain": ".planning/research/workflow-integration/COZE_HTTP_HOST_BINDING.json",
@@ -1159,6 +1165,7 @@
       "realSemanticImprovement": "NOT_TESTED_NEW_VERSION",
       "ordinaryPerformance": "PRIOR_FAILED_SMALL_PILOT_RETAINED",
       "changed": "Always-present source boundary; explicit selected method availability in provider context. Revision-specific aria-pressed. Declared test command uses already locked tsx so existing parameter properties are executable."
-    }
+    },
+    "currentSmallReadbackReview": "evidence/coze-core-launch-20261011/ORDINARY_SOURCE_AVAILABILITY_READBACK_REVIEW.json"
   }
 }
