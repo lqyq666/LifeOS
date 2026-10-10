@@ -73,6 +73,8 @@ test('WF02/03/05/04 host → native SDK engine → finishRun → authenticated G
   const body=deep(),beforeGrowth=(await pool.query('SELECT count(*) AS n FROM growth_items WHERE user_id=$1',[user])).rows[0].n
   await json('/api/workflows',body);const task=await wait(body.requestId);assert.equal(task.status,'proposed',JSON.stringify(task));assert.equal(task.nodes.filter((n:any)=>n.role!=='constraint_validator'&&n.role!=='evidence_guardian').length,4);assert.ok(task.nodes.filter((n:any)=>n.providerCalls>0).every((n:any)=>n.providerUsage?.providerResponseId));assert.equal(task.receipt.providerCalls,4);assert.equal(task.receipt.reviewIssues[0].severity,'uncertainty')
   assert.ok(task.nodes.every((n:any)=>/^[0-9a-f]{64}$/.test(n.inputRefDigest)&&/^[0-9a-f]{64}$/.test(n.outputRefDigest)),'durable per-node input/output snapshot digests')
+  assert.ok(task.receipt.skills.includes('lifeos-direction-analysis'))
+  writeFileSync(directory+'/DIRECTION_SKILL_EXECUTION.json',JSON.stringify({status:'PASS_NATIVE_SDK_LOCAL_SIMULATED',version,task,paidCalls:0,cloudCalls:0},null,2))
   assert.equal((await pool.query('SELECT count(*) AS n FROM growth_items WHERE user_id=$1',[user])).rows[0].n,beforeGrowth,'analysis cannot change student facts')
   const completeWire=wire.length;await json('/api/workflows',body);assert.equal(wire.length,completeWire);assert.equal((await request('/api/workflows/'+body.requestId,undefined,otherCookie)).status,404)
   const restarted=makeHost();assert.equal((await restarted.read(user,body.requestId,second)).status,'proposed');restarted.close();assert.equal(wire.length,completeWire)

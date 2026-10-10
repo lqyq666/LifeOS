@@ -24,7 +24,7 @@ import {readWorkflowEvidence} from '../../server/workflows/task-sources.ts'
 test('waiting_user short time supplement continues original comparison in real Chrome without duplicate deep calls',async()=>{
  const previous={url:model.baseUrl,key:config.apiKey,origin:config.origin,access:config.entitlementsEnabled,flag:process.env.LIFEOS_ADVANCED_WORKFLOWS}
  process.env.LIFEOS_ADVANCED_WORKFLOWS='true';config.entitlementsEnabled=false
- const wire:any[]=[],audits:any[]=[],directory='.planning/research/workflow-integration/evidence/local-time-20261010';mkdirSync(directory,{recursive:true})
+ const wire:any[]=[],audits:any[]=[],directory=process.env.LIFEOS_WORKFLOW_EVIDENCE??'.planning/research/workflow-integration/evidence/local-time-20261010';mkdirSync(directory,{recursive:true})
  const progress=(text:string)=>appendFileSync(directory+'/browser-probe-stages.log',text+'\n')
  let eventId='',eventRevision=1,slow=false
  const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',x=>chunks.push(Buffer.from(x)));req.on('end',()=>{

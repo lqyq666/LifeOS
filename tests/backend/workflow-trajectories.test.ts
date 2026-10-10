@@ -16,7 +16,7 @@ import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 
 test('four continuous trajectories, three sessions each, normal authenticated HTTP and Chrome; loopback scripted provider only',async()=>{
  const old={url:model.baseUrl,key:config.apiKey,origin:config.origin,access:config.entitlementsEnabled,flag:process.env.LIFEOS_ADVANCED_WORKFLOWS}
- const directory='.planning/research/workflow-integration/evidence/local-time-20261010';mkdirSync(directory,{recursive:true})
+ const directory=process.env.LIFEOS_WORKFLOW_EVIDENCE??'.planning/research/workflow-integration/evidence/local-time-20261010';mkdirSync(directory,{recursive:true})
  const trajectories=JSON.parse(readFileSync('tests/fixtures/workflow-local-trajectories.json','utf8'))
  const read=(file:string)=>readFileSync('.planning/research/evergreen/'+file,'utf8').trim().split('\n').map(x=>JSON.parse(x))
  const cards=read('KB_GUIDES.jsonl'),wire:any[]=[],results:any[]=[],ui:any[]=[]
@@ -80,7 +80,8 @@ test('four continuous trajectories, three sessions each, normal authenticated HT
     if(chain.id==='course'&&index===1){assert.ok(facts.some((f:any)=>f.kind==='context'&&f.text.includes('每周能拿出六小时')));assert.ok(facts.some((f:any)=>f.kind==='constraint'&&f.text.includes('这周只剩两小时')))}
     if(chain.id==='freelance'&&index===5){assert.ok(JSON.stringify(wire.at(-1).context).includes('就业'));assert.ok(JSON.stringify(wire.at(-1).context).includes('海报'))}
     assert.ok(Object.values(state).every(Boolean),JSON.stringify({chain:chain.id,index,state,used}))
-    results.push({chain:chain.id,round:index+1,session:round.session+1,requestId:id,input:round.text,reply:done.reply,state,event:view,guideUsage:used,growth:facts,runResponse:run.response,scriptedProviderCalls:wire.length-before,methodSupport:initialMethod?'APPROVED_HOST_GUIDE_USAGE':'EDITORIAL_NO_MATCHING_APPROVED_METHOD'})
+    const toolAudit=(await pool.query('SELECT tool_audit FROM runs WHERE user_id=$1 AND request_id=$2',[user,id])).rows[0].tool_audit
+    results.push({chain:chain.id,round:index+1,session:round.session+1,requestId:id,input:round.text,reply:done.reply,state,event:view,guideUsage:used,growth:facts,runResponse:run.response,skillExecutionAudit:toolAudit.filter((a:any)=>a.phase==='workflow_trace'),scriptedProviderCalls:wire.length-before,methodSupport:initialMethod?'APPROVED_HOST_GUIDE_USAGE':'EDITORIAL_NO_MATCHING_APPROVED_METHOD'})
     latestFacts=facts;persist();await indexCoachEventOnce()
    }
    assert.ok(initialMethod,'initial approved method did not connect to authenticated guide usage: '+chain.id)
@@ -98,6 +99,15 @@ test('four continuous trajectories, three sessions each, normal authenticated HT
     await sessionContext.close()
    }
    assert.deepEqual(errors,[]);assert.ok(latestFacts.length);persist()
+   if(chain.id==='freelance'&&process.env.LIFEOS_RECORD_DEMO==='true')await (await import('../../scripts/workflow-record-demo.ts')).recordLocalStory({browser,origin,cookie,chats,directory})
+   if(chain.id==='course'){
+    const version=await json('/api/run/version'),executed=results.flatMap(r=>r.skillExecutionAudit).filter((a:any)=>a.agentRole==='skill'&&a.status==='succeeded')
+    for(const name of ['lifeos-action-review','lifeos-guide-application','lifeos-growth-diff','lifeos-experience-evidence']){
+     const actual=executed.filter((a:any)=>a.skill===name);assert.ok(actual.length,'normal host never executed '+name)
+     assert.ok(actual.every((a:any)=>a.skillDigest===version.skills.find((s:any)=>s.name===name).sha256&&a.skillVersion==='0.2.0-candidate'&&a.providerCalls===0))
+    }
+    writeFileSync(directory+'/SKILL_HOST_EXECUTIONS.json',JSON.stringify({status:'PASS_LOCAL_HOST',provider:'SCRIPTED_LOOPBACK_ONLY',version,executed,committedRounds:results.map(r=>({requestId:r.requestId,state:r.state}))},null,2))
+   }
   }
  }finally{persist();await browser.close();app.closeAllConnections();await new Promise<void>(r=>app.close(()=>r()));fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()));await localEmbedding.close();model.baseUrl=old.url;config.apiKey=old.key;config.origin=old.origin;config.entitlementsEnabled=old.access;if(old.flag===undefined)delete process.env.LIFEOS_ADVANCED_WORKFLOWS;else process.env.LIFEOS_ADVANCED_WORKFLOWS=old.flag;await pool.end()}
 })

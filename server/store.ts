@@ -264,6 +264,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     const growthDiff=diffEnabled?await committedGrowthDiff(c,run.user_id,run.conversation_id,run.request_id,diffBefore,[...themeFactIds,...candidateIds,...mergedExperienceIds],row=>staged.audit.push({phase:'workflow_trace',...row})):[]
         const stateChange={
           growthDiff,
+          growthDiffStatus:staged.audit.some((row:any)=>row.phase==='workflow_trace'&&row.agentRole==='skill'&&['lifeos-growth-diff','lifeos-experience-evidence'].includes(row.skill)&&row.status==='failed')?'unavailable':'applied',
           workflow:workflowCommit,
           growth:{status:growthStatus,createdIds:growth?growth.createdIds:[],changedIds:growth?growth.changedIds:[],retainedIds:growth?growth.retainedIds:[],skipped:(staged.growth?.skipped??[]).map(skip=>({inputIndex:skip.inputIndex,code:skip.reason}))},
           controls:{changedScopes,effects:controlEffects},

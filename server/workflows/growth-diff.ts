@@ -9,8 +9,15 @@ export function growthDiff(request:WorkflowRequest,host:{traceId:string;requestI
  if(request.mode!=='growth_diff'||!host.committed||host.traceId!==request.traceId||host.requestId!==request.requestId)throw new WorkflowError('stale_snapshot')
  if(!host.changedIds.length)return []
  const trace=createTrace(sink)
- loadBusinessSkill('lifeos-growth-diff',request.traceId,trace)
- loadBusinessSkill('lifeos-experience-evidence',request.traceId,trace)
+ try{
+  loadBusinessSkill('lifeos-growth-diff',request.traceId,trace)
+  loadBusinessSkill('lifeos-experience-evidence',request.traceId,trace)
+ }catch(error){
+  // This optional view has no authority to discard valid host facts. Keep its
+  // failed zero-call trace and omit the explanation; never use changed instructions.
+  if(error instanceof WorkflowError&&['source_invalid','unavailable'].includes(error.code))return []
+  throw error
+ }
  const changes:GrowthDelta[]=[]
  for(const id of new Set(host.changedIds)){
   const old=before.find(x=>x.ref.id===id),current=after.find(x=>x.ref.id===id)

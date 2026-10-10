@@ -10,6 +10,14 @@
 
 绿证据：guide-final.log（新增2项、原main-entry1项、原guide-usage-http1项），GUIDE_CONTINUATION_HTTP.json实际三会话读回；root-guide.log 115/115，server-guide.log、frontend-guide.log、build-guide.log通过。模型响应来自loopback脚本；token/估算成本是合同字段，不是真实付费。未新增依赖、Agent或预算，未改公共攻略审批。
 
+## 专业Skill实际执行与降级
+
+五个专业Skill在进程启动时冻结版本及SHA，每次执行重新读取并核对；缺失/替换失败记录零调用trace，不用变更后的指令。可选成长解释不可用时返回空解释和unavailable状态，不丢弃合法主状态。
+
+skill-red.log、skill-fallback-red.log保留版本缺失及失败解释原红测；skill-final.log通过。正常宿主24轮中实际记录guide-application 4次、action-review 5次、growth-diff及experience-evidence各21次；深入任务direction-analysis通过原SDK调用和持久回执读回。SKILL_HOST_EXECUTIONS.json及DIRECTION_SKILL_EXECUTION.json明确为本地脚本Provider，不证明真实模型遵循全部Skill。
+
+root-final.log 115/115、原九套相关96/96、前后端类型/build通过；retrieval-safety-final.log补跑相似对象、更正、遗忘、撤回和工作流边界14项通过。四条各3会话、共24轮及Chrome1440/390再次通过。录屏首版误停首页的原视频保留；正常认知空间入口的第二版通过，画面核查另发现愿望句被误收经历，继续修复后才能交付最终演示。
+
 ## 星图采用同一有效状态
 
 已复现星图决策上下文直接读取raw active约束，导致过期“零小时”和尚未生效“下周六小时”同时进入当前帮助。改为复用growthView已有来源/时间窗口/依赖/暂停门禁；过期目标不能凭主题投影继续生效。没有增加另一套时间解析或星图事实。
