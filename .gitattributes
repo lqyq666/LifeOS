@@ -14,3 +14,4 @@ evidence/v1.3-action-coach/research/*.json -text
 .planning/research/evergreen/KB_GAPS.md -text
 .planning/research/workflow-integration/evidence/retrieval-followup-20261010/** -text -whitespace
 evidence/coze-core-launch-20261011/*.log -text -whitespace
+evidence/coze-core-launch-20261011/**/*.log -text -whitespace

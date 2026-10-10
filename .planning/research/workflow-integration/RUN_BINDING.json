@@ -868,7 +868,7 @@
     "ordinaryTwentyAccepted": 0,
     "cozeBusinessCalls": 0,
     "cozeDevelopmentRequests": 5,
-    "development": "R5_TERMINAL_REJECTED_SECOND_REPAIR_PREPARED",
+    "development": "GROWTH_R6_TERMINAL_SOURCE_REJECTED_R7_AUTHORIZED_REPAIR_PREPARED",
     "cloudContracts": "LEGACY_READBACK_ONLY_NEW_HTTP_NOT_ACCEPTED",
     "runtimeSpendEntry": "HOST_SIGNED_ORIGINAL_CNY_RESERVATION_LOCAL_TESTED_CLOUD_BRIDGE_NOT_TESTED",
     "modelLedgerMetadataOnly": {
@@ -885,13 +885,10 @@
     },
     "cozeCredits": {
       "observedInitial": 151559,
-      "chargedRounded": 35464,
+      "chargedRounded": 42397,
       "unknownHeld": 0,
-      "availableUnreserved": 116095,
-      "actualR4Bill": "evidence/coze-core-launch-20261011/COZE_R4_DEVELOPMENT_USAGE.json",
-      "reservedR5": 126423,
-      "r5ActualCost": null,
-      "actualR5Bill": "evidence/coze-core-launch-20261011/COZE_R5_DEVELOPMENT_USAGE.json"
+      "availableUnreserved": 109162,
+      "actualR6Bill": "evidence/coze-core-launch-20261011/COZE_R6_DEVELOPMENT_USAGE.json"
     },
     "image": "6c5e5d8_FRESH_IMAGE_44_SCOPED_CHECKS_PASS_NOT_REAL_ACCEPTANCE",
     "ordinaryPilot": {
@@ -911,7 +908,7 @@
     },
     "previousChecksScope": "Historical regression and isolated interface evidence are not real current cloud/student acceptance.",
     "hostBindingDomain": ".planning/research/workflow-integration/COZE_HTTP_HOST_BINDING.json",
-    "cloudHttpCommit": "697655773bb6315eb38956a4de12bc1828aa02b1",
+    "cloudHttpCommit": "b8a95308ee60962b086e695061669a77ca732383",
     "currentHostRuntimeAndCloudBindingMatch": "NOT_TESTED",
     "latestRealSource": {
       "head": "4566bb3c5c4ebeea9f9ba8015c3de210fec53531",
@@ -966,8 +963,8 @@
       "readbackReview": "2852b993005ea9609a7113be8bc71d19b5f48ce894d8ed45376fd66d4b7710a3",
       "interface": "378873a5dd9a1bdf6df52281a64b210519238c877f4ee636722d380d96e1bd4d"
     },
-    "freshReproduction": "evidence/coze-core-launch-20261011/FRESH_C468_REPRO.json",
-    "sourceReview": "evidence/coze-core-launch-20261011/COZE_R4_SOURCE_REVIEW.json",
+    "freshReproduction": "evidence/coze-core-launch-20261011/fresh-a786526/REPRODUCTION.json",
+    "sourceReview": "evidence/coze-core-launch-20261011/COZE_R6_SOURCE_REVIEW.json",
     "retrievalIncrement": {
       "status": "LOCAL_EXPOSED_RETRIEVAL_REGRESSION_GATES_PASS",
       "baseCommit": "a681dd84baf977930e9e77545b1746690ce9961b",
@@ -1776,6 +1773,8 @@
       "newBudget": 0,
       "evidence": ".planning/research/workflow-integration/evidence/retrieval-reserve-20261011/NATURAL_reserve_first-final.json",
       "futureUse": "Exposed after this execution; any later tuning informed by these labels or outcomes must mark this as regression, never a new unseen cohort."
-    }
+    },
+    "freshReproductionHead": "a786526a25df4543fee6d80067d161ccc1fb1715",
+    "freshReproductionStatus": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE"
   }
 }
