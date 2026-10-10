@@ -14,10 +14,10 @@ import type {NodeContext,WorkflowNode} from './orchestrator.ts'
 
 const object=<T extends Parameters<typeof Type.Object>[0]>(fields:T)=>Type.Object(fields,{additionalProperties:false})
 const ids=Type.Array(Type.String({minLength:1,maxLength:80}),{maxItems:12,uniqueItems:true})
-const analystSchema=object({evidenceIds:ids,tradeoffIds:ids,unknownIds:ids,actionIds:ids,evidenceRelations:Type.Optional(Type.Array(object({evidenceId:Type.String(),relation:Type.Union([Type.Literal('support'),Type.Literal('limit'),Type.Literal('unknown')])}),{maxItems:12}))})
+const analystSchema=object({evidenceIds:ids,tradeoffIds:ids,unknownIds:ids,actionIds:ids,evidenceRelations:Type.Optional(Type.Array(object({evidenceId:Type.String(),relation:Type.Union([Type.Literal('support'),Type.Literal('limit'),Type.Literal('unknown')])}),{maxItems:12})),actionBasis:Type.Optional(Type.Array(object({actionId:Type.String(),evidenceIds:ids,unknownIds:ids}),{maxItems:12}))})
 const criticSchema=object({issues:Type.Array(object({severity:Type.Union([Type.Literal('blocker'),Type.Literal('needs_clarification'),Type.Literal('uncertainty')]),issueId:Type.String(),evidenceIds:ids}),{maxItems:12}),rejectedDirections:ids})
 const synthesisSchema=object({directionOrder:ids,actionIds:ids})
-const issueCatalogue={unsupported:'这条判断没有授权来源支持。',contradiction:'两条当前依据互相矛盾，需要本人核对。',motivation:'读研或工作的具体动机仍需核对。',fit:'单次经历不能证明稳定能力或长期适配。',unknown:'尚未提供的条件保持未知，不据此否定路径。'}
+const issueCatalogue={unsupported:'这条判断没有授权来源支持。',contradiction:'两条当前依据互相矛盾，需要本人核对。',motivation:'读研或工作的具体动机仍需核对。',fit:'单次经历不能证明稳定能力或长期适配。',unknown:'尚未提供的条件保持未知，不据此否定路径。',adoption:'实际交付是否被采用、反馈及效果分别缺哪项证据，仍需核对。',role_evidence:'已有作品与目标岗位实际要求如何对应，仍需核对；反馈不能替代岗位要求。',repeatability:'已有结果能否重复、是否愿意承担后续义务仍需核对；暂停时不要求扩大接单。'}
 const commonTradeoffs={parallel:'多条路径同时投入会争用时间；本次仅选择一个可停止的小探索。',cost:'完整准备的时间、资金与退出代价尚未核实，先不承诺长期投入。',transfer:'先检查已有成果能否复用到这条路径；作品存在不等于满足岗位或研究要求，避免重复准备。',priority:'把本周已明确的课程、休息和其他义务放在探索之前；先缩小范围，不要求同时全面投入。',motivation:'先核对这条路径想解决的实际问题；若动机尚未知，先了解具体工作或研究内容，再决定是否准备。',pause:'可以暂缓这条路径，保留重开条件；本次比较不要求立即选定长期方向。'}
 const pathTradeoffs:Record<string,string>={employment:'就业与实习：先核对目标岗位和实际作品证据；在要求不清楚时，不承诺投递数量或就业结果。',postgraduate_exam:'考研：先区分读研想解决的问题与备考投入；报考条件、准备量和学校要求未核实时，不据此宣布适合读研。',postgraduate_recommendation:'保研：本校资格、排名与材料要求需查正式来源；有科研兴趣不等于已经具备推免资格。',entrepreneurship:'创业：想法、用户回应、采用、付款分别核对；没有反馈时先验证一个需求，保持退出选项。',independent_development:'独立开发：作品完成、有人使用与持续收益是不同阶段；先验证一个场景，避免直接承诺商业化。',freelance:'自由职业：交付、采用与付款分开；单次任务结果不自动推为稳定收入，先检查可复用证据。',overseas_study:'留学：先核对项目目标、申请条件和可承受资金；正式来源未查清前保留国内路径。',public_service:'考公考编：先了解实际工作内容并查询当期正式岗位条件；未核实资格时不承诺可报名。',undergraduate_upgrade:'专升本：先核对教育阶段和当地正式政策；通用方法不能替代当期招生要求。'}
 // These are proposed exercises, not claims that a student owns resources or meets
@@ -105,7 +105,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    // demanding an exercise longer than the student's stated available time.
    if(minutes!==0)actions.push({id:path.id+':pause',text:`只记下${path.title}当前最关键的一个未知与重新考虑条件，然后暂停这条探索。`,estimatedMinutes:Math.min(5,minutes??5)})
    const tradeoffCatalogue={...commonTradeoffs,path:pathTradeoffs[path.id]??commonTradeoffs.cost}
-   const output=await call(c,'path:'+path.id,'路径分析者：按本人的当前目的、已有成果、关键缺口与本周义务，选择最能推进当前问题的取舍；没有可用时间时行动为空，允许暂缓。相同条件允许同建议；姓名、语气不影响选择。不要把一次成果推为长期适配；缺作品、动机或资格时保留未知。动作时间只是建议投入上限，不是本人已有安排。',analystSchema,{path,facts:source,timeBudget:c.request.budget,tradeoffs:tradeoffCatalogue,unknowns:issueCatalogue,actions},skill)
+   const output=await call(c,'path:'+path.id,'路径分析者：按本人的当前目的、已有成果、关键缺口与本周义务，选择最能推进当前问题的取舍；用actionBasis把每项行动连接到已选择的个人evidenceIds与仍缺的unknownIds。依据必须来自当前授权事实，未知只选择实际影响这次取舍的项。没有可用时间时行动为空，允许暂缓。相同条件允许同建议；姓名、语气不影响选择。不要把一次成果推为长期适配；缺作品、动机或资格时保留未知。动作时间只是建议投入上限，不是本人已有安排。',analystSchema,{path,facts:source,timeBudget:c.request.budget,controls:c.request.controls,tradeoffs:tradeoffCatalogue,unknowns:issueCatalogue,actions},skill)
    const wire=output.parsed as Static<typeof analystSchema>,chosen=select(source,wire.evidenceIds)
    if(!chosen.length)throw new WorkflowError('source_invalid')
    const tradeoffs=select(Object.entries(tradeoffCatalogue).map(([id,text])=>({id,text})),wire.tradeoffIds),unknowns=select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),wire.unknownIds)
@@ -117,7 +117,13 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    p.alternatives=[{directionId:path.id,title:path.title,pros:related('support'),tradeoffs:[...related('limit'),...tradeoffs.map(x=>x.text)],unknowns:[...related('unknown'),...unknowns.map(x=>x.text)],weeklyMinutes:null,evidenceRefs:p.evidenceRefs}]
    // Generic exercises remain explicitly editorial. Approved public methods are
    // supplied by the host knowledge/guide path, never invented as catalogue IDs.
-   p.nextActions=selectedActions.map(x=>({description:'LifeOS 编辑建议（未绑定公开攻略）：'+x.text,estimatedMinutes:x.estimatedMinutes,stopCondition:`用于核对当前个人依据与仍未知的行动缺口；到可调整的建议投入上限${x.estimatedMinutes}分钟或发现必需材料缺失时停止；不自动对外联系。`,evidenceRefs:p.evidenceRefs,directionId:path.id}))
+   const bases=wire.actionBasis??[]
+   if(new Set(bases.map(b=>b.actionId)).size!==bases.length||bases.some(b=>!selectedActions.some(a=>a.id===b.actionId)||!b.evidenceIds.length||b.evidenceIds.some(id=>!chosen.some(f=>f.id===id))||b.unknownIds.some(id=>!wire.unknownIds.includes(id))))throw new WorkflowError('source_invalid')
+   p.nextActions=selectedActions.map(x=>{
+    const basis=bases.find(b=>b.actionId===x.id),personal=basis?select(chosen,basis.evidenceIds):[],gaps=basis?select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),basis.unknownIds):[]
+    const connection=basis?`个人依据（原话，保留条件）：${personal.slice(0,2).map(f=>f.text.slice(0,120)).join('；')}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；`:'个人依据与行动缺口的具体连接尚未说明；'
+    return {description:'LifeOS 编辑建议（未绑定公开攻略）：'+x.text,estimatedMinutes:x.estimatedMinutes,stopCondition:`${connection}到可调整的建议投入上限${x.estimatedMinutes}分钟或发现必需材料缺失时停止；不自动对外联系。`,evidenceRefs:basis?personal.map(f=>f.ref):p.evidenceRefs,directionId:path.id}
+   })
    return {result:{evidenceRefs:p.evidenceRefs,summary:'已选择该路径的授权依据与小探索',issues:[],proposal:p},costCny:output.costCny,providerCalls:1}
   },
   async critic(c,analyses,skill){

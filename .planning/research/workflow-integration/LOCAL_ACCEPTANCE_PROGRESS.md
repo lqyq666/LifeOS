@@ -10,4 +10,12 @@
 
 绿证据：guide-final.log（新增2项、原main-entry1项、原guide-usage-http1项），GUIDE_CONTINUATION_HTTP.json实际三会话读回；root-guide.log 115/115，server-guide.log、frontend-guide.log、build-guide.log通过。模型响应来自loopback脚本；token/估算成本是合同字段，不是真实付费。未新增依赖、Agent或预算，未改公共攻略审批。
 
+## 个人依据与行动缺口
+
+路径分析沿用原SDK、4–5次调用和现有候选动作。新增可校验的actionBasis选择：每个动作只可连接已选个人证据及已选未知；综合者继续只选已审候选，不编写新事实。UI现有停止条件展示实际原话与缺口；未给具体连接时诚实提示尚未说明。
+
+A/B/C保持相同120分钟：A把作品/多次客户反馈连接到岗位证据缺口；B核对单次交付的采用与反馈；C保留就业优先与暂停扩大接单，在自由职业取舍中呈现限制。原话仍有support/limit/unknown分类，分析不自动改目标，采纳仍仅计划。
+
+证据：PERSONAL_BASIS_ABC.json、basis-green-attempt2.log（新增1项与原personalization/zero/runtime共4项通过）、basis-types.log。原已提交适配器回放actionBasis契约红测在basis-old-contract-red.log；测试夹具的scope/quote初始失败仍保留。SDK选择是固定脚本，不证明真实模型产生上述收益，20组真实对照不得标绿。
+
 整体WIP_NOT_READY。真实模型、扣子两项目、云Skill、20组盲配对、20真实普通样本性能与学生签收均PAUSED_NOT_RUN。授权缺口一次汇总：须明确恢复已有真实模型/扣子暂停，继续开发或提交不构成恢复。本轮保持暂停，继续其他本地验收。
