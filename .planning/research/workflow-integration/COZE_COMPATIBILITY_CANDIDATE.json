@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "status": "LOCAL_COMPATIBILITY_CANDIDATE_CLOUD_PAUSED_NOT_RUN",
+  "status": "LOCAL_COMPATIBILITY_CANDIDATE_CURRENT_CLOUD_CONTRACT_NOT_VERIFIED",
   "newProjects": 0,
   "uploads": 0,
   "privateData": false,
   "adultSyntheticOnly": true,
-  "sourceDigest": "73aa2d9406609cb009b07011d3cc867a66c70f74733c0db6e9054ad0c481ce97",
+  "sourceDigest": "35356182435099427a3ebeb7836a959c3ea96921e685b8d3036cc3b296fda8b3",
   "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
   "skills": [
     {
@@ -37,6 +37,7 @@
   "receiptContract": {
     "runtimeRequired": [
       "projectId",
+      "businessRole",
       "release",
       "sourceDigest",
       "contentHash"
@@ -71,8 +72,9 @@
   },
   "projects": [
     {
-      "projectId": "7693388932939300905",
-      "currentCloudVersion": "NOT_TESTED_PAUSED",
+      "projectId": "7693465311558795327",
+      "businessRole": "public_knowledge",
+      "currentCloudVersion": "LEGACY_READBACK_ONLY_NEW_CANDIDATE_NOT_TESTED",
       "legacyVersion": "1.2.0_HISTORICAL_ONLY",
       "candidateContract": "existing public knowledge /run schemaVersion=1/items",
       "input": {
@@ -261,8 +263,9 @@
       ]
     },
     {
-      "projectId": "7693465311558795327",
-      "currentCloudVersion": "NOT_TESTED_PAUSED",
+      "projectId": "7693388932939300905",
+      "businessRole": "growth",
+      "currentCloudVersion": "LEGACY_READBACK_ONLY_NEW_CANDIDATE_NOT_TESTED",
       "legacyVersion": "1.2.0_HISTORICAL_ONLY",
       "candidateContract": "existing LifeOS workflow-v2 request/proposal/receipt; local host owns authorization and state commit",
       "input": {
@@ -306,5 +309,5 @@
       ]
     }
   ],
-  "releaseBoundary": "No upload/run/deploy during pause. Existing copies must read back source/skill/content hashes; old deployment success never accepts this candidate."
+  "releaseBoundary": "Owner restored existing-budget development and runtime scope. Current copies must read back role/source/skill/content hashes and separate actual runtime funding; old deployment success never accepts this candidate."
 }
