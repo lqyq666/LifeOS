@@ -1,0 +1,148 @@
+{
+  "kind": "SYNTHETIC_OFFLINE_ONLY_ACTUAL_HOST_GENERATED_FIXTURE",
+  "generatedBy": "scripts/coze-host-permit.ts reserveCozeHostPermit and verifyCozeHostPermit",
+  "syntheticTestSecret": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "testNowUtc": "2026-10-10T15:30:00.000Z",
+  "binding": {
+    "hostSourceDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "cloudCommit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "cloudSourceDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "contentHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "skillsDigest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "wire": {
+    "payloadB64": "eyJzY2hlbWFWZXJzaW9uIjoyLCJ0cmFjZUlkIjoiOTI0Yjk5ZGQtMzlmYS00YTgxLWFjMGItM2QxNTZiNzI4MzQ4IiwicmVxdWVzdElkIjoiZjc5YzQ1ZGUtMTM5ZS00ZjgyLTgwYjgtY2M5NTk4ZjJiN2RkIiwibW9kZSI6ImRpcmVjdGlvbl9kZWNpc2lvbiIsImludGVybmFsQWN0b3JLZXkiOiJzeW50aGV0aWMtYWR1bHQtcjUiLCJjb252ZXJzYXRpb25JZCI6ImNjODZhNmQ3LWVmYmUtNDI4MS1iN2VmLTY3OWIxNGNjYzI1NCIsImV2ZW50SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAxMTEiLCJhdXRob3JpemVkRXZpZGVuY2VSZWZzIjpbeyJ0eXBlIjoiZ3Jvd3RoIiwiaWQiOiJzeW50aGV0aWMtdGltZSIsInJldmlzaW9uIjoxLCJxdW90ZSI6IuacrOWRqOWPquWJqeS4pOWwj+aXtuOAgiJ9LHsidHlwZSI6ImV4cGVyaWVuY2UiLCJpZCI6InN5bnRoZXRpYy1kZWxpdmVyeSIsInJldmlzaW9uIjoxLCJxdW90ZSI6IuS4iuasoeS6pOS7mOS4gOasoe+8jOmHh+eUqOWSjOS7mOasvuacquefpeOAgiJ9XSwiY3VycmVudEludGVudCI6IuWwseS4muS8mOWFiO+8jOS4jeaJqeWkp+aOpeWNle+8m+avlOi+g+WwseS4muS4juiHqueUseiBjOS4mu+8jOacrOWRqOWPquWJqeS4pOWwj+aXtuOAgiIsImNvbnNlbnQiOnsiY29udGludWVSZXZpZXciOnRydWUsImRlZXBBbmFseXNpcyI6dHJ1ZX0sImNvbnRyb2xzIjp7Im1lbW9yeUVuYWJsZWQiOnRydWUsImxpc3RlbmluZ09ubHkiOmZhbHNlLCJyZWZ1c2VBZHZpY2UiOmZhbHNlLCJtZW1vcnlDb250cm9sIjpmYWxzZSwicmVjb21tZW5kYXRpb25zUGF1c2VkIjpmYWxzZSwiZm9yYmlkZGVuRGlyZWN0aW9ucyI6W119LCJidWRnZXQiOnsicGVyaW9kIjoidGhpc193ZWVrIiwiYW1vdW50TWludXRlcyI6MTIwLCJzb3VyY2UiOnsidHlwZSI6Imdyb3d0aCIsImlkIjoic3ludGhldGljLXRpbWUiLCJyZXZpc2lvbiI6MSwicXVvdGUiOiLmnKzlkajlj6rliankuKTlsI/ml7bjgIIifSwic2NvcGUiOiJyZW1haW5pbmciLCJxdWFsaWZpY2F0aW9uIjoiZXhhY3QiLCJxdW90ZSI6IuacrOWRqOWPquWJqeS4pOWwj+aXtuOAgiJ9LCJtb2RlbEJ1ZGdldCI6eyJtYXhQcm92aWRlckNhbGxzIjo0LCJtYXhDb3N0Q255IjowLjA4LCJkZWFkbGluZU1zIjo5MDAwMH0sImRpcmVjdGlvbnMiOlt7ImlkIjoiZW1wbG95bWVudCIsInRpdGxlIjoi5bCx5LiaIn0seyJpZCI6ImZyZWVsYW5jZSIsInRpdGxlIjoi6Ieq55Sx6IGM5LiaIn1dLCJzeW50aGV0aWMiOnRydWUsImJ1c2luZXNzUm9sZSI6Imdyb3d0aCIsInN5bnRoZXRpY0FkdWx0Ijp0cnVlLCJldmlkZW5jZVJlY29yZHMiOlt7InJlZiI6eyJ0eXBlIjoiZ3Jvd3RoIiwiaWQiOiJzeW50aGV0aWMtdGltZSIsInJldmlzaW9uIjoxLCJxdW90ZSI6IuacrOWRqOWPquWJqeS4pOWwj+aXtuOAgiJ9LCJvd25lciI6InN5bnRoZXRpYy1hZHVsdC1yNSIsImNvbnZlcnNhdGlvbklkIjoiY2M4NmE2ZDctZWZiZS00MjgxLWI3ZWYtNjc5YjE0Y2NjMjU0IiwiZXZlbnRJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDExMSIsInN0YXR1cyI6ImFjdGl2ZSIsInJvbGUiOiJ1c2VyIiwidGV4dCI6IuacrOWRqOWPquWJqeS4pOWwj+aXtuOAgiIsImJ1ZGdldCI6eyJwZXJpb2QiOiJ0aGlzX3dlZWsiLCJhbW91bnRNaW51dGVzIjoxMjAsInNvdXJjZSI6eyJ0eXBlIjoiZ3Jvd3RoIiwiaWQiOiJzeW50aGV0aWMtdGltZSIsInJldmlzaW9uIjoxLCJxdW90ZSI6IuacrOWRqOWPquWJqeS4pOWwj+aXtuOAgiJ9LCJzY29wZSI6InJlbWFpbmluZyIsInF1YWxpZmljYXRpb24iOiJleGFjdCIsInF1b3RlIjoi5pys5ZGo5Y+q5Ymp5Lik5bCP5pe244CCIn19LHsicmVmIjp7InR5cGUiOiJleHBlcmllbmNlIiwiaWQiOiJzeW50aGV0aWMtZGVsaXZlcnkiLCJyZXZpc2lvbiI6MSwicXVvdGUiOiLkuIrmrKHkuqTku5jkuIDmrKHvvIzph4fnlKjlkozku5jmrL7mnKrnn6XjgIIifSwib3duZXIiOiJzeW50aGV0aWMtYWR1bHQtcjUiLCJjb252ZXJzYXRpb25JZCI6ImNjODZhNmQ3LWVmYmUtNDI4MS1iN2VmLTY3OWIxNGNjYzI1NCIsImV2ZW50SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAxMTEiLCJzdGF0dXMiOiJhY3RpdmUiLCJyb2xlIjoidXNlciIsInRleHQiOiLkuIrmrKHkuqTku5jkuIDmrKHvvIzph4fnlKjlkozku5jmrL7mnKrnn6XjgIIifV0sInJlYWxGZWVkYmFjayI6W3siZXZlbnRJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDExMSIsImFkb3B0aW9uIjoidW5rbm93biIsInBheW1lbnQiOiJ1bmtub3duIiwiZWZmZWN0IjoidW5rbm93biIsInNvdXJjZSI6eyJ0eXBlIjoiZXhwZXJpZW5jZSIsImlkIjoic3ludGhldGljLWRlbGl2ZXJ5IiwicmV2aXNpb24iOjEsInF1b3RlIjoi5LiK5qyh5Lqk5LuY5LiA5qyh77yM6YeH55So5ZKM5LuY5qy+5pyq55+l44CCIn19XSwiY2Fub25pY2FsTWV0aG9kcyI6W119",
+    "claimsB64": "eyJzY2hlbWFWZXJzaW9uIjoxLCJraW5kIjoiTElGRU9TX0NPWkVfSE9TVF9SRVNFUlZFRF9HUkFQSCIsInJlcXVlc3RJZCI6ImY3OWM0NWRlLTEzOWUtNGY4Mi04MGI4LWNjOTU5OGYyYjdkZCIsInByb2plY3RJZCI6Ijc2OTMzODg5MzI5MzkzMDA5MDUiLCJwYXlsb2FkRGlnZXN0IjoiMWY3YjEyODljNjhlMjU2MzY2YWI5OGE1MTQ2ZGMzNTk5ZTBmNTU1NDIwN2E0ZjJlNDVlNmFlZjAyM2ZhZTk1ZSIsImhvc3RTb3VyY2VEaWdlc3QiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwiY2xvdWRDb21taXQiOiJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiIiwiY2xvdWRTb3VyY2VEaWdlc3QiOiJjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjIiwiY29udGVudEhhc2giOiJkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkIiwic2tpbGxzRGlnZXN0IjoiZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZSIsImlzc3VlZEF0IjoiMjAyNi0xMC0xMFQxNTozMDowMC4wMDBaIiwiZXhwaXJlc0F0IjoiMjAyNi0xMC0xMFQxNTozNTowMC4wMDBaIiwibW9kZWwiOiJxd2VuMy44LWZsYXNoIiwiZW5kcG9pbnQiOiJodHRwczovL2Rhc2hzY29wZS5hbGl5dW5jcy5jb20vY29tcGF0aWJsZS1tb2RlL3YxL2NoYXQvY29tcGxldGlvbnMiLCJtYXhPdXRwdXRUb2tlbnMiOjIwNDgsIm1heFByb21wdFV0ZjhCeXRlcyI6MTIwMDAsImlucHV0Q255UGVyTWlsbGlvbiI6MC44LCJvdXRwdXRDbnlQZXJNaWxsaW9uIjoyLjcsInNsb3RzIjpbeyJub2RlSWQiOiJwYXRoOmVtcGxveW1lbnQiLCJjYWxsSWQiOiI1YjJhZjdkZC1iZTNmLTQxMWMtYmI2OC1mNzY1NzQ5MDBkNGQiLCJyZXNlcnZlZENvc3RDbnkiOjAuMDJ9LHsibm9kZUlkIjoicGF0aDpmcmVlbGFuY2UiLCJjYWxsSWQiOiIzYTI4MDE2Ni0zYTZkLTQ1OTQtYjgxMC00YjExZDA1ZDNlN2YiLCJyZXNlcnZlZENvc3RDbnkiOjAuMDJ9LHsibm9kZUlkIjoiY3JpdGljIiwiY2FsbElkIjoiYmM1MmI5ZWYtZDAzYS00NTkyLTlmNTEtMTEzMjBjMDJiNzgzIiwicmVzZXJ2ZWRDb3N0Q255IjowLjAyfSx7Im5vZGVJZCI6InN5bnRoZXNpemUiLCJjYWxsSWQiOiI2ZWQ1YWI2NS1iMTI0LTQwNTgtOTJiMS1jZDliMGJlNDIxODkiLCJyZXNlcnZlZENvc3RDbnkiOjAuMDJ9XX0=",
+    "signature": "07a0b74f73dc11470fff715d9a3c682f592a8a2232e0eccb2ca072b83c81d73c"
+  },
+  "payload": {
+    "schemaVersion": 2,
+    "traceId": "924b99dd-39fa-4a81-ac0b-3d156b728348",
+    "requestId": "f79c45de-139e-4f82-80b8-cc9598f2b7dd",
+    "mode": "direction_decision",
+    "internalActorKey": "synthetic-adult-r5",
+    "conversationId": "cc86a6d7-efbe-4281-b7ef-679b14ccc254",
+    "eventId": "00000000-0000-4000-8000-000000000111",
+    "authorizedEvidenceRefs": [
+      {
+        "type": "growth",
+        "id": "synthetic-time",
+        "revision": 1,
+        "quote": "本周只剩两小时。"
+      },
+      {
+        "type": "experience",
+        "id": "synthetic-delivery",
+        "revision": 1,
+        "quote": "上次交付一次，采用和付款未知。"
+      }
+    ],
+    "currentIntent": "就业优先，不扩大接单；比较就业与自由职业，本周只剩两小时。",
+    "consent": {
+      "continueReview": true,
+      "deepAnalysis": true
+    },
+    "controls": {
+      "memoryEnabled": true,
+      "listeningOnly": false,
+      "refuseAdvice": false,
+      "memoryControl": false,
+      "recommendationsPaused": false,
+      "forbiddenDirections": []
+    },
+    "budget": {
+      "period": "this_week",
+      "amountMinutes": 120,
+      "source": {
+        "type": "growth",
+        "id": "synthetic-time",
+        "revision": 1,
+        "quote": "本周只剩两小时。"
+      },
+      "scope": "remaining",
+      "qualification": "exact",
+      "quote": "本周只剩两小时。"
+    },
+    "modelBudget": {
+      "maxProviderCalls": 4,
+      "maxCostCny": 0.08,
+      "deadlineMs": 90000
+    },
+    "directions": [
+      {
+        "id": "employment",
+        "title": "就业"
+      },
+      {
+        "id": "freelance",
+        "title": "自由职业"
+      }
+    ],
+    "synthetic": true,
+    "businessRole": "growth",
+    "syntheticAdult": true,
+    "evidenceRecords": [
+      {
+        "ref": {
+          "type": "growth",
+          "id": "synthetic-time",
+          "revision": 1,
+          "quote": "本周只剩两小时。"
+        },
+        "owner": "synthetic-adult-r5",
+        "conversationId": "cc86a6d7-efbe-4281-b7ef-679b14ccc254",
+        "eventId": "00000000-0000-4000-8000-000000000111",
+        "status": "active",
+        "role": "user",
+        "text": "本周只剩两小时。",
+        "budget": {
+          "period": "this_week",
+          "amountMinutes": 120,
+          "source": {
+            "type": "growth",
+            "id": "synthetic-time",
+            "revision": 1,
+            "quote": "本周只剩两小时。"
+          },
+          "scope": "remaining",
+          "qualification": "exact",
+          "quote": "本周只剩两小时。"
+        }
+      },
+      {
+        "ref": {
+          "type": "experience",
+          "id": "synthetic-delivery",
+          "revision": 1,
+          "quote": "上次交付一次，采用和付款未知。"
+        },
+        "owner": "synthetic-adult-r5",
+        "conversationId": "cc86a6d7-efbe-4281-b7ef-679b14ccc254",
+        "eventId": "00000000-0000-4000-8000-000000000111",
+        "status": "active",
+        "role": "user",
+        "text": "上次交付一次，采用和付款未知。"
+      }
+    ],
+    "realFeedback": [
+      {
+        "eventId": "00000000-0000-4000-8000-000000000111",
+        "adoption": "unknown",
+        "payment": "unknown",
+        "effect": "unknown",
+        "source": {
+          "type": "experience",
+          "id": "synthetic-delivery",
+          "revision": 1,
+          "quote": "上次交付一次，采用和付款未知。"
+        }
+      }
+    ],
+    "canonicalMethods": []
+  },
+  "productionLedgerTouched": false,
+  "productionCredentialsIncluded": false,
+  "networkCalls": 0,
+  "modelCalls": 0,
+  "expected": "Valid at testNowUtc with injected binding and synthetic key, exact original slot UUIDs preserved; tests must freeze clock, not change host wire or produce their own signature"
+}

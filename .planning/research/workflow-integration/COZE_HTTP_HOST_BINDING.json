@@ -1,54 +1,11 @@
 {
   "schemaVersion": 1,
   "kind": "PUBLIC_HOST_BINDING_DOMAINS",
-  "hostCodeCommit": "4566bb3c5c4ebeea9f9ba8015c3de210fec53531",
-  "hostSourceDigest": "ad4a526b1835161c094f126e0641029331e4760f69b3fa176fa6ea210d706221",
+  "hostCodeCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4",
+  "hostSourceDigest": "680e4f08bbf826b4f20679d49e2b96afeb002431c37babb9d925914803c30427",
   "hostRuntimeConfig": {
-    "node": "v24.18.0",
-    "platform": "win32",
-    "arch": "x64",
-    "embedding": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1",
-    "generationConcurrency": 4,
-    "generationQueueLimit": 32,
-    "access": {
-      "entitlementsEnabled": false,
-      "providerBudgetEnabled": false,
-      "providerBudgetId": "production",
-      "signupEnabled": true
-    },
-    "models": [
-      {
-        "tier": "default",
-        "provider": "bailian",
-        "model": "qwen3.8-flash",
-        "available": true,
-        "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
-        "contractSignature": "38214c306e303fea95596dd88b007df7fa366fc0bdfcb80b85330b13337cef7a",
-        "interfaceSignature": "e5e50226ae4eae5c347730c928748e3d8aa7236e218a9ed6234f1e7827c97cb2",
-        "pricing": {
-          "inputCnyPerMillion": 0.8,
-          "outputCnyPerMillion": 2.7,
-          "cachedInputCnyPerMillion": 0.1
-        }
-      },
-      {
-        "tier": "reasoning",
-        "provider": "bailian",
-        "model": "deepseek-v4.1-flash",
-        "available": true,
-        "signature": "bailian:deepseek-v4.1-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
-        "contractSignature": "841335c97941ea3e7755736cfd1b63f3b6cf058b5293395d3723f57d39de906a",
-        "interfaceSignature": "5fda22cd892f4dd3fdaf96ca53dc8464312611e3f1ddee98976eeb318cb5e51b",
-        "pricing": {
-          "inputCnyPerMillion": 2,
-          "outputCnyPerMillion": 8,
-          "cachedInputCnyPerMillion": 0.2
-        }
-      }
-    ],
-    "comparison": {
-      "qwenThinkingBudget": 0
-    }
+    "domain": "CANONICAL_CONTAINER_BUILD_CONFIG",
+    "evidence": "evidence/coze-core-launch-20261011/FRESH_6c5_RUNTIME_READBACK.json"
   },
   "canonicalContentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
   "canonicalSourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
