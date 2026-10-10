@@ -153,6 +153,15 @@ test('conversation growth changes are grounded, atomic and selectively forgettab
       const editedItem=(await growthView(user,chat)).items.find(row=>row.id===edited.id)!
       assert.equal((editedItem.timeBasis as {kind:string}|null)?.kind,'user_edit')
     })
+    await t.test('remaining preparation time can persist as exact context without inventing a verified expiry',async()=>{
+      const input=await prepare('我还有两小时准备明天的课堂汇报，先做哪一步？'),quote='我还有两小时准备明天的课堂汇报'
+      const invalid=await stageGrowthUpdates(input.run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:input.run.source_message_id,quote}}],input.growth)
+      assert.equal(invalid.skipped?.[0].reason,'unverifiable_constraint_time','the missing expiry guard is retained')
+      const saved=await finish(input,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:input.run.source_message_id,quote}}])
+      const item=(await growthView(user,chat)).items.find(item=>item.id===saved.growthIds[0])!
+      assert.equal(item.text,quote);assert.equal(item.sources[0].quote,quote)
+      assert.equal(item.kind,'context');assert.equal(item.validUntil,null);assert.equal(item.timeBasis,null)
+    })
   }finally{
     await pool.query('DELETE FROM "user" WHERE id=$1',[user]);await pool.end()
   }
