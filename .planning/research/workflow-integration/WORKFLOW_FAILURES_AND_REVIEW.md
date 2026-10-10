@@ -1,3 +1,7 @@
+本轮首次检索失败、公共来源403/404及fallback401、缺bs4工具失败、共享数据库测试状态干扰、fresh checkout依赖私人历史授权的首次失败均保留于evidence/retrieval-followup-20261010及原long-batch目录。修复为标准库解析、每套独立DB和合成模拟授权；没有复制私人凭据、降低来源门槛或付费重试。当前已曝光检索回归达到门槛，未见reserve32仍NOT_TESTED；独立盲评/本人批准0。
+
+以下为历史失败与Review：
+
 本批首次失败与新结果均在evidence/long-batch-20261010保留：自然查询development_first、sealed_final（Recall/Top1未达）；student16-first与78轮标注失败；新目录CRLF；合批注册429；Chrome SSE body读取工具错误。没有收费重试或补测替换真实失败。修复后只有对应本地合同通过；独立审核/本人批准/真实模型与扣子仍缺。FINAL_REVIEW.json为主Codex技术Review，不能算独立业务盲评。
 
 以下为历史记录：

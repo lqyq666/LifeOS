@@ -1,3 +1,7 @@
+当前候选workflow-v2-integration-0c4ce842100e：本地检索Recall/Top1回归门槛PASS；保留首次失败和32未调参/未执行验收。真实质量/性能/云暂停，32稿独审及本人批准0，仍44项任务对应来源/范围缺口，整体WIP_NOT_READY。
+
+以下为历史Gate记录：
+
 当前检查点：workflow-v2-integration-519f4aec7841，WIP_NOT_READY。96本地脚本轮、当前浏览器与新目录免费相关范围通过；Recall/Top1失败，32稿待独审/批准，59缺口保留，真实/云均PAUSED_NOT_RUN。详见WORKFLOW_ACCEPTANCE.json。
 
 以下为历史Gate记录：

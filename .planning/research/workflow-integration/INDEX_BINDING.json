@@ -1,13 +1,13 @@
 {
-  "version": "workflow-v2-integration-519f4aec7841",
-  "at": "2026-10-10T11:24:12.978832+00:00",
-  "signature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1",
-  "contentManifestSha256": "7ff6e9b29ea1e641f5d6265a3840c99d768ebb90036d9de8cc591f142c6c8bb0",
+  "version": "workflow-v2-integration-0c4ce842100e",
+  "at": "2026-10-10T12:03:20.970250+00:00",
+  "signature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v3-expressions:8b1d482decb187e8671098c9cf001f7e14dc6106d2389611cfc3c4989b85a11a",
+  "contentManifestSha256": "8cc7fc261134738cd5db968c9020c8e5a8a613046131d59295f61c8c14bd4d96",
   "indexCode": {
-    "server/knowledge-index.ts": "9f3ee3d11eb1ba352f71b46f8f1dc026fd140b4fb97fe8761453e75079693299",
+    "server/knowledge-index.ts": "1af8fee2586bf027f2cfe30a26238a969aedfea11f40e6d4725abdc203706a64",
     "server/embedding-signature.ts": "252b71fc865862a2634adb9e53cc81f0810b323fd257059c9b070ee1c632f8be",
-    "server/coach-knowledge.ts": "b336f4fc593b84bd6562458859789289c8cb4cbd9025fee5afd18281ec67de47",
-    "server/evergreen-guide.ts": "a282d26c9dcec21d65431c81e451989bb806a58a3f6bccb3d551f010c3c7668d",
+    "server/coach-knowledge.ts": "309e8c49827e1244dda11870d4660a9d77e144d3e61c3c3566cf97c848b3b648",
+    "server/evergreen-guide.ts": "549eb0d2aadc3fd01abd77d2c91672e467a7deb2c2a7436202ea55afb479b68b",
     "server/workflows/method-context.ts": "f5cd043825921859e0672f7bd18be5ccf86167c737b253ddff10d23cb1f6f902"
   },
   "acceptanceDatabase": "DISPOSABLE_PG_ONLY",
@@ -15,29 +15,116 @@
   "canonicalMethodsShared": true,
   "oldCacheAndSingleRevisionInvalidationRetained": true,
   "actualRetrievalEvidence": [
-    "evidence/long-batch-20261010/final-canonical-index.log",
-    "evidence/long-batch-20261010/final-method-entry-green.log"
+    "evidence/retrieval-followup-20261010/index-confidence-final.log",
+    "evidence/retrieval-followup-20261010/NATURAL_sealed_confidence-repair.json",
+    "evidence/retrieval-followup-20261010/NATURAL_development_confidence-final.json",
+    "evidence/retrieval-followup-20261010/ACCEPTANCE2_REGRESSION_confidence-final.json"
   ],
   "newNaturalQueryMetrics": {
     "route": {
-      "numerator": 112,
-      "denominator": 116
+      "numerator": 159,
+      "denominator": 160
     },
     "recall5": {
-      "numerator": 35,
-      "denominator": 48
+      "numerator": 63,
+      "denominator": 64
     },
     "top1": {
-      "numerator": 31,
-      "denominator": 48
+      "numerator": 60,
+      "denominator": 64
     },
     "missingTarget": {
-      "numerator": 48,
-      "denominator": 96
+      "numerator": 64,
+      "denominator": 128
     },
-    "noMatchingMethod": 1
+    "noMatchingMethod": 7,
+    "controls": 0
   },
-  "newNaturalQueryQuality": "FAIL_RECALL_AND_TOP1",
+  "newNaturalQueryQuality": "HISTORICAL_FIRST_160_PASS_NOT_CURRENT_UNSEEN",
   "freshProductionIndexAudit": "NOT_TESTED",
-  "onlineRetrievalPerformance": "PAUSED_NOT_RUN"
+  "onlineRetrievalPerformance": "PAUSED_NOT_RUN",
+  "codeHashDomain": "COMMITTED_GIT_BLOB_BYTES",
+  "currentRegression": {
+    "old235": {
+      "routing": {
+        "numerator": 235,
+        "denominator": 235
+      },
+      "recall5": {
+        "numerator": 56,
+        "denominator": 56
+      },
+      "top1": {
+        "numerator": 55,
+        "denominator": 56
+      }
+    },
+    "development232": {
+      "route": {
+        "numerator": 116,
+        "denominator": 116
+      },
+      "recall5": {
+        "numerator": 48,
+        "denominator": 48
+      },
+      "top1": {
+        "numerator": 45,
+        "denominator": 48
+      },
+      "missingTarget": {
+        "numerator": 49,
+        "denominator": 97
+      },
+      "noMatchingMethod": 1
+    },
+    "exposedFormerSealed232": {
+      "route": {
+        "numerator": 116,
+        "denominator": 116
+      },
+      "recall5": {
+        "numerator": 48,
+        "denominator": 48
+      },
+      "top1": {
+        "numerator": 47,
+        "denominator": 48
+      },
+      "missingTarget": {
+        "numerator": 48,
+        "denominator": 96
+      },
+      "noMatchingMethod": 1
+    },
+    "exposed160": {
+      "route": {
+        "numerator": 159,
+        "denominator": 160
+      },
+      "recall5": {
+        "numerator": 63,
+        "denominator": 64
+      },
+      "top1": {
+        "numerator": 61,
+        "denominator": 64
+      },
+      "missingTarget": {
+        "numerator": 64,
+        "denominator": 128
+      },
+      "noMatchingMethod": 7,
+      "controls": 0
+    },
+    "status": "PASS_DECLARED_THRESHOLDS",
+    "independentBlind": false
+  },
+  "unseenReserve": {
+    "count": 32,
+    "sha256": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
+    "executions": 0,
+    "usedForTuning": false,
+    "status": "NOT_TESTED"
+  }
 }

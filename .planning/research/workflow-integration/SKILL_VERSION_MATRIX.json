@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
-  "at": "2026-10-10T11:24:12.978832+00:00",
-  "candidate": "workflow-v2-integration-519f4aec7841",
-  "repositoryCommit": "b88dd9f6e5151204b1b13f6f87c61c4d51dcb6c2",
+  "at": "2026-10-10T12:03:20.970250+00:00",
+  "candidate": "workflow-v2-integration-0c4ce842100e",
+  "repositoryCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
   "mainRepository": {
     "version": "1.2.2-candidate",
     "sha256": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
@@ -75,8 +75,9 @@
     "processKind": "ACTUAL_AUTHENTICATED_SYNTHETIC_TEST_HTTP_SERVER_CLOSED_AFTER_ACCEPTANCE",
     "rounds": 96,
     "sessions": 48,
-    "productFilesUnchangedSince96Rounds": true,
-    "realModelQuality": "NOT_TESTED"
+    "productFilesUnchangedSince96Rounds": false,
+    "realModelQuality": "NOT_TESTED",
+    "evidenceScope": "HISTORICAL_96_ROUNDS_BEFORE_RETRIEVAL_CHANGE_NOT_CURRENT_96_ACCEPTANCE"
   },
   "directionTestProcess": {
     "service": "LifeOS",
@@ -116,7 +117,8 @@
     "loadedAt": "2026-10-10T10:55:31.929Z",
     "contractGeneration": "p4+workflow-v2",
     "growthApi": true,
-    "processKind": "CLOSED_AUTHENTICATED_CHROME_HTTP_SDK_SCRIPTED_TEST"
+    "processKind": "CLOSED_AUTHENTICATED_CHROME_HTTP_SDK_SCRIPTED_TEST",
+    "evidenceScope": "HISTORICAL_SCRIPTED_CONTRACT"
   },
   "installedUserMainSkill": {
     "name": "lifeos-personal-companion",
@@ -126,7 +128,8 @@
     "modified": false,
     "execution": "NOT_TESTED",
     "version": "1.2.0",
-    "versionBasis": "MATCHED_HISTORICAL_SHA_NO_VERSION_FIELD"
+    "versionBasis": "MATCHED_HISTORICAL_SHA_NO_VERSION_FIELD",
+    "checkedAt": "2026-10-10T12:03:20.970250+00:00"
   },
   "installedBusinessSkills": [
     {
@@ -135,7 +138,8 @@
       "installed": false,
       "sha256": null,
       "modified": false,
-      "execution": "NOT_TESTED"
+      "execution": "NOT_TESTED",
+      "checkedAt": "2026-10-10T12:03:20.970250+00:00"
     },
     {
       "name": "lifeos-action-review",
@@ -143,7 +147,8 @@
       "installed": false,
       "sha256": null,
       "modified": false,
-      "execution": "NOT_TESTED"
+      "execution": "NOT_TESTED",
+      "checkedAt": "2026-10-10T12:03:20.970250+00:00"
     },
     {
       "name": "lifeos-experience-evidence",
@@ -151,7 +156,8 @@
       "installed": false,
       "sha256": null,
       "modified": false,
-      "execution": "NOT_TESTED"
+      "execution": "NOT_TESTED",
+      "checkedAt": "2026-10-10T12:03:20.970250+00:00"
     },
     {
       "name": "lifeos-guide-application",
@@ -159,7 +165,8 @@
       "installed": false,
       "sha256": null,
       "modified": false,
-      "execution": "NOT_TESTED"
+      "execution": "NOT_TESTED",
+      "checkedAt": "2026-10-10T12:03:20.970250+00:00"
     },
     {
       "name": "lifeos-growth-diff",
@@ -167,19 +174,22 @@
       "installed": false,
       "sha256": null,
       "modified": false,
-      "execution": "NOT_TESTED"
+      "execution": "NOT_TESTED",
+      "checkedAt": "2026-10-10T12:03:20.970250+00:00"
     }
   ],
   "persistentServiceCheck": [
     {
       "port": 8787,
       "status": "NOT_TESTED_NO_VERSION_READBACK",
-      "reason": "<urlopen error timed out>"
+      "reason": "<urlopen error timed out>",
+      "checkedAt": "2026-10-10T12:05:44.040613+00:00"
     },
     {
       "port": 3001,
       "status": "NOT_TESTED_NO_VERSION_READBACK",
-      "reason": "HTTP Error 404: Not Found"
+      "reason": "HTTP Error 404: Not Found",
+      "checkedAt": "2026-10-10T12:05:44.044478+00:00"
     }
   ],
   "cozeCopies": [
@@ -205,7 +215,8 @@
       "normalCoreTraceCount": 0,
       "evidence": "evidence/long-batch-20261010/DIRECTION_SKILL_EXECUTION.json",
       "wrongVersionMissingFailure": "PASS_LOCAL_FAILURE_DOWNGRADE_NO_FACT_LOSS",
-      "realModelAndCloud": "PAUSED_NOT_RUN"
+      "realModelAndCloud": "PAUSED_NOT_RUN",
+      "evidenceScope": "HISTORICAL_SCRIPTED_VERSION_EXECUTION_NOT_CURRENT_REAL_MODEL"
     },
     {
       "name": "lifeos-action-review",
@@ -215,7 +226,8 @@
       "normalCoreTraceCount": 5,
       "evidence": "evidence/long-batch-20261010/student16-final/SKILL_HOST_EXECUTIONS.json",
       "wrongVersionMissingFailure": "PASS_LOCAL_FAILURE_DOWNGRADE_NO_FACT_LOSS",
-      "realModelAndCloud": "PAUSED_NOT_RUN"
+      "realModelAndCloud": "PAUSED_NOT_RUN",
+      "evidenceScope": "HISTORICAL_SCRIPTED_VERSION_EXECUTION_NOT_CURRENT_REAL_MODEL"
     },
     {
       "name": "lifeos-experience-evidence",
@@ -225,7 +237,8 @@
       "normalCoreTraceCount": 21,
       "evidence": "evidence/long-batch-20261010/student16-final/SKILL_HOST_EXECUTIONS.json",
       "wrongVersionMissingFailure": "PASS_LOCAL_FAILURE_DOWNGRADE_NO_FACT_LOSS",
-      "realModelAndCloud": "PAUSED_NOT_RUN"
+      "realModelAndCloud": "PAUSED_NOT_RUN",
+      "evidenceScope": "HISTORICAL_SCRIPTED_VERSION_EXECUTION_NOT_CURRENT_REAL_MODEL"
     },
     {
       "name": "lifeos-guide-application",
@@ -235,7 +248,8 @@
       "normalCoreTraceCount": 3,
       "evidence": "evidence/long-batch-20261010/student16-final/SKILL_HOST_EXECUTIONS.json",
       "wrongVersionMissingFailure": "PASS_LOCAL_FAILURE_DOWNGRADE_NO_FACT_LOSS",
-      "realModelAndCloud": "PAUSED_NOT_RUN"
+      "realModelAndCloud": "PAUSED_NOT_RUN",
+      "evidenceScope": "HISTORICAL_SCRIPTED_VERSION_EXECUTION_NOT_CURRENT_REAL_MODEL"
     },
     {
       "name": "lifeos-growth-diff",
@@ -245,8 +259,16 @@
       "normalCoreTraceCount": 21,
       "evidence": "evidence/long-batch-20261010/student16-final/SKILL_HOST_EXECUTIONS.json",
       "wrongVersionMissingFailure": "PASS_LOCAL_FAILURE_DOWNGRADE_NO_FACT_LOSS",
-      "realModelAndCloud": "PAUSED_NOT_RUN"
+      "realModelAndCloud": "PAUSED_NOT_RUN",
+      "evidenceScope": "HISTORICAL_SCRIPTED_VERSION_EXECUTION_NOT_CURRENT_REAL_MODEL"
     }
   ],
-  "userCustomizedFilesOverwritten": false
+  "userCustomizedFilesOverwritten": false,
+  "currentFollowupProcess": {
+    "sourceCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+    "sourceFreezeDigest": "586118b23d885ff8c76d641d985248a0d1eb325a699e9ff535141c1c1f45b929",
+    "runtimeFreeze": "evidence/retrieval-followup-20261010/CURRENT_SOURCE_FREEZE.json",
+    "state": "TEMPORARY_ISOLATED_TEST_PROCESSES_CLOSED",
+    "realModelQuality": "PAUSED_NOT_RUN"
+  }
 }

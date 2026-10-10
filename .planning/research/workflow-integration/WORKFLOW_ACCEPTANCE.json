@@ -1,15 +1,16 @@
 {
   "schemaVersion": 6,
-  "version": "workflow-v2-integration-519f4aec7841",
-  "head": "b88dd9f6e5151204b1b13f6f87c61c4d51dcb6c2",
-  "codeCommit": "b88dd9f6e5151204b1b13f6f87c61c4d51dcb6c2",
+  "version": "workflow-v2-integration-0c4ce842100e",
+  "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+  "codeCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
   "status": "WIP_NOT_READY",
   "highestStatus": [
     "MODIFIED",
     "TESTED_LOCAL",
     "BUILT",
     "COMMITTED_LOCAL",
-    "FRESH_CHECKOUT_RELEVANT_FREE_SCOPE_REPRODUCED"
+    "FRESH_CHECKOUT_RELEVANT_FREE_SCOPE_REPRODUCED",
+    "LOCAL_RETRIEVAL_REGRESSION_GATES_PASS"
   ],
   "notClaimed": [
     "LOCAL_CANDIDATE_VERIFIED_ALL_GATES",
@@ -18,18 +19,18 @@
     "ACCEPTED",
     "REAL_MODEL_BENEFIT"
   ],
-  "evidenceRoot": "evidence/long-batch-20261010/",
+  "evidenceRoot": "evidence/retrieval-followup-20261010/",
   "checks": {
     "root": {
       "passed": 118,
-      "evidence": "evidence/long-batch-20261010/final-root.log"
+      "evidence": "evidence/retrieval-followup-20261010/root-confidence-final.log"
     },
     "serverTypes": "PASS",
     "frontendTypes": "PASS_BUILD_TSC",
     "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
     "maintenanceApi": {
       "passed": 1,
-      "evidence": "evidence/long-batch-20261010/final-entry-browser.log",
+      "evidence": "evidence/retrieval-followup-20261010/MAINTENANCE_HTTP.json",
       "syntheticApprovalsOnly": true
     },
     "realEntry": {
@@ -43,8 +44,8 @@
       "actualCloudCalls": 0
     },
     "canonicalIndex": {
-      "passed": 4,
-      "evidence": "evidence/long-batch-20261010/final-canonical-index.log"
+      "passed": 5,
+      "evidence": "evidence/retrieval-followup-20261010/index-confidence-final.log"
     },
     "deepCanonicalContext": {
       "passed": 1,
@@ -60,24 +61,24 @@
       "fourProfilesEvidence": "evidence/long-batch-20261010/PERSONAL_BASIS_ABCD.json"
     },
     "currentCandidateBrowser": {
-      "status": "PASS_CURRENT_CHROME_SIMULATED_PROVIDER",
+      "status": "PASS_CURRENT_MAINTENANCE_UI_STUDENT_CHAIN_HISTORICAL",
       "widths": [
         1440,
         390
       ],
-      "maintenance": "evidence/long-batch-20261010/MAINTENANCE_BROWSER.json",
+      "maintenance": "evidence/retrieval-followup-20261010/MAINTENANCE_BROWSER.json",
       "student": "evidence/long-batch-20261010/BROWSER_CHAIN.json",
       "shortAnswer": "evidence/long-batch-20261010/WAITING_BROWSER_GREEN.json",
       "physicalPhone": false
     },
     "student16": {
-      "status": "PASS_LOCAL_CONTRACT",
+      "status": "HISTORICAL_PASS_LOCAL_CONTRACT_NOT_RERUN_AFTER_RETRIEVAL_CHANGE",
       "rounds": 96,
       "sessions": 48,
       "students": 16,
       "coreFourIncludedOnce": true,
       "testedCodeCommit": "8bdd7408b8913724fefed7c56160c4bb2b1bdfdb",
-      "productSourceEquivalentToFinalCode": true,
+      "productSourceEquivalentToFinalCode": false,
       "productionFilesCompared": 219,
       "annotationRevision": 2,
       "blind": false,
@@ -88,35 +89,131 @@
     },
     "reproduction": {
       "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
-      "codeCommit": "ec3326f35fc42a29ab2d220a1cf3eb8b4bd2b8a6",
-      "evidence": "evidence/long-batch-20261010/reproduction/REPRODUCTION.json",
-      "ledgerPrivateDbKeysCopied": false
+      "codeCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+      "steps": 15,
+      "evidence": "evidence/retrieval-followup-20261010/reproduction-confidence/REPRODUCTION.json",
+      "ledgerPrivateDbKeysCopied": false,
+      "firstFailureRetained": "evidence/retrieval-followup-20261010/reproduction/REPRODUCTION.json"
     },
     "retrievalQuality": {
-      "status": "FAIL_RECALL_AND_TOP1",
-      "metrics": {
+      "status": "PASS_LOCAL_EXPOSED_REGRESSION_THRESHOLDS_NOT_FULL_KB_OR_INDEPENDENT_BLIND",
+      "firstNew160": {
         "route": {
-          "numerator": 112,
-          "denominator": 116
+          "numerator": 159,
+          "denominator": 160
         },
         "recall5": {
-          "numerator": 35,
-          "denominator": 48
+          "numerator": 63,
+          "denominator": 64
         },
         "top1": {
-          "numerator": 31,
-          "denominator": 48
+          "numerator": 60,
+          "denominator": 64
         },
         "missingTarget": {
-          "numerator": 48,
-          "denominator": 96
+          "numerator": 64,
+          "denominator": 128
         },
-        "noMatchingMethod": 1
+        "noMatchingMethod": 7,
+        "controls": 0
       },
-      "newLabels": 232,
-      "sealedFirstFinal": 116,
-      "independentBlind": false,
-      "sealedUsedForTuning": false
+      "current": {
+        "old235": {
+          "routing": {
+            "numerator": 235,
+            "denominator": 235
+          },
+          "recall5": {
+            "numerator": 56,
+            "denominator": 56
+          },
+          "top1": {
+            "numerator": 55,
+            "denominator": 56
+          }
+        },
+        "development232": {
+          "route": {
+            "numerator": 116,
+            "denominator": 116
+          },
+          "recall5": {
+            "numerator": 48,
+            "denominator": 48
+          },
+          "top1": {
+            "numerator": 45,
+            "denominator": 48
+          },
+          "missingTarget": {
+            "numerator": 49,
+            "denominator": 97
+          },
+          "noMatchingMethod": 1
+        },
+        "exposedFormerSealed232": {
+          "route": {
+            "numerator": 116,
+            "denominator": 116
+          },
+          "recall5": {
+            "numerator": 48,
+            "denominator": 48
+          },
+          "top1": {
+            "numerator": 47,
+            "denominator": 48
+          },
+          "missingTarget": {
+            "numerator": 48,
+            "denominator": 96
+          },
+          "noMatchingMethod": 1
+        },
+        "exposed160": {
+          "route": {
+            "numerator": 159,
+            "denominator": 160
+          },
+          "recall5": {
+            "numerator": 63,
+            "denominator": 64
+          },
+          "top1": {
+            "numerator": 61,
+            "denominator": 64
+          },
+          "missingTarget": {
+            "numerator": 64,
+            "denominator": 128
+          },
+          "noMatchingMethod": 7,
+          "controls": 0
+        },
+        "status": "PASS_DECLARED_THRESHOLDS",
+        "independentBlind": false
+      },
+      "reserve": {
+        "count": 32,
+        "sha256": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
+        "executions": 0,
+        "usedForTuning": false,
+        "status": "NOT_TESTED"
+      },
+      "firstFailureRetained": "evidence/long-batch-20261010/NATURAL_sealed_final.json"
+    },
+    "sourceFreeze": {
+      "status": "PASS_SYNTHETIC_AUTHORIZATION_PRIVATE_GRANT_NOT_COPIED",
+      "evidence": "evidence/retrieval-followup-20261010/source-freeze-portable.log"
+    },
+    "methodContinuation": {
+      "passed": 2,
+      "evidence": "evidence/retrieval-followup-20261010/continuation-confidence-final.log",
+      "provider": "SCRIPTED_LOOPBACK_ONLY"
+    },
+    "safetyCurrent": {
+      "passed": 9,
+      "evidence": "evidence/retrieval-followup-20261010/safety-confidence-final.log"
     }
   },
   "content": {
@@ -138,7 +235,22 @@
     "newIndependentReviews": 0,
     "newHumanApprovals": 0,
     "newPublished": 0,
-    "draftsServed": false
+    "draftsServed": false,
+    "historicalBeforeFollowup": true,
+    "followup": {
+      "newUsableSources": 5,
+      "newLocatedQuotes": 5,
+      "draftsSupplemented": 8,
+      "allReviewPreparations": 32,
+      "sourceScopedDraftReady": 15,
+      "partialImproved": 8,
+      "stillTaskSpecificSourceGap": 44,
+      "actualIndependentReviews": 0,
+      "actualHumanApprovals": 0,
+      "formalCoverageUnchangedUntilApproval": true,
+      "partialImprovedIncludedInRemaining": true
+    },
+    "reviewPreparationClaims": 74
   },
   "maintenance": {
     "normalEntry": "/#maintenance",
@@ -147,7 +259,8 @@
     "checkpointEvidence": "MAINTENANCE_HTTP.json_SYNTHETIC_ACCOUNTS_ONLY",
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
-    "actualPublication": false
+    "actualPublication": false,
+    "reviewPreparation": "32_DRAFTS_74_CLAIMS_BOUND_BY_REVISION_HASH_ACTUAL_INDEPENDENT_EXECUTION_ZERO"
   },
   "realEntry": {
     "status": "ENTRY_IMPLEMENTED_DEFAULT_PAUSED_ZERO_DISPATCH",
@@ -205,6 +318,8 @@
     "ORDINARY_PERFORMANCE_PROTOCOL.json": "e8ef483b0b1b499b0420f6a8b44acd03d0dd9c5755343e63c29f5c590ce57fd4",
     "SAFETY_EVAL.json": "bdedbb8328298dc21ae9d9ddf473c1d8503152c68969a5a9400b7abb07235b28"
   },
-  "historicalAcceptance": "evidence/long-batch-20261010/baseline-ce4d/WORKFLOW_ACCEPTANCE.json",
-  "noPushMergeDeploy": true
+  "historicalAcceptance": "evidence/retrieval-followup-20261010/baseline-519f/WORKFLOW_ACCEPTANCE.json",
+  "noPushMergeDeploy": true,
+  "sourceScopedCandidatesReadyPendingReview": 15,
+  "remainingTaskSpecificSourceOrScopeGaps": 44
 }
