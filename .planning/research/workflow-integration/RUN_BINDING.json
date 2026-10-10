@@ -1169,7 +1169,7 @@
     "currentSmallReadbackReview": "evidence/coze-core-launch-20261011/ORDINARY_SOURCE_AVAILABILITY_READBACK_REVIEW.json",
     "cozeR5SourceReview": "evidence/coze-core-launch-20261011/COZE_R5_SOURCE_REVIEW.json",
     "temporaryTimeScope": "evidence/coze-core-launch-20261011/TEMPORARY_TIME_SCOPE_INCREMENT.json",
-    "ordinaryNextPaidBatch": "AUTHORIZED_BOUNDED_REPLY_ROUTE_LOCAL_VERIFIED_PENDING_FROZEN_SMALL_REAL_BATCH",
+    "ordinaryNextPaidBatch": "SMALL_LATENCY_THRESHOLDS_MET_PENDING_INDEPENDENT_REVIEW_AND_COMPLEX_SMALL",
     "scienceRecordCorrection": {
       "at": "2026-10-10T16:27:37.097Z",
       "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
@@ -1241,6 +1241,119 @@
       "automaticPaidRetry": false,
       "newBudget": 0,
       "published": false
+    },
+    "boundedOrdinaryReplyReal": {
+      "kind": "REAL_FIRST_ATTEMPTS_WITH_INTEGRATOR_READBACK_NOT_INDEPENDENT_REVIEW",
+      "sourceCommit": "4fae14d2ba3eef3175739854f1321323efe092b4",
+      "sourceDigest": "0fb82490dae2155acda62c104bc3185b577eb0cbd68909324866426edd99a20f",
+      "modelSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "checks": [
+        {
+          "caseId": "ORD01",
+          "reply": "先把这次要完成的核心内容写成一句话，再用已有材料补这句话。你现在已经有哪部分内容？",
+          "firstUsefulMs": 2137.752999999999,
+          "replyCompleteMs": 3050.9075999999986,
+          "costCny": 0.0024746,
+          "technical": "SAVED",
+          "source": "EDITORIAL_CATALOGUE_NO_EXTERNAL_EFFECT_CLAIM",
+          "state": "EXACT_CURRENT_CLAUSE_READ_BACK_NO_EXPERIENCE",
+          "intent": "PROCESS_HELP_ONE_UNKNOWN",
+          "continuity": "MEMORY_ON_SEPARATE_CONVERSATIONS_NO_OLD_TIME_IN_REPLY",
+          "semantic": "INTEGRATOR_READBACK_SCOPED_ONLY",
+          "fact": {
+            "text": "我还有两小时准备明天的课堂汇报",
+            "kind": "context",
+            "progressState": null
+          },
+          "llmCalls": 1,
+          "paidRepairCalls": 0
+        },
+        {
+          "caseId": "ORD02",
+          "reply": "先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？",
+          "firstUsefulMs": 1091.2825999999986,
+          "replyCompleteMs": 2043.2213999999985,
+          "costCny": 0.0011157,
+          "technical": "SAVED",
+          "source": "EDITORIAL_CATALOGUE_NO_EXTERNAL_EFFECT_CLAIM",
+          "state": "EXACT_CURRENT_CLAUSE_READ_BACK_NO_EXPERIENCE",
+          "intent": "PROCESS_HELP_ONE_UNKNOWN",
+          "continuity": "MEMORY_ON_SEPARATE_CONVERSATIONS_NO_OLD_TIME_IN_REPLY",
+          "semantic": "INTEGRATOR_READBACK_SCOPED_ONLY",
+          "fact": {
+            "text": "我发给学长的问题还没有回复",
+            "kind": "feedback",
+            "progressState": "unknown"
+          },
+          "llmCalls": 1,
+          "paidRepairCalls": 0
+        },
+        {
+          "caseId": "ORD03",
+          "reply": "先回看上次真正做过的那一步和实际反馈，不重新安排整套入门方法。是没开始、做到中途卡住，还是做完后结果不符合预期？",
+          "firstUsefulMs": 1992.6046999999999,
+          "replyCompleteMs": 4146.447899999999,
+          "costCny": 0.0019418,
+          "technical": "SAVED",
+          "source": "EDITORIAL_CATALOGUE_NO_EXTERNAL_EFFECT_CLAIM",
+          "state": "EXACT_CURRENT_CLAUSE_READ_BACK_NO_EXPERIENCE",
+          "intent": "PROCESS_HELP_ONE_UNKNOWN",
+          "continuity": "MEMORY_ON_SEPARATE_CONVERSATIONS_NO_OLD_TIME_IN_REPLY",
+          "semantic": "INTEGRATOR_READBACK_SCOPED_ONLY",
+          "fact": {
+            "text": "我今天没按原计划做完作业",
+            "kind": "feedback",
+            "progressState": "stuck"
+          },
+          "llmCalls": 1,
+          "paidRepairCalls": 0
+        }
+      ],
+      "metrics": {
+        "firstAttempts": 3,
+        "firstContentObserved": 3,
+        "noFirstContent": 0,
+        "completeReplyObserved": 3,
+        "noCompleteReply": 0,
+        "firstContentP50Ms": 1992.6046999999999,
+        "firstContentP95Ms": 2137.752999999999,
+        "observedCompleteReplyP95Ms": 4146.447899999999,
+        "countedTowardOrdinary20": false,
+        "status": "PILOT_ONLY_NOT_ACCEPTED"
+      },
+      "knownEstimatedCostCny": 0.0055321,
+      "providerInterfaceProofReusedWithoutNewProbe": true,
+      "firstAttempts": 3,
+      "automaticRetry": false,
+      "firstFailureBeforeHarnessStartRetained": {
+        "dispatches": 0,
+        "evidence": "evidence/coze-core-launch-20261011/BOUNDED_REPLY_REAL_ISOLATION_FIRST_FAIL.log"
+      },
+      "independentReview": "PENDING_ACTUAL_INDEPENDENT_EXECUTION",
+      "ordinary20": "NOT_TESTED",
+      "complexSmall": "NOT_TESTED_CURRENT_CLOUD",
+      "largerStages": "NOT_TESTED_UNTIL_REQUIRED_SMALL_REVIEW",
+      "ledger": {
+        "originalPath": ".local/v1.3-action-coach/paid/provider-calls.json",
+        "entries": 2053,
+        "sha256": "d1fef94d2a62259573c5def76f213635590edfb32be2ee52d5b76daa75f4b6ef",
+        "funding": {
+          "authorizationSha256": "e4603013b30dbe82f0ae3253cb88a5347403075b1c3c8c07856a2b85248f0e4e",
+          "grantSha256": "a2bfb70cad1bd316f12137df2179bbcf979f0e07f20d8f20c15de3128a4623d5",
+          "limitCny": 27.62,
+          "startingCall": 422,
+          "activatedAt": "2026-10-05T13:30:33.694Z",
+          "noCallLimit": true,
+          "paused": false,
+          "accountedCny": 16.8980817,
+          "remainingCny": 10.7219183
+        },
+        "batchCallsAdded": 31,
+        "priorFailedOrdinary9Retained": true
+      },
+      "newBudget": 0,
+      "productionWrites": 0,
+      "temporaryAcceptanceHttpClosed": true
     }
   }
 }
