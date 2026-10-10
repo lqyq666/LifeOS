@@ -145,6 +145,40 @@
           "bodySha256": "f75bcd6129cee5bf5da5280bc87b7692f39d4ad99351f25204b5b8c46f5f6ace",
           "length": 4471,
           "rawSha256": "5f30fadf33bece23c21446c7616149823c71b6dd7184baebcb7b1e66200d232e"
+        },
+        {
+          "id": "qau-career-decision-20261011",
+          "url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+          "at": "2026-10-10T15:36:45.099Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+          "locator": {
+            "section": "生涯决策平衡单",
+            "step": "第二步",
+            "exactText": "第二步，找出你自己看重的考虑因素",
+            "normalizedBodyStart": 2036,
+            "start": 2036,
+            "end": 2052
+          },
+          "shortQuoteHash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31",
+          "appliesToThisTask": true,
+          "backendAttempts": [
+            {
+              "backend": "agent-reach Jina",
+              "status": "HTTP_401",
+              "originalRead": false
+            },
+            {
+              "backend": "direct original HTTPS",
+              "status": "HTTP_200_FULL_HTML",
+              "originalRead": true
+            },
+            {
+              "backend": "web fallback reread",
+              "status": "TIMEOUT",
+              "originalRead": false
+            }
+          ]
         }
       ],
       "readSource": {
@@ -161,15 +195,32 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
-        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
-        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+        "先确认本人想了解的岗位或工作；已知兴趣和已有实践直接读回，不重问完整档案。",
+        "围绕本人重视的一项条件，列一个待核对问题，例如实际任务、典型一天或已有成果如何被评价；由本人认可的问题选对象，不拿公共案例当本人经历。",
+        "先核对一段公开岗位说明或准备一个自愿访谈问题；没有真实信息时保持未知，不推断这个职业必适合。"
       ],
-      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
-      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "applicabilityBoundary": "支持职业信息提问程序，不证明岗位适配或就业收益。",
+      "stillMissingClaim": "支持职业信息提问程序，不证明岗位适配或就业收益。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T15:36:45.099Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "qau-career-decision-20261011-e1",
+          "career-author-followup-e1"
+        ],
+        "methodExtracted": [
+          "先确认本人想了解的岗位或工作；已知兴趣和已有实践直接读回，不重问完整档案。",
+          "围绕本人重视的一项条件，列一个待核对问题，例如实际任务、典型一天或已有成果如何被评价；由本人认可的问题选对象，不拿公共案例当本人经历。",
+          "先核对一段公开岗位说明或准备一个自愿访谈问题；没有真实信息时保持未知，不推断这个职业必适合。"
+        ],
+        "scope": "支持职业信息提问程序，不证明岗位适配或就业收益。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "independentReview": null,
@@ -645,6 +696,40 @@
           "bodySha256": "f75bcd6129cee5bf5da5280bc87b7692f39d4ad99351f25204b5b8c46f5f6ace",
           "length": 4471,
           "rawSha256": "5f30fadf33bece23c21446c7616149823c71b6dd7184baebcb7b1e66200d232e"
+        },
+        {
+          "id": "qau-career-decision-20261011",
+          "url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+          "at": "2026-10-10T15:36:45.099Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+          "locator": {
+            "section": "生涯决策平衡单",
+            "step": "第二步",
+            "exactText": "第二步，找出你自己看重的考虑因素",
+            "normalizedBodyStart": 2036,
+            "start": 2036,
+            "end": 2052
+          },
+          "shortQuoteHash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31",
+          "appliesToThisTask": true,
+          "backendAttempts": [
+            {
+              "backend": "agent-reach Jina",
+              "status": "HTTP_401",
+              "originalRead": false
+            },
+            {
+              "backend": "direct original HTTPS",
+              "status": "HTTP_200_FULL_HTML",
+              "originalRead": true
+            },
+            {
+              "backend": "web fallback reread",
+              "status": "TIMEOUT",
+              "originalRead": false
+            }
+          ]
         }
       ],
       "readSource": {
@@ -661,15 +746,32 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
-        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
-        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+        "只列这次本人正在考虑的发展方向，已暂停的方向不列作当前主线。",
+        "读回本人作品、实际反馈和资源条件；按本人重视的条件比较支持、限制与未知，交付一次但是否采用未知不能计作成功反馈。",
+        "选一项可能改变取舍的未知去核对；就业优先且已暂停接单时，下一步围绕就业需要，不继续扩大接单。"
       ],
-      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
-      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "applicabilityBoundary": "支持列当前选项和本人条件；创业、自由职业具体收益仍待各自材料。",
+      "stillMissingClaim": "支持列当前选项和本人条件；创业、自由职业具体收益仍待各自材料。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T15:36:45.099Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "qau-career-decision-20261011-e1",
+          "career-author-followup-e1"
+        ],
+        "methodExtracted": [
+          "只列这次本人正在考虑的发展方向，已暂停的方向不列作当前主线。",
+          "读回本人作品、实际反馈和资源条件；按本人重视的条件比较支持、限制与未知，交付一次但是否采用未知不能计作成功反馈。",
+          "选一项可能改变取舍的未知去核对；就业优先且已暂停接单时，下一步围绕就业需要，不继续扩大接单。"
+        ],
+        "scope": "支持列当前选项和本人条件；创业、自由职业具体收益仍待各自材料。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "independentReview": null,
@@ -1130,6 +1232,40 @@
           "status": "BODY_READ",
           "bodyLength": 1570,
           "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        },
+        {
+          "id": "qau-career-decision-20261011",
+          "url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+          "at": "2026-10-10T15:36:45.099Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+          "locator": {
+            "section": "生涯决策平衡单",
+            "step": "第二步",
+            "exactText": "第二步，找出你自己看重的考虑因素",
+            "normalizedBodyStart": 2036,
+            "start": 2036,
+            "end": 2052
+          },
+          "shortQuoteHash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31",
+          "appliesToThisTask": false,
+          "backendAttempts": [
+            {
+              "backend": "agent-reach Jina",
+              "status": "HTTP_401",
+              "originalRead": false
+            },
+            {
+              "backend": "direct original HTTPS",
+              "status": "HTTP_200_FULL_HTML",
+              "originalRead": true
+            },
+            {
+              "backend": "web fallback reread",
+              "status": "TIMEOUT",
+              "originalRead": false
+            }
+          ]
         }
       ],
       "readSource": {
@@ -1146,15 +1282,29 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
-        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
-        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+        "选本人正在考虑的研究题目或方向，读回已有阅读、实际操作和导师反馈；愿望不写成已开展研究。",
+        "分别列本人想解决的问题、已有能力与条件、实际卡点和未知；职业决策表不证明科研可行性或学术适配。",
+        "只整理一个需导师或公开研究材料核对的问题；需实验权限或资源时先核对，不自行安排未获准实验。"
       ],
-      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
-      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "applicabilityBoundary": "科研方向可行性及具体条件仍缺直接来源；只保留整理本人材料的编辑建议。",
+      "stillMissingClaim": "科研方向可行性及具体条件仍缺直接来源；只保留整理本人材料的编辑建议。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T15:36:45.099Z",
+        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+        "evidenceIds": [],
+        "methodExtracted": [
+          "选本人正在考虑的研究题目或方向，读回已有阅读、实际操作和导师反馈；愿望不写成已开展研究。",
+          "分别列本人想解决的问题、已有能力与条件、实际卡点和未知；职业决策表不证明科研可行性或学术适配。",
+          "只整理一个需导师或公开研究材料核对的问题；需实验权限或资源时先核对，不自行安排未获准实验。"
+        ],
+        "scope": "科研方向可行性及具体条件仍缺直接来源；只保留整理本人材料的编辑建议。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
@@ -1270,6 +1420,40 @@
           "bodySha256": "f75bcd6129cee5bf5da5280bc87b7692f39d4ad99351f25204b5b8c46f5f6ace",
           "length": 4471,
           "rawSha256": "5f30fadf33bece23c21446c7616149823c71b6dd7184baebcb7b1e66200d232e"
+        },
+        {
+          "id": "qau-career-decision-20261011",
+          "url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+          "at": "2026-10-10T15:36:45.099Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+          "locator": {
+            "section": "生涯决策平衡单",
+            "step": "第二步",
+            "exactText": "第二步，找出你自己看重的考虑因素",
+            "normalizedBodyStart": 2036,
+            "start": 2036,
+            "end": 2052
+          },
+          "shortQuoteHash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31",
+          "appliesToThisTask": true,
+          "backendAttempts": [
+            {
+              "backend": "agent-reach Jina",
+              "status": "HTTP_401",
+              "originalRead": false
+            },
+            {
+              "backend": "direct original HTTPS",
+              "status": "HTTP_200_FULL_HTML",
+              "originalRead": true
+            },
+            {
+              "backend": "web fallback reread",
+              "status": "TIMEOUT",
+              "originalRead": false
+            }
+          ]
         }
       ],
       "readSource": {
@@ -1286,15 +1470,32 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
-        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
-        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+        "明确本人想了解的具体岗位或单位类型；不把“公共部门”当作相同的一份工作。",
+        "按本人重视的条件列一个实际任务问题，优先读岗位公开说明或本人已获反馈；稳定、自主和日常压力不能从名称推断。",
+        "只准备一个岗位信息核对问题；职位职责、资格或当期报考规则缺原文时保持未知，不套用职业教学案例中的数字。"
       ],
-      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
-      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "applicabilityBoundary": "职业信息提问方法有来源；具体公共岗位日常与当期规则仍需直接原文。",
+      "stillMissingClaim": "职业信息提问方法有来源；具体公共岗位日常与当期规则仍需直接原文。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T15:36:45.099Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "qau-career-decision-20261011-e1",
+          "career-author-followup-e1"
+        ],
+        "methodExtracted": [
+          "明确本人想了解的具体岗位或单位类型；不把“公共部门”当作相同的一份工作。",
+          "按本人重视的条件列一个实际任务问题，优先读岗位公开说明或本人已获反馈；稳定、自主和日常压力不能从名称推断。",
+          "只准备一个岗位信息核对问题；职位职责、资格或当期报考规则缺原文时保持未知，不套用职业教学案例中的数字。"
+        ],
+        "scope": "职业信息提问方法有来源；具体公共岗位日常与当期规则仍需直接原文。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "independentReview": null,
@@ -1333,6 +1534,40 @@
           "bodySha256": "f75bcd6129cee5bf5da5280bc87b7692f39d4ad99351f25204b5b8c46f5f6ace",
           "length": 4471,
           "rawSha256": "5f30fadf33bece23c21446c7616149823c71b6dd7184baebcb7b1e66200d232e"
+        },
+        {
+          "id": "qau-career-decision-20261011",
+          "url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+          "at": "2026-10-10T15:36:45.099Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+          "locator": {
+            "section": "生涯决策平衡单",
+            "step": "第二步",
+            "exactText": "第二步，找出你自己看重的考虑因素",
+            "normalizedBodyStart": 2036,
+            "start": 2036,
+            "end": 2052
+          },
+          "shortQuoteHash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31",
+          "appliesToThisTask": true,
+          "backendAttempts": [
+            {
+              "backend": "agent-reach Jina",
+              "status": "HTTP_401",
+              "originalRead": false
+            },
+            {
+              "backend": "direct original HTTPS",
+              "status": "HTTP_200_FULL_HTML",
+              "originalRead": true
+            },
+            {
+              "backend": "web fallback reread",
+              "status": "TIMEOUT",
+              "originalRead": false
+            }
+          ]
         }
       ],
       "readSource": {
@@ -1349,15 +1584,31 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
-        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
-        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+        "先让本人说明这次所说的稳定或自主具体指什么；已说过的收入、家庭、地点和时间限制直接读回。",
+        "列当前候选及本人认可的考虑因素，逐项标支持、限制或未知；不预设任何组织类型必然稳定或缺少自主。",
+        "只核对最可能改变取舍的一项实际条件；没有可比资料时允许暂缓，分数和AI意见不替本人作决定。"
       ],
-      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
-      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "applicabilityBoundary": "本人考虑因素比较方法有来源；稳定、自主及收入等具体职业事实不由该来源证明。",
+      "stillMissingClaim": "本人考虑因素比较方法有来源；稳定、自主及收入等具体职业事实不由该来源证明。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T15:36:45.099Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "qau-career-decision-20261011-e1"
+        ],
+        "methodExtracted": [
+          "先让本人说明这次所说的稳定或自主具体指什么；已说过的收入、家庭、地点和时间限制直接读回。",
+          "列当前候选及本人认可的考虑因素，逐项标支持、限制或未知；不预设任何组织类型必然稳定或缺少自主。",
+          "只核对最可能改变取舍的一项实际条件；没有可比资料时允许暂缓，分数和AI意见不替本人作决定。"
+        ],
+        "scope": "本人考虑因素比较方法有来源；稳定、自主及收入等具体职业事实不由该来源证明。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "independentReview": null,
@@ -1482,6 +1733,40 @@
           "bodySha256": "f75bcd6129cee5bf5da5280bc87b7692f39d4ad99351f25204b5b8c46f5f6ace",
           "length": 4471,
           "rawSha256": "5f30fadf33bece23c21446c7616149823c71b6dd7184baebcb7b1e66200d232e"
+        },
+        {
+          "id": "qau-career-decision-20261011",
+          "url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+          "at": "2026-10-10T15:36:45.099Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+          "locator": {
+            "section": "生涯决策平衡单",
+            "step": "第二步",
+            "exactText": "第二步，找出你自己看重的考虑因素",
+            "normalizedBodyStart": 2036,
+            "start": 2036,
+            "end": 2052
+          },
+          "shortQuoteHash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31",
+          "appliesToThisTask": true,
+          "backendAttempts": [
+            {
+              "backend": "agent-reach Jina",
+              "status": "HTTP_401",
+              "originalRead": false
+            },
+            {
+              "backend": "direct original HTTPS",
+              "status": "HTTP_200_FULL_HTML",
+              "originalRead": true
+            },
+            {
+              "backend": "web fallback reread",
+              "status": "TIMEOUT",
+              "originalRead": false
+            }
+          ]
         }
       ],
       "readSource": {
@@ -1498,15 +1783,31 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
-        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
-        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+        "读回本人这次正在比较的路径及已改变的目标，不因为历史考研主题把新问题拉回考研。",
+        "按本人重视的条件和已知资源比较支持、限制与未知；学习愿望不当作已有经历，暂停方向不计作人格退步。",
+        "只核对一项足以改变当前取舍的信息；升学、考公及其他路径的资格规则用各自当期官方原文，不借教学案例作规则。"
       ],
-      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
-      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "applicabilityBoundary": "通用选项与考虑因素方法有来源；各路径资格、收益及当前政策仍须分别核对。",
+      "stillMissingClaim": "通用选项与考虑因素方法有来源；各路径资格、收益及当前政策仍须分别核对。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T15:36:45.099Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "qau-career-decision-20261011-e1"
+        ],
+        "methodExtracted": [
+          "读回本人这次正在比较的路径及已改变的目标，不因为历史考研主题把新问题拉回考研。",
+          "按本人重视的条件和已知资源比较支持、限制与未知；学习愿望不当作已有经历，暂停方向不计作人格退步。",
+          "只核对一项足以改变当前取舍的信息；升学、考公及其他路径的资格规则用各自当期官方原文，不借教学案例作规则。"
+        ],
+        "scope": "通用选项与考虑因素方法有来源；各路径资格、收益及当前政策仍须分别核对。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "independentReview": null,
@@ -2464,6 +2765,40 @@
           "status": "BODY_READ",
           "bodyLength": 1570,
           "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        },
+        {
+          "id": "qau-career-decision-20261011",
+          "url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+          "at": "2026-10-10T15:36:45.099Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+          "locator": {
+            "section": "生涯决策平衡单",
+            "step": "第二步",
+            "exactText": "第二步，找出你自己看重的考虑因素",
+            "normalizedBodyStart": 2036,
+            "start": 2036,
+            "end": 2052
+          },
+          "shortQuoteHash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31",
+          "appliesToThisTask": false,
+          "backendAttempts": [
+            {
+              "backend": "agent-reach Jina",
+              "status": "HTTP_401",
+              "originalRead": false
+            },
+            {
+              "backend": "direct original HTTPS",
+              "status": "HTTP_200_FULL_HTML",
+              "originalRead": true
+            },
+            {
+              "backend": "web fallback reread",
+              "status": "TIMEOUT",
+              "originalRead": false
+            }
+          ]
         }
       ],
       "readSource": {
@@ -2480,15 +2815,29 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
-        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
-        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+        "由本人选具体比赛与这次想获得的结果，读回已有参与过程；比赛愿望不写成已经获奖。",
+        "从本人材料中分开预计投入、可用资源、已知规则和未知收益；职业决策材料不能证明保研、获奖或就业收益。",
+        "只核对一个能影响是否参赛的规则或资源缺口；没有当期主办方原文时不承诺资格或奖励，本人拒绝就停止。"
       ],
-      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
-      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "applicabilityBoundary": "具体赛事投入与收益判断仍缺直接材料；不把职业比较来源扩为参赛收益证明。",
+      "stillMissingClaim": "具体赛事投入与收益判断仍缺直接材料；不把职业比较来源扩为参赛收益证明。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T15:36:45.099Z",
+        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+        "evidenceIds": [],
+        "methodExtracted": [
+          "由本人选具体比赛与这次想获得的结果，读回已有参与过程；比赛愿望不写成已经获奖。",
+          "从本人材料中分开预计投入、可用资源、已知规则和未知收益；职业决策材料不能证明保研、获奖或就业收益。",
+          "只核对一个能影响是否参赛的规则或资源缺口；没有当期主办方原文时不承诺资格或奖励，本人拒绝就停止。"
+        ],
+        "scope": "具体赛事投入与收益判断仍缺直接材料；不把职业比较来源扩为参赛收益证明。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
@@ -2635,6 +2984,40 @@
           "status": "BODY_READ",
           "bodyLength": 1570,
           "bodySha256": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910"
+        },
+        {
+          "id": "qau-career-decision-20261011",
+          "url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+          "at": "2026-10-10T15:36:45.099Z",
+          "status": "BODY_READ_SCOPE_CHECKED",
+          "bodySha256": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+          "locator": {
+            "section": "生涯决策平衡单",
+            "step": "第二步",
+            "exactText": "第二步，找出你自己看重的考虑因素",
+            "normalizedBodyStart": 2036,
+            "start": 2036,
+            "end": 2052
+          },
+          "shortQuoteHash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31",
+          "appliesToThisTask": false,
+          "backendAttempts": [
+            {
+              "backend": "agent-reach Jina",
+              "status": "HTTP_401",
+              "originalRead": false
+            },
+            {
+              "backend": "direct original HTTPS",
+              "status": "HTTP_200_FULL_HTML",
+              "originalRead": true
+            },
+            {
+              "backend": "web fallback reread",
+              "status": "TIMEOUT",
+              "originalRead": false
+            }
+          ]
         }
       ],
       "readSource": {
@@ -2651,15 +3034,29 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
-        "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
-        "选一个最能改变取舍的未知去核对，允许暂缓和不选择。"
+        "确认本人正在考虑的具体社团或组织及想参与的事项；公共组织案例不当作本人贡献。",
+        "读回本人已有参与和反馈；分别列实际职责、时间冲突、本人期待及尚缺的信息，不推断组织身份能带来能力增长。",
+        "只准备一个对实际职责或时间安排的核对问题；未经本人同意不联系、不申请，拒绝继续就停止。"
       ],
-      "applicabilityBoundary": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
-      "stillMissingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "applicabilityBoundary": "具体社团职责、时间和适用依据仍缺直接材料；只保留整理本人条件的编辑建议。",
+      "stillMissingClaim": "具体社团职责、时间和适用依据仍缺直接材料；只保留整理本人条件的编辑建议。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-10T15:36:45.099Z",
+        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+        "evidenceIds": [],
+        "methodExtracted": [
+          "确认本人正在考虑的具体社团或组织及想参与的事项；公共组织案例不当作本人贡献。",
+          "读回本人已有参与和反馈；分别列实际职责、时间冲突、本人期待及尚缺的信息，不推断组织身份能带来能力增长。",
+          "只准备一个对实际职责或时间安排的核对问题；未经本人同意不联系、不申请，拒绝继续就停止。"
+        ],
+        "scope": "具体社团职责、时间和适用依据仍缺直接材料；只保留整理本人条件的编辑建议。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T11:43:46.158054+00:00",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
@@ -3427,9 +3824,9 @@
   "independentReviews": 0,
   "humanApprovals": 0,
   "followupSummary": {
-    "newUsableSources": 8,
-    "newLocatedQuotes": 9,
-    "draftsSupplemented": 9,
+    "newUsableSources": 9,
+    "newLocatedQuotes": 10,
+    "draftsSupplemented": 10,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 7,
@@ -3450,6 +3847,7 @@
       "formalCoverageUnchangedUntilApproval": true
     },
     "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
-    "reReadExistingOriginals": 1
+    "reReadExistingOriginals": 1,
+    "draftsSupplementedCountsRevisionEvents": true
   }
 }

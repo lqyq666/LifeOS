@@ -60,6 +60,22 @@ test('delivery review uses the actual agreement source and preserves unknown pay
  assert.equal(pack.reviewPreparation.find((p:any)=>p.guideId===card.id).previousDraftHash,previous.guide.contentHash)
 })
 
+test('direction comparison preserves task specific source boundaries and unknowns',()=>{
+ const pack=json('KB_CONTENT_REVISIONS.json'),card=pack.drafts.find((c:any)=>c.guide.canonicalKey==='direction-comparison'),g=card.guide,prep=pack.reviewPreparation.find((p:any)=>p.guideId===card.id)
+ const e=pack.evidence.find((e:any)=>e.evidence_id==='qau-career-decision-20261011-e1')
+ assert.equal(e.locator.end-e.locator.start,e.quote.length);assert.equal(kbHash(e.quote),e.content_hash)
+ for(const id of ['C11-1','C22-1','C23-1']){
+  const b=g.branches.find((b:any)=>b.candidateId===id)
+  assert.ok(b.steps.every((s:any)=>s.evidenceIds.length===0),'career teaching cannot establish research feasibility, competition gains or society duties')
+  assert.equal(prep.branchChecks.find((b:any)=>b.candidateId===id).sourceStatus,'UNCHANGED_TASK_SPECIFIC_SOURCE_GAP')
+ }
+ for(const id of ['C02-2','C07-2','C12-1','C12-2','C12-4'])assert.ok(prep.branchChecks.find((b:any)=>b.candidateId===id).evidenceIds.includes(e.evidence_id))
+ assert.ok(g.principle.includes('未知不打成低分'));assert.ok(card.limitations.includes('最高分决定选择'))
+ assert.ok(g.feedbackBranches.blocked.includes('不重发'));assert.ok(g.feedbackBranches.waiting_result.includes('不判采用或有效'));assert.ok(g.feedbackBranches.declined.includes('停止'))
+ const previous=pack.draftHistory.find((c:any)=>c.id===card.id&&c.revision===2)
+ assert.equal(prep.previousDraftHash,guideContentHash(previous.guide));assert.equal(prep.executionRecord,null);assert.equal(prep.humanApproval,null)
+})
+
 test('drafts and located source snapshots import idempotently only into the disposable database and deny student reads',async()=>{
  const pack=json('KB_CONTENT_REVISIONS.json'),cards=lines('KB_GUIDES.jsonl'),sources=lines('KB_SOURCE_REGISTRY.jsonl'),evidence=lines('KB_EVIDENCE.jsonl')
  // Each suite owns its card identities, even when the isolated runner shares its disposable DB.

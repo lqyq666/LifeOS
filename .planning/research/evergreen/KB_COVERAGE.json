@@ -160,27 +160,28 @@
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "了解真实工作，从哪下手？",
     "negative": "了解真实工作让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SCOPED_SOURCE_DRAFT_READY",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+    "remaining_claim": "支持职业信息提问程序，不证明岗位适配或就业收益。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
+      "at": "2026-10-10T15:36:45.099Z",
       "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+      "evidenceIds": [
+        "qau-career-decision-20261011-e1",
+        "career-author-followup-e1"
+      ],
+      "methodExtracted": [
+        "先确认本人想了解的岗位或工作；已知兴趣和已有实践直接读回，不重问完整档案。",
+        "围绕本人重视的一项条件，列一个待核对问题，例如实际任务、典型一天或已有成果如何被评价；由本人认可的问题选对象，不拿公共案例当本人经历。",
+        "先核对一段公开岗位说明或准备一个自愿访谈问题；没有真实信息时保持未知，不推断这个职业必适合。"
+      ],
+      "scope": "支持职业信息提问程序，不证明岗位适配或就业收益。",
       "independentReview": null,
       "humanApproval": null,
-      "publication": false,
-      "evidenceId": "career-author-followup-e1",
-      "originalUrl": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
-      "scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
-      "cannotInfer": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。",
-      "methodExtracted": [
-        "作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。",
-        "LifeOS仅迁移该陈述支持的局部核对程序；不是效果证明。",
-        "保留当前原始缺口作为独立审阅的否定检查，未批准前不开放检索。"
-      ]
+      "publication": false
     }
   },
   {
@@ -719,27 +720,28 @@
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "比较发展方向，从哪下手？",
     "negative": "比较发展方向让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SCOPED_SOURCE_DRAFT_READY",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+    "remaining_claim": "支持列当前选项和本人条件；创业、自由职业具体收益仍待各自材料。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
+      "at": "2026-10-10T15:36:45.099Z",
       "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+      "evidenceIds": [
+        "qau-career-decision-20261011-e1",
+        "career-author-followup-e1"
+      ],
+      "methodExtracted": [
+        "只列这次本人正在考虑的发展方向，已暂停的方向不列作当前主线。",
+        "读回本人作品、实际反馈和资源条件；按本人重视的条件比较支持、限制与未知，交付一次但是否采用未知不能计作成功反馈。",
+        "选一项可能改变取舍的未知去核对；就业优先且已暂停接单时，下一步围绕就业需要，不继续扩大接单。"
+      ],
+      "scope": "支持列当前选项和本人条件；创业、自由职业具体收益仍待各自材料。",
       "independentReview": null,
       "humanApproval": null,
-      "publication": false,
-      "evidenceId": "career-author-followup-e1",
-      "originalUrl": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
-      "scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
-      "cannotInfer": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。",
-      "methodExtracted": [
-        "作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。",
-        "LifeOS仅迁移该陈述支持的局部核对程序；不是效果证明。",
-        "保留当前原始缺口作为独立审阅的否定检查，未批准前不开放检索。"
-      ]
+      "publication": false
     }
   },
   {
@@ -1175,15 +1177,22 @@
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "评估研究方向，从哪下手？",
     "negative": "评估研究方向让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SUBSTANTIVE_DRAFT",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+    "remaining_claim": "科研方向可行性及具体条件仍缺直接来源；只保留整理本人材料的编辑建议。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
+      "at": "2026-10-10T15:36:45.099Z",
       "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+      "evidenceIds": [],
+      "methodExtracted": [
+        "选本人正在考虑的研究题目或方向，读回已有阅读、实际操作和导师反馈；愿望不写成已开展研究。",
+        "分别列本人想解决的问题、已有能力与条件、实际卡点和未知；职业决策表不证明科研可行性或学术适配。",
+        "只整理一个需导师或公开研究材料核对的问题；需实验权限或资源时先核对，不自行安排未获准实验。"
+      ],
+      "scope": "科研方向可行性及具体条件仍缺直接来源；只保留整理本人材料的编辑建议。",
       "independentReview": null,
       "humanApproval": null,
       "publication": false
@@ -1290,27 +1299,28 @@
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "了解实际工作，从哪下手？",
     "negative": "了解实际工作让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SCOPED_SOURCE_DRAFT_READY",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+    "remaining_claim": "职业信息提问方法有来源；具体公共岗位日常与当期规则仍需直接原文。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
+      "at": "2026-10-10T15:36:45.099Z",
       "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+      "evidenceIds": [
+        "qau-career-decision-20261011-e1",
+        "career-author-followup-e1"
+      ],
+      "methodExtracted": [
+        "明确本人想了解的具体岗位或单位类型；不把“公共部门”当作相同的一份工作。",
+        "按本人重视的条件列一个实际任务问题，优先读岗位公开说明或本人已获反馈；稳定、自主和日常压力不能从名称推断。",
+        "只准备一个岗位信息核对问题；职位职责、资格或当期报考规则缺原文时保持未知，不套用职业教学案例中的数字。"
+      ],
+      "scope": "职业信息提问方法有来源；具体公共岗位日常与当期规则仍需直接原文。",
       "independentReview": null,
       "humanApproval": null,
-      "publication": false,
-      "evidenceId": "career-author-followup-e1",
-      "originalUrl": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
-      "scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
-      "cannotInfer": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。",
-      "methodExtracted": [
-        "作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。",
-        "LifeOS仅迁移该陈述支持的局部核对程序；不是效果证明。",
-        "保留当前原始缺口作为独立审阅的否定检查，未批准前不开放检索。"
-      ]
+      "publication": false
     }
   },
   {
@@ -1329,27 +1339,27 @@
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "稳定与自主的取舍，从哪下手？",
     "negative": "稳定与自主的取舍让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SCOPED_SOURCE_DRAFT_READY",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+    "remaining_claim": "本人考虑因素比较方法有来源；稳定、自主及收入等具体职业事实不由该来源证明。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
+      "at": "2026-10-10T15:36:45.099Z",
       "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+      "evidenceIds": [
+        "qau-career-decision-20261011-e1"
+      ],
+      "methodExtracted": [
+        "先让本人说明这次所说的稳定或自主具体指什么；已说过的收入、家庭、地点和时间限制直接读回。",
+        "列当前候选及本人认可的考虑因素，逐项标支持、限制或未知；不预设任何组织类型必然稳定或缺少自主。",
+        "只核对最可能改变取舍的一项实际条件；没有可比资料时允许暂缓，分数和AI意见不替本人作决定。"
+      ],
+      "scope": "本人考虑因素比较方法有来源；稳定、自主及收入等具体职业事实不由该来源证明。",
       "independentReview": null,
       "humanApproval": null,
-      "publication": false,
-      "evidenceId": "career-author-followup-e1",
-      "originalUrl": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
-      "scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
-      "cannotInfer": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。",
-      "methodExtracted": [
-        "作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。",
-        "LifeOS仅迁移该陈述支持的局部核对程序；不是效果证明。",
-        "保留当前原始缺口作为独立审阅的否定检查，未批准前不开放检索。"
-      ]
+      "publication": false
     }
   },
   {
@@ -1407,27 +1417,27 @@
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "与其他发展方向比较，从哪下手？",
     "negative": "与其他发展方向比较让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SCOPED_SOURCE_DRAFT_READY",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+    "remaining_claim": "通用选项与考虑因素方法有来源；各路径资格、收益及当前政策仍须分别核对。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
+      "at": "2026-10-10T15:36:45.099Z",
       "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+      "evidenceIds": [
+        "qau-career-decision-20261011-e1"
+      ],
+      "methodExtracted": [
+        "读回本人这次正在比较的路径及已改变的目标，不因为历史考研主题把新问题拉回考研。",
+        "按本人重视的条件和已知资源比较支持、限制与未知；学习愿望不当作已有经历，暂停方向不计作人格退步。",
+        "只核对一项足以改变当前取舍的信息；升学、考公及其他路径的资格规则用各自当期官方原文，不借教学案例作规则。"
+      ],
+      "scope": "通用选项与考虑因素方法有来源；各路径资格、收益及当前政策仍须分别核对。",
       "independentReview": null,
       "humanApproval": null,
-      "publication": false,
-      "evidenceId": "career-author-followup-e1",
-      "originalUrl": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
-      "scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
-      "cannotInfer": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。",
-      "methodExtracted": [
-        "作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。",
-        "LifeOS仅迁移该陈述支持的局部核对程序；不是效果证明。",
-        "保留当前原始缺口作为独立审阅的否定检查，未批准前不开放检索。"
-      ]
+      "publication": false
     }
   },
   {
@@ -2433,15 +2443,22 @@
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "判断比赛是否值得，从哪下手？",
     "negative": "判断比赛是否值得让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SUBSTANTIVE_DRAFT",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+    "remaining_claim": "具体赛事投入与收益判断仍缺直接材料；不把职业比较来源扩为参赛收益证明。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
+      "at": "2026-10-10T15:36:45.099Z",
       "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+      "evidenceIds": [],
+      "methodExtracted": [
+        "由本人选具体比赛与这次想获得的结果，读回已有参与过程；比赛愿望不写成已经获奖。",
+        "从本人材料中分开预计投入、可用资源、已知规则和未知收益；职业决策材料不能证明保研、获奖或就业收益。",
+        "只核对一个能影响是否参赛的规则或资源缺口；没有当期主办方原文时不承诺资格或奖励，本人拒绝就停止。"
+      ],
+      "scope": "具体赛事投入与收益判断仍缺直接材料；不把职业比较来源扩为参赛收益证明。",
       "independentReview": null,
       "humanApproval": null,
       "publication": false
@@ -2564,15 +2581,22 @@
     "reason": "稳定自主等选择因素与具体比较程序缺少相关原文，不将访谈报道扩大为全面方向评估方法。",
     "positive": "选择组织，从哪下手？",
     "negative": "选择组织让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
+    "content_revision_candidate": 3,
     "content_maturity": "SUBSTANTIVE_DRAFT",
     "independent_review": "NOT_EXECUTED",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
-    "remaining_claim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+    "remaining_claim": "具体社团职责、时间和适用依据仍缺直接材料；只保留整理本人条件的编辑建议。",
     "source_followup": {
-      "at": "2026-10-10T11:43:46.158054+00:00",
+      "at": "2026-10-10T15:36:45.099Z",
       "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+      "evidenceIds": [],
+      "methodExtracted": [
+        "确认本人正在考虑的具体社团或组织及想参与的事项；公共组织案例不当作本人贡献。",
+        "读回本人已有参与和反馈；分别列实际职责、时间冲突、本人期待及尚缺的信息，不推断组织身份能带来能力增长。",
+        "只准备一个对实际职责或时间安排的核对问题；未经本人同意不联系、不申请，拒绝继续就停止。"
+      ],
+      "scope": "具体社团职责、时间和适用依据仍缺直接材料；只保留整理本人条件的编辑建议。",
       "independentReview": null,
       "humanApproval": null,
       "publication": false

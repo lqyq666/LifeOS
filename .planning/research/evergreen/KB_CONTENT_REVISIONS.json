@@ -507,6 +507,24 @@
       "fingerprint_scope": "LOCATED_SHORT_QUOTE_SNAPSHOT_NOT_FULL_HTML",
       "semantic_scope": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
       "cannot_infer": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。"
+    },
+    {
+      "source_id": "qau-career-decision-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+      "platform": "xlzx.qau.edu.cn",
+      "original_work_id": "/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+      "title": "第四十六期 如何选择第一份工作",
+      "publisher": "青岛农业大学学生心理发展指导中心",
+      "author": "利萍",
+      "published_at": "2021-05-19",
+      "retrieved_at": "2026-10-10T15:36:45.099Z",
+      "source_group": "qau-career-decision",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_AND_BOUNDED_SYNTHESIS_ONLY",
+      "original_fingerprint": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+      "semantic_scope": "高校心理指导原文的职业决策教学方法：列当前工作选项，先确定本人重视的考虑因素，再逐项比较。原文另列了解职业的一天与实际任务的问题。",
+      "cannot_infer": "不是效果研究；不采用努力必成功、测评诊断、行业固有稳定性或最高总分决定选择等推论。公共部门、科研、赛事与社团的实际规则及收益仍须各自原文核对。"
     }
   ],
   "evidence": [
@@ -1146,6 +1164,24 @@
       "context": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
       "acquisition": "WEB_RUN_ORIGINAL_PAGE_LOCATED_PARAGRAPH_READ",
       "content_hash": "af1ebc58759b7847b5916903af4bcb6fe765389e7e260be8b587830a6fdfe519"
+    },
+    {
+      "evidence_id": "qau-career-decision-20261011-e1",
+      "source_id": "qau-career-decision-20261011",
+      "source_revision": 1,
+      "quote": "第二步，找出你自己看重的考虑因素",
+      "locator": {
+        "section": "生涯决策平衡单",
+        "step": "第二步",
+        "exactText": "第二步，找出你自己看重的考虑因素",
+        "normalizedBodyStart": 2036,
+        "start": 2036,
+        "end": 2052,
+        "normalizedBodySha256": "9c46d044a8391e90b3a8f2af843cfd3b6967ee00bf7715f5dbaec96771b12b77"
+      },
+      "context": "高校心理指导原文的职业决策教学方法：列当前工作选项，先确定本人重视的考虑因素，再逐项比较。原文另列了解职业的一天与实际任务的问题。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_HTML_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31"
     }
   ],
   "drafts": [
@@ -4773,24 +4809,24 @@
     },
     {
       "id": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
-      "revision": 2,
+      "revision": 3,
       "kind": "method",
       "status": "unverified",
       "synthetic": false,
-      "title": "按真实工作与代价比较方向",
-      "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
-      "publisher": "上海大学机电工程与自动化学院",
-      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "title": "依据本人重视的条件比较当前方向",
+      "url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+      "publisher": "青岛农业大学学生心理发展指导中心",
+      "publishedYear": "2021",
       "verifiedAt": "2026-10-10T10:08:23.551Z",
       "validUntil": null,
-      "excerpt": "决策平衡单的使用方法。研三同学运用自己手上的具体offer进行实操分析，均表示运用平衡单能更直观的看出每个选择的优缺点，从而对自己的就业选择做出最佳决策。向东华老师带来的这场分享为许多面临工作抉择和未来规划不清晰的同学提供了宝贵的建议和启示，在沙龙的最后，向老师也对同学们提出的问题一一答疑解惑。通过本次沙龙，同学们向内剖析清晰自己的价值取向，向外学会运用有效工具做出最佳抉择，充分领悟到了无论面临怎样的困难选择，坚持初心继续奋斗、保持积极人生态度的力量。\n 上一条：【学工】 自",
-      "claim": "该生涯沙龙用个人价值与决策平衡单比较具体选择的优缺点。",
-      "scope": "以当前问题列两到三个候选，不让旧长期主题挤走新问题。；适用范围按每个分支核对。",
-      "limitations": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "excerpt": "第二步，找出你自己看重的考虑因素",
+      "claim": "该高校公开指导材料建议先列当前职业选项，再确定本人重视的考虑因素。",
+      "scope": "职业分支可用公开教学方法辅助列选项和本人考虑因素；科研、竞赛、社团分支只整理本人过程与待核对材料。",
+      "limitations": "教学建议不证明最佳选择或提高就业结果；不采用原文必成功承诺、测评推断和最高分决定选择。公共部门日常、科研条件、赛事收益及社团职责仍需各自直接材料。",
       "mechanisms": [
         "访谈信息辅助比较"
       ],
-      "sourceHash": "51ccd4ca75e67769bd37f11c53390ec59831255f582d39be4744b5cdaf50d872",
+      "sourceHash": "5a14130e32e771190af248d4c48fc7570b5bb57baaf5a487281059b9331f8cd0",
       "guide": {
         "schemaVersion": 1,
         "guideId": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
@@ -4820,20 +4856,21 @@
           "22",
           "23"
         ],
-        "task": "按真实工作与代价比较方向",
+        "task": "依据本人重视的条件比较当前方向",
         "stage": "start/adjust/compare",
         "mechanism": "访谈信息辅助比较",
         "prerequisites": [
-          "当前本人最在意什么，还有哪项未知会改变选择？",
-          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+          "这次具体要比较什么，本人目前最在意哪一项条件？",
+          "本人请求比较或了解方法；当前事件可辨识。"
         ],
         "exclusions": [
-          "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
-          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+          "教学建议不证明最佳选择或提高就业结果；不采用原文必成功承诺、测评推断和最高分决定选择。公共部门日常、科研条件、赛事收益及社团职责仍需各自直接材料。",
+          "只想倾听、明确拒绝、暂停或已遗忘的事情。"
         ],
         "evidenceIds": [
           "shu-career-choice-batch-direction-comparison-e1",
-          "career-author-followup-e1"
+          "career-author-followup-e1",
+          "qau-career-decision-20261011-e1"
         ],
         "claims": [
           {
@@ -4848,7 +4885,7 @@
           },
           {
             "id": "direction-comparison-editorial",
-            "text": "以当前问题列两到三个候选，不让旧长期主题挤走新问题。；逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。；选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+            "text": "各分支只使用当前本人认可的选项、个人依据与限制，分开未知并核对一项信息；科研、竞赛和社团不借职业材料推出适配、可行性或收益。",
             "basis": "editorial_adaptation",
             "evidenceIds": [
               "shu-career-choice-batch-direction-comparison-e1"
@@ -4865,13 +4902,24 @@
             ],
             "scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
             "limitations": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。"
+          },
+          {
+            "id": "direction-comparison-personal-criteria",
+            "text": "该高校公开指导材料建议先列当前职业选项，再确定本人重视的考虑因素。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "qau-career-decision-20261011-e1"
+            ],
+            "scope": "高校心理指导原文的职业决策教学方法：列当前工作选项，先确定本人重视的考虑因素，再逐项比较。原文另列了解职业的一天与实际任务的问题。",
+            "limitations": "不是效果研究；不采用努力必成功、测评诊断、行业固有稳定性或最高总分决定选择等推论。公共部门、科研、赛事与社团的实际规则及收益仍须各自原文核对。"
           }
         ],
         "sourceGroups": [
           "shu-career-choice",
-          "www.tianxingacademy.com"
+          "www.tianxingacademy.com",
+          "qau-career-decision"
         ],
-        "principle": "该生涯沙龙用个人价值与决策平衡单比较具体选择的优缺点。 具体步骤为LifeOS编辑适配。",
+        "principle": "当前选项与本人重视的条件分开；支持、限制和未知分开，未知不打成低分。选择由本人决定，不用加权总分替代本人判断。",
         "branches": [
           {
             "id": "C02-2",
@@ -4880,27 +4928,30 @@
             "stage": "start",
             "steps": [
               {
-                "id": "C02-2-r2-1",
-                "text": "当前任务「了解真实工作」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "id": "C02-2-r3-1",
+                "text": "先确认本人想了解的岗位或工作；已知兴趣和已有实践直接读回，不重问完整档案。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1",
+                  "career-author-followup-e1"
                 ]
               },
               {
-                "id": "C02-2-r2-2",
-                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "id": "C02-2-r3-2",
+                "text": "围绕本人重视的一项条件，列一个待核对问题，例如实际任务、典型一天或已有成果如何被评价；由本人认可的问题选对象，不拿公共案例当本人经历。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1",
+                  "career-author-followup-e1"
                 ]
               },
               {
-                "id": "C02-2-r2-3",
-                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "id": "C02-2-r3-3",
+                "text": "先核对一段公开岗位说明或准备一个自愿访谈问题；没有真实信息时保持未知，不推断这个职业必适合。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1",
+                  "career-author-followup-e1"
                 ]
               }
             ]
@@ -4912,27 +4963,30 @@
             "stage": "compare",
             "steps": [
               {
-                "id": "C07-2-r2-1",
-                "text": "当前任务「比较发展方向」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "id": "C07-2-r3-1",
+                "text": "只列这次本人正在考虑的发展方向，已暂停的方向不列作当前主线。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1",
+                  "career-author-followup-e1"
                 ]
               },
               {
-                "id": "C07-2-r2-2",
-                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "id": "C07-2-r3-2",
+                "text": "读回本人作品、实际反馈和资源条件；按本人重视的条件比较支持、限制与未知，交付一次但是否采用未知不能计作成功反馈。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1",
+                  "career-author-followup-e1"
                 ]
               },
               {
-                "id": "C07-2-r2-3",
-                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "id": "C07-2-r3-3",
+                "text": "选一项可能改变取舍的未知去核对；就业优先且已暂停接单时，下一步围绕就业需要，不继续扩大接单。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1",
+                  "career-author-followup-e1"
                 ]
               }
             ]
@@ -4944,28 +4998,22 @@
             "stage": "compare",
             "steps": [
               {
-                "id": "C11-1-r2-1",
-                "text": "当前任务「评估研究方向」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "id": "C11-1-r3-1",
+                "text": "选本人正在考虑的研究题目或方向，读回已有阅读、实际操作和导师反馈；愿望不写成已开展研究。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
-                ]
+                "evidenceIds": []
               },
               {
-                "id": "C11-1-r2-2",
-                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "id": "C11-1-r3-2",
+                "text": "分别列本人想解决的问题、已有能力与条件、实际卡点和未知；职业决策表不证明科研可行性或学术适配。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
-                ]
+                "evidenceIds": []
               },
               {
-                "id": "C11-1-r2-3",
-                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "id": "C11-1-r3-3",
+                "text": "只整理一个需导师或公开研究材料核对的问题；需实验权限或资源时先核对，不自行安排未获准实验。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
-                ]
+                "evidenceIds": []
               }
             ]
           },
@@ -4976,27 +5024,30 @@
             "stage": "start",
             "steps": [
               {
-                "id": "C12-1-r2-1",
-                "text": "当前任务「了解实际工作」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "id": "C12-1-r3-1",
+                "text": "明确本人想了解的具体岗位或单位类型；不把“公共部门”当作相同的一份工作。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1",
+                  "career-author-followup-e1"
                 ]
               },
               {
-                "id": "C12-1-r2-2",
-                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "id": "C12-1-r3-2",
+                "text": "按本人重视的条件列一个实际任务问题，优先读岗位公开说明或本人已获反馈；稳定、自主和日常压力不能从名称推断。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1",
+                  "career-author-followup-e1"
                 ]
               },
               {
-                "id": "C12-1-r2-3",
-                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "id": "C12-1-r3-3",
+                "text": "只准备一个岗位信息核对问题；职位职责、资格或当期报考规则缺原文时保持未知，不套用职业教学案例中的数字。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1",
+                  "career-author-followup-e1"
                 ]
               }
             ]
@@ -5008,27 +5059,27 @@
             "stage": "compare",
             "steps": [
               {
-                "id": "C12-2-r2-1",
-                "text": "当前任务「稳定与自主的取舍」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "id": "C12-2-r3-1",
+                "text": "先让本人说明这次所说的稳定或自主具体指什么；已说过的收入、家庭、地点和时间限制直接读回。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1"
                 ]
               },
               {
-                "id": "C12-2-r2-2",
-                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "id": "C12-2-r3-2",
+                "text": "列当前候选及本人认可的考虑因素，逐项标支持、限制或未知；不预设任何组织类型必然稳定或缺少自主。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1"
                 ]
               },
               {
-                "id": "C12-2-r2-3",
-                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "id": "C12-2-r3-3",
+                "text": "只核对最可能改变取舍的一项实际条件；没有可比资料时允许暂缓，分数和AI意见不替本人作决定。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1"
                 ]
               }
             ]
@@ -5040,27 +5091,27 @@
             "stage": "compare",
             "steps": [
               {
-                "id": "C12-4-r2-1",
-                "text": "当前任务「与其他发展方向比较」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "id": "C12-4-r3-1",
+                "text": "读回本人这次正在比较的路径及已改变的目标，不因为历史考研主题把新问题拉回考研。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1"
                 ]
               },
               {
-                "id": "C12-4-r2-2",
-                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "id": "C12-4-r3-2",
+                "text": "按本人重视的条件和已知资源比较支持、限制与未知；学习愿望不当作已有经历，暂停方向不计作人格退步。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1"
                 ]
               },
               {
-                "id": "C12-4-r2-3",
-                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "id": "C12-4-r3-3",
+                "text": "只核对一项足以改变当前取舍的信息；升学、考公及其他路径的资格规则用各自当期官方原文，不借教学案例作规则。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
+                  "qau-career-decision-20261011-e1"
                 ]
               }
             ]
@@ -5072,28 +5123,22 @@
             "stage": "compare",
             "steps": [
               {
-                "id": "C22-1-r2-1",
-                "text": "当前任务「判断比赛是否值得」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "id": "C22-1-r3-1",
+                "text": "由本人选具体比赛与这次想获得的结果，读回已有参与过程；比赛愿望不写成已经获奖。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
-                ]
+                "evidenceIds": []
               },
               {
-                "id": "C22-1-r2-2",
-                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "id": "C22-1-r3-2",
+                "text": "从本人材料中分开预计投入、可用资源、已知规则和未知收益；职业决策材料不能证明保研、获奖或就业收益。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
-                ]
+                "evidenceIds": []
               },
               {
-                "id": "C22-1-r2-3",
-                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "id": "C22-1-r3-3",
+                "text": "只核对一个能影响是否参赛的规则或资源缺口；没有当期主办方原文时不承诺资格或奖励，本人拒绝就停止。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
-                ]
+                "evidenceIds": []
               }
             ]
           },
@@ -5104,56 +5149,50 @@
             "stage": "compare",
             "steps": [
               {
-                "id": "C23-1-r2-1",
-                "text": "当前任务「选择组织」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "id": "C23-1-r3-1",
+                "text": "确认本人正在考虑的具体社团或组织及想参与的事项；公共组织案例不当作本人贡献。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
-                ]
+                "evidenceIds": []
               },
               {
-                "id": "C23-1-r2-2",
-                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "id": "C23-1-r3-2",
+                "text": "读回本人已有参与和反馈；分别列实际职责、时间冲突、本人期待及尚缺的信息，不推断组织身份能带来能力增长。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
-                ]
+                "evidenceIds": []
               },
               {
-                "id": "C23-1-r2-3",
-                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "id": "C23-1-r3-3",
+                "text": "只准备一个对实际职责或时间安排的核对问题；未经本人同意不联系、不申请，拒绝继续就停止。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "shu-career-choice-batch-direction-comparison-e1"
-                ]
+                "evidenceIds": []
               }
             ]
           }
         ],
-        "oneKeyQuestion": "当前本人最在意什么，还有哪项未知会改变选择？",
-        "smallestAction": "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+        "oneKeyQuestion": "这次具体要比较什么，本人目前最在意哪一项条件？",
+        "smallestAction": "只列当前一个候选与本人在意的一项条件，标明对应证据或未知。",
         "exampleBudgetOnly": true,
-        "lowEnergyAlternative": "不必完成全套；只处理“当前本人最在意什么，还有哪项未知会改变选择？”中的一项已有材料，零时间保留未知并暂停。",
+        "lowEnergyAlternative": "只保存本人已说的一个考虑因素；没有时间就保留未知，不安排新访谈、练习或申请。",
         "stopConditions": [
-          "本人拒绝、暂停或零资源时停止。",
-          "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
-          "缺少原文或适用条件时只列未知，不承诺效果。"
+          "本人拒绝、暂停或零时间就停止。",
+          "教学建议不证明最佳选择或提高就业结果；不采用原文必成功承诺、测评推断和最高分决定选择。公共部门日常、科研条件、赛事收益及社团职责仍需各自直接材料。",
+          "缺少可核对材料不推断适配，不以分数强行决定。"
         ],
         "feedbackBranches": {
-          "not_started": "尚未开始「按真实工作与代价比较方向」时，先核对：当前本人最在意什么，还有哪项未知会改变选择？只准备本人认可的一步，不写成执行。",
-          "blocked": "沿同一事件、原步骤及实际卡点核对：逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。只调整卡住处，不重送入门全套。",
-          "waiting_result": "已尝试不等于有效。等待「哪些判断因新反馈改变、哪些仍未知。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。",
-          "result": "只用本人报告的新反馈检查：哪些判断因新反馈改变、哪些仍未知。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
-          "declined": "停止「按真实工作与代价比较方向」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+          "not_started": "读回本人当前问题、已有依据与限制，只准备一项需核对的条件；计划和愿望不写成实践。",
+          "blocked": "沿原事件、原步骤及本人反馈找卡点；“还是不行”先读回上次尝试，没补资料不重发整套决策表，也不猜失败原因。",
+          "waiting_result": "记录实际已核对或已询问的事项；等待回复不判采用或有效，不自动追发，缺反馈就保留未知。",
+          "result": "只用本人新反馈更正对应考虑因素的支持、限制或未知；不能把局部反馈变成身份结论，选择变动需本人确认。",
+          "declined": "停止被拒绝的比較、联系、申请或实验；不换名称继续推动，已暂停方向不作当前主线，本人重提才恢复。"
         },
-        "expectedObservation": "哪些判断因新反馈改变、哪些仍未知。",
-        "retrievalSummary": "按真实工作与代价比较方向；direction-comparison；当前本人最在意什么，还有哪项未知会改变选择？；了解真实工作；比较发展方向；评估研究方向；了解实际工作；稳定与自主的取舍；与其他发展方向比较；判断比赛是否值得；选择组织；以当前问题列两到三个候选，不让旧长期主题挤走新问题。；逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。；选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
-        "referenceBody": "按真实工作与代价比较方向\n原文范围：该生涯沙龙用个人价值与决策平衡单比较具体选择的优缺点。\n什么时候用：当前本人最在意什么，还有哪项未知会改变选择？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：当前本人最在意什么，还有哪项未知会改变选择？\nLifeOS编辑步骤：\n以当前问题列两到三个候选，不让旧长期主题挤走新问题。\n逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。\n选一个最能改变取舍的未知去核对，允许暂缓和不选择。\n资源不足：不必完成全套；只处理“当前本人最在意什么，还有哪项未知会改变选择？”中的一项已有材料，零时间保留未知并暂停。\n观察：哪些判断因新反馈改变、哪些仍未知。\nnot_started：尚未开始「按真实工作与代价比较方向」时，先核对：当前本人最在意什么，还有哪项未知会改变选择？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「哪些判断因新反馈改变、哪些仍未知。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。\nresult：只用本人报告的新反馈检查：哪些判断因新反馈改变、哪些仍未知。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「按真实工作与代价比较方向」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。",
+        "expectedObservation": "新增了哪项可核对信息、支持或限制什么考虑因素、哪些仍未知；方向改变以本人确认读回。",
+        "retrievalSummary": "依据本人重视的条件比较当前方向；这次具体要比较什么，本人目前最在意哪一项条件？；了解真实工作；先确认本人想了解的岗位或工作；已知兴趣和已有实践直接读回，不重问完整档案。；围绕本人重视的一项条件，列一个待核对问题，例如实际任务、典型一天或已有成果如何被评价；由本人认可的问题选对象，不拿公共案例当本人经历。；先核对一段公开岗位说明或准备一个自愿访谈问题；没有真实信息时保持未知，不推断这个职业必适合。；比较发展方向；只列这次本人正在考虑的发展方向，已暂停的方向不列作当前主线。；读回本人作品、实际反馈和资源条件；按本人重视的条件比较支持、限制与未知，交付一次但是否采用未知不能计作成功反馈。；选一项可能改变取舍的未知去核对；就业优先且已暂停接单时，下一步围绕就业需要，不继续扩大接单。；评估研究方向；选本人正在考虑的研究题目或方向，读回已有阅读、实际操作和导师反馈；愿望不写成已开展研究。；分别列本人想解决的问题、已有能力与条件、实际卡点和未知；职业决策表不证明科研可行性或学术适配。；只整理一个需导师或公开研究材料核对的问题；需实验权限或资源时先核对，不自行安排未获准实验。；了解实际工作；明确本人想了解的具体岗位或单位类型；不把“公共部门”当作相同的一份工作。；按本人重视的条件列一个实际任务问题，优先读岗位公开说明或本人已获反馈；稳定、自主和日常压力不能从名称推断。；只准备一个岗位信息核对问题；职位职责、资格或当期报考规则缺原文时保持未知，不套用职业教学案例中的数字。；稳定与自主的取舍；先让本人说明这次所说的稳定或自主具体指什么；已说过的收入、家庭、地点和时间限制直接读回。；列当前候选及本人认可的考虑因素，逐项标支持、限制或未知；不预设任何组织类型必然稳定或缺少自主。；只核对最可能改变取舍的一项实际条件；没有可比资料时允许暂缓，分数和AI意见不替本人作决定。；与其他发展方向比较；读回本人这次正在比较的路径及已改变的目标，不因为历史考研主题把新问题拉回考研。；按本人重视的条件和已知资源比较支持、限制与未知；学习愿望不当作已有经历，暂停方向不计作人格退步。；只核对一项足以改变当前取舍的信息；升学、考公及其他路径的资格规则用各自当期官方原文，不借教学案例作规则。；判断比赛是否值得；由本人选具体比赛与这次想获得的结果，读回已有参与过程；比赛愿望不写成已经获奖。；从本人材料中分开预计投入、可用资源、已知规则和未知收益；职业决策材料不能证明保研、获奖或就业收益。；只核对一个能影响是否参赛的规则或资源缺口；没有当期主办方原文时不承诺资格或奖励，本人拒绝就停止。；选择组织；确认本人正在考虑的具体社团或组织及想参与的事项；公共组织案例不当作本人贡献。；读回本人已有参与和反馈；分别列实际职责、时间冲突、本人期待及尚缺的信息，不推断组织身份能带来能力增长。；只准备一个对实际职责或时间安排的核对问题；未经本人同意不联系、不申请，拒绝继续就停止。",
+        "referenceBody": "依据本人重视的条件比较当前方向\n原文范围：\n该生涯沙龙用个人价值与决策平衡单比较具体选择的优缺点。 范围：生涯决策中的个人价值与平衡；讲座实践建议不是效果研究。 限制：讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。\n作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。 范围：作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。 限制：不推出职业必适合、访谈保证录用、学术成功或海外教育收益。\n该高校公开指导材料建议先列当前职业选项，再确定本人重视的考虑因素。 范围：高校心理指导原文的职业决策教学方法：列当前工作选项，先确定本人重视的考虑因素，再逐项比较。原文另列了解职业的一天与实际任务的问题。 限制：不是效果研究；不采用努力必成功、测评诊断、行业固有稳定性或最高总分决定选择等推论。公共部门、科研、赛事与社团的实际规则及收益仍须各自原文核对。\n什么时候用：这次具体要比较什么，本人目前最在意哪一项条件？；本人请求比较或了解方法；当前事件可辨识。\n什么时候不用：教学建议不证明最佳选择或提高就业结果；不采用原文必成功承诺、测评推断和最高分决定选择。公共部门日常、科研条件、赛事收益及社团职责仍需各自直接材料。；只想倾听、明确拒绝、暂停或已遗忘的事情。\n先核对：这次具体要比较什么，本人目前最在意哪一项条件？\nLifeOS编辑步骤（分支不得借用不适用来源）：\n任务：了解真实工作\n先确认本人想了解的岗位或工作；已知兴趣和已有实践直接读回，不重问完整档案。\n围绕本人重视的一项条件，列一个待核对问题，例如实际任务、典型一天或已有成果如何被评价；由本人认可的问题选对象，不拿公共案例当本人经历。\n先核对一段公开岗位说明或准备一个自愿访谈问题；没有真实信息时保持未知，不推断这个职业必适合。\n观察：实际任务信息来自哪里；哪项本人考虑因素获得了支持或限制，哪些仍未知。\n任务：比较发展方向\n只列这次本人正在考虑的发展方向，已暂停的方向不列作当前主线。\n读回本人作品、实际反馈和资源条件；按本人重视的条件比较支持、限制与未知，交付一次但是否采用未知不能计作成功反馈。\n选一项可能改变取舍的未知去核对；就业优先且已暂停接单时，下一步围绕就业需要，不继续扩大接单。\n观察：本人当前重点是否确认；新证据改变了哪项比较，实践、采用、付款及效果是否各自已知。\n任务：评估研究方向\n选本人正在考虑的研究题目或方向，读回已有阅读、实际操作和导师反馈；愿望不写成已开展研究。\n分别列本人想解决的问题、已有能力与条件、实际卡点和未知；职业决策表不证明科研可行性或学术适配。\n只整理一个需导师或公开研究材料核对的问题；需实验权限或资源时先核对，不自行安排未获准实验。\n观察：研究问题、可用资源和实际过程是否有可核查材料；可行性和结果哪些仍未知。\n任务：了解实际工作\n明确本人想了解的具体岗位或单位类型；不把“公共部门”当作相同的一份工作。\n按本人重视的条件列一个实际任务问题，优先读岗位公开说明或本人已获反馈；稳定、自主和日常压力不能从名称推断。\n只准备一个岗位信息核对问题；职位职责、资格或当期报考规则缺原文时保持未知，不套用职业教学案例中的数字。\n观察：实际职责与信息出处是否核对；本人关心的工作条件还有哪些未知。\n任务：稳定与自主的取舍\n先让本人说明这次所说的稳定或自主具体指什么；已说过的收入、家庭、地点和时间限制直接读回。\n列当前候选及本人认可的考虑因素，逐项标支持、限制或未知；不预设任何组织类型必然稳定或缺少自主。\n只核对最可能改变取舍的一项实际条件；没有可比资料时允许暂缓，分数和AI意见不替本人作决定。\n观察：本人定义的考虑因素是否清楚；具体条件得到什么新证据，哪些判断需更正。\n任务：与其他发展方向比较\n读回本人这次正在比较的路径及已改变的目标，不因为历史考研主题把新问题拉回考研。\n按本人重视的条件和已知资源比较支持、限制与未知；学习愿望不当作已有经历，暂停方向不计作人格退步。\n只核对一项足以改变当前取舍的信息；升学、考公及其他路径的资格规则用各自当期官方原文，不借教学案例作规则。\n观察：哪项个人依据改变了取舍；当前重点是否由本人确认，关键条件哪些仍未知。\n任务：判断比赛是否值得\n由本人选具体比赛与这次想获得的结果，读回已有参与过程；比赛愿望不写成已经获奖。\n从本人材料中分开预计投入、可用资源、已知规则和未知收益；职业决策材料不能证明保研、获奖或就业收益。\n只核对一个能影响是否参赛的规则或资源缺口；没有当期主办方原文时不承诺资格或奖励，本人拒绝就停止。\n观察：投入与规则哪些已核实；本人目标、参赛经历及真实结果分别是什么。\n任务：选择组织\n确认本人正在考虑的具体社团或组织及想参与的事项；公共组织案例不当作本人贡献。\n读回本人已有参与和反馈；分别列实际职责、时间冲突、本人期待及尚缺的信息，不推断组织身份能带来能力增长。\n只准备一个对实际职责或时间安排的核对问题；未经本人同意不联系、不申请，拒绝继续就停止。\n观察：实际职责和时间是否核对；参与意愿、实际贡献与反馈是否分开。\n最小一步：只列当前一个候选与本人在意的一项条件，标明对应证据或未知。\n资源不足：只保存本人已说的一个考虑因素；没有时间就保留未知，不安排新访谈、练习或申请。\nnot_started：读回本人当前问题、已有依据与限制，只准备一项需核对的条件；计划和愿望不写成实践。\nblocked：沿原事件、原步骤及本人反馈找卡点；“还是不行”先读回上次尝试，没补资料不重发整套决策表，也不猜失败原因。\nwaiting_result：记录实际已核对或已询问的事项；等待回复不判采用或有效，不自动追发，缺反馈就保留未知。\nresult：只用本人新反馈更正对应考虑因素的支持、限制或未知；不能把局部反馈变成身份结论，选择变动需本人确认。\ndeclined：停止被拒绝的比較、联系、申请或实验；不换名称继续推动，已暂停方向不作当前主线，本人重提才恢复。",
         "reviewStatus": "needs_review",
         "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
         "review": null,
-        "contentHash": "02a9dad5e5f34008666577c16677ebd4ffbf111e76662428806c937f2d713fdf",
-        "indexSignature": "f15eca28b9c7e8ca0530a62eb85b12ca51dd270ebbe4ac98568d255be7ca312d",
+        "contentHash": "98e0a24a01835f06ac903403447e7c3e6f8b6b043bb638bd09f03c9d54ebd46b",
+        "indexSignature": "477e96877a09e9ab209dc29ed2ef50c4ecdbef72d5f2b9e59d9e892cc91fea87",
         "legacyIds": [],
         "replaces": []
       }
@@ -8817,7 +8856,7 @@
       "guideId": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
       "canonicalKey": "direction-comparison",
       "baseRevision": 1,
-      "revision": 2,
+      "revision": 3,
       "previousStatus": "needs_review",
       "decision": "SUBSTANTIVE_REVISION_PENDING_INDEPENDENT_REVIEW",
       "changed": [
@@ -8825,14 +8864,24 @@
         "task_steps",
         "feedback_branches",
         "limits",
-        "resource_alternative"
+        "resource_alternative",
+        "personal_criteria_original",
+        "eight_task_specific_branches",
+        "research_competition_society_no_career_evidence",
+        "unknown_not_negative_score"
       ],
       "sourceId": "shu-career-choice",
       "sourceRead": true,
-      "remainingClaim": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "remainingClaim": "教学建议不证明最佳选择或提高就业结果；不采用原文必成功承诺、测评推断和最高分决定选择。公共部门日常、科研条件、赛事收益及社团职责仍需各自直接材料。",
       "independentReview": null,
       "humanApproval": null,
-      "served": false
+      "served": false,
+      "previousDraftHash": "02a9dad5e5f34008666577c16677ebd4ffbf111e76662428806c937f2d713fdf",
+      "sourceIds": [
+        "shu-career-choice-batch",
+        "career-author-followup",
+        "qau-career-decision-20261011"
+      ]
     },
     {
       "guideId": "d9c8179d-ccc5-4c09-8503-a17eeade5ae9",
@@ -10817,9 +10866,9 @@
     {
       "canonicalKey": "direction-comparison",
       "guideId": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
-      "revision": 2,
-      "contentHash": "02a9dad5e5f34008666577c16677ebd4ffbf111e76662428806c937f2d713fdf",
-      "previousDraftHash": "cc5484eafed92baf5095f52983daa761fe8fdd46d4860b745c508c90e0e83299",
+      "revision": 3,
+      "contentHash": "98e0a24a01835f06ac903403447e7c3e6f8b6b043bb638bd09f03c9d54ebd46b",
+      "previousDraftHash": "02a9dad5e5f34008666577c16677ebd4ffbf111e76662428806c937f2d713fdf",
       "status": "PREPARED_NOT_INDEPENDENTLY_EXECUTED",
       "claimChecks": [
         {
@@ -10843,12 +10892,12 @@
               "quote": "决策平衡单的使用方法。研三同学运用自己手上的具体offer进行实操分析，均表示运用平衡单能更直观的看出每个选择的优缺点，从而对自己的就业选择做出最佳决策。向东华老师带来的这场分享为许多面临工作抉择和未来规划不清晰的同学提供了宝贵的建议和启示，在沙龙的最后，向老师也对同学们提出的问题一一答疑解惑。通过本次沙龙，同学们向内剖析清晰自己的价值取向，向外学会运用有效工具做出最佳抉择，充分领悟到了无论面临怎样的困难选择，坚持初心继续奋斗、保持积极人生态度的力量。\n 上一条：【学工】 自"
             }
           ],
-          "reviewQuestion": "核对原文是否只支持这条有边界的陈述；逐项排除限制中的推断。"
+          "reviewQuestion": "逐项核对原文范围；不采用原文的成功承诺或分数代替本人决策。科研、赛事和社团没有直接来源必须保留缺口。"
         },
         {
           "claimId": "direction-comparison-editorial",
           "basis": "editorial_adaptation",
-          "claim": "以当前问题列两到三个候选，不让旧长期主题挤走新问题。；逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。；选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+          "claim": "各分支只使用当前本人认可的选项、个人依据与限制，分开未知并核对一项信息；科研、竞赛和社团不借职业材料推出适配、可行性或收益。",
           "scope": "LifeOS任务操作与反馈适配，未经效果验证",
           "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。",
           "originals": [
@@ -10866,7 +10915,7 @@
               "quote": "决策平衡单的使用方法。研三同学运用自己手上的具体offer进行实操分析，均表示运用平衡单能更直观的看出每个选择的优缺点，从而对自己的就业选择做出最佳决策。向东华老师带来的这场分享为许多面临工作抉择和未来规划不清晰的同学提供了宝贵的建议和启示，在沙龙的最后，向老师也对同学们提出的问题一一答疑解惑。通过本次沙龙，同学们向内剖析清晰自己的价值取向，向外学会运用有效工具做出最佳抉择，充分领悟到了无论面临怎样的困难选择，坚持初心继续奋斗、保持积极人生态度的力量。\n 上一条：【学工】 自"
             }
           ],
-          "reviewQuestion": "核对这些编辑步骤是否保持学生意图、当前阶段和未知；不能将它们记作经研究证明的效果。"
+          "reviewQuestion": "逐项核对原文范围；不采用原文的成功承诺或分数代替本人决策。科研、赛事和社团没有直接来源必须保留缺口。"
         },
         {
           "claimId": "direction-comparison-career-author-followup",
@@ -10891,26 +10940,218 @@
               "quote": "同时思考，为什么选择这个人访谈，选择访谈对象的标准是什么？"
             }
           ],
-          "reviewQuestion": "核对原文是否只支持这条有边界的陈述；逐项排除限制中的推断。"
+          "reviewQuestion": "逐项核对原文范围；不采用原文的成功承诺或分数代替本人决策。科研、赛事和社团没有直接来源必须保留缺口。"
+        },
+        {
+          "claimId": "direction-comparison-personal-criteria",
+          "basis": "source_supported",
+          "claim": "该高校公开指导材料建议先列当前职业选项，再确定本人重视的考虑因素。",
+          "scope": "高校心理指导原文的职业决策教学方法：列当前工作选项，先确定本人重视的考虑因素，再逐项比较。原文另列了解职业的一天与实际任务的问题。",
+          "limitations": "不是效果研究；不采用努力必成功、测评诊断、行业固有稳定性或最高总分决定选择等推论。公共部门、科研、赛事与社团的实际规则及收益仍须各自原文核对。",
+          "originals": [
+            {
+              "url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+              "sourceHash": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+              "quoteHash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31",
+              "locator": {
+                "section": "生涯决策平衡单",
+                "step": "第二步",
+                "exactText": "第二步，找出你自己看重的考虑因素",
+                "normalizedBodyStart": 2036,
+                "start": 2036,
+                "end": 2052,
+                "normalizedBodySha256": "9c46d044a8391e90b3a8f2af843cfd3b6967ee00bf7715f5dbaec96771b12b77"
+              },
+              "quote": "第二步，找出你自己看重的考虑因素"
+            }
+          ],
+          "reviewQuestion": "逐项核对原文范围；不采用原文的成功承诺或分数代替本人决策。科研、赛事和社团没有直接来源必须保留缺口。"
         }
       ],
       "questions": [
         {
-          "target": "scope",
-          "text": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
+          "target": "original-scope",
+          "text": "教学建议不证明最佳选择或提高就业结果；不采用原文必成功承诺、测评推断和最高分决定选择。公共部门日常、科研条件、赛事收益及社团职责仍需各自直接材料。"
         },
         {
-          "target": "steps",
-          "text": "核对了解真实工作的前置缺口、最小一步与停止条件；相似机制不得覆盖不适用分支。"
+          "target": "branches",
+          "text": "职业方法只支持列选项与本人考虑因素；科研、赛事和社团需直接材料。"
         },
         {
-          "target": "feedback",
-          "text": "逐一核对未开始、卡住、等待、有结果、拒绝分支；未知结果不能记成成功，拒绝不能继续催促。"
+          "target": "unknowns",
+          "text": "未知不打成低分；采用、付款与效果仍分开。"
         }
       ],
       "executionRecord": null,
       "humanApproval": null,
-      "sourceChangeRequiresReturn": true
+      "sourceChangeRequiresReturn": true,
+      "branchChecks": [
+        {
+          "candidateId": "C02-2",
+          "stage": "start",
+          "evidenceIds": [
+            "qau-career-decision-20261011-e1",
+            "career-author-followup-e1"
+          ],
+          "remainingClaim": "支持职业信息提问程序，不证明岗位适配或就业收益。",
+          "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+          "firstUnknown": "这次具体要比较什么，本人目前最在意哪一项条件？",
+          "smallestStep": "先确认本人想了解的岗位或工作；已知兴趣和已有实践直接读回，不重问完整档案。",
+          "observation": "实际任务信息来自哪里；哪项本人考虑因素获得了支持或限制，哪些仍未知。",
+          "feedback": {
+            "not_started": "读回本人当前问题、已有依据与限制，只准备一项需核对的条件；计划和愿望不写成实践。",
+            "blocked": "沿原事件、原步骤及本人反馈找卡点；“还是不行”先读回上次尝试，没补资料不重发整套决策表，也不猜失败原因。",
+            "waiting_result": "记录实际已核对或已询问的事项；等待回复不判采用或有效，不自动追发，缺反馈就保留未知。",
+            "result": "只用本人新反馈更正对应考虑因素的支持、限制或未知；不能把局部反馈变成身份结论，选择变动需本人确认。",
+            "declined": "停止被拒绝的比較、联系、申请或实验；不换名称继续推动，已暂停方向不作当前主线，本人重提才恢复。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        },
+        {
+          "candidateId": "C07-2",
+          "stage": "compare",
+          "evidenceIds": [
+            "qau-career-decision-20261011-e1",
+            "career-author-followup-e1"
+          ],
+          "remainingClaim": "支持列当前选项和本人条件；创业、自由职业具体收益仍待各自材料。",
+          "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+          "firstUnknown": "这次具体要比较什么，本人目前最在意哪一项条件？",
+          "smallestStep": "只列这次本人正在考虑的发展方向，已暂停的方向不列作当前主线。",
+          "observation": "本人当前重点是否确认；新证据改变了哪项比较，实践、采用、付款及效果是否各自已知。",
+          "feedback": {
+            "not_started": "读回本人当前问题、已有依据与限制，只准备一项需核对的条件；计划和愿望不写成实践。",
+            "blocked": "沿原事件、原步骤及本人反馈找卡点；“还是不行”先读回上次尝试，没补资料不重发整套决策表，也不猜失败原因。",
+            "waiting_result": "记录实际已核对或已询问的事项；等待回复不判采用或有效，不自动追发，缺反馈就保留未知。",
+            "result": "只用本人新反馈更正对应考虑因素的支持、限制或未知；不能把局部反馈变成身份结论，选择变动需本人确认。",
+            "declined": "停止被拒绝的比較、联系、申请或实验；不换名称继续推动，已暂停方向不作当前主线，本人重提才恢复。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        },
+        {
+          "candidateId": "C11-1",
+          "stage": "compare",
+          "evidenceIds": [],
+          "remainingClaim": "科研方向可行性及具体条件仍缺直接来源；只保留整理本人材料的编辑建议。",
+          "sourceStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+          "firstUnknown": "这次具体要比较什么，本人目前最在意哪一项条件？",
+          "smallestStep": "选本人正在考虑的研究题目或方向，读回已有阅读、实际操作和导师反馈；愿望不写成已开展研究。",
+          "observation": "研究问题、可用资源和实际过程是否有可核查材料；可行性和结果哪些仍未知。",
+          "feedback": {
+            "not_started": "读回本人当前问题、已有依据与限制，只准备一项需核对的条件；计划和愿望不写成实践。",
+            "blocked": "沿原事件、原步骤及本人反馈找卡点；“还是不行”先读回上次尝试，没补资料不重发整套决策表，也不猜失败原因。",
+            "waiting_result": "记录实际已核对或已询问的事项；等待回复不判采用或有效，不自动追发，缺反馈就保留未知。",
+            "result": "只用本人新反馈更正对应考虑因素的支持、限制或未知；不能把局部反馈变成身份结论，选择变动需本人确认。",
+            "declined": "停止被拒绝的比較、联系、申请或实验；不换名称继续推动，已暂停方向不作当前主线，本人重提才恢复。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        },
+        {
+          "candidateId": "C12-1",
+          "stage": "start",
+          "evidenceIds": [
+            "qau-career-decision-20261011-e1",
+            "career-author-followup-e1"
+          ],
+          "remainingClaim": "职业信息提问方法有来源；具体公共岗位日常与当期规则仍需直接原文。",
+          "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+          "firstUnknown": "这次具体要比较什么，本人目前最在意哪一项条件？",
+          "smallestStep": "明确本人想了解的具体岗位或单位类型；不把“公共部门”当作相同的一份工作。",
+          "observation": "实际职责与信息出处是否核对；本人关心的工作条件还有哪些未知。",
+          "feedback": {
+            "not_started": "读回本人当前问题、已有依据与限制，只准备一项需核对的条件；计划和愿望不写成实践。",
+            "blocked": "沿原事件、原步骤及本人反馈找卡点；“还是不行”先读回上次尝试，没补资料不重发整套决策表，也不猜失败原因。",
+            "waiting_result": "记录实际已核对或已询问的事项；等待回复不判采用或有效，不自动追发，缺反馈就保留未知。",
+            "result": "只用本人新反馈更正对应考虑因素的支持、限制或未知；不能把局部反馈变成身份结论，选择变动需本人确认。",
+            "declined": "停止被拒绝的比較、联系、申请或实验；不换名称继续推动，已暂停方向不作当前主线，本人重提才恢复。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        },
+        {
+          "candidateId": "C12-2",
+          "stage": "compare",
+          "evidenceIds": [
+            "qau-career-decision-20261011-e1"
+          ],
+          "remainingClaim": "本人考虑因素比较方法有来源；稳定、自主及收入等具体职业事实不由该来源证明。",
+          "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+          "firstUnknown": "这次具体要比较什么，本人目前最在意哪一项条件？",
+          "smallestStep": "先让本人说明这次所说的稳定或自主具体指什么；已说过的收入、家庭、地点和时间限制直接读回。",
+          "observation": "本人定义的考虑因素是否清楚；具体条件得到什么新证据，哪些判断需更正。",
+          "feedback": {
+            "not_started": "读回本人当前问题、已有依据与限制，只准备一项需核对的条件；计划和愿望不写成实践。",
+            "blocked": "沿原事件、原步骤及本人反馈找卡点；“还是不行”先读回上次尝试，没补资料不重发整套决策表，也不猜失败原因。",
+            "waiting_result": "记录实际已核对或已询问的事项；等待回复不判采用或有效，不自动追发，缺反馈就保留未知。",
+            "result": "只用本人新反馈更正对应考虑因素的支持、限制或未知；不能把局部反馈变成身份结论，选择变动需本人确认。",
+            "declined": "停止被拒绝的比較、联系、申请或实验；不换名称继续推动，已暂停方向不作当前主线，本人重提才恢复。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        },
+        {
+          "candidateId": "C12-4",
+          "stage": "compare",
+          "evidenceIds": [
+            "qau-career-decision-20261011-e1"
+          ],
+          "remainingClaim": "通用选项与考虑因素方法有来源；各路径资格、收益及当前政策仍须分别核对。",
+          "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+          "firstUnknown": "这次具体要比较什么，本人目前最在意哪一项条件？",
+          "smallestStep": "读回本人这次正在比较的路径及已改变的目标，不因为历史考研主题把新问题拉回考研。",
+          "observation": "哪项个人依据改变了取舍；当前重点是否由本人确认，关键条件哪些仍未知。",
+          "feedback": {
+            "not_started": "读回本人当前问题、已有依据与限制，只准备一项需核对的条件；计划和愿望不写成实践。",
+            "blocked": "沿原事件、原步骤及本人反馈找卡点；“还是不行”先读回上次尝试，没补资料不重发整套决策表，也不猜失败原因。",
+            "waiting_result": "记录实际已核对或已询问的事项；等待回复不判采用或有效，不自动追发，缺反馈就保留未知。",
+            "result": "只用本人新反馈更正对应考虑因素的支持、限制或未知；不能把局部反馈变成身份结论，选择变动需本人确认。",
+            "declined": "停止被拒绝的比較、联系、申请或实验；不换名称继续推动，已暂停方向不作当前主线，本人重提才恢复。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        },
+        {
+          "candidateId": "C22-1",
+          "stage": "compare",
+          "evidenceIds": [],
+          "remainingClaim": "具体赛事投入与收益判断仍缺直接材料；不把职业比较来源扩为参赛收益证明。",
+          "sourceStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+          "firstUnknown": "这次具体要比较什么，本人目前最在意哪一项条件？",
+          "smallestStep": "由本人选具体比赛与这次想获得的结果，读回已有参与过程；比赛愿望不写成已经获奖。",
+          "observation": "投入与规则哪些已核实；本人目标、参赛经历及真实结果分别是什么。",
+          "feedback": {
+            "not_started": "读回本人当前问题、已有依据与限制，只准备一项需核对的条件；计划和愿望不写成实践。",
+            "blocked": "沿原事件、原步骤及本人反馈找卡点；“还是不行”先读回上次尝试，没补资料不重发整套决策表，也不猜失败原因。",
+            "waiting_result": "记录实际已核对或已询问的事项；等待回复不判采用或有效，不自动追发，缺反馈就保留未知。",
+            "result": "只用本人新反馈更正对应考虑因素的支持、限制或未知；不能把局部反馈变成身份结论，选择变动需本人确认。",
+            "declined": "停止被拒绝的比較、联系、申请或实验；不换名称继续推动，已暂停方向不作当前主线，本人重提才恢复。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        },
+        {
+          "candidateId": "C23-1",
+          "stage": "compare",
+          "evidenceIds": [],
+          "remainingClaim": "具体社团职责、时间和适用依据仍缺直接材料；只保留整理本人条件的编辑建议。",
+          "sourceStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+          "firstUnknown": "这次具体要比较什么，本人目前最在意哪一项条件？",
+          "smallestStep": "确认本人正在考虑的具体社团或组织及想参与的事项；公共组织案例不当作本人贡献。",
+          "observation": "实际职责和时间是否核对；参与意愿、实际贡献与反馈是否分开。",
+          "feedback": {
+            "not_started": "读回本人当前问题、已有依据与限制，只准备一项需核对的条件；计划和愿望不写成实践。",
+            "blocked": "沿原事件、原步骤及本人反馈找卡点；“还是不行”先读回上次尝试，没补资料不重发整套决策表，也不猜失败原因。",
+            "waiting_result": "记录实际已核对或已询问的事项；等待回复不判采用或有效，不自动追发，缺反馈就保留未知。",
+            "result": "只用本人新反馈更正对应考虑因素的支持、限制或未知；不能把局部反馈变成身份结论，选择变动需本人确认。",
+            "declined": "停止被拒绝的比較、联系、申请或实验；不换名称继续推动，已暂停方向不作当前主线，本人重提才恢复。"
+          },
+          "independentExecution": null,
+          "humanApproval": null
+        }
+      ]
     },
     {
       "canonicalKey": "application-match",
@@ -12790,6 +13031,393 @@
         "review": null,
         "contentHash": "173beee36477aedb6b2f33504c30c11d167ec6c0c87408897804c7ba188765f0",
         "indexSignature": "27a85f7b1c9af0212f42a612391f360d78417b2fa369e91fb5b6e1b9cff69de4",
+        "legacyIds": [],
+        "replaces": []
+      }
+    },
+    {
+      "id": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
+      "revision": 2,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "按真实工作与代价比较方向",
+      "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+      "publisher": "上海大学机电工程与自动化学院",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.551Z",
+      "validUntil": null,
+      "excerpt": "决策平衡单的使用方法。研三同学运用自己手上的具体offer进行实操分析，均表示运用平衡单能更直观的看出每个选择的优缺点，从而对自己的就业选择做出最佳决策。向东华老师带来的这场分享为许多面临工作抉择和未来规划不清晰的同学提供了宝贵的建议和启示，在沙龙的最后，向老师也对同学们提出的问题一一答疑解惑。通过本次沙龙，同学们向内剖析清晰自己的价值取向，向外学会运用有效工具做出最佳抉择，充分领悟到了无论面临怎样的困难选择，坚持初心继续奋斗、保持积极人生态度的力量。\n 上一条：【学工】 自",
+      "claim": "该生涯沙龙用个人价值与决策平衡单比较具体选择的优缺点。",
+      "scope": "以当前问题列两到三个候选，不让旧长期主题挤走新问题。；适用范围按每个分支核对。",
+      "limitations": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+      "mechanisms": [
+        "访谈信息辅助比较"
+      ],
+      "sourceHash": "51ccd4ca75e67769bd37f11c53390ec59831255f582d39be4744b5cdaf50d872",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
+        "canonicalKey": "direction-comparison",
+        "aliases": [
+          "比较方向",
+          "行业日常",
+          "公共部门",
+          "稳定自主",
+          "考研研究方向",
+          "比赛是否值得",
+          "选择社团",
+          "了解真实工作",
+          "比较发展方向",
+          "评估研究方向",
+          "了解实际工作",
+          "稳定与自主的取舍",
+          "与其他发展方向比较",
+          "判断比赛是否值得",
+          "选择组织"
+        ],
+        "domains": [
+          "02",
+          "07",
+          "11",
+          "12",
+          "22",
+          "23"
+        ],
+        "task": "按真实工作与代价比较方向",
+        "stage": "start/adjust/compare",
+        "mechanism": "访谈信息辅助比较",
+        "prerequisites": [
+          "当前本人最在意什么，还有哪项未知会改变选择？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "shu-career-choice-batch-direction-comparison-e1",
+          "career-author-followup-e1"
+        ],
+        "claims": [
+          {
+            "id": "direction-comparison-scope",
+            "text": "该生涯沙龙用个人价值与决策平衡单比较具体选择的优缺点。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "shu-career-choice-batch-direction-comparison-e1"
+            ],
+            "scope": "生涯决策中的个人价值与平衡；讲座实践建议不是效果研究。",
+            "limitations": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
+          },
+          {
+            "id": "direction-comparison-editorial",
+            "text": "以当前问题列两到三个候选，不让旧长期主题挤走新问题。；逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。；选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "shu-career-choice-batch-direction-comparison-e1"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          },
+          {
+            "id": "direction-comparison-career-author-followup",
+            "text": "作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "career-author-followup-e1"
+            ],
+            "scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
+            "limitations": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。"
+          }
+        ],
+        "sourceGroups": [
+          "shu-career-choice",
+          "www.tianxingacademy.com"
+        ],
+        "principle": "该生涯沙龙用个人价值与决策平衡单比较具体选择的优缺点。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C02-2",
+            "candidateId": "C02-2",
+            "task": "了解真实工作",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C02-2-r2-1",
+                "text": "当前任务「了解真实工作」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C02-2-r2-2",
+                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C02-2-r2-3",
+                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C07-2",
+            "candidateId": "C07-2",
+            "task": "比较发展方向",
+            "stage": "compare",
+            "steps": [
+              {
+                "id": "C07-2-r2-1",
+                "text": "当前任务「比较发展方向」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C07-2-r2-2",
+                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C07-2-r2-3",
+                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C11-1",
+            "candidateId": "C11-1",
+            "task": "评估研究方向",
+            "stage": "compare",
+            "steps": [
+              {
+                "id": "C11-1-r2-1",
+                "text": "当前任务「评估研究方向」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C11-1-r2-2",
+                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C11-1-r2-3",
+                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C12-1",
+            "candidateId": "C12-1",
+            "task": "了解实际工作",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C12-1-r2-1",
+                "text": "当前任务「了解实际工作」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C12-1-r2-2",
+                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C12-1-r2-3",
+                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C12-2",
+            "candidateId": "C12-2",
+            "task": "稳定与自主的取舍",
+            "stage": "compare",
+            "steps": [
+              {
+                "id": "C12-2-r2-1",
+                "text": "当前任务「稳定与自主的取舍」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C12-2-r2-2",
+                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C12-2-r2-3",
+                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C12-4",
+            "candidateId": "C12-4",
+            "task": "与其他发展方向比较",
+            "stage": "compare",
+            "steps": [
+              {
+                "id": "C12-4-r2-1",
+                "text": "当前任务「与其他发展方向比较」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C12-4-r2-2",
+                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C12-4-r2-3",
+                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C22-1",
+            "candidateId": "C22-1",
+            "task": "判断比赛是否值得",
+            "stage": "compare",
+            "steps": [
+              {
+                "id": "C22-1-r2-1",
+                "text": "当前任务「判断比赛是否值得」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C22-1-r2-2",
+                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C22-1-r2-3",
+                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C23-1",
+            "candidateId": "C23-1",
+            "task": "选择组织",
+            "stage": "compare",
+            "steps": [
+              {
+                "id": "C23-1-r2-1",
+                "text": "当前任务「选择组织」：以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C23-1-r2-2",
+                "text": "逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              },
+              {
+                "id": "C23-1-r2-3",
+                "text": "选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "shu-career-choice-batch-direction-comparison-e1"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "当前本人最在意什么，还有哪项未知会改变选择？",
+        "smallestAction": "以当前问题列两到三个候选，不让旧长期主题挤走新问题。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“当前本人最在意什么，还有哪项未知会改变选择？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「按真实工作与代价比较方向」时，先核对：当前本人最在意什么，还有哪项未知会改变选择？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。只调整卡住处，不重送入门全套。",
+          "waiting_result": "已尝试不等于有效。等待「哪些判断因新反馈改变、哪些仍未知。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。",
+          "result": "只用本人报告的新反馈检查：哪些判断因新反馈改变、哪些仍未知。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
+          "declined": "停止「按真实工作与代价比较方向」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "哪些判断因新反馈改变、哪些仍未知。",
+        "retrievalSummary": "按真实工作与代价比较方向；direction-comparison；当前本人最在意什么，还有哪项未知会改变选择？；了解真实工作；比较发展方向；评估研究方向；了解实际工作；稳定与自主的取舍；与其他发展方向比较；判断比赛是否值得；选择组织；以当前问题列两到三个候选，不让旧长期主题挤走新问题。；逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。；选一个最能改变取舍的未知去核对，允许暂缓和不选择。",
+        "referenceBody": "按真实工作与代价比较方向\n原文范围：该生涯沙龙用个人价值与决策平衡单比较具体选择的优缺点。\n什么时候用：当前本人最在意什么，还有哪项未知会改变选择？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：当前本人最在意什么，还有哪项未知会改变选择？\nLifeOS编辑步骤：\n以当前问题列两到三个候选，不让旧长期主题挤走新问题。\n逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。\n选一个最能改变取舍的未知去核对，允许暂缓和不选择。\n资源不足：不必完成全套；只处理“当前本人最在意什么，还有哪项未知会改变选择？”中的一项已有材料，零时间保留未知并暂停。\n观察：哪些判断因新反馈改变、哪些仍未知。\nnot_started：尚未开始「按真实工作与代价比较方向」时，先核对：当前本人最在意什么，还有哪项未知会改变选择？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：逐项列本人依据、限制和未知；就业优先且暂停接单时不继续扩大接单。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「哪些判断因新反馈改变、哪些仍未知。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。\nresult：只用本人报告的新反馈检查：哪些判断因新反馈改变、哪些仍未知。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「按真实工作与代价比较方向」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "02a9dad5e5f34008666577c16677ebd4ffbf111e76662428806c937f2d713fdf",
+        "indexSignature": "f15eca28b9c7e8ca0530a62eb85b12ca51dd270ebbe4ac98568d255be7ca312d",
         "legacyIds": [],
         "replaces": []
       }

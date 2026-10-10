@@ -414,9 +414,9 @@
     }
   ],
   "summary": {
-    "newUsableSources": 8,
-    "newLocatedQuotes": 9,
-    "draftsSupplemented": 9,
+    "newUsableSources": 9,
+    "newLocatedQuotes": 10,
+    "draftsSupplemented": 10,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 7,
@@ -437,7 +437,8 @@
       "formalCoverageUnchangedUntilApproval": true
     },
     "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
-    "reReadExistingOriginals": 1
+    "reReadExistingOriginals": 1,
+    "draftsSupplementedCountsRevisionEvents": true
   },
   "fullPublicCapturesRequiredForRuntime": false,
   "firstToolFailure": "bs4 unavailable; replaced by built-in HTMLParser, not a source reading attempt",
@@ -478,6 +479,24 @@
     "newLocatedQuotes": 1,
     "fullBodyCaptured": false,
     "sourceSnapshotScope": "LOCATED_SHORT_QUOTE_SNAPSHOT_NOT_FULL_HTML",
+    "independentReviews": 0,
+    "humanApprovals": 0,
+    "published": 0
+  },
+  "directionCorrection": {
+    "at": "2026-10-10T15:36:45.099Z",
+    "guideId": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
+    "revision": 3,
+    "previousDraftHash": "02a9dad5e5f34008666577c16677ebd4ffbf111e76662428806c937f2d713fdf",
+    "newContentHash": "98e0a24a01835f06ac903403447e7c3e6f8b6b043bb638bd09f03c9d54ebd46b",
+    "substantivelyCorrectedBranches": 8,
+    "newDistinctOriginals": 1,
+    "newLocatedQuotes": 1,
+    "unresolvedTaskSpecificBranches": [
+      "C11-1",
+      "C22-1",
+      "C23-1"
+    ],
     "independentReviews": 0,
     "humanApprovals": 0,
     "published": 0
