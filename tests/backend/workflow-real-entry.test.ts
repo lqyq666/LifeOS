@@ -10,9 +10,9 @@ test('real reporting retains first failure, missing useful content, unknown cost
  const report=realMetrics([{stage:'ordinary20',firstUsefulMs:2100,replyCompleteMs:5000,wholeTurnMs:5200,costCny:0.01},{stage:'ordinary20',firstUsefulMs:null,replyCompleteMs:null,wholeTurnMs:9000,failure:'CANCELLED',costCny:'unknown'},{stage:'complex20_pairs',deepInput:true,firstUsefulMs:null,wholeTurnMs:14000,costCny:'unknown'},{stage:'complex20_pairs',firstUsefulMs:1,replyCompleteMs:2,wholeTurnMs:3,costCny:0.01}])
  assert.equal(report.ordinaryFirstAttempts,2);assert.equal(report.noFirstContent,1);assert.equal(report.failedOrCancelled,1);assert.equal(report.firstContentP50Ms,2100);assert.equal(report.wholeReplyP95Ms,null);assert.equal(report.observedCompleteReplyP95Ms,5000);assert.equal(report.noCompleteReply,1);assert.equal(report.unknownCostSamples,2);assert.equal(report.performanceStatus,'NOT_ACCEPTED_INCOMPLETE_OR_FAILED')
 })
-test('paused real batch preflight is read-only, preserves unique ledger, and dispatches zero without owner authorization',()=>{
+test('restored scope without a frozen batch remains read-only and preserves unique ledger',()=>{
  const path='.local/v1.3-action-coach/paid/provider-calls.json',hash=()=>existsSync(path)?createHash('sha256').update(readFileSync(path)).digest('hex'):'MISSING_NOT_COPIED',before=hash(),report=realBatchPreflight()
- assert.equal(report.status,'PAUSED_NOT_RUN');assert.ok(report.blocks.includes('EXPLICIT_MODEL_PAUSE_NOT_LIFTED'));assert.equal(report.productDispatches,0);assert.equal(report.cloudDispatches,0);assert.equal(hash(),before)
+ assert.equal(report.status,'BLOCKED_CONFIG_NOT_RUN');assert.equal(report.scopeRestored,true);assert.ok(report.blocks.includes('TARGET_BATCH_AUTHORIZATION_BINDING_MISSING'));assert.equal(report.productDispatches,0);assert.equal(report.cloudDispatches,0);assert.equal(hash(),before)
  const dir=process.env.LIFEOS_WORKFLOW_EVIDENCE;if(dir){mkdirSync(dir,{recursive:true});writeFileSync(dir+'/REAL_PREFLIGHT.json',JSON.stringify({...report,authorization:undefined},null,2)+'\n')}
 })
 test('saved natural refusal rejects continuation for another named matter, closes the same event; no ownership guessing',()=>{

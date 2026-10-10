@@ -18,7 +18,9 @@ export function realBatchPreflight(authorizationPath?:string){
  const source=captureCoachSource(),ledgerPath=resolve('.local/v1.3-action-coach/paid/provider-calls.json'),ledgerBytes=existsSync(ledgerPath)?readFileSync(ledgerPath):null,ledger=ledgerBytes?JSON.parse(ledgerBytes.toString()):null
  const corpusPath='.planning/research/evergreen/KB_GUIDES.jsonl',contentHash=hash(readFileSync(corpusPath)),head=execFileSync('git',['rev-parse','HEAD']).toString().trim(),blocks:string[]=[]
  const auth=authorizationPath?JSON.parse(readFileSync(authorizationPath,'utf8')):null
- if(!auth||auth.kind!=='OWNER_APPROVED_LIFEOS_REAL_BATCH'||auth.pauseLifted!==true)blocks.push('EXPLICIT_MODEL_PAUSE_NOT_LIFTED')
+ const launchPath=root+'LAUNCH_AUTHORIZATION.json',launch=existsSync(launchPath)?JSON.parse(readFileSync(launchPath,'utf8')):null
+ const scopeRestored=launch?.kind==='OWNER_APPROVED_LIFEOS_COZE_CORE_LAUNCH'&&launch.productModelPauseLifted===true&&launch.approvalSource==='CURRENT_CHAT_DIRECT_HUMAN_REPLY'
+ if(!auth||auth.kind!=='OWNER_APPROVED_LIFEOS_REAL_BATCH'||auth.pauseLifted!==true)blocks.push(scopeRestored?'TARGET_BATCH_AUTHORIZATION_BINDING_MISSING':'EXPLICIT_MODEL_PAUSE_NOT_LIFTED')
  if(auth&&(auth.head!==head||auth.sourceDigest!==source.digest||auth.contentHash!==contentHash||auth.ledgerSha256!==(ledgerBytes?hash(ledgerBytes):null)))blocks.push('AUTHORIZATION_VERSION_OR_LEDGER_MISMATCH')
  if(auth&&(!auth.ownerApprovalEvidence||!existsSync(auth.ownerApprovalEvidence)||hash(readFileSync(auth.ownerApprovalEvidence))!==auth.ownerApprovalSha256))blocks.push('OWNER_APPROVAL_EVIDENCE_MISSING')
  if(auth&&(!Number.isFinite(Date.parse(auth.expiresAt))||Date.parse(auth.expiresAt)<=Date.now()))blocks.push('AUTHORIZATION_EXPIRED')
@@ -30,7 +32,8 @@ export function realBatchPreflight(authorizationPath?:string){
  if(auth&&auth.modelSignature!==modelSignatureFor('default'))blocks.push('MODEL_SIGNATURE_MISMATCH')
  const ordinary=JSON.parse(readFileSync(root+'ORDINARY_PERFORMANCE_PROTOCOL.json','utf8')),pairs=JSON.parse(readFileSync(root+'COMPLEX_DECISION_AB_EVAL.json','utf8'))
  if(ordinary.cases.length<20||pairs.cases.length<20)blocks.push('COHORT_INCOMPLETE')
- return {status:blocks.length?'PAUSED_NOT_RUN':'READY_FOR_AUTHORIZED_STAGES',head,sourceDigest:source.digest,contentHash,ledgerSha256:ledgerBytes?hash(ledgerBytes):null,modelSignature:modelSignatureFor('default'),blocks,productDispatches:0,cloudDispatches:0,unknownCostsPreserved:true,newBudget:0,stages:realBatchStages.map(stage=>({stage,status:blocks.length?'PAUSED_NOT_RUN':'READY',...(stage==='coze_two_projects'?{projectIds:['7693388932939300905','7693465311558795327'],authorizationRequired:'SEPARATE_EXPLICIT_COZE_PAUSE_LIFT'}:{})})),authorization:auth}
+ const status=blocks.length?(scopeRestored?'BLOCKED_CONFIG_NOT_RUN':'PAUSED_NOT_RUN'):'READY_FOR_AUTHORIZED_STAGES'
+ return {status,scopeRestored,head,sourceDigest:source.digest,contentHash,ledgerSha256:ledgerBytes?hash(ledgerBytes):null,modelSignature:modelSignatureFor('default'),blocks,productDispatches:0,cloudDispatches:0,unknownCostsPreserved:true,newBudget:0,stages:realBatchStages.map(stage=>({stage,status:blocks.length?status:'READY',...(stage==='coze_two_projects'?{projectIds:['7693388932939300905','7693465311558795327'],authorizationRequired:launch?.cozePauseLifted?'CURRENT_CLOUD_VERSION_AND_NATIVE_CREDIT_BINDING':'SEPARATE_EXPLICIT_COZE_PAUSE_LIFT'}:{})})),authorization:auth}
 }
 
 // Uses the same authenticated HTTP host and native SDK, existing unique ledger,
@@ -47,7 +50,7 @@ export async function executeRealBatch(authPath:string,directory:string){
  if(existsSync(journal))throw new Error('FIRST_ATTEMPTS_ALREADY_EXIST_NO_REISSUE')
  const remaining=()=>{const now=ledger.snapshot(),newCalls=now.calls.slice(starting.calls.length);return auth.maxSpendCny-newCalls.reduce((sum:number,c:any)=>sum+(typeof c.estimatedCostCny==='number'?c.estimatedCostCny:c.reservedCostCny),0)}
  const oldAdvanced=process.env.LIFEOS_ADVANCED_WORKFLOWS;process.env.LIFEOS_ADVANCED_WORKFLOWS='true'
- const host=createWorkflowHost({adapter:createRuntimeDecisionAdapter({readEvidence:readWorkflowEvidence,readMethods:workflowMethodReader(),freezePath,budget:ledger,audit:async(r,row)=>{record({type:'deep_provider',requestId:r.requestId,...row});await pool.query('UPDATE lifeos_workflow_nodes SET provider_usage=$4 WHERE user_id=$1 AND request_id=$2 AND call_id=$3',[r.internalActorKey,r.requestId,row.callId,JSON.stringify(row)])}})})
+ const host=auth.smallOrdinaryOnly?undefined:createWorkflowHost({adapter:createRuntimeDecisionAdapter({readEvidence:readWorkflowEvidence,readMethods:workflowMethodReader(),freezePath,budget:ledger,audit:async(r,row)=>{record({type:'deep_provider',requestId:r.requestId,...row});await pool.query('UPDATE lifeos_workflow_nodes SET provider_usage=$4 WHERE user_id=$1 AND request_id=$2 AND call_id=$3',[r.internalActorKey,r.requestId,row.callId,JSON.stringify(row)])}})})
  const engine=createTurnEngine({providerCallObserver:{allowRepair:false,before:call=>{
   assertCoachSourceFreeze(freezePath);const n=counts.get(call.requestId)??0;if(n>=1)throw new Error('ORDINARY_MAX_ONE_NO_PAID_REPAIR')
   const rt=resolveModel(call.tier),maximum=maximumProviderCallCostCny(rt.model.contextWindow,call.outputTokenLimit,rt.pricing);if(typeof maximum!=='number'||maximum>remaining())throw new Error('BATCH_EXISTING_BUDGET_EXHAUSTED')
@@ -101,8 +104,9 @@ export async function executeRealBatch(authPath:string,directory:string){
  try{
   const signup=await request('/api/auth/sign-up/email',{email:'real-synthetic-'+randomUUID()+'@example.invalid',password:'Synthetic-'+randomUUID(),name:'Synthetic adult'});if(!signup.ok)throw new Error('SYNTHETIC_ACCOUNT_NOT_AVAILABLE');actor=(await signup.json()).user.id;cookie=signup.headers.getSetCookie().map(x=>x.split(';')[0]).join('; ');await json('/api/memory/settings',{requestId:randomUUID(),enabled:true,expectedRevision:0})
   const pairs=JSON.parse(readFileSync(root+'COMPLEX_DECISION_AB_EVAL.json','utf8')).cases,ordinary=JSON.parse(readFileSync(root+'ORDINARY_PERFORMANCE_PROTOCOL.json','utf8')).cases
-  for(const c of [pairs.find((x:any)=>x.directions.length===2),pairs.find((x:any)=>x.directions.length===3)])await turn('small',c.caseId,await chat(),c.input,c.directions)
+  if(!auth.smallOrdinaryOnly)for(const c of [pairs.find((x:any)=>x.directions.length===2),pairs.find((x:any)=>x.directions.length===3)])await turn('small',c.caseId,await chat(),c.input,c.directions)
   for(const c of ordinary.slice(0,3))await turn('small',c.caseId,await chat(),c.input)
+  if(auth.smallOrdinaryOnly)return {status:'REAL_ORDINARY_SMALL_WAITING_INDEPENDENT_REVIEW',results:results.length,cozeComplex:'NOT_TESTED_SEPARATE_CURRENT_CLOUD_ENTRY_REQUIRED',fullPerformanceAcceptance:'NOT_TESTED_LESS_THAN_TWENTY',autoContinuation:false}
   if(!await waitForReview('small'))return {status:'WAITING_INDEPENDENT_SMALL_BATCH_REVIEW',results:results.length,stagesRemaining:realBatchStages.slice(1)}
   const chains=JSON.parse(readFileSync('tests/fixtures/workflow-student16.json','utf8')).students.slice(0,4)
   for(const chain of chains){const chats=[await chat(),await chat(),await chat()];for(const [i,r]of chain.rounds.entries())await turn('four_chains',chain.id+'-'+i,chats[r.session],r.text)}

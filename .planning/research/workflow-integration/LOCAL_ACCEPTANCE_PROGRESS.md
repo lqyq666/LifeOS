@@ -167,3 +167,10 @@ R1结束，但仅交付旁路模拟Provider包，未接实际/run，六Skill仅1
 规范Git字节修复在3d36096和全新目录LifeOS-Launch-Repro-3d36096完成：两份实际镜像、两个新隔离数据库迁移后，HTTP ready/version均200，源码冻结、组合运行、三内容摘要、主/五Skill及提交8项对照全部相同。原字节失败保留；并发复用DB的单实例保护与空DB未迁移首次拒绝另留启动日志，不计为真实模型性能样本。镜像没有业务模型调用，内部无外联，仅LOCAL_CANONICAL_IMAGE_REPRO_VERIFIED。
 
 新增CozeCreditBudget只读既有扣子积分账本，不复制或重置模型CNY账本：首请求先同步持久化预留，未知/失败/取消保留全额，进程重建与重复ID阻止重发，独立账单证据才能结算，保守向上取整，竞争锁拒绝且不重试。3项针对费用/幂等/损坏账本的本地确定性测试通过，首次类型检查失败修复后通过。现有R2未结束、剩余积分足额预留，新增业务派发0。
+
+真实服务器只读核查：现有安全云配置按官方ListInstances定位cn-chengdu目标SWAS，公网地址8.137.181.86为Running；既有SSH known_hosts严格校验后访问/opt/lifeos，现运行lifeos:v1.3-glm-52a4e47，域名origin=https://lqynb.xyz，未更新生产。当前目录没有.git，不能用目录名字猜源码提交。配置实际已有百炼Key，已安全读取获准模型字段到忽略目录，未创建权限或新密钥。原旧接口证明与当前coachInterfaceSignature不同，不继承为已通过。
+
+新增普通小批入口复用现有真实HTTP/SDK/唯一CNY账本，允许在扣子复杂候选仍准备期间单独3个普通首请求，不派本地复杂DAG替代云编排，不自动进入20组对照或20普通。恢复授权后缺冻结批次准确写BLOCKED_CONFIG_NOT_RUN，不再错误归为暂停未解除；4项相关隔离接口测试和类型检查通过。
+
+付费核查预声明：假设当前已冻结qwen3.8-flash接口在原SDK下仍能stream/freeOutput/actionOutput/cancel，原签名不同使旧证据不能证明当前接口。计划一次4检查，maxRetries=0，现有11.2603398元额度内逐次预留最坏费用，任一首次失败即停止，不重发；取消/无usage继续unknown和足额预留。仅合成成年场景，结果是接口证据，不是学生收益或20普通性能通过。此段记录准备状态，实际派发以原唯一账本及后续回执为准。
+官方只读API依据：https://help.aliyun.com/zh/simple-application-server/developer-reference/api-swas-open-2020-06-01-listinstances 和 https://help.aliyun.com/zh/simple-application-server/developer-reference/api-swas-open-2020-06-01-endpoint 。
