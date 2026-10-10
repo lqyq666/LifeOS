@@ -21,7 +21,7 @@ export function MaintenancePage(){
   {notice&&<p role="alert">{notice}</p>}
   {loading&&<p role="status">正在读取待审内容…</p>}
   {!loading&&!items.length&&!notice&&<p>暂无待审稿。维护账户可以载入本批修订，正式聊天仍使用已获审的规范卡。</p>}
-  <div className="kb-maintenance-layout"><aside aria-label="待审卡列表"><ul>{items.map(item=><li key={item.guide_id+item.revision}><button aria-pressed={detail?.guideId===item.guide_id} onClick={()=>void open(item)} disabled={busy}>{item.title}<span>v{item.revision} · {labels[item.status]??item.status}</span></button></li>)}</ul></aside>
+  <div className="kb-maintenance-layout"><aside aria-label="待审卡列表"><ul>{items.map(item=><li key={item.guide_id+item.revision}><button aria-pressed={detail?.guideId===item.guide_id&&detail.revision===item.revision} onClick={()=>void open(item)} disabled={busy}>{item.title}<span>v{item.revision} · {labels[item.status]??item.status}</span></button></li>)}</ul></aside>
    <section aria-label="原文与修订对照">{detail?<>
     <h2>{detail.bundle.card.title}</h2><p role="status">{labels[detail.status]} · v{detail.revision}</p>
     <p>生成者的审核说明不能代替独立执行。勾选表示当前登录人已核对这项主张和原文，不会代替发布批准。</p>

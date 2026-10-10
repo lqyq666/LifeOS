@@ -166,6 +166,8 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
     const metaContract=(meta.staged.audit.find((a:any)=>a.phase==='turn_contract')) as any
     assert.equal(metaContract.mode,'reply_only')
     assert.deepEqual(Object.keys((requests.at(-1)!.response_format.json_schema.schema.properties)),['reply'],'native schema offers only reply')
+    const metaContext=JSON.parse(requests.at(-1)!.messages.find((m:any)=>m.role==='user').content)
+    assert.equal(metaContext.methodSourceAvailability.status,'NOT_REQUESTED')
     assert.ok(metaContract.schemaChars<JSON.stringify(actionCoachTurnSchema).length/10)
     const metaSaved=await store.finishRun(meta.run,meta.staged,metaResult.text,metaResult.usage,new AbortController().signal)
     assert.deepEqual(metaSaved.growthIds,[])
@@ -195,6 +197,17 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.equal(fact.valid_until,null);assert.equal(fact.time_basis,null)
       assert.deepEqual(saved.mergedExperienceIds,[],'an effort budget is not a completed experience')
       assert.equal((saved.stateChange.growth as any).status,'applied')
+      assert.equal((result.usage as any).llmCallCount,1)
+    })
+    await t.test('missing matching methods are explicit in the actual SDK request without opening citations',async()=>{
+      const turn=await prepare('前天联系了学长，他没回，我下一步怎么办？')
+      outputs.push({reply:'先核对原消息的目的和实际等待情况。'})
+      const result=await engine(turn.input),request=requests.at(-1)!
+      const context=JSON.parse(request.messages.find((m:any)=>m.role==='user').content)
+      assert.equal(context.methodSourceAvailability.status,'NO_MATCHING_PUBLIC_METHOD')
+      assert.equal(context.methodSourceAvailability.suppliedMethodCount,0)
+      assert.deepEqual(context.knowledge,[])
+      assert.equal(request.response_format.json_schema.schema.properties.citations,undefined)
       assert.equal((result.usage as any).llmCallCount,1)
     })
   }finally{

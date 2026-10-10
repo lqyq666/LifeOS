@@ -1119,6 +1119,46 @@
       },
       "evidence": "Actual original HTML read with exact located short quote; editor revision is not independent review or approval.",
       "contentTest": "6/6 isolated PostgreSQL content and unapproved student-read rejection checks PASS"
+    },
+    "sourceAvailabilityAndUi": {
+      "status": "LOCAL_SOURCE_CONTEXT_SDK_AND_MAINTENANCE_SCOPED_PASS_NOT_REAL_MODEL_ACCEPTANCE",
+      "runtimeBackend": "Existing owned synthetic maintenance HTTP process; native turn engine verified separately in isolated PG + loopback SDK fixture.",
+      "currentFrontendBundle": "main-D4kk1gJ2.js",
+      "sourceFiles": {
+        "server/turn-prompt.ts": "8499c63b9273b715010e15b2cebb7a0e82e4cd8724fabaff7c9814b1a696b446",
+        "src/features/maintenance/MaintenancePage.tsx": "8ed33db524f5b4d4bb7a25f2e5bf84ce1f99d33fc4d7ff278a979981cb6cf883",
+        "package.json": "58d69024c55f0366dab731f15b4db3d7424d2222d4b07c39a6909306a0d3147c",
+        "tests/backend/turn-contract.test.ts": "ae11737266b14c7a9aa739311bb1ee046d8949cbb614178e7ca21bdba7458828",
+        "tests/backend/turn-source-availability.test.ts": "f6ccc9524cf783e21bb7eea302021707eb7e2e0057ebcf61d1f9a7d284cd6972"
+      },
+      "checks": {
+        "root": 127,
+        "sdkAndContext": 12,
+        "serverTypes": "PASS",
+        "build": "PASS",
+        "desktop": {
+          "width": 1440,
+          "height": 900,
+          "horizontalOverflow": false,
+          "selectedRevisions": [
+            3
+          ]
+        },
+        "mobile": {
+          "width": 390,
+          "height": 844,
+          "horizontalOverflow": false,
+          "keyboardSwitch": "Actual Enter v2 readback then v3"
+        },
+        "actualIndependentReviews": 0,
+        "humanApprovals": 0,
+        "published": 0
+      },
+      "paidModelCalls": 0,
+      "firstFailuresRetained": true,
+      "realSemanticImprovement": "NOT_TESTED_NEW_VERSION",
+      "ordinaryPerformance": "PRIOR_FAILED_SMALL_PILOT_RETAINED",
+      "changed": "Always-present source boundary; explicit selected method availability in provider context. Revision-specific aria-pressed. Declared test command uses already locked tsx so existing parameter properties are executable."
     }
   }
 }
