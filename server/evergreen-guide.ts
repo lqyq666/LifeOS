@@ -58,7 +58,7 @@ export type KnowledgeIntent={decision:KnowledgeDecision;reason:string;query:stri
 export function knowledgeIntent(text:string,context:{eventTitle?:string;hasPriorGuide?:boolean;lastUserTexts?:string[]}={}):KnowledgeIntent{
  const make=(decision:KnowledgeDecision,reason:string,query=text,stage:KnowledgeIntent['stage']='start',continuation=false):KnowledgeIntent=>({decision,reason,query,stage,continuation})
  const positive=/(?:怎么|如何|怎么办|从哪|怎样|方法|办法|步骤|技巧|思路|调整|比较|对比|案例|一直改稿|又改需求|有什么依据|依据支持|原理是什么|为什么有效)/.test(text)
- const listening=/(?:只想|就想)(?:聊|倾诉|说说|吐槽)|(?:不要|不用|不想|不需要|别)(?:再)?(?:给我|帮我)?(?:建议|推荐|方法|攻略|行动|复盘)/.test(text)
+ const listening=/(?:只想|就想)(?:聊|倾诉|说说|吐槽)|(?:不要|不用|不想|不需要|别)(?:再)?(?:给我|帮我)?(?:建议|推荐|方法|攻略|行动|复盘)|(?:我|本人).{0,6}(?:不想继续|不做了|拒绝继续)/.test(text)
  // Refusals win unless a later clause explicitly asks for a new method.
  const clauses=text.split(/[，,。；;！!\n]/),last=clauses.map(c=>({c,ask:/(?:但|不过|还是|想知道|帮我|请|想问).*(?:怎么|如何|从哪|怎样|方法|办法)/.test(c)})).filter(c=>c.c.trim()).at(-1)
  if(listening&&!last?.ask)return make('NONE','listening_or_refusal')
@@ -68,7 +68,7 @@ export function knowledgeIntent(text:string,context:{eventTitle?:string;hasPrior
  if(/(?:改短|缩短|短一点|润色|换个语气|改成一段)/.test(text)&&!/(?:方法|技巧|怎么改)/.test(text))return make('NONE','reuse_material')
  if(/治疗|用什么药|买什么股票|推荐股票|投资组合|法律结论|胜诉|录取概率|成功率|(?:医疗|疾病|失眠|精神).{0,8}诊断|诊断.{0,8}(?:疾病|失眠|精神)/.test(text))return make('NONE','professional_or_prediction_boundary')
  if(/^(?:这个|那件|这样|那个)(?:怎么办|怎么弄|怎么做|如何)[？?]?$/.test(text.trim())&&!context.eventTitle)return make('CLARIFY','object_missing')
- const feedback=/没开始|还没做|联系了|按上次|试了|试过|完成了|等待结果|没人回|没回复|没效果|卡住|又改需求|一直改稿/.test(text)
+ const feedback=/没(?:有)?开始|还没做|联系了|按上次|尝试|试了|试过|完成了|等待结果|没人回|没(?:有)?回复|没效果|打不开|卡住|又改需求|一直改稿/.test(text)
  const feedbackAsks=/(?:怎么|如何|从哪|怎样|怎么办|调整|又改需求|一直改稿)|(?:有什么|找个|推荐|给我).{0,8}(?:方法|办法|案例)/.test(text)
  if(feedback&&!feedbackAsks)return make('NONE','inspect_feedback_first',text,'adjust',Boolean(context.hasPriorGuide))
  if(!positive)return make('NONE','no_method_request')
@@ -91,14 +91,18 @@ export function guideSegments(card:KnowledgeCard){
  ]
 }
 
-export function methodPromptContext(cards:KnowledgeCard[],text:string,intent?:KnowledgeIntent,budget=1800){
+export function methodPromptContext(cards:KnowledgeCard[],text:string,intent?:KnowledgeIntent,budget=1800,usage:readonly {guide_id:string;revision:number;branch:string;step_id:string;status:string}[]=[]){
  const selected:Record<string,unknown>[]=[],limit=Math.max(400,Math.min(6000,budget))
  let used=0
  for(const card of deduplicateGuides(cards)){
   if(!card.guide){const row={id:card.id,revision:card.revision,kind:card.kind,title:card.title,claim:card.claim,excerpt:card.excerpt,scope:card.scope,limitations:card.limitations};const tokens=estimateTokens(JSON.stringify(row));if(used+tokens<=limit){selected.push(row);used+=tokens}continue}
   const g=card.guide,terms=kbTerms(text),branches=g.branches.map(b=>({b,score:kbTerms(b.task).filter(t=>terms.includes(t)).length})).sort((a,b)=>b.score-a.score||a.b.id.localeCompare(b.b.id))
-  const branch=branches[0]?.b
-  const row={id:card.id,revision:card.revision,kind:card.kind,title:card.title,guideId:g.guideId,branch:branch?.id,claim:card.claim,evidenceIds:g.evidenceIds,scope:card.scope,limitations:card.limitations,prerequisites:g.prerequisites,exclusions:g.exclusions,stopConditions:g.stopConditions,steps:branch?.steps,oneKeyQuestion:g.oneKeyQuestion,smallestAction:g.smallestAction,exampleBudgetOnly:true,lowEnergyAlternative:g.lowEnergyAlternative,expectedObservation:g.expectedObservation,feedback:intent?.stage==='adjust'?g.feedbackBranches:undefined,claims:g.claims.map(c=>({id:c.id,basis:c.basis,text:c.text,scope:c.scope,limitations:c.limitations,evidenceIds:c.evidenceIds})),untrustedPublicMethod:true}
+  const previous=intent?.continuation?usage.find(u=>u.guide_id===card.id&&u.revision===card.revision&&g.branches.some(b=>b.id===u.branch&&b.steps.some(s=>s.id===u.step_id))):undefined
+  const branch=previous?g.branches.find(b=>b.id===previous.branch):branches[0]?.b
+  const feedbackStages:Record<string,keyof typeof g.feedbackBranches>={blocked:'blocked',waiting_result:'waiting_result',completed:'result',attempted:'result',declined:'declined'}
+  const feedbackBranch=previous?feedbackStages[previous.status]??'not_started':undefined
+  const continuing=previous&&intent?.stage==='adjust'
+  const row={id:card.id,revision:card.revision,kind:card.kind,title:card.title,guideId:g.guideId,branch:branch?.id,claim:card.claim,evidenceIds:g.evidenceIds,scope:card.scope,limitations:card.limitations,prerequisites:g.prerequisites,exclusions:g.exclusions,stopConditions:g.stopConditions,steps:continuing?undefined:branch?.steps,oneKeyQuestion:continuing?undefined:g.oneKeyQuestion,smallestAction:continuing?undefined:g.smallestAction,exampleBudgetOnly:true,lowEnergyAlternative:g.lowEnergyAlternative,expectedObservation:g.expectedObservation,continuation:continuing?{stepId:previous.step_id,status:previous.status,feedbackBranch}:undefined,feedback:continuing?g.feedbackBranches[feedbackBranch!]:intent?.stage==='adjust'?g.feedbackBranches:undefined,claims:g.claims.map(c=>({id:c.id,basis:c.basis,text:c.text,scope:c.scope,limitations:c.limitations,evidenceIds:c.evidenceIds})),untrustedPublicMethod:true}
   const tokens=estimateTokens(JSON.stringify(row))
   // Never slice off scope/exclusions. Omit a card whole if it cannot fit.
   if(used+tokens<=limit){selected.push(row);used+=tokens}

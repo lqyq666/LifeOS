@@ -55,13 +55,17 @@ export async function assertCoachKnowledge(c:PoolClient,refs:CoachKnowledgeRef[]
   }
 }
 
-export async function readFullMethod(id:string,revision:number){
+export async function readApprovedGuide(id:string,revision:number){
   return transaction(async c=>{
     await assertCoachKnowledge(c,[{sourceId:id,revision}])
     const card=(await c.query('SELECT payload FROM campus_knowledge WHERE id=$1 AND revision=$2',[id,revision])).rows[0]?.payload as KnowledgeCard|undefined
     if(!card?.guide||!guideIsUsable(card))throw new HttpError(404,'METHOD_UNAVAILABLE')
-    return {title:card.title,revision,scope:card.scope,limitations:card.limitations,url:card.url,guide:card.guide}
+    return card
   })
+}
+export async function readFullMethod(id:string,revision:number){
+ const card=await readApprovedGuide(id,revision)
+ return {title:card.title,revision,scope:card.scope,limitations:card.limitations,url:card.url,guide:card.guide}
 }
 const label=(text:string)=>text.replace(/[\[\]\\\r\n]/g,' ')
 // A claim match tolerates ONLY a missing trailing full stop — nothing else

@@ -2,7 +2,7 @@ import {randomUUID} from 'node:crypto'
 import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from './provider-spend.ts'
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
-import { retrieveCoachKnowledge, validateCoachCitations } from './coach-knowledge.ts'
+import { retrieveCoachKnowledge, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
 import { openingQuestionDraft, safeEarlySentence } from './reply-draft.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, type AssistantMessage } from '@mariozechner/pi-ai'
@@ -257,8 +257,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const historicalEvents=retrieval.events.filter(event=>event.id!==currentEvent?.id)
   preRetrievalMs=Math.round(performance.now()-engineStageClock)
   const knowledgeStart=performance.now()
-  const previousGuideUsage=currentEvent?await readGuideUsage(run.user_id,run.conversation_id,currentEvent.id):[]
-  const methodIntent=knowledgeIntent(current.content,{eventTitle:currentEvent?.title,hasPriorGuide:previousGuideUsage.length>0})
+  // An unambiguous owned event can carry its method into another conversation.
+  // A new or competing matter must not inherit that event's usage or branch.
+  const guideEvent=currentEvent??(!retrieval.ambiguous&&historicalEvents.length===1?historicalEvents[0]:null)
+  const matchingGuideEvent=guideEvent&&feedbackMatchesCurrent(current.content,guideEvent.title,guideEvent.title)?guideEvent:null
+  const previousGuideUsage=matchingGuideEvent?await readGuideUsage(run.user_id,run.conversation_id,matchingGuideEvent.id):[]
+  const methodIntent=knowledgeIntent(current.content,{eventTitle:matchingGuideEvent?.title,hasPriorGuide:previousGuideUsage.length>0})
   const needsKnowledge=!['NONE','CLARIFY'].includes(methodIntent.decision)
   let knowledge=needsKnowledge?await retrieveCoachKnowledge(methodIntent.query,signal,methodIntent):[]
   staged.audit.push({phase:'knowledge_intent',decision:methodIntent.decision,reason:methodIntent.reason,stage:methodIntent.stage,providerCalls:0})
@@ -326,10 +330,22 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     }
   }
   knowledge=deduplicateGuides(knowledge)
+  if(methodIntent.continuation&&methodIntent.stage==='adjust'){
+    const latestByGuide=[...new Map(previousGuideUsage.slice().reverse().map(row=>[row.guide_id,row])).values()]
+    const continued=[]
+    for(const row of latestByGuide.slice(0,2)){
+      try{continued.push(await readApprovedGuide(row.guide_id,row.revision))}
+      catch(error){if(!(error instanceof HttpError)||!['COACH_KNOWLEDGE_INVALIDATED','METHOD_UNAVAILABLE'].includes(error.code))throw error;staged.audit.push({phase:'guide_continuation_unavailable',guideId:row.guide_id,revision:row.revision,providerCalls:0})}
+    }
+    // Reuse the actual method, rather than introduce an unrelated tutorial while reviewing it.
+    if(continued.length)knowledge=deduplicateGuides(continued)
+  }
   const latestUsage=[...new Map(previousGuideUsage.slice().reverse().map(row=>[row.guide_id,row])).values()]
   const stopped=new Set(latestUsage.filter(row=>row.status==='declined').map(row=>row.guide_id))
   if(!/(?:重新|再试|继续使用).{0,12}(?:方法|办法|攻略)|我想再/.test(current.content))knowledge=knowledge.filter(card=>!stopped.has(card.id))
-  const methodContext=methodPromptContext(knowledge,current.content,methodIntent,Number(process.env.LIFEOS_METHOD_TOKEN_BUDGET)||1800)
+  const report=classifyGuideFeedback(current.content)
+  const methodUsage=previousGuideUsage.map(row=>({...row,status:report&&canContinueGuideFeedback(row.status,report)?report:row.status}))
+  const methodContext=methodPromptContext(knowledge,current.content,methodIntent,Number(process.env.LIFEOS_METHOD_TOKEN_BUDGET)||1800,methodUsage)
   knowledge=knowledge.filter(card=>methodContext.knowledge.some(row=>row.id===card.id))
   staged.audit.push({phase:'method_context',budgetTokens:methodContext.budgetTokens,estimatedTokens:methodContext.estimatedTokens,estimateKind:methodContext.estimateKind,dropped:methodContext.dropped,cardIds:knowledge.map(card=>card.id)})
   const contextKnowledge=[...(currentEvent?[currentEvent]:[]),...historicalEvents].flatMap(event=>event.actions.flatMap(action=>action.knowledgeRefs??[]))
