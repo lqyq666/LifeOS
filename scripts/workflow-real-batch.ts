@@ -14,6 +14,19 @@ export function realMetrics(rows:any[]){
 }
 const hash=(x:string|Buffer)=>createHash('sha256').update(x).digest('hex')
 const root='.planning/research/workflow-integration/'
+// Match server/index.ts: local retrieval must be ready before HTTP accepts a
+// student request. Startup is measured separately; first attempts stay intact.
+export async function startRealAcceptanceHttp(app:import('node:http').Server,embedding:{start():Promise<unknown>;close():Promise<unknown>},port:number){
+ const started=performance.now()
+ try{
+  await embedding.start()
+  await new Promise<void>((resolve,reject)=>{app.once('error',reject);app.listen(port,'127.0.0.1',()=>{app.removeListener('error',reject);resolve()})})
+  return {type:'acceptance_runtime_ready',startupMs:performance.now()-started,localEmbeddingReady:true,startupSeparateFromInteraction:true,productDispatches:0}
+ }catch(error){
+  if(app.listening)await new Promise<void>(resolve=>app.close(()=>resolve()))
+  await embedding.close();throw error
+ }
+}
 export function realBatchPreflight(authorizationPath?:string){
  const source=captureCoachSource(),ledgerPath=resolve('.local/v1.3-action-coach/paid/provider-calls.json'),ledgerBytes=existsSync(ledgerPath)?readFileSync(ledgerPath):null,ledger=ledgerBytes?JSON.parse(ledgerBytes.toString()):null
  const corpusPath='.planning/research/evergreen/KB_GUIDES.jsonl',contentHash=hash(readFileSync(corpusPath)),head=execFileSync('git',['rev-parse','HEAD']).toString().trim(),blocks:string[]=[]
@@ -63,7 +76,10 @@ export async function executeRealBatch(authPath:string,directory:string){
   const rt=resolveModel(call.tier),maximum=maximumProviderCallCostCny(rt.model.contextWindow,call.outputTokenLimit,rt.pricing);if(typeof maximum!=='number'||maximum>remaining())throw new Error('BATCH_EXISTING_BUDGET_EXHAUSTED')
   const receipt=ledger.reserve({runId:call.requestId,purpose:'turn',tier:call.tier,provider:call.provider,model:call.model,signature:modelSignatureFor(call.tier),sourceDigest:preflight.sourceDigest,logicalCallId:call.requestId+':ordinary',reservedCostCny:maximum});calls.set(call.callId,receipt);counts.set(call.requestId,n+1);record({type:'ordinary_started',callId:receipt.callId,requestId:call.requestId,reservedCostCny:maximum})
  },after:call=>{const receipt=calls.get(call.callId);if(!receipt)return;const complete=call.usageCompleteness==='complete',rt=resolveModel(call.tier),cost=complete?estimateProviderCallCostCny((call.uncachedInputTokens??0)+(call.cacheWriteInputTokens??0),call.cachedInputTokens??0,call.outputTokens??0,rt.pricing):'unknown';ledger.finish(receipt.callId,{outcome:call.outcome,usage:call,estimatedCostCny:cost,providerResponseId:call.providerResponseId});record({type:'ordinary_finished',receiptId:receipt.callId,costCny:cost,outcome:call.outcome})}}})
- const app=createApp(engine,120000,host);await new Promise<void>((r,j)=>{app.once('error',j);app.listen(port,'127.0.0.1',r)})
+ const app=createApp(engine,120000,host),{localEmbedding}=await import('../server/local-embedding.ts')
+ try{record(await startRealAcceptanceHttp(app,localEmbedding,port))}catch(error){
+  config.origin=oldOrigin;oldAdvanced===undefined?delete process.env.LIFEOS_ADVANCED_WORKFLOWS:process.env.LIFEOS_ADVANCED_WORKFLOWS=oldAdvanced;await pool.end();throw error
+ }
  let cookie='',actor='';const request=(path:string,body?:unknown)=>fetch(origin+path,{method:body===undefined?'GET':'POST',headers:{Cookie:cookie,Origin:origin,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})})
  const json=async(path:string,body?:unknown)=>{const response=await request(path,body),out=await response.json();if(!response.ok)throw new Error(out.error??'HTTP_FAILED');return out}
  const chat=async()=>{const id=randomUUID();await json('/api/conversations',{id,title:'SYNTHETIC ADULT REAL ACCEPTANCE'});return id}
@@ -123,7 +139,7 @@ export async function executeRealBatch(authPath:string,directory:string){
   for(const c of pairs){const arms=Math.random()<0.5?['single','multi']:['multi','single'];record({type:'private_blind_pair_assignment',caseId:c.caseId,arms});const answers:any[]=[];for(const arm of arms){await turn('complex20_pairs',c.caseId+'-'+arm,await chat(),c.input,arm==='multi'?c.directions:undefined);const row=results.at(-1);answers.push({label:answers.length?'B':'A',answer:arm==='multi'?row.deep?.receipt?.proposal:row.frames?.filter((x:any)=>x.type==='delta'&&x.saved===true).at(-1)?.text??null,failure:row.failure})}blinded.push({pair:c.caseId,input:c.input,authorizedEvidence:c.authorizedEvidence,answers});writeFileSync(resolve(directory,'BLIND_REVIEW_INPUT.json'),JSON.stringify({kind:'ANONYMIZED_VALUE_SET_NOT_SELF_GRADED',pairs:blinded},null,2)+'\n')}
   if(!await waitForReview('complex20_pairs'))return {status:'WAITING_INDEPENDENT_BLIND_PAIR_REVIEW_NO_GAIN_CLAIM'}
   for(const c of ordinary)await turn('ordinary20',c.caseId,await chat(),c.input)
-  return {status:'REAL_RESULTS_WAITING_REVIEW',coze:'PAUSED_NOT_RUN_SEPARATE_CLOUD_AUTHORIZATION_AND_CURRENT_COPY_REQUIRED',results:results.length}
+  return {status:'REAL_RESULTS_WAITING_REVIEW',coze:'NOT_TESTED_CURRENT_CLOUD_VERSION_AND_NATIVE_CREDIT_BINDING_REQUIRED',results:results.length}
  }finally{config.origin=oldOrigin;oldAdvanced===undefined?delete process.env.LIFEOS_ADVANCED_WORKFLOWS:process.env.LIFEOS_ADVANCED_WORKFLOWS=oldAdvanced;app.closeAllConnections();await new Promise<void>(r=>app.close(()=>r()));const {localEmbedding}=await import('../server/local-embedding.ts');await localEmbedding.close();await pool.end()}
 }
 async function main(){const args=process.argv.slice(2),auth=args.find(x=>x.startsWith('--authorization='))?.slice(16),directory=resolve(args.find(x=>x.startsWith('--output='))?.slice(9)??'.local/real-batch-preflight');mkdirSync(directory,{recursive:true});const report=args.includes('--execute')&&auth?await executeRealBatch(auth,directory):realBatchPreflight(auth);writeFileSync(resolve(directory,'preflight.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({...report,authorization:undefined}))}

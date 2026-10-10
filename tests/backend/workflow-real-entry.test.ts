@@ -2,10 +2,24 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs'
 import {createHash} from 'node:crypto'
-import {realBatchPreflight,executeRealBatch,realMetrics} from '../../scripts/workflow-real-batch.ts'
+import {realBatchPreflight,executeRealBatch,realMetrics,startRealAcceptanceHttp} from '../../scripts/workflow-real-batch.ts'
+import {createServer} from 'node:http'
 import {feedbackMatchesCurrent,classifyGuideFeedback} from '../../server/guide-usage.ts'
 import {pool} from '../../server/db.ts'
 test.after(()=>pool.end())
+test('real acceptance serves only after retrieval startup; failed startup dispatches nothing',async()=>{
+ let ready!:()=>void,closed=0
+ const app=createServer(),embedding={start:()=>new Promise<void>(resolve=>{ready=resolve}),close:async()=>{closed++}}
+ const starting=startRealAcceptanceHttp(app,embedding,0)
+ assert.equal(app.listening,false)
+ ready();const receipt=await starting
+ assert.equal(app.listening,true);assert.equal(receipt.localEmbeddingReady,true)
+ assert.equal(receipt.startupSeparateFromInteraction,true);assert.equal(receipt.productDispatches,0);assert.ok(receipt.startupMs>=0)
+ await new Promise<void>(resolve=>app.close(()=>resolve()))
+ const failed=createServer()
+ await assert.rejects(startRealAcceptanceHttp(failed,{start:async()=>{throw new Error('ENCODER_UNAVAILABLE')},close:embedding.close},0),/ENCODER_UNAVAILABLE/)
+ assert.equal(failed.listening,false);assert.equal(closed,1)
+})
 test('real reporting retains first failure, missing useful content, unknown cost and separates deep duration',()=>{
  const report=realMetrics([{stage:'ordinary20',firstUsefulMs:2100,replyCompleteMs:5000,wholeTurnMs:5200,costCny:0.01},{stage:'ordinary20',firstUsefulMs:null,replyCompleteMs:null,wholeTurnMs:9000,failure:'CANCELLED',costCny:'unknown'},{stage:'complex20_pairs',deepInput:true,firstUsefulMs:null,wholeTurnMs:14000,costCny:'unknown'},{stage:'complex20_pairs',firstUsefulMs:1,replyCompleteMs:2,wholeTurnMs:3,costCny:0.01}])
  assert.equal(report.ordinaryFirstAttempts,2);assert.equal(report.noFirstContent,1);assert.equal(report.failedOrCancelled,1);assert.equal(report.firstContentP50Ms,2100);assert.equal(report.wholeReplyP95Ms,null);assert.equal(report.observedCompleteReplyP95Ms,5000);assert.equal(report.noCompleteReply,1);assert.equal(report.unknownCostSamples,2);assert.equal(report.performanceStatus,'NOT_ACCEPTED_INCOMPLETE_OR_FAILED')
