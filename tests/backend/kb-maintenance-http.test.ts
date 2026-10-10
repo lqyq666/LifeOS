@@ -42,7 +42,8 @@ test('normal authenticated maintenance API binds actual account receipts, denies
   const second=list.find((x:any)=>x.guide_id!==card.id),p2='/api/maintenance/guides/'+second.guide_id+'/'+second.revision,d2=(await call(editor.cookie,p2)).body,a2={action:'cancel',contentHash:d2.contentHash,sourceHashes:d2.bundle.sources.map((s:any)=>s.original_fingerprint),notes:'Synthetic fixture cancellation keeps pending content unavailable',claimChecks:[]}
   assert.equal((await call(editor.cookie,p2+'/actions',a2)).body.status,'cancelled');assert.equal((await call(reviewer.cookie,p2+'/actions',{...a2,action:'review'})).body.error,'KB_DRAFT_CLOSED')
   const third=pack.drafts.find((x:any)=>x.guide.canonicalKey==='course-frame'),p3='/api/maintenance/guides/'+third.id+'/'+third.revision,d3=(await call(reviewer.cookie,p3)).body,s3=d3.bundle.sources[0]
-  await pool.query('INSERT INTO kb_sources(source_id,revision,source_group,canonical_url,status,content_hash,payload) VALUES($1,$2,$3,$4,$5,$6,$7)',[s3.source_id,s3.source_revision,s3.source_group,s3.canonical_url,'unavailable',s3.original_fingerprint,s3])
+  const withdrawn=await pool.query("UPDATE kb_sources SET status='unavailable' WHERE source_id=$1 AND revision=$2",[s3.source_id,s3.source_revision])
+  if(!withdrawn.rowCount)await pool.query('INSERT INTO kb_sources(source_id,revision,source_group,canonical_url,status,content_hash,payload) VALUES($1,$2,$3,$4,$5,$6,$7)',[s3.source_id,s3.source_revision,s3.source_group,s3.canonical_url,'unavailable',s3.original_fingerprint,s3])
   const a3={...action,action:'review',contentHash:d3.contentHash,sourceHashes:d3.bundle.sources.map((s:any)=>s.original_fingerprint),claimChecks:third.guide.claims.map((c:any)=>c.id)}
   assert.equal((await call(reviewer.cookie,p3+'/actions',a3)).body.error,'KB_SOURCE_CHANGED')
   await pool.query("UPDATE kb_sources SET status='body_accessible',content_hash=$2 WHERE source_id=$1",[s3.source_id,'f'.repeat(64)])
