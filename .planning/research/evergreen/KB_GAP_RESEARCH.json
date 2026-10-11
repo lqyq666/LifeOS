@@ -383,6 +383,24 @@
               "status": "BODY_READ"
             }
           ]
+        },
+        {
+          "id": "cmu-exam-wrapper",
+          "url": "https://www.cmu.edu/teaching/designteach/teach/examwrappers/",
+          "at": "2026-10-11T03:43:35.740Z",
+          "status": "ORIGINAL_HTTP_FULL_BODY_READ",
+          "bodySha256": "7d070f6fc7f12f075af02222c03de3181bc9f82e91aacd1716038aca54feaa28",
+          "normalizedTextSha256": "1c185e81f8d287781fdb53d7f3c57f2b23ce5e9a8d5f1313e5311e8ecba3dcd6",
+          "bodyLength": 2501
+        },
+        {
+          "id": "cmu-help-reflection",
+          "url": "https://www.cmu.edu/teaching/solveproblem/strat-dontseekhelp/dontseekhelp-01.html",
+          "at": "2026-10-11T03:43:35.740Z",
+          "status": "ORIGINAL_HTTP_FULL_BODY_READ",
+          "bodySha256": "45102d9e1f5bfc8a21bd8ce95cfaa4bf3dab115ae91752a0a9445c6dd4069d50",
+          "normalizedTextSha256": "9639c690ebfb67c67adc1555cb344938df7cda786dff92f570aaa1fd5a75a6df",
+          "bodyLength": 3571
         }
       ],
       "readSource": {
@@ -399,15 +417,33 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。",
-        "选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。",
-        "只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。"
+        "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
+        "把本人如何准备、原题哪一步出错和评分反馈分别放在一起；错误类型是待核对描述，不能直接推成能力结论。",
+        "本人愿意继续时，只改原来卡住的一步，并在下一次同类练习核对实际作答与反馈；拒绝就停止，不重发整套复习方法。"
       ],
       "applicabilityBoundary": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "stillMissingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-11T03:43:35.740Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "tsinghua-exam-reflection-20261011-e1",
+          "cmu-exam-wrapper-e1",
+          "cmu-help-reflection-e1"
+        ],
+        "methodExtracted": [
+          "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
+          "把本人如何准备、原题哪一步出错和评分反馈分别放在一起；错误类型是待核对描述，不能直接推成能力结论。",
+          "本人愿意继续时，只改原来卡住的一步，并在下一次同类练习核对实际作答与反馈；拒绝就停止，不重发整套复习方法。"
+        ],
+        "scope": "考试或模拟练习的真实反馈回顾；不证明提分或中国考试政策。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T14:28:22.748Z",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "evidenceIds": [
@@ -419,13 +455,6 @@
           "只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。"
         ],
         "scope": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
-        "independentReview": null,
-        "humanApproval": null,
-        "publication": false
-      },
-      "previousFollowup": {
-        "at": "2026-10-10T11:43:46.158054+00:00",
-        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
         "humanApproval": null,
         "publication": false
@@ -1385,6 +1414,24 @@
               "status": "BODY_READ"
             }
           ]
+        },
+        {
+          "id": "cmu-exam-wrapper",
+          "url": "https://www.cmu.edu/teaching/designteach/teach/examwrappers/",
+          "at": "2026-10-11T03:43:35.740Z",
+          "status": "ORIGINAL_HTTP_FULL_BODY_READ",
+          "bodySha256": "7d070f6fc7f12f075af02222c03de3181bc9f82e91aacd1716038aca54feaa28",
+          "normalizedTextSha256": "1c185e81f8d287781fdb53d7f3c57f2b23ce5e9a8d5f1313e5311e8ecba3dcd6",
+          "bodyLength": 2501
+        },
+        {
+          "id": "cmu-help-reflection",
+          "url": "https://www.cmu.edu/teaching/solveproblem/strat-dontseekhelp/dontseekhelp-01.html",
+          "at": "2026-10-11T03:43:35.740Z",
+          "status": "ORIGINAL_HTTP_FULL_BODY_READ",
+          "bodySha256": "45102d9e1f5bfc8a21bd8ce95cfaa4bf3dab115ae91752a0a9445c6dd4069d50",
+          "normalizedTextSha256": "9639c690ebfb67c67adc1555cb344938df7cda786dff92f570aaa1fd5a75a6df",
+          "bodyLength": 3571
         }
       ],
       "readSource": {
@@ -1401,15 +1448,33 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。",
-        "对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。",
-        "只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。"
+        "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
+        "把本人如何准备、原题哪一步出错和评分反馈分别放在一起；错误类型是待核对描述，不能直接推成能力结论。",
+        "本人愿意继续时，只改原来卡住的一步，并在下一次同类练习核对实际作答与反馈；拒绝就停止，不重发整套复习方法。"
       ],
       "applicabilityBoundary": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "stillMissingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-11T03:43:35.740Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "tsinghua-exam-reflection-20261011-e1",
+          "cmu-exam-wrapper-e1",
+          "cmu-help-reflection-e1"
+        ],
+        "methodExtracted": [
+          "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
+          "把本人如何准备、原题哪一步出错和评分反馈分别放在一起；错误类型是待核对描述，不能直接推成能力结论。",
+          "本人愿意继续时，只改原来卡住的一步，并在下一次同类练习核对实际作答与反馈；拒绝就停止，不重发整套复习方法。"
+        ],
+        "scope": "考试或模拟练习的真实反馈回顾；不证明提分或中国考试政策。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T14:28:22.748Z",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "evidenceIds": [
@@ -1421,13 +1486,6 @@
           "只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。"
         ],
         "scope": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
-        "independentReview": null,
-        "humanApproval": null,
-        "publication": false
-      },
-      "previousFollowup": {
-        "at": "2026-10-10T11:43:46.158054+00:00",
-        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
         "humanApproval": null,
         "publication": false
@@ -1698,6 +1756,24 @@
               "status": "BODY_READ"
             }
           ]
+        },
+        {
+          "id": "cmu-exam-wrapper",
+          "url": "https://www.cmu.edu/teaching/designteach/teach/examwrappers/",
+          "at": "2026-10-11T03:43:35.740Z",
+          "status": "ORIGINAL_HTTP_FULL_BODY_READ",
+          "bodySha256": "7d070f6fc7f12f075af02222c03de3181bc9f82e91aacd1716038aca54feaa28",
+          "normalizedTextSha256": "1c185e81f8d287781fdb53d7f3c57f2b23ce5e9a8d5f1313e5311e8ecba3dcd6",
+          "bodyLength": 2501
+        },
+        {
+          "id": "cmu-help-reflection",
+          "url": "https://www.cmu.edu/teaching/solveproblem/strat-dontseekhelp/dontseekhelp-01.html",
+          "at": "2026-10-11T03:43:35.740Z",
+          "status": "ORIGINAL_HTTP_FULL_BODY_READ",
+          "bodySha256": "45102d9e1f5bfc8a21bd8ce95cfaa4bf3dab115ae91752a0a9445c6dd4069d50",
+          "normalizedTextSha256": "9639c690ebfb67c67adc1555cb344938df7cda786dff92f570aaa1fd5a75a6df",
+          "bodyLength": 3571
         }
       ],
       "readSource": {
@@ -1714,15 +1790,33 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。",
-        "先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。",
-        "只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。"
+        "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
+        "把本人如何准备、原题哪一步出错和评分反馈分别放在一起；错误类型是待核对描述，不能直接推成能力结论。",
+        "本人愿意继续时，只改原来卡住的一步，并在下一次同类练习核对实际作答与反馈；拒绝就停止，不重发整套复习方法。"
       ],
       "applicabilityBoundary": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "stillMissingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-11T03:43:35.740Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "tsinghua-exam-reflection-20261011-e1",
+          "cmu-exam-wrapper-e1",
+          "cmu-help-reflection-e1"
+        ],
+        "methodExtracted": [
+          "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
+          "把本人如何准备、原题哪一步出错和评分反馈分别放在一起；错误类型是待核对描述，不能直接推成能力结论。",
+          "本人愿意继续时，只改原来卡住的一步，并在下一次同类练习核对实际作答与反馈；拒绝就停止，不重发整套复习方法。"
+        ],
+        "scope": "考试或模拟练习的真实反馈回顾；不证明提分或中国考试政策。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T14:28:22.748Z",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "evidenceIds": [
@@ -1734,13 +1828,6 @@
           "只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。"
         ],
         "scope": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
-        "independentReview": null,
-        "humanApproval": null,
-        "publication": false
-      },
-      "previousFollowup": {
-        "at": "2026-10-10T11:43:46.158054+00:00",
-        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
         "humanApproval": null,
         "publication": false

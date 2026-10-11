@@ -22,3 +22,5 @@ evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json -text
 evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json -text
 evidence/coze-core-launch-20261011/*.json -text
 evidence/coze-core-launch-20261011/r7-originals/** -text -whitespace
+
+evidence/coze-core-launch-20261011/exam-originals/** -text -whitespace

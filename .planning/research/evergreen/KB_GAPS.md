@@ -76,3 +76,5 @@
 ## 当前就业/考研连续链的来源补充（2026-10-10）
 
 MIT CAPD两份原文已读取并绑定既有direction-comparison与skill-gap canonical的revision2待审草案，见workflow-integration/evidence/continuation/sources/SOURCE_EVIDENCE.json。读研目的/目标工作是否需要学位、经历与岗位证据对照获得直接支持；稳定自主的完整机制、小作品效果、国内资格和所有建议时长未得到支持。原112范围、53覆盖与59缺口不变，不自动批准任何分支或导入生产。
+
+2026-10-11考试复盘增量：实际读取CMU Eberly Center考试反馈反思两份完整原文，原件与全文位置/hash已保存。exam-diagnosis待审v5补充分别核对准备方式、错误、实际评分与下一次单步反馈，C03-4/C11-4/C12-3同步。科研分支不套考试材料，许可及独立审阅仍待核对；无提分保证或中国规则推断。112候选53覆盖/59正式缺口保持，3项来源补充不自动批准。

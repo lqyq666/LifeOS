@@ -599,6 +599,56 @@
       "fingerprint_scope": "FULL_ORIGINAL_PDF_BYTES",
       "semantic_scope": "收集实际支出凭据并按类别与周记录；没有凭据时先核对金额与用途。",
       "cannot_infer": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+    },
+    {
+      "source_id": "cmu-exam-wrapper",
+      "source_revision": 1,
+      "canonical_url": "https://www.cmu.edu/teaching/designteach/teach/examwrappers/",
+      "platform": "www.cmu.edu",
+      "original_work_id": "/teaching/designteach/teach/examwrappers/",
+      "title": "Exam Wrappers",
+      "publisher": "Carnegie Mellon University Eberly Center",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-11T03:43:35.740Z",
+      "source_group": "cmu-exam-wrapper",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "7d070f6fc7f12f075af02222c03de3181bc9f82e91aacd1716038aca54feaa28",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-11T03:43:35.740Z"
+      },
+      "semantic_scope": "大学考试与作业反馈后的反思方法；普适教学建议，不是中国考试规则或提分效果证据。",
+      "cannot_infer": "不能推出分数提升、失败原因、能力或升学资格；不适用于科研实验、创业或临床诊断。",
+      "licenseObserved": "CC BY-NC-SA 4.0 footer; publication/license suitability remains unapproved."
+    },
+    {
+      "source_id": "cmu-help-reflection",
+      "source_revision": 1,
+      "canonical_url": "https://www.cmu.edu/teaching/solveproblem/strat-dontseekhelp/dontseekhelp-01.html",
+      "platform": "www.cmu.edu",
+      "original_work_id": "/teaching/solveproblem/strat-dontseekhelp/dontseekhelp-01.html",
+      "title": "Provide opportunities for reflection on performance",
+      "publisher": "Carnegie Mellon University Eberly Center",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-11T03:43:35.740Z",
+      "source_group": "cmu-help-reflection",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "45102d9e1f5bfc8a21bd8ce95cfaa4bf3dab115ae91752a0a9445c6dd4069d50",
+      "observed_metrics": {
+        "views": null,
+        "likes": null,
+        "favorites": null,
+        "observed_at": "2026-10-11T03:43:35.740Z"
+      },
+      "semantic_scope": "大学考试与作业反馈后的反思方法；普适教学建议，不是中国考试规则或提分效果证据。",
+      "cannot_infer": "不能推出分数提升、失败原因、能力或升学资格；不适用于科研实验、创业或临床诊断。",
+      "licenseObserved": "CC BY-NC-SA 4.0 footer; publication/license suitability remains unapproved."
     }
   ],
   "evidence": [
@@ -1393,6 +1443,40 @@
       },
       "context": "Spending tracker第一页Analyze your spending段明确逐类别、逐周记录；不推出个人财务效果或美国福利规则。",
       "acquisition": "EXISTING_HASH_VERIFIED_FULL_PRIMARY_PDF_PAGE_REREAD_FOR_INDEPENDENT_R3_ISSUE"
+    },
+    {
+      "evidence_id": "cmu-exam-wrapper-e1",
+      "source_id": "cmu-exam-wrapper",
+      "source_revision": 1,
+      "quote": "characterizing the nature of their errors to find any recurring patterns that could be addressed.",
+      "locator": {
+        "kind": "original_normalized_character_range",
+        "start": 696,
+        "end": 793,
+        "normalizedTextPath": "evidence/coze-core-launch-20261011/exam-originals/cmu-exam-wrapper.txt",
+        "normalizedTextSha256": "1c185e81f8d287781fdb53d7f3c57f2b23ce5e9a8d5f1313e5311e8ecba3dcd6",
+        "originalPath": "evidence/coze-core-launch-20261011/exam-originals/cmu-exam-wrapper.html"
+      },
+      "context": "考试回顾段落；原文强调评分后反思准备与错误，未承诺效果。",
+      "acquisition": "Agent-Reach Exa discovery then direct official HTTP full body read and Cheerio extraction; not search excerpt.",
+      "content_hash": "4cc9cd77f1b9b1caca8b0b1a0af0c8375f20e783573f5ae2b0432b62159afe15"
+    },
+    {
+      "evidence_id": "cmu-help-reflection-e1",
+      "source_id": "cmu-help-reflection",
+      "source_revision": 1,
+      "quote": "analyze the nature of the errors on the exam",
+      "locator": {
+        "kind": "original_normalized_character_range",
+        "start": 2609,
+        "end": 2653,
+        "normalizedTextPath": "evidence/coze-core-launch-20261011/exam-originals/cmu-help-reflection.txt",
+        "normalizedTextSha256": "9639c690ebfb67c67adc1555cb344938df7cda786dff92f570aaa1fd5a75a6df",
+        "originalPath": "evidence/coze-core-launch-20261011/exam-originals/cmu-help-reflection.html"
+      },
+      "context": "考试回顾段落；原文强调评分后反思准备与错误，未承诺效果。",
+      "acquisition": "Agent-Reach Exa discovery then direct official HTTP full body read and Cheerio extraction; not search excerpt.",
+      "content_hash": "db6d0cbe3cce619eae9781c38e0a8e64966c36236cb98bd99ff55076caac2028"
     }
   ],
   "drafts": [
@@ -2622,7 +2706,7 @@
     },
     {
       "id": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
-      "revision": 4,
+      "revision": 5,
       "kind": "method",
       "status": "unverified",
       "synthetic": false,
@@ -2676,7 +2760,9 @@
         "evidenceIds": [
           "tsinghua-exam-batch-exam-diagnosis-e1",
           "tsinghua-exam-reflection-20261011-e1",
-          "hzau-experiment-records-20261011-e1"
+          "hzau-experiment-records-20261011-e1",
+          "cmu-exam-wrapper-e1",
+          "cmu-help-reflection-e1"
         ],
         "claims": [
           {
@@ -2718,11 +2804,33 @@
             ],
             "scope": "高校本科生实验记录培训的记录规范：区分课题、即时记录，标注实际异常与改进思路，整理复盘。",
             "limitations": "培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。"
+          },
+          {
+            "id": "cmu-exam-wrapper-reflection",
+            "text": "该大学教学中心建议在收到评分后结合准备方式、作答错误与教师反馈回顾本次考试。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "cmu-exam-wrapper-e1"
+            ],
+            "scope": "收到已评分大学考试或作业后，回看本人准备与错误。",
+            "limitations": "普适教学建议，未证明因果诊断或成绩收益；不代表中国考试规则。"
+          },
+          {
+            "id": "cmu-help-reflection-reflection",
+            "text": "该教学指导建议考试回顾包括实际学习做法、错误和下次准备改变的做法。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "cmu-help-reflection-e1"
+            ],
+            "scope": "收到已评分大学考试或作业后，回看本人准备与错误。",
+            "limitations": "普适教学建议，未证明因果诊断或成绩收益；不代表中国考试规则。"
           }
         ],
         "sourceGroups": [
           "tsinghua-exam",
-          "hzau-experiment-records"
+          "hzau-experiment-records",
+          "cmu-exam-wrapper",
+          "cmu-help-reflection"
         ],
         "principle": "本人过程和实际反馈先读回；考试与实验记录使用对应证据，观察与原因推断分开，未获准不安排实验。",
         "branches": [
@@ -2733,27 +2841,30 @@
             "stage": "adjust",
             "steps": [
               {
-                "id": "C03-4-r3-1",
-                "text": "保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。",
+                "id": "C03-4-r5-1",
+                "text": "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-reflection-20261011-e1"
+                  "cmu-exam-wrapper-e1",
+                  "cmu-help-reflection-e1"
                 ]
               },
               {
-                "id": "C03-4-r3-2",
-                "text": "选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。",
+                "id": "C03-4-r5-2",
+                "text": "把本人如何准备、原题哪一步出错和评分反馈分别放在一起；错误类型是待核对描述，不能直接推成能力结论。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-reflection-20261011-e1"
+                  "cmu-exam-wrapper-e1",
+                  "cmu-help-reflection-e1"
                 ]
               },
               {
-                "id": "C03-4-r3-3",
-                "text": "只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。",
+                "id": "C03-4-r5-3",
+                "text": "本人愿意继续时，只改原来卡住的一步，并在下一次同类练习核对实际作答与反馈；拒绝就停止，不重发整套复习方法。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-reflection-20261011-e1"
+                  "cmu-exam-wrapper-e1",
+                  "cmu-help-reflection-e1"
                 ]
               }
             ]
@@ -2795,27 +2906,30 @@
             "stage": "adjust",
             "steps": [
               {
-                "id": "C11-4-r3-1",
-                "text": "读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。",
+                "id": "C11-4-r5-1",
+                "text": "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-reflection-20261011-e1"
+                  "cmu-exam-wrapper-e1",
+                  "cmu-help-reflection-e1"
                 ]
               },
               {
-                "id": "C11-4-r3-2",
-                "text": "对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。",
+                "id": "C11-4-r5-2",
+                "text": "把本人如何准备、原题哪一步出错和评分反馈分别放在一起；错误类型是待核对描述，不能直接推成能力结论。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-reflection-20261011-e1"
+                  "cmu-exam-wrapper-e1",
+                  "cmu-help-reflection-e1"
                 ]
               },
               {
-                "id": "C11-4-r3-3",
-                "text": "只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。",
+                "id": "C11-4-r5-3",
+                "text": "本人愿意继续时，只改原来卡住的一步，并在下一次同类练习核对实际作答与反馈；拒绝就停止，不重发整套复习方法。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-reflection-20261011-e1"
+                  "cmu-exam-wrapper-e1",
+                  "cmu-help-reflection-e1"
                 ]
               }
             ]
@@ -2827,27 +2941,30 @@
             "stage": "adjust",
             "steps": [
               {
-                "id": "C12-3-r3-1",
-                "text": "选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。",
+                "id": "C12-3-r5-1",
+                "text": "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-reflection-20261011-e1"
+                  "cmu-exam-wrapper-e1",
+                  "cmu-help-reflection-e1"
                 ]
               },
               {
-                "id": "C12-3-r3-2",
-                "text": "先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。",
+                "id": "C12-3-r5-2",
+                "text": "把本人如何准备、原题哪一步出错和评分反馈分别放在一起；错误类型是待核对描述，不能直接推成能力结论。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-reflection-20261011-e1"
+                  "cmu-exam-wrapper-e1",
+                  "cmu-help-reflection-e1"
                 ]
               },
               {
-                "id": "C12-3-r3-3",
-                "text": "只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。",
+                "id": "C12-3-r5-3",
+                "text": "本人愿意继续时，只改原来卡住的一步，并在下一次同类练习核对实际作答与反馈；拒绝就停止，不重发整套复习方法。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
-                  "tsinghua-exam-reflection-20261011-e1"
+                  "cmu-exam-wrapper-e1",
+                  "cmu-help-reflection-e1"
                 ]
               }
             ]
@@ -2871,12 +2988,12 @@
         },
         "expectedObservation": "按任务分开过程、正确性、用时和实际反馈，未知原因不写成认识已经改变。",
         "retrievalSummary": "考试回顾与实验记录复盘；其他科研卡点单独核对；是哪次练习或科研任务，已经有哪些实际过程和反馈？；考试失利诊断；保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。；选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。；只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。；科研受阻复盘；先核对具体课题和任务类型，读回本人已有过程与产物；实验记录与代码、文献或写作分别处理，不串两个相似课题。；属于实验记录时，保留本人实际操作与观察，标出异常现象和本人提出的改进思路；未记下的细节标未知，不补造原始数据或失败原因。；只整理一个可向有权限导师或合作者核对的记录片段和问题；是否调整实验待实际核对，未获准不执行。代码、文献和写作仅整理原材料，不声称已提供有来源的科研方法。；诊断模拟练习问题；读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。；对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。；只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。；练习复盘；选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。；先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。；只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。",
-        "referenceBody": "考试回顾与实验记录复盘；其他科研卡点单独核对\n原文范围：\n该考试指南提醒回看问题和答案，检查审题或拼写错误。 范围：该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。 限制：科研归因与四类错误的普遍有效性仍缺直接证据。\n该公开考试指南在限时练习段落建议做完后回想遇到的困难，并思考如何解决。 范围：高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。 限制：不采用固定记忆周期、收益保证、分数、资格或日期；不把此考试建议套到实验或创业。\n该高校本科生培训报道建议在实验记录中标注异常现象与改进思路，并在记录后整理复盘。 范围：高校本科生实验记录培训的记录规范：区分课题、即时记录，标注实际异常与改进思路，整理复盘。 限制：培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。\n什么时候用：是哪次练习或科研任务，已经有哪些实际过程和反馈？；本人请求复盘或调整；已有具体过程，不补成已执行。\n什么时候不用：培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。 考试四类错误仍是编辑提问，不是有效性证明。；仅倾听、明确拒绝、暂停或已遗忘的事情。\n先核对：是哪次练习或科研任务，已经有哪些实际过程和反馈？\nLifeOS编辑步骤（逐任务来源范围）：\n任务：考试失利诊断\n保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。\n选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。\n只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。\n任务：科研受阻复盘\n先核对具体课题和任务类型，读回本人已有过程与产物；实验记录与代码、文献或写作分别处理，不串两个相似课题。\n属于实验记录时，保留本人实际操作与观察，标出异常现象和本人提出的改进思路；未记下的细节标未知，不补造原始数据或失败原因。\n只整理一个可向有权限导师或合作者核对的记录片段和问题；是否调整实验待实际核对，未获准不执行。代码、文献和写作仅整理原材料，不声称已提供有来源的科研方法。\n任务：诊断模拟练习问题\n读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。\n对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。\n只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。\n任务：练习复盘\n选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。\n先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。\n只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。\n最小一步：只选一次实际过程中的一个卡点与已有反馈；材料不足时先核对材料。\n资源不足：只整理一个已有过程片段；没有时间就保留卡点，不安排新练习或实验。\n观察：按任务分开过程、正确性、用时和实际反馈，未知原因不写成认识已经改变。\nnot_started：先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。\nblocked：沿原课题、原步骤和本人反馈核对一个卡点；实验先回看异常记录，原因待核实。只有“还是不行”时先找上次实际尝试，不重发整套教程。\nwaiting_result：只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。\nresult：核对本人实际过程和反馈；实验记录新增观察不等于原因已证实或结果提升，考试正确性与用时分别判断。本人确认后才记录认识变化。\ndeclined：停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。",
+        "referenceBody": "考试回顾与实验记录复盘；其他科研卡点单独核对\n原文范围：\n该考试指南提醒回看问题和答案，检查审题或拼写错误。 范围：该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。 限制：科研归因与四类错误的普遍有效性仍缺直接证据。\n该公开考试指南在限时练习段落建议做完后回想遇到的困难，并思考如何解决。 范围：高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。 限制：不采用固定记忆周期、收益保证、分数、资格或日期；不把此考试建议套到实验或创业。\n该高校本科生培训报道建议在实验记录中标注异常现象与改进思路，并在记录后整理复盘。 范围：高校本科生实验记录培训的记录规范：区分课题、即时记录，标注实际异常与改进思路，整理复盘。 限制：培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。\n什么时候用：是哪次练习或科研任务，已经有哪些实际过程和反馈？；本人请求复盘或调整；已有具体过程，不补成已执行。\n什么时候不用：培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。 考试四类错误仍是编辑提问，不是有效性证明。；仅倾听、明确拒绝、暂停或已遗忘的事情。\n先核对：是哪次练习或科研任务，已经有哪些实际过程和反馈？\nLifeOS编辑步骤（逐任务来源范围）：\n任务：考试失利诊断\n保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。\n选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。\n只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。\n任务：科研受阻复盘\n先核对具体课题和任务类型，读回本人已有过程与产物；实验记录与代码、文献或写作分别处理，不串两个相似课题。\n属于实验记录时，保留本人实际操作与观察，标出异常现象和本人提出的改进思路；未记下的细节标未知，不补造原始数据或失败原因。\n只整理一个可向有权限导师或合作者核对的记录片段和问题；是否调整实验待实际核对，未获准不执行。代码、文献和写作仅整理原材料，不声称已提供有来源的科研方法。\n任务：诊断模拟练习问题\n读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。\n对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。\n只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。\n任务：练习复盘\n选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。\n先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。\n只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。\n最小一步：只选一次实际过程中的一个卡点与已有反馈；材料不足时先核对材料。\n资源不足：只整理一个已有过程片段；没有时间就保留卡点，不安排新练习或实验。\n观察：按任务分开过程、正确性、用时和实际反馈，未知原因不写成认识已经改变。\nnot_started：先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。\nblocked：沿原课题、原步骤和本人反馈核对一个卡点；实验先回看异常记录，原因待核实。只有“还是不行”时先找上次实际尝试，不重发整套教程。\nwaiting_result：只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。\nresult：核对本人实际过程和反馈；实验记录新增观察不等于原因已证实或结果提升，考试正确性与用时分别判断。本人确认后才记录认识变化。\ndeclined：停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。\n本版考试分支补充（C03-4/C11-4/C12-3；科研实验分支保持原对应材料）：\n只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。\n把本人如何准备、原题哪一步出错和评分反馈分别放在一起；错误类型是待核对描述，不能直接推成能力结论。\n本人愿意继续时，只改原来卡住的一步，并在下一次同类练习核对实际作答与反馈；拒绝就停止，不重发整套复习方法。\n来源只支持考试后的反思建议；具体最小行动为LifeOS编辑适配，未知结果不改写成提分成功。",
         "reviewStatus": "needs_review",
         "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
         "review": null,
-        "contentHash": "299b0a324888fe7ae2a671220aed4e5ad0fc5e79679ca8b48146c0c1653e5f54",
-        "indexSignature": "5e443e2f85105351e9082cc11f10f4699ceb73f9e8e973622405df24cfae57ca",
+        "contentHash": "1788b692546f8a720f928e5ae564adc119e49ca78501cf4a5246f2fc08b1e1b5",
+        "indexSignature": "",
         "legacyIds": [],
         "replaces": []
       }
@@ -8846,7 +8963,7 @@
       "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
       "canonicalKey": "exam-diagnosis",
       "baseRevision": 1,
-      "revision": 4,
+      "revision": 5,
       "previousStatus": "needs_review",
       "decision": "SUBSTANTIVE_REVISION_PENDING_INDEPENDENT_REVIEW",
       "changed": [
@@ -8861,7 +8978,9 @@
         "per_branch_feedback_review",
         "experiment_record_original",
         "research_subtask_scope_separated",
-        "abnormal_observation_not_cause"
+        "abnormal_observation_not_cause",
+        "graded_exam_wrapper_original",
+        "preparation_error_feedback_separated"
       ],
       "sourceId": "tsinghua-exam",
       "sourceRead": true,
@@ -8869,11 +8988,13 @@
       "independentReview": null,
       "humanApproval": null,
       "served": false,
-      "previousDraftHash": "566a7da6b824000a804f6a4dfc2e1d9c99a7f24d8b169a204aa37ce8c0047b99",
+      "previousDraftHash": "299b0a324888fe7ae2a671220aed4e5ad0fc5e79679ca8b48146c0c1653e5f54",
       "sourceIds": [
         "tsinghua-exam-batch",
         "tsinghua-exam-reflection-20261011",
-        "hzau-experiment-records-20261011"
+        "hzau-experiment-records-20261011",
+        "cmu-exam-wrapper",
+        "cmu-help-reflection"
       ]
     },
     {
@@ -10152,9 +10273,9 @@
     {
       "canonicalKey": "exam-diagnosis",
       "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
-      "revision": 4,
-      "contentHash": "299b0a324888fe7ae2a671220aed4e5ad0fc5e79679ca8b48146c0c1653e5f54",
-      "previousDraftHash": "566a7da6b824000a804f6a4dfc2e1d9c99a7f24d8b169a204aa37ce8c0047b99",
+      "revision": 5,
+      "contentHash": "1788b692546f8a720f928e5ae564adc119e49ca78501cf4a5246f2fc08b1e1b5",
+      "previousDraftHash": "299b0a324888fe7ae2a671220aed4e5ad0fc5e79679ca8b48146c0c1653e5f54",
       "status": "PREPARED_NOT_INDEPENDENTLY_EXECUTED",
       "claimChecks": [
         {
@@ -10247,6 +10368,58 @@
             }
           ],
           "reviewQuestion": "逐主张核对考试或实验记录来源范围；培训建议不是科研归因及效果证据，其他科研任务仍待补源。"
+        },
+        {
+          "claimId": "cmu-exam-wrapper-reflection",
+          "basis": "source_supported",
+          "claim": "该大学教学中心建议在收到评分后结合准备方式、作答错误与教师反馈回顾本次考试。",
+          "scope": "仅已评分考试或作业后的回顾",
+          "limitations": "不证明提分、科研归因或中国政策",
+          "originals": [
+            {
+              "sourceId": "cmu-exam-wrapper",
+              "sourceRevision": 1,
+              "url": "https://www.cmu.edu/teaching/designteach/teach/examwrappers/",
+              "sourceFingerprint": "7d070f6fc7f12f075af02222c03de3181bc9f82e91aacd1716038aca54feaa28",
+              "evidenceId": "cmu-exam-wrapper-e1",
+              "quote": "characterizing the nature of their errors to find any recurring patterns that could be addressed.",
+              "locator": {
+                "kind": "original_normalized_character_range",
+                "start": 696,
+                "end": 793,
+                "normalizedTextPath": "evidence/coze-core-launch-20261011/exam-originals/cmu-exam-wrapper.txt",
+                "normalizedTextSha256": "1c185e81f8d287781fdb53d7f3c57f2b23ce5e9a8d5f1313e5311e8ecba3dcd6",
+                "originalPath": "evidence/coze-core-launch-20261011/exam-originals/cmu-exam-wrapper.html"
+              }
+            }
+          ],
+          "reviewQuestion": "读原文和实际考试分支，核对准备/错误/反馈是否分开，是否误推成绩或人格。"
+        },
+        {
+          "claimId": "cmu-help-reflection-reflection",
+          "basis": "source_supported",
+          "claim": "该教学指导建议考试回顾包括实际学习做法、错误和下次准备改变的做法。",
+          "scope": "仅已评分考试或作业后的回顾",
+          "limitations": "不证明提分、科研归因或中国政策",
+          "originals": [
+            {
+              "sourceId": "cmu-help-reflection",
+              "sourceRevision": 1,
+              "url": "https://www.cmu.edu/teaching/solveproblem/strat-dontseekhelp/dontseekhelp-01.html",
+              "sourceFingerprint": "45102d9e1f5bfc8a21bd8ce95cfaa4bf3dab115ae91752a0a9445c6dd4069d50",
+              "evidenceId": "cmu-help-reflection-e1",
+              "quote": "analyze the nature of the errors on the exam",
+              "locator": {
+                "kind": "original_normalized_character_range",
+                "start": 2609,
+                "end": 2653,
+                "normalizedTextPath": "evidence/coze-core-launch-20261011/exam-originals/cmu-help-reflection.txt",
+                "normalizedTextSha256": "9639c690ebfb67c67adc1555cb344938df7cda786dff92f570aaa1fd5a75a6df",
+                "originalPath": "evidence/coze-core-launch-20261011/exam-originals/cmu-help-reflection.html"
+              }
+            }
+          ],
+          "reviewQuestion": "读原文和实际考试分支，核对准备/错误/反馈是否分开，是否误推成绩或人格。"
         }
       ],
       "questions": [
@@ -10261,6 +10434,10 @@
         {
           "target": "experiment-vs-other-research",
           "text": "实验记录整理已有直接培训原文；科研失败归因、代码调试、文献阅读和写作方法仍缺直接材料。"
+        },
+        {
+          "target": "exam-wrapper-scope-and-license",
+          "text": "新增大学教学原文仅用于考试反馈回顾，不能套到科研归因或中国规则；原文许可适用性仍待发布前核对。"
         }
       ],
       "executionRecord": null,
@@ -10271,19 +10448,21 @@
           "candidateId": "C03-4",
           "stage": "adjust",
           "evidenceIds": [
-            "tsinghua-exam-reflection-20261011-e1"
+            "tsinghua-exam-reflection-20261011-e1",
+            "cmu-exam-wrapper-e1",
+            "cmu-help-reflection-e1"
           ],
           "remainingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
           "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
           "firstUnknown": "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
-          "smallestStep": "保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。",
-          "observation": "原困难能否说明；修订后同类作答的实际反馈，未评分仍未知。",
+          "smallestStep": "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
+          "observation": "本人原作答、教师实际反馈与下一次单步变化分别有无证据；未评分仍未知。",
           "feedback": {
-            "not_started": "先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。",
-            "blocked": "沿原课题、原步骤和本人反馈核对一个卡点；实验先回看异常记录，原因待核实。只有“还是不行”时先找上次实际尝试，不重发整套教程。",
-            "waiting_result": "只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。",
-            "result": "核对本人实际过程和反馈；实验记录新增观察不等于原因已证实或结果提升，考试正确性与用时分别判断。本人确认后才记录认识变化。",
-            "declined": "停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。"
+            "not_started": "只核对这次试卷和反馈是否可取得；没有材料时先留一个待核对题目，不要求填完整档案。",
+            "blocked": "沿用同一题与原来已试步骤，指出尚不能解释的一处；缺评分依据就向本人认可的课程答疑入口核对，不重复完整复习法。",
+            "waiting_result": "已做练习与等待评分分别记录；没有结果时不判正确或提分，也不要求追加整套练习。不判有效。",
+            "result": "只对照本人作答、实际评分和所改单步；方法被采用、被执行和是否有效分别保持证据。",
+            "declined": "停止这次考试回顾，不推断能力退步；本人主动重提同一题后再续接。"
           },
           "independentExecution": null,
           "humanApproval": null
@@ -10313,19 +10492,21 @@
           "candidateId": "C11-4",
           "stage": "adjust",
           "evidenceIds": [
-            "tsinghua-exam-reflection-20261011-e1"
+            "tsinghua-exam-reflection-20261011-e1",
+            "cmu-exam-wrapper-e1",
+            "cmu-help-reflection-e1"
           ],
           "remainingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
           "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
           "firstUnknown": "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
-          "smallestStep": "读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。",
-          "observation": "同类题的作答困难、实际用时和核对结果分别怎样变化。",
+          "smallestStep": "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
+          "observation": "本人原作答、教师实际反馈与下一次单步变化分别有无证据；未评分仍未知。",
           "feedback": {
-            "not_started": "先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。",
-            "blocked": "沿原课题、原步骤和本人反馈核对一个卡点；实验先回看异常记录，原因待核实。只有“还是不行”时先找上次实际尝试，不重发整套教程。",
-            "waiting_result": "只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。",
-            "result": "核对本人实际过程和反馈；实验记录新增观察不等于原因已证实或结果提升，考试正确性与用时分别判断。本人确认后才记录认识变化。",
-            "declined": "停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。"
+            "not_started": "只核对这次试卷和反馈是否可取得；没有材料时先留一个待核对题目，不要求填完整档案。",
+            "blocked": "沿用同一题与原来已试步骤，指出尚不能解释的一处；缺评分依据就向本人认可的课程答疑入口核对，不重复完整复习法。",
+            "waiting_result": "已做练习与等待评分分别记录；没有结果时不判正确或提分，也不要求追加整套练习。不判有效。",
+            "result": "只对照本人作答、实际评分和所改单步；方法被采用、被执行和是否有效分别保持证据。",
+            "declined": "停止这次考试回顾，不推断能力退步；本人主动重提同一题后再续接。"
           },
           "independentExecution": null,
           "humanApproval": null
@@ -10334,19 +10515,21 @@
           "candidateId": "C12-3",
           "stage": "adjust",
           "evidenceIds": [
-            "tsinghua-exam-reflection-20261011-e1"
+            "tsinghua-exam-reflection-20261011-e1",
+            "cmu-exam-wrapper-e1",
+            "cmu-help-reflection-e1"
           ],
           "remainingClaim": "限定考试练习范围；没有提分、最佳分类或因果诊断证据。",
           "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
           "firstUnknown": "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
-          "smallestStep": "选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。",
-          "observation": "这一处是否有新反馈；正确性与速度是否各自已核对。",
+          "smallestStep": "只选这次已经评分的一道题和教师实际反馈；没有评分或答案时，先标出缺件，不根据总分猜原因。",
+          "observation": "本人原作答、教师实际反馈与下一次单步变化分别有无证据；未评分仍未知。",
           "feedback": {
-            "not_started": "先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。",
-            "blocked": "沿原课题、原步骤和本人反馈核对一个卡点；实验先回看异常记录，原因待核实。只有“还是不行”时先找上次实际尝试，不重发整套教程。",
-            "waiting_result": "只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。",
-            "result": "核对本人实际过程和反馈；实验记录新增观察不等于原因已证实或结果提升，考试正确性与用时分别判断。本人确认后才记录认识变化。",
-            "declined": "停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。"
+            "not_started": "只核对这次试卷和反馈是否可取得；没有材料时先留一个待核对题目，不要求填完整档案。",
+            "blocked": "沿用同一题与原来已试步骤，指出尚不能解释的一处；缺评分依据就向本人认可的课程答疑入口核对，不重复完整复习法。",
+            "waiting_result": "已做练习与等待评分分别记录；没有结果时不判正确或提分，也不要求追加整套练习。不判有效。",
+            "result": "只对照本人作答、实际评分和所改单步；方法被采用、被执行和是否有效分别保持证据。",
+            "declined": "停止这次考试回顾，不推断能力退步；本人主动重提同一题后再续接。"
           },
           "independentExecution": null,
           "humanApproval": null
@@ -12699,7 +12882,7 @@
       "sourceChangeRequiresReturn": true
     }
   ],
-  "sourceFollowupAt": "2026-10-10T11:43:46.158054+00:00",
+  "sourceFollowupAt": "2026-10-11T03:43:35.740Z",
   "draftHistory": [
     {
       "id": "257bea5b-e782-427a-82c0-39e84e086ad9",
@@ -15199,6 +15382,267 @@
         "review": null,
         "contentHash": "8efa273821512bbae8395440b9dc7dca63f1c2929decc37d4b837931c797b39d",
         "indexSignature": "17465eff05f751c9c0133a93d82cdbae15a3b03f854cbcec20318221e048567c",
+        "legacyIds": [],
+        "replaces": []
+      }
+    },
+    {
+      "id": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+      "revision": 4,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "考试回顾与实验记录复盘；其他科研卡点单独核对",
+      "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+      "publisher": "清华大学学生学习与发展指导中心",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.547Z",
+      "validUntil": null,
+      "excerpt": "仔细检查一下问题和答案，防止出现审题或拼写错误。\n与论文写作相比，简答题 要求你的答案简洁、全面而不是在某个话题上长篇大论。\nØ 根据每道简答题的分值将时间按比例分配。\nØ 如果有那种既有简答又有论述的题目，一定要仔细审题，不要漏掉任何一部分。\nØ 努力的回答好每道题目的每个部分，尽可能提高分数，也要注意不要浪费太多时间在分值很少的难题上。\nØ 利用答案中的定义或解释部分来辅助其他需要自己发表看法的部分， 切记不要重复写一遍，指代一下即可。\nØ 如果有个问题让你“简单谈谈”，",
+      "claim": "该考试指南提醒回看问题和答案，检查审题或拼写错误。",
+      "scope": "考试及模拟练习回顾使用考试材料；实验记录整理使用实验记录培训材料；代码、文献阅读和写作只整理本人过程，仍缺各自方法来源。",
+      "limitations": "培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。 考试四类错误仍是编辑提问，不是有效性证明。",
+      "mechanisms": [
+        "执行检查与修订"
+      ],
+      "sourceHash": "81f9f2098f81f9f091550679d43ea53a73e812ee746975e19fd31e4196b36b32",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+        "canonicalKey": "exam-diagnosis",
+        "aliases": [
+          "考试失利",
+          "模拟练习",
+          "错题",
+          "科研受阻",
+          "练习复盘",
+          "失败",
+          "考试失利诊断",
+          "科研受阻复盘",
+          "诊断模拟练习问题",
+          "练习复盘"
+        ],
+        "domains": [
+          "03",
+          "09",
+          "11",
+          "12"
+        ],
+        "task": "考试回顾与实验记录复盘；其他科研卡点单独核对",
+        "stage": "start/adjust/compare",
+        "mechanism": "执行检查与修订",
+        "prerequisites": [
+          "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
+          "本人请求复盘或调整；已有具体过程，不补成已执行。"
+        ],
+        "exclusions": [
+          "培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。 考试四类错误仍是编辑提问，不是有效性证明。",
+          "仅倾听、明确拒绝、暂停或已遗忘的事情。"
+        ],
+        "evidenceIds": [
+          "tsinghua-exam-batch-exam-diagnosis-e1",
+          "tsinghua-exam-reflection-20261011-e1",
+          "hzau-experiment-records-20261011-e1"
+        ],
+        "claims": [
+          {
+            "id": "exam-diagnosis-scope",
+            "text": "该考试指南提醒回看问题和答案，检查审题或拼写错误。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "tsinghua-exam-batch-exam-diagnosis-e1"
+            ],
+            "scope": "该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。",
+            "limitations": "科研归因与四类错误的普遍有效性仍缺直接证据。"
+          },
+          {
+            "id": "exam-diagnosis-editorial",
+            "text": "考试练习和实验记录分别使用对应来源；代码、文献和写作只整理本人提供的过程，缺少方法证据不猜失败原因。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "tsinghua-exam-batch-exam-diagnosis-e1"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          },
+          {
+            "id": "exam-diagnosis-reflection",
+            "text": "该公开考试指南在限时练习段落建议做完后回想遇到的困难，并思考如何解决。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "tsinghua-exam-reflection-20261011-e1"
+            ],
+            "scope": "高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。",
+            "limitations": "不采用固定记忆周期、收益保证、分数、资格或日期；不把此考试建议套到实验或创业。"
+          },
+          {
+            "id": "exam-diagnosis-experiment-records",
+            "text": "该高校本科生培训报道建议在实验记录中标注异常现象与改进思路，并在记录后整理复盘。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "hzau-experiment-records-20261011-e1"
+            ],
+            "scope": "高校本科生实验记录培训的记录规范：区分课题、即时记录，标注实际异常与改进思路，整理复盘。",
+            "limitations": "培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。"
+          }
+        ],
+        "sourceGroups": [
+          "tsinghua-exam",
+          "hzau-experiment-records"
+        ],
+        "principle": "本人过程和实际反馈先读回；考试与实验记录使用对应证据，观察与原因推断分开，未获准不安排实验。",
+        "branches": [
+          {
+            "id": "C03-4",
+            "candidateId": "C03-4",
+            "task": "考试失利诊断",
+            "stage": "adjust",
+            "steps": [
+              {
+                "id": "C03-4-r3-1",
+                "text": "保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-reflection-20261011-e1"
+                ]
+              },
+              {
+                "id": "C03-4-r3-2",
+                "text": "选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-reflection-20261011-e1"
+                ]
+              },
+              {
+                "id": "C03-4-r3-3",
+                "text": "只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-reflection-20261011-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C09-4",
+            "candidateId": "C09-4",
+            "task": "科研受阻复盘",
+            "stage": "adjust",
+            "steps": [
+              {
+                "id": "C09-4-r4-1",
+                "text": "先核对具体课题和任务类型，读回本人已有过程与产物；实验记录与代码、文献或写作分别处理，不串两个相似课题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "hzau-experiment-records-20261011-e1"
+                ]
+              },
+              {
+                "id": "C09-4-r4-2",
+                "text": "属于实验记录时，保留本人实际操作与观察，标出异常现象和本人提出的改进思路；未记下的细节标未知，不补造原始数据或失败原因。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "hzau-experiment-records-20261011-e1"
+                ]
+              },
+              {
+                "id": "C09-4-r4-3",
+                "text": "只整理一个可向有权限导师或合作者核对的记录片段和问题；是否调整实验待实际核对，未获准不执行。代码、文献和写作仅整理原材料，不声称已提供有来源的科研方法。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": []
+              }
+            ]
+          },
+          {
+            "id": "C11-4",
+            "candidateId": "C11-4",
+            "task": "诊断模拟练习问题",
+            "stage": "adjust",
+            "steps": [
+              {
+                "id": "C11-4-r3-1",
+                "text": "读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-reflection-20261011-e1"
+                ]
+              },
+              {
+                "id": "C11-4-r3-2",
+                "text": "对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-reflection-20261011-e1"
+                ]
+              },
+              {
+                "id": "C11-4-r3-3",
+                "text": "只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-reflection-20261011-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C12-3",
+            "candidateId": "C12-3",
+            "task": "练习复盘",
+            "stage": "adjust",
+            "steps": [
+              {
+                "id": "C12-3-r3-1",
+                "text": "选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-reflection-20261011-e1"
+                ]
+              },
+              {
+                "id": "C12-3-r3-2",
+                "text": "先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-reflection-20261011-e1"
+                ]
+              },
+              {
+                "id": "C12-3-r3-3",
+                "text": "只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "tsinghua-exam-reflection-20261011-e1"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "是哪次练习或科研任务，已经有哪些实际过程和反馈？",
+        "smallestAction": "只选一次实际过程中的一个卡点与已有反馈；材料不足时先核对材料。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "只整理一个已有过程片段；没有时间就保留卡点，不安排新练习或实验。",
+        "stopConditions": [
+          "本人拒绝、暂停或零时间停止。",
+          "培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。 考试四类错误仍是编辑提问，不是有效性证明。",
+          "没有实际反馈不能判有效；科研实验权限不足不执行。"
+        ],
+        "feedbackBranches": {
+          "not_started": "先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。",
+          "blocked": "沿原课题、原步骤和本人反馈核对一个卡点；实验先回看异常记录，原因待核实。只有“还是不行”时先找上次实际尝试，不重发整套教程。",
+          "waiting_result": "只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。",
+          "result": "核对本人实际过程和反馈；实验记录新增观察不等于原因已证实或结果提升，考试正确性与用时分别判断。本人确认后才记录认识变化。",
+          "declined": "停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。"
+        },
+        "expectedObservation": "按任务分开过程、正确性、用时和实际反馈，未知原因不写成认识已经改变。",
+        "retrievalSummary": "考试回顾与实验记录复盘；其他科研卡点单独核对；是哪次练习或科研任务，已经有哪些实际过程和反馈？；考试失利诊断；保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。；选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。；只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。；科研受阻复盘；先核对具体课题和任务类型，读回本人已有过程与产物；实验记录与代码、文献或写作分别处理，不串两个相似课题。；属于实验记录时，保留本人实际操作与观察，标出异常现象和本人提出的改进思路；未记下的细节标未知，不补造原始数据或失败原因。；只整理一个可向有权限导师或合作者核对的记录片段和问题；是否调整实验待实际核对，未获准不执行。代码、文献和写作仅整理原材料，不声称已提供有来源的科研方法。；诊断模拟练习问题；读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。；对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。；只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。；练习复盘；选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。；先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。；只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。",
+        "referenceBody": "考试回顾与实验记录复盘；其他科研卡点单独核对\n原文范围：\n该考试指南提醒回看问题和答案，检查审题或拼写错误。 范围：该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。 限制：科研归因与四类错误的普遍有效性仍缺直接证据。\n该公开考试指南在限时练习段落建议做完后回想遇到的困难，并思考如何解决。 范围：高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。 限制：不采用固定记忆周期、收益保证、分数、资格或日期；不把此考试建议套到实验或创业。\n该高校本科生培训报道建议在实验记录中标注异常现象与改进思路，并在记录后整理复盘。 范围：高校本科生实验记录培训的记录规范：区分课题、即时记录，标注实际异常与改进思路，整理复盘。 限制：培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。\n什么时候用：是哪次练习或科研任务，已经有哪些实际过程和反馈？；本人请求复盘或调整；已有具体过程，不补成已执行。\n什么时候不用：培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。 考试四类错误仍是编辑提问，不是有效性证明。；仅倾听、明确拒绝、暂停或已遗忘的事情。\n先核对：是哪次练习或科研任务，已经有哪些实际过程和反馈？\nLifeOS编辑步骤（逐任务来源范围）：\n任务：考试失利诊断\n保留实际试卷、本人答案与评分反馈；缺评分时只回看作答过程，不由总分推能力。\n选一道本人想弄清的题，回想当时具体在哪一步困难；把理解、作答或时间问题作为待核对问题。\n只对这一处做一个修订，再观察下一次同类作答；单题变化不等于总分或长期能力提升。\n任务：科研受阻复盘\n先核对具体课题和任务类型，读回本人已有过程与产物；实验记录与代码、文献或写作分别处理，不串两个相似课题。\n属于实验记录时，保留本人实际操作与观察，标出异常现象和本人提出的改进思路；未记下的细节标未知，不补造原始数据或失败原因。\n只整理一个可向有权限导师或合作者核对的记录片段和问题；是否调整实验待实际核对，未获准不执行。代码、文献和写作仅整理原材料，不声称已提供有来源的科研方法。\n任务：诊断模拟练习问题\n读回这次模拟练习的题目、本人过程和已有反馈；若本来没有限时，不补写已计时。\n对本人报告的卡点回看题意与作答；下一次只有在需要核对速度且本人同意时才限时，保留实际用时。\n只调整被卡的一步，再看同类练习；正确性、用时和成绩分别记录，等待结果不判有效。\n任务：练习复盘\n选一份本人已完成的练习与可核查反馈，不要求重新做整套试卷。\n先回想练习中遇到的一个困难，核对解答过程；原因不明就保留问题，不补诊断。\n只改这一处并观察下一次作答；旧卡点消失、出现新问题和结果未知分开。\n最小一步：只选一次实际过程中的一个卡点与已有反馈；材料不足时先核对材料。\n资源不足：只整理一个已有过程片段；没有时间就保留卡点，不安排新练习或实验。\n观察：按任务分开过程、正确性、用时和实际反馈，未知原因不写成认识已经改变。\nnot_started：先确认本人要复盘哪次已做的事情；还没做的新练习只保留准备，不形成失败经历。\nblocked：沿原课题、原步骤和本人反馈核对一个卡点；实验先回看异常记录，原因待核实。只有“还是不行”时先找上次实际尝试，不重发整套教程。\nwaiting_result：只说明实际做过什么及待核对结果；未评分、导师未回或实验反馈未知都不判有效，不猜原因。\nresult：核对本人实际过程和反馈；实验记录新增观察不等于原因已证实或结果提升，考试正确性与用时分别判断。本人确认后才记录认识变化。\ndeclined：停止本人拒绝的复盘或新练习，不通过换题、换实验或换名称继续推进；保留合法历史。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "299b0a324888fe7ae2a671220aed4e5ad0fc5e79679ca8b48146c0c1653e5f54",
+        "indexSignature": "5e443e2f85105351e9082cc11f10f4699ceb73f9e8e973622405df24cfae57ca",
         "legacyIds": [],
         "replaces": []
       }
