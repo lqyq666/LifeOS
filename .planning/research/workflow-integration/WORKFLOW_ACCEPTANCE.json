@@ -281,6 +281,25 @@
       "evidence": "evidence/coze-core-launch-20261011/mentor-original-content-maintenance-first.log",
       "ownerApprovals": 0,
       "newPublished": 0
+    },
+    "productionImageStartup": {
+      "status": "BUILT_MIGRATIONS_STARTUP_VERIFIED_NOT_ONLINE_VERIFIED",
+      "head": "ab0204c2432b73a668998f465db7dfff50e143bb",
+      "image": "lifeos:launch-ab0204c",
+      "imageId": "sha256:598400a1a676e2b8c764f45594dc61a8f9f591a2044264194b6206612f740478",
+      "migrations": 32,
+      "checks": {
+        "migrations": true,
+        "startup": true,
+        "exactImageCommit": true,
+        "noImplicitFunding": true
+      },
+      "evidence": "evidence/coze-core-launch-20261011/production-image-ab0204c-startup-second.json",
+      "firstFailure": "evidence/coze-core-launch-20261011/production-image-ab0204c-startup-first.json",
+      "providerCalls": 0,
+      "cloudCalls": 0,
+      "serviceClosed": true,
+      "productionDeployed": false
     }
   },
   "content": {
