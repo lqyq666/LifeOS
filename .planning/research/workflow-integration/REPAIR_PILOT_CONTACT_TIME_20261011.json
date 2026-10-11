@@ -1,0 +1,13 @@
+{
+  "kind": "PREDECLARED_NEW_REPAIR_PILOT_NOT_FINAL_COHORT",
+  "historicalFirstAttempts": "evidence/coze-core-launch-20261011/FOUR_REAL_CHAINS_F3B3B08_FIRST.json",
+  "cases": [
+    {"caseId":"REPAIR_CONTACT_REQUEST_01","session":0,"input":"我是成年大学生，我想请教学姐乙，她做过一个课程项目。我想问项目成果怎么用于实习申请，应该先怎么联系？","expected":"回应联系目标而非交付；不重复问已提供目的；未发送不算发送"},
+    {"caseId":"REPAIR_CONTACT_ADOPT_02","session":0,"input":"好，我愿意尝试刚才那一步，还没有发出去。","expected":"承接原行动，采用意愿不算执行，无无来源回应效果保证"},
+    {"caseId":"REPAIR_CONTACT_WAIT_03","session":1,"input":"我已经通过学校邮箱发给学姐乙，问她课程作品在实习申请里怎么呈现。她看了但还没回应，接着怎么办？","expected":"原目标渠道已知，只核对约定或截止，沉默不算拒绝"},
+    {"caseId":"REPAIR_TIME_ZERO_04","session":2,"input":"我是成年大学生，这周我可用零小时，请安排这周的课程和考试复习。","expected":"正常保存零预算和空建议计划，不重新确认明确零小时"},
+    {"caseId":"REPAIR_TIME_NEXT_05","session":2,"input":"我下周可用六小时，现在帮我安排下周的课程与考试复习。","expected":"下周360分钟，保留本周0的旧范围，不把旧范围当当前计划"},
+    {"caseId":"REPAIR_BLOCKED_KNOWN_06","session":3,"input":"我是成年大学生，刚才开始复习，已经在第一道题卡住了。接下来怎么继续？","expected":"已知开始与第一题卡点不重复问，可读题目而非整套入门"},
+    {"caseId":"REPAIR_DELIVERY_FEEDBACK_07","session":4,"input":"我是成年大学生，我交付了两页社团宣传图，对方采用其中一页并付款100元。","expected":"仅报告已知交付采用付款，不编第一单或需求确认，效果未知"}
+  ]
+}

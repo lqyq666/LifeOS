@@ -14,6 +14,15 @@ export function selectRealPilotCases(auth:{smallOrdinaryOnly?:boolean;smallCompl
  if(complex.some(x=>!x))throw new Error('PILOT_TWO_THREE_DIRECTION_CASES_MISSING')
  return {complex,ordinary:auth.smallComplexOnly?[]:ordinary.slice(0,3)}
 }
+export function readRepairPilotCases(auth:any){
+ if(!auth.repairPilotInput)return null
+ const {path,sha256}=auth.repairPilotInput
+ if(!auth.smallOrdinaryOnly||typeof path!=='string'||!/^\.planning\/research\/workflow-integration\/REPAIR_PILOT_[A-Z0-9_]+\.json$/.test(path))throw new Error('REPAIR_PILOT_SCOPE_INVALID')
+ const bytes=readFileSync(path);if(hash(bytes)!==sha256)throw new Error('REPAIR_PILOT_HASH_INVALID')
+ const cases=JSON.parse(bytes.toString()).cases
+ if(!Array.isArray(cases)||!cases.length||cases.length>8||new Set(cases.map((c:any)=>c.caseId)).size!==cases.length||cases.some((c:any)=>typeof c.caseId!=='string'||typeof c.input!=='string'||!c.input.trim()||c.input.length>4000||!Number.isInteger(c.session)||c.session<0||c.session>7))throw new Error('REPAIR_PILOT_CASES_INVALID')
+ return cases as {caseId:string;input:string;session:number}[]
+}
 export function realMetrics(rows:any[]){
  const percentile=(values:number[],p:number)=>values.length?[...values].sort((a,b)=>a-b)[Math.ceil(p*values.length)-1]:null
  const ordinary=rows.filter(r=>r.stage==='ordinary20'&&!r.deepInput),first=ordinary.map(r=>r.firstUsefulMs).filter((n):n is number=>typeof n==='number'&&n>0),whole=ordinary.map(r=>r.replyCompleteMs).filter((n):n is number=>typeof n==='number'&&n>0)
@@ -52,6 +61,7 @@ export function realBatchPreflight(authorizationPath?:string){
  if(!modelCapabilityVerified('default'))blocks.push('CURRENT_MODEL_CAPABILITY_NOT_VERIFIED')
  if(auth&&auth.modelSignature!==modelSignatureFor('default'))blocks.push('MODEL_SIGNATURE_MISMATCH')
  if(auth?.smallOrdinaryOnly&&auth?.smallComplexOnly)blocks.push('PILOT_SCOPE_CONFLICT_ZERO_DISPATCH')
+ try{readRepairPilotCases(auth??{})}catch{blocks.push('REPAIR_PILOT_INPUT_INVALID_ZERO_DISPATCH')}
  let pilotContinuation:ReturnType<typeof readReviewedPilotContinuation>|null=null
  if(auth?.reviewedPilotExecutionId){
   if(auth.smallOrdinaryOnly||auth.smallComplexOnly)blocks.push('PILOT_CONTINUATION_SCOPE_CONFLICT')
@@ -147,11 +157,17 @@ export async function executeRealBatch(authPath:string,directory:string){
  try{
   await syntheticAccount()
   const pairs=JSON.parse(readFileSync(root+'COMPLEX_DECISION_AB_EVAL.json','utf8')).cases,ordinary=JSON.parse(readFileSync(root+'ORDINARY_PERFORMANCE_PROTOCOL.json','utf8')).cases
-  const pilot=selectRealPilotCases(auth,pairs,ordinary)
+  const repairPilot=readRepairPilotCases(auth),pilot=repairPilot?{complex:[],ordinary:repairPilot}:selectRealPilotCases(auth,pairs,ordinary)
   if(preflight.pilotContinuation){record({type:'independent_pilot_continuation',...preflight.pilotContinuation})}
   else{
    for(const c of pilot.complex)await turn('small',c.caseId,await chat(),c.input,c.directions)
-   for(const c of pilot.ordinary)await turn('small',c.caseId,await chat(),c.input)
+   const repairChats=new Map<number,string>()
+   for(const c of pilot.ordinary){
+    // A separately labeled, predeclared repair set never replaces old samples.
+    // Shared session ids exercise actual short-answer and state continuation.
+    if(repairPilot){readRepairPilotCases(auth);const session=(c as {session:number}).session;if(!repairChats.has(session))repairChats.set(session,await chat());await turn('small',c.caseId,repairChats.get(session)!,c.input)}
+    else await turn('small',c.caseId,await chat(),c.input)
+   }
   }
   if(auth.smallOrdinaryOnly)return {status:'REAL_ORDINARY_SMALL_WAITING_INDEPENDENT_REVIEW',results:results.length,cozeComplex:'NOT_TESTED_SEPARATE_CURRENT_CLOUD_ENTRY_REQUIRED',fullPerformanceAcceptance:'NOT_TESTED_LESS_THAN_TWENTY',autoContinuation:false}
   if(auth.smallComplexOnly)return {status:'REAL_COMPLEX_SMALL_WAITING_INDEPENDENT_REVIEW',results:results.length,ordinarySamples:'PREVIOUS_FIRST3_PRESERVED_NOT_REISSUED',cozeComplex:'NOT_TESTED_SEPARATE_CURRENT_CLOUD_ENTRY_REQUIRED',autoContinuation:false}

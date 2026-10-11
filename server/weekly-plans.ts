@@ -36,6 +36,13 @@ const allScopes:DirectionScope[]=['employment','postgraduate_recommendation','po
 const validMinutes=(value:number)=>Number.isSafeInteger(value)&&value>=0&&value<=10080
 const validScopeList=(scopes:unknown):scopes is DirectionScope[]=>Array.isArray(scopes)&&scopes.length<=7&&scopes.every(scope=>allScopes.includes(scope as DirectionScope))
 
+export function renderProposedWeeklyPlan(input:WeeklyPlanInput):string{
+  validateWeeklyPlanShape(input)
+  const windowLabel=input.period==='next_week'?'下周':input.period==='this_week'?'本周':'当前时段'
+  if(input.availableMinutes===0)return windowLabel+'没有可用时间，先不安排任务；等可用时间改变后再调整。'
+  return windowLabel+'建议安排（可用'+input.availableMinutes+'分钟；尚未采纳或执行）：\n'+input.items.map(item=>'- '+item.action+'（'+item.minutes+'分钟）').join('\n')
+}
+
 // Pure shape validation: integer minutes, 0-budget ⇒ no items, totals within
 // budget, bounded item/basis counts. Authorization and fact matching happen in
 // stage/persist — the two SQL CHECKs never replace this.
@@ -118,7 +125,7 @@ export async function persistWeeklyPlan(c:PoolClient,run:Run,prepared:PreparedWe
   const hoursText=Number.isInteger(hours)?String(hours):hours.toFixed(2)
   // P3 (F05/F06): the label names the budget's OWN window - a this-week
   // remainder is never presented as the recurring weekly amount.
-  const windowLabel=budgetWindow==='this'?'本周剩余':budgetWindow==='next'?'下周':'每周'
+  const windowLabel=input.period==='next_week'?'下周':input.period==='this_week'?'本周剩余':budgetWindow==='this'?'本周剩余':budgetWindow==='next'?'下周':'每周'
   const content=windowLabel+'安排（依据已核对的'+windowLabel+hoursText+'小时）：\n'+input.items.map(item=>'- '+item.action+'（'+(item.minutes>=60&&item.minutes%60===0?item.minutes/60+'小时':item.minutes+'分钟')+'）').join('\n')
   const structured={
     schemaVersion:1,

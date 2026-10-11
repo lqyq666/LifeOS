@@ -27,7 +27,7 @@ import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCa
 import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKnowledge, CodeWorkflowError, type CodeWorkflowConfig } from './coze-code-workflow.ts'
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
-import { stageWeeklyPlan } from './weekly-plans.ts'
+import { stageWeeklyPlan, renderProposedWeeklyPlan } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
 import { scanUserClauses } from './user-command-spans.ts'
@@ -529,6 +529,9 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         planInput.availableMinutes=planObligation.minutes
       }
       staged.weeklyPlan=await stageWeeklyPlan(run,planInput,{user:run.user_id,expectedControlSnapshotKey:expectedControlKey,effectiveBlockedScopes:blockedDirectionScopes})
+      // A plan's visible period and totals come from the same validated
+      // structure that is persisted, not free prose recalling an older week.
+      if(!boundedReply)result.reply=renderProposedWeeklyPlan(planInput)
     }
     const checkedCitations=await validateCoachCitations(result.reply,result.citations??[],knowledge,current.content,messages.filter(row=>row.role==='user').map(row=>row.content))
     result.reply=checkedCitations.text

@@ -2,11 +2,20 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs'
 import {createHash} from 'node:crypto'
-import {realBatchPreflight,executeRealBatch,realMetrics,startRealAcceptanceHttp,selectRealPilotCases} from '../../scripts/workflow-real-batch.ts'
+import {realBatchPreflight,executeRealBatch,realMetrics,startRealAcceptanceHttp,selectRealPilotCases,readRepairPilotCases} from '../../scripts/workflow-real-batch.ts'
 import {createServer} from 'node:http'
 import {feedbackMatchesCurrent,classifyGuideFeedback} from '../../server/guide-usage.ts'
 import {pool} from '../../server/db.ts'
 test.after(()=>pool.end())
+test('new repair pilot is pinned before dispatch and cannot substitute the final cohort',()=>{
+ const path='.planning/research/workflow-integration/REPAIR_PILOT_CONTACT_TIME_20261011.json',sha256=createHash('sha256').update(readFileSync(path)).digest('hex'),auth={smallOrdinaryOnly:true,repairPilotInput:{path,sha256}}
+ const cases=readRepairPilotCases(auth)!
+ assert.equal(cases.length,7);assert.equal(cases[3]!.session,cases[4]!.session)
+ assert.throws(()=>readRepairPilotCases({...auth,smallOrdinaryOnly:false}),/SCOPE_INVALID/)
+ assert.throws(()=>readRepairPilotCases({...auth,repairPilotInput:{path,sha256:'wrong'}}),/HASH_INVALID/)
+ assert.throws(()=>readRepairPilotCases({...auth,repairPilotInput:{path:'../other.json',sha256}}),/SCOPE_INVALID/)
+ assert.equal(readRepairPilotCases({}),null)
+})
 test('complex pilot selects one two-direction and one three-direction case without reissuing ordinary calls',()=>{
  const pairs=[{caseId:'two',directions:['employment','freelance']},{caseId:'three',directions:['employment','freelance','postgraduate_exam']}],ordinary=[{caseId:'ordinary1'},{caseId:'ordinary2'},{caseId:'ordinary3'}]
  const pilot=selectRealPilotCases({smallComplexOnly:true},pairs,ordinary)
