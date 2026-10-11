@@ -72,6 +72,12 @@ test('persisted V19 natural boundary failures repair authoritative state across 
   assert.match(recall.text,/校内邮箱/);assert.doesNotMatch(recall.text,/先确认你想停止/)
   assert.equal((await growthContext(other,otherChat)).length,countBeforeRecall,'production compound recall must not create a goal or fact')
   assert.ok((await listControlRequests(other)).some(x=>x.status==='pending'),'recall cannot resolve the stop request implicitly')
+  const discoveryConversation=randomUUID();await store.createConversation(other,{id:discoveryConversation,title:'SYNTHETIC unpromised usage'})
+  const discoveryRun=(await store.startRun(other,discoveryConversation,randomUUID(),'换件新事。我是成年大学生，想了解同学选课的麻烦，还没访谈，也没有人承诺使用工具。怎样开始了解？')).run
+  const discoveryInput={run:discoveryRun,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(discoveryRun),decision:null,signal:new AbortController().signal,emit:()=>{}}
+  const discovery=await createTurnEngine({capabilityVerified:()=>true})(discoveryInput);await store.finishRun(discoveryRun,discoveryInput.staged,discovery.text,discovery.usage,discoveryInput.signal)
+  const promise=(await growthContext(other,discoveryConversation)).find(x=>x.text==='也没有人承诺使用工具')
+  assert.ok(promise);assert.equal(promise.kind,'context');assert.equal(promise.assertion,'user_reported');assert.ok(!promise.feedbackEvidence||promise.feedbackEvidence.outcomes.adoption.status==='unknown')
  }finally{model.baseUrl=oldURL;config.apiKey=oldKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()))}
 })
 test('actual routine-capacity source cannot borrow a later weekly cutoff',async()=>{

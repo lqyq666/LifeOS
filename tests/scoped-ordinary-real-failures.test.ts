@@ -63,5 +63,6 @@ test('R3 actual failures: unattempted choices cannot open experience and invalid
  assert.equal(deriveTurnContract({text:introduction,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}).capabilities.growth,true,'a following question must not erase the earlier personal pursuit and negative fact')
  assert.ok(negativePersonalFactClauses(introduction).some(c=>c.text==='目前还没联系'))
  assert.equal(taskOutcomeReadback('也没有人承诺使用工具',undefined,true).adoption.status,'unknown','a missing promise is not evidence of actual non-use')
+  assert.ok(negativePersonalFactClauses('我是成年大学生，想了解同学选课的麻烦，还没访谈，也没有人承诺使用工具。怎样开始了解？').some(c=>c.text==='也没有人承诺使用工具'),'the supplied absence of a usage promise must not depend on provider extraction')
  assert.equal(taskOutcomeReadback('但还没有用过我做的东西',undefined,true).adoption.status,'reported_not_used')
 })

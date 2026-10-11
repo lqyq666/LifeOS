@@ -68,7 +68,8 @@ export function negativePersonalFactClauses(text:string){
   const own=anchorablePersonalClauses(text)
   return own.filter(clause=>negativePersonalFact.test(clause.text)||
     (/^(?:目前|现在|暂时|也)?(?:没(?:有)?|尚未|未)(?:客户|接过单|接单)/.test(clause.text)&&own.some(c=>c.sentenceStart===clause.sentenceStart&&/我|本人/.test(c.text)))||
-    (/^(?:但|也|目前|现在)?(?:还|仍)?(?:没(?:有)?|尚未|还未|未)(?:开始|动手|问|访谈|联系|回答|复习|准备|完成)/.test(clause.text)&&own.some(c=>c.sentenceStart===clause.sentenceStart&&/我|本人/.test(c.text))))
+    (/^(?:但|也|目前|现在)?(?:还|仍)?(?:没(?:有)?|尚未|还未|未)(?:开始|动手|问|访谈|联系|回答|复习|准备|完成)/.test(clause.text)&&own.some(c=>c.sentenceStart===clause.sentenceStart&&/我|本人/.test(c.text)))||
+    (/^(?:但|也)?(?:还)?(?:没(?:有)?|尚未|未)人(?:承诺|答应)(?:使用|采用|用)/.test(clause.text)&&own.some(c=>c.sentenceStart===clause.sentenceStart&&/我|本人/.test(c.text))))
 }
 export function reportedPursuitClauses(text:string){
  const own=anchorablePersonalClauses(text)
