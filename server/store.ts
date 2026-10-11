@@ -12,7 +12,7 @@ import { persistCoachEvent, invalidateCoachSources, assertCoachEvidence, coachEv
 import { assertCoachKnowledge, type CoachKnowledgeRef } from './coach-knowledge.ts'
 import {persistGuideUsage,type GuideUsage} from './guide-usage.ts'
 import { assertGrowthSnapshot, persistGrowthUpdates, growthView, type GrowthStaged } from './growth.ts'
-import { persistDirectionControls, readDirectionControls, directionControlsSnapshotKey, type PreparedDirectionControls } from './growth-controls.ts'
+import { persistDirectionControls, readDirectionControls, directionControlsSnapshotKey, directionScopeLabel, type PreparedDirectionControls } from './growth-controls.ts'
 import { persistMemoryControl, persistPendingControlRequest, type MemoryControlReceipt, type PendingMemoryControl, type StagedMemoryControl } from './memory-controls.ts'
 import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
 import { derivePatternProposals } from './experience-patterns.ts'
@@ -479,15 +479,17 @@ export async function cognitionGraph(user:string) {
   const changeEvents=(await pool.query("SELECT subject_type,subject_id,transition,reason,committed_at,user_confirmation,unknowns,old_snapshot FROM identity_change_events WHERE user_id=$1 ORDER BY committed_at DESC LIMIT 12",[user])).rows
   // “下一步”只来自当前有效事实：最旧的进行中追求或最新行动重点；没有就空。
   const nextStepRow=(await pool.query("SELECT title FROM user_themes WHERE user_id=$1 AND status='active' ORDER BY pinned DESC, updated_at DESC LIMIT 1",[user])).rows[0]
-  const starmapNextStep=nextStepRow?`当前最优先：${nextStepRow.title}（本人设定）`:''
+  const pausedThemeLabels=new Set((await readDirectionControls(user)).filter(control=>control.state==='paused').map(control=>directionScopeLabel(control.scope)))
+  const starmapNextStep=nextStepRow&&!pausedThemeLabels.has(nextStepRow.title)?`当前最优先：${nextStepRow.title}（本人设定）`:''
   const nodes=[self] as any[]
   const themes=(await pool.query("SELECT * FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC",[user])).rows
   const edges:any[]=[]
   const THEME_KIND_LABEL:Record<string,string>={goal:'目标',pursuit:'阶段追求',valued_point:'重视点',interest:'兴趣探索'}
   for(const theme of themes.slice(0,3)){
     const nodeId='theme-'+theme.id
-    nodes.push({id:nodeId,type:'value',title:theme.title,description:`${THEME_KIND_LABEL[theme.kind]??theme.kind} · ${theme.status==='pending'?'待核对':'进行中'}
-${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.kind,themeStatus:theme.status,themePinned:theme.pinned,themeRevision:theme.revision,themeUpdatedAt:theme.updated_at.toISOString(),media:[]} as any)
+    const effectiveThemeStatus=pausedThemeLabels.has(theme.title)?'paused':theme.status
+    nodes.push({id:nodeId,type:'value',title:theme.title,description:`${THEME_KIND_LABEL[theme.kind]??theme.kind} · ${effectiveThemeStatus==='paused'?'已暂停推荐':effectiveThemeStatus==='pending'?'待核对':'进行中'}
+${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.kind,themeStatus:theme.status,recommendationBoundary:pausedThemeLabels.has(theme.title)?'direction_paused':null,themePinned:theme.pinned,themeRevision:theme.revision,themeUpdatedAt:theme.updated_at.toISOString(),media:[]} as any)
     // createGraph requires every value node to carry the self root link.
     edges.push({id:'has-'+theme.id,type:'HAS_VALUE',sourceId:self.id,targetId:nodeId,status:'confirmed_structure'} as any)
   }

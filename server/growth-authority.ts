@@ -12,6 +12,7 @@ import type { GrowthInputDelta, ResolvedGrowthDelta, ResolvedGrowthTarget } from
 import type { CorrectionPlan } from './turn-obligations.ts'
 import {applicableTimeBudget} from './turn-obligations.ts'
 import {conversationPreferenceClause,currentConversationOnly,deferredPursuitClause} from './user-command-spans.ts'
+import {reportedPursuitClauses} from './turn-contract.ts'
 
 export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null;status?:string}
 
@@ -102,6 +103,7 @@ export function resolveGrowthDeltas(input:{
     const legacyValidUntil=typeof expiry==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(expiry)?expiry:undefined
     if('validUntil'in deltaWithoutExpiry)delete deltaWithoutExpiry.validUntil
     const next:ResolvedGrowthDelta={...deltaWithoutExpiry,...(legacyValidUntil?{validUntil:legacyValidUntil}:{}),source:{messageId:input.currentMessageId,quote:clause.text},target:{operation:'create'},...(timeEvidence?{timeEvidence}:{})} as unknown as ResolvedGrowthDelta
+    if(next.assertion==='user_reported'&&next.kind==='context'&&!currentConversationOnly(input.currentText)&&reportedPursuitClauses(input.currentText).some(pursuit=>pursuit.text===clause.text))next.kind='goal'
     // A provider kind is not evidence of an affirmative pursuit. Reports,
     // negative preferences and current feelings retain their words as context.
     if(next.assertion==='user_reported'&&['goal','direction'].includes(next.kind)&&

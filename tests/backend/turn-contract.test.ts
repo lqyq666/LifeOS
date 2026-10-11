@@ -15,7 +15,7 @@ import { importKnowledge, type KnowledgeCard } from '../../server/campus-knowled
 import { localEmbedding } from '../../server/local-embedding.ts'
 import { Value } from 'typebox/value'
 import {readFileSync} from 'node:fs'
-import {boundedOrdinaryReply,boundedPlanningReply} from '../../server/bounded-reply.ts'
+import {boundedOrdinaryReply,boundedPlanningReply,boundedRecallReply} from '../../server/bounded-reply.ts'
 import {knowledgeIntent} from '../../server/evergreen-guide.ts'
 
 test('retained actual knowledge probe candidate is unrepresentable in the ordinary runtime contract',()=>{
@@ -174,7 +174,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
   try{
     // reply_only: schema offers ONLY reply; the turn saves with zero growth writes.
     const meta=await prepare('你记得我之前说过什么吗？')
-    outputs.push({reply:'我这边没有开启跨会话记忆，这次对话里你还没告诉我具体内容。你想先说说哪件事？'})
+    outputs.push({reply:boundedRecallReply('你记得我之前说过什么吗？',[]).choices[0]})
     const metaResult=await engine(meta.input)
     const metaContract=(meta.staged.audit.find((a:any)=>a.phase==='turn_contract')) as any
     assert.equal(metaContract.mode,'reply_only')

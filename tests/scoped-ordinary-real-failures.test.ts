@@ -50,4 +50,7 @@ test('R3 actual failures: unattempted choices cannot open experience and invalid
  ]})
  assert.equal(r.deltas.length,1);assert.equal(r.deltas[0]!.assertion,'user_reported');assert.ok(r.audit.some(a=>a.phase==='growth_observation_unverified_dependency_dropped'))
  assert.ok(negativePersonalFactClauses('我是成年大学生，想整理海报，目前没有客户，也没有接过单。').some(c=>c.text==='目前没有客户'))
+ const introduction='我已成年，目前在读大学，想用校内邮箱请教学长课程项目如何整理成实习作品，目前还没联系。应该先确认什么？'
+ assert.equal(deriveTurnContract({text:introduction,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}).capabilities.growth,true,'a following question must not erase the earlier personal pursuit and negative fact')
+ assert.ok(negativePersonalFactClauses(introduction).some(c=>c.text==='目前还没联系'))
 })

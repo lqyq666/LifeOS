@@ -68,7 +68,11 @@ export function negativePersonalFactClauses(text:string){
   const own=anchorablePersonalClauses(text)
   return own.filter(clause=>negativePersonalFact.test(clause.text)||
     (/^(?:目前|现在|暂时|也)?(?:没(?:有)?|尚未|未)(?:客户|接过单|接单)/.test(clause.text)&&own.some(c=>c.sentenceStart===clause.sentenceStart&&/我|本人/.test(c.text)))||
-    (/^(?:但|也)?(?:还|仍)?(?:没(?:有)?|尚未|还未|未)(?:开始|动手|问|访谈|联系|回答|复习|准备|完成)/.test(clause.text)&&own.some(c=>c.sentenceStart===clause.sentenceStart&&/我|本人/.test(c.text))))
+    (/^(?:但|也|目前|现在)?(?:还|仍)?(?:没(?:有)?|尚未|还未|未)(?:开始|动手|问|访谈|联系|回答|复习|准备|完成)/.test(clause.text)&&own.some(c=>c.sentenceStart===clause.sentenceStart&&/我|本人/.test(c.text))))
+}
+export function reportedPursuitClauses(text:string){
+ const own=anchorablePersonalClauses(text)
+ return own.filter(clause=>/^想(?:要|用|了解)/.test(clause.text)&&own.some(other=>other.sentenceStart===clause.sentenceStart&&/(?:我|本人)/.test(other.text)))
 }
 export function resourceBlockedPersonalFactClauses(text:string){
   // BS_RESOURCE_01: only an explicit resource of the speaker's current course.
@@ -135,7 +139,7 @@ export function deriveTurnContract(input:{
   // A question-dominated turn (at least one question, no clause asserting a
   // first-person fact) cannot carry new personal records.
   const factBearingClause=new RegExp('我[^，。！？\\n]{0,8}(?:是|在|有|会|能|要|想|做|读|学|喜欢|决定|准备|报|考|找|投|写|交|发|参加|实习|社团|科研|项目|课|专业|大三|大四|大二|大一|研一|研二|每周|小时|岁)|[0-9一二两三四五六七八九十]+(?:小时|天|周|个月)')
-  const hasPersonalFact=negativePersonalFactClauses(input.text).length>0||resourceBlockedPersonalFactClauses(input.text).length>0||clauses.some(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!conversationPreferenceClause(clause.text)&&!/^(?:请)?只(?:按|依据|区分|回顾|说明|回答)/.test(clause.text)&&factBearingClause.test(clause.text))
+  const hasPersonalFact=reportedPursuitClauses(input.text).length>0||negativePersonalFactClauses(input.text).length>0||resourceBlockedPersonalFactClauses(input.text).length>0||clauses.some(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!conversationPreferenceClause(clause.text)&&!/^(?:请)?只(?:按|依据|区分|回顾|说明|回答)/.test(clause.text)&&factBearingClause.test(clause.text))
   const supportOnly=currentConversationOnly(input.text)
   // A how-to/method/recommendation question is knowledge-seeking: the
   // citations lane must stay open even though no personal fact is asserted.

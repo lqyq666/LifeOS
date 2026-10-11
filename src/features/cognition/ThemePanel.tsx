@@ -38,7 +38,7 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
     <div className="record-body">
       <header className="record-header">
         <button ref={close} onClick={onClose} aria-label="关闭主题详情，返回原位">返回</button>
-        <span className="theme-kinds">{KIND_LABELS[node.themeKind ?? 'pursuit'] ?? '主题'}{node.themeStatus === 'pending' ? ' · 待核对' : ''}{node.themePinned ? ' · 已置顶' : ''}</span>
+        <span className="theme-kinds">{KIND_LABELS[node.themeKind ?? 'pursuit'] ?? '主题'}{node.themeStatus === 'pending' ? ' · 待核对' : ''}{(node as any).recommendationBoundary === 'direction_paused' ? ' · 已暂停主动推荐' : ''}{node.themePinned ? ' · 已置顶' : ''}</span>
       </header>
       <main className="record-content">
         <h2 id="theme-title">{node.title}</h2>
