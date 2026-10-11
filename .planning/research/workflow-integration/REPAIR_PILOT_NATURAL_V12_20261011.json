@@ -1,0 +1,44 @@
+{
+  "kind": "PREDECLARED_NEW_FIRST_REAL_REPAIR_SET",
+  "historicalFirstFailuresPreserved": true,
+  "notReplacement": true,
+  "independentReview": "REQUIRED",
+  "cases": [
+    {
+      "caseId": "NC12_PRIORITY",
+      "session": 0,
+      "input": "我本周先处理课程，课程优先，只有七十分钟可用。",
+      "expected": "Own course priority and this-week 70-minute budget persist independently; no freelance action."
+    },
+    {
+      "caseId": "NC12_NOT_STARTED",
+      "session": 0,
+      "input": "我还没有开始这次高数复习，老师的课件链接打不开。",
+      "expected": "Non-action and material obstacle are context only; no completed experience."
+    },
+    {
+      "caseId": "NC12_ATTEMPT",
+      "session": 1,
+      "input": "我已经尝试这次高数复习，但遇到第二道题卡住了。",
+      "expected": "Actual attempt becomes blocked contribution; identical prior non-action paused, original source retained; current question branch."
+    },
+    {
+      "caseId": "NC12_OTHER_TASK",
+      "session": 1,
+      "input": "我还没有开始另一门英语课复习。",
+      "expected": "Different similar matter remains unstarted; no merge or prior-task rollback."
+    },
+    {
+      "caseId": "NC12_ZERO_LISTEN",
+      "session": 2,
+      "input": "我这周零分钟可用，先别分析创业了，只想说说近况。",
+      "expected": "Zero time persisted; startup paused; bounded listening no plan or invented emotion."
+    },
+    {
+      "caseId": "NC12_NEW_SESSION",
+      "session": 3,
+      "input": "还是刚才的高数复习，这周的零时间不变，我先不继续做题了，先听我说。",
+      "expected": "Respects pause and zero availability, no new action or false completion; preserves actual attempt history."
+    }
+  ]
+}

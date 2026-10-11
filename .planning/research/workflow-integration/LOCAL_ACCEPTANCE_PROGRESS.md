@@ -408,6 +408,8 @@ Actual theme retirement bug: projectUserThemes removed the trailing 了 before c
 
 2026-10-11 17:20左右上线修复增量：当前2cac0e8四条真实链24轮全部技术完成，独立六轴四链仍fail，完整原件/报告保留。新增状态投影只从同账号有效原话补同一事件，不把相似联系人合并；旧“已读/未采用”更正后不会复活。共享已完成判断拒绝没有开始，stageCandidate同样拒绝恶意模型非行动候选；已付款单列、课程优先不再推动旧接单、只想说说压力进入有界倾听，先别分析创业进入原方向暂停通道。19局部首次/最终相关单元、隔离PG同事件跨消息及更正读回、类型/build通过；原44引擎首次因旧倾听夹具不满足新合法回复而失败并连锁busy，原证据保留，夹具表达按新契约调整后44通过。扣子原项目59792035原生图真实首次2调用后source_invalid，已按原账本结算已知使用、取消调用未知预留保留，未派发2节点真实确认零派发；平台24积分未知预留，原池可用73，无新增预算。正常公网Gateway仍未通过；R20拟补动态选择约束，不把云开发原生图等同公开接口或发布。WIP_NOT_READY，无生产发布。
 
-### 2026-10-11 17:46 latest real launch repair
+### 2026-10-11 17:34 latest real launch repair
 
 V11 all 8 first real synthetic-adult samples retained; independent BLOCKED_RETAINED with three state defects. Current changes persist omitted course priority, keep explicit zero time during listening without authorizing a plan, record actual attempts as blocked contributions and pause only the identical prior non-action matter. Targeted current PostgreSQL readback passed; unit 28 passed, server typecheck and UI build passed. All three earlier targeted failures retained in private logs. Coze R20 actual cloud 2d29655f428d731a5e7b6c45c634f808ff10fb60 compiled and four fresh-process free checks passed; no new paid native dispatch yet. Core launch remains WIP_NOT_READY.
+
+Timestamp corrected from machine UTC clock 09:34:40 UTC. V12 new six cases predeclared; prior samples remain original failures, exposed regression only.
