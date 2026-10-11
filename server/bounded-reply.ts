@@ -4,6 +4,16 @@ import type {TurnContract} from './turn-contract.ts'
 
 export type BoundedReply={basis:'editorial_adaptation';sourceStatus:'NO_PUBLIC_METHOD'|'PUBLIC_METHOD_NOT_USED';stage:'start'|'blocked'|'waiting_result'|'adopted'|'reported_result';choices:string[];nextUnknown:string}
 
+// This is a budget boundary for a proposed plan, not a source-backed method or
+// an assertion that tasks have been chosen, saved, executed or effective.
+export function boundedPlanningReply(budget:{minutes:number;period:'current'|'this_week'|'next_week'}):BoundedReply{
+ const period=budget.period==='next_week'?'下周':budget.period==='this_week'?'本周':'当前安排时段'
+ return {basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'具体任务仍是候选安排；执行及效果需要实际反馈',choices:[
+  `先只安排${period}，把任务总投入控制在你明确的${budget.minutes}分钟以内。具体任务是待你选择的建议，执行和效果仍待反馈。`,
+  `先把${period}的可用时间与其他时段分开，以你报告的${budget.minutes}分钟为上限，不要求用满。具体安排尚待你选择，实际执行后再复盘。`,
+ ]}
+}
+
 // An ordinary action question with no authorized public method may select a
 // small editorial action or a process question. The model cannot add a cause,
 // effect claim, deadline, number or personal fact to the selected reply.

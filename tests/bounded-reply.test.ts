@@ -1,6 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {boundedOrdinaryReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts} from '../server/bounded-reply.ts'
+import {boundedOrdinaryReply,boundedPlanningReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts} from '../server/bounded-reply.ts'
+
+test('planning first content is bound to the verified period and budget, never a saved or executed claim',()=>{
+ const bounded=boundedPlanningReply({minutes:180,period:'next_week'})
+ const first=safeEarlySentence(JSON.stringify({reply:bounded.choices[0]}))!
+ assert.match(first,/下周.*180分钟以内/)
+ assert.equal(boundedSentenceAccepts(first,bounded),true)
+ assert.equal(boundedSentenceAccepts(first.replace('下周','本周'),bounded),false)
+ assert.equal(boundedReplyAccepts('已经保存并执行三小时的复习安排。',bounded),false)
+})
 import {safeEarlySentence} from '../server/reply-draft.ts'
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
 import {deriveTurnContract} from '../server/turn-contract.ts'

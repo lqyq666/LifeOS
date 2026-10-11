@@ -44,7 +44,7 @@ import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.t
 import { readRecommendationControls } from './memory-controls.ts'
 import {knowledgeIntent,deduplicateGuides,methodPromptContext} from './evergreen-guide.ts'
 import {readGuideUsage,classifyGuideFeedback,feedbackMatchesCurrent} from './guide-usage.ts'
-import {boundedOrdinaryReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts,type BoundedReply} from './bounded-reply.ts'
+import {boundedOrdinaryReply,boundedPlanningReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts,type BoundedReply} from './bounded-reply.ts'
 export type FocusContext={type:'theme'|'experience';id:string;label:string}
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void;focusContext?:FocusContext|null}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
@@ -407,7 +407,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const planBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
   const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,currentEventExists:currentEvent!==null,planIntent,material:materialIntent}),planBudget?.type==='weekly_plan'?planBudget:undefined)
   const zeroBudgetChoices=(originalContract.schema.properties as any).reply.enum as string[]|undefined
-  const boundedReply:BoundedReply|null=planBudget?.type==='weekly_plan'&&planBudget.minutes===0?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'可用时间改变后再调整；不重复询问明确零时间',choices:zeroBudgetChoices!}:boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier})
+  const boundedReply:BoundedReply|null=planBudget?.type==='weekly_plan'&&planBudget.minutes===0?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'可用时间改变后再调整；不重复询问明确零时间',choices:zeroBudgetChoices!}:planBudget?.type==='weekly_plan'&&route.tier==='default'&&!materialIntent?boundedPlanningReply(planBudget):boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier})
   const contract=bindBoundedReplySchema(originalContract,boundedReply)
   // G4 mode-aware history selection: bound the raw dialogue the model reads
   // (the DB and structured lanes keep everything). The current message is
@@ -531,7 +531,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       staged.weeklyPlan=await stageWeeklyPlan(run,planInput,{user:run.user_id,expectedControlSnapshotKey:expectedControlKey,effectiveBlockedScopes:blockedDirectionScopes})
       // A plan's visible period and totals come from the same validated
       // structure that is persisted, not free prose recalling an older week.
-      if(!boundedReply)result.reply=renderProposedWeeklyPlan(planInput)
+      if(!boundedReply||planInput.availableMinutes>0)result.reply=renderProposedWeeklyPlan(planInput)
     }
     const checkedCitations=await validateCoachCitations(result.reply,result.citations??[],knowledge,current.content,messages.filter(row=>row.role==='user').map(row=>row.content))
     result.reply=checkedCitations.text

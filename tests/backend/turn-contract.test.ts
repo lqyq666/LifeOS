@@ -15,7 +15,7 @@ import { importKnowledge, type KnowledgeCard } from '../../server/campus-knowled
 import { localEmbedding } from '../../server/local-embedding.ts'
 import { Value } from 'typebox/value'
 import {readFileSync} from 'node:fs'
-import {boundedOrdinaryReply} from '../../server/bounded-reply.ts'
+import {boundedOrdinaryReply,boundedPlanningReply} from '../../server/bounded-reply.ts'
 import {knowledgeIntent} from '../../server/evergreen-guide.ts'
 
 test('retained actual knowledge probe candidate is unrepresentable in the ordinary runtime contract',()=>{
@@ -177,12 +177,16 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
     await t.test('planning turn keeps weeklyPlan and persists the plan',async()=>{
       await pool.query('SELECT 1')
       const plan=await prepare('我每周有三小时，帮我安排一下下周。')
-      outputs.push({reply:'下周按每周三小时安排。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:180,period:'next_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品',minutes:180,directionScopes:['employment']}]}})
+      const drafts:any[]=[];plan.input.emit=event=>drafts.push(event)
+      outputs.push({reply:boundedPlanningReply({minutes:180,period:'next_week'}).choices[0],growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:180,period:'next_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品',minutes:180,directionScopes:['employment']}]}})
       const planResult=await engine(plan.input)
       const planContract=(plan.staged.audit.find((a:any)=>a.phase==='turn_contract')) as any
       assert.equal(planContract.mode,'planning')
       const lanes=Object.keys((requests.at(-1)!.response_format.json_schema.schema.properties)).sort()
       assert.deepEqual(lanes,['growthUpdates','reply','weeklyPlan'])
+      assert.ok(drafts.some(d=>d.type==='draft'&&d.draftKind==='safe_sentence'&&d.text.includes('下周')))
+      assert.match(planResult.text,/下周建议安排.*180分钟/)
+      assert.match(planResult.text,/整理作品（180分钟）/,'final content includes actual validated tasks, not just a budget acknowledgement')
       const saved=await store.finishRun(plan.run,plan.staged,planResult.text,planResult.usage,new AbortController().signal)
       assert.equal(saved.growthIds.length,1)
       assert.ok(saved.stateChange.plan,'plan persisted')
