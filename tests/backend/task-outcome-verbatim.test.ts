@@ -188,5 +188,24 @@ test('omitted read/response/adoption reports persist independently and remain in
   assert.equal(genericExperience.taskOutcomes.read.status,'reported_read')
   assert.equal(genericExperience.taskOutcomes.response.status,'reported_no_response')
   for(const outcome of ['adoption','payment','effect'])assert.equal(genericExperience.taskOutcomes[outcome].status,'unknown')
+  const interviewUser='interview-'+randomUUID(),interviewChat=randomUUID()
+  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[interviewUser,interviewUser+'@example.invalid'])
+  await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1)',[interviewUser])
+  await store.createConversation(interviewUser,{id:interviewChat,title:'synthetic interview source guards'})
+  const interviewStart='我想探索校园项目，先了解同学实际遇到的麻烦，怎么开始？'
+  const interviewOpen=(await store.startRun(interviewUser,interviewChat,randomUUID(),interviewStart)).run,interviewStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:boundedOrdinaryReply({text:interviewStart,intent:knowledgeIntent(interviewStart),contract:deriveTurnContract({text:interviewStart,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0],growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:'c0'}},{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:'c2'}}]})
+  const interviewOpened=await engine({run:interviewOpen,staged:interviewStaged,context:await store.contextForRun(interviewOpen),decision:null,signal:new AbortController().signal,emit:()=>{}})
+  await store.finishRun(interviewOpen,interviewStaged,interviewOpened.text,interviewOpened.usage,new AbortController().signal)
+  assert.ok(!(await growthView(interviewUser,interviewChat)).items.some(i=>i.text==='怎么开始'))
+  assert.ok((await growthView(interviewUser,interviewChat)).items.some(i=>i.text==='我想探索校园项目'))
+  const interviewDone='我已经访谈了一名同学，他说有兴趣，但尚未采用，也没有付款。'
+  const interviewRun=(await store.startRun(interviewUser,interviewChat,randomUUID(),interviewDone)).run,interviewDoneStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:boundedOrdinaryReply({text:interviewDone,intent:knowledgeIntent(interviewDone),contract:deriveTurnContract({text:interviewDone,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
+  const interviewResult=await engine({run:interviewRun,staged:interviewDoneStaged,context:await store.contextForRun(interviewRun),decision:null,signal:new AbortController().signal,emit:()=>{}})
+  await store.finishRun(interviewRun,interviewDoneStaged,interviewResult.text,interviewResult.usage,new AbortController().signal)
+  const interviewExperience=(await store.cognitionGraph(interviewUser)).nodes.find((n:any)=>n.type==='experience') as any
+  assert.equal(interviewExperience.taskOutcomes.response.status,'reported_response')
+  for(const dimension of ['read','effect'])assert.equal(interviewExperience.taskOutcomes[dimension].status,'unknown')
  }finally{model.baseUrl=oldUrl;config.apiKey=oldKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()));await localEmbedding.close();await pool.end()}
 })

@@ -76,7 +76,7 @@ export function reportedTaskOutcomeClauses(text:string){
   // An actual task of the speaker must precede any participant observation.
   // Reported speech by that participant stays a report, never a verified effect.
   if(!clauses.some(c=>!c.attributedToOther&&/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|交给|提交|访谈|聊过|问了|问过)/.test(c.text)))return []
-  return clauses.filter(c=>/^(?:对方|客户|学长|导师|他们|她们|他|她|费用)?(?:说|觉得)?(?:[一二三四五六七八九十两\d]+(?:天|周|小时|分钟))?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来|看过|读过|已读)/.test(c.text)&&/(?:读了|读过|看过|已读|回复|回应|没回|采用|使用|用了|没用|付款|付费|没付|感兴趣|有意思)/.test(c.text))
+  return clauses.filter(c=>/^(?:对方|客户|学长|导师|他们|她们|他|她|费用)?(?:说|觉得)?(?:[一二三四五六七八九十两\d]+(?:天|周|小时|分钟))?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来|看过|读过|已读|有兴趣)/.test(c.text)&&/(?:读了|读过|看过|已读|回复|回应|没回|采用|使用|用了|没用|付款|付费|没付|感兴趣|有兴趣|有意思)/.test(c.text))
 }
 export function reportedPerformedTaskClauses(text:string){
  return anchorablePersonalClauses(text).filter(c=>/(?:我|本人)/.test(c.text)&&/(?:发出去了|发了|交给.{0,10}了|交付了|提交了|问了|问过|聊过|访谈了|已经尝试|尝试了|试做了|开始尝试)/.test(c.text)&&!/(?:想|打算|准备|如果|还没|没有|尚未|未曾|没)(?:.{0,8})(?:发出|发了|交给|交付|提交|问|聊|访谈|尝试|试做)/.test(c.text))
@@ -90,6 +90,7 @@ export function taskOutcomeReadback(text:string,authorizedQuotes?:ReadonlySet<st
   const q=c.text
   if(/读了|读过|看过|已读/.test(q))result.read={status:'reported_read',quote:q}
   if(/(?:没(?:有)?|尚未|还未|未)(?:回复|回应)|没回/.test(q))result.response={status:'reported_no_response',quote:q}
+  else if(/^(?:对方|客户|学长|导师|他们|她们|他|她)(?:说|觉得)/.test(q)||/(?:已经|已)(?:回复|回应)|回复了|回应了/.test(q))result.response={status:'reported_response',quote:q}
   if(/(?:没(?:有)?|尚未|还未|未).{0,6}(?:采用|使用|用过|用了)|还没用/.test(q))result.adoption={status:'reported_not_used',quote:q}
   else if(/(?:已经|已).{0,3}(?:采用|使用|用了)/.test(q))result.adoption={status:'reported_used',quote:q}
   if(/(?:没(?:有)?|尚未|还未|未)(?:付款|付费|付)|还没付/.test(q))result.payment={status:'reported_unpaid',quote:q}

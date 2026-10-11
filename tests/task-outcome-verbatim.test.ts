@@ -6,6 +6,7 @@ import {conversationPreferenceClause,deferredPursuitClause} from '../server/user
 import {pursuitLevel} from '../server/user-themes.ts'
 import {isBlockedExperience} from '../server/starmap-enrichment.ts'
 import {clauseReportsCompleted} from '../server/experience-content.ts'
+import {buildClauseCatalogue} from '../server/clause-catalogue.ts'
 test('actual task observations retain separate read, response and adoption statements without importing a public case',()=>{
  const text='我通过学校邮箱请教学长甲，原请求是了解项目课。对方已经读了，但没有回复，也没有采用。'
  assert.deepEqual(reportedTaskOutcomeClauses(text).map(c=>c.text),['对方已经读了','但没有回复','也没有采用'])
@@ -45,4 +46,17 @@ test("similar messages with an explicitly different participant cannot update th
  const source="我通过学校邮箱向学长甲发了项目课能否提供实习作品的问题"
  const other="我通过学校邮箱请教学长乙，原请求是想知道项目课能否提供实习作品。对方已经读了。"
  assert.equal(findEpisode([{id:"own",source_quote:source,content:{}}],other,"我通过学校邮箱请教学长乙",""),null)
+})
+
+test('a question after an exploration statement is not a fact; interest is a reported response only',()=>{
+ const clauses=buildClauseCatalogue('我想探索校园项目，先了解同学实际遇到的麻烦，怎么开始？')
+ assert.equal(clauses[0]!.interrogative,false)
+ assert.equal(clauses[2]!.interrogative,true)
+ const outcomes=taskOutcomeReadback('我已经访谈了一名同学，他说有兴趣，但尚未采用，也没有付款。')
+ assert.deepEqual(outcomes.response,{status:'reported_response',quote:'他说有兴趣'})
+ assert.equal(outcomes.read.status,'unknown')
+ assert.equal(outcomes.adoption.status,'reported_not_used')
+ assert.equal(outcomes.payment.status,'reported_unpaid')
+ assert.equal(outcomes.effect.status,'unknown')
+ for(const text of ['案例里学生访谈同学，他说有兴趣。','如果我访谈同学，他说有兴趣。','我访谈了一名同学，他有没有回复？'])assert.equal(taskOutcomeReadback(text).response.status,'unknown',text)
 })

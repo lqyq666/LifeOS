@@ -117,7 +117,7 @@ export function scanUserClauses(text:string):UserClause[]{
       quoteSpans:protectedRanges.filter(range=>range.kind==='quote'&&range.start>=clauseStart&&range.end<=end).map(range=>({start:range.start,end:range.end})),
       codeSpans:protectedRanges.filter(range=>range.kind==='code'&&range.start>=clauseStart&&range.end<=end).map(range=>({start:range.start,end:range.end})),
     }
-    clause.interrogative=interrogativeMarkers.test(body.trim())
+    clause.interrogative=/[?？]/.test(delimiter)||interrogativeMarkers.test(body.trim())||/^(?:那|现在|接下来)?(?:怎么|如何|怎样|从哪)(?:开始|做|聊|准备|安排|处理|选)/.test(body.trim())
     // A clause that is ITSELF the realistic statement after the conditional /
     // attribution prefix resets the sentence state before being recorded, so
     // 如果压力太大再说，现在先暂停考研 treats the second clause as the user's own.
