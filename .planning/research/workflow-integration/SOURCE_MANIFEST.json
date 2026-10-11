@@ -1,24 +1,28 @@
 {
   "schemaVersion": 6,
-  "version": "workflow-v2-integration-0c4ce842100e",
-  "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
-  "codeCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+  "version": "workflow-v2-integration-f437c5b396e5",
+  "head": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+  "codeCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
   "status": "WIP_NOT_READY",
-  "at": "2026-10-10T12:03:20.970250+00:00",
+  "at": "2026-10-11T05:25:09.763Z",
   "baselineManifest": "evidence/retrieval-followup-20261010/baseline-519f/SOURCE_MANIFEST.json",
-  "sourceFingerprint": "0c4ce842100e910aa5d0eba66e35ef7a99fa08af7059a8e4066c6a70698d16a2",
+  "sourceFingerprint": "f437c5b396e59788a2ca04d4df8d83abee3a08ec8ae722d1b434727bbbf45502",
   "fingerprintAlgorithm": "sha256(UTF8 sorted-key compact JSON path-to-sha256 map of committed Git blob bytes)",
   "hashDomain": "COMMITTED_GIT_BLOB_BYTES_BEFORE_WORKTREE_EOL_CONVERSION",
   "scope": "captureCoachSource allowlist bound to committed Git blobs; exact per-process workspace bytes/config and startup digest are frozen separately. CRLF/LF checkout bytes need not be identical.",
   "files": {
     ".dockerignore": "1751b1c26b976abb062f36714a9c06e1d4cfe1ccb920c24b5921c98bcfdc216f",
     ".planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json": "74e3e267c57e880cb58dda697c75d4b4e4fd1d58953b0221be8f753ecc7ec3cb",
-    "AGENTS.md": "430031d99d77eac288bf44b532fd8832f03ce86e90929ab5db2c3a438a52b350",
-    "Dockerfile": "a46d152cf32b11dfc3686f54983f2105e52ecc960f2e5fc0ad28fb2a30575028",
+    ".planning/research/workflow-integration/INDEPENDENT_EXECUTION_BINDINGS.json": "62883dcf2330d8c4a2945f873a9a90c67241b0c50444d5c74bcdbf0288ff4132",
+    ".planning/research/workflow-integration/KB_SIX_R4_FULL_INPUT.json": "43147524695f1efc32a3797cf4cb393bf2f5c1fbb6c7850995654f673f539c91",
+    ".planning/research/workflow-integration/SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13",
+    "AGENTS.md": "b064860641f09ae1f6caaafc4bd595e2f720a86c755755d39aab6caa4977dc3d",
+    "Dockerfile": "25cecf05cc331e44f95cb6e8652628f0d83a4d971a370a19524a427a05f7a5de",
     "PRODUCT.md": "11d9640e63eaf94f3e92be1062c54baaf7305993474ecb0b4c797774b850d16b",
-    "compose.yaml": "85189dd2a8925fdfd3f2d2dbd4a043260ba615311cd658f01a7c960a39863213",
-    "deploy/README.md": "b477f156b1ec1d7f61ef6227fb983af836eebc873cf306de2657946a68b2cae9",
+    "compose.yaml": "96afe47ff39bf9e7f18047c388b48e3deee6b71a8bab73a29cde5c4671dde1c8",
+    "deploy/README.md": "ef7f5dc0636a5ae4096b18988dc6bceec49b625612c9d48fb63096498b053827",
     "deploy/backup.sh": "6afc28ab577e810509cffc16aad9847d07493b6bad1b92a4c43887e1273802ee",
+    "deploy/build-image.ps1": "5ffa11b0cb6f5fb90a6ef94491a4ab6e528a1ab04100953d0296376cdf4c7816",
     "deploy/check-container.mjs": "c9351b7eb6fa1bf7162ef0fa87b5b53a5092f3c734133284e3d79d78e86628fe",
     "deploy/check-embedding.py": "b034c17021a096a8052a8b2a15200d817f6a4cb4c6f5bd0102608c20a1444816",
     "deploy/embedding-wheels.json": "a6902657df4b727d8e8b7be905017e69b797880a93ae33d31455744a456f51d9",
@@ -28,11 +32,26 @@
     "deploy/requirements-embedding.in": "e133ae8934f934f9bec4d30516ed9996ae91b64d0d7e00e5895b623d8c4de889",
     "deploy/requirements-embedding.lock": "8014ff8e61825b52a9674e303e6c94b30cf3d8568c6178474ef1ec997ed4bce9",
     "docs/v1.3-action-coach/OBJECTIVE_V1_3_ACTION_COACH.md": "554f7f60e1eb2330114d781dfe403ccf8b4f68212f58723085e5007d5a929393",
+    "evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json": "dcce306ba9be45e5385d32e910e3b096211af3a25e9306dec956b8de6064ee5c",
+    "evidence/coze-core-launch-20261011/INDEPENDENT_R7_EXECUTION_PROOF.json": "3df55127501e87ed2159a8d507386cbc31be609cd5c5700cbbd0edf299471590",
+    "evidence/coze-core-launch-20261011/INDEPENDENT_R8_EXECUTION_PROOF.json": "d273a4e30d55bb52af0f2a4f82456aabff2bf658cc8210318102837c13360caa",
+    "evidence/coze-core-launch-20261011/KB_R7_FORMAL_RAW.json": "7989f8a55c84708a9c275b9b3eb52d78206b3ab40cac0794be8b3bc129fc9886",
+    "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66",
+    "evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json": "59dca996a5acfd058f657a80339e8d1186f219976b3495bfd5762d6e710b4a7d",
+    "evidence/coze-core-launch-20261011/r7-originals/campus_norm.txt": "5ccd7b854228f3b637a5a577d7ae34e9abda110f985438f84c9d29e079af3812",
+    "evidence/coze-core-launch-20261011/r7-originals/campus_orig.html": "9c7bf0f0c986409e1e4ca94730e7ac0a86a443f0e22f89d66e2370df5ceea536",
+    "evidence/coze-core-launch-20261011/r7-originals/cfpb_income.pdf": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62",
+    "evidence/coze-core-launch-20261011/r7-originals/cfpb_spend.pdf": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+    "evidence/coze-core-launch-20261011/r7-originals/ies_norm.txt": "efed8f7bf5702238aef13d3fcd1d3b26a8c4495512bf258085b2b3fd45c75147",
+    "evidence/coze-core-launch-20261011/r7-originals/ies_orig.html": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+    "evidence/coze-core-launch-20261011/r7-originals/income_p2_norm.txt": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6",
+    "evidence/coze-core-launch-20261011/r7-originals/spend_p1_norm.txt": "ddb371f04aacfc52b142256858d2ef672f285359815d6c323072add069aa28f1",
+    "evidence/coze-core-launch-20261011/r7-originals/spend_p3_norm.txt": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22",
     "evidence/v1.3-action-coach/research/source-verification.json": "3d8d4c76052205057d6326bc10086237d603133f9843ee0bfb89555b2e8e1e30",
     "evidence/v1.3-action-coach/research/verified-method-cards.json": "af79c4244b147c80fec78c10d5701fb3d7c4ac13cbfb47300934e915481f47fc",
     "index.html": "3480efcfa98f27950f9ee0965a2194a41bd9aaa13c07c269dd6040ad19f36bff",
     "package-lock.json": "db0757e53d3ec62d9fe211b296925daa5a5df4292821f992ddc6fe7c2aae0b0b",
-    "package.json": "00e73fd8dfe855c513caac819a352b067333a39443763795c1ae4344d7eabb85",
+    "package.json": "fa38da55f288a514c6f7b0a39a6bd0550dfaa4e9d872dc89108d75422a16cc2e",
     "public/assets/companion/GENERATION.md": "8355df19d95e97dd638bfba71d6f29b1f26703d029368a22dfad56baf3255d3a",
     "public/assets/companion/animations/answering.webp": "9872f25a9e85e8c5e2f1ccc123997d15cddb27fed5cd0ca931ee50445213dd51",
     "public/assets/companion/animations/complete.webp": "b88e583d18a7744a9052eabfaa1d7b58b4f4d3a6138fdba7c6c755c10c4909a3",
@@ -55,22 +74,24 @@
     "scripts/campus-review-extract.mjs": "5b20c6e4a408f0df06cd296c7c0e9f97f0aa08fde01f15dc3c821f3bad1be009",
     "scripts/coach-budget-observer.ts": "43228c76bc186238f4985847a4b4e02ce094840a82cfc4cbbfc2688c180af05e",
     "scripts/coach-history-fixture.ts": "334ff5d45b79a2429d39e20f32efadb2594ba4e0e982e48f60705cc9555a182d",
-    "scripts/coach-provider-budget.ts": "48ed68c88385cb58a22f23d5ebb91f1062a66d2fe776a7dd0144cd7bdbcad02b",
+    "scripts/coach-provider-budget.ts": "b5e0b639cc7b55363874a7ea0e471c1d007756294b69021f17c15abda2d9caad",
     "scripts/coach-recovery-action.ts": "4ab2341121d9490f383a5c1329784078d248af9483e00c2b29ca712257c1783d",
     "scripts/coach-service-test-preload.ts": "df9ee43f3530761efcceafc07de79f34e3006bd4e8eb7e4d66b17fcaf3e7d7d5",
-    "scripts/coach-source-freeze.ts": "baca32b0603e06ac6a0aabeeae735837f85ec455f3a5c41feb0c272ff4e62295",
+    "scripts/coach-source-freeze.ts": "d8b0407e6b45ff85c3911acf9d140b30e5a696a87f714d39375b8f6fb62a2b20",
     "scripts/coach-stream-evidence.ts": "201c0a67edc7f05f7586440d3ece65f3aefa9a182fd1b8f85db291ea87a3e0d2",
     "scripts/compare-campus-models.ts": "fd6d0bef8475b1835acfd9591a741aa7c1cfaa1a0c40dd4a11de8630824cbc7e",
     "scripts/compare-coach-model.ts": "ddd6009de83705d37b8e3a1343db12c4dfe7bb982fc7e652c7c58693455d21d4",
     "scripts/compare-coze-retrieval.ts": "89ef1c66347bdf5d08bc1adc099180e0daab101c098811555b95614738f08854",
     "scripts/coze-access-audit.ps1": "737455f85b489c23b298a029268a1f2ecaaba561302cc4d16e79850ad294474f",
+    "scripts/coze-credit-budget.ts": "d1e5ef8a90865c7789479b6dfe143bd54efa3f1e33ac6eed9eb7bb1a26ccadf6",
+    "scripts/coze-host-permit.ts": "40eebfb1efc471a5bbc30a6217367af9ca74aa0260af9fc910512147817548aa",
     "scripts/coze-prepare-mirror.ts": "a02ccfab2c3f39300c397bd53d4910b2a64c3aa448949cf9183d3205411017f5",
     "scripts/create-user.ts": "cde7d8225ca936202ee1186c642adb407e439bbc91d14e0b5b9a678c7a30cadb",
     "scripts/diagnose-coach-material.ts": "84845f3c0edd7a715cc586393a5f998f1b8f50eac7ab882c10dd35eccc113828",
     "scripts/evergreen-audit.ts": "b624d4ae117dd7e4b80ca59f054f02dcef51be477ec6b1b9f6da0b4e2fb588bd",
     "scripts/evergreen-batch-content.ts": "97a4a5d3349804a7e269bb0496c4477f579d37d87acff62ae9c371d94e0f3bb5",
     "scripts/evergreen-batch-sources.ts": "8edf2ec6c5f42e0194564a62dee0ddb5f55556cf53447c8cd96896ccc83775fa",
-    "scripts/evergreen-evaluation.ts": "2e850c41a3b5edd30fc06fdeea878672518240adafc10c4a699692042629dd94",
+    "scripts/evergreen-evaluation.ts": "6cf3295c5cf0d3eb88562160f23da758d40520df13fa46825b83f3264a4b8320",
     "scripts/evergreen-evidence-enrichment.ts": "31ac65ded8abcb09f8a9fa31239fb4d4a899e09c04179931c475223beb086876",
     "scripts/evergreen-knowledge.ts": "2119b453688437cd47373c609af66720a019a704faade42391f98897190ee0c2",
     "scripts/evergreen-natural-queries.ts": "96416f9bdb4d61fd20fbafd547cfbf4b42cdeaf414016d4fd0aeb3776bff3f66",
@@ -85,7 +106,7 @@
     "scripts/migrate-db.ts": "946b8bfcbb15af12c62dfdbbd3f3e4e20285b8e4264041d0efe747ff184ddbb3",
     "scripts/official-recovery-action.ts": "86f182915f8c24c48bfc76e6938ef7e37f2bce44ff28e6b2fb876e2bda778924",
     "scripts/probe-diagnostics.ts": "1a13177588955b6d7a64066cc5918e27aa9c786b6fa78eb5a2b2b93c5e672412",
-    "scripts/probe-model.ts": "e006e9fc9a38ead6dd1e86f40b12e06679efe03334d6e7b197fce91903a9d5e5",
+    "scripts/probe-model.ts": "55a6cb34b962c814d71a79bfe851bb2ffeedba2166fd3dd2fe7cedc224527f85",
     "scripts/reuse-coach-capability.ts": "dbb516b0ffedec6282089981a8608328052aa39ba7cff9c1c2ca61f9938d7828",
     "scripts/run-action-coach.ts": "c2693a53a947dd860a54e0ae74d2fca9df5e507b0b858468ee1d1d715c62a1ec",
     "scripts/setup-coach-embedding.py": "768ac25d99367a930c25a3248e89e0c57eece4db09194bd8b8e57fbe2fef5776",
@@ -98,23 +119,24 @@
     "scripts/verify-browser.cjs": "b8b4db4a13a2930613abfd11b56e40844dfd00248dfb96c306ea5b2f3f11045c",
     "scripts/verify-db-recovery.ts": "d7b40d523a17d2d1d07f89658e4033030656618f129b43b7ae31b7424cd91e40",
     "scripts/workflow-baseline.ts": "56d6b4367aca0274a817d9783e7f5c55bb1bfb3793f01b43681a73e002eb0d32",
-    "scripts/workflow-coze-candidate.ts": "860a9b6cf7d400454892a8692dc51ee8ecf0226ac80d92a56e6fddd9a5f5e6e7",
+    "scripts/workflow-coze-candidate.ts": "a01c9b9c21f3ecde4bece4aa566b359405fe15ce8ce1c13faa8034cc84a206f5",
     "scripts/workflow-coze-readonly.ps1": "8d954a8f46f927125e7246389a35a65ce3785d231bad646f823513d96cba41ca",
-    "scripts/workflow-coze-real.ts": "419e50761b6b591f58fb6e59f77ac3d3bac15d1ae6fbe073ccf2745ecf80c564",
+    "scripts/workflow-coze-real.ts": "4c6a73311b8880a3609a919581cc032595be01c1e22bcbd810d7da3f4bdeccf9",
     "scripts/workflow-deliver.py": "c1d1bc5a5b3baad6e5f3882b1a9121ed896be32847b8b3ea6418d03e07c46e7d",
     "scripts/workflow-demo.ts": "357c1c6d07d1c091b33eb3977838f682954c8f1277fcaf188c916a3673aa5cd6",
     "scripts/workflow-pending-review.ts": "2e8f8d3d220df60649da95fb4a5a051f3eae2c51a6255a46f582a31a9b930ba5",
     "scripts/workflow-public-card.ts": "5aec028a108335478cbeed1a23995c50799c6ef4a507008840d2de5c1c79a835",
-    "scripts/workflow-real-batch.ts": "3f95aa211f1c1bc35fc60b4b1e4531b6a4485af235b7c726e2ac729bb6d5a1d0",
+    "scripts/workflow-real-batch.ts": "78230d777342024339ce2f3bdb0d3f2824fe8a9193edac7c58d5710a0113e4a1",
     "scripts/workflow-reconcile-ledger.ts": "9eaf196aeb39a66ba57d8ba3d7ee8b6f16fa1dc14045b2a3fd8fc0d9be6cc0ac",
     "scripts/workflow-record-demo.ts": "ee5bf885d589b96d6429f8078262335ab6604b575fa1b808e4b6a063bc4c6fbb",
     "scripts/workflow-replay-dgate.ts": "0955a675215e0e9389ccb5ea2789f1940443a73a5ec65908bfa571f716424b32",
-    "scripts/workflow-reproduce.ts": "7f22c4129e0f580878e31186e6dd3478d65f3f3ffd11043234cd06909c69a6cf",
+    "scripts/workflow-reproduce.ts": "059fca7c535536e6da2468de70d3ae34e59cfef2ebc137cb5633f8861437b9e2",
     "scripts/workflow-verify.ps1": "e21d0c786ed33de63f7aed6cdc07c50e6ecf65580c8d9b17ad68e7031445e7c8",
     "server/action-coach-contracts.ts": "fa0d3c3f72e5e671af94ff453c117077fe9338983d5add75200409efdd8d54f3",
-    "server/action-coach-events.ts": "bdb7c93493abd4db557dda5ed579d6ac6e4843b6301cb713f16054d1afcb12a6",
+    "server/action-coach-events.ts": "9ff7b7669cf3cf07e6ba7485c952fb3e841404400ba1f574511832b693454ed0",
     "server/agent.ts": "5abae8bbb52b256b5d232f6f4696113fb02c81e5e11eda6824f889bceb199cd4",
     "server/auth.ts": "f26d76932ecb1e718c368d369c3ccd97b33582fb3d0688bb2e3378f57a6435ad",
+    "server/bounded-reply.ts": "baf93a5b2cd39f37e6c0bcc47d9afe8713c635fda4c7b670407bd1d92870e52e",
     "server/campus-contracts.ts": "f48663f83cd9594ff636f354bd9174fc1262544369a67f3172458a413aefce0e",
     "server/campus-knowledge.ts": "4912d2f8c231ed7afb83faa337d3eb5bce0c797e2bccd4bc1bf2779539f824e4",
     "server/campus-reference-data.ts": "139683f0f80029a329e776922b61ed86386cbdcbbf6121233f7921dbc576be30",
@@ -137,7 +159,7 @@
     "server/dialogue.ts": "3cab46cc8429671d4f54bf52d98d2b23cad9050f0128cec38268d8c1d9b6c936",
     "server/embedding-signature.ts": "252b71fc865862a2634adb9e53cc81f0810b323fd257059c9b070ee1c632f8be",
     "server/entitlements.ts": "a7e8c7420a25c20606e4edef78b85e41703d60346b849719e8fe2fe88c7a3b83",
-    "server/evergreen-guide.ts": "549eb0d2aadc3fd01abd77d2c91672e467a7deb2c2a7436202ea55afb479b68b",
+    "server/evergreen-guide.ts": "0d707c47ea6c28fcfc26b7e719b68c45066dc63d505ee06a28d85a8365593bf4",
     "server/evergreen-maintenance.ts": "9f249b5aec14d2775ac69d78ce30be9beec339e07cd14ccb6600562e8cdbb6a2",
     "server/evergreen-scope-guard.ts": "8751ac14a39bf7ff4acc7f69bc36b63a00edca814de7a6ef4b60ce94a4931c0a",
     "server/experience-content.ts": "0ba8019569f8f1bacd84dd0564fbf6da475f70098a0483438f0990045e702c7c",
@@ -146,23 +168,24 @@
     "server/experience-patterns.ts": "fae05f163e3fcfde9359febc25ebc9b04806e478b026c74b4b450cc4ed16439d",
     "server/forget-intent.ts": "67deffd72737218751711bb21f60ac2f428c789eeb64bacc63c1211e05bcc238",
     "server/grounded-material.ts": "37de54b59ce7fcd1535be782b28ece37621bd73eacb19135770fe35a5d1e51eb",
-    "server/growth-authority.ts": "fb4d322be0a8696e7b37fc6facbc4ab8460fe17240b54d59fcacc78fc89b5d2f",
+    "server/growth-authority.ts": "c5eb4fb59bff2c07d43c7ca87d346491a65a4f0c777adbefb1f58a3314974419",
     "server/growth-contracts.ts": "94e5e978d0fce64a9cf5a9096e90cfcb246c6693cc06523b0d4a71bfda87df71",
     "server/growth-controls.ts": "9b229cfaaf51b88d14cac90931bdf6d35a070b0f3f30f491d880a8bb88a1c824",
     "server/growth-model-contracts.ts": "063616e6bc318e5051505b5a594d15c526dce3432eefc5f8bd103e65e4d2f55f",
     "server/growth-privacy.ts": "3a4882dca45053e8b84c235654bbc7e5eb028bdf07ef85b50d2d630254d5815e",
     "server/growth-selection.ts": "2df5cb5199c85d5f74bd5070ae46ebf70ab26d29037b2a0931d4a3a2e473ae91",
     "server/growth-source-fragments.ts": "eefaceaf9bef34a98b2a806fbd5979e63d92c60628307acc070a24f6fb64e933",
-    "server/growth-time.ts": "1de554da18d9eb243ed03c1eb797ef5f785dc843267dbcd37c92eac4eec83472",
-    "server/growth.ts": "597878586dc63c2faba0dc4fdf4f7c942b744c4bd028135c4ad99c5f38df37e3",
+    "server/growth-time.ts": "83caae9a5778430fe267e42dfd161ebb4ab0605e770718f9cae4670de46f9d82",
+    "server/growth.ts": "74bdd0193ad273055e694b43f42dec964d46adbc0215ea9d181b8d046135d627",
     "server/guide-usage.ts": "27f3c1ca450f1b770aa9d5f181f8a3d38beec8a5c1b962ad7892357b361eee6e",
     "server/history-selection.ts": "7f9ed122f44d081eeceea5411c810e6d22ed30b6757d4955d837eafbc7578f66",
-    "server/http.ts": "585ab2b23227c808d265b7474ce1a1298dfdf1f2c7aefd0755254b04332bd590",
+    "server/http.ts": "b252f56dd7fd9eb75800c6b583c1fc811d2dd779367d69b7f33a6035da82c2a4",
     "server/identity-levels.ts": "f069eb2b66ce6abad7edde13df8714f94f8c6e3538f6f6bac45de9628ea9bd00",
     "server/identity.ts": "0c5475944e22ce509d421764188eb2bbc0e02a8f235b29e20ea0e40f8c68a007",
+    "server/independent-review.ts": "cd91938dd0975f4d38c800ba260ef2c87f5fa3a86a9fd1790326af835c9342e9",
     "server/index.ts": "891e3599da63a36cde0f671d49adb7afc4a60f962b2abff9c70555b22c0a3864",
-    "server/kb-maintenance.ts": "d4008b766af2f6fbc81d96ec5d4aa65a7cf5dfc72ce77b38a08a60b0daa3683f",
-    "server/knowledge-index.ts": "1af8fee2586bf027f2cfe30a26238a969aedfea11f40e6d4725abdc203706a64",
+    "server/kb-maintenance.ts": "e342fcf67027a5e6e2dbbfa8d185a07118ef27bc6bc7ab46f1b677bad124492f",
+    "server/knowledge-index.ts": "bd8344e2c389682c30b95932a26324dac6348ad91c38a5bdeb4a290e978fa958",
     "server/local-embedding.ts": "6b1ef67b8b1422900779e22fe882a041410fe4a8d1bfb7670315b9578d80a787",
     "server/memory-controls.ts": "64d385ebd66290147ef4f353de3127bf40fd0cd9fe5321845d9c3f10f4c3f2c5",
     "server/memory.ts": "fbe7c7acd4946e74c0a0c24bc440f2fd2639eb20d6bbf207c3e781fe9c0aa5f2",
@@ -198,7 +221,7 @@
     "server/migrations/029-evergreen-knowledge.sql": "0612e8d823adcd7b85cc2eaa9f29b81f5a80ad68cfe41a5db3b51aa606c9882d",
     "server/migrations/030-workflow-tasks.sql": "2e6b2cf04bfedd299de9e6d7edf3e4aaf2429942c57b4129a783d236e897d601",
     "server/migrations/032-kb-maintenance.sql": "e96186799a007692a825e9e7ab3eab2c8e3508b84eff783e894215ded29267a4",
-    "server/model-payload.ts": "f64cd01f77b07dad2632f837ea52c990813c6d90191528b50404b56a2caa3536",
+    "server/model-payload.ts": "bbc3d8a823d60af1c10bde5d27af84cd4902b1441e89c1a2a8495e4bb4f5a075",
     "server/model-router.ts": "8aa0e968f1b21d02b392dd5c92ba06b7e971a2054e8492c9ece449188bf66ecf",
     "server/model.ts": "26319da64514997a75ebf8dd9cef3f34b9111c41522d173cf518abcf8e8bba5e",
     "server/official-attachment-extract.ts": "6a3780143f50d42190c51718c07807e29aa81fc80c2258fc9613af14004b4ee0",
@@ -211,7 +234,7 @@
     "server/official-sources.ts": "7edf81958b68bd30bc13d16fb643ca203164dfe030c9a3882fc31a5084f3ae9b",
     "server/operations.ts": "bc40d2624708590b35d888ae121643f1ed76539c4fac893da98473a6bcbf1a3c",
     "server/path-lexicon.ts": "c0c610539a7c379116c0f6dddd6a0c50ab6aa79a5a1e49cbc3d5c780b78f7d15",
-    "server/provider-errors.ts": "78378c859d24fa193d2b9fe2025d1b63132730c549753ca6425f3dea2dd3cd35",
+    "server/provider-errors.ts": "47a955709a5ef98a403c5120596046cecc943d59ac5c3a0f0020ba5ddeb66dad",
     "server/provider-spend.ts": "0c3900223b5e4264d3a64b721bac9523f0ddb0894fe4d0fe82714ec3aebb106f",
     "server/reply-draft.ts": "eb2bb973eb5d951ad3936d74d0bd7ea4f12d2e57a468549ec291485f804bff8a",
     "server/request-scheduler.ts": "49dac1782b8272e8d819271cdcdf6158caaf7350420c07851153a2960b132271",
@@ -219,33 +242,33 @@
     "server/semantic-search.ts": "2c0ead56cfc07979d944ceda6e23d849eafc0a3e1c9d782a31690fc3255d91ff",
     "server/starmap-enrichment.ts": "34233f20d68c425e240cf96a1da5d7dc15c1012e02e9c428e24c38db73a54d1d",
     "server/store.ts": "c9e9cb80602229fb4d85bc4da4a6136e4976784da138b25f92109323a1af9602",
-    "server/turn-contract.ts": "fbdc6ff2a13f084b48089b4b4a02e94bc289381a55d0aa2e9808e82db4e75724",
-    "server/turn-engine.ts": "00c86dd99fe9ffb9b789d0e7c8e5f200d9e828d8ca66ea73e0a93ce0a65f4f8e",
-    "server/turn-obligations.ts": "0722aacac0e6b4384f1465836c6cc2721ca7f089219ecfb92359453454666c9f",
-    "server/turn-prompt.ts": "37af219e0d86ff48659d073b285daab5aec228f1b2ee506f3a49b6518bb1bca5",
+    "server/turn-contract.ts": "45511dcb5d652df62ae80432304da2400589b4a3f2050d567bd7e8eddbeb050c",
+    "server/turn-engine.ts": "9365d7b7c395164f960bdaba83ea497efca307dd51d537ddac80acadd914efe2",
+    "server/turn-obligations.ts": "5290c95db2fcf0e8ccac8152cf090d82fc7ff3a08c5d0d94379d3e9a5d0a922d",
+    "server/turn-prompt.ts": "4d93de80536def6af7cd6ea1e32b143e5d9bdefa21f43583b9b740ea2bbe8559",
     "server/user-command-spans.ts": "f04243746a7579110d7211536f0250aa9a3aef41bf320050940db5697b0894a3",
     "server/user-themes.ts": "45cfb14cda384841ae153d4742156009047dfa5823f0373b14599a8fb8da16c7",
-    "server/weekly-plans.ts": "2db164efcc782f86077ca7b313310d7bbdab717cbb3afd649249ef8b62ba5c64",
+    "server/weekly-plans.ts": "98e58121559dbf213192aae2ca411dfe211960c683cbea3ef18ddaa89e3c043a",
     "server/workflows/action-review.ts": "35d286e3f445d4ef51e608526c80e0288204a1631e5ae1dd0c5151d6d5918c8c",
     "server/workflows/action-workflow.ts": "bc5cdbd8cd18683ffba1dad23ff89e50e5e0773626bf65bf488c79f76d1bb553",
     "server/workflows/adapters.ts": "0d8a4385a7c1b5e10619c55c0a549144adb0e782195e12e7d0a079e38fe0d6f3",
     "server/workflows/committed-growth-diff.ts": "79796e86846db99f7a07c9bc27ea7c2c4f132a8e10cb04a5948de0e00466ce3f",
     "server/workflows/contracts.ts": "f22565b77e763b9a305c0e792610ac414dc005419b7121cdf65899ed942ed02e",
-    "server/workflows/direction-decision.ts": "2e1fe0f4bd7875c1e40f34d5c93239d56b31efc439d62b20da619cc9a837bb73",
+    "server/workflows/direction-decision.ts": "2811e8a9006441edd41659600b2ce3a1805ece53363d1011066052dd7495a472",
     "server/workflows/evidence-gate.ts": "f04b3c317b59280237c7d08adbe1727f4b672059a7b05369bf2181eca88e004e",
-    "server/workflows/growth-diff.ts": "76ba89a9f27590912632eb0700f9f0b0451a0c06d008b7c639164fb63336e23e",
+    "server/workflows/growth-diff.ts": "9e57ae1e7ed250b7ecc1113c53739e2ceec91ee99f6a65a553a54a941c600f32",
     "server/workflows/guide-application.ts": "9063e03a4be05df197c6431e1c6804b93f18a3b308556045cdad2541584c122f",
     "server/workflows/host.ts": "dc9539292a22818b8bc36ce9b92abb6f6cda1018554579bfc2148ce25e8e0212",
     "server/workflows/knowledge-maintenance.ts": "5fb1390718f980bfb800a91410fbfae5da73db61d25f29118eaa194318ec87cb",
     "server/workflows/method-context.ts": "f5cd043825921859e0672f7bd18be5ccf86167c737b253ddff10d23cb1f6f902",
-    "server/workflows/orchestrator.ts": "e66b5a2910a2d2feca7899877854740d2158958aea57d0ab3051d28126ba8345",
-    "server/workflows/provider-adapter.ts": "b8bdd09005ccf88d94fe8c76df93d73dc1fb5765e1de9cf9b370fa8fd40b58cf",
+    "server/workflows/orchestrator.ts": "b7e4118290ab8e295b57414a132349d33dd201a803ed2d63092b43bfffd2ed5b",
+    "server/workflows/provider-adapter.ts": "a7772651875cf3135c1acdc3097da392fdcc96e662804d109e87ab715df57c72",
     "server/workflows/receipts.ts": "2252f7f9276f7c1cd9f382297d8eaeadd96d80772bb0ab79cf1c8689f8cccccd",
     "server/workflows/router.ts": "64487d0c0ab4f6e29f4a70ecb17c283b7637460a24d95cff93964c9bade4de59",
-    "server/workflows/runtime-version.ts": "6e2e8c17d73f0bf7ce2c904815d6048742b44987603b0eed6eb79cfedea25a40",
+    "server/workflows/runtime-version.ts": "9e16fc93345f04f65cc2a4a9f45a408fe7794ddb9714e69c71de55036b816422",
     "server/workflows/skills.ts": "3e3122cb2ef5af0320d0d27f368be1d72c222c96d7b917af5f2b7ea48e017a55",
     "server/workflows/task-commit.ts": "64bc623b2267f8be75940b932c0f19d6751c000e8d4bbbac162d93d598efa4cd",
-    "server/workflows/task-host.ts": "96d76cbb67d560c69cb648744769733c64daa0863151cbce9e6d8e6e72403878",
+    "server/workflows/task-host.ts": "0ce74f57a3f19d8014f1f5778bdd4f15300af04009940bc4f626b84fa576ba7c",
     "server/workflows/task-journal.ts": "c5460518865559ed3bace52a62c5fd318221591df9aefc2f0850d88f002ab459",
     "server/workflows/task-sources.ts": "1dc49ca3bcb9097b63d3c8465b07a02623abfbc288c0e14afcaff9d20984c887",
     "server/workflows/trace.ts": "d7fb14fe0856b939c1f3ace316c59efbbdff73447ca6195fb58292ffa8eef749",
@@ -260,7 +283,7 @@
     "src/App.tsx": "ae4fb42619764093b9d896efdee8201b38b88d3fdcb97cc6b6ba480b7e55acdf",
     "src/backend/AuthForm.tsx": "2230387b4aee143aba52dc94b85b63ef48dd3de29f24f4df34b25693e8ecd20e",
     "src/backend/auth.css": "1070c1ff132fcdfc37b04bf9bd5c80a95fb1aa4e3da3f39f688a1564e95db5cd",
-    "src/backend/client.ts": "965b245807dcd7b8b37e07a82394d55b054dfd098de25f27313ed274f8e7694b",
+    "src/backend/client.ts": "459994007fa2c44a51ff4101a724cd55ba2a1d06757352a892ce988fc26b72f5",
     "src/components/animations/ClickSpark.tsx": "259937a56fb8d25674742817d2103b66942f013b46c542610a9015abaabb9a59",
     "src/components/three/ControlledReflection.tsx": "41a4413f08d1ca838e7cfb4496cdcd64a81dd05c847b7e2975fc9755b8df6832",
     "src/components/three/Core.tsx": "aa4489a55756fa5aba191e5b8e933042f767d19929e7c00bf52c0ffdef7e9924",
@@ -290,12 +313,12 @@
     "src/features/conversation/AutoTextarea.tsx": "974aea7fc768d5d5ec292cf5e087647e73e2e8a201ed10bd9fabc78e0168c7b2",
     "src/features/conversation/Companion.tsx": "b36b3cabb5bbae4073f1fea155111f10b6551bf7175dc9f2e553624bb90e275d",
     "src/features/conversation/ControlCards.tsx": "7fd8b7fab8b7b1ba451afca42413699d9c9f2a75cf56d240e5a611830623e109",
-    "src/features/conversation/ConversationPage.tsx": "0d5bf46370a59dc45b088f41e0a217a6ff886294980ebc4f73119bfa5abd97bb",
+    "src/features/conversation/ConversationPage.tsx": "73ee05c4027a48e554260c4f7115eae6413677d5fadd23ad8d7ffd9ce13bd18f",
     "src/features/conversation/ConversationSummary.tsx": "9c25463638f678690e2192612b94cdc94520536fc09d256ed526a617ddf62d08",
     "src/features/conversation/FullMethod.tsx": "93fb7e843d10d08f1860ac2e2f20837d5679605bd07ab579ebec3bf59c0423be",
     "src/features/conversation/MemoryPanel.tsx": "ae74d77cb927401873f7a3dd9a6e847cfb9625c456c5d848839c476afb4b7632",
     "src/features/conversation/ReplyMarkdown.tsx": "25167aa63f8ece0dacd9ccb405e93a4c6730590b8a178294ae877857e68e18c2",
-    "src/features/conversation/WorkflowPanel.tsx": "110b43f30083e14f039300b3f38956c7ff3563efb181a7ad4a6f7d3f8bfd044d",
+    "src/features/conversation/WorkflowPanel.tsx": "842216a10aeeedc85636fb7e76424a8ad8930259870eafec9162f9c6c32adcfa",
     "src/features/conversation/WorkspaceIcon.tsx": "f0dac35f1382b64cce36574dbc4aed18ed5fc97b290624845fa788f53626d6c0",
     "src/features/conversation/WorkspaceSidebar.tsx": "5f9d675c66a99492af0eefcc047e6c5133f1829e90eb3650222bbccd6c28460b",
     "src/features/conversation/choices.ts": "4d9239e92e768494d73af8e32532f8070f63002a6442dbfda06684e27553056d",
@@ -309,7 +332,7 @@
     "src/features/conversation/workspace.css": "6f8f5e4072feac8618f01c3157593c80371bddc8eec3e65c59547cf0e74bf76a",
     "src/features/conversation/workspace.ts": "9097a64e9c97f55dacc6157672fc00115b88d9ead812d3fdd0cd09f77e486783",
     "src/features/growth/types.ts": "d69eb71307aef5eb6f881bc5d44730ce418763b1f15d375f75b72744366e336f",
-    "src/features/maintenance/MaintenancePage.tsx": "38fe323cfcff467354c370ca321aa666a841f8611da72d4410c923f2ccf2db32",
+    "src/features/maintenance/MaintenancePage.tsx": "d1f5478f72822cac11b4503af841c658a8282bf6e3db255dcca51eca504eed79",
     "src/features/maintenance/maintenance.css": "94ff55608967f6864807e052156dbb2bf148f0eaeb9d1090d793abd50407949a",
     "src/main.tsx": "85f2b9480b945f3e7d2054feafe8884083cb2abe0f7d4f1d3da25f8826f5bc68",
     "src/styles.css": "627435b938f16a52a1f06b636c255233195104f04c273b7124a6c3b528f1fda0",
@@ -318,7 +341,7 @@
     "tests/backend/action-coach-contracts.test.ts": "a98da47d3f9f73a538aeacc18bc54ca1c091b4f407176219d333ad2b441ff3aa",
     "tests/backend/action-coach-engine.test.ts": "e8015b16207db125a9087f603de371d596d3ce1c77f9c6a9ff6e42de372424ce",
     "tests/backend/action-coach-events.test.ts": "155a892538c6f98079ddf5a000b97c2d4fa74860d23c4252dfa8955b31b22136",
-    "tests/backend/action-coach-material-boundary.test.ts": "247aa2c8c3588a37bfb9939d6f51aa29f52474ef1180389b62bd8b6c3b6b5848",
+    "tests/backend/action-coach-material-boundary.test.ts": "d89d42fb357555e24f2b73e16e515bdd36737172d197ea458cfeaebbc20ee350",
     "tests/backend/campus-actor-isolation.test.ts": "b9e0dabded957f306faa1102888bb9616d3e0d46aef604b394a38df3ca9068b6",
     "tests/backend/campus-benchmark.test.ts": "c142a87091ba38a71defc7dcea047d91f6509e875bf2cc746c34af7876876951",
     "tests/backend/campus-comparison-real-review.test.ts": "78b968ee9285231c82f32c58220bd30862010e6e17b3799fd5f3da3f41d3d3dd",
@@ -335,7 +358,7 @@
     "tests/backend/coach-knowledge-relevance.test.ts": "a66db41034944161091fa1048948856c9b1eb193ef98a9001fd06330114d037a",
     "tests/backend/coach-knowledge.test.ts": "df1f842886aaf30a02f5abc6c7473c168dda133e4b76d35d35bbff5d5b3096a2",
     "tests/backend/coach-process-turns.test.ts": "043b8da2e0b30eee42c49f096290030c033fe52780df0d2580247f7d2a594818",
-    "tests/backend/coach-provider-budget.test.ts": "bfc7a068314ae44f859eb50b2b9cd26354a335111f691ae83b8abcfeafe2b62f",
+    "tests/backend/coach-provider-budget.test.ts": "63c006d061e78458a24401645b562ce0647a138d5b6837009482f579bff0a343",
     "tests/backend/coach-retrieval.test.ts": "af7d80620aeee0ce4ff73d9c0c9b6e8a591bf1cc2473a2e825da4ea5f3f4422a",
     "tests/backend/coach-service.test.ts": "f87127a83df209822abeadf429db2317875bf1d5e5bd346b562fede5bf22425f",
     "tests/backend/coach-source-freeze.test.ts": "4bcf17688542561ec7f712b4674d063aca40aee739f3de57e82abcbb832638ff",
@@ -352,30 +375,31 @@
     "tests/backend/early-draft.test.ts": "b7d609e8dbb4f58491b0f61d98ecd4e461d14c086f38db919e5978fbb0a5ea4f",
     "tests/backend/entitlements.test.ts": "1765f48b5d6024ef1ccf95cf242216a414b1ee8adbbcbd06d148213703f2b49a",
     "tests/backend/evergreen-acceptance2.test.ts": "d8b26fe54c06fba822277548ddf122ebb433a304a79f0b45fabe825fe36b79d2",
-    "tests/backend/evergreen-batch-content.test.ts": "60d0b1dab1437c896a446a4b4a864d011e86e1518c8f101675a578d51705a2ab",
+    "tests/backend/evergreen-batch-content.test.ts": "cdc3f90bf96d46e8d63d35832d1506b9edcf16806110c81204c1dceb2c5d5a84",
     "tests/backend/evergreen-browser.test.ts": "7ea49cc0afb1c761f9f7d6ee0b3759191ed96f7f2176498b9daa3f8e9306b52a",
     "tests/backend/evergreen-index-load.test.ts": "91203eeaf18e83ee8029928f3389f99683526fa2a83ba4a52771967feebef2b4",
-    "tests/backend/evergreen-knowledge.test.ts": "07652ea46bb1fadd7c87929863cd2104ea28c10144a92ba4dcd7cda8375da0a6",
-    "tests/backend/evergreen-natural.test.ts": "9c625fd6d3144b5dcb780c8460337c67dabdfb618e3df10a152d2535ac9f259f",
+    "tests/backend/evergreen-knowledge.test.ts": "b7c12538c497a0fe8036d09582447dbe3887cefc572aaea11b948b6aeb0ec87e",
+    "tests/backend/evergreen-legacy-regression.test.ts": "8e276d191f22cb15d70ac76fb3c2c5fcd988f2bb12737eb30e9c96ca9913f9c0",
+    "tests/backend/evergreen-natural.test.ts": "cd1989dae06d6b06cf55bd3db3146b15a2ca20c9aba8ca82877780fab455d98b",
     "tests/backend/forget-intent.test.ts": "87ddbaedc2a6a94a1f096e7f3b1641faa99e005e7163ae1c94574db52b4bc6e7",
     "tests/backend/grounded-material.test.ts": "b8a8720efe83bc442624dba9a11473ebc672d6bf06923398177006ce5ea52aa6",
     "tests/backend/growth-amendment.test.ts": "7f58199a2ed9a48286c35d690003ea7cc1900cb98dfa36b7010404e651598228",
     "tests/backend/growth-controls.test.ts": "92fccf8d8fb045bf411c4cfc5dec8ca8f6247d0084d7b9c5ccbbf9eb006ef18b",
     "tests/backend/growth-local-dependency.test.ts": "b084920273817f47c44be2c78a52e8bb6d6eb46204536efb3d556453f911e218",
-    "tests/backend/growth-model.test.ts": "855368090776b9f61ad3e170e12bff34549ac296517c0650782eb3875129bc1a",
+    "tests/backend/growth-model.test.ts": "3fe39620e19150dcb499ee4a8c42ffa94f154e70e783570206a2831aeeff604b",
     "tests/backend/growth-r2-integration.test.ts": "ed14009c4fff562a3fb60e625e19b34ef90e72114f4c4ce421bd4ce0f4ef34d0",
     "tests/backend/growth-required-effects.test.ts": "409f7111ee16bfdc681dce4e4f37cdf66b2c832f97f0aaa93a3979309e8d0423",
     "tests/backend/growth-scale.test.ts": "0de9d8ab67177b74710fc13b09c8282e45c7a4dc222a13acb68398a92aa3cfa4",
-    "tests/backend/growth-source-span.test.ts": "cf16797fca57b674c5d15a4b8fffd165a9022427d36a1890ff1d72e116fce762",
+    "tests/backend/growth-source-span.test.ts": "7f84ab4f089b1b9582125a95fc827e22a412d8e65f842077e5ed70af5e821a82",
     "tests/backend/growth-topic-split.test.ts": "448646d521ab74cbc219420dcb89c2f5bdb5c7e793c8356a450207056e818e85",
     "tests/backend/growth-workspace.test.ts": "a471d157c8d532eaa93517be97360c3d6da502bb80883a09badd275a4ed4cfa4",
     "tests/backend/guide-usage-http.test.ts": "2b034b9d7f5041575307d7cc2824501307dcb1b819205b6143ee2ec160143247",
     "tests/backend/history-selection.test.ts": "13257170c12c195425bb29e05f4b5899df4ed7269f67214f285d1a928ec2402f",
-    "tests/backend/kb-maintenance-http.test.ts": "1b2e7d72a5d8dbcebd692c24dbc5ab689c8334d5416df82a3f2e2e1f577440ce",
+    "tests/backend/kb-maintenance-http.test.ts": "3750b205a56e4f56c2cdc67113744b14832b4effa64f701d8d93fc4732d11de8",
     "tests/backend/maintenance-browser.test.ts": "e643f3a00894f7ca9e4bcbac263e4f772c864ec155968713a0b4ef3f0fc42317",
     "tests/backend/memory-control-http.test.ts": "ea2db01bdbd7be00510935276291ff5d6ecef371efcd961e0e32ac2b64676935",
     "tests/backend/memory-inquiry.test.ts": "817f5640cb40fa2892ae6ec2ed98fa93b68b20abeb887971a488a38acc2b7a86",
-    "tests/backend/model-payload.test.ts": "a7fc0b5d7d95617cb49c9b8273b0b939e968072149dd8078023139ede0b21cf2",
+    "tests/backend/model-payload.test.ts": "e9c10406c92719ddcb3428428039ce2de1aba12ce81243a3a06da52d192edaa4",
     "tests/backend/official-attachment-public.test.ts": "9d15e8c77ec9e35049f5c6b8d6e0ca59d9d9ea6c43f5fcf7aa8a34961b67f6f0",
     "tests/backend/official-attachments.test.ts": "76100cc4abc9183fa6af80372199da7c676651fe6cf53caed11fc6cf3c089f9e",
     "tests/backend/official-paths.test.ts": "e71892ba8e3d8f5198d449d79295b2205e6e254a71ab141a7c7ca7b530d2daf8",
@@ -385,52 +409,58 @@
     "tests/backend/p2-corrections-budget.test.ts": "434f31ef949754232652ba853fd25cd8ef92b006f9f5ac576a9c03febe38809c",
     "tests/backend/pattern-memory.test.ts": "c92a3b4f1e4ff2380fb05787d23ab764f634b6b77ad7a56a4f28469661d700fd",
     "tests/backend/probe-diagnostics.test.ts": "8ce9ff86e561ad46b468b30df5aedb0858e061c19248766e1dc9f258c00bcde2",
-    "tests/backend/provider-errors.test.ts": "2e8addd1df7b3a1cda14255275f7834ada885e5557791a8d239900892537e73c",
+    "tests/backend/provider-errors.test.ts": "e06cbce5629bb8d9faf876c12536266be6ee097833a9a24ebeea32c78409a055",
     "tests/backend/provider-spend.test.ts": "944ed9c54c3ed48d8c7c93ea00786781463768f1067348123887d31dc05b07b6",
+    "tests/backend/reply-draft-http.test.ts": "88143be87499b160daad1b2692ff7334dbd4ec13d1d21977739f44822341dea5",
     "tests/backend/request-scheduler.test.ts": "93c8042ac2ec09b00b4de9f04f0770d6e0cdca3fb9c4e1e2bfcab34e4c8506fc",
     "tests/backend/safety.test.ts": "b91357ce36aec8db5a2ac19ba55715b67df9ded81f218cc7050d00fcf9c8dfa7",
     "tests/backend/starmap-g1.test.ts": "25a76481651e10681daf555c1b026291e571b9fecfb03c6ece34d6dd1c35a6fc",
     "tests/backend/starmap-trust.test.ts": "5c6d130532f883af0e50cffdb054133f43b578558e415a9d950fa135dde43b82",
     "tests/backend/theme-lifecycle.test.ts": "5bc2c68e1e1d23b93bc5c3475ddfa81cb827459e7dfc2e911dfba6271fb4ea5c",
     "tests/backend/turn-contract-events.test.ts": "9572a0b0176e352f80331f4a5bf5739897adf705dc8fabdbe5de1b21d9af5c9f",
-    "tests/backend/turn-contract.test.ts": "31236852708ada79fb58eb3b81b4417b959b2bc626207e709f8266d2a9d6e336",
+    "tests/backend/turn-contract.test.ts": "a0c347c2b4fa4de1eb3742d666fc1a1ca6d63ddf20a2f75d860d36743488ff34",
+    "tests/backend/turn-source-availability.test.ts": "66e19fa0e010885e171074e5ee2fb08fed59b5c5337f79e44efe6335c87e6991",
     "tests/backend/weekly-plans.test.ts": "648620bc4210994a7f408007df6cc044fc584171c1651134fae968da1de5ccf5",
     "tests/backend/workflow-action.test.ts": "d5f93311896bd89f053403e6f19997d3c5199a491e1c09fc0e90b5bb34cc2ea8",
     "tests/backend/workflow-audit-boundaries.test.ts": "58333c5a7af1e8c22e172302ba37433aaec2568b4b9052de40d5d1313c603291",
-    "tests/backend/workflow-continuity-browser.test.ts": "8f800caa266f46ac4cc76b65ed7755c51c2feb75ab307d3c04f5a48be8f91b11",
+    "tests/backend/workflow-continuity-browser.test.ts": "5bfd6075f18ff26df15a1c5b782f9315c1255ded8cf4b477bcab798aa4a8448a",
     "tests/backend/workflow-continuity.test.ts": "fa940a161e6dbc35757e7eb3d66468a5698a452547b6b69dc41f5c6633859fe8",
     "tests/backend/workflow-contracts.test.ts": "1bf27980f601f2124911cac99db09bc0f9ad7ce560e5b234e5a12705ec813393",
-    "tests/backend/workflow-coze-real-entry.test.ts": "dc0599a252f2749615a61cc5f76a6fd49006564d90907f2bdcc94cdce31deaac",
+    "tests/backend/workflow-coze-real-entry.test.ts": "2cfbc24b75e8f153a818934143faba50513e358d360f510b625f4c5eb03ef4c2",
     "tests/backend/workflow-direction.test.ts": "7d0fcf65633da275a232273bafd85739a7880ea200fdbdeb5c5d839d5a1ca5e6",
-    "tests/backend/workflow-growth-knowledge.test.ts": "014bd7521a6d4d8f9d58093f3e2078c75e229f757f9b151f7148e1f4c8908c69",
+    "tests/backend/workflow-growth-knowledge.test.ts": "e2b7a6b5894826be4bf69aab1d078cdc514470ffde279b1fe19e05ce8dd465ec",
     "tests/backend/workflow-guide-continuation.test.ts": "9c6e402c1f96a7f3e52d96a72c23a7c336813659f5d2d6aa56d85fefd80c3d30",
-    "tests/backend/workflow-http-chain.test.ts": "6f469c7e57c0ad1d0f49949842d637ea913080390c8b38c99475ab7cd1b6a6c1",
+    "tests/backend/workflow-http-chain.test.ts": "2f1710b7bf67314501c22de228df8d99ea416b1355449efbfbfc5bf88a407e55",
     "tests/backend/workflow-journal.test.ts": "70b9c864fe7ae621aed643fcf0d2f135a3de0021d595bd318c677bbe63acdd9c",
     "tests/backend/workflow-main-entry.test.ts": "430d02b3988166d351e1d32eaa88a40ba9fca53c1d7d6e4c3351c4dfafcc8f76",
     "tests/backend/workflow-method-context.test.ts": "cb02d0b8deec5c181fa7978f0bb9b7bd719d5efd3041319e401b052a0d397553",
     "tests/backend/workflow-pending-review.test.ts": "a9a5112f997a244c96774fdd517d85fd5808c72e767f697d4b9bb3dbbc11fccf",
-    "tests/backend/workflow-personal-basis.test.ts": "193486b28292fe6b863c3b4364af23daa9f1fc964f57130ff57a9039c532b824",
-    "tests/backend/workflow-personalization.test.ts": "762bef3d900cc32c37fadf8311e648bff0672b414d32710c2ab1b7c08ebcb205",
+    "tests/backend/workflow-personal-basis.test.ts": "aaab79638a9269e48131b3f540640368a3d2f8ecd2908393ee3918d39672e2d0",
+    "tests/backend/workflow-personalization.test.ts": "e1a9ae4acf9f751dcdd45c8d302934b614514044a320f3a32a4e21ddf74a8b93",
     "tests/backend/workflow-public-card.test.ts": "0b1dc155666c144a2bd4f2119378f87641fa2404b20d34c32ea18a6a30029b23",
-    "tests/backend/workflow-real-entry.test.ts": "770f7a64c6941934dd8d3fbd2578c40491b9721e7c8a6e345c3a848d4e73e292",
-    "tests/backend/workflow-runtime-adapter.test.ts": "1f406c45088e2b59d998199be2229ab2bab9de855e22819130458be391a12cbd",
+    "tests/backend/workflow-real-entry.test.ts": "6cb6c9bc347c06f3ec4208b962c4af5dec6fe92cc54c0bb1be8e0bd212f26625",
+    "tests/backend/workflow-runtime-adapter.test.ts": "7e7f9340a1721df09351ee3dac00bb89bfe8bf7224207abc633fbd13bd1909a5",
     "tests/backend/workflow-skill-runtime.test.ts": "cfcaca07a4c056628a241d0c6d38a39960d108067a47f8215f18aa8cf379ddd2",
     "tests/backend/workflow-starmap-time.test.ts": "3c95dc6ce02c1206be580603c5e3e981ae12f75a395b48e994f91455f103ebeb",
-    "tests/backend/workflow-student16.test.ts": "520c6adccc3751c9238bcf0bca2aef1054679fbb62feb10a59bfe1473a778f2d",
-    "tests/backend/workflow-time-browser.test.ts": "d4082a020f286da658d4a551045c03c79bb9395738dd6537fd3da55c520a878f",
-    "tests/backend/workflow-time-host.test.ts": "a1d4ec5559e8e298217fdf5e404c395221fcb43a9a41afb4d530e83d92abeb83",
-    "tests/backend/workflow-time.test.ts": "422cdb568e639c7bb9cae28e5fa967e2d21418c787ebdc3589491b8cf1904260",
+    "tests/backend/workflow-student16.test.ts": "061d8733587f2cc3d987c1b74b55cd881894cf5a40ed2b512b7ec94d37c5d3eb",
+    "tests/backend/workflow-time-browser.test.ts": "ae13b8e5611c66d0b5bdbb382637b2d9f6bd33ca63c7c571eaf3a7635347e646",
+    "tests/backend/workflow-time-host.test.ts": "8360db661dd754d3fe4ec41c463f892499062d556794666b60c8cfb6b8d2377b",
+    "tests/backend/workflow-time.test.ts": "a6dd9b2023218c47d80ff7c711047f985e897bdeebe1c5c3e9fda374194eb267",
     "tests/backend/workflow-trajectories.test.ts": "1ec25bacd6bce684a00cc9890936064f7d6552edd6cde5d89721ea9f0f66f7c8",
-    "tests/backend/workflow-zero.test.ts": "48eb94912ba0d87b472a4eaa01393a3de24b954cfc043f89d38ede646dd06b1f",
+    "tests/backend/workflow-zero.test.ts": "e3ed357ef4710acbbcbaa53aba64feff0b5a78238721c685d57c02490cf10f73",
+    "tests/bounded-reply.test.ts": "4c7d40a8c39a94ccef18d0d5dd995ffff60a4e178aea3e65fe2107999db757af",
     "tests/campus-acceptance-summary.test.ts": "90fdf72552dd7635e5813a968786634b994d11c4e45ef1b514eec0ae4b4b691c",
     "tests/category-patterns.test.ts": "fe95a4a2297972bbd2f4632ef6f68a994c21e573e3ee1e6905ddab1131aabc91",
     "tests/client-errors.test.ts": "e1c90ee1d9c5fbebedc1b1a3440aa3d15db5355136f743e85c60e621c2e6ccd5",
     "tests/client-workspace.test.ts": "02b55cf38074882bef6cebc4df9f59ce2aa974aeae0e9caea84dc532361880e9",
     "tests/coach-reply.test.ts": "931ebcdd52496ff41a876812563cbedd8a33a12b0bc99b4bc7f3cc2c9561eea7",
+    "tests/coach-simulation-reproduction.test.ts": "1e2d0bd8f2554dbec6d323be8a2bdb2c42fc647b2632331e6bf967311f29052a",
     "tests/cognition.test.ts": "f34a890a3c79016ac75fabf78422443970d4a8f5b8b4df5bcbbff84d78661f9f",
     "tests/conversation.test.ts": "58a03e397d49d7cc731b62ab0c3e8b5f1937003159095f446befd2e50ae71db9",
     "tests/cost-workload.test.ts": "904862b1c9b81af9fb8855886dd92edc790ccc61a3313927627c80eb1a2ea1db",
-    "tests/evergreen-guide.test.ts": "c923af9ac37983cc9d31cb95d3d24e5c7e375b22facb595b20b19f1ed41c60f9",
+    "tests/coze-credit-budget.test.ts": "f811c140499e9bf43d8b751874ed8839493f32a72930b002a1a1f1945394f45f",
+    "tests/coze-host-permit.test.ts": "10a142f1a0914bbee3334cb6b7974299bbf352aac6a21b51511e82b1cb807a01",
+    "tests/evergreen-guide.test.ts": "84f39f242f8815e51574826eec9cb548331703ab2c47a73564d64b4bf04d11af",
     "tests/experience-content.test.ts": "2a43e2cb2d58acd6a817a64b661dd295320bf7180e16fa69e980a2ea2a20a702",
     "tests/fixtures/action-coach-retrieval.json": "515109aed06b8f05e076b83784b5334602314cf709b7b00542a88e080820ad33",
     "tests/fixtures/action-coach-trajectories.json": "828dacc2f614597b0e0cbd1a9eb23c0c5485f9d4eb8a023a38100a347f3f0154",
@@ -457,6 +487,7 @@
     "tests/grounded-material.test.ts": "1ef1400dc6f77efa00515677b01d38b73c6f8c6764e1d58c01cbbeff0138d803",
     "tests/growth-source-fragments.test.ts": "7074f1bc2a1d2ec2dd23d9fe6181e66d586e92eef895d2e50689c699346ca3c5",
     "tests/growth-time.test.ts": "de919ab6f9218867bb140c0dbc651bdbfdd4c72bbc5d03089ff754ffe5f8e9e9",
+    "tests/independent-review.test.ts": "cdc8b12f3753201797b2acab8f6f81d7b748ea4572f053bf1aec7319db497330",
     "tests/model-config.test.ts": "7f8321f51f607e0321d04ed17a7e33ee81d45b90ea14f60b6b3bb59fd7193535",
     "tests/model-router.test.ts": "3d3727045d85273029c19de8afd98273155737b286102bfccd6c988cd9b23100",
     "tests/record-draft.test.ts": "5f512385983064797cc4431013e7ea1e0a65737a6f9a3102da22b27afb4339f3",
@@ -464,7 +495,7 @@
     "tests/starmap-acceptance.test.ts": "a81f4172514f526150d71b1fc1af0b9cdd2f23da78affae58ac29620b86b7f68",
     "tests/starmap-trajectories.test.ts": "fbb0f1086125384b935edfa081a7c363d005abfa0a72d242c8e030557ca1b07c",
     "tests/themes-episodes.test.ts": "74b667d21becacba7ff0522373ef450f574aa83288ce1196c23525a8a6467b80",
-    "tests/turn-obligations.test.ts": "715dab4416ddabf24cf37a0c0b2f5cbd183a220c196bb141b3db72f734747b50",
+    "tests/turn-obligations.test.ts": "1e7ad696e4e6f164e94b95c6eb227470db37bb70b727c7dcbfabf7ea1c6af9b6",
     "tests/user-command-spans.test.ts": "2dd8ac8ba37ec86ec5c32ffaa6f42669411d047e1ca63087a2009768481b1e62",
     "tests/workflow-graph.test.ts": "ba2df800cdfd33fca0fad7e304ec8e96ef168b4edfad9675ac524fbfbb560756",
     "tests/workflows/fixtures.ts": "6523b7683716698638e819d8e7388abd094eff298ab3b14f6a45b7aca8c8cbdf",
@@ -482,16 +513,36 @@
         "sha256": "1751b1c26b976abb062f36714a9c06e1d4cfe1ccb920c24b5921c98bcfdc216f"
       },
       {
+        "path": ".planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json",
+        "sha256": "281b9dbd6db49e0364be55148b4965e97c62b5aac0aa2e6956aa023a41cd3bee"
+      },
+      {
+        "path": ".planning/research/workflow-integration/INDEPENDENT_EXECUTION_BINDINGS.json",
+        "sha256": "62883dcf2330d8c4a2945f873a9a90c67241b0c50444d5c74bcdbf0288ff4132"
+      },
+      {
+        "path": ".planning/research/workflow-integration/KB_SIX_R4_FULL_INPUT.json",
+        "sha256": "43147524695f1efc32a3797cf4cb393bf2f5c1fbb6c7850995654f673f539c91"
+      },
+      {
+        "path": ".planning/research/workflow-integration/SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json",
+        "sha256": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13"
+      },
+      {
         "path": "AGENTS.md",
-        "sha256": "430031d99d77eac288bf44b532fd8832f03ce86e90929ab5db2c3a438a52b350"
+        "sha256": "02a85e9253fd085ab80cb19c4e1b0361a1185917410b8995c24a954d5a6b76c8"
       },
       {
         "path": "compose.yaml",
-        "sha256": "a4b0f68eac6715a5ab36fb9d52d61bd319f02953d7adbf616732eeecdbbfe5a5"
+        "sha256": "96afe47ff39bf9e7f18047c388b48e3deee6b71a8bab73a29cde5c4671dde1c8"
       },
       {
         "path": "deploy/backup.sh",
         "sha256": "6afc28ab577e810509cffc16aad9847d07493b6bad1b92a4c43887e1273802ee"
+      },
+      {
+        "path": "deploy/build-image.ps1",
+        "sha256": "5ffa11b0cb6f5fb90a6ef94491a4ab6e528a1ab04100953d0296376cdf4c7816"
       },
       {
         "path": "deploy/check-container.mjs",
@@ -519,7 +570,7 @@
       },
       {
         "path": "deploy/README.md",
-        "sha256": "b477f156b1ec1d7f61ef6227fb983af836eebc873cf306de2657946a68b2cae9"
+        "sha256": "ef7f5dc0636a5ae4096b18988dc6bceec49b625612c9d48fb63096498b053827"
       },
       {
         "path": "deploy/requirements-embedding.in",
@@ -531,11 +582,71 @@
       },
       {
         "path": "Dockerfile",
-        "sha256": "a46d152cf32b11dfc3686f54983f2105e52ecc960f2e5fc0ad28fb2a30575028"
+        "sha256": "25cecf05cc331e44f95cb6e8652628f0d83a4d971a370a19524a427a05f7a5de"
       },
       {
         "path": "docs/v1.3-action-coach/OBJECTIVE_V1_3_ACTION_COACH.md",
         "sha256": "8be2c81cc5b03a86a2a36bf45054064fa031d1acac6a5c13ed2f5b2c64114b73"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json",
+        "sha256": "dcce306ba9be45e5385d32e910e3b096211af3a25e9306dec956b8de6064ee5c"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/INDEPENDENT_R7_EXECUTION_PROOF.json",
+        "sha256": "3df55127501e87ed2159a8d507386cbc31be609cd5c5700cbbd0edf299471590"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/INDEPENDENT_R8_EXECUTION_PROOF.json",
+        "sha256": "d273a4e30d55bb52af0f2a4f82456aabff2bf658cc8210318102837c13360caa"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/KB_R7_FORMAL_RAW.json",
+        "sha256": "7989f8a55c84708a9c275b9b3eb52d78206b3ab40cac0794be8b3bc129fc9886"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json",
+        "sha256": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/campus_norm.txt",
+        "sha256": "5ccd7b854228f3b637a5a577d7ae34e9abda110f985438f84c9d29e079af3812"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/campus_orig.html",
+        "sha256": "9c7bf0f0c986409e1e4ca94730e7ac0a86a443f0e22f89d66e2370df5ceea536"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/cfpb_income.pdf",
+        "sha256": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/cfpb_spend.pdf",
+        "sha256": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/ies_norm.txt",
+        "sha256": "efed8f7bf5702238aef13d3fcd1d3b26a8c4495512bf258085b2b3fd45c75147"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/ies_orig.html",
+        "sha256": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/income_p2_norm.txt",
+        "sha256": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/spend_p1_norm.txt",
+        "sha256": "ddb371f04aacfc52b142256858d2ef672f285359815d6c323072add069aa28f1"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/spend_p3_norm.txt",
+        "sha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json",
+        "sha256": "59dca996a5acfd058f657a80339e8d1186f219976b3495bfd5762d6e710b4a7d"
       },
       {
         "path": "evidence/v1.3-action-coach/research/source-verification.json",
@@ -555,7 +666,7 @@
       },
       {
         "path": "package.json",
-        "sha256": "335a611294ff7c0e511295c187d7277a70351fdbb409d2cbcf7e59fec7472910"
+        "sha256": "58d69024c55f0366dab731f15b4db3d7424d2222d4b07c39a6909306a0d3147c"
       },
       {
         "path": "PRODUCT.md",
@@ -651,7 +762,7 @@
       },
       {
         "path": "scripts/coach-provider-budget.ts",
-        "sha256": "13b06e8f4a65b55541af24ee04f45c944fea47b263c0618ab448a1dd92e847c8"
+        "sha256": "d555fd6959f09511da6d8a797564d1492291db2bf39c07fc475366016875a7bc"
       },
       {
         "path": "scripts/coach-recovery-action.ts",
@@ -663,7 +774,7 @@
       },
       {
         "path": "scripts/coach-source-freeze.ts",
-        "sha256": "7e34313760872ebae7af8341cd6c081a7b2db825700a44124576c40dd6203ad1"
+        "sha256": "0185fa1b7c5b391b7d3571ebc666914246de0757ef3ad84ced4ec28543e31b07"
       },
       {
         "path": "scripts/coach-stream-evidence.ts",
@@ -684,6 +795,14 @@
       {
         "path": "scripts/coze-access-audit.ps1",
         "sha256": "737455f85b489c23b298a029268a1f2ecaaba561302cc4d16e79850ad294474f"
+      },
+      {
+        "path": "scripts/coze-credit-budget.ts",
+        "sha256": "d1e5ef8a90865c7789479b6dfe143bd54efa3f1e33ac6eed9eb7bb1a26ccadf6"
+      },
+      {
+        "path": "scripts/coze-host-permit.ts",
+        "sha256": "40eebfb1efc471a5bbc30a6217367af9ca74aa0260af9fc910512147817548aa"
       },
       {
         "path": "scripts/coze-prepare-mirror.ts",
@@ -711,7 +830,7 @@
       },
       {
         "path": "scripts/evergreen-evaluation.ts",
-        "sha256": "77080cefdf9b73ffd1bf685377dbd6b4ab778d697e63c66459fc905fbe78448f"
+        "sha256": "cffca96cec18b23727fed59142af3dc5d8ba42b521de9b196beac5a505355b2e"
       },
       {
         "path": "scripts/evergreen-evidence-enrichment.ts",
@@ -771,7 +890,7 @@
       },
       {
         "path": "scripts/probe-model.ts",
-        "sha256": "389581edfe01846c2b2887927fcb87c45cd4dee038cdb563a45a1f8495e94e23"
+        "sha256": "82995029b698f87f66f6dcc0096d0f7d70a7ff92988e6a9cede58fcd8c1d2228"
       },
       {
         "path": "scripts/reuse-coach-capability.ts",
@@ -823,7 +942,7 @@
       },
       {
         "path": "scripts/workflow-coze-candidate.ts",
-        "sha256": "860a9b6cf7d400454892a8692dc51ee8ecf0226ac80d92a56e6fddd9a5f5e6e7"
+        "sha256": "a01c9b9c21f3ecde4bece4aa566b359405fe15ce8ce1c13faa8034cc84a206f5"
       },
       {
         "path": "scripts/workflow-coze-readonly.ps1",
@@ -831,7 +950,7 @@
       },
       {
         "path": "scripts/workflow-coze-real.ts",
-        "sha256": "419e50761b6b591f58fb6e59f77ac3d3bac15d1ae6fbe073ccf2745ecf80c564"
+        "sha256": "4c6a73311b8880a3609a919581cc032595be01c1e22bcbd810d7da3f4bdeccf9"
       },
       {
         "path": "scripts/workflow-deliver.py",
@@ -851,7 +970,7 @@
       },
       {
         "path": "scripts/workflow-real-batch.ts",
-        "sha256": "3f95aa211f1c1bc35fc60b4b1e4531b6a4485af235b7c726e2ac729bb6d5a1d0"
+        "sha256": "78230d777342024339ce2f3bdb0d3f2824fe8a9193edac7c58d5710a0113e4a1"
       },
       {
         "path": "scripts/workflow-reconcile-ledger.ts",
@@ -867,7 +986,7 @@
       },
       {
         "path": "scripts/workflow-reproduce.ts",
-        "sha256": "8ca848c1ec0dae802f5df25714d1b02c97a6f7696513134fe032319e6c076a08"
+        "sha256": "deb2fa4bb43fee429296bf085704ae355bae3f5e05622cb8bd0cd0b6f0785bef"
       },
       {
         "path": "scripts/workflow-verify.ps1",
@@ -879,7 +998,7 @@
       },
       {
         "path": "server/action-coach-events.ts",
-        "sha256": "141fe8727139a47a9761b956f2aa0d388b0b50c122d29d27276d33a60111674e"
+        "sha256": "08776653283e46aac99e0b84ecb8196fe5890c4eaa41f083a0631802e1fec32f"
       },
       {
         "path": "server/agent.ts",
@@ -888,6 +1007,10 @@
       {
         "path": "server/auth.ts",
         "sha256": "56989bc91ef604503748f58ded2936fb8eb29cb0ff449c5aec28baab36d80e46"
+      },
+      {
+        "path": "server/bounded-reply.ts",
+        "sha256": "baf93a5b2cd39f37e6c0bcc47d9afe8713c635fda4c7b670407bd1d92870e52e"
       },
       {
         "path": "server/campus-contracts.ts",
@@ -979,7 +1102,7 @@
       },
       {
         "path": "server/evergreen-guide.ts",
-        "sha256": "a282d26c9dcec21d65431c81e451989bb806a58a3f6bccb3d551f010c3c7668d"
+        "sha256": "41def25bf23f0b17bfa0ac14efa7f8c40848469e596df3d3650ee1cacbfe9035"
       },
       {
         "path": "server/evergreen-maintenance.ts",
@@ -1015,7 +1138,7 @@
       },
       {
         "path": "server/growth-authority.ts",
-        "sha256": "83fa8d6cf910c4e294ef4dd6bb3db1efc3ee036b9d2d13cbadfc783e37a725ca"
+        "sha256": "4fa138c5d631c5c0f0df2ff51fc6805e5225e1c7358acb9e484f1f59a01bf063"
       },
       {
         "path": "server/growth-contracts.ts",
@@ -1043,11 +1166,11 @@
       },
       {
         "path": "server/growth-time.ts",
-        "sha256": "1de554da18d9eb243ed03c1eb797ef5f785dc843267dbcd37c92eac4eec83472"
+        "sha256": "83caae9a5778430fe267e42dfd161ebb4ab0605e770718f9cae4670de46f9d82"
       },
       {
         "path": "server/growth.ts",
-        "sha256": "0ca64c189182239fd06287720a488f459f74bd03bfd8567d6876499fa4ee2d16"
+        "sha256": "bbe78e44d39676697f462380fb931dbd13db4ae33f48940916abd76f22d183d5"
       },
       {
         "path": "server/guide-usage.ts",
@@ -1059,7 +1182,7 @@
       },
       {
         "path": "server/http.ts",
-        "sha256": "1e83838ba6d0567842b44e0a66db162ac298f9e8d49b1f20fdcd8716bf33f9fe"
+        "sha256": "77ec81caf0b52060f48076a7518188bee6c2d9f4fa24826cefd3d0b8e346db34"
       },
       {
         "path": "server/identity-levels.ts",
@@ -1070,16 +1193,20 @@
         "sha256": "97cf86087e5c18c1d8de9c6131458a2c391e1d1daa0ecbc3c30f73c4f0aad207"
       },
       {
+        "path": "server/independent-review.ts",
+        "sha256": "cd91938dd0975f4d38c800ba260ef2c87f5fa3a86a9fd1790326af835c9342e9"
+      },
+      {
         "path": "server/index.ts",
         "sha256": "b93e59db86f81b06908b9790505e62594b426a0a19fc3251a9a444f330b1c9f8"
       },
       {
         "path": "server/kb-maintenance.ts",
-        "sha256": "34e3a0a3696b658cca0c5c8df1845cc76d076f940796d41eef7735a6a59e73e2"
+        "sha256": "e342fcf67027a5e6e2dbbfa8d185a07118ef27bc6bc7ab46f1b677bad124492f"
       },
       {
         "path": "server/knowledge-index.ts",
-        "sha256": "9f3ee3d11eb1ba352f71b46f8f1dc026fd140b4fb97fe8761453e75079693299"
+        "sha256": "c73897deb5f8f5cd35279241692e20cb1eeb6cea83c13e320545c2207112995d"
       },
       {
         "path": "server/local-embedding.ts",
@@ -1223,7 +1350,7 @@
       },
       {
         "path": "server/model-payload.ts",
-        "sha256": "e67a86f23858ea956ff3f7fccc91ae9c8f28ff8c97dc4c902afdbab717b32237"
+        "sha256": "ec95305706f7523302dee47f80c7ccf1d020124fdba007d4272367ba8859a0ba"
       },
       {
         "path": "server/model-router.ts",
@@ -1275,7 +1402,7 @@
       },
       {
         "path": "server/provider-errors.ts",
-        "sha256": "78378c859d24fa193d2b9fe2025d1b63132730c549753ca6425f3dea2dd3cd35"
+        "sha256": "47a955709a5ef98a403c5120596046cecc943d59ac5c3a0f0020ba5ddeb66dad"
       },
       {
         "path": "server/provider-spend.ts",
@@ -1307,19 +1434,19 @@
       },
       {
         "path": "server/turn-contract.ts",
-        "sha256": "c39238d98298ce19e8bb6ef4488f888348f88316c95e0979b6cdbfa732fe6553"
+        "sha256": "9640b42a414bb45b917eb111c9ebcf9fc5e9a6942e6a20fded3273d643162d5a"
       },
       {
         "path": "server/turn-engine.ts",
-        "sha256": "6403e2ee4882be779f9fed80316df236b0872983057262d5fa93ca89baf17e50"
+        "sha256": "c023e73216e58e08bd2f67c79e642ee00a36dc428660c4241de0a13b2a9cd073"
       },
       {
         "path": "server/turn-obligations.ts",
-        "sha256": "ddea98eef80f1826d0f6b7a9f503f92dd2e72afc20fe190ee987bd67f1b79315"
+        "sha256": "b7e648b75e15a9fe41c77610b786ce1653256a67dc37cd1252d0edf8f2097156"
       },
       {
         "path": "server/turn-prompt.ts",
-        "sha256": "7e8ca0202b78bda0a6b57e0c722bf9feb3940b6487ff6e81ff137578c66870cd"
+        "sha256": "926ad160bee45e89b8464d56e443bc324441d8f0b1c680cc28d7a3e9afca22e3"
       },
       {
         "path": "server/user-command-spans.ts",
@@ -1331,7 +1458,7 @@
       },
       {
         "path": "server/weekly-plans.ts",
-        "sha256": "aa1382da3e0cd6803f94dd860ed4e554d0ea3269c32b964cf6de78e3c0034aba"
+        "sha256": "60eb7f4481cabcb1df61a695d998e04de16f9b53f701655e1b809787ca427c87"
       },
       {
         "path": "server/workflows/action-review.ts",
@@ -1355,7 +1482,7 @@
       },
       {
         "path": "server/workflows/direction-decision.ts",
-        "sha256": "2e1fe0f4bd7875c1e40f34d5c93239d56b31efc439d62b20da619cc9a837bb73"
+        "sha256": "2811e8a9006441edd41659600b2ce3a1805ece53363d1011066052dd7495a472"
       },
       {
         "path": "server/workflows/evidence-gate.ts",
@@ -1363,7 +1490,7 @@
       },
       {
         "path": "server/workflows/growth-diff.ts",
-        "sha256": "76ba89a9f27590912632eb0700f9f0b0451a0c06d008b7c639164fb63336e23e"
+        "sha256": "9e57ae1e7ed250b7ecc1113c53739e2ceec91ee99f6a65a553a54a941c600f32"
       },
       {
         "path": "server/workflows/guide-application.ts",
@@ -1383,11 +1510,11 @@
       },
       {
         "path": "server/workflows/orchestrator.ts",
-        "sha256": "e66b5a2910a2d2feca7899877854740d2158958aea57d0ab3051d28126ba8345"
+        "sha256": "b7e4118290ab8e295b57414a132349d33dd201a803ed2d63092b43bfffd2ed5b"
       },
       {
         "path": "server/workflows/provider-adapter.ts",
-        "sha256": "5aba67b4c76c4540df2d93b796a63c052009e5fd1d52c2f2d6833b4c804f7ac2"
+        "sha256": "a7772651875cf3135c1acdc3097da392fdcc96e662804d109e87ab715df57c72"
       },
       {
         "path": "server/workflows/receipts.ts",
@@ -1399,7 +1526,7 @@
       },
       {
         "path": "server/workflows/runtime-version.ts",
-        "sha256": "6e2e8c17d73f0bf7ce2c904815d6048742b44987603b0eed6eb79cfedea25a40"
+        "sha256": "9e16fc93345f04f65cc2a4a9f45a408fe7794ddb9714e69c71de55036b816422"
       },
       {
         "path": "server/workflows/skills.ts",
@@ -1411,7 +1538,7 @@
       },
       {
         "path": "server/workflows/task-host.ts",
-        "sha256": "f74a469056b99306f79b32b5f34a84592ee918d7cbafb5c050b58339afe357c8"
+        "sha256": "e73e0925af6dc6aee8a6b2889d22d5e4795059e509a3b618c3611b83377d8447"
       },
       {
         "path": "server/workflows/task-journal.ts",
@@ -1471,7 +1598,7 @@
       },
       {
         "path": "src/backend/client.ts",
-        "sha256": "45bcb96271bc194c614db2a3a40147a84fab5f8184e27c5b540aaaa5567cae6e"
+        "sha256": "8f7281c78f396b56c35a891846d06ebd09658989ca773442408a2d212935e786"
       },
       {
         "path": "src/components/animations/ClickSpark.tsx",
@@ -1603,7 +1730,7 @@
       },
       {
         "path": "src/features/conversation/ConversationPage.tsx",
-        "sha256": "4477b814c77fae6bacc8459dede27bb9fe6ee196b064205a88a4ce2d715916cb"
+        "sha256": "ba7d2b78ed1596e84ae5e0820a57677827ef8b8850de7b8262ee1f5bfe5dd8aa"
       },
       {
         "path": "src/features/conversation/ConversationSummary.tsx",
@@ -1643,7 +1770,7 @@
       },
       {
         "path": "src/features/conversation/WorkflowPanel.tsx",
-        "sha256": "1e64006d0123c4e4cbf7175d209e346518232b674bce90687ed0cce740d7376c"
+        "sha256": "d891d6a7977c63c7a1c5e6484b9f040094c74b21bed41b880b11fca2a3183836"
       },
       {
         "path": "src/features/conversation/workspace.css",
@@ -1671,7 +1798,7 @@
       },
       {
         "path": "src/features/maintenance/MaintenancePage.tsx",
-        "sha256": "aed00c6ff481ee8119d973c7b9832fd04379561603d3d12d9bad65737c0ae797"
+        "sha256": "d1f5478f72822cac11b4503af841c658a8282bf6e3db255dcca51eca504eed79"
       },
       {
         "path": "src/main.tsx",
@@ -1703,7 +1830,7 @@
       },
       {
         "path": "tests/backend/action-coach-material-boundary.test.ts",
-        "sha256": "6b31c02bf92f8c1368f108a804b775ce5af4d5e72697143b9f9e9d954c62a5ee"
+        "sha256": "309c3da7850848ba597ebb4dbbcabafe047ecd62ad53676c40e28c0b522165fe"
       },
       {
         "path": "tests/backend/campus-actor-isolation.test.ts",
@@ -1771,7 +1898,7 @@
       },
       {
         "path": "tests/backend/coach-provider-budget.test.ts",
-        "sha256": "404b4a120b8a92499824b447851188397621b327007b92d93cfb8edbdc9661d6"
+        "sha256": "d25a5e8ed085b9a96bd2f20b6f36e57d684c0d37a3734c921e55232c066dbde0"
       },
       {
         "path": "tests/backend/coach-retrieval.test.ts",
@@ -1783,7 +1910,7 @@
       },
       {
         "path": "tests/backend/coach-source-freeze.test.ts",
-        "sha256": "ee967853bfc1c60f4c24ce493fd9d80ac0260ad5f42cd140ed6cfc3fb9409b01"
+        "sha256": "4bcf17688542561ec7f712b4674d063aca40aee739f3de57e82abcbb832638ff"
       },
       {
         "path": "tests/backend/coach-stream-evidence.test.ts",
@@ -1834,8 +1961,12 @@
         "sha256": "205c6298f807e4b77b023ba33029e535927f7897da8f41f5d378e423dfc208bf"
       },
       {
+        "path": "tests/backend/evergreen-acceptance2.test.ts",
+        "sha256": "d8b26fe54c06fba822277548ddf122ebb433a304a79f0b45fabe825fe36b79d2"
+      },
+      {
         "path": "tests/backend/evergreen-batch-content.test.ts",
-        "sha256": "619c0ccea3bfd5921a9440f3fd81a4d1b4e52f30abe81209dc5fce3530253e60"
+        "sha256": "cdc3f90bf96d46e8d63d35832d1506b9edcf16806110c81204c1dceb2c5d5a84"
       },
       {
         "path": "tests/backend/evergreen-browser.test.ts",
@@ -1847,11 +1978,15 @@
       },
       {
         "path": "tests/backend/evergreen-knowledge.test.ts",
-        "sha256": "ec387856a0635549c5131209a45d49436457131f4b3774856690f1ed6839c35b"
+        "sha256": "b7c12538c497a0fe8036d09582447dbe3887cefc572aaea11b948b6aeb0ec87e"
+      },
+      {
+        "path": "tests/backend/evergreen-legacy-regression.test.ts",
+        "sha256": "8e276d191f22cb15d70ac76fb3c2c5fcd988f2bb12737eb30e9c96ca9913f9c0"
       },
       {
         "path": "tests/backend/evergreen-natural.test.ts",
-        "sha256": "1daa28967c225d40e05da3c6e491f9182540d6abd498341e1ed51fcd51c93b46"
+        "sha256": "ad336a2b7fae4d54df6fea70d287698aed04c4c2da89fe8b0843cd2cf139582f"
       },
       {
         "path": "tests/backend/forget-intent.test.ts",
@@ -1875,7 +2010,7 @@
       },
       {
         "path": "tests/backend/growth-model.test.ts",
-        "sha256": "dd8c97cbd097243b45faf83372926832e05b2b357a6d123710c0f1fa7fd23ad9"
+        "sha256": "aabd042c329b1c04fb6781ce3f26b438171611014831f3776216eb954945818f"
       },
       {
         "path": "tests/backend/growth-r2-integration.test.ts",
@@ -1891,7 +2026,7 @@
       },
       {
         "path": "tests/backend/growth-source-span.test.ts",
-        "sha256": "ea418381f482308afa2b7658363b3934850d4eedc080e366e29c363ca633c5c5"
+        "sha256": "663423208958ed892542e406292a17c9e12713e258f7477eda4dc6681bc31c4a"
       },
       {
         "path": "tests/backend/growth-topic-split.test.ts",
@@ -1911,11 +2046,11 @@
       },
       {
         "path": "tests/backend/kb-maintenance-http.test.ts",
-        "sha256": "e741240c7290d640b03d4cd536e9564e9e162d6b45a15f14c7a16bf07692a22d"
+        "sha256": "3750b205a56e4f56c2cdc67113744b14832b4effa64f701d8d93fc4732d11de8"
       },
       {
         "path": "tests/backend/maintenance-browser.test.ts",
-        "sha256": "6f52463b0815acdc79ef468f35028013734ed00e72909911678349c47b27caac"
+        "sha256": "e643f3a00894f7ca9e4bcbac263e4f772c864ec155968713a0b4ef3f0fc42317"
       },
       {
         "path": "tests/backend/memory-control-http.test.ts",
@@ -1927,7 +2062,7 @@
       },
       {
         "path": "tests/backend/model-payload.test.ts",
-        "sha256": "e981f04d3ea6aa97c1bfe94e222070209560995d1bd1f510f4e1be2f2951efdf"
+        "sha256": "ce2ce8b2c8ebf61b03ceb8c653583abfb5b902c360f9eb270b50705d0b2f6453"
       },
       {
         "path": "tests/backend/official-attachment-public.test.ts",
@@ -1967,11 +2102,15 @@
       },
       {
         "path": "tests/backend/provider-errors.test.ts",
-        "sha256": "2e8addd1df7b3a1cda14255275f7834ada885e5557791a8d239900892537e73c"
+        "sha256": "e06cbce5629bb8d9faf876c12536266be6ee097833a9a24ebeea32c78409a055"
       },
       {
         "path": "tests/backend/provider-spend.test.ts",
         "sha256": "dcdfc8f29b0d79255e839b2936cdacd5f1e27a925e18e17ff08149531973f82e"
+      },
+      {
+        "path": "tests/backend/reply-draft-http.test.ts",
+        "sha256": "88143be87499b160daad1b2692ff7334dbd4ec13d1d21977739f44822341dea5"
       },
       {
         "path": "tests/backend/request-scheduler.test.ts",
@@ -1999,7 +2138,11 @@
       },
       {
         "path": "tests/backend/turn-contract.test.ts",
-        "sha256": "464cb905ae5bd667773c71959a7fc0559e6c24307ecfea691ee301bdce063946"
+        "sha256": "953a8a574233bd7c04709ef1ef2d10e14444d231f260a17cea4c118f59eb56ce"
+      },
+      {
+        "path": "tests/backend/turn-source-availability.test.ts",
+        "sha256": "66e19fa0e010885e171074e5ee2fb08fed59b5c5337f79e44efe6335c87e6991"
       },
       {
         "path": "tests/backend/weekly-plans.test.ts",
@@ -2015,7 +2158,7 @@
       },
       {
         "path": "tests/backend/workflow-continuity-browser.test.ts",
-        "sha256": "9bec3e069210ccf35e35ae2ca36b1acdcfa884999478fc3296c7fe5bfc5d4a83"
+        "sha256": "e4c36dfbec8f254a4ed19f54738e1eb1654695263ddeaaa1efd81e19e791eaa2"
       },
       {
         "path": "tests/backend/workflow-continuity.test.ts",
@@ -2027,7 +2170,7 @@
       },
       {
         "path": "tests/backend/workflow-coze-real-entry.test.ts",
-        "sha256": "dc0599a252f2749615a61cc5f76a6fd49006564d90907f2bdcc94cdce31deaac"
+        "sha256": "2cfbc24b75e8f153a818934143faba50513e358d360f510b625f4c5eb03ef4c2"
       },
       {
         "path": "tests/backend/workflow-direction.test.ts",
@@ -2035,7 +2178,7 @@
       },
       {
         "path": "tests/backend/workflow-growth-knowledge.test.ts",
-        "sha256": "014bd7521a6d4d8f9d58093f3e2078c75e229f757f9b151f7148e1f4c8908c69"
+        "sha256": "e2b7a6b5894826be4bf69aab1d078cdc514470ffde279b1fe19e05ce8dd465ec"
       },
       {
         "path": "tests/backend/workflow-guide-continuation.test.ts",
@@ -2043,7 +2186,7 @@
       },
       {
         "path": "tests/backend/workflow-http-chain.test.ts",
-        "sha256": "623170246ad1a2d473fc2dcab66f6c06b332e0716288327b220d12fecd70a626"
+        "sha256": "3a5d496fe2e2d35391cfec986967ac5e635f1cce909304929e6e5eddca42c1b4"
       },
       {
         "path": "tests/backend/workflow-journal.test.ts",
@@ -2063,11 +2206,11 @@
       },
       {
         "path": "tests/backend/workflow-personal-basis.test.ts",
-        "sha256": "193486b28292fe6b863c3b4364af23daa9f1fc964f57130ff57a9039c532b824"
+        "sha256": "aaab79638a9269e48131b3f540640368a3d2f8ecd2908393ee3918d39672e2d0"
       },
       {
         "path": "tests/backend/workflow-personalization.test.ts",
-        "sha256": "c4f53f1bee086315cd53e089a689562d1387c442388025ed0c55730d56cdbb88"
+        "sha256": "9fd9f969191a61d8cfafe4633df61fcea8ad5d2343295c7968e4e6a562e33c53"
       },
       {
         "path": "tests/backend/workflow-public-card.test.ts",
@@ -2075,11 +2218,11 @@
       },
       {
         "path": "tests/backend/workflow-real-entry.test.ts",
-        "sha256": "770f7a64c6941934dd8d3fbd2578c40491b9721e7c8a6e345c3a848d4e73e292"
+        "sha256": "6cb6c9bc347c06f3ec4208b962c4af5dec6fe92cc54c0bb1be8e0bd212f26625"
       },
       {
         "path": "tests/backend/workflow-runtime-adapter.test.ts",
-        "sha256": "915511b4619fe3bf3546bdbfeab434160f1b058b2c062acb2479a02d2e1116a3"
+        "sha256": "14dba7760fd5df7c9a460c7550abdf77b4948d63d04b4ba9690a382034a3a89f"
       },
       {
         "path": "tests/backend/workflow-skill-runtime.test.ts",
@@ -2091,19 +2234,19 @@
       },
       {
         "path": "tests/backend/workflow-student16.test.ts",
-        "sha256": "6bb6c4c65e2e29af9c84334a72409b72e63d6d1858d12e7beedf59d0b514a908"
+        "sha256": "cef9611e80c6a406d95ffcffd0e468e431795baf775d2bc5c9a97b7ae3acab1d"
       },
       {
         "path": "tests/backend/workflow-time-browser.test.ts",
-        "sha256": "6682078cb52cbe540d742e72d1a96c85b987044e4d1532e07c202fb584d16bb4"
+        "sha256": "cf54dba23a8e36341e8c8c37638fff6ed9b4f687daa24df3fbdb551fae959db0"
       },
       {
         "path": "tests/backend/workflow-time-host.test.ts",
-        "sha256": "3449d3883b53845ccd6554c0b2813d9bffade50ff6e1554624b30546c659466c"
+        "sha256": "05503bc663bd567309f5f507cb7b30f8282fde82e479c3bc76439ae729a885d1"
       },
       {
         "path": "tests/backend/workflow-time.test.ts",
-        "sha256": "2421b16882946719e7e83ec4adbec3959d3e20155f858a42ecdf7e3fefd35483"
+        "sha256": "cbd5f1870d6e51c078240dbaacb59c4a26a03587b7b7be66a33aa85b5a952d9d"
       },
       {
         "path": "tests/backend/workflow-trajectories.test.ts",
@@ -2111,7 +2254,11 @@
       },
       {
         "path": "tests/backend/workflow-zero.test.ts",
-        "sha256": "93234a8448a7a32697b9d697fd6c3b940378286f42d854c3cfd9c6aef3bf87c0"
+        "sha256": "e43c232c245fbc398dd02807de441e934fb56c9ba9cecbe51ddf972debf0adf6"
+      },
+      {
+        "path": "tests/bounded-reply.test.ts",
+        "sha256": "4c7d40a8c39a94ccef18d0d5dd995ffff60a4e178aea3e65fe2107999db757af"
       },
       {
         "path": "tests/campus-acceptance-summary.test.ts",
@@ -2134,6 +2281,10 @@
         "sha256": "c7930c892fa0e428a2da72a8f622e75d9bb0f58dbff14e7289f70a4aae04ac10"
       },
       {
+        "path": "tests/coach-simulation-reproduction.test.ts",
+        "sha256": "1e2d0bd8f2554dbec6d323be8a2bdb2c42fc647b2632331e6bf967311f29052a"
+      },
+      {
         "path": "tests/cognition.test.ts",
         "sha256": "dbed870b78fbb5050713665f98c18e5dd5bc9cbcc7393ed9835bc4826e407210"
       },
@@ -2146,8 +2297,16 @@
         "sha256": "904862b1c9b81af9fb8855886dd92edc790ccc61a3313927627c80eb1a2ea1db"
       },
       {
+        "path": "tests/coze-credit-budget.test.ts",
+        "sha256": "f811c140499e9bf43d8b751874ed8839493f32a72930b002a1a1f1945394f45f"
+      },
+      {
+        "path": "tests/coze-host-permit.test.ts",
+        "sha256": "10a142f1a0914bbee3334cb6b7974299bbf352aac6a21b51511e82b1cb807a01"
+      },
+      {
         "path": "tests/evergreen-guide.test.ts",
-        "sha256": "c923af9ac37983cc9d31cb95d3d24e5c7e375b22facb595b20b19f1ed41c60f9"
+        "sha256": "84f39f242f8815e51574826eec9cb548331703ab2c47a73564d64b4bf04d11af"
       },
       {
         "path": "tests/experience-content.test.ts",
@@ -2254,6 +2413,10 @@
         "sha256": "de919ab6f9218867bb140c0dbc651bdbfdd4c72bbc5d03089ff754ffe5f8e9e9"
       },
       {
+        "path": "tests/independent-review.test.ts",
+        "sha256": "cdc8b12f3753201797b2acab8f6f81d7b748ea4572f053bf1aec7319db497330"
+      },
+      {
         "path": "tests/model-config.test.ts",
         "sha256": "7f8321f51f607e0321d04ed17a7e33ee81d45b90ea14f60b6b3bb59fd7193535"
       },
@@ -2283,7 +2446,7 @@
       },
       {
         "path": "tests/turn-obligations.test.ts",
-        "sha256": "9e0944600cce70221c4690cdf7dcca5068317b274567952a5d32e995fe3ea268"
+        "sha256": "42edac4ecda3d823eb80e3308f8dd4c3159c286ac95db3b2728912189db8acbe"
       },
       {
         "path": "tests/user-command-spans.test.ts",
@@ -2339,7 +2502,7 @@
           "available": false,
           "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
           "contractSignature": "38214c306e303fea95596dd88b007df7fa366fc0bdfcb80b85330b13337cef7a",
-          "interfaceSignature": "9d9ac01a2a181c654f0b25492578e8ccdf361f3f5d0dce33e8c33a90c092e661",
+          "interfaceSignature": "686e6dcf58b09117b7f38d2bab7581fbc12d1b4f81142b37b970a65dcb3cbd7f",
           "pricing": {
             "inputCnyPerMillion": 0.8,
             "outputCnyPerMillion": 2.7,
@@ -2353,7 +2516,7 @@
           "available": false,
           "signature": "bailian:deepseek-v4.1-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
           "contractSignature": "841335c97941ea3e7755736cfd1b63f3b6cf058b5293395d3723f57d39de906a",
-          "interfaceSignature": "22a25a8b94537b17c5ebc0fd47a5ebd8103784ebe889a05a5d84d60bbd0261e6",
+          "interfaceSignature": "5e91eaf40a07eb0cc629c7d12f614b4eed3330f820ef5126d4c565e19834be63",
           "pricing": {
             "inputCnyPerMillion": 2,
             "outputCnyPerMillion": 8,
@@ -2365,9 +2528,9 @@
         "qwenThinkingBudget": 0
       }
     },
-    "digest": "7f2ec51e6536fcbdb3e463c97c8a968f8bde1df5bc16e10f35612050616539cd"
+    "digest": "bf0ad2321167c4e4756458d6357bfa83a2147507000eefacd59a58ba59a91b40"
   },
-  "runtimeFreezeDigest": "7f2ec51e6536fcbdb3e463c97c8a968f8bde1df5bc16e10f35612050616539cd",
+  "runtimeFreezeDigest": "bf0ad2321167c4e4756458d6357bfa83a2147507000eefacd59a58ba59a91b40",
   "privateStateIncluded": false,
   "declaredPublicInputs": [
     "evidence/v1.3-action-coach/research/source-verification.json",
@@ -2375,8 +2538,10 @@
   ],
   "historicalPublicInputsAreNotNewApproval": true,
   "reproduction": {
-    "head": "ec3326f35fc42a29ab2d220a1cf3eb8b4bd2b8a6",
-    "report": "evidence/long-batch-20261010/reproduction/REPRODUCTION.json",
-    "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE"
-  }
+    "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+    "report": "evidence/coze-core-launch-20261011/REPRODUCTION_F36B933_FIRST.json",
+    "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
+    "currentCodeDifference": "Only student16 scripted test harness adapted to bounded replies and server plan rendering; product code unchanged. Current harness run reported separately."
+  },
+  "runtimeFreezeScope": "CURRENT_WORKSPACE_AND_LOCAL_CONFIG_READ_ONLY_NOT_PAID_PROCESS_OR_SYNTHETIC_UI_OVERRIDES"
 }

@@ -1,21 +1,21 @@
 {
   "schemaVersion": 4,
-  "version": "workflow-v2-integration-0c4ce842100e",
-  "codeCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
-  "sourceFingerprint": "0c4ce842100e910aa5d0eba66e35ef7a99fa08af7059a8e4066c6a70698d16a2",
-  "sourceManifestSha256": "e3e2ebe2f78adbb7942d6ab322b142e23669f68b90fd3748ee9c5c43526ab724",
-  "contentManifestSha256": "8cc7fc261134738cd5db968c9020c8e5a8a613046131d59295f61c8c14bd4d96",
-  "indexBindingSha256": "165f3ea22a7a3d36b1d7f22b3102982579c157f583765e719f6a6c50e973e467",
-  "skillVersionMatrixSha256": "b094735f00954d51a1189938dc6fce3b33b88e9e64d61e3cf4642ffddb28482d",
-  "acceptanceSha256": "3e69df9308f5d7400a859ba902f75354e49cafc7866e8a1ef389dcd6d1cec7a1",
+  "version": "workflow-v2-integration-f437c5b396e5",
+  "codeCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+  "sourceFingerprint": "f437c5b396e59788a2ca04d4df8d83abee3a08ec8ae722d1b434727bbbf45502",
+  "sourceManifestSha256": "4f91ac49b2507619703e32ee893d37c36e185fa53532b7d16651ccf31110012d",
+  "contentManifestSha256": "2498654f1448cfb652e35df2b67b5f2874249bef8a7e9354b500f9a3579db7a9",
+  "indexBindingSha256": "e8559d1ef2b5e9b6f52884e780a64d9c0f2c5a2f82a5fdfe0258f41d0c477e47",
+  "skillVersionMatrixSha256": "a45a4b82a207e6a7631536b3835c4f7358f6f05158290ea3dba6108bab0ee7cb",
+  "acceptanceSha256": "c3c70586250144ef472608ad94f21dc85af3395d52e41271724e50363a703e16",
   "finalReviewSha256": "1cf66d015e613c572872acccd51893e16d45e90527e20a24bcda3fbe0554ee17",
   "reportHashes": {
-    "LOCAL_ACCEPTANCE_PROGRESS.md": "93fc0064edba23e8fbce5c363d1c466d6f24b70d43f6d04bf81d6fe338df387d",
+    "LOCAL_ACCEPTANCE_PROGRESS.md": "18368ce4bb29017e7e7ddc17677212857a73f705d19036d8ced37ba8e256f78b",
     "SKILL_HOST_ACCEPTANCE.md": "9e4acd3a442f126a5ad235a8d1d2e5e56c681f6a89afbedd075f6fb3a75432aa",
     "WORKFLOW_FAILURES_AND_REVIEW.md": "c6a37075177f141434dfb73fde3c65a683c248632c240382ea20dd3b161845e1",
-    "GATE_STATUS.md": "a46ff4fdd4c5448507d11384648b0937cec704ecc25642b2ed0adac4103a8405"
+    "GATE_STATUS.md": "90a4477fdcd9bbcfb88f59b0c194443dd6570c51fc7501a1c8a830d770e171ae"
   },
-  "nextAcceptanceSha256": "0d54a8eccdf3740ba4c36779909490124a5472a7e6c6c4d87e59c815b7aad326",
+  "nextAcceptanceSha256": "f720082d03fa229b2b7b2bb251f1ce9f576f6829535ac1b87b39baa5f5f293a8",
   "evidenceHashes": {
     "evidence/long-batch-20261010/browser-probe-stages.log": "259827ec6449b9edea315e365e56402cf4f9624f3ef4ae0c7851af87788c36ec",
     "evidence/long-batch-20261010/BROWSER_CHAIN.json": "70f352178e454662ab8e8daefcc178c312cd4abcd2985e14d57b051f64a30fa2",
@@ -318,7 +318,17 @@
     "evidence/retrieval-followup-20261010/types-source-preparation.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612",
     "evidence/retrieval-followup-20261010/WORKFLOW_EXECUTION_TRACES.jsonl": "80d27b87103cc8c8ba371af6179e13edf413e5adf1bbf3312b25cd70b5afa424",
     "evidence/retrieval-followup-20261010/GUIDE_CONTINUATION_HTTP_confidence-final.json": "269ac7cf6760d97cec51c6066ff4139e954f7ff62c35f5d51d1badf2f34b6498",
-    "evidence/retrieval-followup-20261010/PERSISTENT_VERSION_READBACK.json": "0b373b703465054e97b93099dfdd6221214aca9dc63a32a437d5e42c056816f8"
+    "evidence/retrieval-followup-20261010/PERSISTENT_VERSION_READBACK.json": "0b373b703465054e97b93099dfdd6221214aca9dc63a32a437d5e42c056816f8",
+    "evidence/coze-core-launch-20261011/REPRODUCTION_F36B933_FIRST.json": "22a9b093a44c95632abe6617710aa3a15b6251b8846932d828f920ca54f70cb0",
+    "evidence/coze-core-launch-20261011/current-ui-f36b933-api-readback.json": "8de9b007139ebe2d9ce4f69f1fcd293ce3d51ecc0f9f879f9b7e40dcc1a2befa",
+    "evidence/coze-core-launch-20261011/actual-r8-waiting-owner-f36b933.png": "69c7d7a8af324212d9c7232ec1e43fef41f41a7e130b2577df7212355d695be6",
+    "evidence/coze-core-launch-20261011/actual-r8-waiting-owner-f36b933.ax.txt": "4332a1e9683d85f3208ff6e7da08004fe595f1791b1114f705210d4c6d2cf077",
+    "evidence/coze-core-launch-20261011/current-chat-bounded-f36b933.png": "3b0a85b0b23a51068a8252d3115644de758f9cf45c3cd4a341c919cc15569d25",
+    "evidence/coze-core-launch-20261011/student16-b31aaed-first/STUDENT16_TRAJECTORIES.json": "31f3be021379b52e28911cc68ac4cd5517c162d47b0499b99f2379c19858d8d0",
+    "evidence/coze-core-launch-20261011/student16-b31aaed-first/SKILL_HOST_EXECUTIONS.json": "eb8deea33cb2542db40b49a7ad60ee2473774ebd435587d387b0039bf647d8e4",
+    "evidence/coze-core-launch-20261011/BOUNDED_STATUS_B31AAED_FIRST.json": "1b725c662e906f9cd82e0ba2a971b88445b5d903a406b8ee264bc29241973f6d",
+    "evidence/coze-core-launch-20261011/BOUNDED_STATUS_MAIN_REVIEW.json": "5103fe2cd5aac119bf89fddedf3dc4333e0dad4d806c9d835518d88378eca765",
+    "evidence/coze-core-launch-20261011/BOUNDED_STATUS_CONFIG_FIRST_ZERO_DISPATCH.json": "ac35428eb3c86b4ebbc9f6d51036239d8cb7bffbe602fa251d8dbb56b380f67f"
   },
   "historicalProtocols": {
     "COMPLEX_DECISION_AB_EVAL.json": "6c3252608e2b70166388767849d2e28cb708f479e5cde0bd546737bcf519734b",
@@ -327,16 +337,21 @@
   },
   "currentTests": {
     "root": {
-      "passed": 118,
-      "evidence": "evidence/retrieval-followup-20261010/root-confidence-final.log"
+      "passed": 143,
+      "evidence": "evidence/coze-core-launch-20261011/REPRODUCTION_F36B933_FIRST.json",
+      "scope": "ROOT_143_FRESH_F36B933_PRODUCT_CODE_UNCHANGED_HARNESS_UPDATE_SEPARATE"
     },
     "serverTypes": "PASS",
     "frontendTypes": "PASS_BUILD_TSC",
     "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
     "maintenanceApi": {
       "passed": 1,
-      "evidence": "evidence/retrieval-followup-20261010/MAINTENANCE_HTTP.json",
-      "syntheticApprovalsOnly": true
+      "evidence": "evidence/coze-core-launch-20261011/maintenance-superseded-green-first.log",
+      "realReviewImportsInIsolatedAccount": 1,
+      "realReviewImportsInNonTestDb": 0,
+      "ownerApprovals": 0,
+      "publications": 0,
+      "supersededImportReviewApprove": "REFUSED_KB_DRAFT_SUPERSEDED"
     },
     "realEntry": {
       "passed": 4,
@@ -366,39 +381,44 @@
       "fourProfilesEvidence": "evidence/long-batch-20261010/PERSONAL_BASIS_ABCD.json"
     },
     "currentCandidateBrowser": {
-      "status": "PASS_CURRENT_MAINTENANCE_UI_STUDENT_CHAIN_HISTORICAL",
+      "status": "PASS_ACTUAL_LOCAL_SYNTHETIC_CURRENT_MAINTENANCE_AND_BOUNDED_CHAT",
+      "codeCommit": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
       "widths": [
         1440,
         390
       ],
-      "maintenance": "evidence/retrieval-followup-20261010/MAINTENANCE_BROWSER.json",
-      "student": "evidence/long-batch-20261010/BROWSER_CHAIN.json",
-      "shortAnswer": "evidence/long-batch-20261010/WAITING_BROWSER_GREEN.json",
-      "physicalPhone": false
+      "evidence": "evidence/coze-core-launch-20261011/current-ui-f36b933-api-readback.json",
+      "screenshot": "evidence/coze-core-launch-20261011/actual-r8-waiting-owner-f36b933.png",
+      "syntheticOverridesAfterRuntimeSnapshot": true,
+      "realModelQuality": false,
+      "serviceClosed": true
     },
     "student16": {
-      "status": "HISTORICAL_PASS_LOCAL_CONTRACT_NOT_RERUN_AFTER_RETRIEVAL_CHANGE",
+      "status": "PASS_LOCAL_CONTRACT",
       "rounds": 96,
       "sessions": 48,
       "students": 16,
       "coreFourIncludedOnce": true,
-      "testedCodeCommit": "8bdd7408b8913724fefed7c56160c4bb2b1bdfdb",
-      "productSourceEquivalentToFinalCode": false,
+      "testedCodeCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+      "productSourceEquivalentToFinalCode": true,
       "productionFilesCompared": 219,
       "annotationRevision": 2,
       "blind": false,
       "apiReadback": true,
       "provider": "SCRIPTED_LOOPBACK_ONLY",
-      "evidence": "evidence/long-batch-20261010/student16-final/STUDENT16_TRAJECTORIES.json",
-      "firstFailuresPreserved": true
+      "evidence": "evidence/coze-core-launch-20261011/student16-b31aaed-first/STUDENT16_TRAJECTORIES.json",
+      "firstFailuresPreserved": true,
+      "sixAxesReadBack": true,
+      "paidCalls": 0,
+      "cloudCalls": 0
     },
     "reproduction": {
+      "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+      "report": "evidence/coze-core-launch-20261011/REPRODUCTION_F36B933_FIRST.json",
       "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
-      "codeCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
-      "steps": 15,
-      "evidence": "evidence/retrieval-followup-20261010/reproduction-confidence/REPRODUCTION.json",
-      "ledgerPrivateDbKeysCopied": false,
-      "firstFailureRetained": "evidence/retrieval-followup-20261010/reproduction/REPRODUCTION.json"
+      "currentCodeDifference": "Only student16 scripted test harness adapted to bounded replies and server plan rendering; product code unchanged. Current harness run reported separately.",
+      "steps": 23,
+      "ledgerPrivateDbKeysCopied": false
     },
     "retrievalQuality": {
       "status": "PASS_LOCAL_EXPOSED_REGRESSION_THRESHOLDS_NOT_FULL_KB_OR_INDEPENDENT_BLIND",
@@ -447,7 +467,7 @@
             "denominator": 48
           },
           "top1": {
-            "numerator": 45,
+            "numerator": 44,
             "denominator": 48
           },
           "missingTarget": {
@@ -477,15 +497,15 @@
         },
         "exposed160": {
           "route": {
-            "numerator": 159,
+            "numerator": 160,
             "denominator": 160
           },
           "recall5": {
-            "numerator": 63,
+            "numerator": 64,
             "denominator": 64
           },
           "top1": {
-            "numerator": 61,
+            "numerator": 62,
             "denominator": 64
           },
           "missingTarget": {
@@ -496,14 +516,38 @@
           "controls": 0
         },
         "status": "PASS_DECLARED_THRESHOLDS",
-        "independentBlind": false
+        "independentBlind": false,
+        "exposedFirstReserve32": {
+          "status": "FIRST_UNTUNED_RESULT_PRESERVED_NOW_REGRESSION_ONLY",
+          "route": {
+            "numerator": 32,
+            "denominator": 32
+          },
+          "recall5": {
+            "numerator": 16,
+            "denominator": 16
+          },
+          "top1": {
+            "numerator": 16,
+            "denominator": 16
+          },
+          "eligibleDenominator": 16,
+          "totalQueries": 32,
+          "missingLegalCardQueries": 16,
+          "evidence": ".planning/research/workflow-integration/evidence/retrieval-reserve-20261011/NATURAL_reserve_first-final.json"
+        }
       },
       "reserve": {
-        "count": 32,
-        "sha256": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
+        "sha256": "00cbe036f298b59a21393d7d803bd5a49a0683b10c3e6cc3676c0220e48261a0",
+        "count": 64,
         "executions": 0,
         "usedForTuning": false,
-        "status": "NOT_TESTED"
+        "status": "NOT_TESTED",
+        "labelsAuthor": "current-main-codex",
+        "independentBlindTest": false,
+        "excludedFromIndexVocabulary": true,
+        "oldReserve32": "first result retained; exposed regression only",
+        "annotationPath": ".planning/research/evergreen/KB_RETRIEVAL_NEXT_RESERVE.json"
       },
       "firstFailureRetained": "evidence/long-batch-20261010/NATURAL_sealed_final.json"
     },
@@ -519,22 +563,47 @@
     "safetyCurrent": {
       "passed": 9,
       "evidence": "evidence/retrieval-followup-20261010/safety-confidence-final.log"
+    },
+    "repairPilot7": {
+      "status": "FAIL_BUSINESS_AND_P95_FIRST_PRESERVED",
+      "codeCommit": "25273bac5add2f49caceda078ef0406d6ffeea37",
+      "technicalCompleted": 7,
+      "total": 7,
+      "firstContentP50Ms": 2471.6373,
+      "firstContentP95Ms": 7696.6836,
+      "completeP95Ms": 7696.7272,
+      "evidence": "evidence/coze-core-launch-20261011/REPAIR_PILOT_CONTACT_TIME_25273BA_FIRST.json",
+      "replacesOriginal24": false,
+      "final20Accepted": false
+    },
+    "actualOriginalReviewImport": "ACTUAL_R8_NORMAL_UI_IMPORTED_WAITING_OWNER_IN_ISOLATED_ACCOUNT",
+    "localCoreSkills": {
+      "evidence": "evidence/coze-core-launch-20261011/student16-b31aaed-first/SKILL_HOST_EXECUTIONS.json",
+      "scope": "FOUR_NORMAL_CORE_HOST_SKILLS_NATIVE_SDK_AND_READBACK_DIRECTION_SKILL_SEPARATE_NOT_ALL_FIVE_REAL_SKILLS"
     }
   },
   "paidLedgerMetadataOnly": {
-    "sha256": "5dee70d12598d8b5d590ca85645716e01d09cdde7ed6f3222d02a221d82e32b3",
-    "copied": false,
-    "startingCallCount": 2022,
-    "currentCallCount": 2043,
-    "newCalls": 21,
+    "restorationBaselineCallCount": 2022,
+    "reservationEntriesNew": 136,
+    "actualDispatchedNew": 130,
+    "notSentNew": 6,
+    "actualUnknownFeesNew": 6,
+    "knownNewCostCny": 0.2727784,
+    "unknownFeesReservedCny": 0.7139328,
+    "remainingOriginalFundingCny": 10.2736286,
+    "ledgerEntries": 2158,
     "newBudget": 0,
-    "knownEstimatedCostCny": 0.02625,
-    "unknownCalls": 3,
-    "unknownReservedCny": 0.3735552,
-    "remainingCny": 10.8605346
+    "ledgerSha256": "58e9f47b53f06aeea8c897d055be7c181b378373f820b40bb6adbfe7e9bf6ef1",
+    "ledgerCopied": false
   },
   "status": "WIP_NOT_READY",
-  "independentReviewActual": 0,
+  "independentReviewActual": {
+    "executionRuns": 2,
+    "cardReviewEvents": 38,
+    "currentVersionBindings": 30,
+    "authenticatedIsolatedImports": 1,
+    "nonTestImports": 0
+  },
   "humanApprovalActual": 0,
   "checkpoints": "CURRENT_LAUNCH_BRANCH_UNRELEASED_ORDINARY_SMALL_FAILED_COZE_HTTP_R4_PROCESSING_RESERVE32_NOT_TESTED",
   "preRestorationCheckpoint": {
@@ -1798,23 +1867,79 @@
     }
   },
   "currentExecution": {
-    "repositoryHead": "47c7098e3471a12f933d74e9594cd9d52cf46f38",
-    "codeCommit": "47c7098e3471a12f933d74e9594cd9d52cf46f38",
-    "realSmallComplexSourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
-    "uiOrigin": "http://127.0.0.1:18101",
-    "uiState": "TEMPORARY_SYNTHETIC_ACCEPTANCE_RUNNING_NOT_PRODUCT_SERVICE",
+    "repositoryHead": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+    "codeCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+    "sourceFingerprint": "f437c5b396e59788a2ca04d4df8d83abee3a08ec8ae722d1b434727bbbf45502",
+    "process": {
+      "service": "LifeOS",
+      "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+      "versionSource": "git",
+      "skillVersion": "1.2.2-candidate",
+      "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+      "workflowVersion": "v2-integration",
+      "sourceDigest": "fa6bf16ad7aa5e16fb021e3d55d2004aa74e9dfe8adae70d129b04385b589e83",
+      "sourceFreezeDigest": "62209cffa7d7e4628c9e824b72094218ad3218cce6a82471839faf50f589807e",
+      "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+      "sourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+      "contentEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+      "skills": [
+        {
+          "name": "lifeos-direction-analysis",
+          "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-action-review",
+          "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-experience-evidence",
+          "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-guide-application",
+          "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-growth-diff",
+          "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+          "version": "0.2.0-candidate"
+        }
+      ],
+      "loadedAt": "2026-10-11T04:59:44.314Z",
+      "contractGeneration": "p4+workflow-v2",
+      "growthApi": true,
+      "processKind": "ACTUAL_LOCAL_SYNTHETIC_UI_PROCESS_CLOSED_AFTER_ACCEPTANCE",
+      "evidence": "evidence/coze-core-launch-20261011/current-ui-f36b933-api-readback.json",
+      "syntheticOverridesAfterRuntimeSnapshot": true,
+      "paidModel": false,
+      "realQuality": "NOT_TESTED_CURRENT_REPAIR"
+    },
     "cozeGrowth": {
       "projectId": "7693388932939300905",
-      "head": "d881683ec576b9d0d169db8f6beb2323bc93bbcd",
-      "status": "FAILED_SOURCE_GATES_R8_PROCESSING"
+      "developmentCommit": "39482ae36cdfd1dac11f610d642a5477963986e1",
+      "status": "R13_ACTUAL_SQL_SCRIPTED_HTTP_LOCAL_14_CHECKS_PASS_NOT_REAL_CLOUD_MODEL",
+      "evidence": "evidence/coze-core-launch-20261011/r13-observed/",
+      "newProductionDeployment": false
     },
     "cozeKnowledge": {
       "projectId": "7693465311558795327",
-      "head": "0b27a336af53f218f8a361daa647c9c5378e00be",
-      "status": "FIRST_REVIEW_HASH_REJECTED_R2_PROCESSING"
+      "developmentCommit": "10b80bfb5f20f068a7dfaa050813ece970468fab",
+      "status": "R8_ACTUAL_INDEPENDENT_ORIGINAL_CARD_REVIEW_EXECUTED",
+      "currentCardBindings": 30,
+      "ownerApprovals": 0,
+      "newPublications": 0
     },
-    "installedSkills": "UNCHANGED_READ_ONLY_PREVIOUS_INSTALLED_VERSION_NOT_ASSUMED_CURRENT",
+    "installedSkills": "READ_ONLY_CHECKED_NO_USER_CUSTOMIZATIONS_OVERWRITTEN",
     "productionWrites": 0,
-    "status": "WIP_NOT_READY"
-  }
+    "status": "WIP_NOT_READY",
+    "extraCandidatePackaging": "CANCELLED_BY_OWNER_ONLY_REAL_DEPLOYMENT_NECESSARY_VALIDATION"
+  },
+  "at": "2026-10-11T05:25:09.763Z",
+  "finalReviewScope": "HISTORICAL_REVIEW_NOT_CURRENT_INDEPENDENT_ACCEPTANCE",
+  "latestRealReview": "evidence/coze-core-launch-20261011/BOUNDED_STATUS_MAIN_REVIEW.json",
+  "latestRealReviewIndependent": false
 }

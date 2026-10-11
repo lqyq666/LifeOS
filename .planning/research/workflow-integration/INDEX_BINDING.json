@@ -1,13 +1,13 @@
 {
-  "version": "workflow-v2-integration-0c4ce842100e",
-  "at": "2026-10-10T12:03:20.970250+00:00",
+  "version": "workflow-v2-integration-f437c5b396e5",
+  "at": "2026-10-11T05:25:09.763Z",
   "signature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v3-expressions:8b1d482decb187e8671098c9cf001f7e14dc6106d2389611cfc3c4989b85a11a",
-  "contentManifestSha256": "8cc7fc261134738cd5db968c9020c8e5a8a613046131d59295f61c8c14bd4d96",
+  "contentManifestSha256": "2498654f1448cfb652e35df2b67b5f2874249bef8a7e9354b500f9a3579db7a9",
   "indexCode": {
-    "server/knowledge-index.ts": "1af8fee2586bf027f2cfe30a26238a969aedfea11f40e6d4725abdc203706a64",
+    "server/knowledge-index.ts": "bd8344e2c389682c30b95932a26324dac6348ad91c38a5bdeb4a290e978fa958",
     "server/embedding-signature.ts": "252b71fc865862a2634adb9e53cc81f0810b323fd257059c9b070ee1c632f8be",
     "server/coach-knowledge.ts": "309e8c49827e1244dda11870d4660a9d77e144d3e61c3c3566cf97c848b3b648",
-    "server/evergreen-guide.ts": "549eb0d2aadc3fd01abd77d2c91672e467a7deb2c2a7436202ea55afb479b68b",
+    "server/evergreen-guide.ts": "0d707c47ea6c28fcfc26b7e719b68c45066dc63d505ee06a28d85a8365593bf4",
     "server/workflows/method-context.ts": "f5cd043825921859e0672f7bd18be5ccf86167c737b253ddff10d23cb1f6f902"
   },
   "acceptanceDatabase": "DISPOSABLE_PG_ONLY",
@@ -42,8 +42,8 @@
   },
   "newNaturalQueryQuality": "HISTORICAL_FIRST_160_PASS_NOT_CURRENT_UNSEEN",
   "freshProductionIndexAudit": "NOT_TESTED",
-  "onlineRetrievalPerformance": "PAUSED_NOT_RUN",
-  "codeHashDomain": "COMMITTED_GIT_BLOB_BYTES",
+  "onlineRetrievalPerformance": "NOT_TESTED_CURRENT_LIVE_RETRIEVAL",
+  "codeHashDomain": "COMMITTED_GIT_BLOB_BYTES_BEFORE_WORKTREE_EOL_CONVERSION",
   "currentRegression": {
     "old235": {
       "routing": {
@@ -69,7 +69,7 @@
         "denominator": 48
       },
       "top1": {
-        "numerator": 45,
+        "numerator": 44,
         "denominator": 48
       },
       "missingTarget": {
@@ -99,15 +99,15 @@
     },
     "exposed160": {
       "route": {
-        "numerator": 159,
+        "numerator": 160,
         "denominator": 160
       },
       "recall5": {
-        "numerator": 63,
+        "numerator": 64,
         "denominator": 64
       },
       "top1": {
-        "numerator": 61,
+        "numerator": 62,
         "denominator": 64
       },
       "missingTarget": {
@@ -118,13 +118,37 @@
       "controls": 0
     },
     "status": "PASS_DECLARED_THRESHOLDS",
-    "independentBlind": false
+    "independentBlind": false,
+    "exposedFirstReserve32": {
+      "status": "FIRST_UNTUNED_RESULT_PRESERVED_NOW_REGRESSION_ONLY",
+      "route": {
+        "numerator": 32,
+        "denominator": 32
+      },
+      "recall5": {
+        "numerator": 16,
+        "denominator": 16
+      },
+      "top1": {
+        "numerator": 16,
+        "denominator": 16
+      },
+      "eligibleDenominator": 16,
+      "totalQueries": 32,
+      "missingLegalCardQueries": 16,
+      "evidence": ".planning/research/workflow-integration/evidence/retrieval-reserve-20261011/NATURAL_reserve_first-final.json"
+    }
   },
   "unseenReserve": {
-    "count": 32,
-    "sha256": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
+    "sha256": "00cbe036f298b59a21393d7d803bd5a49a0683b10c3e6cc3676c0220e48261a0",
+    "count": 64,
     "executions": 0,
     "usedForTuning": false,
-    "status": "NOT_TESTED"
+    "status": "NOT_TESTED",
+    "labelsAuthor": "current-main-codex",
+    "independentBlindTest": false,
+    "excludedFromIndexVocabulary": true,
+    "oldReserve32": "first result retained; exposed regression only",
+    "annotationPath": ".planning/research/evergreen/KB_RETRIEVAL_NEXT_RESERVE.json"
   }
 }

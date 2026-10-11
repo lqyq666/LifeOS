@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "status": "LOCAL_COMPATIBILITY_CANDIDATE_CURRENT_CLOUD_CONTRACT_NOT_VERIFIED",
+  "status": "EXISTING_TWO_PROJECTS_DEVELOPED_CURRENT_REAL_CLOUD_CONTRACT_NOT_ACCEPTED",
   "newProjects": 0,
-  "uploads": 0,
+  "uploads": "AUTHORIZED_PUBLIC_ORIGINALS_AND_SYNTHETIC_FIXTURES_OBSERVED_COUNT_NOT_RECONCILED",
   "privateData": false,
   "adultSyntheticOnly": true,
-  "sourceDigest": "35356182435099427a3ebeb7836a959c3ea96921e685b8d3036cc3b296fda8b3",
+  "sourceDigest": "bf0ad2321167c4e4756458d6357bfa83a2147507000eefacd59a58ba59a91b40",
   "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
   "skills": [
     {
@@ -74,7 +74,7 @@
     {
       "projectId": "7693465311558795327",
       "businessRole": "public_knowledge",
-      "currentCloudVersion": "LEGACY_READBACK_ONLY_NEW_CANDIDATE_NOT_TESTED",
+      "currentCloudVersion": "10b80bfb5f20f068a7dfaa050813ece970468fab",
       "legacyVersion": "1.2.0_HISTORICAL_ONLY",
       "candidateContract": "existing public knowledge /run schemaVersion=1/items",
       "input": {
@@ -260,12 +260,22 @@
         "invented_author",
         "oversized_items",
         "cancelled_request"
-      ]
+      ],
+      "development": {
+        "projectId": "7693465311558795327",
+        "developmentCommit": "10b80bfb5f20f068a7dfaa050813ece970468fab",
+        "status": "R8_ACTUAL_INDEPENDENT_ORIGINAL_CARD_REVIEW_EXECUTED",
+        "currentCardBindings": 30,
+        "ownerApprovals": 0,
+        "newPublications": 0
+      },
+      "realCloudBusiness": "NOT_TESTED_CURRENT_CANDIDATE",
+      "productionRelease": "HISTORICAL_NOT_CURRENT_CANDIDATE"
     },
     {
       "projectId": "7693388932939300905",
       "businessRole": "growth",
-      "currentCloudVersion": "LEGACY_READBACK_ONLY_NEW_CANDIDATE_NOT_TESTED",
+      "currentCloudVersion": "39482ae36cdfd1dac11f610d642a5477963986e1",
       "legacyVersion": "1.2.0_HISTORICAL_ONLY",
       "candidateContract": "existing LifeOS workflow-v2 request/proposal/receipt; local host owns authorization and state commit",
       "input": {
@@ -306,8 +316,23 @@
         "source_conflict",
         "missing_cost_usage",
         "wrong_skill_version"
-      ]
+      ],
+      "development": {
+        "projectId": "7693388932939300905",
+        "developmentCommit": "39482ae36cdfd1dac11f610d642a5477963986e1",
+        "status": "R13_ACTUAL_SQL_SCRIPTED_HTTP_LOCAL_14_CHECKS_PASS_NOT_REAL_CLOUD_MODEL",
+        "evidence": "evidence/coze-core-launch-20261011/r13-observed/",
+        "newProductionDeployment": false
+      },
+      "realCloudBusiness": "NOT_TESTED_CURRENT_CANDIDATE",
+      "productionRelease": "HISTORICAL_NOT_CURRENT_CANDIDATE"
     }
   ],
-  "releaseBoundary": "Owner restored existing-budget development and runtime scope. Current copies must read back role/source/skill/content hashes and separate actual runtime funding; old deployment success never accepts this candidate."
+  "releaseBoundary": "Owner restored existing-budget development and runtime scope. Current copies must read back role/source/skill/content hashes and separate actual runtime funding; old deployment success never accepts this candidate.",
+  "historicalUploads": 0,
+  "currentHostBinding": {
+    "status": "REQUIRES_CURRENT_HOST_BINDING_REFRESH_BEFORE_PAID_CLOUD_DISPATCH",
+    "path": ".planning/research/workflow-integration/COZE_HTTP_HOST_BINDING.json",
+    "historicalHostCodeCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4"
+  }
 }

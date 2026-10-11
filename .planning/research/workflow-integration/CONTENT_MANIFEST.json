@@ -1,6 +1,6 @@
 {
-  "version": "workflow-v2-integration-0c4ce842100e",
-  "at": "2026-10-11T04:58:14.453Z",
+  "version": "workflow-v2-integration-f437c5b396e5",
+  "at": "2026-10-11T05:25:09.763Z",
   "formalCorpusModified": false,
   "formalGuideReviewCounts": {
     "approved": 16,
@@ -48,7 +48,7 @@
     ".planning/research/evergreen/KB_EVIDENCE_REOPEN.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
     ".planning/research/evergreen/KB_FREEZE.json": "ea1bff4f950427b151e850f57cae7841736d72940d2d9c22536179bff3eed806",
     ".planning/research/evergreen/KB_GAP_RESEARCH.json": "430f67cb398c58046a79229d28dd643097d7227a1fdffef1a4dcd89a8625f2b2",
-    ".planning/research/evergreen/KB_GAPS.md": "85d87f386df5e1b1123275b960f9a363f9374adf2ba30384667fbf124e84580e",
+    ".planning/research/evergreen/KB_GAPS.md": "d8f4e9ef6a04b2785449f8e0aba370048593389b3472d4264166fb48bfe3a2f6",
     ".planning/research/evergreen/KB_GUIDES.jsonl": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
     ".planning/research/evergreen/KB_IMPLEMENTATION_FREEZE.json": "648de33f8de5c3c36124c3fa750e091c22066eab1dab7f3a687d9e4b2322b0ad",
     ".planning/research/evergreen/KB_INDEX_LOAD_REPORT.json": "50a589965504298c69966aed04193a53b4439cd211b90706ab85648f368725b7",
@@ -60,8 +60,8 @@
     ".planning/research/evergreen/KB_RETRIEVAL_ACCEPTANCE2.json": "34d21a7b0d1d071397ebb43f830e416b2d5794d45c90bd0990fa9c50b1394558",
     ".planning/research/evergreen/KB_RETRIEVAL_ACCEPTANCE2_FREEZE.json": "b77a549d454de3c0b1a6258f6d5aa3fd756ee4f0d1a378e2c53e5d39fd0eb78d",
     ".planning/research/evergreen/KB_RETRIEVAL_EVAL.json": "4df9349c0bd33351ab42bf52bf094433a7480dea00b5089c3aeb44f2e80f9a02",
-    ".planning/research/evergreen/KB_RETRIEVAL_EVAL.md": "767809d95b4a5a4d25006140fd4b49614d0fef7d81299cbf9b19ddd7fce64f33",
-    ".planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json": "281b9dbd6db49e0364be55148b4965e97c62b5aac0aa2e6956aa023a41cd3bee",
+    ".planning/research/evergreen/KB_RETRIEVAL_EVAL.md": "73a7406a3b1cbf7fcc0e582bad527e6ef2c2839604a14e7b3d5bb9f3f3fd1289",
+    ".planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json": "74e3e267c57e880cb58dda697c75d4b4e4fd1d58953b0221be8f753ecc7ec3cb",
     ".planning/research/evergreen/KB_RETRIEVAL_RESERVE.json": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
     ".planning/research/evergreen/KB_RETRIEVAL_RESERVE_FREEZE.json": "74df04cafd7d4de608a54222ef90aa5794443d509947b82d38f022e7ece4845a",
     ".planning/research/evergreen/KB_SEMANTIC_REVIEW.json": "1098fcb1688768f6a343eac608aa09342dd132de27faed729668d7729e62ff43",
@@ -704,7 +704,7 @@
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0
   },
-  "hashDomain": "COMMITTED_GIT_BLOB_BYTES_KB_CHECKOUT_EOL_LF",
+  "hashDomain": "COMMITTED_GIT_BLOB_BYTES_BEFORE_WORKTREE_EOL_CONVERSION",
   "excludedUncommittedHistoricalFiles": {
     "status": "NOT_INCLUDED_NOT_REPRODUCTION_EVIDENCE",
     "files": {
@@ -719,7 +719,7 @@
       ".planning/research/evergreen/evidence/simulated-provider.log": "3122655f027a062e77389b9a88d8fa8eab4cc3605126205f5f9c60f3808cfc7c"
     }
   },
-  "contentRecordedFromHead": "574e80986dc355f620250d13c126f43ee1831f02",
+  "contentRecordedFromHead": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
   "currentFollowup": {
     "draftCards": 32,
     "sourceRecords": 36,
@@ -1532,6 +1532,14 @@
     "actualExternalOriginal": true,
     "humanApproval": false,
     "published": false,
-    "evidence": "evidence/coze-core-launch-20261011/current-ui-1d711d2-api-readback.json"
+    "evidence": "evidence/coze-core-launch-20261011/current-ui-1d711d2-api-readback.json",
+    "currentReadback": {
+      "runtimeHead": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+      "status": "waiting_approval",
+      "evidence": "evidence/coze-core-launch-20261011/current-ui-f36b933-api-readback.json",
+      "syntheticAccount": true,
+      "humanApproval": false,
+      "published": false
+    }
   }
 }
