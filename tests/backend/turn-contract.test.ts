@@ -7,7 +7,7 @@ import * as store from '../../server/store.ts'
 import { createTurnEngine } from '../../server/agent.ts'
 import { model } from '../../server/model.ts'
 import { config } from '../../server/config.ts'
-import { deriveTurnContract, slimActionCoachSchema } from '../../server/turn-contract.ts'
+import { deriveTurnContract, slimActionCoachSchema, negativePersonalFactClauses } from '../../server/turn-contract.ts'
 import { actionCoachTurnSchema, parseActionCoachTurn } from '../../server/action-coach-contracts.ts'
 import { turnSystemPrompt } from '../../server/turn-prompt.ts'
 import { configureProviderPayload } from '../../server/model-payload.ts'
@@ -102,7 +102,9 @@ test('negative personal statements keep the fact lane without inventing a comple
  for(const text of ['先聊课程，课件链接无法打开，我还没开始复习，怎么继续？','我没有作品，怎么继续？','我暂时不想接单，怎么办？']){
   const contract=derive(text);assert.equal(contract.capabilities.growth,true,text);assert.equal(contract.capabilities.event,false,text)
  }
- for(const text of ['如果我还没开始复习，该怎么办？','同学说他还没开始复习，这是什么意思？','“我还没开始复习”这句话是什么意思？','我还没开始复习吗？'])assert.equal(derive(text).mode,'reply_only',text)
+ for(const text of ['如果我还没开始复习，该怎么办？','同学说他还没开始复习，这是什么意思？','“我还没开始复习”这句话是什么意思？','我还没开始复习吗？']){
+   assert.equal(derive(text).mode,'reply_only',text);assert.deepEqual(negativePersonalFactClauses(text),[],text)
+ }
 })
 
 test('slimmed payloads keep identity bindings and skip absent lanes',()=>{
@@ -201,7 +203,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
     await t.test('negative current fact is saved and survives a new session only with memory enabled',async()=>{
       const text='先聊课程，课件链接无法打开，我还没开始复习，怎么继续？',turn=await prepare(text)
       const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
-      outputs.push({reply:choice,growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c2'}}]})
+      outputs.push({reply:choice}) // Real NP_NEG_01 omitted the explicit not-started fact.
       const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
       assert.ok(requests.at(-1)!.response_format.json_schema.schema.properties.growthUpdates,'actual outgoing native schema permits the reported fact')
       const fact=(await pool.query('SELECT text,kind FROM growth_items WHERE user_id=$1 AND id=$2',[user,saved.growthIds[0]])).rows[0]
@@ -219,6 +221,14 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
       assert.deepEqual(saved.growthIds,[]);assert.deepEqual(saved.stateChange.growthDiff,[])
       assert.deepEqual(saved.themeChangedIds,[])
+    })
+    await t.test('a valid native not-started delta is not duplicated by the server supplement',async()=>{
+      const text='我还没开始准备新项目，怎么继续？',turn=await prepare(text)
+      const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
+      outputs.push({reply:choice,growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}]})
+      const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.equal(saved.growthCreatedIds.length,1);assert.deepEqual(saved.mergedExperienceIds,[])
+      assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'我还没开始准备新项目'])).rows[0].n,1)
     })
     await t.test('explicit zero-time plan saves the verified fact and empty plan with no provider call, including repeated reports',async()=>{
       for(const text of ['这周我可用零小时，请安排这周课程与备考。','这周我没有可用时间，是零小时。请排这周的课程和备考安排。','这周没有可用时间，只保存一个空安排。','这周我可用零小时，请安排这周课程与备考。']){

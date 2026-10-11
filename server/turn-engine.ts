@@ -34,7 +34,7 @@ import { scanUserClauses } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
-import { deriveTurnContract, bindPlanBudgetSchema } from './turn-contract.ts'
+import { deriveTurnContract, bindPlanBudgetSchema, negativePersonalFactClauses } from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
@@ -631,6 +631,23 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         stagedCorrection.changes.forEach((_,i)=>mergedBindings.set(syntheticBase+i,mergedChanges.length-stagedCorrection!.changes.length+i))
         staged.growth={changes:mergedChanges,prepared:[...(staged.growth?.prepared??[]),...stagedCorrection.prepared],inputIndexBindings:mergedBindings,skipped:[...(staged.growth?.skipped??[]),...(stagedCorrection.skipped??[])]}
         staged.audit.push({phase:'correction_server_staged',mode:amendDelta&&stagedCorrection.prepared.some(entry=>entry.kind==='split_amend')?'amend':'verbatim_create',providerCalls:0})
+      }
+    }
+    // NP_NEG_01: optional model deltas omitted an explicit not-started fact.
+    // Retain only the speaker's guarded verbatim status, never an experience,
+    // inferred cause, goal or completion. Corrections and controls keep authority.
+    const notStartedSupplement=contract.capabilities.growth?negativePersonalFactClauses(current.content).filter(clause=>
+      /(?:没(?:有)?|尚未|还未|未)(?:开始|完成|做|复习|准备|交付|发送)/.test(clause.text)&&
+      !controlClauseTexts.includes(clause.text)&&
+      !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&
+      !growthAll.some(item=>item.status==='active'&&!item.unavailableReason&&item.text===clause.text)
+    ).map(clause=>({target:{operation:'create' as const},assertion:'user_reported' as const,kind:'context' as const,source:{messageId:run.source_message_id,quote:clause.text}})):[]
+    if(notStartedSupplement.length){
+      const supplement=await stageGrowthUpdates(run,notStartedSupplement,growthAll,{allowedDirectionScopes})
+      if(supplement.changes.length){
+        // These facts are not model array positions and cannot anchor its plan.
+        staged.growth={changes:[...(staged.growth?.changes??[]),...supplement.changes],prepared:[...(staged.growth?.prepared??[]),...supplement.prepared],inputIndexBindings:new Map(staged.growth?.inputIndexBindings??[]),skipped:[...(staged.growth?.skipped??[]),...(supplement.skipped??[])]}
+        staged.audit.push({phase:'not_started_fact_server_staged',count:supplement.changes.length,providerCalls:0})
       }
     }
     // Goal-change fallback (G1): a change-marker sentence (我改主意了，现在想
