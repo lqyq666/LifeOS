@@ -552,7 +552,7 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
         const priorRows=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND id<>$2 AND kind='context' AND assertion='user_reported' AND status='active' ORDER BY id FOR UPDATE",[run.user_id,row.id])).rows
         for(const prior of priorRows){
           const oldTask=/^我(?:还没有|还没|尚未|未曾)(?:开始|尝试)(.+)$/.exec(prior.text)?.[1]?.trim()
-          if(oldTask===task)await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'})
+          if(oldTask===task){await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'});changedIds.push(prior.id)}
         }
       }
     }
@@ -563,8 +563,9 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
       const currentPath=matchPathTheme(row.text)?.title
       if(currentPath){
         const deferred=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND id<>$2 AND kind='context' AND assertion='user_reported' AND status='active' ORDER BY id FOR UPDATE",[run.user_id,row.id])).rows
-        for(const prior of deferred)if(deferredPursuitClause(prior.text)&&matchPathTheme(prior.text)?.title===currentPath)
-          await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'})
+        for(const prior of deferred)if(deferredPursuitClause(prior.text)&&matchPathTheme(prior.text)?.title===currentPath){
+          await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'});changedIds.push(prior.id)
+        }
       }
     }
     // supersedes earlier amounts. Preserve history through the existing pause
@@ -573,8 +574,9 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
     if(row.kind==='constraint'&&row.assertion==='user_reported'&&mutation.time?.basis.kind==='calendar_week'&&
       hoursIn(row.text)!==null&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(row.text)){
       const older=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND id<>$2 AND kind='constraint' AND assertion='user_reported' AND status='active' AND valid_until=$3 AND time_basis->>'kind'='calendar_week' ORDER BY id FOR UPDATE",[run.user_id,row.id,row.valid_until])).rows
-      for(const prior of older)if(hoursIn(prior.text)!==null&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(prior.text))
-        await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'})
+      for(const prior of older)if(hoursIn(prior.text)!==null&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(prior.text)){
+        await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'});changedIds.push(prior.id)
+      }
     }
     if(delta.target.operation==='create')createdIds.push(row.id)
     else changedIds.push(row.id)

@@ -123,15 +123,21 @@ test('omitted read/response/adoption reports persist independently and remain in
    const run=(await store.startRun(user,next,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
    outputs.push({reply:boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
    const result=await engine({run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}})
-   await store.finishRun(run,staged,result.text,result.usage,new AbortController().signal)
+   const oldAdvanced=process.env.LIFEOS_ADVANCED_WORKFLOWS
+   process.env.LIFEOS_ADVANCED_WORKFLOWS='true'
+   try{await store.finishRun(run,staged,result.text,result.usage,new AbortController().signal)}
+   finally{if(oldAdvanced===undefined)delete process.env.LIFEOS_ADVANCED_WORKFLOWS;else process.env.LIFEOS_ADVANCED_WORKFLOWS=oldAdvanced}
    return run
   }
   await advance('我本周把课程放在前面，课程优先，只有九十分钟可用。')
   assert.ok((await growthView(user,next)).items.some(i=>i.kind==='goal'&&i.text==='课程优先'&&i.status==='active'))
   await advance('我还没有开始这次课程复习，老师给的资料链接打不开。')
-  await advance('我已经尝试这次课程复习，但遇到第一道题卡住了。')
+  const attemptedRun=await advance('我已经尝试这次课程复习，但遇到第一道题卡住了。')
   const advancedFacts=(await growthView(user,next)).items
   assert.equal(advancedFacts.find(i=>i.text==='我还没有开始这次课程复习')!.status,'paused')
+  const attemptReceipt=(await pool.query('SELECT response FROM runs WHERE user_id=$1 AND request_id=$2',[user,attemptedRun.request_id])).rows[0].response
+  assert.ok(attemptReceipt.stateChange.growth.changedIds.includes(advancedFacts.find(i=>i.text==='我还没有开始这次课程复习')!.id))
+  assert.ok(attemptReceipt.stateChange.growthDiff.some((d:any)=>d.change==='withdrawn'&&d.itemId===advancedFacts.find(i=>i.text==='我还没有开始这次课程复习')!.id))
   assert.ok(advancedFacts.some(i=>i.text==='我已经尝试这次课程复习'&&i.status==='active'))
   assert.ok((await store.cognitionGraph(user)).nodes.some((n:any)=>n.type==='experience'&&n.action==='我已经尝试这次课程复习'))
   const zeroListen=await advance('我这周零分钟可用，先别分析创业了，只想说说最近的压力。')
