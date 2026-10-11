@@ -473,6 +473,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // “要不要做X”是自我斟酌不是向AI提问：捕获允许弱疑问形态，只排除
       // 真提问（带问号/吗/呢）与假设/引用/第三方。
       const decisionClauses=clauseCatalogue.filter(handle=>!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther&&!/[?？]|吗$|呢$/.test(handle.text)
+        &&!/^我(?:今天|现在|目前|这次)?(?:只想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说说|说点|倾诉|吐槽|陪我)/.test(handle.text)
+        &&!/^我.{0,6}不想(?:再|继续)?(?:聊|说|讨论)/.test(handle.text)
         &&sentenceIsFirstPersonPublic(clauseCatalogue,handle)
         &&/我(?![^，。；！？]{0,8}(?:他|她|它|室友|同学|朋友|老师|父母|别人))(?:.{0,6})?(?:决定|确定|定了|的目标是|想要?|打算|不打算|不再|放弃|考虑|在想|想试试|试试|感兴趣|优先|放第一|第一要|先不|暂停|不扩大|以.{0,4}为主)/.test(handle.text))
       staged.serverGoals=decisionClauses.filter(handle=>!covered(handle.text)).map(handle=>({text:handle.text,quote:handle.text,messageId:run.source_message_id}))

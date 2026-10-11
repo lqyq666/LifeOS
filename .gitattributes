@@ -26,3 +26,7 @@ evidence/coze-core-launch-20261011/r7-originals/** -text -whitespace
 evidence/coze-core-launch-20261011/exam-originals/** -text -whitespace
 
 evidence/coze-core-launch-20261011/r12-source/** -text -whitespace
+
+# Original Coze main-execution source snapshots retain Linux byte hashes.
+evidence/coze-core-launch-20261011/r13-observed/** -text -whitespace
+evidence/coze-core-launch-20261011/r13-*.py -text -whitespace

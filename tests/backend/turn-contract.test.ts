@@ -97,6 +97,13 @@ test('slimmed schemas make closed lanes unrepresentable while kept lanes stay by
   // Slimming shrinks materially vs the full schema.
   assert.ok(JSON.stringify(replyOnly).length<JSON.stringify(actionCoachTurnSchema).length/10,'reply_only schema is an order smaller')
 })
+test('negative personal statements keep the fact lane without inventing a completed event',()=>{
+ const derive=(text:string)=>deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
+ for(const text of ['先聊课程，课件链接无法打开，我还没开始复习，怎么继续？','我没有作品，怎么继续？','我暂时不想接单，怎么办？']){
+  const contract=derive(text);assert.equal(contract.capabilities.growth,true,text);assert.equal(contract.capabilities.event,false,text)
+ }
+ for(const text of ['如果我还没开始复习，该怎么办？','同学说他还没开始复习，这是什么意思？','“我还没开始复习”这句话是什么意思？','我还没开始复习吗？'])assert.equal(derive(text).mode,'reply_only',text)
+})
 
 test('slimmed payloads keep identity bindings and skip absent lanes',()=>{
   const current='00000000-0000-4000-8000-000000000011'
@@ -190,6 +197,28 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       const saved=await store.finishRun(plan.run,plan.staged,planResult.text,planResult.usage,new AbortController().signal)
       assert.equal(saved.growthIds.length,1)
       assert.ok(saved.stateChange.plan,'plan persisted')
+    })
+    await t.test('negative current fact is saved and survives a new session only with memory enabled',async()=>{
+      const text='先聊课程，课件链接无法打开，我还没开始复习，怎么继续？',turn=await prepare(text)
+      const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
+      outputs.push({reply:choice,growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c2'}}]})
+      const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.ok(requests.at(-1)!.response_format.json_schema.schema.properties.growthUpdates,'actual outgoing native schema permits the reported fact')
+      const fact=(await pool.query('SELECT text,kind FROM growth_items WHERE user_id=$1 AND id=$2',[user,saved.growthIds[0]])).rows[0]
+      assert.equal(fact.text,'我还没开始复习');assert.equal(fact.kind,'context');assert.deepEqual(saved.mergedExperienceIds,[],'not started cannot become completed experience')
+      const nextChat=randomUUID();await store.createConversation(user,{id:nextChat,title:'SYNTHETIC new course session'})
+      const off=await prepare('继续复习这门课程。',nextChat);outputs.push({reply:'可以从你这次想处理的课程问题继续。'});await engine(off.input)
+      assert.ok(!JSON.stringify(JSON.parse(requests.at(-1)!.messages.find((m:any)=>m.role==='user').content)).includes('我还没开始复习'))
+      await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1) ON CONFLICT (user_id) DO UPDATE SET enabled=true',[user])
+      const on=await prepare('继续复习这门课程。',nextChat);outputs.push({reply:'你报告还没有开始复习，可以从这次遇到的阻碍继续。'});await engine(on.input)
+      assert.ok(JSON.stringify(JSON.parse(requests.at(-1)!.messages.find((m:any)=>m.role==='user').content)).includes('我还没开始复习'))
+    })
+    await t.test('listening preference does not create a personal goal or star-map change',async()=>{
+      const turn=await prepare('我只想说说压力。')
+      outputs.push({reply:'我在，你慢慢说。'})
+      const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.deepEqual(saved.growthIds,[]);assert.deepEqual(saved.stateChange.growthDiff,[])
+      assert.deepEqual(saved.themeChangedIds,[])
     })
     await t.test('explicit zero-time plan saves the verified fact and empty plan with no provider call, including repeated reports',async()=>{
       for(const text of ['这周我可用零小时，请安排这周课程与备考。','这周我没有可用时间，是零小时。请排这周的课程和备考安排。','这周没有可用时间，只保存一个空安排。','这周我可用零小时，请安排这周课程与备考。']){
