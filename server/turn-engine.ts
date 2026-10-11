@@ -34,7 +34,7 @@ import { scanUserClauses } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
-import { deriveTurnContract } from './turn-contract.ts'
+import { deriveTurnContract, bindPlanBudgetSchema } from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
@@ -404,8 +404,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // check uses (怎么开口 counts as a deliverable request), so the schema and
   // the validator can never disagree about the lane.
   const materialIntent=resumePortfolioMode||deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
-  const originalContract=deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,currentEventExists:currentEvent!==null,planIntent,material:materialIntent})
-  const boundedReply=boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier})
+  const planBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
+  const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,currentEventExists:currentEvent!==null,planIntent,material:materialIntent}),planBudget?.type==='weekly_plan'?planBudget:undefined)
+  const zeroBudgetChoices=(originalContract.schema.properties as any).reply.enum as string[]|undefined
+  const boundedReply:BoundedReply|null=planBudget?.type==='weekly_plan'&&planBudget.minutes===0?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'可用时间改变后再调整；不重复询问明确零时间',choices:zeroBudgetChoices!}:boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier})
   const contract=bindBoundedReplySchema(originalContract,boundedReply)
   // G4 mode-aware history selection: bound the raw dialogue the model reads
   // (the DB and structured lanes keep everything). The current message is

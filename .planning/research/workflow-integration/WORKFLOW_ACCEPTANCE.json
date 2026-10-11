@@ -1565,11 +1565,18 @@
     "publication": 0
   },
   "knowledgeR4": {
-    "status": "SENT_ONCE",
-    "scope": "Six current drafts including income v4; independently read full original public files and persist exact source proofs",
-    "creditReservation": 25000,
-    "newBudget": 0,
-    "publication": false
+    "status": "ACTUAL_DONE_IMPORT_REJECTED_INCOMPLETE_BINDING",
+    "cloudCommit": "0cca049d047bee817314116da2f72b8c9990d04e",
+    "actualIndependentFullOriginals": 3,
+    "formalImportedReview": 0,
+    "issues": [
+      "no exact guide revision/hash/claim binding",
+      "income locator wrongly points to campus",
+      "income PDF hash wrongly spending PDF",
+      "IES full body not independently read"
+    ],
+    "humanApproval": 0,
+    "publication": 0
   },
   "realContinuationEntry": {
     "status": "TESTED_LOCAL_ZERO_DISPATCH",
@@ -1584,5 +1591,41 @@
     "originalCallsReissued": false,
     "continuity": "NOT_TESTED",
     "finalPerformance": "NOT_TESTED"
+  },
+  "realFourChainsFirst": {
+    "kind": "MAIN_DIAGNOSTIC_NOT_INDEPENDENT_ACCEPTANCE",
+    "codeCommit": "f3b3b08ed5d7927ede3c775eb98d782e9d6a5401",
+    "actualCalls": 24,
+    "technicalCompleted": 23,
+    "failures": [
+      {
+        "caseId": "course-4",
+        "error": "WEEKLY_PLAN_INVALID",
+        "firstUsefulMs": null,
+        "costCny": 0.0046978
+      }
+    ],
+    "costCny": 0.06089470000000001,
+    "unknownCostSamples": 0,
+    "semanticFailuresObserved": [
+      "contact-0 contact treated as delivery",
+      "contact-1 unsupported easier-response effect; adoption is not execution",
+      "contact-3 already stated request asked again",
+      "freelance-2 invented first order and confirmed-demand closed loop",
+      "startup-3 unsupported avoids politeness effect",
+      "course-5 current week zero reused while next week is current request"
+    ],
+    "independentReview": "WAITING",
+    "release": "WIP_NOT_READY",
+    "originalCallsReissued": false,
+    "automaticPaidRetries": 0,
+    "newBudget": 0
+  },
+  "realChainRepair": {
+    "status": "TESTED_LOCAL",
+    "root": 134,
+    "isolatedSdkPg": 12,
+    "realModelRevalidation": "NOT_TESTED",
+    "firstFailuresPreserved": true
   }
 }

@@ -127,3 +127,19 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
   schema.required=['reply']
   return schema as unknown as Record<string,unknown>
 }
+
+// The authoritative obligation has already resolved the student's current
+// event and week. Constrain generation before dispatch; never discard illegal
+// model tasks after the fact or ask the student to confirm an explicit zero.
+export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:number;period:string}|undefined):TurnContract{
+ if(!budget||!contract.capabilities.plan)return contract
+ const schema=structuredClone(contract.schema) as any
+ const plan=schema.properties.weeklyPlan
+ plan.properties.availableMinutes={type:'integer',enum:[budget.minutes]}
+ plan.properties.period={type:'string',enum:[budget.period]}
+ if(budget.minutes===0){
+  plan.properties.items.maxItems=0
+  schema.properties.reply={type:'string',enum:[budget.period==='next_week'?'下周没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。':'当前安排的时段没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。']}
+ }
+ return {...contract,schema,schemaChars:JSON.stringify(schema).length}
+}

@@ -215,6 +215,10 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
   const remaining=remainingWeeklyTimeIntent(currentText)
   if(remaining)effects.push({type:'remaining_time',...remaining})
   const plan=weeklyPlanIntent(currentText)
+  const applicable=applicableTimeBudget(currentText,undefined,plan?.period==='next_week'?'next_week':plan?.period==='this_week'?'this_week':undefined)
+  // Use the same current-event selector as workflows and persistence. A bare
+  // "这周零小时可用" is a real budget, although not a recurring/remainder phrase.
+  if(!weekly&&!remaining&&applicable)effects.push({type:'weekly_time',quote:applicable.quote,minutes:applicable.amountMinutes,period:applicable.period})
   // P2 (B05/B10): the plan binds to the budget that actually APPLIES to the
   // plan's own period. A next-week plan never binds to this week's remainder
   // or to a this-week-scoped amount; it uses the recurring weekly budget. A
@@ -223,9 +227,7 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
   // there is no plan obligation at all — the honest gap, never a quietly
   // re-scoped plan.
   if(plan){
-    let bindingMinutes:number|null=null
-    if(plan.period==='next_week')bindingMinutes=weekly&&weekly.period!=='this_week'?weekly.minutes:null
-    else bindingMinutes=remaining?.minutes??(weekly&&weekly.period!=='next_week'?weekly.minutes:null)
+    const bindingMinutes=applicable?.amountMinutes??null
     if(bindingMinutes!==null)effects.push({type:'weekly_plan',period:plan.period,minutes:bindingMinutes})
   }
   for(const change of options.directionControls??[])effects.push({type:'direction_control',scopes:change.scopes,operation:change.operation})

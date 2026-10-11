@@ -35,3 +35,15 @@ test('listening, refusal, controls, delivery, planning, comparison and sourced m
  assert.equal(make(text,{knowledgeCount:1}),null)
  assert.equal(make(text,{tier:'reasoning'}),null)
 })
+test('real-chain first failures: contact is not delivery and known feedback is not asked again',()=>{
+ const contact=make('我是成年大学生，想向学长甲请教项目课对实习的帮助。我想先提出需求与边界，怎么开始？')!
+ assert.ok(contact.choices.every(s=>!s.includes('交付')))
+ const waiting=make('我通过学校邮箱请教学长甲，原请求是想知道项目课能否提供实习作品。对方已经读了，但没有回复，也没有采用。')!
+ assert.ok(waiting.choices.every(s=>!s.includes('原消息')&&!s.includes('问了什么')))
+ const blocked=make('我已经尝试课程复习，但遇到第一题卡住了。')!
+ assert.ok(blocked.choices.every(s=>!s.includes('是没开始')&&!s.includes('停在哪一步')))
+ const adopted=make('我愿意试这个方法。')!
+ assert.ok(adopted.choices.every(s=>!s.includes('完成')&&!s.includes('更容易')))
+ const result=make('我已经交付了一张社团海报，对方已经采用，已经付款300元。')!
+ assert.ok(result.choices.every(s=>!s.includes('第一单')&&!s.includes('确认需求')&&!s.includes('跑通')))
+})
