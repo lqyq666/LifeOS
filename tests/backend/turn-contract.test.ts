@@ -192,7 +192,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.ok(saved.stateChange.plan,'plan persisted')
     })
     await t.test('explicit zero-time plan saves the verified fact and empty plan with no provider call, including repeated reports',async()=>{
-      for(const text of ['这周我可用零小时，请安排这周课程与备考。','这周我没有可用时间，是零小时。请排这周的课程和备考安排。','这周我可用零小时，请安排这周课程与备考。']){
+      for(const text of ['这周我可用零小时，请安排这周课程与备考。','这周我没有可用时间，是零小时。请排这周的课程和备考安排。','这周没有可用时间，只保存一个空安排。','这周我可用零小时，请安排这周课程与备考。']){
       const turn=await prepare(text)
       const before=requests.length,result=await engine(turn.input)
       assert.equal(requests.length,before,'no model request is needed to invent an empty plan')

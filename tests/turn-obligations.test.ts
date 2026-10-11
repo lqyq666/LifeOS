@@ -8,6 +8,13 @@ test('only the complete explicit empty-plan request can take the zero-generation
  for(const no of ['本周我没有可用时间。请安排本周课程和备考，也帮我起草邮件。','本周我没有可用时间。请安排本周课程和备考，为什么会这样？','室友本周没有可用时间。请安排本周课程和备考。','如果本周没有可用时间，请安排本周课程和备考。','我是成年大学生，本周我没有可用时间。请安排本周课程和备考。'])assert.equal(isPureZeroPlanRequest(no,deriveTurnObligations(no)),false,no)
 })
 
+test('retained current browser natural save-empty-arrangement request is a plan intent',()=>{
+ const text='这周没有可用时间，只保存一个空安排。'
+ assert.equal(weeklyPlanIntent(text)?.period,'this_week')
+ assert.equal(isPureZeroPlanRequest(text,deriveTurnObligations(text)),true)
+ for(const no of ['室友这周没有可用时间，只保存一个空安排。','如果这周没有可用时间，只保存一个空安排。','这周没有可用时间，是不是只保存一个空安排？'])assert.equal(isPureZeroPlanRequest(no,deriveTurnObligations(no)),false,no)
+})
+
 test('retained real split-clause zero budget verifies its own verbatim staged fact',()=>{
   const text='这周我没有可用时间，是零小时。请排这周的课程和备考安排。'
   const obligations=deriveTurnObligations(text)

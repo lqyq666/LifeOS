@@ -23,7 +23,7 @@ export type TurnObligations = {
   kind:'ordinary'|'update_weekly_time'|'direction_control'|'resume_portfolio'|'mixed'
   requiredEffects:RequiredEffect[]
 }
-const arrangementRequest=/(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|(?:请(?:帮我)?|帮我)(?:安排|排)|改一下安排|调整.{0,4}安排|重新(?:安排|排)|再(?:安排|排)一?(?:次|下)?|怎么(?:安排|排|规划)/
+const arrangementRequest=/(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|(?:请(?:帮我)?|帮我)(?:安排|排)|改一下安排|调整.{0,4}安排|重新(?:安排|排)|再(?:安排|排)一?(?:次|下)?|怎么(?:安排|排|规划)|(?:只|仅|请(?:帮我)?|帮我)?(?:保存|建立|生成|给我)(?:一个|一份)?空(?:安排|计划)/
 // N2.3: only an explicit request to arrange/re-arrange creates a plan
 // obligation; stating a weekly budget alone only requires the fact.
 export function weeklyPlanIntent(text:string):{period:'current'|'this_week'|'next_week'}|null{
