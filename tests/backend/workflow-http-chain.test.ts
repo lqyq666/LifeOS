@@ -22,8 +22,11 @@ import {createWorkflowHost} from '../../server/workflows/task-host.ts'
 import {readWorkflowEvidence} from '../../server/workflows/task-sources.ts'
 
 test('WF02/03/05/04 host → native SDK engine → finishRun → authenticated GET → refresh → new session; durable deep task adoption and cancellation',async()=>{
- const previous={url:model.baseUrl,key:config.apiKey,origin:config.origin,access:config.entitlementsEnabled,flag:process.env.LIFEOS_ADVANCED_WORKFLOWS}
+ const previous={url:model.baseUrl,key:config.apiKey,origin:config.origin,access:config.entitlementsEnabled,rate:config.messagesPerMinute,flag:process.env.LIFEOS_ADVANCED_WORKFLOWS}
  process.env.LIFEOS_ADVANCED_WORKFLOWS='true';config.entitlementsEnabled=false
+ // Exercise several synthetic turns in one minute without depending on the
+ // developer's local quota settings. Production rate limits stay unchanged.
+ config.messagesPerMinute=20
  const wire:any[]=[],audits:any[]=[],directory=process.env.LIFEOS_WORKFLOW_EVIDENCE??'.planning/research/workflow-integration/evidence';mkdirSync(directory,{recursive:true})
  let eventId='',eventRevision=1,slow=false
  const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',x=>chunks.push(Buffer.from(x)));req.on('end',()=>{
@@ -120,5 +123,5 @@ test('WF02/03/05/04 host → native SDK engine → finishRun → authenticated G
   slow=true;const cancel=deep();await json('/api/workflows',cancel);await json('/api/workflows/'+cancel.requestId+'/cancel',{});const cancelled=await wait(cancel.requestId);assert.equal(cancelled.status,'cancelled');assert.ok(cancelled.receipt?.costCny===null||cancelled.receipt?.providerCalls===0);assert.equal((await request('/api/workflows/'+cancel.requestId+'/actions',{requestId:randomUUID(),conversationId:chat,kind:'action',index:0})).status,409);checks.push('cancel: no charge retry, opaque in-flight usage remains unknown, adoption denied')
   slow=false;await json('/api/memory/settings',{requestId:randomUUID(),enabled:false,expectedRevision:1});assert.equal((await request('/api/workflows/'+reject.requestId+'?conversationId='+second)).status,403);checks.push('Memory OFF: cross-session read denied, stale controls cannot be adopted')
   writeFileSync(directory+'/HTTP_CHAIN.json',JSON.stringify({status:'PASS',evidence:'REAL_HTTP_REAL_AUTH_REAL_SDK_REAL_ISOLATED_POSTGRESQL_SIMULATED_PROVIDER',realProviderCalls:0,loopbackSDKCalls:wire.length,checks,nodeAudits:audits,simulationLedgerCalls:budget.snapshot().calls.length},null,2)+'\n')
- }finally{host.close();app.closeAllConnections();await new Promise<void>(done=>app.close(()=>done()));fake.closeAllConnections();await new Promise<void>(done=>fake.close(()=>done()));await localEmbedding.close();model.baseUrl=previous.url;config.apiKey=previous.key;config.origin=previous.origin;config.entitlementsEnabled=previous.access;if(previous.flag===undefined)delete process.env.LIFEOS_ADVANCED_WORKFLOWS;else process.env.LIFEOS_ADVANCED_WORKFLOWS=previous.flag;await pool.end()}
+ }finally{host.close();app.closeAllConnections();await new Promise<void>(done=>app.close(()=>done()));fake.closeAllConnections();await new Promise<void>(done=>fake.close(()=>done()));await localEmbedding.close();model.baseUrl=previous.url;config.apiKey=previous.key;config.origin=previous.origin;config.entitlementsEnabled=previous.access;config.messagesPerMinute=previous.rate;if(previous.flag===undefined)delete process.env.LIFEOS_ADVANCED_WORKFLOWS;else process.env.LIFEOS_ADVANCED_WORKFLOWS=previous.flag;await pool.end()}
 })

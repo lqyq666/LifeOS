@@ -415,8 +415,8 @@
   ],
   "summary": {
     "newUsableSources": 10,
-    "newLocatedQuotes": 11,
-    "draftsSupplemented": 11,
+    "newLocatedQuotes": 15,
+    "draftsSupplemented": 15,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 8,
@@ -514,5 +514,65 @@
     "independentReviews": 0,
     "humanApprovals": 0,
     "published": 0
+  },
+  "iesFourCorrection": {
+    "at": "2026-10-11T01:25:27.942Z",
+    "canonicalOriginal": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+    "newDistinctOriginals": 0,
+    "repeatedOriginalLocatedQuotes": 4,
+    "newDraftRevisions": 4,
+    "sourceHtmlSha256": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+    "bodySha256": "34820db71d25403d4f89a3350c341a0a2a2fdff3bd01a91e23f1ea8b23a201fd",
+    "failedBackend": "Jina returned actual401; original GET and web open read body",
+    "revisions": [
+      {
+        "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+        "key": "retrieval-practice",
+        "revision": 3,
+        "previousHash": "1515e7f8beca791ad7b88e67d21d7b6e55aa0f34c689b812906d83d939685e09",
+        "contentHash": "c8680ef307df145857f2357938bd144945d61f0694b0f1e019ae8e473a5fef5b",
+        "evidenceId": "ies-learning-located-20261011-retrieval-practice",
+        "quoteHash": "2255e7b8b806dc93beb0a65a04c59d9f6df7c2dc00b12c661f7c81787ed988f3",
+        "independentReview": "PREVIOUS_R2_REVIEW_IS_OLD_REVISION_NEW_REVIEW_REQUIRED",
+        "humanApproval": null,
+        "publication": false
+      },
+      {
+        "guideId": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+        "key": "spaced-review",
+        "revision": 3,
+        "previousHash": "2a594e3ce3151d8a731ffd23925662b5559dd140385c1b2df5fdf95aa7fd51c3",
+        "contentHash": "3d30bf07eecff9422a434c3b1033c724a6c886ac723f598ae01b7f831f076e42",
+        "evidenceId": "ies-learning-located-20261011-spaced-review",
+        "quoteHash": "0b29abd52f37af45d3d40b1952433f52f078980677b47bdf0107c67083056246",
+        "independentReview": "PREVIOUS_R2_REVIEW_IS_OLD_REVISION_NEW_REVIEW_REQUIRED",
+        "humanApproval": null,
+        "publication": false
+      },
+      {
+        "guideId": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+        "key": "worked-example",
+        "revision": 3,
+        "previousHash": "bff977dcc13ddaeb520a2c9dd40da7a5c039f9973153edf22e8b89d3056f5ee6",
+        "contentHash": "3fec0f47977375e8c688e1e58425fa129a93535d0d8e60261ec12ab273822028",
+        "evidenceId": "ies-learning-located-20261011-worked-example",
+        "quoteHash": "dceffcb8b92b786e3a1dc13906d3d9e3c415397f4867f8d9fc3430012f285d25",
+        "independentReview": "PREVIOUS_R2_REVIEW_IS_OLD_REVISION_NEW_REVIEW_REQUIRED",
+        "humanApproval": null,
+        "publication": false
+      },
+      {
+        "guideId": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+        "key": "explain-understanding",
+        "revision": 3,
+        "previousHash": "0706626699bab64a76bc181c79cb8fd2eb34b43b2aef0aad2916335bd46e02f6",
+        "contentHash": "003e6a5077cbb8e7de2e10feefd9f30d65374168f620792443e2b7c9ebc92c43",
+        "evidenceId": "ies-learning-located-20261011-explain-understanding",
+        "quoteHash": "b5a8eba92b777a3132d4d3b05f5b5e6a2e2936f4148f5d64cae5b4a9c874d659",
+        "independentReview": "PREVIOUS_R2_REVIEW_IS_OLD_REVISION_NEW_REVIEW_REQUIRED",
+        "humanApproval": null,
+        "publication": false
+      }
+    ]
   }
 }
