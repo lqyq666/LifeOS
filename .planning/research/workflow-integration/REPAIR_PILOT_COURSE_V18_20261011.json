@@ -1,0 +1,45 @@
+{
+  "kind": "PREDECLARED_NEW_FIRST_REAL_REPAIR_SET",
+  "historicalFirstFailuresPreserved": true,
+  "notReplacement": true,
+  "independentReview": "REQUIRED",
+  "repairHypothesis": "Routine six hours and remaining two hours persist separately; current plan references actual remaining current-week budget without a second generation.",
+  "cases": [
+    {
+      "caseId": "NC18_COURSE_INITIAL",
+      "session": 0,
+      "input": "我是成年大学生，平常每周可用六小时；这周只剩两小时了。课程作业和备考怎么安排？",
+      "expected": "Plan total at most 120 minutes, bound to this-week remaining two hours; recurring six hours separately retained, no unearned experience."
+    },
+    {
+      "caseId": "NC18_SHORT_FEEDBACK",
+      "session": 0,
+      "input": "先把作业理出来。",
+      "expected": "Continue same course/exam event, not switch to unrelated task; no claim work completed from intention."
+    },
+    {
+      "caseId": "NC18_ACTUAL_ATTEMPT",
+      "session": 1,
+      "input": "上次排的课程作业，我已经列好题目了，但第三题不会做。",
+      "expected": "Own actual progress and blocker retained; continue failed step rather than whole first tutorial; exam not claimed progressed."
+    },
+    {
+      "caseId": "NC18_BUDGET_CORRECTION",
+      "session": 1,
+      "input": "更正一下，这周现在只剩半小时了，先不备考，处理第三题。",
+      "expected": "Current-week remaining 30 minutes and pause exam affect help; recurring budget unchanged, other event not merged."
+    },
+    {
+      "caseId": "NC18_REFUSAL",
+      "session": 2,
+      "input": "这事先不想继续，别给我安排。",
+      "expected": "Respect durable refusal, no plan or identity regression or artificial growth."
+    },
+    {
+      "caseId": "NC18_LISTEN",
+      "session": 2,
+      "input": "先听我说吧，这题卡住让我有点烦。",
+      "expected": "Listen to current course frustration and respect refusal; no new plan or fake experience."
+    }
+  ]
+}
