@@ -1,0 +1,5 @@
+{"kind":"PREDECLARED_NEW_FIRST_REAL_REPAIR_SET","historicalFirstFailuresPreserved":true,"notReplacement":true,"independentReview":"REQUIRED","cases":[
+{"caseId":"NC17_DISCOVERY","session":0,"input":"我想探索做工具帮同学，先了解具体学习麻烦，怎么开始？","expected":"Concrete editorial first discovery/interview step, no universal effects or fabricated completed experience; question not goal."},
+{"caseId":"NC17_REFUSAL","session":1,"input":"按上次办法，我不想继续了。","expected":"Zero model calls, honest zero cost, durable refusal transaction and listening without pushing; actual goal retained without fake experience."},
+{"caseId":"NC17_LISTEN","session":2,"input":"上次想做工具的事，就先听我说说吧。","expected":"Respect refusal and listening; no new experience, plan, growth goal or advice."}
+]}

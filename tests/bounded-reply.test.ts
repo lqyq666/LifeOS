@@ -140,3 +140,9 @@ test('a continued interview uses the authorized revised question and cannot reop
  assert.ok(reply.choices.every(c=>!c.includes('尚未联系')&&!c.includes('起草消息')))
 })
 
+test('a natural problem-discovery request provides an editorial first interview step',()=>{
+ const reply=make('我想探索给同学做学习工具，先了解他们实际碰到的问题，怎样开始？')!
+ assert.ok(reply.choices.every(c=>c.includes('最近')&&(c.includes('怎么处理')||c.includes('当时做法'))))
+ assert.equal(reply.basis,'editorial_adaptation')
+})
+

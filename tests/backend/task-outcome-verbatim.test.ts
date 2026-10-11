@@ -136,7 +136,7 @@ test('omitted read/response/adoption reports persist independently and remain in
   assert.equal((await pool.query("SELECT count(*)::int AS n FROM growth_recommendation_controls WHERE user_id=$1 AND state='stopped' AND source_message_id=$2",[user,stoppedInterview.source_message_id])).rows[0].n,1)
   const advance=async(text:string)=>{
    const run=(await store.startRun(user,next,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
-   outputs.push({reply:boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
+   if(text!=='按上次办法，我不想继续了。')outputs.push({reply:boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
    const result=await engine({run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}})
    const oldAdvanced=process.env.LIFEOS_ADVANCED_WORKFLOWS
    process.env.LIFEOS_ADVANCED_WORKFLOWS='true'
@@ -150,7 +150,12 @@ test('omitted read/response/adoption reports persist independently and remain in
   const attemptedRun=await advance('我已经尝试这次课程复习，但遇到第一道题卡住了。')
   const editRun=await advance('我想把验证问题改成上一次遇到什么困难，不再问愿不愿意用。')
   assert.ok((await growthView(user,next)).items.some(i=>i.kind==='context'&&i.text==='我想把验证问题改成上一次遇到什么困难'))
+  const beforeRefusalCalls=requests.length
   const refuseRun=await advance('按上次办法，我不想继续了。')
+  assert.equal(requests.length,beforeRefusalCalls,'explicit refusal does not generate or charge a provider request')
+  const refusalReceipt=(await pool.query('SELECT response FROM runs WHERE user_id=$1 AND request_id=$2',[user,refuseRun.request_id])).rows[0].response
+  assert.equal(refusalReceipt.usage.zeroLlm,true)
+  assert.equal(refusalReceipt.usage.estimatedCostCny,0)
   assert.equal((await pool.query("SELECT count(*)::int AS n FROM growth_recommendation_controls WHERE user_id=$1 AND state='stopped' AND source_message_id=$2",[user,refuseRun.source_message_id])).rows[0].n,1)
   assert.ok((await growthView(user,next)).items.some(i=>i.text==='我不想继续了'&&i.recommendationStopped))
   const experienceCount=(await pool.query('SELECT count(*)::int AS n FROM experiences WHERE user_id=$1',[user])).rows[0].n

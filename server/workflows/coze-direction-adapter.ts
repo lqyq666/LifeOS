@@ -142,7 +142,7 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
       const current=claims.slots.map(s=>calls.find(c=>c.callId===s.callId)!)
       // A journal write can fail after the atomic ledger settlement. Never
       // settle those already-finished entries a second time.
-      if(current.every(c=>c?.status==='finished')){settled=true;receipt={...receipt,providerCalls:knownReceipt?.providerCalls??nodeIds.length,providerCallsAreUpperBound:!knownReceipt,costCny:current.some(c=>typeof c.estimatedCostCny!=='number')?null:current.reduce((n,c)=>n+(c.estimatedCostCny as number),0),reservedCostCny:nodeIds.length*maxCost}}
+      if(current.every(c=>c?.status==='finished')){settled=true;receipt={...receipt,providerCalls:knownReceipt?.providerCalls??nodeIds.length,providerCallsAreUpperBound:!knownReceipt,costCny:knownReceipt?.costCny===null||current.some(c=>typeof c.estimatedCostCny!=='number')?null:current.reduce((n,c)=>n+(c.estimatedCostCny as number),0),reservedCostCny:nodeIds.length*maxCost}}
       else{retainUnknownCozeGraph(wire,secret,cfg.binding,budget,signal?.aborted?'cancelled':'failed',path);receipt={...receipt,providerCalls:nodeIds.length,providerCallsAreUpperBound:true,costCny:null,reservedCostCny:nodeIds.length*maxCost}}
      }else{
       const {claims}=verifyCozeHostPermit(wire,secret,cfg.binding)

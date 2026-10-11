@@ -1015,9 +1015,13 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     return result
   }
   const slimUpdateTimeMode=obligations.kind==='update_weekly_time'&&!/(?:已经|昨天|已投|已发|投了|发了|完成了|做了|交了)/.test(current.content)
+  // An unambiguous refusal needs no generated interpretation. It still uses
+  // the same validator and transaction for its durable stop preference.
+  const refusalOnly=Boolean(boundedReply&&currentConversationOnly(current.content)&&clauseCatalogue.some(c=>/^我(?:现在|暂时|先)?不想继续了$/.test(c.text))&&clauseCatalogue.every(c=>conversationPreferenceClause(c.text)||/^(?:按上次办法|还是上次那件事|上次那件事)$/.test(c.text)))
   let result:ActionCoachTurn,firstText:string|undefined
   try{
-    firstText=await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',(text,draftKind)=>emit({type:'draft',text,saved:false,draftKind}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,clauseCatalogue.map(handle=>handle.clauseId),contract.mode==='reply_only'?'safe_sentence':'none',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue),boundedReply)
+    if(refusalOnly)staged.audit.push({phase:'explicit_refusal_deterministic',providerCalls:0})
+    firstText=refusalOnly?JSON.stringify({reply:boundedReply!.choices[0]}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',(text,draftKind)=>emit({type:'draft',text,saved:false,draftKind}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,clauseCatalogue.map(handle=>handle.clauseId),contract.mode==='reply_only'?'safe_sentence':'none',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue),boundedReply)
     result=await validateOutput(firstText)
   }catch(error){
     const repairable=new Set(['GROWTH_REQUIRED_UPDATE_MISSING','GROWTH_AMENDMENT_AMBIGUOUS','GROWTH_COMPOSITE_REQUIRES_REVIEW','GROWTH_TIME_UNVERIFIED','GROWTH_TIME_REQUIRED','WEEKLY_PLAN_BASIS_INVALID','WEEKLY_PLAN_REQUIRED_MISSING','WEEKLY_PLAN_BUDGET_MISMATCH','REPLY_CLAIMS_UNCOMMITTED_CORRECTION','REPLY_CLAIMS_UNCOMMITTED_FORGET','REPLY_REPEATED_VERBATIM','DIRECTION_CONTROL_NOT_APPLIED','MATERIAL_REFERENCE_INVALID','REPLY_CONTRADICTS_CURRENT_EFFECT','GROWTH_SOURCE_INVALID','GROWTH_TARGET_INVALID','GROWTH_UNCHANGED','GROWTH_OBSERVATION_INVALID','GROWTH_DEPENDENCY_INVALID','GROWTH_TIME_INVALID','GROWTH_FEEDBACK_INVALID','COACH_CORRECTION_UNCHANGED','COACH_ACTION_UNCHANGED','COACH_EVENT_TARGET_INVALID','COACH_UNKNOWN_NOT_FOUND','COACH_UNKNOWN_DISPOSITION_CONFLICT','COACH_OUTPUT_INVALID','MODEL_OUTPUT_TRUNCATED','COACH_DELTA_INVALID','COACH_SOURCE_INVALID','COACH_CURRENT_SOURCE_REQUIRED','COACH_NEW_EVENT_TARGET_INVALID','COACH_MATERIAL_NOT_VISIBLE','COACH_MATERIAL_IS_CONVERSATION','COACH_ACTION_DECLINED','COACH_BACKGROUND_INVALID','COACH_CITATION_INVALID','COACH_CITATION_OUTPUT_LIMIT','PLANNED_ACTION_IS_NOT_EXPERIENCE','SKILL_IS_NOT_EXPERIENCE','SOURCE_QUOTE_MISMATCH','EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE'])
@@ -1058,7 +1062,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   staged.dialoguePath='direct';staged.upstreamCalls=calls.length
   staged.audit.push({phase:'engine_stage_timings',preRetrievalMs,knowledgeMs,validationMs,modelCallsMs:calls.map(call=>call.latencyMs),firstRawDeltaMs:calls.map(call=>call.firstRawDeltaMs),firstQuestionDraftMs:calls.map(call=>call.firstQuestionDraftMs),userPromptChars:userPrompt.length})
-  const usage=usageSummary(calls,contextTokenEstimate,retrieved,route.escalated,route.reason,false,repairReason)
+  const usage=usageSummary(calls,contextTokenEstimate,retrieved,route.escalated,route.reason,refusalOnly,repairReason)
   staged.modelUsage=usage
   return {text:result.reply,usage}
 }
