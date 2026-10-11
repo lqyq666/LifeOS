@@ -14,6 +14,7 @@ export type VerifiedMaterialFact = {
   completeForField: boolean; // True only for explicitly provided complete field data.
   sourceRef: MaterialSourceRef; // N2.5: every fact carries a real, checkable origin.
   label?: string
+  contextKey?: string
 }
 export type MaterialResult = {
   content: string; readiness: 'template' | 'draft_for_user_review';
@@ -128,8 +129,14 @@ export function buildMaterialFactCatalogue(growth:readonly GrowthItem[],confirme
     if(labeled.length)labeledBySource.push(labeled)
     for(const field of labeled)push(field.field,field.text,sourceKind,true,sourceRef)
     const bucket=kindField[item.kind]
+    if(item.kind==='feedback'&&/^(?:后来)?我把海报.{0,30}交给.{0,20}了$/.test(item.text)){
+      push('project',item.text,sourceKind,false,sourceRef)
+      const fact=catalogue.find(entry=>entry.text===item.text&&entry.sourceRef.type==='growth'&&entry.sourceRef.id===item.id)
+      if(fact){fact.label='work_context';fact.contextKey=item.conversationId}
+    }
     if(/^我(?:只)?负责/.test(item.text)&&!labeled.length)push('project',item.text,sourceKind,false,sourceRef)
     else if(bucket&&!labeled.length)push(bucket,item.text,sourceKind,false,sourceRef)
+    for(const fact of catalogue.filter(entry=>entry.sourceRef.type==='growth'&&entry.sourceRef.id===item.id))fact.contextKey=item.conversationId
   }
   for(const experience of confirmedExperiences){
     const text=(experience.content?.summary??experience.source_quote??'').trim()
@@ -167,7 +174,10 @@ export function resolveSelectedMaterialFacts(selectedIds:readonly string[],catal
     const contributions=selected.filter(fact=>fact.field==='project'&&/^我(?:只)?负责/.test(fact.text))
     if(contributions.length!==1)throw new Error('MATERIAL_REFERENCE_INVALID')
     const fact=contributions[0]!
-    return {content:fact.text.replace(/[。！!]+$/,'')+'。',readiness:'draft_for_user_review',missingRequired:[],usedCatalogueIds:[fact.catalogueId],facts:[fact]}
+    const work=selected.filter(entry=>entry.label==='work_context'&&entry.contextKey&&entry.contextKey===fact.contextKey)
+    const contextual=work.length===1&&/^(?:后来)?我把海报/.test(work[0]!.text)
+    const used=contextual?[work[0]!,fact]:[fact]
+    return {content:(contextual?'在这份海报作品中，':'')+fact.text.replace(/[。！!]+$/,'')+'。',readiness:'draft_for_user_review',missingRequired:[],usedCatalogueIds:used.map(entry=>entry.catalogueId),facts:used}
   }
   return {...rendered,facts:selected}
 }

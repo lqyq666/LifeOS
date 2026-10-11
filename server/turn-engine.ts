@@ -369,7 +369,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const unresolvedTaskBoundaries=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&item.taskBoundary)
   const clauseCatalogue=buildClauseCatalogue(current.content)
   const newMatterExplicit=scanUserClauses(current.content).some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:换个|换一件|另一件|另一个|新事情|新话题|转到|转而|不谈上次)/.test(clause.text))
-  const readOnlyQuestion=deriveTurnContract({text:current.content,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}).mode==='reply_only'&&clauseCatalogue.some(clause=>clause.interrogative)
+  const explicitMaterialRequest=clauseCatalogue.some(clause=>!clause.conditional&&!clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&deliverableIntent(clause.text,'create'))
+  const readOnlyQuestion=!explicitMaterialRequest&&deriveTurnContract({text:current.content,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}).mode==='reply_only'&&clauseCatalogue.some(clause=>clause.interrogative)
   const boundaryNeedsClarification=!readOnlyQuestion&&!currentConversationOnly(current.content)&&!newMatterExplicit&&(pendingRecommendationIds.size>0||unresolvedTaskBoundaries.some(item=>current.content.includes(item.taskBoundary!.targetText)))
   const growthSelection=selectRelevantGrowth(growthAll.filter(item=>!recommendationBlockedIds.has(item.id)&&!item.taskBoundary),current.content)
   const growth=growthSelection.selected
@@ -465,7 +466,6 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   staged.audit.push({phase:'model_route',tier:route.tier,reason:route.reason??'ordinary_turn',escalated:route.escalated,retrievedMemoryCount:retrieved,contextTokenEstimate,contextTokenEstimateKind:'heuristic'})
   staged.audit.push({phase:'turn_contract',mode:contract.mode,capabilities:contract.capabilities,schemaChars:contract.schemaChars,systemPromptChars:systemPrompt.length,providerCalls:0})
   if(boundedReply)staged.audit.push({phase:'bounded_ordinary_reply',basis:boundedReply.basis,sourceStatus:boundedReply.sourceStatus,stage:boundedReply.stage,choices:boundedReply.choices.length,providerCalls:0})
-  await checkModelCooldown()
   function materialDraftOf(result:ActionCoachTurn):{readiness?:string;content?:string;materialFactIds?:string[]}|null{
     const action=result.event?.action
     if(!action||!('draft'in action))return null
@@ -672,6 +672,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // inferred cause, goal or completion. Corrections and controls keep authority.
     const explicitTaskFacts=[...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content),...reportedAdoptionClauses(current.content),...requestedQuestionEditClauses(current.content),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content,growthAll.some(item=>item.assertion==='user_reported'&&item.kind==='feedback'&&item.progressState==='completed')),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
     const taskFactSupplement=snapshot.settings.enabled?[...new Map(explicitTaskFacts.map(clause=>[clause.text,clause])).values()].filter(clause=>
+      !conversationPreferenceClause(clause.text)&&
       !controlClauseTexts.includes(clause.text)&&
       !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&
       !growthAll.some(item=>item.status==='active'&&!item.unavailableReason&&item.text===clause.text)
@@ -1065,7 +1066,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const refusalOnly=Boolean(boundedReply&&currentConversationOnly(current.content)&&clauseCatalogue.some(c=>refusalPreferenceClause(c.text))&&clauseCatalogue.every(c=>conversationPreferenceClause(c.text)||/^(?:按上次办法|还是上次那件事|上次那件事)$/.test(c.text)))
   if(refusalOnly&&!staged.memoryControl&&!staged.pendingMemoryControl){
     const refusal=clauseCatalogue.find(c=>refusalPreferenceClause(c.text))!
-    const candidates=growthAll.filter(item=>((['goal','direction'].includes(item.kind)&&['user_reported','user_edit'].includes(item.assertion))||(item.kind==='priority'&&Boolean(item.structuredPlan)))&&['active','proposed'].includes(item.status)&&!item.unavailableReason&&!item.recommendationStopped)
+    const primaryCandidates=growthAll.filter(item=>((['goal','direction'].includes(item.kind)&&['user_reported','user_edit'].includes(item.assertion))||(item.kind==='priority'&&Boolean(item.structuredPlan)))&&['active','proposed'].includes(item.status)&&!item.unavailableReason&&!item.recommendationStopped)
+    const candidates=primaryCandidates.length?primaryCandidates:scoreForgetTargets(growthAll.filter(item=>item.kind==='context'&&['user_reported','user_edit'].includes(item.assertion)&&item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&!item.taskBoundary),refusal.text,current.content).filter(entry=>entry.overlap>=2).map(entry=>entry.item)
     const previousUser=(await pool.query("SELECT id FROM messages WHERE user_id=$1 AND conversation_id=$2 AND role='user' AND id<>$3 AND created_at<=(SELECT created_at FROM messages WHERE id=$3) ORDER BY created_at DESC,id DESC LIMIT 1",[run.user_id,run.conversation_id,current.id])).rows[0] as {id:string}|undefined
     const directlyNamed=previousUser?candidates.filter(item=>item.sources.some(source=>source.type==='message'&&source.id===previousUser.id)):[]
     if(directlyNamed.length===1){const item=directlyNamed[0]!;staged.memoryControl={kind:'stop_recommend',itemId:item.id,expectedRevision:item.revision,clauseText:refusal.text}}
@@ -1076,10 +1078,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   let explicitMaterial:ActionCoachTurn|undefined
   if(contract.capabilities.material&&!boundaryNeedsClarification){
     const contribution=contributionSentenceMode?materialCatalogue.filter(fact=>/^我负责/.test(fact.text)):[]
+    const contributionWork=contribution.length===1?materialCatalogue.filter(fact=>fact.label==='work_context'&&fact.contextKey&&fact.contextKey===contribution[0]!.contextKey):[]
     const edit=requestedQuestionEditClauses(current.content)[0]?.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/,'').trim()
     const compressed=scanUserClauses(current.content).find(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/^把(?:这个|上次的|我要问的)?问题压成一句[:：]/.test(clause.text))?.text.replace(/^把(?:这个|上次的|我要问的)?问题压成一句[:：]/,'').replace(/^我想(?:了解|问|知道)/,'').trim()
     const question=(edit??compressed)?.replace(/[。？?]+$/,'')
-    const draft=contribution.length===1?{kind:'resume_portfolio' as const,selectedFactIds:[contribution[0]!.catalogueId]}:question&&question.length<=159?{content:question+'？'}:undefined
+    const draft=contribution.length===1?{kind:'resume_portfolio' as const,selectedFactIds:[...(contributionWork.length===1?[contributionWork[0]!.catalogueId]:[]),contribution[0]!.catalogueId]}:question&&question.length<=159?{content:question+'？'}:undefined
     if(draft){
       const previous=currentEvent?.actions.find(action=>action.status==='proposed')
       explicitMaterial={reply:'按你提供的内容，整理如下：',event:{target:currentEvent?{operation:'continue',eventId:currentEvent.id,expectedRevision:currentEvent.revision}:{operation:'create',title:contribution.length===1?'作品描述':'问题草稿',source:{messageId:run.source_message_id,quote:current.content}},action:previous?{operation:'modify',actionId:previous.id,expectedRevision:previous.revision,draft}:{operation:'create',draft}}}
@@ -1087,6 +1090,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     }
   }
   try{
+    if(!explicitMaterial&&!refusalOnly)await checkModelCooldown()
     if(refusalOnly)staged.audit.push({phase:'explicit_refusal_deterministic',providerCalls:0})
     firstText=explicitMaterial?JSON.stringify(explicitMaterial):refusalOnly?JSON.stringify({reply:boundedReply!.choices[0]}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',(text,draftKind)=>emit({type:'draft',text,saved:false,draftKind}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,clauseCatalogue.map(handle=>handle.clauseId),contract.mode==='reply_only'?'safe_sentence':'none',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue),boundedReply)
     result=await validateOutput(firstText)

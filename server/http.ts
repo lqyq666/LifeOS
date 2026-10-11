@@ -15,7 +15,7 @@ import { runAgent, type Engine } from './agent.ts'
 import { validate, validateId, createChatSchema, chatPatchSchema, messageSchema, experienceActionSchema, themeActionSchema, themeLinkActionSchema, identityClaimActionSchema, memorySettingsSchema, memoryActionSchema } from './contracts.ts'
 import * as store from './store.ts'
 import * as memory from './memory.ts'
-import { clientIP, modelState, checkModelCooldown, recordModelFailure, recordModelSuccess, checkMessageLimit } from './operations.ts'
+import { clientIP, modelState, recordModelFailure, recordModelSuccess, checkMessageLimit } from './operations.ts'
 import { loadSnapshot } from './memory.ts'
 import { isKnownMajorQuestion, readKnownMajor } from './model-router.ts'
 import {campusView} from './campus.ts'
@@ -181,7 +181,7 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
             if(!exists){
               await checkMessageLimit(user)
               const knownFactAnswer=isKnownMajorQuestion(input.text)?readKnownMajor(input.text,(await loadSnapshot(user,conversation,input.text)).profile):undefined
-              if(!knownFactAnswer){if(!engineReady())throw new HttpError(503,'MODEL_CAPABILITY_TEST_REQUIRED');await checkModelCooldown()}
+              if(!knownFactAnswer&&!engineReady())throw new HttpError(503,'MODEL_CAPABILITY_TEST_REQUIRED')
             }
           }
           const started=await store.startRun(user,conversation,input.requestId,input.text)

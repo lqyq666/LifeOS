@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs'
-import { createHash } from 'node:crypto'
+import { migrationHash,migrationChecksumMatches } from '../server/migration-checksum.ts'
 import { getMigrations } from 'better-auth/db/migration'
 import { authOptions } from '../server/auth.ts'
 import { pool, transaction } from '../server/db.ts'
@@ -15,9 +15,9 @@ try {
     await client.query('CREATE TABLE IF NOT EXISTS lifeos_schema_migrations (name text PRIMARY KEY, sha256 text NOT NULL, applied_at timestamptz NOT NULL DEFAULT now())')
     for (const name of readdirSync('server/migrations').filter(n => n.endsWith('.sql')).sort()) {
       const sql = readFileSync('server/migrations/' + name, 'utf8')
-      const sha = createHash('sha256').update(sql).digest('hex')
+      const sha = migrationHash(sql)
       const previous = (await client.query('SELECT sha256 FROM lifeos_schema_migrations WHERE name=$1', [name])).rows[0]
-      if (previous) { if (previous.sha256 !== sha) throw new Error('Applied migration checksum changed: ' + name); continue }
+      if (previous) { if (!migrationChecksumMatches(sql,previous.sha256)) throw new Error('Applied migration checksum changed: ' + name); continue }
       await client.query(sql)
       await client.query('INSERT INTO lifeos_schema_migrations(name,sha256) VALUES($1,$2)', [name,sha])
       console.log('Applied ' + name)

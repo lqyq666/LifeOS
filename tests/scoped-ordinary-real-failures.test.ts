@@ -35,6 +35,10 @@ test('a one-sentence portfolio artifact retains only the verified contribution',
  assert.equal(r.content,'我负责文字和排版。');assert.deepEqual(r.usedCatalogueIds,['own'])
  assert.throws(()=>resolveSelectedMaterialFacts(['other'],catalogue,'u','u','contribution_sentence'),/MATERIAL_REFERENCE_INVALID/)
  assert.throws(()=>resolveSelectedMaterialFacts(['own'],catalogue,'u','different','contribution_sentence'),/MATERIAL_REFERENCE_INVALID/)
+ const contextual=[{...catalogue[0]!,contextKey:'same-session'},{catalogueId:'work',field:'project' as const,text:'后来我把海报整理好交给一位同学了',label:'work_context',contextKey:'same-session',sourceKind:'user_reported' as const,completeForField:false,sourceRef:{type:'growth' as const,id:'work',revision:1}}]
+ const situated=resolveSelectedMaterialFacts(['own','work'],contextual,'u','u','contribution_sentence')
+ assert.equal(situated.content,'在这份海报作品中，我负责文字和排版。');assert.deepEqual(situated.usedCatalogueIds,['work','own'])
+ assert.equal(resolveSelectedMaterialFacts(['own','work'],[contextual[0]!,{...contextual[1]!,contextKey:'other-session'}],'u','u','contribution_sentence').content,'我负责文字和排版。','another matter cannot supply the artifact context')
 })
 
 test('R3 actual failures: unattempted choices cannot open experience and invalid optional observations are dropped',()=>{
