@@ -17,6 +17,13 @@ test('frozen intent benchmark keeps listening, feedback, privacy and mixed reque
  assert.equal(knowledgeIntent('只是想说说，不要给我练法').decision,'NONE')
  assert.equal(knowledgeIntent('有什么新鲜事？').decision,'NONE')
 })
+
+test('retained RV2 refusal wins over an unchanged blocker; quoted refusals and renewed requests do not',()=>{
+ for(const text of ['还是那份材料，打不开的情况没有变。我现在只想说一下烦躁，先别给方法。','材料打不开，暂时别帮我想办法。','先听我说一下，不用给建议。']){
+  assert.equal(knowledgeIntent(text).reason,'listening_or_refusal',text)
+ }
+ for(const text of ['同学说：“先别给方法”。我想知道怎么准备？','如果我说“先别给方法”，怎么理解？','先别给方法。但现在请帮我想想怎么调整。'])assert.notEqual(knowledgeIntent(text).reason,'listening_or_refusal',text)
+})
 test('content edits invalidate review and all 112 branches retain conditions and executable steps',()=>{
  assert.equal(cards.length,32)
  assert.equal(cards.flatMap(c=>c.guide!.branches).length,112)

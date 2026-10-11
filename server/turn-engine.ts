@@ -30,7 +30,7 @@ import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grou
 import { stageWeeklyPlan, renderProposedWeeklyPlan } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
-import { scanUserClauses } from './user-command-spans.ts'
+import { scanUserClauses,conversationPreferenceClause,currentConversationOnly } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
@@ -432,7 +432,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const selectedIds=new Set(historySelection.selected.map(row=>row.id))
   const messages=allContextMessages.filter(row=>row.id===run.source_message_id||selectedIds.has(row.id))
   staged.audit.push({phase:'history_selection',mode:contract.mode,historyTotalMessages:historySelection.totalMessages,historySelectedMessages:historySelection.selected.length,historyTotalChars:historySelection.totalChars,historySelectedChars:historySelection.selectedChars,providerCalls:0})
-  const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id,contract)+(boundedReply?'\nboundedReply是本轮服务端授权的编辑动作与过程追问，不是获审公共攻略。reply必须完整选择choices中适合当前请求的一项，不增加事实、因果、效果、时间或情绪判断；其他合法状态更新仍按原契约锚定本人原话。':'')
+  const systemPrompt=turnSystemPrompt(route.tier==='reasoning'?'reasoning':'default',runtime.model.id,contract)+(currentConversationOnly(current.content)?'\n本轮本人只想倾听或明确拒绝方法：回应当前表达，不给行动、方法、解决问题的追问或安排，不重发上轮建议。对本次聊天的偏好不存为个人目标、经历或长期事实；独立的新本人事实如有则保留原话与未知。':'')+(boundedReply?'\nboundedReply是本轮服务端授权的编辑动作与过程追问，不是获审公共攻略。reply必须完整选择choices中适合当前请求的一项，不增加事实、因果、效果、时间或情绪判断；其他合法状态更新仍按原契约锚定本人原话。':'')
   const baseUserPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,methodContext:methodContext.knowledge,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
   const workflowHints=await actionReviewHints({run,staged,text:current.content,memoryEnabled:snapshot.settings.enabled,currentEvent,historicalEvents,ambiguous:retrieval.ambiguous,listeningOnly:contract.mode==='reply_only',signal})
   const userPrompt=workflowHints||boundedReply?JSON.stringify({...JSON.parse(baseUserPrompt),...(workflowHints?{workflowHints}:{}),...(boundedReply?{boundedReply}:{})}):baseUserPrompt
@@ -461,6 +461,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   async function validateOutputInner(raw:string):Promise<ActionCoachTurn>{
     let result:ActionCoachTurn
     try{result=parseActionCoachTurn(raw)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
+    if(currentConversationOnly(current.content)&&(result.experienceCandidate||result.event||result.weeklyPlan||result.citations?.length))throw new HttpError(502,'COACH_OUTPUT_INVALID')
     if(!boundedReplyAccepts(result.reply,boundedReply))throw new HttpError(502,'BOUNDED_REPLY_INVALID')
     staged.coach=undefined;staged.candidates=[];staged.memoryChanges=[];staged.growth=undefined
 
@@ -473,6 +474,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // “要不要做X”是自我斟酌不是向AI提问：捕获允许弱疑问形态，只排除
       // 真提问（带问号/吗/呢）与假设/引用/第三方。
       const decisionClauses=clauseCatalogue.filter(handle=>!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther&&!/[?？]|吗$|呢$/.test(handle.text)
+        &&!conversationPreferenceClause(handle.text)
         &&!/^我(?:今天|现在|目前|这次)?(?:只想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说说|说点|倾诉|吐槽|陪我)/.test(handle.text)
         &&!/^我.{0,6}不想(?:再|继续)?(?:聊|说|讨论)/.test(handle.text)
         &&sentenceIsFirstPersonPublic(clauseCatalogue,handle)

@@ -1,7 +1,7 @@
 import {createHash} from 'node:crypto'
 import {estimateTokens} from './context.ts'
 import type {KnowledgeCard} from './campus-knowledge.ts'
-import {scanUserClauses} from './user-command-spans.ts'
+import {scanUserClauses,currentConversationOnly} from './user-command-spans.ts'
 
 export type GuideReviewStatus='draft'|'needs_review'|'approved'|'rejected'|'retired'
 export type GuideClaim={id:string;text:string;basis:'source_supported'|'bounded_synthesis'|'editorial_adaptation'|'unsupported';evidenceIds:string[];scope:string;limitations:string}
@@ -58,6 +58,7 @@ export type KnowledgeIntent={decision:KnowledgeDecision;reason:string;query:stri
 // long-term topic when the current message supplies a new object.
 export function knowledgeIntent(text:string,context:{eventTitle?:string;hasPriorGuide?:boolean;lastUserTexts?:string[]}={}):KnowledgeIntent{
  const make=(decision:KnowledgeDecision,reason:string,query=text,stage:KnowledgeIntent['stage']='start',continuation=false):KnowledgeIntent=>({decision,reason,query,stage,continuation})
+ if(currentConversationOnly(text))return make('NONE','listening_or_refusal')
  if(scanUserClauses(text).some(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&!c.interrogative&&/^(?:我)?(?:愿意|决定|打算|准备|会)(?:尝试|试试|试|使用|用|采纳|做).{0,20}(?:方法|行动|建议|刚才那一步)[。！!\s]*$/.test(c.text.trim()))&&!/不想继续|不做了|拒绝继续|不要建议/.test(text))return make('NONE','adoption_not_method_request')
  const positive=/(?:怎么|如何|怎么办|从哪|去哪|怎样|方法|办法|做法|练法|学法|写法|步骤|技巧|思路|调整|比较|对比|取舍|区别|案例|一直改稿|又改需求|有什么依据|依据支持|原理是什么|为什么有效|(?:先|该|应该|能用).{0,12}(?:什么|哪些)|有什么小尝试)/.test(text)
  const actionQuestion=/(?:能(?:不能)?|帮我|先).{0,12}(?:找|理解|整理|核对|练|开始|记录).{0,16}(?:吗|哪|[？?])/.test(text)

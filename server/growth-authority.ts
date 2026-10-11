@@ -10,6 +10,7 @@ import type { ClauseHandle } from './clause-catalogue.ts'
 import { resolveClause } from './clause-catalogue.ts'
 import type { GrowthInputDelta, ResolvedGrowthDelta, ResolvedGrowthTarget } from './growth-model-contracts.ts'
 import type { CorrectionPlan } from './turn-obligations.ts'
+import {conversationPreferenceClause} from './user-command-spans.ts'
 
 export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null;status?:string}
 
@@ -60,6 +61,7 @@ export function resolveGrowthDeltas(input:{
     // fact the user asserted — the meta-query shape (你记得我之前说过什么吗)
     // can no longer ground a user_reported create (L1OFF).
     if(delta.assertion==='user_reported'){
+      if(conversationPreferenceClause(clause.text)){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue}
       // SP_STATUS_01: a request about THIS conversation is not a pursuit or
       // personal fact, even if the provider selects it as a goal. Short genuine
       // direction statements (先就业/先探索科研) remain eligible.

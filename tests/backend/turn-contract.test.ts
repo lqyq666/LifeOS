@@ -222,6 +222,25 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.deepEqual(saved.growthIds,[]);assert.deepEqual(saved.stateChange.growthDiff,[])
       assert.deepEqual(saved.themeChangedIds,[])
     })
+    await t.test('RV2 support-only request overrides an existing event and cannot become a goal',async()=>{
+      const text='还是那份材料，打不开的情况没有变。我现在只想说一下烦躁，先别给方法。',turn=await prepare(text)
+      outputs.push({reply:'我在听，你可以慢慢说。'})
+      const result=await engine(turn.input),context=JSON.parse(requests.at(-1)!.messages.find((m:any)=>m.role==='user').content)
+      assert.equal(context.boundedReply,undefined,'a prior blocker cannot force another action suggestion')
+      const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.deepEqual(saved.growthCreatedIds,[]);assert.deepEqual(saved.stateChange.growthDiff,[])
+      assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'我现在只想说一下烦躁'])).rows[0].n,0)
+      const contract=deriveTurnContract({text,knowledgeCount:1,currentEventExists:true,planIntent:false,material:false})
+      assert.equal(contract.capabilities.candidate,false);assert.equal(contract.capabilities.event,false);assert.equal(contract.capabilities.citations,false)
+    })
+    await t.test('malicious preference-as-goal is excluded while a separately reported blocker survives',async()=>{
+      const text='我的课程资料打不开。我现在只想说一下烦躁，先别给方法。',turn=await prepare(text)
+      outputs.push({reply:'我在听。',growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:'c1'}}]})
+      const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      const rows=(await pool.query('SELECT text,kind FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])',[user,saved.growthCreatedIds])).rows
+      assert.deepEqual(rows,[{text:'我的课程资料打不开',kind:'context'}])
+      assert.deepEqual(saved.mergedExperienceIds,[]);assert.deepEqual(saved.candidateIds,[])
+    })
     await t.test('a valid native not-started delta is not duplicated by the server supplement',async()=>{
       const text='我还没开始准备新项目，怎么继续？',turn=await prepare(text)
       const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!

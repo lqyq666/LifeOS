@@ -19,6 +19,17 @@ export type UserClause={
 
 type Protected={start:number;end:number;kind:'quote'|'code'}
 
+// Preferences for this conversation are not goals or autobiographical facts.
+export function conversationPreferenceClause(text:string):boolean{
+ return /^(?:我(?:今天|现在|目前|这次|最近)?(?:只想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说(?:说|一下|点)|倾诉|吐(?:个)?槽|陪我)|(?:请|麻烦)?(?:先|暂时)?(?:不要|不用|不想|不需要|别)(?:再)?(?:给(?:我)?|帮我(?:想)?)?(?:建议|推荐|方法|办法|做法|练法|学法|写法|攻略|行动|复盘)|(?:先)?听我说)/.test(text.trim())
+}
+export function currentConversationOnly(text:string):boolean{
+ const own=scanUserClauses(text).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&!c.quoteSpans.length)
+ let lastPreference=-1
+ own.forEach((c,index)=>{if(conversationPreferenceClause(c.text))lastPreference=index})
+ return lastPreference>=0&&!own.slice(lastPreference+1).some(c=>/(?:但|不过|还是|现在|想知道|帮我|请|想问).*(?:怎么|如何|从哪|怎样|方法|办法|起草|写一|安排)/.test(c.text))
+}
+
 const quotePairs:[string,string][]=[['“','”'],['「','」'],['『','』']]
 const sentenceTerminators=new Set(['。','！','？','!','?',';','；','\n'])
 const clauseDelimiters=new Set(['，',',','、'])
