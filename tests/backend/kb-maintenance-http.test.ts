@@ -20,6 +20,16 @@ test('normal authenticated maintenance API binds actual account receipts, denies
   assert.equal((await call(editor.cookie,'/api/maintenance/guides/queue',{})).body.queued,0)
   const list=(await call(editor.cookie,'/api/maintenance/guides')).body.items;assert.equal(list.length,32)
   const pack=JSON.parse(readFileSync('.planning/research/evergreen/KB_CONTENT_REVISIONS.json','utf8')),card=pack.drafts.find((c:any)=>c.guide.canonicalKey==='first-contact'),path='/api/maintenance/guides/'+card.id+'/'+card.revision
+  // Actual external report bytes/full originals, with synthetic authenticated
+  // maintenance accounts. This tests import, never human approval/publication.
+  const realReviewed=pack.drafts.find((c:any)=>c.id==='4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d'),realPath='/api/maintenance/guides/'+realReviewed.id+'/'+realReviewed.revision
+  const realDetail=(await call(editor.cookie,realPath)).body
+  assert.ok(realDetail.externalReviews.some((r:any)=>r.executionId==='coze-kb-r7-original-cards'))
+  const realImport=await call(editor.cookie,realPath+'/actions',{action:'import_review',executionId:'coze-kb-r7-original-cards',contentHash:realDetail.contentHash,sourceHashes:realDetail.bundle.sources.map((s:any)=>s.original_fingerprint),claimChecks:realDetail.bundle.card.guide.claims.map((c:any)=>c.id),notes:'导入已实际读回的扣子R7原文审核；只等待本人批准，不发布。'})
+  assert.equal(realImport.status,200,JSON.stringify(realImport.body));assert.equal(realImport.body.status,'waiting_approval')
+  const realPending=(await call(editor.cookie,realPath)).body
+  assert.equal(realPending.publicationGate,'WAITING_AUTHORIZED_HUMAN_APPROVAL')
+  assert.match(realPending.receipts[0].actor_id,/^coze:7693465311558795327:/)
   const originalBundle=(await pool.query('SELECT bundle FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision=$2',[card.id,card.revision])).rows[0].bundle
   assert.equal(originalBundle.coverage.length,card.guide.branches.length)
   // A legacy full-library bundle remains usable after unrelated research. Its
