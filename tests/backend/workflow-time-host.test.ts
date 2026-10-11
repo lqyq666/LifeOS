@@ -39,5 +39,9 @@ test('durable own-time questions accept omissions, estimates, upper bounds and n
   const ids=[await create(),await create()],supplement=await message('六小时'),start=calls
   await Promise.all(ids.map(id=>host.resume(user,id,{conversationId:chat,currentMessageId:supplement})));await Promise.all(ids.map(finish));assert.equal(calls-start,8);assert.equal(new Set(ids).size,2)
   const mixed=await create('我每周能拿出六小时，但这周只剩两小时，深入比较就业和考研。');assert.equal((await finish(mixed)).status,'proposed');const r=(await pool.query('SELECT request_payload FROM lifeos_workflow_tasks WHERE request_id=$1',[mixed])).rows[0].request_payload;assert.equal(r.budget.amountMinutes,120)
+  const beforeControls=calls
+  await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1) ON CONFLICT(user_id) DO UPDATE SET revision=user_memory_settings.revision+1',[user])
+  const stale=await host.read(user,mixed)
+  assert.equal(stale.status,'failed');assert.equal(stale.receipt?.failure,'stale_snapshot');assert.equal(stale.receipt?.proposal,undefined);assert.equal(calls,beforeControls)
  }finally{host.close();await pool.query('DELETE FROM "user" WHERE id=$1',[user])}
 })

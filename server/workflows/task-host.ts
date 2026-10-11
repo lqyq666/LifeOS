@@ -11,13 +11,14 @@ import {loadSnapshot} from '../memory.ts'
 import * as store from '../store.ts'
 import {weeklyPlanIntent,applicableTimeBudget} from '../turn-obligations.ts'
 import {resolveTimeWindow} from '../growth-time.ts'
-import {scanUserClauses} from '../user-command-spans.ts'
+import {scanUserClauses,currentConversationOnly} from '../user-command-spans.ts'
 import {WorkflowError,parseRequest,type WorkflowRequest,type WorkflowReceipt} from './contracts.ts'
 import {validateEvidence,validateProposal} from './evidence-gate.ts'
 import {workflowControls,readWorkflowEvidence,selectWorkflowBudget} from './task-sources.ts'
 import {workflowRuntimeVersion} from './runtime-version.ts'
 import {createDirectionWorkflow,type DecisionAdapter} from './direction-decision.ts'
 import {createRuntimeDecisionAdapter} from './provider-adapter.ts'
+import {configuredCozeDirectionAdapter} from './coze-direction-adapter.ts'
 import {workflowMethodReader} from './method-context.ts'
 import {postgresJournal} from './task-journal.ts'
 import {advancedWorkflowsEnabled} from './router.ts'
@@ -33,7 +34,7 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
  const journal=postgresJournal(),scheduler=new RequestScheduler(config.generationConcurrency,config.generationQueueLimit),active=new Map<string,AbortController>()
  let adapter=options.adapter,blocked='深入分析的候选服务尚未开放，原有聊天仍可继续。'
  if(!adapter&&advancedWorkflowsEnabled()&&process.env.LIFEOS_REAL_WORKFLOWS==='true'&&process.env.LIFEOS_WORKFLOW_FREEZE){
-  try{adapter=createRuntimeDecisionAdapter({readEvidence:readWorkflowEvidence,readMethods:workflowMethodReader(),freezePath:process.env.LIFEOS_WORKFLOW_FREEZE,audit:async(r,row)=>{await pool.query('UPDATE lifeos_workflow_nodes SET provider_usage=$4 WHERE user_id=$1 AND request_id=$2 AND call_id=$3',[r.internalActorKey,r.requestId,row.callId,JSON.stringify(row)])}})}catch{blocked='模型费用或候选版本尚未核验，深入分析暂未开始。'}
+  try{adapter=process.env.LIFEOS_COZE_GROWTH==='true'?configuredCozeDirectionAdapter({readEvidence:readWorkflowEvidence,readMethods:workflowMethodReader(),freezePath:process.env.LIFEOS_WORKFLOW_FREEZE,audit:async(r,row)=>{await pool.query('UPDATE lifeos_workflow_nodes SET provider_usage=$4 WHERE user_id=$1 AND request_id=$2 AND node_id=$3',[r.internalActorKey,r.requestId,row.nodeId??'',JSON.stringify(row)])}}):createRuntimeDecisionAdapter({readEvidence:readWorkflowEvidence,readMethods:workflowMethodReader(),freezePath:process.env.LIFEOS_WORKFLOW_FREEZE,audit:async(r,row)=>{await pool.query('UPDATE lifeos_workflow_nodes SET provider_usage=$4 WHERE user_id=$1 AND request_id=$2 AND call_id=$3',[r.internalActorKey,r.requestId,row.callId,JSON.stringify(row)])}})}catch{blocked='模型费用或候选版本尚未核验，深入分析暂未开始。'}
  }
  const wf=adapter?createDirectionWorkflow(readWorkflowEvidence,adapter,undefined,journal):null
  const key=(user:string,id:string)=>user+':'+id
@@ -44,7 +45,7 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
   if(conversation){requireRow((await pool.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2',[user,conversation])).rows[0]);if(!controls.memory.enabled&&conversation!==r.conversationId)throw new HttpError(403,'MEMORY_DISABLED')}
   if(task.status!=='finished'&&task.expired){await journal.claim(r,task.input_digest);task=requireRow((await pool.query('SELECT * FROM lifeos_workflow_tasks WHERE user_id=$1 AND request_id=$2',[user,id])).rows[0])}
   let receipt=task.receipt as WorkflowReceipt|null,valid=true
-  try{if(r.hostSnapshot?.runtimeDigest!==workflowRuntimeVersion.sourceDigest)throw new WorkflowError('stale_snapshot');const records=await readWorkflowEvidence(r);validateEvidence(r,r.authorizedEvidenceRefs,records);if(receipt?.proposal)validateProposal(r,receipt.proposal,records)}catch(error){valid=false;receipt={schemaVersion:2,traceId:r.traceId,status:'unavailable',failure:error instanceof WorkflowError?error.code:'source_invalid',providerCalls:receipt?.providerCalls??0,costCny:receipt?.costCny??null,reservedCostCny:receipt?.reservedCostCny??0,executionKind:receipt?.executionKind??adapter?.executionKind??'local_deterministic',skills:receipt?.skills??[],fallback:'existing_single_agent'}}
+  try{if(r.hostSnapshot?.runtimeDigest!==workflowRuntimeVersion.sourceDigest||r.hostSnapshot?.controlsDigest!==controls.digest)throw new WorkflowError('stale_snapshot');const records=await readWorkflowEvidence(r);validateEvidence(r,r.authorizedEvidenceRefs,records);if(receipt?.proposal)validateProposal(r,receipt.proposal,records)}catch(error){valid=false;receipt={...receipt,schemaVersion:2,traceId:r.traceId,status:'unavailable',proposal:undefined,failure:error instanceof WorkflowError?error.code:'source_invalid',providerCalls:receipt?.providerCalls??0,costCny:receipt?.costCny??null,reservedCostCny:receipt?.reservedCostCny??0,executionKind:receipt?.executionKind??adapter?.executionKind??'local_deterministic',skills:receipt?.skills??[],fallback:'existing_single_agent'}}
   const nodes=(await pool.query('SELECT node_id,role,status,call_id,provider_calls,cost_cny,max_cost_cny,started_at,finished_at,provider_usage,input_ref_digest,output_ref_digest FROM lifeos_workflow_nodes WHERE user_id=$1 AND request_id=$2 ORDER BY started_at,node_id',[user,id])).rows
   const status=!valid?'failed':task.cancel_requested?'cancelled':task.host_commit?.stateChange?.workflow?.status??(task.status!=='finished'?task.status:receipt?.status==='waiting_user'?'waiting_user':receipt?.status==='proposed'?'proposed':receipt?.failure==='cancelled'?'cancelled':receipt?.status==='rejected'?'rejected':'failed')
   const commit=valid&&task.host_commit?await store.validRunResponse(user,task.host_commit.requestId,task.host_commit):null
@@ -61,7 +62,7 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
   const clauses=scanUserClauses(current.content).filter(x=>!x.quoted&&!x.code&&!x.conditional&&!x.attributedToOther),text=clauses.map(x=>x.text).join('；')
   const forbidden:string[]=controls.directions.filter(x=>x.state==='paused').map(x=>x.scope)
   if(forbidden.includes('entrepreneurship'))forbidden.push('independent_development','freelance')
-  const r:WorkflowRequest={schemaVersion:2,traceId:body.requestId,requestId:body.requestId,mode:'direction_decision',internalActorKey:user,conversationId:body.conversationId,authorizedEvidenceRefs:[{type:'message',id:body.currentMessageId,revision:1,quote:current.content},...relevant.map(x=>({type:'growth' as const,id:x.id,revision:x.revision}))],hostSnapshot:{controlsDigest:controls.digest,runtimeDigest:workflowRuntimeVersion.sourceDigest,budgetQuestion:{period:weeklyPlanIntent(current.content)?.period==='next_week'||applicableTimeBudget(current.content)?.period==='next_week'?'next_week':'this_week',question:'本人本周或下周可用或剩余时间',anchor:new Date().toISOString()}},currentIntent:current.content,consent:{continueReview:false,deepAnalysis:true},controls:{memoryEnabled:controls.memory.enabled,listeningOnly:/只想倾诉|只听我说/.test(text),refuseAdvice:/不要建议|不想要建议/.test(text),memoryControl:/忘掉|忘记这|删除这/.test(text),recommendationsPaused:false,forbiddenDirections:forbidden},budget:null,modelBudget:{maxProviderCalls:5,maxCostCny:Math.min(30,adapter.maxCostPerCallCny*(body.directions.length+2)),deadlineMs:120000},directions:body.directions.map(id=>({id,title:directionLabels[id]})),synthetic:options.synthetic===true}
+  const r:WorkflowRequest={schemaVersion:2,traceId:body.requestId,requestId:body.requestId,mode:'direction_decision',internalActorKey:user,conversationId:body.conversationId,authorizedEvidenceRefs:[{type:'message',id:body.currentMessageId,revision:1,quote:current.content},...relevant.map(x=>({type:'growth' as const,id:x.id,revision:x.revision}))],hostSnapshot:{controlsDigest:controls.digest,runtimeDigest:workflowRuntimeVersion.sourceDigest,budgetQuestion:{period:weeklyPlanIntent(current.content)?.period==='next_week'||applicableTimeBudget(current.content)?.period==='next_week'?'next_week':'this_week',question:'本人本周或下周可用或剩余时间',anchor:new Date().toISOString()}},currentIntent:current.content,consent:{continueReview:false,deepAnalysis:true},controls:{memoryEnabled:controls.memory.enabled,listeningOnly:currentConversationOnly(current.content)||/只想倾诉|只听我说/.test(text),refuseAdvice:/不要建议|不想要建议/.test(text),memoryControl:/忘掉|忘记这|删除这/.test(text),recommendationsPaused:false,forbiddenDirections:forbidden},budget:null,modelBudget:{maxProviderCalls:5,maxCostCny:Math.min(30,adapter.maxCostPerCallCny*(body.directions.length+2)),deadlineMs:120000},directions:body.directions.map(id=>({id,title:directionLabels[id]})),synthetic:options.synthetic===true}
   const records=await readWorkflowEvidence(r);validateEvidence(r,r.authorizedEvidenceRefs,records)
   r.budget=selectWorkflowBudget(r,records)
   parseRequest(r)
@@ -102,7 +103,7 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
    if(controls.digest!==r.hostSnapshot?.controlsDigest)throw new HttpError(409,'WORKFLOW_SOURCE_CHANGED')
    const current=requireRow((await c.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user' AND created_at>=$4 AND created_at>=(date_trunc('week',now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')",[user,body.conversationId,body.currentMessageId,task.created_at])).rows[0])
    const intent=scanUserClauses(current.content).filter(x=>!x.quoted&&!x.code&&!x.conditional&&!x.attributedToOther&&!x.interrogative).map(x=>x.text).join('；')
-   if(/先别分析|不要分析|不想继续|拒绝继续|取消|只想倾诉|只听我说|不要建议|不想要建议/.test(intent)){await c.query('UPDATE lifeos_workflow_tasks SET cancel_requested=true WHERE user_id=$1 AND request_id=$2',[user,taskId]);return null}
+   if(currentConversationOnly(current.content)||/先别分析|不要分析|不想继续|拒绝继续|取消|只想倾诉|只听我说|不要建议|不想要建议/.test(intent)){await c.query('UPDATE lifeos_workflow_tasks SET cancel_requested=true WHERE user_id=$1 AND request_id=$2',[user,taskId]);return null}
    if(/改(?:为|成|方向)|转向|优先.{0,10}(?:就业|考研|创业)|不再比较/.test(intent))throw new HttpError(409,'WORKFLOW_INTENT_CHANGED')
    if(!r.hostSnapshot?.budgetQuestion)throw new HttpError(409,'WORKFLOW_TIME_QUESTION_REQUIRED')
    const question=r.hostSnapshot.budgetQuestion,token=question.period==='next_week'?'下周':'这周'

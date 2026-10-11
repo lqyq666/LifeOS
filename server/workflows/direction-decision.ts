@@ -6,8 +6,9 @@ import {loadBusinessSkill} from './skills.ts'
 import {routeWorkflow} from './router.ts'
 import type {TraceRow} from './trace.ts'
 import type {TaskJournal} from './task-journal.ts'
+import {validateReviewedFields} from './reviewed-fields.ts'
 
-export type DecisionAdapter={executionKind:'simulated_provider'|'real_provider';maxCostPerCallCny:number;prepareGraph?:(request:WorkflowRequest,nodes:WorkflowNode[])=>Promise<void>;finishGraph?:(request:WorkflowRequest)=>Promise<void>;readNodeAccounting?:(request:WorkflowRequest,nodeId:string)=>{costCny:number;providerCalls:number}|null;analyzeTogether?:(c:NodeContext,directions:{id:string;title:string}[],skill:string)=>ReturnType<WorkflowNode['invoke']>;analyze:(c:NodeContext,direction:{id:string;title:string},skill:string)=>ReturnType<WorkflowNode['invoke']>;critic:(c:NodeContext,analyses:AgentResult[],skill:string)=>ReturnType<WorkflowNode['invoke']>;synthesize:(c:NodeContext,analyses:AgentResult[],critic:AgentResult,skill:string)=>ReturnType<WorkflowNode['invoke']>}
+export type DecisionAdapter={executionKind:'simulated_provider'|'real_provider';maxCostPerCallCny:number;runRemoteGraph?:(request:WorkflowRequest,journal:TaskJournal,signal?:AbortSignal)=>Promise<WorkflowReceipt>;prepareGraph?:(request:WorkflowRequest,nodes:WorkflowNode[])=>Promise<void>;finishGraph?:(request:WorkflowRequest)=>Promise<void>;readNodeAccounting?:(request:WorkflowRequest,nodeId:string)=>{costCny:number;providerCalls:number}|null;analyzeTogether?:(c:NodeContext,directions:{id:string;title:string}[],skill:string)=>ReturnType<WorkflowNode['invoke']>;analyze:(c:NodeContext,direction:{id:string;title:string},skill:string)=>ReturnType<WorkflowNode['invoke']>;critic:(c:NodeContext,analyses:AgentResult[],skill:string)=>ReturnType<WorkflowNode['invoke']>;synthesize:(c:NodeContext,analyses:AgentResult[],critic:AgentResult,skill:string)=>ReturnType<WorkflowNode['invoke']>}
 export function createDirectionWorkflow(readEvidence:EvidenceReader,adapter:DecisionAdapter,sink?:(row:TraceRow)=>void,journal?:TaskJournal){
  const runner=createOrchestrator({readEvidence,traceSink:sink,journal,prepareGraph:adapter.prepareGraph,finishGraph:adapter.finishGraph,readNodeAccounting:adapter.readNodeAccounting})
  async function run(raw:WorkflowRequest,signal?:AbortSignal,comparisonMode:'single'|'multi'='multi'):Promise<WorkflowReceipt>{
@@ -16,8 +17,14 @@ export function createDirectionWorkflow(readEvidence:EvidenceReader,adapter:Deci
   const paths=request.directions.filter(x=>!request.controls.forbiddenDirections.includes(x.id))
   if(paths.length<2)throw new WorkflowError('constraint_conflict')
   if(new Set(paths.map(x=>x.id)).size!==paths.length)throw new WorkflowError('invalid_contract')
-  if(adapter.executionKind==='real_provider'&&(!adapter.prepareGraph||!journal?.durable))throw new WorkflowError('unavailable')
+  if(adapter.executionKind==='real_provider'&&(!adapter.prepareGraph&&!adapter.runRemoteGraph||!journal?.durable))throw new WorkflowError('unavailable')
   const skill=loadBusinessSkill('lifeos-direction-analysis',request.traceId,runner.trace)
+  // One remote graph already contains 4/5 paid calls. Never wrap it in the
+  // native per-node graph, which would duplicate dispatch and accounting.
+  if(adapter.runRemoteGraph){
+   if(comparisonMode!=='multi'||!journal)throw new WorkflowError('unavailable')
+   return adapter.runRemoteGraph(request,journal,signal)
+  }
   const paid=(id:string,role:WorkflowNode['role'],dependencies:string[],invoke:WorkflowNode['invoke']):WorkflowNode=>({id,role,dependencies,invoke,executionKind:adapter.executionKind,maxCostCny:adapter.maxCostPerCallCny})
   if(comparisonMode==='single'){
    if(!adapter.analyzeTogether)throw new WorkflowError('unavailable')
@@ -54,12 +61,7 @@ export function createDirectionWorkflow(readEvidence:EvidenceReader,adapter:Deci
    // Synthesis selects independently reviewed content. It cannot author new facts,
    // even while citing a valid ID. Compare every visible field, not a keyword blacklist.
    const reviewed=analyses(results).map(x=>parseProposal(x.proposal))
-   for(const alternative of proposal.alternatives){
-    const candidates=reviewed.flatMap(x=>x.alternatives).filter(x=>x.directionId===alternative.directionId)
-    if(!candidates.some(x=>x.title===alternative.title&&x.weeklyMinutes===alternative.weeklyMinutes&&JSON.stringify(x.evidenceRefs)===JSON.stringify(alternative.evidenceRefs)))throw new WorkflowError('source_invalid')
-    for(const field of ['pros','tradeoffs','unknowns'] as const)if(alternative[field].some(value=>!candidates.some(x=>x[field].includes(value))))throw new WorkflowError('source_invalid')
-   }
-   for(const field of ['nextActions','hypotheses'] as const)if(proposal[field].some(value=>!reviewed.some(x=>x[field].some(y=>JSON.stringify(y)===JSON.stringify(value)))))throw new WorkflowError('source_invalid')
+   validateReviewedFields(proposal,{alternatives:reviewed.flatMap(x=>x.alternatives),nextActions:reviewed.flatMap(x=>x.nextActions),hypotheses:reviewed.flatMap(x=>x.hypotheses)})
    if(proposal.alternatives.length!==paths.length||paths.some(p=>!proposal.alternatives.some(a=>a.directionId===p.id)))throw new WorkflowError('invalid_contract')
    const reviewIssues=results.get('critic')!.issues.map(normalizeReviewIssue)
    return {...proposalReceipt(r,proposal,{providerCalls:0,costCny:0,reservedCostCny:0,executionKind:adapter.executionKind,skills:[skill.name]}),reviewIssues}

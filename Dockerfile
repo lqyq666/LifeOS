@@ -32,7 +32,7 @@ COPY server ./server
 COPY src ./src
 COPY skills ./skills
 COPY .planning/research/evergreen/KB_GUIDES.jsonl .planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl .planning/research/evergreen/KB_EVIDENCE.jsonl .planning/research/evergreen/KB_CONTENT_REVISIONS.json .planning/research/evergreen/KB_COVERAGE.json .planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json ./.planning/research/evergreen/
-COPY scripts/migrate-db.ts scripts/probe-model.ts scripts/create-user.ts scripts/manage-access.ts scripts/manage-provider-budget.ts scripts/coach-provider-budget.ts scripts/coach-source-freeze.ts ./scripts/
+COPY scripts/migrate-db.ts scripts/probe-model.ts scripts/create-user.ts scripts/manage-access.ts scripts/manage-provider-budget.ts scripts/coach-provider-budget.ts scripts/coach-source-freeze.ts scripts/coze-host-permit.ts scripts/coze-credit-budget.ts ./scripts/
 COPY evidence/v1.3-action-coach/provider/qwen-default/coach-capabilities-default.json evidence/v1.3-action-coach/provider/qwen-default/coach-capabilities-default.json.interface-proof.json ./evidence/v1.3-action-coach/provider/qwen-default/
 COPY .local/models/bge-small-zh-v1.5 ./.local/models/bge-small-zh-v1.5
 COPY deploy/requirements-embedding.lock ./deploy/requirements-embedding.lock

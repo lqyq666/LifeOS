@@ -300,6 +300,22 @@
       "cloudCalls": 0,
       "serviceClosed": true,
       "productionDeployed": false
+    },
+    "cozeNormalTaskConnection": {
+      "status": "LOCAL_PROTOCOL_TESTED_BUILT_NOT_REAL_CLOUD_ACCEPTED",
+      "firstIndependentVerdict": "BLOCKED",
+      "targetedProtocolChecks": 11,
+      "actualIsolatedHostCheck": 1,
+      "providerDispatchInTheseChecks": 0,
+      "duplicateDispatchPrevented": true,
+      "cancelAckNotWorkerCompletion": true,
+      "unknownCallsMarkedUpperBound": true,
+      "currentControlChangeInvalidatesProposal": true,
+      "currentUiBuilt": true,
+      "currentUiBrowser": "NOT_TESTED_THIS_INCREMENT",
+      "realCloudEndpointAndCreditCeiling": "NOT_CONFIGURED",
+      "independentReport": "evidence/coze-core-launch-20261011/independent-cli-lv3-remote-second.json",
+      "remaining": "Actual cloud durable terminal readback, selector failure provenance, current binding and real graph execution"
     }
   },
   "content": {
