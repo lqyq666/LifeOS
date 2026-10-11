@@ -1,0 +1,56 @@
+{
+  "kind": "PREDECLARED_NEW_FIRST_REAL_REPAIR_SET",
+  "historicalFirstFailuresPreserved": true,
+  "notReplacement": true,
+  "independentReview": "REQUIRED",
+  "cases": [
+    {
+      "caseId": "NC7_DIRECTION",
+      "session": 0,
+      "input": "我目前主要探索自由职业，实习晚些时候再看。先不安排具体任务。",
+      "expected": "Only current exploration is pursuit; internship deferred context; no invented experience."
+    },
+    {
+      "caseId": "NC7_PAYMENT",
+      "session": 0,
+      "input": "我把设计稿交给客户了，客户已经用了，费用还没付。实际效果我不知道。",
+      "expected": "Delivery/adoption/payment/effect distinct source-grounded state; adoption does not prove quality."
+    },
+    {
+      "caseId": "NC7_SWITCH",
+      "session": 1,
+      "input": "我不再把自由职业作为主线，我现在优先实习。已经交出的设计稿记录保留。",
+      "expected": "Explicit new priority governs response and current star map; old experience kept."
+    },
+    {
+      "caseId": "NC7_BOUNDARY",
+      "session": 2,
+      "input": "这次访谈我暂时不继续，也不要给我其他方法。使用结果仍未知。",
+      "expected": "Durable task-specific boundary, no fake pursuit or unattempted prior event."
+    },
+    {
+      "caseId": "NC7_MINUTES",
+      "session": 3,
+      "input": "我这周只剩八十分钟，课程作业和备考如何取舍？",
+      "expected": "Current exact remaining 80 is real scoped constraint; ask unknown actual requirement not known time."
+    },
+    {
+      "caseId": "NC7_ZERO",
+      "session": 4,
+      "input": "这周没有可用时间，可用时间是零。下周大概有三小时，先不安排具体任务。",
+      "expected": "Zero supersedes 80; future estimate 180 active unavailable until next week; no tasks."
+    },
+    {
+      "caseId": "NC7_SENT",
+      "session": 5,
+      "input": "我请教老师的邮件发出去了。对方看过但没有回复。我这次只想聊聊，不需要方法。",
+      "expected": "Actual own contact stored through structural lifecycle while listening, outcome fact retained, no advice."
+    },
+    {
+      "caseId": "NC7_BACK",
+      "session": 6,
+      "input": "还是那封请教邮件，等着没回很难受，先听我说。",
+      "expected": "Known contact facts retained across sessions, no repeated sent/read question or reminder."
+    }
+  ]
+}
