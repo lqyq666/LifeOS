@@ -1,0 +1,23 @@
+{
+  "kind": "PREDECLARED_NEW_FIRST_REPAIR_PILOT_NOT_FINAL_COHORT",
+  "hypothesis": "Current listening preference defeats a resource blocker and does not become a personal goal; independent resource and not-started facts persist without invented outcomes. Next session still honours current refusal.",
+  "historicalFirstAttempts": [
+    "REPAIR_PILOT_RESOURCE_V2_20261011.json"
+  ],
+  "notReplacement": true,
+  "independentReview": "REQUIRED_SEPARATELY_NOT_MAIN_SELF_SCORE",
+  "cases": [
+    {
+      "caseId": "LV3_RESOURCE_AND_REFUSAL",
+      "session": 0,
+      "input": "我的这门课资料打不开，我尚未开始写课堂汇报。我现在只想说一下心情，先别给方法。",
+      "expected": "Save exact resource/not-started reports only. No goal for chat preference, no completed experience. Listen without problem-solving questions or methods; <=1 generation."
+    },
+    {
+      "caseId": "LV3_SESSION_REFUSAL",
+      "session": 1,
+      "input": "刚才那个课程问题还没解决。我现在只想吐个槽，暂时别帮我想办法。",
+      "expected": "Read retained resource/not-started in authorized context. No new goals, no suggestions, no tutorial; <=1 generation."
+    }
+  ]
+}
