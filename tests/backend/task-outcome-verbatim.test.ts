@@ -61,7 +61,7 @@ test('omitted read/response/adoption reports persist independently and remain in
   const budgetResult=await engine({run:budget,staged:budgetStaged,context:await store.contextForRun(budget),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(budget,budgetStaged,budgetResult.text,budgetResult.usage,new AbortController().signal)
   const earlier=(await pool.query("SELECT id FROM growth_items WHERE user_id=$1 AND kind='constraint' AND status='active' AND text LIKE '%两小时%'",[user])).rows[0]
-  const zero=(await store.startRun(user,next,randomUUID(),'我这周零小时可用，请帮我安排本周课程与备考。')).run,zeroStaged:store.Staged={candidates:[],audit:[]},beforeZero=requests.length
+  const zero=(await store.startRun(user,next,randomUUID(),'我这周能用的时间是零，请帮我安排本周课程与备考。')).run,zeroStaged:store.Staged={candidates:[],audit:[]},beforeZero=requests.length
   const zeroResult=await engine({run:zero,staged:zeroStaged,context:await store.contextForRun(zero),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(zero,zeroStaged,zeroResult.text,zeroResult.usage,new AbortController().signal)
   assert.equal(requests.length,beforeZero)

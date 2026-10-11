@@ -33,25 +33,25 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '这次只更正你指出的结果项。未知与否定分开，其他报告保留；后续帮助以更正后的信息为依据。',
  ])
  if(['listening_or_refusal','control','greeting','memory_query','reuse_material','professional_or_prediction_boundary'].includes(input.intent.reason))return null
+ if(/我想把(?:验证问题|访谈问题|提问|这个问题).{0,20}(?:改成|换成)/.test(own))return make('start','新的问法会取得什么实际反馈',[
+  '可以把这次问题改成你刚提出的问法，先核对一段最近的实际经历。这里只调整这一步，需求成立与否和访谈效果仍待核对；之后按实际回答再判断。',
+  '沿用你刚提出的新问题，不重发整套访谈方法。下一轮分别保留原回答和实际行为，效果仍待核对。',
+ ])
  const interviewReport=/(?:我.{0,12}(?:访谈|聊过|问过)|我已经访谈)/.test(own)&&/(?:感兴趣|使用|付费|采用)/.test(input.text)
  if(interviewReport)return make('reported_result','实际遇到的问题、已有行为与尚未发生的使用分别核对',[
   '先把访谈中的表达与实际行动分开。尚未使用或付款，不能据此判断需求成立，也不能判断需求不存在；这次有没有讲到最近实际遇到的问题？',
   '保留这次访谈报告，不把感兴趣当成使用、付款或有效。下一步先核对对方最近一次遇到的具体困难，是否继续由你决定。',
  ])
- const explorationQuestion=/(?:校园产品|创业|校园项目)/.test(own)&&/(?:怎么|如何|怎样)/.test(input.text)&&/(?:发现|找到|找问题|问题|开始)/.test(input.text)
+ const explorationQuestion=/(?:校园产品|创业|校园项目)/.test(own)&&/(?:怎么|如何|怎样)/.test(own)&&/(?:发现|找到|找问题|问题|开始)/.test(own)
  if(explorationQuestion)return make('start','当前有没有一个本人观察到的具体问题',[
   '先从你已经观察到的一件具体麻烦开始；这是编辑建议，不是需求已经成立。你现在有一个想核对的场景，还是还没有具体方向？',
   '可以先写下一个待核对的问题，再确认最近是否有人实际遇到过。这里只提出小尝试，不承诺产品效果；你已经注意到什么具体场景？',
- ])
- if(/我想把(?:验证问题|访谈问题|提问|这个问题).{0,20}(?:改成|换成)/.test(own))return make('start','新的问法会取得什么实际反馈',[
-  '可以把这次问题改成你刚提出的问法，先核对一段最近的实际经历。这里只调整这一步，需求成立与否和访谈效果仍待核对；之后按实际回答再判断。',
-  '沿用你刚提出的新问题，不重发整套访谈方法。下一轮分别保留原回答和实际行为，效果仍待核对。',
  ])
  if(/(?:自由职业|接单)/.test(own)&&/(?:需求|交付范围)/.test(own)&&/(?:怎么|如何|怎样)/.test(input.text))return make('start','本次服务、使用对象和交付边界',[
   '先写清一个拟交付的东西和谁会使用它，再把还需对方确认的范围留作问题。这里是编辑建议，尚未接单或交付；你想提供哪一种服务？',
   '先核对一个具体需求：对方要拿交付物做什么，哪些内容由你完成，哪些还没有约定。没有实际客户时先从拟提供的服务开始，不把探索算成接单。你想交付什么？',
  ])
- if(input.verifiedBudget&&/(?:预算|平衡)/.test(own)&&/(?:怎么|如何|怎样)/.test(input.text)){
+ if(input.verifiedBudget&&(/(?:预算|平衡)/.test(own)||(/课程/.test(own)&&/(?:备考|复习)/.test(own)&&/取舍/.test(own)))&&/(?:怎么|如何|怎样)/.test(own)){
   const label=input.verifiedBudget.period==='next_week'?'下周':input.verifiedBudget.period==='this_week'?'本周':/每周/.test(input.verifiedBudget.quote)?'常规每周':'当前时段'
   return make('start','本次课程与其他目标各自最需要完成的一项',[
    `以你明确的${label}${input.verifiedBudget.minutes}分钟为上限，先列课程和其他目标各一项必须处理的事，再判断取舍，不要求用满。现在有没有已确定的课程任务或备考事项？`,
@@ -73,7 +73,7 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  const report=clauses.filter(c=>!questions.includes(c)&&!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
  const materialUnavailable=/(?:材料|教材|课件|链接|资料|网页).{0,6}(?:打不开|无法打开)/.test(report)
  const continueBlocked=materialUnavailable&&/(?:先处理|先继续|继续(?:原来|这件|这个|刚才))/.test(report)
- if(!/(?:怎么|如何|怎样|哪一步|先做|下一步|要不要|还要|该不该|能不能|怎么办|调整)/.test(request)&&input.intent.decision!=='CLARIFY'&&input.intent.stage!=='adjust'&&!continueBlocked)return null
+ if(!/(?:怎么|如何|怎样|哪一步|先做|下一步|要不要|还要|该不该|能不能|怎么办|调整)/.test(request)&&!continueBlocked&&!materialUnavailable&&!/(?:没回|未回应|没有回复|还没有回复|未回复|卡住|尚未开始|失败|受阻|没效果|还是不行|仍然不行)/.test(report))return null
  // A direction comparison needs actual analysis, not an action catalogue.
  if(input.intent.stage==='compare'||/取舍|比较|对比|更适合|选哪个/.test(request))return null
  const waiting=/(?:没(?:有)?|尚未|还未|未)(?:回复|回应|收到结果)|没回(?:；|$)|等待(?:回复|结果)|还没结果/.test(report)

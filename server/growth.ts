@@ -362,6 +362,7 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
       const reports=scanUserClauses(delta.source.quote).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.interrogative&&!c.attributedToOther)
       const adoption=reports.some(c=>/^(?:我)?(?:愿意|同意|接受|决定|打算|准备)(?:试|尝试|用|使用|采纳|这个|这样)/.test(c.text.trim()))
       const action=reports.some(c=>/(?:已经|已|开始|尝试了|试了|做了|发了|交了|完成了)/.test(c.text)&&!/(?:没|没有|尚未|还未|未曾)[^；。]{0,12}(?:开始|尝试|完成|做|发|交)/.test(c.text))
+      if(/^(?:但|也|还|仍|对方|客户|他们|她们|他|她)/.test(delta.source.quote)&&/(?:采用|使用|用了|没用|付款|付费|感兴趣|有意思)/.test(delta.source.quote))delta.progressState='unknown'
       if(adoption&&!action)delta.progressState=reports.some(c=>/(?:没|没有|尚未|还未)[^；。]{0,8}(?:开始|尝试|做)/.test(c.text))?'unattempted':'unknown'
     }
     let mutation:PreparedGrowthMutation
@@ -540,9 +541,9 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
     // action; its revision invalidates plans based on the older amount. Scoped
     // course/project allowances and other weeks remain independent.
     if(row.kind==='constraint'&&row.assertion==='user_reported'&&mutation.time?.basis.kind==='calendar_week'&&
-      /小时|分钟|钟头/.test(row.text)&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(row.text)){
+      /(?:小时|分钟|钟头|时间.{0,8}(?:零|0))/.test(row.text)&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(row.text)){
       const older=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND id<>$2 AND kind='constraint' AND assertion='user_reported' AND status='active' AND valid_until=$3 AND time_basis->>'kind'='calendar_week' ORDER BY id FOR UPDATE",[run.user_id,row.id,row.valid_until])).rows
-      for(const prior of older)if(/小时|分钟|钟头/.test(prior.text)&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(prior.text))
+      for(const prior of older)if(/(?:小时|分钟|钟头|时间.{0,8}(?:零|0))/.test(prior.text)&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(prior.text))
         await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'})
     }
     if(delta.target.operation==='create')createdIds.push(row.id)

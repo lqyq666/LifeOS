@@ -49,7 +49,7 @@ export function parseCozeDirectionReceipt(body:unknown,r:WorkflowRequest,records
   const loaded=actual.find((s:any)=>s.name===name),expected=workflowRuntimeVersion.skills.find(s=>s.name===name)
   if(!expected||!loaded||![true,'True'].includes(loaded.loaded)||loaded.sha256!==expected.sha256||loaded.version!==expected.version)throw new WorkflowError('source_invalid')
  }
- return {schemaVersion:2,traceId:r.traceId,status:'proposed',proposal,reviewIssues:issues,providerCalls:value.providerCalls,costCny:value.costCny,reservedCostCny:value.reservedCostCny,executionKind:'real_provider',skills:names,fallback:'none'}
+ return {schemaVersion:2,traceId:r.traceId,status:'proposed',proposal,reviewIssues:issues,providerCalls:value.providerCalls,costCny:value.costCny,reservedCostCny:value.reservedCostCny,executionKind:'real_provider',skills:names,adoptionVersionDigest:r.hostSnapshot?.adoptionVersionDigest,verifiedRuntimeBinding:Object.fromEntries(['hostSourceDigest','cloudCommit','cloudSourceDigest','canonicalContentHash','canonicalSourceRegistryHash','canonicalEvidenceHash','approvedSubsetHash','fullCorpusHash','candidateRelease','skillsDigest'].filter(k=>typeof value.runtime?.[k]==='string').map(k=>[k,value.runtime[k]])),fallback:'none'}
 }
 
 export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;readMethods:(r:WorkflowRequest)=>Promise<Record<string,unknown>[]>;freezePath:string;config:CozeDirectionConfig;budget?:CoachProviderBudget;credits?:CozeCreditBudget;fetchImpl?:typeof fetch;syntheticTransport?:boolean;audit?:(r:WorkflowRequest,row:Record<string,unknown>)=>Promise<void>}):DecisionAdapter{

@@ -906,6 +906,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         if(suggestion)staged.guideUsage.push(suggestion)
       }
     }
+    // A pure direction declaration is not a completed experience.
+    if(result.experienceCandidate&&/(?:不再把|不再将|之后优先|本阶段优先|转向|改为)/.test(current.content)&&!requiresExperienceCandidate(clauseCatalogue)){
+      delete result.experienceCandidate
+      staged.audit.push({phase:'coach_optional_candidate_rejected',code:'DIRECTION_DECLARATION_IS_NOT_EXPERIENCE',committed:false})
+    }
     if(result.experienceCandidate){
       // P1: the candidate's source is a contiguous clauseId selection; the
       // quote is the exact server-owned span, so a drifted or cross-message

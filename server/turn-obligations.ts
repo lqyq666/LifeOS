@@ -180,7 +180,7 @@ export function applicableTimeBudget(text:string,context?:BudgetContext,target?:
    const scoped=period??(context&&/本人.*(?:可用|剩余)/.test(context.question)?context.period:undefined)
    const match=/^(?:我|本人)?(?:(?:这周|本周|下周))?(?:我|本人)?(?:有|可用|能用|只有|仅有|能拿出|可拿出|只剩|仅剩|还剩)?\s*([0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+)(?:个)?(小时|钟头|分钟)(?:可用)?(?:吧|呀|啊)?$/.exec(exact)
    const amount=match?(match[2]==='分钟'?chineseInteger(match[1]!):parseExactHours(match[1]!)):null
-   const noTime=/^(?:我|本人)?(?:这周|本周|下周)?(?:我|本人)?(?:没空|没有空闲时间|没有可用时间)$/.test(exact)
+   const noTime=/^(?:我|本人)?(?:这周|本周|下周)?(?:我|本人)?(?:没空|没有空闲时间|没有可用时间|(?:能用|可用)(?:的)?时间(?:是|为)(?:零|0))$/.test(exact)
    if(scoped&&(noTime||amount!==null))candidate={period:scoped,amountMinutes:noTime?0:amount!,scope:/剩/.test(exact)?'remaining':'available',qualification,quote:original,reason:period?'指定周本人可用时间':'承接持久任务的本人可用时间追问'}
   }
   if(candidate&&Number.isSafeInteger(candidate.amountMinutes)&&candidate.amountMinutes>=0&&candidate.amountMinutes<=10080){

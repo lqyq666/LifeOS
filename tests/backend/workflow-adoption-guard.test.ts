@@ -24,6 +24,9 @@ test('adoption transaction rejects changed receipt, incomplete terminal, changed
  const run=(await store.startRun(user,chat,randomUUID(),'我采纳这个计划，尚未执行。')).run,selection={taskId:id,kind:'action' as const,index:0,receiptDigest:workflowReceiptDigest(view.receipt)}
  const commit=()=>transaction(c=>commitWorkflowSelection(c,run,selection))
  try{
+  const payloadBefore=(await pool.query('SELECT request_payload FROM lifeos_workflow_tasks WHERE user_id=$1 AND request_id=$2',[user,id])).rows[0].request_payload
+  await pool.query('UPDATE lifeos_workflow_tasks SET request_payload=$3 WHERE user_id=$1 AND request_id=$2',[user,id,{...payloadBefore,hostSnapshot:{...payloadBefore.hostSnapshot,adoptionVersionDigest:'f'.repeat(64)}}]);await assert.rejects(commit,/WORKFLOW_VERSION_CHANGED/)
+  await pool.query('UPDATE lifeos_workflow_tasks SET request_payload=$3 WHERE user_id=$1 AND request_id=$2',[user,id,payloadBefore])
   const changed={...view.receipt,proposal:{...view.receipt.proposal,nextActions:[{...view.receipt.proposal.nextActions[0],description:'另一条未批准行动'}]}}
   await pool.query('UPDATE lifeos_workflow_tasks SET receipt=$3 WHERE user_id=$1 AND request_id=$2',[user,id,changed]);await assert.rejects(commit,/WORKFLOW_SELECTION_CHANGED/)
   await pool.query('UPDATE lifeos_workflow_tasks SET receipt=$3 WHERE user_id=$1 AND request_id=$2',[user,id,{...view.receipt,receiptIncomplete:true}]);await assert.rejects(commit,/WORKFLOW_NOT_PROPOSED/)

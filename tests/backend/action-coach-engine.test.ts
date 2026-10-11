@@ -293,7 +293,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       let timeout:ReturnType<typeof setTimeout>|undefined
       try{
         await Promise.race([arrived,new Promise((_,reject)=>timeout=setTimeout(()=>reject(new Error('No progressive draft')),3000))])
-        assert.deepEqual(events[0],{type:'draft',text:question,saved:false})
+        assert.deepEqual(events[0],{type:'draft',text:question,saved:false,draftKind:'safe_question'})
         assert.equal(input.staged.coach,undefined)
         const saved=await pool.query('SELECT status FROM runs WHERE request_id=$1',[input.run.request_id])
         assert.equal(saved.rows[0].status,'running')

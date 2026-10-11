@@ -6,3 +6,9 @@ test('actual task observations retain separate read, response and adoption state
  assert.deepEqual(reportedTaskOutcomeClauses(text).map(c=>c.text),['对方已经读了','但没有回复','也没有采用'])
  for(const other of ['案例里学生联系学长，对方已经读了。','如果我联系学长，对方已经读了也可能不回复。','我联系学长了吗？对方已经读了？','学长说：“我交付了，对方已经采用。”'])assert.deepEqual(reportedTaskOutcomeClauses(other),[],other)
 })
+
+test('natural delivery and interviews keep reported adoption, payment and interest separate',()=>{
+ assert.deepEqual(reportedTaskOutcomeClauses('我这次接单做完海报交给客户了，他说已经用了，但还没有付款。').map(c=>c.text),['他说已经用了','但还没有付款'])
+ assert.deepEqual(reportedTaskOutcomeClauses('创业这边我问了三个同学，他们觉得听起来有意思，但谁也还没用。').map(c=>c.text),['他们觉得听起来有意思','但谁也还没用'])
+ assert.deepEqual(reportedTaskOutcomeClauses('案例中客户说已经用了，但还没有付款。'),[])
+})

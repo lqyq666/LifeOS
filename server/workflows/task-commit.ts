@@ -5,7 +5,7 @@ import {createGrowthItem} from '../growth.ts'
 import {parseRequest,parseProposal,type WorkflowReceipt} from './contracts.ts'
 import {validateProposal} from './evidence-gate.ts'
 import {readWorkflowEvidence} from './task-sources.ts'
-import {workflowRuntimeVersion} from './runtime-version.ts'
+import {workflowRuntimeVersion,workflowAdoptionVersionDigest} from './runtime-version.ts'
 import {createHash} from 'node:crypto'
 import {assertCoachKnowledge} from '../coach-knowledge.ts'
 import {lockGrowth} from '../growth.ts'
@@ -21,7 +21,7 @@ export async function commitWorkflowSelection(c:PoolClient,run:Run,selection:Wor
  if(task.status!=='finished'||task.cancel_requested||task.host_commit||task.receipt?.status!=='proposed'||task.receipt.receiptIncomplete||task.receipt.workerFinishedAtReturn===false)throw new HttpError(409,'WORKFLOW_NOT_PROPOSED')
  if(selection.receiptDigest!==workflowReceiptDigest(task.receipt))throw new HttpError(409,'WORKFLOW_SELECTION_CHANGED')
  const request=parseRequest(task.request_payload),proposal=parseProposal((task.receipt as WorkflowReceipt).proposal)
- if(request.hostSnapshot?.runtimeDigest!==workflowRuntimeVersion.sourceDigest)throw new HttpError(409,'WORKFLOW_VERSION_CHANGED')
+ if(request.hostSnapshot?.runtimeDigest!==workflowRuntimeVersion.sourceDigest||request.hostSnapshot?.adoptionVersionDigest!==workflowAdoptionVersionDigest||task.receipt.adoptionVersionDigest!==workflowAdoptionVersionDigest)throw new HttpError(409,'WORKFLOW_VERSION_CHANGED')
  const messageIds=request.authorizedEvidenceRefs.filter(x=>x.type==='message').map(x=>x.id)
  await c.query('SELECT id FROM messages WHERE user_id=$1 AND id=ANY($2::uuid[]) FOR SHARE',[run.user_id,messageIds])
  validateProposal(request,proposal,await readWorkflowEvidence(request,c))

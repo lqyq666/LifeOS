@@ -103,3 +103,10 @@ test('new real pilot natural forms retain progress and bound contact without pre
  assert.equal(contact.sourceStatus,'PUBLIC_METHOD_NOT_USED')
  assert.ok(contact.choices.every(s=>!s.includes('很难')&&!s.includes('压力')&&!s.includes('交付')))
 })
+
+test('first natural real failures: quoted interview question is a step edit and a verified course tradeoff cannot invent career effects',()=>{
+ const edit=make('创业这边我问了三个同学，他们觉得听起来有意思，但谁也还没用。我想把访谈问题改成“上次碰到这个问题，你具体怎么处理的？”')!
+ assert.ok(edit.choices.every(s=>s.includes('问题')&&!s.includes('还没有具体方向')&&!s.includes('先写下一个待核对的问题')))
+ const course=make('课程和备考怎么取舍？我这周只剩两小时，不想同时铺开。',{verifiedBudget:{minutes:120,period:'this_week',quote:'我这周只剩两小时'}})!
+ assert.ok(course.choices.every(s=>s.includes('120分钟')&&!s.includes('简历')&&!s.includes('全砸')))
+})

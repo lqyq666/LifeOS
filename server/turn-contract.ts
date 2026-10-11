@@ -72,11 +72,11 @@ export function resourceBlockedPersonalFactClauses(text:string){
 }
 
 export function reportedTaskOutcomeClauses(text:string){
-  const clauses=anchorablePersonalClauses(text)
-  // Only a reported task of the speaker can anchor observations of another
-  // participant. Public cases and attributed speech are never personal facts.
-  if(!clauses.some(c=>/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|提交|访谈|聊过)/.test(c.text)))return []
-  return clauses.filter(c=>/^(?:对方|客户|学长|导师|他们|她们)?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没)/.test(c.text)&&/(?:读了|已读|回复|回应|采用|使用|付款|付费)/.test(c.text))
+  const clauses=scanUserClauses(text).filter(c=>!c.interrogative&&!c.conditional&&!c.quoted&&!c.code&&!c.quoteSpans.length)
+  // An actual task of the speaker must precede any participant observation.
+  // Reported speech by that participant stays a report, never a verified effect.
+  if(!clauses.some(c=>!c.attributedToOther&&/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|交给|提交|访谈|聊过|问了|问过)/.test(c.text)))return []
+  return clauses.filter(c=>/^(?:对方|客户|学长|导师|他们|她们|他|她)?(?:说|觉得)?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来)/.test(c.text)&&/(?:读了|看过|已读|回复|回应|没回|采用|使用|用了|没用|付款|付费|感兴趣|有意思)/.test(c.text))
 }
 
 export function deriveTurnContract(input:{

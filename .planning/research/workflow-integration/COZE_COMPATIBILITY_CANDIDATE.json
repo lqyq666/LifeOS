@@ -337,7 +337,7 @@
     "historicalHostCodeCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4"
   },
   "latestObservedGrowthDevelopment": {
-    "kind": "ACTUAL_OBSERVED_COMMITTED_R18_PUBLIC_SOURCE",
+    "kind": "ACTUAL_OBSERVED_COMMITTED_R19_PUBLIC_SOURCE",
     "runtime": {
       "projectId": "7693388932939300905",
       "businessRole": "growth",
@@ -347,8 +347,8 @@
       "canonicalContentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
       "canonicalSourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
       "canonicalEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
-      "cloudCommit": "435bf2f11726f81f2ac97509caae5629f0f01c27",
-      "cloudSourceDigest": "3dc40c0cb788e3953b9570f383bc786be760e85d58b130c9edc1b4edef9d112e",
+      "cloudCommit": "24af9b737042ff9854aa52b7d612997eedbaff21",
+      "cloudSourceDigest": "f8d8a041933060b071e4a1633b8b1a42b7744753aa1dccddeeb9d4dae267d08d",
       "cloudSourceHashes": {
         "src/lifeos_host/http_route/__init__.py": "f652ea299d2dab4ec6428633943e21f3c4d5fa6cd3734a13b80af82fdb02d3c8",
         "src/lifeos_host/http_route/provider_http.py": "5c39242f421463af371abe3da80f08c5c7407ad2a537f422071ec95b58c5562d",
@@ -356,7 +356,7 @@
         "src/lifeos_host/http_route/wire.py": "31a304cabe19730678a03ca63c101eeecd48786e1dad637bbd87ff9a30ea6342",
         "src/lifeos_host/http_route/runtime_binding.py": "7f3e1a9f7fcdaaf862efbcf3739d69ed2b2a0b9e9eb569d4cae91a31fb9630b8",
         "src/lifeos_host/http_route/transport_http.py": "e72b6acebfd75c6521f8d6bd89033b92407ac67e14e1c8b6871e2fe5be88ae6d",
-        "src/lifeos_host/http_route/entry.py": "7f53229b9734295644b5420f69a40cd13dd1082cab785a41d6500d737ab00eef",
+        "src/lifeos_host/http_route/entry.py": "b5a58b25a3686b60b25f4c6a7f2c112b03aa55823943ae9bf975d7db733dcd73",
         "src/lifeos_host/contracts.py": "b4b87219ce3e27cf9db008f586dae52e86ddb3ffaaabe7ae2ef82d1e2a767ee0",
         "src/lifeos_host/transport.py": "9bd67ba590de35723dc2bd29bf8f9632a0ef1ea8be209a607cd1edee67454d3b",
         "src/lifeos_host/host.py": "2b0a64b18e9b5a3ff02856772aa2e37fa8696e6ee855950500f41d64dddfa793",
@@ -406,17 +406,12 @@
       "note": "zero-model permit-free runtime readback; no key/secret exposed"
     },
     "actualDevelopmentChecks": {
-      "status": "ACTUAL_EXISTING_DEVELOPMENT_PG_R18_PATHS_PASS_NOT_REAL_MODEL_GRAPH",
+      "status": "ACTUAL_EXISTING_DEVELOPMENT_PG_R19_CLOSE_PATHS_PASS_NOT_REAL_MODEL_GRAPH",
       "checks": [
-        "missing-key owned reservation durably ends every slot not_sent before terminal receipt",
-        "original authenticated stored identity remains cancellable/readable after runtime change and permit expiry",
-        "changed payload for stored request denied on control path",
-        "expired or changed execution permit cannot create a new cancellation record",
-        "duplicate progress does not close original worker slots",
-        "pre-dispatch budget failure clears durable reservations without fake calls",
-        "terminal receipt persistence failure remains incomplete and unfinished"
+        "transport close exception with actual reserved PG slots produces durable unavailable receipt and all not_sent",
+        "close and terminal persistence faults retain unfinished incomplete state"
       ],
-      "count": 7,
+      "count": 2,
       "modelCalls": 0,
       "faultInjectionDeclared": true,
       "runtime": {
@@ -428,8 +423,8 @@
         "canonicalContentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
         "canonicalSourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
         "canonicalEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
-        "cloudCommit": "dec5c6c63d2d82a7f1c87c55ecb4669e5ca1040d",
-        "cloudSourceDigest": "3dc40c0cb788e3953b9570f383bc786be760e85d58b130c9edc1b4edef9d112e",
+        "cloudCommit": "435bf2f11726f81f2ac97509caae5629f0f01c27",
+        "cloudSourceDigest": "f8d8a041933060b071e4a1633b8b1a42b7744753aa1dccddeeb9d4dae267d08d",
         "cloudSourceHashes": {
           "src/lifeos_host/http_route/__init__.py": "f652ea299d2dab4ec6428633943e21f3c4d5fa6cd3734a13b80af82fdb02d3c8",
           "src/lifeos_host/http_route/provider_http.py": "5c39242f421463af371abe3da80f08c5c7407ad2a537f422071ec95b58c5562d",
@@ -437,7 +432,7 @@
           "src/lifeos_host/http_route/wire.py": "31a304cabe19730678a03ca63c101eeecd48786e1dad637bbd87ff9a30ea6342",
           "src/lifeos_host/http_route/runtime_binding.py": "7f3e1a9f7fcdaaf862efbcf3739d69ed2b2a0b9e9eb569d4cae91a31fb9630b8",
           "src/lifeos_host/http_route/transport_http.py": "e72b6acebfd75c6521f8d6bd89033b92407ac67e14e1c8b6871e2fe5be88ae6d",
-          "src/lifeos_host/http_route/entry.py": "7f53229b9734295644b5420f69a40cd13dd1082cab785a41d6500d737ab00eef",
+          "src/lifeos_host/http_route/entry.py": "b5a58b25a3686b60b25f4c6a7f2c112b03aa55823943ae9bf975d7db733dcd73",
           "src/lifeos_host/contracts.py": "b4b87219ce3e27cf9db008f586dae52e86ddb3ffaaabe7ae2ef82d1e2a767ee0",
           "src/lifeos_host/transport.py": "9bd67ba590de35723dc2bd29bf8f9632a0ef1ea8be209a607cd1edee67454d3b",
           "src/lifeos_host/host.py": "2b0a64b18e9b5a3ff02856772aa2e37fa8696e6ee855950500f41d64dddfa793",
@@ -489,8 +484,6 @@
     },
     "modelCalls": 0,
     "hostBinding": "OLD_HOST_AND_CANONICAL_CORPUS_REQUIRES_REFRESH_BEFORE_REAL_GRAPH",
-    "sourceEvidence": "evidence/coze-core-launch-20261011/r18-source/",
-    "firstFailuresRetained": true,
     "realGraphStatus": "NOT_TESTED",
     "publishedRuntimeStatus": "NOT_UPDATED",
     "runtimeCreditCeiling": "UNKNOWN_NOT_ASSUMED_ZERO"
