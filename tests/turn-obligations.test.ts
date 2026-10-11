@@ -1,6 +1,16 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,verifyTurnObligations,verifyReplyAgainstObligations,supplementMissingBudgetDeltas,planExplicitCorrection} from '../server/turn-obligations.ts'
+import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,verifyTurnObligations,verifyReplyAgainstObligations,supplementMissingBudgetDeltas,planExplicitCorrection,hoursIn} from '../server/turn-obligations.ts'
+
+test('retained real split-clause zero budget verifies its own verbatim staged fact',()=>{
+  const text='这周我没有可用时间，是零小时。请排这周的课程和备考安排。'
+  const obligations=deriveTurnObligations(text)
+  assert.equal(hoursIn('这周我没有可用时间'),0)
+  const growth={changes:[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',text:'这周我没有可用时间',source:{messageId:'m',quote:'这周我没有可用时间'},validUntil:'2026-10-12T00:00:00Z'}],prepared:[]}
+  assert.equal(supplementMissingBudgetDeltas(obligations,growth as never,'m',text).length,0)
+  verifyTurnObligations(obligations,{growth:growth as never,controls:undefined,currentText:text,reply:'先不安排任务。',weeklyPlan:{input:{availableMinutes:0}}})
+  for(const negative of ['如果这周没有可用时间怎么办？','室友这周没有可用时间','这周不是没有可用时间','这周没有休息时间'])assert.equal(hoursIn(negative),null,negative)
+})
 const pauseChanges=[{scopes:['overseas_study','postgraduate_exam','postgraduate_recommendation','undergraduate_upgrade'] as never,operation:'pause' as const,quote:'先别推升学相关的安排'}]
 
 test('weekly time intent: only the user\'s own explicit weekly budget creates an obligation',()=>{

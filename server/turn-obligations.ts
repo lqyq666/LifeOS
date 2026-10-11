@@ -278,7 +278,12 @@ const hoursIn=(text:string):number|null=>{
   const weekly=weeklyBudget.exec(text)
   if(weekly)return parseExactHours(weekly[1]!)
   const bare=/(?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头)/.exec(text)
-  if(!bare)return null
+  if(!bare){
+    // The shared availability parser also recognizes an explicit zero without
+    // a numeric hour token. Preserve its attribution/negation/scope checks.
+    const available=applicableTimeBudget(text)
+    return available?.scope==='available'&&available.qualification==='exact'&&available.amountMinutes===0?0:null
+  }
   return remainingMinutes(bare[0]!)
 }
 export {hoursIn}

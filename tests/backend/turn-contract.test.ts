@@ -188,7 +188,8 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.ok(saved.stateChange.plan,'plan persisted')
     })
     await t.test('real first zero-time failure is constrained before generation and saved as an empty plan',async()=>{
-      const text='这周我可用零小时，请安排这周课程与备考。',turn=await prepare(text)
+      for(const text of ['这周我可用零小时，请安排这周课程与备考。','这周我没有可用时间，是零小时。请排这周的课程和备考安排。']){
+      const turn=await prepare(text)
       const reply='当前安排的时段没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。'
       outputs.push({reply,growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:0,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[]}})
       const result=await engine(turn.input),schema=requests.at(-1)!.response_format.json_schema.schema
@@ -201,6 +202,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       const fact=(await pool.query('SELECT structured_plan FROM growth_items WHERE id=$1',[saved.stateChange.plan!.itemId])).rows[0]
       assert.equal(fact.structured_plan.availableMinutes,0);assert.deepEqual(fact.structured_plan.items,[])
       assert.equal((result.usage as any).llmCallCount,1)
+      }
     })
     await t.test('unverified two-hour amount stays a verbatim fact and the actual outgoing schema excludes an expiring constraint',async()=>{
       const text='我还有两小时准备明天的课堂汇报，先做哪一步？',turn=await prepare(text)
