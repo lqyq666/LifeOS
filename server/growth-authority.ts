@@ -16,6 +16,7 @@ import {conversationPreferenceClause,currentConversationOnly,deferredPursuitClau
 export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null;status?:string}
 
 export type GrowthAuthorityAudit=
+  |{phase:'growth_observation_unverified_dependency_dropped';inputIndex:number}
   |{phase:'growth_authority_entry';deltas:number;planTarget:boolean;controlClauses:number}
   |{phase:'growth_clause_unresolved';inputIndex:number;clauseId:string}
   |{phase:'growth_clause_not_anchorable';inputIndex:number;clauseId:string;reason:'interrogative'|'conditional'|'quoted'|'code'|'fragment'|'chat_request'}
@@ -102,7 +103,7 @@ export function resolveGrowthDeltas(input:{
     // A provider kind is not evidence of an affirmative pursuit. Reports,
     // negative preferences and current feelings retain their words as context.
     if(next.assertion==='user_reported'&&['goal','direction'].includes(next.kind)&&
-      (currentConversationOnly(input.currentText)||clause.attributedToOther||/^(?:但|也|还|仍)?(?:没|没有|未|尚未)|(?:不想|不要|别)(?:改|到|再)|(?:我)?(?:有点|很)?(?:担心|烦躁|难过)/.test(clause.text)||
+      ((currentConversationOnly(input.currentText)&&!/我.{0,20}优先/.test(clause.text))||clause.attributedToOther||/^(?:但|也|还|仍)?(?:没|没有|未|尚未)|(?:不想|不要|别)(?:改|到|再)|(?:我)?(?:有点|很)?(?:担心|烦躁|难过)/.test(clause.text)||
        !/(?:想|打算|希望|准备|计划|优先|决定|目标|我(?:要|将)|先(?:就业|考研|考公|探索|处理))|^(?:就业|考研|保研|考公|创业|留学|专升本)$/.test(clause.text)))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&/^我想把(?:验证问题|访谈问题|提问|这个问题)/.test(clause.text))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&deferredPursuitClause(clause.text))next.kind='context'
@@ -214,7 +215,23 @@ export function resolveGrowthDeltas(input:{
       }
     }
   }
-  return {deltas:resolved,audit,indexMap}
+  // Optional observations cannot roll back the user's verified correction.
+  // Rebind only surviving factual array positions; never invent a dependency.
+  const kept:ResolvedGrowthDelta[]=[],positions=new Map<number,number>()
+  for(const [position,delta] of resolved.entries()){
+    if(delta.assertion==='ai_observation'){
+      const dependencies=delta.dependencies.map(ref=>{
+        if('id'in ref)return input.authorized.some(item=>item.id===ref.id&&item.revision===ref.revision&&!item.unavailableReason&&['active','proposed'].includes(item.status??'active')&&['user_reported','user_edit'].includes(item.assertion))?ref:null
+        const oldPosition=indexMap.get(ref.updateIndex),mapped=oldPosition===undefined?undefined:positions.get(oldPosition)
+        return mapped!==undefined&&kept[mapped]?.assertion==='user_reported'?{updateIndex:mapped}:null
+      })
+      if(!dependencies.length||dependencies.some(ref=>ref===null)){audit.push({phase:'growth_observation_unverified_dependency_dropped',inputIndex:position});continue}
+      delta.dependencies=dependencies as typeof delta.dependencies
+    }
+    positions.set(position,kept.length);kept.push(delta)
+  }
+  for(const [original,position] of indexMap){const mapped=positions.get(position);if(mapped===undefined)indexMap.delete(original);else indexMap.set(original,mapped)}
+  return {deltas:kept,audit,indexMap}
 }
 
 // Time evidence selects a clause handle too; the resolved quote is a

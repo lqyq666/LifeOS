@@ -51,6 +51,7 @@ export function reportsPersonalEvent(text:string):boolean{
     // A clause that merely MENTIONS a quoted statement (…这句话是什么意思)
     // discusses language, not experience; quoted spans inside it disqualify.
     if(clause.quoteSpans.length)continue
+    if(/^(?:我|本人)(?:愿意|打算|准备|计划|想|希望)(?:先)?(?:试|尝试|整理|开始|问|做|复习)/.test(clause.text))continue
     if(personalEventReportLexicon.test(clause.text)&&(clause.text.includes('我')||clause.text.includes('本人')))return true
     if(/(?:上次|昨天|前天|上周|上个月|上学期|去年)/.test(clause.text)){
       const rest=scanUserClauses(text).slice().find(other=>other.sentenceStart===clause.sentenceStart&&personalEventReportLexicon.test(other.text)&&(other.text.includes('我')||other.text.includes('本人'))&&!other.interrogative&&!other.attributedToOther&&!other.conditional)
@@ -66,6 +67,7 @@ const anchorablePersonalClauses=(text:string)=>scanUserClauses(text).filter(clau
 export function negativePersonalFactClauses(text:string){
   const own=anchorablePersonalClauses(text)
   return own.filter(clause=>negativePersonalFact.test(clause.text)||
+    (/^(?:目前|现在|暂时|也)?(?:没(?:有)?|尚未|未)(?:客户|接过单|接单)/.test(clause.text)&&own.some(c=>c.sentenceStart===clause.sentenceStart&&/我|本人/.test(c.text)))||
     (/^(?:但|也)?(?:还|仍)?(?:没(?:有)?|尚未|还未|未)(?:开始|动手|问|访谈|联系|回答|复习|准备|完成)/.test(clause.text)&&own.some(c=>c.sentenceStart===clause.sentenceStart&&/我|本人/.test(c.text))))
 }
 export function resourceBlockedPersonalFactClauses(text:string){
@@ -203,7 +205,7 @@ export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:numbe
  plan.properties.availableMinutes={type:'integer',enum:[budget.minutes]}
  plan.properties.period={type:'string',enum:[budget.period]}
  if(budget.minutes>0)plan.properties.items.minItems=1
- if(budget.minutes>1&&/课程/.test(currentText)&&/备考/.test(currentText)){
+ if(budget.minutes>1&&/课程/.test(currentText)&&/备考|考试复习|复习/.test(currentText)){
   const courseMinutes=Math.floor(budget.minutes/2)
   plan.properties.items.enum=[[
    {action:'课程：核对当前必须完成的任务与截止，先处理其中最紧要的一项',minutes:courseMinutes,directionScopes:[]},

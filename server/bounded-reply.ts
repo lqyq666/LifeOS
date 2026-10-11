@@ -30,6 +30,9 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  if(currentConversationOnly(input.text)&&clauses.some(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&refusalPreferenceClause(c.text)))return make('reported_result','核对停止推荐的原事项；保留事实',[
   '这件事先不再主动安排。若出现确认卡，请选择你指的原事项；确认前也不主动推荐这些候选事项，已报告的事实保留。',
  ])
+ if(/我.{0,20}优先/.test(own)&&/(?:暂停|不要再推荐|不要再推)/.test(own))return make('reported_result','新的优先事项需要什么帮助',[
+  '先按你刚说的优先事项来，暂停的方向不再主动加任务。已报告的经历保留；接下来只处理你现在更优先的事情。',
+ ])
  if(currentConversationOnly(input.text))return make('reported_result','本人愿意表达的内容；不推测感受或原因',[
   '我在听。你接着说，按你想说的节奏来。',
   '嗯，我在这儿听着。你想先说什么都可以。',
@@ -49,7 +52,7 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '先按你刚说的优先事项来，其他方向不继续加任务。已报告的经历保留；接下来可以只处理当前优先的事情。',
  ])
  if(/(?:已经|已)(?:读了|读过|看过)|对方看过/.test(own)&&/(?:没(?:有)?|尚未|未)(?:回复|回应)|没回/.test(own))return make('waiting_result','尚未回应原因及实际效果仍未知',[
-  '你已经报告对方读过、尚未回应，这两项分别保留。是否采用和实际效果以你报告为准；没有新结果时先不判有效或失败。',
+  '你已经报告对方读过、尚未回应，这两项分别保留。沿用原渠道，不要求转私人渠道催促；是否采用和实际效果仍按你报告的情况核对。',
  ])
  // A narrow certainty correction must not reclassify read/sent/payment or
  // restart an already stated request. State correction still uses the
@@ -57,6 +60,9 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  if(input.intent.reason==='control'&&/更正/.test(own)&&/是否(?:采用|使用|付款|有效).{0,6}(?:我)?(?:不知道|不清楚|未知)/.test(own))return make('reported_result','只有本人更正的结果项变为未知',[
   '按你的更正，这一项结果先保留未知，不据此判断有效或无效。其他已经报告的情况不因此改成未知，也不重新问原来的目标。',
   '这次只更正你指出的结果项。未知与否定分开，其他报告保留；后续帮助以更正后的信息为依据。',
+ ])
+ if(/(?:邮件|邮箱|问题)/.test(own)&&/(?:还|尚|仍)?(?:没(?:有)?|未)(?:回复|回应)/.test(own))return make('waiting_result','未回应原因、是否采用及效果仍未知',[
+  '你已报告问题发出、尚未回应，先分别保留这些事实。原因、是否采用和实际效果仍未知；沿用已有问题，不要求改到私人渠道，也不重复询问已经说清的内容。',
  ])
  if(['listening_or_refusal','control','greeting','memory_query','reuse_material','professional_or_prediction_boundary'].includes(input.intent.reason))return null
  if(/我(?:先)?(?:准备|打算|愿意).{0,25}(?:问|试|整理)/.test(own)&&/(?:还没|没有|尚未)(?:问|开始|动手)/.test(own))return make('adopted','本人打算与未执行分别保留',[
@@ -134,7 +140,7 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   input.priorInterviewQuestion?`沿用你提出的问法「${input.priorInterviewQuestion}」，只继续这次访谈的一步，不重发入门方法。先看对方最近一次实际遇到的情况与当时做法；采用、付款和效果仍分别核对。你想先看哪段回答？`:'先接着这次访谈的原步骤与实际反馈，核对最近一次具体困难和对方当时怎样处理。采用、付款和效果分别保留；你想先看哪段回答？',
  ])
  if(/(?:联系|请教|学长|导师)/.test(own))return make('start','本次交流中希望对方确认的一项信息',[
-  '先围绕你这次请教的目标，选一个最需要对方确认的问题。尚未联系时不记为发送。你想先写这句话，还是直接起草消息？',
+  '先确认对方是否愿意聊课程项目与实习作品，再把你最想了解的能力呈现问题写成一句。尚未联系时不记为发送；你想先整理要问的这句话吗？',
   '先把这次交流要确认的一个问题写清楚，其他问题暂放。需要的话我们可以一起起草；发出以后再分别记录回应与结果。',
  ])
  return {basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'当前交付目标与已有材料',choices:[

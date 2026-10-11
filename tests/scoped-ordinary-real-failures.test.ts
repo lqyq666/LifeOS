@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {buildClauseCatalogue} from '../server/clause-catalogue.ts'
 import {resolveGrowthDeltas} from '../server/growth-authority.ts'
 import {boundedOrdinaryReply} from '../server/bounded-reply.ts'
-import {deriveTurnContract,negativePersonalFactClauses} from '../server/turn-contract.ts'
+import {deriveTurnContract,negativePersonalFactClauses,reportsPersonalEvent} from '../server/turn-contract.ts'
 import {deliverableIntent,requiresImmediateMaterial} from '../server/action-coach-events.ts'
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
 import {resolveSelectedMaterialFacts} from '../server/grounded-material.ts'
@@ -35,4 +35,15 @@ test('a one-sentence portfolio artifact retains only the verified contribution',
  assert.equal(r.content,'我负责文字和排版。');assert.deepEqual(r.usedCatalogueIds,['own'])
  assert.throws(()=>resolveSelectedMaterialFacts(['other'],catalogue,'u','u','contribution_sentence'),/MATERIAL_REFERENCE_INVALID/)
  assert.throws(()=>resolveSelectedMaterialFacts(['own'],catalogue,'u','different','contribution_sentence'),/MATERIAL_REFERENCE_INVALID/)
+})
+
+test('R3 actual failures: unattempted choices cannot open experience and invalid optional observations are dropped',()=>{
+ assert.equal(reportsPersonalEvent('我愿意先试整理未做完的作业题，这只是选择，我还没有开始。'),false)
+ const text='这周剩余时间改成三十分钟。我想先处理作业。',catalogue=buildClauseCatalogue(text)
+ const r=resolveGrowthDeltas({currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[],deltas:[
+   {target:{operation:'create'},assertion:'user_reported',kind:'context',source:{clauseId:'c0'}},
+   {target:{operation:'create'},assertion:'ai_observation',kind:'observation',text:'待核对',source:{clauseId:'c1'},dependencies:[{id:'ffffffff-ffff-4fff-8fff-ffffffffffff',revision:1}],limitation:'依据尚未核验'},
+ ]})
+ assert.equal(r.deltas.length,1);assert.equal(r.deltas[0]!.assertion,'user_reported');assert.ok(r.audit.some(a=>a.phase==='growth_observation_unverified_dependency_dropped'))
+ assert.ok(negativePersonalFactClauses('我是成年大学生，想整理海报，目前没有客户，也没有接过单。').some(c=>c.text==='目前没有客户'))
 })

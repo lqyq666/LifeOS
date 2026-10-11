@@ -35,7 +35,7 @@ export function growthDiff(request:WorkflowRequest,host:{traceId:string;requestI
   const source=records.find(x=>x.ref.type===current.ref.type&&x.ref.id===current.ref.id)!
   if(current.text!==source.text)throw new WorkflowError('source_invalid')
   const observation=current.assertion==='ai_observation'||current.kind==='observation'
-  changes.push({schemaVersion:2,before:old?'此前这条理解已被更新；旧原话不重新展示。':'此前还没有这条任务记录。',evidenceRefs:[current.ref],now:observation?'新增了一条待本人核对的观察，尚未形成身份认同。':`${old?'更正后的':'新增的'}本人报告：${source.text}`,unknowns:current.kind==='experience'?['这次任务范围外的稳定能力与实际适配仍未知。']:['这条信息对其他事情的影响仍待本人核对。'],needsConfirmation:observation||current.status==='proposed',change:old?'corrected':'added',itemId:id})
+  changes.push({schemaVersion:2,before:old?'此前这条理解已被更新；旧原话不重新展示。':'此前还没有这条记录。',evidenceRefs:[current.ref],now:observation?'新增了一条待本人核对的观察，尚未形成身份认同。':`${old?'更正后的':'新增的'}本人报告：${source.text}`,unknowns:current.kind==='experience'?['这次任务范围外的稳定能力与实际适配仍未知。']:['这条信息对其他事情的影响仍待本人核对。'],needsConfirmation:observation||current.status==='proposed',change:old?'corrected':'added',itemId:id})
  }
  return changes
 }

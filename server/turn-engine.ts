@@ -437,6 +437,14 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const priorInterviewQuestion=priorInterviewQuestions.length===1?priorInterviewQuestions[0]:undefined
   const boundedReply:BoundedReply|null=boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停的是当时的备考或复习，尚未确认和这次是否同一事项。先核对这次要继续的是哪件事；不把旧暂停套到另一个考试，也不先安排任务。']}:planBudget?.type==='weekly_plan'&&planBudget.minutes===0?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'可用时间改变后再调整；不重复询问明确零时间',choices:zeroBudgetChoices!}:planBudget?.type==='weekly_plan'&&route.tier==='default'&&!materialIntent?boundedPlanningReply(planBudget):boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier,priorInterviewQuestion,...(verifiedBudget?{verifiedBudget:{minutes:verifiedBudget.amountMinutes,period:verifiedBudget.period,quote:verifiedBudget.quote}}: {})})
   const contract=bindBoundedReplySchema(originalContract,boundedReply)
+  if(contract.capabilities.material){
+    const schema=contract.schema as {properties:Record<string,unknown>}
+    schema.properties.reply={type:'string',enum:['按你提供的内容，整理如下：']}
+    if(/(?:问题|提问).{0,10}(?:压成一句|缩成一句|改成)/.test(current.content)){
+      const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content)node.properties.content.maxLength=160;for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
+      narrow(schema)
+    }
+  }
   // G4 mode-aware history selection: bound the raw dialogue the model reads
   // (the DB and structured lanes keep everything). The current message is
   // always present in buildTurnPrompt regardless of this filter.
@@ -487,7 +495,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // “要不要做X”是自我斟酌不是向AI提问：捕获允许弱疑问形态，只排除
       // 真提问（带问号/吗/呢）与假设/引用/第三方。
       const decisionClauses=clauseCatalogue.filter(handle=>!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther&&!/[?？]|吗$|呢$/.test(handle.text)
-        &&!currentConversationOnly(current.content)
+        &&(!currentConversationOnly(current.content)||/我.{0,20}优先/.test(handle.text))
         &&!(turnDerivedControls.status==='explicit'&&turnDerivedControls.changes.some(change=>change.quote===handle.text))
         &&!negativePersonalFactClauses(current.content).some(clause=>clause.text===handle.text)
         &&!deliverableIntent(handle.text,'create')
@@ -527,6 +535,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         }
       }
     }
+    if(contract.capabilities.material)result.reply='按你提供的内容，整理如下：'
     const hasMaterial=result.event?.action&&'draft'in result.event.action
     const requestedMaterial=deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
     // A direct drafting instruction requests delivery now. Abstract advice is
@@ -660,7 +669,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // NP_NEG_01 / BS_RESOURCE_01: optional model deltas omitted explicit status.
     // Retain only the speaker's guarded verbatim status, never an experience,
     // inferred cause, goal or completion. Corrections and controls keep authority.
-    const explicitTaskFacts=[...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content),...reportedAdoptionClauses(current.content),...requestedQuestionEditClauses(current.content),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content,growthAll.some(item=>item.assertion==='user_reported'&&item.kind==='feedback'&&item.progressState==='completed')),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||/^我想把(?:验证问题|访谈问题|提问|这个问题)改成/.test(c.text)||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
+    const explicitTaskFacts=[...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content),...reportedAdoptionClauses(current.content),...requestedQuestionEditClauses(current.content),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content,growthAll.some(item=>item.assertion==='user_reported'&&item.kind==='feedback'&&item.progressState==='completed')),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
     const taskFactSupplement=snapshot.settings.enabled?[...new Map(explicitTaskFacts.map(clause=>[clause.text,clause])).values()].filter(clause=>
       !controlClauseTexts.includes(clause.text)&&
       !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&
@@ -1055,7 +1064,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const refusalOnly=Boolean(boundedReply&&currentConversationOnly(current.content)&&clauseCatalogue.some(c=>refusalPreferenceClause(c.text))&&clauseCatalogue.every(c=>conversationPreferenceClause(c.text)||/^(?:按上次办法|还是上次那件事|上次那件事)$/.test(c.text)))
   if(refusalOnly&&!staged.memoryControl&&!staged.pendingMemoryControl){
     const refusal=clauseCatalogue.find(c=>refusalPreferenceClause(c.text))!
-    const candidates=growthAll.filter(item=>['goal','direction'].includes(item.kind)&&item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion))
+    const candidates=growthAll.filter(item=>((['goal','direction'].includes(item.kind)&&['user_reported','user_edit'].includes(item.assertion))||(item.kind==='priority'&&Boolean(item.structuredPlan)))&&['active','proposed'].includes(item.status)&&!item.unavailableReason&&!item.recommendationStopped)
     const previousUser=(await pool.query("SELECT id FROM messages WHERE user_id=$1 AND conversation_id=$2 AND role='user' AND id<>$3 AND created_at<=(SELECT created_at FROM messages WHERE id=$3) ORDER BY created_at DESC,id DESC LIMIT 1",[run.user_id,run.conversation_id,current.id])).rows[0] as {id:string}|undefined
     const directlyNamed=previousUser?candidates.filter(item=>item.sources.some(source=>source.type==='message'&&source.id===previousUser.id)):[]
     if(directlyNamed.length===1){const item=directlyNamed[0]!;staged.memoryControl={kind:'stop_recommend',itemId:item.id,expectedRevision:item.revision,clauseText:refusal.text}}
