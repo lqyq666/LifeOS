@@ -356,6 +356,14 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
     const delta:GrowthDelta={...withoutLegacyExpiry,text:selectedText,...(resolvedTime?{validUntil:resolvedTime.validUntil}:{})} as GrowthDelta
     await checkCampusSource(pool,run.user_id,run.conversation_id,true,{type:'message',id:delta.source.messageId,quote:delta.source.quote})
     if(delta.assertion==='user_reported'&&(!delta.text.trim()||delta.text.length>4000||!delta.source.quote.includes(delta.text)))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
+    if(delta.assertion==='user_reported'&&delta.kind==='feedback'){
+      // Preserve a genuine adoption report even when a provider incorrectly
+      // labels it as execution. Willingness alone proves no action state.
+      const reports=scanUserClauses(delta.source.quote).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.interrogative&&!c.attributedToOther)
+      const adoption=reports.some(c=>/^(?:我)?(?:愿意|同意|接受|决定|打算|准备)(?:试|尝试|用|使用|采纳|这个|这样)/.test(c.text.trim()))
+      const action=reports.some(c=>/(?:已经|已|开始|尝试了|试了|做了|发了|交了|完成了)/.test(c.text)&&!/(?:没|没有|尚未|还未|未曾)[^；。]{0,12}(?:开始|尝试|完成|做|发|交)/.test(c.text))
+      if(adoption&&!action)delta.progressState=reports.some(c=>/(?:没|没有|尚未|还未)[^；。]{0,8}(?:开始|尝试|做)/.test(c.text))?'unattempted':'unknown'
+    }
     let mutation:PreparedGrowthMutation
     if(delta.target.operation==='replace'||delta.target.operation==='amend'){
       const selected=delta.target

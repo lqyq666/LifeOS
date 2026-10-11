@@ -83,5 +83,16 @@ test('source-only reported facts use verified user spans while legacy paraphrase
     const longDelta={...delta(longText),source:{messageId:oversize.source_message_id,quote:longText}}
     await assert.rejects(stageGrowthUpdates(oversize,[longDelta],[]),{code:'GROWTH_SOURCE_INVALID'})
     await store.terminateRun(user,oversize.request_id,'cancelled','SYNTHETIC_OVERSIZE_NO_TRUNCATION')
+    const adoption=(await store.startRun(user,chat,randomUUID(),'我愿意试这个方法。')).run
+    const offered={target:{operation:'create' as const},kind:'feedback' as const,assertion:'user_reported' as const,source:{messageId:adoption.source_message_id,quote:'我愿意试这个方法'},progressState:'attempted' as const}
+    const accepted=await stageGrowthUpdates(adoption,[offered],[])
+    assert.equal('progressState'in accepted.changes[0]?accepted.changes[0].progressState:null,'unknown','willingness does not prove an action started')
+    await store.finishRun(adoption,{candidates:[],audit:[],growth:accepted},'愿意尝试已经记下，是否实际开始仍未知。',null,new AbortController().signal)
+    const adopted=(await growthView(user,chat)).items.find(item=>item.text==='我愿意试这个方法')!
+    assert.equal(adopted.progressState,'unknown');assert.equal(adopted.sources[0].quote,'我愿意试这个方法')
+    const acted=(await store.startRun(user,chat,randomUUID(),'我已经尝试了这个方法。')).run
+    const actual=await stageGrowthUpdates(acted,[{...offered,source:{messageId:acted.source_message_id,quote:'我已经尝试了这个方法'}}],[])
+    assert.equal('progressState'in actual.changes[0]?actual.changes[0].progressState:null,'attempted','actual reported attempts stay attempts')
+    await store.terminateRun(user,acted.request_id,'cancelled','SYNTHETIC_PROGRESS_GUARD_ONLY')
   }finally{await pool.query('DELETE FROM "user" WHERE id=$1',[user]);await pool.end()}
 })
