@@ -62,6 +62,10 @@ test('real-chain first failures: contact is not delivery and known feedback is n
  const notStarted=make('我没有开始上次课程复习，材料打不开。')!
  assert.equal(notStarted.stage,'blocked')
  assert.ok(notStarted.choices.every(s=>!s.includes('已经完成')&&!s.includes('停在哪一步')&&!s.includes('是没开始')),'known missing material is the next gap, not an unknown progress question')
+ const naturalMaterial=make('换件事，我还没有开始课程复习，教材链接打不开了，应该怎么调整？')!
+ assert.ok(naturalMaterial.choices.every(s=>!s.includes('已经完成')&&!s.includes('停在哪一步')))
+ const naturalWaiting=make('我已经通过学校邮箱发了那条项目课问题，对方未回应，接下来怎么办？')!
+ assert.equal(naturalWaiting.stage,'waiting_result')
  const adopted=make('我愿意试这个方法。')!
  assert.ok(adopted.choices.every(s=>!s.includes('完成')&&!s.includes('更容易')))
  const result=make('我已经交付了一张社团海报，对方已经采用，已经付款300元。')!

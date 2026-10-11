@@ -23,7 +23,7 @@ export type TurnObligations = {
   kind:'ordinary'|'update_weekly_time'|'direction_control'|'resume_portfolio'|'mixed'
   requiredEffects:RequiredEffect[]
 }
-const arrangementRequest=/(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|(?:请(?:帮我)?|帮我)(?:安排|排)|改一下安排|调整.{0,4}安排|重新(?:安排|排)|再(?:安排|排)一?(?:次|下)?|怎么(?:安排|排|规划)|(?:只|仅|请(?:帮我)?|帮我)?(?:保存|建立|生成|给我)(?:一个|一份)?空(?:安排|计划)/
+const arrangementRequest=/(?:请(?:帮我)?|帮我)(?:给|为)[^不别；。！？?!]{1,16}(?:安排|排)|(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|(?:请(?:帮我)?|帮我)(?:安排|排)|改一下安排|调整.{0,4}安排|重新(?:安排|排)|再(?:安排|排)一?(?:次|下)?|怎么(?:安排|排|规划)|(?:只|仅|请(?:帮我)?|帮我)?(?:保存|建立|生成|给我)(?:一个|一份)?空(?:安排|计划)/
 // N2.3: only an explicit request to arrange/re-arrange creates a plan
 // obligation; stating a weekly budget alone only requires the fact.
 export function weeklyPlanIntent(text:string):{period:'current'|'this_week'|'next_week'}|null{
@@ -178,7 +178,7 @@ export function applicableTimeBudget(text:string,context?:BudgetContext,target?:
   else {
    // Omitted answers require a durable, explicit own-availability question.
    const scoped=period??(context&&/本人.*(?:可用|剩余)/.test(context.question)?context.period:undefined)
-   const match=/^(?:我|本人)?(?:(?:这周|本周|下周))?(?:我|本人)?(?:有|可用|能用|只有|能拿出|可拿出|只剩|还剩)?\s*([0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+)(?:个)?(小时|钟头|分钟)(?:可用)?(?:吧|呀|啊)?$/.exec(exact)
+   const match=/^(?:我|本人)?(?:(?:这周|本周|下周))?(?:我|本人)?(?:有|可用|能用|只有|仅有|能拿出|可拿出|只剩|仅剩|还剩)?\s*([0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+)(?:个)?(小时|钟头|分钟)(?:可用)?(?:吧|呀|啊)?$/.exec(exact)
    const amount=match?(match[2]==='分钟'?chineseInteger(match[1]!):parseExactHours(match[1]!)):null
    const noTime=/^(?:我|本人)?(?:这周|本周|下周)?(?:我|本人)?(?:没空|没有空闲时间|没有可用时间)$/.test(exact)
    if(scoped&&(noTime||amount!==null))candidate={period:scoped,amountMinutes:noTime?0:amount!,scope:/剩/.test(exact)?'remaining':'available',qualification,quote:original,reason:period?'指定周本人可用时间':'承接持久任务的本人可用时间追问'}

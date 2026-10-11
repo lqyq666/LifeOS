@@ -41,13 +41,14 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  // A direction comparison needs actual analysis, not an action catalogue.
  if(input.intent.stage==='compare'||/取舍|比较|对比|更适合|选哪个/.test(request))return null
  const report=clauses.filter(c=>!questions.includes(c)&&!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
- const waiting=/没(?:有)?(?:回复|回应|收到结果)|没回(?:；|$)|等待(?:回复|结果)|还没结果/.test(report)
- const blocked=/(?:没|没有|未)[^；]{0,12}(?:开始|做完|完成)|材料打不开|没(?:有)?效果|卡住|受阻|失败|还是不行|仍然不行/.test(report)
+ const waiting=/(?:没(?:有)?|尚未|还未|未)(?:回复|回应|收到结果)|没回(?:；|$)|等待(?:回复|结果)|还没结果/.test(report)
+ const materialUnavailable=/(?:材料|教材|课件|链接).{0,6}(?:打不开|无法打开)/.test(report)
+ const blocked=materialUnavailable||/(?:没|没有|未)[^；]{0,12}(?:开始|做完|完成)|没(?:有)?效果|卡住|受阻|失败|还是不行|仍然不行/.test(report)
  if(waiting)return {basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'waiting_result',nextUnknown:'实际约定与截止；未回应原因保留未知',choices:[
   '先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？',
   '还没收到回复，原因和结果都先保留未知。有没有约定回复时间，或者这件事必须确认的截止时间？',
  ]}
- if(blocked&&/(?:第[一二三四五六七八九十\d]+(?:道|个)?题|材料打不开|做到|停在|卡在|遇到)/.test(own))return make('blocked','已知阻碍处的实际材料',[
+ if(blocked&&(materialUnavailable||/(?:第[一二三四五六七八九十\d]+(?:道|个)?题|做到|停在|卡在|遇到)/.test(own)))return make('blocked','已知阻碍处的实际材料',[
   '先处理你刚说的阻碍，不重发入门方法。把打不开的材料信息或卡住的题目发来，我们从这里继续；不方便提供也可以先暂停。',
   '已经知道这次卡住的地方，先不重复问进度。可以一起查看该处的材料或题目；如果暂时无法查看，就保留原因未知，不说方法无效。',
  ])

@@ -24,3 +24,5 @@ evidence/coze-core-launch-20261011/*.json -text
 evidence/coze-core-launch-20261011/r7-originals/** -text -whitespace
 
 evidence/coze-core-launch-20261011/exam-originals/** -text -whitespace
+
+evidence/coze-core-launch-20261011/r12-source/** -text -whitespace

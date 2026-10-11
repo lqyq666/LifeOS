@@ -203,6 +203,16 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.equal((result.usage as any).llmCallCount,0)
       }
     })
+    await t.test('natural next-week candidate request persists the exact limited budget and concrete proposal',async()=>{
+      const turn=await prepare('下周仅有一小时，请给课程和备考安排下周的候选任务。')
+      outputs.push({reply:boundedPlanningReply({minutes:60,period:'next_week'}).choices[0],growthUpdates:[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{clauseId:'c0'},timeEvidence:{kind:'calendar_week',which:'next',clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:60,period:'next_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'核对课程资料',minutes:30,directionScopes:[]},{action:'核对备考资料',minutes:30,directionScopes:[]}]}})
+      const result=await engine(turn.input)
+      assert.match(result.text,/下周建议安排.*60分钟/);assert.match(result.text,/核对课程资料（30分钟）/)
+      const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      const plan=(await pool.query('SELECT structured_plan FROM growth_items WHERE id=$1',[saved.stateChange.plan!.itemId])).rows[0].structured_plan
+      assert.equal(plan.availableMinutes,60);assert.equal(plan.period,'next_week');assert.equal(plan.items.length,2)
+      assert.equal(saved.stateChange.plan!.status,'proposed')
+    })
     await t.test('unverified two-hour amount stays a verbatim fact and the actual outgoing schema excludes an expiring constraint',async()=>{
       const text='我还有两小时准备明天的课堂汇报，先做哪一步？',turn=await prepare(text)
       const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
