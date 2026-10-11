@@ -604,7 +604,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     const controlClauseTexts=[...detectForgetIntentClauses(current.content).filter(clause=>clause.kind).map(clause=>clause.clauseText),...(turnDerivedControls.status==='explicit'?turnDerivedControls.changes.map(change=>change.quote):[])]
     if(result.growthUpdates?.length){
       staged.audit.push({phase:'growth_plan_context',authorizedCount:growthAll.length,authorizedKinds:growthAll.map(item=>item.kind),planTargetItem:correctionPlan?.target?.itemId??null,newQuote:correctionPlan?.newQuote??null,providerCalls:0})
-      const authoritative=resolveGrowthDeltas({deltas:result.growthUpdates,currentMessageId:run.source_message_id,currentText:current.content,catalogue:clauseCatalogue,authorized:growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,unavailableReason:item.unavailableReason,status:item.status})),correctionPlan,controlClauseTexts})
+      const authoritative=resolveGrowthDeltas({deltas:result.growthUpdates,suppressObservations:obligations.requiredEffects.some(effect=>effect.type==='remaining_time'||effect.type==='weekly_time'),currentMessageId:run.source_message_id,currentText:current.content,catalogue:clauseCatalogue,authorized:growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,unavailableReason:item.unavailableReason,status:item.status})),correctionPlan,controlClauseTexts})
       for(const entry of authoritative.audit)staged.audit.push(entry)
       staged.audit.push({phase:'growth_model_input_shape',ops:result.growthUpdates.map((delta)=>({op:delta.target.operation,itemId:delta.target.operation==='correct'?delta.target.itemId.slice(0,8):null,clauseId:delta.source.clauseId,kind:delta.kind})),providerCalls:0})
       for(const delta of authoritative.deltas)if(delta.assertion==='ai_observation'&&delta.dependencies.some(ref=>'id'in ref&&(recommendationBlockedIds.has(ref.id)||unresolvedTaskBoundaries.some(item=>item.id===ref.id))))throw new HttpError(400,'RECOMMENDATION_CONTROL_NOT_APPLIED')
@@ -1072,9 +1072,22 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     staged.audit.push({phase:'refusal_matter_control_staged',target:staged.memoryControl?.itemId??null,pending:Boolean(staged.pendingMemoryControl),providerCalls:0})
   }
   let result:ActionCoachTurn,firstText:string|undefined
+  let explicitMaterial:ActionCoachTurn|undefined
+  if(contract.capabilities.material&&!boundaryNeedsClarification){
+    const contribution=contributionSentenceMode?materialCatalogue.filter(fact=>/^我负责/.test(fact.text)):[]
+    const edit=requestedQuestionEditClauses(current.content)[0]?.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/,'').trim()
+    const compressed=scanUserClauses(current.content).find(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/^把(?:这个|上次的|我要问的)?问题压成一句[:：]/.test(clause.text))?.text.replace(/^把(?:这个|上次的|我要问的)?问题压成一句[:：]/,'').replace(/^我想(?:了解|问|知道)/,'').trim()
+    const question=(edit??compressed)?.replace(/[。？?]+$/,'')
+    const draft=contribution.length===1?{kind:'resume_portfolio' as const,selectedFactIds:[contribution[0]!.catalogueId]}:question&&question.length<=159?{content:question+'？'}:undefined
+    if(draft){
+      const previous=currentEvent?.actions.find(action=>action.status==='proposed')
+      explicitMaterial={reply:'按你提供的内容，整理如下：',event:{target:currentEvent?{operation:'continue',eventId:currentEvent.id,expectedRevision:currentEvent.revision}:{operation:'create',title:contribution.length===1?'作品描述':'问题草稿',source:{messageId:run.source_message_id,quote:current.content}},action:previous?{operation:'modify',actionId:previous.id,expectedRevision:previous.revision,draft}:{operation:'create',draft}}}
+      staged.audit.push({phase:'explicit_material_rendered_without_generation',basis:contribution.length===1?'unique_verified_contribution':'complete_user_supplied_question',providerCalls:0})
+    }
+  }
   try{
     if(refusalOnly)staged.audit.push({phase:'explicit_refusal_deterministic',providerCalls:0})
-    firstText=refusalOnly?JSON.stringify({reply:boundedReply!.choices[0]}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',(text,draftKind)=>emit({type:'draft',text,saved:false,draftKind}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,clauseCatalogue.map(handle=>handle.clauseId),contract.mode==='reply_only'?'safe_sentence':'none',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue),boundedReply)
+    firstText=explicitMaterial?JSON.stringify(explicitMaterial):refusalOnly?JSON.stringify({reply:boundedReply!.choices[0]}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',(text,draftKind)=>emit({type:'draft',text,saved:false,draftKind}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,clauseCatalogue.map(handle=>handle.clauseId),contract.mode==='reply_only'?'safe_sentence':'none',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue),boundedReply)
     result=await validateOutput(firstText)
   }catch(error){
     const repairable=new Set(['GROWTH_REQUIRED_UPDATE_MISSING','GROWTH_AMENDMENT_AMBIGUOUS','GROWTH_COMPOSITE_REQUIRES_REVIEW','GROWTH_TIME_UNVERIFIED','GROWTH_TIME_REQUIRED','WEEKLY_PLAN_BASIS_INVALID','WEEKLY_PLAN_REQUIRED_MISSING','WEEKLY_PLAN_BUDGET_MISMATCH','REPLY_CLAIMS_UNCOMMITTED_CORRECTION','REPLY_CLAIMS_UNCOMMITTED_FORGET','REPLY_REPEATED_VERBATIM','DIRECTION_CONTROL_NOT_APPLIED','MATERIAL_REFERENCE_INVALID','REPLY_CONTRADICTS_CURRENT_EFFECT','GROWTH_SOURCE_INVALID','GROWTH_TARGET_INVALID','GROWTH_UNCHANGED','GROWTH_OBSERVATION_INVALID','GROWTH_DEPENDENCY_INVALID','GROWTH_TIME_INVALID','GROWTH_FEEDBACK_INVALID','COACH_CORRECTION_UNCHANGED','COACH_ACTION_UNCHANGED','COACH_EVENT_TARGET_INVALID','COACH_UNKNOWN_NOT_FOUND','COACH_UNKNOWN_DISPOSITION_CONFLICT','COACH_OUTPUT_INVALID','MODEL_OUTPUT_TRUNCATED','COACH_DELTA_INVALID','COACH_SOURCE_INVALID','COACH_CURRENT_SOURCE_REQUIRED','COACH_NEW_EVENT_TARGET_INVALID','COACH_MATERIAL_NOT_VISIBLE','COACH_MATERIAL_IS_CONVERSATION','COACH_ACTION_DECLINED','COACH_BACKGROUND_INVALID','COACH_CITATION_INVALID','COACH_CITATION_OUTPUT_LIMIT','PLANNED_ACTION_IS_NOT_EXPERIENCE','SKILL_IS_NOT_EXPERIENCE','SOURCE_QUOTE_MISMATCH','EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE'])
@@ -1115,7 +1128,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   staged.dialoguePath='direct';staged.upstreamCalls=calls.length
   staged.audit.push({phase:'engine_stage_timings',preRetrievalMs,knowledgeMs,validationMs,modelCallsMs:calls.map(call=>call.latencyMs),firstRawDeltaMs:calls.map(call=>call.firstRawDeltaMs),firstQuestionDraftMs:calls.map(call=>call.firstQuestionDraftMs),userPromptChars:userPrompt.length})
-  const usage=usageSummary(calls,contextTokenEstimate,retrieved,route.escalated,route.reason,refusalOnly,repairReason)
+  const usage=usageSummary(calls,contextTokenEstimate,retrieved,route.escalated,route.reason,refusalOnly||Boolean(explicitMaterial),repairReason)
   staged.modelUsage=usage
   return {text:result.reply,usage}
 }

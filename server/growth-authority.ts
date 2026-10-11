@@ -46,6 +46,7 @@ export function resolveGrowthDeltas(input:{
   authorized:readonly AuthorityItemView[]
   correctionPlan:CorrectionPlan|null
   controlClauseTexts:readonly string[]
+  suppressObservations?:boolean
 }):{deltas:ResolvedGrowthDelta[];audit:GrowthAuthorityAudit[];indexMap:ReadonlyMap<number,number>}{
   const audit:GrowthAuthorityAudit[]=[]
   const resolved:ResolvedGrowthDelta[]=[]
@@ -54,6 +55,7 @@ export function resolveGrowthDeltas(input:{
   const mutatedItems=new Set<string>()
   const emittedClauses=new Set<string>()
   for(const [inputIndex,delta] of input.deltas.entries()){
+    if(input.suppressObservations&&delta.assertion==='ai_observation'){audit.push({phase:'growth_observation_unverified_dependency_dropped',inputIndex});continue}
     const clause=resolveClause(input.catalogue,delta.source.clauseId)
     if(!clause){audit.push({phase:'growth_clause_unresolved',inputIndex,clauseId:String(delta.source.clauseId)});continue}
     if(!carriesClauseText(clause.text)){audit.push({phase:'growth_clause_unresolved',inputIndex,clauseId:clause.clauseId});continue}
