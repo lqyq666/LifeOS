@@ -1443,5 +1443,63 @@
     "evidence": "evidence/coze-core-launch-20261011/fresh-9efe806-first/REPRODUCTION.json",
     "repair": "explicit synthetic test-only 20/min quota, production unchanged",
     "latestFresh": "NOT_RUN"
+  },
+  "fresh36823e1": {
+    "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
+    "steps": 21,
+    "evidence": "evidence/coze-core-launch-20261011/fresh-36823e1/REPRODUCTION.json",
+    "privateFilesCopied": false,
+    "modelCalls": 0,
+    "scope": "36823e1 code; later content supplement locally tested separately"
+  },
+  "sourceSupplement": {
+    "newUsableSources": 12,
+    "newLocatedQuotes": 17,
+    "draftsSupplemented": 16,
+    "allReviewPreparations": 32,
+    "sourceScopedDraftReady": 21,
+    "partialImproved": 9,
+    "stillTaskSpecificSourceGap": 38,
+    "actualIndependentReviews": 0,
+    "actualHumanApprovals": 0,
+    "formalCoverageUnchangedUntilApproval": true,
+    "previous": {
+      "newUsableSources": 5,
+      "newLocatedQuotes": 5,
+      "draftsSupplemented": 8,
+      "allReviewPreparations": 32,
+      "sourceScopedDraftReady": 15,
+      "partialImproved": 8,
+      "stillTaskSpecificSourceGap": 44,
+      "actualIndependentReviews": 0,
+      "actualHumanApprovals": 0,
+      "formalCoverageUnchangedUntilApproval": true
+    },
+    "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
+    "reReadExistingOriginals": 1,
+    "draftsSupplementedCountsRevisionEvents": true,
+    "actualIndependentReviewExecutions": 32,
+    "currentExternalVersionBindings": 27,
+    "actualIndependentReviewsMeaning": "0 accepted authenticated maintenance receipts; actual external executions counted separately"
+  },
+  "growthR8": {
+    "commit": "c4073ae989b274dea24a0ae68d3848252f017f16",
+    "sourceHashesVerified": true,
+    "firstSourceReplay": {
+      "passed": 2,
+      "failed": 10,
+      "evidence": "evidence/coze-core-launch-20261011/R8_SOURCE_CONTRACT_FIRST.json"
+    },
+    "actualCredits": 5989.83,
+    "accountedCredits": 5990,
+    "cloudModelRuns": 0,
+    "status": "SOURCE_REPAIR_REQUIRED_R9_SENT_ONCE"
+  },
+  "cozeCreditsCurrent": {
+    "initial": 151559,
+    "charged": 58941,
+    "held": 30000,
+    "available": 62618,
+    "newBudget": 0
   }
 }

@@ -414,12 +414,12 @@
     }
   ],
   "summary": {
-    "newUsableSources": 10,
-    "newLocatedQuotes": 15,
-    "draftsSupplemented": 15,
+    "newUsableSources": 12,
+    "newLocatedQuotes": 17,
+    "draftsSupplemented": 16,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
-    "partialImproved": 8,
+    "partialImproved": 9,
     "stillTaskSpecificSourceGap": 38,
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
@@ -438,7 +438,10 @@
     },
     "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
     "reReadExistingOriginals": 1,
-    "draftsSupplementedCountsRevisionEvents": true
+    "draftsSupplementedCountsRevisionEvents": true,
+    "actualIndependentReviewExecutions": 32,
+    "currentExternalVersionBindings": 27,
+    "actualIndependentReviewsMeaning": "0 accepted authenticated maintenance receipts; actual external executions counted separately"
   },
   "fullPublicCapturesRequiredForRuntime": false,
   "firstToolFailure": "bs4 unavailable; replaced by built-in HTMLParser, not a source reading attempt",
@@ -574,5 +577,48 @@
         "publication": false
       }
     ]
+  },
+  "incomePdfCorrection": {
+    "at": "2026-10-11T01:42:50.905Z",
+    "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+    "revision": 3,
+    "previousHash": "72b7d6967fa4a5e1b9d01a042ce8c270f9d8e4dee97f1a33c3c65f6e580db0ab",
+    "contentHash": "8efa273821512bbae8395440b9dc7dca63f1c2929decc37d4b837931c797b39d",
+    "newDistinctOriginals": 2,
+    "newLocatedQuotes": 2,
+    "pdfs": [
+      {
+        "key": "income",
+        "pages": 3,
+        "pdfSha256": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62",
+        "quote": "Fill in the net income amount you receive each week",
+        "quoteSha256": "e7abde58e5945bcf862a12fafbe8965789336be911a93d8adf6a1f123df4fd44",
+        "pageIndex": 1,
+        "pageNumber": 2,
+        "start": 81,
+        "end": 132,
+        "normalizedPageSha256": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6",
+        "normalization": "pypdf 6.19.0 extract_text, collapse whitespace",
+        "status": "ACTUAL_PDF_DOWNLOADED_AND_PAGES_READ"
+      },
+      {
+        "key": "spending",
+        "pages": 4,
+        "pdfSha256": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+        "quote": "Get an envelope to collect your receipts.",
+        "quoteSha256": "a09908376a7dbde89fe5ff6d920a48bccc42a5b03fd5ba6fd6199da5ee37b383",
+        "pageIndex": 2,
+        "pageNumber": 3,
+        "start": 79,
+        "end": 120,
+        "normalizedPageSha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22",
+        "normalization": "pypdf 6.19.0 extract_text, collapse whitespace",
+        "status": "ACTUAL_PDF_DOWNLOADED_AND_PAGES_READ"
+      }
+    ],
+    "status": "SOURCED_DRAFT_WAITING_NEW_INDEPENDENT_REVIEW",
+    "stillMissing": "实际记账步骤已补直接PDF来源；如何判断不同兼职对学习、能力、身心和机会成本的影响仍缺直接原作者/高校材料，不能从收支工具推出整体价值。",
+    "humanApproval": null,
+    "published": 0
   }
 }

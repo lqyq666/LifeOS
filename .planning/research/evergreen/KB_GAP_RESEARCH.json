@@ -2431,6 +2431,18 @@
               "line": 147
             }
           ]
+        },
+        {
+          "id": "upwork-close-original-20261011-reread",
+          "at": "2026-10-11T01:42:50.905Z",
+          "url": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+          "status": "WEB_ORIGINAL_PARAGRAPH_READ_DIRECT_CURL_CHALLENGE_RETAINED",
+          "httpBodyRead": false,
+          "originalWebRead": true,
+          "heading": "Make sure you fulfilled your work contract",
+          "line": 147,
+          "quoteHash": "af1ebc58759b7847b5916903af4bcb6fe765389e7e260be8b587830a6fdfe519",
+          "fullHtmlFingerprintAvailable": false
         }
       ],
       "readSource": null,
@@ -2496,6 +2508,38 @@
           "status": "BODY_READ",
           "bodyLength": 3734,
           "bodySha256": "887db8505d10c21c4f3c119f0b7861709914fc8a6a38ed3436a684ac0349a5f2"
+        },
+        {
+          "id": "cfpb-income-pdf-20261011",
+          "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_income_benefits_tool_2018-11_ADA.pdf",
+          "at": "2026-10-11T01:42:50.905Z",
+          "status": "ACTUAL_PDF_DOWNLOADED_AND_PAGES_READ",
+          "pdfSha256": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62",
+          "locator": {
+            "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_income_benefits_tool_2018-11_ADA.pdf",
+            "pageIndex": 1,
+            "pageNumber": 2,
+            "start": 81,
+            "end": 132,
+            "normalizedPageSha256": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6",
+            "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+          }
+        },
+        {
+          "id": "cfpb-spending-pdf-20261011",
+          "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+          "at": "2026-10-11T01:42:50.905Z",
+          "status": "ACTUAL_PDF_DOWNLOADED_AND_PAGES_READ",
+          "pdfSha256": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+          "locator": {
+            "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+            "pageIndex": 2,
+            "pageNumber": 3,
+            "start": 79,
+            "end": 120,
+            "normalizedPageSha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22",
+            "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+          }
         }
       ],
       "readSource": {
@@ -2512,17 +2556,18 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+        "本人愿意时只记一笔已核对的实际到账或必要支出，未知金额留空；无需上传账单、姓名或账号。",
+        "当前任务「判断兼职价值」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
         "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
         "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。"
       ],
-      "applicabilityBoundary": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
-      "stillMissingClaim": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
+      "applicabilityBoundary": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。",
+      "stillMissingClaim": "实际记账步骤已补直接PDF来源；如何判断不同兼职对学习、能力、身心和机会成本的影响仍缺直接原作者/高校材料，不能从收支工具推出整体价值。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
-        "at": "2026-10-10T11:43:46.158054+00:00",
-        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
+        "at": "2026-10-11T01:42:50.905Z",
+        "sourceGapStatus": "PARTIAL_IMPROVED_STILL_AWAITING_TASK_VALUE_SOURCE",
         "independentReview": null,
         "humanApproval": null,
         "publication": false
@@ -3859,12 +3904,12 @@
   "independentReviews": 0,
   "humanApprovals": 0,
   "followupSummary": {
-    "newUsableSources": 10,
-    "newLocatedQuotes": 11,
-    "draftsSupplemented": 11,
+    "newUsableSources": 12,
+    "newLocatedQuotes": 17,
+    "draftsSupplemented": 16,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
-    "partialImproved": 8,
+    "partialImproved": 9,
     "stillTaskSpecificSourceGap": 38,
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
@@ -3883,6 +3928,9 @@
     },
     "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
     "reReadExistingOriginals": 1,
-    "draftsSupplementedCountsRevisionEvents": true
+    "draftsSupplementedCountsRevisionEvents": true,
+    "actualIndependentReviewExecutions": 32,
+    "currentExternalVersionBindings": 27,
+    "actualIndependentReviewsMeaning": "0 accepted authenticated maintenance receipts; actual external executions counted separately"
   }
 }
