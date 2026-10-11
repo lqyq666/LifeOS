@@ -88,7 +88,7 @@ export function AuthForm({ mode, onModeChange, onDone, onCancel }: {
   }
 
   const title = forgot ? '重置密码' : reset ? '设置新密码' : mode === 'welcome' ? '欢迎来到 LifeOS' : signup ? '创建你的账户' : '欢迎回来'
-  const description = forgot ? '输入注册邮箱，我们会生成重置链接。' : reset ? '输入新密码，至少 12 个字符。' : mode === 'welcome' ? '让对话和经历，陪你继续成长。' : signup ? '从一次对话，开始记录你的成长。' : '继续你的对话与成长记录。'
+  const description = forgot ? (passwordResetEnabled ? '输入注册邮箱，我们会生成重置链接。' : '请联系为你开通账户的管理员协助处理。') : reset ? '输入新密码，至少 12 个字符。' : mode === 'welcome' ? '让对话和经历，陪你继续成长。' : signup ? '从一次对话，开始记录你的成长。' : '继续你的对话与成长记录。'
 
   return <dialog ref={dialog} className="lifeos-auth" aria-labelledby="auth-title" aria-describedby="auth-description"
     onCancel={event => { event.preventDefault(); if (!busy) onCancel() }}>

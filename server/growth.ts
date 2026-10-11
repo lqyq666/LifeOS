@@ -314,7 +314,7 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
         if(factIndex>=0&&evidenceIndex>=0){
           const factSpanEnd=factIndex+change.source.quote.length
           const insideFactSpan=evidenceIndex>=factIndex&&evidenceIndex+evidence.quote.length<=factSpanEnd
-          if(!insideFactSpan&&!sameClause(current.content,factIndex,evidenceIndex)&&!(evidence.kind==='calendar_week'&&sameSentence(current.content,factIndex,evidenceIndex)))window=null
+          if(!insideFactSpan&&!sameClause(current.content,factIndex,evidenceIndex)&&!(evidence.kind==='calendar_week'&&evidenceIndex<factIndex&&sameSentence(current.content,factIndex,evidenceIndex)))window=null
         }else window=null
       }
       if(!window)return null

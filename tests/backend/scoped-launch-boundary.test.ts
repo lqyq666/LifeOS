@@ -7,7 +7,7 @@ import {model} from '../../server/model.ts'
 import {pool} from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import {createTurnEngine} from '../../server/agent.ts'
-import {growthContext,createGrowthItem} from '../../server/growth.ts'
+import {growthContext,createGrowthItem,stageGrowthUpdates} from '../../server/growth.ts'
 import {setMemorySettings} from '../../server/memory.ts'
 import {listControlRequests} from '../../server/memory-controls.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
@@ -17,8 +17,9 @@ test('persisted V19 natural boundary failures repair authoritative state across 
  const user='scoped-v19-'+randomUUID(),chats=[randomUUID(),randomUUID(),randomUUID()],oldURL=model.baseUrl,oldKey=config.apiKey
  let calls=0
  const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',x=>chunks.push(Buffer.from(x)));req.on('end',()=>{
-  calls++;const payload=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(payload.messages[1].content),goal=ctx.clauses?.find((c:any)=>c.text==='我想完成课程作业')
-  const output={reply:ctx.boundedReply?.choices[0]??'先保留你刚说的实际情况。',...(goal?{growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:goal.id}}]}:{})}
+  calls++;const payload=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(payload.messages[1].content),clauses=ctx.currentUserMessage.clauses,goal=clauses?.find((c:any)=>c.text==='我想完成课程作业')
+  const routine=clauses?.find((c:any)=>c.text==='我平常每周能拿出六小时'),remaining=clauses?.find((c:any)=>c.text==='这周还剩两小时')
+  const output={reply:ctx.boundedReply?.choices[0]??'先保留你刚说的实际情况。',...(goal?{growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:goal.id}},...(routine&&remaining?[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{clauseId:routine.id},timeEvidence:{kind:'calendar_week',which:'this',clauseId:remaining.id}}]:[])]}:{})}
   const base={id:'synthetic-v19',object:'chat.completion.chunk',created:1,model:model.id}
   res.writeHead(200,{'Content-Type':'text/event-stream'});res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\ndata: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
  })})
@@ -31,6 +32,8 @@ test('persisted V19 natural boundary failures repair authoritative state across 
   const turn=async(chat:string,text:string)=>{const run=(await store.startRun(user,chat,randomUUID(),text)).run,input={run,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}};const r=await createTurnEngine({capabilityVerified:()=>true})(input);return store.finishRun(run,input.staged,r.text,r.usage,input.signal)}
   await turn(chats[0]!,'我想完成课程作业。我平常每周能拿出六小时，这周还剩两小时。')
   const original=await growthContext(user,chats[0]!),goal=original.find(x=>x.kind==='goal')!,budget=original.find(x=>x.text==='这周还剩两小时')!
+  assert.ok(original.some(x=>x.text==='我平常每周能拿出六小时'&&x.kind==='context'&&!x.timeBasis&&!x.validUntil))
+  assert.ok(!original.some(x=>x.text==='我平常每周能拿出六小时'&&x.kind==='constraint'),'a later this-week marker cannot bind routine weekly availability')
   await turn(chats[1]!,'我已经把没完成的题列出来了，第五题还是不知道从哪里下手。')
   assert.ok((await growthContext(user,chats[1]!)).some(x=>x.text==='第五题还是不知道从哪里下手'&&x.kind==='context'))
   await turn(chats[1]!,'这周剩余时间要改成三十分钟。考试复习这周先停一下。')
@@ -70,5 +73,18 @@ test('persisted V19 natural boundary failures repair authoritative state across 
   assert.equal((await growthContext(other,otherChat)).length,countBeforeRecall,'production compound recall must not create a goal or fact')
   assert.ok((await listControlRequests(other)).some(x=>x.status==='pending'),'recall cannot resolve the stop request implicitly')
  }finally{model.baseUrl=oldURL;config.apiKey=oldKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()))}
+})
+test('actual routine-capacity source cannot borrow a later weekly cutoff',async()=>{
+ const user='scoped-routine-'+randomUUID(),conversation=randomUUID()
+ await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
+ await store.createConversation(user,{id:conversation,title:'SYNTHETIC routine source'})
+ const run=(await store.startRun(user,conversation,randomUUID(),'我是成年大学生，每周通常能投入六小时，这周还剩六十分钟。')).run
+ const staged=await stageGrowthUpdates(run,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:run.source_message_id,quote:'每周通常能投入六小时'},timeEvidence:{kind:'calendar_week',which:'this',quote:'这周'}}],[])
+ assert.equal(staged.changes.length,0,'a later cutoff cannot turn the routine fact into an expiring constraint')
+ assert.ok(staged.skipped?.some(x=>x.reason==='unverifiable_constraint_time'))
+ const earlierConversation=randomUUID();await store.createConversation(user,{id:earlierConversation,title:'SYNTHETIC earlier week source'})
+ const earlier=(await store.startRun(user,earlierConversation,randomUUID(),'这周课程赶，只剩两小时。')).run
+ const valid=await stageGrowthUpdates(earlier,[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{messageId:earlier.source_message_id,quote:'只剩两小时'},timeEvidence:{kind:'calendar_week',which:'this',quote:'这周'}}],[])
+ assert.equal(valid.changes.length,1,'an earlier marker still scopes its following amount')
 })
 test.after(async()=>{await localEmbedding.close();await pool.end()})
