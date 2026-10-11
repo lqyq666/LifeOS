@@ -1,0 +1,15 @@
+{
+  "kind": "PREDECLARED_NEW_FIRST_REAL_REPAIR_SET",
+  "historicalFirstFailuresPreserved": true,
+  "notReplacement": true,
+  "independentReview": "REQUIRED",
+  "repairHypothesis": "Current task pause/refusal uses authoritative persisted scope and confirmation, retains original goal/facts, and excludes stopped or pending tasks from recommendation. Remaining weekly budget governs plans.",
+  "cases": [
+    {"caseId":"NC19_COURSE_INITIAL","session":0,"input":"我是成年大学生，平时每周能拿出六小时。这周还剩两小时，作业和考试复习都没做完，帮我安排一下先做什么。","expected":"Current-week plan within 120 minutes; routine six hours remains a separate fact; intentions are not completed experience."},
+    {"caseId":"NC19_SHORT_CONTINUATION","session":0,"input":"那先整理作业里没完成的题。","expected":"Continues current course matter and does not claim actual execution."},
+    {"caseId":"NC19_ACTUAL_BLOCKER","session":1,"input":"接着聊上次的课程作业。我已经把没完成的题列出来了，第五题还是不知道从哪里下手。","expected":"Persists reported execution and concrete blocker; does not restart generic tutorial or invent cause/effect."},
+    {"caseId":"NC19_SCOPED_PAUSE","session":1,"input":"这周剩余时间要改成三十分钟。考试复习这周先停一下，我想先处理作业第五题。","expected":"Remaining current-week budget corrected to 30 minutes, routine budget retained, scoped exam pause does not become global direction change. Unknown task binding is clarified."},
+    {"caseId":"NC19_DURABLE_REFUSAL","session":2,"input":"上次那件作业的事我现在不想接着做，先别再给它排任务了。","expected":"Refusal persists against correct target or authoritative pending confirmation; does not overwrite original goal/facts or recommend stopped/pending target."},
+    {"caseId":"NC19_LISTEN_AFTER_REFUSAL","session":2,"input":"我只是想说说卡在那道题的烦躁，今天先听我说。","expected":"Listening without plan or manufactured experience; prior refusal and facts remain."}
+  ]
+}

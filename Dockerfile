@@ -32,6 +32,9 @@ COPY server ./server
 COPY src ./src
 COPY skills ./skills
 COPY .planning/research/evergreen/KB_GUIDES.jsonl .planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl .planning/research/evergreen/KB_EVIDENCE.jsonl .planning/research/evergreen/KB_CONTENT_REVISIONS.json .planning/research/evergreen/KB_COVERAGE.json .planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json ./.planning/research/evergreen/
+COPY .planning/research/workflow-integration/COZE_CANONICAL_PUBLIC_ASSETS.json .planning/research/workflow-integration/INDEPENDENT_EXECUTION_BINDINGS.json .planning/research/workflow-integration/SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json .planning/research/workflow-integration/KB_SIX_R4_FULL_INPUT.json ./.planning/research/workflow-integration/
+COPY evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json evidence/coze-core-launch-20261011/INDEPENDENT_R7_EXECUTION_PROOF.json evidence/coze-core-launch-20261011/KB_R7_FORMAL_RAW.json evidence/coze-core-launch-20261011/INDEPENDENT_R8_EXECUTION_PROOF.json evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json ./evidence/coze-core-launch-20261011/
+COPY evidence/coze-core-launch-20261011/r7-originals ./evidence/coze-core-launch-20261011/r7-originals
 COPY scripts/migrate-db.ts scripts/probe-model.ts scripts/create-user.ts scripts/manage-access.ts scripts/manage-provider-budget.ts scripts/coach-provider-budget.ts scripts/coach-source-freeze.ts scripts/coze-host-permit.ts scripts/coze-credit-budget.ts ./scripts/
 COPY evidence/v1.3-action-coach/provider/qwen-default/coach-capabilities-default.json evidence/v1.3-action-coach/provider/qwen-default/coach-capabilities-default.json.interface-proof.json ./evidence/v1.3-action-coach/provider/qwen-default/
 COPY .local/models/bge-small-zh-v1.5 ./.local/models/bge-small-zh-v1.5

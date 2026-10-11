@@ -62,7 +62,7 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHos
     req.headers['x-lifeos-client-ip']=clientIP(req.socket.remoteAddress??'unknown',typeof req.headers['x-real-ip']==='string'?req.headers['x-real-ip']:undefined)
     try{
       const url=new URL(req.url??'/',config.origin), path=url.pathname, method=req.method??'GET'
-      if(path==='/api/access-policy'&&method==='GET'){json(res,200,{signupEnabled:config.signupEnabled});return}
+      if(path==='/api/access-policy'&&method==='GET'){json(res,200,{signupEnabled:config.signupEnabled,passwordResetEnabled:!config.production});return}
       if(path==='/api/health'&&method==='GET'){await pool.query('SELECT 1');json(res,200,{database:'postgresql',model:model.id,modelTiers:availableModelTiers(),capabilitiesVerified:modelReady(),provider:await modelState(),providerCheckedByHealth:false});return}
       if(path==='/api/ready'&&method==='GET'){await pool.query('SELECT id FROM lifeos_model_state WHERE id=1');const ready=!shuttingDown&&localEmbedding.healthy;json(res,ready?200:503,{ready,scope:'application-database-and-offline-embedding',embedding:{ready:localEmbedding.healthy,offline:true},modelLiveVerified:false});return}
       if(shuttingDown)throw new HttpError(503,'SERVER_SHUTTING_DOWN',10)
@@ -79,6 +79,7 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHos
         json(res,200,pending?{token:pending.token,at:pending.at}:{token:null})
         return
       }
+      if(path==='/api/auth/request-password-reset'&&config.production)throw new HttpError(503,'PASSWORD_RESET_UNAVAILABLE')
       if(path.startsWith('/api/auth/')){await authHandler(req,res);return}
       if(path.startsWith('/api/')){
         // P4 G0: unauthenticated runtime fingerprint (no secrets) for host/skill verification.

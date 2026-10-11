@@ -11,6 +11,7 @@ function authError(error: unknown) {
     if (error.code === 'INVALID_EMAIL') return '请输入有效的邮箱地址。'
     if (error.code === 'PASSWORD_TOO_SHORT') return '密码至少需要 12 个字符。'
     if (error.code === 'SIGN_UP_DISABLED') return '当前为小范围试运行，请使用已开通的账户登录。'
+    if (error.code === 'PASSWORD_RESET_UNAVAILABLE') return '暂不支持邮件找回密码，请联系为你开通账户的管理员。'
     if (error.status === 429) return '尝试次数较多，请稍后再试。'
   }
   return explainError(error)
@@ -31,10 +32,11 @@ export function AuthForm({ mode, onModeChange, onDone, onCancel }: {
   const [resetToken, setResetToken] = useState('')
   const [notice, setNotice] = useState(''), [busy, setBusy] = useState(false), [showPassword, setShowPassword] = useState(false)
   const [signupEnabled, setSignupEnabled] = useState<boolean | null>(null)
+  const [passwordResetEnabled, setPasswordResetEnabled] = useState(false)
   const signup = mode === 'signup'
   const forgot = mode === 'forgot'
   const reset = mode === 'reset'
-  useEffect(() => { let current = true; api<{ signupEnabled: boolean }>('/api/access-policy').then(value => { if (current) setSignupEnabled(value.signupEnabled) }).catch(() => {}); return () => { current = false } }, [])
+  useEffect(() => { let current = true; api<{ signupEnabled: boolean; passwordResetEnabled: boolean }>('/api/access-policy').then(value => { if (current) { setSignupEnabled(value.signupEnabled); setPasswordResetEnabled(value.passwordResetEnabled === true) } }).catch(() => {}); return () => { current = false } }, [])
   useEffect(() => { if (signupEnabled === false && mode === 'signup') onModeChange('login') }, [signupEnabled, mode, onModeChange])
 
   useEffect(() => {
@@ -54,6 +56,7 @@ export function AuthForm({ mode, onModeChange, onDone, onCancel }: {
     setBusy(true); setNotice('')
     try {
       if (forgot) {
+        if (!passwordResetEnabled) { setNotice('暂不支持邮件找回密码，请联系为你开通账户的管理员。'); return }
         // 第一步：提交邮箱，获取重置令牌
         await api('/api/auth/request-password-reset', { email: email.trim(), redirectTo: '/' })
         const pending = await api<{ token: string | null }>('/api/auth/pending-reset?email=' + encodeURIComponent(email.trim()))
@@ -102,7 +105,7 @@ export function AuthForm({ mode, onModeChange, onDone, onCancel }: {
           {signupEnabled === true && <button type="button" className="auth-button is-secondary" onClick={() => switchMode('signup')}>创建账户</button>}
           {signupEnabled === false && <p className="auth-hint">当前通过邀请开通，请使用已开通的账户登录。</p>}
         </div> : <>
-          <form className="auth-form qa-auth-form" onSubmit={submit} aria-label={forgot ? '重置密码' : reset ? '设置新密码' : signup ? '创建账户' : '邮箱登录'} aria-busy={busy}>
+          {forgot && !passwordResetEnabled ? <p className="auth-notice" role="status">暂不支持邮件找回密码，请联系为你开通账户的管理员。</p> : <form className="auth-form qa-auth-form" onSubmit={submit} aria-label={forgot ? '重置密码' : reset ? '设置新密码' : signup ? '创建账户' : '邮箱登录'} aria-busy={busy}>
             {signup && <label htmlFor="auth-name">称呼<span className="auth-optional">可选</span><input id="auth-name" aria-label="称呼" value={name} onChange={event => setName(event.target.value)} autoComplete="nickname" maxLength={80} disabled={busy || authenticated.current} /></label>}
             {(forgot || reset) && <input type="hidden" value={resetToken} />}
             {!reset && <label htmlFor="auth-email">邮箱<input ref={emailInput} id="auth-email" type="email" required value={email} onChange={event => setEmail(event.target.value)} autoComplete="email" inputMode="email" autoCapitalize="none" spellCheck={false} placeholder="name@example.com" maxLength={254} disabled={busy || authenticated.current} aria-describedby={notice ? 'auth-notice' : undefined} /></label>}
@@ -112,7 +115,7 @@ export function AuthForm({ mode, onModeChange, onDone, onCancel }: {
             {(signup || reset) && <p className="auth-hint" id="auth-password-hint">至少 12 个字符</p>}
             {notice && <p className="auth-notice" role="alert" id="auth-notice">{notice}</p>}
             <button type="submit" className="auth-button is-primary" disabled={busy}>{busy ? (forgot ? '正在生成…' : reset ? '正在重置…' : '正在连接…') : authenticated.current ? '重试加载' : forgot ? '下一步' : reset ? '重置密码' : signup ? '创建账户' : '登录'}</button>
-          </form>
+          </form>}
           {!authenticated.current && !forgot && !reset && signupEnabled === true && <p className="auth-switch">{signup ? '已有账户？' : '还没有账户？'}<button type="button" onClick={() => switchMode(signup ? 'login' : 'signup')} disabled={busy}>{signup ? '登录' : '创建账户'}</button></p>}
           {!authenticated.current && mode === 'login' && <p className="auth-switch"><button type="button" onClick={() => switchMode('forgot')} disabled={busy}>忘记密码？</button></p>}
         </>}
