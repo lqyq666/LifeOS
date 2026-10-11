@@ -17,6 +17,11 @@ test('G4 candidate diff is postcommit only, zero model; one paid design remains 
  assert.throws(()=>growthDiff(f.request,{...host,committed:false},[],after,f.records),/stale_snapshot/)
  assert.deepEqual(growthDiff(f.request,{...host,changedIds:[]},[],after,f.records),[])
 })
+test('G4 a newly saved item outside the current view is not a withdrawal',()=>{
+ const f=fixture();f.request.mode='growth_diff'
+ const host={traceId:f.request.traceId,requestId:f.request.requestId,committed:true,changedIds:['future-budget']}
+ assert.deepEqual(growthDiff(f.request,host,[],[],f.records),[],'absence from the current projection is not evidence that a new record was withdrawn')
+})
 test('G4 correction and withdrawal never reprint old forgotten quote or infer identity',()=>{
  const f=fixture();f.request.mode='growth_diff';const ref={type:'growth' as const,id:'synthetic-context',revision:2},text='这周只有两小时。'
  f.request.authorizedEvidenceRefs.push(ref);f.records.push({ref,owner:f.request.internalActorKey,conversationId:f.request.conversationId,role:'user',status:'active',text})

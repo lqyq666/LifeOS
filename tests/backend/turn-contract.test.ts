@@ -212,6 +212,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       const plan=(await pool.query('SELECT structured_plan FROM growth_items WHERE id=$1',[saved.stateChange.plan!.itemId])).rows[0].structured_plan
       assert.equal(plan.availableMinutes,60);assert.equal(plan.period,'next_week');assert.equal(plan.items.length,2)
       assert.equal(saved.stateChange.plan!.status,'proposed')
+      assert.ok(!saved.stateChange.growthDiff.some(delta=>delta.change==='withdrawn'),'a future budget was just created, not withdrawn')
     })
     await t.test('unverified two-hour amount stays a verbatim fact and the actual outgoing schema excludes an expiring constraint',async()=>{
       const text='我还有两小时准备明天的课堂汇报，先做哪一步？',turn=await prepare(text)

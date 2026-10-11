@@ -23,6 +23,9 @@ export function growthDiff(request:WorkflowRequest,host:{traceId:string;requestI
   const old=before.find(x=>x.ref.id===id),current=after.find(x=>x.ref.id===id)
   if(current&&old&&current.ref.revision===old.ref.revision&&JSON.stringify(current)!==JSON.stringify(old))throw new WorkflowError('stale_snapshot')
   if(!current||current.status==='withdrawn'){
+   // A newly committed future-window item can be absent from today's view.
+   // Never fabricate a withdrawal for a record that was not in that view.
+   if(!current&&!old)continue
    // Do not disclose the old text or old source after forgetting.
    changes.push({schemaVersion:2,before:'此前存在的一条记录',evidenceRefs:[],now:'这条记录已撤回，相关解释不再使用。',unknowns:[],needsConfirmation:true,change:'withdrawn',itemId:id});continue
   }
