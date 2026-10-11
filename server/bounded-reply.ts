@@ -24,7 +24,7 @@ export function boundedRecallReply(text:string,facts:{text:string;createdAt:stri
  if(/是不是(?:等于|意味着).{0,15}永久/.test(text))return make('这周暂停只限定本周，不等于永久放弃考试方向。已有记录没有表达永久放弃；也不会据此替你作长期决定或恢复任务。')
  if(/(?:问题改成|改成什么)/.test(text)&&question)return make(`你此前把问题改成了：「${question}」。这里只回读原问法，不表示已经问过，也不主动重启访谈。`)
  const pattern=/(?:多少时间|几小时|多久|每周|剩余)/.test(text)?/(?:每周|本周|这周|剩余).{0,20}(?:小时|分钟)/
-  :/(?:渠道|联系|收到什么结果)/.test(text)?/(?:邮箱|邮件|发出|看过|读过|回复|回应|微信)/
+  :/(?:渠道|联系|收到什么结果)/.test(text)?/(?:邮箱|邮件|联系|联络|请教|发出|看过|读过|回复|回应|微信)/
   :/(?:分工|负责|算在我)/.test(text)?/(?:负责|插画|分工)/
   :/(?:付款|用过|使用|稳定收入)/.test(text)?/(?:交给|交付|看过|用过|使用|采用|会不会用|付款|付费|付钱)/:null
  const selected=facts.filter(row=>!pattern||pattern.test(row.text)).sort((a,b)=>a.createdAt.localeCompare(b.createdAt)).slice(-10)

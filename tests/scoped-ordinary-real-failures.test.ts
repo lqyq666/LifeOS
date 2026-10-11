@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {buildClauseCatalogue} from '../server/clause-catalogue.ts'
 import {resolveGrowthDeltas} from '../server/growth-authority.ts'
-import {boundedOrdinaryReply} from '../server/bounded-reply.ts'
+import {boundedOrdinaryReply,boundedRecallReply} from '../server/bounded-reply.ts'
 import {deriveTurnContract,negativePersonalFactClauses,reportsPersonalEvent,taskOutcomeReadback} from '../server/turn-contract.ts'
 import {deliverableIntent,requiresImmediateMaterial} from '../server/action-coach-events.ts'
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
@@ -15,6 +15,8 @@ test('production compound recall cannot become a new pursuit',()=>{
  const catalogue=buildClauseCatalogue(text)
  const r=resolveGrowthDeltas({deltas:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:catalogue[0]!.clauseId}}],currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[]})
  assert.equal(r.deltas.length,0)
+ const reply=boundedRecallReply(text,[{text:'想用校内邮箱请教学长课程项目如何整理成实习作品',createdAt:'2026-10-11T15:00:00Z'},{text:'目前还没联系',createdAt:'2026-10-11T15:00:00Z'}])
+ assert.ok(reply.choices.every(x=>x.includes('校内邮箱')&&x.includes('目前还没联系')),'production recall must include the not-contacted source, not just the channel')
 })
 
 test('first real ordinary failures: actual reports and emotions cannot become pursuits',()=>{
