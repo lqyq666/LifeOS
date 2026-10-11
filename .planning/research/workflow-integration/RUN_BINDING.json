@@ -1796,5 +1796,25 @@
       "knownNewBatchEstimatedCostCny": 0.0554235,
       "newBudget": 0
     }
+  },
+  "currentExecution": {
+    "repositoryHead": "47c7098e3471a12f933d74e9594cd9d52cf46f38",
+    "codeCommit": "47c7098e3471a12f933d74e9594cd9d52cf46f38",
+    "realSmallComplexSourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+    "uiOrigin": "http://127.0.0.1:18101",
+    "uiState": "TEMPORARY_SYNTHETIC_ACCEPTANCE_RUNNING_NOT_PRODUCT_SERVICE",
+    "cozeGrowth": {
+      "projectId": "7693388932939300905",
+      "head": "d881683ec576b9d0d169db8f6beb2323bc93bbcd",
+      "status": "FAILED_SOURCE_GATES_R8_PROCESSING"
+    },
+    "cozeKnowledge": {
+      "projectId": "7693465311558795327",
+      "head": "0b27a336af53f218f8a361daa647c9c5378e00be",
+      "status": "FIRST_REVIEW_HASH_REJECTED_R2_PROCESSING"
+    },
+    "installedSkills": "UNCHANGED_READ_ONLY_PREVIOUS_INSTALLED_VERSION_NOT_ASSUMED_CURRENT",
+    "productionWrites": 0,
+    "status": "WIP_NOT_READY"
   }
 }

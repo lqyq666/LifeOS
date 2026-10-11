@@ -1,8 +1,8 @@
 {
   "schemaVersion": 6,
   "version": "workflow-v2-integration-0c4ce842100e",
-  "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
-  "codeCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+  "head": "47c7098e3471a12f933d74e9594cd9d52cf46f38",
+  "codeCommit": "47c7098e3471a12f933d74e9594cd9d52cf46f38",
   "status": "WIP_NOT_READY",
   "highestStatus": [
     "MODIFIED",
@@ -1277,21 +1277,34 @@
   "currentImplementationCommit": "5bb68a466c817a3047df57b9b44c7256db56532e",
   "unknownCostsRetainedCny": 0.3735552,
   "currentComplexPilot": {
-    "head": "9ea6eac",
+    "head": "47c7098e3471a12f933d74e9594cd9d52cf46f38",
+    "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
     "firstAttempts": 2,
     "technicalProposed": 2,
-    "businessAccepted": 0,
     "actualCalls": 9,
-    "knownCostCny": 0.0200756,
-    "status": "NOT_ACCEPTED_MISSING_STAGE_EXPLANATION",
-    "nextCandidate": "REQUIRED_PERSONAL_BASIS_STAGE_LOCAL_VERIFIED",
-    "priorFailuresRetained": true
+    "knownCostCny": 0.0215556,
+    "mandatoryBasisAndStage": "PRESENT_IN_ACTUAL_RESULTS",
+    "businessAccepted": "WAITING_ACTUAL_INDEPENDENT_REVIEW",
+    "ordinary3": "PREVIOUS_FIRST3_NOT_REISSUED_NOT_FINAL20",
+    "totalBatchesRetained": 5
   },
   "currentIndependentContentReview": {
     "projectId": "7693465311558795327",
-    "requestId": "LIFEOS_KB_INDEPENDENT_32_20261011_FIRST",
-    "cards": 32,
-    "status": "DISPATCHED_PROCESSING_NOT_REVIEWED",
+    "firstAttempt": {
+      "status": "COMPLETED_BUT_32_WRONG_HASH_BINDINGS_REJECTED",
+      "cards": 32,
+      "sourceURLs": 30,
+      "suggestedReady": 25,
+      "suggestedNeedsReview": 7,
+      "validReceipts": 0,
+      "evidence": "KB_INDEPENDENT32_BINDING_FIRST_FAIL.json"
+    },
+    "next": {
+      "requestId": "LIFEOS_KB_INDEPENDENT_32_20261011_R2_BINDING_AND_SMALL_REVIEW",
+      "status": "ACK_PROCESSING",
+      "sourceRereads": "Reuse actual public files; no product model",
+      "reservedCredits": 40313
+    },
     "humanApproval": 0,
     "published": 0
   },
@@ -1309,6 +1322,27 @@
     "evidence": "COZE_R7_SOURCE_CONTRACT_FIRST_FAIL.json",
     "status": "FAILED_SOURCE_CONTRACT_REVIEW",
     "actualCredits": 6413.06,
+    "newBudget": 0
+  },
+  "previousTopLevelSnapshot": {
+    "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+    "version": "workflow-v2-integration-0c4ce842100e"
+  },
+  "currentCozeR8": {
+    "requestId": "LIFEOS_COZE_CORE_20261011_GROWTH_R8_REPAIR",
+    "projectId": "7693388932939300905",
+    "status": "ACK_PROCESSING",
+    "reservedExistingCredits": 60000,
+    "newBudget": 0
+  },
+  "currentPaidAccounting": {
+    "actualDispatchedNew": 65,
+    "reservationEntriesNew": 71,
+    "notSentNew": 6,
+    "actualUnknownFeesNew": 6,
+    "knownNewCostCny": 0.1128666,
+    "unknownFeesReservedCny": 0.7139328,
+    "remainingOriginalFundingCny": 10.4335404,
     "newBudget": 0
   }
 }

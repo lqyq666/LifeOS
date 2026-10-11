@@ -1,0 +1,9 @@
+# LIFEOS_KB_INDEPENDENT_32_20261011_R2_BINDING_AND_SMALL_REVIEW
+上一实际审阅文件已读回且SHA匹配0b27a336/03f1eeb11caf0508de432d55d80ab440d2a51b70314f9b11260138fb0c68e5d1，但32条contentHash全错，不能形成宿主合法审阅回执。原失败保留为kb_independent_32_20261011.json，不覆盖，不声明25已批准。
+本轮新的局部修复请求，修复轮数不限，沿用原项目/公开资料/既有额度，开发/审阅本轮预留40313积分，不加预算，不调用产品模型，不部署，不改治理，不发布。
+先查实际原因：附件原卡hash在cards[i].card.guide.contentHash，不在card.contentHash。逐项保留附件EXACT_BINDINGS中的值，禁止重新hash整张卡/显示文字或临时对象，也不能由主生成者自己改回执变批准。你在独立执行中实际比对审核所读原稿，记录原输入文件sha256、32个原hash、读到哪些主张。
+独立重核的32条必须精确匹配guideId/revision/contentHash/claimIds。复用你已实际抓取原文和原失败，不需反复抓原网站；基于原读取正文确认引用可定位，不可定位false不得仍说全部verified。PDF空白/顺序差异需记录实际规范化规则/实际原文位置与截取内容。sourceRevision、URL、实际读取时间、原文件与提取文本sha256保持有据，reported startedAt=00:30早于本次真实派发，改为实际日志时间范围，旧报告不改。AI复核不可说真人人工批准。
+逐条审查editorial的文字，不能只看到adaptation标签就自动过；是否掩盖外部效果/规则/因果主张、跨领域泛化、每分支拒绝/失败/未知和步骤是否适用。输出每张真实限制/待改点，不一律套相同理由。没有核对证据充分则needs_review/return/reject。
+输出新文件assets/kb_independent_32_20261011_r2.json，保留原报告及所有访问失败。不得发布、导入正式索引或伪造主端认证回执。25只是旧建议，没有真人批准。
+同时独立审查SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json的实际三条普通和两条复杂首次结果，生成assets/small_real_independent_review_20261011.json。按技术完成、语义正确、来源支持、必要状态提交、尊重意图、跨会话连续性六轴逐样本给出actual inputs/outputs依据和PASS/FAIL/NOT_TESTED，任何正常未知不得自动判失败，来源/缺阶段/串事/只换模板不得放过。连续链未覆盖之处写NOT_TESTED，不自打总分冒充真实收益。普通与复杂源码freeze不同、同供应商；不声称它们是同版20条最终验收。核对小批能否扩至四链，不因生成者给通过字段就采信。输出实际execution/project/session、起止、输入hash、逐项问题位置与严重程度，拒绝仅boolean/角色名证明独立性。不运行任何产品API或模型，只有读取已有合成样本和必要公共原文。
+最终提交新报告，回传实际完整commit、文件sha256、32条匹配数、真实可待owner批准数、失败数及small5六轴结论。不要原路重发旧收费请求。

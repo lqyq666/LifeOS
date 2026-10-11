@@ -1,0 +1,308 @@
+{
+  "kind": "EXACT_INPUT_VERSION_KEYS_DO_NOT_RECOMPUTE",
+  "entries": [
+    {
+      "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+      "revision": 2,
+      "contentHash": "456db6fb2f43926b305e223740d77fc0a22bf2b2e7810f54ce94e6e35654886f",
+      "claimIds": [
+        "campus-resource-scope",
+        "campus-resource-editorial"
+      ]
+    },
+    {
+      "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
+      "revision": 3,
+      "contentHash": "1774f66c3b211cf61f0abcb26e61fe019167fd2b7fa95b18733bf0c1239eb7b0",
+      "claimIds": [
+        "first-contact-scope",
+        "first-contact-editorial",
+        "first-contact-career-author-followup",
+        "first-contact-pg-first-users-followup",
+        "first-contact-pku-recommendation",
+        "first-contact-ustc-mentor-choice"
+      ]
+    },
+    {
+      "guideId": "3c534028-eb02-48bd-8dd4-3dd9473a4a29",
+      "revision": 2,
+      "contentHash": "3b827deda68944a3c21ae0d08dfdb7701e4979ecd1fa705c06666e258c17ef79",
+      "claimIds": [
+        "fit-exploration-scope",
+        "fit-exploration-editorial",
+        "fit-exploration-career-author-followup"
+      ]
+    },
+    {
+      "guideId": "cce58304-bb40-41bb-8ad3-b98f0c14c2bb",
+      "revision": 2,
+      "contentHash": "90b46b82bce9f2efc1b1f14daecc11d67e597681a8b29d5aa03202aa8570d5f1",
+      "claimIds": [
+        "skill-gap-scope",
+        "skill-gap-editorial"
+      ]
+    },
+    {
+      "guideId": "7ff3638d-87dc-4842-8908-352ea1ed308e",
+      "revision": 2,
+      "contentHash": "9499a6406ae195077e637c645effa4fa6fdcd78f9bbbb5eae6616d441d29c18d",
+      "claimIds": [
+        "course-frame-scope",
+        "course-frame-editorial"
+      ]
+    },
+    {
+      "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+      "revision": 4,
+      "contentHash": "299b0a324888fe7ae2a671220aed4e5ad0fc5e79679ca8b48146c0c1653e5f54",
+      "claimIds": [
+        "exam-diagnosis-scope",
+        "exam-diagnosis-editorial",
+        "exam-diagnosis-reflection",
+        "exam-diagnosis-experiment-records"
+      ]
+    },
+    {
+      "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+      "revision": 2,
+      "contentHash": "1515e7f8beca791ad7b88e67d21d7b6e55aa0f34c689b812906d83d939685e09",
+      "claimIds": [
+        "retrieval-practice-scope",
+        "retrieval-practice-editorial"
+      ]
+    },
+    {
+      "guideId": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+      "revision": 2,
+      "contentHash": "2a594e3ce3151d8a731ffd23925662b5559dd140385c1b2df5fdf95aa7fd51c3",
+      "claimIds": [
+        "spaced-review-scope",
+        "spaced-review-editorial"
+      ]
+    },
+    {
+      "guideId": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+      "revision": 2,
+      "contentHash": "bff977dcc13ddaeb520a2c9dd40da7a5c039f9973153edf22e8b89d3056f5ee6",
+      "claimIds": [
+        "worked-example-scope",
+        "worked-example-editorial"
+      ]
+    },
+    {
+      "guideId": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+      "revision": 2,
+      "contentHash": "0706626699bab64a76bc181c79cb8fd2eb34b43b2aef0aad2916335bd46e02f6",
+      "claimIds": [
+        "explain-understanding-scope",
+        "explain-understanding-editorial"
+      ]
+    },
+    {
+      "guideId": "5fde19ca-e307-478c-8a96-5781df392991",
+      "revision": 2,
+      "contentHash": "6c95c10a963bb4f3176c363afd85b11ea77ec51219315d1583badd45641485f1",
+      "claimIds": [
+        "priority-budget-scope",
+        "priority-budget-editorial"
+      ]
+    },
+    {
+      "guideId": "ac31c643-eece-4bb4-828e-50e444c71395",
+      "revision": 2,
+      "contentHash": "4ad1779a8447a8d97b37bac885c080577f00a95e225fc0fa4016223048a793fd",
+      "claimIds": [
+        "restart-task-scope",
+        "restart-task-editorial"
+      ]
+    },
+    {
+      "guideId": "33b6356e-3d80-4881-80da-1892555bea86",
+      "revision": 2,
+      "contentHash": "12f40679863c9ad574c8d9950fbedd316ada329986d86fec56292abdbcfa47cc",
+      "claimIds": [
+        "start-small-scope",
+        "start-small-editorial"
+      ]
+    },
+    {
+      "guideId": "48e4e604-8fd8-4016-862c-f6d3219c776d",
+      "revision": 2,
+      "contentHash": "663637cc609267ed5ead9ddb7b4e3ddf8a01c59cf9fa7bc5d81fcc4c0f75d809",
+      "claimIds": [
+        "plan-review-scope",
+        "plan-review-editorial"
+      ]
+    },
+    {
+      "guideId": "6262d479-9403-4140-8910-48de23cd2600",
+      "revision": 2,
+      "contentHash": "ced6ba9917b3bbde69144f547ab6eeb085a16ac8ff9d2f9927fe8ea5d1705a5f",
+      "claimIds": [
+        "experience-evidence-scope",
+        "experience-evidence-editorial"
+      ]
+    },
+    {
+      "guideId": "563bc621-e36d-416b-8176-c82bbe0469f3",
+      "revision": 2,
+      "contentHash": "bab630cbab52c99c4d1c308891f7c200c3f354dffa6e193f52f5f1dca9d4aa37",
+      "claimIds": [
+        "research-reading-scope",
+        "research-reading-editorial"
+      ]
+    },
+    {
+      "guideId": "56cdf864-c703-4fed-8200-29e54c988800",
+      "revision": 2,
+      "contentHash": "9416614da447a0c1850797ec5e9c978283295db87120c23f22523ff18a9a2d0c",
+      "claimIds": [
+        "research-task-scope",
+        "research-task-editorial",
+        "research-task-atlassian-roles-followup"
+      ]
+    },
+    {
+      "guideId": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
+      "revision": 3,
+      "contentHash": "98e0a24a01835f06ac903403447e7c3e6f8b6b043bb638bd09f03c9d54ebd46b",
+      "claimIds": [
+        "direction-comparison-scope",
+        "direction-comparison-editorial",
+        "direction-comparison-career-author-followup",
+        "direction-comparison-personal-criteria"
+      ]
+    },
+    {
+      "guideId": "d9c8179d-ccc5-4c09-8503-a17eeade5ae9",
+      "revision": 2,
+      "contentHash": "684d9e1bfebd7c6cdc8975d111e923015594f7edbe9d81247e2e1e4f8b6c37f1",
+      "claimIds": [
+        "application-match-scope",
+        "application-match-editorial"
+      ]
+    },
+    {
+      "guideId": "4795f7b2-f739-4ba5-8052-2d04f5894bbe",
+      "revision": 2,
+      "contentHash": "344208438d884cd214ef55f953f6925f4ccf42c54140fa1bf8371c4612b3e621",
+      "claimIds": [
+        "project-story-scope",
+        "project-story-editorial"
+      ]
+    },
+    {
+      "guideId": "9937b7ed-f6bc-46a1-8fab-defd18b06e30",
+      "revision": 2,
+      "contentHash": "76e37e85555db159fc7724f1d0bad3e61e6f887220326e25b2e37eddb0414904",
+      "claimIds": [
+        "job-feedback-scope",
+        "job-feedback-editorial"
+      ]
+    },
+    {
+      "guideId": "cf3647df-1e36-4645-8b90-f894a0348be3",
+      "revision": 2,
+      "contentHash": "6504c4fdd00dadad4e66bc671ca13eee077c6c310fcbec06204cd541eaed7c96",
+      "claimIds": [
+        "interview-unknown-scope",
+        "interview-unknown-editorial"
+      ]
+    },
+    {
+      "guideId": "43e47ad6-3543-4c97-84f6-42bb0a1e6cb3",
+      "revision": 2,
+      "contentHash": "94c8e5d4276d7a2c3b33ebc60b5f5fedccaf36f68f04629fdad3fe7623cbeda1",
+      "claimIds": [
+        "user-interview-scope",
+        "user-interview-editorial",
+        "user-interview-pg-startup-ideas-followup"
+      ]
+    },
+    {
+      "guideId": "061bf547-823f-492e-89c2-cf11daf153b5",
+      "revision": 2,
+      "contentHash": "83546d885447335cd91bd05572defd40e4b7c12dfbe9d67ec69a65dff228ffa1",
+      "claimIds": [
+        "prototype-test-scope",
+        "prototype-test-editorial",
+        "prototype-test-pg-startup-ideas-followup"
+      ]
+    },
+    {
+      "guideId": "ea53cc08-3420-442f-8e5c-98070be7909a",
+      "revision": 2,
+      "contentHash": "01affd6db6564fd9fa98222c6071ddb0acb005739fe22e47e29560331a2fd7e5",
+      "claimIds": [
+        "delivery-scope-scope",
+        "delivery-scope-editorial"
+      ]
+    },
+    {
+      "guideId": "ee6a3e12-bedb-4386-8fd1-03ae06fb19ab",
+      "revision": 3,
+      "contentHash": "d46c0109459337875f5d34b86c0a161366a0a58e184ce95ce91c775c71ac1211",
+      "claimIds": [
+        "delivery-review-original-agreement",
+        "delivery-review-editorial",
+        "delivery-review-atlassian-retro-followup"
+      ]
+    },
+    {
+      "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+      "revision": 2,
+      "contentHash": "72b7d6967fa4a5e1b9d01a042ce8c270f9d8e4dee97f1a33c3c65f6e580db0ab",
+      "claimIds": [
+        "income-ledger-scope",
+        "income-ledger-editorial"
+      ]
+    },
+    {
+      "guideId": "a59f8d87-9b86-4fb3-8dcd-c0e65a084e39",
+      "revision": 2,
+      "contentHash": "d537c4b79c51ba51f46ae9a17b48a9a774a3b025a296e034ac2d8aa3fee7f917",
+      "claimIds": [
+        "content-experiment-scope",
+        "content-experiment-editorial"
+      ]
+    },
+    {
+      "guideId": "f691bcc0-526e-4588-8e42-3390fbabecbd",
+      "revision": 2,
+      "contentHash": "e757f8dd1df6ce450307371db7475443f424678457efa1ac9635cede7da44355",
+      "claimIds": [
+        "team-contract-scope",
+        "team-contract-editorial",
+        "team-contract-atlassian-roles-followup",
+        "team-contract-atlassian-retro-followup"
+      ]
+    },
+    {
+      "guideId": "349634c2-27c1-4a99-8f54-3f8e072d5ce0",
+      "revision": 2,
+      "contentHash": "54de26d9d993e6e706ce02f9aa2a49f175e29fe67d6dc05e1e8d33d6dd90d129",
+      "claimIds": [
+        "boundary-request-scope",
+        "boundary-request-editorial"
+      ]
+    },
+    {
+      "guideId": "1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a",
+      "revision": 2,
+      "contentHash": "c96b40f517d075bfc198b9d8ff03aa1446aa55a8c33539c7316e075c06c05d56",
+      "claimIds": [
+        "recovery-support-scope",
+        "recovery-support-editorial"
+      ]
+    },
+    {
+      "guideId": "bec572cf-e158-4501-8062-3d62021eb952",
+      "revision": 2,
+      "contentHash": "cc2bbffd8da399eee2b0895be5ffbd05f787e1f7fcb7bd56df2bf510c543fd7a",
+      "claimIds": [
+        "information-check-scope",
+        "information-check-editorial"
+      ]
+    }
+  ]
+}
