@@ -2,7 +2,7 @@ import {scanUserClauses} from './user-command-spans.ts'
 import type {KnowledgeIntent} from './evergreen-guide.ts'
 import type {TurnContract} from './turn-contract.ts'
 
-export type BoundedReply={basis:'editorial_adaptation';sourceStatus:'NO_PUBLIC_METHOD';stage:'start'|'blocked'|'waiting_result'|'adopted'|'reported_result';choices:string[];nextUnknown:string}
+export type BoundedReply={basis:'editorial_adaptation';sourceStatus:'NO_PUBLIC_METHOD'|'PUBLIC_METHOD_NOT_USED';stage:'start'|'blocked'|'waiting_result'|'adopted'|'reported_result';choices:string[];nextUnknown:string}
 
 // An ordinary action question with no authorized public method may select a
 // small editorial action or a process question. The model cannot add a cause,
@@ -10,11 +10,12 @@ export type BoundedReply={basis:'editorial_adaptation';sourceStatus:'NO_PUBLIC_M
 // Material delivery, scheduling, listening and personal decisions keep their
 // existing contracts. This is not a second guide corpus.
 export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;contract:TurnContract;knowledgeCount:number;tier:string}):BoundedReply|null{
- if(input.tier!=='default'||input.knowledgeCount||input.contract.capabilities.material||input.contract.capabilities.plan)return null
+ const contactQuestion=/(?:联系|请教|联络)/.test(input.text)&&/(?:怎么|如何|怎样)/.test(input.text)
+ if(input.tier!=='default'||(input.knowledgeCount&&!contactQuestion)||input.contract.capabilities.material||input.contract.capabilities.plan)return null
  if(['listening_or_refusal','control','greeting','memory_query','reuse_material','professional_or_prediction_boundary'].includes(input.intent.reason))return null
  const clauses=scanUserClauses(input.text)
  const own=clauses.filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
- const make=(stage:BoundedReply['stage'],nextUnknown:string,choices:string[]):BoundedReply=>({basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage,nextUnknown,choices})
+ const make=(stage:BoundedReply['stage'],nextUnknown:string,choices:string[]):BoundedReply=>({basis:'editorial_adaptation',sourceStatus:input.knowledgeCount?'PUBLIC_METHOD_NOT_USED':'NO_PUBLIC_METHOD',stage,nextUnknown,choices})
  if(input.intent.reason==='adoption_not_method_request')return make('adopted','尚未报告实际执行或反馈',[
   '好，先沿用刚才选的那一步。愿意尝试和实际做过分开；做后告诉我发生了什么，我们再按反馈调整。',
   '好，先试刚才那一步，不重新发整套方法。还没做时不记为已执行；遇到具体阻碍再一起调整。',
@@ -36,7 +37,7 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？',
   '还没收到回复，原因和结果都先保留未知。有没有约定回复时间，或者这件事必须确认的截止时间？',
  ]}
- if(blocked&&/(?:第一题|材料打不开|做到|停在|卡在|遇到)/.test(own))return make('blocked','已知阻碍处的实际材料',[
+ if(blocked&&/(?:第[一二三四五六七八九十\d]+(?:道|个)?题|材料打不开|做到|停在|卡在|遇到)/.test(own))return make('blocked','已知阻碍处的实际材料',[
   '先处理你刚说的阻碍，不重发入门方法。把打不开的材料信息或卡住的题目发来，我们从这里继续；不方便提供也可以先暂停。',
   '已经知道这次卡住的地方，先不重复问进度。可以一起查看该处的材料或题目；如果暂时无法查看，就保留原因未知，不说方法无效。',
  ])
@@ -60,7 +61,10 @@ export function bindBoundedReplySchema(contract:TurnContract,bounded:BoundedRepl
  if(!bounded)return contract
  const schema=structuredClone(contract.schema) as {properties:Record<string,unknown>}
  schema.properties.reply={type:'string',enum:bounded.choices}
- return {...contract,schema,schemaChars:JSON.stringify(schema).length}
+ // Retrieved material remains available as context, but this selected reply
+ // makes only an editorial process request. Do not attach an unused claim.
+ delete schema.properties.citations
+ return {...contract,capabilities:{...contract.capabilities,citations:false},schema,schemaChars:JSON.stringify(schema).length}
 }
 
 export function boundedReplyAccepts(reply:string,bounded:BoundedReply|null){return !bounded||bounded.choices.includes(reply)}

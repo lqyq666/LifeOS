@@ -22,16 +22,19 @@
   "evidenceRoot": "evidence/retrieval-followup-20261010/",
   "checks": {
     "root": {
-      "passed": 133,
-      "evidence": "evidence/coze-core-launch-20261011/independent-continuation-root-first.log"
+      "passed": 136,
+      "evidence": "evidence/coze-core-launch-20261011/continued-root-first.log"
     },
     "serverTypes": "PASS",
     "frontendTypes": "PASS_BUILD_TSC",
     "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
     "maintenanceApi": {
       "passed": 1,
-      "evidence": "evidence/retrieval-followup-20261010/MAINTENANCE_HTTP.json",
-      "syntheticApprovalsOnly": true
+      "evidence": "evidence/coze-core-launch-20261011/continued-maintenance-first.log",
+      "syntheticApprovalsOnly": true,
+      "realReviewImports": 0,
+      "ownerApprovals": 0,
+      "publications": 0
     },
     "realEntry": {
       "passed": 4,
@@ -214,7 +217,20 @@
     "safetyCurrent": {
       "passed": 9,
       "evidence": "evidence/retrieval-followup-20261010/safety-confidence-final.log"
-    }
+    },
+    "repairPilot7": {
+      "status": "FAIL_BUSINESS_AND_P95_FIRST_PRESERVED",
+      "codeCommit": "25273bac5add2f49caceda078ef0406d6ffeea37",
+      "technicalCompleted": 7,
+      "total": 7,
+      "firstContentP50Ms": 2471.6373,
+      "firstContentP95Ms": 7696.6836,
+      "completeP95Ms": 7696.7272,
+      "evidence": "evidence/coze-core-launch-20261011/REPAIR_PILOT_CONTACT_TIME_25273BA_FIRST.json",
+      "replacesOriginal24": false,
+      "final20Accepted": false
+    },
+    "actualOriginalReviewImport": "READY_LOCAL_GUARDS_NO_ACCEPTED_REAL_RECEIPT_YET"
   },
   "content": {
     "revisedCards": 32,

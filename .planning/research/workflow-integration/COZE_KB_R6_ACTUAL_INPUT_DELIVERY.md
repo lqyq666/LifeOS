@@ -1,0 +1,7 @@
+# LIFEOS_KB_R6_ACTUAL_INPUT_DELIVERY
+
+R5如实指出未收到附件；主端已定位Windows shell:true拼接丢掉消息后半部分。不是要重发产品模型；本轮仅新开发执行15000原积分，零模型/批准/发布。现在通过Node直接启动官方CLI，将整条消息作为一个完整参数，真正上传所列文件。先逐份列出实际收到的文件名、字节与sha，任何缺件明确NOT_AUDITED，不读取旧稿冒充当前稿。
+
+执行附R5工单A/B：当前校园3、income4（不是6张全revision3）；真实四链完整24轮f3b3b08和另7条25273ba首次真实修复小批，两个版本分别审核，不混成同版20。当前发布仍WIP，首失败不替换。正式卡报告固定INDEPENDENT_ORIGINAL_CARD_REVIEW结构，execution.taskId=LIFEOS_KB_R6_ACTUAL_INPUT_DELIVERY、project/session绑定既有项目；当前guide/revision/guide.contentHash/每个claim准确复制真实输入，逐项核完整原文、quote定位与UTF8 hash。R4报告误挂校园locator到income/错PDFhash/无正式结构保留，不改原文件。已经下载的原件可复用，但所有支持检查对应到实际保存的全文字节，IES只短引文不能ready。至少校园一张真实原文完整回执正常维护入口等本人批准，仍不是真人批准。
+
+四链与修复小批各自报告INDEPENDENT_REAL_CHAIN_REVIEW（原件SHA、精确caseId/requestId和当前requestId对应读回message，六轴PASS/FAIL/NOT_TESTED+具体原文证据/读回位置），不能凭checks布尔或小批代替真实连续性。原24轮course4实际WEEKLY_PLAN_INVALID、收费/空首内容保留；7条小批也有语义失败和7.70秒首内容p95，不能说全过。没有实际数据不拟评分。允许对全量看过后给具体修复建议，但主生成者仍要自己修和验证。持久化原文全文、来源工件manifest、两份审核报告并给actualcommit+每个原件/全文/报告sha及路径。零生产/产品模型/治理修改。

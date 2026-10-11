@@ -47,3 +47,10 @@ test('real-chain first failures: contact is not delivery and known feedback is n
  const result=make('我已经交付了一张社团海报，对方已经采用，已经付款300元。')!
  assert.ok(result.choices.every(s=>!s.includes('第一单')&&!s.includes('确认需求')&&!s.includes('跑通')))
 })
+test('new real pilot natural forms retain progress and bound contact without pretending to use a public method',()=>{
+ assert.equal(make('好，我愿意尝试刚才那一步，还没有发出去。')!.stage,'adopted')
+ assert.ok(make('我是成年大学生，刚才开始复习，已经在第一道题卡住了。接下来怎么继续？')!.choices.every(s=>!s.includes('停在哪一步')))
+ const contact=make('我想请教学姐她的项目怎么用于实习，应该先怎么联系？',{knowledgeCount:1})!
+ assert.equal(contact.sourceStatus,'PUBLIC_METHOD_NOT_USED')
+ assert.ok(contact.choices.every(s=>!s.includes('很难')&&!s.includes('压力')&&!s.includes('交付')))
+})

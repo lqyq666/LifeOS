@@ -34,6 +34,10 @@ test('normal authenticated maintenance API binds actual account receipts, denies
   await pool.query('UPDATE kb_maintenance_drafts SET bundle=$3 WHERE guide_id=$1 AND revision=$2',[card.id,card.revision,originalBundle])
   const detail=(await call(reviewer.cookie,path)).body,sourceHashes=[...new Set(detail.bundle.sources.map((s:any)=>s.original_fingerprint))].sort(),action={contentHash:detail.contentHash,sourceHashes,notes:'SYNTHETIC fixture only, explicitly checked every bounded claim and original source locator',claimChecks:card.guide.claims.map((c:any)=>c.id)}
   assert.equal(detail.bundle.reviewPreparation.contentHash,detail.contentHash)
+  assert.deepEqual(detail.externalReviews,[],'actual registered pilot review is not an original-card review')
+  assert.equal((await call(publisher.cookie,path+'/actions',{...action,action:'import_review',executionId:'fake'})).body.error,'KB_MAINTENANCE_FORBIDDEN')
+  assert.equal((await call(editor.cookie,path+'/actions',{...action,action:'import_review',executionId:'fake'})).body.error,'INDEPENDENT_EXECUTION_NOT_BOUND')
+  assert.equal((await call(editor.cookie,path+'/actions',{...action,action:'import_review',executionId:'coze-kb-r3-real-small'})).body.error,'INDEPENDENT_CARD_SCOPE_INVALID')
   assert.equal(detail.bundle.reviewPreparation.status,'PREPARED_NOT_INDEPENDENTLY_EXECUTED')
   assert.equal(detail.bundle.reviewPreparation.claimChecks.length,card.guide.claims.length)
   assert.equal(detail.bundle.base.revision,card.revision-1)

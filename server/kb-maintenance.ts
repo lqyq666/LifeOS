@@ -5,6 +5,7 @@ import {validateKnowledge,type KnowledgeCard} from './campus-knowledge.ts'
 import {guideContentHash,kbHash,stableJson} from './evergreen-guide.ts'
 import {importEvergreenWithin} from './evergreen-maintenance.ts'
 import {checkMaintenance,type MaintenanceCandidate,type MaintenanceReviewReceipt} from './workflows/knowledge-maintenance.ts'
+import {availableOriginalCardReviews,readOriginalCardReview} from './independent-review.ts'
 type Bundle={card:KnowledgeCard;base:KnowledgeCard;producerId:string;sources:any[];evidence:any[];coverage:any[];reviewPreparation?:{contentHash:string;status:string;questions:{target:string;text:string}[];claimChecks:{claimId:string}[]}}
 const allowed=(name:string,actor:string)=>(process.env[name]??'').split(',').map(x=>x.trim()).filter(Boolean).includes(actor)
 export const maintenancePermissions=(actor:string)=>({edit:allowed('LIFEOS_KB_MAINTAINER_IDS',actor),review:allowed('LIFEOS_KB_REVIEWER_IDS',actor),publish:allowed('LIFEOS_KB_PUBLISHER_IDS',actor)})
@@ -40,29 +41,38 @@ export async function listMaintenanceDrafts(actor:string){requirePermission(acto
 export async function readMaintenanceDraft(actor:string,id:string,revision:number){
  requirePermission(actor,'read');const row=(await pool.query('SELECT * FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision=$2',[id,revision])).rows[0];if(!row)throw new HttpError(404,'KB_DRAFT_NOT_FOUND')
  const receipts=(await pool.query('SELECT * FROM kb_maintenance_receipts WHERE guide_id=$1 AND revision=$2 ORDER BY created_at,id',[id,revision])).rows
- return {guideId:id,revision,contentHash:row.content_hash,status:row.status,permissions:maintenancePermissions(actor),bundle:row.bundle,receipts,publicationGate:row.status==='waiting_approval'?'WAITING_AUTHORIZED_HUMAN_APPROVAL':['published','rejected','cancelled'].includes(row.status)?row.status.toUpperCase():'WAITING_INDEPENDENT_REVIEW',independentExecutionProof:'Authenticated distinct account execution only; synthetic tests never count as actual review.'}
+ return {guideId:id,revision,contentHash:row.content_hash,status:row.status,permissions:maintenancePermissions(actor),bundle:row.bundle,receipts,externalReviews:availableOriginalCardReviews(row.bundle.card,row.bundle.sources,row.bundle.evidence),publicationGate:row.status==='waiting_approval'?'WAITING_AUTHORIZED_HUMAN_APPROVAL':['published','rejected','cancelled'].includes(row.status)?row.status.toUpperCase():'WAITING_INDEPENDENT_REVIEW',independentExecutionProof:'Authenticated distinct account review or hash-verified original-source external execution; synthetic tests never count as actual review.'}
 }
 export async function actOnMaintenanceDraft(actor:string,id:string,revision:number,input:unknown){
  if(!input||typeof input!=='object'||Array.isArray(input))throw new HttpError(400,'KB_ACTION_INVALID')
- const a=input as Record<string,unknown>,keys=['action','contentHash','sourceHashes','notes','claimChecks']
- if(Object.keys(a).some(k=>!keys.includes(k))||typeof a.action!=='string'||!['review','approve','question','return','reject','cancel'].includes(a.action)||typeof a.notes!=='string'||a.notes.trim().length<8||!Array.isArray(a.sourceHashes)||!Array.isArray(a.claimChecks))throw new HttpError(400,'KB_ACTION_INVALID')
- const action=a.action,providedSourceHashes=a.sourceHashes as unknown[],claimChecks=a.claimChecks as unknown[];requirePermission(actor,action==='review'?'review':action==='approve'?'publish':action==='cancel'?'edit':'read')
+ const a=input as Record<string,unknown>,keys=['action','contentHash','sourceHashes','notes','claimChecks','executionId']
+ if(Object.keys(a).some(k=>!keys.includes(k))||typeof a.action!=='string'||!['import_review','review','approve','question','return','reject','cancel'].includes(a.action)||typeof a.notes!=='string'||a.notes.trim().length<8||!Array.isArray(a.sourceHashes)||!Array.isArray(a.claimChecks)||(a.action==='import_review'?typeof a.executionId!=='string'||!a.executionId: a.executionId!==undefined))throw new HttpError(400,'KB_ACTION_INVALID')
+ const action=a.action,providedSourceHashes=a.sourceHashes as unknown[],claimChecks=a.claimChecks as unknown[];requirePermission(actor,action==='review'?'review':action==='approve'?'publish':['cancel','import_review'].includes(action)?'edit':'read')
  return transaction(async c=>{
   const row=(await c.query('SELECT * FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision=$2 FOR UPDATE',[id,revision])).rows[0];if(!row)throw new HttpError(404,'KB_DRAFT_NOT_FOUND')
   const b=row.bundle as Bundle;verifyBundle(b)
   if(['rejected','cancelled','published'].includes(row.status))throw new HttpError(409,'KB_DRAFT_CLOSED')
   if(a.contentHash!==row.content_hash||stableJson([...new Set(providedSourceHashes)].sort())!==stableJson(sourceHashes(b)))throw new HttpError(409,'KB_DRAFT_CHANGED')
-  if(['review','approve'].includes(action)){
-   if(actor===row.producer_id||actor===row.queued_by)throw new HttpError(403,'KB_INDEPENDENT_EXECUTION_REQUIRED')
+  let external:ReturnType<typeof readOriginalCardReview>|undefined
+  if(action==='import_review'){
+   try{external=readOriginalCardReview(a.executionId as string,b.card,b.sources,b.evidence)}catch(e){throw new HttpError(409,e instanceof Error?e.message:'INDEPENDENT_REVIEW_INVALID')}
+   if(external.reviewerId===row.producer_id||external.reviewerId===row.queued_by||external.reviewerId===actor)throw new HttpError(403,'KB_INDEPENDENT_EXECUTION_REQUIRED')
+  }
+  if(['import_review','review','approve'].includes(action)){
+   if(action!=='import_review'&&(actor===row.producer_id||actor===row.queued_by))throw new HttpError(403,'KB_INDEPENDENT_EXECUTION_REQUIRED')
    const claims=b.card.guide!.claims.map(x=>x.id).sort();if(stableJson([...new Set(claimChecks)].sort())!==stableJson(claims))throw new HttpError(400,'KB_CLAIM_CHECKS_REQUIRED')
    for(const s of b.sources){const current=(await c.query('SELECT status,content_hash FROM kb_sources WHERE source_id=$1 AND revision=$2 FOR SHARE',[s.source_id,s.source_revision])).rows[0];if(current&&(current.status!=='body_accessible'||current.content_hash!==s.original_fingerprint))throw new HttpError(409,'KB_SOURCE_CHANGED')}
   }
   const old=(await c.query('SELECT * FROM kb_maintenance_receipts WHERE guide_id=$1 AND revision=$2 ORDER BY created_at DESC',[id,revision])).rows
   const review=old.find(x=>x.kind==='independent_review'&&x.decision==='approve')
   if(action==='approve'&&(row.status!=='waiting_approval'||!review||review.actor_id===actor))throw new HttpError(403,'KB_INDEPENDENT_REVIEW_REQUIRED')
-  const receiptId=randomUUID(),kind=action==='review'?'independent_review':action==='approve'?'human_release':action,decision=['review','approve'].includes(action)?'approve':action==='reject'?'reject':action==='cancel'?'cancel':'needs_review'
-  await c.query('INSERT INTO kb_maintenance_receipts(id,guide_id,revision,actor_id,kind,content_hash,source_hashes,decision,notes,claim_checks) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[receiptId,id,revision,actor,kind,row.content_hash,JSON.stringify(sourceHashes(b)),decision,a.notes,JSON.stringify(a.claimChecks)])
-  let status=action==='review'?'waiting_approval':action==='reject'?'rejected':action==='cancel'?'cancelled':'needs_review'
+  if(action==='approve'&&review.actor_id.startsWith('coze:')){
+   try{const proof=JSON.parse(review.notes);const checked=readOriginalCardReview(proof.executionId,b.card,b.sources,b.evidence);if(proof.kind!=='IMPORTED_OBSERVED_ORIGINAL_REVIEW'||proof.reportSha256!==checked.reportSha256||checked.reviewerId!==review.actor_id)throw Error('INDEPENDENT_RECEIPT_CHANGED')}catch(e){throw new HttpError(409,e instanceof Error?e.message:'INDEPENDENT_RECEIPT_INVALID')}
+  }
+  const receiptId=randomUUID(),kind=['review','import_review'].includes(action)?'independent_review':action==='approve'?'human_release':action,decision=['import_review','review','approve'].includes(action)?'approve':action==='reject'?'reject':action==='cancel'?'cancel':'needs_review'
+  const receiptNotes=external?JSON.stringify({kind:'IMPORTED_OBSERVED_ORIGINAL_REVIEW',executionId:external.executionId,reportPath:external.reportPath,reportSha256:external.reportSha256,taskId:external.taskId,cloudCommit:external.cloudCommit,importedBy:actor,notes:a.notes,claimChecks:external.review.claimChecks}):a.notes
+  await c.query('INSERT INTO kb_maintenance_receipts(id,guide_id,revision,actor_id,kind,content_hash,source_hashes,decision,notes,claim_checks) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[receiptId,id,revision,external?.reviewerId??actor,kind,row.content_hash,JSON.stringify(sourceHashes(b)),decision,receiptNotes,JSON.stringify(a.claimChecks)])
+  let status=['review','import_review'].includes(action)?'waiting_approval':action==='reject'?'rejected':action==='cancel'?'cancelled':'needs_review'
   if(action==='approve'){
    const readings=b.evidence.map(e=>{const s=b.sources.find(s=>s.source_id===e.source_id)!;return {url:s.canonical_url,canonicalOrigin:new URL(s.canonical_url).origin,revision:s.source_revision,sourceHash:s.original_fingerprint,readerId:'public-original-reader',quote:e.quote,actuallyRead:true,withdrawn:false}})
    const candidate:MaintenanceCandidate={guideId:id,revision,contentHash:row.content_hash,producerId:row.producer_id,readings,claims:b.card.guide!.claims.map(cl=>{const ev=b.evidence.find(e=>cl.evidenceIds.includes(e.evidence_id))!;return {id:cl.id,text:cl.text,sourceHash:b.sources.find(s=>s.source_id===ev.source_id)!.original_fingerprint,quote:ev.quote,support:cl.basis==='editorial_adaptation'?'lifeos_adaptation':'source_supported'}}),coverage:b.coverage.map(x=>({candidateId:x.candidate_id,status:x.status,destination:x.guide_id})),skeptic:{reviewerId:review.actor_id,issues:[],reviewedContentHash:review.content_hash,receiptId:review.id},release:{humanReviewerId:actor,reviewedContentHash:row.content_hash,approved:true,receiptId}}

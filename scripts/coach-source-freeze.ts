@@ -26,7 +26,10 @@ export function captureCoachSource(root=process.cwd()){
   if(existsSync(independentRegistry)){
     visit(independentRegistry)
     const registry=JSON.parse(readFileSync(independentRegistry,'utf8'))
-    for(const entry of registry.executions??[])for(const field of ['proofPath','reportPath','inputPath'])visit(resolve(base,entry[field]))
+    for(const entry of registry.executions??[]){
+      for(const field of ['proofPath','reportPath','inputPath'])visit(resolve(base,entry[field]))
+      for(const artifact of entry.artifacts??[])visit(resolve(base,artifact.path))
+    }
   }
   files.sort((a,b)=>a.path.localeCompare(b.path))
   for(const required of ['package.json','server/turn-engine.ts','server/action-coach-contracts.ts','src/backend/client.ts'])if(!files.some(file=>file.path===required))throw new Error('SOURCE_FREEZE_INCOMPLETE')

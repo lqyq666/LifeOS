@@ -23,6 +23,7 @@ export type TurnObligations = {
   kind:'ordinary'|'update_weekly_time'|'direction_control'|'resume_portfolio'|'mixed'
   requiredEffects:RequiredEffect[]
 }
+const arrangementRequest=/(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|(?:请(?:帮我)?|帮我)(?:安排|排)|改一下安排|调整.{0,4}安排|重新(?:安排|排)|再(?:安排|排)一?(?:次|下)?|怎么(?:安排|排|规划)/
 // N2.3: only an explicit request to arrange/re-arrange creates a plan
 // obligation; stating a weekly budget alone only requires the fact.
 export function weeklyPlanIntent(text:string):{period:'current'|'this_week'|'next_week'}|null{
@@ -31,7 +32,7 @@ export function weeklyPlanIntent(text:string):{period:'current'|'this_week'|'nex
       const body=clause.text.trim()
       if(!body)continue
       if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)continue
-      if(/(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|帮我(?:安排|排)|改一下安排|调整.{0,4}安排|重新(?:安排|排)|再(?:安排|排)一?(?:次|下)?|怎么(?:安排|排|规划)/.test(body)){
+      if(arrangementRequest.test(body)){
         // P2 (B10): a past-tense question (怎么安排的) asks what WAS done, not
         // for a plan.
         if(/怎么(?:安排|排|规划)的[？?]?$/.test(body))continue
@@ -253,7 +254,7 @@ export function requestsTimeArrangement(text:string):boolean{
     const body=clause.text.trim()
     if(!body)continue
     if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)continue
-    if(/(?:安排|计划)(?:帮我)?(?:改|调整|修改|更新|排|重新)|帮我(?:安排|排)|改一下安排|调整.{0,4}安排|重新(?:安排|排)|再(?:安排|排)一?(?:次|下)?|怎么(?:安排|排|规划)/.test(body)){
+    if(arrangementRequest.test(body)){
       if(/怎么(?:安排|排|规划)的[？?]?$/.test(body))continue
       return true
     }
