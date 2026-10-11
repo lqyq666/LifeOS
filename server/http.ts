@@ -2,7 +2,7 @@ import {entitlementView} from './entitlements.ts'
 import { coachHistoryView } from './coach-history.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
 import { eventSearchSchema } from './action-coach-contracts.ts'
-import { openingQuestionDraft } from './reply-draft.ts'
+import { openingQuestionDraft, safeEarlySentence } from './reply-draft.ts'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { readFileSync, existsSync } from 'node:fs'
 import { resolve, extname, sep } from 'node:path'
@@ -227,7 +227,13 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
             }
             const result=await engine({run,staged,context,decision:versions[0]?.payload,signal:controller.signal,focusContext,emit:event=>{
               if(controller.signal.aborted)return
-              if(event.type==='draft'&&typeof event.text==='string'&&event.saved===false&&openingQuestionDraft(JSON.stringify({reply:event.text}))===event.text)sse(res,{type:'draft',text:event.text,saved:false})
+              if(event.type==='draft'&&typeof event.text==='string'&&event.saved===false){
+                const question=openingQuestionDraft(JSON.stringify({reply:event.text}))===event.text
+                // Only the engine's validated sentence lane can use this path;
+                // arbitrary draft events retain the stricter question guard.
+                const sentence=event.draftKind==='safe_sentence'&&safeEarlySentence(JSON.stringify({reply:event.text+'。'}))===event.text
+                if(question||sentence)sse(res,{type:'draft',text:event.text,saved:false})
+              }
               if(event.type==='draft_discarded')sse(res,{type:'draft_discarded'})
               if(event.type==='tool'&&typeof event.name==='string'&&typeof event.status==='string')safeEvents.push(event)
             }})
