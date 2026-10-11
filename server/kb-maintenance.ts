@@ -27,6 +27,7 @@ export async function queueMaintenancePack(actor:string){
  return transaction(async c=>{
   let queued=0
   for(const card of pack.drafts as KnowledgeCard[]){
+   await c.query('SELECT pg_advisory_xact_lock(hashtext($1)::bigint)',['lifeos-kb:'+card.id])
    const prior=(pack.draftHistory as KnowledgeCard[]|undefined)?.find(x=>x.id===card.id&&x.revision===card.revision-1)
    if(prior){validateKnowledge(prior);if(!prior.guide||prior.guide.contentHash!==guideContentHash(prior.guide)||prior.status!=='unverified'||prior.guide.reviewStatus!=='needs_review')throw new HttpError(400,'KB_DRAFT_HISTORY_INVALID')}
    const refs=card.guide!.evidenceIds,ev=evidence.filter(e=>refs.includes(e.evidence_id)),ss=sources.filter(s=>ev.some(e=>e.source_id===s.source_id&&e.source_revision===s.source_revision)),bundle:Bundle=scopedBundle({card,base:prior??base.find(x=>x.id===card.id),producerId:pack.producerId,sources:ss,evidence:ev,coverage,reviewPreparation:pack.reviewPreparation?.find((p:any)=>p.guideId===card.id&&p.revision===card.revision)})
@@ -41,7 +42,8 @@ export async function listMaintenanceDrafts(actor:string){requirePermission(acto
 export async function readMaintenanceDraft(actor:string,id:string,revision:number){
  requirePermission(actor,'read');const row=(await pool.query('SELECT * FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision=$2',[id,revision])).rows[0];if(!row)throw new HttpError(404,'KB_DRAFT_NOT_FOUND')
  const receipts=(await pool.query('SELECT * FROM kb_maintenance_receipts WHERE guide_id=$1 AND revision=$2 ORDER BY created_at,id',[id,revision])).rows
- return {guideId:id,revision,contentHash:row.content_hash,status:row.status,permissions:maintenancePermissions(actor),bundle:row.bundle,receipts,externalReviews:availableOriginalCardReviews(row.bundle.card,row.bundle.sources,row.bundle.evidence),publicationGate:row.status==='waiting_approval'?'WAITING_AUTHORIZED_HUMAN_APPROVAL':['published','rejected','cancelled'].includes(row.status)?row.status.toUpperCase():'WAITING_INDEPENDENT_REVIEW',independentExecutionProof:'Authenticated distinct account review or hash-verified original-source external execution; synthetic tests never count as actual review.'}
+ const newer=(await pool.query('SELECT revision FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision>$2 ORDER BY revision DESC LIMIT 1',[id,revision])).rows[0]
+ return {guideId:id,revision,contentHash:row.content_hash,status:row.status,supersededBy:newer?.revision??null,permissions:maintenancePermissions(actor),bundle:row.bundle,receipts,externalReviews:availableOriginalCardReviews(row.bundle.card,row.bundle.sources,row.bundle.evidence),publicationGate:newer?'SUPERSEDED_REVIEW_NEW_VERSION':row.status==='waiting_approval'?'WAITING_AUTHORIZED_HUMAN_APPROVAL':['published','rejected','cancelled'].includes(row.status)?row.status.toUpperCase():'WAITING_INDEPENDENT_REVIEW',independentExecutionProof:'Authenticated distinct account review or hash-verified original-source external execution; synthetic tests never count as actual review.'}
 }
 export async function actOnMaintenanceDraft(actor:string,id:string,revision:number,input:unknown){
  if(!input||typeof input!=='object'||Array.isArray(input))throw new HttpError(400,'KB_ACTION_INVALID')
@@ -49,10 +51,12 @@ export async function actOnMaintenanceDraft(actor:string,id:string,revision:numb
  if(Object.keys(a).some(k=>!keys.includes(k))||typeof a.action!=='string'||!['import_review','review','approve','question','return','reject','cancel'].includes(a.action)||typeof a.notes!=='string'||a.notes.trim().length<8||!Array.isArray(a.sourceHashes)||!Array.isArray(a.claimChecks)||(a.action==='import_review'?typeof a.executionId!=='string'||!a.executionId: a.executionId!==undefined))throw new HttpError(400,'KB_ACTION_INVALID')
  const action=a.action,providedSourceHashes=a.sourceHashes as unknown[],claimChecks=a.claimChecks as unknown[];requirePermission(actor,action==='review'?'review':action==='approve'?'publish':['cancel','import_review'].includes(action)?'edit':'read')
  return transaction(async c=>{
+  await c.query('SELECT pg_advisory_xact_lock(hashtext($1)::bigint)',['lifeos-kb:'+id])
   const row=(await c.query('SELECT * FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision=$2 FOR UPDATE',[id,revision])).rows[0];if(!row)throw new HttpError(404,'KB_DRAFT_NOT_FOUND')
   const b=row.bundle as Bundle;verifyBundle(b)
   if(['rejected','cancelled','published'].includes(row.status))throw new HttpError(409,'KB_DRAFT_CLOSED')
   if(a.contentHash!==row.content_hash||stableJson([...new Set(providedSourceHashes)].sort())!==stableJson(sourceHashes(b)))throw new HttpError(409,'KB_DRAFT_CHANGED')
+  if(['import_review','review','approve'].includes(action)&&(await c.query('SELECT 1 FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision>$2 LIMIT 1',[id,revision])).rowCount)throw new HttpError(409,'KB_DRAFT_SUPERSEDED')
   let external:ReturnType<typeof readOriginalCardReview>|undefined
   if(action==='import_review'){
    try{external=readOriginalCardReview(a.executionId as string,b.card,b.sources,b.evidence)}catch(e){throw new HttpError(409,e instanceof Error?e.message:'INDEPENDENT_REVIEW_INVALID')}

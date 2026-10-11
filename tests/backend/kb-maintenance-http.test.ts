@@ -54,6 +54,14 @@ test('normal authenticated maintenance API binds actual account receipts, denies
   assert.equal(detail.bundle.base.revision,card.revision-1)
   assert.equal(detail.bundle.base.guide.contentHash,pack.draftHistory.find((c:any)=>c.id===card.id&&c.revision===card.revision-1).guide.contentHash)
   assert.equal(detail.bundle.reviewPreparation.branchChecks.length,6)
+  const newer=structuredClone(originalBundle);newer.base=structuredClone(card);newer.card.revision=card.revision+1
+  await pool.query("INSERT INTO kb_maintenance_drafts(guide_id,revision,content_hash,producer_id,queued_by,status,bundle) VALUES($1,$2,$3,$4,$5,'needs_review',$6)",[card.id,card.revision+1,newer.card.guide.contentHash,newer.producerId,editor.id,newer])
+  assert.equal((await call(reviewer.cookie,path)).body.supersededBy,card.revision+1)
+  for(const [cookie,a] of [[editor.cookie,'import_review'],[reviewer.cookie,'review'],[publisher.cookie,'approve']] as const){
+    assert.equal((await call(cookie,path+'/actions',{...action,action:a,...(a==='import_review'?{executionId:'fake'}:{})})).body.error,'KB_DRAFT_SUPERSEDED')
+  }
+  // Remove only the explicitly synthetic newer row in this disposable DB.
+  await pool.query('DELETE FROM kb_maintenance_drafts WHERE guide_id=$1 AND revision=$2',[card.id,card.revision+1])
   await assert.rejects(readApprovedGuide(card.id,card.revision))
   assert.equal((await call(editor.cookie,path+'/actions',{...action,action:'review'})).body.error,'KB_INDEPENDENT_EXECUTION_REQUIRED')
   assert.equal((await call(publisher.cookie,path+'/actions',{...action,action:'approve',reviewerId:reviewer.id,receiptId:randomUUID()})).body.error,'KB_ACTION_INVALID')

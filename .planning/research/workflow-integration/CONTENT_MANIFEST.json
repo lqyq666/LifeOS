@@ -1,6 +1,6 @@
 {
   "version": "workflow-v2-integration-0c4ce842100e",
-  "at": "2026-10-11T04:46:48.809Z",
+  "at": "2026-10-11T04:58:14.453Z",
   "formalCorpusModified": false,
   "formalGuideReviewCounts": {
     "approved": 16,
@@ -40,15 +40,15 @@
     ".planning/research/evergreen/KB_BATCH_SOURCE_READINGS.json": "e0e9e9d8c7b6901152839b9e04d4dc77cc92bdaacaa728f340093a557c04c8e9",
     ".planning/research/evergreen/KB_BROWSER_REPORT.json": "68f5e928118e050c0b908b632bb3256c7a2961adc87728e49f9ab090c80e62e3",
     ".planning/research/evergreen/KB_CARD_REGRESSIONS.json": "732850de84b366d6ea24eb764bf04f0ced63749b80dc80fc7adc2f9c38f3f708",
-    ".planning/research/evergreen/KB_CONTENT_REVISIONS.json": "3bab6ea31a759aa38803bfdb036e6f60ec159fdb3827f446379ae0e6d1533e77",
+    ".planning/research/evergreen/KB_CONTENT_REVISIONS.json": "042851ed96c5393118124f5b6e11c8089cc20cdef97bef0f176eb9f36f2d2a69",
     ".planning/research/evergreen/KB_CONTEXT_DESIGN.md": "448b227f53fa2c8bda6e0f5b9012e97de294a99b30774b444bba555e2949ce3c",
-    ".planning/research/evergreen/KB_COVERAGE.json": "ee5d77c76704ddbfd468ea8c0c425888fad720828a701c3a8c567cd5f195ee38",
+    ".planning/research/evergreen/KB_COVERAGE.json": "c48e20b6d0b37e0c6f8175f9891875336c89209db70af649818bddc9d8c6d64b",
     ".planning/research/evergreen/KB_DUPLICATES_REPORT.md": "e127c4815589b7acc366d69ba1a20ca023f63229781bbf1998e200c6b60cd07f",
     ".planning/research/evergreen/KB_EVIDENCE.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
     ".planning/research/evergreen/KB_EVIDENCE_REOPEN.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
     ".planning/research/evergreen/KB_FREEZE.json": "ea1bff4f950427b151e850f57cae7841736d72940d2d9c22536179bff3eed806",
-    ".planning/research/evergreen/KB_GAP_RESEARCH.json": "e7a623863016b6d7ba037dc56049df7f63c4e2c7fbff201cb33e7787f15071f4",
-    ".planning/research/evergreen/KB_GAPS.md": "0645bb6e2b5ec7165bec5aab71642e43d46e5b7978b2a25db6b8838c2e9fce20",
+    ".planning/research/evergreen/KB_GAP_RESEARCH.json": "430f67cb398c58046a79229d28dd643097d7227a1fdffef1a4dcd89a8625f2b2",
+    ".planning/research/evergreen/KB_GAPS.md": "85d87f386df5e1b1123275b960f9a363f9374adf2ba30384667fbf124e84580e",
     ".planning/research/evergreen/KB_GUIDES.jsonl": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
     ".planning/research/evergreen/KB_IMPLEMENTATION_FREEZE.json": "648de33f8de5c3c36124c3fa750e091c22066eab1dab7f3a687d9e4b2322b0ad",
     ".planning/research/evergreen/KB_INDEX_LOAD_REPORT.json": "50a589965504298c69966aed04193a53b4439cd211b90706ab85648f368725b7",
@@ -65,7 +65,7 @@
     ".planning/research/evergreen/KB_RETRIEVAL_RESERVE.json": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
     ".planning/research/evergreen/KB_RETRIEVAL_RESERVE_FREEZE.json": "74df04cafd7d4de608a54222ef90aa5794443d509947b82d38f022e7ece4845a",
     ".planning/research/evergreen/KB_SEMANTIC_REVIEW.json": "1098fcb1688768f6a343eac608aa09342dd132de27faed729668d7729e62ff43",
-    ".planning/research/evergreen/KB_SOURCE_FOLLOWUP.json": "4ef293b5b8b403fc08a6a7e98849b5029eb98b159f1c854f1d79306e0496c18b",
+    ".planning/research/evergreen/KB_SOURCE_FOLLOWUP.json": "23646354523bb72ff26d1922ba30a1d20cea3f361da8211fd359568cab76a602",
     ".planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
     ".planning/research/evergreen/KB_SOURCE_REOPEN.jsonl": "4bb93c3397ae690400c16cba4a66c39d8e2db1d7c65677f375354cb6bd81f509",
     ".planning/research/evergreen/KB_TAXONOMY.json": "63d6cf11f2b7633035b3044a2e233a2470b49d79abcd13c290a46699c6845e70",
@@ -727,7 +727,7 @@
     "researchRows": 59,
     "newUsableSources": 13,
     "newLocatedQuotes": 20,
-    "draftsSupplemented": 19,
+    "draftsSupplemented": 20,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 11,
@@ -796,8 +796,8 @@
     {
       "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
       "canonicalKey": "first-contact",
-      "revision": 4,
-      "contentHash": "22c0c5241cd873dab14590d039a45ca0de09a21cd35fe614d182e4338ae5f6dd",
+      "revision": 5,
+      "contentHash": "ec38e0bf090e67d2cd6880a4beca6657bcb321245a5cd786db55b67f3aa31c2c",
       "observedExternalReports": [
         {
           "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
@@ -1520,5 +1520,18 @@
       "humanApproval": null,
       "published": false
     }
-  ]
+  ],
+  "browserMaintenanceReceipt": {
+    "scope": "ACTUAL_NORMAL_BROWSER_IMPORT_ON_ISOLATED_SYNTHETIC_ACCOUNT",
+    "runtimeHead": "1d711d2bfda93dcbff59003e60fb893232900aaa",
+    "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+    "revision": 3,
+    "executionId": "coze-kb-r8-original-cards",
+    "receiptId": "5a7e6676-ac9f-4263-b4de-362bbb235729",
+    "status": "waiting_approval",
+    "actualExternalOriginal": true,
+    "humanApproval": false,
+    "published": false,
+    "evidence": "evidence/coze-core-launch-20261011/current-ui-1d711d2-api-readback.json"
+  }
 }

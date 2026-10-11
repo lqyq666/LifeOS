@@ -38,6 +38,8 @@ test('first-contact branches cannot borrow mentor evidence for social, career or
  }
  const previous=pack.draftHistory.find((c:any)=>c.id===card.id&&c.revision===card.revision-1)
  assert.equal(prep.previousDraftHash,guideContentHash(previous.guide))
+ assert.ok(!card.guide.referenceBody.includes('边界：从零社交的任务对应原文仍缺'),'current body cannot retain an obsolete full-gap paragraph beside the sourced branch')
+ for(const id of ['C01-3','C25-1'])for(const step of branch(id).steps)assert.ok(card.guide.referenceBody.includes(step.text),'structured and visible method steps agree')
  for(const [id,source] of [['C07-3','career-author'],['C13-4','pku-recommendation'],['C20-3','pg-first-users']])assert.ok(branch(id).steps.every((s:any)=>s.evidenceIds.length>0&&s.evidenceIds.every((e:string)=>e.startsWith(source))))
  assert.ok(branch('C09-1').steps.some((s:any)=>s.evidenceIds.some((id:string)=>id.startsWith('ustc-mentor-choice'))))
  assert.equal(new Set(prep.branchChecks.map((b:any)=>b.candidateId)).size,6)
