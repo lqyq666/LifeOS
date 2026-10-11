@@ -1,0 +1,20 @@
+{
+  "kind": "PREDECLARED_NEW_CRITIC_BOUND_CANDIDATE_FIRST_ATTEMPTS",
+  "priorEvidence": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_1e40235_FIRST_FAILURE.json",
+  "observed": "7 actual calls completed; two critic_check failures. Unknowns were selected as blocker; one reply also selected all catalogue problem types. Known paid fees 0.0158119 CNY retained.",
+  "hypothesis": "Native contract separates ordinary uncertainty from blocking unsupported/contradictory candidate claims. Every blocker locates a real candidate claim and original evidence; direction rejection requires a matching blocker. Concrete false claims still stop synthesis; there is no automatic downgrade of invalid model output.",
+  "localProof": [
+    "CRITIC_UNKNOWN_FIRST_FAIL.log",
+    "CRITIC_SCOPE_PASS.log",
+    "CRITIC_SCOPE_BASIS_PASS.log",
+    "CRITIC_SCOPE_DIRECTION_PASS.log",
+    "CRITIC_SCOPE_TYPES.log"
+  ],
+  "scope": "same 2 predefined synthetic adult business cases, new frozen candidate and new first IDs, prior attempts retained",
+  "pilotReservationCeilingCny": 1,
+  "normalGenerationsMaximum": 9,
+  "automaticPaidRepairs": 0,
+  "newBudgetCny": 0,
+  "independentReview": "PENDING_ACTUAL_EXECUTION",
+  "release": "WIP_NOT_READY"
+}

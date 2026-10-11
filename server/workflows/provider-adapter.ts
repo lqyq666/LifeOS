@@ -16,7 +16,10 @@ import type {NodeContext,WorkflowNode} from './orchestrator.ts'
 const object=<T extends Parameters<typeof Type.Object>[0]>(fields:T)=>Type.Object(fields,{additionalProperties:false})
 const ids=Type.Array(Type.String({minLength:1,maxLength:80}),{maxItems:12,uniqueItems:true})
 const analystSchema=object({evidenceIds:ids,tradeoffIds:ids,unknownIds:ids,actionIds:ids,evidenceRelations:Type.Optional(Type.Array(object({evidenceId:Type.String(),relation:Type.Union([Type.Literal('support'),Type.Literal('limit'),Type.Literal('unknown')])}),{maxItems:12})),actionBasis:Type.Optional(Type.Array(object({actionId:Type.String(),evidenceIds:ids,unknownIds:ids,stageReasonId:Type.Optional(Type.String({minLength:1,maxLength:80}))}),{maxItems:12}))})
-const criticSchema=object({issues:Type.Array(object({severity:Type.Union([Type.Literal('blocker'),Type.Literal('needs_clarification'),Type.Literal('uncertainty')]),issueId:Type.String(),evidenceIds:ids}),{maxItems:12}),rejectedDirections:ids})
+const criticSchema=object({issues:Type.Array(Type.Union([
+ object({severity:Type.Union([Type.Literal('blocker'),Type.Literal('needs_clarification')]),issueId:Type.Union([Type.Literal('unsupported'),Type.Literal('contradiction')]),evidenceIds:Type.Array(Type.String(),{minItems:1,maxItems:12,uniqueItems:true}),claimIds:Type.Array(Type.String(),{minItems:1,maxItems:4,uniqueItems:true})}),
+ object({severity:Type.Union([Type.Literal('needs_clarification'),Type.Literal('uncertainty')]),issueId:Type.Union(['motivation','fit','unknown','adoption','role_evidence','repeatability'].map(x=>Type.Literal(x))),evidenceIds:ids,claimIds:Type.Optional(ids)})
+ ]),{maxItems:12}),rejectedDirections:ids})
 const synthesisSchema=object({directionOrder:ids,actionIds:ids})
 export function bindWorkflowSelectionSchema(schema:typeof analystSchema|typeof criticSchema|typeof synthesisSchema,context:Record<string,any>){
  // TypeBox reuses the same ids object in several properties. JSON schema is
@@ -30,8 +33,8 @@ export function bindWorkflowSelectionSchema(schema:typeof analystSchema|typeof c
  item(p.evidenceRelations?.items?.properties?.evidenceId,facts)
  const basis=p.actionBasis?.items?.properties
  if(basis){item(basis.actionId,actions);list(basis.evidenceIds,facts);list(basis.unknownIds,unknowns);item(basis.stageReasonId,Object.keys(context.stageReasons??{}))}
- const issue=p.issues?.items?.properties
- if(issue){item(issue.issueId,Object.keys(context.issues??{}));list(issue.evidenceIds,facts)}
+ const issues=p.issues?.items?.anyOf??[]
+ for(const branch of issues){const issue=branch.properties;list(issue.evidenceIds,facts);list(issue.claimIds,(context.claims??[]).map((x:any)=>x.id))}
  list(p.rejectedDirections,(context.directions??[]).map((x:any)=>x.id))
  list(p.directionOrder,(context.alternatives??[]).map((x:any)=>x.directionId))
  return bound as typeof schema
@@ -161,10 +164,16 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   },
   async critic(c,analyses,skill){
    await input.readMethods?.(c.request)
-   const source=facts(await records(c.request)),output=await call(c,'critic','独立审阅者：逐条检查本人归属、条件、矛盾、时间及资料支持，阻塞与未知分开',criticSchema,{facts:source,analyses,directions:c.request.directions,timeBudget:c.request.budget,issues:issueCatalogue},skill)
-   const wire=output.parsed as Static<typeof criticSchema>,issues:ReviewIssue[]=wire.issues.map(issue=>({severity:issue.severity,category:issue.issueId==='unsupported'?'evidence':issue.issueId==='contradiction'?'constraint':'unknown',affectedClaims:issue.evidenceIds,resolution:issue.severity==='blocker'?'blocked':issue.severity==='needs_clarification'?'ask_user':'keep_unknown',text:select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),[issue.issueId])[0].text,evidenceRefs:select(source,issue.evidenceIds).map(x=>x.ref)}))
+   const source=facts(await records(c.request)),claims=analyses.flatMap((analysis,index)=>{
+    const p=analysis.proposal!,items=p.alternatives.flatMap(a=>(['pros','tradeoffs','unknowns'] as const).flatMap(field=>a[field].map((text,i)=>({id:'p'+index+':'+field+':'+i,text,kind:field,directionId:a.directionId}))))
+    return [...items,...p.nextActions.map((a,i)=>({id:'p'+index+':action:'+i,text:a.description+' '+a.stopCondition,kind:'editorial_exercise',directionId:a.directionId}))]
+   }),output=await call(c,'critic','独立审阅者：审查claims里的实际候选表述，不是判定学生应已具备完整档案。issues只是可选问题目录，不是已发现的问题；只选实际发生的项，没有问题就issues=[]。unknowns和条件式编辑探索明确保留未知，不构成unsupported或blocker。动机、采用、付款、效果、岗位要求未知只能uncertainty/needs_clarification，不否定路径。只有具体候选声称本人已做到未提供的事实、违反明确限制或与原话相反，才选unsupported/contradiction，并用claimIds定位实际错误的表述，evidenceIds定位对照原话。rejectedDirections只允许已用上述blocker定位的方向，不因没有实践/资格/动机而拒绝探索。编辑动作的可调整分钟上限不是学生已有安排；不把带若/未核对/未知的表述当肯定事实。公共方法不是本人经历，仍严格审查。',criticSchema,{facts:source,claims,analyses,directions:c.request.directions,timeBudget:c.request.budget,issues:issueCatalogue},skill)
+   const wire=output.parsed as Static<typeof criticSchema>,issues:ReviewIssue[]=wire.issues.map(issue=>({severity:issue.severity,category:issue.issueId==='unsupported'?'evidence':issue.issueId==='contradiction'?'constraint':'unknown',affectedClaims:issue.claimIds??issue.evidenceIds,resolution:issue.severity==='blocker'?'blocked':issue.severity==='needs_clarification'?'ask_user':'keep_unknown',text:select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),[issue.issueId])[0].text,evidenceRefs:select(source,issue.evidenceIds).map(x=>x.ref)}))
    select(c.request.directions,wire.rejectedDirections)
-   if(wire.rejectedDirections.length)issues.push({severity:'blocker',text:'独立审阅未通过其中一项路径判断。',evidenceRefs:c.request.authorizedEvidenceRefs})
+   if(wire.rejectedDirections.some(direction=>!wire.issues.some(issue=>issue.severity==='blocker'&&issue.claimIds?.some(id=>claims.find(claim=>claim.id===id)?.directionId===direction))))throw new WorkflowError('invalid_contract')
+   for(const issue of wire.issues)if(issue.claimIds)select(claims,issue.claimIds)
+   // Unknowns remain visible; an actual cited blocker still stops the graph.
+   issues.forEach((issue,index)=>{const selected=wire.issues[index].claimIds??[];if(selected.length)issue.text+=' 实际候选：'+select(claims,selected).map(claim=>claim.text).join('；')})
    return {result:{evidenceRefs:c.request.authorizedEvidenceRefs,summary:'独立审阅已完成，未定条件保持未知',issues},costCny:output.costCny,providerCalls:1}
   },
   async synthesize(c,analyses,critic,skill){

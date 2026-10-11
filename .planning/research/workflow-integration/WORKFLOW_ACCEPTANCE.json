@@ -1275,5 +1275,29 @@
     "checksScope": "PRE_RESTORATION_HISTORICAL_NOT_CURRENT"
   },
   "currentImplementationCommit": "5bb68a466c817a3047df57b9b44c7256db56532e",
-  "unknownCostsRetainedCny": 0.3735552
+  "unknownCostsRetainedCny": 0.3735552,
+  "currentComplexPilot": {
+    "head": "1e40235193dc519463c1b6786808c0f7e09342a8",
+    "firstAttempts": 2,
+    "passed": 0,
+    "actualCalls": 7,
+    "knownCostCny": 0.0158119,
+    "status": "FAILED_CRITIC_UNKNOWN_BLOCKER",
+    "nextCandidate": "BOUND_CONCRETE_CRITIC_CLAIMS_LOCAL_VERIFIED",
+    "priorFailuresRetained": true
+  },
+  "currentIndependentContentReview": {
+    "projectId": "7693465311558795327",
+    "requestId": "LIFEOS_KB_INDEPENDENT_32_20261011_FIRST",
+    "cards": 32,
+    "status": "DISPATCHED_PROCESSING_NOT_REVIEWED",
+    "humanApproval": 0,
+    "published": 0
+  },
+  "currentCozeR7": {
+    "head": "d881683_FULL_HASH_NOT_YET_READ",
+    "status": "SOURCE_REVIEW_IN_PROGRESS_NOT_ACCEPTED",
+    "actualCredits": 6413.06,
+    "newBudget": 0
+  }
 }

@@ -19,16 +19,19 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
  const previousURL=model.baseUrl,previousKey=config.apiKey,budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-workflow-'+randomUUID()})
  budget.snapshot();writeFileSync(dirname(budget.path)+'/development-test-grant-20261005.json',JSON.stringify({kind:'SIMULATED_DEVELOPMENT_TEST_GRANT',amountCny:30,startingCall:0,priorReceiptsSha256:createHash('sha256').update('[]').digest('hex')}));budget.activateCurrentGrant()
  const requests:{role:string;context:Record<string,unknown>}[]=[],audits:ProviderNodeAudit[]=[]
- let incompleteUsage=false,duplicateSelection=false,expectedReservations=4
+ let incompleteUsage=false,duplicateSelection=false,expectedReservations=4,criticVariant='normal'
  const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',c=>chunks.push(Buffer.from(c)));req.on('end',()=>{
   const request=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(request.messages[1].content),role=request.messages[0].content
   requests.push({role,context:ctx});assert.equal(budget.snapshot().calls.length,expectedReservations,'all calls reserved before the first wire')
   assert.equal(JSON.stringify(request.response_format).includes('uniqueItems'),false,'actual SDK request uses supported provider schema')
   const selection=request.response_format?.json_schema?.schema
   if(ctx.path){assert.deepEqual(selection.properties.evidenceIds.items.enum,ctx.facts.map((x:any)=>x.id));assert.deepEqual(selection.properties.actionIds.items.enum,ctx.actions.map((x:any)=>x.id))}
-  if(ctx.analyses){assert.deepEqual(selection.properties.rejectedDirections.items.enum,ctx.directions.map((x:any)=>x.id));assert.deepEqual(selection.properties.issues.items.properties.issueId.enum,Object.keys(ctx.issues))}
-  const output=ctx.path?{evidenceIds:['e0'],tradeoffIds:['parallel'],unknownIds:['fit'],actionIds:[ctx.actions[0].id]}:ctx.analyses?{issues:[{severity:'uncertainty',issueId:'fit',evidenceIds:['e0']}],rejectedDirections:[]}:{directionOrder:ctx.alternatives.map((x:{directionId:string})=>x.directionId),actionIds:['a0']}
+  if(ctx.analyses){assert.deepEqual(selection.properties.rejectedDirections.items.enum,ctx.directions.map((x:any)=>x.id));assert.ok(selection.properties.issues.items.anyOf.every((branch:any)=>JSON.stringify(branch.properties.claimIds).includes(ctx.claims[0].id)));assert.ok(!selection.properties.issues.items.anyOf[1].properties.severity.enum.includes('blocker'))}
+  const output:any=ctx.path?{evidenceIds:['e0'],tradeoffIds:['parallel'],unknownIds:['fit'],actionIds:[ctx.actions[0].id]}:ctx.analyses?{issues:[{severity:'uncertainty',issueId:'fit',evidenceIds:['e0']}],rejectedDirections:[]}:{directionOrder:ctx.alternatives.map((x:{directionId:string})=>x.directionId),actionIds:['a0']}
   if(duplicateSelection&&ctx.path)output.evidenceIds=['e0','e0']
+  if(ctx.analyses&&criticVariant==='unknown_blocker')output.issues=[{severity:'blocker',issueId:'unknown',evidenceIds:['e0']}]
+  if(ctx.analyses&&criticVariant==='unsupported_blocker')output.issues=[{severity:'blocker',issueId:'unsupported',evidenceIds:['e0'],claimIds:[ctx.claims?.[0]?.id??'p0:pros:0']}]
+  if(ctx.analyses&&criticVariant==='unexplained_rejection')output.rejectedDirections=[ctx.directions[0].id]
   res.writeHead(200,{'Content-Type':'text/event-stream'})
   const base={id:'synthetic-sdk-'+requests.length,object:'chat.completion.chunk',created:1,model:model.id}
   res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(output)},finish_reason:null}]})+'\n\ndata: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:incompleteUsage?{prompt_tokens:300,total_tokens:300}:{prompt_tokens:300,completion_tokens:100,total_tokens:400}})+'\n\ndata: [DONE]\n\n')
@@ -58,5 +61,13 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   assert.equal(typeof wf.trace.rows.filter(row=>row.error==='invalid_contract').at(-1)?.costCny,'number','invalid response preserves its known paid usage; a cancelled sibling may still keep the whole graph cost unknown')
   assert.ok(requests.slice(duplicateWireStart).every(row=>row.context.path),'invalid duplicate selections never reach critic/synthesis or retry')
   assert.ok(audits.some(row=>row.failureCode==='WORKFLOW_invalid_contract'))
+  duplicateSelection=false
+  for(const variant of ['unknown_blocker','unsupported_blocker','unexplained_rejection']){
+   criticVariant=variant;expectedReservations+=4;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
+   const begin:number=requests.length,reviewed=await wf.run(f.request)
+   assert.equal(reviewed.status,'unavailable');assert.equal(reviewed.failure,variant==='unsupported_blocker'?'constraint_conflict':'invalid_contract',variant)
+   assert.equal(requests.length-begin,3,'bad review never runs synthesis or paid repair')
+   assert.equal(typeof reviewed.costCny,'number','known failure fees retained')
+  }
  }finally{model.baseUrl=previousURL;config.apiKey=previousKey;await new Promise<void>(resolve=>fake.close(()=>resolve()))}
 })
