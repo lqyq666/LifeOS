@@ -171,15 +171,22 @@
 
 /* P6 closeout A2b: durable control confirmation cards */
 .qa-control-cards{display:flex;flex-direction:column;gap:10px;margin:10px 0;padding:0 2px}
-.qa-control-card{border:1px solid rgba(125,125,145,.35);border-radius:12px;padding:12px 14px;background:rgba(248,248,252,.6)}
+.qa-control-card{border:1px solid var(--qa-line);border-radius:12px;padding:12px 14px;background:var(--qa-surface);color:var(--qa-body)}
 .qa-control-question{margin:0 0 4px;font-weight:600}
-.qa-control-kind{margin:0 0 8px;color:#5a5a72;font-size:.86em}
+.qa-control-kind{margin:0 0 8px;color:var(--qa-muted);font-size:.86em}
 .qa-control-card ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .qa-control-card li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid rgba(125,125,145,.25);border-radius:8px}
 .qa-control-card li span{font-size:.92em;overflow-wrap:anywhere}
-.qa-control-card button{flex:none;cursor:pointer}
-.qa-control-cancel{margin-top:8px;background:none;border:none;color:#5a5a72;text-decoration:underline;cursor:pointer}
-.qa-control-notice{margin:0 0 6px;color:#2f6f4f;font-size:.9em}
+.qa-control-card button{flex:none;cursor:pointer;min-height:44px;padding:0 12px;border:1px solid var(--qa-line);border-radius:8px;background:var(--qa-bg);color:var(--qa-ink)}
+.qa-control-card .qa-control-cancel{margin-top:8px;background:none;border:none;color:var(--qa-muted);text-decoration:underline;cursor:pointer}
+.qa-control-notice{margin:0 0 6px;font-size:.9em}
+.qa-control-notice,.qa-control-error { color: var(--qa-body); font-size: .875rem; line-height: 1.6; }
+.qa-control-error button { margin-left: .5rem; color: var(--qa-ink); background: transparent; border: 1px solid var(--qa-line); border-radius: 6px; min-height: 44px; padding: 0 .6rem; }
+.qa-reply-actions { margin-top: 12px; }
+.qa-reply-actions button { min-height: 44px; padding: 0 12px; color: var(--qa-muted); background: transparent; border: 1px solid var(--qa-line); border-radius: 8px; font-size: .8125rem; cursor: pointer; }
+.qa-reply-actions button:hover:not(:disabled) { color: var(--qa-ink); background: var(--qa-surface); }
+.qa-reply-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.qa-access-notice { margin: 0 0 10px; color: var(--qa-body); font-size: .8125rem; line-height: 1.6; }
 
 /* Structured reply rendering (no raw markdown markers in chat) */
 .qa-md { display: flex; flex-direction: column; gap: .55em; white-space: normal; }

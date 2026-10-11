@@ -22,6 +22,9 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   const dialog = useRef<HTMLDialogElement>(null)
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [memoryOpen, setMemoryOpen] = useState(false)
+  const memoryTrigger = useRef<HTMLButtonElement>(null)
+  const [copying, setCopying] = useState<number | null>(null)
+  const copyEpoch = useRef(0)
   const input = useRef<HTMLTextAreaElement>(null)
   const scroll = useRef<HTMLDivElement>(null)
   const follow = useRef(true)
@@ -62,10 +65,34 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   const [choicesOpen, setChoicesOpen] = useState(() => active.conversation.stage === 'confirm')
   const [starMapUpdate, setStarMapUpdate] = useState('')
   const empty = conversation.messages.length === 0
+  useEffect(() => { copyEpoch.current += 1; setCopying(null) }, [active.id, user?.id])
+  const accessBlocked = !conversation.demo && !!user && !!access?.required && (access.enabled === false || access.remaining === 0)
+  const accessNotice = accessBlocked ? access?.enabled === false ? '对话资格尚未开通或已到期，请联系邀请人。已保存的对话仍可查看，草稿会保留。' : '本次对话额度已用完或正在使用，请稍后刷新或联系邀请人。已保存的对话仍可查看，草稿会保留。' : ''
   const question = getAnswerQuestion(conversation)
   const showChoices = choicesOpen && !!question && !busy
   const voice = useVoiceInput({ active: open && !busy && !project && !summaryOpen, draft, onDraft: setDraft, onFinish: () => input.current?.focus() })
   function setDraft(text: string) { setWorkspace(value => updateChat(value, value.activeId, { draft: text })) }
+  function closeMemory() { setMemoryOpen(false); memoryTrigger.current?.focus() }
+  async function copyReply(message: Conversation['messages'][number]) {
+    if (copying !== null || busy || message.transient) return
+    const chatId = active.id, currentUser = user
+    const epoch = copyEpoch.current
+    setCopying(message.id); setNotice('')
+    try {
+      if (!conversation.demo) {
+        if (!currentUser || !message.sourceId) { setNotice('请等回复保存后再复制。'); return }
+        const fresh = await loadWorkspace(currentUser, workspace)
+        const saved = fresh.chats.find(chat => chat.id === chatId)?.conversation.messages.find(row => row.sourceId === message.sourceId && row.role === 'assistant')
+        if (epoch !== copyEpoch.current) return
+        if (!saved || saved.text !== message.text) { setNotice('回复或其依据已变化，请刷新核对后再复制。'); return }
+      }
+      if (epoch !== copyEpoch.current) return
+      await navigator.clipboard.writeText(message.text)
+      if (epoch === copyEpoch.current) setNotice('已复制完整回复。复制不代表已经发送或执行。')
+    } catch (error) {
+      if (epoch === copyEpoch.current) setNotice(error instanceof Error && error.name === 'NotAllowedError' ? '浏览器没有允许复制，请选中回复文字手动复制。' : '未能复制，回复仍保留在页面中；请稍后再试或手动复制。')
+    } finally { if (epoch === copyEpoch.current) setCopying(null) }
+  }
   function setConversation(next: Conversation) {
     setWorkspace(value => {
       const chat = value.chats.find(item => item.id === value.activeId)!
@@ -233,6 +260,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
       if (!dialog.current?.open) { dialog.current?.showModal(); dialog.current?.focus() }
     } else {
       setSummaryOpen(false)
+      setMemoryOpen(false)
       dialog.current?.close()
     }
   }, [open])
@@ -285,6 +313,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   }
   function send(text = draft) {
     if (busy || connecting || remote.current || voice.listening || !text.trim()) return
+    if (accessBlocked) { setNotice(accessNotice); return }
     if (!conversation.demo) {
       if (!user) { onRequestAuth(loggedIn); setNotice('请先登录，正式对话保存在你的账户中。'); return }
       void sendRemote(text.trim()); input.current?.focus(); return
@@ -371,7 +400,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
   function openProject(id: string) { voice.cancel(); setSummaryOpen(false); setProjectId(id); setNotice(''); if (mobile) closeSidebar() }
   const voiceButton = <button type="button" className={'qa-voice qa-icon-button' + (voice.listening ? ' is-listening' : '')} onClick={voice.toggle} disabled={busy} aria-label={voice.listening ? '结束语音输入' : '语音输入'} aria-pressed={voice.listening} title="浏览器语音识别 · 仅填入草稿，可能使用在线识别服务"><Icon name={voice.listening ? 'stop' : 'mic'} size={18} /></button>
 
-  return <dialog ref={dialog} tabIndex={-1} className="qa-page" aria-label="LifeOS 聊一聊" onCancel={event => { event.preventDefault(); if (mobile && sidebarOpen) closeSidebar(); else onClose() }}>
+  return <dialog ref={dialog} tabIndex={-1} className="qa-page" aria-label="LifeOS 聊一聊" onCancel={event => { event.preventDefault(); if (memoryOpen) closeMemory(); else if (mobile && sidebarOpen) closeSidebar(); else onClose() }}>
     <div className="qa-app-layout">
       <WorkspaceSidebar workspace={workspace} busy={busy || connecting} accountConnected={!!user} open={sidebarOpen} mobile={mobile} projectId={projectId} onClose={closeSidebar} onExit={onClose} onSelect={selectChat} onProject={openProject} onNew={createChat} onChat={patchChat}
         onSaveProject={(id, name, description) => {
@@ -386,12 +415,13 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
           {project ? <span className="qa-context-title">{project.name}</span> : <><button type="button" className="qa-context-project" disabled={busy} onClick={() => currentProject ? openProject(currentProject.id) : onClose()}>{currentProject?.name ?? 'LifeOS'}</button><span className="qa-context-divider">/</span><span className="qa-context-title">{active.title}</span></>}
         </div>
         <div className="qa-header-actions">
+          {user && !project && <button ref={memoryTrigger} type="button" disabled={busy} aria-expanded={memoryOpen} aria-controls="qa-memory-panel" onClick={() => memoryOpen ? closeMemory() : setMemoryOpen(true)}>长期记忆</button>}
           {user ? <button type="button" disabled={busy} onClick={() => void logout()} title={user.email}>退出登录</button> : <button type="button" disabled={connecting} onClick={() => onRequestAuth(loggedIn)}>登录</button>}
           {!empty && !project && <button type="button" onClick={fresh} disabled={busy}>新对话</button>}
           <button type="button" className="qa-space-return" onClick={onClose} aria-label="回到认知空间"><Icon name="orbit" /><span>认知空间</span></button>
         </div>
       </header>
-      {memoryOpen && user && !project && <MemoryPanel conversationId={!empty&&!conversation.demo?active.id:undefined} messageCount={conversation.messages.length} onClose={() => setMemoryOpen(false)} />}
+      {memoryOpen && user && !project && <MemoryPanel conversationId={!empty&&!conversation.demo?active.id:undefined} messageCount={conversation.messages.length} onClose={closeMemory} />}
       {storageNotice && <p className="qa-storage-notice" role="alert">{storageNotice}</p>}
       {starMapUpdate && !busy && <button type="button" className="qa-starmap-chip" onClick={onClose}>✦ {starMapUpdate} · 查看星图</button>}
 
@@ -404,7 +434,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
           {!workspace.chats.some(chat => chat.projectId === project.id) && <div className="qa-project-empty"><Icon name="compose" size={24} /><p>还没有对话</p><span>从一件想理清的事开始。</span></div>}
         </section>
       </main> : <>
-      <div hidden={summaryOpen} className={`qa-workspace ${empty ? 'is-empty' : ''} ${showChoices ? 'has-choices' : ''}`}>
+      <div hidden={summaryOpen} inert={memoryOpen} className={`qa-workspace ${empty ? 'is-empty' : ''} ${showChoices ? 'has-choices' : ''}`}>
         <div className="qa-scroll" ref={scroll} onScroll={() => {
           const element = scroll.current
           if (element) follow.current = element.scrollHeight - element.scrollTop - element.clientHeight < 100
@@ -419,6 +449,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
             {conversation.messages.map(message => <article key={message.id} id={'qa-msg-' + message.id} className={`qa-message is-${message.role}`} aria-label={message.role === 'user' ? '你的消息' : 'LifeOS 的回应'}>
               {message.role === 'assistant' && <div className="qa-assistant-name"><Companion motion={message.id === conversation.messages.at(-1)?.id && !busy ? companionMotion : 'idle'} animated={open && !summaryOpen && !busy && message.id === conversation.messages.at(-1)?.id} /><span>LifeOS</span></div>}
               <div className="qa-message-body">{message.transient && <small role="status">生成草稿 · 未校验、未保存</small>}{message.role === 'assistant' ? <ReplyMarkdown text={message.text} /> : message.text.split('\n\n').map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
+              {message.role === 'assistant' && !message.transient && <div className="qa-reply-actions"><button type="button" disabled={busy || copying !== null || (!conversation.demo && !message.sourceId)} onClick={() => void copyReply(message)} aria-label="复制完整回复">{copying === message.id ? '正在复制…' : '复制回复'}</button></div>}
             </article>)}
             {busy && <div className="qa-thinking" role="status"><Companion motion={companionMotion} animated={open && !summaryOpen} /><span>{companionMotion === 'received' ? '收到你的想法' : '整理中'}</span>{remote.current && <button type="button" onClick={() => void cancelRemote()}>取消</button>}</div>}
           </div>}
@@ -427,13 +458,14 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
         </div>
 
         <div className="qa-bottom">
+          {accessNotice && !busy && <p className="qa-access-notice" role="status">{accessNotice}</p>}
           {notice && <p className="qa-notice" role="status">{notice}{previous && <button type="button" onClick={undo}>撤销</button>}</p>}
           {showChoices && question ? <AnswerChoices key={active.id + '-' + conversation.stage + '-' + conversation.messages.length} question={question} draft={draft} inputRef={input} onDraft={setDraft} onAnswer={answerChoice} onDismiss={dismissChoices} voiceButton={voiceButton} voiceListening={voice.listening} /> : <form className="qa-composer" onSubmit={submit} aria-label="输入消息">
             <AutoTextarea inputRef={input} autoFocus={false} aria-label="想聊的事" placeholder={empty ? '有什么事，想一起想清楚？' : '说说你的想法…'} value={draft} readOnly={busy}
               onChange={event => setDraft(event.target.value)} onKeyDown={event => {
                 if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.nativeEvent.keyCode !== 229) { event.preventDefault(); send() }
               }} />
-            <div className="qa-composer-bottom">{question && !busy ? <button type="button" className="qa-show-choices" onClick={() => setChoicesOpen(true)}><svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M6 4h7M6 8h7M6 12h7" stroke="currentColor" strokeWidth="1.2" /><circle cx="2.5" cy="4" r="1" fill="currentColor" /><circle cx="2.5" cy="8" r="1" fill="currentColor" /><circle cx="2.5" cy="12" r="1" fill="currentColor" /></svg>{conversation.stage === 'opening' ? '开始方式' : '确认理解'}</button> : <div className="qa-composer-project"><Icon name="folder" size={15} /><CodexSelect label="当前对话所属项目" value={active.projectId ?? ''} disabled={busy || voice.listening} onChange={value => patchChat(active.id, { projectId: value || null })} options={[{ value: '', label: '未归类' }, ...workspace.projects.map(item => ({ value: item.id, label: item.name }))]} /></div>}<div className="qa-composer-actions">{voiceButton}<button type="submit" className="qa-send" disabled={!draft.trim() || busy || voice.listening} aria-label="发送消息"><Icon name="send" size={20} /></button></div></div>
+            <div className="qa-composer-bottom">{question && !busy ? <button type="button" className="qa-show-choices" onClick={() => setChoicesOpen(true)}><svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M6 4h7M6 8h7M6 12h7" stroke="currentColor" strokeWidth="1.2" /><circle cx="2.5" cy="4" r="1" fill="currentColor" /><circle cx="2.5" cy="8" r="1" fill="currentColor" /><circle cx="2.5" cy="12" r="1" fill="currentColor" /></svg>{conversation.stage === 'opening' ? '开始方式' : '确认理解'}</button> : <div className="qa-composer-project"><Icon name="folder" size={15} /><CodexSelect label="当前对话所属项目" value={active.projectId ?? ''} disabled={busy || voice.listening} onChange={value => patchChat(active.id, { projectId: value || null })} options={[{ value: '', label: '未归类' }, ...workspace.projects.map(item => ({ value: item.id, label: item.name }))]} /></div>}<div className="qa-composer-actions">{voiceButton}<button type="submit" className="qa-send" disabled={!draft.trim() || busy || voice.listening || accessBlocked} aria-label="发送消息"><Icon name="send" size={20} /></button></div></div>
           </form>}
           {voice.status && <p className="qa-voice-status" role="status">{voice.listening && <span className="qa-voice-dot" />}{voice.status}</p>}
           <p className="qa-preview-note">{conversation.demo ? '示例互动 · 不作为个人业务记录' : user ? access?.required ? access.enabled ? `对话保存在你的账户 · 剩余 ${access.remaining} 次${access.expiresAt ? ' · 有效至 '+new Date(access.expiresAt).toLocaleDateString() : ''}` : '对话资格尚未开通或已到期 · 已保存内容仍可查看' : '对话保存在你的账户' : connecting ? '正在连接服务端…' : '登录后开始真实对话 · 原浏览器演示已保留'}</p>

@@ -52,18 +52,19 @@ export function MemoryPanel({conversationId,messageCount,onClose}:{conversationI
   const facts=view?.items.filter(item=>item.kind==='fact')??[]
   const patterns=view?.items.filter(item=>item.kind==='pattern_candidate')??[]
   return <aside id="qa-memory-panel" className="qa-memory-panel" aria-label="长期记忆">
-    <header className="qa-memory-header"><div><p>LifeOS</p><h2>长期记忆</h2></div><button type="button" aria-label="关闭记忆面板" onClick={onClose}>×</button></header>
+    <header className="qa-memory-header"><div><p>LifeOS</p><h2>长期记忆</h2></div><button type="button" autoFocus aria-label="关闭记忆面板" onClick={onClose}>×</button></header>
     <div className="qa-memory-content">
       {notice&&<p className="qa-memory-notice" role="status">{notice}</p>}
       {loading&&!view?<p className="qa-memory-empty">正在读取账户记忆…</p>:view&&<>
         <section className="qa-memory-section" aria-labelledby="qa-memory-switch-title">
-          <div className="qa-memory-switch-heading"><div><h3 id="qa-memory-switch-title">长期记忆</h3><p>{view.settings.enabled?'开启后会复用已确认背景，并整理你明确提供的信息。':'默认关闭。开启后可减少跨对话重复询问。'}</p></div>
+          <div className="qa-memory-switch-heading"><div><h3 id="qa-memory-switch-title">长期记忆</h3><p>{view.settings.enabled?'已开启：可跨对话复用你允许保存的背景。':'已关闭：不会跨对话复用长期记忆。'}</p><p>关闭不会删除已保存的对话。你可以核对、更正或忘记下面的记录。</p></div>
             <label className="qa-memory-switch"><span className="qa-visually-hidden">启用长期记忆</span><input type="checkbox" checked={view.settings.enabled} disabled={saving} onChange={event=>void setEnabled(event.target.checked)} /><span aria-hidden="true" /></label>
           </div>
         </section>
 
         <section className="qa-memory-section" aria-labelledby="qa-memory-items-title">
-          <div className="qa-memory-list-heading"><h3 id="qa-memory-items-title">已记住的信息</h3><span>{facts.length}</span></div>
+          <div className="qa-memory-list-heading"><h3 id="qa-memory-items-title">已保存的背景信息</h3><span>{facts.length}</span></div>
+          <p>这里管理背景记忆；目标、经历和建议边界可在认知空间与原对话中查看。</p>
           {!facts.length?<p className="qa-memory-empty">还没有长期保存的背景信息。</p>:<ul className="qa-memory-items">{facts.map(item=><li key={item.id}>
             <div className="qa-memory-item-heading"><div><span>{labels[item.key??'']??item.key??'用户信息'}</span><small>{statusLabels[item.status]??item.status}{item.scope==='task'&&item.taskType?' · '+(taskLabels[item.taskType]??item.taskType):''}</small></div><strong>{item.value===null?statusLabels[item.status]??'':String(item.value)}</strong></div>
             {item.validUntil&&<p className="qa-memory-meta">记录于 {new Date(item.observedAt).toLocaleDateString('zh-CN')} · 有效至 {new Date(item.validUntil).toLocaleDateString('zh-CN')}</p>}
