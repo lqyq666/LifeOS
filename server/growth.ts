@@ -18,6 +18,7 @@ import {deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause} fro
 import {matchPathTheme} from './path-lexicon.ts'
 import {persistMemoryControl} from './memory-controls.ts'
 import {clauseReportsAttempted} from './experience-content.ts'
+import {taskOutcomeReadback} from './turn-contract.ts'
 
 type DB = Pick<PoolClient, 'query'>
 type Row = { id: string; user_id: string; conversation_id: string; kind: GrowthItem['kind']; text: string; assertion: GrowthItem['assertion']; status: GrowthItem['status']; sources: GrowthItem['sources']; dependencies: GrowthRef[]; valid_until: Date | null; valid_from: Date | null; time_basis: Record<string, unknown> | null; direction_scopes: string[] | null; structured_plan: Record<string, unknown> | null; revision: number; created_at: Date; updated_at: Date; limitation?:string;progress_state?:GrowthItem['progressState'] }
@@ -34,7 +35,8 @@ function expiry(value: string | null | undefined): Date | null {
 function item(row: Row, reason: string | null = null): GrowthItem {
   const hidden = row.status === 'forgotten' || reason === 'source_revoked'
   const taskBoundary=!hidden&&row.assertion==='user_reported'&&scopedTaskPauseClause(row.text)?{kind:'pause' as const,scope:'current_matter' as const,targetText:(row.text.includes('备考')?'备考':'复习') as '备考'|'复习',sourceConversationId:row.conversation_id,sourceMessageId:row.sources.find(source=>source.type==='message')?.id??null,matterBinding:'needs_same_matter_confirmation' as const,expiresAt:row.valid_until?.toISOString()??null,quote:row.text}:undefined
-  return { id: row.id, conversationId: row.conversation_id, kind: row.kind, text: hidden ? '' : row.text, assertion: row.assertion,
+  const feedbackEvidence=!hidden&&row.kind==='feedback'&&row.assertion==='user_reported'?{reportedAt:row.created_at.toISOString(),taskBinding:'unknown' as const,outcomes:taskOutcomeReadback(row.text,undefined,true)}:undefined
+  return { ...(feedbackEvidence?{feedbackEvidence}:{}),id: row.id, conversationId: row.conversation_id, kind: row.kind, text: hidden ? '' : row.text, assertion: row.assertion,
     status: reason && reason!=='not_yet_active' && ['active','proposed'].includes(row.status) ? 'stale' : row.status, sources: hidden ? [] : row.sources, dependencies: hidden ? [] : row.dependencies,
     validUntil: row.valid_until?.toISOString() ?? null, validFrom: row.valid_from?.toISOString() ?? null, timeBasis: row.time_basis ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null,directionScopes:row.direction_scopes??[],structuredPlan:hidden?null:row.structured_plan??null,...(taskBoundary?{taskBoundary}:{}) }
 }

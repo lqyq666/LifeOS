@@ -367,8 +367,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const pendingRecommendationIds=new Set((await listControlRequests(run.user_id)).filter(row=>row.status==='pending'&&row.kind==='stop_recommend').flatMap(row=>row.candidates.map(candidate=>candidate.itemId)))
   const recommendationBlockedIds=new Set([...recommendationStopped,...pendingRecommendationIds])
   const unresolvedTaskBoundaries=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&item.taskBoundary)
+  const clauseCatalogue=buildClauseCatalogue(current.content)
   const newMatterExplicit=scanUserClauses(current.content).some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:换个|换一件|另一件|另一个|新事情|新话题|转到|转而|不谈上次)/.test(clause.text))
-  const boundaryNeedsClarification=!currentConversationOnly(current.content)&&!newMatterExplicit&&(pendingRecommendationIds.size>0||unresolvedTaskBoundaries.some(item=>current.content.includes(item.taskBoundary!.targetText)))
+  const readOnlyQuestion=deriveTurnContract({text:current.content,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}).mode==='reply_only'&&clauseCatalogue.some(clause=>clause.interrogative)
+  const boundaryNeedsClarification=!readOnlyQuestion&&!currentConversationOnly(current.content)&&!newMatterExplicit&&(pendingRecommendationIds.size>0||unresolvedTaskBoundaries.some(item=>current.content.includes(item.taskBoundary!.targetText)))
   const growthSelection=selectRelevantGrowth(growthAll.filter(item=>!recommendationBlockedIds.has(item.id)&&!item.taskBoundary),current.content)
   const growth=growthSelection.selected
   if(growthSelection.dropped>0)staged.audit.push({phase:'growth_selection',totalActive:growthSelection.totalActive,selected:growthSelection.selected.length,dropped:growthSelection.dropped,budgetMax:growthSelection.budget.maxItems})
@@ -415,7 +417,6 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   // P1: the clause catalogue is built once per turn; the prompt renders the
   // handles and every personal-fact anchor resolves back to an exact span.
-  const clauseCatalogue=buildClauseCatalogue(current.content)
   // Turn contract slimming: the provider schema and the rule sections are
   // derived from what THIS turn can produce; a closed lane is unrepresentable
   // in the native schema instead of a prompt "don't use this".
@@ -494,7 +495,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       const covered=(quote:string)=>(staged.growth?.changes??[]).some((change:any)=>'source'in change&&typeof change.source?.quote==='string'&&change.source.quote.includes(quote))
       // “要不要做X”是自我斟酌不是向AI提问：捕获允许弱疑问形态，只排除
       // 真提问（带问号/吗/呢）与假设/引用/第三方。
-      const decisionClauses=clauseCatalogue.filter(handle=>!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther&&!/[?？]|吗$|呢$/.test(handle.text)
+      const decisionClauses=clauseCatalogue.filter(handle=>!handle.interrogative&&!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther&&!/[?？]|吗$|呢$/.test(handle.text)
         &&(!currentConversationOnly(current.content)||/我.{0,20}优先/.test(handle.text))
         &&!(turnDerivedControls.status==='explicit'&&turnDerivedControls.changes.some(change=>change.quote===handle.text))
         &&!negativePersonalFactClauses(current.content).some(clause=>clause.text===handle.text)

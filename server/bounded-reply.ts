@@ -1,5 +1,5 @@
 import {scanUserClauses,currentConversationOnly,refusalPreferenceClause} from './user-command-spans.ts'
-import {reportedPerformedTaskClauses} from './turn-contract.ts'
+import {reportedPerformedTaskClauses,reportedTaskOutcomeClauses} from './turn-contract.ts'
 import {hoursIn} from './turn-obligations.ts'
 import type {KnowledgeIntent} from './evergreen-guide.ts'
 import type {TurnContract} from './turn-contract.ts'
@@ -64,6 +64,17 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  if(/(?:邮件|邮箱|问题)/.test(own)&&/(?:还|尚|仍)?(?:没(?:有)?|未)(?:回复|回应)/.test(own))return make('waiting_result','未回应原因、是否采用及效果仍未知',[
   '你已报告问题发出、尚未回应，先分别保留这些事实。原因、是否采用和实际效果仍未知；沿用已有问题，不要求改到私人渠道，也不重复询问已经说清的内容。',
  ])
+ const ownContribution=clauses.find(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/^我负责文字和排版$/.test(clause.text))
+ const otherContribution=clauses.find(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&/插画.{0,12}(?:由同伴完成|是同伴画的)/.test(clause.text))
+ if(ownContribution&&otherContribution)return make('reported_result','本人分工与同伴分工分别保留',[
+  `分工按你的原话保留：「${ownContribution.text}」；「${otherContribution.text}」。后续材料只写你明确负责的部分，不把同伴的插画算成你的能力，也不推成收入或效果。`,
+ ])
+ if(reportedPerformedTaskClauses(input.text).length&&reportedTaskOutcomeClauses(input.text,true).length){
+  const reported=clauses.filter(c=>!c.conditional&&!c.interrogative&&!c.quoted&&!c.code).map(c=>c.text).join('；')
+  return make('reported_result','报告与未验证的效果分别保留',[
+   `这次按你报告的情况记录：「${reported}」。做过、对方表达、使用和付款分别看；不推成稳定收入或需求已验证，实际效果还不能确定。`,
+  ])
+ }
  if(['listening_or_refusal','control','greeting','memory_query','reuse_material','professional_or_prediction_boundary'].includes(input.intent.reason))return null
  if(/我(?:先)?(?:准备|打算|愿意).{0,25}(?:问|试|整理)/.test(own)&&/(?:还没|没有|尚未)(?:问|开始|动手)/.test(own))return make('adopted','本人打算与未执行分别保留',[
   '先保留你选的这一步和还没开始的状态，不算成已经做过。愿意尝试时就沿用刚才确定的问题或任务；之后再按实际反馈继续。',

@@ -42,6 +42,10 @@ test('persisted V19 natural boundary failures repair authoritative state across 
   assert.equal(pause.scope,'current_matter');assert.equal(pause.matterBinding,'needs_same_matter_confirmation');assert.ok(pause.expiresAt)
   const before=calls;await turn(chats[2]!,'上次那件作业的事我现在不想接着做，先别再给它排任务了。');assert.equal(calls,before,'pure natural refusal performs zero generation')
   assert.ok((await listControlRequests(user)).some(x=>x.status==='pending'&&x.candidates.some(c=>c.itemId===goal.id)))
+  await turn(chats[2]!,'你记得这周剩余多少时间吗？只按我报告的情况回答。')
+  await turn(chats[2]!,'暂停考试复习这一周，是不是等于我永久放弃考试方向？')
+  assert.ok((await listControlRequests(user)).some(x=>x.status==='pending'),'read-only questions retain the pending stop confirmation')
+  assert.ok(!(await growthContext(user,chats[2]!)).some(x=>x.kind==='goal'&&/是不是|只按我报告/.test(x.text)),'read-only and hypothetical questions cannot become pursuits')
   await turn(chats[2]!,'我只是想说说卡在那道题的烦躁，今天先听我说。')
   const final=await growthContext(user,chats[2]!);assert.ok(final.some(x=>x.id===goal.id&&x.text==='我想完成课程作业'));assert.ok(!final.some(x=>x.kind==='goal'&&/不想接着做|只是想说说/.test(x.text)));assert.ok(final.some(x=>x.text.includes('每周能拿出六小时')))
  }finally{model.baseUrl=oldURL;config.apiKey=oldKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()))}

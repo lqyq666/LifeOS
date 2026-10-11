@@ -50,7 +50,7 @@ test('turn contract modes derive deterministically from turn facts',()=>{
   assert.equal(derive('这周只剩两小时，帮我安排一下。',{planIntent:true}).mode,'planning')
   // B. default growth lane
   const growth=derive('我是大三学生，专业是市场营销。')
-  assert.equal(growth.mode,'reply_growth');assert.equal(growth.capabilities.growth,true);assert.equal(growth.capabilities.candidate,true)
+  assert.equal(growth.mode,'reply_growth');assert.equal(growth.capabilities.growth,true);assert.equal(growth.capabilities.candidate,false,'identity-only facts do not describe a performed experience')
   assert.equal(growth.capabilities.plan,false);assert.equal(growth.capabilities.event,false)
   // C. planning
   const plan=derive('我每周只有三小时，帮我安排一下这周。',{planIntent:true})
@@ -66,7 +66,7 @@ test('turn contract modes derive deterministically from turn facts',()=>{
   const event=derive('上周我给社团交了海报，他们没用上。')
   assert.equal(event.capabilities.event,true);assert.equal(event.capabilities.material,false)
   const continued=derive('当时他具体希望整理什么内容？',{currentEventExists:true})
-  assert.equal(continued.capabilities.event,true,'a continued event keeps the lane open')
+  assert.equal(continued.capabilities.event,false,'a read-only event question cannot mutate the existing event')
 })
 
 test('slimmed schemas make closed lanes unrepresentable while kept lanes stay byte-identical',()=>{
