@@ -27,7 +27,7 @@ export function conversationPreferenceClause(text:string):boolean{
 }
 // Deferring a named alternative records a boundary, not an active pursuit.
 export function deferredPursuitClause(text:string):boolean{
- return /(?:稍后|以后|之后|改天)再(?:看|说)|(?:暂时|暂|先)不(?:推进|继续|安排|扩大)/.test(text)
+ return /(?:稍后|以后|之后|改天|过阵子|过段时间|晚些时候)再(?:看|说)|(?:暂时|暂|先)不(?:推进|继续|安排|扩大)/.test(text)
 }
 export function currentConversationOnly(text:string):boolean{
  const own=scanUserClauses(text).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&!c.quoteSpans.length)

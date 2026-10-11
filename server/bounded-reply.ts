@@ -1,4 +1,5 @@
 import {scanUserClauses} from './user-command-spans.ts'
+import {reportedPerformedTaskClauses} from './turn-contract.ts'
 import type {KnowledgeIntent} from './evergreen-guide.ts'
 import type {TurnContract} from './turn-contract.ts'
 
@@ -63,7 +64,10 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '好，先沿用刚才选的那一步。愿意尝试和实际做过分开；做后告诉我发生了什么，我们再按反馈调整。',
   '好，先试刚才那一步，不重新发整套方法。还没做时不记为已执行；遇到具体阻碍再一起调整。',
  ])
- if(/我.{0,8}(?:已经)?交付/.test(own)&&/(?:采用|付款)/.test(own))return make('reported_result','实际效果与再次选择的条件',[
+ if(/(?:不再把|不再将).{0,20}主线/.test(own)&&/优先/.test(own))return make('reported_result','新阶段的具体帮助需求',[
+  '按你这次明确的取舍调整当前主线，已经完成的实际经历继续保留。接下来的帮助以新优先事项为准，旧方向是否恢复由你决定。',
+ ])
+ if((/我.{0,8}(?:已经)?交付/.test(own)||reportedPerformedTaskClauses(input.text).length)&&/(?:采用|用了|付款|还没付|没有付款|未付款)/.test(input.text))return make('reported_result','实际效果与再次选择的条件',[
   '交付、采用和付款按你分别报告的情况保留，实际效果仍需另看反馈。想继续复盘这次结果，还是转到现在更优先的事情？',
   '先保留这次报告的结果，不据此推成稳定收入或长期适配。你现在想核对实际反馈，还是先处理另一件事？',
  ])

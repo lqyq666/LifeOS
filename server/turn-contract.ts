@@ -76,7 +76,7 @@ export function reportedTaskOutcomeClauses(text:string){
   // An actual task of the speaker must precede any participant observation.
   // Reported speech by that participant stays a report, never a verified effect.
   if(!clauses.some(c=>!c.attributedToOther&&/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|交给|提交|访谈|聊过|问了|问过)/.test(c.text)))return []
-  return clauses.filter(c=>/^(?:对方|客户|学长|导师|他们|她们|他|她)?(?:说|觉得)?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来|看过|读过|已读)/.test(c.text)&&/(?:读了|读过|看过|已读|回复|回应|没回|采用|使用|用了|没用|付款|付费|感兴趣|有意思)/.test(c.text))
+  return clauses.filter(c=>/^(?:对方|客户|学长|导师|他们|她们|他|她|费用)?(?:说|觉得)?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来|看过|读过|已读)/.test(c.text)&&/(?:读了|读过|看过|已读|回复|回应|没回|采用|使用|用了|没用|付款|付费|没付|感兴趣|有意思)/.test(c.text))
 }
 export function reportedPerformedTaskClauses(text:string){
  return anchorablePersonalClauses(text).filter(c=>/(?:我|本人)/.test(c.text)&&/(?:发出去了|发了|交给.{0,10}了|交付了|提交了|问了|问过|聊过|访谈了)/.test(c.text)&&!/(?:想|打算|准备|如果|还没|没有|尚未|未曾|没)(?:.{0,8})(?:发出|发了|交给|交付|提交|问|聊|访谈)/.test(c.text))

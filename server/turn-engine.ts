@@ -641,7 +641,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // NP_NEG_01 / BS_RESOURCE_01: optional model deltas omitted explicit status.
     // Retain only the speaker's guarded verbatim status, never an experience,
     // inferred cause, goal or completion. Corrections and controls keep authority.
-    const explicitTaskFacts=[...negativePersonalFactClauses(current.content).filter(clause=>/(?:没(?:有)?|尚未|还未|未)(?:开始|完成|做|复习|准备|交付|发送)/.test(clause.text)),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&/^我想把(?:验证问题|访谈问题|提问|这个问题)改成[“「『]/.test(c.text))]
+    const explicitTaskFacts=[...negativePersonalFactClauses(current.content).filter(clause=>/(?:没(?:有)?|尚未|还未|未)(?:开始|完成|做|复习|准备|交付|发送)/.test(clause.text)),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&(/^我想把(?:验证问题|访谈问题|提问|这个问题)改成[“「『]/.test(c.text)||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
     const taskFactSupplement=snapshot.settings.enabled?explicitTaskFacts.filter(clause=>
       !controlClauseTexts.includes(clause.text)&&
       !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&
@@ -975,7 +975,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         }
       }
     }
-    if(!result.experienceCandidate&&contract.capabilities.candidate&&!slimUpdateTimeMode&&requiresExperienceCandidate(clauseCatalogue)){
+    if(!result.experienceCandidate&&(contract.capabilities.candidate||(snapshot.settings.enabled&&currentConversationOnly(current.content)&&reportedPerformedTaskClauses(current.content).length>0))&&!slimUpdateTimeMode&&requiresExperienceCandidate(clauseCatalogue)){
       // Constrained decoding only guides, it does not force: flash-tier models
       // keep omitting the optional lane even when the schema requires it. A
       // structurally unambiguous completed first-person action report still

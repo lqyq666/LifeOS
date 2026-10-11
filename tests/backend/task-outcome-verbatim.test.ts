@@ -56,18 +56,18 @@ test('omitted read/response/adoption reports persist independently and remain in
   assert.ok(after.some(t=>t.includes('是否采用我不知道')))
   assert.ok(!after.includes('也没有采用'),'a narrow correction must supersede the earlier negative outcome')
   const stopped=(await store.startRun(user,next,randomUUID(),'我改变方向，我决定本阶段就业优先，不再把自由职业作为主线。')).run,stopStaged:store.Staged={candidates:[],audit:[]}
-  outputs.push({reply:'本阶段优先就业，自由职业主线暂停。'})
+  outputs.push({reply:boundedOrdinaryReply({text:'我改变方向，我决定本阶段就业优先，不再把自由职业作为主线。',intent:knowledgeIntent('我改变方向，我决定本阶段就业优先，不再把自由职业作为主线。'),contract:deriveTurnContract({text:'我改变方向，我决定本阶段就业优先，不再把自由职业作为主线。',knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
   const stopResult=await engine({run:stopped,staged:stopStaged,context:await store.contextForRun(stopped),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(stopped,stopStaged,stopResult.text,stopResult.usage,new AbortController().signal)
   assert.equal((await pool.query('SELECT state FROM growth_direction_controls WHERE user_id=$1 AND scope=$2',[user,'freelance'])).rows[0].state,'paused')
   assert.equal((await pool.query('SELECT status FROM growth_items WHERE user_id=$1 AND id=$2',[user,goals[0].id])).rows[0].status,'paused')
   assert.equal((await pool.query("SELECT status FROM user_themes WHERE user_id=$1 AND source_refs @> $2::jsonb",[user,JSON.stringify([{growthItemId:goals[0].id}])])).rows[0].status,'paused')
-  const budget=(await store.startRun(user,next,randomUUID(),'我这周只剩两小时可用，请帮我安排本周课程与备考。')).run,budgetStaged:store.Staged={candidates:[],audit:[]}
-  outputs.push({reply:boundedPlanningReply({minutes:120,period:'this_week'}).choices[0],growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'课程复习',minutes:120,directionScopes:[]}]}})
+  const budget=(await store.startRun(user,next,randomUUID(),'我本周只剩九十分钟可用，请帮我安排本周课程与备考。')).run,budgetStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:boundedPlanningReply({minutes:90,period:'this_week'}).choices[0],growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:90,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'课程复习',minutes:90,directionScopes:[]}]}})
   const budgetResult=await engine({run:budget,staged:budgetStaged,context:await store.contextForRun(budget),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(budget,budgetStaged,budgetResult.text,budgetResult.usage,new AbortController().signal)
-  const earlier=(await pool.query("SELECT id FROM growth_items WHERE user_id=$1 AND kind='constraint' AND status='active' AND text LIKE '%两小时%'",[user])).rows[0]
-  const zero=(await store.startRun(user,next,randomUUID(),'我这周能用的时间是零，请帮我安排本周课程与备考。')).run,zeroStaged:store.Staged={candidates:[],audit:[]},beforeZero=requests.length
+  const earlier=(await pool.query("SELECT id FROM growth_items WHERE user_id=$1 AND kind='constraint' AND status='active' AND text LIKE '%九十分钟%'",[user])).rows[0]
+  const zero=(await store.startRun(user,next,randomUUID(),'本周已经没有能用的时间了，可用时间是零，请帮我安排本周课程与备考。')).run,zeroStaged:store.Staged={candidates:[],audit:[]},beforeZero=requests.length
   const zeroResult=await engine({run:zero,staged:zeroStaged,context:await store.contextForRun(zero),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(zero,zeroStaged,zeroResult.text,zeroResult.usage,new AbortController().signal)
   assert.equal(requests.length,beforeZero)

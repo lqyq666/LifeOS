@@ -165,7 +165,8 @@ export function applicableTimeBudget(text:string,context?:BudgetContext,target?:
   const original=clause.text.trim(),body=original.replace(/^(?:但是|不过|但|其实|更正一下|更正|改为)\s*/,'')
   if(/下周/.test(body))period='next_week';else if(/这周|本周/.test(body))period='this_week'
   if(opportunityNoun.test(body))mentionsOpportunity=true
-  if(thirdPersonSubject.test(body)||opportunityDemand.test(body)||/已经|已花|花了|用了|用掉|用完|不是|并非|至少|到八|到十/.test(body)||clause.quoteSpans.length||clause.codeSpans.length)continue
+  const explicitNoTime=/^(?:我|本人)?(?:这周|本周|下周)?(?:我|本人)?(?:已经)?没有(?:能用的?|可用的?|空闲)时间(?:了)?$/.test(body)
+  if(thirdPersonSubject.test(body)||opportunityDemand.test(body)||(!explicitNoTime&&/已经|已花|花了|用了|用掉|用完|不是|并非|至少|到八|到十/.test(body))||clause.quoteSpans.length||clause.codeSpans.length)continue
   if(/更正|改为|其实/.test(original))correction=true
   if(mentionsOpportunity&&/每周|每星期/.test(body)&&(!ownAvailability.test(body)||opportunityDemand.test(body)))continue
   const qualification=/大概|大约|左右/.test(body)?'estimate':/最多|不超过|上限/.test(body)?'upper_bound':'exact'
@@ -180,7 +181,7 @@ export function applicableTimeBudget(text:string,context?:BudgetContext,target?:
    const scoped=period??(context&&/本人.*(?:可用|剩余)/.test(context.question)?context.period:undefined)
    const match=/^(?:我|本人)?(?:(?:这周|本周|下周))?(?:我|本人)?(?:有|可用|能用|只有|仅有|能拿出|可拿出|只剩|仅剩|还剩)?\s*([0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+)(?:个)?(小时|钟头|分钟)(?:可用)?(?:吧|呀|啊)?$/.exec(exact)
    const amount=match?(match[2]==='分钟'?chineseInteger(match[1]!):parseExactHours(match[1]!)):null
-   const noTime=/^(?:我|本人)?(?:这周|本周|下周)?(?:我|本人)?(?:没空|没有空闲时间|没有可用时间|(?:能用|可用)(?:的)?时间(?:是|为)(?:零|0))$/.test(exact)
+   const noTime=explicitNoTime||/^(?:我|本人)?(?:这周|本周|下周)?(?:我|本人)?(?:没空|没有空闲时间|没有可用时间|(?:能用|可用)(?:的)?时间(?:是|为)(?:零|0))$/.test(exact)
    if(scoped&&(noTime||amount!==null))candidate={period:scoped,amountMinutes:noTime?0:amount!,scope:/剩/.test(exact)?'remaining':'available',qualification,quote:original,reason:period?'指定周本人可用时间':'承接持久任务的本人可用时间追问'}
   }
   if(candidate&&Number.isSafeInteger(candidate.amountMinutes)&&candidate.amountMinutes>=0&&candidate.amountMinutes<=10080){
@@ -219,7 +220,10 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
   const applicable=applicableTimeBudget(currentText,undefined,plan?.period==='next_week'?'next_week':plan?.period==='this_week'?'this_week':undefined)
   // Use the same current-event selector as workflows and persistence. A bare
   // "这周零小时可用" is a real budget, although not a recurring/remainder phrase.
-  if(!weekly&&!remaining&&applicable)effects.push({type:'weekly_time',quote:applicable.quote,minutes:applicable.amountMinutes,period:applicable.period})
+  if(!weekly&&!remaining&&applicable){
+    if(applicable.scope==='remaining'&&applicable.period==='this_week')effects.push({type:'remaining_time',quote:applicable.quote,minutes:applicable.amountMinutes,weekQuote:/本周/.test(currentText)?'本周':'这周'})
+    else effects.push({type:'weekly_time',quote:applicable.quote,minutes:applicable.amountMinutes,period:applicable.period})
+  }
   // P2 (B05/B10): the plan binds to the budget that actually APPLIES to the
   // plan's own period. A next-week plan never binds to this week's remainder
   // or to a this-week-scoped amount; it uses the recurring weekly budget. A
@@ -279,10 +283,11 @@ const hoursIn=(text:string):number|null=>{
   if(weekly)return parseExactHours(weekly[1]!)
   const bare=/(?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头)/.exec(text)
   if(!bare){
-    // The shared availability parser also recognizes an explicit zero without
-    // a numeric hour token. Preserve its attribution/negation/scope checks.
-    const available=applicableTimeBudget(text)
-    return available?.scope==='available'&&available.qualification==='exact'&&available.amountMinutes===0?0:null
+    // Arithmetic for an already independently authorized fact. The existing
+    // parser handles minute tokens and standalone zero; this context does not
+    // supply temporal authority to staging or turn obligations.
+    const available=applicableTimeBudget(text,{period:'this_week',question:'本人可用时间',anchor:'AMOUNT_CHECK_ONLY_NOT_TIME_AUTHORITY'})
+    return available?.qualification==='exact'?available.amountMinutes:null
   }
   return remainingMinutes(bare[0]!)
 }
@@ -452,7 +457,7 @@ export function isPureZeroPlanRequest(text:string,obligations:TurnObligations):b
   if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)return false
   if(!body||ignorableConnectives.has(body))return true
   if(/为什么|如何|怎么|另外|同时|解释|起草|写|简历|消息|报告|交付|发送|反馈|更正|忘|拒绝|暂停|不想/.test(body))return false
-  return body===budget.quote||/^(?:是|也就是|就是)?(?:零|0)(?:个)?(?:小时|钟头)(?:了)?$/.test(body)||requestsTimeArrangement(body)
+  return body===budget.quote||applicableTimeBudget(body)?.amountMinutes===0||/^(?:是|也就是|就是)?(?:零|0)(?:个)?(?:小时|钟头)(?:了)?$/.test(body)||requestsTimeArrangement(body)
  })
 }
 export const isObligationError=(error:unknown):error is ObligationError=>error instanceof ObligationError
