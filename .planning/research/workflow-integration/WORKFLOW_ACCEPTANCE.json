@@ -1931,5 +1931,99 @@
     "remainingHigh": 3,
     "launchEligible": false,
     "notIndependentReleaseApproval": true
+  },
+  "latestCloudDevelopment": {
+    "commit": "dec5c6c63d2d82a7f1c87c55ecb4669e5ca1040d",
+    "sourceDigest": "7d917ca2d770f6db1ab311b7630a29cb4883caabafdd80959a229eaa02591949",
+    "evidence": "evidence/coze-core-launch-20261011/r17-committed-runtime.json",
+    "actualDevelopmentChecks": {
+      "status": "ACTUAL_EXISTING_DEVELOPMENT_PG_FINISH_STATE_PASS_NOT_REAL_MODEL_GRAPH",
+      "checks": [
+        "reserved to not_sent is request-scoped durable and never invents usage",
+        "wrong request completion refused",
+        "terminal totals read actual durable slots and retain known usage",
+        "divergent in-memory state cannot override durable terminal accounting",
+        "failed durable transition leaves in-memory slot unchanged",
+        "actual analyzer error retained as source_invalid; unstarted siblings durable not_sent"
+      ],
+      "count": 6,
+      "modelCalls": 0,
+      "syntheticAdultFaultDataOnly": true,
+      "runtime": {
+        "projectId": "7693388932939300905",
+        "businessRole": "growth",
+        "candidateRelease": "0.2.0-candidate",
+        "hostCodeCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4",
+        "hostSourceDigest": "680e4f08bbf826b4f20679d49e2b96afeb002431c37babb9d925914803c30427",
+        "canonicalContentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+        "canonicalSourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+        "canonicalEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+        "cloudCommit": "be738b569e5af678f75720981eae6d3bb6ad26da",
+        "cloudSourceDigest": "7d917ca2d770f6db1ab311b7630a29cb4883caabafdd80959a229eaa02591949",
+        "cloudSourceHashes": {
+          "src/lifeos_host/http_route/__init__.py": "f652ea299d2dab4ec6428633943e21f3c4d5fa6cd3734a13b80af82fdb02d3c8",
+          "src/lifeos_host/http_route/provider_http.py": "5c39242f421463af371abe3da80f08c5c7407ad2a537f422071ec95b58c5562d",
+          "src/lifeos_host/http_route/dispatch.py": "f504a56f36cd29d802c6dc6eb04aeacc0ebe5c3e056992b600d99605ca383174",
+          "src/lifeos_host/http_route/wire.py": "3396c0868acc0c6e35dc527f9f21026539ccd3c7566bf087bea1399ed98a78ee",
+          "src/lifeos_host/http_route/runtime_binding.py": "7f3e1a9f7fcdaaf862efbcf3739d69ed2b2a0b9e9eb569d4cae91a31fb9630b8",
+          "src/lifeos_host/http_route/transport_http.py": "e72b6acebfd75c6521f8d6bd89033b92407ac67e14e1c8b6871e2fe5be88ae6d",
+          "src/lifeos_host/http_route/entry.py": "9ce011fd1f58943137224eb2add60c3db51974008f8efaa4429db75949d127dd",
+          "src/lifeos_host/contracts.py": "b4b87219ce3e27cf9db008f586dae52e86ddb3ffaaabe7ae2ef82d1e2a767ee0",
+          "src/lifeos_host/transport.py": "9bd67ba590de35723dc2bd29bf8f9632a0ef1ea8be209a607cd1edee67454d3b",
+          "src/lifeos_host/host.py": "2b0a64b18e9b5a3ff02856772aa2e37fa8696e6ee855950500f41d64dddfa793",
+          "src/lifeos_host/provider.py": "5a2238075dbdc749387889074f8ffcc068a3bc79360800f546bf450be6dbbc4e",
+          "src/lifeos_host/execution.py": "f3741eff2589fadb74e8a648c58fc057640b08146e8b47da6625909ee83bc119",
+          "src/lifeos_host/persist.py": "1b552c8ec2c596a6e4fb4ec508e976be8897589991db2213a283ae0009a2b257",
+          "src/lifeos_host/skills_registry.py": "0ee371278ca554a496bbfc846d642a35e888f41f9e61eef5eaa6e7c15365d8c1",
+          "src/lifeos_host/__init__.py": "54851b4ee95819a25bdbec9de776519464d7c93558665a6b95da1022c3536c5e",
+          "src/graphs/graph.py": "72867f5c34329b8ed247499a2f33a199db953c73f9473ca709a198be4ffec5eb",
+          "src/graphs/state.py": "e016a08ed0b062dc32b91189f806091ccfa012d6076804845ed11db8facf6c7e",
+          "src/graphs/nodes/lifeos_host_node.py": "1b853189e1c261a6659b2a782a2063923820c5f9ff0f9e0edb5eb7d876b3e321",
+          "src/graphs/nodes/entry_router_node.py": "3279060354ef84bcb08fff89954b2e36d8eec0dd1c750d5401d7eb8641628c13",
+          "src/graphs/nodes/lifeos_http_node.py": "30d0498c080ce70bd06b032c56e3af1b01e2c2d262780a5abf13e85778df6201"
+        },
+        "skillsDigest": "8917dbcebb168e135485871520a68fececb13dd14dba83bcade993373d1ce9a8",
+        "skillHashes": {
+          "assets/skills/lifeos-action-review.md": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+          "assets/skills/lifeos-direction-analysis.md": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+          "assets/skills/lifeos-experience-evidence.md": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+          "assets/skills/lifeos-growth-diff.md": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+          "assets/skills/lifeos-guide-application.md": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+          "assets/skills/lifeos-personal-companion.md": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
+        },
+        "canonicalCardsHash": "862ba500f77f8f5efd307aeecc173bffaff02ec48a807c24800d8d5af54d2a6d",
+        "approvedSubsetHash": "862ba500f77f8f5efd307aeecc173bffaff02ec48a807c24800d8d5af54d2a6d",
+        "fullCorpusHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+        "canonicalCards": {
+          "card:4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d": "c2bec4773a4f2a89611e46c48626a90d3e6540ab0757e6896162c1b4c61b0f33",
+          "card:7ff3638d-87dc-4842-8908-352ea1ed308e": "86cc863b6c3e097ed8f9e2b3c62da201fbb6d56f026d581e2dd291f09d3b8793",
+          "card:e6ad610b-549e-4b09-89bc-34223577fb49": "73d5744c2491c9714125670a75b71e95cb2c4ca6ba0f017b681946170c456bc2",
+          "card:fec4a7ce-91a7-4fa8-8278-ff6b61e1404a": "7649933189d45706e2649ae74fea621f3a5a31e2a61b4d5c10b8ea834c0a3ae6",
+          "card:418188a9-dfd0-46d3-8f35-6fdff72de1c9": "48354f4b077063aa253eabaf3b80f3fd183b307f99d823b47f02b64ae036cbca",
+          "card:d1cb5277-c602-4909-8a48-b4fc52f15d63": "7225480e42cdce16b5e6ca57fe726f5c06bb5c6207b08954f7d4deff11fb5c82",
+          "card:5fde19ca-e307-478c-8a96-5781df392991": "eea24875ccdf39d9cb4302e5a5f67ed1473b97293112778a302671f309f382dc",
+          "card:48e4e604-8fd8-4016-862c-f6d3219c776d": "50cc605d907cba3389ea00b2522c7b632fe258acaa4ad28ca7a05e48df90721c",
+          "card:6262d479-9403-4140-8910-48de23cd2600": "b8aadd9a0b34f435fb31c87b70531cccc0761b20e8011efb47b5f6efb2cfa247",
+          "card:563bc621-e36d-416b-8176-c82bbe0469f3": "8ad4816bf2cbbf9756672b3dce15f7119d34a574a78c71dc49fece45b08ef056",
+          "card:4795f7b2-f739-4ba5-8052-2d04f5894bbe": "23bd29fd3a80d3661d6936ed6cb69c60ec7851f8d2d0f6dad1b0979f27362c79",
+          "card:43e47ad6-3543-4c97-84f6-42bb0a1e6cb3": "185c80a660bcc5720cb13669b0c55886a818612be146c64cef5b4ce58f189754",
+          "card:061bf547-823f-492e-89c2-cf11daf153b5": "c7f34a3daf0031dca26564cc37dc6d40d36e8f0c20ace66f9d4b7c8ff8941abb",
+          "card:ea53cc08-3420-442f-8e5c-98070be7909a": "e46372c7d948d89aeee449b90235815aa10128d8c6295f60d9878879fa3afb1e",
+          "card:349634c2-27c1-4a99-8f54-3f8e072d5ce0": "3d97d8c219a696a16019504f3ea1daf51c2f64d392530992329c7c996af14029",
+          "card:1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a": "15145936216176c6fbc39c639f0e38e8266fe6df6ab97c4f4ce46197b688983b"
+        },
+        "noPrivateStudentData": true,
+        "noCredentials": true,
+        "note": "zero-model permit-free runtime readback; no key/secret exposed"
+      },
+      "sourceHashes": {
+        "src/lifeos_host/http_route/entry.py": "9ce011fd1f58943137224eb2add60c3db51974008f8efaa4429db75949d127dd",
+        "src/lifeos_host/http_route/dispatch.py": "f504a56f36cd29d802c6dc6eb04aeacc0ebe5c3e056992b600d99605ca383174",
+        "src/lifeos_host/http_route/provider_http.py": "5c39242f421463af371abe3da80f08c5c7407ad2a537f422071ec95b58c5562d"
+      }
+    },
+    "realModelGraph": "NOT_TESTED",
+    "productionDeployment": "NOT_UPDATED",
+    "independentReview": "RUNNING_ACTUAL_READ_ONLY_CLI_R17"
   }
 }
