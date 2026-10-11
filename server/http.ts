@@ -69,6 +69,9 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHos
       if(!['GET','HEAD'].includes(method)&&req.headers.origin!==config.origin)throw new HttpError(403,'ORIGIN_REJECTED')
       if(Number(req.headers['content-length']??0)>65536)throw new HttpError(413,'REQUEST_TOO_LARGE')
       if(path==='/api/auth/pending-reset'&&method==='GET'){
+        // A reset token grants account access. The development companion
+        // must never expose it on the production public server.
+        if(config.production)throw new HttpError(404,'NOT_FOUND')
         // 邮件服务未接入：重置令牌暂存后由此取回。接入邮件后删除此端点。
         const email=String(url.searchParams.get('email')??'').toLowerCase()
         if(!email){json(res,400,{error:'EMAIL_REQUIRED'});return}
