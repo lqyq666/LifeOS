@@ -9,18 +9,21 @@
     "branch_id": "C01-1",
     "status": "covered",
     "evidence_ids": [
-      "yangtze-library-e1"
+      "yangtze-library-batch-campus-resource-e1",
+      "yangtze-library-batch-campus-resource-e1",
+      "yangtze-library-batch-campus-resource-e1"
     ],
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "了解大学运行方式，从哪下手？",
     "negative": "了解大学运行方式让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
-    "content_maturity": "SUBSTANTIVE_DRAFT",
-    "independent_review": "NOT_EXECUTED",
-    "human_approval": "NOT_OBTAINED",
+    "content_revision_candidate": 3,
+    "content_maturity": "VERSIONED_APPROVED_PUBLIC_CONTENT",
+    "independent_review": "OBSERVED_COZE_R8_EXACT_ORIGINAL_REVIEW",
+    "human_approval": "DIRECT_OWNER_AUTHORIZATION_DELEGATED_VERSION_BOUND_RECEIPT",
     "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
-    "remaining_claim": "该校账号与权限不能迁移到其他学校。"
+    "remaining_claim": "该校账号与权限不能迁移到其他学校。",
+    "publication_receipt_id": "4fff4e4c-9d77-4eb9-a24b-1840661d778c"
   },
   {
     "candidate_id": "C01-2",
@@ -32,18 +35,21 @@
     "branch_id": "C01-2",
     "status": "covered",
     "evidence_ids": [
-      "yangtze-library-e1"
+      "yangtze-library-batch-campus-resource-e1",
+      "yangtze-library-batch-campus-resource-e1",
+      "yangtze-library-batch-campus-resource-e1"
     ],
     "review_status": "approved",
     "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
     "positive": "寻找可靠校园信息，从哪下手？",
     "negative": "寻找可靠校园信息让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 2,
-    "content_maturity": "SUBSTANTIVE_DRAFT",
-    "independent_review": "NOT_EXECUTED",
-    "human_approval": "NOT_OBTAINED",
+    "content_revision_candidate": 3,
+    "content_maturity": "VERSIONED_APPROVED_PUBLIC_CONTENT",
+    "independent_review": "OBSERVED_COZE_R8_EXACT_ORIGINAL_REVIEW",
+    "human_approval": "DIRECT_OWNER_AUTHORIZATION_DELEGATED_VERSION_BOUND_RECEIPT",
     "research_result": "EXISTING_SOURCE_REOPEN_AND_RANGE_CHECK",
-    "remaining_claim": "该校账号与权限不能迁移到其他学校。"
+    "remaining_claim": "该校账号与权限不能迁移到其他学校。",
+    "publication_receipt_id": "4fff4e4c-9d77-4eb9-a24b-1840661d778c"
   },
   {
     "candidate_id": "C01-3",

@@ -4,15 +4,18 @@
   "cards": [
     {
       "guide_id": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
-      "content_hash": "92bd95009d51a1146577675de0ee38af363c1bd5f59bc284bc366c2f8d19bf55",
+      "content_hash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
       "disposition": "approved",
-      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "reason": "Actual Coze R8 original-source review plus direct owner approval executed by authenticated delegate; exact normal maintenance HTTP publication and student method readback.",
       "supports": [
         "图书馆原文描述馆藏查询与电子资源获取实操；支持先找本人学校可核验入口。"
       ],
       "cannot_infer": [
         "不能推出他校权限或全校事务均由图书馆办理；按部门查入口是编辑适配。"
-      ]
+      ],
+      "revision": 3,
+      "independentExecutionId": "coze-kb-r8-original-cards",
+      "publicationReceiptId": "4fff4e4c-9d77-4eb9-a24b-1840661d778c"
     },
     {
       "guide_id": "257bea5b-e782-427a-82c0-39e84e086ad9",
@@ -384,6 +387,20 @@
       ],
       "cannot_infer": [
         "AI建议核验、合作风险和个人资料保护的全部分支仍缺相关原文；不能把文学检索讲座当作隐私合规指南。"
+      ]
+    }
+  ],
+  "historicalSupersededReviews": [
+    {
+      "guide_id": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+      "content_hash": "92bd95009d51a1146577675de0ee38af363c1bd5f59bc284bc366c2f8d19bf55",
+      "disposition": "approved",
+      "reason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+      "supports": [
+        "图书馆原文描述馆藏查询与电子资源获取实操；支持先找本人学校可核验入口。"
+      ],
+      "cannot_infer": [
+        "不能推出他校权限或全校事务均由图书馆办理；按部门查入口是编辑适配。"
       ]
     }
   ]

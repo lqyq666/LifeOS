@@ -1899,5 +1899,37 @@
     "productionWrites": 0,
     "status": "WIP_NOT_READY",
     "extraCandidatePackaging": "CANCELLED_BY_OWNER_ONLY_REAL_DEPLOYMENT_NECESSARY_VALIDATION"
+  },
+  "ownerPublicGuidePublication": {
+    "status": "ACTUAL_LOCAL_PRIMARY_NORMAL_AUTHENTICATED_HTTP_PUBLISHED_AND_STUDENT_READBACK",
+    "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+    "revision": 3,
+    "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
+    "independentExecutionId": "coze-kb-r8-original-cards",
+    "approvalReceiptId": "4fff4e4c-9d77-4eb9-a24b-1840661d778c",
+    "ownerApproval": "Direct current human instruction, executed by authenticated delegated service principal; not a claimed human UI click.",
+    "newOwnerApprovals": 1,
+    "newPublishedRevisions": 1,
+    "approvedCards": 16,
+    "needsReviewCards": 16,
+    "modelCalls": 0,
+    "cozeCalls": 0,
+    "backup": "Private original primary backup verified before additive migrations; no private database copied to tests or public artifacts.",
+    "normalStudentMethodReadback": true,
+    "normalPublicRetrievalReadback": true,
+    "indexedOnlyChangedCardSegments": 8,
+    "nextIndexEncodedSegments": 0,
+    "publicEvidence": "evidence/coze-core-launch-20261011/owner-public-guide-publication-first.json",
+    "productionDeployment": false,
+    "remoteCorpusBinding": "NOT_SYNCED_AFTER_OWNER_PUBLICATION"
+  },
+  "latestIndependentCodeReview": {
+    "execution": "evidence/coze-core-launch-20261011/independent-r16-code-execution-first.json",
+    "report": "evidence/coze-core-launch-20261011/independent-r16-code-first.json",
+    "verdict": "BLOCKED_HIGH_DEFECTS",
+    "priorResolved": 9,
+    "remainingHigh": 3,
+    "launchEligible": false,
+    "notIndependentReleaseApproval": true
   }
 }

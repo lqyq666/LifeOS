@@ -9772,8 +9772,8 @@
     }
   ],
   "independentReviews": 0,
-  "humanApprovals": 0,
-  "served": false,
+  "humanApprovals": 1,
+  "served": true,
   "reviewPreparation": [
     {
       "canonicalKey": "campus-resource",
@@ -17074,5 +17074,202 @@
         "replaces": []
       }
     }
-  ]
+  ],
+  "ownerPublishedRevisions": [
+    {
+      "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+      "revision": 3,
+      "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
+      "independentExecutionId": "coze-kb-r8-original-cards",
+      "publicationReceiptId": "4fff4e4c-9d77-4eb9-a24b-1840661d778c",
+      "sourceHashes": [
+        "617f3ea19ac37d4c289ce1376207ae28990d3f10cc825fc980e4349fa86c35e8"
+      ],
+      "authorizationSha256": "53193bdc983dedb7e2d396c8510b9d270aba51d9415d278864f714b72a35ea96",
+      "publicEvidence": "evidence/coze-core-launch-20261011/owner-public-guide-publication-first.json",
+      "priorCanonicalSnapshot": {
+        "id": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+        "revision": 1,
+        "kind": "method",
+        "status": "verified",
+        "synthetic": false,
+        "title": "找到可核验的校园信息",
+        "url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+        "publisher": "长江大学图书馆",
+        "publishedYear": "未知（不以获取年份冒充发布时间）",
+        "verifiedAt": "2026-10-10T03:21:13.177Z",
+        "validUntil": null,
+        "excerpt": "馆藏查询",
+        "claim": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。",
+        "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+        "limitations": "该校具体权限不适用于所有学校；只借鉴查官方资源的方法。；全部操作步骤为LifeOS编辑适配。",
+        "mechanisms": [
+          "寻找官方入口"
+        ],
+        "sourceHash": "64f5f4a3f9430d3b2079fea30d6239f860a25e48fe3105447b3046d42a7eec9d",
+        "guide": {
+          "schemaVersion": 1,
+          "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+          "canonicalKey": "campus-resource",
+          "aliases": [
+            "新生",
+            "选课",
+            "教务",
+            "校园信息",
+            "运行方式",
+            "可靠信息",
+            "图书馆",
+            "了解大学运行方式",
+            "寻找可靠校园信息"
+          ],
+          "domains": [
+            "01"
+          ],
+          "task": "找到可核验的校园信息",
+          "stage": "start/adjust/compare",
+          "mechanism": "寻找官方入口",
+          "prerequisites": [
+            "本人愿意接受方法；当前有对应的具体任务。"
+          ],
+          "exclusions": [
+            "明确只想倾听或拒绝建议。",
+            "医疗、法律、投资结论或个人成功率预测。"
+          ],
+          "evidenceIds": [
+            "yangtze-library-e1"
+          ],
+          "claims": [
+            {
+              "id": "campus-resource-source",
+              "text": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。",
+              "basis": "source_supported",
+              "evidenceIds": [
+                "yangtze-library-e1"
+              ],
+              "scope": "该来源的教学或实践情境；校园迁移步骤另行标注。",
+              "limitations": "该校具体权限不适用于所有学校；只借鉴查官方资源的方法。"
+            },
+            {
+              "id": "campus-resource-adaptation",
+              "text": "列出问题所属部门，打开本人学校官方页面或咨询入口，保存出处及尚未确认项。",
+              "basis": "editorial_adaptation",
+              "evidenceIds": [
+                "yangtze-library-e1"
+              ],
+              "scope": "LifeOS为当前校园任务设计，动作大小由用户实际预算调整。",
+              "limitations": "步骤属于操作建议，未经效果试验证明，不保证结果。"
+            }
+          ],
+          "sourceGroups": [
+            "yangtze-library"
+          ],
+          "principle": "寻找官方入口；公开方法与本人经历分开。",
+          "branches": [
+            {
+              "id": "C01-1",
+              "candidateId": "C01-1",
+              "task": "了解大学运行方式",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C01-1-1",
+                  "text": "围绕“了解大学运行方式”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                },
+                {
+                  "id": "C01-1-2",
+                  "text": "列出问题所属部门，打开本人学校官方页面或咨询入口，保存出处及尚未确认项。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                },
+                {
+                  "id": "C01-1-3",
+                  "text": "记录观察：知道该向谁确认，区分本校信息与他校示例。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "C01-2",
+              "candidateId": "C01-2",
+              "task": "寻找可靠校园信息",
+              "stage": "start",
+              "steps": [
+                {
+                  "id": "C01-2-1",
+                  "text": "围绕“寻找可靠校园信息”确认当前对象与已做到的步骤；已知信息不重复追问。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                },
+                {
+                  "id": "C01-2-2",
+                  "text": "列出问题所属部门，打开本人学校官方页面或咨询入口，保存出处及尚未确认项。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                },
+                {
+                  "id": "C01-2-3",
+                  "text": "记录观察：知道该向谁确认，区分本校信息与他校示例。",
+                  "basis": "editorial_adaptation",
+                  "evidenceIds": [
+                    "yangtze-library-e1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "oneKeyQuestion": "你现在最需要弄清哪件具体校园事务？",
+          "smallestAction": "只找到一个官方咨询入口即可。",
+          "exampleBudgetOnly": true,
+          "lowEnergyAlternative": "只找到一个官方咨询入口即可。",
+          "stopConditions": [
+            "本人拒绝继续。",
+            "任务前提不成立，或增加不可承受的时间、费用与安全风险。"
+          ],
+          "feedbackBranches": {
+            "not_started": "先核对未启动的具体阻碍，缩小本卡当前步骤，不写成已执行。",
+            "blocked": "读取同一行动及反馈原话，定位卡点，仅调整该步骤；不重播入门。",
+            "waiting_result": "保留已完成动作与等待状态，未回应不等于拒绝或不需要。",
+            "result": "只保存本人报告的实际观察，不能扩大为认可、稳定收入或人格结论。",
+            "declined": "尊重停止，不换标题重推；只有本人主动重提才恢复。"
+          },
+          "expectedObservation": "知道该向谁确认，区分本校信息与他校示例。",
+          "retrievalSummary": "找到可核验的校园信息；新生 选课 教务 校园信息 运行方式 可靠信息 图书馆；了解大学运行方式；寻找可靠校园信息",
+          "referenceBody": "找到可核验的校园信息\n原理：寻找官方入口\nLifeOS适配步骤：列出问题所属部门，打开本人学校官方页面或咨询入口，保存出处及尚未确认项。\n低精力替代：只找到一个官方咨询入口即可。\n观察：知道该向谁确认，区分本校信息与他校示例。\n来源支持：图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。\n不能推出：该校具体权限不适用于所有学校；只借鉴查官方资源的方法。",
+          "reviewStatus": "approved",
+          "reviewReason": "原文机制支持与编辑实施步骤已分开；获准作为有边界的方法。",
+          "review": {
+            "reviewer": "Codex original-body semantic review, round 2; not independent human acceptance",
+            "reviewedAt": "2026-10-10T03:21:13.651Z",
+            "sourceRevisions": {
+              "yangtze-library": 1
+            },
+            "supports": [
+              "图书馆原文描述馆藏查询与电子资源获取实操；支持先找本人学校可核验入口。"
+            ],
+            "cannotInfer": [
+              "不能推出他校权限或全校事务均由图书馆办理；按部门查入口是编辑适配。"
+            ]
+          },
+          "contentHash": "92bd95009d51a1146577675de0ee38af363c1bd5f59bc284bc366c2f8d19bf55",
+          "indexSignature": "",
+          "legacyIds": [],
+          "replaces": []
+        }
+      }
+    }
+  ],
+  "servedScope": "Only exact ownerPublishedRevisions; pending drafts remain unavailable."
 }
