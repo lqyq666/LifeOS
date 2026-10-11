@@ -471,7 +471,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
     const expSkills = extractSkillTags(expAction, expResult, expSummary)
     // 为每个经历节点生成洞察（零模型调用，基于已有数据）
     const expThemes = (await pool.query("SELECT t.title, l.relation FROM experience_theme_links l JOIN user_themes t ON t.user_id=l.user_id AND t.id=l.theme_id WHERE l.user_id=$1 AND l.experience_id=$2 AND l.status='active'", [user, e.id])).rows
-    const expRelated = (await pool.query("SELECT e2.content->>'title' as title, er.score FROM experience_relations er JOIN experiences e2 ON e2.user_id=er.user_id AND e2.id=er.to_experience WHERE er.user_id=$1 AND er.from_experience=$2 ORDER BY er.score DESC LIMIT 3", [user, e.id])).rows
+    const expRelated = (await pool.query("SELECT e2.content->>'title' as title, er.score FROM experience_relations er JOIN experiences e2 ON e2.user_id=er.user_id AND e2.id=er.to_experience WHERE er.user_id=$1 AND er.from_experience=$2 AND NOT (er.relation='follows' AND er.reason='时间上先后发生') ORDER BY er.score DESC LIMIT 3", [user, e.id])).rows
     const expInsight = generateInsight({
       title: e.content.title, summary: expSummary, action: expAction, result: expResult,
       occurredAt: String(e.content?.occurredAt ?? ''), skillTags: expSkills,
@@ -483,7 +483,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
     nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,skillTags:expSkills,insight:expInsight} as any)
   }
   const themeLinks=(await pool.query("SELECT * FROM experience_theme_links WHERE user_id=$1 AND status='active'",[user])).rows
-  const expRelations=(await pool.query("SELECT * FROM experience_relations WHERE user_id=$1 ORDER BY created_at DESC LIMIT 10",[user])).rows
+  const expRelations=(await pool.query("SELECT * FROM experience_relations WHERE user_id=$1 AND NOT (relation='follows' AND reason='时间上先后发生') ORDER BY created_at DESC LIMIT 10",[user])).rows
   const nodeIds=new Set(nodes.map(n=>n.id))
   for(const rel of expRelations){
     const sourceId='exp-'+rel.from_experience,targetId='exp-'+rel.to_experience
