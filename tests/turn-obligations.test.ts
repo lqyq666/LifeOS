@@ -1,6 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,verifyTurnObligations,verifyReplyAgainstObligations,supplementMissingBudgetDeltas,planExplicitCorrection,hoursIn} from '../server/turn-obligations.ts'
+import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,isPureZeroPlanRequest,verifyTurnObligations,verifyReplyAgainstObligations,supplementMissingBudgetDeltas,planExplicitCorrection,hoursIn} from '../server/turn-obligations.ts'
+
+test('only the complete explicit empty-plan request can take the zero-generation path',()=>{
+ const yes='本周我没有可用时间。请安排本周课程和备考。'
+ assert.equal(isPureZeroPlanRequest(yes,deriveTurnObligations(yes)),true)
+ for(const no of ['本周我没有可用时间。请安排本周课程和备考，也帮我起草邮件。','本周我没有可用时间。请安排本周课程和备考，为什么会这样？','室友本周没有可用时间。请安排本周课程和备考。','如果本周没有可用时间，请安排本周课程和备考。','我是成年大学生，本周我没有可用时间。请安排本周课程和备考。'])assert.equal(isPureZeroPlanRequest(no,deriveTurnObligations(no)),false,no)
+})
 
 test('retained real split-clause zero budget verifies its own verbatim staged fact',()=>{
   const text='这周我没有可用时间，是零小时。请排这周的课程和备考安排。'

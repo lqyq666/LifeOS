@@ -29,7 +29,7 @@ import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from '.
 import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
 import { stageWeeklyPlan, renderProposedWeeklyPlan } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
-import { deriveTurnObligations, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
+import { deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
 import { scanUserClauses } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
@@ -392,6 +392,21 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // phantom GROWTH_SNAPSHOT_INVALIDATED even with no real change.
   staged.usedGrowthRefs=growthAll.map(item=>({id:item.id,revision:item.revision}))
   staged.growthSnapshotKey=growthSnapshotKey(growthAll)
+  if(isPureZeroPlanRequest(current.content,obligations)){
+    // An explicitly empty plan has no model choice to make. Reuse the same
+    // verified fact, plan, control and atomic commit machinery; no paid call.
+    staged.growth=await stageGrowthUpdates(run,supplementMissingBudgetDeltas(obligations,undefined,run.source_message_id,current.content),growthAll,{})
+    const period=obligations.requiredEffects.find(e=>e.type==='weekly_plan')!
+    if(period.type!=='weekly_plan')throw new HttpError(400,'WEEKLY_PLAN_INVALID')
+    const input={target:{operation:'create' as const},availableMinutes:0,period:period.period,budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[]}
+    staged.weeklyPlan=await stageWeeklyPlan(run,input,{user:run.user_id,expectedControlSnapshotKey:expectedControlKey,effectiveBlockedScopes:blockedDirectionScopes})
+    const text=renderProposedWeeklyPlan(input)
+    verifyTurnObligations(obligations,{growth:staged.growth,controls:staged.directionControls,currentText:current.content,reply:text,weeklyPlan:staged.weeklyPlan})
+    staged.dialoguePath='direct';staged.upstreamCalls=0
+    staged.modelUsage=usageSummary([],0,0,false,null,true)
+    staged.audit.push({phase:'explicit_zero_plan_deterministic',providerCalls:0,period:period.period,availableMinutes:0,executionClaim:false})
+    return {text,usage:staged.modelUsage}
+  }
   // P1: the clause catalogue is built once per turn; the prompt renders the
   // handles and every personal-fact anchor resolves back to an exact span.
   const clauseCatalogue=buildClauseCatalogue(current.content)

@@ -443,6 +443,18 @@ export function supplementMissingBudgetDeltas(obligations:TurnObligations,staged
 }
 
 export class ObligationError extends Error{readonly code:string;constructor(code:string){super(code);this.code=code}}
+
+export function isPureZeroPlanRequest(text:string,obligations:TurnObligations):boolean{
+ const plan=obligations.requiredEffects.find(e=>e.type==='weekly_plan'),budget=obligations.requiredEffects.find(e=>e.type==='weekly_time'||e.type==='remaining_time')
+ if(plan?.type!=='weekly_plan'||plan.minutes!==0||!budget||obligations.requiredEffects.some(e=>!['weekly_plan','weekly_time','remaining_time'].includes(e.type)))return false
+ return scanUserClauses(text).every(clause=>{
+  const body=clause.text.trim()
+  if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)return false
+  if(!body||ignorableConnectives.has(body))return true
+  if(/为什么|如何|怎么|另外|同时|解释|起草|写|简历|消息|报告|交付|发送|反馈|更正|忘|拒绝|暂停|不想/.test(body))return false
+  return body===budget.quote||/^(?:是|也就是|就是)?(?:零|0)(?:个)?(?:小时|钟头)(?:了)?$/.test(body)||requestsTimeArrangement(body)
+ })
+}
 export const isObligationError=(error:unknown):error is ObligationError=>error instanceof ObligationError
 
 // ── P2-1: explicit corrections must actually land ──────────────────────────
