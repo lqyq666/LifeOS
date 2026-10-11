@@ -1,12 +1,28 @@
 import { randomUUID } from 'node:crypto'
 import type { PoolClient } from 'pg'
 import { Value } from 'typebox/value'
+import { Type } from 'typebox'
 import { pool, transaction, HttpError, requireRow } from './db.ts'
 import { eventDeltaSchema, type EventDelta } from './action-coach-contracts.ts'
 import type { Run } from './store.ts'
 import type { CoachKnowledgeRef } from './coach-knowledge.ts'
 import { growthQuoteSuppressed } from './growth-privacy.ts'
 import {reconcileActionStages,type ActionCase} from './workflows/action-review.ts'
+
+// Provider selections are rendered before staging. Keep the provider contract
+// unchanged while checking the complete server-created provenance here.
+const stagedEventSchema=structuredClone(eventDeltaSchema)
+const materialSourceRefSchema=Type.Union([
+  Type.Object({type:Type.Union([Type.Literal('growth'),Type.Literal('experience')]),id:Type.String({format:'uuid'}),revision:Type.Integer({minimum:1})},{additionalProperties:false}),
+  Type.Object({type:Type.Literal('message'),id:Type.String({format:'uuid'}),conversationId:Type.String({format:'uuid'}),quote:Type.String({minLength:1,maxLength:8000})},{additionalProperties:false}),
+])
+function bindStagedMaterialSources(schema:unknown){
+  if(!schema||typeof schema!=='object')return
+  const node=schema as Record<string,any>
+  if(node.properties?.materialEvidence)node.properties.materialEvidence.items.properties.sourceRef=materialSourceRefSchema
+  for(const value of Object.values(node))if(Array.isArray(value))value.forEach(bindStagedMaterialSources);else if(value&&typeof value==='object')bindStagedMaterialSources(value)
+}
+bindStagedMaterialSources(stagedEventSchema)
 
 export type CoachSource={messageId:string;quote:string;conversationId:string}
 export type CoachNode={id:string;revision:number;kind:'fact'|'feeling'|'user_interpretation'|'unknown';status:'active'|'resolved'|'declined';content:string;source:CoachSource|null;supersededByActionCorrection?:boolean}
@@ -152,7 +168,7 @@ async function coachNodeSource(c:PoolClient,run:Run,eventId:string|undefined,nod
 }
 
 async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
-  if(!Value.Check(eventDeltaSchema,delta))throw new HttpError(400,'COACH_DELTA_INVALID')
+  if(!Value.Check(stagedEventSchema,delta))throw new HttpError(400,'COACH_DELTA_INVALID')
   if(delta.target.operation==='create'){
     await currentSource(c,run,delta.target.source)
     if(delta.corrections?.length||delta.resolveUnknowns?.length||delta.declineUnknowns?.length||delta.action&&delta.action.operation!=='create')throw new HttpError(400,'COACH_NEW_EVENT_TARGET_INVALID')

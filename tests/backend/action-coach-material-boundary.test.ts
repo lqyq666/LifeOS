@@ -34,6 +34,20 @@ async function createEvent(run: store.Run, quote: string, title = 'SYNTHETIC 事
   return (await coachEventView(run.user_id, run.conversation_id))!
 }
 
+test('actual R3 material failure: full server-rendered source references survive staging and persistence',async()=>{
+  const text='把我负责的标题文字和页面排版写成一句作品描述。',base=await prepare(text)
+  try{
+    const factId=randomUUID(),content='我负责标题文字和页面排版。'
+    const draft={content,readiness:'draft_for_user_review' as const,missingRequired:[],materialFactIds:['verified-contribution'],materialEvidence:[{field:'project',text:'我负责标题文字和页面排版',sourceRef:{type:'growth',id:factId,revision:1}}]}
+    const delta:EventDelta={target:{operation:'create',title:'作品描述',source:{messageId:base.run.source_message_id,quote:text}},action:{operation:'create',draft}}
+    const staged=await stageCoachEvent(base.run,delta,content)
+    await store.finishRun(base.run,{candidates:[],audit:[],coach:staged},content,null,base.signal)
+    assert.deepEqual((await coachEventView(base.user,base.conversation))!.actions[0]!.draft!.materialEvidence,draft.materialEvidence)
+    const invalid=structuredClone(delta);(invalid.action as any).draft.materialEvidence[0].sourceRef.revision=0
+    await assert.rejects(stageCoachEvent(base.run,invalid,content),(e:any)=>e.code==='COACH_DELTA_INVALID')
+  }finally{await pool.query('DELETE FROM "user" WHERE id=$1',[base.user])}
+})
+
 test('quoted past permission and delivery narration do not frame a new material', async () => {
   const input='我花了三小时整理了四十页。同班的小林说资料很乱，我就找了他。在微信说我帮他整理，他说可以，没有讲具体知识点。考试前夜把网盘链接发给了他。'
   const base=await prepare(input)
