@@ -21,6 +21,12 @@ test('natural candidate schedule request is mandatory and keeps its requested we
  for(const no of ['室友说请给课程和备考安排下周的候选任务。','如果请给课程和备考安排下周的候选任务会怎么样？','请给课程和备考不要安排下周的任务。'])assert.ok(!deriveTurnObligations(no).requiredEffects.some(e=>e.type==='weekly_plan'),no)
 })
 import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,isPureZeroPlanRequest,verifyTurnObligations,verifyReplyAgainstObligations,supplementMissingBudgetDeltas,planExplicitCorrection,hoursIn} from '../server/turn-obligations.ts'
+test('V19 remaining-week replacement identifies only the matching owned budget, never recurring time',()=>{
+ const old=[{id:'remaining',revision:2,kind:'constraint' as const,assertion:'user_reported',text:'这周还剩两小时'},{id:'routine',revision:1,kind:'context' as const,assertion:'user_reported',text:'平时每周能拿出六小时'}]
+ assert.equal(planExplicitCorrection('这周剩余时间要改成三十分钟。',old)?.target?.itemId,'remaining')
+ for(const text of ['如果这周剩余时间要改成三十分钟。','同学说这周剩余时间要改成三十分钟。','这周剩余时间要改成三十分钟吗？'])assert.equal(planExplicitCorrection(text,old),null,text)
+ assert.equal(planExplicitCorrection('这周剩余时间要改成三十分钟。',old.slice(1))?.target,undefined)
+})
 
 test('only the complete explicit empty-plan request can take the zero-generation path',()=>{
  const yes='本周我没有可用时间。请安排本周课程和备考。'

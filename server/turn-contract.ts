@@ -75,7 +75,7 @@ export function reportedTaskBoundaryClauses(text:string){
  const clauses=anchorablePersonalClauses(text)
  return clauses.filter(clause=>refusalPreferenceClause(clause.text)
   ||scopedTaskPauseClause(clause.text)
-  ||(/^(?:但)?第[一二三四五六七八九十\d]+(?:道|个)?题(?:不会做|不会|不懂|没思路)$/.test(clause.text)
+  ||(/^(?:但)?第[一二三四五六七八九十\d]+(?:道|个)?题(?:还是|还)?(?:不会做|不会|不懂|没思路|没有思路|不知道从哪里下手)$/.test(clause.text)
    &&clauses.some(other=>other.sentenceStart===clause.sentenceStart&&/(?:我|本人)/.test(other.text))))
 }
 

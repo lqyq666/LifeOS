@@ -262,6 +262,8 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
     if(change.assertion!=='user_reported'||!scopedTaskPauseClause(change.source.quote))return change
     const own=scanUserClauses(current.content).find(clause=>clause.text===change.source.quote&&!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative)
     if(!own)return change
+    const explicitWeek=own.text.match(/这周|本周|下周/)?.[0]
+    if(explicitWeek)return {...change,kind:'constraint',timeEvidence:{kind:'calendar_week',which:explicitWeek==='下周'?'next':'this',quote:explicitWeek}} as ResolvedGrowthDelta
     const budget=applicableTimeBudget(current.content,undefined,undefined,{retainReportedBudget:true})
     const token=budget?.period==='next_week'?'下周':budget?.period==='this_week'?(/本周/.test(budget.quote)?'本周':'这周'):null
     if(token&&sameSentence(current.content,own.start,current.content.indexOf(budget!.quote)))return {...change,kind:'constraint',timeEvidence:{kind:'calendar_week',which:budget!.period==='next_week'?'next':'this',quote:token}} as ResolvedGrowthDelta
@@ -304,7 +306,8 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
         // calendar-week marker may sit in an earlier clause of the same
         // sentence (PC07: 这周课程赶，只剩两小时).
         const factIndex=current.content.indexOf(change.source.quote)
-        const evidenceIndex=current.content.indexOf(evidence.quote)
+        const relativeEvidenceIndex=change.source.quote.indexOf(evidence.quote)
+        const evidenceIndex=relativeEvidenceIndex>=0?factIndex+relativeEvidenceIndex:current.content.indexOf(evidence.quote)
         if(factIndex>=0&&evidenceIndex>=0){
           const factSpanEnd=factIndex+change.source.quote.length
           const insideFactSpan=evidenceIndex>=factIndex&&evidenceIndex+evidence.quote.length<=factSpanEnd

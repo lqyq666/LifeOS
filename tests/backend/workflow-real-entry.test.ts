@@ -2,11 +2,20 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs'
 import {createHash} from 'node:crypto'
-import {realBatchPreflight,executeRealBatch,realMetrics,startRealAcceptanceHttp,selectRealPilotCases,readRepairPilotCases} from '../../scripts/workflow-real-batch.ts'
+import {realBatchPreflight,executeRealBatch,realMetrics,startRealAcceptanceHttp,selectRealPilotCases,readRepairPilotCases,readOrdinaryLaunchCases} from '../../scripts/workflow-real-batch.ts'
 import {createServer} from 'node:http'
 import {feedbackMatchesCurrent,classifyGuideFeedback} from '../../server/guide-usage.ts'
 import {pool} from '../../server/db.ts'
 test.after(()=>pool.end())
+test('scoped ordinary launch pins owner scope and cohort before any dispatch and rejects mixed deep scope',()=>{
+ const path='.planning/research/workflow-integration/SCOPED_LAUNCH_COHORT_20261011.json',approval='evidence/coze-core-launch-20261011/THREE_HOUR_LAUNCH_SCOPE.json',hash=(p:string)=>createHash('sha256').update(readFileSync(p)).digest('hex')
+ const auth={ordinaryLaunchOnly:true,ordinaryLaunchInput:{path,sha256:hash(path)},scopedApprovalEvidence:approval,scopedApprovalSha256:hash(approval)}
+ assert.equal(readOrdinaryLaunchCases(auth)!.length,24)
+ assert.throws(()=>readOrdinaryLaunchCases({...auth,smallComplexOnly:true}),/SCOPE_CONFLICT_ZERO_DISPATCH/)
+ assert.throws(()=>readOrdinaryLaunchCases({...auth,scopedApprovalSha256:'wrong'}),/OWNER_SCOPE_MISSING/)
+ assert.throws(()=>readOrdinaryLaunchCases({...auth,ordinaryLaunchInput:{path,sha256:'wrong'}}),/HASH_INVALID/)
+ assert.equal(readOrdinaryLaunchCases({}),null)
+})
 test('new repair pilot is pinned before dispatch and cannot substitute the final cohort',()=>{
  const path='.planning/research/workflow-integration/REPAIR_PILOT_CONTACT_TIME_20261011.json',sha256=createHash('sha256').update(readFileSync(path)).digest('hex'),auth={smallOrdinaryOnly:true,repairPilotInput:{path,sha256}}
  const cases=readRepairPilotCases(auth)!

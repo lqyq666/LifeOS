@@ -106,10 +106,12 @@ export function weeklyTimeIntent(text:string):{quote:string;minutes:number;perio
 // sit in an earlier clause of the same sentence (这周，只剩两小时). Next-week
 // clauses and marker-less statements stay out rather than being guessed into
 // this week. Spent time (花了/用了) and attached nouns (两小时课) never count.
-const remainingBudget=/((?:只)?还?剩(?:下|着)?|(?:只|就)?有|(?:只|就)|可用)[^，,。；;！？!?\n]{0,4}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头))(?![课班])/
+const remainingBudget=/(剩余时间(?:要)?(?:改成|改为)|(?:只)?还?剩(?:下|着)?|(?:只|就)?有|(?:只|就)|可用)[^，,。；;！？!?\n]{0,4}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头|分钟))(?![课班])/
 // 半小时=30, 一个半小时=90 resolve through parseExactHours on the whole token
 // first; bare amounts (两小时) strip the unit. Ambiguous forms (两个半小时) refuse.
 const remainingMinutes=(token:string):number|null=>{
+  const minute=/^([0-9]+|[零一二两三四五六七八九十百]+)\s*分钟$/.exec(token)
+  if(minute)return chineseInteger(minute[1]!)
   const direct=parseExactHours(token)
   if(direct!==null)return direct
   return parseExactHours(token.replace(/(?:小时|钟头)$/,'').replace(/个$/,''))
@@ -493,6 +495,18 @@ const sharedChars=(a:string,b:string)=>{
 export type CorrectionCandidate={id:string;revision:number;kind:NonNullable<CorrectionPlan['target']>['kind'];assertion:string;text:string}
 export function planExplicitCorrection(text:string,authorized:readonly CorrectionCandidate[]):CorrectionPlan|null{
   const clauses=scanUserClauses(text)
+  for(const clause of clauses){
+    if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative||clause.quoteSpans.length)continue
+    if(!/^(?:这周|本周|下周)[^。！？,，;；]{0,16}(?:改成|改为)/.test(clause.text))continue
+    const budget=applicableTimeBudget(clause.text,undefined,undefined,{retainReportedBudget:true})
+    if(!budget||budget.scope!=='remaining')continue
+    const matching=authorized.filter(item=>['user_reported','user_edit'].includes(item.assertion)&&['context','constraint'].includes(item.kind)).filter(item=>{
+      const prior=applicableTimeBudget(item.text,undefined,undefined,{retainReportedBudget:true})
+      return prior?.scope==='remaining'&&prior.period===budget.period
+    })
+    const item=matching.length===1?matching[0]:undefined
+    return {newQuote:clause.text,target:item?{itemId:item.id,expectedRevision:item.revision,beforeQuote:item.text,kind:item.kind}:undefined}
+  }
   let markerIndex=-1
   for(const [index,clause] of clauses.entries()){
     const body=clause.text.trim()

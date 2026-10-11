@@ -1,12 +1,21 @@
 import {findEpisode} from '../server/experience-episodes.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {reportedTaskOutcomeClauses,reportedPerformedTaskClauses,taskOutcomeReadback} from '../server/turn-contract.ts'
-import {conversationPreferenceClause,deferredPursuitClause} from '../server/user-command-spans.ts'
+import {reportedTaskOutcomeClauses,reportedPerformedTaskClauses,reportedTaskBoundaryClauses,taskOutcomeReadback} from '../server/turn-contract.ts'
+import {conversationPreferenceClause,deferredPursuitClause,currentConversationOnly} from '../server/user-command-spans.ts'
 import {pursuitLevel} from '../server/user-themes.ts'
 import {isBlockedExperience} from '../server/starmap-enrichment.ts'
 import {clauseReportsCompleted} from '../server/experience-content.ts'
 import {buildClauseCatalogue} from '../server/clause-catalogue.ts'
+test('persisted V19 natural refusal, listening and exam pause use the shared boundary grammar',()=>{
+ const refusal='上次那件作业的事我现在不想接着做，先别再给它排任务了。'
+ assert.equal(currentConversationOnly(refusal),true)
+ assert.equal(reportedTaskBoundaryClauses(refusal)[0]?.text,'上次那件作业的事我现在不想接着做')
+ assert.equal(conversationPreferenceClause('我只是想说说卡在那道题的烦躁'),true)
+ assert.equal(reportedTaskBoundaryClauses('考试复习这周先停一下。')[0]?.text,'考试复习这周先停一下')
+ assert.ok(reportedTaskBoundaryClauses('我已经把没完成的题列出来了，第五题还是不知道从哪里下手。').some(clause=>clause.text==='第五题还是不知道从哪里下手'))
+ for(const other of ['如果考试复习这周先停一下。','同学说考试复习这周先停一下。','“考试复习这周先停一下”。','考试复习这周先停一下吗？'])assert.deepEqual(reportedTaskBoundaryClauses(other),[],other)
+})
 test('actual task observations retain separate read, response and adoption statements without importing a public case',()=>{
  const text='我通过学校邮箱请教学长甲，原请求是了解项目课。对方已经读了，但没有回复，也没有采用。'
  assert.deepEqual(reportedTaskOutcomeClauses(text).map(c=>c.text),['对方已经读了','但没有回复','也没有采用'])

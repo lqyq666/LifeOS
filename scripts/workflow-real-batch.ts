@@ -23,6 +23,19 @@ export function readRepairPilotCases(auth:any){
  if(!Array.isArray(cases)||!cases.length||cases.length>8||new Set(cases.map((c:any)=>c.caseId)).size!==cases.length||cases.some((c:any)=>typeof c.caseId!=='string'||typeof c.input!=='string'||!c.input.trim()||c.input.length>4000||!Number.isInteger(c.session)||c.session<0||c.session>7))throw new Error('REPAIR_PILOT_CASES_INVALID')
  return cases as {caseId:string;input:string;session:number}[]
 }
+export function readOrdinaryLaunchCases(auth:any){
+ if(!auth.ordinaryLaunchOnly)return null
+ if(auth.smallOrdinaryOnly||auth.smallComplexOnly||auth.repairPilotInput||auth.reviewedPilotExecutionId)throw Error('ORDINARY_LAUNCH_SCOPE_CONFLICT_ZERO_DISPATCH')
+ const {path,sha256}=auth.ordinaryLaunchInput??{}
+ if(typeof path!=='string'||!/^\.planning\/research\/workflow-integration\/SCOPED_LAUNCH_COHORT_[A-Z0-9_]+\.json$/.test(path))throw Error('ORDINARY_LAUNCH_INPUT_SCOPE_INVALID')
+ const bytes=readFileSync(path);if(hash(bytes)!==sha256)throw Error('ORDINARY_LAUNCH_INPUT_HASH_INVALID')
+ const approval=auth.scopedApprovalEvidence,scope=typeof approval==='string'?JSON.parse(readFileSync(approval,'utf8')):null
+ if(!scope||hash(readFileSync(approval))!==auth.scopedApprovalSha256||scope.kind!=='OWNER_APPROVED_SCOPED_THREE_HOUR_LAUNCH'||scope.deployOnlyAfterScopedCoreGates!==true)throw Error('ORDINARY_LAUNCH_OWNER_SCOPE_MISSING')
+ const cases=JSON.parse(bytes.toString()).cases
+ if(!Array.isArray(cases)||cases.length<20||cases.length>40||new Set(cases.map((c:any)=>c.caseId)).size!==cases.length||cases.some((c:any)=>typeof c.caseId!=='string'||typeof c.group!=='string'||!c.group.trim()||typeof c.input!=='string'||!c.input.trim()||c.input.length>4000||!Number.isInteger(c.session)||c.session<0||c.session>2))throw Error('ORDINARY_LAUNCH_COHORT_INVALID')
+ const groups=new Set(cases.map((c:any)=>c.group));if(groups.size!==4||[...groups].some(group=>new Set(cases.filter((c:any)=>c.group===group).map((c:any)=>c.session)).size!==3))throw Error('ORDINARY_LAUNCH_FOUR_CROSS_SESSION_CHAINS_REQUIRED')
+ return cases as {caseId:string;group:string;input:string;session:number}[]
+}
 export function realMetrics(rows:any[]){
  const percentile=(values:number[],p:number)=>values.length?[...values].sort((a,b)=>a-b)[Math.ceil(p*values.length)-1]:null
  const ordinary=rows.filter(r=>r.stage==='ordinary20'&&!r.deepInput),first=ordinary.map(r=>r.firstUsefulMs).filter((n):n is number=>typeof n==='number'&&n>0),whole=ordinary.map(r=>r.replyCompleteMs).filter((n):n is number=>typeof n==='number'&&n>0)
@@ -62,6 +75,7 @@ export function realBatchPreflight(authorizationPath?:string){
  if(auth&&auth.modelSignature!==modelSignatureFor('default'))blocks.push('MODEL_SIGNATURE_MISMATCH')
  if(auth?.smallOrdinaryOnly&&auth?.smallComplexOnly)blocks.push('PILOT_SCOPE_CONFLICT_ZERO_DISPATCH')
  try{readRepairPilotCases(auth??{})}catch{blocks.push('REPAIR_PILOT_INPUT_INVALID_ZERO_DISPATCH')}
+ try{readOrdinaryLaunchCases(auth??{})}catch(error){blocks.push(error instanceof Error?error.message:'ORDINARY_LAUNCH_INPUT_INVALID_ZERO_DISPATCH')}
  let pilotContinuation:ReturnType<typeof readReviewedPilotContinuation>|null=null
  if(auth?.reviewedPilotExecutionId){
   if(auth.smallOrdinaryOnly||auth.smallComplexOnly)blocks.push('PILOT_CONTINUATION_SCOPE_CONFLICT')
@@ -93,10 +107,10 @@ export async function executeRealBatch(authPath:string,directory:string){
  const record=(row:unknown)=>appendFileSync(journal,JSON.stringify(row)+'\n')
  if(existsSync(journal))throw new Error('FIRST_ATTEMPTS_ALREADY_EXIST_NO_REISSUE')
  const remaining=()=>{const now=ledger.snapshot(),newCalls=now.calls.slice(starting.calls.length);return auth.maxSpendCny-newCalls.reduce((sum:number,c:any)=>sum+(typeof c.estimatedCostCny==='number'?c.estimatedCostCny:c.reservedCostCny),0)}
- const oldAdvanced=process.env.LIFEOS_ADVANCED_WORKFLOWS;process.env.LIFEOS_ADVANCED_WORKFLOWS='true'
+ const oldAdvanced=process.env.LIFEOS_ADVANCED_WORKFLOWS;process.env.LIFEOS_ADVANCED_WORKFLOWS=auth.ordinaryLaunchOnly?'false':'true'
  const decisionAudits=new Map<string,any[]>()
  let comparisonMode:'single'|'multi'='multi'
- const host=auth.smallOrdinaryOnly?undefined:createWorkflowHost({comparisonMode:()=>comparisonMode,adapter:createRuntimeDecisionAdapter({readEvidence:readWorkflowEvidence,readMethods:workflowMethodReader(),freezePath,budget:ledger,audit:async(r,row)=>{decisionAudits.set(r.requestId,[...(decisionAudits.get(r.requestId)??[]),row]);record({type:'deep_provider',requestId:r.requestId,...row});await pool.query('UPDATE lifeos_workflow_nodes SET provider_usage=$4 WHERE user_id=$1 AND request_id=$2 AND call_id=$3',[r.internalActorKey,r.requestId,row.callId,JSON.stringify(row)])}})})
+ const host=auth.smallOrdinaryOnly||auth.ordinaryLaunchOnly?undefined:createWorkflowHost({comparisonMode:()=>comparisonMode,adapter:createRuntimeDecisionAdapter({readEvidence:readWorkflowEvidence,readMethods:workflowMethodReader(),freezePath,budget:ledger,audit:async(r,row)=>{decisionAudits.set(r.requestId,[...(decisionAudits.get(r.requestId)??[]),row]);record({type:'deep_provider',requestId:r.requestId,...row});await pool.query('UPDATE lifeos_workflow_nodes SET provider_usage=$4 WHERE user_id=$1 AND request_id=$2 AND call_id=$3',[r.internalActorKey,r.requestId,row.callId,JSON.stringify(row)])}})})
  const engine=createTurnEngine({providerCallObserver:{allowRepair:false,before:call=>{
   assertCoachSourceFreeze(freezePath);const n=counts.get(call.requestId)??0;if(n>=1)throw new Error('ORDINARY_MAX_ONE_NO_PAID_REPAIR')
   const rt=resolveModel(call.tier),maximum=maximumProviderCallCostCny(rt.model.contextWindow,call.outputTokenLimit,rt.pricing);if(typeof maximum!=='number'||maximum>remaining())throw new Error('BATCH_EXISTING_BUDGET_EXHAUSTED')
@@ -129,7 +143,7 @@ export async function executeRealBatch(authPath:string,directory:string){
    const res=await request('/api/conversations/'+conversation+'/messages',{requestId,text});if(!res.ok)throw new Error('HTTP_'+res.status)
    const reader=res.body!.getReader();let pending='';while(true){const part=await reader.read();if(part.done)break;pending+=Buffer.from(part.value).toString();const lines=pending.split('\n');pending=lines.pop()!;for(const line of lines.filter(x=>x.startsWith('data: '))){const event=JSON.parse(line.slice(6));frames.push(event);if(firstUsefulMs===null&&['delta','draft'].includes(event.type)&&typeof event.text==='string'&&event.text.trim())firstUsefulMs=performance.now()-started;if(event.type==='draft_discarded')firstUsefulMs=null;if(event.type==='done'){done=event;replyCompleteMs=performance.now()-started};if(event.type==='error')failure=event.code??'STREAM_FAILED'}}
    if(!done)failure??='NO_COMMITTED_DONE'
-   const readback=done?{run:await json('/api/runs/'+requestId),growth:await json('/api/growth?conversation='+conversation),starMap:await json('/api/cognition'),messages:await json('/api/conversations')}:null
+   const readback=done?{run:await json('/api/runs/'+requestId),growth:await json('/api/growth?conversation='+conversation),controlRequests:await json('/api/growth/control-requests'),starMap:await json('/api/cognition'),messages:await json('/api/conversations')}:null
    const charged=ledger.snapshot().calls.filter((c:any)=>c.runId===requestId),costCny=charged.length&&charged.every((c:any)=>typeof c.estimatedCostCny==='number')?charged.reduce((s:number,c:any)=>s+c.estimatedCostCny,0):!charged.length&&done?.usage?.zeroLlm===true&&done.usage.llmCallCount===0?0:'unknown'
    results.push({stage,caseId,requestId,input:text,frames,done,readback,firstUsefulMs,replyCompleteMs,wholeTurnMs:performance.now()-started,failure,checks:{technicalCompleted:Boolean(done),semanticCorrect:'WAITING_INDEPENDENT_REVIEW',sourceSupported:'WAITING_INDEPENDENT_REVIEW',necessaryStateCommitted:'WAITING_API_READBACK_REVIEW',intentRespected:'WAITING_INDEPENDENT_REVIEW',crossSessionContinuity:'WAITING_INDEPENDENT_REVIEW'},costCny})
    }
@@ -157,6 +171,14 @@ export async function executeRealBatch(authPath:string,directory:string){
   await json('/api/memory/settings',{requestId:randomUUID(),enabled:true,expectedRevision:0})
  }
  try{
+  const scoped=readOrdinaryLaunchCases(auth)
+  if(scoped){
+   for(const group of new Set(scoped.map(c=>c.group))){
+    await syntheticAccount();const chats=[await chat(),await chat(),await chat()]
+    for(const c of scoped.filter(c=>c.group===group)){readOrdinaryLaunchCases(auth);await turn('ordinary20',c.caseId,chats[c.session]!,c.input)}
+   }
+   return {status:'SCOPED_ORDINARY_REAL_RESULTS_AWAITING_INDEPENDENT_REVIEW',results:results.length,deepAnalysis:'DEFERRED_NOT_DISPATCHED',businessAndPerformanceCombined:true,autoContinuation:false}
+  }
   await syntheticAccount()
   const pairs=JSON.parse(readFileSync(root+'COMPLEX_DECISION_AB_EVAL.json','utf8')).cases,ordinary=JSON.parse(readFileSync(root+'ORDINARY_PERFORMANCE_PROTOCOL.json','utf8')).cases
   const repairPilot=readRepairPilotCases(auth),pilot=repairPilot?{complex:[],ordinary:repairPilot}:selectRealPilotCases(auth,pairs,ordinary)
