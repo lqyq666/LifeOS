@@ -63,7 +63,9 @@ const personalEventReport={test:reportsPersonalEvent}
 const negativePersonalFact=/^(?:这次|这周|本周|最近)?我(?:目前|现在|暂时|还|仍|一直|并|从来)?(?:没(?:有)?|尚未|还未|未|不)(?:开始|做|学|复习|准备|完成|交付|发送|收到|拿到|有|想|愿意|打算|决定|能)/
 const anchorablePersonalClauses=(text:string)=>scanUserClauses(text).filter(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!clause.quoteSpans.length)
 export function negativePersonalFactClauses(text:string){
-  return anchorablePersonalClauses(text).filter(clause=>negativePersonalFact.test(clause.text))
+  const own=anchorablePersonalClauses(text)
+  return own.filter(clause=>negativePersonalFact.test(clause.text)||
+    (/^(?:但|也)?(?:还|仍)?(?:没(?:有)?|尚未|还未|未)(?:开始|动手|问|访谈|联系|回答|复习|准备|完成)/.test(clause.text)&&own.some(c=>c.sentenceStart===clause.sentenceStart&&/我|本人/.test(c.text))))
 }
 export function resourceBlockedPersonalFactClauses(text:string){
   // BS_RESOURCE_01: only an explicit resource of the speaker's current course.
@@ -88,6 +90,12 @@ export function reportedTaskOutcomeClauses(text:string){
 }
 export function reportedPerformedTaskClauses(text:string){
  return anchorablePersonalClauses(text).filter(c=>/(?:我|本人)/.test(c.text)&&/(?:发出去了|发了|交给.{0,10}了|交付了|提交了|问了|问过|聊过|访谈了|已经尝试|尝试了|试做了|开始尝试)/.test(c.text)&&!/(?:想|打算|准备|如果|还没|没有|尚未|未曾|没)(?:.{0,8})(?:发出|发了|交给|交付|提交|问|聊|访谈|尝试|试做)/.test(c.text))
+}
+export function requestedQuestionEditClauses(text:string){
+ return scanUserClauses(text).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成/.test(c.text))
+}
+export function reportedAdoptionClauses(text:string){
+ return anchorablePersonalClauses(text).filter(c=>/^我(?:愿意|(?:先)?准备|打算|决定)(?:先)?(?:试|尝试|问|整理)|^(?:先从|那先).{1,30}(?:开始|整理)/.test(c.text))
 }
 // Readback of guarded participant reports. Missing dimensions stay unknown;
 // these defaults are not newly asserted personal facts or questions to ask.

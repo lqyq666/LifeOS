@@ -1,4 +1,4 @@
-import {scanUserClauses,currentConversationOnly} from './user-command-spans.ts'
+import {scanUserClauses,currentConversationOnly,refusalPreferenceClause} from './user-command-spans.ts'
 import {reportedPerformedTaskClauses} from './turn-contract.ts'
 import {hoursIn} from './turn-obligations.ts'
 import type {KnowledgeIntent} from './evergreen-guide.ts'
@@ -27,6 +27,9 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  const clauses=scanUserClauses(input.text)
  const own=clauses.filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
  const make=(stage:BoundedReply['stage'],nextUnknown:string,choices:string[]):BoundedReply=>({basis:'editorial_adaptation',sourceStatus:input.knowledgeCount?'PUBLIC_METHOD_NOT_USED':'NO_PUBLIC_METHOD',stage,nextUnknown,choices})
+ if(currentConversationOnly(input.text)&&clauses.some(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&refusalPreferenceClause(c.text)))return make('reported_result','核对停止推荐的原事项；保留事实',[
+  '这件事先不再主动安排。若出现确认卡，请选择你指的原事项；确认前也不主动推荐这些候选事项，已报告的事实保留。',
+ ])
  if(currentConversationOnly(input.text))return make('reported_result','本人愿意表达的内容；不推测感受或原因',[
   '我在听。你接着说，按你想说的节奏来。',
   '嗯，我在这儿听着。你想先说什么都可以。',
@@ -56,6 +59,9 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '这次只更正你指出的结果项。未知与否定分开，其他报告保留；后续帮助以更正后的信息为依据。',
  ])
  if(['listening_or_refusal','control','greeting','memory_query','reuse_material','professional_or_prediction_boundary'].includes(input.intent.reason))return null
+ if(/我(?:先)?(?:准备|打算|愿意).{0,25}(?:问|试|整理)/.test(own)&&/(?:还没|没有|尚未)(?:问|开始|动手)/.test(own))return make('adopted','本人打算与未执行分别保留',[
+  '先保留你选的这一步和还没开始的状态，不算成已经做过。愿意尝试时就沿用刚才确定的问题或任务；之后再按实际反馈继续。',
+ ])
  if(/我想把(?:验证问题|访谈问题|提问|这个问题).{0,20}(?:改成|换成)/.test(own))return make('start','新的问法会取得什么实际反馈',[
   '可以把这次问题改成你刚提出的问法，先核对一段最近的实际经历。这里只调整这一步，需求成立与否和访谈效果仍待核对；之后按实际回答再判断。',
   '沿用你刚提出的新问题，不重发整套访谈方法。下一轮分别保留原回答和实际行为，效果仍待核对。',
@@ -65,7 +71,7 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '先把访谈中的表达与实际行动分开。尚未使用或付款，不能据此判断需求成立，也不能判断需求不存在；这次有没有讲到最近实际遇到的问题？',
   '保留这次访谈报告，不把感兴趣当成使用、付款或有效。下一步先核对对方最近一次遇到的具体困难，是否继续由你决定。',
  ])
- const explorationQuestion=(/(?:校园产品|创业|校园项目)/.test(own)||/(?:了解|核对|访谈).{0,14}(?:实际|具体).{0,12}(?:问题|麻烦|困难)/.test(own))&&/(?:怎么|如何|怎样)/.test(own)&&/(?:发现|找到|找问题|问题|开始)/.test(own)
+ const explorationQuestion=(/(?:校园产品|创业|校园项目)/.test(own)||/(?:了解|核对|访谈).{0,25}(?:问题|麻烦|困难)/.test(own))&&/(?:怎么|如何|怎样)/.test(own)&&/(?:发现|找到|找问题|问题|开始)/.test(own)
  if(explorationQuestion)return make('start','当前有没有一个本人观察到的具体问题',[
   '这是编辑小建议：先找一位愿意交流的同学，围绕你想了解的一件具体麻烦问「最近一次碰到这件事，你当时怎么处理的？」先保留原回答和实际做法，不把兴趣当采用、付款或效果；还没明确场景时，先用一件日常麻烦作为待核对问题。',
   '可以先写下一个待核对的问题，再请愿意交流的同学说最近一次具体经历和当时做法。只记实际回答，拒绝交流就停，尚无回答继续保留未知；这是编辑建议，尚未证明需求或产品效果。',
@@ -99,10 +105,10 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  const report=clauses.filter(c=>!questions.includes(c)&&!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
  const materialUnavailable=/(?:材料|教材|课件|链接|资料|网页).{0,6}(?:打不开|无法打开)/.test(report)
  const continueBlocked=materialUnavailable&&/(?:先处理|先继续|继续(?:原来|这件|这个|刚才))/.test(report)
- if(!/(?:怎么|如何|怎样|哪一步|先做|下一步|要不要|还要|该不该|能不能|怎么办|调整)/.test(request)&&!continueBlocked&&!materialUnavailable&&!/(?:没回|未回应|没有回复|还没有回复|未回复|卡住|尚未开始|失败|受阻|没效果|还是不行|仍然不行)/.test(report))return null
+ if(!/(?:怎么|如何|怎样|哪一步|先做|下一步|要不要|还要|该不该|能不能|怎么办|调整)/.test(request)&&!continueBlocked&&!materialUnavailable&&!/(?:没回|未回应|没有回答|还没有回答|没有回复|还没有回复|未回复|卡住|尚未开始|失败|受阻|没效果|还是不行|仍然不行)/.test(report))return null
  // A direction comparison needs actual analysis, not an action catalogue.
  if(input.intent.stage==='compare'||/取舍|比较|对比|更适合|选哪个/.test(request))return null
- const waiting=/(?:没(?:有)?|尚未|还未|未)(?:回复|回应|收到结果)|没回(?:；|$)|等待(?:回复|结果)|还没结果/.test(report)
+ const waiting=/(?:没(?:有)?|尚未|还未|未)(?:回复|回应|回答|收到结果)|没回(?:；|$)|等待(?:回复|结果)|还没结果/.test(report)
  const blocked=materialUnavailable||/(?:没|没有|未)[^；]{0,12}(?:开始|做完|完成)|没(?:有)?效果|卡住|受阻|失败|还是不行|仍然不行/.test(report)
  if(waiting)return {basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'waiting_result',nextUnknown:'实际约定与截止；未回应原因保留未知',choices:[
   '先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？',

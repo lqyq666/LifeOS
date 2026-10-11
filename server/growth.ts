@@ -337,7 +337,7 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
       skippedIndexes.add(index);skipped.push({inputIndex:index,quote:change.source.quote,reason:'unverified_span'});continue
     }
     if(change.source.messageId!==run.source_message_id||!change.source.quote.trim()||!current.content.includes(change.source.quote))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
-    const resolved=resolveGrowthTime(change)
+    const resolved=change.kind==='constraint'?resolveGrowthTime(change):null
     resolvedTimes.set(index,resolved)
     if(change.kind==='constraint'&&!resolved){
       // A constraint whose expiry the user never verifiably stated is unsafe to
@@ -372,6 +372,16 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
     const {validUntil:legacyExpiry, ...withoutLegacyExpiry}=change as {validUntil?:unknown}
     void legacyExpiry
     const delta:GrowthDelta={...withoutLegacyExpiry,text:selectedText,...(resolvedTime?{validUntil:resolvedTime.validUntil}:{})} as GrowthDelta
+    if(delta.assertion==='user_reported'&&['context','goal','feedback'].includes(delta.kind)){
+      const quote=delta.source.quote
+      const notStarted=/^(?:我(?:目前|现在|还|仍)?|(?:但|也)?(?:还|仍)?)?(?:没(?:有)?|尚未|还未|未)(?:开始|动手|问|访谈|联系|复习|准备|完成)/.test(quote)
+      const adoption=/^(?:我)?(?:愿意|同意|接受|决定|打算|(?:先)?准备)(?:先)?(?:试|尝试|问|整理|用|使用|采纳|这个|这样)|^(?:先从|那先).{1,30}(?:开始|整理)/.test(quote)
+      const performed=/(?:我|本人).{0,20}(?:已经.{0,12}(?:列完|列出来|整理好|发出)|实际问了|交给.{0,10}了)/.test(quote)&&!/(?:还没|没有|尚未)/.test(quote)
+      if(notStarted||adoption||performed){
+        ;(delta as {kind:string}).kind='feedback'
+        ;(delta as {progressState:string}).progressState=performed?'completed':notStarted||/(?:还没|没有|尚未)(?:开始|动手|问)/.test(current.content)?'unattempted':'unknown'
+      }
+    }
     await checkCampusSource(pool,run.user_id,run.conversation_id,true,{type:'message',id:delta.source.messageId,quote:delta.source.quote})
     if(delta.assertion==='user_reported'&&(!delta.text.trim()||delta.text.length>4000||!delta.source.quote.includes(delta.text)))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     if(delta.assertion==='user_reported'&&delta.kind==='feedback'){

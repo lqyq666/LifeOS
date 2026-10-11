@@ -33,7 +33,7 @@ export function conversationPreferenceClause(text:string):boolean{
  if(refusalPreferenceClause(text))return true
  if(/^(?:先|暂时)?(?:别|不要|不用)(?:再)?(?:给我|帮我)?安排(?:了)?$/.test(text)
   ||/^(?:先|暂时)?(?:别|不要|不用)(?:再)?给(?:它|这件事|那件事)(?:安排|排)(?:任务)?(?:了)?$/.test(text))return true
- if(/^(?:只想|就想)(?:听|聊|说说|倾诉)|^(?:先)?听我(?:讲|说)/.test(text))return true
+ if(/^(?:只想|就想)(?:听|聊|说说|倾诉)|^(?:今天|现在)?(?:先)?听我(?:讲|说)/.test(text))return true
  return /^(?:我(?:今天|现在|目前|这次|最近|先|暂时)?(?:只想|只是想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说(?:说|一下|点)|倾诉|吐(?:个)?槽|陪我)|(?:请|麻烦)?(?:先|暂时)?(?:不要|不用|不想|不需要|别)(?:再)?(?:给(?:我)?|帮我(?:想)?)?(?:别的|其他)?(?:建议|推荐|方法|办法|做法|练法|学法|写法|攻略|行动|复盘)|(?:先)?听我说)/.test(text.trim())
 }
 // Deferring a named alternative records a boundary, not an active pursuit.

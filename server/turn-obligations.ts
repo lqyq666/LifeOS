@@ -579,9 +579,11 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
   }
   const restOfMessage=clauses.map(clause=>clause.text).join('').replace(newQuote,'')
   const scored:Scored[]=[]
+  const readStatusCorrection=/看过|读过|已读/.test(newQuote)
   for(const item of authorized){
     if(item.assertion!=='user_reported'&&item.assertion!=='user_edit')continue
     if(item.text.includes(newQuote)||newQuote===item.text)continue
+    if(readStatusCorrection&&!/看过|读过|已读/.test(item.text))continue
     const clausesOfItem=scanUserClauses(item.text).map(clause=>clause.text.trim()).filter(carriesText)
     for(const clause of clausesOfItem){
       const score=scoreChars(newQuote,clause)+scoreChars(restOfMessage,clause)

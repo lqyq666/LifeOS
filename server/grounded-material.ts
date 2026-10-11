@@ -128,7 +128,8 @@ export function buildMaterialFactCatalogue(growth:readonly GrowthItem[],confirme
     if(labeled.length)labeledBySource.push(labeled)
     for(const field of labeled)push(field.field,field.text,sourceKind,true,sourceRef)
     const bucket=kindField[item.kind]
-    if(bucket&&!labeled.length)push(bucket,item.text,sourceKind,false,sourceRef)
+    if(/^我(?:只)?负责/.test(item.text)&&!labeled.length)push('project',item.text,sourceKind,false,sourceRef)
+    else if(bucket&&!labeled.length)push(bucket,item.text,sourceKind,false,sourceRef)
   }
   for(const experience of confirmedExperiences){
     const text=(experience.content?.summary??experience.source_quote??'').trim()
@@ -158,8 +159,15 @@ export function buildMaterialFactCatalogueForMessage(message:{id:string;conversa
 // Resolve a model's selection against THIS turn's server catalogue; any
 // invented, stale or cross-account id is MATERIAL_REFERENCE_INVALID.
 export type SelectedMaterialResult=MaterialResult&{facts:VerifiedMaterialFact[]}
-export function resolveSelectedMaterialFacts(selectedIds:readonly string[],catalogue:readonly VerifiedMaterialFact[],ownerId:string,expectedOwnerId:string):SelectedMaterialResult{
+export function resolveSelectedMaterialFacts(selectedIds:readonly string[],catalogue:readonly VerifiedMaterialFact[],ownerId:string,expectedOwnerId:string,format:'resume'|'contribution_sentence'='resume'):SelectedMaterialResult{
   if(ownerId!==expectedOwnerId)throw new Error('MATERIAL_REFERENCE_INVALID')
   const selected=selectedIds.map(id=>catalogue.find(fact=>fact.catalogueId===id)).filter((fact):fact is VerifiedMaterialFact=>Boolean(fact))
-  return {...renderGroundedResume(selectedIds,catalogue),facts:selected}
+  const rendered=renderGroundedResume(selectedIds,catalogue)
+  if(format==='contribution_sentence'){
+    const contributions=selected.filter(fact=>fact.field==='project'&&/^我(?:只)?负责/.test(fact.text))
+    if(contributions.length!==1)throw new Error('MATERIAL_REFERENCE_INVALID')
+    const fact=contributions[0]!
+    return {content:fact.text.replace(/[。！!]+$/,'')+'。',readiness:'draft_for_user_review',missingRequired:[],usedCatalogueIds:[fact.catalogueId],facts:[fact]}
+  }
+  return {...rendered,facts:selected}
 }

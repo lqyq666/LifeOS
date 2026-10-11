@@ -34,7 +34,7 @@ import { scanUserClauses,conversationPreferenceClause,currentConversationOnly,de
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
-import { deriveTurnContract, bindPlanBudgetSchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses,reportedPerformedTaskClauses,reportedTaskBoundaryClauses } from './turn-contract.ts'
+import { deriveTurnContract, bindPlanBudgetSchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses,reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
@@ -193,7 +193,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   if(turnDerivedControls.status==='explicit'){
     staged.directionControls=await stageDirectionControls(run,turnDerivedControls.changes,expectedControlKey)
   }
-  const resumePortfolioMode=requiresImmediateMaterial(current.content)&&/简历|作品清单|作品集|个人介绍/.test(current.content)
+  const contributionSentenceMode=requiresImmediateMaterial(current.content)&&/作品描述/.test(current.content)
+  const resumePortfolioMode=requiresImmediateMaterial(current.content)&&/简历|作品清单|作品集|个人介绍|作品描述/.test(current.content)
   const obligations=deriveTurnObligations(current.content,{resumePortfolioMode,...(turnDerivedControls.status==='explicit'?{directionControls:turnDerivedControls.changes}:{})})
   staged.turnObligations=obligations
   if(isPureControlCommand(current.content,obligations,turnDerivedControls.status==='explicit'?turnDerivedControls.changes.map(change=>change.quote):[])){
@@ -432,7 +433,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent}),planBudget?.type==='weekly_plan'?planBudget:undefined,current.content)
   const zeroBudgetChoices=(originalContract.schema.properties as any).reply.enum as string[]|undefined
   const verifiedBudget=applicableTimeBudget(current.content)
-  const priorInterviewQuestions=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion)&&/^我想把(?:验证问题|访谈问题|提问|这个问题)改成/.test(item.text)).map(item=>item.text.replace(/^我想把(?:验证问题|访谈问题|提问|这个问题)改成/, '').replace(/^[“「『]|[”」』]$/g,'')).filter(q=>q.length>0&&q.length<=300)
+  const priorInterviewQuestions=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion)&&requestedQuestionEditClauses(item.text).length>0).map(item=>item.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/, '').replace(/^[“「『]|[”」』]$/g,'')).filter(q=>q.length>0&&q.length<=300)
   const priorInterviewQuestion=priorInterviewQuestions.length===1?priorInterviewQuestions[0]:undefined
   const boundedReply:BoundedReply|null=boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停的是当时的备考或复习，尚未确认和这次是否同一事项。先核对这次要继续的是哪件事；不把旧暂停套到另一个考试，也不先安排任务。']}:planBudget?.type==='weekly_plan'&&planBudget.minutes===0?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'可用时间改变后再调整；不重复询问明确零时间',choices:zeroBudgetChoices!}:planBudget?.type==='weekly_plan'&&route.tier==='default'&&!materialIntent?boundedPlanningReply(planBudget):boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier,priorInterviewQuestion,...(verifiedBudget?{verifiedBudget:{minutes:verifiedBudget.amountMinutes,period:verifiedBudget.period,quote:verifiedBudget.quote}}: {})})
   const contract=bindBoundedReplySchema(originalContract,boundedReply)
@@ -486,6 +487,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // “要不要做X”是自我斟酌不是向AI提问：捕获允许弱疑问形态，只排除
       // 真提问（带问号/吗/呢）与假设/引用/第三方。
       const decisionClauses=clauseCatalogue.filter(handle=>!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther&&!/[?？]|吗$|呢$/.test(handle.text)
+        &&!currentConversationOnly(current.content)
+        &&!(turnDerivedControls.status==='explicit'&&turnDerivedControls.changes.some(change=>change.quote===handle.text))
+        &&!negativePersonalFactClauses(current.content).some(clause=>clause.text===handle.text)
+        &&!deliverableIntent(handle.text,'create')
         &&!conversationPreferenceClause(handle.text)
         &&!deferredPursuitClause(handle.text)
         &&!/^我(?:今天|现在|目前|这次)?(?:只想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说说|说点|倾诉|吐槽|陪我)/.test(handle.text)
@@ -515,7 +520,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       if(draft&&typeof draft==='object'&&'kind'in draft&&(draft as {kind:string}).kind==='resume_portfolio'){
         const selection=draft as unknown as {selectedFactIds:string[]}
         try{
-          const material=resolveSelectedMaterialFacts(selection.selectedFactIds??[],materialCatalogue,run.user_id,run.user_id)
+          const material=resolveSelectedMaterialFacts(selection.selectedFactIds??[],materialCatalogue,run.user_id,run.user_id,contributionSentenceMode?'contribution_sentence':'resume')
           ;(result.event.action as {draft:unknown}).draft={content:material.content,readiness:material.readiness,missingRequired:material.missingRequired,materialFactIds:material.usedCatalogueIds,materialEvidence:material.facts.map(fact=>({field:fact.field,text:fact.text,sourceRef:fact.sourceRef}))}
         }catch(error){
           throw error instanceof Error&&(error.message==='MATERIAL_REFERENCE_INVALID'||error.message==='MATERIAL_CATALOGUE_INVALID'||error.message==='MATERIAL_OUTPUT_LIMIT')?new HttpError(400,'MATERIAL_REFERENCE_INVALID'):error
@@ -587,7 +592,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // clauses inside the growth batch are normalized deterministically — the
     // C06/L1:8/L2:6/L3:4/D01:1 failure shapes — instead of failing the turn.
     const correctionPlan=planExplicitCorrection(current.content,growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text})))
-    const controlClauseTexts=detectForgetIntentClauses(current.content).filter(clause=>clause.kind).map(clause=>clause.clauseText)
+    const controlClauseTexts=[...detectForgetIntentClauses(current.content).filter(clause=>clause.kind).map(clause=>clause.clauseText),...(turnDerivedControls.status==='explicit'?turnDerivedControls.changes.map(change=>change.quote):[])]
     if(result.growthUpdates?.length){
       staged.audit.push({phase:'growth_plan_context',authorizedCount:growthAll.length,authorizedKinds:growthAll.map(item=>item.kind),planTargetItem:correctionPlan?.target?.itemId??null,newQuote:correctionPlan?.newQuote??null,providerCalls:0})
       const authoritative=resolveGrowthDeltas({deltas:result.growthUpdates,currentMessageId:run.source_message_id,currentText:current.content,catalogue:clauseCatalogue,authorized:growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,unavailableReason:item.unavailableReason,status:item.status})),correctionPlan,controlClauseTexts})
@@ -655,8 +660,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // NP_NEG_01 / BS_RESOURCE_01: optional model deltas omitted explicit status.
     // Retain only the speaker's guarded verbatim status, never an experience,
     // inferred cause, goal or completion. Corrections and controls keep authority.
-    const explicitTaskFacts=[...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content).filter(clause=>/(?:没(?:有)?|尚未|还未|未)(?:开始|完成|做|复习|准备|交付|发送)|不想继续/.test(clause.text)),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||/^我想把(?:验证问题|访谈问题|提问|这个问题)改成/.test(c.text)||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
-    const taskFactSupplement=snapshot.settings.enabled?explicitTaskFacts.filter(clause=>
+    const explicitTaskFacts=[...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content),...reportedAdoptionClauses(current.content),...requestedQuestionEditClauses(current.content),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||/^我想把(?:验证问题|访谈问题|提问|这个问题)改成/.test(c.text)||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
+    const taskFactSupplement=snapshot.settings.enabled?[...new Map(explicitTaskFacts.map(clause=>[clause.text,clause])).values()].filter(clause=>
       !controlClauseTexts.includes(clause.text)&&
       !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&
       !growthAll.some(item=>item.status==='active'&&!item.unavailableReason&&item.text===clause.text)
@@ -933,7 +938,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       }
     }
     // A pure direction declaration is not a completed experience.
-    if(result.experienceCandidate&&/(?:不再把|不再将|之后优先|本阶段优先|转向|改为)/.test(current.content)&&!requiresExperienceCandidate(clauseCatalogue)){
+    if(result.experienceCandidate&&!requiresExperienceCandidate(clauseCatalogue)){
       delete result.experienceCandidate
       staged.audit.push({phase:'coach_optional_candidate_rejected',code:'DIRECTION_DECLARATION_IS_NOT_EXPERIENCE',committed:false})
     }

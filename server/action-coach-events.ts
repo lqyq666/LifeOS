@@ -97,7 +97,7 @@ export function coachMaterialPresentation(reply:string){
   }
   return false
 }
-const materialVerb=/(?:写|起草|拟|做|改|换|缩短|润色|重写|调整|联系|联络|发|沟通)/
+const materialVerb=/(?:写|起草|拟|做|改|换|压成|缩短|润色|重写|调整|联系|联络|发|沟通)/
 // A bare 别 is a command only when it introduces a material/contact verb.
 // Narrative nouns such as 别的发送方式 must not become a lasting stop request.
 const negativeRequest=new RegExp('(?:不要|不用|不必|不想|不需要|无需|别(?=(?:再|先|帮我|替我|给我)*'+materialVerb.source+')|暂不|先不|^不)')
@@ -109,8 +109,9 @@ function materialRequest(text:string,operation:'create'|'modify'):'requested'|'d
   for(const clause of text.split(/[，,。！？!?；;\n]/)){
     if(/^\s*(?:我)?(?:想|打算|希望)(?:先)?做(?:一个|个)(?:校园产品|校园项目|产品|项目)\s*$/.test(clause))continue
     const request=requestIntent.exec(clause)
+    const directTransform=/(?:^|现在想|我想)(?:把)[^。！？\n]{1,36}(?:压成一(?:句|段)|写成一(?:句|段)|问题改成[:：])/.exec(clause.trim())
     const rewrite=operation==='modify'?rewriteIntent.exec(clause):null
-    if([request,rewrite].some(match=>match&&!negativeRequest.test(clause.slice(0,match.index+match[0].length))))requested=true
+    if([request,rewrite,directTransform].some(match=>match&&!negativeRequest.test(clause.slice(0,match.index+match[0].length))))requested=true
     const negative=negativeRequest.exec(clause)
     if(negative&&materialVerb.test(clause.slice(negative.index+negative[0].length)))declined=true
   }
@@ -128,6 +129,7 @@ export function requiresImmediateMaterial(text:string){
     // stays non-immediate.
     return /^(?:请)?(?:直接|马上|现在)(?:帮我|给我|替我)?(?:写|起草|拟|做|生成|整理|改写|润色)/.test(clause)
       ||clause.startsWith('直接起草')||clause.startsWith('请直接起草')
+      ||/^(?:现在想|我想)?把[^。！？\n]{1,36}(?:压成一(?:句|段)|写成一(?:句|段)|问题改成[:：])/.test(clause)
   })
 }
 
