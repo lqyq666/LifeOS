@@ -194,6 +194,10 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     // growth（与模型写入同构：user_reported、来源=当轮消息、修订可追溯）。
     const serverGoalIds:string[]=[]
     for(const goal of staged.serverGoals??[]){
+      // Capture runs before model deltas are staged; recheck committed facts
+      // in this same transaction, independent of the model's kind label.
+      const source={type:'message',id:goal.messageId,quote:goal.quote}
+      if((await c.query("SELECT 1 FROM growth_items WHERE user_id=$1 AND status IN ('active','proposed') AND assertion='user_reported' AND sources @> $2::jsonb",[run.user_id,JSON.stringify([source])])).rowCount)continue
       const id=randomUUID()
       await c.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,dependencies,revision) VALUES($1,$2,$3,'goal',$4,'user_reported','active',$5,'[]'::jsonb,1)",[id,run.user_id,run.conversation_id,goal.text,JSON.stringify([{type:'message',id:goal.messageId,quote:goal.quote}])])
       await c.query("INSERT INTO growth_revisions(user_id,item_id,revision,action,snapshot) VALUES($1,$2,1,'server_capture',$3)",[run.user_id,id,JSON.stringify({text:goal.text,quote:goal.quote,reason:'explicit decision clause not covered by model growth lane'})])

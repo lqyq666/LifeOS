@@ -29,7 +29,7 @@ function expiry(value: string | null | undefined): Date | null {
 function item(row: Row, reason: string | null = null): GrowthItem {
   const hidden = row.status === 'forgotten' || reason === 'source_revoked'
   return { id: row.id, conversationId: row.conversation_id, kind: row.kind, text: hidden ? '' : row.text, assertion: row.assertion,
-    status: reason && ['active','proposed'].includes(row.status) ? 'stale' : row.status, sources: hidden ? [] : row.sources, dependencies: hidden ? [] : row.dependencies,
+    status: reason && reason!=='not_yet_active' && ['active','proposed'].includes(row.status) ? 'stale' : row.status, sources: hidden ? [] : row.sources, dependencies: hidden ? [] : row.dependencies,
     validUntil: row.valid_until?.toISOString() ?? null, validFrom: row.valid_from?.toISOString() ?? null, timeBasis: row.time_basis ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null,directionScopes:row.direction_scopes??[],structuredPlan:hidden?null:row.structured_plan??null }
 }
 async function availability(c: DB, user: string, row: Row, rows: Map<string, Row>, memoryEnabled: boolean, conversation?: string, seen = new Set<string>()): Promise<string | null> {
@@ -535,6 +535,16 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
       row=updatedRow
     }
     await record(c,row,delta.target.operation==='create'?'extract':delta.target.operation);ids[index]=row.id;written.set(index,row)
+    // A new general availability report for the identical calendar week
+    // supersedes earlier amounts. Preserve history through the existing pause
+    // action; its revision invalidates plans based on the older amount. Scoped
+    // course/project allowances and other weeks remain independent.
+    if(row.kind==='constraint'&&row.assertion==='user_reported'&&mutation.time?.basis.kind==='calendar_week'&&
+      /小时|分钟|钟头/.test(row.text)&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(row.text)){
+      const older=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND id<>$2 AND kind='constraint' AND assertion='user_reported' AND status='active' AND valid_until=$3 AND time_basis->>'kind'='calendar_week' ORDER BY id FOR UPDATE",[run.user_id,row.id,row.valid_until])).rows
+      for(const prior of older)if(/小时|分钟|钟头/.test(prior.text)&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(prior.text))
+        await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'})
+    }
     if(delta.target.operation==='create')createdIds.push(row.id)
     else changedIds.push(row.id)
   }

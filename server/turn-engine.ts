@@ -34,7 +34,7 @@ import { scanUserClauses,conversationPreferenceClause,currentConversationOnly } 
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
-import { deriveTurnContract, bindPlanBudgetSchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses } from './turn-contract.ts'
+import { deriveTurnContract, bindPlanBudgetSchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses } from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
@@ -422,7 +422,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const planBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
   const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,currentEventExists:currentEvent!==null,planIntent,material:materialIntent}),planBudget?.type==='weekly_plan'?planBudget:undefined)
   const zeroBudgetChoices=(originalContract.schema.properties as any).reply.enum as string[]|undefined
-  const boundedReply:BoundedReply|null=planBudget?.type==='weekly_plan'&&planBudget.minutes===0?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'可用时间改变后再调整；不重复询问明确零时间',choices:zeroBudgetChoices!}:planBudget?.type==='weekly_plan'&&route.tier==='default'&&!materialIntent?boundedPlanningReply(planBudget):boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier})
+  const verifiedBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_time')
+  const boundedReply:BoundedReply|null=planBudget?.type==='weekly_plan'&&planBudget.minutes===0?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'可用时间改变后再调整；不重复询问明确零时间',choices:zeroBudgetChoices!}:planBudget?.type==='weekly_plan'&&route.tier==='default'&&!materialIntent?boundedPlanningReply(planBudget):boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier,...(verifiedBudget?.type==='weekly_time'?{verifiedBudget}: {})})
   const contract=bindBoundedReplySchema(originalContract,boundedReply)
   // G4 mode-aware history selection: bound the raw dialogue the model reads
   // (the DB and structured lanes keep everything). The current message is
@@ -477,6 +478,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         &&!conversationPreferenceClause(handle.text)
         &&!/^我(?:今天|现在|目前|这次)?(?:只想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说说|说点|倾诉|吐槽|陪我)/.test(handle.text)
         &&!/^我.{0,6}不想(?:再|继续)?(?:聊|说|讨论)/.test(handle.text)
+        &&!/^我想把(?:验证问题|访谈问题|提问|这个问题)/.test(handle.text)
         &&sentenceIsFirstPersonPublic(clauseCatalogue,handle)
         &&/我(?![^，。；！？]{0,8}(?:他|她|它|室友|同学|朋友|老师|父母|别人))(?:.{0,6})?(?:决定|确定|定了|的目标是|想要?|打算|不打算|不再|放弃|考虑|在想|想试试|试试|感兴趣|优先|放第一|第一要|先不|暂停|不扩大|以.{0,4}为主)/.test(handle.text))
       staged.serverGoals=decisionClauses.filter(handle=>!covered(handle.text)).map(handle=>({text:handle.text,quote:handle.text,messageId:run.source_message_id}))
@@ -638,7 +640,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // NP_NEG_01 / BS_RESOURCE_01: optional model deltas omitted explicit status.
     // Retain only the speaker's guarded verbatim status, never an experience,
     // inferred cause, goal or completion. Corrections and controls keep authority.
-    const explicitTaskFacts=[...negativePersonalFactClauses(current.content).filter(clause=>/(?:没(?:有)?|尚未|还未|未)(?:开始|完成|做|复习|准备|交付|发送)/.test(clause.text)),...resourceBlockedPersonalFactClauses(current.content)]
+    const explicitTaskFacts=[...negativePersonalFactClauses(current.content).filter(clause=>/(?:没(?:有)?|尚未|还未|未)(?:开始|完成|做|复习|准备|交付|发送)/.test(clause.text)),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content)]
     const taskFactSupplement=contract.capabilities.growth?explicitTaskFacts.filter(clause=>
       !controlClauseTexts.includes(clause.text)&&
       !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&

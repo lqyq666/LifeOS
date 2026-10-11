@@ -389,7 +389,7 @@ export function verifyReplyAgainstObligations(obligations:TurnObligations,reply:
   }
 }
 
-const scopeLabels:Record<DirectionScope,string>={employment:'就业',postgraduate_recommendation:'推免',postgraduate_exam:'考研',public_service:'考公考编',entrepreneurship:'创业',overseas_study:'留学出境升学',undergraduate_upgrade:'专升本'}
+const scopeLabels:Record<DirectionScope,string>={employment:'就业',postgraduate_recommendation:'推免',postgraduate_exam:'考研',public_service:'考公考编',entrepreneurship:'创业',overseas_study:'留学出境升学',undergraduate_upgrade:'专升本',freelance:'自由职业'}
 export function controlReplyText(effects:RequiredEffect[]):string{
   const parts:string[]=[]
   for(const effect of effects)if(effect.type==='direction_control')
@@ -568,6 +568,15 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
     }
   }
   scored.sort((a,b)=>b.score-a.score)
+  // A field-specific certainty correction can safely target one standalone
+  // authorized outcome even when the old clause omitted its subject. Never
+  // choose among similar events, or replace an entire composite report.
+  const outcomeField=/是否(采用|使用|付款|付费|有效).{0,6}(?:我)?(?:不知道|不清楚|未知)/.exec(newQuote)?.[1]
+  if(outcomeField){
+    const candidates=scored.filter(s=>s.clause===s.item.text&&s.clause.includes(outcomeField)&&['context','feedback','unknown'].includes(s.item.kind))
+    if(candidates.length===1){const chosen=candidates[0]!;return {newQuote,target:{itemId:chosen.item.id,expectedRevision:chosen.item.revision,beforeQuote:chosen.clause,kind:chosen.item.kind}}}
+    if(candidates.length>1)return {newQuote,target:undefined}
+  }
   const best=scored[0],runnerUp=scored[1]
   if(best&&best.score>=3&&(!runnerUp||runnerUp.score<best.score)&&best.item.text.split(best.clause).length===2){
     return {newQuote,target:{itemId:best.item.id,expectedRevision:best.item.revision,beforeQuote:best.clause,kind:best.item.kind}}

@@ -71,6 +71,14 @@ export function resourceBlockedPersonalFactClauses(text:string){
   return anchorablePersonalClauses(text).filter(clause=>/^(?:我的|我这门课的|这门课的|这次课程的).{0,16}(?:材料|教材|课件|资料|链接|网页).{0,6}(?:无法打开|打不开)/.test(clause.text))
 }
 
+export function reportedTaskOutcomeClauses(text:string){
+  const clauses=anchorablePersonalClauses(text)
+  // Only a reported task of the speaker can anchor observations of another
+  // participant. Public cases and attributed speech are never personal facts.
+  if(!clauses.some(c=>/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|提交|访谈|聊过)/.test(c.text)))return []
+  return clauses.filter(c=>/^(?:对方|客户|学长|导师|他们|她们)?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没)/.test(c.text)&&/(?:读了|已读|回复|回应|采用|使用|付款|付费)/.test(c.text))
+}
+
 export function deriveTurnContract(input:{
   text:string
   knowledgeCount:number

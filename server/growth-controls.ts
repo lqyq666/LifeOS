@@ -1,8 +1,9 @@
-import {createHash} from 'node:crypto'
+import {createHash,randomUUID} from 'node:crypto'
 import type { PoolClient } from 'pg'
 import { pool, HttpError, requireRow } from './db.ts'
 import type { Run } from './store.ts'
 import { scanUserClauses } from './user-command-spans.ts'
+import {applyGrowthAction} from './growth.ts'
 
 // P3: durable, cross-session direction controls. Pausing a direction is an
 // account setting derived only from the user's own explicit words in the
@@ -18,9 +19,10 @@ export type DirectionScope =
   | 'entrepreneurship'
   | 'overseas_study'
   | 'undergraduate_upgrade'
+  | 'freelance'
 const scopeLabels: Record<DirectionScope,string>={
   employment:'就业',postgraduate_recommendation:'推免',postgraduate_exam:'考研',public_service:'考公考编',
-  entrepreneurship:'创业',overseas_study:'留学出境升学',undergraduate_upgrade:'专升本',
+  entrepreneurship:'创业',overseas_study:'留学出境升学',undergraduate_upgrade:'专升本',freelance:'自由职业',
 }
 const allScopes=Object.keys(scopeLabels) as DirectionScope[]
 // 升学 as a server-side group expands to exactly these four; never employment
@@ -50,6 +52,7 @@ const pauseVerbs=/(?:先别推|别再给我推|不要再给我推|别给我推|�
 const resumeVerbs=/(?:恢复|继续推|重新开始推|可以推|恢复推荐)/
 // Direction wording → scopes. Longest phrases first so 专升本 wins over 本.
 const directionPatterns:{pattern:RegExp;scopes:()=>DirectionScope[]}[]=[
+  {pattern:/自由职业|接单/,scopes:()=>['freelance']},
   {pattern:/专升本|专接本|专插本/,scopes:()=>['undergraduate_upgrade']},
   {pattern:/推免|保研/,scopes:()=>['postgraduate_recommendation']},
   {pattern:/考研|研究生考试/,scopes:()=>['postgraduate_exam']},
@@ -93,7 +96,7 @@ export function deriveExplicitDirectionControls(currentText:string):
     // N1.1: quoted/code spans, other people's speech, conditional clauses and
     // question clauses are never the user's own affirmative command.
     if(clause.quoted||clause.code||clause.attributedToOther||clause.conditional||clause.interrogative)continue
-    const pause=pauseVerbs.exec(body)
+    const pause=pauseVerbs.exec(body)??/(?:不再把|不再将).{1,16}作为主线/.exec(body)
     const resume=resumeVerbs.exec(body)
     if(!pause&&!resume)continue
     const verbIndex=pause?pause.index:resume!.index
@@ -194,6 +197,14 @@ export async function persistDirectionControls(c:PoolClient,run:Run,staged:Prepa
         [run.user_id,scope,updated.revision,JSON.stringify({scope:updated.scope,state:updated.state,revision:updated.revision,sourceMessageId:updated.source_message_id,sourceConversationId:updated.source_conversation_id,sourceQuote:updated.source_quote,sourceRedacted:updated.source_redacted,updatedAt:updated.updated_at.toISOString()}),run.request_id])
       // A scope with no row implicitly starts enabled, so a first pause IS a change.
       effects.push({scope,before:existing?existing.state:'enabled',after:targetState,revision:updated.revision})
+      if(change.operation==='pause'&&/(?:不再把|不再将).{1,16}作为主线/.test(change.source.quote)){
+        const goals=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND kind IN ('goal','direction') AND assertion='user_reported' AND status='active' ORDER BY id FOR UPDATE",[run.user_id])).rows
+        for(const goal of goals){
+          const named=new Set(directionPatterns.filter(p=>p.pattern.test(goal.text)).flatMap(p=>p.scopes()))
+          // A composite pursuit cannot be wholly paused by one named branch.
+          if(named.size===1&&named.has(scope))await applyGrowthAction(c,run.user_id,goal.id,{requestId:randomUUID(),expectedRevision:goal.revision,action:'pause'})
+        }
+      }
     }
   }
   return {controls:await readDirectionControls(run.user_id,c),effects}

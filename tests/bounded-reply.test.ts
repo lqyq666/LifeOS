@@ -10,6 +10,27 @@ test('planning first content is bound to the verified period and budget, never a
  assert.equal(boundedSentenceAccepts(first.replace('下周','本周'),bounded),false)
  assert.equal(boundedReplyAccepts('已经保存并执行三小时的复习安排。',bounded),false)
 })
+
+test('real first chain gaps: source-free interview reports and narrow correction cannot make effects or reset unrelated facts',()=>{
+ const interview=make('我和一个同学聊过校园项目，他说感兴趣，但是还没使用。')!
+ assert.equal(interview?.stage,'reported_result')
+ assert.ok(interview.choices.every(s=>!s.includes('痛点不够')&&!s.includes('很常见')&&!s.includes('非用不可')))
+ const first=make('我想做校园产品，先怎样找到一个可以核对的问题？')!
+ assert.ok(first.choices.every(s=>!s.includes('高频')&&!s.includes('赢在')))
+ const change=make('我更正，对方是否采用我不知道。')!
+ assert.ok(change.choices.every(s=>!s.includes('是否看了')&&!s.includes('具体信息')&&!s.includes('建立联系')))
+ assert.equal(make('我更正，刚才那个条件只是如果对方采用。')?.stage,undefined)
+})
+
+test('new task starts preserve contracting and recurring-budget boundaries instead of a generic material question',()=>{
+ const freelance=make('我想探索自由职业接单，先确认需求与交付范围，怎么开始？')!
+ assert.ok(freelance.choices.every(s=>s.includes('交付')&&!s.includes('已经完成')))
+ const text='我每周能拿出六小时，想平衡课程与课外并做低时间预算，怎么开始？'
+ const course=make(text,{verifiedBudget:{minutes:360,period:'current',quote:'我每周能拿出六小时'}})!
+ assert.ok(course.choices.every(s=>s.includes('常规每周360分钟')&&!s.includes('本周')))
+ const adjustment=make('我想把验证问题改成上一次遇到什么困难，不再问愿不愿意用。')!
+ assert.ok(adjustment.choices.every(s=>!s.includes('更有效')&&!s.includes('客套')))
+})
 import {safeEarlySentence} from '../server/reply-draft.ts'
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
 import {deriveTurnContract} from '../server/turn-contract.ts'

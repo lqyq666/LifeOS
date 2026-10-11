@@ -95,6 +95,7 @@ export function resolveGrowthDeltas(input:{
     const legacyValidUntil=typeof expiry==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(expiry)?expiry:undefined
     if('validUntil'in deltaWithoutExpiry)delete deltaWithoutExpiry.validUntil
     const next:ResolvedGrowthDelta={...deltaWithoutExpiry,...(legacyValidUntil?{validUntil:legacyValidUntil}:{}),source:{messageId:input.currentMessageId,quote:clause.text},target:{operation:'create'},...(timeEvidence?{timeEvidence}:{})} as unknown as ResolvedGrowthDelta
+    if(['goal','direction'].includes(next.kind)&&/^我想把(?:验证问题|访谈问题|提问|这个问题)/.test(clause.text))next.kind='context'
     if(delta.target.operation==='correct'){
       const itemId=delta.target.itemId
       const item=input.authorized.find(row=>row.id===itemId)

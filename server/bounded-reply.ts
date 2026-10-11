@@ -19,13 +19,46 @@ export function boundedPlanningReply(budget:{minutes:number;period:'current'|'th
 // effect claim, deadline, number or personal fact to the selected reply.
 // Material delivery, scheduling, listening and personal decisions keep their
 // existing contracts. This is not a second guide corpus.
-export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;contract:TurnContract;knowledgeCount:number;tier:string}):BoundedReply|null{
+export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;contract:TurnContract;knowledgeCount:number;tier:string;verifiedBudget?:{minutes:number;period:'current'|'this_week'|'next_week';quote:string}}):BoundedReply|null{
  const contactQuestion=/(?:联系|请教|联络)/.test(input.text)&&/(?:怎么|如何|怎样)/.test(input.text)
- if(input.tier!=='default'||(input.knowledgeCount&&!contactQuestion)||input.contract.capabilities.material||input.contract.capabilities.plan)return null
- if(['listening_or_refusal','control','greeting','memory_query','reuse_material','professional_or_prediction_boundary'].includes(input.intent.reason))return null
+ if(input.tier!=='default'||input.contract.capabilities.material||input.contract.capabilities.plan)return null
  const clauses=scanUserClauses(input.text)
  const own=clauses.filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
  const make=(stage:BoundedReply['stage'],nextUnknown:string,choices:string[]):BoundedReply=>({basis:'editorial_adaptation',sourceStatus:input.knowledgeCount?'PUBLIC_METHOD_NOT_USED':'NO_PUBLIC_METHOD',stage,nextUnknown,choices})
+ // A narrow certainty correction must not reclassify read/sent/payment or
+ // restart an already stated request. State correction still uses the
+ // existing correction/transaction machinery, independently of this reply.
+ if(input.intent.reason==='control'&&/更正/.test(own)&&/是否(?:采用|使用|付款|有效).{0,6}(?:我)?(?:不知道|不清楚|未知)/.test(own))return make('reported_result','只有本人更正的结果项变为未知',[
+  '按你的更正，这一项结果先保留未知，不据此判断有效或无效。其他已经报告的情况不因此改成未知，也不重新问原来的目标。',
+  '这次只更正你指出的结果项。未知与否定分开，其他报告保留；后续帮助以更正后的信息为依据。',
+ ])
+ if(['listening_or_refusal','control','greeting','memory_query','reuse_material','professional_or_prediction_boundary'].includes(input.intent.reason))return null
+ const interviewReport=/(?:我.{0,12}(?:访谈|聊过|问过)|我已经访谈)/.test(own)&&/(?:感兴趣|使用|付费|采用)/.test(input.text)
+ if(interviewReport)return make('reported_result','实际遇到的问题、已有行为与尚未发生的使用分别核对',[
+  '先把访谈中的表达与实际行动分开。尚未使用或付款，不能据此判断需求成立，也不能判断需求不存在；这次有没有讲到最近实际遇到的问题？',
+  '保留这次访谈报告，不把感兴趣当成使用、付款或有效。下一步先核对对方最近一次遇到的具体困难，是否继续由你决定。',
+ ])
+ const explorationQuestion=/(?:校园产品|创业|校园项目)/.test(own)&&/(?:怎么|如何|怎样)/.test(input.text)&&/(?:发现|找到|找问题|问题|开始)/.test(input.text)
+ if(explorationQuestion)return make('start','当前有没有一个本人观察到的具体问题',[
+  '先从你已经观察到的一件具体麻烦开始；这是编辑建议，不是需求已经成立。你现在有一个想核对的场景，还是还没有具体方向？',
+  '可以先写下一个待核对的问题，再确认最近是否有人实际遇到过。这里只提出小尝试，不承诺产品效果；你已经注意到什么具体场景？',
+ ])
+ if(/我想把(?:验证问题|访谈问题|提问|这个问题).{0,20}(?:改成|换成)/.test(own))return make('start','新的问法会取得什么实际反馈',[
+  '可以把这次问题改成你刚提出的问法，先核对一段最近的实际经历。这里只调整这一步，不据此断定需求成立或访谈更有效；之后按实际回答再判断。',
+  '沿用你刚提出的新问题，不重发整套访谈方法。下一轮分别保留原回答和实际行为，效果仍待核对。',
+ ])
+ if(/(?:自由职业|接单)/.test(own)&&/(?:需求|交付范围)/.test(own)&&/(?:怎么|如何|怎样)/.test(input.text))return make('start','本次服务、使用对象和交付边界',[
+  '先写清一个拟交付的东西和谁会使用它，再把还需对方确认的范围留作问题。这里是编辑建议，尚未接单或交付；你想提供哪一种服务？',
+  '先核对一个具体需求：对方要拿交付物做什么，哪些内容由你完成，哪些还没有约定。没有实际客户时先从拟提供的服务开始，不把探索算成接单。你想交付什么？',
+ ])
+ if(input.verifiedBudget&&/(?:预算|平衡)/.test(own)&&/(?:怎么|如何|怎样)/.test(input.text)){
+  const label=input.verifiedBudget.period==='next_week'?'下周':input.verifiedBudget.period==='this_week'?'本周':/每周/.test(input.verifiedBudget.quote)?'常规每周':'当前时段'
+  return make('start','本次课程与其他目标各自最需要完成的一项',[
+   `以你明确的${label}${input.verifiedBudget.minutes}分钟为上限，先列课程和其他目标各一项必须处理的事，再判断取舍，不要求用满。现在有没有已确定的课程任务或备考事项？`,
+   `先分清${label}的${input.verifiedBudget.minutes}分钟和其他时段，再选当前最需要处理的一项。具体任务还待核对，不把时间分配当成执行；哪一项有明确要求？`,
+  ])
+ }
+ if(input.knowledgeCount&&!contactQuestion)return null
  if(input.intent.reason==='adoption_not_method_request')return make('adopted','尚未报告实际执行或反馈',[
   '好，先沿用刚才选的那一步。愿意尝试和实际做过分开；做后告诉我发生了什么，我们再按反馈调整。',
   '好，先试刚才那一步，不重新发整套方法。还没做时不记为已执行；遇到具体阻碍再一起调整。',

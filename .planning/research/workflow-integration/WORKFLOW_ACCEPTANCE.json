@@ -1924,13 +1924,12 @@
     "remoteCorpusBinding": "NOT_SYNCED_AFTER_OWNER_PUBLICATION"
   },
   "latestIndependentCodeReview": {
-    "execution": "evidence/coze-core-launch-20261011/independent-r16-code-execution-first.json",
-    "report": "evidence/coze-core-launch-20261011/independent-r16-code-first.json",
+    "report": "evidence/coze-core-launch-20261011/independent-r17-code-first.json",
+    "execution": "evidence/coze-core-launch-20261011/independent-r17-code-first-execution.json",
     "verdict": "BLOCKED_HIGH_DEFECTS",
-    "priorResolved": 9,
-    "remainingHigh": 3,
-    "launchEligible": false,
-    "notIndependentReleaseApproval": true
+    "priorResolved": 3,
+    "newHigh": 3,
+    "repairsInProgress": true
   },
   "latestCloudDevelopment": {
     "commit": "dec5c6c63d2d82a7f1c87c55ecb4669e5ca1040d",
@@ -2025,5 +2024,51 @@
     "realModelGraph": "NOT_TESTED",
     "productionDeployment": "NOT_UPDATED",
     "independentReview": "RUNNING_ACTUAL_READ_ONLY_CLI_R17"
+  },
+  "latestRealFourChains": {
+    "head": "aae0a82475a3ed4da5c77f587702789e0837db0f",
+    "sourceDigest": "fe4e499974f819a88e7961ef96a47ec61e1528857879e8ffc4176971f676859d",
+    "allFirstAttempts": 24,
+    "technicalDone": 24,
+    "realGeneratedTurns": 23,
+    "deterministicZeroModelTurns": 1,
+    "knownCostCny": 0.0591222,
+    "originalUnknownCostRows": [
+      {
+        "caseId": "course-4",
+        "actualUsage": {
+          "source": "deterministic",
+          "provider": null,
+          "model": null,
+          "modelTier": "none",
+          "inputTokens": 0,
+          "totalInputTokens": 0,
+          "uncachedInputTokens": 0,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 0,
+          "cachedInputTokens": 0,
+          "retrievedMemoryCount": 0,
+          "contextTokenEstimate": 0,
+          "contextTokenEstimateKind": "heuristic",
+          "escalated": false,
+          "escalationReason": null,
+          "repairReason": null,
+          "repairCalls": 0,
+          "groundingReviewCalls": 0,
+          "zeroLlm": true,
+          "llmCallCount": 0,
+          "estimatedCostCny": 0,
+          "calls": []
+        },
+        "clarification": "CONFIRMED_ZERO_DISPATCH_ZERO_COST_ORIGINAL_MISCLASSIFICATION_RETAINED"
+      }
+    ],
+    "firstContentP50Ms": 1388.5072999999975,
+    "firstContentP95Ms": 4013.3015000000014,
+    "completeReplyP95Ms": 6291.976599999998,
+    "quantileMethod": "nearest_rank_all_first_attempts_no_sample_replacement",
+    "businessQualification": "FOUR_CHAINS_INDEPENDENT_FAIL",
+    "performanceAcceptance": "NOT_ACCEPTED_BUSINESS_GATES_FAILED_NOT_FINAL_ORDINARY20",
+    "independentReview": "evidence/coze-core-launch-20261011/independent-four-chains-aae0a82-first.json"
   }
 }
