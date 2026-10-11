@@ -42,14 +42,15 @@ export async function readWorkflowEvidence(r:WorkflowRequest,c:DB=pool):Promise<
  for(const ref of r.authorizedEvidenceRefs){
   if(ref.type==='growth'){
    const found=growth.items.find(x=>x.id===ref.id)
-   if(!found||found.unavailableReason||!['active','proposed'].includes(found.status)||found.recommendationStopped)continue
+   if(!found||found.revision!==ref.revision||found.unavailableReason||!['active','proposed'].includes(found.status)||found.recommendationStopped)continue
    // AI observations remain candidates; never label them student facts.
    if(!['user_reported','user_edit'].includes(found.assertion))continue
+   if(ref.quote!==undefined&&!found.text.includes(ref.quote))continue
    const budget=applicableTimeBudget(found.text,undefined,r.hostSnapshot?.budgetQuestion?.period)
-   records.push({ref:{type:'growth',id:found.id,revision:found.revision},owner:r.internalActorKey,conversationId:found.conversationId,status:'active',role:'user',text:found.text,...(budget?{budget}:{})})
+   records.push({ref:{...ref},owner:r.internalActorKey,conversationId:found.conversationId,status:'active',role:'user',text:found.text,...(budget?{budget}:{})})
   }else if(ref.type==='message'){
    const row=(await c.query("SELECT content,conversation_id,created_at FROM messages WHERE user_id=$1 AND id=$2 AND role='user'",[r.internalActorKey,ref.id])).rows[0]
-   if(!row||!controls.memory.enabled&&row.conversation_id!==r.conversationId)continue
+   if(!row||ref.revision!==1||!controls.memory.enabled&&row.conversation_id!==r.conversationId)continue
    const quote=ref.quote??row.content
    try{await checkCampusSource(c,r.internalActorKey,r.conversationId,controls.memory.enabled,{type:'message',id:ref.id,quote})}catch(error){if(error instanceof HttpError)continue;throw error}
    if(await growthQuoteSuppressed(c,r.internalActorKey,ref.id,quote))continue
@@ -60,7 +61,7 @@ export async function readWorkflowEvidence(r:WorkflowRequest,c:DB=pool):Promise<
     const token=budget.period==='next_week'?'下周':'这周',window=resolveTimeWindow({kind:'calendar_week',which:budget.period==='next_week'?'next':'this',quote:token},token,new Date(row.created_at).toISOString(),'Asia/Shanghai')
     if(Date.now()>=Date.parse(window.validUntil))budget=undefined
    }
-   records.push({ref:{type:'message',id:ref.id,revision:1},owner:r.internalActorKey,conversationId:row.conversation_id,status:'active',role:'user',text:quote,...(budget?{budget}:{})})
+   records.push({ref:{...ref},owner:r.internalActorKey,conversationId:row.conversation_id,status:'active',role:'user',text:quote,...(budget?{budget}:{})})
   }
  }
  return records

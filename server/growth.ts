@@ -574,7 +574,7 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
     if(row.kind==='constraint'&&row.assertion==='user_reported'&&mutation.time?.basis.kind==='calendar_week'&&
       hoursIn(row.text)!==null&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(row.text)){
       const older=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND id<>$2 AND kind='constraint' AND assertion='user_reported' AND status='active' AND valid_until=$3 AND time_basis->>'kind'='calendar_week' ORDER BY id FOR UPDATE",[run.user_id,row.id,row.valid_until])).rows
-      for(const prior of older)if(hoursIn(prior.text)!==null&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(prior.text)){
+      for(const prior of older)if(hoursIn(prior.text)!==null&&hoursIn(prior.text)!==hoursIn(row.text)&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(prior.text)){
         await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'});changedIds.push(prior.id)
       }
     }

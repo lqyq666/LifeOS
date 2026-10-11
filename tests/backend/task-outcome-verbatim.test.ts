@@ -12,6 +12,7 @@ import {boundedOrdinaryReply,boundedPlanningReply} from '../../server/bounded-re
 import {growthView} from '../../server/growth.ts'
 import {knowledgeIntent} from '../../server/evergreen-guide.ts'
 import {deriveTurnContract} from '../../server/turn-contract.ts'
+import {readWorkflowEvidence} from '../../server/workflows/task-sources.ts'
 
 test('omitted read/response/adoption reports persist independently and remain in new-session authorized context',async()=>{
  await localEmbedding.start()
@@ -82,7 +83,21 @@ test('omitted read/response/adoption reports persist independently and remain in
   outputs.push({reply:boundedPlanningReply({minutes:90,period:'this_week'}).choices[0],growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:90,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'课程复习',minutes:90,directionScopes:[]}]}})
   const budgetResult=await engine({run:budget,staged:budgetStaged,context:await store.contextForRun(budget),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(budget,budgetStaged,budgetResult.text,budgetResult.usage,new AbortController().signal)
-  const earlier=(await pool.query("SELECT id FROM growth_items WHERE user_id=$1 AND kind='constraint' AND status='active' AND text LIKE '%九十分钟%'",[user])).rows[0]
+  const earlier=(await pool.query("SELECT id,revision FROM growth_items WHERE user_id=$1 AND kind='constraint' AND status='active' AND text LIKE '%九十分钟%'",[user])).rows[0]
+  const currentPlan=(await growthView(user,next)).items.find(i=>i.structuredPlan)!
+  const repeat=(await store.startRun(user,next,randomUUID(),'这周我只有九十分钟可用。')).run,repeatStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:'当前时段仍按九十分钟理解。'})
+  const repeated=await engine({run:repeat,staged:repeatStaged,context:await store.contextForRun(repeat),decision:null,signal:new AbortController().signal,emit:()=>{}})
+  await store.finishRun(repeat,repeatStaged,repeated.text,repeated.usage,new AbortController().signal)
+  assert.equal((await pool.query('SELECT status,revision FROM growth_items WHERE user_id=$1 AND id=$2',[user,earlier.id])).rows[0].revision,earlier.revision,'equivalent restatement preserves original revision')
+  assert.equal((await growthView(user,next)).items.find(i=>i.id===currentPlan.id)!.status,'proposed','equivalent availability must not stale a plan')
+  const ref={type:'message' as const,id:repeat.source_message_id,revision:1,quote:'这周我只有九十分钟可用'}
+  const evidenceRequest={internalActorKey:user,conversationId:next,authorizedEvidenceRefs:[ref]} as any
+  assert.deepEqual((await readWorkflowEvidence(evidenceRequest))[0].ref,ref,'verified authorized quote is not dropped before cloud signing')
+  assert.equal((await readWorkflowEvidence({...evidenceRequest,authorizedEvidenceRefs:[{...ref,revision:2}]})).length,0,'immutable message rejects wrong revision')
+  const wish=(await store.startRun(user,next,randomUUID(),'我想探索自由职业接单，先确认需求与交付范围，怎么开始？')).run
+  await assert.rejects(store.stageCandidate(wish,{candidates:[],audit:[]},{sourceMessageId:wish.source_message_id,quote:'先确认需求与交付范围',links:[],content:{action:'先确认需求与交付范围',result:'先确认需求与交付范围',occurredAt:''}}),/PLANNED_ACTION_IS_NOT_EXPERIENCE/)
+  await store.finishRun(wish,{candidates:[],audit:[]},'先把需求范围作为拟核对事项。',null,new AbortController().signal)
   const zero=(await store.startRun(user,next,randomUUID(),'本周没有可用时间，可用时间是零，请帮我安排本周课程与备考。')).run,zeroStaged:store.Staged={candidates:[],audit:[]},beforeZero=requests.length
   const zeroResult=await engine({run:zero,staged:zeroStaged,context:await store.contextForRun(zero),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(zero,zeroStaged,zeroResult.text,zeroResult.usage,new AbortController().signal)
@@ -152,12 +167,13 @@ test('omitted read/response/adoption reports persist independently and remain in
   const contactUser='generic-contact-'+randomUUID()
   await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[contactUser,contactUser+'@example.invalid'])
   await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1)',[contactUser])
-  for(const text of ['我想向学长丙请教项目课对实习的帮助。','按上次办法，我已经发了消息，三天还没有回复。','我通过学校邮箱请教学长丙，原请求是想知道项目课能否提供实习作品。对方已经读了，但没有回复。']){
+  for(const text of ['我想向学长丙请教项目课对实习的帮助。','按上次办法，我已经发了消息，四天还没有回复。','我通过学校邮箱请教学长丙，原请求是想知道项目课能否提供实习作品。对方已经读了，但没有回复。']){
    const conversation=randomUUID();await store.createConversation(contactUser,{id:conversation,title:'synthetic contact continuity'})
    const run=(await store.startRun(contactUser,conversation,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
    outputs.push({reply:boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})?.choices[0]??'先保留当前请教目标。'})
    const result=await engine({run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}})
    await store.finishRun(run,staged,result.text,result.usage,new AbortController().signal)
+   if(text.includes('四天'))assert.equal(((await store.cognitionGraph(contactUser)).nodes.find((n:any)=>n.type==='experience') as any).taskOutcomes.response.status,'reported_no_response','intermediate no-response report is not delayed until later reading')
   }
   const genericExperience=(await store.cognitionGraph(contactUser)).nodes.find((n:any)=>n.type==='experience') as any
   assert.equal(genericExperience.taskOutcomes.read.status,'reported_read')
