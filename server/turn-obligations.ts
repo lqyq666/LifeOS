@@ -154,9 +154,9 @@ export function remainingWeeklyTimeIntent(text:string):{quote:string;minutes:num
 // clause protection and explicit recurring/remainder effects stay in this file.
 export type BudgetContext={period:'this_week'|'next_week';question:string;anchor:string}
 export type ApplicableBudget={period:'current'|'this_week'|'next_week';amountMinutes:number;scope:'recurring'|'available'|'remaining';qualification:'exact'|'estimate'|'upper_bound';quote:string;reason:string}
-export function applicableTimeBudget(text:string,context?:BudgetContext,target?:'this_week'|'next_week'):ApplicableBudget|undefined{
+export function applicableTimeBudget(text:string,context?:BudgetContext,target?:'this_week'|'next_week',options:{retainReportedBudget?:boolean}={}):ApplicableBudget|undefined{
  const clauses=scanUserClauses(text),valid=clauses.filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&!c.interrogative&&!/[？?]/.test(c.delimiter))
- if(valid.some(c=>/先别分析|不要分析|不想继续|拒绝继续|取消|只想倾诉|只听我说|不要建议|不想要建议/.test(c.text)))return undefined
+ if(!options.retainReportedBudget&&valid.some(c=>/先别分析|不要分析|不想继续|拒绝继续|取消|只想倾诉|只听我说|不要建议|不想要建议/.test(c.text)))return undefined
  const candidates:ApplicableBudget[]=[]
  let sentence=-1,period:'this_week'|'next_week'|undefined,correction=false,mentionsOpportunity=false
  for(const clause of clauses){
@@ -217,14 +217,14 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
   const remaining=remainingWeeklyTimeIntent(currentText)
   if(remaining)effects.push({type:'remaining_time',...remaining})
   const plan=weeklyPlanIntent(currentText)
-  const applicable=applicableTimeBudget(currentText,undefined,plan?.period==='next_week'?'next_week':plan?.period==='this_week'?'this_week':undefined)
+  const applicable=applicableTimeBudget(currentText,undefined,plan?.period==='next_week'?'next_week':plan?.period==='this_week'?'this_week':undefined,{retainReportedBudget:true})
   // Use the same current-event selector as workflows and persistence. A bare
   // "这周零小时可用" is a real budget, although not a recurring/remainder phrase.
   if(!weekly&&!remaining&&applicable){
     if(applicable.scope==='remaining'&&applicable.period==='this_week')effects.push({type:'remaining_time',quote:applicable.quote,minutes:applicable.amountMinutes,weekQuote:/本周/.test(currentText)?'本周':'这周'})
     else effects.push({type:'weekly_time',quote:applicable.quote,minutes:applicable.amountMinutes,period:applicable.period})
   }
-  const future=applicableTimeBudget(currentText,undefined,'next_week')
+  const future=applicableTimeBudget(currentText,undefined,'next_week',{retainReportedBudget:true})
   if(future?.period==='next_week'&&future.quote!==applicable?.quote&&!effects.some(e=>e.type==='weekly_time'&&e.quote===future.quote))effects.push({type:'weekly_time',quote:future.quote,minutes:future.amountMinutes,period:'next_week'})
   // P2 (B05/B10): the plan binds to the budget that actually APPLIES to the
   // plan's own period. A next-week plan never binds to this week's remainder

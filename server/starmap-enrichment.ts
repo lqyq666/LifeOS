@@ -32,6 +32,7 @@ const BLOCKED_DONE = /(?:完成了|交了|交付|搞定|通过了|验收)/
 
 // 一条经历是否是未完成/卡住的行动：有"卡住"标记且没有完成标记。
 export function isBlockedExperience(action: string, result: string, quote: string): boolean {
+  if(/已经尝试|尝试了|试做了|开始尝试/.test(action)&&BLOCKED_MARKER.test(result+' '+quote))return true
   if(clauseReportsCompleted(action))return false
   if(action.trim())return BLOCKED_MARKER.test(action)&&!BLOCKED_DONE.test(action)
   // A participant not adopting or paying is not an unfinished contribution.

@@ -119,6 +119,24 @@ test('omitted read/response/adoption reports persist independently and remain in
   const pausedInterview=await engine({run:stoppedInterview,staged:stopInterviewStaged,context:await store.contextForRun(stoppedInterview),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(stoppedInterview,stopInterviewStaged,pausedInterview.text,pausedInterview.usage,new AbortController().signal)
   assert.equal((await pool.query("SELECT count(*)::int AS n FROM growth_recommendation_controls WHERE user_id=$1 AND state='stopped' AND source_message_id=$2",[user,stoppedInterview.source_message_id])).rows[0].n,1)
+  const advance=async(text:string)=>{
+   const run=(await store.startRun(user,next,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
+   outputs.push({reply:boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
+   const result=await engine({run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}})
+   await store.finishRun(run,staged,result.text,result.usage,new AbortController().signal)
+   return run
+  }
+  await advance('我本周把课程放在前面，课程优先，只有九十分钟可用。')
+  assert.ok((await growthView(user,next)).items.some(i=>i.kind==='goal'&&i.text==='课程优先'&&i.status==='active'))
+  await advance('我还没有开始这次课程复习，老师给的资料链接打不开。')
+  await advance('我已经尝试这次课程复习，但遇到第一道题卡住了。')
+  const advancedFacts=(await growthView(user,next)).items
+  assert.equal(advancedFacts.find(i=>i.text==='我还没有开始这次课程复习')!.status,'paused')
+  assert.ok(advancedFacts.some(i=>i.text==='我已经尝试这次课程复习'&&i.status==='active'))
+  assert.ok((await store.cognitionGraph(user)).nodes.some((n:any)=>n.type==='experience'&&n.action==='我已经尝试这次课程复习'))
+  const zeroListen=await advance('我这周零分钟可用，先别分析创业了，只想说说最近的压力。')
+  assert.ok((await growthView(user,next)).items.some(i=>i.kind==='constraint'&&i.text==='我这周零分钟可用'&&i.status==='active'))
+  assert.equal((await pool.query('SELECT count(*)::int AS n FROM experiences WHERE user_id=$1 AND source_message_id=$2',[user,zeroListen.source_message_id])).rows[0].n,0)
   await pool.query('UPDATE user_memory_settings SET enabled=false, revision=revision+1 WHERE user_id=$1',[user])
   const off=(await store.startRun(user,next,randomUUID(),'我问了导师乙，对方已经读了。我现在只想聊聊。')).run,offStaged:store.Staged={candidates:[],audit:[]}
   outputs.push({reply:'我在听。你接着说，按你想说的节奏来。'})

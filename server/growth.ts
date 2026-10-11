@@ -17,6 +17,7 @@ import {hoursIn} from './turn-obligations.ts'
 import {deferredPursuitClause} from './user-command-spans.ts'
 import {matchPathTheme} from './path-lexicon.ts'
 import {persistMemoryControl} from './memory-controls.ts'
+import {clauseReportsAttempted} from './experience-content.ts'
 
 type DB = Pick<PoolClient, 'query'>
 type Row = { id: string; user_id: string; conversation_id: string; kind: GrowthItem['kind']; text: string; assertion: GrowthItem['assertion']; status: GrowthItem['status']; sources: GrowthItem['sources']; dependencies: GrowthRef[]; valid_until: Date | null; valid_from: Date | null; time_basis: Record<string, unknown> | null; direction_scopes: string[] | null; structured_plan: Record<string, unknown> | null; revision: number; created_at: Date; updated_at: Date; limitation?:string;progress_state?:GrowthItem['progressState'] }
@@ -542,6 +543,19 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
       row=updatedRow
     }
     await record(c,row,delta.target.operation==='create'?'extract':delta.target.operation);ids[index]=row.id;written.set(index,row)
+    // Only an explicit, identical matter advances an earlier non-action fact.
+    // Keep that earlier report and its source as paused history; similar tasks
+    // or ambiguous omitted references never retire one another.
+    if(row.assertion==='user_reported'&&clauseReportsAttempted(row.text)){
+      const task=/^我(?:已经尝试|尝试了|试做了|开始尝试)(.+)$/.exec(row.text)?.[1]?.trim()
+      if(task){
+        const priorRows=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND id<>$2 AND kind='context' AND assertion='user_reported' AND status='active' ORDER BY id FOR UPDATE",[run.user_id,row.id])).rows
+        for(const prior of priorRows){
+          const oldTask=/^我(?:还没有|还没|尚未|未曾)(?:开始|尝试)(.+)$/.exec(prior.text)?.[1]?.trim()
+          if(oldTask===task)await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'})
+        }
+      }
+    }
     if(row.assertion==='user_reported'&&/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(row.text))
       await persistMemoryControl(c,run,{kind:'stop_recommend',itemId:row.id,expectedRevision:row.revision,clauseText:row.text})
     // A new general availability report for the identical calendar week

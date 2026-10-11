@@ -48,7 +48,12 @@ export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]):
 export function clauseReportsCompleted(text: string): boolean {
   if(/(?:没(?:有)?|尚未|还未|未曾).{0,6}(?:开始|完成|做|复习|尝试|交付|发|提交)/.test(text))return false
   if(/(?:记录|经历).{0,6}(?:保留|留着|不(?:用|要)?删)|(?:保留|留着).{0,6}(?:记录|经历)/.test(text))return false
-  return COMPLETED_ACTION.test(text) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
+  return (COMPLETED_ACTION.test(text)||clauseReportsAttempted(text)) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
+}
+
+// An attempt is an actual contribution, not successful completion of its task.
+export function clauseReportsAttempted(text:string):boolean{
+  return /(?:已经尝试|尝试了|试做了|开始尝试)/.test(text)&&!/(?:没(?:有)?|尚未|还未|未曾|想|打算|准备).{0,6}(?:尝试|试做)/.test(text)
 }
 
 // Category fallback for the star map: the model lane may omit links, but a

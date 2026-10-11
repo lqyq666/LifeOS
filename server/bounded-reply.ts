@@ -96,7 +96,11 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？',
   '还没收到回复，原因和结果都先保留未知。有没有约定回复时间，或者这件事必须确认的截止时间？',
  ]}
- if(blocked&&(materialUnavailable||/(?:第[一二三四五六七八九十\d]+(?:道|个)?题|做到|停在|卡在|遇到)/.test(own)))return make('blocked','已知阻碍处的实际材料',[
+ if(blocked&&!materialUnavailable&&/(?:第[一二三四五六七八九十\d]+(?:道|个)?题|做到|停在|卡在|遇到)/.test(own))return make('blocked','当前受阻题目与实际尝试',[
+  '这次已经尝试过，先只看当前卡住的题目，不重发入门方法。你可以发来题目和做到的位置；不方便提供就先暂停。',
+  '沿着这次实际尝试继续，先看卡住处的题目和已有步骤。原因和效果仍未知，暂时不换整套方法。',
+ ])
+ if(blocked&&materialUnavailable)return make('blocked','已知阻碍处的实际材料',[
   '先处理你刚说的阻碍，不重发入门方法。把打不开的材料信息或卡住的题目发来，我们从这里继续；不方便提供也可以先暂停。',
   '已经知道这次卡住的地方，先不重复问进度。可以一起查看该处的材料或题目；如果暂时无法查看，就保留原因未知，不说方法无效。',
  ])

@@ -1,5 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+
+test('listening preserves explicit zero time without authorizing a plan',()=>{
+ const effects=deriveTurnObligations('我这周零分钟可用，先别分析创业了，只想说说最近的压力。').requiredEffects
+ assert.ok(effects.some(e=>e.type==='weekly_time'&&e.minutes===0&&e.period==='this_week'))
+ assert.ok(!effects.some(e=>e.type==='weekly_plan'))
+ for(const text of ['室友这周零分钟可用，先别分析创业了。','如果我这周零分钟可用，先别分析创业了。','我只想说说“这周零分钟可用”。'])assert.equal(deriveTurnObligations(text).requiredEffects.length,0,text)
+})
 test('natural candidate schedule request is mandatory and keeps its requested week',()=>{
  const text='下周仅有一小时，请给课程和备考安排下周的候选任务。'
  assert.ok(deriveTurnObligations(text).requiredEffects.some(e=>e.type==='weekly_plan'&&e.period==='next_week'&&e.minutes===60))
