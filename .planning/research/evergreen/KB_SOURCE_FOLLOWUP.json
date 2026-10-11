@@ -415,8 +415,8 @@
   ],
   "summary": {
     "newUsableSources": 12,
-    "newLocatedQuotes": 17,
-    "draftsSupplemented": 17,
+    "newLocatedQuotes": 18,
+    "draftsSupplemented": 18,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 9,
@@ -630,5 +630,33 @@
     "responseTo": "Actual external R2 editorial review: permission denied / department not responding",
     "humanApproval": null,
     "published": 0
+  },
+  "incomeCategoryR4": {
+    "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+    "revision": 4,
+    "previousContentHash": "8efa273821512bbae8395440b9dc7dca63f1c2929decc37d4b837931c797b39d",
+    "contentHash": "0d7e7c7b8883d9163e65429a04e9c3e570443f3cdc5b20e37db93b446a264f4a",
+    "independentIssue": "R3 类别措辞仅凭envelope引用不足",
+    "evidence": {
+      "evidence_id": "cfpb-spending-pdf-20261011-e2",
+      "source_id": "cfpb-spending-pdf-20261011",
+      "source_revision": 1,
+      "quote": "enter the total you spent in each category for each week.",
+      "content_hash": "52be87422ed80abddd2b8d6c4d7c385df1409c9bfcc62747b9d405ed5b7812ed",
+      "locator": {
+        "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+        "pageIndex": 0,
+        "pageNumber": 1,
+        "start": 1172,
+        "end": 1229,
+        "normalizedPageSha256": "83252e45b1e2f385054066710a97d62e87293db2299a7aee48d10a27642fd78d",
+        "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+      },
+      "context": "Spending tracker第一页Analyze your spending段明确逐类别、逐周记录；不推出个人财务效果或美国福利规则。",
+      "acquisition": "EXISTING_HASH_VERIFIED_FULL_PRIMARY_PDF_PAGE_REREAD_FOR_INDEPENDENT_R3_ISSUE"
+    },
+    "independentReview": null,
+    "humanApproval": null,
+    "publication": false
   }
 }

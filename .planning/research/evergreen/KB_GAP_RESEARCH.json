@@ -2540,6 +2540,22 @@
             "normalizedPageSha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22",
             "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
           }
+        },
+        {
+          "id": "cfpb-spending-pdf-20261011-e2",
+          "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+          "status": "ACTUAL_PRIMARY_PAGE_REREAD_CATEGORY_WEEK_LOCATED",
+          "at": "2026-10-11T02:08:37.684Z",
+          "originalSha256": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+          "locator": {
+            "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+            "pageIndex": 0,
+            "pageNumber": 1,
+            "start": 1172,
+            "end": 1229,
+            "normalizedPageSha256": "83252e45b1e2f385054066710a97d62e87293db2299a7aee48d10a27642fd78d",
+            "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+          }
         }
       ],
       "readSource": {
@@ -3905,8 +3921,8 @@
   "humanApprovals": 0,
   "followupSummary": {
     "newUsableSources": 12,
-    "newLocatedQuotes": 17,
-    "draftsSupplemented": 17,
+    "newLocatedQuotes": 18,
+    "draftsSupplemented": 18,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 9,

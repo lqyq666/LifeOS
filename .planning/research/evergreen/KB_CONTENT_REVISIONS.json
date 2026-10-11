@@ -1375,6 +1375,24 @@
       "context": "教育性记账工具的操作句；不把工具目的改写成个人效果。",
       "acquisition": "ORIGINAL_PDF_BYTES_DOWNLOAD_FULL_PAGES_READ_PYPDF_WEB_ORIGINAL",
       "content_hash": "a09908376a7dbde89fe5ff6d920a48bccc42a5b03fd5ba6fd6199da5ee37b383"
+    },
+    {
+      "evidence_id": "cfpb-spending-pdf-20261011-e2",
+      "source_id": "cfpb-spending-pdf-20261011",
+      "source_revision": 1,
+      "quote": "enter the total you spent in each category for each week.",
+      "content_hash": "52be87422ed80abddd2b8d6c4d7c385df1409c9bfcc62747b9d405ed5b7812ed",
+      "locator": {
+        "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+        "pageIndex": 0,
+        "pageNumber": 1,
+        "start": 1172,
+        "end": 1229,
+        "normalizedPageSha256": "83252e45b1e2f385054066710a97d62e87293db2299a7aee48d10a27642fd78d",
+        "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+      },
+      "context": "Spending tracker第一页Analyze your spending段明确逐类别、逐周记录；不推出个人财务效果或美国福利规则。",
+      "acquisition": "EXISTING_HASH_VERIFIED_FULL_PRIMARY_PDF_PAGE_REREAD_FOR_INDEPENDENT_R3_ISSUE"
     }
   ],
   "drafts": [
@@ -7095,7 +7113,7 @@
     },
     {
       "id": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
-      "revision": 3,
+      "revision": 4,
       "kind": "method",
       "status": "unverified",
       "synthetic": false,
@@ -7112,7 +7130,7 @@
       "mechanisms": [
         "投入和约束记录"
       ],
-      "sourceHash": "05615c782997140bf39ac8c16169a8ae1c1ac4112010289ecca05711b9f832aa",
+      "sourceHash": "5e6b10083bce6f26a6d259c63402a973f32f26956f3f13b71f92f7f0a62d6d0f",
       "guide": {
         "schemaVersion": 1,
         "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
@@ -7144,7 +7162,8 @@
         ],
         "evidenceIds": [
           "cfpb-income-pdf-20261011-e1",
-          "cfpb-spending-pdf-20261011-e1"
+          "cfpb-spending-pdf-20261011-e1",
+          "cfpb-spending-pdf-20261011-e2"
         ],
         "claims": [
           {
@@ -7153,7 +7172,8 @@
             "basis": "source_supported",
             "evidenceIds": [
               "cfpb-income-pdf-20261011-e1",
-              "cfpb-spending-pdf-20261011-e1"
+              "cfpb-spending-pdf-20261011-e1",
+              "cfpb-spending-pdf-20261011-e2"
             ],
             "scope": "已有本人认可的实际收支记录，先分清已到账、未到账、必要支出与未知；兼职整体价值还要另核对时间、学习与其他义务。",
             "limitations": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
@@ -7164,7 +7184,8 @@
             "basis": "editorial_adaptation",
             "evidenceIds": [
               "cfpb-income-pdf-20261011-e1",
-              "cfpb-spending-pdf-20261011-e1"
+              "cfpb-spending-pdf-20261011-e1",
+              "cfpb-spending-pdf-20261011-e2"
             ],
             "scope": "LifeOS任务操作与反馈适配，未经效果验证",
             "limitations": "LifeOS小行动的编辑适配，不保证增加收入或减少支出；报价、承诺与交付不等于到账。"
@@ -7187,7 +7208,8 @@
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "cfpb-income-pdf-20261011-e1",
-                  "cfpb-spending-pdf-20261011-e1"
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
                 ]
               },
               {
@@ -7196,7 +7218,8 @@
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "cfpb-income-pdf-20261011-e1",
-                  "cfpb-spending-pdf-20261011-e1"
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
                 ]
               },
               {
@@ -7205,7 +7228,8 @@
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "cfpb-income-pdf-20261011-e1",
-                  "cfpb-spending-pdf-20261011-e1"
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
                 ]
               }
             ]
@@ -7222,7 +7246,8 @@
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "cfpb-income-pdf-20261011-e1",
-                  "cfpb-spending-pdf-20261011-e1"
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
                 ]
               },
               {
@@ -7231,7 +7256,8 @@
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "cfpb-income-pdf-20261011-e1",
-                  "cfpb-spending-pdf-20261011-e1"
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
                 ]
               },
               {
@@ -7240,7 +7266,8 @@
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "cfpb-income-pdf-20261011-e1",
-                  "cfpb-spending-pdf-20261011-e1"
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
                 ]
               }
             ]
@@ -7257,7 +7284,8 @@
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "cfpb-income-pdf-20261011-e1",
-                  "cfpb-spending-pdf-20261011-e1"
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
                 ]
               },
               {
@@ -7266,7 +7294,8 @@
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "cfpb-income-pdf-20261011-e1",
-                  "cfpb-spending-pdf-20261011-e1"
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
                 ]
               },
               {
@@ -7275,7 +7304,8 @@
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "cfpb-income-pdf-20261011-e1",
-                  "cfpb-spending-pdf-20261011-e1"
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
                 ]
               }
             ]
@@ -7299,11 +7329,11 @@
         },
         "expectedObservation": "实际可用预算能否覆盖本人已知必要开支。",
         "retrievalSummary": "记录时间投入与可用经济预算；income-ledger；本人实际到账、必要支出与预计款项分别是多少？；判断兼职价值；记录投入与收益；简单预算；记录已到账与未到账，金额缺失保持未知；不把报价记收入。；单列直接成本、必要开支和本人投入时间；退款或变动另作记录。；比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
-        "referenceBody": "记录时间投入与可用经济预算\n原文范围：两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。\n什么时候用：本人实际到账、必要支出与预计款项分别是多少？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。；只想倾听、拒绝、暂停、遗忘或不愿提供财务信息时停止。\n先核对：本人实际到账、必要支出与预计款项分别是多少？\nLifeOS编辑步骤：\n任务：判断兼职价值\n当前任务「判断兼职价值」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n任务：记录投入与收益\n当前任务「记录投入与收益」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n任务：简单预算\n当前任务「简单预算」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n最小一步：本人愿意时只记一笔已核对的实际到账或必要支出，未知金额留空；无需上传账单、姓名或账号。\n资源不足：没有时间就保留未知并暂停；能做一步时，只核对一笔本人认可记录，不索取敏感账单。\n观察：实际可用预算能否覆盖本人已知必要开支。\nnot_started：尚未开始「记录时间投入与可用经济预算」时，先核对：本人实际到账、必要支出与预计款项分别是多少？只准备本人认可的一步，不写成执行。\nblocked：只核对原记账步骤与当前缺项：缺金额留空，缺日期不猜所属周，记录不一致请本人更正；不重发整套入门、不要求上传完整账本。\nwaiting_result：同一笔款项尚未到账时保持未到账或未知；已交付、已采用与已付款分别记录，报价不进实际收入，未回复不推断原因或自动催款。\nresult：只按本人新增合法反馈更正这笔实际到账、支出或退款；重新计算本人确认的可用余额，收入变化与兼职价值、学习效果分开。\ndeclined：停止「记录时间投入与可用经济预算」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。",
+        "referenceBody": "记录时间投入与可用经济预算\n原文范围：两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。\n什么时候用：本人实际到账、必要支出与预计款项分别是多少？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。；只想倾听、拒绝、暂停、遗忘或不愿提供财务信息时停止。\n先核对：本人实际到账、必要支出与预计款项分别是多少？\nLifeOS编辑步骤：\n任务：判断兼职价值\n当前任务「判断兼职价值」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n任务：记录投入与收益\n当前任务「记录投入与收益」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n任务：简单预算\n当前任务「简单预算」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n最小一步：本人愿意时只记一笔已核对的实际到账或必要支出，未知金额留空；无需上传账单、姓名或账号。\n资源不足：没有时间就保留未知并暂停；能做一步时，只核对一笔本人认可记录，不索取敏感账单。\n观察：实际可用预算能否覆盖本人已知必要开支。\nnot_started：尚未开始「记录时间投入与可用经济预算」时，先核对：本人实际到账、必要支出与预计款项分别是多少？只准备本人认可的一步，不写成执行。\nblocked：只核对原记账步骤与当前缺项：缺金额留空，缺日期不猜所属周，记录不一致请本人更正；不重发整套入门、不要求上传完整账本。\nwaiting_result：同一笔款项尚未到账时保持未到账或未知；已交付、已采用与已付款分别记录，报价不进实际收入，未回复不推断原因或自动催款。\nresult：只按本人新增合法反馈更正这笔实际到账、支出或退款；重新计算本人确认的可用余额，收入变化与兼职价值、学习效果分开。\ndeclined：停止「记录时间投入与可用经济预算」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。\n原文定位补充：Spending tracker第1页Analyze your spending明确按类别与周记录；此前仅收集凭据的引文不足，本版补实际操作句，不宣称改善效果。",
         "reviewStatus": "needs_review",
         "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
         "review": null,
-        "contentHash": "8efa273821512bbae8395440b9dc7dca63f1c2929decc37d4b837931c797b39d",
+        "contentHash": "0d7e7c7b8883d9163e65429a04e9c3e570443f3cdc5b20e37db93b446a264f4a",
         "indexSignature": "17465eff05f751c9c0133a93d82cdbae15a3b03f854cbcec20318221e048567c",
         "legacyIds": [],
         "replaces": []
@@ -9319,7 +9349,7 @@
       "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
       "canonicalKey": "income-ledger",
       "baseRevision": 1,
-      "revision": 3,
+      "revision": 4,
       "previousStatus": "needs_review",
       "decision": "SUBSTANTIVE_REVISION_PENDING_INDEPENDENT_REVIEW",
       "changed": [
@@ -9335,7 +9365,7 @@
       "independentReview": null,
       "humanApproval": null,
       "served": false,
-      "previousDraftHash": "72b7d6967fa4a5e1b9d01a042ce8c270f9d8e4dee97f1a33c3c65f6e580db0ab",
+      "previousDraftHash": "8efa273821512bbae8395440b9dc7dca63f1c2929decc37d4b837931c797b39d",
       "sourceIds": [
         "cfpb-income-pdf-20261011",
         "cfpb-spending-pdf-20261011"
@@ -12119,9 +12149,9 @@
     {
       "canonicalKey": "income-ledger",
       "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
-      "revision": 3,
-      "contentHash": "8efa273821512bbae8395440b9dc7dca63f1c2929decc37d4b837931c797b39d",
-      "previousDraftHash": "72b7d6967fa4a5e1b9d01a042ce8c270f9d8e4dee97f1a33c3c65f6e580db0ab",
+      "revision": 4,
+      "contentHash": "0d7e7c7b8883d9163e65429a04e9c3e570443f3cdc5b20e37db93b446a264f4a",
+      "previousDraftHash": "8efa273821512bbae8395440b9dc7dca63f1c2929decc37d4b837931c797b39d",
       "status": "PREPARED_NOT_INDEPENDENTLY_EXECUTED",
       "claimChecks": [
         {
@@ -12158,6 +12188,21 @@
                 "start": 79,
                 "end": 120,
                 "normalizedPageSha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22",
+                "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+              }
+            },
+            {
+              "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+              "sourceHash": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+              "quoteHash": "52be87422ed80abddd2b8d6c4d7c385df1409c9bfcc62747b9d405ed5b7812ed",
+              "quote": "enter the total you spent in each category for each week.",
+              "locator": {
+                "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+                "pageIndex": 0,
+                "pageNumber": 1,
+                "start": 1172,
+                "end": 1229,
+                "normalizedPageSha256": "83252e45b1e2f385054066710a97d62e87293db2299a7aee48d10a27642fd78d",
                 "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
               }
             }
@@ -12198,6 +12243,21 @@
                 "start": 79,
                 "end": 120,
                 "normalizedPageSha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22",
+                "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+              }
+            },
+            {
+              "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+              "sourceHash": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+              "quoteHash": "52be87422ed80abddd2b8d6c4d7c385df1409c9bfcc62747b9d405ed5b7812ed",
+              "quote": "enter the total you spent in each category for each week.",
+              "locator": {
+                "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+                "pageIndex": 0,
+                "pageNumber": 1,
+                "start": 1172,
+                "end": 1229,
+                "normalizedPageSha256": "83252e45b1e2f385054066710a97d62e87293db2299a7aee48d10a27642fd78d",
                 "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
               }
             }
@@ -14923,6 +14983,222 @@
         "review": null,
         "contentHash": "456db6fb2f43926b305e223740d77fc0a22bf2b2e7810f54ce94e6e35654886f",
         "indexSignature": "02548ef20a2432975cd4351d4b8f33847c6ee84f6847a691645ce6a259463b81",
+        "legacyIds": [],
+        "replaces": []
+      }
+    },
+    {
+      "id": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "记录时间投入与可用经济预算",
+      "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+      "publisher": "CFPB",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.554Z",
+      "validUntil": null,
+      "excerpt": "Tracking Income and Benefits\n Paying Bills\n Getting through the Month\n Dealing with Debt\n Understanding Credit Reports and Scores\n Choosing Financial Products and Services\n Protecting your Money\nStarting the Money Conversation\n Description\n",
+      "claim": "两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。",
+      "scope": "已有本人认可的实际收支记录，先分清已到账、未到账、必要支出与未知；兼职整体价值还要另核对时间、学习与其他义务。",
+      "limitations": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。",
+      "mechanisms": [
+        "投入和约束记录"
+      ],
+      "sourceHash": "05615c782997140bf39ac8c16169a8ae1c1ac4112010289ecca05711b9f832aa",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+        "canonicalKey": "income-ledger",
+        "aliases": [
+          "兼职价值",
+          "收入课程",
+          "投入收益",
+          "日常预算",
+          "记账",
+          "判断兼职价值",
+          "记录投入与收益",
+          "简单预算"
+        ],
+        "domains": [
+          "19",
+          "27"
+        ],
+        "task": "记录时间投入与可用经济预算",
+        "stage": "start/adjust/compare",
+        "mechanism": "投入和约束记录",
+        "prerequisites": [
+          "本人实际到账、必要支出与预计款项分别是多少？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。",
+          "只想倾听、拒绝、暂停、遗忘或不愿提供财务信息时停止。"
+        ],
+        "evidenceIds": [
+          "cfpb-income-pdf-20261011-e1",
+          "cfpb-spending-pdf-20261011-e1"
+        ],
+        "claims": [
+          {
+            "id": "income-ledger-scope",
+            "text": "两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "cfpb-income-pdf-20261011-e1",
+              "cfpb-spending-pdf-20261011-e1"
+            ],
+            "scope": "已有本人认可的实际收支记录，先分清已到账、未到账、必要支出与未知；兼职整体价值还要另核对时间、学习与其他义务。",
+            "limitations": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+          },
+          {
+            "id": "income-ledger-editorial",
+            "text": "记录已到账与未到账，金额缺失保持未知；不把报价记收入。；单列直接成本、必要开支和本人投入时间；退款或变动另作记录。；比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "cfpb-income-pdf-20261011-e1",
+              "cfpb-spending-pdf-20261011-e1"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "LifeOS小行动的编辑适配，不保证增加收入或减少支出；报价、承诺与交付不等于到账。"
+          }
+        ],
+        "sourceGroups": [
+          "gov-budget-tool"
+        ],
+        "principle": "两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。 以下具体校园动作是LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C19-1",
+            "candidateId": "C19-1",
+            "task": "判断兼职价值",
+            "stage": "compare",
+            "steps": [
+              {
+                "id": "C19-1-r2-1",
+                "text": "当前任务「判断兼职价值」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C19-1-r2-2",
+                "text": "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C19-1-r2-3",
+                "text": "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C19-3",
+            "candidateId": "C19-3",
+            "task": "记录投入与收益",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C19-3-r2-1",
+                "text": "当前任务「记录投入与收益」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C19-3-r2-2",
+                "text": "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C19-3-r2-3",
+                "text": "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C27-1",
+            "candidateId": "C27-1",
+            "task": "简单预算",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C27-1-r2-1",
+                "text": "当前任务「简单预算」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C27-1-r2-2",
+                "text": "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C27-1-r2-3",
+                "text": "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "本人实际到账、必要支出与预计款项分别是多少？",
+        "smallestAction": "本人愿意时只记一笔已核对的实际到账或必要支出，未知金额留空；无需上传账单、姓名或账号。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "没有时间就保留未知并暂停；能做一步时，只核对一笔本人认可记录，不索取敏感账单。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
+          "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「记录时间投入与可用经济预算」时，先核对：本人实际到账、必要支出与预计款项分别是多少？只准备本人认可的一步，不写成执行。",
+          "blocked": "只核对原记账步骤与当前缺项：缺金额留空，缺日期不猜所属周，记录不一致请本人更正；不重发整套入门、不要求上传完整账本。",
+          "waiting_result": "同一笔款项尚未到账时保持未到账或未知；已交付、已采用与已付款分别记录，报价不进实际收入，未回复不推断原因或自动催款。",
+          "result": "只按本人新增合法反馈更正这笔实际到账、支出或退款；重新计算本人确认的可用余额，收入变化与兼职价值、学习效果分开。",
+          "declined": "停止「记录时间投入与可用经济预算」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "实际可用预算能否覆盖本人已知必要开支。",
+        "retrievalSummary": "记录时间投入与可用经济预算；income-ledger；本人实际到账、必要支出与预计款项分别是多少？；判断兼职价值；记录投入与收益；简单预算；记录已到账与未到账，金额缺失保持未知；不把报价记收入。；单列直接成本、必要开支和本人投入时间；退款或变动另作记录。；比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+        "referenceBody": "记录时间投入与可用经济预算\n原文范围：两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。\n什么时候用：本人实际到账、必要支出与预计款项分别是多少？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。；只想倾听、拒绝、暂停、遗忘或不愿提供财务信息时停止。\n先核对：本人实际到账、必要支出与预计款项分别是多少？\nLifeOS编辑步骤：\n任务：判断兼职价值\n当前任务「判断兼职价值」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n任务：记录投入与收益\n当前任务「记录投入与收益」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n任务：简单预算\n当前任务「简单预算」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n最小一步：本人愿意时只记一笔已核对的实际到账或必要支出，未知金额留空；无需上传账单、姓名或账号。\n资源不足：没有时间就保留未知并暂停；能做一步时，只核对一笔本人认可记录，不索取敏感账单。\n观察：实际可用预算能否覆盖本人已知必要开支。\nnot_started：尚未开始「记录时间投入与可用经济预算」时，先核对：本人实际到账、必要支出与预计款项分别是多少？只准备本人认可的一步，不写成执行。\nblocked：只核对原记账步骤与当前缺项：缺金额留空，缺日期不猜所属周，记录不一致请本人更正；不重发整套入门、不要求上传完整账本。\nwaiting_result：同一笔款项尚未到账时保持未到账或未知；已交付、已采用与已付款分别记录，报价不进实际收入，未回复不推断原因或自动催款。\nresult：只按本人新增合法反馈更正这笔实际到账、支出或退款；重新计算本人确认的可用余额，收入变化与兼职价值、学习效果分开。\ndeclined：停止「记录时间投入与可用经济预算」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "8efa273821512bbae8395440b9dc7dca63f1c2929decc37d4b837931c797b39d",
+        "indexSignature": "17465eff05f751c9c0133a93d82cdbae15a3b03f854cbcec20318221e048567c",
         "legacyIds": [],
         "replaces": []
       }

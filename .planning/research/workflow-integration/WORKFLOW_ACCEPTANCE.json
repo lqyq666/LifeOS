@@ -22,8 +22,8 @@
   "evidenceRoot": "evidence/retrieval-followup-20261010/",
   "checks": {
     "root": {
-      "passed": 131,
-      "evidence": "evidence/coze-core-launch-20261011/simulation-root.log"
+      "passed": 133,
+      "evidence": "evidence/coze-core-launch-20261011/independent-continuation-root-first.log"
     },
     "serverTypes": "PASS",
     "frontendTypes": "PASS_BUILD_TSC",
@@ -1454,8 +1454,8 @@
   },
   "sourceSupplement": {
     "newUsableSources": 12,
-    "newLocatedQuotes": 17,
-    "draftsSupplemented": 17,
+    "newLocatedQuotes": 18,
+    "draftsSupplemented": 18,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 9,
@@ -1480,7 +1480,8 @@
     "draftsSupplementedCountsRevisionEvents": true,
     "actualIndependentReviewExecutions": 32,
     "currentExternalVersionBindings": 26,
-    "actualIndependentReviewsMeaning": "0 accepted authenticated maintenance receipts; actual external executions counted separately"
+    "actualIndependentReviewsMeaning": "0 accepted authenticated maintenance receipts; actual external executions counted separately",
+    "publication": 0
   },
   "growthR8": {
     "commit": "c4073ae989b274dea24a0ae68d3848252f017f16",
@@ -1497,9 +1498,9 @@
   },
   "cozeCreditsCurrent": {
     "initial": 151559,
-    "charged": 62001,
-    "held": 60000,
-    "available": 29558,
+    "charged": 63759,
+    "held": 55000,
+    "available": 32800,
     "newBudget": 0
   },
   "fresh321197e": {
@@ -1544,9 +1545,44 @@
     "realHumanApproval": 0
   },
   "knowledgeR3": {
-    "status": "SENT_ONCE_PROCESSING",
-    "scope": "six changed revisions and real pilot proposal review",
+    "status": "DONE_ACTUAL_BYTES_VERIFIED",
+    "cloudCommit": "974926e093eaf934b0268acad4cadde10a01652c",
+    "report": "evidence/coze-core-launch-20261011/KB_SIX_R3_RESULT.json",
+    "smallReport": "evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json",
+    "proof": "evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json",
+    "currentSixReviewExecutions": 6,
+    "readyRecommendations": 5,
+    "needsReview": 1,
+    "formalOriginalProofImport": 0,
+    "sourceReadLimits": "IES/CFPB fetch failed; campus temp original path could not be read back. Full originals R4 single dispatch; no formal source review accepted.",
+    "smallFiveAxesPass": 5,
+    "crossSession": "NOT_TESTED_SINGLE_TURN",
+    "allowsContinuityTest": true,
+    "previousFailedR2Preserved": true,
+    "actualCredits": 1757.17,
+    "accountedCredits": 1758,
     "humanApproval": 0,
     "publication": 0
+  },
+  "knowledgeR4": {
+    "status": "SENT_ONCE",
+    "scope": "Six current drafts including income v4; independently read full original public files and persist exact source proofs",
+    "creditReservation": 25000,
+    "newBudget": 0,
+    "publication": false
+  },
+  "realContinuationEntry": {
+    "status": "TESTED_LOCAL_ZERO_DISPATCH",
+    "registeredExternalReport": "coze-kb-r3-real-small",
+    "root133": "PASS",
+    "entry7": "PASS",
+    "proof2": "PASS",
+    "freeze1": "PASS",
+    "sourceContent6": "PASS",
+    "types": "PASS",
+    "build": "PASS",
+    "originalCallsReissued": false,
+    "continuity": "NOT_TESTED",
+    "finalPerformance": "NOT_TESTED"
   }
 }

@@ -6,6 +6,7 @@ import {captureCoachSource,assertCoachSourceFreeze} from './coach-source-freeze.
 import {modelCapabilityVerified,resolveModel,modelSignatureFor} from '../server/model.ts'
 import {maximumProviderCallCostCny,estimateProviderCallCostCny} from '../server/cost-workload.ts'
 import {CoachProviderBudget,activeCoachFunding} from './coach-provider-budget.ts'
+import {readReviewedPilotContinuation} from '../server/independent-review.ts'
 export const realBatchStages=['small','four_chains','complex20_pairs','ordinary20','coze_two_projects'] as const
 export function selectRealPilotCases(auth:{smallOrdinaryOnly?:boolean;smallComplexOnly?:boolean},pairs:any[],ordinary:any[]){
  if(auth.smallOrdinaryOnly&&auth.smallComplexOnly)throw new Error('PILOT_SCOPE_CONFLICT_ZERO_DISPATCH')
@@ -51,10 +52,15 @@ export function realBatchPreflight(authorizationPath?:string){
  if(!modelCapabilityVerified('default'))blocks.push('CURRENT_MODEL_CAPABILITY_NOT_VERIFIED')
  if(auth&&auth.modelSignature!==modelSignatureFor('default'))blocks.push('MODEL_SIGNATURE_MISMATCH')
  if(auth?.smallOrdinaryOnly&&auth?.smallComplexOnly)blocks.push('PILOT_SCOPE_CONFLICT_ZERO_DISPATCH')
+ let pilotContinuation:ReturnType<typeof readReviewedPilotContinuation>|null=null
+ if(auth?.reviewedPilotExecutionId){
+  if(auth.smallOrdinaryOnly||auth.smallComplexOnly)blocks.push('PILOT_CONTINUATION_SCOPE_CONFLICT')
+  try{pilotContinuation=readReviewedPilotContinuation(auth.reviewedPilotExecutionId)}catch(error){blocks.push(error instanceof Error?error.message:'INDEPENDENT_PILOT_INVALID')}
+ }
  const ordinary=JSON.parse(readFileSync(root+'ORDINARY_PERFORMANCE_PROTOCOL.json','utf8')),pairs=JSON.parse(readFileSync(root+'COMPLEX_DECISION_AB_EVAL.json','utf8'))
  if(ordinary.cases.length<20||pairs.cases.length<20)blocks.push('COHORT_INCOMPLETE')
  const status=blocks.length?(scopeRestored?'BLOCKED_CONFIG_NOT_RUN':'PAUSED_NOT_RUN'):'READY_FOR_AUTHORIZED_STAGES'
- return {status,scopeRestored,head,sourceDigest:source.digest,contentHash,ledgerSha256:ledgerBytes?hash(ledgerBytes):null,modelSignature:modelSignatureFor('default'),blocks,productDispatches:0,cloudDispatches:0,unknownCostsPreserved:true,newBudget:0,stages:realBatchStages.map(stage=>({stage,status:blocks.length?status:'READY',...(stage==='coze_two_projects'?{projectIds:['7693388932939300905','7693465311558795327'],authorizationRequired:launch?.cozePauseLifted?'CURRENT_CLOUD_VERSION_AND_NATIVE_CREDIT_BINDING':'SEPARATE_EXPLICIT_COZE_PAUSE_LIFT'}:{})})),authorization:auth}
+ return {status,scopeRestored,head,sourceDigest:source.digest,contentHash,ledgerSha256:ledgerBytes?hash(ledgerBytes):null,modelSignature:modelSignatureFor('default'),blocks,pilotContinuation,productDispatches:0,cloudDispatches:0,unknownCostsPreserved:true,newBudget:0,stages:realBatchStages.map(stage=>({stage,status:blocks.length?status:stage==='small'&&pilotContinuation?'PREVIOUS_REAL_FIRST_SAMPLES_INDEPENDENTLY_REVIEWED_NOT_REISSUED':'READY',...(stage==='coze_two_projects'?{projectIds:['7693388932939300905','7693465311558795327'],authorizationRequired:launch?.cozePauseLifted?'CURRENT_CLOUD_VERSION_AND_NATIVE_CREDIT_BINDING':'SEPARATE_EXPLICIT_COZE_PAUSE_LIFT'}:{})})),authorization:auth}
 }
 
 // Uses the same authenticated HTTP host and native SDK, existing unique ledger,
@@ -136,11 +142,14 @@ export async function executeRealBatch(authPath:string,directory:string){
   const signup=await request('/api/auth/sign-up/email',{email:'real-synthetic-'+randomUUID()+'@example.invalid',password:'Synthetic-'+randomUUID(),name:'Synthetic adult'});if(!signup.ok)throw new Error('SYNTHETIC_ACCOUNT_NOT_AVAILABLE');actor=(await signup.json()).user.id;cookie=signup.headers.getSetCookie().map(x=>x.split(';')[0]).join('; ');await json('/api/memory/settings',{requestId:randomUUID(),enabled:true,expectedRevision:0})
   const pairs=JSON.parse(readFileSync(root+'COMPLEX_DECISION_AB_EVAL.json','utf8')).cases,ordinary=JSON.parse(readFileSync(root+'ORDINARY_PERFORMANCE_PROTOCOL.json','utf8')).cases
   const pilot=selectRealPilotCases(auth,pairs,ordinary)
-  for(const c of pilot.complex)await turn('small',c.caseId,await chat(),c.input,c.directions)
-  for(const c of pilot.ordinary)await turn('small',c.caseId,await chat(),c.input)
+  if(preflight.pilotContinuation){record({type:'independent_pilot_continuation',...preflight.pilotContinuation})}
+  else{
+   for(const c of pilot.complex)await turn('small',c.caseId,await chat(),c.input,c.directions)
+   for(const c of pilot.ordinary)await turn('small',c.caseId,await chat(),c.input)
+  }
   if(auth.smallOrdinaryOnly)return {status:'REAL_ORDINARY_SMALL_WAITING_INDEPENDENT_REVIEW',results:results.length,cozeComplex:'NOT_TESTED_SEPARATE_CURRENT_CLOUD_ENTRY_REQUIRED',fullPerformanceAcceptance:'NOT_TESTED_LESS_THAN_TWENTY',autoContinuation:false}
   if(auth.smallComplexOnly)return {status:'REAL_COMPLEX_SMALL_WAITING_INDEPENDENT_REVIEW',results:results.length,ordinarySamples:'PREVIOUS_FIRST3_PRESERVED_NOT_REISSUED',cozeComplex:'NOT_TESTED_SEPARATE_CURRENT_CLOUD_ENTRY_REQUIRED',autoContinuation:false}
-  if(!await waitForReview('small'))return {status:'WAITING_INDEPENDENT_SMALL_BATCH_REVIEW',results:results.length,stagesRemaining:realBatchStages.slice(1)}
+  if(!preflight.pilotContinuation&&!await waitForReview('small'))return {status:'WAITING_INDEPENDENT_SMALL_BATCH_REVIEW',results:results.length,stagesRemaining:realBatchStages.slice(1)}
   const chains=JSON.parse(readFileSync('tests/fixtures/workflow-student16.json','utf8')).students.slice(0,4)
   for(const chain of chains){const chats=[await chat(),await chat(),await chat()];for(const [i,r]of chain.rounds.entries())await turn('four_chains',chain.id+'-'+i,chats[r.session],r.text)}
   if(!await waitForReview('four_chains'))return {status:'WAITING_INDEPENDENT_CHAIN_REVIEW'}

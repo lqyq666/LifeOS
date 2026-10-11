@@ -7,11 +7,13 @@ import {embeddingSignature} from '../server/embedding-signature.ts'
 
 const hash=(value:string|Buffer)=>createHash('sha256').update(value).digest('hex')
 export function captureCoachSource(root=process.cwd()){
-  const base=realpathSync(root),files:{path:string;sha256:string}[]=[]
+  const base=realpathSync(root),files:{path:string;sha256:string}[]=[],visited=new Set<string>()
   function visit(path:string){
     if(lstatSync(path).isSymbolicLink())throw new Error('SOURCE_FREEZE_SYMLINK_REJECTED')
     const exact=realpathSync(path)
     if(!exact.startsWith(base+sep))throw new Error('SOURCE_FREEZE_PATH_INVALID')
+    if(visited.has(exact))return
+    visited.add(exact)
     if(lstatSync(exact).isDirectory()){for(const entry of readdirSync(exact).sort())visit(resolve(exact,entry));return}
     files.push({path:relative(base,exact).replaceAll('\\','/'),sha256:hash(readFileSync(exact))})
   }
@@ -20,6 +22,12 @@ export function captureCoachSource(root=process.cwd()){
   for(const name of ['OBJECTIVE_V1_3_ACTION_COACH.md','GOAL_V1_3_ACTION_COACH.txt'])if(existsSync(resolve(base,'docs/v1.3-action-coach',name)))visit(resolve(base,'docs/v1.3-action-coach',name))
   for(const name of ['source-verification.json','verified-method-cards.json'])if(existsSync(resolve(base,'evidence/v1.3-action-coach/research',name)))visit(resolve(base,'evidence/v1.3-action-coach/research',name))
   if(existsSync(resolve(base,'.planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json')))visit(resolve(base,'.planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json'))
+  const independentRegistry=resolve(base,'.planning/research/workflow-integration/INDEPENDENT_EXECUTION_BINDINGS.json')
+  if(existsSync(independentRegistry)){
+    visit(independentRegistry)
+    const registry=JSON.parse(readFileSync(independentRegistry,'utf8'))
+    for(const entry of registry.executions??[])for(const field of ['proofPath','reportPath','inputPath'])visit(resolve(base,entry[field]))
+  }
   files.sort((a,b)=>a.path.localeCompare(b.path))
   for(const required of ['package.json','server/turn-engine.ts','server/action-coach-contracts.ts','src/backend/client.ts'])if(!files.some(file=>file.path===required))throw new Error('SOURCE_FREEZE_INCOMPLETE')
   const runtime={node:process.version,platform:process.platform,arch:process.arch,embedding:embeddingSignature,generationConcurrency:config.generationConcurrency,generationQueueLimit:config.generationQueueLimit,access:{entitlementsEnabled:config.entitlementsEnabled,providerBudgetEnabled:config.providerBudgetEnabled,providerBudgetId:config.providerBudgetId,signupEnabled:config.signupEnabled},models:(['default','reasoning'] as const).map(tier=>{const route=resolveModel(tier);return {tier,provider:route.model.provider,model:route.model.id,available:route.available,signature:modelSignatureFor(tier),contractSignature:coachContractSignatureFor(tier),interfaceSignature:coachInterfaceSignatureFor(tier),pricing:route.pricing}})}

@@ -1,0 +1,17 @@
+{
+  "kind": "OBSERVED_INDEPENDENT_EXECUTION_BINDINGS",
+  "executions": [
+    {
+      "id": "coze-kb-r3-real-small",
+      "scope": "real_small_pilot",
+      "taskId": "LIFEOS_KB_R3_CURRENT_SIX_AND_REAL_PILOT_REVIEW",
+      "cloudCommit": "974926e093eaf934b0268acad4cadde10a01652c",
+      "proofPath": "evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json",
+      "proofSha256": "dcce306ba9be45e5385d32e910e3b096211af3a25e9306dec956b8de6064ee5c",
+      "reportPath": "evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json",
+      "reportSha256": "59dca996a5acfd058f657a80339e8d1186f219976b3495bfd5762d6e710b4a7d",
+      "inputPath": ".planning/research/workflow-integration/SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json",
+      "inputSha256": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13"
+    }
+  ]
+}
