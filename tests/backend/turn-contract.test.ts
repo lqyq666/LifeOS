@@ -239,6 +239,43 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'我尚未开始准备课堂汇报'])).rows[0].n,1)
       assert.deepEqual(saved.mergedExperienceIds,[])
     })
+    await t.test('an omitted explicit current-course resource blocker persists verbatim and is supplied in a new session',async()=>{
+      const text='这门课的参考资料无法打开，我还没开始准备小组说明，先处理这个问题。',turn=await prepare(text)
+      const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
+      outputs.push({reply:choice})
+      const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      const blocker=(await pool.query('SELECT text,kind,assertion FROM growth_items WHERE user_id=$1 AND text=$2',[user,'这门课的参考资料无法打开'])).rows
+      assert.equal(blocker.length,1);assert.equal(blocker[0].kind,'context');assert.equal(blocker[0].assertion,'user_reported')
+      assert.deepEqual(saved.mergedExperienceIds,[])
+      await pool.query('UPDATE user_memory_settings SET enabled=true WHERE user_id=$1',[user])
+      const nextChat=randomUUID();await store.createConversation(user,{id:nextChat,title:'SYNTHETIC same course resource'})
+      const nextText='继续昨天这门课程卡住的地方。',next=await prepare(nextText,nextChat)
+      const nextChoice=boundedOrdinaryReply({text:nextText,intent:knowledgeIntent(nextText),contract:deriveTurnContract({text:nextText,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
+      outputs.push({reply:nextChoice});await engine(next.input)
+      const actualContext=JSON.stringify(JSON.parse(requests.at(-1)!.messages.find((m:any)=>m.role==='user').content))
+      assert.ok(actualContext.includes('这门课的参考资料无法打开'));assert.ok(actualContext.includes('我还没开始准备小组说明'))
+      await pool.query('UPDATE user_memory_settings SET enabled=false WHERE user_id=$1',[user])
+      const offChat=randomUUID();await store.createConversation(user,{id:offChat,title:'SYNTHETIC memory off'})
+      const off=await prepare(nextText,offChat);outputs.push({reply:nextChoice});await engine(off.input)
+      const offContext=JSON.stringify(JSON.parse(requests.at(-1)!.messages.find((m:any)=>m.role==='user').content))
+      assert.ok(!offContext.includes('这门课的参考资料无法打开'));assert.ok(!offContext.includes('我还没开始准备小组说明'))
+    })
+    await t.test('quoted, hypothetical, third-party and questioned resource blockers are not personal facts',async()=>{
+      for(const text of ['如果这门课的参考资料无法打开，怎么办？','同学说：“我的课程课件无法打开”。','“这门课的参考资料无法打开”只是举例，怎么判断？','我的课程课件无法打开吗？']){
+        const turn=await prepare(text),choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})?.choices[0]
+        outputs.push({reply:choice??'先核对你本人正在处理的事情，原文、假设和问题不当成个人经历。'})
+        const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+        assert.deepEqual(saved.growthCreatedIds,[],text);assert.deepEqual(saved.mergedExperienceIds,[],text)
+      }
+    })
+    await t.test('native resource fact is not duplicated by the server supplement',async()=>{
+      const text='我的课程课件无法打开，先处理这个问题。',turn=await prepare(text)
+      const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
+      outputs.push({reply:choice,growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}]})
+      const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.equal(saved.growthCreatedIds.length,1)
+      assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'我的课程课件无法打开'])).rows[0].n,1)
+    })
     await t.test('explicit zero-time plan saves the verified fact and empty plan with no provider call, including repeated reports',async()=>{
       for(const text of ['这周我可用零小时，请安排这周课程与备考。','这周我没有可用时间，是零小时。请排这周的课程和备考安排。','这周没有可用时间，只保存一个空安排。','这周我可用零小时，请安排这周课程与备考。']){
       const turn=await prepare(text)

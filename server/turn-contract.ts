@@ -61,8 +61,14 @@ export function reportsPersonalEvent(text:string):boolean{
 const personalEventReport={test:reportsPersonalEvent}
 
 const negativePersonalFact=/^(?:这次|这周|本周|最近)?我(?:目前|现在|暂时|还|仍|一直|并|从来)?(?:没(?:有)?|尚未|还未|未|不)(?:开始|做|学|复习|准备|完成|交付|发送|收到|拿到|有|想|愿意|打算|决定|能)/
+const anchorablePersonalClauses=(text:string)=>scanUserClauses(text).filter(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!clause.quoteSpans.length)
 export function negativePersonalFactClauses(text:string){
-  return scanUserClauses(text).filter(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!clause.quoteSpans.length&&negativePersonalFact.test(clause.text))
+  return anchorablePersonalClauses(text).filter(clause=>negativePersonalFact.test(clause.text))
+}
+export function resourceBlockedPersonalFactClauses(text:string){
+  // BS_RESOURCE_01: only an explicit resource of the speaker's current course.
+  // This records their report, never a website diagnosis or a completed action.
+  return anchorablePersonalClauses(text).filter(clause=>/^(?:我的|我这门课的|这门课的|这次课程的).{0,16}(?:材料|教材|课件|资料|链接|网页).{0,6}(?:无法打开|打不开)/.test(clause.text))
 }
 
 export function deriveTurnContract(input:{
@@ -77,7 +83,7 @@ export function deriveTurnContract(input:{
   // A question-dominated turn (at least one question, no clause asserting a
   // first-person fact) cannot carry new personal records.
   const factBearingClause=new RegExp('我[^，。！？\\n]{0,8}(?:是|在|有|会|能|要|想|做|读|学|喜欢|决定|准备|报|考|找|投|写|交|发|参加|实习|社团|科研|项目|课|专业|大三|大四|大二|大一|研一|研二|每周|小时|岁)|[0-9一二两三四五六七八九十]+(?:小时|天|周|个月)')
-  const hasPersonalFact=negativePersonalFactClauses(input.text).length>0||clauses.some(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&factBearingClause.test(clause.text))
+  const hasPersonalFact=negativePersonalFactClauses(input.text).length>0||resourceBlockedPersonalFactClauses(input.text).length>0||clauses.some(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&factBearingClause.test(clause.text))
   // A how-to/method/recommendation question is knowledge-seeking: the
   // citations lane must stay open even though no personal fact is asserted.
   const knowledgeSeeking=/怎么(?:开始|做|弄|写|准备|验证|提升|学)|有什么[^，。？]{0,8}(?:方法|办法|方式|技巧|建议|路子)|如何(?:开始|做|验证|准备|提升|学)|有哪些|推荐(?:一?下|几个)?(?:方?法|东西|书|课)?|什么(?:是|叫)|区别|对比/.test(input.text)
