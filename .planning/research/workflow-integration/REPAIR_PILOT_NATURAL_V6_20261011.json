@@ -51,7 +51,9 @@
       "session": 6,
       "input": "另外一件事，我请教老师的邮件已经发出去了。对方读过但还没回应。我只想聊感受，先不用给我建议。",
       "expected": "Listen only; own sent/read/no reply verbatim persisted, other outcomes unknown and event isolated."
-    },
+    }
+  ],
+  "reservedForLaterContinuity": [
     {
       "caseId": "NC6_CONTACT_RETURN",
       "session": 7,
