@@ -7,7 +7,7 @@ import { stageCoachEvent, coachEventView, deliverableIntent, requiresImmediateMa
 import type { EventDelta } from '../../server/action-coach-contracts.ts'
 
 test('personal capacity and exploration statements do not request a material artifact',()=>{
-  for(const text of ['每周可以拿出六小时做探索','我想先看真实反馈','我打算做一次尝试','我需要时间做决定','可以使用排版工具做海报'])assert.equal(deliverableIntent(text,'create'),false,text)
+  for(const text of ['每周可以拿出六小时做探索','我想先看真实反馈','我打算做一次尝试','我需要时间做决定','可以使用排版工具做海报','准备通过学校邮箱请教学长丙，想问他的项目如何放进实习作品集。应该先怎么联系？','想请教学姐项目怎么用于实习申请，应该先怎么联系？'])assert.equal(deliverableIntent(text,'create'),false,text)
   for(const text of ['请帮我做一份计划','先做一份清单','我想写一封介绍邮件','可以写一句发给社团的消息吗？','给我一句确认是否需要的话'])assert.equal(deliverableIntent(text,'create'),true,text)
   assert.equal(deliverableIntent('不用写长邮件，帮我写一句消息','create'),true)
   assert.equal(deliverableIntent('不要帮我写，只想聊聊','create'),false)

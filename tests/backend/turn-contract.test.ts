@@ -195,6 +195,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.deepEqual(schema.properties.weeklyPlan.properties.availableMinutes.enum,[0])
       assert.deepEqual(schema.properties.weeklyPlan.properties.period.enum,['this_week'])
       assert.equal(schema.properties.weeklyPlan.properties.items.maxItems,0)
+      assert.ok(schema.required.includes('weeklyPlan'),'a mandatory zero plan cannot be omitted by native generation')
       assert.deepEqual(schema.properties.reply.enum,[reply])
       const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
       const fact=(await pool.query('SELECT structured_plan FROM growth_items WHERE id=$1',[saved.stateChange.plan!.itemId])).rows[0]

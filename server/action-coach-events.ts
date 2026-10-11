@@ -79,7 +79,7 @@ async function currentSource(c:PoolClient,run:Run,source:{messageId:string;quote
 // forms like 他说可以/我写了四十页/发给了他 deliberately do not match.
 // Modal words also describe the person's capacity or intentions. Without a
 // directed request, require a concrete artifact rather than any subsequent 做.
-const requestIntent=/(?:帮我|请|给我|能不?能|可不可以|直接|麻烦)[^。！？\n]{0,16}(?:写|起草|拟|列|做|问|发)|(?:想要?|打算|需要|可以|先)[^。！？\n]{0,16}(?:写|起草|拟|列|问|发)|(?:想要?|打算|需要|可以|先)[^。！？\n]{0,16}做[^。！？\n]{0,8}(?:消息|邮件|短信|文案|草稿|话术|计划|清单|一(?:句|段|份|条))|(?:写|拟)一(?:句|段|份|条|个)|给我一(?:句|条|段)|发一(?:句|条|段)|怎么(?:说|回|开口|问|写|表述|措辞)/
+const requestIntent=/(?:帮我|请(?!教)|给我|能不?能|可不可以|直接|麻烦)[^。！？\n]{0,16}(?:写|起草|拟|列|做|问|发)|(?:想要?|打算|需要|可以|先)[^。！？\n]{0,16}(?:写|起草|拟|列|发)|(?:想要?|打算|需要|可以|先)[^。！？\n]{0,16}做[^。！？\n]{0,8}(?:消息|邮件|短信|文案|草稿|话术|计划|清单|一(?:句|段|份|条))|(?:写|拟)一(?:句|段|份|条|个)|给我一(?:句|条|段)|发一(?:句|条|段)|怎么(?:说|回|开口|问|写|表述|措辞)/
 const rewriteIntent=/(?:再|稍微)?(?:改|换|缩短|改短|润色|重写|调整|去掉|删掉|加上|加一|短一点|语气|措辞)/
 // Delivery framing marks the reply's non-material remainder as presentation of
 // a sendable artifact ("可以先发这段：/可以这样问："); conversational
