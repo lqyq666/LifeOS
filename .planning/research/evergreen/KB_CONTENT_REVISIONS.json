@@ -668,6 +668,25 @@
       "semantic_scope": "该校公开新生辅导建议中的室友日常打招呼与尊重隐私；不证明关系建立效果。",
       "cannot_infer": "不采用交往提高能力、获得好感或未来发展等无效果证据主张；不能支撑导师、接单、用户招募，不能要求加入或坚持社团。",
       "licenseObserved": "Copyright notice observed; redistribution/publication suitability remains unapproved."
+    },
+    {
+      "source_id": "stanford-faculty-email-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://advising.stanford.edu/current-students/advising-student-handbook/email-faculty",
+      "platform": "advising.stanford.edu",
+      "original_work_id": "/current-students/advising-student-handbook/email-faculty",
+      "title": "How to Email Faculty",
+      "publisher": "Stanford Academic Advising",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-11T05:35:46.274Z",
+      "source_group": "stanford-faculty-email-20261011",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "77cb744f171a539c0771f046515919c62e42a663ae7116e394da4b37cbd26346",
+      "semantic_scope": "高校学生手册的邮件主题建议，以及已有指导关系阶段的沟通偏好；不是效果研究或中国招生规定。",
+      "cannot_infer": "不推未回应原因、本人能力或回复概率；不采用固定等待期限、office hours通用性、招生资格、跨渠道追发或联系成功保证。",
+      "licenseObserved": "Copyright notice observed; redistribution/publication suitability remains unapproved."
     }
   ],
   "evidence": [
@@ -1530,6 +1549,40 @@
       "context": "宿舍篇第2项边界与隐私；仅保存原建议，不采用段落中的效果推断。",
       "acquisition": "Agent-Reach Exa discovery; first Jina HTTP401 preserved; direct official curl full HTML read and Cheerio normalization, not search summary.",
       "content_hash": "76afb56150bacd894f6581937ec63a46e353d56c047413c0b2c7843866a68f37"
+    },
+    {
+      "evidence_id": "stanford-faculty-email-20261011-e1",
+      "source_id": "stanford-faculty-email-20261011",
+      "source_revision": 1,
+      "quote": "Give a useful subject line",
+      "locator": {
+        "kind": "original_normalized_character_range",
+        "start": 1398,
+        "end": 1424,
+        "normalizedTextPath": "evidence/coze-core-launch-20261011/mentor-originals/stanford-faculty.txt",
+        "normalizedTextSha256": "49d8a3185f88c83d5b223accc83022e5ecf977ac2fd4a54dd49fd757188fb38f",
+        "originalPath": "evidence/coze-core-launch-20261011/mentor-originals/stanford-faculty.html"
+      },
+      "context": "Email Etiquette：主题建议，无效果结论。",
+      "acquisition": "Agent-Reach Exa Chinese primary-source search preserved but not adopted; official university web full-body read then direct original HTML and Cheerio main-text normalization, not a search snippet.",
+      "content_hash": "9543c6c68706b2da6ea2c80f3994f5ffc25d785d8afaa5bbb898fd0b1f89a6c8"
+    },
+    {
+      "evidence_id": "stanford-faculty-email-20261011-e2",
+      "source_id": "stanford-faculty-email-20261011",
+      "source_revision": 1,
+      "quote": "pay close attention to their communication styles",
+      "locator": {
+        "kind": "original_normalized_character_range",
+        "start": 4907,
+        "end": 4956,
+        "normalizedTextPath": "evidence/coze-core-launch-20261011/mentor-originals/stanford-faculty.txt",
+        "normalizedTextSha256": "49d8a3185f88c83d5b223accc83022e5ecf977ac2fd4a54dd49fd757188fb38f",
+        "originalPath": "evidence/coze-core-launch-20261011/mentor-originals/stanford-faculty.html"
+      },
+      "context": "Emailing With your Faculty Mentor：已有指导关系阶段，不要求首次联系者已有沟通习惯。",
+      "acquisition": "Agent-Reach Exa Chinese primary-source search preserved but not adopted; official university web full-body read then direct original HTML and Cheerio main-text normalization, not a search snippet.",
+      "content_hash": "2dfb9dfceac9eee3b03f4576a7f0a901bfeccaaa6df810ae4f8f7e4d4e30c76f"
     }
   ],
   "drafts": [
@@ -1707,7 +1760,7 @@
     },
     {
       "id": "257bea5b-e782-427a-82c0-39e84e086ad9",
-      "revision": 5,
+      "revision": 6,
       "kind": "method",
       "status": "unverified",
       "synthetic": false,
@@ -1720,7 +1773,7 @@
       "excerpt": "介绍你自己的学术背景、研究方向、研究计划\r\n等。你的研究方向和计划是导师了解你的重要途径重\r\n点，导师们通常更愿意接收那些研究方向契合自己的\r\n学生。\r\n02、介绍选择该导师的原因，着重突出你有能力在\r\n导师的研究领域进行深入学术研究，并表达对导师研\r\n究方向的兴趣并提出希望成为其学生的意愿。\r\n03、最后你可以对导师研究领域发表自己的观点，以\r\n便于导师更好地了解你的研究方向和学术背景。\r\n3 / 4\r\nMAIL \r\nCONTENT\r\n• 3.撰写邮件的内容：\r\n\r\nPAG",
       "claim": "该国际申请教育材料建议介绍学术背景、研究兴趣、选择该导师的原因，并针对不同导师修改邮件。",
       "scope": "六个任务按各自来源边界分别选分支；共同机制是核对对象、本人目的与当前阶段。",
-      "limitations": "推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。",
+      "limitations": "推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。 Stanford邮件辅导不代表中国招生规则；固定追发时间、回复效果和未回复原因不采用。",
       "mechanisms": [
         "准备具体的小请求"
       ],
@@ -1760,7 +1813,7 @@
           "本人请求方法或成品；没有拒绝、遗忘或暂停该事。"
         ],
         "exclusions": [
-          "推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。",
+          "推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。 Stanford邮件辅导不代表中国招生规则；固定追发时间、回复效果和未回复原因不采用。",
           "仅倾听、明确拒绝、已遗忘、暂停，以及无法确认本人接触授权的情况。"
         ],
         "evidenceIds": [
@@ -1770,7 +1823,9 @@
           "pku-recommendation-branch-20261011-e1",
           "ustc-mentor-choice-branch-20261011-e1",
           "gzucm-campus-contact-20261011-e1",
-          "gzucm-campus-contact-20261011-e2"
+          "gzucm-campus-contact-20261011-e2",
+          "stanford-faculty-email-20261011-e1",
+          "stanford-faculty-email-20261011-e2"
         ],
         "claims": [
           {
@@ -1856,6 +1911,26 @@
             ],
             "scope": "校园室友自愿日常接触；第2条仅隐私边界。",
             "limitations": "公开辅导建议，不是效果研究；不推对方意图、友谊、就业或创业收益。"
+          },
+          {
+            "id": "stanford-faculty-email-20261011-claim1",
+            "text": "Stanford Academic Advising公开学生手册建议给教师邮件写一个有用的主题。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "stanford-faculty-email-20261011-e1"
+            ],
+            "scope": "学生向教师写邮件的主题建议。",
+            "limitations": "公开辅导建议，无效果实证；不是中国申请规则，不推沉默原因或固定联系期限。"
+          },
+          {
+            "id": "stanford-faculty-email-20261011-claim2",
+            "text": "该手册在已经发展指导关系的部分建议关注教师沟通方式；适用阶段与首次联系分开。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "stanford-faculty-email-20261011-e2"
+            ],
+            "scope": "已经建立指导关系的沟通阶段。",
+            "limitations": "公开辅导建议，无效果实证；不是中国申请规则，不推沉默原因或固定联系期限。"
           }
         ],
         "sourceGroups": [
@@ -1864,7 +1939,8 @@
           "paulgraham.com",
           "pku-recommendation",
           "ustc-mentor-choice",
-          "gzucm-campus-contact-20261011"
+          "gzucm-campus-contact-20261011",
+          "stanford-faculty-email-20261011"
         ],
         "principle": "核对对象、目的与当前阶段；不同场景使用不同依据，编辑适配不冒充外部效果结论。",
         "branches": [
@@ -1939,8 +2015,8 @@
             "stage": "start",
             "steps": [
               {
-                "id": "C09-1-r3-1",
-                "text": "导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。",
+                "id": "C09-1-r6-1",
+                "text": "导师联系：先核对这次对象、具体目的和其公开研究简介；已知不重复问，研究能力只用本人实际经历说明。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "usst-mentor-email-batch-first-contact-e1",
@@ -1948,22 +2024,21 @@
                 ]
               },
               {
-                "id": "C09-1-r3-2",
-                "text": "起草一个具体问题；若想核对指导方式，可询问本人能合法接触的往届学生，不虚构其评价。",
+                "id": "C09-1-r6-2",
+                "text": "起草一个能说明具体目的的邮件主题和一个问题；背景、兴趣与联系理由按真实材料写，最小一步可以只改原邮件主题。若已有指导关系，只核对尚未知的沟通偏好，不要求首次联系者先填完整档案。",
                 "basis": "editorial_adaptation",
                 "evidenceIds": [
                   "usst-mentor-email-batch-first-contact-e1",
-                  "ustc-mentor-choice-branch-20261011-e1"
+                  "ustc-mentor-choice-branch-20261011-e1",
+                  "stanford-faculty-email-20261011-e1",
+                  "stanford-faculty-email-20261011-e2"
                 ]
               },
               {
-                "id": "C09-1-r3-3",
-                "text": "同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。",
+                "id": "C09-1-r6-3",
+                "text": "同一导师未回复时读回原邮件、是否实际发送和已经等待的状态，只改被阻处；没有回复原因未知，不推拒绝、能力否定或效果，不自动换渠道追发。",
                 "basis": "editorial_adaptation",
-                "evidenceIds": [
-                  "usst-mentor-email-batch-first-contact-e1",
-                  "ustc-mentor-choice-branch-20261011-e1"
-                ]
+                "evidenceIds": []
               }
             ]
           },
@@ -2082,11 +2157,11 @@
         },
         "expectedObservation": "本人是否执行、对方是否回应、是否同意及实际结果分开，具体观察按任务分支。",
         "retrievalSummary": "第一次联系与未回应跟进；这次是联系谁、想核对什么，还是已有联系需要复盘？；从零建立社交；先由本人选一个愿意接触的日常场景；不想接触就不安排社交任务。；只提出与当时场景有关、允许对方不答的一句小问题，不索取隐私。；先记录是否交谈和本人感受；未回复不判拒绝，明确拒绝则停止。；找到行业知情人；先写本人想了解的职业问题，以及这个对象为什么能提供相关经历。；用真实身份提出一个具体访谈问题并询问是否方便；不给对方虚构研究或职位。；若已联系却没回，核对原请求与实际状态；若得到回答，分别记录亲历信息与对方判断。；首次联系导师；导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。；起草一个具体问题；若想核对指导方式，可询问本人能合法接触的往届学生，不虚构其评价。；同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。；向老师请求推荐；核对该老师是否有本人真实课程或项目接触，以及推荐用途；不虚构认识程度。；整理可核对的本人贡献和材料，询问老师是否愿意推荐及其自己的要求；不代作老师评价。；区分未回复、拒绝、同意与实际提交；目标或用途变化先核对旧委托是否仍有效。；找首批使用者；选一个确有该问题线索、本人能够合法接触的潜在使用者；先标需求尚未验证。；提出一次可拒绝的接触或试用请求，说明当前可展示什么，不把想做的产品说成已完成。；把愿意谈、实际试用、采用、付款和使用效果分别观察；失败时回到原请求或实验卡点，不重发全部入门。；认识新朋友；只在本人愿意的共同活动中选择自然接触，不把认识朋友变成必须完成的指标。；用真实共同话题问一句可不回答的问题，不预设对方兴趣、意图或关系。；本人不舒服或对方拒绝就停止；有交流只记实际经过，不宣称已经建立友谊。",
-        "referenceBody": "第一次联系与未回应跟进\n原文范围：\n该国际申请教育材料建议介绍学术背景、研究兴趣、选择该导师的原因，并针对不同导师修改邮件。 范围：导师自荐邮件的背景、兴趣与选择原因；不含申请资格规则。 限制：原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。\n作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。 范围：作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。 限制：不推出职业必适合、访谈保证录用、学术成功或海外教育收益。\nPaul Graham按创业实践经验建议早期主动寻找使用者，而非被动等待。 范围：创业作者关于早期寻找使用者的经验性建议；只作人工接触线索，不套用增长数字。 限制：不保证找到付费用户；不把创业用户招募当普通陌生社交或导师联系。\n该教师的个人说明要求推荐材料所说内容有根据。 范围：该教师个人说明要求推荐材料有事实依据；不是北大或所有推荐人的统一规定。 限制：不采用该页分数、日期、数量、排名、网申或查阅权规则；不要求学生普遍代写推荐信；无录取或有效性保证。\n作者以个人看法建议向导师曾经的学生了解其指导方式。 范围：作者明示为个人看法，选择导师时可向其曾经的学生了解指导方式。 限制：仅作者经验；不保证科研或就业收益，不推招生资格或导师普遍规则。\n什么时候用：这次是联系谁、想核对什么，还是已有联系需要复盘？；本人请求方法或成品；没有拒绝、遗忘或暂停该事。\n什么时候不用：推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。；仅倾听、明确拒绝、已遗忘、暂停，以及无法确认本人接触授权的情况。\n先核对：这次是联系谁、想核对什么，还是已有联系需要复盘？\nLifeOS编辑步骤（各任务独立）：\n任务：从零建立社交\n先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。\n只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。\n实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。\n边界：校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。\n观察：实际接触、本人感受、对方回应各自核对；没有回应不推拒绝，回应不推友谊。\n任务：找到行业知情人\n先写本人想了解的职业问题，以及这个对象为什么能提供相关经历。\n用真实身份提出一个具体访谈问题并询问是否方便；不给对方虚构研究或职位。\n若已联系却没回，核对原请求与实际状态；若得到回答，分别记录亲历信息与对方判断。\n边界：课堂作者实践只支持选对象和问题；邀约文案与后续分支是编辑适配，不保证录用。\n观察：对方是否愿意交流；本人哪个职业未知有新信息，哪些仍缺。\n任务：首次联系导师\n导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。\n起草一个具体问题；若想核对指导方式，可询问本人能合法接触的往届学生，不虚构其评价。\n同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。\n边界：国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。\n观察：邮件是否已发送、实际回复和指导信息分开；兴趣不是能力或录取。\n任务：向老师请求推荐\n核对该老师是否有本人真实课程或项目接触，以及推荐用途；不虚构认识程度。\n整理可核对的本人贡献和材料，询问老师是否愿意推荐及其自己的要求；不代作老师评价。\n区分未回复、拒绝、同意与实际提交；目标或用途变化先核对旧委托是否仍有效。\n边界：推荐信原文是单一教师个人要求，不能普遍要求代写、查阅或限定分数和期限。\n观察：老师是否明确同意、需要何材料及是否实际提交；同意不等于录取。\n任务：找首批使用者\n选一个确有该问题线索、本人能够合法接触的潜在使用者；先标需求尚未验证。\n提出一次可拒绝的接触或试用请求，说明当前可展示什么，不把想做的产品说成已完成。\n把愿意谈、实际试用、采用、付款和使用效果分别观察；失败时回到原请求或实验卡点，不重发全部入门。\n边界：创业作者经验只支持早期主动寻找使用者，不保证招募、需求成立或付费。\n观察：是否接触、接受试用、实际使用、采用、付款与反馈，未知各自保留。\n任务：认识新朋友\n先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。\n只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。\n实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。\n边界：校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。\n观察：实际接触、本人感受、对方回应各自核对；没有回应不推拒绝，回应不推友谊。\n最小一步：只补当前尚不清楚的对象或请求；已知不重复问，并选择任务对应的一步。\n资源不足：资源少时只整理原请求或一条已有事实，不扩展对象数量；零时间保留未知并暂停。\nnot_started：先看本人是否愿意以及当前缺口；只准备对应任务的一步，不把草稿记为已发送。\nblocked：读取同一事件的原请求、实际行动和卡点，只改被阻步骤；不重新发送整套第一次教程。\nwaiting_result：已发出但没有回应只记录等待，原因未知；不要推断拒绝、采用、付款或有效。按任务观察，不自动追发。\nresult：只根据本人报告区分回应、同意、执行和实际结果；用任务对应观察核对改变与仍未知部分。\ndeclined：本人拒绝建议或对方拒绝接触就停止相应动作；不更换名称、对象或渠道继续推进，保留合法历史。\n校园分支的小步骤与反馈处理为LifeOS编辑适配。资源少或没有精力时，可只核对是否愿意，选择暂停也成立；没有证据不宣称交到朋友、更受欢迎或能力提升。",
+        "referenceBody": "第一次联系与未回应跟进\n原文范围：\n该国际申请教育材料建议介绍学术背景、研究兴趣、选择该导师的原因，并针对不同导师修改邮件。 范围：导师自荐邮件的背景、兴趣与选择原因；不含申请资格规则。 限制：原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。\n作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。 范围：作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。 限制：不推出职业必适合、访谈保证录用、学术成功或海外教育收益。\nPaul Graham按创业实践经验建议早期主动寻找使用者，而非被动等待。 范围：创业作者关于早期寻找使用者的经验性建议；只作人工接触线索，不套用增长数字。 限制：不保证找到付费用户；不把创业用户招募当普通陌生社交或导师联系。\n该教师的个人说明要求推荐材料所说内容有根据。 范围：该教师个人说明要求推荐材料有事实依据；不是北大或所有推荐人的统一规定。 限制：不采用该页分数、日期、数量、排名、网申或查阅权规则；不要求学生普遍代写推荐信；无录取或有效性保证。\n作者以个人看法建议向导师曾经的学生了解其指导方式。 范围：作者明示为个人看法，选择导师时可向其曾经的学生了解指导方式。 限制：仅作者经验；不保证科研或就业收益，不推招生资格或导师普遍规则。\nStanford Academic Advising公开学生手册建议给教师邮件写一个有用的主题。 范围：学生向教师写邮件的主题建议。 限制：公开辅导建议，无效果实证；不是中国申请规则，不推沉默原因或固定联系期限。\n该手册在已经发展指导关系的部分建议关注教师沟通方式；适用阶段与首次联系分开。 范围：已经建立指导关系的沟通阶段。 限制：公开辅导建议，无效果实证；不是中国申请规则，不推沉默原因或固定联系期限。\n什么时候用：这次是联系谁、想核对什么，还是已有联系需要复盘？；本人请求方法或成品；没有拒绝、遗忘或暂停该事。\n什么时候不用：推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。 Stanford邮件辅导不代表中国招生规则；固定追发时间、回复效果和未回复原因不采用。；仅倾听、明确拒绝、已遗忘、暂停，以及无法确认本人接触授权的情况。\n先核对：这次是联系谁、想核对什么，还是已有联系需要复盘？\nLifeOS编辑步骤（各任务独立）：\n任务：从零建立社交\n先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。\n只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。\n实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。\n边界：校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。\n观察：实际接触、本人感受、对方回应各自核对；没有回应不推拒绝，回应不推友谊。\n任务：找到行业知情人\n先写本人想了解的职业问题，以及这个对象为什么能提供相关经历。\n用真实身份提出一个具体访谈问题并询问是否方便；不给对方虚构研究或职位。\n若已联系却没回，核对原请求与实际状态；若得到回答，分别记录亲历信息与对方判断。\n边界：课堂作者实践只支持选对象和问题；邀约文案与后续分支是编辑适配，不保证录用。\n观察：对方是否愿意交流；本人哪个职业未知有新信息，哪些仍缺。\n任务：首次联系导师\n导师联系：先核对这次对象、具体目的和其公开研究简介；已知不重复问，研究能力只用本人实际经历说明。\n起草一个能说明具体目的的邮件主题和一个问题；背景、兴趣与联系理由按真实材料写，最小一步可以只改原邮件主题。若已有指导关系，只核对尚未知的沟通偏好，不要求首次联系者先填完整档案。\n同一导师未回复时读回原邮件、是否实际发送和已经等待的状态，只改被阻处；没有回复原因未知，不推拒绝、能力否定或效果，不自动换渠道追发。\n边界：国际申请材料不代表国内招生规则，USTC教师说明是个人看法；Stanford手册只支持邮件主题建议及已有指导关系阶段的沟通偏好，不证明回复效果，不设国内统一等待期限。\n观察：邮件草稿、实际发送、回应、交流与反馈分别核对；仍无回复则原因未知。\n导师not_started：只核对尚缺的导师、目的或本人实际材料；最小一步写一个具体邮件主题，未发送的草稿不记为已联系。资源少只改这一处，零时间可暂停。\n导师blocked：沿用同一导师、原邮件和本人已报告的卡点；写不出主题只补目的，无法打开公开简介先核对可用原材料，不重发整套教程，不编导师背景。\n导师waiting_result：本人已发送但尚未收到回应，分别记录发送与等待，原因未知；不自动追发、不跨渠道、不推拒绝或有效。只在本人愿意时核对原请求缺口。\n导师result：回应、同意交流、实际交流和有用反馈分别记录；已建立指导关系才核对沟通偏好，未回应不推原因，同意不等于研究能力认可、录取或联系效果。\n导师declined：本人拒绝继续或导师明确拒绝则停止该请求，不换渠道追问；保留合法已发生事实，暂停或放弃不评价人格或身份退步。\n任务：向老师请求推荐\n核对该老师是否有本人真实课程或项目接触，以及推荐用途；不虚构认识程度。\n整理可核对的本人贡献和材料，询问老师是否愿意推荐及其自己的要求；不代作老师评价。\n区分未回复、拒绝、同意与实际提交；目标或用途变化先核对旧委托是否仍有效。\n边界：推荐信原文是单一教师个人要求，不能普遍要求代写、查阅或限定分数和期限。\n观察：老师是否明确同意、需要何材料及是否实际提交；同意不等于录取。\n任务：找首批使用者\n选一个确有该问题线索、本人能够合法接触的潜在使用者；先标需求尚未验证。\n提出一次可拒绝的接触或试用请求，说明当前可展示什么，不把想做的产品说成已完成。\n把愿意谈、实际试用、采用、付款和使用效果分别观察；失败时回到原请求或实验卡点，不重发全部入门。\n边界：创业作者经验只支持早期主动寻找使用者，不保证招募、需求成立或付费。\n观察：是否接触、接受试用、实际使用、采用、付款与反馈，未知各自保留。\n任务：认识新朋友\n先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。\n只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。\n实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。\n边界：校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。\n观察：实际接触、本人感受、对方回应各自核对；没有回应不推拒绝，回应不推友谊。\n最小一步：只补当前尚不清楚的对象或请求；已知不重复问，并选择任务对应的一步。\n资源不足：资源少时只整理原请求或一条已有事实，不扩展对象数量；零时间保留未知并暂停。\nnot_started：先看本人是否愿意以及当前缺口；只准备对应任务的一步，不把草稿记为已发送。\nblocked：读取同一事件的原请求、实际行动和卡点，只改被阻步骤；不重新发送整套第一次教程。\nwaiting_result：已发出但没有回应只记录等待，原因未知；不要推断拒绝、采用、付款或有效。按任务观察，不自动追发。\nresult：只根据本人报告区分回应、同意、执行和实际结果；用任务对应观察核对改变与仍未知部分。\ndeclined：本人拒绝建议或对方拒绝接触就停止相应动作；不更换名称、对象或渠道继续推进，保留合法历史。\n校园分支的小步骤与反馈处理为LifeOS编辑适配。资源少或没有精力时，可只核对是否愿意，选择暂停也成立；没有证据不宣称交到朋友、更受欢迎或能力提升。",
         "reviewStatus": "needs_review",
         "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
         "review": null,
-        "contentHash": "ec38e0bf090e67d2cd6880a4beca6657bcb321245a5cd786db55b67f3aa31c2c",
+        "contentHash": "1301b576252b943a86d6000a1002e5710b67d43b8b873ae9c04f1a5c5c5a7f62",
         "indexSignature": "",
         "legacyIds": [
           "6a367fb8-309e-42ed-a409-664d8ca215b7",
@@ -8954,7 +9029,7 @@
       "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
       "canonicalKey": "first-contact",
       "baseRevision": 1,
-      "revision": 5,
+      "revision": 6,
       "previousStatus": "needs_review",
       "decision": "SUBSTANTIVE_REVISION_PENDING_INDEPENDENT_REVIEW",
       "changed": [
@@ -8970,22 +9045,26 @@
         "campus_roommate_primary_source",
         "privacy_effects_separated",
         "campus_feedback_branches",
-        "browser_found_stale_social_body_replaced_not_appended"
+        "browser_found_stale_social_body_replaced_not_appended",
+        "mentor_original_subject_line",
+        "existing_mentor_communication_stage",
+        "mentor_five_feedback_branches_without_effect_claims"
       ],
       "sourceId": "usst-mentor-email",
       "sourceRead": true,
-      "remainingClaim": "推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。",
+      "remainingClaim": "推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。 Stanford邮件辅导不代表中国招生规则；固定追发时间、回复效果和未回复原因不采用。",
       "independentReview": null,
       "humanApproval": null,
       "served": false,
-      "previousDraftHash": "22c0c5241cd873dab14590d039a45ca0de09a21cd35fe614d182e4338ae5f6dd",
+      "previousDraftHash": "ec38e0bf090e67d2cd6880a4beca6657bcb321245a5cd786db55b67f3aa31c2c",
       "sourceIds": [
         "usst-mentor-email-batch",
         "career-author-followup",
         "pg-first-users-followup",
         "pku-recommendation-branch-20261011",
         "ustc-mentor-choice-branch-20261011",
-        "gzucm-campus-contact-20261011"
+        "gzucm-campus-contact-20261011",
+        "stanford-faculty-email-20261011"
       ]
     },
     {
@@ -9772,9 +9851,9 @@
     {
       "canonicalKey": "first-contact",
       "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
-      "revision": 5,
-      "contentHash": "ec38e0bf090e67d2cd6880a4beca6657bcb321245a5cd786db55b67f3aa31c2c",
-      "previousDraftHash": "22c0c5241cd873dab14590d039a45ca0de09a21cd35fe614d182e4338ae5f6dd",
+      "revision": 6,
+      "contentHash": "1301b576252b943a86d6000a1002e5710b67d43b8b873ae9c04f1a5c5c5a7f62",
+      "previousDraftHash": "ec38e0bf090e67d2cd6880a4beca6657bcb321245a5cd786db55b67f3aa31c2c",
       "status": "PREPARED_NOT_INDEPENDENTLY_EXECUTED",
       "claimChecks": [
         {
@@ -10030,6 +10109,58 @@
             }
           ],
           "reviewQuestion": "核对原文是否仅提出建议，是否拒绝无证据的关系、能力或收益推断。"
+        },
+        {
+          "claimId": "stanford-faculty-email-20261011-claim1",
+          "basis": "source_supported",
+          "claim": "Stanford Academic Advising公开学生手册建议给教师邮件写一个有用的主题。",
+          "scope": "学生向教师写邮件的主题建议。",
+          "limitations": "公开辅导建议，无效果实证；不是中国申请规则，不推沉默原因或固定联系期限。",
+          "originals": [
+            {
+              "sourceId": "stanford-faculty-email-20261011",
+              "sourceRevision": 1,
+              "url": "https://advising.stanford.edu/current-students/advising-student-handbook/email-faculty",
+              "sourceFingerprint": "77cb744f171a539c0771f046515919c62e42a663ae7116e394da4b37cbd26346",
+              "evidenceId": "stanford-faculty-email-20261011-e1",
+              "quote": "Give a useful subject line",
+              "locator": {
+                "kind": "original_normalized_character_range",
+                "start": 1398,
+                "end": 1424,
+                "normalizedTextPath": "evidence/coze-core-launch-20261011/mentor-originals/stanford-faculty.txt",
+                "normalizedTextSha256": "49d8a3185f88c83d5b223accc83022e5ecf977ac2fd4a54dd49fd757188fb38f",
+                "originalPath": "evidence/coze-core-launch-20261011/mentor-originals/stanford-faculty.html"
+              }
+            }
+          ],
+          "reviewQuestion": "原文是否只给辅导建议？沟通偏好是否只在已有指导关系使用？固定期限、沉默原因和回复效果是否未被采用？"
+        },
+        {
+          "claimId": "stanford-faculty-email-20261011-claim2",
+          "basis": "source_supported",
+          "claim": "该手册在已经发展指导关系的部分建议关注教师沟通方式；适用阶段与首次联系分开。",
+          "scope": "已经建立指导关系的沟通阶段。",
+          "limitations": "公开辅导建议，无效果实证；不是中国申请规则，不推沉默原因或固定联系期限。",
+          "originals": [
+            {
+              "sourceId": "stanford-faculty-email-20261011",
+              "sourceRevision": 1,
+              "url": "https://advising.stanford.edu/current-students/advising-student-handbook/email-faculty",
+              "sourceFingerprint": "77cb744f171a539c0771f046515919c62e42a663ae7116e394da4b37cbd26346",
+              "evidenceId": "stanford-faculty-email-20261011-e2",
+              "quote": "pay close attention to their communication styles",
+              "locator": {
+                "kind": "original_normalized_character_range",
+                "start": 4907,
+                "end": 4956,
+                "normalizedTextPath": "evidence/coze-core-launch-20261011/mentor-originals/stanford-faculty.txt",
+                "normalizedTextSha256": "49d8a3185f88c83d5b223accc83022e5ecf977ac2fd4a54dd49fd757188fb38f",
+                "originalPath": "evidence/coze-core-launch-20261011/mentor-originals/stanford-faculty.html"
+              }
+            }
+          ],
+          "reviewQuestion": "原文是否只给辅导建议？沟通偏好是否只在已有指导关系使用？固定期限、沉默原因和回复效果是否未被采用？"
         }
       ],
       "questions": [
@@ -10044,6 +10175,10 @@
         {
           "target": "campus-contact-source-boundary",
           "text": "核对新校园原文仅覆盖室友问候与隐私；编辑共同话题不伪装原文；拒绝停止不换渠道，旧v3独审已失效，许可仍待发布核对。"
+        },
+        {
+          "target": "mentor-email-stage-and-effects",
+          "text": "新v6有独立新增原文，v5回执不能批准v6。核对仅C09-1使用，首次联系与已有指导关系分开，未回复原因/固定期限/效果不推断，中国招生规则仍待具体核查；许可未批准。"
         }
       ],
       "executionRecord": null,
@@ -10098,19 +10233,21 @@
           "stage": "start",
           "evidenceIds": [
             "usst-mentor-email-batch-first-contact-e1",
-            "ustc-mentor-choice-branch-20261011-e1"
+            "ustc-mentor-choice-branch-20261011-e1",
+            "stanford-faculty-email-20261011-e1",
+            "stanford-faculty-email-20261011-e2"
           ],
-          "remainingClaim": "国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。",
+          "remainingClaim": "国际申请材料不代表国内招生规则，USTC教师说明是个人看法；Stanford手册只支持邮件主题建议及已有指导关系阶段的沟通偏好，不证明回复效果，不设国内统一等待期限。",
           "sourceStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
-          "firstUnknown": "这次是联系谁、想核对什么，还是已有联系需要复盘？",
-          "smallestStep": "导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。",
-          "observation": "邮件是否已发送、实际回复和指导信息分开；兴趣不是能力或录取。",
+          "firstUnknown": "当前是首次联系还是已有指导关系？已发送什么、这次具体目的和真实反馈分别是什么？已知不重复问。",
+          "smallestStep": "只写或修改原邮件的具体主题；若拒绝、零时间或不想继续就暂停。",
+          "observation": "草稿、实际发送、回应、同意交流、实际交流和有用反馈分别核对；尚无回应原因未知。",
           "feedback": {
-            "not_started": "先看本人是否愿意以及当前缺口；只准备对应任务的一步，不把草稿记为已发送。",
-            "blocked": "读取同一事件的原请求、实际行动和卡点，只改被阻步骤；不重新发送整套第一次教程。",
-            "waiting_result": "已发出但没有回应只记录等待，原因未知；不要推断拒绝、采用、付款或有效。按任务观察，不自动追发。",
-            "result": "只根据本人报告区分回应、同意、执行和实际结果；用任务对应观察核对改变与仍未知部分。",
-            "declined": "本人拒绝建议或对方拒绝接触就停止相应动作；不更换名称、对象或渠道继续推进，保留合法历史。"
+            "not_started": "只核对尚缺的导师、目的或本人实际材料；最小一步写一个具体邮件主题，未发送的草稿不记为已联系。资源少只改这一处，零时间可暂停。",
+            "blocked": "沿用同一导师、原邮件和本人已报告的卡点；写不出主题只补目的，无法打开公开简介先核对可用原材料，不重发整套教程，不编导师背景。",
+            "waiting_result": "本人已发送但尚未收到回应，分别记录发送与等待，原因未知；不自动追发、不跨渠道、不推拒绝或有效。只在本人愿意时核对原请求缺口。",
+            "result": "回应、同意交流、实际交流和有用反馈分别记录；已建立指导关系才核对沟通偏好，未回应不推原因，同意不等于研究能力认可、录取或联系效果。",
+            "declined": "本人拒绝继续或导师明确拒绝则停止该请求，不换渠道追问；保留合法已发生事实，暂停或放弃不评价人格或身份退步。"
           },
           "independentExecution": null,
           "humanApproval": null
@@ -13037,7 +13174,7 @@
       "sourceChangeRequiresReturn": true
     }
   ],
-  "sourceFollowupAt": "2026-10-11T04:44:32.860Z",
+  "sourceFollowupAt": "2026-10-11T05:35:46.274Z",
   "draftHistory": [
     {
       "id": "257bea5b-e782-427a-82c0-39e84e086ad9",
@@ -16539,6 +16676,396 @@
         "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
         "review": null,
         "contentHash": "22c0c5241cd873dab14590d039a45ca0de09a21cd35fe614d182e4338ae5f6dd",
+        "indexSignature": "",
+        "legacyIds": [
+          "6a367fb8-309e-42ed-a409-664d8ca215b7",
+          "guide-intern-first-contact"
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "id": "257bea5b-e782-427a-82c0-39e84e086ad9",
+      "revision": 5,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "第一次联系与未回应跟进",
+      "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+      "publisher": "上海理工大学国际学生办公室",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.546Z",
+      "validUntil": null,
+      "excerpt": "介绍你自己的学术背景、研究方向、研究计划\r\n等。你的研究方向和计划是导师了解你的重要途径重\r\n点，导师们通常更愿意接收那些研究方向契合自己的\r\n学生。\r\n02、介绍选择该导师的原因，着重突出你有能力在\r\n导师的研究领域进行深入学术研究，并表达对导师研\r\n究方向的兴趣并提出希望成为其学生的意愿。\r\n03、最后你可以对导师研究领域发表自己的观点，以\r\n便于导师更好地了解你的研究方向和学术背景。\r\n3 / 4\r\nMAIL \r\nCONTENT\r\n• 3.撰写邮件的内容：\r\n\r\nPAG",
+      "claim": "该国际申请教育材料建议介绍学术背景、研究兴趣、选择该导师的原因，并针对不同导师修改邮件。",
+      "scope": "六个任务按各自来源边界分别选分支；共同机制是核对对象、本人目的与当前阶段。",
+      "limitations": "推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。",
+      "mechanisms": [
+        "准备具体的小请求"
+      ],
+      "sourceHash": "791f389c87d0384ddccf34285b2a126751835424062bc2bf2111f2bde0421b64",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
+        "canonicalKey": "first-contact",
+        "aliases": [
+          "联系导师",
+          "联系学长",
+          "找知情人",
+          "认识朋友",
+          "首批使用者",
+          "推荐信",
+          "没人回",
+          "从零建立社交",
+          "找到行业知情人",
+          "首次联系导师",
+          "向老师请求推荐",
+          "找首批使用者",
+          "认识新朋友"
+        ],
+        "domains": [
+          "01",
+          "07",
+          "09",
+          "13",
+          "20",
+          "25"
+        ],
+        "task": "第一次联系与未回应跟进",
+        "stage": "start/adjust/compare",
+        "mechanism": "准备具体的小请求",
+        "prerequisites": [
+          "这次是联系谁、想核对什么，还是已有联系需要复盘？",
+          "本人请求方法或成品；没有拒绝、遗忘或暂停该事。"
+        ],
+        "exclusions": [
+          "推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。",
+          "仅倾听、明确拒绝、已遗忘、暂停，以及无法确认本人接触授权的情况。"
+        ],
+        "evidenceIds": [
+          "usst-mentor-email-batch-first-contact-e1",
+          "career-author-followup-e1",
+          "pg-first-users-followup-e1",
+          "pku-recommendation-branch-20261011-e1",
+          "ustc-mentor-choice-branch-20261011-e1",
+          "gzucm-campus-contact-20261011-e1",
+          "gzucm-campus-contact-20261011-e2"
+        ],
+        "claims": [
+          {
+            "id": "first-contact-scope",
+            "text": "该国际申请教育材料建议介绍学术背景、研究兴趣、选择该导师的原因，并针对不同导师修改邮件。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "usst-mentor-email-batch-first-contact-e1"
+            ],
+            "scope": "导师自荐邮件的背景、兴趣与选择原因；不含申请资格规则。",
+            "limitations": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。"
+          },
+          {
+            "id": "first-contact-editorial",
+            "text": "先辨识当前对象、本人目的及是否已经尝试，再选对应分支；失败只调整原步骤，拒绝就停止。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "usst-mentor-email-batch-first-contact-e1",
+              "career-author-followup-e1",
+              "pg-first-users-followup-e1",
+              "pku-recommendation-branch-20261011-e1",
+              "ustc-mentor-choice-branch-20261011-e1"
+            ],
+            "scope": "LifeOS编辑适配；任务步骤和反馈处理不声称为外部原文或效果证明。",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          },
+          {
+            "id": "first-contact-career-author-followup",
+            "text": "作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "career-author-followup-e1"
+            ],
+            "scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
+            "limitations": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。"
+          },
+          {
+            "id": "first-contact-pg-first-users-followup",
+            "text": "Paul Graham按创业实践经验建议早期主动寻找使用者，而非被动等待。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "pg-first-users-followup-e1"
+            ],
+            "scope": "创业作者关于早期寻找使用者的经验性建议；只作人工接触线索，不套用增长数字。",
+            "limitations": "不保证找到付费用户；不把创业用户招募当普通陌生社交或导师联系。"
+          },
+          {
+            "id": "first-contact-pku-recommendation",
+            "text": "该教师的个人说明要求推荐材料所说内容有根据。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "pku-recommendation-branch-20261011-e1"
+            ],
+            "scope": "该教师个人说明要求推荐材料有事实依据；不是北大或所有推荐人的统一规定。",
+            "limitations": "不采用该页分数、日期、数量、排名、网申或查阅权规则；不要求学生普遍代写推荐信；无录取或有效性保证。"
+          },
+          {
+            "id": "first-contact-ustc-mentor-choice",
+            "text": "作者以个人看法建议向导师曾经的学生了解其指导方式。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "ustc-mentor-choice-branch-20261011-e1"
+            ],
+            "scope": "作者明示为个人看法，选择导师时可向其曾经的学生了解指导方式。",
+            "limitations": "仅作者经验；不保证科研或就业收益，不推招生资格或导师普遍规则。"
+          },
+          {
+            "id": "gzucm-campus-contact-20261011-claim1",
+            "text": "该校公开新生辅导建议在日常相遇时向室友打招呼。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "gzucm-campus-contact-20261011-e1"
+            ],
+            "scope": "校园室友自愿日常接触；第2条仅隐私边界。",
+            "limitations": "公开辅导建议，不是效果研究；不推对方意图、友谊、就业或创业收益。"
+          },
+          {
+            "id": "gzucm-campus-contact-20261011-claim2",
+            "text": "该校公开辅导建议不打听他人不愿说的秘密。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "gzucm-campus-contact-20261011-e2"
+            ],
+            "scope": "校园室友自愿日常接触；第2条仅隐私边界。",
+            "limitations": "公开辅导建议，不是效果研究；不推对方意图、友谊、就业或创业收益。"
+          }
+        ],
+        "sourceGroups": [
+          "usst-mentor-email",
+          "www.tianxingacademy.com",
+          "paulgraham.com",
+          "pku-recommendation",
+          "ustc-mentor-choice",
+          "gzucm-campus-contact-20261011"
+        ],
+        "principle": "核对对象、目的与当前阶段；不同场景使用不同依据，编辑适配不冒充外部效果结论。",
+        "branches": [
+          {
+            "id": "C01-3",
+            "candidateId": "C01-3",
+            "task": "从零建立社交",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C01-3-r4-1",
+                "text": "先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "gzucm-campus-contact-20261011-e1",
+                  "gzucm-campus-contact-20261011-e2"
+                ]
+              },
+              {
+                "id": "C01-3-r4-2",
+                "text": "只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "gzucm-campus-contact-20261011-e1",
+                  "gzucm-campus-contact-20261011-e2"
+                ]
+              },
+              {
+                "id": "C01-3-r4-3",
+                "text": "实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": []
+              }
+            ]
+          },
+          {
+            "id": "C07-3",
+            "candidateId": "C07-3",
+            "task": "找到行业知情人",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C07-3-r3-1",
+                "text": "先写本人想了解的职业问题，以及这个对象为什么能提供相关经历。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "career-author-followup-e1"
+                ]
+              },
+              {
+                "id": "C07-3-r3-2",
+                "text": "用真实身份提出一个具体访谈问题并询问是否方便；不给对方虚构研究或职位。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "career-author-followup-e1"
+                ]
+              },
+              {
+                "id": "C07-3-r3-3",
+                "text": "若已联系却没回，核对原请求与实际状态；若得到回答，分别记录亲历信息与对方判断。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "career-author-followup-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C09-1",
+            "candidateId": "C09-1",
+            "task": "首次联系导师",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C09-1-r3-1",
+                "text": "导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1",
+                  "ustc-mentor-choice-branch-20261011-e1"
+                ]
+              },
+              {
+                "id": "C09-1-r3-2",
+                "text": "起草一个具体问题；若想核对指导方式，可询问本人能合法接触的往届学生，不虚构其评价。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1",
+                  "ustc-mentor-choice-branch-20261011-e1"
+                ]
+              },
+              {
+                "id": "C09-1-r3-3",
+                "text": "同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "usst-mentor-email-batch-first-contact-e1",
+                  "ustc-mentor-choice-branch-20261011-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C13-4",
+            "candidateId": "C13-4",
+            "task": "向老师请求推荐",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C13-4-r3-1",
+                "text": "核对该老师是否有本人真实课程或项目接触，以及推荐用途；不虚构认识程度。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "pku-recommendation-branch-20261011-e1"
+                ]
+              },
+              {
+                "id": "C13-4-r3-2",
+                "text": "整理可核对的本人贡献和材料，询问老师是否愿意推荐及其自己的要求；不代作老师评价。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "pku-recommendation-branch-20261011-e1"
+                ]
+              },
+              {
+                "id": "C13-4-r3-3",
+                "text": "区分未回复、拒绝、同意与实际提交；目标或用途变化先核对旧委托是否仍有效。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "pku-recommendation-branch-20261011-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C20-3",
+            "candidateId": "C20-3",
+            "task": "找首批使用者",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C20-3-r3-1",
+                "text": "选一个确有该问题线索、本人能够合法接触的潜在使用者；先标需求尚未验证。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "pg-first-users-followup-e1"
+                ]
+              },
+              {
+                "id": "C20-3-r3-2",
+                "text": "提出一次可拒绝的接触或试用请求，说明当前可展示什么，不把想做的产品说成已完成。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "pg-first-users-followup-e1"
+                ]
+              },
+              {
+                "id": "C20-3-r3-3",
+                "text": "把愿意谈、实际试用、采用、付款和使用效果分别观察；失败时回到原请求或实验卡点，不重发全部入门。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "pg-first-users-followup-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C25-1",
+            "candidateId": "C25-1",
+            "task": "认识新朋友",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C25-1-r4-1",
+                "text": "先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "gzucm-campus-contact-20261011-e1",
+                  "gzucm-campus-contact-20261011-e2"
+                ]
+              },
+              {
+                "id": "C25-1-r4-2",
+                "text": "只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "gzucm-campus-contact-20261011-e1",
+                  "gzucm-campus-contact-20261011-e2"
+                ]
+              },
+              {
+                "id": "C25-1-r4-3",
+                "text": "实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": []
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "这次是联系谁、想核对什么，还是已有联系需要复盘？",
+        "smallestAction": "只补当前尚不清楚的对象或请求；已知不重复问，并选择任务对应的一步。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "资源少时只整理原请求或一条已有事实，不扩展对象数量；零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人或对方明确拒绝则停止，不换渠道追迫。",
+          "推荐信、导师、职业访谈和用户招募分别核对；从零社交及交友仍缺任务对应来源。未回应处理为LifeOS编辑适配，未经效果验证。",
+          "来源范围不支持该任务时保留缺口，不能自动批准。"
+        ],
+        "feedbackBranches": {
+          "not_started": "先看本人是否愿意以及当前缺口；只准备对应任务的一步，不把草稿记为已发送。",
+          "blocked": "读取同一事件的原请求、实际行动和卡点，只改被阻步骤；不重新发送整套第一次教程。",
+          "waiting_result": "已发出但没有回应只记录等待，原因未知；不要推断拒绝、采用、付款或有效。按任务观察，不自动追发。",
+          "result": "只根据本人报告区分回应、同意、执行和实际结果；用任务对应观察核对改变与仍未知部分。",
+          "declined": "本人拒绝建议或对方拒绝接触就停止相应动作；不更换名称、对象或渠道继续推进，保留合法历史。"
+        },
+        "expectedObservation": "本人是否执行、对方是否回应、是否同意及实际结果分开，具体观察按任务分支。",
+        "retrievalSummary": "第一次联系与未回应跟进；这次是联系谁、想核对什么，还是已有联系需要复盘？；从零建立社交；先由本人选一个愿意接触的日常场景；不想接触就不安排社交任务。；只提出与当时场景有关、允许对方不答的一句小问题，不索取隐私。；先记录是否交谈和本人感受；未回复不判拒绝，明确拒绝则停止。；找到行业知情人；先写本人想了解的职业问题，以及这个对象为什么能提供相关经历。；用真实身份提出一个具体访谈问题并询问是否方便；不给对方虚构研究或职位。；若已联系却没回，核对原请求与实际状态；若得到回答，分别记录亲历信息与对方判断。；首次联系导师；导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。；起草一个具体问题；若想核对指导方式，可询问本人能合法接触的往届学生，不虚构其评价。；同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。；向老师请求推荐；核对该老师是否有本人真实课程或项目接触，以及推荐用途；不虚构认识程度。；整理可核对的本人贡献和材料，询问老师是否愿意推荐及其自己的要求；不代作老师评价。；区分未回复、拒绝、同意与实际提交；目标或用途变化先核对旧委托是否仍有效。；找首批使用者；选一个确有该问题线索、本人能够合法接触的潜在使用者；先标需求尚未验证。；提出一次可拒绝的接触或试用请求，说明当前可展示什么，不把想做的产品说成已完成。；把愿意谈、实际试用、采用、付款和使用效果分别观察；失败时回到原请求或实验卡点，不重发全部入门。；认识新朋友；只在本人愿意的共同活动中选择自然接触，不把认识朋友变成必须完成的指标。；用真实共同话题问一句可不回答的问题，不预设对方兴趣、意图或关系。；本人不舒服或对方拒绝就停止；有交流只记实际经过，不宣称已经建立友谊。",
+        "referenceBody": "第一次联系与未回应跟进\n原文范围：\n该国际申请教育材料建议介绍学术背景、研究兴趣、选择该导师的原因，并针对不同导师修改邮件。 范围：导师自荐邮件的背景、兴趣与选择原因；不含申请资格规则。 限制：原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。\n作者的课堂实践让学生先明确想了解的职业、访谈对象和自己的问题，再核对选人理由。 范围：作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。 限制：不推出职业必适合、访谈保证录用、学术成功或海外教育收益。\nPaul Graham按创业实践经验建议早期主动寻找使用者，而非被动等待。 范围：创业作者关于早期寻找使用者的经验性建议；只作人工接触线索，不套用增长数字。 限制：不保证找到付费用户；不把创业用户招募当普通陌生社交或导师联系。\n该教师的个人说明要求推荐材料所说内容有根据。 范围：该教师个人说明要求推荐材料有事实依据；不是北大或所有推荐人的统一规定。 限制：不采用该页分数、日期、数量、排名、网申或查阅权规则；不要求学生普遍代写推荐信；无录取或有效性保证。\n作者以个人看法建议向导师曾经的学生了解其指导方式。 范围：作者明示为个人看法，选择导师时可向其曾经的学生了解指导方式。 限制：仅作者经验；不保证科研或就业收益，不推招生资格或导师普遍规则。\n什么时候用：这次是联系谁、想核对什么，还是已有联系需要复盘？；本人请求方法或成品；没有拒绝、遗忘或暂停该事。\n什么时候不用：推荐信、导师、职业访谈和用户招募继续用各自来源；校园起始交往现补室友打招呼与隐私边界，其他交友场景及交往效果仍缺直接材料。未回应处理为LifeOS编辑适配，未经效果验证。；仅倾听、明确拒绝、已遗忘、暂停，以及无法确认本人接触授权的情况。\n先核对：这次是联系谁、想核对什么，还是已有联系需要复盘？\nLifeOS编辑步骤（各任务独立）：\n任务：从零建立社交\n先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。\n只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。\n实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。\n边界：校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。\n观察：实际接触、本人感受、对方回应各自核对；没有回应不推拒绝，回应不推友谊。\n任务：找到行业知情人\n先写本人想了解的职业问题，以及这个对象为什么能提供相关经历。\n用真实身份提出一个具体访谈问题并询问是否方便；不给对方虚构研究或职位。\n若已联系却没回，核对原请求与实际状态；若得到回答，分别记录亲历信息与对方判断。\n边界：课堂作者实践只支持选对象和问题；邀约文案与后续分支是编辑适配，不保证录用。\n观察：对方是否愿意交流；本人哪个职业未知有新信息，哪些仍缺。\n任务：首次联系导师\n导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。\n起草一个具体问题；若想核对指导方式，可询问本人能合法接触的往届学生，不虚构其评价。\n同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。\n边界：国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。\n观察：邮件是否已发送、实际回复和指导信息分开；兴趣不是能力或录取。\n任务：向老师请求推荐\n核对该老师是否有本人真实课程或项目接触，以及推荐用途；不虚构认识程度。\n整理可核对的本人贡献和材料，询问老师是否愿意推荐及其自己的要求；不代作老师评价。\n区分未回复、拒绝、同意与实际提交；目标或用途变化先核对旧委托是否仍有效。\n边界：推荐信原文是单一教师个人要求，不能普遍要求代写、查阅或限定分数和期限。\n观察：老师是否明确同意、需要何材料及是否实际提交；同意不等于录取。\n任务：找首批使用者\n选一个确有该问题线索、本人能够合法接触的潜在使用者；先标需求尚未验证。\n提出一次可拒绝的接触或试用请求，说明当前可展示什么，不把想做的产品说成已完成。\n把愿意谈、实际试用、采用、付款和使用效果分别观察；失败时回到原请求或实验卡点，不重发全部入门。\n边界：创业作者经验只支持早期主动寻找使用者，不保证招募、需求成立或付费。\n观察：是否接触、接受试用、实际使用、采用、付款与反馈，未知各自保留。\n任务：认识新朋友\n先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。\n只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。\n实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。\n边界：校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。\n观察：实际接触、本人感受、对方回应各自核对；没有回应不推拒绝，回应不推友谊。\n最小一步：只补当前尚不清楚的对象或请求；已知不重复问，并选择任务对应的一步。\n资源不足：资源少时只整理原请求或一条已有事实，不扩展对象数量；零时间保留未知并暂停。\nnot_started：先看本人是否愿意以及当前缺口；只准备对应任务的一步，不把草稿记为已发送。\nblocked：读取同一事件的原请求、实际行动和卡点，只改被阻步骤；不重新发送整套第一次教程。\nwaiting_result：已发出但没有回应只记录等待，原因未知；不要推断拒绝、采用、付款或有效。按任务观察，不自动追发。\nresult：只根据本人报告区分回应、同意、执行和实际结果；用任务对应观察核对改变与仍未知部分。\ndeclined：本人拒绝建议或对方拒绝接触就停止相应动作；不更换名称、对象或渠道继续推进，保留合法历史。\n校园分支的小步骤与反馈处理为LifeOS编辑适配。资源少或没有精力时，可只核对是否愿意，选择暂停也成立；没有证据不宣称交到朋友、更受欢迎或能力提升。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "ec38e0bf090e67d2cd6880a4beca6657bcb321245a5cd786db55b67f3aa31c2c",
         "indexSignature": "",
         "legacyIds": [
           "6a367fb8-309e-42ed-a409-664d8ca215b7",

@@ -33,3 +33,5 @@ evidence/coze-core-launch-20261011/r13-*.py -text -whitespace
 
 evidence/coze-core-launch-20261011/campus-contact-originals/** -text -whitespace
 evidence/coze-core-launch-20261011/*.ax.txt -text -whitespace
+evidence/coze-core-launch-20261011/mentor-originals/** -text -whitespace
+evidence/coze-core-launch-20261011/student16-b31aaed-first/*.json -text

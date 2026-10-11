@@ -414,9 +414,9 @@
     }
   ],
   "summary": {
-    "newUsableSources": 13,
-    "newLocatedQuotes": 20,
-    "draftsSupplemented": 20,
+    "newUsableSources": 14,
+    "newLocatedQuotes": 22,
+    "draftsSupplemented": 21,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 11,
@@ -682,6 +682,18 @@
     "contentHash": "ec38e0bf090e67d2cd6880a4beca6657bcb321245a5cd786db55b67f3aa31c2c",
     "reason": "Actual maintenance read showed old source-gap paragraphs still present alongside new structured branches. Replaced only those two body sections; old v4 preserved.",
     "independentReview": null,
+    "humanApproval": null,
+    "published": 0
+  },
+  "mentorContactRevision": {
+    "at": "2026-10-11T05:35:46.274Z",
+    "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
+    "revision": 6,
+    "previousHash": "ec38e0bf090e67d2cd6880a4beca6657bcb321245a5cd786db55b67f3aa31c2c",
+    "contentHash": "1301b576252b943a86d6000a1002e5710b67d43b8b873ae9c04f1a5c5c5a7f62",
+    "newDistinctOriginals": 1,
+    "newLocatedQuotes": 2,
+    "status": "DRAFT_WAITING_NEW_INDEPENDENT_REVIEW",
     "humanApproval": null,
     "published": 0
   }

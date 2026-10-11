@@ -935,25 +935,27 @@
     "reason": "原文不能直接支持导师初次邮件、社交破冰、推荐请求和未回复跟进的全部分支；需要相关沟通原文。",
     "positive": "首次联系导师，从哪下手？",
     "negative": "首次联系导师让我很烦，只想聊，不要建议。",
-    "content_revision_candidate": 3,
+    "content_revision_candidate": 6,
     "content_maturity": "SUBSTANTIVE_DRAFT",
-    "independent_review": "NOT_EXECUTED",
+    "independent_review": "NOT_EXECUTED_CURRENT_REVISION",
     "human_approval": "NOT_OBTAINED",
     "research_result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
     "remaining_claim": "国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。",
     "source_followup": {
-      "at": "2026-10-10T14:06:45.703Z",
+      "at": "2026-10-11T05:35:46.274Z",
       "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
       "evidenceIds": [
         "usst-mentor-email-batch-first-contact-e1",
-        "ustc-mentor-choice-branch-20261011-e1"
+        "ustc-mentor-choice-branch-20261011-e1",
+        "stanford-faculty-email-20261011-e1",
+        "stanford-faculty-email-20261011-e2"
       ],
       "methodExtracted": [
-        "导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。",
-        "起草一个具体问题；若想核对指导方式，可询问本人能合法接触的往届学生，不虚构其评价。",
-        "同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。"
+        "导师联系：先核对这次对象、具体目的和其公开研究简介；已知不重复问，研究能力只用本人实际经历说明。",
+        "起草一个能说明具体目的的邮件主题和一个问题；背景、兴趣与联系理由按真实材料写，最小一步可以只改原邮件主题。若已有指导关系，只核对尚未知的沟通偏好，不要求首次联系者先填完整档案。",
+        "同一导师未回复时读回原邮件、是否实际发送和已经等待的状态，只改被阻处；没有回复原因未知，不推拒绝、能力否定或效果，不自动换渠道追发。"
       ],
-      "scope": "国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。",
+      "scope": "国际申请材料不代表国内招生规则，USTC教师说明是个人看法；Stanford手册只支持邮件主题建议及已有指导关系阶段的沟通偏好，不证明回复效果，不设国内统一等待期限。",
       "independentReview": null,
       "humanApproval": null,
       "publication": false

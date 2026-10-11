@@ -1015,6 +1015,22 @@
           },
           "shortQuoteHash": "50c2d74c4a0e4a4f5c7cee25dbaee45e97b443da3c5a6ad3b2df6c9f0d990cd9",
           "excludesDynamicRules": true
+        },
+        {
+          "id": "mentor-chinese-primary-search-first",
+          "at": "2026-10-11T05:35:46.274Z",
+          "status": "SEARCH_RESULTS_NOT_PRIMARY_ORIGINAL_NOT_ADOPTED",
+          "originalRead": false,
+          "evidencePath": "evidence/coze-core-launch-20261011/mentor-originals/chinese-original-search-first.txt"
+        },
+        {
+          "id": "stanford-faculty-email-20261011",
+          "url": "https://advising.stanford.edu/current-students/advising-student-handbook/email-faculty",
+          "at": "2026-10-11T05:35:46.274Z",
+          "status": "ORIGINAL_HTTP_FULL_BODY_READ",
+          "bodySha256": "77cb744f171a539c0771f046515919c62e42a663ae7116e394da4b37cbd26346",
+          "normalizedTextSha256": "49d8a3185f88c83d5b223accc83022e5ecf977ac2fd4a54dd49fd757188fb38f",
+          "bodyLength": 67070
         }
       ],
       "readSource": {
@@ -1031,15 +1047,34 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "导师联系：核对其公开研究简介和本人真正关心的点；研究能力只能用实际经历说明。",
-        "起草一个具体问题；若想核对指导方式，可询问本人能合法接触的往届学生，不虚构其评价。",
-        "同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。"
+        "导师联系：先核对这次对象、具体目的和其公开研究简介；已知不重复问，研究能力只用本人实际经历说明。",
+        "起草一个能说明具体目的的邮件主题和一个问题；背景、兴趣与联系理由按真实材料写，最小一步可以只改原邮件主题。若已有指导关系，只核对尚未知的沟通偏好，不要求首次联系者先填完整档案。",
+        "同一导师未回复时读回原邮件、是否实际发送和已经等待的状态，只改被阻处；没有回复原因未知，不推拒绝、能力否定或效果，不自动换渠道追发。"
       ],
-      "applicabilityBoundary": "国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。",
-      "stillMissingClaim": "国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。",
+      "applicabilityBoundary": "国际申请材料不代表国内招生规则，USTC教师说明是个人看法；Stanford手册只支持邮件主题建议及已有指导关系阶段的沟通偏好，不证明回复效果，不设国内统一等待期限。",
+      "stillMissingClaim": "国际申请材料不代表国内招生规则，USTC教师说明是个人看法；Stanford手册只支持邮件主题建议及已有指导关系阶段的沟通偏好，不证明回复效果，不设国内统一等待期限。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-11T05:35:46.274Z",
+        "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
+        "evidenceIds": [
+          "usst-mentor-email-batch-first-contact-e1",
+          "ustc-mentor-choice-branch-20261011-e1",
+          "stanford-faculty-email-20261011-e1",
+          "stanford-faculty-email-20261011-e2"
+        ],
+        "methodExtracted": [
+          "导师联系：先核对这次对象、具体目的和其公开研究简介；已知不重复问，研究能力只用本人实际经历说明。",
+          "起草一个能说明具体目的的邮件主题和一个问题；背景、兴趣与联系理由按真实材料写，最小一步可以只改原邮件主题。若已有指导关系，只核对尚未知的沟通偏好，不要求首次联系者先填完整档案。",
+          "同一导师未回复时读回原邮件、是否实际发送和已经等待的状态，只改被阻处；没有回复原因未知，不推拒绝、能力否定或效果，不自动换渠道追发。"
+        ],
+        "scope": "国际申请材料不代表国内招生规则，USTC教师说明是个人看法；Stanford手册只支持邮件主题建议及已有指导关系阶段的沟通偏好，不证明回复效果，不设国内统一等待期限。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T14:06:45.703Z",
         "sourceGapStatus": "SOURCE_LOCATED_SCOPED_DRAFT_READY_FOR_INDEPENDENT_REVIEW",
         "evidenceIds": [
@@ -1052,13 +1087,6 @@
           "同一导师未回复时定位原邮件、目的和已知状态，只调整缺失处；不把沉默解释为能力否定。"
         ],
         "scope": "国际申请邮件材料不能代表国内招生规则；USTC教师个人看法不能代表所有导师。",
-        "independentReview": null,
-        "humanApproval": null,
-        "publication": false
-      },
-      "previousFollowup": {
-        "at": "2026-10-10T11:43:46.158054+00:00",
-        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
         "humanApproval": null,
         "publication": false
@@ -4059,9 +4087,9 @@
   "independentReviews": 0,
   "humanApprovals": 0,
   "followupSummary": {
-    "newUsableSources": 13,
-    "newLocatedQuotes": 20,
-    "draftsSupplemented": 20,
+    "newUsableSources": 14,
+    "newLocatedQuotes": 22,
+    "draftsSupplemented": 21,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 11,

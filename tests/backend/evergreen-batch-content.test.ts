@@ -46,6 +46,20 @@ test('first-contact branches cannot borrow mentor evidence for social, career or
  for(const b of prep.branchChecks){assert.equal(b.independentExecution,null);assert.equal(b.humanApproval,null);for(const k of ['not_started','blocked','waiting_result','result','declined'])assert.ok(b.feedback[k])}
  for(const e of pack.evidence.filter((e:any)=>/branch-20261011/.test(e.evidence_id))){assert.equal(e.locator.end-e.locator.start,e.quote.length);assert.equal(kbHash(e.quote),e.content_hash);assert.match(e.locator.normalizedBodySha256,/^[a-f0-9]{64}$/)}
 })
+test('faculty-email original remains stage scoped, fully located and unapproved',()=>{
+ const pack=json('KB_CONTENT_REVISIONS.json'),card=pack.drafts.find((c:any)=>c.guide.canonicalKey==='first-contact'),prep=pack.reviewPreparation.find((p:any)=>p.guideId===card.id)
+ const source=pack.sources.find((s:any)=>s.source_id==='stanford-faculty-email-20261011')
+ assert.equal(source.author,null);assert.equal(source.published_at,null);assert.ok(source.cannot_infer.includes('未回应原因'));assert.ok(source.licenseObserved.includes('unapproved'))
+ const fragments=pack.evidence.filter((e:any)=>e.source_id===source.source_id);assert.equal(fragments.length,2)
+ for(const e of fragments){const original=readFileSync(e.locator.originalPath,'utf8'),normalized=readFileSync(e.locator.normalizedTextPath,'utf8');assert.equal(kbHash(original),source.original_fingerprint);assert.equal(kbHash(normalized),e.locator.normalizedTextSha256);assert.equal(normalized.slice(e.locator.start,e.locator.end),e.quote)}
+ for(const b of card.guide.branches.filter((b:any)=>b.candidateId!=='C09-1'))assert.ok(b.steps.every((s:any)=>s.evidenceIds.every((id:string)=>!id.startsWith(source.source_id))))
+ const branch=card.guide.branches.find((b:any)=>b.candidateId==='C09-1'),check=prep.branchChecks.find((b:any)=>b.candidateId==='C09-1')
+ assert.ok(branch.steps.some((s:any)=>s.text.includes('若已有指导关系')));assert.ok(check.remainingClaim.includes('不证明回复效果'));assert.ok(check.feedback.waiting_result.includes('原因未知'));assert.ok(check.feedback.declined.includes('停止'))
+ for(const step of branch.steps)assert.ok(card.guide.referenceBody.includes(step.text))
+ for(const [key,value] of Object.entries(check.feedback))assert.ok(card.guide.referenceBody.includes('导师'+key+'：'+value),'visible feedback agrees with the preparation')
+ assert.equal(prep.status,'PREPARED_NOT_INDEPENDENTLY_EXECUTED');assert.equal(prep.executionRecord,null);assert.equal(prep.humanApproval,null)
+ assert.equal(prep.previousDraftHash,pack.draftHistory.find((c:any)=>c.id===card.id&&c.revision===card.revision-1).guide.contentHash)
+})
 test('research obstacles cannot inherit exam evidence or a made-up solved exercise',()=>{
  const pack=json('KB_CONTENT_REVISIONS.json'),card=pack.drafts.find((c:any)=>c.guide.canonicalKey==='exam-diagnosis'),prep=pack.reviewPreparation.find((p:any)=>p.guideId===card.id)
  const research=card.guide.branches.find((b:any)=>b.candidateId==='C09-4')
