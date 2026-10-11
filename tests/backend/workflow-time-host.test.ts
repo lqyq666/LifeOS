@@ -22,7 +22,7 @@ test('durable own-time questions accept omissions, estimates, upper bounds and n
  const create=async(text='想深入比较就业和考研，还算不准本周本人可用时间。')=>{const body={requestId:randomUUID(),conversationId:chat,currentMessageId:await message(text),directions:['employment','postgraduate_exam'],consent:true};await host.create(user,body);return body.requestId}
  const finish=async(id:string)=>{for(let i=0;i<100;i++){const v=await host.read(user,id);if(!['queued','running'].includes(v.status))return v;await new Promise(r=>setTimeout(r,10))}assert.fail('not finished')}
  try{
-  for(const [text,amount,period,qualification] of [['六小时',360,'this_week','exact'],['大概六小时',360,'this_week','estimate'],['最多六小时',360,'this_week','upper_bound'],['其实只剩两小时',120,'this_week','exact'],['下周六小时，这周没空',0,'this_week','exact'],['下周六小时',360,'next_week','exact']] as const){
+  for(const [text,amount,period,qualification] of [['六小时',360,'this_week','exact'],['大概六小时',360,'this_week','estimate'],['大概两小时吧，还是刚才这两条路。',120,'this_week','estimate'],['最多六小时',360,'this_week','upper_bound'],['其实只剩两小时',120,'this_week','exact'],['下周六小时，这周没空',0,'this_week','exact'],['下周六小时',360,'next_week','exact']] as const){
    const id=await create(),before=calls,ref=await message(text)
    await host.resume(user,id,{conversationId:chat,currentMessageId:ref});assert.equal((await finish(id)).status,'proposed');assert.equal(calls-before,4)
    const r=(await pool.query('SELECT request_payload FROM lifeos_workflow_tasks WHERE user_id=$1 AND request_id=$2',[user,id])).rows[0].request_payload

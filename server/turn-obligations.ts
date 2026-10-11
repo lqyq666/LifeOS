@@ -154,7 +154,7 @@ export function remainingWeeklyTimeIntent(text:string):{quote:string;minutes:num
 export type BudgetContext={period:'this_week'|'next_week';question:string;anchor:string}
 export type ApplicableBudget={period:'current'|'this_week'|'next_week';amountMinutes:number;scope:'recurring'|'available'|'remaining';qualification:'exact'|'estimate'|'upper_bound';quote:string;reason:string}
 export function applicableTimeBudget(text:string,context?:BudgetContext,target?:'this_week'|'next_week'):ApplicableBudget|undefined{
- const clauses=scanUserClauses(text),valid=clauses.filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&!c.interrogative)
+ const clauses=scanUserClauses(text),valid=clauses.filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&!c.interrogative&&!/[？?]/.test(c.delimiter))
  if(valid.some(c=>/先别分析|不要分析|不想继续|拒绝继续|取消|只想倾诉|只听我说|不要建议|不想要建议/.test(c.text)))return undefined
  const candidates:ApplicableBudget[]=[]
  let sentence=-1,period:'this_week'|'next_week'|undefined,correction=false,mentionsOpportunity=false
@@ -177,7 +177,7 @@ export function applicableTimeBudget(text:string,context?:BudgetContext,target?:
   else {
    // Omitted answers require a durable, explicit own-availability question.
    const scoped=period??(context&&/本人.*(?:可用|剩余)/.test(context.question)?context.period:undefined)
-   const match=/^(?:我|本人)?(?:(?:这周|本周|下周))?(?:我|本人)?(?:有|可用|能用|只有|能拿出|可拿出|只剩|还剩)?\s*([0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+)(?:个)?(小时|钟头|分钟)(?:可用)?$/.exec(exact)
+   const match=/^(?:我|本人)?(?:(?:这周|本周|下周))?(?:我|本人)?(?:有|可用|能用|只有|能拿出|可拿出|只剩|还剩)?\s*([0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+)(?:个)?(小时|钟头|分钟)(?:可用)?(?:吧|呀|啊)?$/.exec(exact)
    const amount=match?(match[2]==='分钟'?chineseInteger(match[1]!):parseExactHours(match[1]!)):null
    const noTime=/^(?:我|本人)?(?:这周|本周|下周)?(?:我|本人)?(?:没空|没有空闲时间|没有可用时间)$/.test(exact)
    if(scoped&&(noTime||amount!==null))candidate={period:scoped,amountMinutes:noTime?0:amount!,scope:/剩/.test(exact)?'remaining':'available',qualification,quote:original,reason:period?'指定周本人可用时间':'承接持久任务的本人可用时间追问'}
