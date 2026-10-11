@@ -26,7 +26,7 @@
     "no push or merge main"
   ],
   "budgetAmountAddedCny": 0,
-  "doesNotConstituteGuideApproval": true,
+  "doesNotConstituteGuideApproval": false,
   "directHttpRouteApproval": {
     "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
     "questionItemId": "[\"request_user_input_async\",\"call_JkoBkQVo7Q8CourQYHXZrBWV\",0]",
@@ -75,5 +75,17 @@
     },
     "frozenHistoricalReproductionsChanged": false,
     "alreadyDispatchedCozeAttachment": "Historical snapshot retained; no paid duplicate dispatch. Subsequent repair instructions use current policy."
-  }
+  },
+  "latestLaunchApproval": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REQUEST",
+    "recordedAt": "2026-10-11T06:01:44.192Z",
+    "exactRequest": "继续加快开发，优先修完真实上线的阻塞项，不要再做额外候选包或重复模拟验收。沿用已有授权和额度，每个有效增量及时提交，争取今天下午6点前完成；审批我现在全部同意。",
+    "scope": "Continue existing authorized implementation, synthetic-adult real model/Coze acceptance and rollbackable launch after actual core gates. Owner permits approval execution for exact eligible independently reviewed content; apply a version-bound receipt at execution, not an automatic blanket PASS.",
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "publishBeforeCoreGates": false,
+    "additionalCandidatePackages": false,
+    "independentReviewStillRequired": true
+  },
+  "guideApprovalExecution": "OWNER_GRANTED_CONDITIONAL_EXECUTION_EXACT_INDEPENDENT_REVIEWED_VERSION_REQUIRED"
 }

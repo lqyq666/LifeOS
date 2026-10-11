@@ -1,0 +1,23 @@
+{
+  "kind": "PREDECLARED_NEW_FIRST_REPAIR_PILOT_NOT_FINAL_COHORT",
+  "hypothesis": "Resource blocker verbatim is committed independently of model omissions and retained across sessions; Memory OFF excludes this fact. One ordinary generation per turn, no new inferred resource cause or goal.",
+  "historicalFirstAttempts": [
+    "REPAIR_PILOT_BOUNDED_STATUS_20261011.json"
+  ],
+  "notReplacement": true,
+  "independentReview": "REQUIRED_SEPARATELY_NOT_MAIN_SELF_SCORE",
+  "cases": [
+    {
+      "caseId": "RV2_RESOURCE_FIRST",
+      "session": 0,
+      "input": "我的课程材料打不开，我还没开始做那份课堂说明，先帮我理清卡在哪里。",
+      "expected": "Both explicit resource blocker and not-started facts saved/read back; no cause, completed experience or goal inferred; response at most one generation."
+    },
+    {
+      "caseId": "RV2_NEXT_SESSION",
+      "session": 1,
+      "input": "还是那份材料，打不开的情况没有变。我现在只想说一下烦躁，先别给方法。",
+      "expected": "New session retains resource/not-started facts, honours listening and no advice, no new goal or completed experience."
+    }
+  ]
+}
