@@ -30,6 +30,12 @@ test('omitted read/response/adoption reports persist independently and remain in
   await store.finishRun(openRun,openStaged,openResult.text,openResult.usage,new AbortController().signal)
   const goals=(await pool.query("SELECT id,text FROM growth_items WHERE user_id=$1 AND kind='goal' AND status='active'",[user])).rows
   assert.equal(goals.length,1,'model fact plus server capture produce one actual goal')
+  const defer=(await store.startRun(user,chat,randomUUID(),'实习稍后再看，也不要给我别的方法。')).run,deferStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:'先保留实习延后的安排，也不追加方法。',growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:'c0'}},{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:'c1'}}]})
+  const deferred=await engine({run:defer,staged:deferStaged,context:await store.contextForRun(defer),decision:null,signal:new AbortController().signal,emit:()=>{}})
+  await store.finishRun(defer,deferStaged,deferred.text,deferred.usage,new AbortController().signal)
+  assert.equal((await pool.query("SELECT count(*)::int AS n FROM growth_items WHERE user_id=$1 AND kind='goal' AND (text LIKE '%稍后%' OR text LIKE '%别的方法%')",[user])).rows[0].n,0)
+  assert.equal((await pool.query("SELECT count(*)::int AS n FROM user_themes WHERE user_id=$1 AND (title LIKE '%实习%' OR title LIKE '%方法%')",[user])).rows[0].n,0)
   const text='我通过学校邮箱请教学长甲，原请求是了解项目课。对方已经读了，但没有回复，也没有采用。'
   const run=(await store.startRun(user,chat,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
   const bounded=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!
@@ -72,5 +78,23 @@ test('omitted read/response/adoption reports persist independently and remain in
   await store.finishRun(future,futureStaged,futureResult.text,futureResult.usage,new AbortController().signal)
   const upcoming=(await growthView(user,next)).items.find(i=>i.text==='下周我有六小时可用')!
   assert.equal(upcoming.status,'active');assert.equal(upcoming.unavailableReason,'not_yet_active')
+  const listen=(await store.startRun(user,next,randomUUID(),'我请教导师的邮件已经发出去了，对方看过但没有回应。我现在只想聊聊感受，别建议我催。')).run,listenStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:'看过之后仍没有回应，心里悬着的感受可以慢慢说。'})
+  const listened=await engine({run:listen,staged:listenStaged,context:await store.contextForRun(listen),decision:null,signal:new AbortController().signal,emit:()=>{}})
+  await store.finishRun(listen,listenStaged,listened.text,listened.usage,new AbortController().signal)
+  const listeningFacts=(await growthView(user,next)).items.map(i=>i.text)
+  assert.ok(listeningFacts.includes('我请教导师的邮件已经发出去了'))
+  assert.ok(listeningFacts.includes('对方看过但没有回应'))
+  const editText='我想把访谈问题改成“你最近一次遇到这件事，最后怎么处理的？”',edit=(await store.startRun(user,next,randomUUID(),editText)).run,editStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:boundedOrdinaryReply({text:editText,intent:knowledgeIntent(editText),contract:deriveTurnContract({text:editText,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
+  const edited=await engine({run:edit,staged:editStaged,context:await store.contextForRun(edit),decision:null,signal:new AbortController().signal,emit:()=>{}})
+  await store.finishRun(edit,editStaged,edited.text,edited.usage,new AbortController().signal)
+  assert.ok((await growthView(user,next)).items.some(i=>i.kind==='context'&&i.text===editText))
+  await pool.query('UPDATE user_memory_settings SET enabled=false, revision=revision+1 WHERE user_id=$1',[user])
+  const off=(await store.startRun(user,next,randomUUID(),'我问了导师乙，对方已经读了。我现在只想聊聊。')).run,offStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:'可以慢慢说。'})
+  const offResult=await engine({run:off,staged:offStaged,context:await store.contextForRun(off),decision:null,signal:new AbortController().signal,emit:()=>{}})
+  await store.finishRun(off,offStaged,offResult.text,offResult.usage,new AbortController().signal)
+  assert.equal((await pool.query('SELECT count(*)::int AS n FROM growth_items WHERE user_id=$1 AND sources @> $2::jsonb',[user,JSON.stringify([{type:'message',id:off.source_message_id}])])).rows[0].n,0)
  }finally{model.baseUrl=oldUrl;config.apiKey=oldKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()));await localEmbedding.close();await pool.end()}
 })

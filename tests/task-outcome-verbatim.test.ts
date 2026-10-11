@@ -1,10 +1,27 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {reportedTaskOutcomeClauses} from '../server/turn-contract.ts'
+import {reportedTaskOutcomeClauses,reportedPerformedTaskClauses} from '../server/turn-contract.ts'
+import {conversationPreferenceClause,deferredPursuitClause} from '../server/user-command-spans.ts'
+import {pursuitLevel} from '../server/user-themes.ts'
+import {isBlockedExperience} from '../server/starmap-enrichment.ts'
 test('actual task observations retain separate read, response and adoption statements without importing a public case',()=>{
  const text='我通过学校邮箱请教学长甲，原请求是了解项目课。对方已经读了，但没有回复，也没有采用。'
  assert.deepEqual(reportedTaskOutcomeClauses(text).map(c=>c.text),['对方已经读了','但没有回复','也没有采用'])
  for(const other of ['案例里学生联系学长，对方已经读了。','如果我联系学长，对方已经读了也可能不回复。','我联系学长了吗？对方已经读了？','学长说：“我交付了，对方已经采用。”'])assert.deepEqual(reportedTaskOutcomeClauses(other),[],other)
+})
+test('listening retains completed actions and direct reading reports; deferred choices and refusal are not pursuits',()=>{
+ const text='我请教导师的邮件已经发出去了，对方看过但没有回应。我现在只想聊聊感受，别建议我催。'
+ assert.deepEqual(reportedPerformedTaskClauses(text).map(c=>c.text),['我请教导师的邮件已经发出去了'])
+ assert.deepEqual(reportedTaskOutcomeClauses(text).map(c=>c.text),['对方看过但没有回应'])
+ for(const bad of ['我想交给客户了。','如果我问了导师。','同学说我问了导师。','“我问了导师”'])assert.deepEqual(reportedPerformedTaskClauses(bad),[])
+ assert.equal(conversationPreferenceClause('也不要给我别的方法'),true)
+ assert.equal(conversationPreferenceClause('我不想继续创业'),false)
+ assert.equal(deferredPursuitClause('实习稍后再看'),true)
+ assert.equal(pursuitLevel('实习稍后再看'),null)
+ assert.equal(pursuitLevel('也不要给我别的方法'),null)
+ assert.equal(pursuitLevel('我不再熬夜')?.kind,'pursuit')
+ assert.equal(isBlockedExperience('我问了两位同学','还没用','我问了两位同学，他们还没用'),false)
+ assert.equal(isBlockedExperience('问到一半卡住','还没结果',''),true)
 })
 
 test('natural delivery and interviews keep reported adoption, payment and interest separate',()=>{

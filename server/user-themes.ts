@@ -6,6 +6,7 @@ import type { PoolClient,Pool } from 'pg'
 import { matchPathTheme } from './path-lexicon.ts'
 import { recordChangeEvent } from './identity.ts'
 import { distinctiveGrams } from './experience-episodes.ts'
+import {deferredPursuitClause,conversationPreferenceClause} from './user-command-spans.ts'
 
 // 路径同义词表：主题锚词除标题片段外，还接受该路径的领域词（行测↔考公、
 // 雅思↔留学）。这只是连线候选的召回面；成线仍需本人经历原文包含锚词。
@@ -88,10 +89,12 @@ const HEDGING = /(?:可能|也许|大概|说不定|不一定|不太确定|还没
 const DECIDED_MARK = /(?:决定|确定|定了|一定要|铁了心|就选)/
 const endedMainPath=(quote:string):boolean=>/不再.{0,20}(?:作为|当作).{0,4}(?:主线|重点)|暂停(?:扩大)?接单/.test(quote)
 export function pursuitLevel(quote: string): { kind: 'pursuit' | 'exploration'; status: 'active' | 'pending' } | null {
+  if(deferredPursuitClause(quote)||conversationPreferenceClause(quote))return null
   if(endedMainPath(quote))return null
   if (REJECTED_PURSUIT.test(quote) && !BOUNDARY_PURSUIT.test(quote)) return null
   // 不确定语气不建主题："我可能在考虑考研" 不占星图
   if (HEDGING.test(quote)) return null
+  if(/优先|放第一|第一位/.test(quote))return {kind:'pursuit',status:'active'}
   if (BOUNDARY_PURSUIT.test(quote)) return { kind: 'pursuit', status: 'active' }
   if (EXPLORING_MARK.test(quote) && !DECIDED_MARK.test(quote)) return { kind: 'exploration', status: 'pending' }
   if (FUTURE_MARK.test(quote) && !DECIDED_MARK.test(quote)) return { kind: 'exploration', status: 'pending' }

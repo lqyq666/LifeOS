@@ -10,7 +10,7 @@ import type { ClauseHandle } from './clause-catalogue.ts'
 import { resolveClause } from './clause-catalogue.ts'
 import type { GrowthInputDelta, ResolvedGrowthDelta, ResolvedGrowthTarget } from './growth-model-contracts.ts'
 import type { CorrectionPlan } from './turn-obligations.ts'
-import {conversationPreferenceClause} from './user-command-spans.ts'
+import {conversationPreferenceClause,deferredPursuitClause} from './user-command-spans.ts'
 
 export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null;status?:string}
 
@@ -96,6 +96,7 @@ export function resolveGrowthDeltas(input:{
     if('validUntil'in deltaWithoutExpiry)delete deltaWithoutExpiry.validUntil
     const next:ResolvedGrowthDelta={...deltaWithoutExpiry,...(legacyValidUntil?{validUntil:legacyValidUntil}:{}),source:{messageId:input.currentMessageId,quote:clause.text},target:{operation:'create'},...(timeEvidence?{timeEvidence}:{})} as unknown as ResolvedGrowthDelta
     if(['goal','direction'].includes(next.kind)&&/^我想把(?:验证问题|访谈问题|提问|这个问题)/.test(clause.text))next.kind='context'
+    if(['goal','direction'].includes(next.kind)&&deferredPursuitClause(clause.text))next.kind='context'
     if(delta.target.operation==='correct'){
       const itemId=delta.target.itemId
       const item=input.authorized.find(row=>row.id===itemId)

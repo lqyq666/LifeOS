@@ -16,14 +16,14 @@ export function feedbackMatchesCurrent(text:string,title:string,task:string){
  const matters=[/考试|期末|复习|备考|考研|考公/,/产品|创业|用户|客户|需求|接单|交付|改稿/,/导师|科研|论文/,/竞赛|比赛|队友|社团/,/岗位|求职|投递|面试/,/宿舍|舍友|人际/,/休息|过载|恢复/]
  const named=matters.filter(pattern=>pattern.test(text))
  if(named.length&&!named.some(pattern=>pattern.test(title+' '+task)))return false
- if(/(?:我|这次)[^，。；]{0,20}(?:不想继续|不再试|拒绝继续)|先停在这里/.test(text))return true
+ if(/(?:我|这次)[^，。；]{0,20}(?:不想继续|暂时不继续|先不继续|不再试|拒绝继续)|先停在这里/.test(text))return true
  if(/按上次|这个方法|这次行动|我愿意试|我不想继续|我不做了/.test(text))return true
  const taskTerms=new Set(kbTerms(title+' '+task))
  return kbTerms(text).filter(t=>taskTerms.has(t)).length>=2
 }
 export function classifyGuideFeedback(text:string):Exclude<GuideUsageStatus,'suggested'>|null{
  const report=scanUserClauses(text).filter(c=>!c.interrogative&&!c.conditional&&!c.attributedToOther&&!c.quoted&&!c.code&&!c.quoteSpans.length&&!c.codeSpans.length).map(c=>c.text).join('；')
- if(/(?:我|这(?:个|次))[^；]{0,20}(?:不想继续|不做了|放弃这个|不再试|拒绝继续)/.test(report))return 'declined'
+ if(/(?:我|这(?:个|次))[^；]{0,20}(?:不想继续|暂时不继续|先不继续|不做了|放弃这个|不再试|拒绝继续)/.test(report))return 'declined'
  const acted=/(?:我|按上次)[^；]{0,35}(?:已经|已)?(?:发了|交了|交付了|完成了|做完|尝试了?|试了|联系了|开始了)/.test(report)&&!/(?:我|按上次)[^；]{0,16}(?:没|没有|未)(?:开始|尝试|完成|交付|发)/.test(report)
  if(acted&&/等(?:待)?(?:结果|回复)|(?:还)?没(?:有)?(?:回复|收到结果)|没收到结果/.test(report))return 'waiting_result'
  if(/(?:我|按上次)[^；]{0,35}(?:没|没有|未)(?:开始|做|尝试)/.test(report)&&/打不开|找不到|缺少|卡住|没材料/.test(report))return 'blocked'

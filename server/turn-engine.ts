@@ -30,11 +30,11 @@ import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grou
 import { stageWeeklyPlan, renderProposedWeeklyPlan } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
-import { scanUserClauses,conversationPreferenceClause,currentConversationOnly } from './user-command-spans.ts'
+import { scanUserClauses,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
-import { deriveTurnContract, bindPlanBudgetSchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses } from './turn-contract.ts'
+import { deriveTurnContract, bindPlanBudgetSchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses,reportedPerformedTaskClauses } from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
@@ -476,6 +476,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // 真提问（带问号/吗/呢）与假设/引用/第三方。
       const decisionClauses=clauseCatalogue.filter(handle=>!handle.conditional&&!handle.quoted&&!handle.code&&!handle.attributedToOther&&!/[?？]|吗$|呢$/.test(handle.text)
         &&!conversationPreferenceClause(handle.text)
+        &&!deferredPursuitClause(handle.text)
         &&!/^我(?:今天|现在|目前|这次)?(?:只想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说说|说点|倾诉|吐槽|陪我)/.test(handle.text)
         &&!/^我.{0,6}不想(?:再|继续)?(?:聊|说|讨论)/.test(handle.text)
         &&!/^我想把(?:验证问题|访谈问题|提问|这个问题)/.test(handle.text)
@@ -640,8 +641,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // NP_NEG_01 / BS_RESOURCE_01: optional model deltas omitted explicit status.
     // Retain only the speaker's guarded verbatim status, never an experience,
     // inferred cause, goal or completion. Corrections and controls keep authority.
-    const explicitTaskFacts=[...negativePersonalFactClauses(current.content).filter(clause=>/(?:没(?:有)?|尚未|还未|未)(?:开始|完成|做|复习|准备|交付|发送)/.test(clause.text)),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content)]
-    const taskFactSupplement=contract.capabilities.growth?explicitTaskFacts.filter(clause=>
+    const explicitTaskFacts=[...negativePersonalFactClauses(current.content).filter(clause=>/(?:没(?:有)?|尚未|还未|未)(?:开始|完成|做|复习|准备|交付|发送)/.test(clause.text)),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&/^我想把(?:验证问题|访谈问题|提问|这个问题)改成[“「『]/.test(c.text))]
+    const taskFactSupplement=snapshot.settings.enabled?explicitTaskFacts.filter(clause=>
       !controlClauseTexts.includes(clause.text)&&
       !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&
       !growthAll.some(item=>item.status==='active'&&!item.unavailableReason&&item.text===clause.text)

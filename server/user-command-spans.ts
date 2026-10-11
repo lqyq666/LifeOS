@@ -21,8 +21,13 @@ type Protected={start:number;end:number;kind:'quote'|'code'}
 
 // Preferences for this conversation are not goals or autobiographical facts.
 export function conversationPreferenceClause(text:string):boolean{
+ text=text.trim().replace(/^(?:也|并且|而且)/,'')
  if(/^我(?:现在|这次)?不想继续了[。！!\s]*$/.test(text.trim()))return true
- return /^(?:我(?:今天|现在|目前|这次|最近)?(?:只想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说(?:说|一下|点)|倾诉|吐(?:个)?槽|陪我)|(?:请|麻烦)?(?:先|暂时)?(?:不要|不用|不想|不需要|别)(?:再)?(?:给(?:我)?|帮我(?:想)?)?(?:建议|推荐|方法|办法|做法|练法|学法|写法|攻略|行动|复盘)|(?:先)?听我说)/.test(text.trim())
+ return /^(?:我(?:今天|现在|目前|这次|最近)?(?:只想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说(?:说|一下|点)|倾诉|吐(?:个)?槽|陪我)|(?:请|麻烦)?(?:先|暂时)?(?:不要|不用|不想|不需要|别)(?:再)?(?:给(?:我)?|帮我(?:想)?)?(?:别的|其他)?(?:建议|推荐|方法|办法|做法|练法|学法|写法|攻略|行动|复盘)|(?:先)?听我说)/.test(text.trim())
+}
+// Deferring a named alternative records a boundary, not an active pursuit.
+export function deferredPursuitClause(text:string):boolean{
+ return /(?:稍后|以后|之后|改天)再(?:看|说)|(?:暂时|暂|先)不(?:推进|继续|安排|扩大)/.test(text)
 }
 export function currentConversationOnly(text:string):boolean{
  const own=scanUserClauses(text).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&!c.quoteSpans.length)

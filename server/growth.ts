@@ -357,6 +357,8 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
     await checkCampusSource(pool,run.user_id,run.conversation_id,true,{type:'message',id:delta.source.messageId,quote:delta.source.quote})
     if(delta.assertion==='user_reported'&&(!delta.text.trim()||delta.text.length>4000||!delta.source.quote.includes(delta.text)))throw new HttpError(400,'GROWTH_SOURCE_INVALID')
     if(delta.assertion==='user_reported'&&delta.kind==='feedback'){
+      // Declining the next attempt does not erase an already performed one.
+      if(/(?:暂时|先)不继续|不想继续|拒绝继续/.test(delta.source.quote))delta.progressState='unknown'
       // Preserve a genuine adoption report even when a provider incorrectly
       // labels it as execution. Willingness alone proves no action state.
       const reports=scanUserClauses(delta.source.quote).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.interrogative&&!c.attributedToOther)
