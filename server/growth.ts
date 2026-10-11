@@ -13,8 +13,8 @@ import type { GrowthDelta,ResolvedGrowthDelta } from './growth-model-contracts.t
 import type { Run } from './store.ts'
 import { reconcileThemesWithGrowth, projectUserThemes } from './user-themes.ts'
 import {reconcileIdentityClaims,projectIdentityClaims} from './identity.ts'
-import {hoursIn} from './turn-obligations.ts'
-import {deferredPursuitClause,refusalPreferenceClause} from './user-command-spans.ts'
+import {hoursIn,applicableTimeBudget} from './turn-obligations.ts'
+import {deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause} from './user-command-spans.ts'
 import {matchPathTheme} from './path-lexicon.ts'
 import {persistMemoryControl} from './memory-controls.ts'
 import {clauseReportsAttempted} from './experience-content.ts'
@@ -33,9 +33,10 @@ function expiry(value: string | null | undefined): Date | null {
 }
 function item(row: Row, reason: string | null = null): GrowthItem {
   const hidden = row.status === 'forgotten' || reason === 'source_revoked'
+  const taskBoundary=!hidden&&row.assertion==='user_reported'&&scopedTaskPauseClause(row.text)?{kind:'pause' as const,scope:'current_matter' as const,targetText:(row.text.includes('备考')?'备考':'复习') as '备考'|'复习',sourceConversationId:row.conversation_id,sourceMessageId:row.sources.find(source=>source.type==='message')?.id??null,matterBinding:'needs_same_matter_confirmation' as const,expiresAt:row.valid_until?.toISOString()??null,quote:row.text}:undefined
   return { id: row.id, conversationId: row.conversation_id, kind: row.kind, text: hidden ? '' : row.text, assertion: row.assertion,
     status: reason && reason!=='not_yet_active' && ['active','proposed'].includes(row.status) ? 'stale' : row.status, sources: hidden ? [] : row.sources, dependencies: hidden ? [] : row.dependencies,
-    validUntil: row.valid_until?.toISOString() ?? null, validFrom: row.valid_from?.toISOString() ?? null, timeBasis: row.time_basis ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null,directionScopes:row.direction_scopes??[],structuredPlan:hidden?null:row.structured_plan??null }
+    validUntil: row.valid_until?.toISOString() ?? null, validFrom: row.valid_from?.toISOString() ?? null, timeBasis: row.time_basis ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null,directionScopes:row.direction_scopes??[],structuredPlan:hidden?null:row.structured_plan??null,...(taskBoundary?{taskBoundary}:{}) }
 }
 async function availability(c: DB, user: string, row: Row, rows: Map<string, Row>, memoryEnabled: boolean, conversation?: string, seen = new Set<string>()): Promise<string | null> {
   if (['forgotten', 'stale'].includes(row.status)) return row.status === 'forgotten' ? 'source_revoked' : 'changed'
@@ -257,6 +258,15 @@ const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
 const toFragmentSources=(sources:GrowthItem['sources']):Source[]=>sources.map(source=>source.type==='message'?{type:'message',id:source.id,quote:source.quote}:{type:'user_edit',quote:source.quote})
 export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],authorized:GrowthItem[],options:{allowedDirectionScopes?:readonly string[]}={}):Promise<GrowthStaged> {
   const current=requireRow((await pool.query("SELECT content,created_at FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[run.user_id,run.conversation_id,run.source_message_id])).rows[0]) as {content:string;created_at:Date}
+  changes=changes.map(change=>{
+    if(change.assertion!=='user_reported'||!scopedTaskPauseClause(change.source.quote))return change
+    const own=scanUserClauses(current.content).find(clause=>clause.text===change.source.quote&&!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative)
+    if(!own)return change
+    const budget=applicableTimeBudget(current.content,undefined,undefined,{retainReportedBudget:true})
+    const token=budget?.period==='next_week'?'下周':budget?.period==='this_week'?(/本周/.test(budget.quote)?'本周':'这周'):null
+    if(token&&sameSentence(current.content,own.start,current.content.indexOf(budget!.quote)))return {...change,kind:'constraint',timeEvidence:{kind:'calendar_week',which:budget!.period==='next_week'?'next':'this',quote:token}} as ResolvedGrowthDelta
+    return {...change,kind:'context'} as ResolvedGrowthDelta
+  })
   // Models routinely re-assert facts the user already stated in an earlier
   // message of this conversation, binding the old quote to the current message
   // id. Those items are dropped idempotently instead of failing the turn:

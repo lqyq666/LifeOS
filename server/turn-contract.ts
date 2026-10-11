@@ -7,7 +7,7 @@
 // narrows what the model is offered.
 
 import { actionCoachTurnSchema } from './action-coach-contracts.ts'
-import { scanUserClauses,currentConversationOnly,conversationPreferenceClause,refusalPreferenceClause } from './user-command-spans.ts'
+import { scanUserClauses,currentConversationOnly,conversationPreferenceClause,refusalPreferenceClause,scopedTaskPauseClause } from './user-command-spans.ts'
 
 export type TurnContractMode='reply_only'|'reply_growth'|'event'|'knowledge'|'planning'|'material'
 export type TurnContractCapabilities={
@@ -74,7 +74,7 @@ export function resourceBlockedPersonalFactClauses(text:string){
 export function reportedTaskBoundaryClauses(text:string){
  const clauses=anchorablePersonalClauses(text)
  return clauses.filter(clause=>refusalPreferenceClause(clause.text)
-  ||/^(?:我(?:现在|暂时)?)?(?:先|暂时)不(?:备考|复习)(?:了)?$/.test(clause.text)
+  ||scopedTaskPauseClause(clause.text)
   ||(/^(?:但)?第[一二三四五六七八九十\d]+(?:道|个)?题(?:不会做|不会|不懂|没思路)$/.test(clause.text)
    &&clauses.some(other=>other.sentenceStart===clause.sentenceStart&&/(?:我|本人)/.test(other.text))))
 }

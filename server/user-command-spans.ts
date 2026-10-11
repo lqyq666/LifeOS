@@ -23,6 +23,9 @@ type Protected={start:number;end:number;kind:'quote'|'code'}
 export function refusalPreferenceClause(text:string):boolean{
  return /^(?:我|这事|这件事|这次|上次那件事)(?:现在|暂时|先|这次)?不想继续(?:了)?[。！!\s]*$/.test(text.trim())
 }
+export function scopedTaskPauseClause(text:string):boolean{
+ return /^(?:我(?:现在|暂时)?)?(?:先|暂时)不(?:备考|复习)(?:了)?$/.test(text.trim())
+}
 export function conversationPreferenceClause(text:string):boolean{
  text=text.trim().replace(/^(?:也|并且|而且)/,'')
  if(refusalPreferenceClause(text))return true
