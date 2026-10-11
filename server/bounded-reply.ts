@@ -1,5 +1,6 @@
 import {scanUserClauses,currentConversationOnly} from './user-command-spans.ts'
 import {reportedPerformedTaskClauses} from './turn-contract.ts'
+import {hoursIn} from './turn-obligations.ts'
 import type {KnowledgeIntent} from './evergreen-guide.ts'
 import type {TurnContract} from './turn-contract.ts'
 
@@ -29,6 +30,11 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  if(currentConversationOnly(input.text))return make('reported_result','本人愿意表达的内容；不推测感受或原因',[
   '我在听。你接着说，按你想说的节奏来。',
   '嗯，我在这儿听着。你想先说什么都可以。',
+ ])
+ const demanded=clauses.find(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&/需要每周/.test(c.text))
+ const demandMinutes=demanded?hoursIn(demanded.text):null
+ if(demandMinutes!==null&&input.verifiedBudget&&demandMinutes>input.verifiedBudget.minutes)return make('blocked','机会能否缩小或推迟，后续周时间是否不同',[
+  `这个机会要求每周${demandMinutes}分钟，你报告的${input.verifiedBudget.period==='next_week'?'下周':'本周'}可用时间是${input.verifiedBudget.minutes}分钟，当前时段不足以按原范围投入。先核对能否缩小或推迟；已明确的优先事项继续保留，其他周的条件仍未知。`,
  ])
  if(/我.{0,20}优先/.test(own)&&!/(?:怎么|如何|怎样|比较|取舍)/.test(own))return make('reported_result','新的优先事项需要什么帮助',[
   '先按你刚说的优先事项来，其他方向不继续加任务。已报告的经历保留；接下来可以只处理当前优先的事情。',
@@ -62,7 +68,7 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '先写清一个拟交付的东西和谁会使用它，再把还需对方确认的范围留作问题。这里是编辑建议，尚未接单或交付；你想提供哪一种服务？',
   '先核对一个具体需求：对方要拿交付物做什么，哪些内容由你完成，哪些还没有约定。没有实际客户时先从拟提供的服务开始，不把探索算成接单。你想交付什么？',
  ])
- if(input.verifiedBudget&&(/(?:预算|平衡)/.test(own)||(/课程/.test(own)&&/(?:备考|复习)/.test(own)&&/取舍/.test(own)))&&/(?:怎么|如何|怎样)/.test(own)){
+ if(input.verifiedBudget&&(/(?:预算|平衡)/.test(own)||(/课程/.test(own)&&/(?:备考|复习)/.test(own)&&/(?:取舍|重新判断)/.test(own)))&&/(?:怎么|如何|怎样|重新判断)/.test(own)){
   const label=input.verifiedBudget.period==='next_week'?'下周':input.verifiedBudget.period==='this_week'?'本周':/每周/.test(input.verifiedBudget.quote)?'常规每周':'当前时段'
   return make('start','本次课程与其他目标各自最需要完成的一项',[
    `以你明确的${label}${input.verifiedBudget.minutes}分钟为上限，先列课程和其他目标各一项必须处理的事，再判断取舍，不要求用满。现在有没有已确定的课程任务或备考事项？`,

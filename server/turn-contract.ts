@@ -171,13 +171,20 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
 // The authoritative obligation has already resolved the student's current
 // event and week. Constrain generation before dispatch; never discard illegal
 // model tasks after the fact or ask the student to confirm an explicit zero.
-export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:number;period:string}|undefined):TurnContract{
+export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:number;period:string}|undefined,currentText=''):TurnContract{
  if(!budget||!contract.capabilities.plan)return contract
  const schema=structuredClone(contract.schema) as any
  const plan=schema.properties.weeklyPlan
  schema.required=[...new Set([...(schema.required??[]),'weeklyPlan'])]
  plan.properties.availableMinutes={type:'integer',enum:[budget.minutes]}
  plan.properties.period={type:'string',enum:[budget.period]}
+ if(budget.minutes>1&&/课程/.test(currentText)&&/备考/.test(currentText)){
+  const courseMinutes=Math.floor(budget.minutes/2)
+  plan.properties.items.enum=[[
+   {action:'课程：核对当前必须完成的任务与截止，先处理其中最紧要的一项',minutes:courseMinutes,directionScopes:[]},
+   {action:'备考：沿用当前进度，尝试一个具体题目或步骤并记录受阻处',minutes:budget.minutes-courseMinutes,directionScopes:[]},
+  ]]
+ }
  if(budget.minutes===0){
   plan.properties.items.maxItems=0
   schema.properties.reply={type:'string',enum:[budget.period==='next_week'?'下周没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。':'当前安排的时段没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。']}

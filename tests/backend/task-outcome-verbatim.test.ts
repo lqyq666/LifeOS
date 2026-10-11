@@ -149,5 +149,19 @@ test('omitted read/response/adoption reports persist independently and remain in
   const offResult=await engine({run:off,staged:offStaged,context:await store.contextForRun(off),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(off,offStaged,offResult.text,offResult.usage,new AbortController().signal)
   assert.equal((await pool.query('SELECT count(*)::int AS n FROM growth_items WHERE user_id=$1 AND sources @> $2::jsonb',[user,JSON.stringify([{type:'message',id:off.source_message_id}])])).rows[0].n,0)
+  const contactUser='generic-contact-'+randomUUID()
+  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[contactUser,contactUser+'@example.invalid'])
+  await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1)',[contactUser])
+  for(const text of ['我想向学长丙请教项目课对实习的帮助。','按上次办法，我已经发了消息，三天还没有回复。','我通过学校邮箱请教学长丙，原请求是想知道项目课能否提供实习作品。对方已经读了，但没有回复。']){
+   const conversation=randomUUID();await store.createConversation(contactUser,{id:conversation,title:'synthetic contact continuity'})
+   const run=(await store.startRun(contactUser,conversation,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
+   outputs.push({reply:boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})?.choices[0]??'先保留当前请教目标。'})
+   const result=await engine({run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}})
+   await store.finishRun(run,staged,result.text,result.usage,new AbortController().signal)
+  }
+  const genericExperience=(await store.cognitionGraph(contactUser)).nodes.find((n:any)=>n.type==='experience') as any
+  assert.equal(genericExperience.taskOutcomes.read.status,'reported_read')
+  assert.equal(genericExperience.taskOutcomes.response.status,'reported_no_response')
+  for(const outcome of ['adoption','payment','effect'])assert.equal(genericExperience.taskOutcomes[outcome].status,'unknown')
  }finally{model.baseUrl=oldUrl;config.apiKey=oldKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()));await localEmbedding.close();await pool.end()}
 })

@@ -16,7 +16,7 @@ import { persistDirectionControls, readDirectionControls, directionControlsSnaps
 import { persistMemoryControl, persistPendingControlRequest, type MemoryControlReceipt, type PendingMemoryControl, type StagedMemoryControl } from './memory-controls.ts'
 import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
 import { derivePatternProposals } from './experience-patterns.ts'
-import { findEpisode, mergeContent } from './experience-episodes.ts'
+import { findEpisode, mergeContent,timeContradiction } from './experience-episodes.ts'
 import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth } from './user-themes.ts'
 import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction } from './identity.ts'
 import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
@@ -184,7 +184,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     for(const ref of knowledgeRefs)await c.query('INSERT INTO coach_reply_sources(user_id,request_id,source_id,revision) VALUES($1,$2,$3,$4)',[run.user_id,run.request_id,ref.sourceId,ref.revision])
     const coach=staged.coach?await persistCoachEvent(c,run,staged.coach):null
     if(staged.guideUsage?.length)await persistGuideUsage(c,run,staged.guideUsage)
-    const growth=staged.growth?await persistGrowthUpdates(c,run,staged.growth):null
+    let growth=staged.growth?await persistGrowthUpdates(c,run,staged.growth):null
     // 主题投影：本轮已提交的 growth 事实（用户亲述的目标/方向/优先级/偏好）
     // 确定性上投影为“我的成长主题”；随后的经历再挂到主题上。同一事务、
     // 零新增模型调用。
@@ -216,7 +216,12 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       await c.query("INSERT INTO growth_revisions(user_id,item_id,revision,action,snapshot) VALUES($1,$2,1,'server_capture',$3)",[run.user_id,id,JSON.stringify({text:budget.text,quote:budget.quote,reason:'explicit weekly budget clause not covered by model growth lane'})])
       serverBudgetIds.push(id)
     }
-    const themeFactIds=[...(growth?.createdIds??[]),...(growth?.changedIds??[]),...serverGoalIds,...serverBudgetIds,...(workflowCommit?[workflowCommit.itemId]:[])]
+    if(serverGoalIds.length||serverBudgetIds.length){
+      growth??={ids:[],createdIds:[],changedIds:[],retainedIds:[],byInputIndex:new Map()}
+      growth.ids.push(...serverGoalIds,...serverBudgetIds)
+      growth.createdIds.push(...serverGoalIds,...serverBudgetIds)
+    }
+    const themeFactIds=[...new Set([...(growth?.createdIds??[]),...(growth?.changedIds??[]),...(workflowCommit?[workflowCommit.itemId]:[])])]
     let themeChangedIds:string[]=[];let facts:any[]=[]
     if(themeFactIds.length){
       facts=(await c.query('SELECT id,kind,text,assertion,status FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])',[run.user_id,themeFactIds])).rows
@@ -441,6 +446,23 @@ export async function cognitionGraph(user:string) {
   const outcomeSources=(await pool.query("SELECT sources FROM growth_items WHERE user_id=$1 AND status='active'",[user])).rows
   const outcomeMessageIds=[...new Set<string>(outcomeSources.flatMap(row=>(row.sources??[]).filter((s:any)=>s.type==='message').map((s:any)=>String(s.id))))]
   const outcomeMessages=(await pool.query("SELECT m.id,m.content FROM messages m WHERE m.user_id=$1 AND m.id=ANY($2::uuid[]) AND m.role='user' AND NOT EXISTS(SELECT 1 FROM memory_suppressions s WHERE s.user_id=m.user_id AND s.source_message_id=m.id) ORDER BY m.created_at,m.id",[user,outcomeMessageIds])).rows
+  // A short performed action can inherit identity from one earlier, explicit
+  // personal contact intention in its own session, or an explicit prior-action
+  // back-reference while memory is enabled. It remains identity context,
+  // never proof of action or effect. Multiple intentions stay ambiguous.
+  const contactIntentions=(await pool.query(`SELECT g.conversation_id,g.text,m.created_at FROM growth_items g
+   JOIN messages m ON m.user_id=g.user_id AND EXISTS(SELECT 1 FROM jsonb_array_elements(g.sources) s WHERE s->>'type'='message' AND s->>'id'=m.id::text)
+   WHERE g.user_id=$1 AND g.kind IN ('goal','context') AND g.status='active' AND g.assertion='user_reported' AND m.role='user'
+   AND EXISTS(SELECT 1 FROM user_memory_settings WHERE user_id=$1 AND enabled=true)
+   AND NOT EXISTS(SELECT 1 FROM memory_suppressions s WHERE s.user_id=m.user_id AND s.source_message_id=m.id)
+   AND NOT EXISTS(SELECT 1 FROM growth_source_suppressions s WHERE s.user_id=m.user_id AND s.message_id=m.id AND strpos(g.text,s.quote)>0)`,[user])).rows
+  const identityEpisodes=experiences.map(episode=>{
+   if(!/发了消息|发了邮件|发了封邮件/.test(episode.source_quote??'')||/(?:学长|学姐|导师|老师|客户|同学)[甲乙丙丁A-Z]/.test(episode.source_quote??''))return episode
+   const contexts=contactIntentions.filter(g=>(g.conversation_id===episode.conversation_id||/按上次|上次那|之前说的/.test(episode.source_quote??''))&&g.created_at<=episode.created_at&&scanUserClauses(g.text).some(c=>!c.quoted&&!c.code&&!c.conditional&&!c.interrogative&&!c.attributedToOther&&/(?:想|打算|决定).{0,12}(?:请教|联系)|(?:想|打算|决定).{0,4}(?:向|给).{0,12}(?:请教|联系)/.test(c.text)&&/(?:学长|学姐|导师|老师|同学)[甲乙丙丁A-Z]/.test(c.text)))
+   const localContexts=contexts.filter(g=>g.conversation_id===episode.conversation_id)
+   const identityContexts=localContexts.length?localContexts:contexts
+   return identityContexts.length===1?{...episode,identityOriginalQuote:episode.source_quote,source_quote:identityContexts[0].text.replace(/^(?:我|本人)/,'')}:episode
+  })
   // 登录图的核心节点是“当前自我”+该用户自己的成长主题（最多三个，不足不
   // 强制）。固定三维度不再作为展示节点；experience_links 的 value 通道继续
   // 作为内部辅助分类写入，只是不出现在图上。
@@ -474,7 +496,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
     const taskOutcomes=taskOutcomeReadback('') as Record<string,any>
     for(const message of outcomeMessages){
       const taskIdentity=scanUserClauses(message.content).find(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|交给|访谈|聊过|问了|问过)/.test(clause.text))?.text??''
-      const matches=experiences.filter(episode=>findEpisode([episode],message.content,taskIdentity,''))
+      const matches=identityEpisodes.filter(episode=>!timeContradiction(episode.identityOriginalQuote??episode.source_quote,message.content)&&findEpisode([episode],message.content,taskIdentity,''))
       if(message.id!==e.source_message_id&&(matches.length!==1||matches[0].id!==e.id))continue
       const authorizedQuotes=new Set<string>(outcomeSources.flatMap(row=>(row.sources??[]).filter((s:any)=>s.type==='message'&&s.id===message.id).map((s:any)=>String(s.quote))))
       for(const [key,outcome] of Object.entries(taskOutcomeReadback(message.content,authorizedQuotes)))if(outcome.status!=='unknown')taskOutcomes[key]={...outcome,sourceMessageId:message.id}

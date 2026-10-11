@@ -420,7 +420,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // the validator can never disagree about the lane.
   const materialIntent=resumePortfolioMode||deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
   const planBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
-  const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,currentEventExists:currentEvent!==null,planIntent,material:materialIntent}),planBudget?.type==='weekly_plan'?planBudget:undefined)
+  const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,currentEventExists:currentEvent!==null,planIntent,material:materialIntent}),planBudget?.type==='weekly_plan'?planBudget:undefined,current.content)
   const zeroBudgetChoices=(originalContract.schema.properties as any).reply.enum as string[]|undefined
   const verifiedBudget=applicableTimeBudget(current.content)
   const boundedReply:BoundedReply|null=planBudget?.type==='weekly_plan'&&planBudget.minutes===0?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'可用时间改变后再调整；不重复询问明确零时间',choices:zeroBudgetChoices!}:planBudget?.type==='weekly_plan'&&route.tier==='default'&&!materialIntent?boundedPlanningReply(planBudget):boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier,...(verifiedBudget?{verifiedBudget:{minutes:verifiedBudget.amountMinutes,period:verifiedBudget.period,quote:verifiedBudget.quote}}: {})})

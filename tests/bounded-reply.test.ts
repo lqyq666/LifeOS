@@ -1,5 +1,21 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import {deliverableIntent} from '../server/action-coach-events.ts'
+import {bindPlanBudgetSchema} from '../server/turn-contract.ts'
+
+test('new real chain failures: discovery is not sending and next-week judgment stays scoped',()=>{
+ assert.equal(deliverableIntent('我是成年大学生，想做一个校园产品。我想先发现值得解决的问题，怎么开始？','create'),false)
+ assert.equal(deliverableIntent('我想先发一封邮件。','create'),true)
+ const future=make('下周我有六小时可用，我想重新判断课程与备考。',{verifiedBudget:{minutes:360,period:'next_week',quote:'下周我有六小时可用'}})!
+ assert.ok(future.choices.every(s=>s.includes('下周')&&!s.includes('这周')))
+ const mismatch=make('我收到一个新的海报机会，需要每周十小时。我本周只有两小时，仍然就业优先。',{verifiedBudget:{minutes:120,period:'this_week',quote:'我本周只有两小时'}})!
+ assert.ok(mismatch.choices.every(s=>s.includes('600分钟')&&s.includes('120分钟')&&s.includes('不足')))
+ const contract=deriveTurnContract({text:'请帮我安排本周课程与备考。',knowledgeCount:0,currentEventExists:false,planIntent:true,material:false})
+ const schema=bindPlanBudgetSchema(contract,{minutes:120,period:'this_week'},'请帮我安排本周课程与备考。').schema as any
+ const candidate=schema.properties.weeklyPlan.properties.items.enum[0]
+ assert.equal(candidate.length,2);assert.equal(candidate.reduce((n:number,x:any)=>n+x.minutes,0),120)
+ assert.ok(candidate[0].action.includes('课程')&&candidate[1].action.includes('备考'))
+})
 import {boundedOrdinaryReply,boundedPlanningReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts} from '../server/bounded-reply.ts'
 
 test('planning first content is bound to the verified period and budget, never a saved or executed claim',()=>{
