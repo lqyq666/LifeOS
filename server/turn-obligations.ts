@@ -377,7 +377,7 @@ export function verifyReplyAgainstObligations(obligations:TurnObligations,reply:
       // the user's week total in its own voice; planning allocations inside
       // the budget (D01:4 两小时里剩下约1小时) never do. A weekly amount
       // never contradicts a remaining one (每周6小时 with 这周剩2小时 is normal).
-      for(const match of reply.matchAll(/(?:只)?还?剩(?:下|着)?[^，,。；;！？!\n]{0,6}((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头))/g)){
+      for(const match of reply.matchAll(/(?:只)?还?剩(?:下|着)?[^，,。；;！？!\n]{0,6}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头))/g)){
         const stated=remainingMinutes(match[1]!)
         if(stated===null||stated===effect.minutes)continue
         const before=reply.slice(Math.max(0,match.index-10),match.index)

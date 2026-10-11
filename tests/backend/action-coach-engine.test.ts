@@ -307,7 +307,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
     })
     await t.test('a rejected draft is withdrawn before one bounded repair produces the saved answer',async()=>{
-      const input=await prepare('我今天卡住了，但还没有解释经过。'),events:any[]=[]
+      const input=await prepare('我今天有些困惑，但还没有解释经过。'),events:any[]=[]
       input.emit=(event:any)=>events.push(event)
       outputs.push({reply:'你想先说哪一步卡住了？',event:{target:{operation:'create',title:'不可靠来源',source:{messageId:input.run.source_message_id,quote:'不是用户原话'}}}},{reply:'可以从你愿意讲的部分开始。'})
       const result=await engine(input)
@@ -407,7 +407,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
       for(const explicit of [true,false]){
         const text='我想明天询问同学是否还需要资料。'+(explicit?'请保存为经历。':''),input=await prepare(text),source={messageId:input.run.source_message_id,quote:text},before=requests.length
         const event={target:{operation:'create',title:'询问资料需要',source},action:{operation:'create',draft:{content:'你现在还需要资料吗？'}}}
-        outputs.push({reply:explicit?'可以这样问：':'已保存这段经历。',event,experienceCandidate:{source:{clauseIds:['c0']}}},{reply:'这只是未来计划，不能保存为已发生经历。可使用下面的消息：',event})
+        outputs.push({reply:explicit?'可以这样问：':'已保存这段经历。可以这样问：',event,experienceCandidate:{source:{clauseIds:['c0']}}},{reply:'这只是未来计划，不能保存为已发生经历。可使用下面的消息：',event})
         const result=await engine(input)
         assert.equal(requests.length-before,2);assert.equal((result.usage as any).repairReason,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
         assert.match(requests.at(-1).messages[0].content,/具体修复要求：Omit experienceCandidate entirely/)

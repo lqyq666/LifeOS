@@ -213,3 +213,12 @@ test('P2-1: explicit corrections carry a required, deterministic state change',(
   const unrelated=planExplicitCorrection('更正一下：我是大二，刚才说成大三了。',[{id:'g-other',revision:1,kind:'context' as const,assertion:'user_reported',text:'我喜欢视觉设计，每周能投入六小时。'}])
   assert.equal(unrelated?.target,undefined)
 })
+
+test('new real first failures: one-and-a-half remainder is not thirty minutes and scoped zero can persist from its amount clause',()=>{
+ const text='我这周只剩一个半小时，课程和备考怎么取舍？先别都铺开。',obligations=deriveTurnObligations(text)
+ assert.doesNotThrow(()=>verifyReplyAgainstObligations(obligations,'这周只剩一个半小时，课程和备考各有什么硬截止？'))
+ assert.throws(()=>verifyReplyAgainstObligations(obligations,'这周只剩半小时。'),/REPLY_CONTRADICTS_CURRENT_EFFECT/)
+ const zero=deriveTurnObligations('这周后面都排满了，能用的时间是零。下周大概有四小时，先不排具体任务。')
+ const deltas=supplementMissingBudgetDeltas(zero,undefined,'00000000-0000-4000-8000-000000000001','这周后面都排满了，能用的时间是零。下周大概有四小时，先不排具体任务。')
+ assert.ok(deltas.some(d=>d.source.quote==='能用的时间是零'))
+})
