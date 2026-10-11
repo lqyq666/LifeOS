@@ -1,0 +1,711 @@
+{
+  "kind": "REAL_AUTH_HTTP_PG_NORMAL_UI_SIMULATED_PROVIDER_ONLY",
+  "paidProviderCalls": 0,
+  "realModelQuality": "NOT_TESTED_BY_THIS_UI_PROOF",
+  "runtime": {
+    "service": "LifeOS",
+    "head": "321197eef40780643b8d7c5189198c9e06cf927c",
+    "versionSource": "git",
+    "skillVersion": "1.2.2-candidate",
+    "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+    "workflowVersion": "v2-integration",
+    "sourceDigest": "61512fbe602bed69025ab0eed900a062412301dd653bfcd208b43e764b5fceda",
+    "sourceFreezeDigest": "6d1864ed90ff4e79130302ea8e2e7b533ee69ffe4ee6927fe5e63f6e649b98c7",
+    "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+    "sourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+    "contentEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+    "skills": [
+      {
+        "name": "lifeos-direction-analysis",
+        "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+        "version": "0.2.0-candidate"
+      },
+      {
+        "name": "lifeos-action-review",
+        "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+        "version": "0.2.0-candidate"
+      },
+      {
+        "name": "lifeos-experience-evidence",
+        "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+        "version": "0.2.0-candidate"
+      },
+      {
+        "name": "lifeos-guide-application",
+        "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+        "version": "0.2.0-candidate"
+      },
+      {
+        "name": "lifeos-growth-diff",
+        "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+        "version": "0.2.0-candidate"
+      }
+    ],
+    "loadedAt": "2026-10-11T01:47:12.231Z",
+    "contractGeneration": "p4+workflow-v2",
+    "growthApi": true
+  },
+  "conversations": [
+    {
+      "id": "13ef3d72-6f87-4c1b-aa68-c95b5e934685",
+      "user_id": "NLyGcHdKZrjaXARriKFH1Y4oS0hvX0pn",
+      "title": "我已经做过一单海报，对方有没有采用还不知道。我在就业和自由职",
+      "renamed": false,
+      "pinned": false,
+      "project_id": null,
+      "created_at": "2026-10-11T01:48:48.677Z",
+      "updated_at": "2026-10-11T01:50:05.391Z",
+      "messages": [
+        {
+          "id": "3f549504-1ab3-4bde-a6a3-55377bd6f4b7",
+          "user_id": "NLyGcHdKZrjaXARriKFH1Y4oS0hvX0pn",
+          "conversation_id": "13ef3d72-6f87-4c1b-aa68-c95b5e934685",
+          "role": "user",
+          "content": "我已经做过一单海报，对方有没有采用还不知道。我在就业和自由职业之间犹豫，先帮我比较。",
+          "run_request_id": "62440347-d5e2-45ea-b7ca-6e62d031bef2",
+          "created_at": "2026-10-11T01:48:48.696Z"
+        },
+        {
+          "id": "2988a1dd-648c-4151-a019-47f3b1a62cdc",
+          "user_id": "NLyGcHdKZrjaXARriKFH1Y4oS0hvX0pn",
+          "conversation_id": "13ef3d72-6f87-4c1b-aa68-c95b5e934685",
+          "role": "assistant",
+          "content": "可以先从这件事开始。你希望我先听你说，还是一起理清最关键的不确定项？",
+          "run_request_id": "62440347-d5e2-45ea-b7ca-6e62d031bef2",
+          "created_at": "2026-10-11T01:48:56.708Z",
+          "stateChange": {
+            "plan": null,
+            "growth": {
+              "status": "not_requested",
+              "skipped": [],
+              "changedIds": [],
+              "createdIds": [],
+              "retainedIds": []
+            },
+            "themes": {
+              "changedIds": []
+            },
+            "controls": {
+              "effects": [],
+              "changedScopes": []
+            },
+            "material": null,
+            "workflow": null,
+            "growthDiff": [
+              {
+                "now": "新增的本人报告：我已经做过一单海报，对方有没有采用还不知道",
+                "before": "此前还没有这条任务记录。",
+                "change": "added",
+                "itemId": "6c308445-3edb-4c89-899b-ef2674124acd",
+                "unknowns": [
+                  "这次任务范围外的稳定能力与实际适配仍未知。"
+                ],
+                "evidenceRefs": [
+                  {
+                    "id": "6c308445-3edb-4c89-899b-ef2674124acd",
+                    "type": "experience",
+                    "revision": 2
+                  }
+                ],
+                "schemaVersion": 2,
+                "needsConfirmation": false
+              }
+            ],
+            "guideUsage": {
+              "items": [],
+              "status": "not_requested"
+            },
+            "experiences": {
+              "mergedIds": [],
+              "createdIds": [
+                "6c308445-3edb-4c89-899b-ef2674124acd"
+              ]
+            },
+            "memoryControl": null,
+            "growthDiffStatus": "applied"
+          }
+        },
+        {
+          "id": "079fca74-293d-44f7-b748-93c7dc1eac94",
+          "user_id": "NLyGcHdKZrjaXARriKFH1Y4oS0hvX0pn",
+          "conversation_id": "13ef3d72-6f87-4c1b-aa68-c95b5e934685",
+          "role": "user",
+          "content": "大概两小时吧，还是刚才这两条路。",
+          "run_request_id": "37d90a30-35e0-49af-b5a2-af1d29735833",
+          "created_at": "2026-10-11T01:49:37.224Z"
+        },
+        {
+          "id": "f133ff3b-1937-497f-b93d-591b9ef25d6e",
+          "user_id": "NLyGcHdKZrjaXARriKFH1Y4oS0hvX0pn",
+          "conversation_id": "13ef3d72-6f87-4c1b-aa68-c95b5e934685",
+          "role": "assistant",
+          "content": "可以先从这件事开始。你希望我先听你说，还是一起理清最关键的不确定项？",
+          "run_request_id": "37d90a30-35e0-49af-b5a2-af1d29735833",
+          "created_at": "2026-10-11T01:49:37.597Z",
+          "stateChange": {
+            "plan": null,
+            "growth": {
+              "status": "not_requested",
+              "skipped": [],
+              "changedIds": [],
+              "createdIds": [],
+              "retainedIds": []
+            },
+            "themes": {
+              "changedIds": []
+            },
+            "controls": {
+              "effects": [],
+              "changedScopes": []
+            },
+            "material": null,
+            "workflow": null,
+            "growthDiff": [],
+            "guideUsage": {
+              "items": [],
+              "status": "not_requested"
+            },
+            "experiences": {
+              "mergedIds": [],
+              "createdIds": []
+            },
+            "memoryControl": null,
+            "growthDiffStatus": "applied"
+          }
+        },
+        {
+          "id": "850856f0-5b0d-42ea-80dc-e0c4ceb23007",
+          "user_id": "NLyGcHdKZrjaXARriKFH1Y4oS0hvX0pn",
+          "conversation_id": "13ef3d72-6f87-4c1b-aa68-c95b5e934685",
+          "role": "user",
+          "content": "我采纳这个小探索计划，尚未执行：LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。",
+          "run_request_id": "40825c3c-fe18-4551-955e-c660e3d98009",
+          "created_at": "2026-10-11T01:50:05.332Z"
+        },
+        {
+          "id": "5c58ae21-14e7-4949-95ee-affe283494c7",
+          "user_id": "NLyGcHdKZrjaXARriKFH1Y4oS0hvX0pn",
+          "conversation_id": "13ef3d72-6f87-4c1b-aa68-c95b5e934685",
+          "role": "assistant",
+          "content": "已保存你采纳的小探索计划，状态为尚未执行。完成或遇到卡点后，可以在这里继续反馈。",
+          "run_request_id": "40825c3c-fe18-4551-955e-c660e3d98009",
+          "created_at": "2026-10-11T01:50:05.391Z",
+          "stateChange": {
+            "plan": null,
+            "growth": {
+              "status": "not_requested",
+              "skipped": [],
+              "changedIds": [],
+              "createdIds": [],
+              "retainedIds": []
+            },
+            "themes": {
+              "changedIds": [
+                "376f6e49-5f02-4478-af05-9eb275319457"
+              ]
+            },
+            "controls": {
+              "effects": [],
+              "changedScopes": []
+            },
+            "material": null,
+            "workflow": {
+              "kind": "action",
+              "index": 0,
+              "itemId": "0699c4de-b60d-43e2-a33d-468cfa219e74",
+              "status": "plan_saved",
+              "taskId": "6a26f023-cb81-4c7c-903f-1055022f531e",
+              "executed": false,
+              "revision": 1
+            },
+            "growthDiff": [
+              {
+                "now": "新增的本人报告：计划：LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。（已采纳，尚未执行）",
+                "before": "此前还没有这条任务记录。",
+                "change": "added",
+                "itemId": "0699c4de-b60d-43e2-a33d-468cfa219e74",
+                "unknowns": [
+                  "这条信息对其他事情的影响仍待本人核对。"
+                ],
+                "evidenceRefs": [
+                  {
+                    "id": "0699c4de-b60d-43e2-a33d-468cfa219e74",
+                    "type": "growth",
+                    "revision": 1
+                  }
+                ],
+                "schemaVersion": 2,
+                "needsConfirmation": false
+              }
+            ],
+            "guideUsage": {
+              "items": [],
+              "status": "not_requested"
+            },
+            "experiences": {
+              "mergedIds": [],
+              "createdIds": []
+            },
+            "memoryControl": null,
+            "growthDiffStatus": "applied"
+          }
+        }
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "6a26f023-cb81-4c7c-903f-1055022f531e",
+      "traceId": "6a26f023-cb81-4c7c-903f-1055022f531e",
+      "conversationId": "13ef3d72-6f87-4c1b-aa68-c95b5e934685",
+      "status": "plan_saved",
+      "question": "我已经做过一单海报，对方有没有采用还不知道。我在就业和自由职业之间犹豫，先帮我比较。",
+      "receipt": {
+        "skills": [
+          "lifeos-direction-analysis"
+        ],
+        "status": "persisted",
+        "costCny": 0.002,
+        "traceId": "6a26f023-cb81-4c7c-903f-1055022f531e",
+        "fallback": "none",
+        "proposal": {
+          "traceId": "6a26f023-cb81-4c7c-903f-1055022f531e",
+          "hypotheses": [],
+          "nextActions": [
+            {
+              "description": "LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。",
+              "directionId": "employment",
+              "evidenceRefs": [
+                {
+                  "id": "3f549504-1ab3-4bde-a6a3-55377bd6f4b7",
+                  "type": "message",
+                  "revision": 1
+                }
+              ],
+              "stopCondition": "个人依据（原话片段；完整条件见依据）：[未知] 我已经做过一单海报，对方有没有采用还不知道。我在就业和自由职业之间犹豫，先帮我比较。；仍需核对：单次经历不能证明稳定能力或长期适配。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限20分钟或发现必需材料缺失时停止；不自动对外联系。",
+              "estimatedMinutes": 20
+            }
+          ],
+          "alternatives": [
+            {
+              "pros": [],
+              "title": "就业与实习",
+              "unknowns": [
+                "本人原话（保留条件）：我已经做过一单海报，对方有没有采用还不知道。我在就业和自由职业之间犹豫，先帮我比较。",
+                "单次经历不能证明稳定能力或长期适配。"
+              ],
+              "tradeoffs": [
+                "就业与实习：先核对目标岗位和实际作品证据；在要求不清楚时，不承诺投递数量或就业结果。"
+              ],
+              "directionId": "employment",
+              "evidenceRefs": [
+                {
+                  "id": "3f549504-1ab3-4bde-a6a3-55377bd6f4b7",
+                  "type": "message",
+                  "revision": 1
+                }
+              ],
+              "weeklyMinutes": null
+            },
+            {
+              "pros": [],
+              "title": "自由职业",
+              "unknowns": [
+                "本人原话（保留条件）：我已经做过一单海报，对方有没有采用还不知道。我在就业和自由职业之间犹豫，先帮我比较。",
+                "单次经历不能证明稳定能力或长期适配。"
+              ],
+              "tradeoffs": [
+                "自由职业：交付、采用与付款分开；单次任务结果不自动推为稳定收入，先检查可复用证据。"
+              ],
+              "directionId": "freelance",
+              "evidenceRefs": [
+                {
+                  "id": "3f549504-1ab3-4bde-a6a3-55377bd6f4b7",
+                  "type": "message",
+                  "revision": 1
+                }
+              ],
+              "weeklyMinutes": null
+            }
+          ],
+          "evidenceRefs": [
+            {
+              "id": "3f549504-1ab3-4bde-a6a3-55377bd6f4b7",
+              "type": "message",
+              "quote": "我已经做过一单海报，对方有没有采用还不知道。我在就业和自由职业之间犹豫，先帮我比较。",
+              "revision": 1
+            },
+            {
+              "id": "079fca74-293d-44f7-b748-93c7dc1eac94",
+              "type": "message",
+              "quote": "大概两小时吧，还是刚才这两条路。",
+              "revision": 1
+            }
+          ],
+          "schemaVersion": 2,
+          "suggestedStateChanges": []
+        },
+        "reviewIssues": [
+          {
+            "text": "单次经历不能证明稳定能力或长期适配。",
+            "category": "unknown",
+            "severity": "uncertainty",
+            "resolution": "keep_unknown",
+            "evidenceRefs": [
+              {
+                "id": "3f549504-1ab3-4bde-a6a3-55377bd6f4b7",
+                "type": "message",
+                "revision": 1
+              }
+            ],
+            "affectedClaims": [
+              "e0"
+            ]
+          }
+        ],
+        "executionKind": "simulated_provider",
+        "providerCalls": 4,
+        "schemaVersion": 2,
+        "reservedCostCny": 0.528384
+      },
+      "commit": {
+        "usage": {
+          "source": "deterministic",
+          "llmCallCount": 0
+        },
+        "growthIds": [],
+        "memoryIds": [],
+        "requestId": "40825c3c-fe18-4551-955e-c660e3d98009",
+        "growthWrite": null,
+        "stateChange": {
+          "plan": null,
+          "growth": {
+            "status": "not_requested",
+            "skipped": [],
+            "changedIds": [],
+            "createdIds": [],
+            "retainedIds": []
+          },
+          "themes": {
+            "changedIds": [
+              "376f6e49-5f02-4478-af05-9eb275319457"
+            ]
+          },
+          "controls": {
+            "effects": [],
+            "changedScopes": []
+          },
+          "material": null,
+          "workflow": {
+            "kind": "action",
+            "index": 0,
+            "itemId": "0699c4de-b60d-43e2-a33d-468cfa219e74",
+            "status": "plan_saved",
+            "taskId": "6a26f023-cb81-4c7c-903f-1055022f531e",
+            "executed": false,
+            "revision": 1
+          },
+          "growthDiff": [
+            {
+              "now": "新增的本人报告：计划：LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。（已采纳，尚未执行）",
+              "before": "此前还没有这条任务记录。",
+              "change": "added",
+              "itemId": "0699c4de-b60d-43e2-a33d-468cfa219e74",
+              "unknowns": [
+                "这条信息对其他事情的影响仍待本人核对。"
+              ],
+              "evidenceRefs": [
+                {
+                  "id": "0699c4de-b60d-43e2-a33d-468cfa219e74",
+                  "type": "growth",
+                  "revision": 1
+                }
+              ],
+              "schemaVersion": 2,
+              "needsConfirmation": false
+            }
+          ],
+          "guideUsage": {
+            "items": [],
+            "status": "not_requested"
+          },
+          "experiences": {
+            "mergedIds": [],
+            "createdIds": []
+          },
+          "memoryControl": null,
+          "growthDiffStatus": "applied"
+        },
+        "candidateIds": [],
+        "dialoguePath": "direct",
+        "upstreamCalls": 0,
+        "decisionVersion": 0,
+        "themeChangedIds": [
+          "376f6e49-5f02-4478-af05-9eb275319457"
+        ],
+        "growthChangedIds": [],
+        "growthCreatedIds": [],
+        "memorySavedCount": 0,
+        "growthRetainedIds": [],
+        "mergedExperienceIds": []
+      },
+      "nodes": [
+        {
+          "id": "path:employment",
+          "role": "path_analyst",
+          "status": "succeeded",
+          "callId": "1026e19f-86a5-4503-8de6-fa63538285c3",
+          "providerCalls": 1,
+          "costCny": 0.0005,
+          "reservedCostCny": 0.132096,
+          "startedAt": "2026-10-11T01:49:47.520Z",
+          "finishedAt": "2026-10-11T01:49:47.949Z",
+          "providerUsage": null,
+          "inputRefDigest": "5b51c36ec420ec60872bdf55c4667779e7e584f3d517f23d707a7cc0bbf7c2ba",
+          "outputRefDigest": "1f7c087a7945f31c1a7f6bb202c842c31c5a3f77a609a406e97086dc1f8325b5",
+          "latencyMs": 429
+        },
+        {
+          "id": "path:freelance",
+          "role": "path_analyst",
+          "status": "succeeded",
+          "callId": "1ca01a7a-bbfc-42fc-89cf-dbdc43adcd45",
+          "providerCalls": 1,
+          "costCny": 0.0005,
+          "reservedCostCny": 0.132096,
+          "startedAt": "2026-10-11T01:49:47.520Z",
+          "finishedAt": "2026-10-11T01:49:48.089Z",
+          "providerUsage": null,
+          "inputRefDigest": "35c5c543c1f417173db5ac05700e23e2a0a72cb01544e212c89cc18d93f85234",
+          "outputRefDigest": "720e80a578e88552ef78576d5c3f75d32d470fb88418f0fbd5a6eaee02466b0a",
+          "latencyMs": 569
+        },
+        {
+          "id": "constraints",
+          "role": "constraint_validator",
+          "status": "succeeded",
+          "callId": "08763c72-af3d-4d0d-9131-f7e6ce1e083b",
+          "providerCalls": 0,
+          "costCny": 0,
+          "reservedCostCny": 0,
+          "startedAt": "2026-10-11T01:49:48.095Z",
+          "finishedAt": "2026-10-11T01:49:48.148Z",
+          "providerUsage": null,
+          "inputRefDigest": "292875723e635ed1b5d5cdcefbfbaf6260b61c58bc48e30f24eaaf5c5c89d25a",
+          "outputRefDigest": "359afa8d23252c5faa0d2255a556555281f8696bc42211c9e9efa4493454cede",
+          "latencyMs": 53
+        },
+        {
+          "id": "critic",
+          "role": "independent_critic",
+          "status": "succeeded",
+          "callId": "65127468-869c-4f23-ab8b-b5e03c768310",
+          "providerCalls": 1,
+          "costCny": 0.0005,
+          "reservedCostCny": 0.132096,
+          "startedAt": "2026-10-11T01:49:48.153Z",
+          "finishedAt": "2026-10-11T01:49:48.581Z",
+          "providerUsage": null,
+          "inputRefDigest": "57f32374e3a6c97eab6acfd71e1b08b04b5d8d58a6d07d575b1ea4fdcc8cd426",
+          "outputRefDigest": "4caa555baad76d520e50717404eec6794d8f08f4c5bd95f4cf4c20242f76e950",
+          "latencyMs": 428
+        },
+        {
+          "id": "critic_check",
+          "role": "evidence_guardian",
+          "status": "succeeded",
+          "callId": "dda24a6f-ddef-4bbd-8bf5-372b4c72610b",
+          "providerCalls": 0,
+          "costCny": 0,
+          "reservedCostCny": 0,
+          "startedAt": "2026-10-11T01:49:48.586Z",
+          "finishedAt": "2026-10-11T01:49:48.622Z",
+          "providerUsage": null,
+          "inputRefDigest": "3c245f3df346b96768933c629822d9afb33a19a77bbc85160bd6808160c89cf2",
+          "outputRefDigest": "c3c708db0a4a227e89b97fb0023bef44b3852e09baa711e122156b35f596a70a",
+          "latencyMs": 36
+        },
+        {
+          "id": "synthesis",
+          "role": "decision_synthesizer",
+          "status": "succeeded",
+          "callId": "ae57b541-1087-4745-aeae-ef30476b6b6c",
+          "providerCalls": 1,
+          "costCny": 0.0005,
+          "reservedCostCny": 0.132096,
+          "startedAt": "2026-10-11T01:49:48.626Z",
+          "finishedAt": "2026-10-11T01:49:49.007Z",
+          "providerUsage": null,
+          "inputRefDigest": "9166297457671046ccb836788252d8d55c7fd4702ec0ff8cca1d3029db1ac95a",
+          "outputRefDigest": "878b2f674adea34e4978aadd48eb69e6a9ddf0a41b5dd0ba164cae5ebc2674b5",
+          "latencyMs": 381
+        }
+      ],
+      "version": "61512fbe602bed69025ab0eed900a062412301dd653bfcd208b43e764b5fceda",
+      "executionKind": "simulated_provider"
+    }
+  ],
+  "growth": {
+    "memoryEnabled": false,
+    "items": [
+      {
+        "id": "0699c4de-b60d-43e2-a33d-468cfa219e74",
+        "conversationId": "13ef3d72-6f87-4c1b-aa68-c95b5e934685",
+        "kind": "priority",
+        "text": "计划：LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。（已采纳，尚未执行）",
+        "assertion": "user_edit",
+        "status": "active",
+        "sources": [
+          {
+            "type": "user_edit",
+            "quote": "计划：LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。（已采纳，尚未执行）"
+          }
+        ],
+        "dependencies": [],
+        "validUntil": null,
+        "validFrom": null,
+        "timeBasis": null,
+        "revision": 1,
+        "createdAt": "2026-10-11T01:50:05.391Z",
+        "updatedAt": "2026-10-11T01:50:05.391Z",
+        "unavailableReason": null,
+        "limitation": "",
+        "progressState": null,
+        "directionScopes": [],
+        "structuredPlan": null
+      }
+    ]
+  },
+  "cognition": {
+    "schemaVersion": "1.0.0",
+    "purpose": "当前登录用户的成长星图：主题来自本人陈述的目标与追求",
+    "notice": "主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。",
+    "rootId": "self-current",
+    "nodes": [
+      {
+        "id": "self-current",
+        "type": "self",
+        "title": "当前自我",
+        "description": "本次任务涉及：设计；稳定能力仍未知",
+        "identityAccepted": [],
+        "identityObservations": [],
+        "skillTags": [
+          {
+            "tag": "设计",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "id": "theme-376f6e49-5f02-4478-af05-9eb275319457",
+        "type": "value",
+        "title": "：LifeOS 编辑建议（未",
+        "description": "阶段追求 · 进行中\n来自你说的：「计划：LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。（已采纳，尚未执行）」",
+        "overviewOrder": 1,
+        "themeId": "376f6e49-5f02-4478-af05-9eb275319457",
+        "themeKind": "pursuit",
+        "themeStatus": "active",
+        "themePinned": false,
+        "themeRevision": 1,
+        "themeUpdatedAt": "2026-10-11T01:50:05.391Z",
+        "media": []
+      },
+      {
+        "id": "exp-6c308445-3edb-4c89-899b-ef2674124acd",
+        "type": "experience",
+        "tags": [],
+        "title": "我已经做过一单海报，对方有没有采用还不知道",
+        "action": "我已经做过一单海报",
+        "result": "",
+        "source": "用户对话原话",
+        "summary": "我已经做过一单海报，对方有没有采用还不知道",
+        "occurredAt": "",
+        "reflection": "",
+        "contentStatus": "auto_confirmed",
+        "evidenceStatus": "user_testimony",
+        "overviewOrder": 2,
+        "media": [],
+        "serverId": "6c308445-3edb-4c89-899b-ef2674124acd",
+        "serverRevision": 2,
+        "extractionSource": "model",
+        "conversationId": "13ef3d72-6f87-4c1b-aa68-c95b5e934685",
+        "conversationTitle": "我已经做过一单海报，对方有没有采用还不知道。我在就业和自由职",
+        "sourceMessageId": "3f549504-1ab3-4bde-a6a3-55377bd6f4b7",
+        "blocked": false,
+        "externalFeedback": false,
+        "skillTags": [
+          "设计"
+        ],
+        "insight": {
+          "headline": "这次记录涉及设计；它说明本次任务中的尝试。",
+          "evidence": "任务标签为设计，稳定能力仍需更多证据",
+          "relatedTitles": [],
+          "nextStep": "如果你愿意，可以聊聊这次经过增加了哪些信息、还缺哪些信息。",
+          "skillNote": "设计 · 本次任务标签，稳定能力仍待核对"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "has-376f6e49-5f02-4478-af05-9eb275319457",
+        "type": "HAS_VALUE",
+        "sourceId": "self-current",
+        "targetId": "theme-376f6e49-5f02-4478-af05-9eb275319457",
+        "status": "confirmed_structure"
+      }
+    ],
+    "viewConfig": {
+      "defaultMode": "overview",
+      "valueOrder": [
+        "theme-376f6e49-5f02-4478-af05-9eb275319457"
+      ],
+      "overviewExperienceOrder": [
+        "exp-6c308445-3edb-4c89-899b-ef2674124acd"
+      ],
+      "overviewRailCandidates": [
+        "value-creation",
+        "value-autonomy",
+        "value-growth"
+      ],
+      "overviewRailMeaning": "沿轨道浏览三个价值观；外围经历随空间轨道同步运行，仍可直接点击经历。",
+      "valueRailMeaning": "仅沿轨道浏览与当前价值观关联的经历。",
+      "autoplayInitially": false,
+      "showAllNodesInOverview": true,
+      "showAllEdgesAtFullOpacity": false,
+      "visibilityRule": "演示模式展示全部候选节点；正式结论只可基于已确认且有来源的关联。",
+      "contentReviewBadge": "示例关联 · 待确认",
+      "experienceEndState": "readable_record_not_planet",
+      "motionDefaults": {
+        "dragThresholdCssPx": 7,
+        "snapDurationMs": 300,
+        "focusDurationMs": 700,
+        "dampingPerSecond": 8,
+        "maxInertiaSeconds": 0.8
+      },
+      "motionDefaultsNotice": "这些数值是交互调试起点，不是测试成绩或固定设计限制。"
+    },
+    "storage": "postgresql",
+    "interpretationsAutomaticallyConfirmed": false,
+    "starmapNextStep": "当前最优先：：LifeOS 编辑建议（未（本人设定）",
+    "changeEvents": [
+      {
+        "subjectType": "theme",
+        "transition": "created",
+        "reason": "用户陈述的目标或追求",
+        "committedAt": "2026-10-11T01:50:05.391Z",
+        "userConfirmation": "none",
+        "now": "：LifeOS 编辑建议（未",
+        "unknowns": "这是刚出现的追求，还没有对应行动证据"
+      },
+      {
+        "subjectType": "experience",
+        "transition": "created",
+        "reason": "对话中报告的已发生行动",
+        "committedAt": "2026-10-11T01:48:56.708Z",
+        "userConfirmation": "none",
+        "now": "我已经做过一单海报，对方有没有采用还不知道",
+        "unknowns": "后续反馈和长期意义还未知"
+      }
+    ]
+  }
+}

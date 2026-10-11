@@ -416,7 +416,7 @@
   "summary": {
     "newUsableSources": 12,
     "newLocatedQuotes": 17,
-    "draftsSupplemented": 16,
+    "draftsSupplemented": 17,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 9,
@@ -440,7 +440,7 @@
     "reReadExistingOriginals": 1,
     "draftsSupplementedCountsRevisionEvents": true,
     "actualIndependentReviewExecutions": 32,
-    "currentExternalVersionBindings": 27,
+    "currentExternalVersionBindings": 26,
     "actualIndependentReviewsMeaning": "0 accepted authenticated maintenance receipts; actual external executions counted separately"
   },
   "fullPublicCapturesRequiredForRuntime": false,
@@ -618,6 +618,16 @@
     ],
     "status": "SOURCED_DRAFT_WAITING_NEW_INDEPENDENT_REVIEW",
     "stillMissing": "实际记账步骤已补直接PDF来源；如何判断不同兼职对学习、能力、身心和机会成本的影响仍缺直接原作者/高校材料，不能从收支工具推出整体价值。",
+    "humanApproval": null,
+    "published": 0
+  },
+  "campusIndependentRevision": {
+    "at": "2026-10-11T01:52:13.076Z",
+    "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+    "revision": 3,
+    "previousHash": "456db6fb2f43926b305e223740d77fc0a22bf2b2e7810f54ce94e6e35654886f",
+    "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
+    "responseTo": "Actual external R2 editorial review: permission denied / department not responding",
     "humanApproval": null,
     "published": 0
   }

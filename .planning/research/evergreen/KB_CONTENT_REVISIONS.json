@@ -1380,7 +1380,7 @@
   "drafts": [
     {
       "id": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
-      "revision": 2,
+      "revision": 3,
       "kind": "method",
       "status": "unverified",
       "synthetic": false,
@@ -1397,7 +1397,7 @@
       "mechanisms": [
         "寻找官方入口"
       ],
-      "sourceHash": "5bdf88575984ef21dccd020edaa18772a3e7227cefc41b3770b58464202a80cc",
+      "sourceHash": "9ef997b3b94440c80247a70a788394a5512185685f3c82ca95b5ca18333dce9c",
       "guide": {
         "schemaVersion": 1,
         "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
@@ -1534,17 +1534,17 @@
         "feedbackBranches": {
           "not_started": "尚未开始「找到可核验的校园信息」时，先核对：问题属于哪项学校资源或办事流程？只准备本人认可的一步，不写成执行。",
           "blocked": "沿同一事件、原步骤及实际卡点核对：从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。只调整卡住处，不重送入门全套。",
-          "waiting_result": "已尝试不等于有效。等待「是否找到本人能实际访问的入口；未访问不算获得资源。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。",
+          "waiting_result": "已尝试不等于有效。等待「是否找到本人能实际访问的入口；未访问不算获得资源。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。 部门尚未回应时只记录等待与未知；没有本人许可不反复联系。资料权限被拒绝时停止获取，不换账号或渠道绕过，改列可公开核验的替代资料。",
           "result": "只用本人报告的新反馈检查：是否找到本人能实际访问的入口；未访问不算获得资源。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
-          "declined": "停止「找到可核验的校园信息」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+          "declined": "停止「找到可核验的校园信息」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。 明确拒绝获取权限、联系部门或继续查找时一并停止，不把拒绝当失败经历。"
         },
         "expectedObservation": "是否找到本人能实际访问的入口；未访问不算获得资源。",
         "retrievalSummary": "找到可核验的校园信息；campus-resource；问题属于哪项学校资源或办事流程？；了解大学运行方式；寻找可靠校园信息；写清要查的资料或手续，不先交个人敏感信息。；从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。；核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
-        "referenceBody": "找到可核验的校园信息\n原文范围：该馆公开介绍馆藏查询和电子资源获取。\n什么时候用：问题属于哪项学校资源或办事流程？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：该校账号与权限不能迁移到其他学校。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：问题属于哪项学校资源或办事流程？\nLifeOS编辑步骤：\n写清要查的资料或手续，不先交个人敏感信息。\n从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。\n核对适用对象；权限、开放时间未知时只向该部门提出一个问题。\n资源不足：不必完成全套；只处理“问题属于哪项学校资源或办事流程？”中的一项已有材料，零时间保留未知并暂停。\n观察：是否找到本人能实际访问的入口；未访问不算获得资源。\nnot_started：尚未开始「找到可核验的校园信息」时，先核对：问题属于哪项学校资源或办事流程？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「是否找到本人能实际访问的入口；未访问不算获得资源。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。\nresult：只用本人报告的新反馈检查：是否找到本人能实际访问的入口；未访问不算获得资源。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「找到可核验的校园信息」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。",
+        "referenceBody": "找到可核验的校园信息\n原文范围：该馆公开介绍馆藏查询和电子资源获取。\n什么时候用：问题属于哪项学校资源或办事流程？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：该校账号与权限不能迁移到其他学校。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：问题属于哪项学校资源或办事流程？\nLifeOS编辑步骤：\n写清要查的资料或手续，不先交个人敏感信息。\n从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。\n核对适用对象；权限、开放时间未知时只向该部门提出一个问题。\n资源不足：不必完成全套；只处理“问题属于哪项学校资源或办事流程？”中的一项已有材料，零时间保留未知并暂停。\n观察：是否找到本人能实际访问的入口；未访问不算获得资源。\nnot_started：尚未开始「找到可核验的校园信息」时，先核对：问题属于哪项学校资源或办事流程？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「是否找到本人能实际访问的入口；未访问不算获得资源。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。 部门尚未回应时只记录等待与未知；没有本人许可不反复联系。资料权限被拒绝时停止获取，不换账号或渠道绕过，改列可公开核验的替代资料。\nresult：只用本人报告的新反馈检查：是否找到本人能实际访问的入口；未访问不算获得资源。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「找到可核验的校园信息」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。 明确拒绝获取权限、联系部门或继续查找时一并停止，不把拒绝当失败经历。",
         "reviewStatus": "needs_review",
         "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
         "review": null,
-        "contentHash": "456db6fb2f43926b305e223740d77fc0a22bf2b2e7810f54ce94e6e35654886f",
+        "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
         "indexSignature": "02548ef20a2432975cd4351d4b8f33847c6ee84f6847a691645ce6a259463b81",
         "legacyIds": [],
         "replaces": []
@@ -8696,7 +8696,7 @@
       "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
       "canonicalKey": "campus-resource",
       "baseRevision": 1,
-      "revision": 2,
+      "revision": 3,
       "previousStatus": "approved",
       "decision": "SUBSTANTIVE_REVISION_PENDING_INDEPENDENT_REVIEW",
       "changed": [
@@ -8704,14 +8704,16 @@
         "task_steps",
         "feedback_branches",
         "limits",
-        "resource_alternative"
+        "resource_alternative",
+        "respond_to_actual_R2_review_department_nonresponse_permission_denied"
       ],
       "sourceId": "yangtze-library",
       "sourceRead": true,
       "remainingClaim": "该校账号与权限不能迁移到其他学校。",
       "independentReview": null,
       "humanApproval": null,
-      "served": false
+      "served": false,
+      "previousDraftHash": "456db6fb2f43926b305e223740d77fc0a22bf2b2e7810f54ce94e6e35654886f"
     },
     {
       "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
@@ -9453,8 +9455,8 @@
     {
       "canonicalKey": "campus-resource",
       "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
-      "revision": 2,
-      "contentHash": "456db6fb2f43926b305e223740d77fc0a22bf2b2e7810f54ce94e6e35654886f",
+      "revision": 3,
+      "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
       "previousDraftHash": "456db6fb2f43926b305e223740d77fc0a22bf2b2e7810f54ce94e6e35654886f",
       "status": "PREPARED_NOT_INDEPENDENTLY_EXECUTED",
       "claimChecks": [
@@ -14749,6 +14751,178 @@
         "review": null,
         "contentHash": "72b7d6967fa4a5e1b9d01a042ce8c270f9d8e4dee97f1a33c3c65f6e580db0ab",
         "indexSignature": "17465eff05f751c9c0133a93d82cdbae15a3b03f854cbcec20318221e048567c",
+        "legacyIds": [],
+        "replaces": []
+      }
+    },
+    {
+      "id": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+      "revision": 2,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "找到可核验的校园信息",
+      "url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+      "publisher": "长江大学图书馆",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.544Z",
+      "validUntil": null,
+      "excerpt": "使用、服务需求等方面的意见，为后续优化服务提供依据。此外，东校区还拍摄图书馆宣传视频，既展示图书阅览区、自习区等功能空间，又通过实操演示呈现馆藏查询、电子资源获取等操作，让新生直观了解图书馆使用方法。\n西校区分馆通过大学生阅读学社，以“线上学习一周 + 馆内现场体验”模式推进入馆教育。线上帮助新生初步了解资源，线下结合老师讲解与实地参观，介绍《中图法》分类、自助借还机操作、书籍排架及电子资源情况。活动历时28天，覆盖81个班级近3000名新生，32名志愿者全程参与服务，活动尾声发起“六个一”倡议（即借一本书、关注一下图书馆网站、关注一下图书馆微信公众号、至少访问一个中文数据库、至少访问一个外文数据库、",
+      "claim": "该馆公开介绍馆藏查询和电子资源获取。",
+      "scope": "写清要查的资料或手续，不先交个人敏感信息。；适用范围按每个分支核对。",
+      "limitations": "该校账号与权限不能迁移到其他学校。",
+      "mechanisms": [
+        "寻找官方入口"
+      ],
+      "sourceHash": "5bdf88575984ef21dccd020edaa18772a3e7227cefc41b3770b58464202a80cc",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+        "canonicalKey": "campus-resource",
+        "aliases": [
+          "新生",
+          "选课",
+          "教务",
+          "校园信息",
+          "运行方式",
+          "可靠信息",
+          "图书馆",
+          "了解大学运行方式",
+          "寻找可靠校园信息"
+        ],
+        "domains": [
+          "01"
+        ],
+        "task": "找到可核验的校园信息",
+        "stage": "start/adjust/compare",
+        "mechanism": "寻找官方入口",
+        "prerequisites": [
+          "问题属于哪项学校资源或办事流程？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "该校账号与权限不能迁移到其他学校。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "yangtze-library-batch-campus-resource-e1"
+        ],
+        "claims": [
+          {
+            "id": "campus-resource-scope",
+            "text": "该馆公开介绍馆藏查询和电子资源获取。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "yangtze-library-batch-campus-resource-e1"
+            ],
+            "scope": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。",
+            "limitations": "该校账号与权限不能迁移到其他学校。"
+          },
+          {
+            "id": "campus-resource-editorial",
+            "text": "写清要查的资料或手续，不先交个人敏感信息。；从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。；核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "yangtze-library-batch-campus-resource-e1"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "yangtze-library"
+        ],
+        "principle": "该馆公开介绍馆藏查询和电子资源获取。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C01-1",
+            "candidateId": "C01-1",
+            "task": "了解大学运行方式",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C01-1-r2-1",
+                "text": "当前任务「了解大学运行方式」：写清要查的资料或手续，不先交个人敏感信息。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-1-r2-2",
+                "text": "从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-1-r2-3",
+                "text": "核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C01-2",
+            "candidateId": "C01-2",
+            "task": "寻找可靠校园信息",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C01-2-r2-1",
+                "text": "当前任务「寻找可靠校园信息」：写清要查的资料或手续，不先交个人敏感信息。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-2-r2-2",
+                "text": "从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-2-r2-3",
+                "text": "核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "问题属于哪项学校资源或办事流程？",
+        "smallestAction": "写清要查的资料或手续，不先交个人敏感信息。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“问题属于哪项学校资源或办事流程？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "该校账号与权限不能迁移到其他学校。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「找到可核验的校园信息」时，先核对：问题属于哪项学校资源或办事流程？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。只调整卡住处，不重送入门全套。",
+          "waiting_result": "已尝试不等于有效。等待「是否找到本人能实际访问的入口；未访问不算获得资源。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。",
+          "result": "只用本人报告的新反馈检查：是否找到本人能实际访问的入口；未访问不算获得资源。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
+          "declined": "停止「找到可核验的校园信息」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "是否找到本人能实际访问的入口；未访问不算获得资源。",
+        "retrievalSummary": "找到可核验的校园信息；campus-resource；问题属于哪项学校资源或办事流程？；了解大学运行方式；寻找可靠校园信息；写清要查的资料或手续，不先交个人敏感信息。；从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。；核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+        "referenceBody": "找到可核验的校园信息\n原文范围：该馆公开介绍馆藏查询和电子资源获取。\n什么时候用：问题属于哪项学校资源或办事流程？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：该校账号与权限不能迁移到其他学校。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：问题属于哪项学校资源或办事流程？\nLifeOS编辑步骤：\n写清要查的资料或手续，不先交个人敏感信息。\n从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。\n核对适用对象；权限、开放时间未知时只向该部门提出一个问题。\n资源不足：不必完成全套；只处理“问题属于哪项学校资源或办事流程？”中的一项已有材料，零时间保留未知并暂停。\n观察：是否找到本人能实际访问的入口；未访问不算获得资源。\nnot_started：尚未开始「找到可核验的校园信息」时，先核对：问题属于哪项学校资源或办事流程？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「是否找到本人能实际访问的入口；未访问不算获得资源。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。\nresult：只用本人报告的新反馈检查：是否找到本人能实际访问的入口；未访问不算获得资源。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「找到可核验的校园信息」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "456db6fb2f43926b305e223740d77fc0a22bf2b2e7810f54ce94e6e35654886f",
+        "indexSignature": "02548ef20a2432975cd4351d4b8f33847c6ee84f6847a691645ce6a259463b81",
         "legacyIds": [],
         "replaces": []
       }

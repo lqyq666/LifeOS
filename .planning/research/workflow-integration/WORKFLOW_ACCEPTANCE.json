@@ -1431,8 +1431,8 @@
         "publication": false
       }
     ],
-    "currentMatchingIndependentReceipts": 28,
-    "newRevisionAwaitingReview": 4,
+    "currentMatchingIndependentReceipts": 26,
+    "newRevisionAwaitingReview": 6,
     "humanApproval": 0,
     "published": 0
   },
@@ -1455,7 +1455,7 @@
   "sourceSupplement": {
     "newUsableSources": 12,
     "newLocatedQuotes": 17,
-    "draftsSupplemented": 16,
+    "draftsSupplemented": 17,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
     "partialImproved": 9,
@@ -1479,7 +1479,7 @@
     "reReadExistingOriginals": 1,
     "draftsSupplementedCountsRevisionEvents": true,
     "actualIndependentReviewExecutions": 32,
-    "currentExternalVersionBindings": 27,
+    "currentExternalVersionBindings": 26,
     "actualIndependentReviewsMeaning": "0 accepted authenticated maintenance receipts; actual external executions counted separately"
   },
   "growthR8": {
@@ -1497,9 +1497,56 @@
   },
   "cozeCreditsCurrent": {
     "initial": 151559,
-    "charged": 58941,
-    "held": 30000,
-    "available": 62618,
+    "charged": 62001,
+    "held": 60000,
+    "available": 29558,
     "newBudget": 0
+  },
+  "fresh321197e": {
+    "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
+    "steps": 21,
+    "evidence": "evidence/coze-core-launch-20261011/fresh-321197e/REPRODUCTION.json",
+    "privateFilesCopied": false,
+    "modelCalls": 0,
+    "scope": "321197e frozen code; later content and UI changes checked separately"
+  },
+  "growthR9": {
+    "commit": "37202e2f3e21b73c69c0d107209394bbc83c4b10",
+    "sourceHashesVerified": true,
+    "first": {
+      "passed": 11,
+      "failed": 1,
+      "evidence": "evidence/coze-core-launch-20261011/R9_SOURCE_CONTRACT_FIRST.json"
+    },
+    "additionalFirst": {
+      "passed": 1,
+      "failed": 6,
+      "evidence": "evidence/coze-core-launch-20261011/R9_SOURCE_CONTRACT_ADDITIONAL_FIRST.json",
+      "selectedActionCaseSupersededByCorrectCatalogueAddendum": true
+    },
+    "correctCatalogueAddendum": {
+      "status": "FAIL",
+      "actualSelectedMinutes": 35,
+      "actualBudgetMinutes": 30,
+      "evidence": "evidence/coze-core-launch-20261011/R9_SOURCE_CONTRACT_TOTAL_ADDENDUM_FIRST.json"
+    },
+    "actualCredits": 3059.97,
+    "accountedCredits": 3060,
+    "cloudModelRuns": 0,
+    "status": "ACTUAL_SOURCE_GUARDS_FAIL_R10_SENT_ONCE"
+  },
+  "browserIncrement": {
+    "naturalShortAnswer": "CONTINUES_ORIGINAL_TASK_SIMULATED_PROVIDER",
+    "adoption": "PLAN_SAVED_NOT_EXECUTED_REFRESH_READBACK",
+    "newChat": "STALE_TASK_FIRST_FAILURE_PRESERVED_FIXED",
+    "evidence": "evidence/coze-core-launch-20261011/ui-new-chat-fixed-FIRST.txt",
+    "modelQuality": "NOT_TESTED_BY_THIS_UI_CHECK",
+    "realHumanApproval": 0
+  },
+  "knowledgeR3": {
+    "status": "SENT_ONCE_PROCESSING",
+    "scope": "six changed revisions and real pilot proposal review",
+    "humanApproval": 0,
+    "publication": 0
   }
 }
