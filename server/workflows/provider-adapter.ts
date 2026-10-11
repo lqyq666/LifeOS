@@ -114,7 +114,9 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    try{budget.finish(reservation.receipt.callId,{outcome,usage:message?.usage??'unknown',estimatedCostCny:cost??'unknown',providerResponseId:responseId})}
    finally{
     const ctx=context as any,analystContext=ctx.paths?.[0]??(ctx.path?ctx:null)
-    const decisionInputDigest=analystContext?createHash('sha256').update(JSON.stringify({facts:analystContext.facts.map(({ref,...fact}:any)=>fact),methodContext:analystContext.methodContext,budget:analystContext.timeBudget,controls:analystContext.controls,directions:c.request.directions})).digest('hex'):null
+    const withoutStorageId=({id,...ref}:any)=>ref
+    const comparableBudget=analystContext?.timeBudget?{...analystContext.timeBudget,source:withoutStorageId(analystContext.timeBudget.source)}:null
+    const decisionInputDigest=analystContext?createHash('sha256').update(JSON.stringify({facts:analystContext.facts.map(({ref,...fact}:any)=>({...fact,source:withoutStorageId(ref)})),methodContext:analystContext.methodContext,budget:comparableBudget,controls:analystContext.controls,directions:c.request.directions})).digest('hex'):null
     await input.audit?.(c.request,{callId:reservation.receipt.callId,nodeId,providerResponseId:responseId,usage:message?.usage??'unknown',costCny:cost,outcome,failureCode,modelSignature,sourceDigest:frozen,decisionInputDigest})
    }
   }

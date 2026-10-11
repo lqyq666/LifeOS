@@ -81,10 +81,17 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
    assert.equal(typeof reviewed.costCny,'number','known failure fees retained')
   }
   criticVariant='normal';expectedReservations+=1;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
+  // Separate arms persist identical student words in different message rows.
+  // Those storage IDs must not make equal comparison inputs appear unequal.
+  const oldBudgetSourceId=f.request.budget!.source.id,newBudgetSourceId=randomUUID()
+  for(const ref of f.request.authorizedEvidenceRefs)if(ref.id===oldBudgetSourceId)ref.id=newBudgetSourceId
+  for(const record of f.records)if(record.ref.id===oldBudgetSourceId)record.ref.id=newBudgetSourceId
+  f.request.budget!.source={...f.request.budget!.source,id:newBudgetSourceId}
   const singleStart=requests.length,single=await wf.run(f.request,undefined,'single')
   assert.equal(single.status,'proposed',JSON.stringify(single));assert.equal(single.providerCalls,1);assert.equal(requests.length-singleStart,1)
   assert.equal(single.proposal!.alternatives.length,2);assert.equal(single.proposal!.nextActions.length,1);assert.deepEqual(single.reviewIssues,[],'single arm does not claim a critic execution')
-  assert.deepEqual(requests.at(-1)!.context.paths&&(requests.at(-1)!.context.paths as any[])[0].facts,requests[0].context.facts,'single and multi use the same facts and provenance')
+  const normalizedFacts=(rows:any[])=>rows.map(({ref,...fact})=>({...fact,sourceType:ref.type,sourceRevision:ref.revision,sourceQuote:ref.quote}))
+  assert.deepEqual(normalizedFacts((requests.at(-1)!.context.paths as any[])[0].facts),normalizedFacts(requests[0].context.facts as any[]),'single and multi use the same facts and provenance, apart from storage IDs')
   assert.equal(audits.at(-1)!.decisionInputDigest,audits[0].decisionInputDigest,'same comparison input digest across arms')
   assert.equal((await wf.run(f.request,undefined,'single')).status,'proposed');assert.equal(requests.length-singleStart,1,'no paid replay')
   singleMalformed=true;expectedReservations+=1;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
