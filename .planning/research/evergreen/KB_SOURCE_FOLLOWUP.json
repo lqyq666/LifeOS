@@ -414,12 +414,12 @@
     }
   ],
   "summary": {
-    "newUsableSources": 12,
-    "newLocatedQuotes": 18,
-    "draftsSupplemented": 18,
+    "newUsableSources": 13,
+    "newLocatedQuotes": 20,
+    "draftsSupplemented": 19,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
-    "partialImproved": 9,
+    "partialImproved": 11,
     "stillTaskSpecificSourceGap": 38,
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
@@ -440,8 +440,10 @@
     "reReadExistingOriginals": 1,
     "draftsSupplementedCountsRevisionEvents": true,
     "actualIndependentReviewExecutions": 32,
-    "currentExternalVersionBindings": 26,
-    "actualIndependentReviewsMeaning": "0 accepted authenticated maintenance receipts; actual external executions counted separately"
+    "currentExternalVersionBindings": 30,
+    "actualIndependentReviewsMeaning": "0 imported independent receipts in non-test maintenance DB; observed external executions and exact current card bindings are separate. No human approval or publication.",
+    "actualIndependentReviewExecutionRuns": 2,
+    "actualIndependentCardReviewEvents": 38
   },
   "fullPublicCapturesRequiredForRuntime": false,
   "firstToolFailure": "bs4 unavailable; replaced by built-in HTMLParser, not a source reading attempt",
@@ -658,5 +660,17 @@
     "independentReview": null,
     "humanApproval": null,
     "publication": false
+  },
+  "campusContactRevision": {
+    "at": "2026-10-11T04:44:32.860Z",
+    "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
+    "revision": 4,
+    "previousHash": "1774f66c3b211cf61f0abcb26e61fe019167fd2b7fa95b18733bf0c1239eb7b0",
+    "contentHash": "22c0c5241cd873dab14590d039a45ca0de09a21cd35fe614d182e4338ae5f6dd",
+    "newDistinctOriginals": 1,
+    "newLocatedQuotes": 2,
+    "status": "PARTIAL_SOURCE_DRAFT_WAITING_NEW_INDEPENDENT_REVIEW",
+    "humanApproval": null,
+    "published": 0
   }
 }

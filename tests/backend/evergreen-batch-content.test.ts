@@ -24,7 +24,20 @@ test('32 substantive revisions, 59 actual research outcomes and unchanged 112 ta
 test('first-contact branches cannot borrow mentor evidence for social, career or startup steps',()=>{
  const pack=json('KB_CONTENT_REVISIONS.json'),card=pack.drafts.find((c:any)=>c.guide.canonicalKey==='first-contact'),prep=pack.reviewPreparation.find((p:any)=>p.guideId===card.id)
  const branch=(id:string)=>card.guide.branches.find((b:any)=>b.candidateId===id)
- for(const id of ['C01-3','C25-1']){assert.ok(branch(id).steps.every((s:any)=>!s.text.includes('导师')&&s.evidenceIds.length===0));assert.equal(prep.branchChecks.find((b:any)=>b.candidateId===id).sourceStatus,'UNCHANGED_TASK_SPECIFIC_SOURCE_GAP')}
+ for(const id of ['C01-3','C25-1']){
+  assert.ok(branch(id).steps.every((s:any)=>!s.text.includes('导师')&&s.basis==='editorial_adaptation'&&s.evidenceIds.every((e:string)=>e.startsWith('gzucm-campus-contact-20261011'))))
+  const check=prep.branchChecks.find((b:any)=>b.candidateId===id)
+  assert.equal(check.sourceStatus,'PARTIAL_SOURCE_STILL_MISSING_TASK_SPECIFIC_CLAIM');assert.ok(check.remainingClaim.includes('仍缺'));assert.ok(check.feedback.declined.includes('停止'))
+ }
+ const source=pack.sources.find((s:any)=>s.source_id==='gzucm-campus-contact-20261011')
+ assert.equal(source.author,null);assert.ok(source.cannot_infer.includes('效果'));assert.ok(source.licenseObserved.includes('unapproved'))
+ for(const e of pack.evidence.filter((e:any)=>e.source_id===source.source_id)){
+  const original=readFileSync(e.locator.originalPath,'utf8'),normalized=readFileSync(e.locator.normalizedTextPath,'utf8')
+  assert.equal(kbHash(original),source.original_fingerprint);assert.equal(kbHash(normalized),e.locator.normalizedTextSha256)
+  assert.equal(normalized.slice(e.locator.start,e.locator.end),e.quote);assert.equal(kbHash(e.quote),e.content_hash)
+ }
+ const previous=pack.draftHistory.find((c:any)=>c.id===card.id&&c.revision===card.revision-1)
+ assert.equal(prep.previousDraftHash,guideContentHash(previous.guide))
  for(const [id,source] of [['C07-3','career-author'],['C13-4','pku-recommendation'],['C20-3','pg-first-users']])assert.ok(branch(id).steps.every((s:any)=>s.evidenceIds.length>0&&s.evidenceIds.every((e:string)=>e.startsWith(source))))
  assert.ok(branch('C09-1').steps.some((s:any)=>s.evidenceIds.some((id:string)=>id.startsWith('ustc-mentor-choice'))))
  assert.equal(new Set(prep.branchChecks.map((b:any)=>b.candidateId)).size,6)

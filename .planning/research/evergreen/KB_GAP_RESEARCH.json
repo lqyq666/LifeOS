@@ -14,6 +14,22 @@
           "status": "BODY_READ",
           "bodyLength": 2224,
           "bodySha256": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef"
+        },
+        {
+          "id": "gzucm-campus-contact-20261011-jina-first",
+          "url": "https://r.jina.ai/http://xsc.gzucm.edu.cn/info/1050/4739.htm",
+          "at": "2026-10-11T04:44:32.860Z",
+          "status": "HTTP401_ANONYMOUS_NETWORK_REJECTED",
+          "originalRead": false
+        },
+        {
+          "id": "gzucm-campus-contact-20261011",
+          "url": "http://xsc.gzucm.edu.cn/info/1050/4739.htm",
+          "at": "2026-10-11T04:44:32.860Z",
+          "status": "ORIGINAL_HTTP_FULL_BODY_READ",
+          "bodySha256": "461f786f58987811ff66d2f1f7c994a98b1927c6055fe2cf33d50bdd1b3e2dfc",
+          "normalizedTextSha256": "4f5cc6f4cf583f12ae7c9fdc83080c360890f8ed0cce5210182b0f5efe086c48",
+          "bodyLength": 247206
         }
       ],
       "readSource": {
@@ -30,15 +46,32 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "先由本人选一个愿意接触的日常场景；不想接触就不安排社交任务。",
-        "只提出与当时场景有关、允许对方不答的一句小问题，不索取隐私。",
-        "先记录是否交谈和本人感受；未回复不判拒绝，明确拒绝则停止。"
+        "先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。",
+        "只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。",
+        "实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。"
       ],
-      "applicabilityBoundary": "从零社交的任务对应原文仍缺；下列仅编辑建议，不由导师材料背书。",
-      "stillMissingClaim": "从零社交的任务对应原文仍缺；下列仅编辑建议，不由导师材料背书。",
+      "applicabilityBoundary": "校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。",
+      "stillMissingClaim": "校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-11T04:44:32.860Z",
+        "sourceGapStatus": "PARTIAL_SOURCE_STILL_MISSING_TASK_SPECIFIC_CLAIM",
+        "evidenceIds": [
+          "gzucm-campus-contact-20261011-e1",
+          "gzucm-campus-contact-20261011-e2"
+        ],
+        "methodExtracted": [
+          "先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。",
+          "只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。",
+          "实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。"
+        ],
+        "scope": "校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T14:06:45.703Z",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "evidenceIds": [],
@@ -48,13 +81,6 @@
           "先记录是否交谈和本人感受；未回复不判拒绝，明确拒绝则停止。"
         ],
         "scope": "从零社交的任务对应原文仍缺；下列仅编辑建议，不由导师材料背书。",
-        "independentReview": null,
-        "humanApproval": null,
-        "publication": false
-      },
-      "previousFollowup": {
-        "at": "2026-10-10T11:43:46.158054+00:00",
-        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
         "humanApproval": null,
         "publication": false
@@ -3638,6 +3664,22 @@
           "status": "BODY_READ",
           "bodyLength": 2224,
           "bodySha256": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef"
+        },
+        {
+          "id": "gzucm-campus-contact-20261011-jina-first",
+          "url": "https://r.jina.ai/http://xsc.gzucm.edu.cn/info/1050/4739.htm",
+          "at": "2026-10-11T04:44:32.860Z",
+          "status": "HTTP401_ANONYMOUS_NETWORK_REJECTED",
+          "originalRead": false
+        },
+        {
+          "id": "gzucm-campus-contact-20261011",
+          "url": "http://xsc.gzucm.edu.cn/info/1050/4739.htm",
+          "at": "2026-10-11T04:44:32.860Z",
+          "status": "ORIGINAL_HTTP_FULL_BODY_READ",
+          "bodySha256": "461f786f58987811ff66d2f1f7c994a98b1927c6055fe2cf33d50bdd1b3e2dfc",
+          "normalizedTextSha256": "4f5cc6f4cf583f12ae7c9fdc83080c360890f8ed0cce5210182b0f5efe086c48",
+          "bodyLength": 247206
         }
       ],
       "readSource": {
@@ -3654,15 +3696,32 @@
       },
       "result": "BOUNDED_SOURCE_READ_EDITED_STEPS_PENDING_SCOPE_REVIEW",
       "methodExtracted": [
-        "只在本人愿意的共同活动中选择自然接触，不把认识朋友变成必须完成的指标。",
-        "用真实共同话题问一句可不回答的问题，不预设对方兴趣、意图或关系。",
-        "本人不舒服或对方拒绝就停止；有交流只记实际经过，不宣称已经建立友谊。"
+        "先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。",
+        "只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。",
+        "实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。"
       ],
-      "applicabilityBoundary": "普通交友的任务对应原文仍缺；下列是待审编辑建议，不能借导师或创业来源批准。",
-      "stillMissingClaim": "普通交友的任务对应原文仍缺；下列是待审编辑建议，不能借导师或创业来源批准。",
+      "applicabilityBoundary": "校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。",
+      "stillMissingClaim": "校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。",
       "approval": "WAITING_INDEPENDENT_REVIEW_AND_HUMAN_APPROVAL",
       "status": "awaiting_source",
       "followup": {
+        "at": "2026-10-11T04:44:32.860Z",
+        "sourceGapStatus": "PARTIAL_SOURCE_STILL_MISSING_TASK_SPECIFIC_CLAIM",
+        "evidenceIds": [
+          "gzucm-campus-contact-20261011-e1",
+          "gzucm-campus-contact-20261011-e2"
+        ],
+        "methodExtracted": [
+          "先核对本人是否愿意以及这次共同场景；室友日常相遇可以只打招呼，其他同学场景的一句共同话题是LifeOS编辑适配，不要求完成社交指标。",
+          "只在对方愿意继续时提出与当时场景有关、可不回答的一句问题；不索取秘密、不外传未经同意的隐私，不预设对方兴趣或关系。",
+          "实际交谈、本人感受和仍未核对的对方意图分别记录；未回应原因未知，明确拒绝或本人不舒服就停止，不换渠道追问。"
+        ],
+        "scope": "校园室友问候与隐私边界的辅导建议；班级共同话题等小行动为编辑适配；其他交友场景和效果证据仍缺。",
+        "independentReview": null,
+        "humanApproval": null,
+        "publication": false
+      },
+      "previousFollowup": {
         "at": "2026-10-10T14:06:45.704Z",
         "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "evidenceIds": [],
@@ -3672,13 +3731,6 @@
           "本人不舒服或对方拒绝就停止；有交流只记实际经过，不宣称已经建立友谊。"
         ],
         "scope": "普通交友的任务对应原文仍缺；下列是待审编辑建议，不能借导师或创业来源批准。",
-        "independentReview": null,
-        "humanApproval": null,
-        "publication": false
-      },
-      "previousFollowup": {
-        "at": "2026-10-10T11:43:46.158054+00:00",
-        "sourceGapStatus": "UNCHANGED_TASK_SPECIFIC_SOURCE_GAP",
         "independentReview": null,
         "humanApproval": null,
         "publication": false
@@ -4007,12 +4059,12 @@
   "independentReviews": 0,
   "humanApprovals": 0,
   "followupSummary": {
-    "newUsableSources": 12,
-    "newLocatedQuotes": 18,
-    "draftsSupplemented": 18,
+    "newUsableSources": 13,
+    "newLocatedQuotes": 20,
+    "draftsSupplemented": 19,
     "allReviewPreparations": 32,
     "sourceScopedDraftReady": 21,
-    "partialImproved": 9,
+    "partialImproved": 11,
     "stillTaskSpecificSourceGap": 38,
     "actualIndependentReviews": 0,
     "actualHumanApprovals": 0,
@@ -4033,7 +4085,9 @@
     "reReadExistingOriginals": 1,
     "draftsSupplementedCountsRevisionEvents": true,
     "actualIndependentReviewExecutions": 32,
-    "currentExternalVersionBindings": 26,
-    "actualIndependentReviewsMeaning": "0 accepted authenticated maintenance receipts; actual external executions counted separately"
+    "currentExternalVersionBindings": 30,
+    "actualIndependentReviewsMeaning": "0 imported independent receipts in non-test maintenance DB; observed external executions and exact current card bindings are separate. No human approval or publication.",
+    "actualIndependentReviewExecutionRuns": 2,
+    "actualIndependentCardReviewEvents": 38
   }
 }

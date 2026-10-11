@@ -52,7 +52,7 @@ test('normal authenticated maintenance API binds actual account receipts, denies
   assert.equal(detail.bundle.reviewPreparation.status,'PREPARED_NOT_INDEPENDENTLY_EXECUTED')
   assert.equal(detail.bundle.reviewPreparation.claimChecks.length,card.guide.claims.length)
   assert.equal(detail.bundle.base.revision,card.revision-1)
-  assert.equal(detail.bundle.base.guide.contentHash,pack.draftHistory.find((c:any)=>c.id===card.id).guide.contentHash)
+  assert.equal(detail.bundle.base.guide.contentHash,pack.draftHistory.find((c:any)=>c.id===card.id&&c.revision===card.revision-1).guide.contentHash)
   assert.equal(detail.bundle.reviewPreparation.branchChecks.length,6)
   await assert.rejects(readApprovedGuide(card.id,card.revision))
   assert.equal((await call(editor.cookie,path+'/actions',{...action,action:'review'})).body.error,'KB_INDEPENDENT_EXECUTION_REQUIRED')
