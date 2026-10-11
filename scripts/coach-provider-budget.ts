@@ -259,6 +259,25 @@ export class CoachProviderBudget {
     })
   }
   snapshot(){return this.change(ledger=>structuredClone(ledger),false)}
+  // Validate every graph slot before writing any settlement. A process/lock
+  // failure cannot leave half a cloud receipt known and the remainder reissuable.
+  finishGraphReceipts(rows:{callId:string;outcome:string;usage:unknown;estimatedCostCny:number|'unknown';providerResponseId:string|null}[]){
+    return this.change(ledger=>{
+      if(!rows.length||rows.length>5||new Set(rows.map(r=>r.callId)).size!==rows.length)throw new Error('ORIGINAL_GRAPH_RESERVATION_CONFLICT')
+      const calls=rows.map(row=>ledger.calls.find((call:CoachCallReceipt)=>call.callId===row.callId))
+      if(calls.some((call:CoachCallReceipt|undefined)=>!call||call.status!=='reserved')||rows.some(row=>row.estimatedCostCny!=='unknown'&&(!Number.isFinite(row.estimatedCostCny)||row.estimatedCostCny<0)))throw new Error('ORIGINAL_GRAPH_RESERVATION_CONFLICT')
+      const finishedAt=new Date().toISOString()
+      rows.forEach((row,index)=>{
+        const call=calls[index] as CoachCallReceipt
+        Object.assign(call,row,{status:'finished',finishedAt})
+        if(typeof row.estimatedCostCny==='number'&&row.estimatedCostCny>call.reservedCostCny!){
+          if(call.funding==='current_grant')ledger.currentGrant.paused=true
+          if(call.funding==='additional_cny')ledger.additional.paused=true
+        }
+      })
+      return structuredClone(calls) as CoachCallReceipt[]
+    })
+  }
 }
 
 

@@ -80,6 +80,52 @@ export function retainUnknownCozeGraph(wire:CozeHostPermit,secret:string,binding
  const {claims}=claimsAndPayload(wire,secret,binding,Date.parse(JSON.parse(decode(wire.claimsB64).toString('utf8')).issuedAt))
  const snapshot=budget.snapshot()
  if(claims.slots.some(slot=>!snapshot.calls.some((row:any)=>row.callId===slot.callId&&row.runId===claims.requestId&&row.status==='reserved'&&row.reservedCostCny===slot.reservedCostCny&&row.sourceDigest===binding.hostSourceDigest)))throw Error('ORIGINAL_GRAPH_RESERVATION_CONFLICT')
- for(const slot of claims.slots)budget.finish(slot.callId,{outcome,usage:'unknown',estimatedCostCny:'unknown',providerResponseId:null})
+ budget.finishGraphReceipts(claims.slots.map(slot=>({callId:slot.callId,outcome,usage:'unknown',estimatedCostCny:'unknown',providerResponseId:null})))
  appendFileSync(journalPath,JSON.stringify({type:'unknown_graph_finished',requestId:claims.requestId,outcome,reservationRetained:true})+'\n')
+}
+
+// Accounting only: this never approves a proposal or publishes student state.
+// The caller must still validate current sources, semantics and cancellation.
+export function settleCozeHostReceipt(input:{wire:CozeHostPermit;secret:string;binding:Binding;budget:CoachProviderBudget;receipt:unknown;journalPath:string}){
+ const {wire,secret,binding,budget}=input
+ const {claims,payload}=claimsAndPayload(wire,secret,binding,Date.parse(JSON.parse(decode(wire.claimsB64).toString('utf8')).issuedAt))
+ const receipt=input.receipt as any,fail=():never=>{throw Error('COZE_ACTUAL_RECEIPT_INVALID_RESERVATION_RETAINED')}
+ const runtime=receipt?.runtime
+ if(!receipt||receipt.schemaVersion!==2||receipt.requestId!==claims.requestId||receipt.traceId!==(payload.traceId??claims.requestId)||receipt.executionKind!=='real_provider'||!['proposed','unavailable'].includes(receipt.status)||receipt.receiptIncomplete||receipt.workerFinishedAtReturn===false||runtime?.projectId!==claims.projectId||runtime?.businessRole!=='growth'||runtime.hostSourceDigest!==binding.hostSourceDigest||runtime.cloudCommit!==binding.cloudCommit||runtime.cloudSourceDigest!==binding.cloudSourceDigest||runtime.canonicalContentHash!==binding.contentHash||runtime.skillsDigest!==binding.skillsDigest||receipt.suggestedStateChanges?.length)fail()
+ if(!Array.isArray(receipt.trace)||receipt.trace.length!==claims.slots.length||new Set(receipt.trace.map((r:any)=>r.callId)).size!==claims.slots.length)fail()
+ const snapshot=budget.snapshot()
+ if(claims.slots.some(slot=>!snapshot.calls.some((r:any)=>r.callId===slot.callId&&r.runId===claims.requestId&&r.status==='reserved'&&r.sourceDigest===binding.hostSourceDigest&&r.reservedCostCny===slot.reservedCostCny)))throw Error('ORIGINAL_GRAPH_RESERVATION_CONFLICT')
+ let providerCalls=0,cost=0,unknown=false
+ const rows=claims.slots.map(slot=>{
+  const r=receipt.trace.find((r:any)=>r.callId===slot.callId)
+  if(!r||r.nodeId!==slot.nodeId||r.reservedCostCny!==slot.reservedCostCny||!['not_sent','reserved','started','ok','failed','cancelled'].includes(r.status))fail()
+  const started=r.started!==null&&r.started!==undefined
+  if(started&&(!Number.isSafeInteger(r.started)||r.started<0)||r.ended!==null&&r.ended!==undefined&&(!Number.isSafeInteger(r.ended)||r.ended<0||started&&r.ended<r.started))fail()
+  let estimatedCostCny:number|'unknown'='unknown',outcome=r.status
+  if(!started){
+   if(!['not_sent','reserved','cancelled','failed'].includes(r.status)||r.usage||r.providerResponseId||r.model)fail()
+   estimatedCostCny=0;outcome='not_sent'
+  }else{
+   providerCalls++
+   if(['not_sent','reserved'].includes(r.status))fail()
+   const usage=r.usage
+   if(usage!==null&&usage!==undefined){
+    for(const key of ['prompt_tokens','completion_tokens','total_tokens'])if(usage[key]!==undefined&&(!Number.isSafeInteger(usage[key])||usage[key]<0))fail()
+    if(Number.isSafeInteger(usage.prompt_tokens)&&Number.isSafeInteger(usage.completion_tokens)){
+     if(r.model!==claims.model||typeof r.providerResponseId!=='string'||!r.providerResponseId||!Number.isSafeInteger(r.actualPromptBytes)||r.actualPromptBytes<1||r.actualPromptBytes>claims.maxPromptUtf8Bytes||usage.prompt_tokens>16384||usage.completion_tokens>claims.maxOutputTokens||usage.total_tokens!==undefined&&usage.total_tokens!==usage.prompt_tokens+usage.completion_tokens)fail()
+     estimatedCostCny=(usage.prompt_tokens*claims.inputCnyPerMillion+usage.completion_tokens*claims.outputCnyPerMillion)/1e6
+     if(estimatedCostCny>slot.reservedCostCny+1e-9)fail()
+     cost+=estimatedCostCny
+    }
+   }
+   if(estimatedCostCny==='unknown')unknown=true
+  }
+  return {callId:slot.callId,outcome,usage:r.usage??'unknown',estimatedCostCny,providerResponseId:r.providerResponseId??null}
+ })
+ const reserved=claims.slots.reduce((sum,s)=>sum+s.reservedCostCny,0)
+ if(receipt.providerCalls!==providerCalls||!Number.isFinite(receipt.reservedCostCny)||Math.abs(receipt.reservedCostCny-reserved)>1e-9||unknown&&receipt.costCny!==null||!unknown&&(!Number.isFinite(receipt.costCny)||Math.abs(receipt.costCny-cost)>1e-9))fail()
+ budget.finishGraphReceipts(rows)
+ const record={type:'actual_bound_graph_receipt_settled',requestId:claims.requestId,receiptSha256:sha(JSON.stringify(receipt)),providerCalls,costCny:unknown?null:cost,reservedCostCny:reserved,unknownReservationsRetained:unknown,proposalAccepted:false}
+ appendFileSync(input.journalPath,JSON.stringify(record)+'\n')
+ return record
 }
