@@ -316,8 +316,9 @@ export async function reconcileThemesWithGrowth(c: PoolClient, user: string): Pr
         await c.query("UPDATE experience_theme_links SET status='retired', revision=revision+1 WHERE user_id=$1 AND theme_id=$2 AND status='active'", [user, theme.id])
         continue
       }
-      if (themeTitle(primary.text) !== theme.title || theme.kind !== level.kind) {
-        await c.query("UPDATE user_themes SET title=$3, kind=$4, status=CASE WHEN $5='pending' AND status='active' THEN 'pending' ELSE status END, revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2", [user, theme.id, themeTitle(primary.text), level.kind, level.status])
+      const canonicalTitle=matchPathTheme(primary.text)?.title??themeTitle(primary.text)
+      if (canonicalTitle !== theme.title || theme.kind !== level.kind) {
+        await c.query("UPDATE user_themes SET title=$3, kind=$4, status=CASE WHEN $5='pending' AND status='active' THEN 'pending' ELSE status END, revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2", [user, theme.id, canonicalTitle, level.kind, level.status])
       }
     }
   }

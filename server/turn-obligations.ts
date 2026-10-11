@@ -224,6 +224,8 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
     if(applicable.scope==='remaining'&&applicable.period==='this_week')effects.push({type:'remaining_time',quote:applicable.quote,minutes:applicable.amountMinutes,weekQuote:/本周/.test(currentText)?'本周':'这周'})
     else effects.push({type:'weekly_time',quote:applicable.quote,minutes:applicable.amountMinutes,period:applicable.period})
   }
+  const future=applicableTimeBudget(currentText,undefined,'next_week')
+  if(future?.period==='next_week'&&future.quote!==applicable?.quote&&!effects.some(e=>e.type==='weekly_time'&&e.quote===future.quote))effects.push({type:'weekly_time',quote:future.quote,minutes:future.amountMinutes,period:'next_week'})
   // P2 (B05/B10): the plan binds to the budget that actually APPLIES to the
   // plan's own period. A next-week plan never binds to this week's remainder
   // or to a this-week-scoped amount; it uses the recurring weekly budget. A

@@ -65,7 +65,7 @@ export function deriveStructuralLinks(quote: string): { valueId: string; reason:
 // full sentence containing a detected completed-action clause. The quote stays
 // a server-owned verbatim span; action/result split conservatively by clause
 // shape and may legitimately stay empty.
-const RESULT_SHAPE = /说|反馈|评价|效果|结果|还不错|很好|不错|挺好|通过了|被采纳|被表扬|被批评|有问题|有欠缺|按时|晚了|迟了|提前|没回|没用|用上了|采纳|认可|不满意|效果一般|扣分|没扣分|来问|追问|上线|催了|续了|回应了/
+const RESULT_SHAPE = /说|反馈|评价|效果|结果|还不错|很好|不错|挺好|通过了|被采纳|被表扬|被批评|有问题|有欠缺|按时|晚了|迟了|提前|没回|没用|用了|用上了|采纳|认可|不满意|效果一般|扣分|没扣分|来问|追问|上线|催了|续了|回应了|看过|读过|没有回复|没有回应/
 export function selectStructuralCandidate(sourceText: string, catalogue: readonly ClauseHandle[], anchorIso: string): { quote: string; start: number; end: number; content: ResolvedCandidateContent } | null {
   const matched = catalogue.find(handle =>
     !handle.interrogative && !handle.conditional && !handle.quoted && !handle.code && !handle.attributedToOther
@@ -75,6 +75,8 @@ export function selectStructuralCandidate(sourceText: string, catalogue: readonl
   // Commas chain clauses inside one sentence (sentenceStart resets only at
   // terminators), so the candidate is the whole comma chain the action sits in.
   const inSentence = catalogue.filter(handle => handle.sentenceStart === matched.sentenceStart)
+  const following=catalogue.find(handle=>handle.start>Math.max(...inSentence.map(c=>c.end)))
+  if(following&&!following.conditional&&!following.interrogative&&!following.quoted&&!following.code&&/^(?:对方|客户|导师|老师).{0,12}(?:看过|读过|已读|回复|回应|采用|用了)/.test(following.text))inSentence.push(following)
   const end = Math.max(...inSentence.map(handle => handle.end))
   const quote = sourceText.slice(matched.sentenceStart, end)
   const action = inSentence.find(handle => clauseReportsCompleted(handle.text))

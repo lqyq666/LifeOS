@@ -57,14 +57,9 @@ export function generateInsight(data: {
   const relatedTitles = relatedExperiences.map(rel => rel.title)
 
   // 4. 下一步只基于具体任务，不以身份等级奖励更多行为。
-  let nextStep: string
-  if (blocked) {
-    nextStep = '这件事卡在哪了？跟 AI 聊聊卡点，拆成最小的一步。'
-  } else if (connectedThemes.length > 0) {
-    nextStep = `如果你愿意，可以核对这次经历与「${connectedThemes[0]!.title}」的关系。`
-  } else {
-    nextStep = '如果你愿意，可以聊聊这次经过增加了哪些信息、还缺哪些信息。'
-  }
+  // A recorded experience does not authorize another action. Concrete next
+  // steps belong to the current accepted plan, not an automatic node CTA.
+  const nextStep = ''
 
   return {
     headline,

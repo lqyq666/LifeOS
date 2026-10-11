@@ -13,6 +13,10 @@ import type { GrowthDelta,ResolvedGrowthDelta } from './growth-model-contracts.t
 import type { Run } from './store.ts'
 import { reconcileThemesWithGrowth, projectUserThemes } from './user-themes.ts'
 import {reconcileIdentityClaims,projectIdentityClaims} from './identity.ts'
+import {hoursIn} from './turn-obligations.ts'
+import {deferredPursuitClause} from './user-command-spans.ts'
+import {matchPathTheme} from './path-lexicon.ts'
+import {persistMemoryControl} from './memory-controls.ts'
 
 type DB = Pick<PoolClient, 'query'>
 type Row = { id: string; user_id: string; conversation_id: string; kind: GrowthItem['kind']; text: string; assertion: GrowthItem['assertion']; status: GrowthItem['status']; sources: GrowthItem['sources']; dependencies: GrowthRef[]; valid_until: Date | null; valid_from: Date | null; time_basis: Record<string, unknown> | null; direction_scopes: string[] | null; structured_plan: Record<string, unknown> | null; revision: number; created_at: Date; updated_at: Date; limitation?:string;progress_state?:GrowthItem['progressState'] }
@@ -538,14 +542,24 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
       row=updatedRow
     }
     await record(c,row,delta.target.operation==='create'?'extract':delta.target.operation);ids[index]=row.id;written.set(index,row)
+    if(row.assertion==='user_reported'&&/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(row.text))
+      await persistMemoryControl(c,run,{kind:'stop_recommend',itemId:row.id,expectedRevision:row.revision,clauseText:row.text})
     // A new general availability report for the identical calendar week
+    if(row.assertion==='user_reported'&&['goal','direction'].includes(row.kind)&&/优先/.test(row.text)){
+      const currentPath=matchPathTheme(row.text)?.title
+      if(currentPath){
+        const deferred=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND id<>$2 AND kind='context' AND assertion='user_reported' AND status='active' ORDER BY id FOR UPDATE",[run.user_id,row.id])).rows
+        for(const prior of deferred)if(deferredPursuitClause(prior.text)&&matchPathTheme(prior.text)?.title===currentPath)
+          await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'})
+      }
+    }
     // supersedes earlier amounts. Preserve history through the existing pause
     // action; its revision invalidates plans based on the older amount. Scoped
     // course/project allowances and other weeks remain independent.
     if(row.kind==='constraint'&&row.assertion==='user_reported'&&mutation.time?.basis.kind==='calendar_week'&&
-      /(?:小时|分钟|钟头|时间.{0,8}(?:零|0))/.test(row.text)&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(row.text)){
+      hoursIn(row.text)!==null&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(row.text)){
       const older=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND id<>$2 AND kind='constraint' AND assertion='user_reported' AND status='active' AND valid_until=$3 AND time_basis->>'kind'='calendar_week' ORDER BY id FOR UPDATE",[run.user_id,row.id,row.valid_until])).rows
-      for(const prior of older)if(/(?:小时|分钟|钟头|时间.{0,8}(?:零|0))/.test(prior.text)&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(prior.text))
+      for(const prior of older)if(hoursIn(prior.text)!==null&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(prior.text))
         await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'})
     }
     if(delta.target.operation==='create')createdIds.push(row.id)

@@ -3,6 +3,7 @@
 import type { PoolClient,Pool } from 'pg'
 import { randomUUID } from 'node:crypto'
 import { recordChangeEvent } from './identity.ts'
+import {clauseReportsCompleted} from './experience-content.ts'
 
 // ── 能力标签 ──
 // 技能同义词表：经历的行动/结果原文包含这些词时挂对应能力标签。
@@ -31,6 +32,8 @@ const BLOCKED_DONE = /(?:完成了|交了|交付|搞定|通过了|验收)/
 
 // 一条经历是否是未完成/卡住的行动：有"卡住"标记且没有完成标记。
 export function isBlockedExperience(action: string, result: string, quote: string): boolean {
+  if(clauseReportsCompleted(action))return false
+  if(action.trim())return BLOCKED_MARKER.test(action)&&!BLOCKED_DONE.test(action)
   // A participant not adopting or paying is not an unfinished contribution.
   if(/问了|问过|访谈了|聊过/.test(action)&&!BLOCKED_MARKER.test(action))return false
   const text = `${action} ${result} ${quote}`
@@ -39,7 +42,7 @@ export function isBlockedExperience(action: string, result: string, quote: strin
 
 // ── 外部反馈标记 ──
 // "部长说/导师夸/客户评价/老师反馈" → 来自他人；无这些标记 → 本人自述。
-const EXTERNAL_FEEDBACK = /(?:部长|导师|老师|客户|社长|学长|同学|评委|负责人|经理|HR|面试官)(?:说|说|表示|评价|反馈|夸|批评|认为|觉得)|(?:反馈|评价|验收|回复)(?:说|是|不错|很好|挺好|还行|一般|不好)|(?:被)(?:夸|批评|表扬|认可|拒绝)/
+const EXTERNAL_FEEDBACK = /(?:部长|导师|老师|客户|社长|学长|同学|评委|负责人|经理|HR|面试官)(?:说|说|表示|评价|反馈|夸|批评|认为|觉得)|(?:客户|对方|他们).{0,8}(?:用了|使用|采用|看过|读过|没(?:有)?回复)|(?:反馈|评价|验收|回复)(?:说|是|不错|很好|挺好|还行|一般|不好)|(?:被)(?:夸|批评|表扬|认可|拒绝)/
 export function isExternalFeedback(result: string, quote: string): boolean {
   return EXTERNAL_FEEDBACK.test(`${result} ${quote}`)
 }
@@ -82,20 +85,6 @@ export async function buildExperienceRelations(c: PoolClient, user: string, newE
       created++
     }
   } catch { /* embedding 不可用时跳过 */ }
-  // 时间先后关系：最近的经历跟新经历建立 follows
-  const latest = others[0]
-  if (latest && new Date(latest.created_at) < new Date()) {
-    const existing = (await c.query(
-      "SELECT 1 FROM experience_relations WHERE user_id=$1 AND from_experience=$2 AND to_experience=$3",
-      [user, latest.id, newExperienceId]
-    )).rowCount
-    if (!existing) {
-      await c.query(
-        `INSERT INTO experience_relations(user_id, from_experience, to_experience, relation, score, reason) VALUES($1,$2,$3,'follows',1,'时间上先后发生')`,
-        [user, latest.id, newExperienceId]
-      )
-      created++
-    }
-  }
+  // Creation order alone establishes no meaningful personal relationship.
   return created
 }

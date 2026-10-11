@@ -67,7 +67,7 @@ test('omitted read/response/adoption reports persist independently and remain in
   const budgetResult=await engine({run:budget,staged:budgetStaged,context:await store.contextForRun(budget),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(budget,budgetStaged,budgetResult.text,budgetResult.usage,new AbortController().signal)
   const earlier=(await pool.query("SELECT id FROM growth_items WHERE user_id=$1 AND kind='constraint' AND status='active' AND text LIKE '%九十分钟%'",[user])).rows[0]
-  const zero=(await store.startRun(user,next,randomUUID(),'本周已经没有能用的时间了，可用时间是零，请帮我安排本周课程与备考。')).run,zeroStaged:store.Staged={candidates:[],audit:[]},beforeZero=requests.length
+  const zero=(await store.startRun(user,next,randomUUID(),'本周没有可用时间，可用时间是零，请帮我安排本周课程与备考。')).run,zeroStaged:store.Staged={candidates:[],audit:[]},beforeZero=requests.length
   const zeroResult=await engine({run:zero,staged:zeroStaged,context:await store.contextForRun(zero),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(zero,zeroStaged,zeroResult.text,zeroResult.usage,new AbortController().signal)
   assert.equal(requests.length,beforeZero)
@@ -85,11 +85,21 @@ test('omitted read/response/adoption reports persist independently and remain in
   const listeningFacts=(await growthView(user,next)).items.map(i=>i.text)
   assert.ok(listeningFacts.includes('我请教导师的邮件已经发出去了'))
   assert.ok(listeningFacts.includes('对方看过但没有回应'))
+  const graph=await store.cognitionGraph(user)
+  const email=graph.nodes.find((n:any)=>n.type==='experience'&&n.action?.includes('邮件')) as any
+  assert.ok(email,'own completed contact persists while listening')
+  assert.equal(email.result,'对方看过但没有回应')
+  assert.equal(email.insight.nextStep,'')
   const editText='我想把访谈问题改成“你最近一次遇到这件事，最后怎么处理的？”',edit=(await store.startRun(user,next,randomUUID(),editText)).run,editStaged:store.Staged={candidates:[],audit:[]}
   outputs.push({reply:boundedOrdinaryReply({text:editText,intent:knowledgeIntent(editText),contract:deriveTurnContract({text:editText,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
   const edited=await engine({run:edit,staged:editStaged,context:await store.contextForRun(edit),decision:null,signal:new AbortController().signal,emit:()=>{}})
   await store.finishRun(edit,editStaged,edited.text,edited.usage,new AbortController().signal)
   assert.ok((await growthView(user,next)).items.some(i=>i.kind==='context'&&i.text===editText))
+  const stoppedInterview=(await store.startRun(user,next,randomUUID(),'这次访谈我暂时不继续，也不要给我其他方法。')).run,stopInterviewStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:'这次访谈先暂停，不追加方法。'})
+  const pausedInterview=await engine({run:stoppedInterview,staged:stopInterviewStaged,context:await store.contextForRun(stoppedInterview),decision:null,signal:new AbortController().signal,emit:()=>{}})
+  await store.finishRun(stoppedInterview,stopInterviewStaged,pausedInterview.text,pausedInterview.usage,new AbortController().signal)
+  assert.equal((await pool.query("SELECT count(*)::int AS n FROM growth_recommendation_controls WHERE user_id=$1 AND state='stopped' AND source_message_id=$2",[user,stoppedInterview.source_message_id])).rows[0].n,1)
   await pool.query('UPDATE user_memory_settings SET enabled=false, revision=revision+1 WHERE user_id=$1',[user])
   const off=(await store.startRun(user,next,randomUUID(),'我问了导师乙，对方已经读了。我现在只想聊聊。')).run,offStaged:store.Staged={candidates:[],audit:[]}
   outputs.push({reply:'可以慢慢说。'})
