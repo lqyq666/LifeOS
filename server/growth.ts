@@ -14,7 +14,7 @@ import type { Run } from './store.ts'
 import { reconcileThemesWithGrowth, projectUserThemes } from './user-themes.ts'
 import {reconcileIdentityClaims,projectIdentityClaims} from './identity.ts'
 import {hoursIn} from './turn-obligations.ts'
-import {deferredPursuitClause} from './user-command-spans.ts'
+import {deferredPursuitClause,refusalPreferenceClause} from './user-command-spans.ts'
 import {matchPathTheme} from './path-lexicon.ts'
 import {persistMemoryControl} from './memory-controls.ts'
 import {clauseReportsAttempted} from './experience-content.ts'
@@ -556,7 +556,7 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
         }
       }
     }
-    if(row.assertion==='user_reported'&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(row.text)||/^我(?:暂时|先)?不想继续/.test(row.text)))
+    if(row.assertion==='user_reported'&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(row.text)||refusalPreferenceClause(row.text)))
       await persistMemoryControl(c,run,{kind:'stop_recommend',itemId:row.id,expectedRevision:row.revision,clauseText:row.text})
     // A new general availability report for the identical calendar week
     if(row.assertion==='user_reported'&&['goal','direction'].includes(row.kind)&&/优先/.test(row.text)){

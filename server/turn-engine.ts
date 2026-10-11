@@ -30,11 +30,11 @@ import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grou
 import { stageWeeklyPlan, renderProposedWeeklyPlan } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
-import { scanUserClauses,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause } from './user-command-spans.ts'
+import { scanUserClauses,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,refusalPreferenceClause } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
-import { deriveTurnContract, bindPlanBudgetSchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses,reportedPerformedTaskClauses } from './turn-contract.ts'
+import { deriveTurnContract, bindPlanBudgetSchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses,reportedPerformedTaskClauses,reportedTaskBoundaryClauses } from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
@@ -644,7 +644,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // NP_NEG_01 / BS_RESOURCE_01: optional model deltas omitted explicit status.
     // Retain only the speaker's guarded verbatim status, never an experience,
     // inferred cause, goal or completion. Corrections and controls keep authority.
-    const explicitTaskFacts=[...negativePersonalFactClauses(current.content).filter(clause=>/(?:没(?:有)?|尚未|还未|未)(?:开始|完成|做|复习|准备|交付|发送)|不想继续/.test(clause.text)),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||/^我想把(?:验证问题|访谈问题|提问|这个问题)改成/.test(c.text)||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
+    const explicitTaskFacts=[...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content).filter(clause=>/(?:没(?:有)?|尚未|还未|未)(?:开始|完成|做|复习|准备|交付|发送)|不想继续/.test(clause.text)),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||/^我想把(?:验证问题|访谈问题|提问|这个问题)改成/.test(c.text)||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
     const taskFactSupplement=snapshot.settings.enabled?explicitTaskFacts.filter(clause=>
       !controlClauseTexts.includes(clause.text)&&
       !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&
@@ -671,7 +671,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         if(!goalMutated&&!goalCreated){
           const clauses=scanUserClauses(current.content).filter(clause=>/[\p{L}\p{N}]/u.test(clause.text))
           const markerIndex=clauses.findIndex(clause=>goalChangeMarker.test(clause.text))
-          const newGoalClause=markerIndex>=0?clauses.slice(markerIndex+1).find(clause=>/我/.test(clause.text)&&!clause.interrogative&&!goalChangeMarker.test(clause.text)):undefined
+          const newGoalClause=markerIndex>=0?clauses.slice(markerIndex+1).find(clause=>staged.serverGoals?.some(goal=>goal.quote===clause.text)&&!clause.interrogative&&!goalChangeMarker.test(clause.text)):undefined
           if(newGoalClause){
             const supersedeDelta={target:{operation:'replace' as const,itemId:activeGoals[0]!.id,expectedRevision:activeGoals[0]!.revision},assertion:'user_reported' as const,kind:activeGoals[0]!.kind as 'goal',source:{messageId:run.source_message_id,quote:newGoalClause.text.trim()}}
             try{
@@ -1028,7 +1028,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const slimUpdateTimeMode=obligations.kind==='update_weekly_time'&&!/(?:已经|昨天|已投|已发|投了|发了|完成了|做了|交了)/.test(current.content)
   // An unambiguous refusal needs no generated interpretation. It still uses
   // the same validator and transaction for its durable stop preference.
-  const refusalOnly=Boolean(boundedReply&&currentConversationOnly(current.content)&&clauseCatalogue.some(c=>/^我(?:现在|暂时|先)?不想继续了$/.test(c.text))&&clauseCatalogue.every(c=>conversationPreferenceClause(c.text)||/^(?:按上次办法|还是上次那件事|上次那件事)$/.test(c.text)))
+  const refusalOnly=Boolean(boundedReply&&currentConversationOnly(current.content)&&clauseCatalogue.some(c=>refusalPreferenceClause(c.text))&&clauseCatalogue.every(c=>conversationPreferenceClause(c.text)||/^(?:按上次办法|还是上次那件事|上次那件事)$/.test(c.text)))
   let result:ActionCoachTurn,firstText:string|undefined
   try{
     if(refusalOnly)staged.audit.push({phase:'explicit_refusal_deterministic',providerCalls:0})

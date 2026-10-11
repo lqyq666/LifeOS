@@ -1,5 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import {requestsTimeArrangement} from '../server/turn-obligations.ts'
+
+test('real course V18: natural planning question uses remaining time, questions about others stay read-only',()=>{
+ const text='我是成年大学生，平常每周可用六小时；这周只剩两小时了。课程作业和备考怎么安排？'
+ assert.equal(requestsTimeArrangement(text),true)
+ assert.ok(deriveTurnObligations(text).requiredEffects.some(e=>e.type==='weekly_plan'&&e.minutes===120))
+ for(const no of ['老师怎么安排课程？','室友怎么安排备考？','上次课程怎么安排的？','如果课程怎么安排会比较好？'])assert.equal(requestsTimeArrangement(no),false,no)
+})
 
 test('listening preserves explicit zero time without authorizing a plan',()=>{
  const effects=deriveTurnObligations('我这周零分钟可用，先别分析创业了，只想说说最近的压力。').requiredEffects

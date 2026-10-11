@@ -10,6 +10,7 @@ import * as store from '../../server/store.ts'
 import {growthContext} from '../../server/growth.ts'
 import {setMemorySettings} from '../../server/memory.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
+import {readRecommendationControls} from '../../server/memory-controls.ts'
 
 test('real course failure regression: current plan rebinds wrong recurring-time index (isolated PG, one simulated response)',async()=>{
  await localEmbedding.start()
@@ -44,4 +45,39 @@ test('real course failure regression: current plan rebinds wrong recurring-time 
   model.baseUrl=previousURL;config.apiKey=previousKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()))
  }
 })
+test('real V18 boundaries persist verbatim across sessions and refusal cannot replace the earlier goal',async()=>{
+ const user='course-boundary-'+randomUUID(),previousURL=model.baseUrl,previousKey=config.apiKey
+ let calls=0
+ const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',x=>chunks.push(Buffer.from(x)));req.on('end',()=>{
+  calls++;const payload=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(payload.messages[1].content)
+  const goalClause=ctx.clauses?.find((x:{text:string})=>x.text==='我想完成课程作业')
+  const output={reply:ctx.boundedReply?.choices[0]??'先保留你刚说的目标。',...(goalClause?{growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:goalClause.id}}]}:{})}
+  const base={id:'synthetic-course-boundary',object:'chat.completion.chunk',created:1,model:model.id}
+  res.writeHead(200,{'Content-Type':'text/event-stream'});res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\ndata: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
+ })})
+ await new Promise<void>(r=>fake.listen(0,'127.0.0.1',r))
+ try{
+  model.baseUrl='http://127.0.0.1:'+(fake.address() as {port:number}).port;config.apiKey='synthetic-local-only'
+  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
+  await setMemorySettings(user,{requestId:randomUUID(),enabled:true,expectedRevision:0})
+  const chats=[randomUUID(),randomUUID(),randomUUID()];for(const id of chats)await store.createConversation(user,{id,title:'SYNTHETIC course boundary'})
+  async function turn(chat:string,text:string){
+   const run=(await store.startRun(user,chat,randomUUID(),text)).run
+   const input={run,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}}
+   const result=await createTurnEngine({capabilityVerified:()=>true})(input);await store.finishRun(run,input.staged,result.text,result.usage,input.signal)
+  }
+  await turn(chats[0]!,'我想完成课程作业。')
+  await turn(chats[0]!,'上次排的课程作业，我已经列好题目了，但第三题不会做。')
+  await turn(chats[1]!,'先不备考。')
+  await turn(chats[2]!,'这事先不想继续，别给我安排。')
+  const rows=(await pool.query('SELECT id,kind,text,status FROM growth_items WHERE user_id=$1',[user])).rows
+  assert.ok(rows.some(x=>x.text==='但第三题不会做'&&x.kind==='context'))
+  assert.ok(rows.some(x=>x.text==='先不备考'&&x.kind==='context'))
+  const refusal=rows.find(x=>x.text==='这事先不想继续')!
+  assert.equal(refusal.kind,'context');assert.ok((await readRecommendationControls(user)).some(x=>x.itemId===refusal.id))
+  assert.ok(rows.some(x=>x.kind==='goal'&&x.text==='我想完成课程作业'),JSON.stringify(rows))
+  assert.equal(calls,3,'pure refusal performs zero generation without deleting facts')
+ }finally{model.baseUrl=previousURL;config.apiKey=previousKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()))}
+})
+
 test.after(async()=>{await localEmbedding.close();await pool.end()})

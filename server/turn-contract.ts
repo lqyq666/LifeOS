@@ -7,7 +7,7 @@
 // narrows what the model is offered.
 
 import { actionCoachTurnSchema } from './action-coach-contracts.ts'
-import { scanUserClauses,currentConversationOnly,conversationPreferenceClause } from './user-command-spans.ts'
+import { scanUserClauses,currentConversationOnly,conversationPreferenceClause,refusalPreferenceClause } from './user-command-spans.ts'
 
 export type TurnContractMode='reply_only'|'reply_growth'|'event'|'knowledge'|'planning'|'material'
 export type TurnContractCapabilities={
@@ -69,6 +69,14 @@ export function resourceBlockedPersonalFactClauses(text:string){
   // BS_RESOURCE_01: only an explicit resource of the speaker's current course.
   // This records their report, never a website diagnosis or a completed action.
   return anchorablePersonalClauses(text).filter(clause=>/^(?:我的|我这门课的|这门课的|这次课程的).{0,16}(?:材料|教材|课件|资料|链接|网页).{0,6}(?:无法打开|打不开)/.test(clause.text))
+}
+
+export function reportedTaskBoundaryClauses(text:string){
+ const clauses=anchorablePersonalClauses(text)
+ return clauses.filter(clause=>refusalPreferenceClause(clause.text)
+  ||/^(?:我(?:现在|暂时)?)?(?:先|暂时)不(?:备考|复习)(?:了)?$/.test(clause.text)
+  ||(/^(?:但)?第[一二三四五六七八九十\d]+(?:道|个)?题(?:不会做|不会|不懂|没思路)$/.test(clause.text)
+   &&clauses.some(other=>other.sentenceStart===clause.sentenceStart&&/(?:我|本人)/.test(other.text))))
 }
 
 export function reportedTaskOutcomeClauses(text:string){

@@ -1,5 +1,16 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+
+test('real course V18: reported blocker and a narrow budget correction never promise marks or sufficient time',()=>{
+ const blocked=make('上次排的课程作业，我已经列好题目了，但第三题不会做。')!
+ assert.equal(blocked?.stage,'blocked')
+ assert.ok(blocked.choices.every(x=>x.includes('题')&&!/基础分|足够/.test(x)))
+ const corrected=make('更正一下，这周现在只剩半小时了，先不备考，处理第三题。',{verifiedBudget:{minutes:30,period:'this_week',quote:'这周现在只剩半小时了'}})!
+ assert.ok(corrected?.choices.every(x=>x.includes('30分钟')&&!x.includes('足够')))
+ const refused=make('这事先不想继续，别给我安排。')!
+ assert.equal(refused?.stage,'reported_result')
+ assert.ok(refused?.choices.every(x=>!x.includes('哪部分')&&!x.includes('先选')))
+})
 import {deliverableIntent} from '../server/action-coach-events.ts'
 import {bindPlanBudgetSchema} from '../server/turn-contract.ts'
 

@@ -31,7 +31,7 @@ export function weeklyPlanIntent(text:string):{period:'current'|'this_week'|'nex
     for(const clause of sentence){
       const body=clause.text.trim()
       if(!body)continue
-      if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)continue
+      if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||thirdPersonSubject.test(body))continue
       if(arrangementRequest.test(body)){
         // P2 (B10): a past-tense question (怎么安排的) asks what WAS done, not
         // for a plan.
@@ -235,7 +235,7 @@ export function deriveTurnObligations(currentText:string,options:{resumePortfoli
   // re-scoped plan.
   if(plan){
     const bindingMinutes=applicable?.amountMinutes??null
-    if(bindingMinutes!==null)effects.push({type:'weekly_plan',period:plan.period,minutes:bindingMinutes})
+    if(bindingMinutes!==null)effects.push({type:'weekly_plan',period:plan.period==='current'&&applicable?.period==='this_week'?'this_week':plan.period,minutes:bindingMinutes})
   }
   for(const change of options.directionControls??[])effects.push({type:'direction_control',scopes:change.scopes,operation:change.operation})
   if(options.resumePortfolioMode)effects.push({type:'grounded_material',materialKind:'resume_portfolio'})
@@ -259,7 +259,7 @@ export function requestsTimeArrangement(text:string):boolean{
   for(const clause of scanUserClauses(text)){
     const body=clause.text.trim()
     if(!body)continue
-    if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)continue
+    if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||thirdPersonSubject.test(body))continue
     if(arrangementRequest.test(body)){
       if(/怎么(?:安排|排|规划)的[？?]?$/.test(body))continue
       return true

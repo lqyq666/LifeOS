@@ -31,6 +31,12 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '我在听。你接着说，按你想说的节奏来。',
   '嗯，我在这儿听着。你想先说什么都可以。',
  ])
+ if(/第[一二三四五六七八九十\d]+(?:道|个)?题(?:不会做|不会|不懂|没思路)/.test(own))return make('blocked','本人所报受阻题目的题干、实际做到的位置',[
+  '先只看你说不会做的这一题。把题干、关键条件和已经做到的位置发来，我们从卡住处继续；原因与结果仍待核对，不重发整套入门方法。',
+ ])
+ if(input.verifiedBudget&&/(?:先|暂时)不(?:备考|复习)/.test(own)&&/处理第[一二三四五六七八九十\d]+(?:道|个)?题/.test(own))return make('blocked','当前题目的题干和实际受阻位置',[
+  `按你刚说的${input.verifiedBudget.period==='next_week'?'下周':'本周'}${input.verifiedBudget.minutes}分钟上限，先暂停备考，只看当前这一题。先发来题干和已经做到的位置；能处理到哪一步取决于题目和实际尝试。`,
+ ])
  const demanded=clauses.find(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&/需要每周/.test(c.text))
  const demandMinutes=demanded?hoursIn(demanded.text):null
  if(demandMinutes!==null&&input.verifiedBudget&&demandMinutes>input.verifiedBudget.minutes)return make('blocked','机会能否缩小或推迟，后续周时间是否不同',[
