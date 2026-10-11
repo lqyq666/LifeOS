@@ -153,6 +153,10 @@ test('omitted read/response/adoption reports persist independently and remain in
   const refuseRun=await advance('按上次办法，我不想继续了。')
   assert.equal((await pool.query("SELECT count(*)::int AS n FROM growth_recommendation_controls WHERE user_id=$1 AND state='stopped' AND source_message_id=$2",[user,refuseRun.source_message_id])).rows[0].n,1)
   assert.ok((await growthView(user,next)).items.some(i=>i.text==='我不想继续了'&&i.recommendationStopped))
+  const experienceCount=(await pool.query('SELECT count(*)::int AS n FROM experiences WHERE user_id=$1',[user])).rows[0].n
+  await advance('还是上次那件请教的事，我先只想说说近况。')
+  assert.equal((await pool.query('SELECT count(*)::int AS n FROM experiences WHERE user_id=$1',[user])).rows[0].n,experienceCount)
+  assert.ok(!(await growthView(user,next)).items.some(i=>i.text==='我先只想说说近况'),'ephemeral conversation preference is neither growth nor a pursuit')
   const advancedFacts=(await growthView(user,next)).items
   assert.equal(advancedFacts.find(i=>i.text==='我还没有开始这次课程复习')!.status,'paused')
   const attemptReceipt=(await pool.query('SELECT response FROM runs WHERE user_id=$1 AND request_id=$2',[user,attemptedRun.request_id])).rows[0].response

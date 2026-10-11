@@ -1,0 +1,8 @@
+{"kind":"PREDECLARED_NEW_FIRST_REAL_REPAIR_SET","historicalFirstFailuresPreserved":true,"notReplacement":true,"independentReview":"REQUIRED","cases":[
+{"caseId":"NC15_INTERVIEW_START","session":0,"input":"我想探索校园项目，先了解同学实际遇到的麻烦，怎么开始？","expected":"Exploration editorial suggestion only, not a completed action or efficacy claim."},
+{"caseId":"NC15_INTERVIEW_DONE","session":1,"input":"我已经访谈了一名同学，他说有兴趣，但尚未采用，也没有付款。","expected":"Actual interview retained, interest/adoption/payment/effect separately reported or unknown."},
+{"caseId":"NC15_EDIT","session":1,"input":"我想把访谈问题改成上一次具体卡在哪里，不再问想不想用。","expected":"Verbatim revised question and negative preference persist, neither is experience."},
+{"caseId":"NC15_LISTEN","session":2,"input":"还是上次那件事，我先只想说说近况。","expected":"No new experience, goal or pursuit for temporary listening; actual interview retained."},
+{"caseId":"NC15_CONTINUE","session":3,"input":"还是那次访谈，接下来该怎样聊？","expected":"Continue actual last interview with authorized revised question; no unrelated initial-contact template or false no-contact claim."},
+{"caseId":"NC15_STOP","session":3,"input":"按上次办法，我不想继续了。","expected":"Durable stopped recommendation preference, listening response, actual earlier action retained."}
+]}

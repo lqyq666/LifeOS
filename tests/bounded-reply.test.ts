@@ -133,3 +133,10 @@ test('first natural real failures: quoted interview question is a step edit and 
  assert.equal(boundedReplyAccepts('挺磨人的，你是不是很焦虑？',reply),false)
  assert.ok(reply.choices.every(s=>!s.includes('焦虑')&&!s.includes('催')&&!s.includes('难受')))
 })
+test('a continued interview uses the authorized revised question and cannot reopen an unrelated contact template',()=>{
+ const text='还是上次那次访谈，接下来该怎样聊？'
+ const reply=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default',priorInterviewQuestion:'最近一次卡在什么地方'})!
+ assert.ok(reply.choices.every(c=>c.includes('最近一次卡在什么地方')))
+ assert.ok(reply.choices.every(c=>!c.includes('尚未联系')&&!c.includes('起草消息')))
+})
+

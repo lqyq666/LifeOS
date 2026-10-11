@@ -5,6 +5,7 @@
 import { resolveClause, type ClauseHandle } from './clause-catalogue.ts'
 import { resolveOccurredDate } from './growth-time.ts'
 import { classifyWithLexicon } from './category-lexicon.ts'
+import {conversationPreferenceClause} from './user-command-spans.ts'
 
 export type ResolvedCandidateContent = { action: string; result: string; occurredAt: string }
 
@@ -17,7 +18,7 @@ const COMPLETED_ACTION = /(?:做完|完成|交付|交了|交完|交上去|交过
 const NOT_YET = /打算|准备|计划|希望|想要|将要|下次|明天|后天|以后|考虑|如果|假设|还没|尚未|没来得及|没写完|没做完|没完成|没交/
 // “交付范围” names an action but “想先确认” has not performed it.
 // Shared by the structural fallback and the actual candidate persistence gate.
-export const clauseExpressesWishToAct=(text:string):boolean=>/(?:想|要)(?:先|去|尝试|试试|交付|提交|上线|发布|确认|核对|了解)|^(?:先|请|帮我)(?:确认|核对|交付|提交|上线|发布|了解)/.test(text)
+export const clauseExpressesWishToAct=(text:string):boolean=>/(?:想|要)(?:先|去|尝试|试试|交付|提交|上线|发布|确认|核对|了解)|^(?:先|请|帮我)(?:确认|核对|交付|提交|上线|发布|了解)|(?:只想|就想)(?:聊|说|倾诉|吐槽)/.test(text)
 // First person scopes the whole sentence: the action clause itself often
 // drops the pronoun (「迟了一天补交上去」) while a sibling clause carries it.
 export const sentenceIsFirstPersonPublic = (catalogue: readonly ClauseHandle[], handle: ClauseHandle): boolean =>
@@ -39,8 +40,8 @@ export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]):
     bySentence.set(handle.sentenceStart, group)
   }
   for (const handles of bySentence.values()) {
-    const text = handles.map(handle => handle.text).join()
-    if (BACK_REFERENCE.test(text) && handles.some(handle => RESULT_SHAPE.test(handle.text)) && handles.every(handle => !handle.interrogative && !handle.conditional)) return true
+    const text = handles.filter(handle=>!conversationPreferenceClause(handle.text)).map(handle => handle.text).join()
+    if (BACK_REFERENCE.test(text) && handles.some(handle => !conversationPreferenceClause(handle.text)&&RESULT_SHAPE.test(handle.text)) && handles.every(handle => !handle.interrogative && !handle.conditional)) return true
   }
   return false
 }

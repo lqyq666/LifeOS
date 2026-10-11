@@ -21,7 +21,7 @@ export function boundedPlanningReply(budget:{minutes:number;period:'current'|'th
 // effect claim, deadline, number or personal fact to the selected reply.
 // Material delivery, scheduling, listening and personal decisions keep their
 // existing contracts. This is not a second guide corpus.
-export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;contract:TurnContract;knowledgeCount:number;tier:string;verifiedBudget?:{minutes:number;period:'current'|'this_week'|'next_week';quote:string}}):BoundedReply|null{
+export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;contract:TurnContract;knowledgeCount:number;tier:string;priorInterviewQuestion?:string;verifiedBudget?:{minutes:number;period:'current'|'this_week'|'next_week';quote:string}}):BoundedReply|null{
  const contactQuestion=/(?:联系|请教|联络)/.test(input.text)&&/(?:怎么|如何|怎样)/.test(input.text)
  if(input.tier!=='default'||input.contract.capabilities.material||input.contract.capabilities.plan)return null
  const clauses=scanUserClauses(input.text)
@@ -115,7 +115,10 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '先回看上次真正做过的那一步和实际反馈，不重新安排整套入门方法。是没开始、做到中途卡住，还是做完后结果不符合预期？',
   '可以先缩小这次要处理的范围，不补猜失败原因。已经有哪些可继续使用的内容，哪一步还缺材料？',
  ]}
- if(/(?:联系|请教|学长|导师|访谈)/.test(own))return make('start','本次交流中希望对方确认的一项信息',[
+ if(/访谈/.test(own)&&/上次|还是|继续|接下来/.test(own))return make('reported_result','这次原步骤中的实际回答与行为',[
+  input.priorInterviewQuestion?`沿用你提出的问法「${input.priorInterviewQuestion}」，只继续这次访谈的一步，不重发入门方法。先看对方最近一次实际遇到的情况与当时做法；采用、付款和效果仍分别核对。你想先看哪段回答？`:'先接着这次访谈的原步骤与实际反馈，核对最近一次具体困难和对方当时怎样处理。采用、付款和效果分别保留；你想先看哪段回答？',
+ ])
+ if(/(?:联系|请教|学长|导师)/.test(own))return make('start','本次交流中希望对方确认的一项信息',[
   '先围绕你这次请教的目标，选一个最需要对方确认的问题。尚未联系时不记为发送。你想先写这句话，还是直接起草消息？',
   '先把这次交流要确认的一个问题写清楚，其他问题暂放。需要的话我们可以一起起草；发出以后再分别记录回应与结果。',
  ])
