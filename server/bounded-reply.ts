@@ -30,6 +30,12 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '我在听。你接着说，按你想说的节奏来。',
   '嗯，我在这儿听着。你想先说什么都可以。',
  ])
+ if(/我.{0,20}优先/.test(own)&&!/(?:怎么|如何|怎样|比较|取舍)/.test(own))return make('reported_result','新的优先事项需要什么帮助',[
+  '先按你刚说的优先事项来，其他方向不继续加任务。已报告的经历保留；接下来可以只处理当前优先的事情。',
+ ])
+ if(/(?:已经|已)(?:读了|读过|看过)|对方看过/.test(own)&&/(?:没(?:有)?|尚未|未)(?:回复|回应)|没回/.test(own))return make('waiting_result','尚未回应原因及实际效果仍未知',[
+  '你已经报告对方读过、尚未回应，这两项分别保留。是否采用和实际效果以你报告为准；没有新结果时先不判有效或失败。',
+ ])
  // A narrow certainty correction must not reclassify read/sent/payment or
  // restart an already stated request. State correction still uses the
  // existing correction/transaction machinery, independently of this reply.

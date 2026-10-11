@@ -48,7 +48,7 @@ export type PreparedDirectionControls = {
 }
 
 const clauseSplit=/[，,；;。！？!?\n]/
-const pauseVerbs=/(?:先别推|别再给我推|不要再给我推|别给我推|别推|不要推|先不推|别再推|不要再推|停止推|暂停推|停止推荐|暂停|先别提|别提)/
+const pauseVerbs=/(?:先别分析|不要再分析|先别推|别再给我推|不要再给我推|别给我推|别推|不要推|先不推|别再推|不要再推|停止推|暂停推|停止推荐|暂停|先别提|别提)/
 const resumeVerbs=/(?:恢复|继续推|重新开始推|可以推|恢复推荐)/
 // Direction wording → scopes. Longest phrases first so 专升本 wins over 本.
 const directionPatterns:{pattern:RegExp;scopes:()=>DirectionScope[]}[]=[

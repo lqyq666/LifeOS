@@ -98,6 +98,7 @@ export function resolveGrowthDeltas(input:{
     const next:ResolvedGrowthDelta={...deltaWithoutExpiry,...(legacyValidUntil?{validUntil:legacyValidUntil}:{}),source:{messageId:input.currentMessageId,quote:clause.text},target:{operation:'create'},...(timeEvidence?{timeEvidence}:{})} as unknown as ResolvedGrowthDelta
     if(['goal','direction'].includes(next.kind)&&/^我想把(?:验证问题|访谈问题|提问|这个问题)/.test(clause.text))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&deferredPursuitClause(clause.text))next.kind='context'
+    if(['goal','direction'].includes(next.kind)&&/^我(?:愿意|想)(?:试|尝试)(?:这个|刚才|上述)(?:方法|那一步)?/.test(clause.text))next.kind='context'
     if(next.assertion==='user_reported'&&['context','constraint'].includes(next.kind)){
       const budget=[applicableTimeBudget(input.currentText,undefined,'this_week'),applicableTimeBudget(input.currentText,undefined,'next_week')].find(b=>b?.quote===clause.text&&b.period!=='current')
       if(budget){

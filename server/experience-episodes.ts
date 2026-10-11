@@ -70,9 +70,15 @@ export function timeContradiction(a: string, b: string): boolean {
 // 合并只补结果/反思，不新增身份。
 const MERGE_THRESHOLD = 0.40, BACK_REFERENCE_THRESHOLD = 0.20, MIN_SHARED = 6
 const BACK_REFERENCE = /上次那|上次说|上次提到|之前那次|之前说的|那件事|刚才说的/
+function explicitParticipantConflict(a:string,b:string){
+  const participants=(text:string)=>new Map([...text.matchAll(/(学长|学姐|导师|老师|客户|同学)([甲乙丙丁戊己庚辛壬癸A-Z])(?=[^a-zA-Z]|$)/g)].map(match=>[match[1],match[2]]))
+  const left=participants(a),right=participants(b)
+  return [...left].some(([role,name])=>right.has(role)&&right.get(role)!==name)
+}
 export function findEpisode(existing: readonly EpisodeExisting[], quote: string, action: string, result: string): EpisodeExisting | null {
   let best: { row: EpisodeExisting; score: number } | null = null
   for (const row of existing) {
+    if(explicitParticipantConflict(row.source_quote,quote))continue
     const score = Math.max(
       episodeSimilarity(row.source_quote, quote),
       action ? episodeSimilarity(row.source_quote, action) : 0,

@@ -1,6 +1,7 @@
+import {findEpisode} from '../server/experience-episodes.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {reportedTaskOutcomeClauses,reportedPerformedTaskClauses} from '../server/turn-contract.ts'
+import {reportedTaskOutcomeClauses,reportedPerformedTaskClauses,taskOutcomeReadback} from '../server/turn-contract.ts'
 import {conversationPreferenceClause,deferredPursuitClause} from '../server/user-command-spans.ts'
 import {pursuitLevel} from '../server/user-themes.ts'
 import {isBlockedExperience} from '../server/starmap-enrichment.ts'
@@ -31,4 +32,17 @@ test('natural delivery and interviews keep reported adoption, payment and intere
  assert.deepEqual(reportedTaskOutcomeClauses('我这次接单做完海报交给客户了，他说已经用了，但还没有付款。').map(c=>c.text),['他说已经用了','但还没有付款'])
  assert.deepEqual(reportedTaskOutcomeClauses('创业这边我问了三个同学，他们觉得听起来有意思，但谁也还没用。').map(c=>c.text),['他们觉得听起来有意思','但谁也还没用'])
  assert.deepEqual(reportedTaskOutcomeClauses('案例中客户说已经用了，但还没有付款。'),[])
+})
+
+ test("negative non-action never becomes an experience and paid outcomes stay separate",()=>{
+ assert.equal(clauseReportsCompleted("我没有开始上次课程复习"),false)
+ assert.equal(clauseReportsCompleted("我尚未完成海报"),false)
+ assert.equal(taskOutcomeReadback("我已经交付了一张海报，对方已经采用，已经付款300元。").payment.status,"reported_paid")
+ assert.equal(taskOutcomeReadback("我交付了海报，对方已经采用。",new Set()).adoption.status,"unknown")
+})
+
+test("similar messages with an explicitly different participant cannot update the same event",()=>{
+ const source="我通过学校邮箱向学长甲发了项目课能否提供实习作品的问题"
+ const other="我通过学校邮箱请教学长乙，原请求是想知道项目课能否提供实习作品。对方已经读了。"
+ assert.equal(findEpisode([{id:"own",source_quote:source,content:{}}],other,"我通过学校邮箱请教学长乙",""),null)
 })

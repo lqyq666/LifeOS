@@ -41,6 +41,10 @@ test('omitted read/response/adoption reports persist independently and remain in
   await store.finishRun(defer,deferStaged,deferred.text,deferred.usage,new AbortController().signal)
   assert.equal((await pool.query("SELECT count(*)::int AS n FROM growth_items WHERE user_id=$1 AND kind='goal' AND (text LIKE '%稍后%' OR text LIKE '%别的方法%')",[user])).rows[0].n,0)
   assert.equal((await pool.query("SELECT count(*)::int AS n FROM user_themes WHERE user_id=$1 AND (title LIKE '%实习%' OR title LIKE '%方法%')",[user])).rows[0].n,0)
+  const sentText='我已经通过学校邮箱向学长甲发了项目课能否提供实习作品的问题，发出已经三天，没有回复。',sentRun=(await store.startRun(user,chat,randomUUID(),sentText)).run,sentStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:boundedOrdinaryReply({text:sentText,intent:knowledgeIntent(sentText),contract:deriveTurnContract({text:sentText,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
+  const sentResult=await engine({run:sentRun,staged:sentStaged,context:await store.contextForRun(sentRun),decision:null,signal:new AbortController().signal,emit:()=>{}})
+  await store.finishRun(sentRun,sentStaged,sentResult.text,sentResult.usage,new AbortController().signal)
   const text='我通过学校邮箱请教学长甲，原请求是了解项目课。对方已经读了，但没有回复，也没有采用。'
   const run=(await store.startRun(user,chat,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
   const bounded=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!
@@ -49,6 +53,10 @@ test('omitted read/response/adoption reports persist independently and remain in
   await store.finishRun(run,staged,result.text,result.usage,new AbortController().signal)
   const facts=(await pool.query('SELECT text FROM growth_items WHERE user_id=$1 AND status=\'active\'',[user])).rows.map(r=>r.text)
   for(const quote of ['对方已经读了','但没有回复','也没有采用'])assert.ok(facts.includes(quote),quote)
+  const observed=(await store.cognitionGraph(user)).nodes.find((n:any)=>n.type==='experience'&&n.sourceMessageId===sentRun.source_message_id) as any
+  assert.ok(observed,'the actual sent event remains the same record')
+  assert.equal(observed.taskOutcomes.read.status,'reported_read')
+  assert.equal(observed.taskOutcomes.adoption.status,'reported_not_used')
   const next=randomUUID();await store.createConversation(user,{id:next,title:'SYNTHETIC correction'})
   const correction='我更正，对方是否采用我不知道。',second=(await store.startRun(user,next,randomUUID(),correction)).run,secondStaged:store.Staged={candidates:[],audit:[]}
   outputs.push({reply:boundedOrdinaryReply({text:correction,intent:knowledgeIntent(correction),contract:deriveTurnContract({text:correction,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
@@ -60,6 +68,9 @@ test('omitted read/response/adoption reports persist independently and remain in
   assert.ok(after.includes('对方已经读了'));assert.ok(after.includes('但没有回复'))
   assert.ok(after.some(t=>t.includes('是否采用我不知道')))
   assert.ok(!after.includes('也没有采用'),'a narrow correction must supersede the earlier negative outcome')
+  const correctedMap=(await store.cognitionGraph(user)).nodes.find((n:any)=>n.type==='experience'&&n.sourceMessageId===sentRun.source_message_id) as any
+  assert.equal(correctedMap.taskOutcomes.read.status,'reported_read')
+  assert.equal(correctedMap.taskOutcomes.adoption.status,'unknown')
   const stopped=(await store.startRun(user,next,randomUUID(),'我改变方向，我决定本阶段就业优先，不再把自由职业作为主线。')).run,stopStaged:store.Staged={candidates:[],audit:[]}
   outputs.push({reply:boundedOrdinaryReply({text:'我改变方向，我决定本阶段就业优先，不再把自由职业作为主线。',intent:knowledgeIntent('我改变方向，我决定本阶段就业优先，不再把自由职业作为主线。'),contract:deriveTurnContract({text:'我改变方向，我决定本阶段就业优先，不再把自由职业作为主线。',knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
   const stopResult=await engine({run:stopped,staged:stopStaged,context:await store.contextForRun(stopped),decision:null,signal:new AbortController().signal,emit:()=>{}})

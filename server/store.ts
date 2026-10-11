@@ -3,7 +3,8 @@ import { randomUUID, createHash } from 'node:crypto'
 import type { PoolClient } from 'pg'
 import { pool, transaction, HttpError, requireRow } from './db.ts'
 import { validate, candidateSchema, retrievalSchema, type Candidate, type ExperienceAction } from './contracts.ts'
-import {clauseExpressesWishToAct} from './experience-content.ts'
+import {clauseExpressesWishToAct,clauseReportsCompleted} from './experience-content.ts'
+import {scanUserClauses} from './user-command-spans.ts'
 import { assertMemoryEvidence, assertSnapshotStillValid, invalidatePatternsForExperience, persistChanges, type MemorySnapshot, type MemoryChange } from './memory.ts'
 import type { DialoguePath } from './dialogue.ts'
 import seed from '../src/features/cognition/data/lifeos-graph.seed.json' with { type: 'json' }
@@ -98,6 +99,7 @@ export async function stageCandidate(run:Run,staged:Staged,input:unknown,signal?
   signal?.throwIfAborted(); const candidate=validate(candidateSchema,input); const source=await sourceQuote(run,candidate.sourceMessageId,candidate.quote)
   if(candidate.sourceMessageId!==run.source_message_id)throw new HttpError(400,'EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE')
   if(staged.candidates.length>=5)throw new HttpError(400,'CANDIDATE_LIMIT')
+  if(/(?:没(?:有)?|尚未|还未|未曾).{0,6}(?:开始|做|尝试|完成|交付)/.test(candidate.quote)&&!scanUserClauses(candidate.quote).some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.interrogative&&clauseReportsCompleted(clause.text)))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
   // Acceptance and standing skills are not completed events, even when an LLM proposes them.
   if(/(?:我接受|我同意|可以试|愿意试)/.test(candidate.quote)&&/(?:不代表|不等于|还没|尚未|未).{0,8}(?:完成|发生|开始|行动)/.test(candidate.quote))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
   if(/^(?:我)?(?:会|能使用|掌握|学过|熟悉)[^，。；！？\n]{0,80}[。！]?$/u.test(candidate.quote))throw new HttpError(400,'SKILL_IS_NOT_EXPERIENCE')
@@ -437,6 +439,8 @@ export async function claimAction(user:string,id:string,input:{requestId:string;
 export async function cognitionGraph(user:string) {
   const experiences=(await listExperiences(user)).filter(e=>e.status==='confirmed')
   const outcomeSources=(await pool.query("SELECT sources FROM growth_items WHERE user_id=$1 AND status='active'",[user])).rows
+  const outcomeMessageIds=[...new Set<string>(outcomeSources.flatMap(row=>(row.sources??[]).filter((s:any)=>s.type==='message').map((s:any)=>String(s.id))))]
+  const outcomeMessages=(await pool.query("SELECT m.id,m.content FROM messages m WHERE m.user_id=$1 AND m.id=ANY($2::uuid[]) AND m.role='user' AND NOT EXISTS(SELECT 1 FROM memory_suppressions s WHERE s.user_id=m.user_id AND s.source_message_id=m.id) ORDER BY m.created_at,m.id",[user,outcomeMessageIds])).rows
   // 登录图的核心节点是“当前自我”+该用户自己的成长主题（最多三个，不足不
   // 强制）。固定三维度不再作为展示节点；experience_links 的 value 通道继续
   // 作为内部辅助分类写入，只是不出现在图上。
@@ -467,7 +471,14 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
   }
   for(const e of experiences){
     const id='exp-'+e.id
-    const authorizedOutcomeQuotes=new Set<string>(outcomeSources.flatMap(row=>(row.sources??[]).filter((s:any)=>s.type==='message'&&s.id===e.source_message_id).map((s:any)=>String(s.quote))))
+    const taskOutcomes=taskOutcomeReadback('') as Record<string,any>
+    for(const message of outcomeMessages){
+      const taskIdentity=scanUserClauses(message.content).find(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|交给|访谈|聊过|问了|问过)/.test(clause.text))?.text??''
+      const matches=experiences.filter(episode=>findEpisode([episode],message.content,taskIdentity,''))
+      if(message.id!==e.source_message_id&&(matches.length!==1||matches[0].id!==e.id))continue
+      const authorizedQuotes=new Set<string>(outcomeSources.flatMap(row=>(row.sources??[]).filter((s:any)=>s.type==='message'&&s.id===message.id).map((s:any)=>String(s.quote))))
+      for(const [key,outcome] of Object.entries(taskOutcomeReadback(message.content,authorizedQuotes)))if(outcome.status!=='unknown')taskOutcomes[key]={...outcome,sourceMessageId:message.id}
+    }
     const expAction = String(e.content?.action ?? ''), expResult = String(e.content?.result ?? ''), expSummary = String(e.content?.summary ?? '')
     const expBlocked = isBlockedExperience(expAction, expResult, e.source_quote ?? '')
     const expExternal = isExternalFeedback(expResult, e.source_quote ?? '')
@@ -483,7 +494,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
       relatedExperiences: expRelated.map(r => ({ title: String(r.title ?? ''), score: Number(r.score) })),
       identityLevel: 0, identityName: '', nextIdentity: '', identityNextHint: '',
     })
-    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,taskOutcomes:taskOutcomeReadback(e.source_quote??'',authorizedOutcomeQuotes),skillTags:expSkills,insight:expInsight} as any)
+    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,taskOutcomes,skillTags:expSkills,insight:expInsight} as any)
   }
   const themeLinks=(await pool.query("SELECT * FROM experience_theme_links WHERE user_id=$1 AND status='active'",[user])).rows
   const expRelations=(await pool.query("SELECT * FROM experience_relations WHERE user_id=$1 AND NOT (relation='follows' AND reason='时间上先后发生') ORDER BY created_at DESC LIMIT 10",[user])).rows

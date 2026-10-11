@@ -46,6 +46,7 @@ export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]):
 }
 
 export function clauseReportsCompleted(text: string): boolean {
+  if(/(?:没(?:有)?|尚未|还未|未曾).{0,6}(?:开始|完成|做|复习|尝试|交付|发|提交)/.test(text))return false
   if(/(?:记录|经历).{0,6}(?:保留|留着|不(?:用|要)?删)|(?:保留|留着).{0,6}(?:记录|经历)/.test(text))return false
   return COMPLETED_ACTION.test(text) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
 }

@@ -180,7 +180,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
     })
     await t.test('SDK payload observation records final configured parameters without changing the transmitted request',async()=>{
       const input=await prepare('这轮先听我说，不需要行动。'),before=payloads.length
-      outputs.push({reply:'好，我在听。'})
+      outputs.push({reply:'我在听。你接着说，按你想说的节奏来。'})
       const result=await engine(input)
       assert.equal(payloads.length,before+1)
       assert.equal(payloads.at(-1).model,model.id)
@@ -194,7 +194,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
     await t.test('SDK response model differences survive observer, usage, audit and persistence without changing the requested model',async()=>{
       for(const responseModel of ['synthetic-served-snapshot',model.id]){
         const input=await prepare('合成响应元数据验证：这轮只听我说。')
-        outputs.push({chunks:[JSON.stringify({reply:'好，我在听。'})],wait:Promise.resolve(),responseModel})
+        outputs.push({chunks:[JSON.stringify({reply:'我在听。你接着说，按你想说的节奏来。'})],wait:Promise.resolve(),responseModel})
         const result=await engine(input),expected=responseModel===model.id?null:responseModel
         assert.equal(requests.at(-1).model,model.id)
         assert.equal((result.usage as any).calls[0].providerResponseModel,expected)
@@ -218,7 +218,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
         await store.terminateRun(user,input.run.request_id,'failed','SYNTHETIC_BUDGET')
         await setProviderBudget(config.providerBudgetId,ceiling*3)
         input=await prepare('Synthetic valid billed response')
-        outputs.push({reply:'好，我在听。'})
+        outputs.push({reply:'我在听。你接着说，按你想说的节奏来。'})
         const result=await engine(input)
         await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
         assert.equal(Number((await providerBudgetView())!.accounted_cny),(result.usage as any).estimatedCostCny)
@@ -471,7 +471,7 @@ test('the only turn core uses natural replies and event deltas, with one bounded
     })
     await t.test('ordinary listening makes exactly one call and writes no forced business object',async()=>{
       const before=requests.length,input=await prepare('我今天只想倾听，不想复盘或做计划。')
-      const reply='好，今天先不用做计划。你想从哪里说起，我在听。'
+      const reply='我在听。你接着说，按你想说的节奏来。'
       outputs.push({reply})
       const result=await engine(input)
       assert.equal(result.text,reply)
