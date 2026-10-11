@@ -701,11 +701,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       const minutes=planMinutes&&planMinutes.type==='weekly_plan'?planMinutes.minutes:null
       const planInput=staged.weeklyPlan.input as unknown as {availableMinutes:number;budgetRef:unknown;basis:unknown[]}
       const pickBudgetOriginal=():number|null=>{
-        if(minutes!==null&&staged.growth)for(const original of syntheticOriginals){
+        if(minutes!==null&&staged.growth)for(const original of [...new Set([...syntheticOriginals,...bindings.keys()])]){
           const delta=staged.growth.changes[bindings.get(original)!]
-          if(delta&&delta.assertion==='user_reported'&&['context','constraint'].includes(delta.kind)&&hoursIn(delta.text)===minutes)return original
+          const selected=delta?applicableTimeBudget(delta.text,undefined,staged.weeklyPlan!.input.period==='next_week'?'next_week':staged.weeklyPlan!.input.period==='this_week'?'this_week':undefined):null
+          if(delta&&delta.assertion==='user_reported'&&['context','constraint'].includes(delta.kind)&&selected?.amountMinutes===minutes&&!(selected.period==='next_week'&&staged.weeklyPlan!.input.period!=='next_week')&&!(selected.period==='this_week'&&!['this_week','current'].includes(staged.weeklyPlan!.input.period)))return original
         }
-        return syntheticOriginals.at(-1)??null
+        return minutes===null?syntheticOriginals.at(-1)??null:null
       }
       // Authorized fallback: the plan's own budget amount identifies the fact.
       // A fact already named by an id-ref elsewhere in the plan wins; else a
@@ -718,7 +719,17 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         return matches.length===1?{id:matches[0]!.id,revision:matches[0]!.revision}:null
       }
       const remap=(ref:unknown,preferBudget:boolean):unknown=>{
-        if(ref&&typeof ref==='object'&&'updateIndex'in ref&&!bindings.has((ref as {updateIndex:number}).updateIndex)){
+        if(ref&&typeof ref==='object'&&'updateIndex'in ref){
+          const original=(ref as {updateIndex:number}).updateIndex,mapped=bindings.get(original)
+          // A surviving index can still name recurring availability rather than
+          // the current remainder. Repair only this turn's source selection;
+          // persistWeeklyPlan keeps the final amount/window authority.
+          if(mapped!==undefined){
+            if(!preferBudget||hoursIn(staged.growth!.changes[mapped]!.text)===planInput.availableMinutes)return ref
+            const chosen=pickBudgetOriginal()
+            if(chosen!==null){staged.audit.push({phase:'plan_budget_source_rebound',fromUpdateIndex:original,toUpdateIndex:chosen,providerCalls:0});return {updateIndex:chosen}}
+            return ref
+          }
           const chosen=preferBudget?pickBudgetOriginal():(syntheticOriginals.at(-1)??null)
           if(chosen!==null)return {updateIndex:chosen}
           const fallback=authorizedBudget()
