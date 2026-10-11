@@ -119,7 +119,7 @@ export function taskOutcomeReadback(text:string,authorizedQuotes?:ReadonlySet<st
   if(/读了|读过|看过|已读/.test(q))result.read={status:'reported_read',quote:q}
   if(/(?:没(?:有)?|尚未|还未|未)(?:回复|回应)|没回/.test(q))result.response={status:'reported_no_response',quote:q}
   else if(/^(?:对方|客户|学长|导师|他们|她们|他|她)(?:说|觉得)/.test(q)||/(?:已经|已)(?:回复|回应)|回复了|回应了/.test(q))result.response={status:'reported_response',quote:q}
-  if(/(?:没(?:有)?|尚未|还未|未).{0,6}(?:采用|使用|用过|用了)|还没用/.test(q))result.adoption={status:'reported_not_used',quote:q}
+  if(!/承诺|打算|计划|是否|会不会/.test(q)&&/(?:没(?:有)?|尚未|还未|未).{0,6}(?:采用|使用|用过|用了)|还没用/.test(q))result.adoption={status:'reported_not_used',quote:q}
   else if(/(?:已经|已).{0,3}(?:采用|使用|用了)/.test(q))result.adoption={status:'reported_used',quote:q}
   if(/(?:没(?:有)?|尚未|还未|未)(?:付款|付费|付)|还没付/.test(q))result.payment={status:'reported_unpaid',quote:q}
   else if(/(?:已经|已).{0,3}(?:付款|付费)|付了/.test(q))result.payment={status:'reported_paid',quote:q}

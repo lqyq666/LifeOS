@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {buildClauseCatalogue} from '../server/clause-catalogue.ts'
 import {resolveGrowthDeltas} from '../server/growth-authority.ts'
 import {boundedOrdinaryReply} from '../server/bounded-reply.ts'
-import {deriveTurnContract,negativePersonalFactClauses,reportsPersonalEvent} from '../server/turn-contract.ts'
+import {deriveTurnContract,negativePersonalFactClauses,reportsPersonalEvent,taskOutcomeReadback} from '../server/turn-contract.ts'
 import {deliverableIntent,requiresImmediateMaterial} from '../server/action-coach-events.ts'
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
 import {resolveSelectedMaterialFacts} from '../server/grounded-material.ts'
@@ -53,4 +53,6 @@ test('R3 actual failures: unattempted choices cannot open experience and invalid
  const introduction='我已成年，目前在读大学，想用校内邮箱请教学长课程项目如何整理成实习作品，目前还没联系。应该先确认什么？'
  assert.equal(deriveTurnContract({text:introduction,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}).capabilities.growth,true,'a following question must not erase the earlier personal pursuit and negative fact')
  assert.ok(negativePersonalFactClauses(introduction).some(c=>c.text==='目前还没联系'))
+ assert.equal(taskOutcomeReadback('也没有人承诺使用工具',undefined,true).adoption.status,'unknown','a missing promise is not evidence of actual non-use')
+ assert.equal(taskOutcomeReadback('但还没有用过我做的东西',undefined,true).adoption.status,'reported_not_used')
 })

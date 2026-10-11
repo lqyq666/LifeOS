@@ -47,6 +47,9 @@ test('persisted V19 natural boundary failures repair authoritative state across 
   assert.ok((await listControlRequests(user)).some(x=>x.status==='pending'&&x.candidates.some(c=>c.itemId===goal.id)))
   await turn(chats[2]!,'你记得这周剩余多少时间吗？只按我报告的情况回答。')
   await turn(chats[2]!,'暂停考试复习这一周，是不是等于我永久放弃考试方向？')
+  const factsBeforeQuestion=(await growthContext(user,chats[2]!)).length
+  await turn(chats[2]!,'按我提供的作品分工，我负责哪些部分，哪些不能算在我身上？')
+  assert.equal((await growthContext(user,chats[2]!)).length,factsBeforeQuestion,'a compound recall question cannot be persisted as a contribution report')
   assert.ok((await listControlRequests(user)).some(x=>x.status==='pending'),'read-only questions retain the pending stop confirmation')
   assert.ok(!(await growthContext(user,chats[2]!)).some(x=>x.kind==='goal'&&/是不是|只按我报告/.test(x.text)),'read-only and hypothetical questions cannot become pursuits')
   await turn(chats[2]!,'我只是想说说卡在那道题的烦躁，今天请先听我说。')

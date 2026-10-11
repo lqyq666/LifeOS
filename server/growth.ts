@@ -395,7 +395,8 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
       const reports=scanUserClauses(delta.source.quote).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.interrogative&&!c.attributedToOther)
       const adoption=reports.some(c=>/^(?:我)?(?:愿意|同意|接受|决定|打算|准备)(?:试|尝试|用|使用|采纳|这个|这样)/.test(c.text.trim()))
       const action=reports.some(c=>/(?:已经|已|开始|尝试了|试了|做了|发了|交了|完成了)/.test(c.text)&&!/(?:没|没有|尚未|还未|未曾)[^；。]{0,12}(?:开始|尝试|完成|做|发|交)/.test(c.text))
-      if(/^(?:但|也|还|仍|对方|客户|他们|她们|他|她)/.test(delta.source.quote)&&/(?:采用|使用|用了|没用|付款|付费|感兴趣|有意思)/.test(delta.source.quote))delta.progressState='unknown'
+      if(/^(?:但|也|还|仍|对方|客户|他们|她们|他|她|学长|导师)/.test(delta.source.quote)&&/(?:看过|读过|已读|回复|回应|采用|使用|用了|没用|付款|付费|感兴趣|有意思)/.test(delta.source.quote))delta.progressState='unknown'
+      if(/^我(?:目前|现在)?(?:不想|不打算|不愿意)(?:改到|转到|催促)/.test(delta.source.quote))delta.progressState='unknown'
       if(adoption&&!action)delta.progressState=reports.some(c=>/(?:没|没有|尚未|还未)[^；。]{0,8}(?:开始|尝试|做)/.test(c.text))?'unattempted':'unknown'
     }
     let mutation:PreparedGrowthMutation
