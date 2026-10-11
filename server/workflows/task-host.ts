@@ -29,7 +29,7 @@ export const deepTaskSchema=Type.Object({requestId:id,conversationId:id,currentM
 export const taskActionSchema=Type.Object({requestId:id,conversationId:id,kind:Type.Union([Type.Literal('action'),Type.Literal('direction'),Type.Literal('reject')]),index:Type.Integer({minimum:0,maximum:5})},{additionalProperties:false})
 const resumeTaskSchema=Type.Object({conversationId:id,currentMessageId:id},{additionalProperties:false})
 const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex')
-export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:boolean}={}){
+export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:boolean;comparisonMode?:()=>'single'|'multi'}={}){
  const journal=postgresJournal(),scheduler=new RequestScheduler(config.generationConcurrency,config.generationQueueLimit),active=new Map<string,AbortController>()
  let adapter=options.adapter,blocked='深入分析的候选服务尚未开放，原有聊天仍可继续。'
  if(!adapter&&advancedWorkflowsEnabled()&&process.env.LIFEOS_REAL_WORKFLOWS==='true'&&process.env.LIFEOS_WORKFLOW_FREEZE){
@@ -79,7 +79,7 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
  }
  function launch(r:WorkflowRequest){
   const user=r.internalActorKey,controller=new AbortController();active.set(key(user,r.requestId),controller)
-  void (async()=>{let release:(()=>void)|undefined;try{release=await scheduler.acquire(user,controller.signal);await wf!.run(r,controller.signal)}catch(error){const nodes=(await pool.query("SELECT cost_cny,max_cost_cny FROM lifeos_workflow_nodes WHERE user_id=$1 AND request_id=$2 AND execution_kind<>'local_deterministic'",[user,r.requestId])).rows;const failure:WorkflowReceipt={schemaVersion:2,traceId:r.traceId,status:'unavailable',failure:controller.signal.aborted?'cancelled':error instanceof WorkflowError?error.code:'unavailable',providerCalls:nodes.length,costCny:nodes.some(n=>n.cost_cny===null)?null:nodes.reduce((sum,n)=>sum+Number(n.cost_cny),0),reservedCostCny:nodes.reduce((sum,n)=>sum+Number(n.max_cost_cny),0),executionKind:adapter!.executionKind,skills:[],fallback:'existing_single_agent'};await journal.finish(r,failure)}finally{release?.();active.delete(key(user,r.requestId))}})().catch(()=>{})
+  void (async()=>{let release:(()=>void)|undefined;try{release=await scheduler.acquire(user,controller.signal);await wf!.run(r,controller.signal,options.comparisonMode?.()??'multi')}catch(error){const nodes=(await pool.query("SELECT cost_cny,max_cost_cny FROM lifeos_workflow_nodes WHERE user_id=$1 AND request_id=$2 AND execution_kind<>'local_deterministic'",[user,r.requestId])).rows;const failure:WorkflowReceipt={schemaVersion:2,traceId:r.traceId,status:'unavailable',failure:controller.signal.aborted?'cancelled':error instanceof WorkflowError?error.code:'unavailable',providerCalls:nodes.length,costCny:nodes.some(n=>n.cost_cny===null)?null:nodes.reduce((sum,n)=>sum+Number(n.cost_cny),0),reservedCostCny:nodes.reduce((sum,n)=>sum+Number(n.max_cost_cny),0),executionKind:adapter!.executionKind,skills:[],fallback:'existing_single_agent'};await journal.finish(r,failure)}finally{release?.();active.delete(key(user,r.requestId))}})().catch(()=>{})
  }
  async function resume(user:string,taskId:string,raw:unknown){
   if(!wf||!adapter||!advancedWorkflowsEnabled())throw new HttpError(503,'WORKFLOW_UNAVAILABLE',undefined,{message:blocked})

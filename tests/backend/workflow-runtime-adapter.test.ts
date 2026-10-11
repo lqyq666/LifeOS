@@ -19,7 +19,7 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
  const previousURL=model.baseUrl,previousKey=config.apiKey,budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-workflow-'+randomUUID()})
  budget.snapshot();writeFileSync(dirname(budget.path)+'/development-test-grant-20261005.json',JSON.stringify({kind:'SIMULATED_DEVELOPMENT_TEST_GRANT',amountCny:30,startingCall:0,priorReceiptsSha256:createHash('sha256').update('[]').digest('hex')}));budget.activateCurrentGrant()
  const requests:{role:string;context:Record<string,unknown>}[]=[],audits:ProviderNodeAudit[]=[]
- let incompleteUsage=false,duplicateSelection=false,expectedReservations=4,criticVariant='normal'
+ let incompleteUsage=false,duplicateSelection=false,expectedReservations=4,criticVariant='normal',singleMalformed=false
  const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',c=>chunks.push(Buffer.from(c)));req.on('end',()=>{
   const request=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(request.messages[1].content),role=request.messages[0].content
   requests.push({role,context:ctx});assert.equal(budget.snapshot().calls.length,expectedReservations,'all calls reserved before the first wire')
@@ -28,6 +28,16 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   if(ctx.path){assert.deepEqual(selection.properties.evidenceIds.items.enum,ctx.facts.map((x:any)=>x.id));assert.deepEqual(selection.properties.actionIds.items.enum,ctx.actions.map((x:any)=>x.id))}
   if(ctx.analyses){assert.deepEqual(selection.properties.rejectedDirections.items.enum,ctx.directions.map((x:any)=>x.id));assert.ok(selection.properties.issues.items.anyOf.every((branch:any)=>JSON.stringify(branch.properties.claimIds).includes(ctx.claims[0].id)));assert.ok(!selection.properties.issues.items.anyOf[1].properties.severity.enum.includes('blocker'))}
   const output:any=ctx.path?{evidenceIds:['e0'],tradeoffIds:['parallel'],unknownIds:['fit'],actionIds:[ctx.actions[0].id]}:ctx.analyses?{issues:[{severity:'uncertainty',issueId:'fit',evidenceIds:['e0']}],rejectedDirections:[]}:{directionOrder:ctx.alternatives.map((x:{directionId:string})=>x.directionId),actionIds:['a0']}
+  if(ctx.paths){
+   delete output.directionOrder;delete output.actionIds
+   output.selections=Object.fromEntries(ctx.paths.map((path:any)=>{
+    assert.deepEqual(path.facts,ctx.paths[0].facts,'same authorized facts across directions')
+    assert.deepEqual(selection.properties.selections.properties[path.path.id].properties.evidenceIds.items.enum,path.facts.map((x:any)=>x.id))
+    return [path.path.id,{evidenceIds:['e0'],tradeoffIds:['parallel'],unknownIds:['fit'],actionIds:[path.actions[0].id],evidenceRelations:[{evidenceId:'e0',relation:'unknown'}],actionBasis:[{actionId:path.actions[0].id,evidenceIds:['e0'],unknownIds:['fit'],stageReasonId:'explore'}]}]
+   }))
+   output.directionOrder=ctx.paths.map((path:any)=>path.path.id)
+   output.actionIds=[singleMalformed?'invented:action':ctx.paths[0].actions[0].id]
+  }
   if(ctx.path){const result=output as any;result.evidenceRelations??=result.evidenceIds.map((id:string)=>({evidenceId:id,relation:'unknown'}));result.actionBasis??=result.actionIds.map((id:string)=>({actionId:id,evidenceIds:result.evidenceIds,unknownIds:result.unknownIds,stageReasonId:'explore'}))}
   if(duplicateSelection&&ctx.path)output.evidenceIds=['e0','e0']
   if(ctx.analyses&&criticVariant==='unknown_blocker')output.issues=[{severity:'blocker',issueId:'unknown',evidenceIds:['e0']}]
@@ -70,5 +80,16 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
    assert.equal(requests.length-begin,3,'bad review never runs synthesis or paid repair')
    assert.equal(typeof reviewed.costCny,'number','known failure fees retained')
   }
+  criticVariant='normal';expectedReservations+=1;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
+  const singleStart=requests.length,single=await wf.run(f.request,undefined,'single')
+  assert.equal(single.status,'proposed',JSON.stringify(single));assert.equal(single.providerCalls,1);assert.equal(requests.length-singleStart,1)
+  assert.equal(single.proposal!.alternatives.length,2);assert.equal(single.proposal!.nextActions.length,1);assert.deepEqual(single.reviewIssues,[],'single arm does not claim a critic execution')
+  assert.deepEqual(requests.at(-1)!.context.paths&&(requests.at(-1)!.context.paths as any[])[0].facts,requests[0].context.facts,'single and multi use the same facts and provenance')
+  assert.equal(audits.at(-1)!.decisionInputDigest,audits[0].decisionInputDigest,'same comparison input digest across arms')
+  assert.equal((await wf.run(f.request,undefined,'single')).status,'proposed');assert.equal(requests.length-singleStart,1,'no paid replay')
+  singleMalformed=true;expectedReservations+=1;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
+  const malformed=await wf.run(f.request,undefined,'single');assert.equal(malformed.status,'unavailable');assert.equal(typeof malformed.costCny,'number','bad single output preserves its fee')
+  singleMalformed=false;f.request.directions.push({id:'entrepreneurship',title:'创业'});expectedReservations+=1;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
+  const three=await wf.run(f.request,undefined,'single');assert.equal(three.status,'proposed',JSON.stringify(three));assert.equal(three.providerCalls,1);assert.equal(three.proposal!.alternatives.length,3)
  }finally{model.baseUrl=previousURL;config.apiKey=previousKey;await new Promise<void>(resolve=>fake.close(()=>resolve()))}
 })

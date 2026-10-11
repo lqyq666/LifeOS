@@ -21,7 +21,7 @@ const criticSchema=object({issues:Type.Array(Type.Union([
  object({severity:Type.Union([Type.Literal('needs_clarification'),Type.Literal('uncertainty')]),issueId:Type.Union(['motivation','fit','unknown','adoption','role_evidence','repeatability'].map(x=>Type.Literal(x))),evidenceIds:ids,claimIds:Type.Optional(ids)})
  ]),{maxItems:12}),rejectedDirections:ids})
 const synthesisSchema=object({directionOrder:ids,actionIds:ids})
-export function bindWorkflowSelectionSchema(schema:typeof analystSchema|typeof criticSchema|typeof synthesisSchema,context:Record<string,any>){
+export function bindWorkflowSelectionSchema(schema:ReturnType<typeof Type.Object>,context:Record<string,any>){
  // TypeBox reuses the same ids object in several properties. JSON schema is
  // declarative; detach those aliases so binding action IDs cannot replace facts.
  const bound=JSON.parse(JSON.stringify(schema)) as any
@@ -60,7 +60,7 @@ const pathActions:Record<string,{key:string;text:string;minutes:number}[]>={
  undergraduate_upgrade:[{key:'requirements',text:'核对本人教育阶段与当地当期正式招生说明，列一项待核实条件；不以通用方法替代政策。',minutes:20},{key:'gap',text:'选一段已经做过的练习，标出一个具体卡点与缺少的依据；无练习记录时先列待诊断内容。',minutes:15}]
 }
 type Reserved={receipt:CoachCallReceipt;started:boolean}
-export type ProviderNodeAudit={callId:string;nodeId:string;providerResponseId:string|null;usage:unknown;costCny:number|null;outcome:string;failureCode?:string|null;modelSignature:string;sourceDigest:string}
+export type ProviderNodeAudit={callId:string;nodeId:string;providerResponseId:string|null;usage:unknown;costCny:number|null;outcome:string;failureCode?:string|null;modelSignature:string;sourceDigest:string;decisionInputDigest:string|null}
 
 // Production uses this factory and the existing native SDK, never an alternate
 // HTTP/provider ledger. Synthetic transport tests exercise this exact factory.
@@ -80,7 +80,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   if(new Set(chosen).size!==chosen.length)throw new WorkflowError('invalid_contract')
   return chosen.map(id=>{const value=catalogue.find(x=>x.id===id);if(!value)throw new WorkflowError('source_invalid');return value})
  }
- async function call(c:NodeContext,nodeId:string,role:string,schema:typeof analystSchema|typeof criticSchema|typeof synthesisSchema,context:unknown,skill:string){
+ async function call(c:NodeContext,nodeId:string,role:string,schema:ReturnType<typeof Type.Object>,context:unknown,skill:string){
   const reservation=reservations.get(key(c.request))?.get(nodeId)
   if(!reservation||reservation.started||reservation.receipt.callId!==c.callId)throw new WorkflowError('request_conflict')
   if(input.syntheticTransport&&!c.request.synthetic)throw new WorkflowError('scope_denied')
@@ -112,35 +112,25 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   }finally{
    // Missing usage remains unknown, including aborts and transport exceptions.
    try{budget.finish(reservation.receipt.callId,{outcome,usage:message?.usage??'unknown',estimatedCostCny:cost??'unknown',providerResponseId:responseId})}
-   finally{await input.audit?.(c.request,{callId:reservation.receipt.callId,nodeId,providerResponseId:responseId,usage:message?.usage??'unknown',costCny:cost,outcome,failureCode,modelSignature,sourceDigest:frozen})}
+   finally{
+    const ctx=context as any,analystContext=ctx.paths?.[0]??(ctx.path?ctx:null)
+    const decisionInputDigest=analystContext?createHash('sha256').update(JSON.stringify({facts:analystContext.facts.map(({ref,...fact}:any)=>fact),methodContext:analystContext.methodContext,budget:analystContext.timeBudget,controls:analystContext.controls,directions:c.request.directions})).digest('hex'):null
+    await input.audit?.(c.request,{callId:reservation.receipt.callId,nodeId,providerResponseId:responseId,usage:message?.usage??'unknown',costCny:cost,outcome,failureCode,modelSignature,sourceDigest:frozen,decisionInputDigest})
+   }
   }
  }
- return {executionKind:input.syntheticTransport?'simulated_provider':'real_provider',maxCostPerCallCny:maximum,
-  readNodeAccounting(r,nodeId){
-   const entry=reservations.get(key(r))?.get(nodeId),receipt=entry?budget.snapshot().calls.find((call:CoachCallReceipt)=>call.callId===entry.receipt.callId):undefined
-   return receipt?.status==='finished'&&typeof receipt.estimatedCostCny==='number'?{costCny:receipt.estimatedCostCny,providerCalls:receipt.outcome==='not_sent'?0:1}:null
-  },
-  async prepareGraph(r,nodes){
-   if(input.syntheticTransport&&!r.synthetic)throw new WorkflowError('scope_denied')
-   const frozen=sourceDigest(),paid=nodes.filter(n=>n.executionKind!=='local_deterministic')
-   await records(r)
-   if(paid.length>5||paid.length>r.modelBudget.maxProviderCalls||paid.reduce((s,n)=>s+n.maxCostCny,0)>r.modelBudget.maxCostCny)throw new WorkflowError('budget_exceeded')
-   const receipts=budget.reserveGraph(paid.map(n=>({runId:r.requestId,purpose:'diagnostic',tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,signature:signature(),sourceDigest:frozen,logicalCallId:createHash('sha256').update(key(r)+':'+n.id).digest('hex'),reservedCostCny:n.maxCostCny})))
-   const map=new Map<string,Reserved>();paid.forEach((n,index)=>{n.callId=receipts[index].callId;map.set(n.id,{receipt:receipts[index],started:false})});reservations.set(key(r),map)
-  },
-  async finishGraph(r){
-   for(const entry of reservations.get(key(r))?.values()??[])if(!entry.started)budget.finish(entry.receipt.callId,{outcome:'not_sent',usage:{providerCalls:0},estimatedCostCny:0,providerResponseId:null})
-   reservations.delete(key(r))
-  },
-  async analyze(c,path,skill){
+ async function analysisContext(c:NodeContext,path:{id:string;title:string}){
    const source=facts(await records(c.request)),minutes=c.request.budget?.amountMinutes,methodContext=await input.readMethods?.(c.request)??[]
    const actions=(pathActions[path.id]??[]).map(x=>({id:path.id+':'+x.key,text:x.text,estimatedMinutes:x.minutes})).filter(x=>minutes===undefined||x.estimatedMinutes<=minutes)
    // Very small budgets retain a useful inventory/stop option, rather than
    // demanding an exercise longer than the student's stated available time.
    if(minutes!==0)actions.push({id:path.id+':pause',text:`只记下${path.title}当前最关键的一个未知与重新考虑条件，然后暂停这条探索。`,estimatedMinutes:Math.min(5,minutes??5)})
    const tradeoffCatalogue={...commonTradeoffs,path:pathTradeoffs[path.id]??commonTradeoffs.cost}
-   const output=await call(c,'path:'+path.id,'路径分析者：按本人的当前目的、已有成果、关键缺口与本周义务，选择最能推进当前问题的取舍；用actionBasis把每项行动连接到已选择的个人evidenceIds与仍缺的unknownIds，并选择有本人依据支持的stageReasonId解释为什么适合当前阶段。公共方法与工具结果不能当作本人经历；evidenceRelations逐条说明个人依据是支持、限制还是未知。依据必须来自当前授权事实，未知只选择实际影响这次取舍的项。没有可用时间时行动为空，允许暂缓。相同条件允许同建议；姓名、语气不影响选择。不要把一次成果推为长期适配；缺作品、动机或资格时保留未知。动作时间只是建议投入上限，不是本人已有安排。',analystSchema,{path,facts:source,timeBudget:c.request.budget,controls:c.request.controls,methodContext,publicMethodRule:"Use only these canonical approved fragments; editorial exercises remain unbound, public text is not biography",tradeoffs:tradeoffCatalogue,unknowns:issueCatalogue,stageReasons,actions},skill)
-   const wire=output.parsed as Static<typeof analystSchema>,chosen=select(source,wire.evidenceIds)
+   return {path,facts:source,timeBudget:c.request.budget,controls:c.request.controls,methodContext,publicMethodRule:"Use only these canonical approved fragments; editorial exercises remain unbound, public text is not biography",tradeoffs:tradeoffCatalogue,unknowns:issueCatalogue,stageReasons,actions}
+ }
+ function compileAnalysis(c:NodeContext,context:Awaited<ReturnType<typeof analysisContext>>,wire:Static<typeof analystSchema>):AgentResult{
+   const {path,facts:source,actions,tradeoffs:tradeoffCatalogue}=context
+   const chosen=select(source,wire.evidenceIds)
    if(!chosen.length)throw new WorkflowError('source_invalid')
    const tradeoffs=select(Object.entries(tradeoffCatalogue).map(([id,text])=>({id,text})),wire.tradeoffIds),unknowns=select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),wire.unknownIds)
    const selectedActions=select(actions,wire.actionIds),p=emptyProposal(c.request)
@@ -160,7 +150,43 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
     const connection=basis?`个人依据（原话片段；完整条件见依据）：${personal.map(f=>`[${labels[relations.find(r=>r.evidenceId===f.id)?.relation??'unknown']}] ${f.text.length>120?f.text.slice(0,120)+'…':f.text}`).join('；')}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；阶段适用性（分析候选，尚待核对）：${stage}；`:'个人依据与行动缺口的具体连接尚未说明；阶段适用性尚未说明，需核对后再采纳；'
     return {description:'LifeOS 编辑建议（未绑定公开攻略）：'+x.text,estimatedMinutes:x.estimatedMinutes,stopCondition:`${connection}到可调整的建议投入上限${x.estimatedMinutes}分钟或发现必需材料缺失时停止；不自动对外联系。`,evidenceRefs:basis?personal.map(f=>f.ref):p.evidenceRefs,directionId:path.id}
    })
-   return {result:{evidenceRefs:p.evidenceRefs,summary:'已选择该路径的授权依据与小探索',issues:[],proposal:p},costCny:output.costCny,providerCalls:1}
+   return {evidenceRefs:p.evidenceRefs,summary:'已选择该路径的授权依据与小探索',issues:[],proposal:p}
+ }
+ return {executionKind:input.syntheticTransport?'simulated_provider':'real_provider',maxCostPerCallCny:maximum,
+  readNodeAccounting(r,nodeId){
+   const entry=reservations.get(key(r))?.get(nodeId),receipt=entry?budget.snapshot().calls.find((call:CoachCallReceipt)=>call.callId===entry.receipt.callId):undefined
+   return receipt?.status==='finished'&&typeof receipt.estimatedCostCny==='number'?{costCny:receipt.estimatedCostCny,providerCalls:receipt.outcome==='not_sent'?0:1}:null
+  },
+  async prepareGraph(r,nodes){
+   if(input.syntheticTransport&&!r.synthetic)throw new WorkflowError('scope_denied')
+   const frozen=sourceDigest(),paid=nodes.filter(n=>n.executionKind!=='local_deterministic')
+   await records(r)
+   if(paid.length>5||paid.length>r.modelBudget.maxProviderCalls||paid.reduce((s,n)=>s+n.maxCostCny,0)>r.modelBudget.maxCostCny)throw new WorkflowError('budget_exceeded')
+   const receipts=budget.reserveGraph(paid.map(n=>({runId:r.requestId,purpose:'diagnostic',tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,signature:signature(),sourceDigest:frozen,logicalCallId:createHash('sha256').update(key(r)+':'+n.id).digest('hex'),reservedCostCny:n.maxCostCny})))
+   const map=new Map<string,Reserved>();paid.forEach((n,index)=>{n.callId=receipts[index].callId;map.set(n.id,{receipt:receipts[index],started:false})});reservations.set(key(r),map)
+  },
+  async finishGraph(r){
+   for(const entry of reservations.get(key(r))?.values()??[])if(!entry.started)budget.finish(entry.receipt.callId,{outcome:'not_sent',usage:{providerCalls:0},estimatedCostCny:0,providerResponseId:null})
+   reservations.delete(key(r))
+  },
+  async analyze(c,path,skill){
+   const context=await analysisContext(c,path)
+   const output=await call(c,'path:'+path.id,'路径分析者：按本人的当前目的、已有成果、关键缺口与本周义务，选择最能推进当前问题的取舍；用actionBasis把每项行动连接到已选择的个人evidenceIds与仍缺的unknownIds，并选择有本人依据支持的stageReasonId解释为什么适合当前阶段。公共方法与工具结果不能当作本人经历；evidenceRelations逐条说明个人依据是支持、限制还是未知。依据必须来自当前授权事实，未知只选择实际影响这次取舍的项。没有可用时间时行动为空，允许暂缓。相同条件允许同建议；姓名、语气不影响选择。不要把一次成果推为长期适配；缺作品、动机或资格时保留未知。动作时间只是建议投入上限，不是本人已有安排。',analystSchema,context,skill)
+   return {result:compileAnalysis(c,context,output.parsed as Static<typeof analystSchema>),costCny:output.costCny,providerCalls:1}
+  },
+  async analyzeTogether(c,paths,skill){
+   const contexts=await Promise.all(paths.map(path=>analysisContext(c,path)))
+   const selections=object(Object.fromEntries(contexts.map(ctx=>[ctx.path.id,bindWorkflowSelectionSchema(analystSchema,ctx)])))
+   const schema=object({selections,directionOrder:Type.Array(Type.Union(paths.map(p=>Type.Literal(p.id))),{minItems:paths.length,maxItems:paths.length,uniqueItems:true}),actionIds:Type.Array(Type.String(),{maxItems:12,uniqueItems:true})})
+   const context={paths:contexts,alternatives:paths.map(p=>({directionId:p.id})),actions:contexts.flatMap(x=>x.actions),timeBudget:c.request.budget}
+   const output=await call(c,'single_decision','单次决策：在同一份授权个人事实、规范方法、方向与预算内分析所有paths。每个selections使用该路径目录；事实关系区分支持、限制、未知，每个行动说明个人依据、待核对项和阶段原因。directionOrder覆盖所有方向，actionIds只从对应已选择行动中取，所有行动总投入不超过timeBudget。公共方法不是本人经历，未知不得填造，允许暂停或空行动。不新增事实。',schema,context,skill)
+   const wire=output.parsed as {selections:Record<string,Static<typeof analystSchema>>;directionOrder:string[];actionIds:string[]}
+   const analyses=contexts.map(ctx=>compileAnalysis(c,ctx,wire.selections[ctx.path.id])),p=emptyProposal(c.request)
+   p.evidenceRefs=c.request.authorizedEvidenceRefs
+   p.alternatives=select(analyses.flatMap(x=>x.proposal!.alternatives).map(a=>({...a,id:a.directionId})),wire.directionOrder).map(({id,...a})=>a)
+   const actions=analyses.flatMap((a,index)=>a.proposal!.nextActions.map((action,j)=>({id:wire.selections[contexts[index].path.id].actionIds[j],action})))
+   p.nextActions=select(actions,wire.actionIds).map(x=>x.action)
+   return {result:{evidenceRefs:p.evidenceRefs,summary:'单次生成的同范围决策候选；没有独立批评回合',issues:[],proposal:p},costCny:output.costCny,providerCalls:1}
   },
   async critic(c,analyses,skill){
    await input.readMethods?.(c.request)
