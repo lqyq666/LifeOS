@@ -44,7 +44,7 @@ import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.t
 import { readRecommendationControls } from './memory-controls.ts'
 import {knowledgeIntent,deduplicateGuides,methodPromptContext} from './evergreen-guide.ts'
 import {readGuideUsage,classifyGuideFeedback,feedbackMatchesCurrent} from './guide-usage.ts'
-import {boundedOrdinaryReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,type BoundedReply} from './bounded-reply.ts'
+import {boundedOrdinaryReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts,type BoundedReply} from './bounded-reply.ts'
 export type FocusContext={type:'theme'|'experience';id:string;label:string}
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void;focusContext?:FocusContext|null}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
@@ -113,9 +113,9 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
         partialReply+=event.delta
         const question=openingQuestionDraft(partialReply)
         if(question&&boundedDraftAccepts(question,boundedReply)){record.firstQuestionDraftMs=Math.max(0,Math.round(performance.now()-startedMonotonicMs));emitDraft(question);draftSent=true;earlyDraftKind='safe_question'}
-        else if(earlyDraftMode==='safe_sentence'){
+        else if(earlyDraftMode==='safe_sentence'||boundedReply){
           const sentence=safeEarlySentence(partialReply)
-          if(sentence&&!boundedReply){record.firstSafeSentenceMs=Math.max(0,Math.round(performance.now()-startedMonotonicMs));emitDraft(sentence);draftSent=true;earlyDraftKind='safe_sentence'}
+          if(sentence&&(!boundedReply||boundedSentenceAccepts(sentence,boundedReply))){record.firstSafeSentenceMs=Math.max(0,Math.round(performance.now()-startedMonotonicMs));emitDraft(sentence);draftSent=true;earlyDraftKind='safe_sentence'}
         }
       }
     }

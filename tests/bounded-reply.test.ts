@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {boundedOrdinaryReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts} from '../server/bounded-reply.ts'
+import {boundedOrdinaryReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts} from '../server/bounded-reply.ts'
+import {safeEarlySentence} from '../server/reply-draft.ts'
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
 import {deriveTurnContract} from '../server/turn-contract.ts'
 const make=(text:string,extra:Partial<Parameters<typeof boundedOrdinaryReply>[0]>={})=>boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default',...extra})
@@ -15,6 +16,13 @@ test('source-free ordinary choices separate preparation, actual blockage and unk
  assert.ok(blocked.choices.every(s=>!s.includes('自责')&&!s.includes('很正常')))
  assert.ok(start.choices.every(s=>!s.includes('分钟')),'no invented budget allocation')
  assert.ok(blocked.choices.some(s=>s.includes('不重新安排整套')))
+})
+test('a first complete authorized editorial sentence can display provisionally without surfacing arbitrary model claims',()=>{
+ const bounded=make('已经在第二道题卡住，接着怎么做？')!,sentence=safeEarlySentence(JSON.stringify({reply:bounded.choices[0]}))!
+ assert.equal(boundedSentenceAccepts(sentence,bounded),true)
+ assert.equal(boundedSentenceAccepts('更容易拿到学长回复',bounded),false)
+ assert.equal(boundedSentenceAccepts(sentence.slice(0,-1),bounded),false,'an incomplete prefix cannot count as useful content')
+ assert.equal(boundedReplyAccepts(bounded.choices[0]+'已经发出。',bounded),false,'the final reply still must validate and commit')
 })
 test('the runtime schema binds reply exactly and rejects free prose even if native validation was bypassed',()=>{
  const text='前天联系了学长，他没回，我下一步怎么办？',bounded=make(text)!

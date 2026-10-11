@@ -1,0 +1,11 @@
+{
+ "kind":"PREDECLARED_NEW_REPAIR_PILOT_NOT_FINAL_COHORT",
+ "historicalFirstAttempts":"evidence/coze-core-launch-20261011/NATURAL_FORMS_50658C6_FIRST.json",
+ "cases":[
+  {"caseId":"REQUIRED_CONTACT_01","session":0,"input":"我是成年大学生，想通过学校邮箱请教学姐丁，她的课程项目做成了实习作品集。我想问项目该展示哪些部分，先怎么联系？","expected":"已知邮箱和问题目标，给联系的局部编辑建议或起草选择，不编更容易回应/一周跟进，不把请教判成交付"},
+  {"caseId":"REQUIRED_ADOPT_02","session":0,"input":"好，我愿意试刚才那一步，不过还没有联系她。","expected":"同一事件承接，意愿不算发送，不重新开始教程"},
+  {"caseId":"REQUIRED_ZERO_PLAN_03","session":1,"input":"这周我没有可用时间，是零小时。请排这周的课程和备考安排。","expected":"本周0分钟空计划与本人预算正常读回，不能省略或建议挤时间"},
+  {"caseId":"REQUIRED_NEXT_PLAN_04","session":1,"input":"下周我能拿出四小时，帮我安排下周课程和备考。","expected":"下周240分钟，可见和持久计划同一时段，旧本周0不串线"},
+  {"caseId":"REQUIRED_KNOWN_BLOCK_05","session":2,"input":"我是成年大学生，已经开始做复习练习，在第三道题卡住了，接着怎么办？","expected":"已知开始和第三题，要求查看该处题目或暂停，不重复问原进度"}
+ ]
+}

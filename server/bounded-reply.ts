@@ -47,7 +47,7 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '可以先缩小这次要处理的范围，不补猜失败原因。已经有哪些可继续使用的内容，哪一步还缺材料？',
  ]}
  if(/(?:联系|请教|学长|导师|访谈)/.test(own))return make('start','本次交流中希望对方确认的一项信息',[
-  '先围绕你这次请教的目标，选一个最需要对方确认的问题；尚未联系时不记成已经发送。你想先写这句话，还是直接起草消息？',
+  '先围绕你这次请教的目标，选一个最需要对方确认的问题。尚未联系时不记为发送。你想先写这句话，还是直接起草消息？',
   '先把这次交流要确认的一个问题写清楚，其他问题暂放。需要的话我们可以一起起草；发出以后再分别记录回应与结果。',
  ])
  return {basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'当前交付目标与已有材料',choices:[
@@ -71,4 +71,8 @@ export function boundedReplyAccepts(reply:string,bounded:BoundedReply|null){retu
 
 export function boundedDraftAccepts(question:string,bounded:BoundedReply|null){
  return !bounded||bounded.choices.some(reply=>reply.endsWith(question))
+}
+
+export function boundedSentenceAccepts(sentence:string,bounded:BoundedReply){
+ return bounded.choices.some(reply=>reply.startsWith(sentence)&&/^[。！!？?]/.test(reply.slice(sentence.length)))
 }

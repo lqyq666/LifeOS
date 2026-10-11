@@ -158,7 +158,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
     await pool.query("UPDATE runs SET status='failed',error_code='SYNTHETIC_TEST_CLEANUP',finished_at=now() WHERE user_id=$1 AND status='running'",[user])
     const run=(await store.startRun(user,conversationId,randomUUID(),text)).run
     const staged:store.Staged={candidates:[],audit:[]}
-    return {run,staged,input:{run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}}}
+    return {run,staged,input:{run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:(_event:any)=>{}}}
   }
   try{
     // reply_only: schema offers ONLY reply; the turn saves with zero growth writes.
@@ -238,6 +238,18 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.equal(context.boundedReply.sourceStatus,'NO_PUBLIC_METHOD')
       assert.ok(request.response_format.json_schema.schema.properties.reply.enum.includes(choice))
       assert.equal((result.usage as any).llmCallCount,1)
+    })
+    await t.test('contact goal and mailbox narration use the bounded native lane and show only an authorized provisional sentence',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC contact goal'})
+      const text='准备通过学校邮箱请教学长丙，想问他的项目如何放进实习作品集。应该先怎么联系？',turn=await prepare(text,conversation),drafts:any[]=[]
+      turn.input.emit=event=>drafts.push(event)
+      const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
+      outputs.push({reply:choice})
+      const result=await engine(turn.input),request=requests.at(-1)!,schema=request.response_format.json_schema.schema
+      assert.ok(schema.properties.reply.enum.includes(choice));assert.equal(schema.properties.event?.properties.action,undefined)
+      assert.equal(result.text,choice);assert.equal(drafts.filter(e=>e.type==='draft').length,1,JSON.stringify({drafts,audit:turn.staged.audit.filter((a:any)=>a.phase==='model_call_completed')}))
+      const draft=drafts.find(e=>e.type==='draft');assert.ok(choice.startsWith(draft.text)||choice.endsWith(draft.text));assert.equal(draft.saved,false)
+      assert.equal((await pool.query('SELECT count(*)::int n FROM coach_events WHERE user_id=$1 AND conversation_id=$2',[user,conversation])).rows[0].n,0,'provisional editorial content does not commit an event')
     })
     await t.test('out-of-catalogue model prose is rejected without retry or losing a saved fact',async()=>{
       const newChat=randomUUID();await store.createConversation(user,{id:newChat,title:'SYNTHETIC bounded rejection'})
