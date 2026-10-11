@@ -28,6 +28,8 @@ evidence/**
 !evidence/v1.3-action-coach/provider/qwen-default/
 !evidence/v1.3-action-coach/provider/qwen-default/coach-capabilities-default.json
 !evidence/v1.3-action-coach/provider/qwen-default/coach-capabilities-default.json.interface-proof.json
+!evidence/v1.3-action-coach/provider/qwen-current/
+!evidence/v1.3-action-coach/provider/qwen-current/coach-capabilities-default.json
 !evidence/coze-core-launch-20261011/
 !evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json
 !evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json

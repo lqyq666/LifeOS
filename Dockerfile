@@ -19,7 +19,7 @@ FROM python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1
 ENV NODE_ENV=production LIFEOS_EMBEDDING_PYTHON=/opt/encoder/bin/python \
     HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1 \
     HF_HOME=/tmp/huggingface PYTHONDONTWRITEBYTECODE=1 \
-    LIFEOS_EVIDENCE=/app/evidence/v1.3-action-coach/provider/qwen-default
+    LIFEOS_EVIDENCE=/app/evidence/v1.3-action-coach/provider/qwen-current
 WORKDIR /app
 COPY --from=build /usr/local/bin/node /usr/local/bin/node
 COPY --from=encoder /opt/encoder /opt/encoder
@@ -36,7 +36,7 @@ COPY .planning/research/workflow-integration/COZE_CANONICAL_PUBLIC_ASSETS.json .
 COPY evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json evidence/coze-core-launch-20261011/INDEPENDENT_R7_EXECUTION_PROOF.json evidence/coze-core-launch-20261011/KB_R7_FORMAL_RAW.json evidence/coze-core-launch-20261011/INDEPENDENT_R8_EXECUTION_PROOF.json evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json ./evidence/coze-core-launch-20261011/
 COPY evidence/coze-core-launch-20261011/r7-originals ./evidence/coze-core-launch-20261011/r7-originals
 COPY scripts/migrate-db.ts scripts/probe-model.ts scripts/create-user.ts scripts/manage-access.ts scripts/manage-provider-budget.ts scripts/coach-provider-budget.ts scripts/coach-source-freeze.ts scripts/coze-host-permit.ts scripts/coze-credit-budget.ts ./scripts/
-COPY evidence/v1.3-action-coach/provider/qwen-default/coach-capabilities-default.json evidence/v1.3-action-coach/provider/qwen-default/coach-capabilities-default.json.interface-proof.json ./evidence/v1.3-action-coach/provider/qwen-default/
+COPY evidence/v1.3-action-coach/provider/qwen-current/coach-capabilities-default.json ./evidence/v1.3-action-coach/provider/qwen-current/
 COPY .local/models/bge-small-zh-v1.5 ./.local/models/bge-small-zh-v1.5
 COPY deploy/requirements-embedding.lock ./deploy/requirements-embedding.lock
 ARG LIFEOS_BUILD_COMMIT
