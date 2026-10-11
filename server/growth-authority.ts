@@ -16,7 +16,7 @@ export type AuthorityItemView={id:string;revision:number;kind:string;assertion:s
 export type GrowthAuthorityAudit=
   |{phase:'growth_authority_entry';deltas:number;planTarget:boolean;controlClauses:number}
   |{phase:'growth_clause_unresolved';inputIndex:number;clauseId:string}
-  |{phase:'growth_clause_not_anchorable';inputIndex:number;clauseId:string;reason:'interrogative'|'conditional'|'quoted'|'code'|'fragment'}
+  |{phase:'growth_clause_not_anchorable';inputIndex:number;clauseId:string;reason:'interrogative'|'conditional'|'quoted'|'code'|'fragment'|'chat_request'}
   |{phase:'growth_control_clause_excluded';inputIndex:number;clauseId:string}
   |{phase:'growth_duplicate_clause';inputIndex:number;clauseId:string}
   |{phase:'growth_correct_unknown_item';inputIndex:number;itemId:string}
@@ -60,6 +60,12 @@ export function resolveGrowthDeltas(input:{
     // fact the user asserted — the meta-query shape (你记得我之前说过什么吗)
     // can no longer ground a user_reported create (L1OFF).
     if(delta.assertion==='user_reported'){
+      // SP_STATUS_01: a request about THIS conversation is not a pursuit or
+      // personal fact, even if the provider selects it as a goal. Short genuine
+      // direction statements (先就业/先探索科研) remain eligible.
+      if(/^(?:(?:请|麻烦|帮我|给我)(?:先|继续)?(?:处理|解释|看看|分析|安排|写|修改|听|聊)|(?:先|继续)(?:处理|解决|看|聊|整理|核对)(?:这个|这件|原来|刚才|上述|一下))/.test(clause.text.trim())){
+        audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue
+      }
       // A pure connective/adverbial fragment (顺便/然后/另外…) is not a fact.
       if(/^(?:顺便|然后|另外|同时|所以|但是|而且|接着|其次|最后|还有|而且呢)$/.test(clause.text.trim())||clause.text.trim().length<=2){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'fragment'});continue}
       if(clause.interrogative){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'interrogative'});continue}

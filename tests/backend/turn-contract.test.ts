@@ -230,6 +230,15 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.equal(saved.growthCreatedIds.length,1);assert.deepEqual(saved.mergedExperienceIds,[])
       assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'我还没开始准备新项目'])).rows[0].n,1)
     })
+    await t.test('model-selected chat instructions cannot become personal goals',async()=>{
+      const text='这次课程的资料网页无法打开，我尚未开始准备课堂汇报，先处理这个卡点。',turn=await prepare(text)
+      const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
+      outputs.push({reply:choice,growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:'c2'}}]})
+      const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'先处理这个卡点'])).rows[0].n,0)
+      assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'我尚未开始准备课堂汇报'])).rows[0].n,1)
+      assert.deepEqual(saved.mergedExperienceIds,[])
+    })
     await t.test('explicit zero-time plan saves the verified fact and empty plan with no provider call, including repeated reports',async()=>{
       for(const text of ['这周我可用零小时，请安排这周课程与备考。','这周我没有可用时间，是零小时。请排这周的课程和备考安排。','这周没有可用时间，只保存一个空安排。','这周我可用零小时，请安排这周课程与备考。']){
       const turn=await prepare(text)

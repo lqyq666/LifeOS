@@ -14,6 +14,10 @@ import {safeEarlySentence} from '../server/reply-draft.ts'
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
 import {deriveTurnContract} from '../server/turn-contract.ts'
 const make=(text:string,extra:Partial<Parameters<typeof boundedOrdinaryReply>[0]>={})=>boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default',...extra})
+test('an explicit request to continue a known unavailable resource uses the same blocked boundary',()=>{
+ const bounded=make('这次课程的资料网页无法打开，我尚未开始准备课堂汇报，先处理这个卡点。')
+ assert.equal(bounded?.stage,'blocked');assert.ok(bounded?.choices.every(s=>!s.includes('校园网')&&!s.includes('换个网络')))
+})
 test('source-free ordinary choices separate preparation, actual blockage and unknown response',()=>{
  const start=make('我还有两小时准备明天的课堂汇报，先做哪一步？')!
  const waiting=make('我发给学长的问题还没有回复，今天还要催吗？')!

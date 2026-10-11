@@ -37,12 +37,13 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  const actionQuestion=/(?:怎么|如何|怎样|哪一步|下一步|要不要|还要[^，；]{0,12}吗|该不该|能不能|怎么办|调整)/
  const questions=clauses.filter(c=>(c.interrogative||actionQuestion.test(c.text))&&!c.quoted&&!c.code&&!c.attributedToOther)
  const request=questions.map(c=>c.text).join('；')
- if(!/(?:怎么|如何|怎样|哪一步|先做|下一步|要不要|还要|该不该|能不能|怎么办|调整)/.test(request)&&input.intent.decision!=='CLARIFY'&&input.intent.stage!=='adjust')return null
+ const report=clauses.filter(c=>!questions.includes(c)&&!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
+ const materialUnavailable=/(?:材料|教材|课件|链接|资料|网页).{0,6}(?:打不开|无法打开)/.test(report)
+ const continueBlocked=materialUnavailable&&/(?:先处理|先继续|继续(?:原来|这件|这个|刚才))/.test(report)
+ if(!/(?:怎么|如何|怎样|哪一步|先做|下一步|要不要|还要|该不该|能不能|怎么办|调整)/.test(request)&&input.intent.decision!=='CLARIFY'&&input.intent.stage!=='adjust'&&!continueBlocked)return null
  // A direction comparison needs actual analysis, not an action catalogue.
  if(input.intent.stage==='compare'||/取舍|比较|对比|更适合|选哪个/.test(request))return null
- const report=clauses.filter(c=>!questions.includes(c)&&!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
  const waiting=/(?:没(?:有)?|尚未|还未|未)(?:回复|回应|收到结果)|没回(?:；|$)|等待(?:回复|结果)|还没结果/.test(report)
- const materialUnavailable=/(?:材料|教材|课件|链接).{0,6}(?:打不开|无法打开)/.test(report)
  const blocked=materialUnavailable||/(?:没|没有|未)[^；]{0,12}(?:开始|做完|完成)|没(?:有)?效果|卡住|受阻|失败|还是不行|仍然不行/.test(report)
  if(waiting)return {basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'waiting_result',nextUnknown:'实际约定与截止；未回应原因保留未知',choices:[
   '先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？',
