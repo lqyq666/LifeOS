@@ -28,6 +28,7 @@ test('opposite personal evidence can select different reviewed actions and time 
   // The old contract has no transfer handle; keep this baseline comparison valid.
   if(ctx.path)output.evidenceRelations=[{evidenceId:'e0',relation:variant==='portfolio'?'support':'limit'}]
   if(ctx.path&&!ctx.tradeoffs.transfer&&!fabricate)output.tradeoffIds=['path','cost']
+  if(ctx.path){const result=output as any;result.evidenceRelations??=result.evidenceIds.map((id:string)=>({evidenceId:id,relation:'unknown'}));result.actionBasis??=result.actionIds.map((id:string)=>({actionId:id,evidenceIds:result.evidenceIds,unknownIds:result.unknownIds,stageReasonId:'explore'}))}
   res.writeHead(200,{'Content-Type':'text/event-stream'});const base={id:'synthetic-personalization-'+wire.length,object:'chat.completion.chunk',created:1,model:model.id}
   res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(output)},finish_reason:null}]})+'\n\ndata: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:300,completion_tokens:100,total_tokens:400}})+'\n\ndata: [DONE]\n\n')
  })})

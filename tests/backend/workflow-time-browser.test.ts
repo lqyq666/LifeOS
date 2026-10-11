@@ -34,6 +34,8 @@ test('waiting_user short time supplement continues original comparison in real C
   else if(ctx.analyses)output={issues:[{severity:'uncertainty',issueId:'fit',evidenceIds:['e0']}],rejectedDirections:[]}
   else if(ctx.alternatives)output={directionOrder:ctx.alternatives.map((x:any)=>x.directionId),actionIds:ctx.actions.length?['a0']:[]}
   else output={reply:'时间已补充；原来的就业和考研比较仍待你继续。'}
+  if(ctx.boundedReply)(output as any).reply=ctx.boundedReply.choices[0]
+  if(ctx.path){const result=output as any;result.evidenceRelations??=result.evidenceIds.map((id:string)=>({evidenceId:id,relation:'unknown'}));result.actionBasis??=result.actionIds.map((id:string)=>({actionId:id,evidenceIds:result.evidenceIds,unknownIds:result.unknownIds,stageReasonId:'explore'}))}
   const send=()=>{if(res.destroyed)return;res.writeHead(200,{'Content-Type':'text/event-stream'});const base={id:'synthetic-http-'+wire.length,object:'chat.completion.chunk',created:1,model:model.id};res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(output)},finish_reason:null}]})+'\n\ndata: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:300,completion_tokens:100,total_tokens:400}})+'\n\ndata: [DONE]\n\n')}
   if(slow)setTimeout(send,700);else send()
  })})

@@ -1277,13 +1277,14 @@
   "currentImplementationCommit": "5bb68a466c817a3047df57b9b44c7256db56532e",
   "unknownCostsRetainedCny": 0.3735552,
   "currentComplexPilot": {
-    "head": "1e40235193dc519463c1b6786808c0f7e09342a8",
+    "head": "9ea6eac",
     "firstAttempts": 2,
-    "passed": 0,
-    "actualCalls": 7,
-    "knownCostCny": 0.0158119,
-    "status": "FAILED_CRITIC_UNKNOWN_BLOCKER",
-    "nextCandidate": "BOUND_CONCRETE_CRITIC_CLAIMS_LOCAL_VERIFIED",
+    "technicalProposed": 2,
+    "businessAccepted": 0,
+    "actualCalls": 9,
+    "knownCostCny": 0.0200756,
+    "status": "NOT_ACCEPTED_MISSING_STAGE_EXPLANATION",
+    "nextCandidate": "REQUIRED_PERSONAL_BASIS_STAGE_LOCAL_VERIFIED",
     "priorFailuresRetained": true
   },
   "currentIndependentContentReview": {
@@ -1295,8 +1296,18 @@
     "published": 0
   },
   "currentCozeR7": {
-    "head": "d881683_FULL_HASH_NOT_YET_READ",
-    "status": "SOURCE_REVIEW_IN_PROGRESS_NOT_ACCEPTED",
+    "head": "d881683ec576b9d0d169db8f6beb2323bc93bbcd",
+    "sourceHashes": {
+      "entry.py": "5d7cb4f6db3d06995c9e50054c69299d543549170ffb367e63cd670237f6807a",
+      "provider_http.py": "a144759e5f68f9cfcd0b01267e68950c7e3c14286ce24280be37ed3c75376894",
+      "transport_http.py": "0158f7a01ddf8ea4598392cf15ed71d5a51464df0c45c74b1950be5f64995bec"
+    },
+    "checks": {
+      "passed": 3,
+      "failed": 9
+    },
+    "evidence": "COZE_R7_SOURCE_CONTRACT_FIRST_FAIL.json",
+    "status": "FAILED_SOURCE_CONTRACT_REVIEW",
     "actualCredits": 6413.06,
     "newBudget": 0
   }

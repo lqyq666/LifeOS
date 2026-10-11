@@ -15,7 +15,7 @@ import type {NodeContext,WorkflowNode} from './orchestrator.ts'
 
 const object=<T extends Parameters<typeof Type.Object>[0]>(fields:T)=>Type.Object(fields,{additionalProperties:false})
 const ids=Type.Array(Type.String({minLength:1,maxLength:80}),{maxItems:12,uniqueItems:true})
-const analystSchema=object({evidenceIds:ids,tradeoffIds:ids,unknownIds:ids,actionIds:ids,evidenceRelations:Type.Optional(Type.Array(object({evidenceId:Type.String(),relation:Type.Union([Type.Literal('support'),Type.Literal('limit'),Type.Literal('unknown')])}),{maxItems:12})),actionBasis:Type.Optional(Type.Array(object({actionId:Type.String(),evidenceIds:ids,unknownIds:ids,stageReasonId:Type.Optional(Type.String({minLength:1,maxLength:80}))}),{maxItems:12}))})
+const analystSchema=object({evidenceIds:ids,tradeoffIds:ids,unknownIds:ids,actionIds:ids,evidenceRelations:Type.Array(object({evidenceId:Type.String(),relation:Type.Union([Type.Literal('support'),Type.Literal('limit'),Type.Literal('unknown')])}),{maxItems:12}),actionBasis:Type.Array(object({actionId:Type.String(),evidenceIds:ids,unknownIds:ids,stageReasonId:Type.String({minLength:1,maxLength:80})}),{maxItems:12})})
 const criticSchema=object({issues:Type.Array(Type.Union([
  object({severity:Type.Union([Type.Literal('blocker'),Type.Literal('needs_clarification')]),issueId:Type.Union([Type.Literal('unsupported'),Type.Literal('contradiction')]),evidenceIds:Type.Array(Type.String(),{minItems:1,maxItems:12,uniqueItems:true}),claimIds:Type.Array(Type.String(),{minItems:1,maxItems:4,uniqueItems:true})}),
  object({severity:Type.Union([Type.Literal('needs_clarification'),Type.Literal('uncertainty')]),issueId:Type.Union(['motivation','fit','unknown','adoption','role_evidence','repeatability'].map(x=>Type.Literal(x))),evidenceIds:ids,claimIds:Type.Optional(ids)})
@@ -146,13 +146,13 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    const selectedActions=select(actions,wire.actionIds),p=emptyProposal(c.request)
    p.evidenceRefs=chosen.map(x=>x.ref)
    const relations=wire.evidenceRelations??[]
-   if(new Set(relations.map(x=>x.evidenceId)).size!==relations.length||relations.some(x=>!chosen.some(f=>f.id===x.evidenceId)))throw new WorkflowError('source_invalid')
+   if(relations.length!==chosen.length||new Set(relations.map(x=>x.evidenceId)).size!==relations.length||relations.some(x=>!chosen.some(f=>f.id===x.evidenceId)))throw new WorkflowError('source_invalid')
    const related=(relation:'support'|'limit'|'unknown')=>chosen.filter(x=>(relations.find(r=>r.evidenceId===x.id)?.relation??'unknown')===relation).map(x=>(x.informationStatus==='student_original_words_keep_conditions'?'本人原话（保留条件）：':x.informationStatus==='approved_public_method'?'公开方法（不是本人经历）：':'工具结果（不是本人报告）：')+x.text)
    p.alternatives=[{directionId:path.id,title:path.title,pros:related('support'),tradeoffs:[...related('limit'),...tradeoffs.map(x=>x.text)],unknowns:[...related('unknown'),...unknowns.map(x=>x.text)],weeklyMinutes:null,evidenceRefs:p.evidenceRefs}]
    // Generic exercises remain explicitly editorial. Approved public methods are
    // supplied by the host knowledge/guide path, never invented as catalogue IDs.
    const bases=wire.actionBasis??[]
-   if(new Set(bases.map(b=>b.actionId)).size!==bases.length||bases.some(b=>!selectedActions.some(a=>a.id===b.actionId)||!b.evidenceIds.length||b.evidenceIds.some(id=>!chosen.some(f=>f.id===id&&f.informationStatus==='student_original_words_keep_conditions'))||b.unknownIds.some(id=>!wire.unknownIds.includes(id))||b.stageReasonId&&!Object.hasOwn(stageReasons,b.stageReasonId)))throw new WorkflowError('source_invalid')
+   if(bases.length!==selectedActions.length||new Set(bases.map(b=>b.actionId)).size!==bases.length||bases.some(b=>!selectedActions.some(a=>a.id===b.actionId)||!b.evidenceIds.length||b.evidenceIds.some(id=>!chosen.some(f=>f.id===id&&f.informationStatus==='student_original_words_keep_conditions'))||b.unknownIds.some(id=>!wire.unknownIds.includes(id))||b.stageReasonId&&!Object.hasOwn(stageReasons,b.stageReasonId)))throw new WorkflowError('source_invalid')
    p.nextActions=selectedActions.map(x=>{
     const basis=bases.find(b=>b.actionId===x.id),personal=basis?select(chosen,basis.evidenceIds):[],gaps=basis?select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),basis.unknownIds):[]
     const labels={support:'支持',limit:'限制',unknown:'未知'}
