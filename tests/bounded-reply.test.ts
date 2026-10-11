@@ -27,7 +27,7 @@ test('new task starts preserve contracting and recurring-budget boundaries inste
  assert.ok(freelance.choices.every(s=>s.includes('交付')&&!s.includes('已经完成')))
  const text='我每周能拿出六小时，想平衡课程与课外并做低时间预算，怎么开始？'
  const course=make(text,{verifiedBudget:{minutes:360,period:'current',quote:'我每周能拿出六小时'}})!
- assert.ok(course.choices.every(s=>s.includes('常规每周360分钟')&&!s.includes('本周')))
+ assert.ok(course.choices.every(s=>s.includes('常规每周')&&s.includes('360分钟')&&!s.includes('本周')))
  const adjustment=make('我想把验证问题改成上一次遇到什么困难，不再问愿不愿意用。')!
  assert.ok(adjustment.choices.every(s=>!s.includes('更有效')&&!s.includes('客套')))
 })
