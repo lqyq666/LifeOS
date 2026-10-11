@@ -25,7 +25,9 @@ test('selected predeclared student cases, six rounds and three sessions each; au
   const input=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(input.messages[1].content),current=ctx.currentUserMessage
   const clauses=current.clauses??[],text=input.messages.at(-1).content
   wire.push({chain:chain.id,text,context:ctx,selection:'SCRIPTED_FIXTURE_NOT_MODEL_INFERENCE'})
-  const output:any={reply:round.reply}
+  // The bounded path uses the exact host-supplied choices. This scripted
+  // provider proves persistence and continuity, not an unconstrained model reply.
+  const output:any={reply:ctx.boundedReply?.choices[0]??round.reply}
   if(!/只想说说/.test(text)){
    output.event={target:event?{operation:'continue',eventId:event.id,expectedRevision:event.revision}:{operation:'create',title:chain.title,source:{messageId:current.id,quote:text}},nodes:[{kind:'fact',source:{messageId:current.id,quote:text}}]}
    if(round.kinds)output.growthUpdates=round.kinds.map((kind:string,i:number)=>({target:{operation:'create'},assertion:'user_reported',kind,source:{clauseId:clauses[i]?.id},...(kind==='constraint'?{timeEvidence:{kind:'calendar_week',which:round.week,clauseId:clauses.find((c:any)=>/这周|本周|下周/.test(c.text))?.id}}:{}),...(kind==='feedback'?{progressState:round.progress}:{})}))
@@ -68,7 +70,15 @@ test('selected predeclared student cases, six rounds and three sessions each; au
     assert.ok(done,JSON.stringify({chain:chain.id,index,frames,wire:wire.slice(before)}));assert.ok(wire.length-before<=1,'ordinary round cannot hide a repair call')
     const run=await json('/api/runs/'+id);assert.equal(run.status,'completed')
     const savedReply=(await json('/api/conversations')).find((c:any)=>c.id===chat)?.messages.find((m:any)=>m.role==='assistant'&&m.run_request_id===id)?.content
-    assert.ok(savedReply?.includes(round.reply),'each scripted reply must exist in the actual committed assistant message')
+    const expectedReply=wire.length>before?wire.at(-1).scriptedOutput.reply:round.reply
+    if(round.plan?.minutes===0){
+     assert.equal(wire.length,before,'zero-time scheduling must not dispatch the scripted provider')
+     assert.equal(savedReply,'本周没有可用时间，先不安排任务；等可用时间改变后再调整。')
+    }else if(round.plan?.minutes>0){
+     const period=round.plan.period==='next_week'?'下周':'本周'
+     assert.ok(savedReply?.includes(period+'建议安排（可用'+round.plan.minutes+'分钟；尚未采纳或执行）'),JSON.stringify({chain:chain.id,index,savedReply,expectedPeriod:period,expectedMinutes:round.plan.minutes}))
+     assert.ok(savedReply?.includes('用可访问的材料尝试一段课程练习，到时或遇阻就停。'))
+    }else assert.ok(savedReply?.includes(expectedReply),JSON.stringify({chain:chain.id,index,savedReply,expectedReply}))
     if(done.event)event=done.event
     const view=await json('/api/conversations/'+chat+'/event?id='+event.id)
     assert.equal(view.id,event.id);assert.equal(view.revision,event.revision)
@@ -95,11 +105,12 @@ test('selected predeclared student cases, six rounds and three sessions each; au
    assert.deepEqual(errors,[]);persist()
    if(chain.id==='course'){
     const version=await json('/api/run/version'),executed=results.flatMap(r=>r.skillExecutionAudit).filter((a:any)=>a.agentRole==='skill'&&a.status==='succeeded')
-    for(const name of ['lifeos-action-review','lifeos-guide-application','lifeos-growth-diff','lifeos-experience-evidence']){
+    const allCoreIncluded=['contact','freelance','startup','course'].every(id=>trajectories.some((t:any)=>t.id===id))
+    for(const name of allCoreIncluded?['lifeos-action-review','lifeos-guide-application','lifeos-growth-diff','lifeos-experience-evidence']:[]){
      const actual=executed.filter((a:any)=>a.skill===name);assert.ok(actual.length,'normal host never executed '+name)
      assert.ok(actual.every((a:any)=>a.skillDigest===version.skills.find((s:any)=>s.name===name).sha256&&a.skillVersion==='0.2.0-candidate'&&a.providerCalls===0))
     }
-    writeFileSync(directory+'/SKILL_HOST_EXECUTIONS.json',JSON.stringify({status:'PASS_LOCAL_HOST',provider:'SCRIPTED_LOOPBACK_ONLY',version,executed,committedRounds:results.map(r=>({requestId:r.requestId,state:r.state}))},null,2))
+    writeFileSync(directory+'/SKILL_HOST_EXECUTIONS.json',JSON.stringify({status:allCoreIncluded?'PASS_LOCAL_CORE_FOUR_HOST':'OBSERVED_SELECTED_CASES_ONLY',selectedCases:trajectories.map((t:any)=>t.id),allCoreIncluded,provider:'SCRIPTED_LOOPBACK_ONLY',version,executed,committedRounds:results.map(r=>({requestId:r.requestId,state:r.state}))},null,2))
    }
   }
  }finally{persist();app.closeAllConnections();await new Promise<void>(r=>app.close(()=>r()));fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()));await localEmbedding.close();model.baseUrl=old.url;config.apiKey=old.key;config.origin=old.origin;config.entitlementsEnabled=old.access;if(old.flag===undefined)delete process.env.LIFEOS_ADVANCED_WORKFLOWS;else process.env.LIFEOS_ADVANCED_WORKFLOWS=old.flag;await pool.end()}
