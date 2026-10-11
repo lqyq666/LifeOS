@@ -25,7 +25,8 @@ test('normal authenticated maintenance API binds actual account receipts, denies
   const realReviewed=pack.drafts.find((c:any)=>c.id==='4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d'),realPath='/api/maintenance/guides/'+realReviewed.id+'/'+realReviewed.revision
   const realDetail=(await call(editor.cookie,realPath)).body
   assert.ok(realDetail.externalReviews.some((r:any)=>r.executionId==='coze-kb-r7-original-cards'))
-  const realImport=await call(editor.cookie,realPath+'/actions',{action:'import_review',executionId:'coze-kb-r7-original-cards',contentHash:realDetail.contentHash,sourceHashes:realDetail.bundle.sources.map((s:any)=>s.original_fingerprint),claimChecks:realDetail.bundle.card.guide.claims.map((c:any)=>c.id),notes:'导入已实际读回的扣子R7原文审核；只等待本人批准，不发布。'})
+  assert.ok(realDetail.externalReviews.some((r:any)=>r.executionId==='coze-kb-r8-original-cards'))
+  const realImport=await call(editor.cookie,realPath+'/actions',{action:'import_review',executionId:'coze-kb-r8-original-cards',contentHash:realDetail.contentHash,sourceHashes:realDetail.bundle.sources.map((s:any)=>s.original_fingerprint),claimChecks:realDetail.bundle.card.guide.claims.map((c:any)=>c.id),notes:'导入已实际读回的扣子R8原文及实质步骤审核；只等待本人批准，不发布。'})
   assert.equal(realImport.status,200,JSON.stringify(realImport.body));assert.equal(realImport.body.status,'waiting_approval')
   const realPending=(await call(editor.cookie,realPath)).body
   assert.equal(realPending.publicationGate,'WAITING_AUTHORIZED_HUMAN_APPROVAL')
