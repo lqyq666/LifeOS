@@ -92,6 +92,11 @@ export function settleCozeHostReceipt(input:{wire:CozeHostPermit;secret:string;b
  const receipt=input.receipt as any,fail=():never=>{throw Error('COZE_ACTUAL_RECEIPT_INVALID_RESERVATION_RETAINED')}
  const runtime=receipt?.runtime
  if(!receipt||receipt.schemaVersion!==2||receipt.requestId!==claims.requestId||receipt.traceId!==(payload.traceId??claims.requestId)||receipt.executionKind!=='real_provider'||!['proposed','unavailable'].includes(receipt.status)||receipt.receiptIncomplete||receipt.workerFinishedAtReturn===false||runtime?.projectId!==claims.projectId||runtime?.businessRole!=='growth'||runtime.hostSourceDigest!==binding.hostSourceDigest||runtime.cloudCommit!==binding.cloudCommit||runtime.cloudSourceDigest!==binding.cloudSourceDigest||runtime.canonicalContentHash!==binding.contentHash||runtime.skillsDigest!==binding.skillsDigest||receipt.suggestedStateChanges?.length)fail()
+ if(payload.contentBinding){
+  const expected=payload.contentBinding
+  const fields=['canonicalContentHash','canonicalSourceRegistryHash','canonicalEvidenceHash','approvedSubsetHash','fullCorpusHash','candidateRelease']
+  if(typeof expected!=='object'||Array.isArray(expected)||Object.keys(expected).length!==fields.length||fields.some(key=>key==='candidateRelease'?expected[key]!=='0.2.0-candidate':!digest(expected[key]))||fields.some(key=>runtime[key]!==expected[key])||receipt.workerFinishedAtReturn!==true)fail()
+ }
  if(!Array.isArray(receipt.trace)||receipt.trace.length!==claims.slots.length||new Set(receipt.trace.map((r:any)=>r.callId)).size!==claims.slots.length)fail()
  const snapshot=budget.snapshot()
  if(claims.slots.some(slot=>!snapshot.calls.some((r:any)=>r.callId===slot.callId&&r.runId===claims.requestId&&r.status==='reserved'&&r.sourceDigest===binding.hostSourceDigest&&r.reservedCostCny===slot.reservedCostCny)))throw Error('ORIGINAL_GRAPH_RESERVATION_CONFLICT')

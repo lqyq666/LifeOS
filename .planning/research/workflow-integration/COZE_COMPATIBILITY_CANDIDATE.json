@@ -275,7 +275,7 @@
     {
       "projectId": "7693388932939300905",
       "businessRole": "growth",
-      "currentCloudVersion": "eba864c7961faff6c8aac130663ef2a59b2456c2",
+      "currentCloudVersion": "be738b569e5af678f75720981eae6d3bb6ad26da",
       "legacyVersion": "1.2.0_HISTORICAL_ONLY",
       "candidateContract": "existing LifeOS workflow-v2 request/proposal/receipt; local host owns authorization and state commit",
       "input": {
@@ -319,19 +319,20 @@
       ],
       "development": {
         "projectId": "7693388932939300905",
-        "developmentCommit": "eba864c7961faff6c8aac130663ef2a59b2456c2",
-        "status": "ACTUAL_CLOUD_LOCAL_BOUNDARIES_TESTED_NOT_MODEL_ACCEPTED",
-        "evidence": "evidence/coze-core-launch-20261011/r14-cloud-boundaries-actual.json",
-        "newProductionDeployment": false
+        "developmentCommit": "be738b569e5af678f75720981eae6d3bb6ad26da",
+        "status": "R16_COMMITTED_ACTUAL_PG_11_PLUS_SIGNED_READBACK_4_CHECKS_NOT_REAL_MODEL_GRAPH",
+        "cloudSourceDigest": "771580ccbbb951913ecc7e5c0eedb201cc80d358106289ae96c5e2e067e08c12",
+        "evidence": "evidence/coze-core-launch-20261011/r16-committed-runtime.json",
+        "productionPublished": false
       },
-      "realCloudBusiness": "NOT_TESTED_CURRENT_CANDIDATE",
+      "realCloudBusiness": "NOT_TESTED_CURRENT_R16",
       "productionRelease": "HISTORICAL_NOT_CURRENT_CANDIDATE"
     }
   ],
   "releaseBoundary": "Owner restored existing-budget development and runtime scope. Current copies must read back role/source/skill/content hashes and separate actual runtime funding; old deployment success never accepts this candidate.",
   "historicalUploads": 0,
   "currentHostBinding": {
-    "status": "REQUIRES_CURRENT_HOST_BINDING_REFRESH_BEFORE_PAID_CLOUD_DISPATCH",
+    "status": "REQUIRES_CURRENT_HOST_CONFIG_REFRESH_BEFORE_REAL_GRAPH",
     "path": ".planning/research/workflow-integration/COZE_HTTP_HOST_BINDING.json",
     "historicalHostCodeCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4"
   }

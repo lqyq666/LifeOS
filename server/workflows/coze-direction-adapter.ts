@@ -57,7 +57,11 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
  if(cfg.projectId!=='7693388932939300905'||!Number.isSafeInteger(cfg.maxCreditsPerGraph)||cfg.maxCreditsPerGraph<=0||cfg.token.length<20||cfg.binding.hostSourceDigest!==workflowRuntimeVersion.sourceDigest||cfg.binding.contentHash!==workflowRuntimeVersion.contentHash)throw new WorkflowError('unavailable')
  if(!input.syntheticTransport&&(budget.path!==new CoachProviderBudget().path||credits.path!==resolve('.local/coze-launch/credits-ledger.jsonl'))||input.syntheticTransport&&!input.fetchImpl)throw new WorkflowError('scope_denied')
  const secret=deriveCozePermitSecret(cfg.token),maxCost=0.02
- async function post(wire:CozeHostPermit,requestId:string,operation?:'cancel',signal?:AbortSignal){
+ const canonical=JSON.parse(readFileSync('.planning/research/workflow-integration/COZE_CANONICAL_PUBLIC_ASSETS.json','utf8'))
+ if(canonical.canonicalFullCorpusHash!==workflowRuntimeVersion.contentHash||canonical.canonicalSourceRegistryHash!==workflowRuntimeVersion.sourceRegistryHash||canonical.canonicalEvidenceHash!==workflowRuntimeVersion.contentEvidenceHash||!Array.isArray(canonical.cards)||canonical.cards.some((c:any)=>c.guide?.reviewStatus!=='approved'))throw new WorkflowError('source_invalid')
+ const approvedSubsetHash=createHash('sha256').update(canonical.cards.map((c:any)=>createHash('sha256').update(String(c.claim??'')+'\n'+String(c.excerpt??'')+'\n'+(c.mechanisms??[]).map(String).join(' ')+'\n'+String(c.limitations??'')).digest('hex')).sort().join('')).digest('hex')
+ const contentBinding={canonicalContentHash:workflowRuntimeVersion.contentHash,canonicalSourceRegistryHash:workflowRuntimeVersion.sourceRegistryHash,canonicalEvidenceHash:workflowRuntimeVersion.contentEvidenceHash,approvedSubsetHash,fullCorpusHash:workflowRuntimeVersion.contentHash,candidateRelease:'0.2.0-candidate'}
+ async function post(wire:CozeHostPermit,requestId:string,operation?:'cancel'|'readback',signal?:AbortSignal){
   const response=await fetchImpl(target.url,{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+cfg.token,'Content-Type':'application/json'},body:JSON.stringify({session_id:requestId,message:'',host_request:{...wire,...(operation?{operation}:{})}}),signal})
   if(!response.ok)throw new WorkflowError('unavailable')
   const reader=response.body?.getReader();if(!reader)throw new WorkflowError('invalid_contract')
@@ -82,7 +86,7 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
    if(claim.receipt)return claim.receipt
    let wire:CozeHostPermit|undefined,settled=false,creditReserved=false,posted=false,knownReceipt:any,cancelSent=false,polling=false,cancelAcknowledged=false,stopPromise:Promise<void>|undefined
    const directions=r.directions.filter(d=>!r.controls.forbiddenDirections.includes(d.id)),nodeIds=[...directions.map(d=>'path:'+d.id),'critic','synthesize'],path=resolve(cfg.journalDirectory,r.requestId+'.jsonl'),responseController=new AbortController()
-   let cancelPoll:ReturnType<typeof setInterval>|undefined,timer:ReturnType<typeof setTimeout>|undefined
+   let cancelPoll:ReturnType<typeof setInterval>|undefined,timer:ReturnType<typeof setTimeout>|undefined,pollPromise:Promise<void>|undefined
    const stop=():Promise<void>=>{
     if(stopPromise)return stopPromise
     if(!wire||!posted)return Promise.resolve()
@@ -106,7 +110,7 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
     const methods=await input.readMethods(r);if(methods.length>2)throw new WorkflowError('invalid_contract')
     const remainingMs=end-Date.now()
     if(remainingMs<1)throw new WorkflowError('timeout')
-    const payload={...r,directions,modelBudget:{...r.modelBudget,deadlineMs:remainingMs},businessRole:'growth',syntheticAdult:true,evidenceRecords:records,canonicalMethods:methods}
+    const payload={...r,directions,modelBudget:{...r.modelBudget,deadlineMs:remainingMs},businessRole:'growth',syntheticAdult:true,evidenceRecords:records,canonicalMethods:methods,contentBinding}
     mkdirSync(cfg.journalDirectory,{recursive:true})
     wire=reserveCozeHostPermit({payload,binding:cfg.binding,nodeIds,maxCostPerCallCny:maxCost,secret,approval:cfg.approval,budget,journalPath:path})
     credits.reserve({requestId:r.requestId,projectId:'7693388932939300905',purpose:'business',reservedCredits:cfg.maxCreditsPerGraph,payloadDigest:hash(payload),sourceDigest:cfg.binding.hostSourceDigest});creditReserved=true
@@ -114,9 +118,15 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
     for(const slot of claims.slots)await journal.startNode(r,{id:slot.nodeId,role:slot.nodeId.startsWith('path:')?'path_analyst':slot.nodeId==='critic'?'independent_critic':'decision_synthesizer',dependencies:[],executionKind:'real_provider',maxCostCny:slot.reservedCostCny,callId:slot.callId,invoke:unavailable})
     if(signal?.aborted||await journal.cancelled(r))throw new WorkflowError('cancelled')
     posted=true;signal?.addEventListener('abort',onAbort,{once:true})
-    cancelPoll=setInterval(()=>{if(polling)return;polling=true;void journal.cancelled(r).then(cancelled=>{if(cancelled)void stop()}).catch(()=>{void stop()}).finally(()=>{polling=false})},100)
+    cancelPoll=setInterval(()=>{if(polling)return;polling=true;pollPromise=journal.cancelled(r).then(async cancelled=>{if(cancelled)await stop()}).catch(async()=>{await stop()}).finally(()=>{polling=false})},100)
     timer=setTimeout(()=>{void stop();responseController.abort('bounded_cleanup_timeout')},Math.max(1,end-Date.now())+15000)
-    knownReceipt=await post(wire,r.requestId,undefined,responseController.signal)
+    try{knownReceipt=await post(wire,r.requestId,undefined,responseController.signal)}catch(firstError){
+     // This is an authenticated, explicitly zero-dispatch readback operation,
+     // never a retry of the paid graph. Preserve the first transport failure.
+     appendFileSync(path,JSON.stringify({type:'first_graph_transport_failure',requestId:r.requestId,paidGraphReissued:false,at:new Date().toISOString()})+'\n')
+     if(stopPromise)await stopPromise
+     try{knownReceipt=await post(wire,r.requestId,'readback',AbortSignal.timeout(10000));if(knownReceipt.receiptIncomplete||knownReceipt.workerFinishedAtReturn!==true)throw firstError}catch{throw firstError}
+    }
     writeFileSync(path+'.receipt.json',JSON.stringify(knownReceipt)+'\n',{flag:'wx',mode:0o600})
     settleCozeHostReceipt({wire,secret,binding:cfg.binding,budget,receipt:knownReceipt,journalPath:path});settled=true
     receipt={...receipt,providerCalls:knownReceipt.providerCalls,costCny:knownReceipt.costCny,reservedCostCny:knownReceipt.reservedCostCny,receiptIncomplete:false,workerFinishedAtReturn:true}
@@ -145,6 +155,7 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
     receipt={...receipt,proposal:undefined,status:'unavailable',failure:signal?.aborted||cancelSent?'cancelled':error instanceof WorkflowError?error.code:'unavailable',fallback:'existing_single_agent'}
    }finally{
     if(timer)clearTimeout(timer);if(cancelPoll)clearInterval(cancelPoll);signal?.removeEventListener('abort',onAbort)
+    if(pollPromise)await pollPromise
     if(stopPromise)await stopPromise
     if(posted){receipt={...receipt,receiptIncomplete:!settled||knownReceipt?.receiptIncomplete===true,workerFinishedAtReturn:settled&&knownReceipt?.workerFinishedAtReturn!==false,...(cancelSent?{cancelAcknowledged}:{} )};appendFileSync(path,JSON.stringify({type:'host_terminal_observation',requestId:r.requestId,workerFinishedAtReturn:receipt.workerFinishedAtReturn,receiptIncomplete:receipt.receiptIncomplete,cancelAcknowledged:receipt.cancelAcknowledged??null,at:new Date().toISOString()})+'\n')}
     if(creditReserved){try{credits.finishUnknown(r.requestId,receipt.failure==='cancelled'?'cancelled':receipt.status==='proposed'?'completed':'failed',receipt.providerCallsAreUpperBound?null:receipt.providerCalls,r.requestId)}catch{receipt={...receipt,proposal:undefined,status:'unavailable',failure:'budget_exceeded',fallback:'existing_single_agent'};appendFileSync(path,JSON.stringify({type:'credit_attempt_finalization_failed',requestId:r.requestId,reservationRetained:true})+'\n')}}

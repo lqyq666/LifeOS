@@ -85,6 +85,16 @@ test('actual bound per-slot receipt settles the existing ledger atomically; dupl
  assert.equal(input.budget.snapshot().currentGrant.accountedCny,.0014)
  assert.throws(()=>settleCozeHostReceipt({wire,secret,binding,budget:input.budget,receipt,journalPath:input.journalPath}),/RESERVATION_CONFLICT/)
 })
+test('signed content registry, evidence, approved subset, full corpus and release require exact actual receipt fields',()=>{
+ const contentBinding={canonicalContentHash:binding.contentHash,canonicalSourceRegistryHash:'1'.repeat(64),canonicalEvidenceHash:'2'.repeat(64),approvedSubsetHash:'3'.repeat(64),fullCorpusHash:'4'.repeat(64),candidateRelease:'0.2.0-candidate'}
+ for(const key of Object.keys(contentBinding)){
+  const input=fixture(),wire=reserveCozeHostPermit({...input,payload:{...input.payload,contentBinding}}),receipt:any=receiptFor(input,wire)
+  receipt.workerFinishedAtReturn=true;Object.assign(receipt.runtime,contentBinding);receipt.runtime[key]=key==='candidateRelease'?'old-release':'f'.repeat(64)
+  assert.throws(()=>settleCozeHostReceipt({wire,secret,binding,budget:input.budget,receipt,journalPath:input.journalPath}),/INVALID/);assert.ok(input.budget.snapshot().calls.every((c:any)=>c.status==='reserved'))
+ }
+ const input=fixture(),wire=reserveCozeHostPermit({...input,payload:{...input.payload,contentBinding}}),receipt:any=receiptFor(input,wire);receipt.workerFinishedAtReturn=true;Object.assign(receipt.runtime,contentBinding)
+ assert.equal(settleCozeHostReceipt({wire,secret,binding,budget:input.budget,receipt,journalPath:input.journalPath}).providerCalls,4)
+})
 test('missing usage keeps its full reserve; only explicit unstarted slots release as not-sent',()=>{
  const input=fixture(),wire=reserveCozeHostPermit(input),receipt=receiptFor(input,wire)
  receipt.trace[0].usage=null as any;receipt.costCny=null as any

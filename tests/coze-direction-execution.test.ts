@@ -30,9 +30,9 @@ function setup(fetchImpl:typeof fetch){
 test('opaque network failure holds every original-like reservation and duplicate request never dispatches again',async()=>{
  let posts=0;const f=setup(async()=>{posts++;throw Error('synthetic connection lost AFTER POST')})
  const first=await f.adapter.runRemoteGraph!(f.request,f.journal)
- assert.equal(posts,1);assert.equal(first.failure,'unavailable');assert.equal(first.providerCalls,5);assert.equal(first.providerCallsAreUpperBound,true);assert.equal(first.costCny,null)
+ assert.equal(posts,2);assert.equal(first.failure,'unavailable');assert.equal(first.providerCalls,5);assert.equal(first.providerCallsAreUpperBound,true);assert.equal(first.costCny,null)
  assert.equal(f.budget.snapshot().calls.length,5);assert.ok(f.budget.snapshot().calls.every((c:any)=>c.estimatedCostCny==='unknown'));assert.equal(f.credits.balance().heldCredits,10)
- assert.deepEqual(await f.adapter.runRemoteGraph!(f.request,f.journal),first);assert.equal(posts,1)
+ assert.deepEqual(await f.adapter.runRemoteGraph!(f.request,f.journal),first);assert.equal(posts,2)
 })
 test('source invalidation before POST produces no charged retry and known zero actual dispatch',async()=>{
  let posts=0;const f=setup(async()=>{posts++;throw Error('must not dispatch')});f.records[0].status='withdrawn'
@@ -50,10 +50,11 @@ test('cancel acknowledgement does not settle missing original response or abort 
  const f=setup(async(_url,init)=>{
   posts++;const body=JSON.parse(init!.body as string)
   if(body.host_request.operation==='cancel')return new Response(JSON.stringify({host_receipt:{status:'cancel_requested',receiptIncomplete:true,workerFinishedAtReturn:false}}))
+  if(body.host_request.operation==='readback')return new Response(JSON.stringify({host_receipt:{status:'unavailable',receiptIncomplete:true,workerFinishedAtReturn:false}}))
   originalSignal=init!.signal as AbortSignal;queueMicrotask(()=>controller.abort())
   await new Promise(resolve=>setTimeout(resolve,20));throw Error('synthetic original reply lost')
  })
  const receipt=await f.adapter.runRemoteGraph!(f.request,f.journal,controller.signal)
- assert.equal(posts,2);assert.equal(originalSignal?.aborted,false);assert.equal(receipt.failure,'cancelled');assert.equal(receipt.costCny,null);assert.equal(receipt.providerCallsAreUpperBound,true);assert.equal(receipt.workerFinishedAtReturn,false);assert.equal(receipt.receiptIncomplete,true);assert.equal(receipt.cancelAcknowledged,true);assert.equal(f.credits.balance().heldCredits,10)
+ assert.equal(posts,3);assert.equal(originalSignal?.aborted,false);assert.equal(receipt.failure,'cancelled');assert.equal(receipt.costCny,null);assert.equal(receipt.providerCallsAreUpperBound,true);assert.equal(receipt.workerFinishedAtReturn,false);assert.equal(receipt.receiptIncomplete,true);assert.equal(receipt.cancelAcknowledged,true);assert.equal(f.credits.balance().heldCredits,10)
  const rows=readFileSync(f.budget.path,'utf8');assert.match(rows,/unknown/)
 })

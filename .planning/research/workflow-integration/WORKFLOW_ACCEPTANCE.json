@@ -315,7 +315,19 @@
       "currentUiBrowser": "NOT_TESTED_THIS_INCREMENT",
       "realCloudEndpointAndCreditCeiling": "NOT_CONFIGURED",
       "independentReport": "evidence/coze-core-launch-20261011/independent-cli-lv3-remote-second.json",
-      "remaining": "Actual cloud durable terminal readback, selector failure provenance, current binding and real graph execution"
+      "remaining": "Actual cloud durable terminal readback, selector failure provenance, current binding and real graph execution",
+      "protocolChecks": 21,
+      "contentDomainHashVerification": "SIGNED_PAYLOAD_AND_ACTUAL_RECEIPT_EXACT",
+      "zeroDispatchReadback": "EXPLICIT_OPERATION_ONE_NO_PAID_GRAPH_RETRY",
+      "currentCloudDevelopment": {
+        "projectId": "7693388932939300905",
+        "developmentCommit": "be738b569e5af678f75720981eae6d3bb6ad26da",
+        "status": "R16_COMMITTED_ACTUAL_PG_11_PLUS_SIGNED_READBACK_4_CHECKS_NOT_REAL_MODEL_GRAPH",
+        "cloudSourceDigest": "771580ccbbb951913ecc7e5c0eedb201cc80d358106289ae96c5e2e067e08c12",
+        "evidence": "evidence/coze-core-launch-20261011/r16-committed-runtime.json",
+        "productionPublished": false
+      },
+      "independentCurrentRepair": "WAITING_NEW_REVIEW"
     }
   },
   "content": {
