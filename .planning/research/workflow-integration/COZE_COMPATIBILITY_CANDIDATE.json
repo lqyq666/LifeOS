@@ -275,7 +275,7 @@
     {
       "projectId": "7693388932939300905",
       "businessRole": "growth",
-      "currentCloudVersion": "39482ae36cdfd1dac11f610d642a5477963986e1",
+      "currentCloudVersion": "eba864c7961faff6c8aac130663ef2a59b2456c2",
       "legacyVersion": "1.2.0_HISTORICAL_ONLY",
       "candidateContract": "existing LifeOS workflow-v2 request/proposal/receipt; local host owns authorization and state commit",
       "input": {
@@ -319,9 +319,9 @@
       ],
       "development": {
         "projectId": "7693388932939300905",
-        "developmentCommit": "39482ae36cdfd1dac11f610d642a5477963986e1",
-        "status": "R13_ACTUAL_SQL_SCRIPTED_HTTP_LOCAL_14_CHECKS_PASS_NOT_REAL_CLOUD_MODEL",
-        "evidence": "evidence/coze-core-launch-20261011/r13-observed/",
+        "developmentCommit": "eba864c7961faff6c8aac130663ef2a59b2456c2",
+        "status": "ACTUAL_CLOUD_LOCAL_BOUNDARIES_TESTED_NOT_MODEL_ACCEPTED",
+        "evidence": "evidence/coze-core-launch-20261011/r14-cloud-boundaries-actual.json",
         "newProductionDeployment": false
       },
       "realCloudBusiness": "NOT_TESTED_CURRENT_CANDIDATE",
