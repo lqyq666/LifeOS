@@ -1,0 +1,19 @@
+{
+  "kind": "PREDECLARED_NEW_REPAIR_PILOT_NOT_FINAL_COHORT",
+  "hypothesis": "A server-guarded not-started clause persists even if the real model emits no growth delta, and authorized cross-session context retains that verbatim status",
+  "historicalFirstAttempts": "PERSONAL_NEGATIVE_D428A34_FIRST.json",
+  "cases": [
+    {
+      "caseId": "SP_STATUS_01",
+      "session": 0,
+      "input": "这次课程的资料网页无法打开，我尚未开始准备课堂汇报，先处理这个卡点。",
+      "expected": "实际持久读回本人尚未开始原话和材料阻碍；不得生成已发生经历、已执行计划或虚构原因"
+    },
+    {
+      "caseId": "SP_RETURN_02",
+      "session": 1,
+      "input": "还是昨天那份课堂汇报材料打不开，继续原来卡住的地方。",
+      "expected": "合法开启记忆后新会话承接原事实；不把准备中变成已交付，不重发整套入门方法，不推测无法打开原因"
+    }
+  ]
+}
