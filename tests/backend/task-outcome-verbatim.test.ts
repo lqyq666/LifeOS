@@ -30,6 +30,11 @@ test('omitted read/response/adoption reports persist independently and remain in
   await store.finishRun(openRun,openStaged,openResult.text,openResult.usage,new AbortController().signal)
   const goals=(await pool.query("SELECT id,text FROM growth_items WHERE user_id=$1 AND kind='goal' AND status='active'",[user])).rows
   assert.equal(goals.length,1,'model fact plus server capture produce one actual goal')
+  const task='我把海报交给客户了。客户已经用了，费用还没付。',delivered=(await store.startRun(user,chat,randomUUID(),task)).run,deliveredStaged:store.Staged={candidates:[],audit:[]}
+  outputs.push({reply:boundedOrdinaryReply({text:task,intent:knowledgeIntent(task),contract:deriveTurnContract({text:task,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
+  const deliveredResult=await engine({run:delivered,staged:deliveredStaged,context:await store.contextForRun(delivered),decision:null,signal:new AbortController().signal,emit:()=>{}})
+  await store.finishRun(delivered,deliveredStaged,deliveredResult.text,deliveredResult.usage,new AbortController().signal)
+  assert.ok((await store.cognitionGraph(user)).nodes.some((n:any)=>n.type==='value'&&n.title==='自由职业'),'positive clauses ending in 了 never retire a pursuit')
   const defer=(await store.startRun(user,chat,randomUUID(),'实习稍后再看，也不要给我别的方法。')).run,deferStaged:store.Staged={candidates:[],audit:[]}
   outputs.push({reply:'先保留实习延后的安排，也不追加方法。',growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:'c0'}},{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:'c1'}}]})
   const deferred=await engine({run:defer,staged:deferStaged,context:await store.contextForRun(defer),decision:null,signal:new AbortController().signal,emit:()=>{}})

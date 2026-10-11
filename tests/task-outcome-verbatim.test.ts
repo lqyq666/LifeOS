@@ -4,6 +4,7 @@ import {reportedTaskOutcomeClauses,reportedPerformedTaskClauses} from '../server
 import {conversationPreferenceClause,deferredPursuitClause} from '../server/user-command-spans.ts'
 import {pursuitLevel} from '../server/user-themes.ts'
 import {isBlockedExperience} from '../server/starmap-enrichment.ts'
+import {clauseReportsCompleted} from '../server/experience-content.ts'
 test('actual task observations retain separate read, response and adoption statements without importing a public case',()=>{
  const text='我通过学校邮箱请教学长甲，原请求是了解项目课。对方已经读了，但没有回复，也没有采用。'
  assert.deepEqual(reportedTaskOutcomeClauses(text).map(c=>c.text),['对方已经读了','但没有回复','也没有采用'])
@@ -22,6 +23,8 @@ test('listening retains completed actions and direct reading reports; deferred c
  assert.equal(pursuitLevel('我不再熬夜')?.kind,'pursuit')
  assert.equal(isBlockedExperience('我问了两位同学','还没用','我问了两位同学，他们还没用'),false)
  assert.equal(isBlockedExperience('问到一半卡住','还没结果',''),true)
+ assert.equal(clauseReportsCompleted('之前的海报交付记录保留'),false)
+ assert.deepEqual(pursuitLevel('我现在主要探索接单'),{kind:'exploration',status:'active'})
 })
 
 test('natural delivery and interviews keep reported adoption, payment and interest separate',()=>{

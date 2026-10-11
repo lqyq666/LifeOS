@@ -94,6 +94,7 @@ export function pursuitLevel(quote: string): { kind: 'pursuit' | 'exploration'; 
   if (REJECTED_PURSUIT.test(quote) && !BOUNDARY_PURSUIT.test(quote)) return null
   // 不确定语气不建主题："我可能在考虑考研" 不占星图
   if (HEDGING.test(quote)) return null
+  if(/^(?:我)?(?:现在|目前|本阶段).{0,8}(?:主要)?探索/.test(quote))return {kind:'exploration',status:'active'}
   if(/优先|放第一|第一位/.test(quote))return {kind:'pursuit',status:'active'}
   if (BOUNDARY_PURSUIT.test(quote)) return { kind: 'pursuit', status: 'active' }
   if (EXPLORING_MARK.test(quote) && !DECIDED_MARK.test(quote)) return { kind: 'exploration', status: 'pending' }
@@ -215,6 +216,7 @@ export async function projectUserThemes(c: PoolClient, user: string, newFacts: r
   // 用 correct 改写旧条目。边界意图（“不再熬夜”）不是否定，不受影响。
   for (const fact of newFacts) {
     if (!['user_reported', 'user_edit'].includes(fact.assertion) || fact.status !== 'active') continue
+    if(!/^我(?:不想|不打算|放弃|没兴趣)/.test(fact.text.trim()))continue
     const domain = fact.text.trim().replace(/^我(?:不想|不打算|放弃|没兴趣)+/, '').replace(/了$/, '')
     if (domain.length < 2 || domain === fact.text.trim()) continue
     const domainAnchors = new Set([...distinctiveGrams(domain), ...themeAnchors(domain)])

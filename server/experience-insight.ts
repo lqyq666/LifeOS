@@ -50,7 +50,7 @@ export function generateInsight(data: {
     else evidenceParts.push(`这段经历和你的「${theme.title}」方向相关`)
   }
   if (skillTags.length > 0) evidenceParts.push(`任务标签为${skillTags.join('、')}，稳定能力仍需更多证据`)
-  if (externalFeedback) evidenceParts.push('已有反馈记录；是否使用、是否认可和实际效果分别核对')
+  if (externalFeedback) evidenceParts.push('使用、认可和实际效果分别记录；已知项按本人报告保留')
   if (data.occurredAt) evidenceParts.push(`发生在${data.occurredAt}`)
 
   // 3. 相关经历
