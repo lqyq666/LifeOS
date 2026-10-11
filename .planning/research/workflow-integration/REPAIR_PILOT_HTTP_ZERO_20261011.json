@@ -1,0 +1,12 @@
+{
+ "kind":"PREDECLARED_NEW_REPAIR_PILOT_NOT_FINAL_COHORT",
+ "hypothesis":"HTTP now carries the engine-validated opening sentence; explicit zero availability verifies the same canonical fact and empty plan",
+ "historicalFirstAttempts":"evidence/coze-core-launch-20261011/REQUIRED_PLAN_16015D5_FIRST.json",
+ "cases":[
+  {"caseId":"HTTP_CONTACT_01","session":0,"input":"我是成年大学生，准备通过学校邮箱请教学姐戊。她把课程项目整理成了求职作品，我想了解项目里哪些内容值得展示。先怎么联系她？","expected":"已知邮箱和当前目标；局部联系编辑步骤或起草选择，不编概率/跟进日期，不把请教当交付；合法首内容实际到HTTP"},
+  {"caseId":"HTTP_ADOPT_02","session":0,"input":"我愿意按刚才那一步试一试，暂时还没有发消息。","expected":"同一事情继续，意愿不等于执行/发送/反馈，不重发整套教程"},
+  {"caseId":"HTTP_ZERO_03","session":1,"input":"本周我没有可用时间。请安排本周课程和备考。","expected":"本周0分钟的本人预算与空计划均合法保存；不挤时间，不省略计划"},
+  {"caseId":"HTTP_NEXT_04","session":1,"input":"下周我能拿出三小时，帮我安排下周课程和备考。","expected":"下周180分钟，可见计划与持久计划对应；不沿用本周0，不把愿望当已执行"},
+  {"caseId":"HTTP_KNOWN_BLOCK_05","session":2,"input":"我是成年大学生，复习已经开始了，但第四道题没有做出来，接下来怎么办？","expected":"承接已开始和第四题，查看实际卡点或暂停；不重复问是否开始"}
+ ]
+}
