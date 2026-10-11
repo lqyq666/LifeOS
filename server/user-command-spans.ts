@@ -21,14 +21,15 @@ type Protected={start:number;end:number;kind:'quote'|'code'}
 
 // Preferences for this conversation are not goals or autobiographical facts.
 export function refusalPreferenceClause(text:string):boolean{
- return /^(?:我|这事|这件事|这次|上次那件事)(?:现在|暂时|先|这次)?不想继续(?:了)?[。！!\s]*$/.test(text.trim())
-  ||/^(?:上次|之前|刚才)(?:那|这)(?:件|个)[^。！？,，;；]{1,16}(?:的事)?我(?:现在|暂时|先)?不想(?:接着做|继续做|再做)(?:了)?$/.test(text.trim())
+ return /^(?:我|这事|这件事|这次|上次那件事)(?:现在|暂时|先|这次)?(?:不想|不打算|不愿意)继续(?:了)?[。！!\s]*$/.test(text.trim())
+  ||/^(?:上次|之前|刚才)(?:那|这)(?:件|个)[^。！？,，;；]{1,16}(?:的事)?我(?:现在|暂时|先)?(?:不想|不打算|不愿意)(?:接着做|继续做|再做)(?:了)?$/.test(text.trim())
 }
 export function scopedTaskPauseClause(text:string):boolean{
  return /^(?:我(?:现在|暂时)?)?(?:先|暂时)不(?:备考|复习)(?:了)?$/.test(text.trim())
   ||/^(?:我(?:的)?)?(?:考试复习|备考|复习)(?:这周|本周|下周)?(?:先|暂时)(?:停一下|暂停|停一停)(?:了)?$/.test(text.trim())
 }
 export function conversationPreferenceClause(text:string):boolean{
+ if(/^(?:今天|现在)?(?:请|麻烦)?(?:先)?听我(?:说|聊聊)/.test(text.trim()))return true
  text=text.trim().replace(/^(?:也|并且|而且)/,'')
  if(refusalPreferenceClause(text))return true
  if(/^(?:先|暂时)?(?:别|不要|不用)(?:再)?(?:给我|帮我)?安排(?:了)?$/.test(text)

@@ -16,6 +16,24 @@ export function boundedPlanningReply(budget:{minutes:number;period:'current'|'th
  ]}
 }
 
+// Read-only recall renders only the existing, consent-filtered source records.
+// It cannot author an explanation, new task, participant answer or trait.
+export function boundedRecallReply(text:string,facts:{text:string;createdAt:string}[],question?:string):BoundedReply{
+ const make=(reply:string):BoundedReply=>({basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'仅回读授权记录；不继续安排已停止的事项',choices:[reply]})
+ if(/如果.{0,15}只想聊天/.test(text))return make('如果你只想聊天，我会按你想说的节奏听，不主动给已暂停的事情安排任务。需要你确认的是停止哪件事时，确认卡会保留，但不妨碍聊天。')
+ if(/是不是(?:等于|意味着).{0,15}永久/.test(text))return make('这周暂停只限定本周，不等于永久放弃考试方向。已有记录没有表达永久放弃；也不会据此替你作长期决定或恢复任务。')
+ if(/(?:问题改成|改成什么)/.test(text)&&question)return make(`你此前把问题改成了：「${question}」。这里只回读原问法，不表示已经问过，也不主动重启访谈。`)
+ const pattern=/(?:多少时间|几小时|多久|每周|剩余)/.test(text)?/(?:每周|本周|这周|剩余).{0,20}(?:小时|分钟)/
+  :/(?:渠道|联系|收到什么结果)/.test(text)?/(?:邮箱|邮件|发出|看过|读过|回复|回应|微信)/
+  :/(?:分工|负责|算在我)/.test(text)?/(?:负责|插画|分工)/
+  :/(?:付款|用过|使用|稳定收入)/.test(text)?/(?:交给|交付|看过|用过|使用|采用|会不会用|付款|付费|付钱)/:null
+ const selected=facts.filter(row=>!pattern||pattern.test(row.text)).sort((a,b)=>a.createdAt.localeCompare(b.createdAt)).slice(-10)
+ if(!selected.length)return make('授权记录里没有足够信息回答这个问题。我先保留未知，不补猜，也不因此安排任务。')
+ const quotes=[...new Set(selected.map(row=>row.text))].map(value=>`「${value}」`).join('；')
+ const conclusion=/稳定收入/.test(text)?'这些报告不能直接证明稳定收入。':''
+ return make(`${conclusion}按你此前报告的情况，记录为：${quotes}。这些是报告原文；不同时间的报告分别保留，没有核实的使用、付款或效果不补猜，也不主动恢复暂停的任务。`)
+}
+
 // An ordinary action question with no authorized public method may select a
 // small editorial action or a process question. The model cannot add a cause,
 // effect claim, deadline, number or personal fact to the selected reply.
