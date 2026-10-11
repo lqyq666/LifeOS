@@ -148,6 +148,11 @@ test('omitted read/response/adoption reports persist independently and remain in
   assert.ok((await growthView(user,next)).items.some(i=>i.kind==='goal'&&i.text==='课程优先'&&i.status==='active'))
   await advance('我还没有开始这次课程复习，老师给的资料链接打不开。')
   const attemptedRun=await advance('我已经尝试这次课程复习，但遇到第一道题卡住了。')
+  const editRun=await advance('我想把验证问题改成上一次遇到什么困难，不再问愿不愿意用。')
+  assert.ok((await growthView(user,next)).items.some(i=>i.kind==='context'&&i.text==='我想把验证问题改成上一次遇到什么困难'))
+  const refuseRun=await advance('按上次办法，我不想继续了。')
+  assert.equal((await pool.query("SELECT count(*)::int AS n FROM growth_recommendation_controls WHERE user_id=$1 AND state='stopped' AND source_message_id=$2",[user,refuseRun.source_message_id])).rows[0].n,1)
+  assert.ok((await growthView(user,next)).items.some(i=>i.text==='我不想继续了'&&i.recommendationStopped))
   const advancedFacts=(await growthView(user,next)).items
   assert.equal(advancedFacts.find(i=>i.text==='我还没有开始这次课程复习')!.status,'paused')
   const attemptReceipt=(await pool.query('SELECT response FROM runs WHERE user_id=$1 AND request_id=$2',[user,attemptedRun.request_id])).rows[0].response
