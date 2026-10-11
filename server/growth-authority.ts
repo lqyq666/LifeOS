@@ -70,6 +70,9 @@ export function resolveGrowthDeltas(input:{
         audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue
       }
       // A pure connective/adverbial fragment (顺便/然后/另外…) is not a fact.
+      if(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成/.test(clause.text)){
+        audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue
+      }
       if(/^(?:顺便|然后|另外|同时|所以|但是|而且|接着|其次|最后|还有|而且呢)$/.test(clause.text.trim())||clause.text.trim().length<=2){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'fragment'});continue}
       if(clause.interrogative){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'interrogative'});continue}
       if(clause.conditional){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'conditional'});continue}

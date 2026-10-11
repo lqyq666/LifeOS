@@ -49,6 +49,7 @@ export function renderProposedWeeklyPlan(input:WeeklyPlanInput):string{
 export function validateWeeklyPlanShape(input:WeeklyPlanInput):void{
   if(!validMinutes(input.availableMinutes))throw new HttpError(400,'WEEKLY_PLAN_INVALID')
   if(input.availableMinutes===0&&input.items.length>0)throw new HttpError(400,'WEEKLY_PLAN_INVALID')
+  if(input.availableMinutes>0&&!input.items.length)throw new HttpError(400,'WEEKLY_PLAN_INVALID')
   if(input.items.length>12)throw new HttpError(400,'WEEKLY_PLAN_INVALID')
   const total=input.items.reduce((sum,item)=>sum+item.minutes,0)
   if(total>input.availableMinutes)throw new HttpError(400,'WEEKLY_PLAN_INVALID')

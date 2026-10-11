@@ -8,6 +8,7 @@
 
 import { actionCoachTurnSchema } from './action-coach-contracts.ts'
 import { scanUserClauses,currentConversationOnly,conversationPreferenceClause,refusalPreferenceClause,scopedTaskPauseClause } from './user-command-spans.ts'
+import {deliverableIntent} from './action-coach-events.ts'
 
 export type TurnContractMode='reply_only'|'reply_growth'|'event'|'knowledge'|'planning'|'material'
 export type TurnContractCapabilities={
@@ -81,18 +82,23 @@ export function reportedTaskBoundaryClauses(text:string){
    &&clauses.some(other=>other.sentenceStart===clause.sentenceStart&&/(?:我|本人)/.test(other.text))))
 }
 
-export function reportedTaskOutcomeClauses(text:string){
+export function reportedTaskOutcomeClauses(text:string,continuingOwnedTask=false){
   const clauses=scanUserClauses(text).filter(c=>!c.interrogative&&!c.conditional&&!c.quoted&&!c.code&&!c.quoteSpans.length)
   // An actual task of the speaker must precede any participant observation.
   // Reported speech by that participant stays a report, never a verified effect.
-  if(!clauses.some(c=>!c.attributedToOther&&/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|交给|提交|访谈|聊过|问了|问过)/.test(c.text)))return []
-  return clauses.filter(c=>/^(?:对方|客户|学长|导师|他们|她们|他|她|费用)?(?:说|觉得)?(?:[一二三四五六七八九十两\d]+(?:天|周|小时|分钟))?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来|看过|读过|已读|有兴趣)/.test(c.text)&&/(?:读了|读过|看过|已读|回复|回应|没回|采用|使用|用了|没用|付款|付费|没付|感兴趣|有兴趣|有意思)/.test(c.text))
+  if(!continuingOwnedTask&&!clauses.some(c=>!c.attributedToOther&&/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|交给|提交|访谈|聊过|问了|问过)/.test(c.text)))return []
+  return clauses.filter(c=>/^(?:对方|客户|学长|导师|他们|她们|他|她|费用)?(?:说|觉得)?(?:[一二三四五六七八九十两\d]+(?:天|周|小时|分钟))?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来|看过|读过|已读|有兴趣)/.test(c.text)&&/(?:读了|读过|看过|已读|回复|回应|没回|采用|使用|用了|用过|会不会用|没用|付款|付费|没付|感兴趣|有兴趣|有意思)/.test(c.text))
 }
 export function reportedPerformedTaskClauses(text:string){
  return anchorablePersonalClauses(text).filter(c=>/(?:我|本人)/.test(c.text)&&/(?:发出去了|发了|交给.{0,10}了|交付了|提交了|问了|问过|聊过|访谈了|已经尝试|尝试了|试做了|开始尝试)/.test(c.text)&&!/(?:想|打算|准备|如果|还没|没有|尚未|未曾|没)(?:.{0,8})(?:发出|发了|交给|交付|提交|问|聊|访谈|尝试|试做)/.test(c.text))
 }
 export function requestedQuestionEditClauses(text:string){
- return scanUserClauses(text).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成/.test(c.text))
+ const clauses=scanUserClauses(text)
+ return clauses.filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成/.test(c.text)).map(first=>{
+   const same=clauses.filter(c=>c.start>=first.start&&c.sentenceStart===first.sentenceStart)
+   const last=same.at(-1)??first
+   return {...first,end:last.end,text:text.slice(first.start,last.end)}
+ })
 }
 export function reportedAdoptionClauses(text:string){
  return anchorablePersonalClauses(text).filter(c=>/^我(?:愿意|(?:先)?准备|打算|决定)(?:先)?(?:试|尝试|问|整理)|^(?:先从|那先).{1,30}(?:开始|整理)/.test(c.text))
@@ -139,9 +145,10 @@ export function deriveTurnContract(input:{
   // A pure-listening turn never carries plan/material/event intent by
   // definition; a question can still be a plan request, so plan intent wins.
   const replyOnly=supportOnly?!hasPersonalFact:replyOnlyShape&&!input.planIntent&&!input.material&&!eventLane&&input.knowledgeCount===0
+  const newMaterialFacts=input.material&&clauses.some(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!deliverableIntent(clause.text,'create')&&factBearingClause.test(clause.text))
   const capabilities:TurnContractCapabilities={
-    growth:!replyOnly,
-    candidate:!supportOnly&&!replyOnly&&!input.planIntent,
+    growth:!replyOnly&&(!input.material||newMaterialFacts||personalEventReport.test(input.text)),
+    candidate:!supportOnly&&!replyOnly&&!input.planIntent&&(!input.material||personalEventReport.test(input.text)),
     plan:!supportOnly&&input.planIntent,
     citations:!supportOnly&&!replyOnly&&input.knowledgeCount>0,
     // material output lives in event.action, so a material turn always
@@ -195,6 +202,7 @@ export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:numbe
  schema.required=[...new Set([...(schema.required??[]),'weeklyPlan'])]
  plan.properties.availableMinutes={type:'integer',enum:[budget.minutes]}
  plan.properties.period={type:'string',enum:[budget.period]}
+ if(budget.minutes>0)plan.properties.items.minItems=1
  if(budget.minutes>1&&/课程/.test(currentText)&&/备考/.test(currentText)){
   const courseMinutes=Math.floor(budget.minutes/2)
   plan.properties.items.enum=[[

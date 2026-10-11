@@ -1,0 +1,13 @@
+{
+  "kind":"PREDECLARED_NEW_FIRST_REAL_REPAIR_SET",
+  "historicalFirstFailuresPreserved":true,
+  "notReplacement":true,
+  "independentReview":"REQUIRED",
+  "repairHypothesis":"Pure material schema excludes optional growth and candidate lanes; actual grounded artifact completes in one generation. Unknown provider budget references rebind solely to the authorized current remaining-time constraint. Participant reports and comma-containing question edits remain verbatim.",
+  "cases":[
+    {"caseId":"R3P_FACT","session":0,"input":"我是成年大学生。我做的课程海报里，我负责标题文字和页面排版，插画是同伴完成的。","expected":"Own contribution retains exact source and does not attribute illustration to user."},
+    {"caseId":"R3P_ARTIFACT","session":1,"input":"把我负责的标题文字和页面排版写成一句作品描述，不加同伴的插画。","expected":"Actual grounded contribution sentence, one generation, no invented expertise or completed experience."},
+    {"caseId":"R3P_PLAN","session":1,"input":"我通常每周有六小时，这周还剩五十分钟。帮我安排课程作业和复习。","expected":"Nonempty structured proposed plan at most fifty minutes, current-week basis; routine six hours separate."},
+    {"caseId":"R3P_QUESTION","session":2,"input":"把这个问题改成：你最近一次找排课信息时，具体用了什么办法？不要替对方回答。","expected":"Actual complete revised question including comma; retains question as draft, not an interview answer."}
+  ]
+}

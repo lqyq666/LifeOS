@@ -226,7 +226,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       const growthAllForControl=await growthContext(run.user_id,run.conversation_id)
       let controlReply='好的，已经处理你的请求。'
       for(const clause of memoryIntents){
-        const scored=scoreForgetTargets(growthAllForControl,clause.clauseText,current.content).filter(entry=>entry.overlap>=2)
+        const scored=scoreForgetTargets(clause.kind==='stop_recommend'?growthAllForControl.filter(item=>['goal','direction','priority'].includes(item.kind)):growthAllForControl,clause.clauseText,current.content).filter(entry=>entry.overlap>=2)
         const best=scored[0],second=scored[1]
         if(best&&(!second||second.overlap<best.overlap)){
           if(staged.memoryControl&&(staged.memoryControl.itemId!==best.item.id||staged.memoryControl.kind!==clause.kind)){controlReply+=' 其中一个请求匹配到多条相似记录，稍后请在卡片里确认。';continue}
@@ -660,7 +660,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // NP_NEG_01 / BS_RESOURCE_01: optional model deltas omitted explicit status.
     // Retain only the speaker's guarded verbatim status, never an experience,
     // inferred cause, goal or completion. Corrections and controls keep authority.
-    const explicitTaskFacts=[...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content),...reportedAdoptionClauses(current.content),...requestedQuestionEditClauses(current.content),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||/^我想把(?:验证问题|访谈问题|提问|这个问题)改成/.test(c.text)||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
+    const explicitTaskFacts=[...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content),...reportedAdoptionClauses(current.content),...requestedQuestionEditClauses(current.content),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content,growthAll.some(item=>item.assertion==='user_reported'&&item.kind==='feedback'&&item.progressState==='completed')),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||/^我想把(?:验证问题|访谈问题|提问|这个问题)改成/.test(c.text)||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
     const taskFactSupplement=snapshot.settings.enabled?[...new Map(explicitTaskFacts.map(clause=>[clause.text,clause])).values()].filter(clause=>
       !controlClauseTexts.includes(clause.text)&&
       !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&
@@ -735,6 +735,14 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         return matches.length===1?{id:matches[0]!.id,revision:matches[0]!.revision}:null
       }
       const remap=(ref:unknown,preferBudget:boolean):unknown=>{
+        if(ref&&typeof ref==='object'&&'id'in ref){
+          const selected=growthAll.find(item=>item.id===(ref as {id:string}).id&&item.revision===(ref as {revision?:number}).revision&&!item.unavailableReason&&['active','proposed'].includes(item.status))
+          if(selected&&(!preferBudget||applicableTimeBudget(selected.text,undefined,staged.weeklyPlan!.input.period==='next_week'?'next_week':staged.weeklyPlan!.input.period==='this_week'?'this_week':undefined)?.amountMinutes===planInput.availableMinutes))return ref
+          const chosen=pickBudgetOriginal()
+          if(chosen!==null){staged.audit.push({phase:'plan_unavailable_reference_rebound',budget:preferBudget,providerCalls:0});return {updateIndex:chosen}}
+          const fallback=authorizedBudget()
+          if(fallback)return fallback
+        }
         if(ref&&typeof ref==='object'&&'updateIndex'in ref){
           const original=(ref as {updateIndex:number}).updateIndex,mapped=bindings.get(original)
           // A surviving index can still name recurring availability rather than
@@ -803,7 +811,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       const intentClauses=detectForgetIntentClauses(current.content)
       for(const clause of intentClauses){
         if(!clause.kind)continue
-        const scored=scoreForgetTargets(growthAll,clause.clauseText,current.content)
+        const scored=scoreForgetTargets(clause.kind==='stop_recommend'?growthAll.filter(item=>['goal','direction','priority'].includes(item.kind)):growthAll,clause.clauseText,current.content)
         const best=scored[0],second=scored[1]
         if(best&&best.overlap>=2&&(!second||second.overlap<best.overlap)){
           if(staged.memoryControl){

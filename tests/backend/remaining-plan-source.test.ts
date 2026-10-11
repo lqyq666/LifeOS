@@ -18,9 +18,10 @@ test('real course failure regression: current plan rebinds wrong recurring-time 
  let calls=0
  const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',x=>chunks.push(Buffer.from(x)));req.on('end',()=>{
   calls++;const payload=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(payload.messages[1].content)
-  const output={reply:ctx.boundedReply.choices[0],weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[
-   {action:'课程：核对当前必须完成的任务与截止，先处理其中最紧要的一项',minutes:60,directionScopes:[]},
-   {action:'备考：沿用当前进度，尝试一个具体题目或步骤并记录受阻处',minutes:60,directionScopes:[]},
+  const minuteCase=JSON.stringify(ctx).includes('六十分钟'),minutes=minuteCase?60:120,ref=minuteCase?{id:'ffffffff-ffff-4fff-8fff-ffffffffffff',revision:1}:{updateIndex:0}
+  const output={reply:ctx.boundedReply.choices[0],weeklyPlan:{target:{operation:'create'},availableMinutes:minutes,period:'this_week',budgetRef:ref,basis:[ref],items:[
+   {action:'课程：核对当前必须完成的任务与截止，先处理其中最紧要的一项',minutes:minutes/2,directionScopes:[]},
+   {action:'备考：沿用当前进度，尝试一个具体题目或步骤并记录受阻处',minutes:minutes/2,directionScopes:[]},
   ]}}
   const base={id:'synthetic-remaining-source',object:'chat.completion.chunk',created:1,model:model.id}
   res.writeHead(200,{'Content-Type':'text/event-stream'});res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\ndata: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
@@ -41,6 +42,12 @@ test('real course failure regression: current plan rebinds wrong recurring-time 
   assert.equal(structured.availableMinutes,120);assert.equal(structured.items.reduce((n,x)=>n+x.minutes,0),120)
   assert.ok(items.find(item=>item.id===structured.budgetRef.id)!.text.includes('这周只剩两小时'))
   assert.ok(items.some(item=>item.kind==='context'&&item.text.includes('每周能拿出六小时')))
+  const secondChat=randomUUID();await store.createConversation(user,{id:secondChat,title:'SYNTHETIC invalid provider reference'})
+  const run2=(await store.startRun(user,secondChat,randomUUID(),'每周通常能投入六小时，这周还剩六十分钟，帮我安排课程作业与考试复习。')).run
+  const input2={run:run2,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(run2),decision:null,signal:new AbortController().signal,emit:()=>{}}
+  const result2=await createTurnEngine({capabilityVerified:()=>true})(input2),saved2=await store.finishRun(run2,input2.staged,result2.text,result2.usage,input2.signal)
+  const items2=await growthContext(user,secondChat),plan2=items2.find(item=>item.id===saved2.stateChange.plan?.itemId)!.structuredPlan! as {availableMinutes:number;budgetRef:{id:string}}
+  assert.equal(plan2.availableMinutes,60);assert.ok(items2.find(i=>i.id===plan2.budgetRef.id)!.text.includes('六十分钟'));assert.equal(calls,2)
  }finally{
   model.baseUrl=previousURL;config.apiKey=previousKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()))
  }

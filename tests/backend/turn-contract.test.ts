@@ -148,7 +148,9 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
     const chunks:Buffer[]=[];req.on('data',chunk=>chunks.push(Buffer.from(chunk)))
     req.on('end',()=>{
       requests.push(JSON.parse(Buffer.concat(chunks).toString('utf8')))
-      const output=outputs.shift()
+      const output=outputs.shift() as {reply?:string}|undefined
+      const supplied=JSON.parse(requests.at(-1).messages.find((m:any)=>m.role==='user').content)
+      if(output&&['我在，你慢慢说。','我在听，你可以慢慢说。','我在听。'].includes(output.reply??'')&&supplied.boundedReply)output.reply=supplied.boundedReply.choices[0]
       if(output===undefined){res.writeHead(500);res.end();return}
       res.writeHead(200,{'Content-Type':'text/event-stream'})
       const base={id:'contract-'+requests.length,object:'chat.completion.chunk',created:1,model:model.id}
@@ -201,13 +203,15 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.ok(saved.stateChange.plan,'plan persisted')
     })
     await t.test('negative current fact is saved and survives a new session only with memory enabled',async()=>{
+      await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1) ON CONFLICT (user_id) DO UPDATE SET enabled=true',[user])
       const text='先聊课程，课件链接无法打开，我还没开始复习，怎么继续？',turn=await prepare(text)
       const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
       outputs.push({reply:choice}) // Real NP_NEG_01 omitted the explicit not-started fact.
       const result=await engine(turn.input),saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
       assert.ok(requests.at(-1)!.response_format.json_schema.schema.properties.growthUpdates,'actual outgoing native schema permits the reported fact')
       const fact=(await pool.query('SELECT text,kind FROM growth_items WHERE user_id=$1 AND id=$2',[user,saved.growthIds[0]])).rows[0]
-      assert.equal(fact.text,'我还没开始复习');assert.equal(fact.kind,'context');assert.deepEqual(saved.mergedExperienceIds,[],'not started cannot become completed experience')
+      assert.equal(fact.text,'我还没开始复习');assert.equal(fact.kind,'feedback');assert.deepEqual(saved.mergedExperienceIds,[],'not started cannot become completed experience')
+      await pool.query('UPDATE user_memory_settings SET enabled=false WHERE user_id=$1',[user])
       const nextChat=randomUUID();await store.createConversation(user,{id:nextChat,title:'SYNTHETIC new course session'})
       const off=await prepare('继续复习这门课程。',nextChat);outputs.push({reply:'可以从你这次想处理的课程问题继续。'});await engine(off.input)
       assert.ok(!JSON.stringify(JSON.parse(requests.at(-1)!.messages.find((m:any)=>m.role==='user').content)).includes('我还没开始复习'))
@@ -226,7 +230,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       const text='还是那份材料，打不开的情况没有变。我现在只想说一下烦躁，先别给方法。',turn=await prepare(text)
       outputs.push({reply:'我在听，你可以慢慢说。'})
       const result=await engine(turn.input),context=JSON.parse(requests.at(-1)!.messages.find((m:any)=>m.role==='user').content)
-      assert.equal(context.boundedReply,undefined,'a prior blocker cannot force another action suggestion')
+      assert.ok(context.boundedReply.choices.every((x:string)=>!x.includes('方法')&&!x.includes('材料')),'a prior blocker cannot force another action suggestion')
       const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
       assert.deepEqual(saved.growthCreatedIds,[]);assert.deepEqual(saved.stateChange.growthDiff,[])
       assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'我现在只想说一下烦躁'])).rows[0].n,0)

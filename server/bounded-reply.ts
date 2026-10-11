@@ -88,6 +88,9 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   ])
  }
  if(input.knowledgeCount&&!contactQuestion)return null
+ if(/(?:海报|作品)/.test(own)&&/(?:自由职业|接单)/.test(own)&&/(?:先整理|整理哪|从哪)/.test(own))return make('start','作品用途与本人承担的部分',[
+  '先选一张你已有的海报，分别写清作品用途和你本人负责的部分；同伴的贡献另列，不补猜客户、采用或收入。你想从哪张现成作品开始？',
+ ])
  if(input.intent.reason==='adoption_not_method_request')return make('adopted','尚未报告实际执行或反馈',[
   '好，先沿用刚才选的那一步。愿意尝试和实际做过分开；做后告诉我发生了什么，我们再按反馈调整。',
   '好，先试刚才那一步，不重新发整套方法。还没做时不记为已执行；遇到具体阻碍再一起调整。',
