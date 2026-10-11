@@ -1,0 +1,11 @@
+{
+  "kind": "PREDECLARED_NEW_REPAIR_PILOT_NOT_FINAL_COHORT",
+  "historicalFirstAttempts": "evidence/coze-core-launch-20261011/REPAIR_PILOT_CONTACT_TIME_25273BA_FIRST.json",
+  "cases": [
+    {"caseId":"NATURAL_CONTACT_GOAL_01","session":0,"input":"我是成年大学生，准备通过学校邮箱请教学长丙，想问他的项目如何放进实习作品集。应该先怎么联系？","expected":"目标和渠道已知，围绕一个问题或起草，不新增回应概率、压力与效果，不冒充使用获审方法"},
+    {"caseId":"NATURAL_ADOPT_NOT_SENT_02","session":0,"input":"嗯，我愿意尝试刚才那一步，但还没发消息。","expected":"沿用同一联系行动；采用意愿与实际发送分开，不重复询问已知进度"},
+    {"caseId":"NATURAL_ZERO_PLEASE_03","session":1,"input":"这周我可用零小时，请安排这周的课程作业与备考。","expected":"明确本周0分钟、空计划正常保存，不建议半小时或再问时间"},
+    {"caseId":"NATURAL_NEXT_WEEK_04","session":1,"input":"下周我有三小时可用，帮我安排下周的课程作业和备考。","expected":"下周180分钟来自新原话，不复用本周0；可见回复与持久计划同一时段及额度"},
+    {"caseId":"NATURAL_KNOWN_QUESTION_05","session":2,"input":"我是成年大学生，复习已经开始了，我在第二道题卡住，接着怎么做？","expected":"已知已开始及第二题卡点，要求查看该处题目或暂停，不重新发送整套教程"}
+  ]
+}
