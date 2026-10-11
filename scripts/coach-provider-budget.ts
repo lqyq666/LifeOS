@@ -135,7 +135,12 @@ export class CoachProviderBudget {
     })
   }
   private change<T>(fn:(ledger:any)=>T,persist=true):T{
-    const authorization=readCoachAuthorization(this.options.root)
+    // A loopback simulation has no paid authorization or historical usage.
+    // Keep it on its separate, explicitly marked ledger so a clean checkout
+    // never needs private paid evidence to exercise the budget mechanism.
+    const authorization=this.options.simulation
+      ? {sha256:digest('LIFEOS_SYNTHETIC_BUDGET_AUTHORIZATION_V1'),maximum:156,used:0,remaining:156,unknownUsageCalls:0}
+      : readCoachAuthorization(this.options.root)
     mkdirSync(dirname(this.path),{recursive:true})
     const lockPath=this.path+'.lock'
     if(existsSync(lockPath)){

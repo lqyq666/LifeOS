@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {randomUUID,createHash} from 'node:crypto'
 import {readFileSync,writeFileSync,unlinkSync,rmdirSync,existsSync} from 'node:fs'
 import {dirname} from 'node:path'
-import {CoachProviderBudget,readCoachAuthorization} from '../../scripts/coach-provider-budget.ts'
+import {CoachProviderBudget} from '../../scripts/coach-provider-budget.ts'
 
 test('SIMULATED continuation keeps old receipts, removes call-count ceilings and caps exact new spend including unknowns',()=>{
   const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()}),directory=dirname(budget.path)
@@ -85,8 +85,9 @@ test('SIMULATED new monetary grant preserves old receipts, caps only new spend, 
 })
 
 test('SIMULATED budget reserves before usage, survives restart and refuses excess/locked/tampered writes',()=>{
-  const authorization=readCoachAuthorization(),directory='simulation-'+randomUUID()
+  const directory='simulation-'+randomUUID()
   const budget=new CoachProviderBudget({simulation:true,testDirectory:directory})
+  const authorization=budget.snapshot().authorization
   const input={runId:'synthetic',purpose:'turn' as const,tier:'default',provider:'synthetic',model:'synthetic',signature:'synthetic'}
   try{
     assert.equal(budget.snapshot().remaining,Math.min(128,authorization.remaining))
@@ -110,7 +111,7 @@ test('SIMULATED budget reserves before usage, survives restart and refuses exces
     assert.throws(()=>budget.reserve(input),/BUDGET_EXHAUSTED/)
     ledger.authorization.sha256='changed';writeFileSync(budget.path,JSON.stringify(ledger))
     assert.throws(()=>budget.snapshot(),/LEDGER_INVALIDATED/)
-    assert.deepEqual(readCoachAuthorization(),authorization)
+    assert.deepEqual(new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()}).snapshot().authorization,authorization)
   }finally{
     for(const path of [budget.path,budget.path+'.lock'])if(existsSync(path))unlinkSync(path)
     if(existsSync(dirname(budget.path)))rmdirSync(dirname(budget.path))
@@ -122,7 +123,7 @@ test('SIMULATED remaining allocation caps overhead at 64, users at 70 and their 
   const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()})
   const input={runId:'synthetic',tier:'default',provider:'synthetic',model:'synthetic',signature:'synthetic'}
   try{
-    budget.reallocateRemainingPlan(readCoachAuthorization().remaining)
+    budget.reallocateRemainingPlan(budget.snapshot().authorization.remaining)
     for(let i=0;i<64;i++)budget.reserve({...input,purpose:i%2?'diagnostic':'capability'})
     assert.throws(()=>budget.reserve({...input,purpose:'capability'}),/CAPABILITY_DIAGNOSTIC_RESERVATION_EXHAUSTED/)
     const ids=Array.from({length:70},()=>randomUUID())
@@ -156,7 +157,7 @@ test('SIMULATED shared repair reserve cannot pay for a repair without generation
 test('SIMULATED remaining-plan allocation preserves original authorization and every closed receipt',()=>{
   const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()})
   try{
-    const original=readCoachAuthorization(),receipt=budget.reserve({runId:'synthetic',purpose:'diagnostic',tier:'default',provider:'synthetic',model:'synthetic',signature:'synthetic'})
+    const original=budget.snapshot().authorization,receipt=budget.reserve({runId:'synthetic',purpose:'diagnostic',tier:'default',provider:'synthetic',model:'synthetic',signature:'synthetic'})
     assert.throws(()=>budget.reallocateRemainingPlan(original.remaining),/TERMINAL_CALLS_REQUIRED/)
     assert.throws(()=>budget.reallocatePurposes({overhead:68,generation:66,repair:22},'concrete observed failure'),/TERMINAL_CALLS_REQUIRED/)
     budget.finish(receipt.callId,{outcome:'aborted',usage:'unknown',estimatedCostCny:'unknown',providerResponseId:null})
@@ -205,7 +206,7 @@ test('SIMULATED additional 15 CNY preserves old receipts and reserves unknown ch
   const known=restarted.reserve({...input,logicalCallId:randomUUID()+':1',reservedCostCny:.9})
   restarted.finish(known.callId,{outcome:'completed',usage:{},estimatedCostCny:.2,providerResponseId:null})
   assert.equal(restarted.snapshot().additional.remainingCny,.78)
-  assert.equal(restarted.snapshot().remaining,Math.min(128,readCoachAuthorization().remaining)-1,'new monetary calls do not pretend to enlarge old authorization')
+  assert.equal(restarted.snapshot().remaining,Math.min(128,restarted.snapshot().authorization.remaining)-1,'new monetary calls do not pretend to enlarge old authorization')
   const original=readFileSync(budget.path),tampered=JSON.parse(original.toString())
   tampered.additional.limitCny=100;writeFileSync(budget.path,JSON.stringify(tampered))
   assert.throws(()=>budget.snapshot(),/AUTHORIZATION_CHANGED/)

@@ -22,8 +22,8 @@
   "evidenceRoot": "evidence/retrieval-followup-20261010/",
   "checks": {
     "root": {
-      "passed": 118,
-      "evidence": "evidence/retrieval-followup-20261010/root-confidence-final.log"
+      "passed": 131,
+      "evidence": "evidence/coze-core-launch-20261011/simulation-root.log"
     },
     "serverTypes": "PASS",
     "frontendTypes": "PASS_BUILD_TSC",
@@ -1344,5 +1344,32 @@
     "unknownFeesReservedCny": 0.7139328,
     "remainingOriginalFundingCny": 10.4335404,
     "newBudget": 0
+  },
+  "currentIncrement": {
+    "ui": "OFFLINE_UNSAVED_MESSAGE_AND_STALE_STAR_NOTICE_REPAIRED_ACTUAL_BROWSER_SCOPED_PASS",
+    "freshBase": {
+      "head": "9ceb766787e3d7e0889f4482e52654395555eb87",
+      "status": "17_RELEVANT_FREE_PASS_EXTENDED_PRIVATE_DEPENDENCY_FAILURE_RETAINED_CURRENT_FIX_PENDING_FRESH"
+    },
+    "simulationBudget": "NO_PRIVATE_HISTORY_REQUIRED_PAID_AUTHORIZATION_UNCHANGED",
+    "independentReview": {
+      "head": "9de635ed496db585cb98a1cbe3164692bcc8ada5",
+      "versionBindings": 32,
+      "claims": 79,
+      "recommendations": 25,
+      "sourceNeedsReview": 7,
+      "humanApproved": 0,
+      "published": 0,
+      "small5": "ACTUAL_R2_FAIL_REQUIRES_SCOPE_AND_RENDERED_CANDIDATE_RECHECK"
+    },
+    "cozeCredits": {
+      "initial": 151559,
+      "charged": 52951,
+      "held": 60000,
+      "available": 38608,
+      "newBudget": 0
+    },
+    "productionWrites": 0,
+    "status": "WIP_NOT_READY"
   }
 }

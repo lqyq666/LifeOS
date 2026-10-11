@@ -205,7 +205,13 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
         }
       }
     } finally {
-      if (!completed) { assistant = ''; transient = false; render() }
+      if (!completed) {
+        assistant = ''; transient = false
+        // A request that never reached the server is still only a draft.
+        // Retain the input without appending an unsaved message on each send.
+        if (pending.started) render()
+        else setConversation(current)
+      }
       const remainingDraft = completed || (pending.started && pending.controller.signal.aborted) ? '' : text
       try {
         const next = await loadWorkspace(currentUser, { ...workspace, activeId: chatId, chats: workspace.chats.map(chat => chat.id === chatId ? { ...chat, draft: remainingDraft } : chat) })
@@ -235,6 +241,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
     motionTimers.current.forEach(clearTimeout)
     motionTimers.current = []
     setCompanionMotion('idle')
+    setStarMapUpdate('')
     follow.current = true
     setSummaryOpen(false)
   }, [active.id])
