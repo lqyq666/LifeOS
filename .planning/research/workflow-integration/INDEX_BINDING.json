@@ -1,8 +1,8 @@
 {
-  "version": "workflow-v2-integration-f437c5b396e5",
-  "at": "2026-10-11T05:25:09.763Z",
+  "version": "workflow-v2-integration-0a1f40f843e7",
+  "at": "2026-10-11T05:37:42.547Z",
   "signature": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1:evergreen-segments-v3-expressions:8b1d482decb187e8671098c9cf001f7e14dc6106d2389611cfc3c4989b85a11a",
-  "contentManifestSha256": "2498654f1448cfb652e35df2b67b5f2874249bef8a7e9354b500f9a3579db7a9",
+  "contentManifestSha256": "349478da7f1c756a327fff68cb7b673e9570a179cdba7e34af6fa5f170ff6e4a",
   "indexCode": {
     "server/knowledge-index.ts": "bd8344e2c389682c30b95932a26324dac6348ad91c38a5bdeb4a290e978fa958",
     "server/embedding-signature.ts": "252b71fc865862a2634adb9e53cc81f0810b323fd257059c9b070ee1c632f8be",

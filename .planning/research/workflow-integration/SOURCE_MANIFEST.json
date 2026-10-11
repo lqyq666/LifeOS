@@ -1,12 +1,12 @@
 {
   "schemaVersion": 6,
-  "version": "workflow-v2-integration-f437c5b396e5",
-  "head": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
-  "codeCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+  "version": "workflow-v2-integration-0a1f40f843e7",
+  "head": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+  "codeCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
   "status": "WIP_NOT_READY",
-  "at": "2026-10-11T05:25:09.763Z",
+  "at": "2026-10-11T05:37:42.547Z",
   "baselineManifest": "evidence/retrieval-followup-20261010/baseline-519f/SOURCE_MANIFEST.json",
-  "sourceFingerprint": "f437c5b396e59788a2ca04d4df8d83abee3a08ec8ae722d1b434727bbbf45502",
+  "sourceFingerprint": "0a1f40f843e77a0f3ede32cce551dc9102c44e867fb7cf8b74b2f5ac8d6068f3",
   "fingerprintAlgorithm": "sha256(UTF8 sorted-key compact JSON path-to-sha256 map of committed Git blob bytes)",
   "hashDomain": "COMMITTED_GIT_BLOB_BYTES_BEFORE_WORKTREE_EOL_CONVERSION",
   "scope": "captureCoachSource allowlist bound to committed Git blobs; exact per-process workspace bytes/config and startup digest are frozen separately. CRLF/LF checkout bytes need not be identical.",
@@ -242,8 +242,8 @@
     "server/semantic-search.ts": "2c0ead56cfc07979d944ceda6e23d849eafc0a3e1c9d782a31690fc3255d91ff",
     "server/starmap-enrichment.ts": "34233f20d68c425e240cf96a1da5d7dc15c1012e02e9c428e24c38db73a54d1d",
     "server/store.ts": "c9e9cb80602229fb4d85bc4da4a6136e4976784da138b25f92109323a1af9602",
-    "server/turn-contract.ts": "45511dcb5d652df62ae80432304da2400589b4a3f2050d567bd7e8eddbeb050c",
-    "server/turn-engine.ts": "9365d7b7c395164f960bdaba83ea497efca307dd51d537ddac80acadd914efe2",
+    "server/turn-contract.ts": "732123ffcb6c8d0cecbc253e427565fd17b2bc8327601e30769b0aa817ed1313",
+    "server/turn-engine.ts": "061927927d1daaa12807630ba9a4977f4b39a792aa9d8656fa35ee6aadf8fa1a",
     "server/turn-obligations.ts": "5290c95db2fcf0e8ccac8152cf090d82fc7ff3a08c5d0d94379d3e9a5d0a922d",
     "server/turn-prompt.ts": "4d93de80536def6af7cd6ea1e32b143e5d9bdefa21f43583b9b740ea2bbe8559",
     "server/user-command-spans.ts": "f04243746a7579110d7211536f0250aa9a3aef41bf320050940db5697b0894a3",
@@ -375,7 +375,7 @@
     "tests/backend/early-draft.test.ts": "b7d609e8dbb4f58491b0f61d98ecd4e461d14c086f38db919e5978fbb0a5ea4f",
     "tests/backend/entitlements.test.ts": "1765f48b5d6024ef1ccf95cf242216a414b1ee8adbbcbd06d148213703f2b49a",
     "tests/backend/evergreen-acceptance2.test.ts": "d8b26fe54c06fba822277548ddf122ebb433a304a79f0b45fabe825fe36b79d2",
-    "tests/backend/evergreen-batch-content.test.ts": "cdc3f90bf96d46e8d63d35832d1506b9edcf16806110c81204c1dceb2c5d5a84",
+    "tests/backend/evergreen-batch-content.test.ts": "5e90f04f81b2625a5fd0a25e9fffac7ba9628d8173bbf9208f4520efe13fabbc",
     "tests/backend/evergreen-browser.test.ts": "7ea49cc0afb1c761f9f7d6ee0b3759191ed96f7f2176498b9daa3f8e9306b52a",
     "tests/backend/evergreen-index-load.test.ts": "91203eeaf18e83ee8029928f3389f99683526fa2a83ba4a52771967feebef2b4",
     "tests/backend/evergreen-knowledge.test.ts": "b7c12538c497a0fe8036d09582447dbe3887cefc572aaea11b948b6aeb0ec87e",
@@ -418,7 +418,7 @@
     "tests/backend/starmap-trust.test.ts": "5c6d130532f883af0e50cffdb054133f43b578558e415a9d950fa135dde43b82",
     "tests/backend/theme-lifecycle.test.ts": "5bc2c68e1e1d23b93bc5c3475ddfa81cb827459e7dfc2e911dfba6271fb4ea5c",
     "tests/backend/turn-contract-events.test.ts": "9572a0b0176e352f80331f4a5bf5739897adf705dc8fabdbe5de1b21d9af5c9f",
-    "tests/backend/turn-contract.test.ts": "a0c347c2b4fa4de1eb3742d666fc1a1ca6d63ddf20a2f75d860d36743488ff34",
+    "tests/backend/turn-contract.test.ts": "8aae8cf817b8402a7440d130a34579f0a5f02f0c0e67f3b59061c60619a6096f",
     "tests/backend/turn-source-availability.test.ts": "66e19fa0e010885e171074e5ee2fb08fed59b5c5337f79e44efe6335c87e6991",
     "tests/backend/weekly-plans.test.ts": "648620bc4210994a7f408007df6cc044fc584171c1651134fae968da1de5ccf5",
     "tests/backend/workflow-action.test.ts": "d5f93311896bd89f053403e6f19997d3c5199a491e1c09fc0e90b5bb34cc2ea8",
@@ -1434,11 +1434,11 @@
       },
       {
         "path": "server/turn-contract.ts",
-        "sha256": "9640b42a414bb45b917eb111c9ebcf9fc5e9a6942e6a20fded3273d643162d5a"
+        "sha256": "24e8548de1735124f6b3431dc3f990b85c28146cff9d09d06bd842000303aa71"
       },
       {
         "path": "server/turn-engine.ts",
-        "sha256": "c023e73216e58e08bd2f67c79e642ee00a36dc428660c4241de0a13b2a9cd073"
+        "sha256": "729ad946cad81fa0aca11edd9154dbee66b02a46331b5e9bf3b0779f7be70d55"
       },
       {
         "path": "server/turn-obligations.ts",
@@ -1966,7 +1966,7 @@
       },
       {
         "path": "tests/backend/evergreen-batch-content.test.ts",
-        "sha256": "cdc3f90bf96d46e8d63d35832d1506b9edcf16806110c81204c1dceb2c5d5a84"
+        "sha256": "5e90f04f81b2625a5fd0a25e9fffac7ba9628d8173bbf9208f4520efe13fabbc"
       },
       {
         "path": "tests/backend/evergreen-browser.test.ts",
@@ -2138,7 +2138,7 @@
       },
       {
         "path": "tests/backend/turn-contract.test.ts",
-        "sha256": "953a8a574233bd7c04709ef1ef2d10e14444d231f260a17cea4c118f59eb56ce"
+        "sha256": "96a20bc04469bd6b9ba96729adb41d1dd39a9d303ad72747675cd6f48192c33e"
       },
       {
         "path": "tests/backend/turn-source-availability.test.ts",
@@ -2528,9 +2528,9 @@
         "qwenThinkingBudget": 0
       }
     },
-    "digest": "bf0ad2321167c4e4756458d6357bfa83a2147507000eefacd59a58ba59a91b40"
+    "digest": "764378f14f493f148503b4a8ebc1264a8dd774a83d3f44a96cb5eaacc986e750"
   },
-  "runtimeFreezeDigest": "bf0ad2321167c4e4756458d6357bfa83a2147507000eefacd59a58ba59a91b40",
+  "runtimeFreezeDigest": "764378f14f493f148503b4a8ebc1264a8dd774a83d3f44a96cb5eaacc986e750",
   "privateStateIncluded": false,
   "declaredPublicInputs": [
     "evidence/v1.3-action-coach/research/source-verification.json",
@@ -2540,8 +2540,9 @@
   "reproduction": {
     "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
     "report": "evidence/coze-core-launch-20261011/REPRODUCTION_F36B933_FIRST.json",
-    "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
-    "currentCodeDifference": "Only student16 scripted test harness adapted to bounded replies and server plan rendering; product code unchanged. Current harness run reported separately."
+    "status": "HISTORICAL_PASS_SEPARATE_REPRODUCTION_CANCELLED_BY_OWNER",
+    "currentCodeDifference": "Current-course resource persistence and contact draft v6 changed after the historical fresh-checkout report. No claim of fresh-checkout equivalence.",
+    "futureSeparateCandidateDelivery": "CANCELLED_BY_OWNER"
   },
   "runtimeFreezeScope": "CURRENT_WORKSPACE_AND_LOCAL_CONFIG_READ_ONLY_NOT_PAID_PROCESS_OR_SYNTHETIC_UI_OVERRIDES"
 }

@@ -1,21 +1,21 @@
 {
   "schemaVersion": 4,
-  "version": "workflow-v2-integration-f437c5b396e5",
-  "codeCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
-  "sourceFingerprint": "f437c5b396e59788a2ca04d4df8d83abee3a08ec8ae722d1b434727bbbf45502",
-  "sourceManifestSha256": "4f91ac49b2507619703e32ee893d37c36e185fa53532b7d16651ccf31110012d",
-  "contentManifestSha256": "2498654f1448cfb652e35df2b67b5f2874249bef8a7e9354b500f9a3579db7a9",
-  "indexBindingSha256": "e8559d1ef2b5e9b6f52884e780a64d9c0f2c5a2f82a5fdfe0258f41d0c477e47",
-  "skillVersionMatrixSha256": "a45a4b82a207e6a7631536b3835c4f7358f6f05158290ea3dba6108bab0ee7cb",
-  "acceptanceSha256": "c3c70586250144ef472608ad94f21dc85af3395d52e41271724e50363a703e16",
+  "version": "workflow-v2-integration-0a1f40f843e7",
+  "codeCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+  "sourceFingerprint": "0a1f40f843e77a0f3ede32cce551dc9102c44e867fb7cf8b74b2f5ac8d6068f3",
+  "sourceManifestSha256": "f3a67bb2ae1228c24e1dd3039c08b68acd4dc3b96b694e082c7df9d5171d726d",
+  "contentManifestSha256": "349478da7f1c756a327fff68cb7b673e9570a179cdba7e34af6fa5f170ff6e4a",
+  "indexBindingSha256": "212aaff410eaed028fe117027bffc35aeaf50be0e89eb4f769bf10661342737c",
+  "skillVersionMatrixSha256": "2cb24ef100c810fe6cd4dba34223b7b25be648b06c8d390e679218d11a360801",
+  "acceptanceSha256": "23bc19af977d72ccf73bd86f889b37b1e0f014280a764cd81e552945d832f9f4",
   "finalReviewSha256": "1cf66d015e613c572872acccd51893e16d45e90527e20a24bcda3fbe0554ee17",
   "reportHashes": {
-    "LOCAL_ACCEPTANCE_PROGRESS.md": "18368ce4bb29017e7e7ddc17677212857a73f705d19036d8ced37ba8e256f78b",
+    "LOCAL_ACCEPTANCE_PROGRESS.md": "bf51386f4ff6e02f44a3d83583776217f75af16c4cddc230f0de748e5bd4ad50",
     "SKILL_HOST_ACCEPTANCE.md": "9e4acd3a442f126a5ad235a8d1d2e5e56c681f6a89afbedd075f6fb3a75432aa",
     "WORKFLOW_FAILURES_AND_REVIEW.md": "c6a37075177f141434dfb73fde3c65a683c248632c240382ea20dd3b161845e1",
-    "GATE_STATUS.md": "90a4477fdcd9bbcfb88f59b0c194443dd6570c51fc7501a1c8a830d770e171ae"
+    "GATE_STATUS.md": "b0474fd3ee33ac6a2b15a5c5a3406c1afb1cfe041bad94b9ff64160526f3d2ec"
   },
-  "nextAcceptanceSha256": "f720082d03fa229b2b7b2bb251f1ce9f576f6829535ac1b87b39baa5f5f293a8",
+  "nextAcceptanceSha256": "47a7f992f705cd8c9248035e1fed796db210ea948d7bc08b51fa10a92a4fc2ab",
   "evidenceHashes": {
     "evidence/long-batch-20261010/browser-probe-stages.log": "259827ec6449b9edea315e365e56402cf4f9624f3ef4ae0c7851af87788c36ec",
     "evidence/long-batch-20261010/BROWSER_CHAIN.json": "70f352178e454662ab8e8daefcc178c312cd4abcd2985e14d57b051f64a30fa2",
@@ -328,7 +328,10 @@
     "evidence/coze-core-launch-20261011/student16-b31aaed-first/SKILL_HOST_EXECUTIONS.json": "eb8deea33cb2542db40b49a7ad60ee2473774ebd435587d387b0039bf647d8e4",
     "evidence/coze-core-launch-20261011/BOUNDED_STATUS_B31AAED_FIRST.json": "1b725c662e906f9cd82e0ba2a971b88445b5d903a406b8ee264bc29241973f6d",
     "evidence/coze-core-launch-20261011/BOUNDED_STATUS_MAIN_REVIEW.json": "5103fe2cd5aac119bf89fddedf3dc4333e0dad4d806c9d835518d88378eca765",
-    "evidence/coze-core-launch-20261011/BOUNDED_STATUS_CONFIG_FIRST_ZERO_DISPATCH.json": "ac35428eb3c86b4ebbc9f6d51036239d8cb7bffbe602fa251d8dbb56b380f67f"
+    "evidence/coze-core-launch-20261011/BOUNDED_STATUS_CONFIG_FIRST_ZERO_DISPATCH.json": "ac35428eb3c86b4ebbc9f6d51036239d8cb7bffbe602fa251d8dbb56b380f67f",
+    "evidence/coze-core-launch-20261011/RESOURCE_VERBATIM_LOCAL.json": "45a184945505687f4c052f79c485bbdd11791f0e3dc4aebe3440386d333893ba",
+    "evidence/coze-core-launch-20261011/mentor-original-content-maintenance-first.log": "ee011e92d84e7f25e469f3356a8fb5be28eddfbb7372a6a215644c9281daf584",
+    "evidence/coze-core-launch-20261011/mentor-originals/READ_MANIFEST.json": "69cf20388328fd7ecca1178028bd717e1a2321af62b93c28d679a8e568e16a08"
   },
   "historicalProtocols": {
     "COMPLEX_DECISION_AB_EVAL.json": "6c3252608e2b70166388767849d2e28cb708f479e5cde0bd546737bcf519734b",
@@ -338,8 +341,8 @@
   "currentTests": {
     "root": {
       "passed": 143,
-      "evidence": "evidence/coze-core-launch-20261011/REPRODUCTION_F36B933_FIRST.json",
-      "scope": "ROOT_143_FRESH_F36B933_PRODUCT_CODE_UNCHANGED_HARNESS_UPDATE_SEPARATE"
+      "evidence": "evidence/coze-core-launch-20261011/resource-verbatim-root-first.log",
+      "scope": "CURRENT_RESOURCE_FIX_ROOT_143_FREE_REGRESSION_NOT_FRESH_CHECKOUT"
     },
     "serverTypes": "PASS",
     "frontendTypes": "PASS_BUILD_TSC",
@@ -381,7 +384,7 @@
       "fourProfilesEvidence": "evidence/long-batch-20261010/PERSONAL_BASIS_ABCD.json"
     },
     "currentCandidateBrowser": {
-      "status": "PASS_ACTUAL_LOCAL_SYNTHETIC_CURRENT_MAINTENANCE_AND_BOUNDED_CHAT",
+      "status": "PASS_HISTORICAL_F36B933_LOCAL_UI_NOT_CURRENT_SOURCE_REVERIFIED",
       "codeCommit": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
       "widths": [
         1440,
@@ -400,7 +403,7 @@
       "students": 16,
       "coreFourIncludedOnce": true,
       "testedCodeCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
-      "productSourceEquivalentToFinalCode": true,
+      "productSourceEquivalentToFinalCode": false,
       "productionFilesCompared": 219,
       "annotationRevision": 2,
       "blind": false,
@@ -415,8 +418,9 @@
     "reproduction": {
       "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
       "report": "evidence/coze-core-launch-20261011/REPRODUCTION_F36B933_FIRST.json",
-      "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
-      "currentCodeDifference": "Only student16 scripted test harness adapted to bounded replies and server plan rendering; product code unchanged. Current harness run reported separately.",
+      "status": "HISTORICAL_PASS_SEPARATE_REPRODUCTION_CANCELLED_BY_OWNER",
+      "currentCodeDifference": "Current-course resource persistence and contact draft v6 changed after the historical fresh-checkout report. No claim of fresh-checkout equivalence.",
+      "futureSeparateCandidateDelivery": "CANCELLED_BY_OWNER",
       "steps": 23,
       "ledgerPrivateDbKeysCopied": false
     },
@@ -580,6 +584,22 @@
     "localCoreSkills": {
       "evidence": "evidence/coze-core-launch-20261011/student16-b31aaed-first/SKILL_HOST_EXECUTIONS.json",
       "scope": "FOUR_NORMAL_CORE_HOST_SKILLS_NATIVE_SDK_AND_READBACK_DIRECTION_SKILL_SEPARATE_NOT_ALL_FIVE_REAL_SKILLS"
+    },
+    "resourceVerbatim": {
+      "codeCommit": "e37ae7b",
+      "passed": 22,
+      "sourceSafetyPassed": 1,
+      "evidence": "evidence/coze-core-launch-20261011/RESOURCE_VERBATIM_LOCAL.json",
+      "scope": "LOCAL_SDK_PG_MEMORY_ON_OFF_CONTEXT_NOT_PERSISTENT_EVENT_OR_REAL_MODEL_ACCEPTANCE",
+      "realModelRevalidated": false
+    },
+    "mentorDraftV6": {
+      "codeCommit": "19438c1",
+      "contentPassed": 7,
+      "maintenancePassed": 1,
+      "evidence": "evidence/coze-core-launch-20261011/mentor-original-content-maintenance-first.log",
+      "ownerApprovals": 0,
+      "newPublished": 0
     }
   },
   "paidLedgerMetadataOnly": {
@@ -1867,9 +1887,9 @@
     }
   },
   "currentExecution": {
-    "repositoryHead": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
-    "codeCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
-    "sourceFingerprint": "f437c5b396e59788a2ca04d4df8d83abee3a08ec8ae722d1b434727bbbf45502",
+    "repositoryHead": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+    "codeCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+    "sourceFingerprint": "0a1f40f843e77a0f3ede32cce551dc9102c44e867fb7cf8b74b2f5ac8d6068f3",
     "process": {
       "service": "LifeOS",
       "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
@@ -1938,7 +1958,7 @@
     "status": "WIP_NOT_READY",
     "extraCandidatePackaging": "CANCELLED_BY_OWNER_ONLY_REAL_DEPLOYMENT_NECESSARY_VALIDATION"
   },
-  "at": "2026-10-11T05:25:09.763Z",
+  "at": "2026-10-11T05:37:42.547Z",
   "finalReviewScope": "HISTORICAL_REVIEW_NOT_CURRENT_INDEPENDENT_ACCEPTANCE",
   "latestRealReview": "evidence/coze-core-launch-20261011/BOUNDED_STATUS_MAIN_REVIEW.json",
   "latestRealReviewIndependent": false

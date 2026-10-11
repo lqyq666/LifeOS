@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
-  "at": "2026-10-11T05:25:09.763Z",
-  "candidate": "workflow-v2-integration-f437c5b396e5",
-  "repositoryCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+  "at": "2026-10-11T05:37:42.547Z",
+  "candidate": "workflow-v2-integration-0a1f40f843e7",
+  "repositoryCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
   "mainRepository": {
     "version": "1.2.2-candidate",
     "sha256": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
@@ -132,7 +132,7 @@
     "execution": "NOT_TESTED",
     "version": "1.2.0",
     "versionBasis": "MATCHED_HISTORICAL_SHA_NO_VERSION_FIELD",
-    "checkedAt": "2026-10-11T05:25:09.763Z"
+    "checkedAt": "2026-10-11T05:37:42.547Z"
   },
   "installedBusinessSkills": [
     {
@@ -142,7 +142,7 @@
       "sha256": null,
       "modified": false,
       "execution": "NOT_TESTED",
-      "checkedAt": "2026-10-11T05:25:09.763Z"
+      "checkedAt": "2026-10-11T05:37:42.547Z"
     },
     {
       "name": "lifeos-action-review",
@@ -151,7 +151,7 @@
       "sha256": null,
       "modified": false,
       "execution": "NOT_TESTED",
-      "checkedAt": "2026-10-11T05:25:09.763Z"
+      "checkedAt": "2026-10-11T05:37:42.547Z"
     },
     {
       "name": "lifeos-experience-evidence",
@@ -160,7 +160,7 @@
       "sha256": null,
       "modified": false,
       "execution": "NOT_TESTED",
-      "checkedAt": "2026-10-11T05:25:09.763Z"
+      "checkedAt": "2026-10-11T05:37:42.547Z"
     },
     {
       "name": "lifeos-guide-application",
@@ -169,7 +169,7 @@
       "sha256": null,
       "modified": false,
       "execution": "NOT_TESTED",
-      "checkedAt": "2026-10-11T05:25:09.763Z"
+      "checkedAt": "2026-10-11T05:37:42.547Z"
     },
     {
       "name": "lifeos-growth-diff",
@@ -178,7 +178,7 @@
       "sha256": null,
       "modified": false,
       "execution": "NOT_TESTED",
-      "checkedAt": "2026-10-11T05:25:09.763Z"
+      "checkedAt": "2026-10-11T05:37:42.547Z"
     }
   ],
   "persistentServiceCheck": [
@@ -302,14 +302,14 @@
   ],
   "userCustomizedFilesOverwritten": false,
   "currentFollowupProcess": {
-    "sourceCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+    "sourceCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
     "state": "LOCAL_TEST_HTTP_SERVICES_CLOSED_NOT_USER_SERVICE",
     "realModelQuality": "CURRENT_REPAIR_NOT_REAL_REVERIFIED",
-    "sourceFreezeDigest": "bf0ad2321167c4e4756458d6357bfa83a2147507000eefacd59a58ba59a91b40"
+    "sourceFreezeDigest": "764378f14f493f148503b4a8ebc1264a8dd774a83d3f44a96cb5eaacc986e750"
   },
   "launch": {
     "scopeRestored": true,
-    "repositoryCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+    "repositoryCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
     "repositoryMainVersion": "1.2.2-candidate",
     "userInstallation": {
       "sha256": "6c3bfbb6517273188f84db9c0f9cb0a2f081f45afa80d2c014094556b11571cf",
