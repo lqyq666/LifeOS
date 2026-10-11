@@ -1,4 +1,4 @@
-import {scanUserClauses} from './user-command-spans.ts'
+import {scanUserClauses,currentConversationOnly} from './user-command-spans.ts'
 import {reportedPerformedTaskClauses} from './turn-contract.ts'
 import type {KnowledgeIntent} from './evergreen-guide.ts'
 import type {TurnContract} from './turn-contract.ts'
@@ -26,6 +26,10 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  const clauses=scanUserClauses(input.text)
  const own=clauses.filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
  const make=(stage:BoundedReply['stage'],nextUnknown:string,choices:string[]):BoundedReply=>({basis:'editorial_adaptation',sourceStatus:input.knowledgeCount?'PUBLIC_METHOD_NOT_USED':'NO_PUBLIC_METHOD',stage,nextUnknown,choices})
+ if(currentConversationOnly(input.text))return make('reported_result','本人愿意表达的内容；不推测感受或原因',[
+  '我在听。你接着说，按你想说的节奏来。',
+  '嗯，我在这儿听着。你想先说什么都可以。',
+ ])
  // A narrow certainty correction must not reclassify read/sent/payment or
  // restart an already stated request. State correction still uses the
  // existing correction/transaction machinery, independently of this reply.

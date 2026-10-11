@@ -81,6 +81,21 @@ export function reportedTaskOutcomeClauses(text:string){
 export function reportedPerformedTaskClauses(text:string){
  return anchorablePersonalClauses(text).filter(c=>/(?:我|本人)/.test(c.text)&&/(?:发出去了|发了|交给.{0,10}了|交付了|提交了|问了|问过|聊过|访谈了)/.test(c.text)&&!/(?:想|打算|准备|如果|还没|没有|尚未|未曾|没)(?:.{0,8})(?:发出|发了|交给|交付|提交|问|聊|访谈)/.test(c.text))
 }
+// Readback of guarded participant reports. Missing dimensions stay unknown;
+// these defaults are not newly asserted personal facts or questions to ask.
+export function taskOutcomeReadback(text:string,authorizedQuotes?:ReadonlySet<string>){
+ const clauses=reportedTaskOutcomeClauses(text).filter(c=>!authorizedQuotes||authorizedQuotes.has(c.text)),dimensions=['read','response','adoption','payment','effect'] as const
+ const result=Object.fromEntries(dimensions.map(k=>[k,{status:'unknown',quote:null as string|null}])) as Record<typeof dimensions[number],{status:string;quote:string|null}>
+ for(const c of clauses){
+  const q=c.text
+  if(/读了|读过|看过|已读/.test(q))result.read={status:'reported_read',quote:q}
+  if(/(?:没(?:有)?|尚未|还未|未)(?:回复|回应)|没回/.test(q))result.response={status:'reported_no_response',quote:q}
+  if(/(?:没(?:有)?|尚未|还未|未).{0,6}(?:采用|使用|用过|用了)|还没用/.test(q))result.adoption={status:'reported_not_used',quote:q}
+  else if(/(?:已经|已).{0,3}(?:采用|使用|用了)/.test(q))result.adoption={status:'reported_used',quote:q}
+  if(/(?:没(?:有)?|尚未|还未|未)(?:付款|付费|付)|还没付/.test(q))result.payment={status:'reported_unpaid',quote:q}
+ }
+ return result
+}
 
 export function deriveTurnContract(input:{
   text:string

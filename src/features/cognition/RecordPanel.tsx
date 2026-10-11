@@ -119,6 +119,15 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
               {(node as any).externalFeedback && <span className="record-badge is-external">含他人反馈</span>}
             </div>
           </section>}
+          {(node as any).taskOutcomes && <section className="record-outcomes" aria-label="分别记录的结果">
+            <h3>分别记录的结果</h3>
+            <p>按本人报告保留，未报告的结果仍未知。</p>
+            <dl>{Object.entries({read:'是否读过',response:'是否回应',adoption:'是否采用',payment:'是否付款',effect:'实际效果'}).map(([key,label])=>{
+              const outcome=(node as any).taskOutcomes[key]
+              const labels:Record<string,string>={reported_read:'已读',reported_no_response:'尚未回复',reported_not_used:'尚未使用',reported_used:'已经使用',reported_unpaid:'尚未付款',unknown:'未知'}
+              return <div key={key}><dt>{label}</dt><dd>{labels[outcome?.status]??'未知'}{outcome?.quote && <span> · 原话：{outcome.quote}</span>}</dd></div>
+            })}</dl>
+          </section>}
           {originalValues.length > 0 && <section className="interpretation" aria-label="关联解释"><h3>关联的主题</h3>
             {values.length > 1 ? <div className="angle-options" role="group" aria-label="选择关联角度">{values.map(id => <button key={id} aria-pressed={angleId === id} onClick={() => controller.changeAngle(id)}>{graph.getNode(id)?.title}</button>)}</div> : values.length === 1 && <p className="single-value">{graph.getNode(values[0])?.title}</p>}
             {values.length && edge ? <p className="relation-reason">{review?.editedReason ?? edge.reason}</p> : <p className="relation-empty">暂无关联</p>}

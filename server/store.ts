@@ -21,6 +21,7 @@ import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, iden
 import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
 import { buildExperienceRelations } from './starmap-enrichment.ts'
 import { generateInsight } from './experience-insight.ts'
+import {taskOutcomeReadback} from './turn-contract.ts'
 import {commitWorkflowSelection,type WorkflowAdoption} from './workflows/task-commit.ts'
 import {committedGrowthDiff,committedSnapshot,validGrowthDiff} from './workflows/committed-growth-diff.ts'
 import {advancedWorkflowsEnabled} from './workflows/router.ts'
@@ -435,6 +436,7 @@ export async function claimAction(user:string,id:string,input:{requestId:string;
 
 export async function cognitionGraph(user:string) {
   const experiences=(await listExperiences(user)).filter(e=>e.status==='confirmed')
+  const outcomeSources=(await pool.query("SELECT sources FROM growth_items WHERE user_id=$1 AND status='active'",[user])).rows
   // 登录图的核心节点是“当前自我”+该用户自己的成长主题（最多三个，不足不
   // 强制）。固定三维度不再作为展示节点；experience_links 的 value 通道继续
   // 作为内部辅助分类写入，只是不出现在图上。
@@ -465,6 +467,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
   }
   for(const e of experiences){
     const id='exp-'+e.id
+    const authorizedOutcomeQuotes=new Set<string>(outcomeSources.flatMap(row=>(row.sources??[]).filter((s:any)=>s.type==='message'&&s.id===e.source_message_id).map((s:any)=>String(s.quote))))
     const expAction = String(e.content?.action ?? ''), expResult = String(e.content?.result ?? ''), expSummary = String(e.content?.summary ?? '')
     const expBlocked = isBlockedExperience(expAction, expResult, e.source_quote ?? '')
     const expExternal = isExternalFeedback(expResult, e.source_quote ?? '')
@@ -480,7 +483,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
       relatedExperiences: expRelated.map(r => ({ title: String(r.title ?? ''), score: Number(r.score) })),
       identityLevel: 0, identityName: '', nextIdentity: '', identityNextHint: '',
     })
-    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,skillTags:expSkills,insight:expInsight} as any)
+    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,taskOutcomes:taskOutcomeReadback(e.source_quote??'',authorizedOutcomeQuotes),skillTags:expSkills,insight:expInsight} as any)
   }
   const themeLinks=(await pool.query("SELECT * FROM experience_theme_links WHERE user_id=$1 AND status='active'",[user])).rows
   const expRelations=(await pool.query("SELECT * FROM experience_relations WHERE user_id=$1 AND NOT (relation='follows' AND reason='时间上先后发生') ORDER BY created_at DESC LIMIT 10",[user])).rows

@@ -69,8 +69,8 @@ test('the runtime schema binds reply exactly and rejects free prose even if nati
  assert.equal(boundedDraftAccepts('你还有两小时要准备汇报吗？',bounded),false)
  assert.equal(boundedDraftAccepts('你们原先是怎么约定的？',bounded),true)
 })
-test('listening, refusal, controls, delivery, planning, comparison and sourced methods retain their original contracts',()=>{
- for(const text of ['我只想聊聊，不要给我建议。','更正，那个不是我做的。','你好','你记得我之前说过什么吗？','请比较就业和创业，哪个更适合？'])assert.equal(make(text),null,text)
+test('controls, delivery, planning, comparison and sourced methods retain their original contracts',()=>{
+ for(const text of ['更正，那个不是我做的。','你好','你记得我之前说过什么吗？','请比较就业和创业，哪个更适合？'])assert.equal(make(text),null,text)
  const text='怎么开始？',contract=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:true,material:false})
  assert.equal(make(text,{contract}),null)
  assert.equal(make(text,{contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})}),null)
@@ -109,4 +109,11 @@ test('first natural real failures: quoted interview question is a step edit and 
  assert.ok(edit.choices.every(s=>s.includes('问题')&&!s.includes('还没有具体方向')&&!s.includes('先写下一个待核对的问题')))
  const course=make('课程和备考怎么取舍？我这周只剩两小时，不想同时铺开。',{verifiedBudget:{minutes:120,period:'this_week',quote:'我这周只剩两小时'}})!
  assert.ok(course.choices.every(s=>s.includes('120分钟')&&!s.includes('简历')&&!s.includes('全砸')))
+})
+
+ test('listening cannot infer feelings or direct the emotional account',()=>{
+ const reply=make('我请教导师的邮件已经发出去了。对方看过但没有回复。我现在只想聊聊感受，别给建议。')!
+ assert.ok(reply.choices.length>0)
+ assert.equal(boundedReplyAccepts('挺磨人的，你是不是很焦虑？',reply),false)
+ assert.ok(reply.choices.every(s=>!s.includes('焦虑')&&!s.includes('催')&&!s.includes('难受')))
 })
