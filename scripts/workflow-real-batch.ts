@@ -138,8 +138,14 @@ export async function executeRealBatch(authPath:string,directory:string){
   }
   return true
  }
+ async function syntheticAccount(){
+  const signup=await request('/api/auth/sign-up/email',{email:'real-synthetic-'+randomUUID()+'@example.invalid',password:'Synthetic-'+randomUUID(),name:'Synthetic adult'})
+  if(!signup.ok)throw new Error('SYNTHETIC_ACCOUNT_NOT_AVAILABLE')
+  actor=(await signup.json()).user.id;cookie=signup.headers.getSetCookie().map(x=>x.split(';')[0]).join('; ')
+  await json('/api/memory/settings',{requestId:randomUUID(),enabled:true,expectedRevision:0})
+ }
  try{
-  const signup=await request('/api/auth/sign-up/email',{email:'real-synthetic-'+randomUUID()+'@example.invalid',password:'Synthetic-'+randomUUID(),name:'Synthetic adult'});if(!signup.ok)throw new Error('SYNTHETIC_ACCOUNT_NOT_AVAILABLE');actor=(await signup.json()).user.id;cookie=signup.headers.getSetCookie().map(x=>x.split(';')[0]).join('; ');await json('/api/memory/settings',{requestId:randomUUID(),enabled:true,expectedRevision:0})
+  await syntheticAccount()
   const pairs=JSON.parse(readFileSync(root+'COMPLEX_DECISION_AB_EVAL.json','utf8')).cases,ordinary=JSON.parse(readFileSync(root+'ORDINARY_PERFORMANCE_PROTOCOL.json','utf8')).cases
   const pilot=selectRealPilotCases(auth,pairs,ordinary)
   if(preflight.pilotContinuation){record({type:'independent_pilot_continuation',...preflight.pilotContinuation})}
@@ -151,7 +157,7 @@ export async function executeRealBatch(authPath:string,directory:string){
   if(auth.smallComplexOnly)return {status:'REAL_COMPLEX_SMALL_WAITING_INDEPENDENT_REVIEW',results:results.length,ordinarySamples:'PREVIOUS_FIRST3_PRESERVED_NOT_REISSUED',cozeComplex:'NOT_TESTED_SEPARATE_CURRENT_CLOUD_ENTRY_REQUIRED',autoContinuation:false}
   if(!preflight.pilotContinuation&&!await waitForReview('small'))return {status:'WAITING_INDEPENDENT_SMALL_BATCH_REVIEW',results:results.length,stagesRemaining:realBatchStages.slice(1)}
   const chains=JSON.parse(readFileSync('tests/fixtures/workflow-student16.json','utf8')).students.slice(0,4)
-  for(const chain of chains){const chats=[await chat(),await chat(),await chat()];for(const [i,r]of chain.rounds.entries())await turn('four_chains',chain.id+'-'+i,chats[r.session],r.text)}
+  for(const chain of chains){await syntheticAccount();const chats=[await chat(),await chat(),await chat()];for(const [i,r]of chain.rounds.entries())await turn('four_chains',chain.id+'-'+i,chats[r.session],r.text)}
   if(!await waitForReview('four_chains'))return {status:'WAITING_INDEPENDENT_CHAIN_REVIEW'}
   await json('/api/memory/settings',{requestId:randomUUID(),enabled:false,expectedRevision:1})
   const blinded:any[]=[]
