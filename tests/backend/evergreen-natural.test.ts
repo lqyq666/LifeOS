@@ -7,11 +7,12 @@ import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {retrieveIndexedKnowledge,clearKnowledgeIndexMemory} from '../../server/knowledge-index.ts'
 import {knowledgeIntent,kbHash} from '../../server/evergreen-guide.ts'
 test('frozen natural labels report every domain, stage and unavailable target with exposure recorded',async()=>{
- const split=process.env.LIFEOS_QUERY_SPLIT??'development';assert.ok(['development','sealed','reserve'].includes(split))
- const reserve=split==='reserve'
- const root='.planning/research/evergreen/',read=(n:string)=>readFileSync(root+n,'utf8').trim().split('\n').map(x=>JSON.parse(x)),cards=read('KB_GUIDES.jsonl'),bytes=readFileSync(root+(reserve?'KB_RETRIEVAL_RESERVE.json':'KB_NATURAL_QUERIES.json'),'utf8'),freeze=JSON.parse(readFileSync(root+(reserve?'KB_RETRIEVAL_RESERVE_FREEZE.json':'KB_NATURAL_FREEZE.json'),'utf8'))
- assert.equal(kbHash(bytes),freeze.sha256);assert.ok(reserve?freeze.count===32:freeze.count>=200)
- if(reserve){assert.equal(freeze.executions,0,'first untuned acceptance only');assert.equal(freeze.usedForTuning,false);assert.equal(existsSync('.planning/research/workflow-integration/evidence/retrieval-reserve-20261011/NATURAL_reserve_first-final.json'),false,'published first result cannot be replaced')}
+ const split=process.env.LIFEOS_QUERY_SPLIT??'development';assert.ok(['development','sealed','reserve','next_reserve'].includes(split))
+ const reserve=['reserve','next_reserve'].includes(split),nextReserve=split==='next_reserve'
+ const corpus=nextReserve?'KB_RETRIEVAL_NEXT_RESERVE':reserve?'KB_RETRIEVAL_RESERVE':'KB_NATURAL_QUERIES',freezeName=nextReserve?'KB_RETRIEVAL_NEXT_RESERVE_FREEZE':reserve?'KB_RETRIEVAL_RESERVE_FREEZE':'KB_NATURAL_FREEZE'
+ const root='.planning/research/evergreen/',read=(n:string)=>readFileSync(root+n,'utf8').trim().split('\n').map(x=>JSON.parse(x)),cards=read('KB_GUIDES.jsonl'),bytes=readFileSync(root+corpus+'.json','utf8'),freeze=JSON.parse(readFileSync(root+freezeName+'.json','utf8'))
+ assert.equal(kbHash(bytes),freeze.sha256);assert.ok(reserve?freeze.count===(nextReserve?64:32):freeze.count>=200)
+ if(reserve){assert.equal(freeze.executions,0,'first untuned acceptance only');assert.equal(freeze.usedForTuning,false);assert.equal(existsSync('.planning/research/workflow-integration/evidence/retrieval-reserve-20261011/NATURAL_'+split+'_first-final.json'),false,'published first result cannot be replaced')}
  const selected=JSON.parse(bytes).cases.filter((c:any)=>reserve||c.split===split)
  const directory=process.env.LIFEOS_WORKFLOW_EVIDENCE??'.local/natural-queries';mkdirSync(directory,{recursive:true})
  const out=directory+'/NATURAL_'+split+'_'+(process.env.LIFEOS_QUERY_RUN??'first')+'.json';if(existsSync(out))throw new Error('EVIDENCE_ALREADY_EXISTS')

@@ -1,0 +1,11 @@
+{
+  "sha256": "00cbe036f298b59a21393d7d803bd5a49a0683b10c3e6cc3676c0220e48261a0",
+  "count": 64,
+  "executions": 0,
+  "usedForTuning": false,
+  "status": "NOT_TESTED",
+  "labelsAuthor": "current-main-codex",
+  "independentBlindTest": false,
+  "excludedFromIndexVocabulary": true,
+  "oldReserve32": "first result retained; exposed regression only"
+}
