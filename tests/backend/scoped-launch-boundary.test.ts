@@ -62,6 +62,13 @@ test('persisted V19 natural boundary failures repair authoritative state across 
   const stopInput={run:stopRun,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(stopRun),decision:null,signal:new AbortController().signal,emit:()=>{}}
   const stopReply=await createTurnEngine({capabilityVerified:()=>true})(stopInput);await store.finishRun(stopRun,stopInput.staged,stopReply.text,stopReply.usage,stopInput.signal)
   assert.ok((await listControlRequests(other)).some(x=>x.status==='pending'&&x.candidates.some(c=>c.itemId===originalContext.id)),'an owned matter recorded as context still receives a durable target confirmation')
+  const countBeforeRecall=(await growthContext(other,otherChat)).length
+  const recallRun=(await store.startRun(other,otherChat,randomUUID(),'你记得我想用什么渠道联系学长，目前是否已经联系吗？只按我之前报告的内容回答。')).run
+  const recallInput={run:recallRun,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(recallRun),decision:null,signal:new AbortController().signal,emit:()=>{}}
+  const recall=await createTurnEngine({capabilityVerified:()=>true})(recallInput);await store.finishRun(recallRun,recallInput.staged,recall.text,recall.usage,recallInput.signal)
+  assert.match(recall.text,/校内邮箱/);assert.doesNotMatch(recall.text,/先确认你想停止/)
+  assert.equal((await growthContext(other,otherChat)).length,countBeforeRecall,'production compound recall must not create a goal or fact')
+  assert.ok((await listControlRequests(other)).some(x=>x.status==='pending'),'recall cannot resolve the stop request implicitly')
  }finally{model.baseUrl=oldURL;config.apiKey=oldKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()))}
 })
 test.after(async()=>{await localEmbedding.close();await pool.end()})

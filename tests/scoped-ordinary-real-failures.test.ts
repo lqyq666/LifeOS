@@ -8,6 +8,15 @@ import {deliverableIntent,requiresImmediateMaterial} from '../server/action-coac
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
 import {resolveSelectedMaterialFacts} from '../server/grounded-material.ts'
 
+test('production compound recall cannot become a new pursuit',()=>{
+ const text='你记得我想用什么渠道联系学长，目前是否已经联系吗？只按我之前报告的内容回答。'
+ assert.equal(buildClauseCatalogue(text)[0]!.interrogative,true)
+ assert.equal(deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}).mode,'reply_only')
+ const catalogue=buildClauseCatalogue(text)
+ const r=resolveGrowthDeltas({deltas:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:catalogue[0]!.clauseId}}],currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[]})
+ assert.equal(r.deltas.length,0)
+})
+
 test('first real ordinary failures: actual reports and emotions cannot become pursuits',()=>{
  for(const text of ['我实际问了一位同学','他说排课时间不好找','也没有付款','但还没用过任何我做的东西','我不想改到私人微信去催','我有点担心折腾很久还是不知道方向']){
   const catalogue=buildClauseCatalogue(text),r=resolveGrowthDeltas({deltas:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:catalogue[0]!.clauseId}}],currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[]})
