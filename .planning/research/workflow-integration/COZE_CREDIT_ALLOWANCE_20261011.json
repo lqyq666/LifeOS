@@ -1,0 +1,28 @@
+{
+  "kind": "DIRECT_OWNER_AUTHORIZED_CURRENT_ACCOUNT_CREDIT_ALLOWANCE",
+  "recordedAt": "2026-10-11T12:40:48.151Z",
+  "question": "扣子最多用20%积分按哪个基数计算",
+  "exactAnswer": "从现在起，最多使用当前账户剩余积分的20%",
+  "percentage": 0.2,
+  "basis": "FRESH_AUTHENTICATED_ACTUAL_ACCOUNT_REMAINING_CREDITS_AT_FIRST_POST_AUTHORIZATION_READ",
+  "observedRemainingCredits": null,
+  "observedAt": null,
+  "authorizedMaximumAdditionalCredits": null,
+  "status": "AUTHORIZED_PENDING_ACTUAL_BALANCE_AND_LEDGER_BINDING_ZERO_NEW_DISPATCH",
+  "projectIds": [
+    "7693388932939300905",
+    "7693465311558795327"
+  ],
+  "developmentPriority": "LOCAL_FIRST",
+  "purchaseOrUpgradeAuthorized": false,
+  "productCnyBudgetIncreaseAuthorized": false,
+  "automaticPaidRetryAuthorized": false,
+  "existingLedger": ".local/coze-launch/credits-ledger.jsonl",
+  "accountingRules": [
+    "Read the actual authenticated account remaining balance; historical opening151559 or ledger available25 is not that balance.",
+    "Freeze the first observed balance as this approval basis; do not rebase it on a larger later snapshot without authorization.",
+    "Version and append the new allowance in the original ledger; do not initialize, copy, reset or replace it.",
+    "Retain all first failures, previous charges and unknown cost reservations. Any overlap between existing commitments and the fresh observed balance must be explicitly reconciled rather than counted twice.",
+    "Reserve all post-authorization development and business execution against the approved20percent ceiling, with no automatic charged retry."
+  ]
+}

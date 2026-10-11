@@ -1,6 +1,6 @@
 {
-  "version": "workflow-v2-integration-0a1f40f843e7",
-  "at": "2026-10-11T05:37:42.547Z",
+  "version": "workflow-v2-integration-1f6b4b7a393b",
+  "at": "2026-10-11T12:36:02.636Z",
   "formalCorpusModified": false,
   "formalGuideReviewCounts": {
     "approved": 16,
@@ -40,16 +40,16 @@
     ".planning/research/evergreen/KB_BATCH_SOURCE_READINGS.json": "e0e9e9d8c7b6901152839b9e04d4dc77cc92bdaacaa728f340093a557c04c8e9",
     ".planning/research/evergreen/KB_BROWSER_REPORT.json": "68f5e928118e050c0b908b632bb3256c7a2961adc87728e49f9ab090c80e62e3",
     ".planning/research/evergreen/KB_CARD_REGRESSIONS.json": "732850de84b366d6ea24eb764bf04f0ced63749b80dc80fc7adc2f9c38f3f708",
-    ".planning/research/evergreen/KB_CONTENT_REVISIONS.json": "15021e3418f0fa63dc5297fe5bd9ae180d1d3d2f917dc2b2c968580550c0a555",
+    ".planning/research/evergreen/KB_CONTENT_REVISIONS.json": "c7b575c285d74caba25ddbf6dbec42e875b09fdba3e58f3bbfbaa268fc81322c",
     ".planning/research/evergreen/KB_CONTEXT_DESIGN.md": "448b227f53fa2c8bda6e0f5b9012e97de294a99b30774b444bba555e2949ce3c",
-    ".planning/research/evergreen/KB_COVERAGE.json": "1e9be06f2272528da89cb1be08a9b0ae9158c65a683cf3b5fee0136b31ac00b4",
+    ".planning/research/evergreen/KB_COVERAGE.json": "569aa40303b1b2b23c851c124a96c486a5720f4f0d9a4bfbd5451a52b6e0b827",
     ".planning/research/evergreen/KB_DUPLICATES_REPORT.md": "e127c4815589b7acc366d69ba1a20ca023f63229781bbf1998e200c6b60cd07f",
-    ".planning/research/evergreen/KB_EVIDENCE.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+    ".planning/research/evergreen/KB_EVIDENCE.jsonl": "d8122194d970f0dfd90b232af8428dbd99bc6d44996f4bdfa115842ac37c4e1a",
     ".planning/research/evergreen/KB_EVIDENCE_REOPEN.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
     ".planning/research/evergreen/KB_FREEZE.json": "ea1bff4f950427b151e850f57cae7841736d72940d2d9c22536179bff3eed806",
     ".planning/research/evergreen/KB_GAP_RESEARCH.json": "f3b4bfc9cafcfe773caf45207f1b58d75991c8afa352b90bedd22e48f804b42c",
     ".planning/research/evergreen/KB_GAPS.md": "7489d4b5fb776c3a19d107004e9aba4edc167bf29aefc34c3f684a415c7c71fb",
-    ".planning/research/evergreen/KB_GUIDES.jsonl": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+    ".planning/research/evergreen/KB_GUIDES.jsonl": "6b944620597fb1c9e466af9fb98b6528fdae5d0106d8bb2bed4aa9c7f8537600",
     ".planning/research/evergreen/KB_IMPLEMENTATION_FREEZE.json": "648de33f8de5c3c36124c3fa750e091c22066eab1dab7f3a687d9e4b2322b0ad",
     ".planning/research/evergreen/KB_INDEX_LOAD_REPORT.json": "50a589965504298c69966aed04193a53b4439cd211b90706ab85648f368725b7",
     ".planning/research/evergreen/KB_LEGACY_MAP.json": "e236b232abd9c5c7de1f64a6dd688d0640d272841dcdccbe0a42c7172e43c2fd",
@@ -64,9 +64,9 @@
     ".planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json": "74e3e267c57e880cb58dda697c75d4b4e4fd1d58953b0221be8f753ecc7ec3cb",
     ".planning/research/evergreen/KB_RETRIEVAL_RESERVE.json": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
     ".planning/research/evergreen/KB_RETRIEVAL_RESERVE_FREEZE.json": "74df04cafd7d4de608a54222ef90aa5794443d509947b82d38f022e7ece4845a",
-    ".planning/research/evergreen/KB_SEMANTIC_REVIEW.json": "1098fcb1688768f6a343eac608aa09342dd132de27faed729668d7729e62ff43",
+    ".planning/research/evergreen/KB_SEMANTIC_REVIEW.json": "77d44f8af33a5530c3eb18992f5cacaaa38eb9e8af0ef937610c69970b61f3f3",
     ".planning/research/evergreen/KB_SOURCE_FOLLOWUP.json": "b48a68483e5542f182e8289840f939115cfe9b2d3e6cf031a345fbad2f5e5807",
-    ".planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+    ".planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl": "7a4395c15688b3e7f284ee128f0784d6512a757cd9241f1aec191d8fae3a21a9",
     ".planning/research/evergreen/KB_SOURCE_REOPEN.jsonl": "4bb93c3397ae690400c16cba4a66c39d8e2db1d7c65677f375354cb6bd81f509",
     ".planning/research/evergreen/KB_TAXONOMY.json": "63d6cf11f2b7633035b3044a2e233a2470b49d79abcd13c290a46699c6845e70",
     ".planning/research/evergreen/sources.md": "d84655dafc02974ab2980a355ad14bc8bb633e8c3a0bee14d37859734ccd3155"
@@ -719,7 +719,7 @@
       ".planning/research/evergreen/evidence/simulated-provider.log": "3122655f027a062e77389b9a88d8fa8eab4cc3605126205f5f9c60f3808cfc7c"
     }
   },
-  "contentRecordedFromHead": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+  "contentRecordedFromHead": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
   "currentFollowup": {
     "draftCards": 32,
     "sourceRecords": 37,
@@ -1541,5 +1541,12 @@
       "humanApproval": false,
       "published": false
     }
-  }
+  },
+  "currentAuthorization": {
+    "path": ".planning/research/workflow-integration/LAUNCH_AUTHORIZATION.json",
+    "sha256": "53193bdc983dedb7e2d396c8510b9d270aba51d9415d278864f714b72a35ea96",
+    "humanApprovalsAuthorized": true,
+    "meaning": "Authorization does not create missing independent source/version receipts; draft publication remains gated."
+  },
+  "historicalReviewCountsMeaning": "Earlier zero-approval/publication counts remain historical. NEXT_ACCEPTANCE records one actual campus card published through independent review and owner authorization; this is not approval of all 32 drafts."
 }

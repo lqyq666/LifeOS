@@ -1,8 +1,8 @@
 {
   "schemaVersion": 6,
-  "version": "workflow-v2-integration-0a1f40f843e7",
-  "head": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
-  "codeCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+  "version": "workflow-v2-integration-1f6b4b7a393b",
+  "head": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+  "codeCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
   "status": "WIP_NOT_READY",
   "highestStatus": [
     "MODIFIED",
@@ -2102,20 +2102,20 @@
       "projectId": "7693388932939300905",
       "businessRole": "growth",
       "candidateRelease": "0.2.0-candidate",
-      "hostCodeCommit": "1da6805bf05de88ffea7da3dbbbd33ef8eca58b0",
-      "hostSourceDigest": "72926faaf6f01d2cef9439f9b16ae7f43e2e9675419e0ab97d14cacd5517052a",
+      "hostCodeCommit": "1f3a0acaf9bae34846aa5d64c63d28d50c20a19b",
+      "hostSourceDigest": "6a1133ba7a39af0a8c533090ee13a190024b265b7855ce3f97f4064eabcceb7a",
       "canonicalContentHash": "6b944620597fb1c9e466af9fb98b6528fdae5d0106d8bb2bed4aa9c7f8537600",
       "canonicalSourceRegistryHash": "7a4395c15688b3e7f284ee128f0784d6512a757cd9241f1aec191d8fae3a21a9",
       "canonicalEvidenceHash": "d8122194d970f0dfd90b232af8428dbd99bc6d44996f4bdfa115842ac37c4e1a",
-      "cloudCommit": "5de4b537c6923dc7278265a931c90974e2e2fcb1",
-      "cloudSourceDigest": "5c6f1c1ed369473682fa1a2be0e12cdb38900940b7ee8a2ab886619c01d45d0d",
+      "cloudCommit": "74562efe01d9eb4be6c43e9376be9d0b24f65e92",
+      "cloudSourceDigest": "aa39dec5372574aa156fc8a1758e4d0974c37bad51b1f9a998bcd852a69b1c70",
       "cloudSourceHashes": {
         "src/lifeos_host/http_route/__init__.py": "f652ea299d2dab4ec6428633943e21f3c4d5fa6cd3734a13b80af82fdb02d3c8",
-        "src/lifeos_host/http_route/provider_http.py": "b675f556e1812a4f6ab792d83cc04f37fff8994d0ea7e74d4f9765bf0a46a17e",
+        "src/lifeos_host/http_route/provider_http.py": "eaecde0f313e8e485af9c450d52aceee2fbb3e19a198e6ec7355ca6b53ecbc22",
         "src/lifeos_host/http_route/dispatch.py": "3110811d5a162db83586aa6f5e6a05bf8e21a92f03d5a28693535d9e3d02d704",
         "src/lifeos_host/http_route/wire.py": "31a304cabe19730678a03ca63c101eeecd48786e1dad637bbd87ff9a30ea6342",
         "src/lifeos_host/http_route/runtime_binding.py": "7f3e1a9f7fcdaaf862efbcf3739d69ed2b2a0b9e9eb569d4cae91a31fb9630b8",
-        "src/lifeos_host/http_route/transport_http.py": "2f89f8007f92d4fdb2b9220eb0df593eff084c1fa96121c23649ab2b0e22f7da",
+        "src/lifeos_host/http_route/transport_http.py": "06d77eba8bcd4494fb34abc7bda44c1092a5d5646ba530e8da85be7de027d5f2",
         "src/lifeos_host/http_route/entry.py": "45517f419a0bd8ec8175bc12cf7cf19ae40939c297015a6433fc43ca60fbeda2",
         "src/lifeos_host/contracts.py": "b4b87219ce3e27cf9db008f586dae52e86ddb3ffaaabe7ae2ef82d1e2a767ee0",
         "src/lifeos_host/transport.py": "9bd67ba590de35723dc2bd29bf8f9632a0ef1ea8be209a607cd1edee67454d3b",
@@ -2164,6 +2164,18 @@
       "noPrivateStudentData": true,
       "noCredentials": true,
       "note": "zero-model permit-free runtime readback; no key/secret exposed"
+    },
+    "currentProductCodeCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+    "currentRuntimeSourceDigest": "c93606e498bd25a60a627472b685aea8e06df97d0a342859b4599be55d8e8a67",
+    "nativeCurrentVersion": "R33_LOCAL_CONTRACT_GUARDS_PASS_REAL_BUSINESS_NOT_TESTED",
+    "currentSourceReview": "SOURCE_REVIEW_PASS_PRIOR_HIGH_FINDINGS_REPAIRED_REAL_MODEL_VERIFICATION_MISSING",
+    "currentRealModelStatus": "NOT_TESTED_CURRENT_CODE_V18_FIRST_BLOCKED_RETAINED",
+    "localUiState": "STOPPED_OLD_7FF_SCRIPTED_LOOPBACK_NOT_CURRENT_CANDIDATE",
+    "cozeAdditionalAllowance": {
+      "path": ".planning/research/workflow-integration/COZE_CREDIT_ALLOWANCE_20261011.json",
+      "status": "AUTHORIZED_PENDING_ACTUAL_BALANCE_AND_LEDGER_BINDING_ZERO_NEW_DISPATCH",
+      "percentage": 0.2,
+      "actualBasis": null
     }
   },
   "historicalChecksScope": "Existing counts remain historical scoped evidence, not promoted to current real quality."

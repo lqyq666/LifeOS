@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
-  "at": "2026-10-11T05:37:42.547Z",
-  "candidate": "workflow-v2-integration-0a1f40f843e7",
-  "repositoryCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+  "at": "2026-10-11T12:36:02.636Z",
+  "candidate": "workflow-v2-integration-1f6b4b7a393b",
+  "repositoryCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
   "mainRepository": {
     "version": "1.2.2-candidate",
     "sha256": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
@@ -36,16 +36,16 @@
   ],
   "localCandidateProcess": {
     "service": "LifeOS",
-    "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+    "head": "7ff07f0adf37d1560055e9441b0965d7d9f87471",
     "versionSource": "git",
     "skillVersion": "1.2.2-candidate",
     "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
     "workflowVersion": "v2-integration",
-    "sourceDigest": "fa6bf16ad7aa5e16fb021e3d55d2004aa74e9dfe8adae70d129b04385b589e83",
-    "sourceFreezeDigest": "62209cffa7d7e4628c9e824b72094218ad3218cce6a82471839faf50f589807e",
-    "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
-    "sourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
-    "contentEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+    "sourceDigest": "ea6c2369ba31d5867c852ee9065fe42f47e6fb3ae103e33e1602d639af22a646",
+    "sourceFreezeDigest": "406a7fa3bc2a41f69710ae8d3ef86e85301cd30beec7321e563359b6c36e5087",
+    "contentHash": "6b944620597fb1c9e466af9fb98b6528fdae5d0106d8bb2bed4aa9c7f8537600",
+    "sourceRegistryHash": "7a4395c15688b3e7f284ee128f0784d6512a757cd9241f1aec191d8fae3a21a9",
+    "contentEvidenceHash": "d8122194d970f0dfd90b232af8428dbd99bc6d44996f4bdfa115842ac37c4e1a",
     "skills": [
       {
         "name": "lifeos-direction-analysis",
@@ -73,14 +73,17 @@
         "version": "0.2.0-candidate"
       }
     ],
-    "loadedAt": "2026-10-11T04:59:44.314Z",
+    "loadedAt": "2026-10-11T11:31:19.939Z",
     "contractGeneration": "p4+workflow-v2",
     "growthApi": true,
-    "processKind": "ACTUAL_LOCAL_SYNTHETIC_UI_PROCESS_CLOSED_AFTER_ACCEPTANCE",
-    "evidence": "evidence/coze-core-launch-20261011/current-ui-f36b933-api-readback.json",
-    "syntheticOverridesAfterRuntimeSnapshot": true,
+    "processKind": "ACTUAL_ISOLATED_UI_RUNNING_NOT_PRODUCTION",
+    "evidence": "evidence/coze-core-launch-20261011/current-ui-7ff-api-version.json",
     "paidModel": false,
-    "realQuality": "NOT_TESTED_CURRENT_REPAIR"
+    "realQuality": "SCRIPTED_PROVIDER_UI_ONLY",
+    "processState": "STOPPED_AT_HANDOFF",
+    "closedAt": "2026-10-11T12:40:48.151Z",
+    "accessibleNow": false,
+    "lastReadbackOnly": true
   },
   "directionTestProcess": {
     "service": "LifeOS",
@@ -132,7 +135,7 @@
     "execution": "NOT_TESTED",
     "version": "1.2.0",
     "versionBasis": "MATCHED_HISTORICAL_SHA_NO_VERSION_FIELD",
-    "checkedAt": "2026-10-11T05:37:42.547Z"
+    "checkedAt": "2026-10-11T12:36:02.636Z"
   },
   "installedBusinessSkills": [
     {
@@ -142,7 +145,7 @@
       "sha256": null,
       "modified": false,
       "execution": "NOT_TESTED",
-      "checkedAt": "2026-10-11T05:37:42.547Z"
+      "checkedAt": "2026-10-11T12:36:02.636Z"
     },
     {
       "name": "lifeos-action-review",
@@ -151,7 +154,7 @@
       "sha256": null,
       "modified": false,
       "execution": "NOT_TESTED",
-      "checkedAt": "2026-10-11T05:37:42.547Z"
+      "checkedAt": "2026-10-11T12:36:02.636Z"
     },
     {
       "name": "lifeos-experience-evidence",
@@ -160,7 +163,7 @@
       "sha256": null,
       "modified": false,
       "execution": "NOT_TESTED",
-      "checkedAt": "2026-10-11T05:37:42.547Z"
+      "checkedAt": "2026-10-11T12:36:02.636Z"
     },
     {
       "name": "lifeos-guide-application",
@@ -169,7 +172,7 @@
       "sha256": null,
       "modified": false,
       "execution": "NOT_TESTED",
-      "checkedAt": "2026-10-11T05:37:42.547Z"
+      "checkedAt": "2026-10-11T12:36:02.636Z"
     },
     {
       "name": "lifeos-growth-diff",
@@ -178,7 +181,7 @@
       "sha256": null,
       "modified": false,
       "execution": "NOT_TESTED",
-      "checkedAt": "2026-10-11T05:37:42.547Z"
+      "checkedAt": "2026-10-11T12:36:02.636Z"
     }
   ],
   "persistentServiceCheck": [
@@ -201,10 +204,13 @@
       "version": "NOT_TESTED_PAUSED",
       "historicalVersion": "1.2.0_NOT_CURRENT_ACCEPTANCE",
       "callsThisBatch": 0,
-      "developmentCommit": "39482ae36cdfd1dac11f610d642a5477963986e1",
-      "status": "R13_ACTUAL_SQL_SCRIPTED_HTTP_LOCAL_14_CHECKS_PASS_NOT_REAL_CLOUD_MODEL",
-      "evidence": "evidence/coze-core-launch-20261011/r13-observed/",
-      "newProductionDeployment": false
+      "developmentCommit": "74562efe01d9eb4be6c43e9376be9d0b24f65e92",
+      "status": "R33_ACTUAL_SOURCE_ALL_PATH_PREFLIGHT_PASS_REAL_BUSINESS_NOT_TESTED",
+      "evidence": "evidence/coze-core-launch-20261011/coze-r33-actual-source-readback.json",
+      "newProductionDeployment": false,
+      "cloudSourceDigest": "aa39dec5372574aa156fc8a1758e4d0974c37bad51b1f9a998bcd852a69b1c70",
+      "hostSourceDigest": "6a1133ba7a39af0a8c533090ee13a190024b265b7855ce3f97f4064eabcceb7a",
+      "productionCommit": "4aa53641b7177604cfa96631b9584de991531324"
     },
     {
       "projectId": "7693465311558795327",
@@ -302,14 +308,15 @@
   ],
   "userCustomizedFilesOverwritten": false,
   "currentFollowupProcess": {
-    "sourceCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
-    "state": "LOCAL_TEST_HTTP_SERVICES_CLOSED_NOT_USER_SERVICE",
-    "realModelQuality": "CURRENT_REPAIR_NOT_REAL_REVERIFIED",
-    "sourceFreezeDigest": "764378f14f493f148503b4a8ebc1264a8dd774a83d3f44a96cb5eaacc986e750"
+    "sourceCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+    "productCodeCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+    "sourceDigest": "c93606e498bd25a60a627472b685aea8e06df97d0a342859b4599be55d8e8a67",
+    "realModelQuality": "V18_FIRST_BLOCKED_CURRENT_BOUNDARY_SOURCE_REVIEW_PASS_NEW_REAL_PILOT_NOT_RUN",
+    "nativeQuality": "R28_INDEPENDENT_BLOCKED_R32_FIRST_FAILED_R33_NOT_REAL_TESTED"
   },
   "launch": {
     "scopeRestored": true,
-    "repositoryCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+    "repositoryCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
     "repositoryMainVersion": "1.2.2-candidate",
     "userInstallation": {
       "sha256": "6c3bfbb6517273188f84db9c0f9cb0a2f081f45afa80d2c014094556b11571cf",
@@ -318,16 +325,16 @@
     },
     "process": {
       "service": "LifeOS",
-      "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+      "head": "7ff07f0adf37d1560055e9441b0965d7d9f87471",
       "versionSource": "git",
       "skillVersion": "1.2.2-candidate",
       "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
       "workflowVersion": "v2-integration",
-      "sourceDigest": "fa6bf16ad7aa5e16fb021e3d55d2004aa74e9dfe8adae70d129b04385b589e83",
-      "sourceFreezeDigest": "62209cffa7d7e4628c9e824b72094218ad3218cce6a82471839faf50f589807e",
-      "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
-      "sourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
-      "contentEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+      "sourceDigest": "ea6c2369ba31d5867c852ee9065fe42f47e6fb3ae103e33e1602d639af22a646",
+      "sourceFreezeDigest": "406a7fa3bc2a41f69710ae8d3ef86e85301cd30beec7321e563359b6c36e5087",
+      "contentHash": "6b944620597fb1c9e466af9fb98b6528fdae5d0106d8bb2bed4aa9c7f8537600",
+      "sourceRegistryHash": "7a4395c15688b3e7f284ee128f0784d6512a757cd9241f1aec191d8fae3a21a9",
+      "contentEvidenceHash": "d8122194d970f0dfd90b232af8428dbd99bc6d44996f4bdfa115842ac37c4e1a",
       "skills": [
         {
           "name": "lifeos-direction-analysis",
@@ -355,24 +362,30 @@
           "version": "0.2.0-candidate"
         }
       ],
-      "loadedAt": "2026-10-11T04:59:44.314Z",
+      "loadedAt": "2026-10-11T11:31:19.939Z",
       "contractGeneration": "p4+workflow-v2",
       "growthApi": true,
-      "processKind": "ACTUAL_LOCAL_SYNTHETIC_UI_PROCESS_CLOSED_AFTER_ACCEPTANCE",
-      "evidence": "evidence/coze-core-launch-20261011/current-ui-f36b933-api-readback.json",
-      "syntheticOverridesAfterRuntimeSnapshot": true,
+      "processKind": "ACTUAL_ISOLATED_UI_RUNNING_NOT_PRODUCTION",
+      "evidence": "evidence/coze-core-launch-20261011/current-ui-7ff-api-version.json",
       "paidModel": false,
-      "realQuality": "NOT_TESTED_CURRENT_REPAIR"
+      "realQuality": "SCRIPTED_PROVIDER_UI_ONLY",
+      "processState": "STOPPED_AT_HANDOFF",
+      "closedAt": "2026-10-11T12:40:48.151Z",
+      "accessibleNow": false,
+      "lastReadbackOnly": true
     },
     "cozeGrowth": {
       "projectId": "7693388932939300905",
       "deployedCommit": "4aa53641b7177604cfa96631b9584de991531324",
       "candidate": "R5_WIRE_PASS_SOURCE_HIGH_REJECTED",
       "newHttpDevelopmentCommit": "697655773bb6315eb38956a4de12bc1828aa02b1",
-      "developmentCommit": "39482ae36cdfd1dac11f610d642a5477963986e1",
-      "status": "R13_ACTUAL_SQL_SCRIPTED_HTTP_LOCAL_14_CHECKS_PASS_NOT_REAL_CLOUD_MODEL",
-      "evidence": "evidence/coze-core-launch-20261011/r13-observed/",
-      "newProductionDeployment": false
+      "developmentCommit": "74562efe01d9eb4be6c43e9376be9d0b24f65e92",
+      "status": "R33_ACTUAL_SOURCE_ALL_PATH_PREFLIGHT_PASS_REAL_BUSINESS_NOT_TESTED",
+      "evidence": "evidence/coze-core-launch-20261011/coze-r33-actual-source-readback.json",
+      "newProductionDeployment": false,
+      "cloudSourceDigest": "aa39dec5372574aa156fc8a1758e4d0974c37bad51b1f9a998bcd852a69b1c70",
+      "hostSourceDigest": "6a1133ba7a39af0a8c533090ee13a190024b265b7855ce3f97f4064eabcceb7a",
+      "productionCommit": "4aa53641b7177604cfa96631b9584de991531324"
     },
     "cozePublic": {
       "projectId": "7693465311558795327",
@@ -393,6 +406,21 @@
     "productionProcess": {
       "image": "lifeos:v1.3-glm-52a4e47",
       "status": "HISTORICAL_READ_ONLY_IMAGE_NOT_REVERIFIED_CURRENT_CANDIDATE"
+    },
+    "cozeAdditionalAllowance": {
+      "path": ".planning/research/workflow-integration/COZE_CREDIT_ALLOWANCE_20261011.json",
+      "sha256": "0ff671297a58cd608ff7f0e15e76e1ff67c13b6c1432916fba526f00bad356e5",
+      "status": "AUTHORIZED_PENDING_ACTUAL_BALANCE_AND_LEDGER_BINDING_ZERO_NEW_DISPATCH"
     }
+  },
+  "currentActualNativeSkillEvidence": {
+    "evidence": "evidence/coze-core-launch-20261011/coze-native-r28-direction-two-first.json",
+    "directionAnalysis": "ACTUAL_ANALYST_AND_SYNTHESIS_PROVIDER_TEXT_CONSUMED_WITH_HASH_READBACK",
+    "experienceEvidence": "ACTUAL_CRITIC_PROVIDER_TEXT_CONSUMED_WITH_HASH_READBACK",
+    "guideApplication": "LOADED_HASH_ONLY_NO_METHOD_GIVEN_NOT_CAPABILITY_EXECUTION",
+    "actionReview": "NOT_TESTED_CURRENT_NATIVE_NORMAL_TASK",
+    "growthDiff": "TARGETED_ZERO_MODEL_RUNTIME_READBACK_NOT_NORMAL_STUDENT_TASK",
+    "businessQuality": "BLOCKED_INDEPENDENT_REVIEW",
+    "fiveNormalSkillAcceptance": "NOT_PASSED"
   }
 }

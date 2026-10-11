@@ -1,21 +1,21 @@
 {
   "schemaVersion": 4,
-  "version": "workflow-v2-integration-0a1f40f843e7",
-  "codeCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
-  "sourceFingerprint": "0a1f40f843e77a0f3ede32cce551dc9102c44e867fb7cf8b74b2f5ac8d6068f3",
-  "sourceManifestSha256": "f3a67bb2ae1228c24e1dd3039c08b68acd4dc3b96b694e082c7df9d5171d726d",
-  "contentManifestSha256": "349478da7f1c756a327fff68cb7b673e9570a179cdba7e34af6fa5f170ff6e4a",
-  "indexBindingSha256": "212aaff410eaed028fe117027bffc35aeaf50be0e89eb4f769bf10661342737c",
-  "skillVersionMatrixSha256": "2cb24ef100c810fe6cd4dba34223b7b25be648b06c8d390e679218d11a360801",
-  "acceptanceSha256": "23bc19af977d72ccf73bd86f889b37b1e0f014280a764cd81e552945d832f9f4",
+  "version": "workflow-v2-integration-1f6b4b7a393b",
+  "codeCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+  "sourceFingerprint": "1f6b4b7a393b15377b18ba4bcdbb5c6944d7f23d477b99c0e11eee36fd371577",
+  "sourceManifestSha256": "4be34f56f58e7df82157132b1beedee11014a1281c67dfa9a092980cc61545c4",
+  "contentManifestSha256": "d325f4340a973b08b20c795b977d1853d97e511ca0e12bcce50e4ac780fd56c9",
+  "indexBindingSha256": "8ef46232e0d065930127f19f45ff11f72d566adf54110b22d651d8e361e86a0d",
+  "skillVersionMatrixSha256": "6f2fc04fc30c798303d62f3f2d3ff0da6fc84a62c4b943a7a687fbd74c56d139",
+  "acceptanceSha256": "39b4a72060c01a6a7599210cac2e1d2c7471f0f01493c300d78a9bb002b3e7aa",
   "finalReviewSha256": "1cf66d015e613c572872acccd51893e16d45e90527e20a24bcda3fbe0554ee17",
   "reportHashes": {
-    "LOCAL_ACCEPTANCE_PROGRESS.md": "bf51386f4ff6e02f44a3d83583776217f75af16c4cddc230f0de748e5bd4ad50",
+    "LOCAL_ACCEPTANCE_PROGRESS.md": "b300d01439bc8e4b56d25f9a74f7ee7c6f7db548bef21afe824820c87a356299",
     "SKILL_HOST_ACCEPTANCE.md": "9e4acd3a442f126a5ad235a8d1d2e5e56c681f6a89afbedd075f6fb3a75432aa",
     "WORKFLOW_FAILURES_AND_REVIEW.md": "c6a37075177f141434dfb73fde3c65a683c248632c240382ea20dd3b161845e1",
-    "GATE_STATUS.md": "b0474fd3ee33ac6a2b15a5c5a3406c1afb1cfe041bad94b9ff64160526f3d2ec"
+    "GATE_STATUS.md": "2a5ff25d9d191b641eec28aad11c03d2554ded88ba268d540cfacbe040fc02d6"
   },
-  "nextAcceptanceSha256": "47a7f992f705cd8c9248035e1fed796db210ea948d7bc08b51fa10a92a4fc2ab",
+  "nextAcceptanceSha256": "20e613dce221d59283b9ba4398c8b773c4368e918515f6e1a24e14ead04ac2d9",
   "evidenceHashes": {
     "evidence/long-batch-20261010/browser-probe-stages.log": "259827ec6449b9edea315e365e56402cf4f9624f3ef4ae0c7851af87788c36ec",
     "evidence/long-batch-20261010/BROWSER_CHAIN.json": "70f352178e454662ab8e8daefcc178c312cd4abcd2985e14d57b051f64a30fa2",
@@ -331,7 +331,19 @@
     "evidence/coze-core-launch-20261011/BOUNDED_STATUS_CONFIG_FIRST_ZERO_DISPATCH.json": "ac35428eb3c86b4ebbc9f6d51036239d8cb7bffbe602fa251d8dbb56b380f67f",
     "evidence/coze-core-launch-20261011/RESOURCE_VERBATIM_LOCAL.json": "45a184945505687f4c052f79c485bbdd11791f0e3dc4aebe3440386d333893ba",
     "evidence/coze-core-launch-20261011/mentor-original-content-maintenance-first.log": "ee011e92d84e7f25e469f3356a8fb5be28eddfbb7372a6a215644c9281daf584",
-    "evidence/coze-core-launch-20261011/mentor-originals/READ_MANIFEST.json": "69cf20388328fd7ecca1178028bd717e1a2321af62b93c28d679a8e568e16a08"
+    "evidence/coze-core-launch-20261011/mentor-originals/READ_MANIFEST.json": "69cf20388328fd7ecca1178028bd717e1a2321af62b93c28d679a8e568e16a08",
+    "evidence/coze-core-launch-20261011/COZE_R30_PUBLIC_PATCH.json": "659bb9307a6149b60561314946789aa25794aa4960cf7979c0b0c32f8af4b973",
+    "evidence/coze-core-launch-20261011/COZE_R31_PUBLIC_PATCH.json": "e664a5265e80902e6be1e5c831cf8a2ca64aa943284448dc5973373974d2a838",
+    "evidence/coze-core-launch-20261011/COZE_R32_PUBLIC_PATCH.json": "0b05547d5ed456e312735c64e7ec5c5f90275239c80ae4a6a66629ec24b9acaf",
+    "evidence/coze-core-launch-20261011/coze-r30-actual-source-readback.json": "8a64c26d32627fbc9abb13cdd883d32962a4bee007fceb3094420cd8b8662bdf",
+    "evidence/coze-core-launch-20261011/coze-r32-actual-source-readback.json": "f62c36a10bf74831bab7f5e6b42a8b4ef9619b039e48356438bfe02bbc824499",
+    "evidence/coze-core-launch-20261011/current-ui-7ff-api-version.json": "590a36f5af1c8fc7199c8e7017181dadbf8fc6e997dcf58eff8922ca0190ae27",
+    "evidence/coze-core-launch-20261011/LATEST_RUNTIME_STATUS.json": "69c72d892609f777aa29fe1b5f0ad0fc5be746935845b6bc6afa51d1ee7b4a7b",
+    "evidence/coze-core-launch-20261011/COZE_R33_PUBLIC_PATCH.json": "9baedf145b4d38e529e7be1027c653e80f5f90f7bb37337bdb0da23a74d4ae32",
+    "evidence/coze-core-launch-20261011/coze-r33-actual-source-readback.json": "73cda4f95720af3cba2ff7baa72cbc7dfb17c884aca223546a222d6cb5dd1a0e",
+    "evidence/coze-core-launch-20261011/independent-task-boundary-enforced-followup-report.json": "64c928e340ac9b2fac7ef72dc98f5eb75cc13348a82639148da0de213725a188",
+    "evidence/coze-core-launch-20261011/independent-current-two-content-first-report.json": "687e07fc405a93a2f5aba0a2dcd77f11675df9e269ae55147afffe7c8403f8a8",
+    "evidence/coze-core-launch-20261011/handoff-budget-20261011-2038.json": "0ba2b0b3f0bc05914d37b6bb0fbfeace00fa9b2967badd52d4d1bd973ae02ec3"
   },
   "historicalProtocols": {
     "COMPLEX_DECISION_AB_EVAL.json": "6c3252608e2b70166388767849d2e28cb708f479e5cde0bd546737bcf519734b",
@@ -1959,7 +1971,23 @@
     "extraCandidatePackaging": "CANCELLED_BY_OWNER_ONLY_REAL_DEPLOYMENT_NECESSARY_VALIDATION"
   },
   "at": "2026-10-11T05:37:42.547Z",
-  "finalReviewScope": "HISTORICAL_REVIEW_NOT_CURRENT_INDEPENDENT_ACCEPTANCE",
+  "finalReviewScope": "Existing finalReviewSha256 is historical; current launch remains WIP_NOT_READY.",
   "latestRealReview": "evidence/coze-core-launch-20261011/BOUNDED_STATUS_MAIN_REVIEW.json",
-  "latestRealReviewIndependent": false
+  "latestRealReviewIndependent": false,
+  "runtimeVersions": {
+    "repository": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+    "currentProductCode": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+    "localUi": "7ff07f0adf37d1560055e9441b0965d7d9f87471",
+    "growthDevelopment": "74562efe01d9eb4be6c43e9376be9d0b24f65e92",
+    "growthProduction": "4aa53641b7177604cfa96631b9584de991531324",
+    "knowledgeDevelopment": "10b80bfb5f20f068a7dfaa050813ece970468fab",
+    "knowledgeProduction": "04849caa93a33f4584ce5637acba864e97757a46",
+    "localUiState": "STOPPED_AT_HANDOFF"
+  },
+  "handoff": {
+    "path": "LIFEOS_HANDOFF_20261011.md",
+    "sha256": "b863ff14cf75b6b599e3348d9f0623ee4dc78e537b25dbd22e4b2b365a31120b",
+    "sourceCodeCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+    "cozeAllowanceSha256": "0ff671297a58cd608ff7f0e15e76e1ff67c13b6c1432916fba526f00bad356e5"
+  }
 }
