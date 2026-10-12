@@ -176,7 +176,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    const axis=comparison.criterionId as keyof typeof comparisonCriteria,selfCheck=comparisonChecks[path.id]?.[axis],peerCheck=comparisonChecks[peer.id]?.[axis]
    if(!selfCheck||!peerCheck)throw new WorkflowError('invalid_contract')
    const exactPersonal=renderPersonalEvidence(personal)
-   p.hypotheses=[{text:`候选比较维度（由你决定是否优先）：${comparisonCriteria[axis]}。引用的个人原话（仅供对照，不据此认定你的优先级）：${exactPersonal}。${path.title}：${selfCheck}；${peer.title}：${peerCheck}。现有证据不足以确定先后，由本人选择先补哪项。`,limitation:'这是来源受限的比较假设，尚待本人核对；两条探针的结果按同一标准记录。若一条不满足本人约束或缺必要材料，先补证据或由本人决定改选；两条都未知时不强作长期结论。',needsConfirmation:true}]
+   p.hypotheses=[{text:`候选比较维度（由你决定是否优先）：${comparisonCriteria[axis]}。引用的个人原话（仅供对照，不据此认定你的优先级）：${exactPersonal}。${path.title}：${selfCheck}；${peer.title}：${peerCheck}。现有证据不足以确定先后，由本人选择先补哪项。`,limitation:'先任选一个探针；用同一张记录逐条填方向、此维度下的原文与来源、支持或限制、仍未知、下一步。一条明确符合本人约束而另一条不符时，由本人决定是否优先前者；两条都符合时再核对本人更看重哪个标准；两条都缺证据时先补最能区分两者的信息；两条都不符时由本人决定调整范围或暂缓。一次探索不证明长期适配、资格或收入，比较仍待本人确认。',needsConfirmation:true}]
    // Generic exercises remain explicitly editorial. Approved public methods are
    // supplied by the host knowledge/guide path, never invented as catalogue IDs.
    const bases=wire.actionBasis??[]
