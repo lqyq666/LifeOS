@@ -69,7 +69,7 @@ test('G5 host journal binds independent review and human release to exact revisi
 })
 test('G4 existing insight UI generator no longer asserts external recognition, stable ability or identity upgrades',()=>{
  const base={title:'海报',summary:'一次任务',action:'我交付了一张海报',result:'收到50元',occurredAt:'2026-10-10',skillTags:['设计'],blocked:false,externalFeedback:true,connectedThemes:[],relatedExperiences:[],identityLevel:0,identityName:'出发者',nextIdentity:'探索者',identityNextHint:'再做一件升级'}
- const insight=generateInsight(base);assert.ok(!insight.headline.includes('认可'));assert.ok(!insight.headline.includes('证明你有'));assert.ok(!JSON.stringify(insight).includes('变成'));assert.ok(!insight.nextStep.includes('升级'));assert.ok(insight.evidence.includes('实际效果分别核对'))
+ const insight=generateInsight(base);assert.ok(!insight.headline.includes('认可'));assert.ok(!insight.headline.includes('证明你有'));assert.ok(!JSON.stringify(insight).includes('变成'));assert.ok(!insight.nextStep.includes('升级'));assert.ok(insight.evidence.includes('实际效果分别记录'));assert.ok(insight.evidence.includes('已知项按本人报告保留'))
  const noFeedback=generateInsight({...base,externalFeedback:false});assert.ok(noFeedback.headline.includes('本次任务'))
 })
 test('G5 reposts are one canonical source, withdrawn reading cannot support a claim, no actual release',()=>{

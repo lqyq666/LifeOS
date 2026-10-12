@@ -48,7 +48,9 @@ export async function actionReviewHints(input:{run:Run;staged:Staged;text:string
  }catch{input.staged.audit.push({phase:'workflow_fallback',mode:'action_review',status:'unavailable',providerCalls:0});return null}
 }
 
-// Called only AFTER the native event continue target has passed host authorization.
+// Called after native continuation authorization or an explicit refusal bound by
+// the host to the sole matching, owned retrieval event. Refusal needs no generated
+// event mutation; guide status still commits atomically with its source message.
 // A model-selected arbitrary historical ID is insufficient: there must be one
 // unambiguous retrieved event and no competing current event.
 export async function continuedActionUsage(input:{run:Run;text:string;event:CoachEvent;ambiguous:boolean}):Promise<GuideUsage|null>{

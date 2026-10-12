@@ -61,7 +61,9 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
   if(old){const r=parseRequest(old.request_payload);if(r.conversationId!==body.conversationId||r.authorizedEvidenceRefs[0]?.id!==body.currentMessageId||JSON.stringify(r.directions.map(x=>x.id))!==JSON.stringify(body.directions))throw new HttpError(409,'IDEMPOTENCY_KEY_REUSED');return read(user,body.requestId,body.conversationId)}
   const entitlement=await entitlementView(user);if(entitlement.required&&(!entitlement.enabled||(entitlement.remaining??0)<=0))throw new HttpError(403,'ACCESS_NOT_ENABLED')
   const current=requireRow((await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[user,body.conversationId,body.currentMessageId])).rows[0])
-  const controls=await workflowControls(user),view=await growthView(user,body.conversationId)
+  const controls=await workflowControls(user)
+  if(controls.pending.length)throw new HttpError(409,'WORKFLOW_CONTROL_CONFIRMATION_REQUIRED',undefined,{message:'请先确认待处理的记录控制，再开始深入比较。普通聊天和已保存的记录仍可使用。'})
+  const view=await growthView(user,body.conversationId)
   const relevant=selectRelevantGrowth(view.items.filter(x=>!x.unavailableReason&&x.status==='active'&&['user_reported','user_edit'].includes(x.assertion)&&!x.recommendationStopped),current.content,{maxItems:8,maxChars:12000}).selected
   const clauses=scanUserClauses(current.content).filter(x=>!x.quoted&&!x.code&&!x.conditional&&!x.attributedToOther),text=clauses.map(x=>x.text).join('；')
   const forbidden:string[]=controls.directions.filter(x=>x.state==='paused').map(x=>x.scope)

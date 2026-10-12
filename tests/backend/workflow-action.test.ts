@@ -68,7 +68,7 @@ test('G2 actual host transaction: contact → no reply → refusal across 3 owne
  const cards=read('KB_GUIDES.jsonl') as KnowledgeCard[];await importEvergreenCorpus(cards,read('KB_SOURCE_REGISTRY.jsonl'),read('KB_EVIDENCE.jsonl'))
  const card=cards.find(c=>c.guide?.canonicalKey==='user-interview')!,server=createApp()
  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));const origin='http://127.0.0.1:'+(server.address() as {port:number}).port
- let user=''
+ let user='',withdrawnSource:{source_id:string;status:string}|undefined
  try{
   const signup=await fetch(origin+'/api/auth/sign-up/email',{method:'POST',headers:{Origin:config.origin,'Content-Type':'application/json'},body:JSON.stringify({email:'workflow-'+randomUUID()+'@example.invalid',password:'Synthetic-'+randomUUID(),name:'Synthetic adult'})});assert.equal(signup.status,200)
   const cookie=signup.headers.getSetCookie().map(x=>x.split(';')[0]).join('; ');user=(await (await fetch(origin+'/api/session',{headers:{Cookie:cookie}})).json()).id
@@ -108,7 +108,8 @@ test('G2 actual host transaction: contact → no reply → refusal across 3 owne
   await assert.rejects(()=>readGuideUsage(user,chats[2],coach.eventId),/MEMORY_DISABLED/)
   await pool.query('UPDATE user_memory_settings SET enabled=true WHERE user_id=$1',[user])
   await assert.rejects(()=>readGuideUsage('another-account',chats[2],coach.eventId),/NOT_FOUND/)
+  withdrawnSource=(await pool.query('SELECT source_id,status FROM kb_sources WHERE source_id=$1',[card.guide!.sourceGroups[0]])).rows[0]
   await pool.query("UPDATE kb_sources SET status='retired' WHERE source_id=$1",[card.guide!.sourceGroups[0]]);assert.deepEqual(await readGuideUsage(user,chats[2],coach.eventId),[])
   appendFileSync((process.env.LIFEOS_WORKFLOW_EVIDENCE??'.planning/research/agent-workflows/evidence')+'/G2_CONTINUOUS_CHAIN.jsonl',JSON.stringify({evidence:'REAL_ISOLATED_POSTGRESQL_SYNTHETIC_ADULT_NO_PROVIDER',sessions:3,statuses,twoEventIsolation:true,repeatReads:true,memoryOffDenied:true,crossAccountDenied:true,sourceWithdrawalHidesUsage:true,paidCalls:0,normalMainEntry:'NOT_INTEGRATED'})+'\n')
- }finally{await new Promise<void>(resolve=>server.close(()=>resolve()));if(user)await pool.query('DELETE FROM "user" WHERE id=$1',[user]);delete process.env.LIFEOS_ADVANCED_WORKFLOWS}
+ }finally{if(withdrawnSource)await pool.query('UPDATE kb_sources SET status=$2 WHERE source_id=$1',[withdrawnSource.source_id,withdrawnSource.status]);await new Promise<void>(resolve=>server.close(()=>resolve()));if(user)await pool.query('DELETE FROM "user" WHERE id=$1',[user]);delete process.env.LIFEOS_ADVANCED_WORKFLOWS}
 })

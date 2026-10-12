@@ -8,6 +8,7 @@ import {pool} from '../../server/db.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
 test('deep method reader uses canonical approved corpus, bounded fragments, controls and live withdrawal even from cache',async()=>{
  const read=(n:string)=>readFileSync('.planning/research/evergreen/'+n,'utf8').trim().split('\n').map(x=>JSON.parse(x))
+ let withdrawnSource:{source_id:string;status:string}|undefined
  try{
   await importEvergreenCorpus(read('KB_GUIDES.jsonl'),read('KB_SOURCE_REGISTRY.jsonl'),read('KB_EVIDENCE.jsonl'))
   const f=fixture(),request={...f.request,currentIntent:'我想验证校园创业项目的需求，怎么访谈用户？'},reader=workflowMethodReader()
@@ -16,8 +17,9 @@ test('deep method reader uses canonical approved corpus, bounded fragments, cont
   assert.deepEqual(await reader({...request,controls:{...request.controls,refuseAdvice:true}}),[])
   assert.deepEqual(await reader({...request,currentIntent:'我只想被听见，不需要办法。',controls:{...request.controls,listeningOnly:true}}),[])
   const first=fragments[0];assert.ok(Array.isArray(first.evidenceIds))
-  const source=(await pool.query('SELECT source_id FROM kb_evidence WHERE evidence_id=$1',[first.evidenceIds[0]])).rows[0]
+  const source=(await pool.query('SELECT e.source_id,s.status FROM kb_evidence e JOIN kb_sources s ON s.source_id=e.source_id WHERE e.evidence_id=$1',[first.evidenceIds[0]])).rows[0]
+  withdrawnSource=source
   assert.ok(source);await pool.query("UPDATE kb_sources SET status='retired' WHERE source_id=$1",[source.source_id])
   await assert.rejects(reader(request),(error:any)=>error.code==='source_invalid')
- }finally{await localEmbedding.close();await pool.end()}
+ }finally{if(withdrawnSource)await pool.query('UPDATE kb_sources SET status=$2 WHERE source_id=$1',[withdrawnSource.source_id,withdrawnSource.status]);await localEmbedding.close();await pool.end()}
 })

@@ -942,13 +942,14 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       if(target.operation==='continue'&&!staged.usedEventRefs?.some(ref=>ref.eventId===target.eventId))throw new HttpError(400,'COACH_EVENT_TARGET_INVALID')
       staged.coach=await stageCoachEvent(run,result.event,result.reply);staged.coach.knowledgeRefs=staged.usedKnowledgeRefs
     }
-    const usageEventId=staged.coach?.eventId??currentEvent?.id
+    const refusalEvent=refusalOnly&&!retrieval.ambiguous&&historicalEvents.length===1&&matchingGuideEvent?.id===historicalEvents[0].id?matchingGuideEvent:null
+    const usageEventId=staged.coach?.eventId??currentEvent?.id??refusalEvent?.id
     staged.guideUsage=[]
     if(usageEventId){
       const feedback=classifyGuideFeedback(current.content),previous=previousGuideUsage[0]
       // A different named current task never changes the old task's usage.
       if(feedback&&previous&&currentEvent&&canContinueGuideFeedback(previous.status,feedback)&&feedbackMatchesCurrent(current.content,currentEvent.title,previous.branch_task??'')&&usageEventId===currentEvent.id)staged.guideUsage.push({guideId:previous.guide_id,revision:previous.revision,branch:previous.branch,stepId:previous.step_id,status:feedback,eventId:usageEventId,sourceMessageId:run.source_message_id,sourceQuote:current.content})
-      if(!staged.guideUsage.length&&!currentEvent&&historicalEvents.length===1&&historicalEvents[0].id===usageEventId&&result.event?.target.operation==='continue'){
+      if(!staged.guideUsage.length&&!currentEvent&&historicalEvents.length===1&&historicalEvents[0].id===usageEventId&&(result.event?.target.operation==='continue'||refusalEvent!==null)){
         const continued=await continuedActionUsage({run,text:current.content,event:historicalEvents[0],ambiguous:retrieval.ambiguous})
         if(continued)staged.guideUsage.push(continued)
       }

@@ -7,6 +7,8 @@ import {configureProviderPayload} from '../model-payload.ts'
 import {providerError} from '../provider-errors.ts'
 import {maximumProviderCallCostCny,estimateProviderCallCostCny} from '../cost-workload.ts'
 import {CoachProviderBudget,type CoachCallReceipt} from '../../scripts/coach-provider-budget.ts'
+import {config} from '../config.ts'
+import {createProductionWorkflowBudget,type WorkflowProviderBudget} from './production-budget.ts'
 import {assertCoachSourceFreeze} from '../../scripts/coach-source-freeze.ts'
 import {WorkflowError,emptyProposal,type EvidenceReader,type EvidenceRecord,type WorkflowRequest,type AgentResult,type ReviewIssue} from './contracts.ts'
 import {validateEvidence,refKey} from './evidence-gate.ts'
@@ -64,8 +66,8 @@ export type ProviderNodeAudit={callId:string;nodeId:string;providerResponseId:st
 
 // Production uses this factory and the existing native SDK, never an alternate
 // HTTP/provider ledger. Synthetic transport tests exercise this exact factory.
-export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;readMethods?:(request:WorkflowRequest)=>Promise<Record<string,unknown>[]>;freezePath:string;budget?:CoachProviderBudget;runtime?:ModelRuntime;syntheticTransport?:boolean;audit?:(request:WorkflowRequest,row:ProviderNodeAudit)=>Promise<void>}):DecisionAdapter{
- const runtime=input.runtime??resolveModel('default'),budget=input.budget??new CoachProviderBudget(),outputLimit=2048
+export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;readMethods?:(request:WorkflowRequest)=>Promise<Record<string,unknown>[]>;freezePath:string;budget?:WorkflowProviderBudget;runtime?:ModelRuntime;syntheticTransport?:boolean;audit?:(request:WorkflowRequest,row:ProviderNodeAudit)=>Promise<void>}):DecisionAdapter{
+ const runtime=input.runtime??resolveModel('default'),budget=input.budget??(config.production?createProductionWorkflowBudget():new CoachProviderBudget()),outputLimit=2048
  if(input.syntheticTransport&&!budget.path.includes('simulation'))throw new WorkflowError('scope_denied')
  if(input.syntheticTransport&&!['127.0.0.1','localhost','::1','[::1]'].includes(new URL(runtime.model.baseUrl!).hostname))throw new WorkflowError('scope_denied')
  const maximum=maximumProviderCallCostCny(runtime.model.contextWindow,outputLimit,runtime.pricing)
@@ -111,7 +113,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    throw error
   }finally{
    // Missing usage remains unknown, including aborts and transport exceptions.
-   try{budget.finish(reservation.receipt.callId,{outcome,usage:message?.usage??'unknown',estimatedCostCny:cost??'unknown',providerResponseId:responseId})}
+   try{await budget.finish(reservation.receipt.callId,{outcome,usage:message?.usage??'unknown',estimatedCostCny:cost??'unknown',providerResponseId:responseId})}
    finally{
     const ctx=context as any,analystContext=ctx.paths?.[0]??(ctx.path?ctx:null)
     const withoutStorageId=({id,...ref}:any)=>ref
@@ -164,11 +166,11 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    const frozen=sourceDigest(),paid=nodes.filter(n=>n.executionKind!=='local_deterministic')
    await records(r)
    if(paid.length>5||paid.length>r.modelBudget.maxProviderCalls||paid.reduce((s,n)=>s+n.maxCostCny,0)>r.modelBudget.maxCostCny)throw new WorkflowError('budget_exceeded')
-   const receipts=budget.reserveGraph(paid.map(n=>({runId:r.requestId,purpose:'diagnostic',tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,signature:signature(),sourceDigest:frozen,logicalCallId:createHash('sha256').update(key(r)+':'+n.id).digest('hex'),reservedCostCny:n.maxCostCny})))
+   const receipts=await budget.reserveGraph(paid.map(n=>({runId:r.requestId,purpose:'diagnostic',tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,signature:signature(),sourceDigest:frozen,logicalCallId:createHash('sha256').update(key(r)+':'+n.id).digest('hex'),reservedCostCny:n.maxCostCny})),r.internalActorKey)
    const map=new Map<string,Reserved>();paid.forEach((n,index)=>{n.callId=receipts[index].callId;map.set(n.id,{receipt:receipts[index],started:false})});reservations.set(key(r),map)
   },
   async finishGraph(r){
-   for(const entry of reservations.get(key(r))?.values()??[])if(!entry.started)budget.finish(entry.receipt.callId,{outcome:'not_sent',usage:{providerCalls:0},estimatedCostCny:0,providerResponseId:null})
+   for(const entry of reservations.get(key(r))?.values()??[])if(!entry.started)await budget.finish(entry.receipt.callId,{outcome:'not_sent',usage:{providerCalls:0},estimatedCostCny:0,providerResponseId:null})
    reservations.delete(key(r))
   },
   async analyze(c,path,skill){

@@ -11,7 +11,7 @@ export function providerReservationCny(contextWindow:number,outputLimit:number,p
  if(cost==='unknown')throw new HttpError(503,'PROVIDER_PRICE_REQUIRED')
  return cost
 }
-export async function reserveProviderSpend(input:{user:string;requestId:string;callIndex:number;provider:string;model:string;ceilingCny:number}){
+export async function reserveProviderSpend(input:{user:string;requestId:string;callIndex:number;provider:string;model:string;ceilingCny:number;workflow?:true}){
  if(!config.providerBudgetEnabled)return undefined
  if(!Number.isFinite(input.ceilingCny)||input.ceilingCny<=0)throw new HttpError(503,'PROVIDER_PRICE_REQUIRED')
  return transaction(async c=>{
@@ -21,7 +21,7 @@ export async function reserveProviderSpend(input:{user:string;requestId:string;c
   const fits=(await c.query(`SELECT limit_cny >= $2::numeric + COALESCE((SELECT sum(COALESCE(settled_cny,reserved_cny)) FROM lifeos_provider_spend WHERE budget_id=$1),0) AS fits FROM lifeos_provider_budgets WHERE id=$1`,[config.providerBudgetId,input.ceilingCny.toFixed(8)])).rows[0].fits
   if(!fits)throw new HttpError(503,'PROVIDER_BUDGET_EXHAUSTED')
   const id=randomUUID()
-  await c.query(`INSERT INTO lifeos_provider_spend(id,budget_id,user_id,request_id,call_index,provider,model,reserved_cny,status) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'reserved')`,[id,config.providerBudgetId,input.user,input.requestId,input.callIndex,input.provider,input.model,input.ceilingCny.toFixed(8)])
+  await c.query(`INSERT INTO lifeos_provider_spend(id,budget_id,user_id,request_id,call_index,provider,model,reserved_cny,status,workflow_request_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'reserved',$9)`,[id,config.providerBudgetId,input.user,input.requestId,input.callIndex,input.provider,input.model,input.ceilingCny.toFixed(8),input.workflow?input.requestId:null])
   return id
  })
 }

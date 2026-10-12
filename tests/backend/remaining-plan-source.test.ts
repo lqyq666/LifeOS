@@ -85,7 +85,7 @@ test('real V18 boundaries persist verbatim across sessions and refusal cannot re
   assert.ok(rows.some(x=>x.text==='但第三题不会做'&&x.kind==='context'))
   assert.ok(rows.some(x=>x.text==='先不备考'&&x.kind==='constraint'))
   const refusal=rows.find(x=>x.text==='这事先不想继续')!
-  assert.equal(refusal.kind,'context');assert.ok((await readRecommendationControls(user)).some(x=>x.itemId===refusal.id))
+  assert.equal(refusal,undefined,'pure refusal must not become a background fact or a new goal')
   assert.ok(rows.some(x=>x.kind==='goal'&&x.text==='我想完成课程作业'),JSON.stringify(rows))
   assert.equal(calls,3,'pure refusal performs zero generation without deleting facts')
   const goal=rows.find(x=>x.kind==='goal'&&x.text==='我想完成课程作业')!

@@ -14,6 +14,7 @@ process.env.LIFEOS_ADVANCED_WORKFLOWS='true';config.entitlementsEnabled=false
 test.after(()=>pool.end())
 test('adoption transaction rejects changed receipt, incomplete terminal, changed controls and withdrawn method before any growth write',async()=>{
  const user='adoption-'+randomUUID(),chat=randomUUID()
+ let withdrawnSource:{source_id:string;status:string}|undefined
  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
  await store.createConversation(user,{id:chat,title:'SYNTHETIC adoption'})
  const source=(await store.startRun(user,chat,randomUUID(),'这周本人有六小时，深入比较就业与考研。')).run
@@ -37,7 +38,7 @@ test('adoption transaction rejects changed receipt, incomplete terminal, changed
   const root='.planning/research/evergreen/',lines=(n:string)=>readFileSync(root+n,'utf8').trim().split('\n').map(line=>JSON.parse(line)),card=lines('KB_GUIDES.jsonl').find(c=>c.guide.canonicalKey==='campus-resource')
   await importEvergreenCorpus([card],lines('KB_SOURCE_REGISTRY.jsonl'),lines('KB_EVIDENCE.jsonl'))
   const withMethod={...view.receipt,methodRefs:[{sourceId:card.id,revision:card.revision}]};selection.receiptDigest=workflowReceiptDigest(withMethod)
-  await pool.query('UPDATE lifeos_workflow_tasks SET receipt=$3 WHERE user_id=$1 AND request_id=$2',[user,id,withMethod]);await pool.query("UPDATE kb_sources SET status='retired' WHERE source_id=$1",[Object.keys(card.guide.review.sourceRevisions)[0]])
+  await pool.query('UPDATE lifeos_workflow_tasks SET receipt=$3 WHERE user_id=$1 AND request_id=$2',[user,id,withMethod]);withdrawnSource=(await pool.query('SELECT source_id,status FROM kb_sources WHERE source_id=$1',[Object.keys(card.guide.review.sourceRevisions)[0]])).rows[0];await pool.query("UPDATE kb_sources SET status='retired' WHERE source_id=$1",[Object.keys(card.guide.review.sourceRevisions)[0]])
   await assert.rejects(commit,/COACH_KNOWLEDGE_INVALIDATED/)
   assert.equal(Number((await pool.query('SELECT count(*) n FROM growth_items WHERE user_id=$1',[user])).rows[0].n),0)
   const original=(await pool.query('SELECT request_payload FROM lifeos_workflow_tasks WHERE user_id=$1 AND request_id=$2',[user,id])).rows[0].request_payload
@@ -45,5 +46,5 @@ test('adoption transaction rejects changed receipt, incomplete terminal, changed
   await journal.claim(expired,digest);await journal.startNode(expired,{id:'opaque',role:'path_analyst',dependencies:[],executionKind:'simulated_provider',maxCostCny:.02,invoke:async()=>{throw Error('NO_DISPATCH_ALLOWED')}})
   await pool.query("UPDATE lifeos_workflow_tasks SET deadline_at=now()-interval '1 second' WHERE user_id=$1 AND request_id=$2",[user,expired.requestId])
   const uncertain=(await journal.claim(expired,digest)).receipt!;assert.equal(uncertain.providerCallsAreUpperBound,true);assert.equal(uncertain.receiptIncomplete,true);assert.equal(uncertain.workerFinishedAtReturn,false);assert.equal(uncertain.costCny,null)
- }finally{host.close();await store.terminateRun(user,run.request_id,'failed','SYNTHETIC_TEST_DONE');await pool.query('DELETE FROM "user" WHERE id=$1',[user])}
+ }finally{if(withdrawnSource)await pool.query('UPDATE kb_sources SET status=$2 WHERE source_id=$1',[withdrawnSource.source_id,withdrawnSource.status]);host.close();await store.terminateRun(user,run.request_id,'failed','SYNTHETIC_TEST_DONE');await pool.query('DELETE FROM "user" WHERE id=$1',[user])}
 })
