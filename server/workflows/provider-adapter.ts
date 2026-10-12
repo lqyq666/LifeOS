@@ -186,7 +186,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
     const basis=bases.find(b=>b.actionId===x.id),personal=basis?select(chosen,basis.evidenceIds):[],gaps=basis?select(Object.entries(unknownCatalogue).map(([id,text])=>({id,text})),basis.unknownIds):[]
     const labels={support:'支持',limit:'限制',unknown:'未知'}
     const stage=basis?.stageReasonId?stageReasons[basis.stageReasonId as keyof typeof stageReasons]:'阶段适用性尚未说明，需核对后再采纳。'
-    const connection=basis?`个人依据（完整原话或来源提示）：${renderPersonalEvidence(personal,id=>`[${labels[relations.find(r=>r.evidenceId===id)?.relation??'unknown']}] `)}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；阶段适用性（分析候选，尚待核对）：${stage}；`:'个人依据与行动缺口的具体连接尚未说明；阶段适用性尚未说明，需核对后再采纳；'
+    const connection=basis?`个人依据（完整原话或来源提示）：${renderPersonalEvidence(personal,id=>`该行动依据${personal.findIndex(f=>f.id===id)+1}（候选关联：${labels[relations.find(r=>r.evidenceId===id)?.relation??'unknown']}，待核对）：`)}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；阶段适用性（分析候选，尚待核对）：${stage}；`:'个人依据与行动缺口的具体连接尚未说明；阶段适用性尚未说明，需核对后再采纳；'
     return {description:'LifeOS 编辑建议（未绑定公开攻略）：'+x.text,estimatedMinutes:x.estimatedMinutes,stopCondition:`${connection}到可调整的建议投入上限${x.estimatedMinutes}分钟或发现必需材料缺失时停止；不自动对外联系。`,evidenceRefs:basis?personal.map(f=>f.ref):p.evidenceRefs,directionId:path.id}
    })
    return {evidenceRefs:p.evidenceRefs,summary:'已选择该路径的授权依据与小探索',issues:[],proposal:p}
