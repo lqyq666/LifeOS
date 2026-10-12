@@ -139,6 +139,7 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   expectedReservations+=1;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
   const longCondition=await wf.run(f.request,undefined,'single');assert.equal(longCondition.status,'proposed',JSON.stringify(longCondition))
   assert.ok(longCondition.proposal!.hypotheses.every(x=>x.text.includes('这里不截断引用')&&!x.text.includes('「如果我以后有更多时间')),'long conditional source is referenced without a misleading sliced quote')
+  assert.ok(longCondition.proposal!.nextActions.every(x=>x.stopCondition.includes('这里不截断引用')&&!x.stopCondition.includes('「如果我以后有更多时间')),'actions use the same condition-preserving evidence renderer')
   f.records[0].text=originalText
   comparisonMalformed=true
   for(const mode of ['single','multi'] as const){

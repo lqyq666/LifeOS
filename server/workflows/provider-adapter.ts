@@ -75,6 +75,10 @@ const pathActions:Record<string,{key:string;text:string;minutes:number}[]>={
  undergraduate_upgrade:[{key:'requirements',text:'核对本人教育阶段与当地当期正式招生说明，列一项待核实条件；不以通用方法替代政策。',minutes:20},{key:'gap',text:'选一段已经做过的练习，标出一个具体卡点与缺少的依据；无练习记录时先列待诊断内容。',minutes:15}]
 }
 type Reserved={receipt:CoachCallReceipt;started:boolean}
+function renderPersonalEvidence(facts:{id:string;text:string}[],label:(id:string)=>string=()=> ''){
+ const complete=facts.map(f=>label(f.id)+'「'+f.text+'」').join('；')
+ return complete.length<=800?complete:'请对照本次聊天中的完整原话；这里不截断引用、不据此确定优先级。'
+}
 export type ProviderNodeAudit={callId:string;nodeId:string;providerResponseId:string|null;usage:unknown;costCny:number|null;outcome:string;failureCode?:string|null;modelSignature:string;sourceDigest:string;decisionInputDigest:string|null}
 
 // Production uses this factory and the existing native SDK, never an alternate
@@ -171,8 +175,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    if(personal.some(f=>f.informationStatus!=='student_original_words_keep_conditions'))throw new WorkflowError('source_invalid')
    const axis=comparison.criterionId as keyof typeof comparisonCriteria,selfCheck=comparisonChecks[path.id]?.[axis],peerCheck=comparisonChecks[peer.id]?.[axis]
    if(!selfCheck||!peerCheck)throw new WorkflowError('invalid_contract')
-   const original=personal.map(f=>'「'+f.text+'」').join('；')
-   const exactPersonal=original.length<=800?original:'请对照本次聊天中的完整原话；这里不截断引用、不据此确定优先级。'
+   const exactPersonal=renderPersonalEvidence(personal)
    p.hypotheses=[{text:`候选比较维度（由你决定是否优先）：${comparisonCriteria[axis]}。引用的个人原话（仅供对照，不据此认定你的优先级）：${exactPersonal}。${path.title}：${selfCheck}；${peer.title}：${peerCheck}。现有证据不足以确定先后，由本人选择先补哪项。`,limitation:'这是来源受限的比较假设，尚待本人核对；两条探针的结果按同一标准记录。若一条不满足本人约束或缺必要材料，先补证据或由本人决定改选；两条都未知时不强作长期结论。',needsConfirmation:true}]
    // Generic exercises remain explicitly editorial. Approved public methods are
    // supplied by the host knowledge/guide path, never invented as catalogue IDs.
@@ -182,7 +185,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
     const basis=bases.find(b=>b.actionId===x.id),personal=basis?select(chosen,basis.evidenceIds):[],gaps=basis?select(Object.entries(unknownCatalogue).map(([id,text])=>({id,text})),basis.unknownIds):[]
     const labels={support:'支持',limit:'限制',unknown:'未知'}
     const stage=basis?.stageReasonId?stageReasons[basis.stageReasonId as keyof typeof stageReasons]:'阶段适用性尚未说明，需核对后再采纳。'
-    const connection=basis?`个人依据（原话片段；完整条件见依据）：${personal.map(f=>`[${labels[relations.find(r=>r.evidenceId===f.id)?.relation??'unknown']}] ${f.text.length>120?f.text.slice(0,120)+'…':f.text}`).join('；')}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；阶段适用性（分析候选，尚待核对）：${stage}；`:'个人依据与行动缺口的具体连接尚未说明；阶段适用性尚未说明，需核对后再采纳；'
+    const connection=basis?`个人依据（完整原话或来源提示）：${renderPersonalEvidence(personal,id=>`[${labels[relations.find(r=>r.evidenceId===id)?.relation??'unknown']}] `)}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；阶段适用性（分析候选，尚待核对）：${stage}；`:'个人依据与行动缺口的具体连接尚未说明；阶段适用性尚未说明，需核对后再采纳；'
     return {description:'LifeOS 编辑建议（未绑定公开攻略）：'+x.text,estimatedMinutes:x.estimatedMinutes,stopCondition:`${connection}到可调整的建议投入上限${x.estimatedMinutes}分钟或发现必需材料缺失时停止；不自动对外联系。`,evidenceRefs:basis?personal.map(f=>f.ref):p.evidenceRefs,directionId:path.id}
    })
    return {evidenceRefs:p.evidenceRefs,summary:'已选择该路径的授权依据与小探索',issues:[],proposal:p}
