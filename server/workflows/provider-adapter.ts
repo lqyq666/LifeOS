@@ -66,7 +66,7 @@ export type ProviderNodeAudit={callId:string;nodeId:string;providerResponseId:st
 
 // Production uses this factory and the existing native SDK, never an alternate
 // HTTP/provider ledger. Synthetic transport tests exercise this exact factory.
-export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;readMethods?:(request:WorkflowRequest)=>Promise<Record<string,unknown>[]>;freezePath:string;budget?:WorkflowProviderBudget;runtime?:ModelRuntime;syntheticTransport?:boolean;audit?:(request:WorkflowRequest,row:ProviderNodeAudit)=>Promise<void>}):DecisionAdapter{
+export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;readMethods?:(request:WorkflowRequest)=>Promise<Record<string,unknown>[]>;freezePath:string;budget?:WorkflowProviderBudget;runtime?:ModelRuntime;syntheticTransport?:boolean;observeSyntheticSelection?:(request:WorkflowRequest,nodeId:string,selection:unknown)=>Promise<void>;audit?:(request:WorkflowRequest,row:ProviderNodeAudit)=>Promise<void>}):DecisionAdapter{
  const runtime=input.runtime??resolveModel('default'),budget:WorkflowProviderBudget=input.budget??(config.production?createProductionWorkflowBudget():new CoachProviderBudget()),outputLimit=2048
  if(input.syntheticTransport&&!budget.path.includes('simulation'))throw new WorkflowError('scope_denied')
  if(input.syntheticTransport&&!['127.0.0.1','localhost','::1','[::1]'].includes(new URL(runtime.model.baseUrl!).hostname))throw new WorkflowError('scope_denied')
@@ -109,6 +109,10 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    const parsed:unknown=JSON.parse(text)
    if(!Value.Check(schema,parsed))throw new WorkflowError('invalid_contract')
    if(!Value.Check(boundSchema,parsed))throw new WorkflowError('source_invalid')
+   if(input.observeSyntheticSelection){
+    if(!c.request.synthetic)throw new WorkflowError('scope_denied')
+    await input.observeSyntheticSelection(c.request,nodeId,parsed)
+   }
    c.signal.throwIfAborted();await records(c.request)
    return {parsed,costCny:cost,providerCalls:1}
   }catch(error){
