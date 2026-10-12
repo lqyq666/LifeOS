@@ -84,7 +84,7 @@ export const actionCoachTurnSchema=Type.Object({
     items:Type.Array(Type.Object({
       action:Type.String({minLength:1,maxLength:200}),
       minutes:Type.Integer({minimum:1,maximum:10080}),
-      directionScopes:Type.Array(Type.Union([Type.Literal('employment'),Type.Literal('postgraduate_recommendation'),Type.Literal('postgraduate_exam'),Type.Literal('public_service'),Type.Literal('entrepreneurship'),Type.Literal('overseas_study'),Type.Literal('undergraduate_upgrade')]),{maxItems:7}),
+      directionScopes:Type.Array(Type.Union([Type.Literal('employment'),Type.Literal('research_exploration'),Type.Literal('postgraduate_recommendation'),Type.Literal('postgraduate_exam'),Type.Literal('public_service'),Type.Literal('entrepreneurship'),Type.Literal('overseas_study'),Type.Literal('undergraduate_upgrade')]),{maxItems:8}),
     }),{minItems:0,maxItems:12}),
   },{additionalProperties:false,description:'仅在用户明确要求安排/修改时间安排时提供：budgetRef/basis引用本轮growthUpdates原始索引或授权id/revision；availableMinutes由服务器对照已核实预算，计划项合计不超过预算，方向不得命中已暂停范围。'})),
   // Candidates remain opt-in proposals; confirmation still uses the existing

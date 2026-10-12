@@ -13,6 +13,7 @@ import {applyGrowthAction} from './growth.ts'
 
 export type DirectionScope =
   | 'employment'
+  | 'research_exploration'
   | 'postgraduate_recommendation'
   | 'postgraduate_exam'
   | 'public_service'
@@ -21,6 +22,7 @@ export type DirectionScope =
   | 'undergraduate_upgrade'
   | 'freelance'
 const scopeLabels: Record<DirectionScope,string>={
+  research_exploration:'科研探索',
   employment:'就业',postgraduate_recommendation:'推免',postgraduate_exam:'考研',public_service:'考公考编',
   entrepreneurship:'创业',overseas_study:'留学出境升学',undergraduate_upgrade:'专升本',freelance:'自由职业',
 }
@@ -52,6 +54,7 @@ const pauseVerbs=/(?:先别分析|不要再分析|先别推|别再给我推|不�
 const resumeVerbs=/(?:恢复|继续推|重新开始推|可以推|恢复推荐)/
 // Direction wording → scopes. Longest phrases first so 专升本 wins over 本.
 const directionPatterns:{pattern:RegExp;scopes:()=>DirectionScope[]}[]=[
+  {pattern:/科研探索|科研体验|联系实验室/,scopes:()=>['research_exploration']},
   {pattern:/自由职业|接单/,scopes:()=>['freelance']},
   {pattern:/专升本|专接本|专插本/,scopes:()=>['undergraduate_upgrade']},
   {pattern:/推免|保研/,scopes:()=>['postgraduate_recommendation']},

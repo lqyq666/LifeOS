@@ -14,17 +14,17 @@ import {WorkflowError,emptyProposal,type EvidenceReader,type EvidenceRecord,type
 import {validateEvidence,refKey} from './evidence-gate.ts'
 import type {DecisionAdapter} from './direction-decision.ts'
 import type {NodeContext,WorkflowNode} from './orchestrator.ts'
-import {pathUnknowns,comparisonFrames} from './comparison-catalog.ts'
+import {pathUnknowns,comparisonFrames,comparisonCriteria,comparisonChecks} from './comparison-catalog.ts'
 import {scanUserClauses} from '../user-command-spans.ts'
 
 const object=<T extends Parameters<typeof Type.Object>[0]>(fields:T)=>Type.Object(fields,{additionalProperties:false})
 const ids=Type.Array(Type.String({minLength:1,maxLength:80}),{maxItems:12,uniqueItems:true})
-const analystSchema=object({evidenceIds:ids,tradeoffIds:ids,unknownIds:ids,actionIds:ids,evidenceRelations:Type.Array(object({evidenceId:Type.String(),relation:Type.Union([Type.Literal('support'),Type.Literal('limit'),Type.Literal('unknown')])}),{maxItems:12}),actionBasis:Type.Array(object({actionId:Type.String(),evidenceIds:ids,unknownIds:ids,stageReasonId:Type.String({minLength:1,maxLength:80})}),{maxItems:12})})
+const analystSchema=object({evidenceIds:ids,tradeoffIds:ids,unknownIds:ids,actionIds:ids,evidenceRelations:Type.Array(object({evidenceId:Type.String(),relation:Type.Union([Type.Literal('support'),Type.Literal('limit'),Type.Literal('unknown')])}),{maxItems:12}),actionBasis:Type.Array(object({actionId:Type.String(),evidenceIds:ids,unknownIds:ids,stageReasonId:Type.String({minLength:1,maxLength:80})}),{maxItems:12}),comparisonBasis:object({criterionId:Type.Union(Object.keys(comparisonCriteria).map(id=>Type.Literal(id))),peerDirectionId:Type.String(),evidenceIds:Type.Array(Type.String(),{minItems:1,maxItems:3,uniqueItems:true}),probePriority:Type.Literal('unresolved')})})
 const criticSchema=object({issues:Type.Array(Type.Union([
  object({severity:Type.Union([Type.Literal('blocker'),Type.Literal('needs_clarification')]),issueId:Type.Union([Type.Literal('unsupported'),Type.Literal('contradiction')]),evidenceIds:Type.Array(Type.String(),{minItems:1,maxItems:12,uniqueItems:true}),claimIds:Type.Array(Type.String(),{minItems:1,maxItems:4,uniqueItems:true})}),
  object({severity:Type.Union([Type.Literal('needs_clarification'),Type.Literal('uncertainty')]),issueId:Type.Union(['motivation','fit','unknown','adoption','role_evidence','repeatability'].map(x=>Type.Literal(x))),evidenceIds:ids,claimIds:Type.Optional(ids)})
  ]),{maxItems:12}),rejectedDirections:ids})
-const synthesisSchema=object({directionOrder:ids,actionIds:ids})
+const synthesisSchema=object({actionIds:ids})
 export function bindWorkflowSelectionSchema(schema:ReturnType<typeof Type.Object>,context:Record<string,any>){
  // TypeBox reuses the same ids object in several properties. JSON schema is
  // declarative; detach those aliases so binding action IDs cannot replace facts.
@@ -36,7 +36,7 @@ export function bindWorkflowSelectionSchema(schema:ReturnType<typeof Type.Object
  list(p.evidenceIds,facts);list(p.tradeoffIds,Object.keys(context.tradeoffs??{}));list(p.unknownIds,unknowns);list(p.actionIds,actions)
  if(context.path){
   p.evidenceIds.minItems=1;p.evidenceIds.maxItems=Math.min(p.evidenceIds.maxItems??12,facts.length)
-  if(p.evidenceRelations){p.evidenceRelations.minItems=1;p.evidenceRelations.maxItems=facts.length}
+  if(p.evidenceRelations){p.evidenceRelations.minItems=1;p.evidenceRelations.maxItems=Math.min(p.evidenceRelations.maxItems??12,facts.length)}
   // A path proposes one optional probe. A second top-level action selector
   // could disagree with this evidence/basis selection and is unnecessary.
   p.actionIds.maxItems=Math.min(p.actionIds.maxItems??12,1)
@@ -45,6 +45,8 @@ export function bindWorkflowSelectionSchema(schema:ReturnType<typeof Type.Object
  item(p.evidenceRelations?.items?.properties?.evidenceId,facts)
  const basis=p.actionBasis?.items?.properties
  if(basis){item(basis.actionId,actions);list(basis.evidenceIds,facts);list(basis.unknownIds,unknowns);item(basis.stageReasonId,Object.keys(context.stageReasons??{}))}
+ const comparison=p.comparisonBasis?.properties
+ if(comparison){item(comparison.peerDirectionId,(context.peers??[]).map((x:any)=>x.id));list(comparison.evidenceIds,facts)}
  const issues=p.issues?.items?.anyOf??[]
  for(const branch of issues){const issue=branch.properties;list(issue.evidenceIds,facts);list(issue.claimIds,(context.claims??[]).map((x:any)=>x.id));if(issue.issueId?.enum&&context.allowedIssueIds)issue.issueId.enum=issue.issueId.enum.filter((id:string)=>context.allowedIssueIds.includes(id))}
  list(p.rejectedDirections,(context.directions??[]).map((x:any)=>x.id))
@@ -52,7 +54,7 @@ export function bindWorkflowSelectionSchema(schema:ReturnType<typeof Type.Object
  return bound as typeof schema
 }
 const issueCatalogue={unsupported:'这条判断没有授权来源支持。',contradiction:'两条当前依据互相矛盾，需要本人核对。',motivation:'读研或工作的具体动机仍需核对。',fit:'单次经历不能证明稳定能力或长期适配。',unknown:'尚未提供的条件保持未知，不据此否定路径。',adoption:'实际交付是否被采用、反馈及效果分别缺哪项证据，仍需核对。',role_evidence:'是否有可展示作品、怎样对应目标岗位实际要求仍需核对；未提供作品时不假定存在，反馈不能替代岗位要求。',repeatability:'已有结果能否重复、是否愿意承担后续义务仍需核对；暂停时不要求扩大接单。'}
-const commonTradeoffs={parallel:'多条路径同时投入会争用时间；本次仅选择一个可停止的小探索。',cost:'完整准备的时间、资金与退出代价尚未核实，先不承诺长期投入。',transfer:'若本人报告已有成果，先核对能否复用到这条路径；未报告成果就保留未知，作品存在不等于满足岗位或研究要求。',priority:'先核对本人是否有本周必须处理的课程、休息或其他义务；仅在本人明确报告时据此排序，先缩小探索，不要求同时全面投入。',motivation:'先核对这条路径想解决的实际问题；若动机尚未知，先了解具体工作或研究内容，再决定是否准备。',pause:'可以暂缓这条路径，保留重开条件；本次比较不要求立即选定长期方向。'}
+const commonTradeoffs={parallel:'下面的路径行动是备选项；由本人选择一个开始，不要求全部执行。',cost:'完整准备的时间、资金与退出代价尚未核实，先不承诺长期投入。',transfer:'若本人报告已有成果，先核对能否复用到这条路径；未报告成果就保留未知，作品存在不等于满足岗位或研究要求。',priority:'先核对本人是否有本周必须处理的课程、休息或其他义务；仅在本人明确报告时据此排序，先缩小探索，不要求同时全面投入。',motivation:'先核对这条路径想解决的实际问题；若动机尚未知，先了解具体工作或研究内容，再决定是否准备。',pause:'可以暂缓这条路径，保留重开条件；本次比较不要求立即选定长期方向。'}
 // Bounded editorial reasons selected against personal evidence, then reviewed by
 // the critic. The selection is not proof that a real model classified the stage correctly.
 const stageReasons={explore:'方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。',verify_result:'先核对已有尝试的实际反馈，再决定是否扩大投入；已做或交付不代表采用、付款或有效。',reuse_evidence:'先对照已有实践与目标要求，核对哪些证据能够复用，避免在未知要求上重复准备。',respect_priority:'先核对本次动作是否服务本人当前重点，尊重已改变的阶段选择与暂停边界。'}
@@ -61,6 +63,7 @@ const pathTradeoffs:Record<string,string>={employment:'就业与实习：先核�
 // requirements. The analyst must choose from actual evidence; the critic reviews
 // the resulting text and duration, and synthesis still cannot author new facts.
 const pathActions:Record<string,{key:string;text:string;minutes:number}[]>={
+ research_exploration:[{key:'preview',text:'读一个感兴趣的实验室公开课题或研究摘要，记下研究问题、实际任务和一个想追问的问题；不默认申请推免或已经得到接收。',minutes:20},{key:'question',text:'若本人愿意联系实验室，先读公开课题信息，拟一个具体问题和简短联系草稿；由本人决定是否发送，未回应时可改查公开材料，不推断资格或能力。',minutes:20}],
  employment:[{key:'requirements',text:'选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。',minutes:20},{key:'portfolio',text:'若已有作品，选其中一个，对照目标岗位的一项要求，写清本人做了什么、可展示的证据和仍缺什么；无作品或岗位说明就停在待补清单。',minutes:35},{key:'content',text:'读一段实际工作内容，写下一个愿意尝试的任务和一个不确定项；先了解工作，再决定是否投递。',minutes:15}],
  postgraduate_exam:[{key:'motivation',text:'写下读研想解决的一个问题，区分研究兴趣、学历需求与暂时避开就业；不能确定时记为未知，不直接开始全面备考。',minutes:15},{key:'preview',text:'选一个感兴趣的公开研究摘要，读问题与方法，写下想追问的一个问题；看不懂时标出卡点，不把一次阅读当作科研适配结论。',minutes:30},{key:'requirements',text:'选择一个待了解的院校项目，查其正式招生说明，记录适用年份、来源和一项尚待核对的要求；未找到当前正式说明就停止资格判断。',minutes:20}],
  postgraduate_recommendation:[{key:'requirements',text:'查本校当前正式推免说明，记录适用年份和一项待核对条件；不据兴趣或成绩片段宣称具备资格。',minutes:20},{key:'preview',text:'读一个感兴趣的研究摘要，记录问题、方法和一个卡点；只增加探索证据，不判定稳定科研能力。',minutes:30}],
@@ -85,7 +88,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
  const reservations=new Map<string,Map<string,Reserved>>()
  const key=(r:WorkflowRequest)=>r.internalActorKey+':'+r.requestId
  const sourceDigest=()=>assertCoachSourceFreeze(input.freezePath)
- const signature=()=>createHash('sha256').update(JSON.stringify({runtime:modelSignatureFor(runtime.tier),pricing:runtime.pricing,outputLimit,schemas:[analystSchema,criticSchema,synthesisSchema],pathActions,pathTradeoffs,pathUnknowns,comparisonFrames,issueCatalogue,commonTradeoffs,stageReasons})).digest('hex')
+ const signature=()=>createHash('sha256').update(JSON.stringify({runtime:modelSignatureFor(runtime.tier),pricing:runtime.pricing,outputLimit,schemas:[analystSchema,criticSchema,synthesisSchema],pathActions,pathTradeoffs,pathUnknowns,comparisonFrames,comparisonCriteria,comparisonChecks,issueCatalogue,commonTradeoffs,stageReasons})).digest('hex')
  async function records(r:WorkflowRequest){const authorized=await input.readEvidence(r);validateEvidence(r,r.authorizedEvidenceRefs,authorized);return authorized.filter(x=>r.authorizedEvidenceRefs.some(ref=>refKey(ref)===refKey(x.ref)))}
  const facts=(rs:EvidenceRecord[])=>rs.map((r,index)=>({id:'e'+index,text:r.text,kind:r.ref.type,informationStatus:r.role==='public'?'approved_public_method':r.role==='user'?'student_original_words_keep_conditions':'tool_result_not_student_report',ref:r.ref}))
  function select<T extends {id:string}>(catalogue:T[],chosen:string[]):T[]{
@@ -143,13 +146,13 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
  async function analysisContext(c:NodeContext,path:{id:string;title:string}){
    const source=facts(await records(c.request)),minutes=c.request.budget?.amountMinutes,methodContext=await input.readMethods?.(c.request)??[]
    const actions=(pathActions[path.id]??[]).map(x=>({id:path.id+':'+x.key,text:x.text,estimatedMinutes:x.minutes})).filter(x=>minutes===undefined||x.estimatedMinutes<=minutes)
-   const localPriority=path.id==='employment'&&source.some(f=>f.informationStatus==='student_original_words_keep_conditions'&&scanUserClauses(f.text).some(clause=>!clause.conditional&&!clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:我|本人).{0,12}(?:更想|希望|想|优先|倾向).{0,12}(?:离家近|本地|在家附近)/.test(clause.text)&&!/(?:不想|不希望|不要|不倾向).{0,12}(?:离家近|本地|在家附近)/.test(clause.text)))
+   const localPriority=['employment','public_service'].includes(path.id)&&source.some(f=>f.informationStatus==='student_original_words_keep_conditions'&&scanUserClauses(f.text).some(clause=>!clause.conditional&&!clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:我|本人).{0,12}(?:更想|希望|想|优先|倾向).{0,12}(?:离家近|本地|在家附近)/.test(clause.text)&&!/(?:不想|不希望|不要|不倾向).{0,12}(?:离家近|本地|在家附近)/.test(clause.text)))
    if(localPriority)for(const action of actions)action.text='先确定本人愿意考虑的地点范围，只在这个范围内查岗位；不知道范围时先留作待核对，不补造地点。'+action.text
    // Very small budgets retain a useful inventory/stop option, rather than
    // demanding an exercise longer than the student's stated available time.
-   if(minutes!==0)actions.push({id:path.id+':pause',text:`只记下${path.title}当前最关键的一个未知与重新考虑条件，然后暂停这条探索。`,estimatedMinutes:Math.min(5,minutes??5)})
+   if(minutes!==0&&actions.length===0)actions.push({id:path.id+':inventory',text:`在当前时间内只记下${path.title}最关键的一个待查问题，不替本人决定暂停或改变方向。`,estimatedMinutes:Math.min(5,minutes??5)})
    const tradeoffCatalogue={...commonTradeoffs,path:pathTradeoffs[path.id]??commonTradeoffs.cost}
-   return {path,facts:source,timeBudget:c.request.budget,controls:c.request.controls,methodContext,publicMethodRule:"Use only these canonical approved fragments; editorial exercises remain unbound, public text is not biography",tradeoffs:tradeoffCatalogue,unknowns:pathUnknowns[path.id]??{fit:issueCatalogue.fit},stageReasons,actions}
+   return {path,peers:c.request.directions.filter(other=>other.id!==path.id&&!c.request.controls.forbiddenDirections.includes(other.id)),comparisonCriteria,comparisonChecks,facts:source,timeBudget:c.request.budget,controls:c.request.controls,methodContext,publicMethodRule:"Use only these canonical approved fragments; editorial exercises remain unbound, public text is not biography",tradeoffs:tradeoffCatalogue,unknowns:pathUnknowns[path.id]??{fit:issueCatalogue.fit},stageReasons,actions}
  }
  function compileAnalysis(c:NodeContext,context:Awaited<ReturnType<typeof analysisContext>>,wire:Static<typeof analystSchema>):AgentResult{
    const {path,facts:source,actions,tradeoffs:tradeoffCatalogue,unknowns:unknownCatalogue}=context
@@ -162,7 +165,15 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    if(relations.length!==chosen.length||new Set(relations.map(x=>x.evidenceId)).size!==relations.length||relations.some(x=>!chosen.some(f=>f.id===x.evidenceId)))throw new WorkflowError('source_invalid')
    const related=(relation:'support'|'limit'|'unknown')=>chosen.filter(x=>(relations.find(r=>r.evidenceId===x.id)?.relation??'unknown')===relation).map(x=>(x.informationStatus==='student_original_words_keep_conditions'?'本人原话（保留条件）：':x.informationStatus==='approved_public_method'?'公开方法（不是本人经历）：':'工具结果（不是本人报告）：')+x.text)
    const frame=comparisonFrames[path.id]
-   p.alternatives=[{directionId:path.id,title:path.title,pros:[...(frame?[frame.goal]:[]),...related('support')],tradeoffs:[...(frame?.tradeoffs??[]),...related('limit'),...tradeoffs.map(x=>x.text)].slice(0,12),unknowns:[...related('unknown'),...unknowns.map(x=>x.text)],weeklyMinutes:null,evidenceRefs:p.evidenceRefs}]
+   p.alternatives=[{directionId:path.id,title:path.title,pros:[...related('support'),...(frame?[frame.goal]:[])].slice(0,12),tradeoffs:[...related('limit'),...(frame?.tradeoffs??[]),...tradeoffs.map(x=>x.text)].slice(0,12),unknowns:[...related('unknown'),...unknowns.map(x=>x.text)].slice(0,12),weeklyMinutes:null,evidenceRefs:p.evidenceRefs}]
+   const comparison=wire.comparisonBasis,peer=select(context.peers,[comparison.peerDirectionId])[0]
+   const personal=select(chosen,comparison.evidenceIds)
+   if(personal.some(f=>f.informationStatus!=='student_original_words_keep_conditions'))throw new WorkflowError('source_invalid')
+   const axis=comparison.criterionId as keyof typeof comparisonCriteria,selfCheck=comparisonChecks[path.id]?.[axis],peerCheck=comparisonChecks[peer.id]?.[axis]
+   if(!selfCheck||!peerCheck)throw new WorkflowError('invalid_contract')
+   const original=personal.map(f=>'「'+f.text+'」').join('；')
+   const exactPersonal=original.length<=800?original:'请对照本次聊天中的完整原话；这里不截断引用、不据此确定优先级。'
+   p.hypotheses=[{text:`候选比较维度（由你决定是否优先）：${comparisonCriteria[axis]}。引用的个人原话（仅供对照，不据此认定你的优先级）：${exactPersonal}。${path.title}：${selfCheck}；${peer.title}：${peerCheck}。现有证据不足以确定先后，由本人选择先补哪项。`,limitation:'这是来源受限的比较假设，尚待本人核对；两条探针的结果按同一标准记录。若一条不满足本人约束或缺必要材料，先补证据或由本人决定改选；两条都未知时不强作长期结论。',needsConfirmation:true}]
    // Generic exercises remain explicitly editorial. Approved public methods are
    // supplied by the host knowledge/guide path, never invented as catalogue IDs.
    const bases=wire.actionBasis??[]
@@ -206,19 +217,20 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   },
   async analyze(c,path,skill){
    const context=await analysisContext(c,path)
-   const output=await call(c,'path:'+path.id,'路径分析者：按本人的当前目的、已有成果、关键缺口与本周义务，选择最能推进当前问题的取舍；用actionBasis把每项行动连接到已选择的个人evidenceIds与仍缺的unknownIds，并选择有本人依据支持的stageReasonId解释为什么适合当前阶段。公共方法与工具结果不能当作本人经历；evidenceRelations逐条说明个人依据是支持、限制还是未知。依据必须来自当前授权事实，未知只选择实际影响这次取舍的项。没有可用时间时行动为空，允许暂缓。相同条件允许同建议；姓名、语气不影响选择。不要把一次成果推为长期适配；缺作品、动机或资格时保留未知。动作时间只是建议投入上限，不是本人已有安排。',analystSchema,context,skill)
+   const output=await call(c,'path:'+path.id,'路径分析者：按本人的当前目的、已有成果、关键缺口与本周义务，选择最能推进当前问题的取舍；用actionBasis把每项行动连接到已选择的个人evidenceIds与仍缺的unknownIds，并选择有本人依据支持的stageReasonId解释为什么适合当前阶段。公共方法与工具结果不能当作本人经历；evidenceRelations逐条说明个人依据是支持、限制还是未知。依据必须来自当前授权事实，未知只选择实际影响这次取舍的项。comparisonBasis必须用已选个人evidenceIds选择本次最相关的同维比较标准和另一条peer路径；probePriority只能为unresolved；比较维度是待本人选择的编辑假设，不据引用原话认定本人已有优先级。没有可用时间时行动为空，允许暂缓。相同条件允许同建议；姓名、语气不影响选择。不要把一次成果推为长期适配；缺作品、动机或资格时保留未知。动作时间只是建议投入上限，不是本人已有安排。',analystSchema,context,skill)
    return {result:compileAnalysis(c,context,output.parsed as Static<typeof analystSchema>),costCny:output.costCny,providerCalls:1}
   },
   async analyzeTogether(c,paths,skill){
    const contexts=await Promise.all(paths.map(path=>analysisContext(c,path)))
    const selections=object(Object.fromEntries(contexts.map(ctx=>[ctx.path.id,bindWorkflowSelectionSchema(analystSchema,ctx)])))
-   const schema=object({selections,directionOrder:Type.Array(Type.Union(paths.map(p=>Type.Literal(p.id))),{minItems:paths.length,maxItems:paths.length,uniqueItems:true})})
+   const schema=object({selections})
    const context={paths:contexts,alternatives:paths.map(p=>({directionId:p.id})),timeBudget:c.request.budget}
-   const output=await call(c,'single_decision','单次决策：在同一份授权个人事实、规范方法、方向与预算内分析所有paths。每个selections必须选择至少一项实际个人evidenceIds并说明其关系；只用本路径目录，区分支持、限制、未知。每条路径至多选择一个可停止的小行动，actionBasis说明个人依据、待核对项和阶段原因；没有适用行动时actionIds和actionBasis都为空。directionOrder覆盖所有方向；各路径所选行动的总投入不超过timeBudget。公共方法不是本人经历，未知不得填造，不新增事实。',schema,context,skill)
-   const wire=output.parsed as {selections:Record<string,Static<typeof analystSchema>>;directionOrder:string[]}
+   const output=await call(c,'single_decision','单次决策：在同一份授权个人事实、规范方法、方向与预算内分析所有paths。每个selections必须选择至少一项实际个人evidenceIds并说明其关系；只用本路径目录，区分支持、限制、未知。每条路径至多选择一个可停止的小行动，actionBasis说明个人依据、待核对项和阶段原因；没有适用行动时actionIds和actionBasis都为空。每条comparisonBasis用已选个人evidenceIds说明与另一条peer方向的同维比较标准和候选比较标准，probePriority只能为unresolved；不把候选顺序当本人长期选择。保留本人选择的方向顺序，不代替本人排序；各路径所选行动的总投入不超过timeBudget。公共方法不是本人经历，未知不得填造，不新增事实。',schema,context,skill)
+   const wire=output.parsed as {selections:Record<string,Static<typeof analystSchema>>}
    const analyses=contexts.map(ctx=>compileAnalysis(c,ctx,wire.selections[ctx.path.id])),p=emptyProposal(c.request)
    p.evidenceRefs=c.request.authorizedEvidenceRefs
-   p.alternatives=select(analyses.flatMap(x=>x.proposal!.alternatives).map(a=>({...a,id:a.directionId})),wire.directionOrder).map(({id,...a})=>a)
+   p.alternatives=analyses.flatMap(x=>x.proposal!.alternatives)
+   p.hypotheses=analyses.flatMap(a=>a.proposal!.hypotheses)
    p.nextActions=analyses.flatMap(a=>a.proposal!.nextActions)
    return {result:{evidenceRefs:p.evidenceRefs,summary:'单次生成的同范围决策候选；没有独立批评回合',issues:[],proposal:p},costCny:output.costCny,providerCalls:1}
   },
@@ -226,7 +238,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    await input.readMethods?.(c.request)
    const source=facts(await records(c.request)),claims=analyses.flatMap((analysis,index)=>{
     const p=analysis.proposal!,items=p.alternatives.flatMap(a=>(['pros','tradeoffs','unknowns'] as const).flatMap(field=>a[field].map((text,i)=>({id:'p'+index+':'+field+':'+i,text,kind:field,directionId:a.directionId}))))
-    return [...items,...p.nextActions.map((a,i)=>({id:'p'+index+':action:'+i,text:a.description+' '+a.stopCondition,kind:'editorial_exercise',directionId:a.directionId}))]
+    return [...items,...p.hypotheses.map((h,i)=>({id:'p'+index+':hypothesis:'+i,text:h.text+' '+h.limitation,kind:'comparison_hypothesis',directionId:p.alternatives[0]?.directionId})),...p.nextActions.map((a,i)=>({id:'p'+index+':action:'+i,text:a.description+' '+a.stopCondition,kind:'editorial_exercise',directionId:a.directionId}))]
    })
    const allowedIssueIds=[...new Set(['unsupported','contradiction',...c.request.directions.flatMap(path=>Object.keys(pathUnknowns[path.id]??{}))])]
    const relevantIssues=Object.fromEntries(Object.entries(issueCatalogue).filter(([id])=>allowedIssueIds.includes(id)).map(([id,text])=>[id,id==='motivation'?'当前路径想解决的问题与本人已经明确的优先事项分开核对；不重问已知目的。':text]))
@@ -242,10 +254,11 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   async synthesize(c,analyses,critic,skill){
    await input.readMethods?.(c.request)
    const alternatives=analyses.flatMap(x=>x.proposal?.alternatives??[]),actions=analyses.flatMap(x=>x.proposal?.nextActions??[]).map((action,index)=>({id:'a'+index,action}))
-   const output=await call(c,'synthesis','最终综合者：排序已审候选，选择可开始的动作；零时间时保留空行动，允许暂缓，不新增事实或自动改目标',synthesisSchema,{alternatives,actions,critic,timeBudget:c.request.budget},skill)
+   const output=await call(c,'synthesis','最终综合者：整理已审候选，选择可开始的备选动作；方向顺序由宿主保持本人原始选择顺序；零时间时保留空行动，允许暂缓，不新增事实或自动改目标',synthesisSchema,{alternatives,actions,critic,timeBudget:c.request.budget},skill)
    const wire=output.parsed as Static<typeof synthesisSchema>,p=emptyProposal(c.request)
    p.evidenceRefs=c.request.authorizedEvidenceRefs
-   p.alternatives=select(alternatives.map(a=>({...a,id:a.directionId})),wire.directionOrder).map(({id,...a})=>a)
+   p.alternatives=select(alternatives.map(a=>({...a,id:a.directionId})),c.request.directions.filter(path=>!c.request.controls.forbiddenDirections.includes(path.id)).map(path=>path.id)).map(({id,...a})=>a)
+   p.hypotheses=analyses.flatMap(a=>a.proposal!.hypotheses)
    p.nextActions=select(actions,wire.actionIds).map(x=>x.action)
    return {result:{evidenceRefs:p.evidenceRefs,summary:'已整理通过审阅的候选，等待本人选择',issues:[],proposal:p},costCny:output.costCny,providerCalls:1}
   }

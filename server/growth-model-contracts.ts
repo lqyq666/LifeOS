@@ -46,13 +46,13 @@ const feedback=Type.Object({
   progressState:Type.Union([Type.Literal('unattempted'),Type.Literal('attempted'),Type.Literal('stuck'),Type.Literal('completed'),Type.Literal('unknown')]),
   validUntil:Type.Optional(text(40)),
 },{additionalProperties:false,description:'本人实际反馈必须明确动作状态。已完成动作但仍等结果用completed，不假设结果成功；复制建议或材料不是对外执行。其他记录不填写progressState。'})
-const directionScopeLiteral=Type.Union([Type.Literal('employment'),Type.Literal('postgraduate_recommendation'),Type.Literal('postgraduate_exam'),Type.Literal('public_service'),Type.Literal('entrepreneurship'),Type.Literal('overseas_study'),Type.Literal('undergraduate_upgrade')])
+const directionScopeLiteral=Type.Union([Type.Literal('employment'),Type.Literal('research_exploration'),Type.Literal('postgraduate_recommendation'),Type.Literal('postgraduate_exam'),Type.Literal('public_service'),Type.Literal('entrepreneurship'),Type.Literal('overseas_study'),Type.Literal('undergraduate_upgrade')])
 const observation=Type.Object({
   target,
   assertion:Type.Literal('ai_observation'),
   kind:Type.Union([Type.Literal('observation'),Type.Literal('direction'),Type.Literal('priority'),Type.Literal('decision')]),
   text:text(),source,dependencies,
-  directionScopes:Type.Optional(Type.Array(directionScopeLiteral,{maxItems:7,description:'方向/重点/决策类观察关联的发展方向；该方向被用户暂停时不要再作为新建议依据。'})),
+  directionScopes:Type.Optional(Type.Array(directionScopeLiteral,{maxItems:8,description:'方向/重点/决策类观察关联的发展方向；该方向被用户暂停时不要再作为新建议依据。'})),
   limitation:text(1200),validUntil:Type.Optional(text(40)),
 },{additionalProperties:false,description:'有当前诉求和本人证据的待核对观察/方向权衡/阶段重点。不是用户已经认可或执行。明确局限与仍未知的条件；单次事件不能证明稳定人格、终身能力或确定路径适配。'})
 const unknown=Type.Object({target,assertion:Type.Literal('unknown'),kind:Type.Literal('unknown'),text:text(2000),source},{additionalProperties:false,description:'具体仍缺失且影响当前判断的答案；已提供的年级、作品、偏好、时间等保存user_reported，不将已回答的信息标题列为unknown。不把拒答改成未知反复追问。纯知识或日常闲聊不建立档案问题。'})

@@ -34,10 +34,10 @@ test('WF02/03/05/04 host → native SDK engine → finishRun → authenticated G
   let output:unknown
   if(ctx.path)output={evidenceIds:['e0'],tradeoffIds:['path','parallel'],unknownIds:['fit'],actionIds:[ctx.actions[0].id]}
   else if(ctx.analyses)output={issues:[{severity:'uncertainty',issueId:'fit',evidenceIds:['e0']}],rejectedDirections:[]}
-  else if(ctx.alternatives)output={directionOrder:ctx.alternatives.map((x:any)=>x.directionId),actionIds:['a0']}
+  else if(ctx.alternatives)output={actionIds:['a0']}
   else{const current=ctx.currentUserMessage,text=current.content??current.text??request.messages.at(-1).content;if(text.includes('已保存的阶段重点'))output={reply:'以你现在明确的就业重点为准；已保存的小探索仍是尚未执行，考研适配仍未知。'};else output={reply:text.includes('不知道对方是否采用')?'采用情况目前未知；独立的发送、已读和回复状态分别保留，效果仍未知。':'以这次更正为准：对方没有回复，也没有采用；之前有关已采用的效果解释停止使用。',event:{target:{operation:'continue',eventId,expectedRevision:eventRevision},nodes:[{kind:'fact',source:{messageId:current.id,quote:text}}]}}}
   if(ctx.boundedReply)(output as any).reply=ctx.boundedReply.choices[0]
-  if(ctx.path){const result=output as any;result.evidenceRelations??=result.evidenceIds.map((id:string)=>({evidenceId:id,relation:'unknown'}));result.actionBasis??=result.actionIds.map((id:string)=>({actionId:id,evidenceIds:result.evidenceIds,unknownIds:result.unknownIds,stageReasonId:'explore'}))}
+  if(ctx.path){const result=output as any;result.comparisonBasis={criterionId:"tasks",peerDirectionId:ctx.peers[0].id,evidenceIds:["e0"],probePriority:"unresolved"};result.evidenceRelations??=result.evidenceIds.map((id:string)=>({evidenceId:id,relation:'unknown'}));result.actionBasis??=result.actionIds.map((id:string)=>({actionId:id,evidenceIds:result.evidenceIds,unknownIds:result.unknownIds,stageReasonId:'explore'}))}
   const send=()=>{if(res.destroyed)return;res.writeHead(200,{'Content-Type':'text/event-stream'});const base={id:'synthetic-http-'+wire.length,object:'chat.completion.chunk',created:1,model:model.id};res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(output)},finish_reason:null}]})+'\n\ndata: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:300,completion_tokens:100,total_tokens:400}})+'\n\ndata: [DONE]\n\n')}
   if(slow)setTimeout(send,700);else send()
  })})

@@ -26,7 +26,7 @@ import {workflowReceiptDigest} from './task-commit.ts'
 import {assertCoachKnowledge} from '../coach-knowledge.ts'
 
 const id=Type.String({pattern:'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'})
-export const directionLabels={employment:'就业与实习',postgraduate_exam:'考研',postgraduate_recommendation:'保研',entrepreneurship:'创业',independent_development:'独立开发',freelance:'自由职业',overseas_study:'留学',public_service:'考公考编',undergraduate_upgrade:'专升本'} as const
+export const directionLabels={employment:'就业与实习',research_exploration:'科研探索',postgraduate_exam:'考研',postgraduate_recommendation:'保研',entrepreneurship:'创业',independent_development:'独立开发',freelance:'自由职业',overseas_study:'留学',public_service:'考公考编',undergraduate_upgrade:'专升本'} as const
 const directionIds=Object.keys(directionLabels) as (keyof typeof directionLabels)[]
 export const deepTaskSchema=Type.Object({requestId:id,conversationId:id,currentMessageId:id,directions:Type.Array(Type.Union(directionIds.map(x=>Type.Literal(x))),{minItems:2,maxItems:3,uniqueItems:true}),consent:Type.Literal(true)},{additionalProperties:false})
 export const taskActionSchema=Type.Object({requestId:id,conversationId:id,kind:Type.Union([Type.Literal('action'),Type.Literal('direction'),Type.Literal('reject')]),index:Type.Integer({minimum:0,maximum:5})},{additionalProperties:false})

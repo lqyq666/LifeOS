@@ -398,7 +398,7 @@ export function verifyReplyAgainstObligations(obligations:TurnObligations,reply:
   }
 }
 
-const scopeLabels:Record<DirectionScope,string>={employment:'就业',postgraduate_recommendation:'推免',postgraduate_exam:'考研',public_service:'考公考编',entrepreneurship:'创业',overseas_study:'留学出境升学',undergraduate_upgrade:'专升本',freelance:'自由职业'}
+const scopeLabels:Record<DirectionScope,string>={research_exploration:"科研探索",employment:'就业',postgraduate_recommendation:'推免',postgraduate_exam:'考研',public_service:'考公考编',entrepreneurship:'创业',overseas_study:'留学出境升学',undergraduate_upgrade:'专升本',freelance:'自由职业'}
 export function controlReplyText(effects:RequiredEffect[]):string{
   const parts:string[]=[]
   for(const effect of effects)if(effect.type==='direction_control')

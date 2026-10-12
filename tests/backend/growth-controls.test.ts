@@ -7,6 +7,15 @@ import { growthContext, growthView, actOnGrowthItem, stageGrowthUpdates } from '
 import { deriveExplicitDirectionControls, readDirectionControls, stageDirectionControls, persistDirectionControls, directionControlsSnapshotKey } from '../../server/growth-controls.ts'
 import { buildTurnPrompt } from '../../server/turn-prompt.ts'
 
+test('research exploration control is distinct from recommendation admission',()=>{
+ const pause=deriveExplicitDirectionControls('先别推科研探索。')
+ assert.equal(pause.status,'explicit')
+ if(pause.status==='explicit')assert.deepEqual(pause.changes[0]!.scopes,['research_exploration'])
+ const admission=deriveExplicitDirectionControls('先别推保研。')
+ if(admission.status==='explicit')assert.deepEqual(admission.changes[0]!.scopes,['postgraduate_recommendation'])
+ assert.notEqual(deriveExplicitDirectionControls('朋友说“先别推科研探索”，我还想了解。').status,'explicit')
+})
+
 test('deriveExplicitDirectionControls recognizes only the user\'s own explicit commands',()=>{
   // Positive: withdrawal plus pause in one message.
   const pause=deriveExplicitDirectionControls('我撤回成绩单信息，也先别推升学相关的安排。')
@@ -114,6 +123,13 @@ test('direction controls persist per account, expand 升学 atomically, resume o
       const snapshots=(await pool.query("SELECT snapshot->>'sourceQuote' AS quote FROM growth_direction_control_revisions WHERE user_id=$1 AND scope='public_service'",[user])).rows
       assert.ok(snapshots.length>0)
       assert.ok(snapshots.every(row=>row.quote==='原话已遗忘'),'historical snapshots are redacted too — lineage is not a privacy bypass')
+    })
+    await t.test('research pause persists independently and leaves admission settings intact',async()=>{
+      const before=await readDirectionControls(user)
+      await commitControls(await prepare('先别推科研探索。'))
+      const after=await readDirectionControls(user)
+      assert.equal(after.find(x=>x.scope==='research_exploration')!.state,'paused')
+      assert.deepEqual(after.filter(x=>x.scope!=='research_exploration'),before)
     })
   }finally{
     await pool.query('DELETE FROM growth_direction_control_revisions WHERE user_id=$1',[user])

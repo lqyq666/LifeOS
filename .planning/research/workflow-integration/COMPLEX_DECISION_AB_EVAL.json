@@ -109,7 +109,7 @@
       "syntheticAdult": true,
       "input": "我是成年大学生，我愿意联系实验室，但导师回应未知。本周可用3小时，请深入比较科研探索/就业准备。",
       "directions": [
-        "postgraduate_recommendation",
+        "research_exploration",
         "employment"
       ],
       "authorizedEvidence": [

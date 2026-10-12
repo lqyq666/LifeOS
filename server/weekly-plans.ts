@@ -32,9 +32,9 @@ export type PlanValidationContext={
   effectiveBlockedScopes:readonly DirectionScope[]
 }
 
-const allScopes:DirectionScope[]=['employment','postgraduate_recommendation','postgraduate_exam','public_service','entrepreneurship','overseas_study','undergraduate_upgrade']
+const allScopes:DirectionScope[]=['employment','research_exploration','postgraduate_recommendation','postgraduate_exam','public_service','entrepreneurship','overseas_study','undergraduate_upgrade']
 const validMinutes=(value:number)=>Number.isSafeInteger(value)&&value>=0&&value<=10080
-const validScopeList=(scopes:unknown):scopes is DirectionScope[]=>Array.isArray(scopes)&&scopes.length<=7&&scopes.every(scope=>allScopes.includes(scope as DirectionScope))
+const validScopeList=(scopes:unknown):scopes is DirectionScope[]=>Array.isArray(scopes)&&scopes.length<=8&&scopes.every(scope=>allScopes.includes(scope as DirectionScope))
 
 export function renderProposedWeeklyPlan(input:WeeklyPlanInput):string{
   validateWeeklyPlanShape(input)
