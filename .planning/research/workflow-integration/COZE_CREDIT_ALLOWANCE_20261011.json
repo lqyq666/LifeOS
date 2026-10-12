@@ -5,10 +5,10 @@
   "exactAnswer": "从现在起，最多使用当前账户剩余积分的20%",
   "percentage": 0.2,
   "basis": "FRESH_AUTHENTICATED_ACTUAL_ACCOUNT_REMAINING_CREDITS_AT_FIRST_POST_AUTHORIZATION_READ",
-  "observedRemainingCredits": null,
-  "observedAt": null,
-  "authorizedMaximumAdditionalCredits": null,
-  "status": "AUTHORIZED_PENDING_ACTUAL_BALANCE_AND_LEDGER_BINDING_ZERO_NEW_DISPATCH",
+  "observedRemainingCredits": 62658,
+  "observedAt": "2026-10-12T05:43:35Z",
+  "authorizedMaximumAdditionalCredits": 12531,
+  "status": "BOUND_20_PERCENT_PRIOR_UNKNOWN_HOLDS_RETAINED_ZERO_NEW_DISPATCH",
   "projectIds": [
     "7693388932939300905",
     "7693465311558795327"
@@ -24,5 +24,15 @@
     "Version and append the new allowance in the original ledger; do not initialize, copy, reset or replace it.",
     "Retain all first failures, previous charges and unknown cost reservations. Any overlap between existing commitments and the fresh observed balance must be explicitly reconciled rather than counted twice.",
     "Reserve all post-authorization development and business execution against the approved20percent ceiling, with no automatic charged retry."
-  ]
+  ],
+  "binding": {
+    "priorApprovalSha256": "0ff671297a58cd608ff7f0e15e76e1ff67c13b6c1432916fba526f00bad356e5",
+    "balanceEvidencePath": ".local/half-day-20261012/ACCOUNT_BALANCE_FIRST.json",
+    "balanceEvidenceSha256": "de2885faeca08282a24f7f5bcd04fd0d5d83cc3734f5f60db3118364abba7c70",
+    "existingLedger": ".local/coze-launch/credits-ledger.jsonl",
+    "accountAllowanceAppended": true,
+    "historicalReservationsRetained": true,
+    "availableCreditsAfterBinding": 0,
+    "newBudget": 0
+  }
 }

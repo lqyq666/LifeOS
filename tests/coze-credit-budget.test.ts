@@ -38,3 +38,30 @@ test('concurrent lock and malformed billing stop with no dispatch or ledger repl
  writeFileSync(path,before+JSON.stringify({type:'credits_reconciled',requestId:'missing',accountedCredits:1})+'\n')
  assert.throws(()=>budget.balance(),/RECONCILIATION_INVALID/)
 })
+
+test('fresh account balance freezes the twenty-percent allowance without erasing older unknown holds',()=>{
+ const {path,budget}=fixture(),prior={requestId:'prior',projectId,purpose:'business' as const,reservedCredits:40,payloadDigest:sha,sourceDigest:sha}
+ budget.reserve(prior);budget.finishUnknown('prior','failed',null,null)
+ budget.bindAccountAllowance({observedRemainingCredits:50,observedAt:'2026-10-12T05:43:35Z',approvalDigest:sha,balanceEvidenceDigest:sha})
+ const restored=new CozeCreditBudget(path)
+ assert.equal(restored.balance().heldCredits,40);assert.equal(restored.balance().availableCredits,10)
+ assert.equal(restored.balance().maximumAdditionalCredits,10)
+ assert.throws(()=>restored.reserve({...prior,requestId:'too-much',reservedCredits:11}),/UNAVAILABLE/)
+ restored.reserve({...prior,requestId:'new',reservedCredits:9})
+ assert.equal(restored.balance().availableCredits,1)
+ assert.throws(()=>restored.bindAccountAllowance({observedRemainingCredits:1000,observedAt:'2026-10-12T05:44:35Z',approvalDigest:sha,balanceEvidenceDigest:sha}),/ALREADY_BOUND/)
+ restored.reconcile('new',4.2,sha);assert.equal(restored.balance().allowanceAccountedCredits,5);assert.equal(restored.balance().availableCredits,5)
+ assert.equal(restored.balance().heldCredits,40,'older opaque charges are never silently freed')
+ assert.match(readFileSync(path,'utf8'),/account_allowance_bound/)
+})
+
+test('older unresolved holds that exceed the fresh balance block dispatch even under an unused allowance',()=>{
+ const {budget}=fixture(),input={requestId:'old',projectId,purpose:'development' as const,reservedCredits:80,payloadDigest:sha,sourceDigest:sha}
+ budget.reserve(input)
+ budget.bindAccountAllowance({observedRemainingCredits:50,observedAt:'2026-10-12T05:43:35Z',approvalDigest:sha,balanceEvidenceDigest:sha})
+ assert.equal(budget.balance().availableCredits,0)
+ assert.throws(()=>budget.reserve({...input,requestId:'new',reservedCredits:1}),/UNAVAILABLE/)
+ budget.reconcile('old',10,sha)
+ assert.equal(budget.balance().availableCredits,10,'an observed bill may resolve the old hold, while the new allowance still caps spending')
+ assert.throws(()=>budget.reserve({...input,requestId:'outside-approval',projectId:'7693892523869290496',reservedCredits:1}),/INVALID/)
+})

@@ -22,7 +22,8 @@ export class CozeCreditBudget{
  private view(rows:Row[]){
   const opening=rows[0],initial=opening?.type==='existing_credit_balance'?opening.existingCredits:opening?.type==='development_reserved'?opening.observedAccountBalance:null
   if(!positive(initial)||opening.budgetUnit!=='coze_credits'||opening.newBudget!==0)throw Error('COZE_LEDGER_FUNDING_INVALID')
-  const reserved=new Map<string,Row>(),settled=new Set<string>();let charged=0,held=0
+  const reserved=new Map<string,Row>(),settled=new Set<string>(),charges=new Map<string,number>();let charged=0,held=0
+  let allowance:Row|null=null,priorReservations=new Set<string>()
   for(const row of rows){
    if(row.type==='development_reserved'||row.type==='credits_reserved'){
     if(typeof row.requestId!=='string'||reserved.has(row.requestId)||!positive(row.reservedCredits)||row.budgetUnit!=='coze_credits')throw Error('COZE_LEDGER_RESERVATION_INVALID')
@@ -30,12 +31,22 @@ export class CozeCreditBudget{
    }else if(row.type==='development_finished'||row.type==='credits_reconciled'){
     const requestId=String(row.requestId),reservation=reserved.get(requestId)
     if(!reservation||settled.has(requestId)||!positive(row.accountedCredits)||Number(row.accountedCredits)>Number(reservation.reservedCredits))throw Error('COZE_LEDGER_RECONCILIATION_INVALID')
-    settled.add(requestId);charged+=Number(row.accountedCredits)
+    settled.add(requestId);charged+=Number(row.accountedCredits);charges.set(requestId,Number(row.accountedCredits))
+   }else if(row.type==='account_allowance_bound'){
+    if(allowance||row.percentage!==0.2||!positive(row.observedRemainingCredits)||row.maximumAdditionalCredits!==Math.floor(Number(row.observedRemainingCredits)*0.2)||!positive(row.maximumAdditionalCredits)||!digest(row.approvalDigest)||!digest(row.balanceEvidenceDigest)||typeof row.observedAt!=='string'||!Number.isFinite(Date.parse(row.observedAt))||row.newBudget!==0)throw Error('COZE_ACCOUNT_ALLOWANCE_INVALID')
+    allowance=row;priorReservations=new Set(reserved.keys())
    }else if(row.type!=='existing_credit_balance'&&row.type!=='credits_attempt_finished')throw Error('COZE_LEDGER_ROW_INVALID')
   }
   for(const [id,row] of reserved)if(!settled.has(id))held+=Number(row.reservedCredits)
   if(charged+held>initial)throw Error('COZE_LEDGER_OVERCOMMITTED')
-  return {initialCredits:initial,chargedCredits:charged,heldCredits:held,availableCredits:initial-charged-held,reservations:reserved,settled}
+  let allowanceAccounted=0,newCharged=0
+  if(allowance)for(const [id,row] of reserved)if(!priorReservations.has(id)){allowanceAccounted+=settled.has(id)?charges.get(id)!:Number(row.reservedCredits);newCharged+=charges.get(id)??0}
+  if(allowance&&allowanceAccounted>Number(allowance.maximumAdditionalCredits))throw Error('COZE_ALLOWANCE_OVERCOMMITTED')
+  const allowanceRemaining=allowance?Number(allowance.maximumAdditionalCredits)-allowanceAccounted:null
+  // A fresh account snapshot already includes past known charges. Old opaque
+  // holds remain conservative; resolving them requires their observed bills.
+  const accountAvailable=allowance?Math.max(0,Number(allowance.observedRemainingCredits)-held-newCharged):null
+  return {initialCredits:initial,chargedCredits:charged,heldCredits:held,availableCredits:Math.min(initial-charged-held,allowanceRemaining??Infinity,accountAvailable??Infinity),...(allowance?{observedAccountRemainingCredits:Number(allowance.observedRemainingCredits),maximumAdditionalCredits:Number(allowance.maximumAdditionalCredits),allowanceAccountedCredits:allowanceAccounted,allowanceRemainingCredits:allowanceRemaining!}:{}),reservations:reserved,settled}
  }
  balance(){const {reservations,settled,...balance}=this.view(this.rows());return balance}
  private append(make:(rows:Row[])=>Row){
@@ -50,9 +61,18 @@ export class CozeCreditBudget{
   if(!input.requestId||!projects.has(input.projectId)||!['development','business'].includes(input.purpose)||!positive(input.reservedCredits)||!digest(input.payloadDigest)||!digest(input.sourceDigest))throw Error('COZE_RESERVATION_INVALID')
   this.append(rows=>{
    const view=this.view(rows),old=view.reservations.get(input.requestId)
+   if(rows.some(row=>row.type==='account_allowance_bound')&&!['7693388932939300905','7693465311558795327'].includes(input.projectId))throw Error('COZE_RESERVATION_INVALID')
    if(old)throw Error(old.payloadDigest!==input.payloadDigest?'COZE_REQUEST_CONFLICT':'COZE_FIRST_ATTEMPT_ALREADY_RESERVED')
    if(input.reservedCredits>view.availableCredits)throw Error('COZE_EXISTING_CREDITS_UNAVAILABLE')
    return {type:'credits_reserved',budgetUnit:'coze_credits',newBudget:0,...input}
+  })
+ }
+ bindAccountAllowance(input:{observedRemainingCredits:number;observedAt:string;approvalDigest:string;balanceEvidenceDigest:string}){
+  if(!positive(input.observedRemainingCredits)||Math.floor(input.observedRemainingCredits*0.2)<1||!Number.isFinite(Date.parse(input.observedAt))||!digest(input.approvalDigest)||!digest(input.balanceEvidenceDigest))throw Error('COZE_ACCOUNT_ALLOWANCE_INVALID')
+  this.append(rows=>{
+   this.view(rows)
+   if(rows.some(row=>row.type==='account_allowance_bound'))throw Error('COZE_ACCOUNT_ALLOWANCE_ALREADY_BOUND')
+   return {type:'account_allowance_bound',budgetUnit:'coze_credits',newBudget:0,percentage:0.2,maximumAdditionalCredits:Math.floor(input.observedRemainingCredits*0.2),...input}
   })
  }
  finishUnknown(requestId:string,outcome:'completed'|'failed'|'cancelled',providerCalls:number|null,receiptId:string|null){

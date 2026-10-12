@@ -12,17 +12,22 @@ import {CoachProviderBudget,type CoachCallReceipt} from '../../scripts/coach-pro
 import {captureCoachSource} from '../../scripts/coach-source-freeze.ts'
 import {createRuntimeDecisionAdapter,type ProviderNodeAudit} from '../../server/workflows/provider-adapter.ts'
 import {createDirectionWorkflow} from '../../server/workflows/direction-decision.ts'
+import {createProductionWorkflowBudget,type WorkflowProviderBudget} from '../../server/workflows/production-budget.ts'
+import {setProviderBudget,providerBudgetView} from '../../server/provider-spend.ts'
+import {postgresJournal} from '../../server/workflows/task-journal.ts'
+import * as store from '../../server/store.ts'
 process.env.LIFEOS_ADVANCED_WORKFLOWS='true'
 test.after(()=>pool.end())
 test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback synthetic wire: whole graph reserved, roles independent, usage recorded and replay free',async()=>{
  const f=fixture();f.request.directions=f.request.directions.slice(0,2);f.request.modelBudget.maxCostCny=5
  const previousURL=model.baseUrl,previousKey=config.apiKey,budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-workflow-'+randomUUID()})
  budget.snapshot();writeFileSync(dirname(budget.path)+'/development-test-grant-20261005.json',JSON.stringify({kind:'SIMULATED_DEVELOPMENT_TEST_GRANT',amountCny:30,startingCall:0,priorReceiptsSha256:createHash('sha256').update('[]').digest('hex')}));budget.activateCurrentGrant()
+ let wireBudget:WorkflowProviderBudget=budget
  const requests:{role:string;context:Record<string,unknown>}[]=[],audits:ProviderNodeAudit[]=[]
  let incompleteUsage=false,duplicateSelection=false,expectedReservations=4,criticVariant='normal',singleMalformed=false
  const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',c=>chunks.push(Buffer.from(c)));req.on('end',()=>{
   const request=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(request.messages[1].content),role=request.messages[0].content
-  requests.push({role,context:ctx});assert.equal(budget.snapshot().calls.length,expectedReservations,'all calls reserved before the first wire')
+  requests.push({role,context:ctx});assert.equal(wireBudget.snapshot().calls.length,expectedReservations,'all calls reserved before the first wire')
   assert.equal(JSON.stringify(request.response_format).includes('uniqueItems'),false,'actual SDK request uses supported provider schema')
   const selection=request.response_format?.json_schema?.schema
   if(ctx.path){assert.deepEqual(selection.properties.evidenceIds.items.enum,ctx.facts.map((x:any)=>x.id));assert.deepEqual(selection.properties.actionIds.items.enum,ctx.actions.map((x:any)=>x.id))}
@@ -98,5 +103,28 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   const malformed=await wf.run(f.request,undefined,'single');assert.equal(malformed.status,'unavailable');assert.equal(typeof malformed.costCny,'number','bad single output preserves its fee')
   singleMalformed=false;f.request.directions.push({id:'entrepreneurship',title:'创业'});expectedReservations+=1;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
   const three=await wf.run(f.request,undefined,'single');assert.equal(three.status,'proposed',JSON.stringify(three));assert.equal(three.providerCalls,1);assert.equal(three.proposal!.alternatives.length,3)
+  const oldBudgetEnabled=config.providerBudgetEnabled,oldBudgetId=config.providerBudgetId
+  config.providerBudgetEnabled=true;config.providerBudgetId='native-pg-budget-'+randomUUID()
+  try{
+   await setProviderBudget(config.providerBudgetId,5)
+   const user=f.request.internalActorKey;await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
+   f.request.internalActorKey=user;f.request.requestId=randomUUID();f.request.traceId=randomUUID();f.request.conversationId=randomUUID()
+   await store.createConversation(user,{id:f.request.conversationId,title:'SYNTHETIC native PG bridge'})
+   assert.match((await pool.query('SELECT current_database() AS name')).rows[0].name,/^lifeos_dialogue_test_/)
+   const pgBudget=createProductionWorkflowBudget()
+   // Mark only this verified disposable PG harness as simulated; the actual
+   // production adapter's guard and authoritative budget methods stay intact.
+   wireBudget={...pgBudget,path:'simulation:isolated-postgresql'};expectedReservations=5
+   const pgFreeze=directory+'/production-budget-freeze.json';writeFileSync(pgFreeze,JSON.stringify(captureCoachSource()))
+   const pgAdapter=createRuntimeDecisionAdapter({readEvidence:async()=>f.records,freezePath:pgFreeze,budget:wireBudget,syntheticTransport:true,runtime:{...resolveModel('default'),pricing:{inputCnyPerMillion:1,outputCnyPerMillion:2}}})
+   const pgWorkflow=createDirectionWorkflow(async()=>f.records,pgAdapter,undefined,postgresJournal()),pgStart=requests.length,pgReceipt=await pgWorkflow.run(f.request)
+   assert.equal(pgReceipt.status,'proposed',JSON.stringify(pgReceipt));assert.equal(pgReceipt.providerCalls,5);assert.equal(requests.length-pgStart,5)
+   const rows=(await pool.query('SELECT call_index,status,settled_cny,workflow_request_id FROM lifeos_provider_spend WHERE user_id=$1 ORDER BY call_index',[user])).rows
+   assert.deepEqual(rows.map(x=>x.call_index),[1,2,3,4,5]);assert.ok(rows.every(x=>x.status==='known'&&Number(x.settled_cny)>0&&x.workflow_request_id===f.request.requestId))
+   assert.equal((await providerBudgetView()).unknown_or_active_calls,0)
+   assert.equal((await pgWorkflow.run(f.request)).status,'proposed');assert.equal(requests.length-pgStart,5,'durable PG replay sends no extra SDK requests')
+   assert.equal(createProductionWorkflowBudget().snapshot().calls.length,0,'fresh process mirrors do not manufacture receipts or erase authoritative PG rows')
+   assert.equal((await pool.query('SELECT count(*)::int AS n FROM lifeos_provider_spend WHERE user_id=$1',[user])).rows[0].n,5)
+  }finally{config.providerBudgetEnabled=oldBudgetEnabled;config.providerBudgetId=oldBudgetId}
  }finally{model.baseUrl=previousURL;config.apiKey=previousKey;await new Promise<void>(resolve=>fake.close(()=>resolve()))}
 })

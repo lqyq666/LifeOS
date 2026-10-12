@@ -30,14 +30,14 @@ try{
   assert.equal(initial.used,2);assert.equal(initial.reserved,1);assert.equal(initial.remaining,1)
   for(const [id,code] of [[revoked,'ACCESS_NOT_ENABLED'],[expired,'ACCESS_EXPIRED']]){const chat=(await store.listConversations(id!))[0]!.id;await assert.rejects(store.startRun(id!,chat,randomUUID(),'合成权限恢复边界。'),(e:any)=>e.code===code)}
   const financial=await providerBudgetView();assert.equal(Number(financial.accounted_cny),.09);assert.equal(financial.unknown_or_active_calls,2)
-  const statuses=(await pool.query('SELECT status FROM lifeos_provider_spend ORDER BY status')).rows.map(r=>r.status);assert.deepEqual(statuses,['known','not_sent','overrun','reserved','unknown'])
+  const statuses=(await pool.query('SELECT status FROM lifeos_provider_spend WHERE budget_id=ANY($1::text[]) ORDER BY status',[[config.providerBudgetId,paused]])).rows.map(r=>r.status);assert.deepEqual(statuses,['known','not_sent','overrun','reserved','unknown'])
   await assert.rejects(reserve(.011),(e:any)=>e.code==='PROVIDER_BUDGET_EXHAUSTED')
   await assert.rejects(setProviderBudget(config.providerBudgetId,.08),/BUDGET_BELOW_ACCOUNTED_SPEND/)
   config.providerBudgetId=paused;assert.equal((await providerBudgetView()).enabled,false);await assert.rejects(reserve(.001),(e:any)=>e.code==='PROVIDER_BUDGET_NOT_ENABLED');config.providerBudgetId='synthetic-recovery-pool'
   // Delete only this synthetic revoked account in the disposable restored copy.
-  await pool.query('DELETE FROM "user" WHERE id=$1',[revoked]);assert.equal(Number((await providerBudgetView()).accounted_cny),.09);assert.equal((await pool.query('SELECT count(*)::int AS n FROM lifeos_provider_spend')).rows[0].n,5)
-  const unknown=(await pool.query("SELECT id FROM lifeos_provider_spend WHERE status='unknown'")).rows[0].id;await assert.rejects(settleProviderSpend(unknown,0),/PROVIDER_SPEND_ALREADY_SETTLED/)
-  const held=(await pool.query("SELECT id FROM lifeos_provider_spend WHERE status='reserved'")).rows[0].id;await settleProviderSpend(held,.015)
+  await pool.query('DELETE FROM "user" WHERE id=$1',[revoked]);assert.equal(Number((await providerBudgetView()).accounted_cny),.09);assert.equal((await pool.query('SELECT count(*)::int AS n FROM lifeos_provider_spend WHERE budget_id=ANY($1::text[])',[[config.providerBudgetId,paused]])).rows[0].n,5)
+  const unknown=(await pool.query("SELECT id FROM lifeos_provider_spend WHERE budget_id=$1 AND status='unknown'",[config.providerBudgetId])).rows[0].id;await assert.rejects(settleProviderSpend(unknown,0),/PROVIDER_SPEND_ALREADY_SETTLED/)
+  const held=(await pool.query("SELECT id FROM lifeos_provider_spend WHERE budget_id=$1 AND status='reserved'",[config.providerBudgetId])).rows[0].id;await settleProviderSpend(held,.015)
   const next=await reserve(.01);await settleProviderSpend(next,'unknown');assert.equal(Number((await providerBudgetView()).accounted_cny),.075)
   const live=(await pool.query("SELECT request_id,conversation_id FROM runs WHERE user_id=$1 AND status='running'",[user])).rows[0];await store.terminateRun(user,live.request_id,'cancelled','SYNTHETIC_RECOVERY_RELEASE');assert.equal((await entitlementView(user) as any).used,2);assert.equal((await entitlementView(user) as any).remaining,2)
   for(let i=0;i<2;i++){const id=randomUUID(),text='合成恢复后继续输入 '+i,run=(await store.startRun(user,live.conversation_id,id,text)).run;await store.finishRun(run,{candidates:[],audit:[]},'合成恢复后完成。',null,signal);assert.equal((await store.startRun(user,live.conversation_id,id,text)).replay,true)}

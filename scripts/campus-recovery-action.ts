@@ -7,6 +7,7 @@ import {campusView} from '../server/campus.ts'
 import {stageCoachEvent} from '../server/action-coach-events.ts'
 import {importKnowledge} from '../server/campus-knowledge.ts'
 import {campusReferenceCards} from '../server/campus-reference-data.ts'
+import {localEmbedding} from '../server/local-embedding.ts'
 if(!/^lifeos_dialogue_test_/.test(new URL(config.databaseUrl).pathname.slice(1)))throw new Error('ISOLATED_RECOVERY_ONLY')
 try{
   if(process.argv.includes('--seed')){
@@ -37,13 +38,17 @@ try{
     const staged:store.Staged={candidates:[],audit:[],coach}
     await store.stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:text,links:[]})
     const saved=await store.finishRun(run,staged,coach.reply,null,new AbortController().signal)
-    const candidate=saved.candidateIds[0],input={requestId:randomUUID(),expectedRevision:1,action:'confirm' as const}
+    const candidate=saved.candidateIds[0],before=(await pool.query('SELECT revision,status FROM experiences WHERE user_id=$1 AND id=$2',[row.user_id,candidate])).rows[0]
+    assert.ok(before,'the continued reported experience was persisted')
+    assert.equal(before.status,'confirmed','current first-person reports are already confirmed by finishRun')
+    const revisionCount=(await pool.query('SELECT count(*)::int AS n FROM experience_revisions WHERE user_id=$1 AND experience_id=$2',[row.user_id,candidate])).rows[0].n
+    const input={requestId:randomUUID(),expectedRevision:before.revision,action:'confirm' as const}
     const confirmed=await store.experienceAction(row.user_id,candidate,input)
     assert.deepEqual(await store.experienceAction(row.user_id,candidate,input),JSON.parse(JSON.stringify(confirmed)))
-    assert.equal((await pool.query('SELECT count(*)::int AS n FROM experience_revisions WHERE user_id=$1 AND experience_id=$2',[row.user_id,candidate])).rows[0].n,2)
+    assert.equal((await pool.query('SELECT count(*)::int AS n FROM experience_revisions WHERE user_id=$1 AND experience_id=$2',[row.user_id,candidate])).rows[0].n,revisionCount+1)
     assert.ok((await store.cognitionGraph(row.user_id)).nodes.some(node=>node.type==='experience'&&node.id==='exp-'+candidate))
     const unchanged=(await pool.query('SELECT payload,revision FROM campus_inquiries WHERE user_id=$1 AND id=$2',[row.user_id,row.id])).rows[0]
     assert.deepEqual(unchanged.payload,row.payload);assert.equal(unchanged.revision,row.revision)
     console.log(JSON.stringify({legacyReadable:true,legacyUnchanged:true,continuedWrite:true,newCoachEvent:true,confirmed:true,idempotent:true,graphContainsExperience:true}))
   }
-}finally{await pool.end()}
+}finally{await localEmbedding.close();await pool.end()}
