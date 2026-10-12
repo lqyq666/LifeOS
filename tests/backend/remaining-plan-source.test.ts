@@ -23,6 +23,11 @@ test('real course failure regression: current plan rebinds wrong recurring-time 
    {action:'课程：核对当前必须完成的任务与截止，先处理其中最紧要的一项',minutes:minutes/2,directionScopes:[]},
    {action:'备考：沿用当前进度，尝试一个具体题目或步骤并记录受阻处',minutes:minutes/2,directionScopes:[]},
   ]}}
+  if(calls===3){
+   const clauses=ctx.currentUserMessage.clauses as {id:string;text:string}[]
+   Object.assign(output,{growthUpdates:[clauses.find(c=>c.text.includes('每周通常'))!,clauses.find(c=>c.text.includes('六十分钟'))!].map(c=>({target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:c.id}}))})
+   Object.assign(output.weeklyPlan,{budgetRef:{updateIndex:1},basis:[{updateIndex:2}]})
+  }
   const base={id:'synthetic-remaining-source',object:'chat.completion.chunk',created:1,model:model.id}
   res.writeHead(200,{'Content-Type':'text/event-stream'});res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\ndata: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
  })})
@@ -48,6 +53,16 @@ test('real course failure regression: current plan rebinds wrong recurring-time 
   const result2=await createTurnEngine({capabilityVerified:()=>true})(input2),saved2=await store.finishRun(run2,input2.staged,result2.text,result2.usage,input2.signal)
   const items2=await growthContext(user,secondChat),plan2=items2.find(item=>item.id===saved2.stateChange.plan?.itemId)!.structuredPlan! as {availableMinutes:number;budgetRef:{id:string}}
   assert.equal(plan2.availableMinutes,60);assert.ok(items2.find(i=>i.id===plan2.budgetRef.id)!.text.includes('六十分钟'));assert.equal(calls,2)
+  const user3='saved-budget-'+randomUUID(),chat3=randomUUID()
+  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user3,user3+'@example.invalid'])
+  await setMemorySettings(user3,{requestId:randomUUID(),enabled:true,expectedRevision:0});await store.createConversation(user3,{id:chat3,title:'SYNTHETIC existing staged budget'})
+  const run3=(await store.startRun(user3,chat3,randomUUID(),'我是成年人，目前在大学读书，每周通常能投入六小时，这周还剩六十分钟。帮我安排课程作业与考试复习。')).run
+  const input3={run:run3,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(run3),decision:null,signal:new AbortController().signal,emit:()=>{}}
+  const result3=await createTurnEngine({capabilityVerified:()=>true})(input3),saved3=await store.finishRun(run3,input3.staged,result3.text,result3.usage,input3.signal)
+  const items3=await growthContext(user3,chat3),plan3=items3.find(i=>i.id===saved3.stateChange.plan?.itemId)!.structuredPlan! as {availableMinutes:number;budgetRef:{id:string};basis:{id:string}[]}
+  assert.equal(plan3.availableMinutes,60);assert.ok(items3.find(i=>i.id===plan3.budgetRef.id)!.text.includes('六十分钟'))
+  assert.deepEqual(plan3.basis,[plan3.budgetRef],'an unresolved auxiliary array position binds only the verified current budget, without inventing another fact')
+  assert.equal(calls,3,'the binding repair needs no additional generation')
  }finally{
   model.baseUrl=previousURL;config.apiKey=previousKey;fake.closeAllConnections();await new Promise<void>(r=>fake.close(()=>r()))
  }

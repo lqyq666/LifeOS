@@ -768,8 +768,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
             if(chosen!==null){staged.audit.push({phase:'plan_budget_source_rebound',fromUpdateIndex:original,toUpdateIndex:chosen,providerCalls:0});return {updateIndex:chosen}}
             return ref
           }
-          const chosen=preferBudget?pickBudgetOriginal():(syntheticOriginals.at(-1)??null)
-          if(chosen!==null)return {updateIndex:chosen}
+          // A correctly staged budget needs no server supplement. An invalid
+          // auxiliary position still binds to that verified budget instead of
+          // depending on whether the model happened to omit the time fact.
+          const chosen=pickBudgetOriginal()??(!preferBudget?syntheticOriginals.at(-1)??null:null)
+          if(chosen!==null){staged.audit.push({phase:'plan_missing_reference_bound_to_budget',fromUpdateIndex:original,toUpdateIndex:chosen,budget:preferBudget,providerCalls:0});return {updateIndex:chosen}}
           const fallback=authorizedBudget()
           if(fallback)return fallback
         }
