@@ -1,0 +1,43 @@
+{
+  "kind": "EXPOSED_FIVE_TURN_REFUSAL_REGRESSION",
+  "hypothesis": "An owned task intent stored as feedback must enter durable stop confirmation without fabricating a goal",
+  "originalFailureRetained": true,
+  "acceptanceScope": "Small real regression only, not holdout or student acceptance",
+  "cases": [
+    {
+      "caseId": "R17_REFUSAL_COURSE_1",
+      "group": "course",
+      "session": 0,
+      "input": "我是成年人，目前在大学读书，每周通常能投入六小时，这周还剩六十分钟。帮我安排课程作业与考试复习。",
+      "expected": "Nonempty proposed plan at most sixty minutes, current-week sixty-minute basis; separate recurring six hours; no execution claim."
+    },
+    {
+      "caseId": "R17_REFUSAL_COURSE_2",
+      "group": "course",
+      "session": 0,
+      "input": "我愿意先试整理未完成的作业题，这只是愿意尝试，我还没开始。",
+      "expected": "Adoption without execution; current event and budget retained."
+    },
+    {
+      "caseId": "R17_REFUSAL_COURSE_3",
+      "group": "course",
+      "session": 1,
+      "input": "接着聊作业。我已经把未完成的题列出来了，但第九题不会做。",
+      "expected": "Own actual progress and blocker persist, not generic restart."
+    },
+    {
+      "caseId": "R17_REFUSAL_COURSE_4",
+      "group": "course",
+      "session": 1,
+      "input": "这周剩余时间改成三十分钟。考试复习这周先停一下，我想先处理作业第九题。",
+      "expected": "Corrected remaining budget, explicitly week-scoped pause; global exam direction unchanged; no invented task binding."
+    },
+    {
+      "caseId": "R17_REFUSAL_COURSE_5",
+      "group": "course",
+      "session": 2,
+      "input": "之前那件作业的事我暂时不打算继续做，别再给它安排任务了。",
+      "expected": "Correct target stop or pending confirmation retained across sessions; no goal overwrite."
+    }
+  ]
+}
