@@ -18,13 +18,19 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
   await localEmbedding.start()
   const user='p2-corr-'+randomUUID()
   const outputs:unknown[]=[],requests:any[]=[]
-  const engine=createTurnEngine({capabilityVerified:()=>true})
+  // These specific guard cases exercise an explicitly permitted simulated
+  // repair. Production and real acceptance do not opt into paid retries.
+  const engine=createTurnEngine({capabilityVerified:()=>true,providerCallObserver:{allowRepair:true,before:()=>{},after:()=>{}}})
   const fake=createServer((req,res)=>{
     const chunks:Buffer[]=[];req.on('data',chunk=>chunks.push(Buffer.from(chunk)))
     req.on('end',()=>{
       requests.push(JSON.parse(Buffer.concat(chunks).toString('utf8')))
       const output=outputs.shift()
       if(output===undefined){res.writeHead(500);res.end();return}
+      if(output&&typeof output==='object'&&'reply'in output&&output.reply==='__BOUND_REPLY__'){
+        const context=JSON.parse(requests.at(-1).messages[1].content)
+        output.reply=context.boundedReply?.choices[0]??'可以先核对可用时间和当前任务。'
+      }
       const content=typeof output==='string'?output:JSON.stringify(output)
       res.writeHead(200,{'Content-Type':'text/event-stream'})
       const base={id:'p2-synth-'+requests.length,object:'chat.completion.chunk',created:1,model:model.id}
@@ -33,9 +39,10 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
     })
   })
   await new Promise<void>(resolve=>fake.listen(0,'127.0.0.1',resolve))
-  const previousURL=model.baseUrl,previousKey=config.apiKey
+  const previousURL=model.baseUrl,previousKey=config.apiKey,previousReasoning={...config.modelTiers.reasoning}
   model.baseUrl='http://127.0.0.1:'+(fake.address() as {port:number}).port
   config.apiKey='synthetic-p2-local-provider-key'
+  config.modelTiers.reasoning.baseUrl=model.baseUrl!;config.modelTiers.reasoning.apiKey=config.apiKey
   await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
   const conversation=randomUUID()
   await store.createConversation(user,{id:conversation,title:'SYNTHETIC P2 corrections'})
@@ -114,21 +121,24 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
       // repair states honestly that the correction is NOT yet applied.
       const t2=await prepare('那你现在怎么理解我的年级？')
       const beforeReq=requests.length
-      outputs.push({reply:'你的宿舍已经更正为西区了。'},{reply:'更正还没有成功保存：当前记录仍是东区宿舍。请再说一遍"我住在西区宿舍"，我这次直接更新。'})
-      const result=await engine(t2)
-      assert.ok(requests.length-beforeReq>=2,'one bounded repair fired')
-      assert.ok(!/(?:已更正|更正为|已经把.{0,10}更正)/.test(result.text),'final reply does not claim a committed correction')
+      outputs.push({reply:'你的宿舍已经更正为西区了。'})
+      await assert.rejects(engine(t2),(e:any)=>e.code==='BOUNDED_REPLY_INVALID','the current selector cannot express a fabricated successful correction')
+      assert.equal(requests.length-beforeReq,1,'an invalid bounded choice is refused without repair')
+      await store.terminateRun(user,t2.run.request_id,'failed','SYNTHETIC_UNCOMMITTED_CORRECTION_CLAIM')
+      const t3=await prepare('那你现在怎么理解我的年级？');outputs.push({reply:'__BOUND_REPLY__'})
+      const result=await engine(t3)
+      assert.ok(!/(?:已更正|更正为|已经把.{0,10}更正)/.test(result.text),'a legal answer never claims the failed correction was committed')
       const items=await growthContext(user,conversation)
       assert.ok(items.some(item=>item.text.includes('我住在东区宿舍')),'old fact still active (honest state)')
 
-      await store.finishRun(t2.run,t2.staged,result.text,result.usage,t2.signal)
+      await store.finishRun(t3.run,t3.staged,result.text,result.usage,t3.signal)
     })
     await t.test('B05: a next-week plan binds the supplement fact when the model budget delta was invalid',async()=>{
       const input=await prepare('我每周有六小时。这周还剩两小时，帮我安排下周。')
       // The model misses the budget fact entirely (a junk quote is
       // unrepresentable under the clause protocol) but plans correctly for
       // next week with 360 minutes; the supplement anchors the budget.
-      outputs.push({reply:'下周按你常规的每周六小时安排如下。',weeklyPlan:{target:{operation:'create'},availableMinutes:360,period:'next_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品集',minutes:180,directionScopes:['employment']},{action:'投两个岗位',minutes:180,directionScopes:['employment']}]}})
+      outputs.push({reply:'__BOUND_REPLY__',weeklyPlan:{target:{operation:'create'},availableMinutes:360,period:'next_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品集',minutes:180,directionScopes:['employment']},{action:'投两个岗位',minutes:180,directionScopes:['employment']}]}})
       const result=await engine(input)
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       assert.ok(saved.stateChange.plan,'plan persisted')
@@ -144,7 +154,7 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
       // A this-week remainder (120 min) can never anchor a "weekly" plan of
       // 180 minutes, and the rendered label names the budget's own window.
       const t9=await prepare('这周只剩两小时，帮我安排一下。')
-      outputs.push({reply:'按本周剩余时间安排。',weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品',minutes:120,directionScopes:['employment']}]}})
+      outputs.push({reply:'__BOUND_REPLY__',weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品',minutes:120,directionScopes:['employment']}]}})
       const result=await engine(t9)
       const saved=await store.finishRun(t9.run,t9.staged,result.text,result.usage,t9.signal)
       assert.ok(saved.stateChange.plan,'plan persisted with the week-scoped budget')
@@ -152,13 +162,17 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
       assert.ok(planText.includes('本周剩余'),'label names the budget window, not 每周')
       // A same-numbered fact from ANOTHER window never satisfies a next-week plan.
       const t10=await prepare('下周帮我安排。')
-      outputs.push({reply:'下周安排。',weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'next_week',budgetRef:{id:saved.stateChange.growth.changedIds[0]??saved.stateChange.growth.createdIds.at(-1),revision:1},basis:[{id:saved.stateChange.growth.changedIds[0]??saved.stateChange.growth.createdIds.at(-1),revision:1}],items:[{action:'投递',minutes:120,directionScopes:['employment']}]}})
+      const wrongWindowRef=(await pool.query('SELECT structured_plan FROM growth_items WHERE user_id=$1 AND id=$2',[user,saved.stateChange.plan!.itemId])).rows[0].structured_plan.budgetRef
+      outputs.push({reply:'__BOUND_REPLY__',weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'next_week',budgetRef:wrongWindowRef,basis:[wrongWindowRef],items:[{action:'投递',minutes:120,directionScopes:['employment']}]}})
       const r10=await engine(t10)
+      // Fault injection at the persist seam: the engine may legitimately
+      // repair its source, but the transaction must still reject a bad window.
+      Object.assign(t10.staged.weeklyPlan!.input,{availableMinutes:120,period:'next_week',budgetRef:wrongWindowRef,basis:[wrongWindowRef]})
       await assert.rejects(store.finishRun(t10.run,t10.staged,r10.text,r10.usage,t10.signal),(e:any)=>e.code==='WEEKLY_PLAN_BUDGET_MISMATCH')
       await store.terminateRun(user,t10.run.request_id,'failed','SYNTHETIC_P3_F06')
     })
   }finally{
-    model.baseUrl=previousURL;config.apiKey=previousKey
+    model.baseUrl=previousURL;config.apiKey=previousKey;Object.assign(config.modelTiers.reasoning,previousReasoning)
     await new Promise<void>(done=>fake.close(()=>done()))
     await pool.query('DELETE FROM growth_source_suppressions WHERE user_id=$1',[user])
     await pool.query('DELETE FROM growth_item_lineage WHERE user_id=$1',[user])
