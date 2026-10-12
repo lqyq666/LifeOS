@@ -1,28 +1,25 @@
 import { betterAuth, type BetterAuthOptions } from 'better-auth'
+import { APIError, createAuthMiddleware } from 'better-auth/api'
 import { pool } from './db.ts'
 import { config } from './config.ts'
-
-// 重置令牌暂存：邮件服务未接入前由 /api/auth/pending-reset 取回。
-// 接入 Resend 等服务后改为发邮件并删除该表与 companion 端点。
-const pendingResets = new Map<string, { token: string; url: string; at: number }>()
-export function getPendingReset(email: string) {
-  const entry = pendingResets.get(email.toLowerCase())
-  if (!entry || Date.now() - entry.at > 10 * 60 * 1000) return null
-  return entry
-}
+import { queuePasswordResetMail } from './password-reset-mail.ts'
 
 export const authOptions = {
   database: pool, secret: config.authSecret, baseURL: config.origin, trustedOrigins: [config.origin],
   emailAndPassword: {
-    enabled: true, minPasswordLength: 12, disableSignUp: !config.signupEnabled,
-    sendResetPassword: async ({ user, url }: { user: { email: string }, url: string }) => {
-      const token = url.match(/\/reset-password\/([^?]+)/)?.[1] ?? ''
-      pendingResets.set(user.email.toLowerCase(), { token, url, at: Date.now() })
-    },
+    enabled: true, minPasswordLength: 12, maxPasswordLength:128, disableSignUp: !config.signupEnabled,
+    resetPasswordTokenExpiresIn:15*60,revokeSessionsOnPasswordReset:true,
+    sendResetPassword:queuePasswordResetMail,
+    onPasswordReset:async({user})=>{await pool.query('DELETE FROM "verification" WHERE value=$1 AND identifier LIKE $2',[user.id,'reset-password:%'])},
   },
   session: { expiresIn: 60 * 60 * 24 * 7 },
-  rateLimit: { enabled: true, window: 60, max: 30, storage: 'database' },
+  rateLimit: { enabled: true, window: 60, max: 30, storage: 'database', customRules:{'/request-password-reset':{window:60,max:3},'/reset-password':{window:60,max:5}} },
   telemetry: { enabled: false },
+  logger:{level:'error'},
+  hooks:{before:createAuthMiddleware(async ctx=>{
+    const redirect=ctx.path==='/request-password-reset'?ctx.body?.redirectTo:ctx.path.startsWith('/reset-password/')?ctx.query?.callbackURL:undefined
+    if(redirect!==undefined&&redirect!==config.origin+'/#reset')throw new APIError('FORBIDDEN',{code:'RESET_REDIRECT_INVALID',message:'Invalid password recovery redirect'})
+  })},
   advanced: { useSecureCookies: config.production, ipAddress: { ipAddressHeaders: ['x-lifeos-client-ip'] } },
 } satisfies BetterAuthOptions
 export const auth = betterAuth(authOptions)

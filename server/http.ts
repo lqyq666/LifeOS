@@ -7,8 +7,8 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { readFileSync, existsSync } from 'node:fs'
 import { resolve, extname, sep } from 'node:path'
 import { toNodeHandler, fromNodeHeaders } from 'better-auth/node'
-import { auth, getPendingReset } from './auth.ts'
-import { config, credentialReady } from './config.ts'
+import { auth } from './auth.ts'
+import { config, credentialReady, mailConfigured } from './config.ts'
 import { model, modelCapabilityVerified, availableModelTiers } from './model.ts'
 import { pool, HttpError } from './db.ts'
 import { runAgent, type Engine } from './agent.ts'
@@ -56,30 +56,20 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHos
   const server=createServer(async(req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff')
     res.setHeader('X-Frame-Options','DENY')
-    res.setHeader('Referrer-Policy','same-origin')
+    res.setHeader('Referrer-Policy','no-referrer')
     if(config.production)res.setHeader('Strict-Transport-Security','max-age=31536000')
     // Overwrite the private header using the socket; clients cannot choose their rate-limit bucket.
     req.headers['x-lifeos-client-ip']=clientIP(req.socket.remoteAddress??'unknown',typeof req.headers['x-real-ip']==='string'?req.headers['x-real-ip']:undefined)
     try{
       const url=new URL(req.url??'/',config.origin), path=url.pathname, method=req.method??'GET'
-      if(path==='/api/access-policy'&&method==='GET'){json(res,200,{signupEnabled:config.signupEnabled,passwordResetEnabled:!config.production});return}
+      if(path==='/api/access-policy'&&method==='GET'){json(res,200,{signupEnabled:config.signupEnabled,passwordResetEnabled:mailConfigured()});return}
       if(path==='/api/health'&&method==='GET'){await pool.query('SELECT 1');json(res,200,{database:'postgresql',model:model.id,modelTiers:availableModelTiers(),capabilitiesVerified:modelReady(),provider:await modelState(),providerCheckedByHealth:false});return}
       if(path==='/api/ready'&&method==='GET'){await pool.query('SELECT id FROM lifeos_model_state WHERE id=1');const ready=!shuttingDown&&localEmbedding.healthy;json(res,ready?200:503,{ready,scope:'application-database-and-offline-embedding',embedding:{ready:localEmbedding.healthy,offline:true},modelLiveVerified:false});return}
       if(shuttingDown)throw new HttpError(503,'SERVER_SHUTTING_DOWN',10)
       if(!['GET','HEAD'].includes(method)&&req.headers.origin!==config.origin)throw new HttpError(403,'ORIGIN_REJECTED')
       if(Number(req.headers['content-length']??0)>65536)throw new HttpError(413,'REQUEST_TOO_LARGE')
-      if(path==='/api/auth/pending-reset'&&method==='GET'){
-        // A reset token grants account access. The development companion
-        // must never expose it on the production public server.
-        if(config.production)throw new HttpError(404,'NOT_FOUND')
-        // 邮件服务未接入：重置令牌暂存后由此取回。接入邮件后删除此端点。
-        const email=String(url.searchParams.get('email')??'').toLowerCase()
-        if(!email){json(res,400,{error:'EMAIL_REQUIRED'});return}
-        const pending=getPendingReset(email)
-        json(res,200,pending?{token:pending.token,at:pending.at}:{token:null})
-        return
-      }
-      if(path==='/api/auth/request-password-reset'&&config.production)throw new HttpError(503,'PASSWORD_RESET_UNAVAILABLE')
+      if(path==='/api/auth/pending-reset')throw new HttpError(404,'NOT_FOUND')
+      if(path==='/api/auth/request-password-reset'&&!mailConfigured())throw new HttpError(503,'PASSWORD_RESET_UNAVAILABLE')
       if(path.startsWith('/api/auth/')){await authHandler(req,res);return}
       if(path.startsWith('/api/')){
         // P4 G0: unauthenticated runtime fingerprint (no secrets) for host/skill verification.

@@ -32,7 +32,8 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
   const [graphError, setGraphError] = useState<string | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem('lifeos-onboarded'))
   const [showStarmapDemo, setShowStarmapDemo] = useState(false)
-  const [authMode, setAuthMode] = useState<AuthMode | null>(() => window.location.hash === '#signup' ? 'signup' : window.location.hash === '#login' ? 'welcome' : null)
+  const [authMode, setAuthMode] = useState<AuthMode | null>(() => window.location.hash.split('?')[0] === '#reset' ? 'reset' : window.location.hash === '#signup' ? 'signup' : window.location.hash === '#login' ? 'welcome' : null)
+  const [authNavigation,setAuthNavigation]=useState(0)
   const sessionRefresh = useRef<(() => Promise<void>) | null>(null)
   const authReturn = useRef<{ snapshot: Snapshot; navigation: Snapshot[]; conversation: boolean; url: string; trigger: HTMLElement | null; onDone?: () => Promise<void> } | null>(null)
   const [controller] = useState(() => new CognitionController())
@@ -130,6 +131,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
   useEffect(() => {
     const changed = () => {
       controller.stop()
+      if(window.location.hash.split('?')[0]==='#reset'){setAuthMode('reset');setAuthNavigation(value=>value+1)}
       const open = window.location.hash === '#conversation'
       if (open) setConversationVisited(true)
       setConversationOpen(open)
@@ -181,7 +183,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     return () => query.removeEventListener('change', changed)
   }, [])
 
-  if (graphError) {
+  if (graphError&&!authMode) {
     return <div className="campus-page is-cognition"><div className="scene-error" role="alert"><h2>星图暂时没能加载</h2><p>{graphError}这里不会用演示数据冒充你的档案。</p><button type="button" onClick={() => { setGraphError(null); window.dispatchEvent(new CustomEvent('lifeos-data-changed')) }}>重试加载</button></div></div>
   }
   return <div className={`campus-page ${landing ? 'is-landing' : 'is-cognition'}`} data-mode={view.mode}>
@@ -243,6 +245,6 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     {themePanelOpen && view.focusValueId?.startsWith('theme-') && <ThemePanel themeNodeId={view.focusValueId} onClose={() => setThemePanelOpen(false)} />}
     {!landing && view.mode !== 'EXPERIENCE_DETAIL' && <div className="timeaxis-wrap"><TimeAxis events={liveGraph.data.changeEvents ?? []} nextStep={liveGraph.data.starmapNextStep} onJumpChat={openConversation} /></div>}
     {conversationVisited && <ConversationPage open={conversationOpen} onClose={closeConversation} onRequestAuth={onDone => openAuth('login', onDone)} sessionRefresh={sessionRefresh} />}
-    {authMode && <AuthForm mode={authMode} onModeChange={changeAuthMode} onDone={completeAuth} onCancel={cancelAuth} />}
+    {authMode && <AuthForm key={authNavigation} mode={authMode} onModeChange={changeAuthMode} onDone={completeAuth} onCancel={cancelAuth} />}
   </div>
 }

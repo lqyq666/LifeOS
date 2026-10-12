@@ -4,6 +4,7 @@ import { createApp, modelReady } from './http.ts'
 import { pool } from './db.ts'
 import { config, validateConfig } from './config.ts'
 import { verifySchema } from './schema.ts'
+import {drainPasswordResetMail} from './password-reset-mail.ts'
 validateConfig()
 const owner=await pool.connect()
 try{
@@ -19,7 +20,7 @@ let stopping=false
 async function stop(){
   if(stopping)return;stopping=true
   const deadline=setTimeout(()=>{app.closeAllConnections();process.exit(1)},15000);deadline.unref()
-  try{const draining=app.drain();const indexingStopped=stopIndexing();await localEmbedding.close();await indexingStopped;await draining;await new Promise<void>(resolve=>app.close(()=>resolve()));owner.release();await pool.end();clearTimeout(deadline)}catch{console.error('SHUTDOWN_FAILED');process.exitCode=1}
+  try{const draining=app.drain();const indexingStopped=stopIndexing();await localEmbedding.close();await indexingStopped;await draining;await new Promise<void>(resolve=>app.close(()=>resolve()));await drainPasswordResetMail();owner.release();await pool.end();clearTimeout(deadline)}catch{console.error('SHUTDOWN_FAILED');process.exitCode=1}
 }
 owner.on('error',()=>{console.error('INSTANCE_LOCK_CONNECTION_LOST');void stop()})
 app.on('error',()=>{console.error('SERVER_LISTEN_FAILED');process.exitCode=1;void stop()})

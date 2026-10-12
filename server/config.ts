@@ -50,6 +50,14 @@ export const config = {
   providerBudgetId: env.LIFEOS_PROVIDER_BUDGET_ID??'production',
   entitlementsEnabled: env.LIFEOS_ENTITLEMENTS_ENABLED==='true'||(production&&env.LIFEOS_ENTITLEMENTS_ENABLED!=='false'),
   signupEnabled: env.LIFEOS_SIGNUP_ENABLED === 'true' || (!production&&env.LIFEOS_SIGNUP_ENABLED!=='false'),
+  mail: {
+    enabled: env.LIFEOS_PASSWORD_RESET_ENABLED === 'true',
+    host: env.LIFEOS_SMTP_HOST?.trim() ?? '',
+    port: Number(env.LIFEOS_SMTP_PORT ?? 465),
+    user: env.LIFEOS_SMTP_USER?.trim() ?? '',
+    password: env.LIFEOS_SMTP_PASSWORD ?? '',
+    from: env.LIFEOS_MAIL_FROM?.trim() ?? '',
+  },
   trustedProxy: env.LIFEOS_TRUSTED_PROXY ?? '',
   messagesPerMinute: Number(env.LIFEOS_MESSAGES_PER_MINUTE ?? 3),
   messagesPerDay: Number(env.LIFEOS_MESSAGES_PER_DAY ?? 50),
@@ -73,5 +81,10 @@ export function validateConfig(){
   if(config.production&&!config.providerBudgetEnabled)throw new Error('Production requires provider spend reservations')
   if(config.production&&!config.entitlementsEnabled)throw new Error('Production requires account entitlements')
   if(config.production&&!credentialReady())throw new Error('Server model credential is required')
+  if(config.mail.enabled&&!mailConfigured())throw new Error('Password recovery requires a complete SMTP configuration')
+}
+export function mailConfigured() {
+  const m=config.mail
+  return m.enabled&&!!m.host&&!!m.user&&!!m.password&&/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(m.from)&&![m.host,m.user,m.password,m.from].some(v=>/[\r\n]/.test(v))&&Number.isInteger(m.port)&&m.port>0&&m.port<=65535
 }
 export function credentialReady() { return /^[\x21-\x7e]{20,200}$/.test(config.apiKey) }

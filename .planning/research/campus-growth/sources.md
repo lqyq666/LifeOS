@@ -110,3 +110,16 @@ P6/P7 无新依赖：双分母/ReviewRow/速度口径复用现有 scripts 结构
 ## 2026-10-11 百炼结构化工作流兼容修复
 
 原始官方文档 https://help.aliyun.com/en/model-studio/qwen-structured-output 的Supported JSON Schema keywords明确uniqueItems不支持且会返回400。Jina Reader401保留，实际原文经web工具与直接公开GET读回，完整HTML哈希见COMPLEX_SMALL_2b1020c_REVIEW。复用现有TypeBox、providerSchema编译器、Pi SDK 0.73.1及唯一账本；不迁入另一框架、不新增依赖。仅在wire省略该关键词，服务端唯一性校验保留；actual loopback SDK检查真正请求与恶意重复返回，17项通过。新failureCode仅枚举不导出原错误/Key。首次真实失败具体响应未知，不把官方原因反推为已观察HTTP400。
+# 邮箱找回密码局部复用（2026-10-12）
+
+复用已安装 Better Auth 1.7.7 的 request-password-reset/reset-password、15 分钟令牌、
+原子单次消费与会话撤销，不自建认证/令牌解析器。
+通过 agent-reach 的 GitHub CLI 核对 nodemailer/nodemailer 的实际 package.json、
+维护状态、10.1.0 版本与 MIT-0 LICENSE，复用 SMTP/TLS/编码，省去自研协议层。
+隔离协议验收使用同维护者 nodemailer/smtp-server 3.19.21（MIT-0、仅开发依赖）。
+正式接口和配置依据 https://nodemailer.com/smtp 与
+https://better-auth.com/docs/authentication/email-password 。
+服务使用 https://resend.com/pricing 的长期 Free，登录控制台已核实每月 3,000/每日 100，
+付费超额关闭；SMTP 依据 https://resend.com/docs/send-with-smtp 。本应用的持久预留限额
+收紧为滚动 24h 80/31d 900，失败与未知继续占用额度，不自动重发。域名和发送专用
+密钥范围由本次直接人类答复专项批准，完整流程、真实/本地证据边界见 docs/password-recovery.md。
