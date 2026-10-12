@@ -33,6 +33,7 @@ export const taskActionSchema=Type.Object({requestId:id,conversationId:id,kind:T
 const resumeTaskSchema=Type.Object({conversationId:id,currentMessageId:id},{additionalProperties:false})
 const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex')
 export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:boolean;comparisonMode?:()=>'single'|'multi'}={}){
+ if(config.production&&options.comparisonMode)throw new WorkflowError('scope_denied')
  const durableJournal=postgresJournal(),methodRefs=new Map<string,{sourceId:string;revision:number}[]>(),methodReader=workflowMethodReader()
  const readMethods=async(r:WorkflowRequest)=>{const methods=await methodReader(r);methodRefs.set(r.internalActorKey+':'+r.requestId,methods.map(m=>({sourceId:m.id as string,revision:m.revision as number})));return methods}
  const journal={...durableJournal,async finish(r:WorkflowRequest,receipt:WorkflowReceipt){receipt.adoptionVersionDigest=r.hostSnapshot?.adoptionVersionDigest;if(receipt.status==='proposed'){receipt.methodRefs=methodRefs.get(r.internalActorKey+':'+r.requestId)??[];await transaction(c=>assertCoachKnowledge(c,receipt.methodRefs!))}const persisted=await durableJournal.finish(r,receipt);methodRefs.delete(r.internalActorKey+':'+r.requestId);return persisted}},scheduler=new RequestScheduler(config.generationConcurrency,config.generationQueueLimit),active=new Map<string,AbortController>()

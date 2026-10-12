@@ -4,8 +4,15 @@ import {fixture} from '../workflows/fixtures.ts'
 import {createRuntimeDecisionAdapter} from '../../server/workflows/provider-adapter.ts'
 import {resolveModel} from '../../server/model.ts'
 import {pool} from '../../server/db.ts'
+import {config} from '../../server/config.ts'
+import {createWorkflowHost} from '../../server/workflows/task-host.ts'
 
 test.after(()=>pool.end())
+test('public production host cannot inject the private single-arm comparison switch',()=>{
+ const previous=config.production;config.production=true
+ try{assert.throws(()=>createWorkflowHost({comparisonMode:()=> 'single'}),error=>(error as any).code==='scope_denied')}
+ finally{config.production=previous}
+})
 test('synthetic selection observation rejects real-account graphs before reads, holds or dispatch',async()=>{
  const f=fixture();f.request.synthetic=false
  let reads=0,holds=0,observed=0
