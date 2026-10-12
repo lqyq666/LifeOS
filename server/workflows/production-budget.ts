@@ -30,7 +30,11 @@ export function createProductionWorkflowBudget():WorkflowProviderBudget{
    }catch(error){
     // No SDK node starts until prepareGraph returns. These partial reservations
     // are provably not dispatched; existing unknown/started calls are untouched.
-    for(const row of reserved)await settleProviderSpend(row.spendId,0,true)
+    const cleanupErrors:unknown[]=[]
+    for(const row of reserved){
+     try{await settleProviderSpend(row.spendId,0,true)}catch(cleanupError){cleanupErrors.push(cleanupError)}
+    }
+    if(cleanupErrors.length)throw new AggregateError([error,...cleanupErrors],'WORKFLOW_RESERVATION_CLEANUP_FAILED',{cause:error})
     throw error
    }
    for(const row of reserved)calls.set(row.receipt.callId,row)
