@@ -28,7 +28,7 @@ services:
         LIFEOS_BUILD_COMMIT: ${LIFEOS_BUILD_COMMIT:?Set the exact source commit before building}
     restart: unless-stopped
     init: true
-    stop_grace_period: 20s
+    stop_grace_period: 40s
     depends_on:
       db: {condition: service_healthy}
     environment:

@@ -2,11 +2,18 @@ import nodemailer from 'nodemailer'
 import { createHmac, randomUUID } from 'node:crypto'
 import { config, mailConfigured } from './config.ts'
 import { pool } from './db.ts'
+import {RequestScheduler} from './request-scheduler.ts'
 
 export const passwordResetMailLimits={daily:80,monthly:900,perRecipientHourly:3,cooldownSeconds:60} as const
 const pendingDeliveries=new Set<Promise<void>>()
+const deliveryScheduler=new RequestScheduler(2,80)
+const stopping=new AbortController()
 export function queuePasswordResetMail(input:{user:{email:string};url:string}):Promise<void>{
-  const delivery=sendPasswordResetMail(input).catch(()=>{console.warn('PASSWORD_RESET_MAIL_DELIVERY_UNCONFIRMED')})
+  const delivery=(async()=>{
+    const recipient=createHmac('sha256',config.authSecret).update(input.user.email.trim().toLowerCase()).digest('hex')
+    const release=await deliveryScheduler.acquire(recipient,stopping.signal)
+    try{await sendPasswordResetMail(input)}finally{release()}
+  })().catch(()=>{console.warn('PASSWORD_RESET_MAIL_DELIVERY_UNCONFIRMED')})
   pendingDeliveries.add(delivery)
   void delivery.then(()=>pendingDeliveries.delete(delivery))
   // Existing and absent accounts receive the same response without waiting for
@@ -14,6 +21,7 @@ export function queuePasswordResetMail(input:{user:{email:string};url:string}):P
   return Promise.resolve()
 }
 export async function drainPasswordResetMail(){await Promise.allSettled([...pendingDeliveries])}
+export async function stopPasswordResetMail(){stopping.abort('PASSWORD_RESET_MAIL_STOPPING');await drainPasswordResetMail()}
 
 async function reserve(email:string) {
   const recipientHash=createHmac('sha256',config.authSecret).update(email.trim().toLowerCase()).digest('hex')

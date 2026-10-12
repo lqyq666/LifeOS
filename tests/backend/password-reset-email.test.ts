@@ -5,13 +5,14 @@ import { SMTPServer } from 'smtp-server'
 import { config } from '../../server/config.ts'
 import { createApp } from '../../server/http.ts'
 import { pool } from '../../server/db.ts'
-import { sendPasswordResetMail,passwordResetMailLimits,drainPasswordResetMail } from '../../server/password-reset-mail.ts'
+import { sendPasswordResetMail,passwordResetMailLimits,drainPasswordResetMail,queuePasswordResetMail } from '../../server/password-reset-mail.ts'
 
 test('emailed link resets exactly once, expires, and revokes old sessions without exposing tokens',async()=>{
   const original={...config.mail},messages:string[]=[]
+  let activeMessages=0,peakMessages=0
   const smtp=new SMTPServer({disabledCommands:['STARTTLS'],logger:false,
     onAuth(_auth,_session,cb){cb(null,{user:'synthetic'})},
-    onData(stream,_session,cb){let data='';stream.on('data',chunk=>{data+=chunk.toString()});stream.on('end',()=>{messages.push(data);cb()})},
+    onData(stream,_session,cb){activeMessages++;peakMessages=Math.max(peakMessages,activeMessages);let data='';stream.on('data',chunk=>{data+=chunk.toString()});stream.on('end',()=>{setTimeout(()=>{messages.push(data);activeMessages--;cb()},30)})},
   })
   await new Promise<void>(r=>smtp.listen(0,'127.0.0.1',r))
   // SMTPServer's public underlying net.Server supplies the ephemeral port.
@@ -76,10 +77,16 @@ test('emailed link resets exactly once, expires, and revokes old sessions withou
     await sendPasswordResetMail({user:{email:cappedEmail},url:dummyURL})
     assert.equal(messages.length,before+1)
     assert.equal((await pool.query('SELECT count(*)::int AS n FROM lifeos_password_reset_deliveries WHERE created_at>now()-interval \'60 seconds\'')).rows[0].n,2)
+    const beforeQueue=messages.length
+    await Promise.all(Array.from({length:8},(_,i)=>queuePasswordResetMail({user:{email:'queued-'+i+'@example.invalid'},url:dummyURL})))
+    await drainPasswordResetMail()
+    assert.equal(messages.length,beforeQueue+8)
+    assert.ok(peakMessages<=2,'public recovery callback cannot open 80 concurrent SMTP sends')
     const {rows:[count]}=await pool.query('SELECT count(*)::int AS n FROM lifeos_password_reset_deliveries')
     await pool.query("INSERT INTO lifeos_password_reset_deliveries(id,recipient_hash,status) SELECT gen_random_uuid(),repeat('0',64),'unknown' FROM generate_series(1,$1)",[passwordResetMailLimits.daily-1-count.n])
     const beforeCap=messages.length
-    await Promise.all(Array.from({length:8},(_,i)=>sendPasswordResetMail({user:{email:'concurrent-'+i+'@example.invalid'},url:dummyURL})))
+    await Promise.all(Array.from({length:8},(_,i)=>queuePasswordResetMail({user:{email:'concurrent-'+i+'@example.invalid'},url:dummyURL})))
+    await drainPasswordResetMail()
     assert.equal(messages.length,beforeCap+1)
     assert.equal((await pool.query('SELECT count(*)::int AS n FROM lifeos_password_reset_deliveries')).rows[0].n,passwordResetMailLimits.daily)
     // Restart-equivalent retries still see the PG hold and dispatch nothing.
