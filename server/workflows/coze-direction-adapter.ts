@@ -35,6 +35,8 @@ export function parseCozeDirectionReceipt(body:unknown,r:WorkflowRequest,records
  if(reviewed.alternatives.length>3||reviewed.nextActions.length>48)throw new WorkflowError('invalid_contract')
  const checked={hypotheses:[],alternatives:reviewed.alternatives.map((a:unknown)=>parseProposal({...proposal,alternatives:[a],nextActions:[],hypotheses:[]}).alternatives[0]),nextActions:reviewed.nextActions.map((a:unknown)=>parseProposal({...proposal,alternatives:[],nextActions:[a],hypotheses:[]}).nextActions[0])}
  validateReviewedFields(proposal,checked)
+ if(proposal.actionSelection==='reviewed_priority'&&proposal.nextActions.length!==1||proposal.actionSelection==='no_priority'&&proposal.nextActions.length!==0)throw new WorkflowError('invalid_contract')
+ proposal.actionSelection??='unranked_options'
  const issues:ReviewIssue[]=(value.reviewIssues??[]).map((raw:any)=>{
   const issue={...raw,...(raw.resolution==='waiting_user'?{resolution:raw.severity==='needs_clarification'?'ask_user':'keep_unknown'}:{})}
   if(!Value.Check(reviewIssueSchema,issue))throw new WorkflowError('invalid_contract')

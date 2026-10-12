@@ -3,6 +3,9 @@ import assert from 'node:assert/strict'
 import {readFileSync,existsSync} from 'node:fs'
 import {createHash} from 'node:crypto'
 import {cozePreflight,verifyCozeReceipt} from '../../scripts/workflow-coze-real.ts'
+import {parseCozeDirectionReceipt} from '../../server/workflows/coze-direction-adapter.ts'
+import {workflowRuntimeVersion} from '../../server/workflows/runtime-version.ts'
+import {fixture as workflowFixture,proposal as workflowProposal} from '../workflows/fixtures.ts'
 import {pool} from '../../server/db.ts'
 test.after(()=>pool.end())
 test('restored scope without a bound copy or its own runtime budget stays zero-dispatch and read-only',()=>{
@@ -28,4 +31,16 @@ test('observed cloud roles bind parsers and reject swapped projects, missing rol
  assert.throws(()=>verifyCozeReceipt({...valid,runtime:swapped},swapped),/ROLE/)
  const growth={...common,projectId:'7693388932939300905',businessRole:'growth' as const}
  assert.throws(()=>verifyCozeReceipt({schemaVersion:1,reply:'legacy',runtime:growth,receipt:valid.receipt},growth))
+})
+
+test('Coze receipt rejects a reviewed-priority marker when the reviewed result contains multiple actions',()=>{
+ const f=workflowFixture(),candidate=workflowProposal(f.request),second={...candidate.nextActions[0],description:'再核实另一个方向的机会要求'}
+ candidate.actionSelection='reviewed_priority';candidate.nextActions.push(second)
+ const body={schemaVersion:2,requestId:f.request.requestId,traceId:f.request.traceId,executionKind:'real_provider',receiptIncomplete:false,workerFinishedAtReturn:true,suggestedStateChanges:[],status:'proposed',providerCalls:5,reservedCostCny:0.05,costCny:0.02,proposal:candidate,reviewedProposalFields:{alternatives:candidate.alternatives,nextActions:candidate.nextActions},reviewIssues:[],skills:workflowRuntimeVersion.skills.filter(s=>['lifeos-direction-analysis','lifeos-experience-evidence'].includes(s.name)).map(s=>({name:s.name,loaded:true,sha256:s.sha256,version:s.version}))}
+ assert.throws(()=>parseCozeDirectionReceipt(body,f.request,f.records),/invalid_contract/)
+ const noPriority=workflowProposal(f.request);noPriority.actionSelection='no_priority'
+ assert.throws(()=>parseCozeDirectionReceipt({...body,proposal:noPriority,reviewedProposalFields:{alternatives:noPriority.alternatives,nextActions:noPriority.nextActions}},f.request,f.records),/invalid_contract/)
+ const legacy=workflowProposal(f.request),{actionSelection:_,...legacyProposal}=legacy
+ const parsed=parseCozeDirectionReceipt({...body,proposal:legacyProposal,reviewedProposalFields:{alternatives:legacy.alternatives,nextActions:legacy.nextActions}},f.request,f.records)
+ assert.equal(parsed.proposal?.actionSelection,'unranked_options')
 })
