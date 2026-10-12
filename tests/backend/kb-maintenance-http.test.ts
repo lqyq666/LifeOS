@@ -90,6 +90,6 @@ test('normal authenticated maintenance API binds actual account receipts, denies
   const ids=JSON.parse(readFileSync('.planning/research/evergreen/KB_CONTENT_REVISIONS.json','utf8')).drafts.map((c:any)=>c.id)
   await pool.query('DELETE FROM kb_maintenance_receipts WHERE guide_id=ANY($1::uuid[])',[ids]);await pool.query('DELETE FROM kb_maintenance_drafts WHERE guide_id=ANY($1::uuid[])',[ids])
   await pool.query('DELETE FROM kb_aliases WHERE guide_id=ANY($1::uuid[])',[ids]);await pool.query('DELETE FROM campus_knowledge_revisions WHERE id=ANY($1::uuid[])',[ids]);await pool.query('DELETE FROM campus_knowledge WHERE id=ANY($1::uuid[])',[ids])
-  for(const [key,value] of Object.entries(oldRoles))value===undefined?delete process.env[key]:process.env[key]=value;config.origin=oldOrigin;await new Promise<void>(r=>app.close(()=>r()));app.closeAllConnections();await pool.end()
+  for(const [key,value] of Object.entries(oldRoles))value===undefined?delete process.env[key]:process.env[key]=value;config.origin=oldOrigin;app.closeAllConnections();await new Promise<void>(r=>app.close(()=>r()));await pool.end()
  }
 })

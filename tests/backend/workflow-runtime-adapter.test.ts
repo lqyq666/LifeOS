@@ -24,7 +24,7 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
  budget.snapshot();writeFileSync(dirname(budget.path)+'/development-test-grant-20261005.json',JSON.stringify({kind:'SIMULATED_DEVELOPMENT_TEST_GRANT',amountCny:30,startingCall:0,priorReceiptsSha256:createHash('sha256').update('[]').digest('hex')}));budget.activateCurrentGrant()
  let wireBudget:WorkflowProviderBudget=budget
  const requests:{role:string;context:Record<string,unknown>}[]=[],audits:ProviderNodeAudit[]=[]
- let incompleteUsage=false,duplicateSelection=false,expectedReservations=4,criticVariant='normal',singleMalformed=false,comparisonMalformed=false,maximumRelation:'support'|'limit'|'unknown'|null=null
+ let incompleteUsage=false,duplicateSelection=false,expectedReservations=4,criticVariant='normal',singleMalformed=false,comparisonMalformed=false,comparisonCriterion='tasks',maximumRelation:'support'|'limit'|'unknown'|null=null
  const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',c=>chunks.push(Buffer.from(c)));req.on('end',()=>{
   const request=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(request.messages[1].content),role=request.messages[0].content
   requests.push({role,context:ctx});assert.equal(wireBudget.snapshot().calls.length,expectedReservations,'all calls reserved before the first wire')
@@ -50,7 +50,7 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
    }
    if(singleMalformed){const first=output.selections[ctx.paths[0].path.id];first.actionIds=['invented:action'];first.actionBasis[0].actionId='invented:action'}
   }
-  const comparison=(context:any)=>({criterionId:'tasks',peerDirectionId:context.peers[0].id,evidenceIds:['e0'],probePriority:comparisonMalformed?'self':'unresolved'})
+  const comparison=(context:any)=>({criterionId:comparisonCriterion,peerDirectionId:context.peers[0].id,evidenceIds:['e0'],probePriority:comparisonMalformed?'self':'unresolved'})
   if(ctx.paths)for(const path of ctx.paths)output.selections[path.path.id].comparisonBasis=comparison(path)
   if(ctx.path){const result=output as any;result.comparisonBasis=comparison(ctx);result.evidenceRelations??=result.evidenceIds.map((id:string)=>({evidenceId:id,relation:'unknown'}));result.actionBasis??=result.actionIds.map((id:string)=>({actionId:id,evidenceIds:result.evidenceIds,unknownIds:result.unknownIds,stageReasonId:'explore'}))}
   if(duplicateSelection&&ctx.path)output.evidenceIds=['e0','e0']
@@ -147,6 +147,12 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
    const invalidOrder=await wf.run(f.request,undefined,mode);assert.equal(invalidOrder.status,'unavailable');assert.equal(invalidOrder.failure,'invalid_contract','neither arm may turn unknown evidence into a personal priority')
   }
   comparisonMalformed=false
+  const directionsBeforePayment=f.request.directions,textBeforePayment=f.records[0].text
+  f.request.directions=[{id:'freelance',title:'自由职业'},{id:'postgraduate_exam',title:'考研'}];f.records[0].text='我交付过设计，采用未知，尚未收到付款。';comparisonCriterion='income'
+  expectedReservations+=1;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
+  const paymentUnknown=await wf.run(f.request,undefined,'single');assert.equal(paymentUnknown.status,'proposed',JSON.stringify(paymentUnknown))
+  assert.ok(paymentUnknown.proposal!.hypotheses.every(h=>h.text.includes('否则收款仍未知')),'unknown payment must remain conditional in both self and peer comparison text')
+  f.request.directions=directionsBeforePayment;f.records[0].text=textBeforePayment;comparisonCriterion='tasks'
   const oldBudgetEnabled=config.providerBudgetEnabled,oldBudgetId=config.providerBudgetId
   config.providerBudgetEnabled=true;config.providerBudgetId='native-pg-budget-'+randomUUID()
   try{
