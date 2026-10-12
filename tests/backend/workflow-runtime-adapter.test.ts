@@ -35,13 +35,15 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   const output:any=ctx.path?{evidenceIds:['e0'],tradeoffIds:['parallel'],unknownIds:['fit'],actionIds:[ctx.actions[0].id]}:ctx.analyses?{issues:[{severity:'uncertainty',issueId:'fit',evidenceIds:['e0']}],rejectedDirections:[]}:{directionOrder:ctx.alternatives.map((x:{directionId:string})=>x.directionId),actionIds:['a0']}
   if(ctx.paths){
    delete output.directionOrder;delete output.actionIds
+   assert.equal(selection.properties.actionIds,undefined,'single selection has no conflicting global action chooser')
    output.selections=Object.fromEntries(ctx.paths.map((path:any)=>{
     assert.deepEqual(path.facts,ctx.paths[0].facts,'same authorized facts across directions')
     assert.deepEqual(selection.properties.selections.properties[path.path.id].properties.evidenceIds.items.enum,path.facts.map((x:any)=>x.id))
+    assert.equal(selection.properties.selections.properties[path.path.id].properties.evidenceIds.minItems,1)
     return [path.path.id,{evidenceIds:['e0'],tradeoffIds:['parallel'],unknownIds:['fit'],actionIds:[path.actions[0].id],evidenceRelations:[{evidenceId:'e0',relation:'unknown'}],actionBasis:[{actionId:path.actions[0].id,evidenceIds:['e0'],unknownIds:['fit'],stageReasonId:'explore'}]}]
    }))
    output.directionOrder=ctx.paths.map((path:any)=>path.path.id)
-   output.actionIds=[singleMalformed?'invented:action':ctx.paths[0].actions[0].id]
+   if(singleMalformed){const first=output.selections[ctx.paths[0].path.id];first.actionIds=['invented:action'];first.actionBasis[0].actionId='invented:action'}
   }
   if(ctx.path){const result=output as any;result.evidenceRelations??=result.evidenceIds.map((id:string)=>({evidenceId:id,relation:'unknown'}));result.actionBasis??=result.actionIds.map((id:string)=>({actionId:id,evidenceIds:result.evidenceIds,unknownIds:result.unknownIds,stageReasonId:'explore'}))}
   if(duplicateSelection&&ctx.path)output.evidenceIds=['e0','e0']
@@ -94,7 +96,7 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   f.request.budget!.source={...f.request.budget!.source,id:newBudgetSourceId}
   const singleStart=requests.length,single=await wf.run(f.request,undefined,'single')
   assert.equal(single.status,'proposed',JSON.stringify(single));assert.equal(single.providerCalls,1);assert.equal(requests.length-singleStart,1)
-  assert.equal(single.proposal!.alternatives.length,2);assert.equal(single.proposal!.nextActions.length,1);assert.deepEqual(single.reviewIssues,[],'single arm does not claim a critic execution')
+  assert.equal(single.proposal!.alternatives.length,2);assert.equal(single.proposal!.nextActions.length,2);assert.deepEqual(single.reviewIssues,[],'single arm does not claim a critic execution')
   const normalizedFacts=(rows:any[])=>rows.map(({ref,...fact})=>({...fact,sourceType:ref.type,sourceRevision:ref.revision,sourceQuote:ref.quote}))
   assert.deepEqual(normalizedFacts((requests.at(-1)!.context.paths as any[])[0].facts),normalizedFacts(requests[0].context.facts as any[]),'single and multi use the same facts and provenance, apart from storage IDs')
   assert.equal(audits.at(-1)!.decisionInputDigest,audits[0].decisionInputDigest,'same comparison input digest across arms')

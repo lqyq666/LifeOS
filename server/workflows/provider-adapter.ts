@@ -32,6 +32,14 @@ export function bindWorkflowSelectionSchema(schema:ReturnType<typeof Type.Object
  const facts=(context.facts??[]).map((x:any)=>x.id),actions=(context.actions??[]).map((x:any)=>x.id),unknowns=Object.keys(context.unknowns??{})
  const p=bound.properties
  list(p.evidenceIds,facts);list(p.tradeoffIds,Object.keys(context.tradeoffs??{}));list(p.unknownIds,unknowns);list(p.actionIds,actions)
+ if(context.path){
+  p.evidenceIds.minItems=1;p.evidenceIds.maxItems=Math.min(p.evidenceIds.maxItems??12,facts.length)
+  if(p.evidenceRelations){p.evidenceRelations.minItems=1;p.evidenceRelations.maxItems=facts.length}
+  // A path proposes one optional probe. A second top-level action selector
+  // could disagree with this evidence/basis selection and is unnecessary.
+  p.actionIds.maxItems=Math.min(p.actionIds.maxItems??12,1)
+  if(p.actionBasis)p.actionBasis.maxItems=Math.min(p.actionBasis.maxItems??12,1)
+ }
  item(p.evidenceRelations?.items?.properties?.evidenceId,facts)
  const basis=p.actionBasis?.items?.properties
  if(basis){item(basis.actionId,actions);list(basis.evidenceIds,facts);list(basis.unknownIds,unknowns);item(basis.stageReasonId,Object.keys(context.stageReasons??{}))}
@@ -199,15 +207,14 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   async analyzeTogether(c,paths,skill){
    const contexts=await Promise.all(paths.map(path=>analysisContext(c,path)))
    const selections=object(Object.fromEntries(contexts.map(ctx=>[ctx.path.id,bindWorkflowSelectionSchema(analystSchema,ctx)])))
-   const schema=object({selections,directionOrder:Type.Array(Type.Union(paths.map(p=>Type.Literal(p.id))),{minItems:paths.length,maxItems:paths.length,uniqueItems:true}),actionIds:Type.Array(Type.String(),{maxItems:12,uniqueItems:true})})
-   const context={paths:contexts,alternatives:paths.map(p=>({directionId:p.id})),actions:contexts.flatMap(x=>x.actions),timeBudget:c.request.budget}
-   const output=await call(c,'single_decision','单次决策：在同一份授权个人事实、规范方法、方向与预算内分析所有paths。每个selections使用该路径目录；事实关系区分支持、限制、未知，每个行动说明个人依据、待核对项和阶段原因。directionOrder覆盖所有方向，actionIds只从对应已选择行动中取，所有行动总投入不超过timeBudget。公共方法不是本人经历，未知不得填造，允许暂停或空行动。不新增事实。',schema,context,skill)
-   const wire=output.parsed as {selections:Record<string,Static<typeof analystSchema>>;directionOrder:string[];actionIds:string[]}
+   const schema=object({selections,directionOrder:Type.Array(Type.Union(paths.map(p=>Type.Literal(p.id))),{minItems:paths.length,maxItems:paths.length,uniqueItems:true})})
+   const context={paths:contexts,alternatives:paths.map(p=>({directionId:p.id})),timeBudget:c.request.budget}
+   const output=await call(c,'single_decision','单次决策：在同一份授权个人事实、规范方法、方向与预算内分析所有paths。每个selections必须选择至少一项实际个人evidenceIds并说明其关系；只用本路径目录，区分支持、限制、未知。每条路径至多选择一个可停止的小行动，actionBasis说明个人依据、待核对项和阶段原因；没有适用行动时actionIds和actionBasis都为空。directionOrder覆盖所有方向；各路径所选行动的总投入不超过timeBudget。公共方法不是本人经历，未知不得填造，不新增事实。',schema,context,skill)
+   const wire=output.parsed as {selections:Record<string,Static<typeof analystSchema>>;directionOrder:string[]}
    const analyses=contexts.map(ctx=>compileAnalysis(c,ctx,wire.selections[ctx.path.id])),p=emptyProposal(c.request)
    p.evidenceRefs=c.request.authorizedEvidenceRefs
    p.alternatives=select(analyses.flatMap(x=>x.proposal!.alternatives).map(a=>({...a,id:a.directionId})),wire.directionOrder).map(({id,...a})=>a)
-   const actions=analyses.flatMap((a,index)=>a.proposal!.nextActions.map((action,j)=>({id:wire.selections[contexts[index].path.id].actionIds[j],action})))
-   p.nextActions=select(actions,wire.actionIds).map(x=>x.action)
+   p.nextActions=analyses.flatMap(a=>a.proposal!.nextActions)
    return {result:{evidenceRefs:p.evidenceRefs,summary:'单次生成的同范围决策候选；没有独立批评回合',issues:[],proposal:p},costCny:output.costCny,providerCalls:1}
   },
   async critic(c,analyses,skill){
