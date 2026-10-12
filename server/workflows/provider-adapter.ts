@@ -170,6 +170,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   },
   async prepareGraph(r,nodes,signal){
    signal?.throwIfAborted()
+   if(input.observeSyntheticSelection&&!r.synthetic)throw new WorkflowError('scope_denied')
    if(input.syntheticTransport&&!r.synthetic)throw new WorkflowError('scope_denied')
    const frozen=sourceDigest(),paid=nodes.filter(n=>n.executionKind!=='local_deterministic')
    const reading=records(r)
