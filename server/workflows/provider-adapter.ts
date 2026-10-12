@@ -41,8 +41,8 @@ export function bindWorkflowSelectionSchema(schema:ReturnType<typeof Type.Object
  list(p.directionOrder,(context.alternatives??[]).map((x:any)=>x.directionId))
  return bound as typeof schema
 }
-const issueCatalogue={unsupported:'这条判断没有授权来源支持。',contradiction:'两条当前依据互相矛盾，需要本人核对。',motivation:'读研或工作的具体动机仍需核对。',fit:'单次经历不能证明稳定能力或长期适配。',unknown:'尚未提供的条件保持未知，不据此否定路径。',adoption:'实际交付是否被采用、反馈及效果分别缺哪项证据，仍需核对。',role_evidence:'已有作品与目标岗位实际要求如何对应，仍需核对；反馈不能替代岗位要求。',repeatability:'已有结果能否重复、是否愿意承担后续义务仍需核对；暂停时不要求扩大接单。'}
-const commonTradeoffs={parallel:'多条路径同时投入会争用时间；本次仅选择一个可停止的小探索。',cost:'完整准备的时间、资金与退出代价尚未核实，先不承诺长期投入。',transfer:'先检查已有成果能否复用到这条路径；作品存在不等于满足岗位或研究要求，避免重复准备。',priority:'把本周已明确的课程、休息和其他义务放在探索之前；先缩小范围，不要求同时全面投入。',motivation:'先核对这条路径想解决的实际问题；若动机尚未知，先了解具体工作或研究内容，再决定是否准备。',pause:'可以暂缓这条路径，保留重开条件；本次比较不要求立即选定长期方向。'}
+const issueCatalogue={unsupported:'这条判断没有授权来源支持。',contradiction:'两条当前依据互相矛盾，需要本人核对。',motivation:'读研或工作的具体动机仍需核对。',fit:'单次经历不能证明稳定能力或长期适配。',unknown:'尚未提供的条件保持未知，不据此否定路径。',adoption:'实际交付是否被采用、反馈及效果分别缺哪项证据，仍需核对。',role_evidence:'是否有可展示作品、怎样对应目标岗位实际要求仍需核对；未提供作品时不假定存在，反馈不能替代岗位要求。',repeatability:'已有结果能否重复、是否愿意承担后续义务仍需核对；暂停时不要求扩大接单。'}
+const commonTradeoffs={parallel:'多条路径同时投入会争用时间；本次仅选择一个可停止的小探索。',cost:'完整准备的时间、资金与退出代价尚未核实，先不承诺长期投入。',transfer:'若本人报告已有成果，先核对能否复用到这条路径；未报告成果就保留未知，作品存在不等于满足岗位或研究要求。',priority:'先核对本人是否有本周必须处理的课程、休息或其他义务；仅在本人明确报告时据此排序，先缩小探索，不要求同时全面投入。',motivation:'先核对这条路径想解决的实际问题；若动机尚未知，先了解具体工作或研究内容，再决定是否准备。',pause:'可以暂缓这条路径，保留重开条件；本次比较不要求立即选定长期方向。'}
 // Bounded editorial reasons selected against personal evidence, then reviewed by
 // the critic. The selection is not proof that a real model classified the stage correctly.
 const stageReasons={explore:'方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。',verify_result:'先核对已有尝试的实际反馈，再决定是否扩大投入；已做或交付不代表采用、付款或有效。',reuse_evidence:'先对照已有实践与目标要求，核对哪些证据能够复用，避免在未知要求上重复准备。',respect_priority:'先核对本次动作是否服务本人当前重点，尊重已改变的阶段选择与暂停边界。'}

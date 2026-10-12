@@ -1,5 +1,5 @@
 import {scanUserClauses,currentConversationOnly,refusalPreferenceClause} from './user-command-spans.ts'
-import {reportedPerformedTaskClauses,reportedTaskOutcomeClauses} from './turn-contract.ts'
+import {reportedPerformedTaskClauses,reportedCompletedContactClauses,reportedTaskOutcomeClauses,taskOutcomeReadback} from './turn-contract.ts'
 import {hoursIn} from './turn-obligations.ts'
 import type {KnowledgeIntent} from './evergreen-guide.ts'
 import type {TurnContract} from './turn-contract.ts'
@@ -27,9 +27,39 @@ export function boundedRecallReply(text:string,facts:{text:string;createdAt:stri
   :/(?:渠道|联系|收到什么结果)/.test(text)?/(?:邮箱|邮件|联系|联络|请教|发出|看过|读过|回复|回应|微信)/
   :/(?:分工|负责|算在我)/.test(text)?/(?:负责|插画|分工)/
   :/(?:付款|用过|使用|稳定收入)/.test(text)?/(?:交给|交付|看过|用过|使用|采用|会不会用|付款|付费|付钱)/:null
- const selected=facts.filter(row=>!pattern||pattern.test(row.text)).sort((a,b)=>a.createdAt.localeCompare(b.createdAt)).slice(-10)
+ const selected=facts.filter(row=>!pattern||pattern.test(row.text)).sort((a,b)=>Number.isFinite(Date.parse(a.createdAt))&&Number.isFinite(Date.parse(b.createdAt))?Date.parse(a.createdAt)-Date.parse(b.createdAt):a.createdAt.localeCompare(b.createdAt))
  if(!selected.length)return make('授权记录里没有足够信息回答这个问题。我先保留未知，不补猜，也不因此安排任务。')
- const quotes=[...new Set(selected.map(row=>row.text))].map(value=>`「${value}」`).join('；')
+ if(/(?:渠道|联系)/.test(text)&&/(?:目前|现在|是否已经|已经联系)/.test(text)&&selected.every(row=>Number.isFinite(Date.parse(row.createdAt)))){
+  const counterpart=/(?:学长|学姐|导师|老师|客户|同学)(?:[甲乙丙丁戊己庚辛壬癸A-Z]|(?!(?:还|已|没|未|课|项|的|发|回|现|目|想|将|曾|通过|校内|说|怎样|用))[\u4e00-\u9fa5]{1,3}(?=的|还|已经|没有|发了|回复|[，。？?]|$))?/g,target=text.match(counterpart)?.[0]
+  const named=new Set(selected.flatMap(row=>row.text.match(counterpart)??[]))
+  let activeTarget:string|undefined
+  const scoped=named.size>1?(target?selected.filter(row=>{
+   const explicit=row.text.match(counterpart)
+   if(explicit?.length)activeTarget=explicit.length===1?explicit[0]:undefined
+   return explicit?.length?explicit.length===1&&explicit[0]===target:activeTarget===target
+  }):[]):selected
+  if(!scoped.length)return make('相关记录涉及不同联系对象，尚不能确认你指哪次联系。请说明对象或那次发送；不合并不同人的结果，也不恢复暂停的事项。')
+  const sent=scoped.filter(row=>reportedCompletedContactClauses(row.text).length).at(-1)
+  if(sent){
+   const laterUnsent=scoped.filter(row=>Date.parse(row.createdAt)>=Date.parse(sent.createdAt)&&scanUserClauses(row.text).some(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&/^(?:我(?:现在|目前)?|本人(?:现在|目前)?|现在|目前)?(?:还没|还未|没有|尚未|未曾|没).{0,12}(?:联系|联络|发出|发送)/.test(c.text))).at(-1)
+   if(laterUnsent)return make(Date.parse(laterUnsent.createdAt)===Date.parse(sent.createdAt)?`记录时间相同的报告分别为：「${sent.text}」；「${laterUnsent.text}」。两条记录不能确定先后，当前是否已联系尚需核对；不合并成确定进展，也不恢复暂停的事项。`:`较后的报告为：「${laterUnsent.text}」。早期发送记录仍保留，但不覆盖这条较后的报告；是否同一对象与同一次联系尚需核对，也不恢复暂停的事项。`)
+   // Later sending starts a new result window. An earlier read or reply cannot
+   // be carried into it; the stored history remains untouched.
+   const later=scoped.filter(row=>Date.parse(row.createdAt)>=Date.parse(sent.createdAt))
+   const outcomes=taskOutcomeReadback('',undefined,true)
+   for(const dimension of ['read','response'] as const){
+    const reported=later.flatMap(row=>reportedTaskOutcomeClauses(row.text,true).map(clause=>({time:Date.parse(row.createdAt),value:taskOutcomeReadback(clause.text,undefined,true)[dimension]}))).filter(row=>row.value.status!=='unknown'||row.value.conflicting)
+    const lastTime=reported.at(-1)?.time
+    const latest=reported.filter(row=>row.time===lastTime)
+    if(new Set(latest.map(row=>row.value.status)).size===1)outcomes[dimension]=latest.at(-1)!.value
+   }
+   const current=[sent.text,outcomes.read.quote,outcomes.response.quote].filter((q):q is string=>Boolean(q))
+   const quotes=[...new Set(current)].map(q=>`「${q}」`).join('；')
+   const unknowns=[outcomes.read.status==='unknown'?'是否看过':null,outcomes.response.status==='unknown'?'是否回应':null].filter(Boolean).join('、')
+   return make(`按较后报告的联系进展：${quotes}。${unknowns?`${unknowns}仍未知。`:''}这里只回读这次发送及其后续报告；不把发送前的状态当作当前状态，不补猜采用、付款或效果，也不主动恢复暂停的事项。`)
+  }
+ }
+ const quotes=[...new Set(selected.slice(-10).map(row=>row.text))].map(value=>`「${value}」`).join('；')
  const conclusion=/稳定收入/.test(text)?'这些报告不能直接证明稳定收入。':''
  return make(`${conclusion}按你此前报告的情况，记录为：${quotes}。这些是报告原文；不同时间的报告分别保留，没有核实的使用、付款或效果不补猜，也不主动恢复暂停的任务。`)
 }

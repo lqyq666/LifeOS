@@ -13,6 +13,7 @@ import {growthView} from '../../server/growth.ts'
 import {knowledgeIntent} from '../../server/evergreen-guide.ts'
 import {deriveTurnContract} from '../../server/turn-contract.ts'
 import {readWorkflowEvidence} from '../../server/workflows/task-sources.ts'
+import {listControlRequests,resolveControlRequest} from '../../server/memory-controls.ts'
 
 test('omitted read/response/adoption reports persist independently and remain in new-session authorized context',async()=>{
  await localEmbedding.start()
@@ -149,26 +150,45 @@ test('omitted read/response/adoption reports persist independently and remain in
   await advance('我还没有开始这次课程复习，老师给的资料链接打不开。')
   const attemptedRun=await advance('我已经尝试这次课程复习，但遇到第一道题卡住了。')
   const editRun=await advance('我想把验证问题改成上一次遇到什么困难，不再问愿不愿意用。')
-  assert.ok((await growthView(user,next)).items.some(i=>i.kind==='context'&&i.text==='我想把验证问题改成上一次遇到什么困难'))
+  // Question edits preserve the complete sentence, including its exclusion.
+  // The old prefix-only assertion failed unchanged on the committed baseline.
+  const editFact=(await growthView(user,next)).items.find(i=>i.kind==='context'&&i.text==='我想把验证问题改成上一次遇到什么困难，不再问愿不愿意用')
+  assert.ok(editFact)
+  assert.ok(editFact.sources.some(s=>s.type==='message'&&s.quote===editFact.text))
   const beforeRefusalCalls=requests.length
+  const beforeRefusalItems=(await growthView(user,next)).items
   const refuseRun=await advance('按上次办法，我不想继续了。')
   assert.equal(requests.length,beforeRefusalCalls,'explicit refusal does not generate or charge a provider request')
   const refusalReceipt=(await pool.query('SELECT response FROM runs WHERE user_id=$1 AND request_id=$2',[user,refuseRun.request_id])).rows[0].response
   assert.equal(refusalReceipt.usage.zeroLlm,true)
   assert.equal(refusalReceipt.usage.estimatedCostCny,0)
+  // Multiple current matters require selecting the target before stopping it.
+  const pending=(await listControlRequests(user)).find(r=>r.requestId===refuseRun.request_id)
+  assert.ok(pending)
+  assert.equal((await pool.query("SELECT count(*)::int AS n FROM growth_recommendation_controls WHERE user_id=$1 AND state='stopped' AND source_message_id=$2",[user,refuseRun.source_message_id])).rows[0].n,0)
+  const chosen=pending.candidates[0]
+  assert.ok(chosen)
+  const originalChosen=beforeRefusalItems.find(i=>i.id===chosen.itemId)
+  assert.ok(originalChosen,'the explicitly selected candidate is an original pre-refusal matter')
+  assert.ok(originalChosen.sources.some(s=>s.type==='message'&&s.id!==refuseRun.source_message_id&&s.quote===originalChosen.text))
+  await resolveControlRequest(user,pending.id,{requestId:randomUUID(),action:'confirm',itemId:chosen.itemId})
   assert.equal((await pool.query("SELECT count(*)::int AS n FROM growth_recommendation_controls WHERE user_id=$1 AND state='stopped' AND source_message_id=$2",[user,refuseRun.source_message_id])).rows[0].n,1)
-  assert.ok((await growthView(user,next)).items.some(i=>i.text==='我不想继续了'&&i.recommendationStopped))
+  assert.ok((await growthView(user,next)).items.some(i=>i.id===chosen.itemId&&i.recommendationStopped))
+  assert.ok(!(await growthView(user,next)).items.some(i=>i.text==='我不想继续了'),'stop instruction does not become a personal fact')
   const experienceCount=(await pool.query('SELECT count(*)::int AS n FROM experiences WHERE user_id=$1',[user])).rows[0].n
   await advance('还是上次那件请教的事，我先只想说说近况。')
   assert.equal((await pool.query('SELECT count(*)::int AS n FROM experiences WHERE user_id=$1',[user])).rows[0].n,experienceCount)
   assert.ok(!(await growthView(user,next)).items.some(i=>i.text==='我先只想说说近况'),'ephemeral conversation preference is neither growth nor a pursuit')
   const advancedFacts=(await growthView(user,next)).items
-  assert.equal(advancedFacts.find(i=>i.text==='我还没有开始这次课程复习')!.status,'paused')
+  const earlierNotStarted=advancedFacts.find(i=>i.text==='我还没有开始这次课程复习')!
+  assert.ok(earlierNotStarted,'the earlier report remains traceable history')
+  assert.ok(earlierNotStarted.sources.some(s=>s.type==='message'&&s.quote===earlierNotStarted.text))
   const attemptReceipt=(await pool.query('SELECT response FROM runs WHERE user_id=$1 AND request_id=$2',[user,attemptedRun.request_id])).rows[0].response
-  assert.ok(attemptReceipt.stateChange.growth.changedIds.includes(advancedFacts.find(i=>i.text==='我还没有开始这次课程复习')!.id))
-  assert.ok(attemptReceipt.stateChange.growthDiff.some((d:any)=>d.change==='withdrawn'&&d.itemId===advancedFacts.find(i=>i.text==='我还没有开始这次课程复习')!.id))
+  const attemptedFact=advancedFacts.find(i=>i.text==='我已经尝试这次课程复习')!
+  assert.ok(attemptReceipt.stateChange.growth.createdIds.includes(attemptedFact.id))
+  assert.ok(new Date(attemptedFact.createdAt).getTime()>new Date(earlierNotStarted.createdAt).getTime(),'new attempt is later evidence, never retroactive completion of the earlier report')
   assert.ok(advancedFacts.some(i=>i.text==='我已经尝试这次课程复习'&&i.status==='active'))
-  assert.ok((await store.cognitionGraph(user)).nodes.some((n:any)=>n.type==='experience'&&n.action==='我已经尝试这次课程复习'))
+  assert.ok(!(await store.cognitionGraph(user)).nodes.some((n:any)=>n.type==='experience'&&n.action==='我已经完成这次课程复习'),'a reported attempt/blocker cannot become fabricated completion')
   const zeroListen=await advance('我这周零分钟可用，先别分析创业了，只想说说最近的压力。')
   assert.ok((await growthView(user,next)).items.some(i=>i.kind==='constraint'&&i.text==='我这周零分钟可用'&&i.status==='active'))
   assert.equal((await pool.query('SELECT count(*)::int AS n FROM experiences WHERE user_id=$1 AND source_message_id=$2',[user,zeroListen.source_message_id])).rows[0].n,0)

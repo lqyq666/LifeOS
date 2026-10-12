@@ -64,6 +64,7 @@ const personalEventReport={test:reportsPersonalEvent}
 
 const negativePersonalFact=/^(?:这次|这周|本周|最近)?我(?:目前|现在|暂时|还|仍|一直|并|从来)?(?:没(?:有)?|尚未|还未|未|不)(?:开始|做|学|复习|准备|完成|交付|发送|收到|拿到|有|想|愿意|打算|决定|能)/
 const anchorablePersonalClauses=(text:string)=>scanUserClauses(text).filter(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!clause.quoteSpans.length)
+const embeddedOtherActorAction=(text:string)=>/(?:我|本人).{0,15}(?:让|看到|看见|听说|知道|发现|听到|要求|请(?!教)|确认|得知|获悉|收到).{0,15}(?:同学|学长|学姐|导师|老师|客户|朋友|对方|他|她)/.test(text)
 export function negativePersonalFactClauses(text:string){
   const own=anchorablePersonalClauses(text)
   return own.filter(clause=>negativePersonalFact.test(clause.text)||
@@ -94,10 +95,14 @@ export function reportedTaskOutcomeClauses(text:string,continuingOwnedTask=false
   // An actual task of the speaker must precede any participant observation.
   // Reported speech by that participant stays a report, never a verified effect.
   if(!continuingOwnedTask&&!clauses.some(c=>!c.attributedToOther&&/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|交给|提交|访谈|聊过|问了|问过)/.test(c.text)))return []
-  return clauses.filter(c=>/^(?:对方|客户|学长|导师|他们|她们|他|她)(?:说|回答|回复)[^，。！？]{1,200}$/.test(c.text)||(/^(?:对方|客户|学长|导师|他们|她们|他|她|费用)?(?:说|觉得)?(?:[一二三四五六七八九十两\d]+(?:天|周|小时|分钟))?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来|看过|读过|已读|有兴趣)/.test(c.text)&&/(?:读了|读过|看过|已读|回复|回应|没回|采用|使用|用了|用过|会不会用|没用|付款|付费|付钱|没付|感兴趣|有兴趣|有意思)/.test(c.text)))
+  return clauses.filter(c=>/^(?:对方|客户|学长(?:[\u4e00-\u9fa5A-Z]{1,3})?|学姐(?:[\u4e00-\u9fa5A-Z]{1,3})?|导师(?:[\u4e00-\u9fa5A-Z]{1,3})?|他们|她们|他|她)(?:说|回答|回复)[^，。！？]{1,200}$/.test(c.text)||(/^(?:对方|客户|学长(?:[\u4e00-\u9fa5A-Z]{1,3})?|学姐(?:[\u4e00-\u9fa5A-Z]{1,3})?|导师(?:[\u4e00-\u9fa5A-Z]{1,3})?|他们|她们|他|她|费用)?(?:说|觉得)?(?:[一二三四五六七八九十两\d]+(?:天|周|小时|分钟))?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来|看过|读过|已读|有兴趣)/.test(c.text)&&/(?:读了|读过|看过|已读|回复|回应|没回|采用|使用|用了|用过|会不会用|没用|付款|付费|付钱|没付|感兴趣|有兴趣|有意思)/.test(c.text)))
 }
 export function reportedPerformedTaskClauses(text:string){
- return anchorablePersonalClauses(text).filter(c=>/(?:我|本人)/.test(c.text)&&/(?:发出去了|发了|交给.{0,10}了|交付了|提交了|问了|问过|聊过|访谈了|已经尝试|尝试了|试做了|开始尝试)/.test(c.text)&&!/(?:想|打算|准备|如果|还没|没有|尚未|未曾|没)(?:.{0,8})(?:发出|发了|交给|交付|提交|问|聊|访谈|尝试|试做)/.test(c.text))
+ return anchorablePersonalClauses(text).filter(c=>!embeddedOtherActorAction(c.text)&&/(?:我|本人)/.test(c.text)&&/(?:发出去了|发出了|发出(?:那个|这个)?(?:问题|消息|邮件|资料|材料)了|发了|交给.{0,10}了|交付了|提交了|问了|问过|聊过|访谈了|已经尝试|尝试了|试做了|开始尝试)/.test(c.text)&&!/(?:想|打算|准备|计划|希望|考虑|愿意|决定|如果|还没|没有|尚未|未曾|没)(?:.{0,40})(?:发出|发了|交给|交付|提交|问|聊|访谈|尝试|试做)/.test(c.text))
+}
+// Reuse the ownership/intent guards; an attempt or a channel noun is not a send.
+export function reportedCompletedContactClauses(text:string){
+ return anchorablePersonalClauses(text).filter(c=>!embeddedOtherActorAction(c.text)&&/^(?:(?:昨天|今天|刚才|后来|之后)\s*)?(?:我|本人)/.test(c.text)&&/(?:发出去了|发出了|发出(?:那个|这个)?(?:问题|消息|邮件|资料|材料)了|发了(?:.{0,20})(?:邮件|消息|问题)|联系了|发送了)/.test(c.text)&&!/(?:想|打算|准备|计划|希望|考虑|愿意|决定|还没|没有|尚未|未曾|没|尝试|试做).{0,40}(?:发出|发了|联系|发送)/.test(c.text))
 }
 export function requestedQuestionEditClauses(text:string){
  const clauses=scanUserClauses(text)
@@ -114,12 +119,18 @@ export function reportedAdoptionClauses(text:string){
 // these defaults are not newly asserted personal facts or questions to ask.
 export function taskOutcomeReadback(text:string,authorizedQuotes?:ReadonlySet<string>,continuingOwnedTask=false){
  const clauses=reportedTaskOutcomeClauses(text,continuingOwnedTask).filter(c=>!authorizedQuotes||authorizedQuotes.has(c.text)),dimensions=['read','response','adoption','payment','effect'] as const
- const result=Object.fromEntries(dimensions.map(k=>[k,{status:'unknown',quote:null as string|null}])) as Record<typeof dimensions[number],{status:string;quote:string|null}>
+ const result=Object.fromEntries(dimensions.map(k=>[k,{status:'unknown',quote:null as string|null}])) as Record<typeof dimensions[number],{status:string;quote:string|null;conflicting?:boolean}>
  for(const c of clauses){
   const q=c.text
-  if(/读了|读过|看过|已读/.test(q))result.read={status:'reported_read',quote:q}
-  if(/(?:没(?:有)?|尚未|还未|未)(?:回复|回应)|没回/.test(q))result.response={status:'reported_no_response',quote:q}
-  else if(/^(?:对方|客户|学长|导师|他们|她们|他|她)(?:说|觉得)/.test(q)||/(?:已经|已)(?:回复|回应)|回复了|回应了/.test(q))result.response={status:'reported_response',quote:q}
+  const negativeRead=/(?:没(?:有)?|尚未|还未|未).{0,6}(?:读|看)(?:了|过)?/g,negativeResponse=/(?:没(?:有)?|尚未|还未|未)(?:回复|回应)|没回/g
+  const readNo=q.match(negativeRead)!==null,readYes=/读了|读过|看过|已读/.test(q.replace(negativeRead,''))
+  const responseNo=q.match(negativeResponse)!==null,responseYes=/^(?:对方|客户|学长|导师|他们|她们|他|她)(?:说|觉得)/.test(q)||/(?:已经|已)(?:回复|回应)|回复了|回应了/.test(q.replace(negativeResponse,''))
+  if(readNo&&readYes)result.read={status:'unknown',quote:null,conflicting:true}
+  else if(readNo)result.read={status:'reported_not_read',quote:q}
+  else if(readYes)result.read={status:'reported_read',quote:q}
+  if(responseNo&&responseYes)result.response={status:'unknown',quote:null,conflicting:true}
+  else if(responseNo)result.response={status:'reported_no_response',quote:q}
+  else if(responseYes)result.response={status:'reported_response',quote:q}
   if(!/承诺|打算|计划|是否|会不会/.test(q)&&/(?:没(?:有)?|尚未|还未|未).{0,6}(?:采用|使用|用过|用了)|还没用/.test(q))result.adoption={status:'reported_not_used',quote:q}
   else if(/(?:已经|已).{0,3}(?:采用|使用|用了)/.test(q))result.adoption={status:'reported_used',quote:q}
   if(/(?:没(?:有)?|尚未|还未|未)(?:付款|付费|付)|还没付/.test(q))result.payment={status:'reported_unpaid',quote:q}
@@ -149,14 +160,15 @@ export function deriveTurnContract(input:{
   const trimmed=input.text.trim()
   const pauseBoundaryQuestion=clauses.some(clause=>clause.interrogative&&/^是不是(?:等于|意味着)/.test(clause.text))&&clauses.every(clause=>clause.interrogative||/^暂停[^，。！？]{1,25}(?:这|一)(?:周|天|个月)$/.test(clause.text))
   const replyOnlyShape=pauseBoundaryQuestion||allInterrogative||questionDominated||greetingOnly.test(trimmed)||(metaMemoryQuery.test(trimmed)&&/[？?]\s*$/.test(trimmed))||listeningOnly.test(trimmed)
-  const eventLane=(input.currentEventExists&&!replyOnlyShape)||personalEventReport.test(input.text)
+  const ownPerformed=reportedPerformedTaskClauses(input.text).length>0
+  const eventLane=(input.currentEventExists&&!replyOnlyShape)||personalEventReport.test(input.text)||ownPerformed
   // A pure-listening turn never carries plan/material/event intent by
   // definition; a question can still be a plan request, so plan intent wins.
   const replyOnly=supportOnly?!hasPersonalFact:replyOnlyShape&&!input.planIntent&&!input.material&&!eventLane&&input.knowledgeCount===0
   const newMaterialFacts=input.material&&clauses.some(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!deliverableIntent(clause.text,'create')&&factBearingClause.test(clause.text))
   const capabilities:TurnContractCapabilities={
     growth:!replyOnly&&(!input.material||newMaterialFacts||personalEventReport.test(input.text)),
-    candidate:!supportOnly&&!replyOnly&&!input.planIntent&&personalEventReport.test(input.text),
+    candidate:!supportOnly&&!replyOnly&&!input.planIntent&&(personalEventReport.test(input.text)||ownPerformed),
     plan:!supportOnly&&input.planIntent,
     citations:!supportOnly&&!replyOnly&&input.knowledgeCount>0,
     // material output lives in event.action, so a material turn always

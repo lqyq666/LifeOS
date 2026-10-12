@@ -28,6 +28,93 @@ test('new real chain failures: discovery is not sending and next-week judgment s
  assert.ok(candidate[0].action.includes('课程')&&candidate[1].action.includes('备考'))
 })
 import {boundedOrdinaryReply,boundedPlanningReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts} from '../server/bounded-reply.ts'
+import {boundedRecallReply} from '../server/bounded-reply.ts'
+
+test('review regression: preparation mentioning mail never starts a completed contact window',()=>{
+ for(const text of ['我开始尝试写邮件','我已经尝试整理邮件','我试做了邮件内容','我已经尝试联系但还没发出']){
+  const answer=boundedRecallReply('目前是否已经联系？',[{text,createdAt:'2026-10-12T00:00:00Z'}]).choices[0]
+  assert.doesNotMatch(answer,/按较后报告的联系进展/)
+ }
+})
+test('review regression: current contact resolves actual time offsets before presentation limits',()=>{
+ const facts=[{text:'我给学长发了邮件',createdAt:'2026-10-12T08:00:00+08:00'},{text:'我已经通过校内邮箱发出这个问题了',createdAt:'2026-10-12T01:00:00Z'},...Array.from({length:12},(_,i)=>({text:'我不想改到私人微信去催促',createdAt:`2026-10-12T02:00:${String(i).padStart(2,'0')}Z`}))]
+ const answer=boundedRecallReply('目前是否已经联系学长？',facts).choices[0]
+ assert.match(answer,/校内邮箱发出这个问题了/);assert.doesNotMatch(answer,/给学长发了邮件/)
+})
+test('review regression: contradictory reports at the same instant remain ambiguous',()=>{
+ const facts=[{text:'我给学长发了邮件',createdAt:'2026-10-12T00:00:00Z'},{text:'我还没联系学长',createdAt:'2026-10-12T08:00:00+08:00'}]
+ const answer=boundedRecallReply('目前是否已经联系学长？',facts).choices[0]
+ assert.match(answer,/尚需核对|不能确认/);assert.doesNotMatch(answer,/按较后报告的联系进展/)
+ assert.doesNotMatch(answer,/较后|早期/)
+})
+test('completed contact verbs use the shared own-statement guards',()=>{
+ for(const verb of ['联系了学长','发送了邮件']){
+  const own=boundedRecallReply('目前是否已经联系学长？',[{text:'我'+verb,createdAt:'2026-10-12T00:00:00Z'}]).choices[0]
+  assert.match(own,/按较后报告的联系进展/)
+  for(const text of ['我打算'+verb,'我没有'+verb,'如果我'+verb,'他说我'+verb,'“我'+verb+'”']){
+   assert.doesNotMatch(boundedRecallReply('目前是否已经联系学长？',[{text,createdAt:'2026-10-12T00:00:00Z'}]).choices[0],/按较后报告的联系进展/,text)
+  }
+ }
+})
+test('current contact retains generic followups within the last explicit target window',()=>{
+ const facts=[{text:'我给导师发了邮件',createdAt:'2026-10-10T00:00:00Z'},{text:'我给学长发了邮件',createdAt:'2026-10-12T00:00:00Z'},{text:'对方已经看过问题',createdAt:'2026-10-12T01:00:00Z'},{text:'但还没有回应',createdAt:'2026-10-12T02:00:00Z'}]
+ const answer=boundedRecallReply('目前是否已经联系学长？',facts).choices[0]
+ assert.match(answer,/看过问题/);assert.match(answer,/没有回应/);assert.doesNotMatch(answer,/给导师发了/)
+})
+test('same-time conflicting responses cannot be ordered by fact-array order',()=>{
+ const facts=[{text:'我给学长发了邮件',createdAt:'2026-10-12T00:00:00Z'},{text:'对方已经回复',createdAt:'2026-10-12T01:00:00Z'},{text:'还没有回应',createdAt:'2026-10-12T01:00:00Z'}]
+ for(const ordered of [facts,[facts[0],facts[2],facts[1]]]){
+  const answer=boundedRecallReply('目前是否已经联系学长？',ordered).choices[0]
+  assert.match(answer,/是否回应仍未知/);assert.doesNotMatch(answer,/「对方已经回复」|「还没有回应」/)
+ }
+ const combined=[facts[0],{text:'对方已经回复但没有回应',createdAt:'2026-10-12T01:00:00Z'}]
+ assert.match(boundedRecallReply('目前是否已经联系学长？',combined).choices[0],/是否回应仍未知/)
+ assert.equal(taskOutcomeReadback(combined[1].text,undefined,true).response.status,'unknown')
+ assert.equal(taskOutcomeReadback('对方已经看过但没有读过',undefined,true).read.status,'unknown')
+})
+test('own contact excludes delegated or observed third-party actions and distinguishes role suffixes',()=>{
+ for(const text of ['我让同学联系了学长','我看到同学联系了导师','我知道同学发了邮件','我亲眼看到同学联系了学长','我收到消息说同学发了邮件','我确认同学发了邮件','我收到学长发了邮件']){
+  assert.doesNotMatch(boundedRecallReply('目前是否已经联系？',[{text,createdAt:'2026-10-12T00:00:00Z'}]).choices[0],/按较后报告的联系进展/)
+  assert.equal(reportedPerformedTaskClauses(text).length,0)
+ }
+ const facts=[{text:'我给学长甲发了邮件',createdAt:'2026-10-10T00:00:00Z'},{text:'学长甲还没有回复',createdAt:'2026-10-11T00:00:00Z'},{text:'我给学长乙发了邮件',createdAt:'2026-10-12T00:00:00Z'},{text:'对方已经回复',createdAt:'2026-10-13T00:00:00Z'}]
+ const answer=boundedRecallReply('目前是否已经联系学长甲？',facts).choices[0]
+ assert.match(answer,/学长甲还没有回复/);assert.doesNotMatch(answer,/学长乙|已经回复/)
+})
+test('later negative read and same-time read conflicts cannot become read confirmation',()=>{
+ const facts=[{text:'我给学长发了邮件',createdAt:'2026-10-10T00:00:00Z'},{text:'对方已经看过问题',createdAt:'2026-10-11T00:00:00Z'},{text:'对方没有看过问题',createdAt:'2026-10-12T00:00:00Z'}]
+ assert.doesNotMatch(boundedRecallReply('目前是否已经联系？',facts).choices[0],/「对方已经看过问题」/)
+ facts[1].createdAt=facts[2].createdAt
+ assert.match(boundedRecallReply('目前是否已经联系？',facts).choices[0],/是否看过/)
+ for(const text of ['对方未真正看过问题','对方并未仔细读过问题'])assert.equal(taskOutcomeReadback(text,undefined,true).read.status,'reported_not_read')
+ assert.equal(taskOutcomeReadback('同学说对方已经回复',undefined,true).response.status,'unknown','nested hearsay is excluded by the existing participant prefix, while direct participant reports remain reported evidence')
+})
+
+test('persisted CONTACT_7 failure: current contact recall resolves later sending/read/no-response reports',()=>{
+ const facts=[['想用校内邮箱请教学长课程项目如何整理成实习作品','2026-10-12T01:00:00Z'],['目前还没联系','2026-10-12T01:00:00Z'],['学长还没有回复','2026-10-12T02:00:00Z'],['接着聊请教学长','2026-10-12T02:00:01Z'],['我已经通过校内邮箱发出那个问题了','2026-10-12T02:00:00Z'],['我不想改到私人微信去催促','2026-10-12T03:00:00Z'],['但还没有回应','2026-10-12T03:00:00Z'],['对方已经看过问题','2026-10-12T03:00:00Z']].map(([text,createdAt])=>({text,createdAt}))
+ const answer=boundedRecallReply('你记得我想用什么渠道联系学长，目前是否已经联系吗？只按我之前报告的内容回答。',facts).choices[0]
+ assert.match(answer,/校内邮箱发出那个问题了/);assert.match(answer,/看过问题/);assert.match(answer,/没有回应/)
+ assert.doesNotMatch(answer,/目前还没联系|接着聊请教学长/)
+})
+test('contact recall does not carry an earlier result into a newer sending attempt',()=>{
+ const facts=[{text:'我给学长发了邮件',createdAt:'2026-10-01T00:00:00Z'},{text:'对方已经看过问题',createdAt:'2026-10-02T00:00:00Z'},{text:'我已经通过校内邮箱发出这个问题了',createdAt:'2026-10-12T00:00:00Z'}]
+ const answer=boundedRecallReply('目前是否已经联系？',facts).choices[0]
+ assert.match(answer,/发出这个问题了/);assert.doesNotMatch(answer,/已经看过|已读/)
+})
+test('current contact recall cannot use a later report about another explicit counterpart',()=>{
+ const facts=[{text:'我给学长发了邮件',createdAt:'2026-10-01T00:00:00Z'},{text:'学长还没有回复',createdAt:'2026-10-02T00:00:00Z'},{text:'我给导师发了邮件',createdAt:'2026-10-12T00:00:00Z'},{text:'导师已经回复',createdAt:'2026-10-13T00:00:00Z'}]
+ const answer=boundedRecallReply('学长目前是否已经联系？',facts).choices[0]
+ assert.match(answer,/给学长发了邮件/);assert.doesNotMatch(answer,/给导师|导师已经回复/)
+})
+test('a later explicit unsent correction cannot be overridden by an older sending report',()=>{
+ const facts=[{text:'我给学长发了邮件',createdAt:'2026-10-01T00:00:00Z'},{text:'我现在还没联系学长',createdAt:'2026-10-12T00:00:00Z'}]
+ const answer=boundedRecallReply('学长目前是否已经联系？',facts).choices[0]
+ assert.match(answer,/现在还没联系学长/);assert.doesNotMatch(answer,/较后报告的联系进展：「我给学长发了邮件」/)
+})
+test('planned, conditional, negative and third-party sending variants are not performed facts',()=>{
+ for(const text of ['我准备先通过学校提供的校内邮箱发出这个问题了','如果我发出这个问题了','我还没有发出这个问题了','学长已经发出这个问题了'])assert.equal(reportedPerformedTaskClauses(text).length,0,text)
+ assert.equal(reportedPerformedTaskClauses('我已经通过校内邮箱发出那个问题了').length,1)
+})
 
 test('planning first content is bound to the verified period and budget, never a saved or executed claim',()=>{
  const bounded=boundedPlanningReply({minutes:180,period:'next_week'})
@@ -60,7 +147,7 @@ test('new task starts preserve contracting and recurring-budget boundaries inste
 })
 import {safeEarlySentence} from '../server/reply-draft.ts'
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
-import {deriveTurnContract} from '../server/turn-contract.ts'
+import {deriveTurnContract,reportedPerformedTaskClauses,taskOutcomeReadback} from '../server/turn-contract.ts'
 const make=(text:string,extra:Partial<Parameters<typeof boundedOrdinaryReply>[0]>={})=>boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default',...extra})
 test('an explicit request to continue a known unavailable resource uses the same blocked boundary',()=>{
  const bounded=make('这次课程的资料网页无法打开，我尚未开始准备课堂汇报，先处理这个卡点。')
