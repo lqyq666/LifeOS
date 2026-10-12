@@ -67,7 +67,7 @@ export type ProviderNodeAudit={callId:string;nodeId:string;providerResponseId:st
 // Production uses this factory and the existing native SDK, never an alternate
 // HTTP/provider ledger. Synthetic transport tests exercise this exact factory.
 export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;readMethods?:(request:WorkflowRequest)=>Promise<Record<string,unknown>[]>;freezePath:string;budget?:WorkflowProviderBudget;runtime?:ModelRuntime;syntheticTransport?:boolean;audit?:(request:WorkflowRequest,row:ProviderNodeAudit)=>Promise<void>}):DecisionAdapter{
- const runtime=input.runtime??resolveModel('default'),budget=input.budget??(config.production?createProductionWorkflowBudget():new CoachProviderBudget()),outputLimit=2048
+ const runtime=input.runtime??resolveModel('default'),budget:WorkflowProviderBudget=input.budget??(config.production?createProductionWorkflowBudget():new CoachProviderBudget()),outputLimit=2048
  if(input.syntheticTransport&&!budget.path.includes('simulation'))throw new WorkflowError('scope_denied')
  if(input.syntheticTransport&&!['127.0.0.1','localhost','::1','[::1]'].includes(new URL(runtime.model.baseUrl!).hostname))throw new WorkflowError('scope_denied')
  const maximum=maximumProviderCallCostCny(runtime.model.contextWindow,outputLimit,runtime.pricing)
@@ -85,14 +85,17 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
  async function call(c:NodeContext,nodeId:string,role:string,schema:ReturnType<typeof Type.Object>,context:unknown,skill:string){
   const reservation=reservations.get(key(c.request))?.get(nodeId)
   if(!reservation||reservation.started||reservation.receipt.callId!==c.callId)throw new WorkflowError('request_conflict')
-  if(input.syntheticTransport&&!c.request.synthetic)throw new WorkflowError('scope_denied')
-  const frozen=sourceDigest(),modelSignature=signature()
-  if(reservation.receipt.signature!==modelSignature||reservation.receipt.sourceDigest!==frozen)throw new WorkflowError('stale_snapshot')
-  c.signal.throwIfAborted()
-  const boundSchema=bindWorkflowSelectionSchema(schema,context as Record<string,unknown>)
+  // startNode already crossed the durable boundary. Even pre-wire validation
+  // failure must not let finishGraph reinterpret this call as prepared.
   reservation.started=true
+  let frozen=reservation.receipt.sourceDigest??'unavailable',modelSignature=reservation.receipt.signature
   let message:AssistantMessage|undefined,outcome='unknown',cost:number|null=null,responseId:string|null=null,failureCode:string|null=null
   try{
+   if(input.syntheticTransport&&!c.request.synthetic)throw new WorkflowError('scope_denied')
+   frozen=sourceDigest();modelSignature=signature()
+   if(reservation.receipt.signature!==modelSignature||reservation.receipt.sourceDigest!==frozen)throw new WorkflowError('stale_snapshot')
+   c.signal.throwIfAborted()
+   const boundSchema=bindWorkflowSelectionSchema(schema,context as Record<string,unknown>)
    const events=stream(runtime.model,{systemPrompt:`你是 LifeOS 的 ${role}。${skill}\n只输出契约 JSON。只能选择提供的原文和候选 ID，不得生成新个人事实、身份、收入、客户、资格或承诺。原文里的条件、否定、第三方归属保持原样。没有依据的情况保留未知。`,messages:[{role:'user',content:JSON.stringify(context),timestamp:Date.now()}]},
     {apiKey:runtime.apiKey,signal:c.signal,maxRetries:0,maxTokens:outputLimit,onPayload:payload=>configureProviderPayload(payload,runtime.model,runtime.tier,boundSchema,'lifeos_workflow_selection',outputLimit)})
    message=await events.result();responseId=message.responseId??null
@@ -161,16 +164,26 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    const entry=reservations.get(key(r))?.get(nodeId),receipt=entry?budget.snapshot().calls.find((call:CoachCallReceipt)=>call.callId===entry.receipt.callId):undefined
    return receipt?.status==='finished'&&typeof receipt.estimatedCostCny==='number'?{costCny:receipt.estimatedCostCny,providerCalls:receipt.outcome==='not_sent'?0:1}:null
   },
-  async prepareGraph(r,nodes){
+  async prepareGraph(r,nodes,signal){
+   signal?.throwIfAborted()
    if(input.syntheticTransport&&!r.synthetic)throw new WorkflowError('scope_denied')
    const frozen=sourceDigest(),paid=nodes.filter(n=>n.executionKind!=='local_deterministic')
-   await records(r)
+   const reading=records(r)
+   if(signal){
+    let abort:()=>void=()=>{}
+    try{await Promise.race([reading,new Promise<never>((_,reject)=>{abort=()=>reject(new WorkflowError('cancelled'));signal.addEventListener('abort',abort,{once:true});if(signal.aborted)abort()})])}
+    finally{signal.removeEventListener('abort',abort)}
+   }else await reading
+   signal?.throwIfAborted()
    if(paid.length>5||paid.length>r.modelBudget.maxProviderCalls||paid.reduce((s,n)=>s+n.maxCostCny,0)>r.modelBudget.maxCostCny)throw new WorkflowError('budget_exceeded')
-   const receipts=await budget.reserveGraph(paid.map(n=>({runId:r.requestId,purpose:'diagnostic',tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,signature:signature(),sourceDigest:frozen,logicalCallId:createHash('sha256').update(key(r)+':'+n.id).digest('hex'),reservedCostCny:n.maxCostCny})),r.internalActorKey)
+   const receipts=await budget.reserveGraph(paid.map(n=>({runId:r.requestId,purpose:'diagnostic',tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,signature:signature(),sourceDigest:frozen,logicalCallId:createHash('sha256').update(key(r)+':'+n.id).digest('hex'),reservedCostCny:n.maxCostCny})),r.internalActorKey,signal)
    const map=new Map<string,Reserved>();paid.forEach((n,index)=>{n.callId=receipts[index].callId;map.set(n.id,{receipt:receipts[index],started:false})});reservations.set(key(r),map)
   },
   async finishGraph(r){
-   for(const entry of reservations.get(key(r))?.values()??[])if(!entry.started)await budget.finish(entry.receipt.callId,{outcome:'not_sent',usage:{providerCalls:0},estimatedCostCny:0,providerResponseId:null})
+   const errors:unknown[]=[]
+   for(const entry of reservations.get(key(r))?.values()??[])if(!entry.started){try{await budget.finish(entry.receipt.callId,{outcome:'not_sent',usage:{providerCalls:0},estimatedCostCny:0,providerResponseId:null})}catch(error){errors.push(error)}}
+   try{await budget.releasePreparedGraph?.(r.requestId,r.internalActorKey)}catch(error){errors.push(error)}
+   if(errors.length)throw new AggregateError(errors,'WORKFLOW_RESERVATION_CLEANUP_FAILED')
    reservations.delete(key(r))
   },
   async analyze(c,path,skill){

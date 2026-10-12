@@ -7,7 +7,7 @@ import {simulationJournal,type TaskJournal} from './task-journal.ts'
 export type NodeContext={request:WorkflowRequest;signal:AbortSignal;results:ReadonlyMap<string,AgentResult>;callId?:string}
 export type WorkflowNode={id:string;role:AgentRole;dependencies:string[];executionKind:WorkflowReceipt['executionKind'];maxCostCny:number;callId?:string;invoke:(context:NodeContext)=>Promise<{result:unknown;costCny:number|null;providerCalls:number}>}
 type Entry={digest:string;promise:Promise<WorkflowReceipt>}
-export function createOrchestrator(options:{readEvidence:EvidenceReader;traceSink?:(row:TraceRow)=>void;maxEntries?:number;journal?:TaskJournal;prepareGraph?:(r:WorkflowRequest,nodes:WorkflowNode[])=>Promise<void>;finishGraph?:(r:WorkflowRequest)=>Promise<void>;readNodeAccounting?:(r:WorkflowRequest,nodeId:string)=>{costCny:number;providerCalls:number}|null}){
+export function createOrchestrator(options:{readEvidence:EvidenceReader;traceSink?:(row:TraceRow)=>void;maxEntries?:number;journal?:TaskJournal;prepareGraph?:(r:WorkflowRequest,nodes:WorkflowNode[],signal?:AbortSignal)=>Promise<void>;finishGraph?:(r:WorkflowRequest)=>Promise<void>;readNodeAccounting?:(r:WorkflowRequest,nodeId:string)=>{costCny:number;providerCalls:number}|null}){
  const requests=new Map<string,Entry>(),trace=createTrace(options.traceSink),journal=options.journal??simulationJournal()
  const run=(raw:unknown,nodes:WorkflowNode[],build:(r:WorkflowRequest,results:ReadonlyMap<string,AgentResult>)=>Promise<WorkflowReceipt>,signal?:AbortSignal):Promise<WorkflowReceipt>=>{
   const request=structuredClone(parseRequest(raw)),key=request.internalActorKey+':'+request.requestId
@@ -28,7 +28,7 @@ export function createOrchestrator(options:{readEvidence:EvidenceReader;traceSin
    if(claimed.receipt)return replay(claimed.receipt,request,signal)
    const receipt=await execute(request,nodes,build,signal)
    await options.finishGraph?.(request)
-   await journal.finish(request,receipt);return receipt
+   return await journal.finish(request,receipt)??receipt
   })()
   requests.set(key,{digest,promise})
   void promise.finally(()=>requests.delete(key)).catch(()=>{})
@@ -70,7 +70,9 @@ export function createOrchestrator(options:{readEvidence:EvidenceReader;traceSin
    if(byId.size!==nodes.length||nodes.some(x=>!x.id||x.dependencies.some(d=>!byId.has(d))||!Number.isFinite(x.maxCostCny)||x.maxCostCny<0)||kinds.size>1)throw new WorkflowError('invalid_contract')
    if(nodes.filter(x=>x.executionKind!=='local_deterministic').length>request.modelBudget.maxProviderCalls||nodes.reduce((n,x)=>n+x.maxCostCny,0)>request.modelBudget.maxCostCny+1e-9)throw new WorkflowError('budget_exceeded')
    const initial=await read();validateEvidence(request,request.authorizedEvidenceRefs,initial)
-   await bounded(async()=>{await options.prepareGraph?.(request,nodes)})
+   const preparing=Promise.resolve().then(()=>options.prepareGraph?.(request,nodes,controller.signal))
+   try{await bounded(()=>preparing)}catch(error){await preparing.catch(()=>{});throw error}
+   check()
    const pending=new Set(nodes.map(x=>x.id))
    while(pending.size){
     check()

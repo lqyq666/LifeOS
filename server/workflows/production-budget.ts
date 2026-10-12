@@ -1,11 +1,12 @@
-import {randomUUID} from 'node:crypto'
 import {config} from '../config.ts'
-import {reserveProviderSpend,settleProviderSpend} from '../provider-spend.ts'
+import {reserveProviderSpend,settleProviderSpend,releasePreparedWorkflowSpend} from '../provider-spend.ts'
+import {transaction} from '../db.ts'
 import type {CoachProviderBudget,CoachCallReceipt} from '../../scripts/coach-provider-budget.ts'
 
 export type WorkflowProviderBudget={
  readonly path:string
- reserveGraph(inputs:Parameters<CoachProviderBudget['reserveGraph']>[0],actor?:string):CoachCallReceipt[]|Promise<CoachCallReceipt[]>
+ reserveGraph(inputs:Parameters<CoachProviderBudget['reserveGraph']>[0],actor?:string,signal?:AbortSignal):CoachCallReceipt[]|Promise<CoachCallReceipt[]>
+ releasePreparedGraph?(runId:string,actor:string):Promise<void>
  finish(callId:string,details:Parameters<CoachProviderBudget['finish']>[1]):CoachCallReceipt|Promise<CoachCallReceipt>
  snapshot():{calls:CoachCallReceipt[]}
 }
@@ -17,16 +18,18 @@ export function createProductionWorkflowBudget():WorkflowProviderBudget{
  const calls=new Map<string,{receipt:CoachCallReceipt;spendId:string}>()
  return {
   path:'postgresql:lifeos_provider_spend',
-  async reserveGraph(inputs,actor){
+  async reserveGraph(inputs,actor,signal){
    if(!config.providerBudgetEnabled||!actor||!inputs.length||inputs.length>5||new Set(inputs.map(x=>x.runId)).size!==1||new Set(inputs.map(x=>x.logicalCallId)).size!==inputs.length||inputs.some(x=>!x.logicalCallId||x.sourceDigest!==inputs[0].sourceDigest||x.signature!==inputs[0].signature))throw new Error('WORKFLOW_PRODUCTION_BUDGET_REQUIRED')
    const reserved:{receipt:CoachCallReceipt;spendId:string}[]=[]
    try{
     for(const [index,input] of inputs.entries()){
-     const spendId=await reserveProviderSpend({user:actor,requestId:input.runId,callIndex:index+1,provider:input.provider,model:input.model,ceilingCny:input.reservedCostCny??0,workflow:true})
+     signal?.throwIfAborted()
+     const spendId=await reserveProviderSpend({user:actor,requestId:input.runId,callIndex:index+1,provider:input.provider,model:input.model,ceilingCny:input.reservedCostCny??0,workflow:true,workflowPrepared:true})
      if(!spendId)throw new Error('WORKFLOW_PRODUCTION_BUDGET_REQUIRED')
-     const receipt:CoachCallReceipt={...input,callId:randomUUID(),startedAt:new Date().toISOString(),status:'reserved'}
+     const receipt:CoachCallReceipt={...input,callId:spendId,startedAt:new Date().toISOString(),status:'reserved'}
      reserved.push({receipt,spendId})
     }
+    signal?.throwIfAborted()
    }catch(error){
     // No SDK node starts until prepareGraph returns. These partial reservations
     // are provably not dispatched; existing unknown/started calls are untouched.
@@ -40,12 +43,14 @@ export function createProductionWorkflowBudget():WorkflowProviderBudget{
    for(const row of reserved)calls.set(row.receipt.callId,row)
    return reserved.map(row=>structuredClone(row.receipt))
   },
+  releasePreparedGraph:(runId,actor)=>transaction(c=>releasePreparedWorkflowSpend(c,actor,runId)),
   async finish(callId,details){
    const row=calls.get(callId)
    if(!row)throw new Error('PROVIDER_SPEND_MISSING')
    if(row.receipt.status==='finished')throw new Error('PROVIDER_SPEND_ALREADY_SETTLED')
    const settled=await settleProviderSpend(row.spendId,details.estimatedCostCny,details.outcome==='not_sent')
-   Object.assign(row.receipt,details,{status:'finished',finishedAt:new Date().toISOString()})
+   const effective=settled?.retainedUnknown?{...details,outcome:'transport_error',usage:'unknown',estimatedCostCny:'unknown'}:details
+   Object.assign(row.receipt,effective,{status:'finished',finishedAt:new Date().toISOString()})
    if(settled?.overrun)throw new Error('PROVIDER_PRICE_CHANGED')
    return structuredClone(row.receipt)
   },
