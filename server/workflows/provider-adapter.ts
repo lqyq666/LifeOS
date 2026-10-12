@@ -14,6 +14,8 @@ import {WorkflowError,emptyProposal,type EvidenceReader,type EvidenceRecord,type
 import {validateEvidence,refKey} from './evidence-gate.ts'
 import type {DecisionAdapter} from './direction-decision.ts'
 import type {NodeContext,WorkflowNode} from './orchestrator.ts'
+import {pathUnknowns,comparisonFrames} from './comparison-catalog.ts'
+import {scanUserClauses} from '../user-command-spans.ts'
 
 const object=<T extends Parameters<typeof Type.Object>[0]>(fields:T)=>Type.Object(fields,{additionalProperties:false})
 const ids=Type.Array(Type.String({minLength:1,maxLength:80}),{maxItems:12,uniqueItems:true})
@@ -44,7 +46,7 @@ export function bindWorkflowSelectionSchema(schema:ReturnType<typeof Type.Object
  const basis=p.actionBasis?.items?.properties
  if(basis){item(basis.actionId,actions);list(basis.evidenceIds,facts);list(basis.unknownIds,unknowns);item(basis.stageReasonId,Object.keys(context.stageReasons??{}))}
  const issues=p.issues?.items?.anyOf??[]
- for(const branch of issues){const issue=branch.properties;list(issue.evidenceIds,facts);list(issue.claimIds,(context.claims??[]).map((x:any)=>x.id))}
+ for(const branch of issues){const issue=branch.properties;list(issue.evidenceIds,facts);list(issue.claimIds,(context.claims??[]).map((x:any)=>x.id));if(issue.issueId?.enum&&context.allowedIssueIds)issue.issueId.enum=issue.issueId.enum.filter((id:string)=>context.allowedIssueIds.includes(id))}
  list(p.rejectedDirections,(context.directions??[]).map((x:any)=>x.id))
  list(p.directionOrder,(context.alternatives??[]).map((x:any)=>x.directionId))
  return bound as typeof schema
@@ -83,7 +85,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
  const reservations=new Map<string,Map<string,Reserved>>()
  const key=(r:WorkflowRequest)=>r.internalActorKey+':'+r.requestId
  const sourceDigest=()=>assertCoachSourceFreeze(input.freezePath)
- const signature=()=>createHash('sha256').update(JSON.stringify({runtime:modelSignatureFor(runtime.tier),pricing:runtime.pricing,outputLimit,schemas:[analystSchema,criticSchema,synthesisSchema],pathActions,pathTradeoffs,issueCatalogue,commonTradeoffs,stageReasons})).digest('hex')
+ const signature=()=>createHash('sha256').update(JSON.stringify({runtime:modelSignatureFor(runtime.tier),pricing:runtime.pricing,outputLimit,schemas:[analystSchema,criticSchema,synthesisSchema],pathActions,pathTradeoffs,pathUnknowns,comparisonFrames,issueCatalogue,commonTradeoffs,stageReasons})).digest('hex')
  async function records(r:WorkflowRequest){const authorized=await input.readEvidence(r);validateEvidence(r,r.authorizedEvidenceRefs,authorized);return authorized.filter(x=>r.authorizedEvidenceRefs.some(ref=>refKey(ref)===refKey(x.ref)))}
  const facts=(rs:EvidenceRecord[])=>rs.map((r,index)=>({id:'e'+index,text:r.text,kind:r.ref.type,informationStatus:r.role==='public'?'approved_public_method':r.role==='user'?'student_original_words_keep_conditions':'tool_result_not_student_report',ref:r.ref}))
  function select<T extends {id:string}>(catalogue:T[],chosen:string[]):T[]{
@@ -141,29 +143,32 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
  async function analysisContext(c:NodeContext,path:{id:string;title:string}){
    const source=facts(await records(c.request)),minutes=c.request.budget?.amountMinutes,methodContext=await input.readMethods?.(c.request)??[]
    const actions=(pathActions[path.id]??[]).map(x=>({id:path.id+':'+x.key,text:x.text,estimatedMinutes:x.minutes})).filter(x=>minutes===undefined||x.estimatedMinutes<=minutes)
+   const localPriority=path.id==='employment'&&source.some(f=>f.informationStatus==='student_original_words_keep_conditions'&&scanUserClauses(f.text).some(clause=>!clause.conditional&&!clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:我|本人).{0,12}(?:更想|希望|想|优先|倾向).{0,12}(?:离家近|本地|在家附近)/.test(clause.text)&&!/(?:不想|不希望|不要|不倾向).{0,12}(?:离家近|本地|在家附近)/.test(clause.text)))
+   if(localPriority)for(const action of actions)action.text='先确定本人愿意考虑的地点范围，只在这个范围内查岗位；不知道范围时先留作待核对，不补造地点。'+action.text
    // Very small budgets retain a useful inventory/stop option, rather than
    // demanding an exercise longer than the student's stated available time.
    if(minutes!==0)actions.push({id:path.id+':pause',text:`只记下${path.title}当前最关键的一个未知与重新考虑条件，然后暂停这条探索。`,estimatedMinutes:Math.min(5,minutes??5)})
    const tradeoffCatalogue={...commonTradeoffs,path:pathTradeoffs[path.id]??commonTradeoffs.cost}
-   return {path,facts:source,timeBudget:c.request.budget,controls:c.request.controls,methodContext,publicMethodRule:"Use only these canonical approved fragments; editorial exercises remain unbound, public text is not biography",tradeoffs:tradeoffCatalogue,unknowns:issueCatalogue,stageReasons,actions}
+   return {path,facts:source,timeBudget:c.request.budget,controls:c.request.controls,methodContext,publicMethodRule:"Use only these canonical approved fragments; editorial exercises remain unbound, public text is not biography",tradeoffs:tradeoffCatalogue,unknowns:pathUnknowns[path.id]??{fit:issueCatalogue.fit},stageReasons,actions}
  }
  function compileAnalysis(c:NodeContext,context:Awaited<ReturnType<typeof analysisContext>>,wire:Static<typeof analystSchema>):AgentResult{
-   const {path,facts:source,actions,tradeoffs:tradeoffCatalogue}=context
+   const {path,facts:source,actions,tradeoffs:tradeoffCatalogue,unknowns:unknownCatalogue}=context
    const chosen=select(source,wire.evidenceIds)
    if(!chosen.length)throw new WorkflowError('source_invalid')
-   const tradeoffs=select(Object.entries(tradeoffCatalogue).map(([id,text])=>({id,text})),wire.tradeoffIds),unknowns=select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),wire.unknownIds)
+   const tradeoffs=select(Object.entries(tradeoffCatalogue).map(([id,text])=>({id,text})),wire.tradeoffIds),unknowns=select(Object.entries(unknownCatalogue).map(([id,text])=>({id,text})),wire.unknownIds)
    const selectedActions=select(actions,wire.actionIds),p=emptyProposal(c.request)
    p.evidenceRefs=chosen.map(x=>x.ref)
    const relations=wire.evidenceRelations??[]
    if(relations.length!==chosen.length||new Set(relations.map(x=>x.evidenceId)).size!==relations.length||relations.some(x=>!chosen.some(f=>f.id===x.evidenceId)))throw new WorkflowError('source_invalid')
    const related=(relation:'support'|'limit'|'unknown')=>chosen.filter(x=>(relations.find(r=>r.evidenceId===x.id)?.relation??'unknown')===relation).map(x=>(x.informationStatus==='student_original_words_keep_conditions'?'本人原话（保留条件）：':x.informationStatus==='approved_public_method'?'公开方法（不是本人经历）：':'工具结果（不是本人报告）：')+x.text)
-   p.alternatives=[{directionId:path.id,title:path.title,pros:related('support'),tradeoffs:[...related('limit'),...tradeoffs.map(x=>x.text)],unknowns:[...related('unknown'),...unknowns.map(x=>x.text)],weeklyMinutes:null,evidenceRefs:p.evidenceRefs}]
+   const frame=comparisonFrames[path.id]
+   p.alternatives=[{directionId:path.id,title:path.title,pros:[...(frame?[frame.goal]:[]),...related('support')],tradeoffs:[...(frame?.tradeoffs??[]),...related('limit'),...tradeoffs.map(x=>x.text)].slice(0,12),unknowns:[...related('unknown'),...unknowns.map(x=>x.text)],weeklyMinutes:null,evidenceRefs:p.evidenceRefs}]
    // Generic exercises remain explicitly editorial. Approved public methods are
    // supplied by the host knowledge/guide path, never invented as catalogue IDs.
    const bases=wire.actionBasis??[]
    if(bases.length!==selectedActions.length||new Set(bases.map(b=>b.actionId)).size!==bases.length||bases.some(b=>!selectedActions.some(a=>a.id===b.actionId)||!b.evidenceIds.length||b.evidenceIds.some(id=>!chosen.some(f=>f.id===id&&f.informationStatus==='student_original_words_keep_conditions'))||b.unknownIds.some(id=>!wire.unknownIds.includes(id))||b.stageReasonId&&!Object.hasOwn(stageReasons,b.stageReasonId)))throw new WorkflowError('source_invalid')
    p.nextActions=selectedActions.map(x=>{
-    const basis=bases.find(b=>b.actionId===x.id),personal=basis?select(chosen,basis.evidenceIds):[],gaps=basis?select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),basis.unknownIds):[]
+    const basis=bases.find(b=>b.actionId===x.id),personal=basis?select(chosen,basis.evidenceIds):[],gaps=basis?select(Object.entries(unknownCatalogue).map(([id,text])=>({id,text})),basis.unknownIds):[]
     const labels={support:'支持',limit:'限制',unknown:'未知'}
     const stage=basis?.stageReasonId?stageReasons[basis.stageReasonId as keyof typeof stageReasons]:'阶段适用性尚未说明，需核对后再采纳。'
     const connection=basis?`个人依据（原话片段；完整条件见依据）：${personal.map(f=>`[${labels[relations.find(r=>r.evidenceId===f.id)?.relation??'unknown']}] ${f.text.length>120?f.text.slice(0,120)+'…':f.text}`).join('；')}；仍需核对：${gaps.slice(0,2).map(g=>g.text).join('；')||'本行动是否产生新反馈尚未知'}；阶段适用性（分析候选，尚待核对）：${stage}；`:'个人依据与行动缺口的具体连接尚未说明；阶段适用性尚未说明，需核对后再采纳；'
@@ -222,7 +227,10 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    const source=facts(await records(c.request)),claims=analyses.flatMap((analysis,index)=>{
     const p=analysis.proposal!,items=p.alternatives.flatMap(a=>(['pros','tradeoffs','unknowns'] as const).flatMap(field=>a[field].map((text,i)=>({id:'p'+index+':'+field+':'+i,text,kind:field,directionId:a.directionId}))))
     return [...items,...p.nextActions.map((a,i)=>({id:'p'+index+':action:'+i,text:a.description+' '+a.stopCondition,kind:'editorial_exercise',directionId:a.directionId}))]
-   }),output=await call(c,'critic','独立审阅者：审查claims里的实际候选表述，不是判定学生应已具备完整档案。issues只是可选问题目录，不是已发现的问题；只选实际发生的项，没有问题就issues=[]。unknowns和条件式编辑探索明确保留未知，不构成unsupported或blocker。动机、采用、付款、效果、岗位要求未知只能uncertainty/needs_clarification，不否定路径。只有具体候选声称本人已做到未提供的事实、违反明确限制或与原话相反，才选unsupported/contradiction，并用claimIds定位实际错误的表述，evidenceIds定位对照原话。rejectedDirections只允许已用上述blocker定位的方向，不因没有实践/资格/动机而拒绝探索。编辑动作的可调整分钟上限不是学生已有安排；不把带若/未核对/未知的表述当肯定事实。公共方法不是本人经历，仍严格审查。',criticSchema,{facts:source,claims,analyses,directions:c.request.directions,timeBudget:c.request.budget,issues:issueCatalogue},skill)
+   })
+   const allowedIssueIds=[...new Set(['unsupported','contradiction',...c.request.directions.flatMap(path=>Object.keys(pathUnknowns[path.id]??{}))])]
+   const relevantIssues=Object.fromEntries(Object.entries(issueCatalogue).filter(([id])=>allowedIssueIds.includes(id)).map(([id,text])=>[id,id==='motivation'?'当前路径想解决的问题与本人已经明确的优先事项分开核对；不重问已知目的。':text]))
+   const output=await call(c,'critic','独立审阅者：审查claims里的实际候选表述，不是判定学生应已具备完整档案。issues只是可选问题目录，不是已发现的问题；只选实际发生的项，没有问题就issues=[]。unknowns和条件式编辑探索明确保留未知，不构成unsupported或blocker。动机、采用、付款、效果、岗位要求未知只能uncertainty/needs_clarification，不否定路径。只有具体候选声称本人已做到未提供的事实、违反明确限制或与原话相反，才选unsupported/contradiction，并用claimIds定位实际错误的表述，evidenceIds定位对照原话。rejectedDirections只允许已用上述blocker定位的方向，不因没有实践/资格/动机而拒绝探索。编辑动作的可调整分钟上限不是学生已有安排；不把带若/未核对/未知的表述当肯定事实。公共方法不是本人经历，仍严格审查。',criticSchema,{facts:source,claims,analyses,directions:c.request.directions,timeBudget:c.request.budget,issues:relevantIssues,allowedIssueIds},skill)
    const wire=output.parsed as Static<typeof criticSchema>,issues:ReviewIssue[]=wire.issues.map(issue=>({severity:issue.severity,category:issue.issueId==='unsupported'?'evidence':issue.issueId==='contradiction'?'constraint':'unknown',affectedClaims:issue.claimIds??issue.evidenceIds,resolution:issue.severity==='blocker'?'blocked':issue.severity==='needs_clarification'?'ask_user':'keep_unknown',text:select(Object.entries(issueCatalogue).map(([id,text])=>({id,text})),[issue.issueId])[0].text,evidenceRefs:select(source,issue.evidenceIds).map(x=>x.ref)}))
    select(c.request.directions,wire.rejectedDirections)
    if(wire.rejectedDirections.some(direction=>!wire.issues.some(issue=>issue.severity==='blocker'&&issue.claimIds?.some(id=>claims.find(claim=>claim.id===id)?.directionId===direction))))throw new WorkflowError('invalid_contract')

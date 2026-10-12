@@ -12,7 +12,16 @@ test('deep method reader uses canonical approved corpus, bounded fragments, cont
  try{
   await importEvergreenCorpus(read('KB_GUIDES.jsonl'),read('KB_SOURCE_REGISTRY.jsonl'),read('KB_EVIDENCE.jsonl'))
   const f=fixture(),request={...f.request,currentIntent:'我想验证校园创业项目的需求，怎么访谈用户？'},reader=workflowMethodReader()
-  const fragments=await reader(request);assert.ok(fragments.length>0);assert.ok(fragments.length<=2)
+  const originalEncode=localEmbedding.encode.bind(localEmbedding);let queryEncodes=0
+  localEmbedding.encode=async(texts,query,signal)=>{if(query)queryEncodes++;return originalEncode(texts,query,signal)}
+  let fragments:any[]
+  try{
+   const parallel=await Promise.all([reader(request),reader(request),reader(request)])
+   assert.equal(queryEncodes,1,'parallel path agents share one actual canonical-query embedding')
+   assert.deepEqual(parallel[0],parallel[1]);assert.deepEqual(parallel[0],parallel[2])
+   fragments=parallel[0]
+  }finally{localEmbedding.encode=originalEncode}
+  assert.ok(fragments.length>0);assert.ok(fragments.length<=2)
   for(const fragment of fragments){assert.equal(fragment.untrustedPublicMethod,true);const card=(await pool.query('SELECT revision,status,payload FROM campus_knowledge WHERE id=$1',[fragment.id])).rows[0];assert.equal(card.status,'verified');assert.equal(card.revision,fragment.revision);assert.equal(card.payload.guide.reviewStatus,'approved');assert.ok(fragment.scope);assert.ok(fragment.limitations)}
   assert.deepEqual(await reader({...request,controls:{...request.controls,refuseAdvice:true}}),[])
   assert.deepEqual(await reader({...request,currentIntent:'我只想被听见，不需要办法。',controls:{...request.controls,listeningOnly:true}}),[])
