@@ -16,6 +16,8 @@ export type ClauseHandle={
   conditional:boolean
   quoted:boolean
   code:boolean
+  quoteSpans?:ReadonlyArray<{start:number;end:number}>
+  codeSpans?:ReadonlyArray<{start:number;end:number}>
   attributedToOther:boolean
   sentenceStart:number;sentenceEnd:number
 }
@@ -34,11 +36,19 @@ export function buildClauseCatalogue(text:string):ClauseHandle[]{
       conditional:clause.conditional,
       quoted:clause.quoted,
       code:clause.code,
+      quoteSpans:clause.quoteSpans,codeSpans:clause.codeSpans,
       attributedToOther:clause.attributedToOther,
       sentenceStart:clause.sentenceStart,sentenceEnd:clause.sentenceEnd,
     })
   }
   return handles
+}
+
+// A detection-only view from the existing scanner; stored quotes stay verbatim.
+export function unprotectedClauseText(handle:ClauseHandle):string{
+  if(handle.quoted||handle.code)return ''
+  const spans=[...(handle.quoteSpans??[]),...(handle.codeSpans??[])]
+  return handle.text.split('').map((char,index)=>spans.some(span=>handle.start+index>=span.start&&handle.start+index<span.end)?' ':char).join('')
 }
 
 export function resolveClause(catalogue:readonly ClauseHandle[],clauseId:unknown):ClauseHandle|null{

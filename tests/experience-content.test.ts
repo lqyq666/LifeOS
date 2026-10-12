@@ -5,6 +5,16 @@ import { clauseReportsCompleted, deriveStructuralLinks, requiresExperienceCandid
 
 const ANCHOR='2026-10-08T12:00:00.000Z' // Thursday 20:00 Shanghai
 
+test('mixed quoted/code words and protected first-person siblings cannot manufacture a performed experience',()=>{
+  for(const text of ['我正在看“我写完了申请书”这段例句。','我正在看`我完成了作业`这个测试字符串。','📝我正在看“我写完了申请书”这段例句。','“我”，完成了社团推文。','上次那件事的例句是“后来对方用了”。']){
+    const clauses=buildClauseCatalogue(text)
+    assert.equal(requiresExperienceCandidate(clauses),false,text)
+    assert.equal(selectStructuralCandidate(text,clauses,ANCHOR),null,text)
+  }
+  const real='我写了标题为“完成了作业”的推文，老师说写得不错。'
+  assert.equal(requiresExperienceCandidate(buildClauseCatalogue(real)),true,'real work outside quotes remains usable')
+})
+
 test('the saved campus wish to clarify delivery scope is not a completed experience',()=>{
  assert.equal(clauseReportsCompleted('先确认需求与交付范围'),false,'instruction fragment is not performed delivery')
  const listening='还是上次那件请教的事，我先只想说说近况。'

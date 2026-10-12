@@ -2,7 +2,7 @@
 // handles, and every stored string is verbatim user text or a date derived
 // from it. A handle outside the selected experience span would store text the
 // user said about something else, so it drops that field — never the candidate.
-import { resolveClause, type ClauseHandle } from './clause-catalogue.ts'
+import { resolveClause, unprotectedClauseText, type ClauseHandle } from './clause-catalogue.ts'
 import { resolveOccurredDate } from './growth-time.ts'
 import { classifyWithLexicon } from './category-lexicon.ts'
 import {conversationPreferenceClause} from './user-command-spans.ts'
@@ -22,7 +22,7 @@ export const clauseExpressesWishToAct=(text:string):boolean=>/(?:想|要)(?:先|
 // First person scopes the whole sentence: the action clause itself often
 // drops the pronoun (「迟了一天补交上去」) while a sibling clause carries it.
 export const sentenceIsFirstPersonPublic = (catalogue: readonly ClauseHandle[], handle: ClauseHandle): boolean =>
-  catalogue.some(other => other.sentenceStart === handle.sentenceStart && /我/.test(other.text))
+  catalogue.some(other => other.sentenceStart === handle.sentenceStart && !other.interrogative&&!other.conditional&&!other.attributedToOther&&/我/.test(unprotectedClauseText(other)))
 const sentenceIsFirstPerson = sentenceIsFirstPersonPublic
 
 // 对既往经历的追述（上次那套海报后来…）：本身没有新的完成动词，但带着
@@ -31,7 +31,7 @@ const BACK_REFERENCE = /上次那|上次说|上次提到|之前那次|之前说�
 export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]): boolean {
   const completed = catalogue.some(handle =>
     !handle.interrogative && !handle.conditional && !handle.quoted && !handle.code && !handle.attributedToOther
-    && sentenceIsFirstPerson(catalogue, handle) && clauseReportsCompleted(handle.text))
+    && sentenceIsFirstPerson(catalogue, handle) && clauseReportsCompleted(unprotectedClauseText(handle)))
   if (completed) return true
   const bySentence = new Map<number, ClauseHandle[]>()
   for (const handle of catalogue) {
@@ -40,8 +40,8 @@ export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]):
     bySentence.set(handle.sentenceStart, group)
   }
   for (const handles of bySentence.values()) {
-    const text = handles.filter(handle=>!conversationPreferenceClause(handle.text)).map(handle => handle.text).join()
-    if (BACK_REFERENCE.test(text) && handles.some(handle => !conversationPreferenceClause(handle.text)&&RESULT_SHAPE.test(handle.text)) && handles.every(handle => !handle.interrogative && !handle.conditional)) return true
+    const text = handles.filter(handle=>!conversationPreferenceClause(handle.text)).map(unprotectedClauseText).join()
+    if (BACK_REFERENCE.test(text) && handles.some(handle => !conversationPreferenceClause(handle.text)&&RESULT_SHAPE.test(unprotectedClauseText(handle))) && handles.every(handle => !handle.interrogative && !handle.conditional)) return true
   }
   return false
 }
@@ -77,8 +77,8 @@ const RESULT_SHAPE = /说|反馈|评价|效果|结果|还不错|很好|不错|�
 export function selectStructuralCandidate(sourceText: string, catalogue: readonly ClauseHandle[], anchorIso: string): { quote: string; start: number; end: number; content: ResolvedCandidateContent } | null {
   const matched = catalogue.find(handle =>
     !handle.interrogative && !handle.conditional && !handle.quoted && !handle.code && !handle.attributedToOther
-    && sentenceIsFirstPerson(catalogue, handle) && clauseReportsCompleted(handle.text))
-    ?? catalogue.find(handle => !handle.interrogative && !handle.conditional && BACK_REFERENCE.test(handle.text) && RESULT_SHAPE.test(handle.text))
+    && sentenceIsFirstPerson(catalogue, handle) && clauseReportsCompleted(unprotectedClauseText(handle)))
+    ?? catalogue.find(handle => !handle.interrogative && !handle.conditional && BACK_REFERENCE.test(unprotectedClauseText(handle)) && RESULT_SHAPE.test(unprotectedClauseText(handle)))
   if (!matched) return null
   // Commas chain clauses inside one sentence (sentenceStart resets only at
   // terminators), so the candidate is the whole comma chain the action sits in.
@@ -87,8 +87,8 @@ export function selectStructuralCandidate(sourceText: string, catalogue: readonl
   if(following&&!following.conditional&&!following.interrogative&&!following.quoted&&!following.code&&/^(?:对方|客户|导师|老师).{0,12}(?:看过|读过|已读|回复|回应|采用|用了)/.test(following.text))inSentence.push(following)
   const end = Math.max(...inSentence.map(handle => handle.end))
   const quote = sourceText.slice(matched.sentenceStart, end)
-  const action = inSentence.find(handle => clauseReportsCompleted(handle.text))
-  const resultCandidates = inSentence.filter(handle => RESULT_SHAPE.test(handle.text) && handle !== action)
+  const action = inSentence.find(handle => !handle.interrogative&&!handle.conditional&&!handle.attributedToOther&&clauseReportsCompleted(unprotectedClauseText(handle)))
+  const resultCandidates = inSentence.filter(handle => RESULT_SHAPE.test(unprotectedClauseText(handle)) && handle !== action)
   const result = resultCandidates.at(-1)
   return {
     quote, start: matched.sentenceStart, end,
