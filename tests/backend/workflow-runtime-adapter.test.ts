@@ -23,16 +23,17 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
  const previousURL=model.baseUrl,previousKey=config.apiKey,budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-workflow-'+randomUUID()})
  budget.snapshot();writeFileSync(dirname(budget.path)+'/development-test-grant-20261005.json',JSON.stringify({kind:'SIMULATED_DEVELOPMENT_TEST_GRANT',amountCny:30,startingCall:0,priorReceiptsSha256:createHash('sha256').update('[]').digest('hex')}));budget.activateCurrentGrant()
  let wireBudget:WorkflowProviderBudget=budget
- const requests:{role:string;context:Record<string,unknown>}[]=[],audits:ProviderNodeAudit[]=[]
- let incompleteUsage=false,duplicateSelection=false,expectedReservations=4,criticVariant='normal',singleMalformed=false,comparisonMalformed=false,comparisonCriterion='tasks',maximumRelation:'support'|'limit'|'unknown'|null=null
+ const requests:{role:string;context:Record<string,unknown>;schema:any}[]=[],audits:ProviderNodeAudit[]=[]
+ let incompleteUsage=false,duplicateSelection=false,expectedReservations=4,criticVariant='normal',singleMalformed=false,comparisonMalformed=false,comparisonCriterion='tasks',maximumRelation:'support'|'limit'|'unknown'|null=null,synthesisActionIds=['a1']
  const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',c=>chunks.push(Buffer.from(c)));req.on('end',()=>{
   const request=JSON.parse(Buffer.concat(chunks).toString()),ctx=JSON.parse(request.messages[1].content),role=request.messages[0].content
-  requests.push({role,context:ctx});assert.equal(wireBudget.snapshot().calls.length,expectedReservations,'all calls reserved before the first wire')
+  assert.equal(wireBudget.snapshot().calls.length,expectedReservations,'all calls reserved before the first wire')
   assert.equal(JSON.stringify(request.response_format).includes('uniqueItems'),false,'actual SDK request uses supported provider schema')
   const selection=request.response_format?.json_schema?.schema
+  requests.push({role,context:ctx,schema:selection})
   if(ctx.path){assert.deepEqual(selection.properties.evidenceIds.items.enum,ctx.facts.map((x:any)=>x.id));assert.deepEqual(selection.properties.actionIds.items.enum,ctx.actions.map((x:any)=>x.id));assert.ok(!('unsupported'in ctx.unknowns)&&!('contradiction'in ctx.unknowns),'actual analyst cannot invent evidence-error warnings as unknowns');if(ctx.path.id==='employment')assert.ok(!('motivation'in ctx.unknowns)&&!('adoption'in ctx.unknowns),'unrelated graduate/adoption gaps are absent from employment')}
   if(ctx.analyses){assert.deepEqual(selection.properties.rejectedDirections.items.enum,ctx.directions.map((x:any)=>x.id));assert.ok(selection.properties.issues.items.anyOf.every((branch:any)=>JSON.stringify(branch.properties.claimIds).includes(ctx.claims[0].id)));assert.ok(!selection.properties.issues.items.anyOf[1].properties.severity.enum.includes('blocker'))}
-  const output:any=ctx.path?{evidenceIds:['e0'],tradeoffIds:['parallel'],unknownIds:['fit'],actionIds:[ctx.actions[0].id]}:ctx.analyses?{issues:[{severity:'uncertainty',issueId:'fit',evidenceIds:['e0']}],rejectedDirections:[]}:{actionIds:['a0']}
+  const output:any=ctx.path?{evidenceIds:['e0'],tradeoffIds:['parallel'],unknownIds:['fit'],actionIds:[ctx.actions[0].id]}:ctx.analyses?{issues:[{severity:'uncertainty',issueId:'fit',evidenceIds:['e0']}],rejectedDirections:[]}:{actionIds:synthesisActionIds}
   if(ctx.paths){
    delete output.directionOrder;delete output.actionIds
    assert.equal(selection.properties.actionIds,undefined,'single selection has no conflicting global action chooser')
@@ -69,6 +70,13 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   assert.equal(receipt.status,'proposed',JSON.stringify({receipt,trace:wf.trace.rows,audits,wire:requests.length}));assert.equal(receipt.providerCalls,4);assert.equal(requests.length,4);assert.equal(audits.length,4)
   assert.equal(receipt.executionKind,'simulated_provider');assert.ok(receipt.reviewIssues?.some(x=>x.severity==='uncertainty'))
   assert.equal(receipt.proposal!.hypotheses.length,2,'reviewed comparative judgments survive synthesis')
+  assert.equal(receipt.proposal!.actionSelection,'reviewed_priority')
+  const synthesisRequest=requests.find(x=>x.context.alternatives&&x.context.actions)!
+  assert.equal(synthesisRequest.schema.properties.actionIds.maxItems,1,'the reviewed synthesis can recommend at most one action')
+  assert.deepEqual(synthesisRequest.schema.properties.actionIds.items.enum,(synthesisRequest.context.actions as any[]).map(x=>x.id))
+  assert.equal((synthesisRequest.context.hypotheses as any[]).length,(synthesisRequest.context.alternatives as any[]).length,'synthesis sees each reviewed same-axis comparison')
+  assert.equal(receipt.proposal!.nextActions.length,1,'multi-agent synthesis retains one current probe for the student to choose')
+  assert.equal(receipt.proposal!.nextActions[0].directionId,f.request.directions[1].id,'synthesis can choose the probe independently of input order')
   assert.deepEqual(receipt.proposal!.alternatives.map(x=>x.directionId),f.request.directions.map(x=>x.id),'host preserves user direction order')
   assert.ok((requests.find(x=>x.context.analyses)!.context.claims as any[]).some((x:any)=>x.kind==='comparison_hypothesis'),'critic sees actual comparisons before synthesis')
   assert.equal(new Set(requests.map(x=>x.role)).size,3);assert.ok(requests.every(x=>JSON.stringify(x.context).includes(f.records[0].text)))
@@ -78,13 +86,17 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   const before=budget.snapshot().calls.length
   assert.throws(()=>budget.reserveGraph([1,2].map(i=>({runId:'synthetic-overflow',purpose:'diagnostic',tier:'default',provider:'synthetic',model:'synthetic',signature:'synthetic',sourceDigest:'synthetic',logicalCallId:'overflow-'+i,reservedCostCny:20}))),/BUDGET/)
   assert.equal(budget.snapshot().calls.length,before,'failed graph reservation is atomic')
-  incompleteUsage=true;expectedReservations=8;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
-  const partial=await wf.run(f.request);assert.equal(partial.status,'unavailable');assert.equal(partial.costCny,null)
+  synthesisActionIds=[];expectedReservations=8;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
+  const noPriority=await wf.run(f.request);assert.equal(noPriority.status,'proposed');assert.equal(noPriority.proposal!.actionSelection,'no_priority');assert.equal(noPriority.proposal!.nextActions.length,0,'synthesis may leave actions empty when no priority is justified')
+  synthesisActionIds=['a0','a1'];expectedReservations=12;f.request.requestId=randomUUID();f.request.traceId=randomUUID();const invalidSynthesisStart=requests.length
+  const invalidSynthesis=await wf.run(f.request);assert.equal(invalidSynthesis.status,'unavailable');assert.equal(invalidSynthesis.failure,'invalid_contract');assert.equal(requests.length-invalidSynthesisStart,4,'multiple priority actions fail at the synthesis schema without a repair call')
+  synthesisActionIds=['a1'];incompleteUsage=true;expectedReservations=16;f.request.requestId=randomUUID();f.request.traceId=randomUUID()
+  const partialStart=requests.length,partial=await wf.run(f.request);assert.equal(partial.status,'unavailable');assert.equal(partial.costCny,null)
   // The first incomplete analyst may cancel its sibling before the second wire
   // is sent. Both interleavings must retain reservations and forbid later waves.
-  const partialWire=requests.slice(4);assert.ok(partialWire.length>=1&&partialWire.length<=2,'one attempt per analyst, no charged retry');assert.ok(partialWire.every(row=>row.context.path),'partial usage stops before critic/synthesis')
+  const partialWire=requests.slice(partialStart);assert.ok(partialWire.length>=1&&partialWire.length<=2,'one attempt per analyst, no charged retry');assert.ok(partialWire.every(row=>row.context.path),'partial usage stops before critic/synthesis')
   const partialCalls=(budget.snapshot().calls as CoachCallReceipt[]).filter(c=>c.runId===f.request.requestId);assert.equal(partialCalls.length,4);assert.ok(partialCalls.some(c=>c.estimatedCostCny==='unknown'&&(c.reservedCostCny??0)>0));assert.ok(partialCalls.filter(c=>c.outcome==='not_sent').every(c=>c.estimatedCostCny===0));assert.ok(partialCalls.filter(c=>c.outcome==='not_sent').length>=2,'critic and synthesis never sent')
-  incompleteUsage=false;duplicateSelection=true;expectedReservations=12;f.request.requestId=randomUUID();f.request.traceId=randomUUID();const duplicateWireStart=requests.length
+  incompleteUsage=false;duplicateSelection=true;expectedReservations=20;f.request.requestId=randomUUID();f.request.traceId=randomUUID();const duplicateWireStart=requests.length
   const duplicate=await wf.run(f.request);assert.equal(duplicate.status,'unavailable');assert.equal(duplicate.failure,'invalid_contract')
   assert.equal(typeof wf.trace.rows.filter(row=>row.error==='invalid_contract').at(-1)?.costCny,'number','invalid response preserves its known paid usage; a cancelled sibling may still keep the whole graph cost unknown')
   assert.ok(requests.slice(duplicateWireStart).every(row=>row.context.path),'invalid duplicate selections never reach critic/synthesis or retry')
@@ -106,7 +118,7 @@ test('WF01 actual native runtime adapter + SDK + existing ledger class, loopback
   f.request.budget!.source={...f.request.budget!.source,id:newBudgetSourceId}
   const singleStart=requests.length,single=await wf.run(f.request,undefined,'single')
   assert.equal(single.status,'proposed',JSON.stringify(single));assert.equal(single.providerCalls,1);assert.equal(requests.length-singleStart,1)
-  assert.equal(single.proposal!.alternatives.length,2);assert.equal(single.proposal!.nextActions.length,2);assert.deepEqual(single.reviewIssues,[],'single arm does not claim a critic execution')
+  assert.equal(single.proposal!.alternatives.length,2);assert.equal(single.proposal!.nextActions.length,2);assert.equal(single.proposal!.actionSelection,'unranked_options');assert.deepEqual(single.reviewIssues,[],'single arm does not claim a critic execution')
   const normalizedFacts=(rows:any[])=>rows.map(({ref,...fact})=>({...fact,sourceType:ref.type,sourceRevision:ref.revision,sourceQuote:ref.quote}))
   assert.deepEqual(normalizedFacts((requests.at(-1)!.context.paths as any[])[0].facts),normalizedFacts(requests[0].context.facts as any[]),'single and multi use the same facts and provenance, apart from storage IDs')
   assert.equal(audits.at(-1)!.decisionInputDigest,audits[0].decisionInputDigest,'same comparison input digest across arms')

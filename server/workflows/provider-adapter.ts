@@ -24,7 +24,7 @@ const criticSchema=object({issues:Type.Array(Type.Union([
  object({severity:Type.Union([Type.Literal('blocker'),Type.Literal('needs_clarification')]),issueId:Type.Union([Type.Literal('unsupported'),Type.Literal('contradiction')]),evidenceIds:Type.Array(Type.String(),{minItems:1,maxItems:12,uniqueItems:true}),claimIds:Type.Array(Type.String(),{minItems:1,maxItems:4,uniqueItems:true})}),
  object({severity:Type.Union([Type.Literal('needs_clarification'),Type.Literal('uncertainty')]),issueId:Type.Union(['motivation','fit','unknown','adoption','role_evidence','repeatability'].map(x=>Type.Literal(x))),evidenceIds:ids,claimIds:Type.Optional(ids)})
  ]),{maxItems:12}),rejectedDirections:ids})
-const synthesisSchema=object({actionIds:ids})
+const synthesisSchema=object({actionIds:Type.Array(Type.String({minLength:1,maxLength:80}),{maxItems:1,uniqueItems:true})})
 export function bindWorkflowSelectionSchema(schema:ReturnType<typeof Type.Object>,context:Record<string,any>){
  // TypeBox reuses the same ids object in several properties. JSON schema is
  // declarative; detach those aliases so binding action IDs cannot replace facts.
@@ -233,6 +233,7 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
    const wire=output.parsed as {selections:Record<string,Static<typeof analystSchema>>}
    const analyses=contexts.map(ctx=>compileAnalysis(c,ctx,wire.selections[ctx.path.id])),p=emptyProposal(c.request)
    p.evidenceRefs=c.request.authorizedEvidenceRefs
+   p.actionSelection='unranked_options'
    p.alternatives=analyses.flatMap(x=>x.proposal!.alternatives)
    p.hypotheses=analyses.flatMap(a=>a.proposal!.hypotheses)
    p.nextActions=analyses.flatMap(a=>a.proposal!.nextActions)
@@ -258,9 +259,11 @@ export function createRuntimeDecisionAdapter(input:{readEvidence:EvidenceReader;
   async synthesize(c,analyses,critic,skill){
    await input.readMethods?.(c.request)
    const alternatives=analyses.flatMap(x=>x.proposal?.alternatives??[]),actions=analyses.flatMap(x=>x.proposal?.nextActions??[]).map((action,index)=>({id:'a'+index,action}))
-   const output=await call(c,'synthesis','最终综合者：整理已审候选，选择可开始的备选动作；方向顺序由宿主保持本人原始选择顺序；零时间时保留空行动，允许暂缓，不新增事实或自动改目标',synthesisSchema,{alternatives,actions,critic,timeBudget:c.request.budget},skill)
+   const hypotheses=analyses.flatMap(x=>x.proposal?.hypotheses??[])
+   const output=await call(c,'synthesis','最终综合者：结合同一比较维度、各方向候选、本人依据、仍未知和独立审阅结果，最多选一项当前最值得先核实的小行动。只选可在本人时间约束内停止、且能补足或区分当前比较关键未知的已审行动；不要按方向输入顺序决定，不新增行动或个人事实。依据不足以区分优先项、审阅要求先补充关键情况、或没有可行行动时，返回空actionIds，允许继续聊或暂缓。被选行动已有依据、未知和停止条件，供本人决定是否采纳；不替本人确认长期方向。',synthesisSchema,{alternatives,hypotheses,actions,critic,timeBudget:c.request.budget},skill)
    const wire=output.parsed as Static<typeof synthesisSchema>,p=emptyProposal(c.request)
    p.evidenceRefs=c.request.authorizedEvidenceRefs
+   p.actionSelection=wire.actionIds.length===1?'reviewed_priority':'no_priority'
    p.alternatives=select(alternatives.map(a=>({...a,id:a.directionId})),c.request.directions.filter(path=>!c.request.controls.forbiddenDirections.includes(path.id)).map(path=>path.id)).map(({id,...a})=>a)
    p.hypotheses=analyses.flatMap(a=>a.proposal!.hypotheses)
    p.nextActions=select(actions,wire.actionIds).map(x=>x.action)
