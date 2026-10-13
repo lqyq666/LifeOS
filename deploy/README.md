@@ -25,3 +25,7 @@ python3 deploy/verify-restoration.py --origin https://lqynb.xyz \
 远端Coze成长工作流的唯一账本和逐请求日志必须跨容器重建保留。`LIFEOS_COZE_GROWTH_STATE_DIR`挂载到`/app/.local/coze-launch`，保存既有`credits-ledger.jsonl`及`journal/`；`LIFEOS_COZE_MODEL_BUDGET_DIR`挂载到`/app/.local/v1.3-action-coach/paid`，保存既有`provider-calls.json`和其授权旁证。两个宿主目录必须先由可验证恢复流程准备，且容器UID 1000可读写；禁止在新空目录上生成第二本账或清空未知预留。工作流冻结文件由`LIFEOS_WORKFLOW_FREEZE_FILE`只读挂载到固定容器路径。默认占位目录/文件不含授权或账本；Coze保持关闭，不能作为启用配置。
 
 这些 bind mount 的 Compose 配置检查只证明路径和权限声明，不证明生产主机已有正确账本、文件属主或真实恢复成功。启用Coze前仍须核对挂载内原账本哈希/授权/余额与当前配置，并完成生产备份及回滚演练。
+
+`rehearse-production.py` 复用原串行私有库演练：停止前重核原容器ID、镜像、名称和Compose属主，所有主机已知模型进程/服务分别在每次编码器启动前检查；恢复后由同一 `verify-restoration.py` 联合验证公网HTTPS、精确版本、原不可变镜像和完整迁移清单。私有恢复库的全部表及完整DDL在合成控制记录加入后冻结，旧/新镜像启动后逐一对照；真实数据和备份保留在原服务器，不复制到本机。
+
+操作绑定包含原容器、原迁移清单、目标提交/镜像、唯一release目录和三个Python文件的SHA。`scripts/run-production-recovery.mjs --binding <绑定文件> --review <独审目录>` 默认只输出已审计划；显式 `--execute` 才派发，要求该绑定及实际执行包装器逐字被独审，保留首次不可覆盖回执，最终回执原子写入。远端主操作300秒、恢复最多125秒、整体435秒，外层480秒TERM/15秒KILL，失败时保留持久恢复看门狗。不得使用旧82b绑定，也不得用源码复核或本地测试代替精确绑定审核、看门狗实际验证、生产恢复或最终真实云验收。

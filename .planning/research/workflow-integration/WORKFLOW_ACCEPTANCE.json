@@ -2301,5 +2301,113 @@
       "newRealProviderCalls": 0,
       "newCozeBusinessCalls": 0
     }
+  },
+  "currentRecoveryContinuation20261013": {
+    "status": "BROWSER_CONNECTED_RECOVERY_SOURCE_TESTED_EXECUTION_AND_BILL_MAPPING_PENDING",
+    "capturedAt": "2026-10-13T14:32:55.655Z",
+    "browser": "STANDARD_BROWSER_RECONNECTED_SAME_VERSION_BYTES_SECURITY_CHECKS_RETAINED",
+    "accountBalanceObserved": 62658,
+    "frozenAdditionalAllowance": 12531,
+    "originalLedgerSha256": "235365dfd5a90d45fc071bd9e6f6bae916e7dd52aa354ddadc4fc843658364b4",
+    "pendingCozeRequests": 9,
+    "heldCredits": 80072,
+    "availableCredits": 0,
+    "projectAggregates": {
+      "growth": 79892.35,
+      "publicKnowledge": 12015.95,
+      "individualCharges": "UNKNOWN_NOT_ALLOCATED"
+    },
+    "groupReconciliationDraft": "REJECTED_AND_REMOVED_ORIGINAL_RULES_AND_LEDGER_UNCHANGED",
+    "recovery": {
+      "codeReview": "PASS_SOURCE_ONLY",
+      "executionEligible": false,
+      "guardTestsPassed": 4,
+      "hostEncoderReadback": "PASS_READ_ONLY",
+      "runtimeSourceCommit": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+      "sources": [
+        {
+          "file": "deploy/rehearse-production.py",
+          "sha256": "cae6c66319d452d2fb974bd65feaec3d2fbae700a98d22363e3ebc39173496e3"
+        },
+        {
+          "file": "deploy/recovery-guards.py",
+          "sha256": "2339d4370be449b213021ec3b0d6db9ce24ed9c95737bee0783a41bdcb83d7f2"
+        },
+        {
+          "file": "deploy/verify-restoration.py",
+          "sha256": "2f9c7c062a6e1958c42da369c3805b287d574a8be3ee2a1ffb3c8b7e49cf3e2f"
+        },
+        {
+          "file": "scripts/run-production-recovery.mjs",
+          "sha256": "b468c711843dad2e846ae68e3147c1cbe5d2197874d7443ac50a0d4c4c13c1ee"
+        },
+        {
+          "file": "tests/recovery_guards_test.py",
+          "sha256": "0ab83b4b81df8313ff15ab119446fe0493448f09e10d49d98e2cb386c5e38160"
+        }
+      ],
+      "productionRehearsalExecuted": false
+    },
+    "transfer": {
+      "directory": "/opt/lifeos/releases/recovery-e3aec6d-76ceda52",
+      "receipt": ".local/continuation-20261013/image-transfer-resume.json",
+      "status": "TRANSFERRING_VERIFIED_PREFIX",
+      "totalBytes": 600073449
+    },
+    "evidence": [
+      {
+        "path": ".local/continuation-20261013/account-project-bills-20261008-13.ax.txt",
+        "sha256": "17fdff771deaad1ab52197e8d34db6b76fd90044926e38aac382773cae284774"
+      },
+      {
+        "path": ".local/continuation-20261013/account-project-bills-20261008-13.png",
+        "sha256": "b10437511ddae8853898f97dcaded277a07f3fe16d3505392eae83b82d6bda85"
+      },
+      {
+        "path": ".local/continuation-20261013/growth-statistics-current.ax.txt",
+        "sha256": "67cb506b6b7a5e797992c8e9ba20a1e60465e319b890595ec81202da8efe9c6f"
+      },
+      {
+        "path": ".local/continuation-20261013/production-preflight-current.json",
+        "sha256": "6b98a08303e6b789d5f0852f1130d36647afebcfd45bb8b76e8bd1407ad2243e"
+      },
+      {
+        "path": ".local/continuation-20261013/production-migration-binding.json",
+        "sha256": "e905da723083241db228715d409615f36002a551bba868f2a9c301bd3320aa95"
+      },
+      {
+        "path": ".local/continuation-20261013/host-encoder-guards-current.json",
+        "sha256": "b399815d7f36300947f2df01e65045651590fbcfa62e7e9319d2de3fdaa03e41"
+      },
+      {
+        "path": ".local/continuation-20261013/recovery-guards-gate.log",
+        "sha256": "1a6f3c424ac71761ba5d0c9dc8b29526af44c2df1698cb652d46c0da91ec6167"
+      },
+      {
+        "path": ".local/continuation-20261013/reviews/recovery/report.json",
+        "sha256": "8a4fc5804878a14ae33cded3b570c1ed8df25f8869abdb6437412a97cf1cda52"
+      },
+      {
+        "path": ".local/continuation-20261013/reviews/recovery/manifest.json",
+        "sha256": "41444d99e1998c04c4a9ca116ddb85eedbba039462034292b6b9269a4d5bef36"
+      },
+      {
+        "path": ".local/continuation-20261013/reviews/accounting/report.json",
+        "sha256": "565f6c057e755140c47aa8d913e12f49c28b8443ca5daf3cd4cb7fab3fc3b6f4"
+      }
+    ],
+    "automation": {
+      "id": "lifeos",
+      "kind": "heartbeat",
+      "hourInterval": 1,
+      "status": "ACTIVE"
+    },
+    "realProviderCalls": 0,
+    "cozeCalls": 0,
+    "paidTestsRepeated": 0,
+    "productionServiceModified": false,
+    "published": false,
+    "finalAcceptance": false,
+    "handoff": ".planning/research/workflow-integration/RECOVERY_CONTINUATION_20261013.md"
   }
 }

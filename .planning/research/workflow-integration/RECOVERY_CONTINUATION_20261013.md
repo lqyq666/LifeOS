@@ -1,0 +1,50 @@
+# 当前版本恢复与真实云验收推进断点
+
+本文件为2026-10-13本轮自包含断点。最终目标仍是Agent、工作流、五Skill真实云验收及完整发布门槛全部通过后发布。当前 `WIP_NOT_READY`；没有执行生产暂停、重启、发布或新产品/Coze调用。原账号/原额度授权继续，不购买、不升级、不重复已通过的付费测试，不自动重发收费请求。
+
+## 已完成的实际工作
+
+- 标准浏览器连接已恢复。缺失的 `browser/26.1007.21434` 运行模块由本机同版本Chrome包原文件恢复，SHA一致，重新连接后实际登录读取扣子积分页成功，未修改任何安全检查。当前账号余额62658，既有20%授权上限12531未增加。
+- 原9笔未决均已定位并读回两项目历史。与原账单基线一致的2026-10-08至11日期，扩展至13日的当前实际项目合计为成长79892.35、公共资料12015.95；原基线64403.21、7059.43。成长统计编程组件79892.34、托管显示0（不证明精确0）；当前差额不能独立对应每笔请求。尝试的整组结算草案被独审指出覆盖证明与重复入账缺口，已撤回全部草案代码/测试，原账本未写入结算或改变规则。
+- 新恢复源码复核 `PASS_SOURCE_ONLY / executionEligible=false`；四项新守卫测试通过，宿主实际只读编码器扫描通过。主要修复：停止前原容器ID/image/name/Compose属主复核；所有主机已知模型进程与运行服务检查；合成控制加入后冻结私有库全表及完整DDL并在旧/新镜像启动后对照；公网HTTPS ready/version与原全部迁移SHA的恢复联合门禁；300秒主操作、最多125秒恢复、435秒整体预算；外层480秒TERM/15秒KILL；首次不可覆盖回执和原子最终回执、诊断摘要、未知结果不重发。
+- 应用镜像沿用此前实际逐字核验/隔离重启通过的 `e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4`。本轮新代码是宿主恢复工具，不冒称已在运行镜像内。原线上仍99ca3f6，33迁移，原容器ID `8a0c31530ec68986b89b203753a8fb1b0160adca5a3a4202e85e4addc9ec9f51`、image `sha256:7eda2b6173decc442bf219408b1bc49524a9df54d82636e9f00ff5f200e1020a`；`campus-advisor.service` active，其与海闻仓库对应关系未证实。
+
+## 可继续使用的实际源码
+
+- `deploy/rehearse-production.py`：从已有82b串行演练局部适配；参数 `--binding` 必须是唯一release内的operation-binding.json，且三个Python文件SHA匹配。
+- `deploy/recovery-guards.py`：真实容器身份、全主机已知编码器和精确操作绑定守卫；独立CLI用于恢复看门狗。
+- `deploy/verify-restoration.py`：已验证的受监督、完整迁移清单读回门禁；不得只凭HTTP200判恢复。
+- `scripts/run-production-recovery.mjs`：默认输出已审计划，显式 `--execute` 才执行；独审须绑定操作、守卫、门禁、包装器及完整绑定文件。当前源码复核不能满足它的执行门槛。
+- `tests/recovery_guards_test.py`：同名同镜像换容器拒绝、主机/其他容器模型拒绝、过期预算不重置、操作字节及绑定字段不符拒绝。
+
+## 原账本仍保留的9笔
+
+| 请求 | 类型 | 预留积分 |
+|---|---|---:|
+| LIFEOS_KB_R5_EXACT_RECEIPT_AND_REAL_CHAINS | 公共资料开发 | 20000 |
+| LIFEOS_COZE_CORE_20261011_GROWTH_R11_RETAINED_LEDGER | 成长开发 | 15000 |
+| LIFEOS_KB_R6_ACTUAL_INPUT_DELIVERY | 公共资料开发 | 15000 |
+| LIFEOS_KB_R7_EXACT_PROTOCOL_FULL_BODY | 公共资料开发 | 10000 |
+| LIFEOS_GROWTH_R12_REAL_HTTP_SQL_NO_MODEL | 成长开发 | 10000 |
+| LIFEOS_KB_R8_ACTUAL_SEMANTICS | 公共资料开发 | 10000 |
+| 72efee8c-9ade-4203-965c-6d0ee86c39bd | 业务首次失败 | 24 |
+| 35f071a2-4617-45bc-a661-30e703fbd86d | 业务首次失败 | 24 |
+| 8d78dbcf-e2e7-4474-aa97-424804b49faa | 业务首次失败 | 24 |
+
+唯一Coze账本 `.local/coze-launch/credits-ledger.jsonl`，本轮未修改SHA `235365dfd5a90d45fc071bd9e6f6bae916e7dd52aa354ddadc4fc843658364b4`。已知71462、未决80072、可调度0。只在得到与请求可核对的实际账单后沿原reconcile方法结算，不分摊项目合计，不把托管显示0当精确零费用。产品模型CNY账本仍为 `.local/v1.3-action-coach/paid/provider-calls.json`，与Coze积分分开；本轮未调用。
+
+## 当前镜像传输与下一步顺序
+
+唯一暂存目录 `/opt/lifeos/releases/recovery-e3aec6d-76ceda52`。归档600073449字节，SHA `5ce5e000d4e82137038fa55a072e96b33f79245b60573f49090bf0f50b36b5e6`。初始SCP因速率不足主动结束，仅停止本任务已核对的SCP/SSH进程，生产未受影响。已有18579456字节前缀在两端SHA核对一致后，使用本机既有Paramiko/SFTP继续追加；严格known_hosts，不重新上传已验证前缀，不创建第二个release。原首次失败回执保留。
+
+1. 先读 `.local/continuation-20261013/image-transfer-resume.json` 与日志。状态 `TRANSFERRING_VERIFIED_PREFIX` 时核对该PID仍是本任务Python，保持原工作者运行，**不得重复派发上传**。如工作者异常，先核对远端文件/本地前缀与记录，再决定续传；不删除未知锁或假设成功。当前工具会话95608可以读输出。
+2. 只有状态 `PASS_COMPLETE_REMOTE_ARCHIVE_SHA256`，运行 `node .local/continuation-20261013/complete-image-staging.mjs`。该实际脚本复用原暂存程序的归档加载、8运行文件逐字核验、37个Git blob迁移和manifest同步阶段；不再次上传镜像、不启动应用。已有completion-attempt回执时先检查实际远端结果，不重发。成功输出 `image-staging-final.json`，用实际远端image ID；不得假定它等于本机Docker image ID。
+3. 成功后运行 `node .local/continuation-20261013/prepare-bound-recovery.mjs`。该实际脚本重读公网ready/version、原容器/属主、33迁移并要求与首次读回一致，生成含三个源码SHA的精确绑定，暂存三个受审Python文件及绑定；只暂存不执行。原容器/版本改变时重新审查，不能覆盖他人更新。
+4. 将最新绑定文件、暂存及宿主只读证据、全部源码、实际包装器、旧watchdog锁恢复机制证据一起独审。核对远端暂存文件SHA/路径/属主、image实际字节、资源和看门狗配置；必须得到该精确绑定 `PASS / executionEligible=true` 才运行包装器 `--execute`。失败或未知先读远端 `isolated-rehearsal-report.json`、公网、原容器和恢复unit，不重派相同演练。
+5. 恢复演练实际成功后记录范围：是原生产备份到原服务器私有库、旧/新串行启动、原公网恢复，不是新版本生产发布或学生接受。继续取得9笔可映射费用与当前授权原额度，再只补未通过、与当前源码有关的真实云样本及正常宿主五Skill、SMTP实际收信/学生价值门槛。原已通过付费样本不重跑，已曝光结果不当盲测。全部最终门槛通过后才发布并读回；当前不得发布。
+
+## 私有证据与长期推进
+
+当前实际账单AX与截图、只读线上绑定、4项守卫日志、独审原件及源文件SHA都在 `.local/continuation-20261013/`；这些文件不含新授权或可伪造的成功替代物。账单/账本/环境/备份保持私有，不能整体上传或提交。唯一私有转运脚本在该目录，作为当前同一镜像操作的继续文件保留。
+
+当前线程已创建小时级heartbeat自动化 `lifeos`（LifeOS 最终云验收与发布推进），沿本断点继续；无变化时安静，只在实际推进、完成、失败或确需用户动作时通知。普通工程与原权限无需再询问；权限不能替代缺失账单、实际验收或工具安全门槛。
