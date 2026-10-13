@@ -7,6 +7,8 @@ import {parseCozeDirectionReceipt} from '../../server/workflows/coze-direction-a
 import {workflowRuntimeVersion} from '../../server/workflows/runtime-version.ts'
 import {fixture as workflowFixture,proposal as workflowProposal} from '../workflows/fixtures.ts'
 import {pool} from '../../server/db.ts'
+import {randomUUID} from 'node:crypto'
+import {createWorkflowHost} from '../../server/workflows/task-host.ts'
 test.after(()=>pool.end())
 test('restored scope without a bound copy or its own runtime budget stays zero-dispatch and read-only',()=>{
  const path='.local/v1.3-action-coach/paid/provider-calls.json',hash=()=>existsSync(path)?createHash('sha256').update(readFileSync(path)).digest('hex'):'MISSING_NOT_COPIED',before=hash(),pre=cozePreflight()
@@ -36,11 +38,29 @@ test('observed cloud roles bind parsers and reject swapped projects, missing rol
 test('Coze receipt rejects a reviewed-priority marker when the reviewed result contains multiple actions',()=>{
  const f=workflowFixture(),candidate=workflowProposal(f.request),second={...candidate.nextActions[0],description:'再核实另一个方向的机会要求'}
  candidate.actionSelection='reviewed_priority';candidate.nextActions.push(second)
- const body={schemaVersion:2,requestId:f.request.requestId,traceId:f.request.traceId,executionKind:'real_provider',receiptIncomplete:false,workerFinishedAtReturn:true,suggestedStateChanges:[],status:'proposed',providerCalls:5,reservedCostCny:0.05,costCny:0.02,proposal:candidate,reviewedProposalFields:{alternatives:candidate.alternatives,nextActions:candidate.nextActions},reviewIssues:[],skills:workflowRuntimeVersion.skills.filter(s=>['lifeos-direction-analysis','lifeos-experience-evidence'].includes(s.name)).map(s=>({name:s.name,loaded:true,sha256:s.sha256,version:s.version}))}
+ const body={schemaVersion:2,requestId:f.request.requestId,traceId:f.request.traceId,executionKind:'real_provider',receiptIncomplete:false,workerFinishedAtReturn:true,suggestedStateChanges:[],status:'proposed',providerCalls:5,reservedCostCny:0.05,costCny:0.02,proposal:candidate,reviewedProposalFields:{alternatives:candidate.alternatives,nextActions:candidate.nextActions,hypotheses:candidate.hypotheses},trace:[...f.request.directions.map(d=>({nodeId:'path:'+d.id,status:'ok'})),{nodeId:'critic',status:'ok'},{nodeId:'synthesize',status:'ok'}],reviewIssues:[],skills:workflowRuntimeVersion.skills.filter(s=>['lifeos-direction-analysis','lifeos-experience-evidence'].includes(s.name)).map(s=>({name:s.name,loaded:true,sha256:s.sha256,version:s.version}))}
  assert.throws(()=>parseCozeDirectionReceipt(body,f.request,f.records),/invalid_contract/)
  const noPriority=workflowProposal(f.request);noPriority.actionSelection='no_priority'
  assert.throws(()=>parseCozeDirectionReceipt({...body,proposal:noPriority,reviewedProposalFields:{alternatives:noPriority.alternatives,nextActions:noPriority.nextActions}},f.request,f.records),/invalid_contract/)
  const legacy=workflowProposal(f.request),{actionSelection:_,...legacyProposal}=legacy
  const parsed=parseCozeDirectionReceipt({...body,proposal:legacyProposal,reviewedProposalFields:{alternatives:legacy.alternatives,nextActions:legacy.nextActions}},f.request,f.records)
  assert.equal(parsed.proposal?.actionSelection,'unranked_options')
+})
+
+test('configured Coze entry is limited to one exact 32-character synthetic account',async()=>{
+ const previous=process.env.LIFEOS_ADVANCED_WORKFLOWS;process.env.LIFEOS_ADVANCED_WORKFLOWS='true'
+ const allowed='AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPp',other='ZzYyXxWwVvUuTtSsRrQqPpOoNnMmLlKk',never=async()=>{throw Error('no model call in this test')}
+ const adapter={executionKind:'real_provider',maxCostPerCallCny:0.02,analyze:never,critic:never,synthesize:never,runRemoteGraph:never} as any
+ const host=createWorkflowHost({syntheticUserId:allowed,adapter}),unconfigured=createWorkflowHost({syntheticUserId:'',adapter}),local=createWorkflowHost({adapter:{executionKind:'simulated_provider',maxCostPerCallCny:0.01,analyze:never,critic:never,synthesize:never} as any})
+ try{
+  assert.equal(host.capabilities(allowed).syntheticEligible,true)
+  assert.equal(host.capabilities(other).syntheticEligible,false)
+  assert.equal(host.capabilities(other).enabled,false)
+  assert.equal(host.capabilities(allowed.toLowerCase()).enabled,false)
+  await assert.rejects(host.create(other,{}),(error:any)=>error.code==='SYNTHETIC_WORKFLOW_ACCOUNT_REQUIRED')
+  await assert.rejects(host.resume(other,randomUUID(),{}),(error:any)=>error.code==='SYNTHETIC_WORKFLOW_ACCOUNT_REQUIRED')
+  assert.equal(unconfigured.capabilities(allowed).enabled,false)
+  await assert.rejects(unconfigured.create(allowed,{}),(error:any)=>error.code==='SYNTHETIC_WORKFLOW_ACCOUNT_REQUIRED')
+  assert.equal(local.capabilities(other).enabled,true)
+ }finally{host.close();unconfigured.close();local.close();if(previous===undefined)delete process.env.LIFEOS_ADVANCED_WORKFLOWS;else process.env.LIFEOS_ADVANCED_WORKFLOWS=previous}
 })

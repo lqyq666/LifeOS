@@ -73,6 +73,9 @@ services:
       LIFEOS_WORKFLOW_V2: ${LIFEOS_WORKFLOW_V2:-false}
       LIFEOS_ADVANCED_WORKFLOWS: ${LIFEOS_ADVANCED_WORKFLOWS:-false}
       LIFEOS_REAL_WORKFLOWS: ${LIFEOS_REAL_WORKFLOWS:-false}
+      LIFEOS_COZE_GROWTH: ${LIFEOS_COZE_GROWTH:-false}
+      LIFEOS_COZE_GROWTH_CONFIG: /run/secrets/lifeos-coze-growth-config.json
+      LIFEOS_COZE_SYNTHETIC_USER_ID: ${LIFEOS_COZE_SYNTHETIC_USER_ID:-}
       LIFEOS_WORKFLOW_FREEZE: ${LIFEOS_WORKFLOW_FREEZE:-}
       LIFEOS_COZE_KNOWLEDGE: ${LIFEOS_COZE_KNOWLEDGE:-false}
       LIFEOS_COZE_TRANSPORT: ${LIFEOS_COZE_TRANSPORT:-code_workflow}
@@ -84,6 +87,13 @@ services:
     command: [sh, -c, 'node --import tsx scripts/migrate-db.ts && exec node --import tsx server/index.ts']
     ports: ['127.0.0.1:${LIFEOS_HTTP_PORT:-8787}:8787']
     read_only: true
+    volumes:
+      - type: bind
+        source: ${LIFEOS_COZE_GROWTH_CONFIG_FILE:-./deploy/coze-growth-config.unconfigured.json}
+        target: /run/secrets/lifeos-coze-growth-config.json
+        read_only: true
+        bind:
+          create_host_path: false
     tmpfs: ['/tmp:size=64m,mode=1777']
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]

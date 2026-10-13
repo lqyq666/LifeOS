@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto'
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join,dirname} from 'node:path'
-import {fixture} from './workflows/fixtures.ts'
+import {fixture,proposal} from './workflows/fixtures.ts'
 import {CoachProviderBudget} from '../scripts/coach-provider-budget.ts'
 import {CozeCreditBudget} from '../scripts/coze-credit-budget.ts'
 import {captureCoachSource} from '../scripts/coach-source-freeze.ts'
@@ -25,7 +25,16 @@ function setup(fetchImpl:typeof fetch){
  const config:CozeDirectionConfig={projectId:'7693388932939300905',endpoint:'https://synthetic-test.coze.site/run',token:'synthetic-existing-token-only-not-real',binding:{hostSourceDigest:workflowRuntimeVersion.sourceDigest,cloudCommit:'a'.repeat(40),cloudSourceDigest:'b'.repeat(64),contentHash:workflowRuntimeVersion.contentHash,skillsDigest:'c'.repeat(64)},approval:{kind:'OWNER_APPROVED_LIFEOS_COZE_CORE_LAUNCH',approvalSource:'CURRENT_CHAT_DIRECT_HUMAN_REPLY',cozePauseLifted:true,productModelPauseLifted:true,directHttpRouteApproval:{source:'CURRENT_CHAT_DIRECT_HUMAN_REPLY',exactAnswer:'批准新的实现路线，仍只用已有额度',newBudget:0,automaticPaidRetry:false,publishBeforeCoreGates:false}},creditsLedgerPath:creditPath,maxCreditsPerGraph:10,journalDirectory:join(root,'journal')}
  const f=fixture(),journal={...simulationJournal(),durable:true},finished:any[]=[];journal.finishNode=async(_r,id,_result,cost,calls,error)=>{finished.push({id,cost,calls,error})}
  const adapter=createCozeDirectionAdapter({config,freezePath,readEvidence:async()=>f.records,readMethods:async()=>[],budget,credits,fetchImpl,syntheticTransport:true})
- return {...f,budget,credits,journal,adapter,finished,root}
+ return {...f,budget,credits,journal,adapter,finished,root,config}
+}
+
+function proposedReceipt(wire:any,config:CozeDirectionConfig,request:ReturnType<typeof fixture>['request']){
+ const claims=JSON.parse(Buffer.from(wire.claimsB64,'base64').toString('utf8'))
+ const trace=claims.slots.map((slot:any,index:number)=>({callId:slot.callId,nodeId:slot.nodeId,reservedCostCny:slot.reservedCostCny,status:slot.nodeId==='critic'?'failed':'ok',started:100+index,ended:200+index,usage:{prompt_tokens:100,completion_tokens:100,total_tokens:200},providerResponseId:'synthetic-provider-'+index,model:claims.model,actualPromptBytes:100}))
+ const costCny=trace.reduce((sum:number,row:any)=>sum+(row.usage.prompt_tokens*claims.inputCnyPerMillion+row.usage.completion_tokens*claims.outputCnyPerMillion)/1e6,0)
+ const canonical=JSON.parse(readFileSync('.planning/research/workflow-integration/COZE_CANONICAL_PUBLIC_ASSETS.json','utf8'))
+ const approvedSubsetHash=sha(canonical.cards.map((c:any)=>sha(String(c.claim??'')+'\n'+String(c.excerpt??'')+'\n'+(c.mechanisms??[]).map(String).join(' ')+'\n'+String(c.limitations??''))).sort().join(''))
+ return {schemaVersion:2,requestId:claims.requestId,traceId:request.traceId,executionKind:'real_provider',status:'proposed',failure:null,receiptIncomplete:false,workerFinishedAtReturn:true,suggestedStateChanges:[],runtime:{projectId:config.projectId,businessRole:'growth',hostSourceDigest:config.binding.hostSourceDigest,cloudCommit:config.binding.cloudCommit,cloudSourceDigest:config.binding.cloudSourceDigest,canonicalContentHash:config.binding.contentHash,canonicalSourceRegistryHash:workflowRuntimeVersion.sourceRegistryHash,canonicalEvidenceHash:workflowRuntimeVersion.contentEvidenceHash,approvedSubsetHash,fullCorpusHash:config.binding.contentHash,candidateRelease:'0.2.0-candidate',skillsDigest:config.binding.skillsDigest},trace,providerCalls:trace.length,costCny,reservedCostCny:trace.reduce((sum:number,row:any)=>sum+row.reservedCostCny,0),proposal:proposal(request),reviewedProposalFields:{alternatives:proposal(request).alternatives,nextActions:proposal(request).nextActions},reviewIssues:[],skills:workflowRuntimeVersion.skills.filter(s=>['lifeos-direction-analysis','lifeos-experience-evidence'].includes(s.name)).map(s=>({...s,loaded:'True'}))}
 }
 test('opaque network failure holds every original-like reservation and duplicate request never dispatches again',async()=>{
  let posts=0;const f=setup(async()=>{posts++;throw Error('synthetic connection lost AFTER POST')})
@@ -57,4 +66,26 @@ test('cancel acknowledgement does not settle missing original response or abort 
  const receipt=await f.adapter.runRemoteGraph!(f.request,f.journal,controller.signal)
  assert.equal(posts,3);assert.equal(originalSignal?.aborted,false);assert.equal(receipt.failure,'cancelled');assert.equal(receipt.costCny,null);assert.equal(receipt.providerCallsAreUpperBound,true);assert.equal(receipt.workerFinishedAtReturn,false);assert.equal(receipt.receiptIncomplete,true);assert.equal(receipt.cancelAcknowledged,true);assert.equal(f.credits.balance().heldCredits,10)
  const rows=readFileSync(f.budget.path,'utf8');assert.match(rows,/unknown/)
+})
+
+test('known failed critic usage settles before its proposed graph is rejected',async()=>{
+ let f!:ReturnType<typeof setup>,posts=0
+ f=setup(async(_url,init)=>{
+  posts++
+  const body=JSON.parse(init!.body as string)
+  return new Response(JSON.stringify({host_receipt:proposedReceipt(body.host_request,f.config,f.request)}))
+ })
+ const receipt=await f.adapter.runRemoteGraph!(f.request,f.journal)
+ const rows=f.budget.snapshot().calls as any[]
+ assert.equal(posts,1,JSON.stringify({receipt}))
+ assert.equal(receipt.status,'unavailable')
+ assert.equal(receipt.failure,'invalid_contract')
+ assert.equal(receipt.proposal,undefined)
+ assert.equal(receipt.providerCalls,5)
+ assert.ok(Math.abs(Number(receipt.costCny)-0.00175)<1e-12)
+ assert.equal(rows.length,5)
+ assert.ok(rows.every(row=>typeof row.estimatedCostCny==='number'))
+ assert.ok(Math.abs(rows.reduce((sum,row)=>sum+row.estimatedCostCny,0)-0.00175)<1e-12)
+ assert.equal(f.finished.length,5)
+ assert.ok(f.finished.some(row=>row.id==='critic'&&row.error==='unavailable'))
 })

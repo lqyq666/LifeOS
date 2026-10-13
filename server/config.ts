@@ -63,6 +63,7 @@ export const config = {
   messagesPerDay: Number(env.LIFEOS_MESSAGES_PER_DAY ?? 50),
   generationConcurrency: Number(env.LIFEOS_GENERATION_CONCURRENCY ?? 4),
   generationQueueLimit: Number(env.LIFEOS_GENERATION_QUEUE_LIMIT ?? 32),
+  cozeSyntheticUserId: env.LIFEOS_COZE_SYNTHETIC_USER_ID?.trim() ?? '', // Better Auth default IDs are case-sensitive 32-character alphanumerics.
   // C1 controlled-integration diagnostics ONLY (default off, never set in
   // production): forces LOCAL knowledge candidates to miss so the remote Coze
   // fallback runs against the intact verified registry. Labeled in the audit;
@@ -78,6 +79,7 @@ export function validateConfig(){
   if(!config.databaseUrl||config.authSecret.length<32||/^(.{1,8})\1+$/.test(config.authSecret))throw new Error('Database URL and a strong unique auth secret are required')
   for(const count of [config.messagesPerMinute,config.messagesPerDay])if(!Number.isInteger(count)||count<1||count>10000)throw new Error('Invalid message request limit')
   if(!/^[a-zA-Z0-9_-]{1,80}$/.test(config.providerBudgetId))throw new Error('Invalid provider budget ID')
+  if(config.cozeSyntheticUserId&&!/^[A-Za-z0-9]{32}$/.test(config.cozeSyntheticUserId))throw new Error('LIFEOS_COZE_SYNTHETIC_USER_ID must be a 32-character Better Auth user ID')
   if(config.production&&!config.providerBudgetEnabled)throw new Error('Production requires provider spend reservations')
   if(config.production&&!config.entitlementsEnabled)throw new Error('Production requires account entitlements')
   if(config.production&&!credentialReady())throw new Error('Server model credential is required')

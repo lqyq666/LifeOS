@@ -28,12 +28,16 @@ export function parseCozeDirectionReceipt(body:unknown,r:WorkflowRequest,records
  validateProposal(r,proposal,records)
  const paths=r.directions.filter(d=>!r.controls.forbiddenDirections.includes(d.id))
  if(proposal.alternatives.length!==paths.length||paths.some(d=>!proposal.alternatives.some(a=>a.directionId===d.id)))throw new WorkflowError('invalid_contract')
+ // Graph usage is settled before this parser runs; only an all-success graph
+ // may expose a proposal for adoption.
+ const requiredNodeIds=[...paths.map(d=>'path:'+d.id),'critic','synthesize'],trace=value.trace
+ if(!Array.isArray(trace)||trace.length!==requiredNodeIds.length||new Set(trace.map((row:any)=>row?.nodeId)).size!==requiredNodeIds.length||requiredNodeIds.some(id=>!trace.some((row:any)=>row?.nodeId===id&&row.status==='ok')))throw new WorkflowError('invalid_contract')
  const reviewed=value.reviewedProposalFields
- if(!reviewed||!Array.isArray(reviewed.alternatives)||!Array.isArray(reviewed.nextActions))throw new WorkflowError('source_invalid')
+ if(!reviewed||!Array.isArray(reviewed.alternatives)||!Array.isArray(reviewed.nextActions)||reviewed.hypotheses!==undefined&&!Array.isArray(reviewed.hypotheses))throw new WorkflowError('source_invalid')
  // Reuse the proposal schema to check each actual reviewed field, rather than
  // accepting a remote role name as proof of review.
  if(reviewed.alternatives.length>3||reviewed.nextActions.length>48)throw new WorkflowError('invalid_contract')
- const checked={hypotheses:[],alternatives:reviewed.alternatives.map((a:unknown)=>parseProposal({...proposal,alternatives:[a],nextActions:[],hypotheses:[]}).alternatives[0]),nextActions:reviewed.nextActions.map((a:unknown)=>parseProposal({...proposal,alternatives:[],nextActions:[a],hypotheses:[]}).nextActions[0])}
+ const checked={hypotheses:(reviewed.hypotheses??[]).map((h:unknown)=>parseProposal({...proposal,alternatives:[],nextActions:[],hypotheses:[h]}).hypotheses[0]),alternatives:reviewed.alternatives.map((a:unknown)=>parseProposal({...proposal,alternatives:[a],nextActions:[],hypotheses:[]}).alternatives[0]),nextActions:reviewed.nextActions.map((a:unknown)=>parseProposal({...proposal,alternatives:[],nextActions:[a],hypotheses:[]}).nextActions[0])}
  validateReviewedFields(proposal,checked)
  if(proposal.actionSelection==='reviewed_priority'&&proposal.nextActions.length!==1||proposal.actionSelection==='no_priority'&&proposal.nextActions.length!==0)throw new WorkflowError('invalid_contract')
  proposal.actionSelection??='unranked_options'
@@ -46,12 +50,17 @@ export function parseCozeDirectionReceipt(body:unknown,r:WorkflowRequest,records
  if(issues.some(x=>x.severity==='blocker'))throw new WorkflowError('constraint_conflict')
  const actual=value.skills
  if(!Array.isArray(actual)||actual.length===0)throw new WorkflowError('source_invalid')
- const names=actual.map((s:any)=>s.name)
+ const seenSkills=new Set<string>()
+ const skillLoadReceipts=actual.map((s:any)=>{
+  const expected=workflowRuntimeVersion.skills.find(x=>x.name===s?.name)
+  if(!expected||seenSkills.has(expected.name)||![true,'True'].includes(s.loaded)||s.sha256!==expected.sha256||s.version!==expected.version)throw new WorkflowError('source_invalid')
+  seenSkills.add(expected.name)
+  return {name:expected.name,version:expected.version,sha256:expected.sha256,loaded:true as const}
+ })
  for(const name of ['lifeos-direction-analysis','lifeos-experience-evidence']){
-  const loaded=actual.find((s:any)=>s.name===name),expected=workflowRuntimeVersion.skills.find(s=>s.name===name)
-  if(!expected||!loaded||![true,'True'].includes(loaded.loaded)||loaded.sha256!==expected.sha256||loaded.version!==expected.version)throw new WorkflowError('source_invalid')
+  if(!seenSkills.has(name))throw new WorkflowError('source_invalid')
  }
- return {schemaVersion:2,traceId:r.traceId,status:'proposed',proposal,reviewIssues:issues,providerCalls:value.providerCalls,costCny:value.costCny,reservedCostCny:value.reservedCostCny,executionKind:'real_provider',skills:names,adoptionVersionDigest:r.hostSnapshot?.adoptionVersionDigest,verifiedRuntimeBinding:Object.fromEntries(['hostSourceDigest','cloudCommit','cloudSourceDigest','canonicalContentHash','canonicalSourceRegistryHash','canonicalEvidenceHash','approvedSubsetHash','fullCorpusHash','candidateRelease','skillsDigest'].filter(k=>typeof value.runtime?.[k]==='string').map(k=>[k,value.runtime[k]])),fallback:'none'}
+ return {schemaVersion:2,traceId:r.traceId,status:'proposed',proposal,reviewIssues:issues,providerCalls:value.providerCalls,costCny:value.costCny,reservedCostCny:value.reservedCostCny,executionKind:'real_provider',skills:skillLoadReceipts.map(s=>s.name),skillLoadReceipts,adoptionVersionDigest:r.hostSnapshot?.adoptionVersionDigest,verifiedRuntimeBinding:Object.fromEntries(['hostSourceDigest','cloudCommit','cloudSourceDigest','canonicalContentHash','canonicalSourceRegistryHash','canonicalEvidenceHash','approvedSubsetHash','fullCorpusHash','candidateRelease','skillsDigest'].filter(k=>typeof value.runtime?.[k]==='string').map(k=>[k,value.runtime[k]])),fallback:'none'}
 }
 
 export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;readMethods:(r:WorkflowRequest)=>Promise<Record<string,unknown>[]>;freezePath:string;config:CozeDirectionConfig;budget?:CoachProviderBudget;credits?:CozeCreditBudget;fetchImpl?:typeof fetch;syntheticTransport?:boolean;audit?:(r:WorkflowRequest,row:Record<string,unknown>)=>Promise<void>}):DecisionAdapter{
