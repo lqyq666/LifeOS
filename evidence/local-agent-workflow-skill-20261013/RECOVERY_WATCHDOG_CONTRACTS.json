@@ -1,0 +1,210 @@
+{
+  "capturedAt": "2026-10-13T15:54:49.513Z",
+  "status": "PASS_SOURCE_AND_SCOPED_RECOVERY_FIXTURES_NOT_PRODUCTION_REHEARSAL",
+  "runtimeSourceCommit": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+  "guardTestsPassed": 7,
+  "linuxSimulatedWatchdogTestsPassed": 6,
+  "hostFixtures": {
+    "dockerInterruptionPhases": [
+      {
+        "phase": "after-private-stop",
+        "retryObserved": true
+      },
+      {
+        "phase": "after-original-start",
+        "retryObserved": true
+      }
+    ],
+    "productionIdentityUnchanged": true,
+    "campusIdentityUnchanged": true,
+    "ownedFixturesRemoved": 4,
+    "configuration": {
+      "Type": "simple",
+      "Restart": "on-failure",
+      "RestartUSec": "20s",
+      "TimeoutStopUSec": "5s",
+      "RuntimeMaxUSec": "1min 55s",
+      "KillMode": "control-group",
+      "SendSIGKILL": "yes",
+      "StartLimitIntervalUSec": "0"
+    },
+    "configurationOperationSha256": "9d47c0b7f6550456af91ebc0ca7747d324df1cea76e69b105f236c87326fc161",
+    "configurationScope": "UNCHANGED_SYSTEMD_ARGUMENTS_AND_GUARD_FUNCTION_ONLY_NOT_FINAL_OPERATION"
+  },
+  "networkOrdering": "CREATE_NETWORK_NONE_CAPTURE_FSYNC_OWNERSHIP_DETACH_NONE_CONNECT_BY_IMMUTABLE_IDS_REVALIDATE_START",
+  "budgets": {
+    "mainSeconds": 300,
+    "parentRecoverySeconds": 125,
+    "parentOverallSeconds": 435,
+    "watchdogPrivateCleanupSeconds": 45,
+    "watchdogAttemptSeconds": 110,
+    "systemdRuntimeSeconds": 115,
+    "systemdStopSeconds": 5,
+    "persistentRetryDelaySeconds": 20,
+    "persistentRetryTotalDuration": "UNBOUNDED_FAILSAFE_NOT_GLOBAL_TIME_BOUND"
+  },
+  "canonicalSchema": {
+    "sourceCommit": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+    "databaseImageId": "sha256:051f7b7b3abdd564d5d1bd1e8c4b9c1b6e77087d1dd22020ede611c096a272e0",
+    "schemaSha256": "06e1212069ef21df207d241421384da4fe47b050646f704c91d06de1c2d80142",
+    "migrationCount": 37,
+    "syntheticDatabaseRemoved": true
+  },
+  "reviews": [
+    {
+      "role": "runtime-containment",
+      "verdict": "PASS_SOURCE_ONLY",
+      "executionEligible": false,
+      "manifestSha256": "385d56c05e002bca64c1a2864dd20dce64c55961deca5e35bf1360051bb64606",
+      "reportSha256": "521a4428e3e6d24980b48f6bc8d9f2730130fde14c36a346947f2244e2ba161d",
+      "sources": [
+        {
+          "file": "deploy/rehearse-production.py",
+          "sha256": "05d23da1449b5b648efcabfa674a543886cd6832de96e88c52caea737bd72946"
+        },
+        {
+          "file": "deploy/recovery-guards.py",
+          "sha256": "641e7893c70ee1fdb0868a8b629a2a369768748f0de8a3312f12ca74a8253eb2"
+        },
+        {
+          "file": "deploy/verify-restoration.py",
+          "sha256": "2f9c7c062a6e1958c42da369c3805b287d574a8be3ee2a1ffb3c8b7e49cf3e2f"
+        },
+        {
+          "file": "scripts/run-production-recovery.mjs",
+          "sha256": "b468c711843dad2e846ae68e3147c1cbe5d2197874d7443ac50a0d4c4c13c1ee"
+        },
+        {
+          "file": "tests/recovery_guards_test.py",
+          "sha256": "a7b113308c79680235226d94c689b1a56e10f587ffa039a44e0ef589933d08ce"
+        },
+        {
+          "file": "tests/recovery_watchdog_test.py",
+          "sha256": "4b9f2f5550117ced68ebff62fa9c46397dc09ee4dc8606cf820ab04c9b56b339"
+        },
+        {
+          "file": ".local/continuation-20261013/prepare-bound-recovery.mjs",
+          "sha256": "ae60bb2ae867bc7b9eb4ebba3c45c17acccc7d94ced5f01d4ce127cc2388d343"
+        },
+        {
+          "file": ".local/continuation-20261013/freeze-canonical-schema.mjs",
+          "sha256": "e98c0df306fb505b4e42fa89da46fe45acbdfe591af5f833203cf1f056d27f4e"
+        }
+      ]
+    },
+    {
+      "role": "serial-recovery",
+      "verdict": "PASS_SOURCE_ONLY",
+      "executionEligible": false,
+      "manifestSha256": "e96be95215825a324eb265ab22e453774d2cc66d01aaf1f925fa824a2a18d661",
+      "reportSha256": "7bcea91a745d607bb3faaec6381277eb2042f92f7320142612eda8b972c58d2c",
+      "sources": [
+        {
+          "file": "deploy/rehearse-production.py",
+          "sha256": "05d23da1449b5b648efcabfa674a543886cd6832de96e88c52caea737bd72946"
+        },
+        {
+          "file": "deploy/recovery-guards.py",
+          "sha256": "641e7893c70ee1fdb0868a8b629a2a369768748f0de8a3312f12ca74a8253eb2"
+        },
+        {
+          "file": "deploy/verify-restoration.py",
+          "sha256": "2f9c7c062a6e1958c42da369c3805b287d574a8be3ee2a1ffb3c8b7e49cf3e2f"
+        },
+        {
+          "file": "scripts/run-production-recovery.mjs",
+          "sha256": "b468c711843dad2e846ae68e3147c1cbe5d2197874d7443ac50a0d4c4c13c1ee"
+        },
+        {
+          "file": "tests/recovery_guards_test.py",
+          "sha256": "a7b113308c79680235226d94c689b1a56e10f587ffa039a44e0ef589933d08ce"
+        },
+        {
+          "file": "tests/recovery_watchdog_test.py",
+          "sha256": "4b9f2f5550117ced68ebff62fa9c46397dc09ee4dc8606cf820ab04c9b56b339"
+        },
+        {
+          "file": ".local/continuation-20261013/prepare-bound-recovery.mjs",
+          "sha256": "ae60bb2ae867bc7b9eb4ebba3c45c17acccc7d94ced5f01d4ce127cc2388d343"
+        },
+        {
+          "file": ".local/continuation-20261013/freeze-canonical-schema.mjs",
+          "sha256": "e98c0df306fb505b4e42fa89da46fe45acbdfe591af5f833203cf1f056d27f4e"
+        }
+      ]
+    }
+  ],
+  "executionEligible": false,
+  "productionRehearsalExecuted": false,
+  "published": false,
+  "finalAcceptance": false,
+  "currentOnlineObserved": {
+    "originalContainerId": "8a0c31530ec68986b89b203753a8fb1b0160adca5a3a4202e85e4addc9ec9f51",
+    "originalImageId": "sha256:7eda2b6173decc442bf219408b1bc49524a9df54d82636e9f00ff5f200e1020a",
+    "originalStartedAt": "2026-10-12T11:24:26.359594841Z",
+    "ready": true,
+    "campus": "active",
+    "scope": "ORIGINAL_SERVICE_ONLY_NOT_NEW_IMAGE_OR_REAL_MODEL"
+  },
+  "transfer": {
+    "status": "TRANSFER_FAILED_OR_UNKNOWN_RETAIN_PREFIX",
+    "archiveSha256": "5ce5e000d4e82137038fa55a072e96b33f79245b60573f49090bf0f50b36b5e6",
+    "totalBytes": 600073449,
+    "lastRemoteVerifiedBytes": 250773504,
+    "lastRemotePrefixSha256": "46173a0b61d348b64895ed1223491ed9c2343be3415bfb03000341c796aad173",
+    "activeWorker": false,
+    "fullRemoteArchiveVerified": false,
+    "latestFailure": "SSH_BANNER_BEFORE_ANY_PREFIX_WRITE"
+  },
+  "billing": {
+    "originalLedgerSha256": "235365dfd5a90d45fc071bd9e6f6bae916e7dd52aa354ddadc4fc843658364b4",
+    "pendingRequests": 9,
+    "heldCredits": 80072,
+    "availableCredits": 0,
+    "individualCharges": "UNKNOWN_NOT_ALLOCATED"
+  },
+  "providerCalls": 0,
+  "cozeCalls": 0,
+  "paidTestsRepeated": 0,
+  "primaryServiceModified": false,
+  "productionDataModified": false,
+  "developmentReviewCost": "EXISTING_DEVELOPMENT_SUBSCRIPTION_COST_UNKNOWN_SEPARATE_FROM_PRODUCT_LEDGER",
+  "evidence": [
+    {
+      "path": ".local/continuation-20261013/recovery-final-guards.log",
+      "sha256": "e99e691235e217437254c196fd3503b89ed78ac2c9e44a6540d79048270e4bc0"
+    },
+    {
+      "path": ".local/continuation-20261013/watchdog-shared-budget-network-final.log",
+      "sha256": "7971a6ae2ffe3d8d722a2a8c4971b1dd750c6bdd053e22b26c97d1b3001d9768"
+    },
+    {
+      "path": ".local/continuation-20261013/watchdog-runtime-proof-second.log",
+      "sha256": "755bce15ae912ceaff7448fa5bf45f61c7aa563d338955c964c7aa00e5560031"
+    },
+    {
+      "path": ".local/continuation-20261013/watchdog-docker-interruption-proof.json",
+      "sha256": "a6ae48cdae324054643874c262b7960a7a9154cb660d401c6bd722475642855c"
+    },
+    {
+      "path": ".local/continuation-20261013/watchdog-config-final-proof.json",
+      "sha256": "d0d42a4045b7e76a8e07e8e85f337c69a4636bb529103999ab949884ecde013d"
+    },
+    {
+      "path": ".local/continuation-20261013/create-none-detach-connect-proof.json",
+      "sha256": "72b49e86b785ddf6226a5dd0d0838782f403f5442c66d38651aea927e7698606"
+    },
+    {
+      "path": ".local/continuation-20261013/canonical-schema-proof.json",
+      "sha256": "ad1ce7b35061e24f590b43dc640d296fba2a17bb2076f8c930deffe4dfaf914e"
+    },
+    {
+      "path": ".local/continuation-20261013/after-second-drop-actual-readback.json",
+      "sha256": "2f0eaaac59d3c8c3b1e6789522096262428e00933ff5fe015798e8faa4f1dbdd"
+    },
+    {
+      "path": ".local/continuation-20261013/ssh-diagnosis-readback.json",
+      "sha256": "48e7f6ebb8c06db740a0aa83d0b06476c32f3a0092434334e65618c7211a2356"
+    }
+  ]
+}

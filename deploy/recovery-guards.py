@@ -14,11 +14,39 @@ def remaining_timeout(deadline, cap):
     return min(cap, remaining)
 
 
+def require_watchdog_properties(properties):
+    # TimeoutStartSec alone does not bound a running simple service or its children.
+    expected = {'Type': 'simple', 'Restart': 'on-failure', 'RestartUSec': '20s',
+                'RuntimeMaxUSec': '1min 55s', 'TimeoutStopUSec': '5s',
+                'KillMode': 'control-group', 'SendSIGKILL': 'yes', 'StartLimitIntervalUSec': '0'}
+    if any(properties.get(key) != value for key, value in expected.items()):
+        raise ValueError('PERSISTENT_WATCHDOG_RUNTIME_CONTAINMENT_UNCONFIRMED')
+
+
 def require_original(current, expected, labels):
     if (current.get('Id') != expected['containerId'] or
             current.get('Image') != expected['imageId'] or current.get('Name') != '/lifeos-app-1' or
             any(current.get('Config', {}).get('Labels', {}).get(key) != value for key, value in labels.items())):
         raise ValueError('ORIGINAL_CONTAINER_IDENTITY_CHANGED')
+
+
+def require_private(current, expected, label):
+    if (not expected or current.get('Id') != expected.get('containerId') or
+            current.get('Image') != expected.get('imageId') or current.get('Name') != '/' + expected.get('name', '') or
+            current.get('Config', {}).get('Labels', {}).get('lifeos.rehearsal') != label):
+        raise ValueError('PRIVATE_CONTAINER_IMMUTABLE_OWNERSHIP_CHANGED')
+
+
+def require_network(current, expected, label):
+    if (not expected or current.get('Id') != expected.get('networkId') or
+            current.get('Name') != expected.get('name') or current.get('Internal') is not True or
+            current.get('Labels', {}).get('lifeos.rehearsal') != label):
+        raise ValueError('PRIVATE_NETWORK_IMMUTABLE_OWNERSHIP_CHANGED')
+
+
+def schema_sha256(text):
+    stable='\n'.join(line for line in text.strip().splitlines() if not line.startswith(('--','\\restrict ','\\unrestrict ')))
+    return hashlib.sha256(stable.encode()).hexdigest()
 
 
 def encoder_inventory(proc=Path('/proc')):
@@ -81,7 +109,71 @@ def read_binding(path, operation, guards, verifier):
                 not re.fullmatch(r'[a-f0-9]{64}',str(row['sha256'])) for row in migrations) or
             len({row['name'] for row in migrations})!=len(migrations)):
         raise ValueError('ORIGINAL_MIGRATION_MANIFEST_REQUIRED')
+    expected=value.get('expectedMigrations')
+    additions={'034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql'}
+    if (not isinstance(expected,list) or len(expected)!=len(migrations)+4 or
+            any(not isinstance(row,dict) or set(row)!={'name','sha256'} or
+                not re.fullmatch(r'[0-9]+-[a-z0-9.-]+\.sql',str(row['name'])) or
+                not re.fullmatch(r'[a-f0-9]{64}',str(row['sha256'])) for row in expected) or
+            len({row['name'] for row in expected})!=len(expected) or
+            {row['name'] for row in expected}-{row['name'] for row in migrations}!=additions or
+            any(row not in expected for row in migrations) or
+            not re.fullmatch(r'[a-f0-9]{64}',str(value.get('expectedSchemaSha256',''))) or
+            not re.fullmatch(r'sha256:[a-f0-9]{64}',str(value.get('databaseImageId','')))):
+        raise ValueError('CANONICAL_POST_MIGRATION_BINDING_REQUIRED')
     return value
+
+
+def recover_original(binding_path, migration_path, migration_sha256):
+    """One supervised retry, with 45s private cleanup and a 110s total budget."""
+    import fcntl
+    directory=Path(__file__).resolve().parent
+    binding=read_binding(binding_path,directory/'rehearse-production.py',__file__,directory/'verify-restoration.py')
+    assert Path(binding_path).resolve()==Path('/opt/lifeos/releases')/binding['releaseLabel']/'operation-binding.json'
+    migrations=Path(migration_path)
+    assert migrations.resolve()==directory/'original-migrations.json'
+    assert hashlib.sha256(migrations.read_bytes()).hexdigest()==migration_sha256
+    assert json.loads(migrations.read_text())==binding['oldMigrations']
+    with open('/run/lifeos-serial-rehearsal.lock','a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        started=time.monotonic();deadline=started+110;cleanup_deadline=started+45
+        def run(args,cap=3,phase_deadline=None):
+            return subprocess.check_output(args,text=True,stderr=subprocess.DEVNULL,
+                timeout=remaining_timeout(min(deadline,phase_deadline or deadline),cap)).strip()
+        images={'lifeos-serial-'+kind+'-'+binding['releaseLabel']:binding['oldImageId'] if kind=='old' else binding['expectedImageId'] for kind in ('old','new','migrate')}
+        def owned(name):
+            manifest=json.loads((directory/'private-ownership.json').read_text())
+            assert manifest['releaseLabel']==binding['releaseLabel']
+            expected=manifest['containers'].get(name)
+            if expected:
+                assert expected['name']==name and expected['imageId']==images[name] and re.fullmatch('[a-f0-9]{64}',expected['containerId'])
+            try:current=json.loads(run(['docker','inspect',name],phase_deadline=cleanup_deadline))[0]
+            except subprocess.CalledProcessError:
+                assert not run(['docker','ps','-aq','--filter','name=^/'+name+'$'],phase_deadline=cleanup_deadline)
+                return None
+            require_private(current,expected,binding['releaseLabel'])
+            return current
+        for name in images:
+            current=owned(name)
+            if current and current['State']['Running']:
+                try:run(['docker','stop','--time','2',current['Id']],cap=8,phase_deadline=cleanup_deadline)
+                except (subprocess.CalledProcessError,subprocess.TimeoutExpired):
+                    current=owned(name)
+                    if current and current['State']['Running']:run(['docker','kill',current['Id']],phase_deadline=cleanup_deadline)
+            current=owned(name)
+            assert not current or current['State']['Running'] is False
+        current=json.loads(run(['docker','inspect','lifeos-app-1']))[0]
+        require_original(current,{'containerId':binding['originalContainerId'],'imageId':binding['oldImageId']},binding['originalLabels'])
+        require_encoder_exclusive([current['Id']] if current['State']['Running'] else ())
+        units=run(['systemctl','list-units','--type=service','--state=running','--no-legend','--plain'])
+        assert not any(re.search(r'ollama|vllm|embedding|encoder|llama',line.split()[0],re.I) for line in units.splitlines() if line.split())
+        if not current['State']['Running']:run(['docker','start',current['Id']],cap=10)
+        result=json.loads(run(['python3',str(directory/'verify-restoration.py'),'--origin',binding['publicOrigin'],
+            '--expected-head',binding['oldHead'],'--expected-image-id',binding['oldImageId'],
+            '--app-container',current['Id'],'--migrations',str(migrations),'--migrations-sha256',migration_sha256,
+            '--timeout-seconds',str(remaining_timeout(deadline,40))],cap=41))
+        assert result['status']=='PASS_RESTORATION_READBACK'
+        print(json.dumps(result))
 
 
 if __name__ == '__main__':
@@ -89,15 +181,21 @@ if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--exclusive',action='store_true')
     parser.add_argument('--original-binding')
+    parser.add_argument('--rescue-binding')
+    parser.add_argument('--migrations')
+    parser.add_argument('--migrations-sha256')
     args=parser.parse_args()
-    if args.exclusive:
+    if args.rescue_binding:
+        recover_original(args.rescue_binding,args.migrations,args.migrations_sha256)
+    elif args.exclusive:
         require_encoder_exclusive()
         units=subprocess.check_output(['systemctl','list-units','--type=service','--state=running','--no-legend','--plain'],text=True,timeout=3)
         if any(re.search(r'ollama|vllm|embedding|encoder|llama',line.split()[0],re.I) for line in units.splitlines() if line.split()):
             raise ValueError('HOST_MODEL_SERVICE_RUNNING')
     elif args.original_binding:
         directory=Path(__file__).resolve().parent
-        binding=read_binding(args.original_binding,directory/'rehearse-production.py',__file__,directory/'verify-restoration.py')
+        binding_path=args.original_binding
+        binding=read_binding(binding_path,directory/'rehearse-production.py',__file__,directory/'verify-restoration.py')
         current=json.loads(subprocess.check_output(['docker','inspect','lifeos-app-1'],text=True,timeout=3))[0]
         require_original(current,{'containerId':binding['originalContainerId'],'imageId':binding['oldImageId']},binding['originalLabels'])
     else:

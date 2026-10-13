@@ -83,29 +83,52 @@ def main():
  private_env=release/('rehearsal-'+label+'.env');assert not private_env.exists()
  private_env.write_text('\n'.join(k+'='+v for k,v in env.items())+'\n');os.chmod(private_env,0o600)
  backup.mkdir(mode=0o700)
+ ownership_path=release/'private-ownership.json';assert not ownership_path.exists()
+ ownership={'releaseLabel':label,'containers':{},'network':None}
+ def save_ownership():
+  temporary=release/'private-ownership.next'
+  with temporary.open('w') as output:
+   os.chmod(temporary,0o600);output.write(json.dumps(ownership)+'\n');output.flush();os.fsync(output.fileno())
+  os.replace(temporary,ownership_path)
+  descriptor=os.open(release,os.O_RDONLY);os.fsync(descriptor);os.close(descriptor)
+ save_ownership()
  rescue=release/('rescue-'+label+'.sh');assert not rescue.exists()
- recover='#!/bin/sh\nset -eu\nexec 9>/run/lifeos-serial-rehearsal.lock\nflock -x -w 5 9 || exit 1\n'
- recover+="owned() {\n if docker inspect \"$1\" >/dev/null 2>&1; then\n CID=$(docker inspect --format '{{.Id}}' \"$1\")\n [ \"$(docker inspect --format '{{index .Config.Labels \"lifeos.rehearsal\"}}' \"$CID\")\" = \""+label+"\" ] || exit 1\n else\n FOUND=$(docker ps -aq --filter \"name=^/$1$\")\n [ -z \"$FOUND\" ] || exit 1\n CID=''\n fi\n}\n"
- for name in names:
-  recover+='owned '+name+'\nif [ -n "$CID" ]; then\ntimeout 15 docker stop --time 2 "$CID" >/dev/null 2>&1 || timeout 10 docker kill "$CID" >/dev/null 2>&1\nfi\n'
- for name in names:
-  recover+='owned '+name+'\nif [ -n "$CID" ]; then [ "$(docker inspect --format \'{{.State.Running}}\' "$CID")" = false ] || exit 1; fi\n'
- recover+='[ "$(docker inspect --format \'{{.Id}}\' lifeos-app-1)" = "'+original['Id']+'" ] || exit 1\n[ "$(docker inspect --format \'{{.Image}}\' lifeos-app-1)" = "'+old_image+'" ] || exit 1\n'
- recover+='python3 '+str(guards_file)+' --exclusive || exit 1\npython3 '+str(guards_file)+' --original-binding '+str(release/'operation-binding.json')+' || exit 1\ntimeout 10 docker start '+original['Id']+'\n'
- recover+='python3 '+str(verifier)+' --origin '+binding['publicOrigin']+' --expected-head '+old_head+' --expected-image-id '+old_image+' --app-container '+original['Id']+' --migrations '+str(old_manifest)+' --migrations-sha256 '+old_manifest_sha+' --timeout-seconds 40\n'
+ recover='#!/bin/sh\nset -eu\nexec python3 '+str(guards_file)+' --rescue-binding '+str(release/'operation-binding.json')+' --migrations '+str(old_manifest)+' --migrations-sha256 '+old_manifest_sha+'\n'
  rescue.write_text(recover);os.chmod(rescue,0o700)
  unit='lifeos-isolated-rescue-'+RELEASE_LABEL
- run(['systemd-run','--unit='+unit,'--on-active=10m','--timer-property=AccuracySec=1s','--timer-property=RandomizedDelaySec=0','--property=Restart=on-failure','--property=RestartSec=20s','--property=TimeoutStartSec=80s','--property=StartLimitIntervalSec=0',str(rescue)])
+ run(['systemd-run','--unit='+unit,'--on-active=10m','--timer-property=AccuracySec=1s','--timer-property=RandomizedDelaySec=0','--property=Type=simple','--property=Restart=on-failure','--property=RestartSec=20s','--property=TimeoutStartSec=115s','--property=RuntimeMaxSec=115s','--property=TimeoutStopSec=5s','--property=KillMode=control-group','--property=SendSIGKILL=yes','--property=StartLimitIntervalSec=0',str(rescue)])
  assert run(['systemctl','is-active',unit+'.timer'])=='active'
- assert run(['systemctl','show',unit+'.service','-p','Restart','--value'])=='on-failure'
+ watchdog_properties=dict(line.split('=',1) for line in run(['systemctl','show',unit+'.service','-p','Type','-p','Restart','-p','RestartUSec','-p','RuntimeMaxUSec','-p','TimeoutStopUSec','-p','KillMode','-p','SendSIGKILL','-p','StartLimitIntervalUSec']).splitlines())
+ guards['require_watchdog_properties'](watchdog_properties)
  def private_state(name):
   result=bounded_run(['docker','inspect',name],capture_output=True,text=True,timeout=budget(8))
   if result.returncode!=0:
    assert not run(['docker','ps','-aq','--filter','name=^/'+name+'$']),'PRIVATE_STATE_UNCONFIRMED'
    return None
   current=json.loads(result.stdout)[0]
-  assert current['Config']['Labels'].get('lifeos.rehearsal')==label,'PRIVATE_OWNER_LABEL_CHANGED'
+  persisted=json.loads(ownership_path.read_text());assert persisted['releaseLabel']==label
+  guards['require_private'](current,persisted['containers'].get(name),label)
   return current
+ def create_private(args,name,image,command=()):
+  container_id=run(args+[image,*command]);assert re.fullmatch('[a-f0-9]{64}',container_id)
+  expected={'name':name,'containerId':container_id,'imageId':image}
+  guards['require_private'](json.loads(run(['docker','inspect',container_id]))[0],expected,label)
+  ownership['containers'][name]=expected;save_ownership()
+  return container_id
+ def owned_network():
+  expected=json.loads(ownership_path.read_text())['network'];assert expected,'NETWORK_NOT_CAPTURED'
+  current=json.loads(run(['docker','network','inspect',expected['networkId']]))[0]
+  guards['require_network'](current,expected,label)
+  return current['Id']
+ def attach_private(name):
+  current=private_state(name);assert current and current['State']['Running'] is False
+  assert set(current['NetworkSettings']['Networks'])=={'none'},'CREATE_MUST_BE_NETWORK_ISOLATED'
+  run(['docker','network','disconnect','none',current['Id']])
+  current=private_state(name);assert not current['NetworkSettings']['Networks']
+  run(['docker','network','connect',owned_network(),current['Id']])
+  current=private_state(name);owned_network()
+  assert set(current['NetworkSettings']['Networks'])=={network},'PRIVATE_ATTACHMENT_CHANGED'
+  return current['Id']
  def private_stopped():
   for name in names:
    current=private_state(name)
@@ -138,11 +161,19 @@ def main():
    old={(t['name'],c) for t in tables for c in t['columns']}
    return rows if full else [r for r in rows if (r['table'],r['column']) in old]
   before=digests('lifeos');before_columns=column_metadata('lifeos');assert digests(db)==before and column_metadata(db)==before_columns,'SOURCE_RESTORE_DIGEST_OR_SCHEMA_MISMATCH'
-  run(['docker','network','create','--internal','--label','lifeos.rehearsal='+label,network]);network_created=True
-  run(['docker','network','connect','--alias',target.hostname,network,'lifeos-db-1']);db_connected=True
+  assert json.loads(sql(db,MIGRATION_QUERY))==binding['oldMigrations'],'RESTORED_MIGRATION_MANIFEST_CHANGED'
+  network_id=run(['docker','network','create','--internal','--label','lifeos.rehearsal='+label,network]);network_created=True
+  ownership['network']={'name':network,'networkId':network_id};save_ownership()
+  database_container=json.loads(run(['docker','inspect','lifeos-db-1']))[0]
+  database_id=database_container['Id'];assert database_container['Config']['Labels'].get('com.docker.compose.service')=='db' and database_container['Config']['Labels'].get('com.docker.compose.project')=='lifeos'
+  run(['docker','network','connect','--alias',target.hostname,owned_network(),database_id]);db_connected=True
   created.append(names[2])
-  run(['docker','run','--rm','--name',names[2],'--label','lifeos.rehearsal='+label,'--network',network,'--pids-limit','64','--log-driver','local','--log-opt','max-size=2m','--log-opt','max-file=2','--memory','256m','--memory-swap','256m','--cpus','0.5','--env-file',str(private_env),'--entrypoint','node',EXPECTED_IMAGE_ID,'--import','tsx','scripts/migrate-db.ts'],timeout=90)
-  assert sql(db,'SELECT count(*) FROM lifeos_schema_migrations')=='37'
+  assert database_container['Image']==binding['databaseImageId'],'DATABASE_RUNTIME_IMAGE_CHANGED'
+  migration_id=create_private(['docker','create','--name',names[2],'--label','lifeos.rehearsal='+label,'--network','none','--pids-limit','64','--log-driver','local','--log-opt','max-size=2m','--log-opt','max-file=2','--memory','256m','--memory-swap','256m','--cpus','0.5','--env-file',str(private_env),'--entrypoint','node'],names[2],EXPECTED_IMAGE_ID,['--import','tsx','scripts/migrate-db.ts'])
+  assert attach_private(names[2])==migration_id
+  assert private_state(names[2]);run(['docker','start','-a',migration_id],timeout=90)
+  assert private_state(names[2])['State']['ExitCode']==0,'MIGRATION_CONTAINER_FAILED'
+  assert json.loads(sql(db,MIGRATION_QUERY))==binding['expectedMigrations'],'POST_MIGRATION_EXACT_MANIFEST_CHANGED'
   assert digests(db)==before and digests('lifeos')==before,'COMMON_COLUMNS_CHANGED'
   assert column_metadata(db)==before_columns and column_metadata('lifeos')==before_columns,'EXISTING_COLUMN_SCHEMA_CHANGED'
   counts=lambda:sql(db,"SELECT json_build_object('spend',(SELECT count(*) FROM lifeos_provider_spend),'nodes',(SELECT count(*) FROM lifeos_workflow_nodes),'mail',(SELECT count(*) FROM lifeos_password_reset_deliveries))")
@@ -155,31 +186,37 @@ def main():
   clone_baseline=digests(db,clone_tables);clone_columns=column_metadata(db,full=True)
   def schema_digest(database):
    text=run(['docker','exec','-e','PGOPTIONS=-c statement_timeout=2500','lifeos-db-1','pg_dump','-U','lifeos','-d',database,'--schema-only','--no-owner','--no-acl'],timeout=15)
-   stable='\n'.join(line for line in text.splitlines() if not line.startswith(('--','\\restrict ','\\unrestrict ')))
-   return hashlib.sha256(stable.encode()).hexdigest()
+   return guards['schema_sha256'](text)
   clone_schema= schema_digest(db)
+  assert clone_schema==binding['expectedSchemaSha256'],'CANONICAL_POST_MIGRATION_SCHEMA_CHANGED'
   migrations=['034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql']
   for kind,image in [('old',old_image),('new',EXPECTED_IMAGE_ID)]:
    exclusive()
    mem=available();cap=min(768,mem//(1024*1024)-256);assert cap>=640,'LOW_MEMORY_NO_ENCODER_STARTED'
    name=names[0 if kind=='old' else 1]
-   args=['docker','run','-d','--name',name,'--label','lifeos.rehearsal='+label,'--network',network,'--init','--pids-limit','96','--log-driver','local','--log-opt','max-size=2m','--log-opt','max-file=2','--read-only','--tmpfs','/tmp:rw,nosuid,size=64m','--cap-drop','ALL','--security-opt','no-new-privileges:true','--memory',str(cap)+'m','--memory-swap',str(cap)+'m','--cpus','1','--env-file',str(private_env)]
+   args=['docker','create','--name',name,'--label','lifeos.rehearsal='+label,'--network','none','--init','--pids-limit','96','--log-driver','local','--log-opt','max-size=2m','--log-opt','max-file=2','--read-only','--tmpfs','/tmp:rw,nosuid,size=64m','--cap-drop','ALL','--security-opt','no-new-privileges:true','--memory',str(cap)+'m','--memory-swap',str(cap)+'m','--cpus','1','--env-file',str(private_env)]
    if kind=='new':args+=['-e','LIFEOS_EVIDENCE=/app/evidence/v1.3-action-coach/provider/qwen-current','-e','LIFEOS_BUILD_COMMIT='+EXPECTED_HEAD]
    else:
     for mount in original['Mounts']:
      if mount['Type']=='bind':args+=['--mount','type=bind,src='+mount['Source']+',dst='+mount['Destination']+',readonly']
     for migration in migrations:args+=['--mount','type=bind,src='+str(release/'app/server/migrations'/migration)+',dst=/app/server/migrations/'+migration+',readonly']
-   created.append(name);run(args+[image])
+   created.append(name);container_id=create_private(args,name,image)
+   assert attach_private(name)==container_id
+   assert private_state(name);run(['docker','start',container_id])
    current=json.loads(run(['docker','inspect',name]))[0];assert current['Image']==image
-   ready=health(name);actual=version(name);assert actual['head']==(old_head if kind=='old' else EXPECTED_HEAD)
+   assert current['NetworkSettings']['Networks'][network]['NetworkID']==owned_network()
+   ready=health(container_id);actual=version(container_id);assert actual['head']==(old_head if kind=='old' else EXPECTED_HEAD)
    if kind=='old':
     check="import {readDirectionControls} from './server/growth-controls.ts';import {buildTurnPrompt} from './server/turn-prompt.ts';import {pool} from './server/db.ts';const controls=await readDirectionControls('"+actor+"');const p=JSON.parse(buildTurnPrompt({currentMessageId:'synthetic-rollback-message',messages:[{id:'synthetic-rollback-message',role:'user',content:'我先了解实际工作。',created_at:new Date().toISOString()}],directionControls:controls,blockedDirectionScopes:controls.filter(x=>x.state==='paused').map(x=>x.scope)}));if(!p.directionControls.some(x=>x.scope==='research_exploration'&&x.state==='paused'&&x.sourceQuote==='先别推科研探索')||!p.blockedDirectionScopes.includes('research_exploration'))process.exit(2);await pool.end();console.log('OLD_RESEARCH_PAUSE_AND_PROVENANCE_RETAINED');"
-    assert run(['docker','exec',name,'node','--import','tsx','--input-type=module','-e',check],timeout=15)=='OLD_RESEARCH_PAUSE_AND_PROVENANCE_RETAINED'
+    assert run(['docker','exec',container_id,'node','--import','tsx','--input-type=module','-e',check],timeout=15)=='OLD_RESEARCH_PAUSE_AND_PROVENANCE_RETAINED'
     report['oldReaderResearchPauseCompatibility']='VERIFIED_RAW_CONTROL_SOURCE_AND_BLOCKED_SCOPE_IN_ORDINARY_PROMPT'
    report['starts'].append({'kind':kind,'head':actual['head'],'ready':ready,'capMiB':cap,'hostReserveMiB':256,'externalNetwork':False,'imageId':image})
    owned=private_state(name);assert owned
    run(['docker','stop','--time','25',owned['Id']],timeout=35)
-   assert run(['docker','inspect','--format','{{.State.Running}}',name])=='false'
+   assert private_state(name)['State']['Running'] is False
+   assert digests(db,clone_tables)==clone_baseline,'POST_START_FULL_CLONE_TABLE_CONTENTS_CHANGED_'+kind
+   assert column_metadata(db,full=True)==clone_columns,'POST_START_CLONE_COLUMN_METADATA_CHANGED_'+kind
+   assert schema_digest(db)==clone_schema,'POST_START_FULL_CLONE_SCHEMA_CHANGED_'+kind
   assert counts()==counts_before,'STARTUP_ACCOUNTING_CHANGED'
   assert digests(db,clone_tables)==clone_baseline,'POST_START_FULL_CLONE_TABLE_CONTENTS_CHANGED'
   assert column_metadata(db,full=True)==clone_columns,'POST_START_CLONE_COLUMN_METADATA_CHANGED'
@@ -206,19 +243,29 @@ def main():
    except Exception:report['cleanupErrors'].append('PRIVATE_STOP_UNCONFIRMED_'+name)
   if report['cleanupErrors']:
    try:
+    # Delegate to the same supervised service, never a second unsupervised shell.
+    run(['systemctl','start','--no-block',unit+'.service'])
     fcntl.flock(lock,fcntl.LOCK_UN)
-    bounded_run([str(rescue)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=55,check=True)
+    rescue_deadline=time.monotonic()+budget(112)
+    while True:
+     state=dict(line.split('=',1) for line in run(['systemctl','show',unit+'.service','-p','ActiveState','-p','Result','-p','ExecMainStatus']).splitlines())
+     if state['ActiveState']=='inactive' and state['Result']=='success' and state['ExecMainStatus']=='0':break
+     assert time.monotonic()<rescue_deadline,'SUPERVISED_RESCUE_PENDING'
+     pause(1)
     fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     assert private_stopped()
-    report['immediateBoundedRescueUsed']=True;report['cleanupErrors']=[]
+    report['publicRestoration']=public_recovery()
+    assert report['publicRestoration']['status']=='PASS_RESTORATION_READBACK' and campus()==before_campus
+    report['supervisedImmediateRescueUsed']=True;report['originalServiceRestored']=True;report['cleanupErrors']=[]
    except Exception:report['cleanupErrors'].append('IMMEDIATE_RESCUE_UNCONFIRMED')
-  if not report['cleanupErrors']:
+  if not report['cleanupErrors'] and not report['originalServiceRestored']:
    try:
     assert private_stopped()
     current=json.loads(run(['docker','inspect','lifeos-app-1']))[0]
     guards['require_original'](current,expected_original,binding['originalLabels'])
-    exclusive()
-    run(['docker','start',original['Id']]);report['originalReady']=health(original['Id'])
+    exclusive([original['Id']] if current['State']['Running'] else ())
+    if not current['State']['Running']:run(['docker','start',original['Id']])
+    report['originalReady']=health(original['Id'])
     report['publicRestoration']=public_recovery()
     assert report['publicRestoration']['status']=='PASS_RESTORATION_READBACK'
     assert campus()==before_campus
@@ -230,11 +277,11 @@ def main():
     for suffix in ['.timer','.service']:assert bounded_run(['systemctl','is-active',unit+suffix],capture_output=True,text=True,timeout=8).stdout.strip() not in ['active','activating','deactivating']
    except Exception:report['cleanupErrors'].append('RESCUE_STOP_UNCONFIRMED')
    try:
-    if db_connected:bounded_run(['docker','network','disconnect','--force',network,'lifeos-db-1'],capture_output=True,timeout=15,check=True)
+    if db_connected:bounded_run(['docker','network','disconnect','--force',owned_network(),database_id],capture_output=True,timeout=15,check=True)
     for name in names:
      current=private_state(name)
-     if current:bounded_run(['docker','network','disconnect','--force',network,current['Id']],capture_output=True,timeout=15,check=True)
-    if network_created:bounded_run(['docker','network','rm',network],capture_output=True,timeout=15,check=True)
+     if current and network in current['NetworkSettings']['Networks']:bounded_run(['docker','network','disconnect','--force',owned_network(),current['Id']],capture_output=True,timeout=15,check=True)
+    if network_created:bounded_run(['docker','network','rm',owned_network()],capture_output=True,timeout=15,check=True)
    except Exception:report['cleanupErrors'].append('PRIVATE_NETWORK_CLEANUP_UNCONFIRMED')
   else:report['status']='RECOVERY_UNCONFIRMED_RESCUE_LEFT_ARMED'
   if report['cleanupErrors'] and report['originalServiceRestored']:report['status']='FAIL_CLEANUP'
