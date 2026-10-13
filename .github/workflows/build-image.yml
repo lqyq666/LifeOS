@@ -1,10 +1,10 @@
 name: Build and push image
 
 on:
+  # Decoupled from routine syncs: only builds on main or when run manually.
   push:
     branches:
       - main
-      - fix/campus-acceptance-contract-20261006
   workflow_dispatch:
 
 permissions:
