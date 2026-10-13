@@ -1,0 +1,16 @@
+{
+  "kind": "OBSERVED_COZE_INDEPENDENT_REPORT_BYTES",
+  "projectId": "7693465311558795327",
+  "sessionId": "363941496948738",
+  "taskId": "LIFEOS_KB_R8_ACTUAL_SEMANTICS",
+  "cloudCommit": "10b80bfb5f20f068a7dfaa050813ece970468fab",
+  "observedAt": "2026-10-11T03:56:34.848Z",
+  "mechanism": "Main directly read project editor report bytes and project terminal git HEAD + SHA. R8 reuses registered R7 full originals; exact hashes revalidated locally.",
+  "reportHashes": {
+    "KB_R8_CARDS_RAW.json": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66",
+    "KB_R8_THREE_BATCHES_RAW.json": "5156ff55b08451cb767f2d0507365ada988aec5ca0a1a89cbc787762feb73e1e"
+  },
+  "inputSha256": "43147524695f1efc32a3797cf4cb393bf2f5c1fbb6c7850995654f673f539c91",
+  "approval": false,
+  "publication": false
+}

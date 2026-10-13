@@ -1,0 +1,28 @@
+{
+  "kind": "OBSERVED_COZE_INDEPENDENT_REPORT_BYTES",
+  "projectId": "7693465311558795327",
+  "taskId": "LIFEOS_KB_R3_CURRENT_SIX_AND_REAL_PILOT_REVIEW",
+  "sessionId": "363941496948738",
+  "cloudCommit": "974926e093eaf934b0268acad4cadde10a01652c",
+  "reportHashes": {
+    "KB_SIX_R3_RESULT.json": "99c7eb53e323d1a499a8908d3bf0a8b703aaeabb8269322d7c6d64b323d02702",
+    "SMALL_REAL_R3_REVIEW.json": "59dca996a5acfd058f657a80339e8d1186f219976b3495bfd5762d6e710b4a7d"
+  },
+  "inputPath": ".planning/research/workflow-integration/SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json",
+  "inputSha256": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13",
+  "verification": "Actual Coze file editor full copy bytes matched SHA displayed by actual project terminal; status done. Main executor did not author review conclusions.",
+  "sourceReadLimits": "IES/CFPB original fetch failed. Primary body review remains insufficient. Campus orig_0 path reported but missing in actual temp dir; formal original-proof import not accepted.",
+  "humanApproval": false,
+  "publication": false,
+  "creditBill": {
+    "observed": 1757.17,
+    "accounted": 1758,
+    "billSha256": "8ff7a7a66ff36d4afc4260651b2e195b519fbfa58d0d18451a5b7f6f87f85822"
+  },
+  "budget": {
+    "initialCredits": 151559,
+    "chargedCredits": 63759,
+    "heldCredits": 30000,
+    "availableCredits": 57800
+  }
+}

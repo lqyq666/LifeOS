@@ -1,0 +1,231 @@
+{
+  "kind": "small5_independent_sixaxis_review_r3",
+  "executor": "independent_executor(不调用产品模型; 仅公开原文/附着读取记录/生产状态合同)",
+  "session": "LIFEOS_KB_R3_CURRENT_SIX_AND_REAL_PILOT_REVIEW",
+  "startedAt": "2026-10-11T01:10:00Z",
+  "finishedAt": "2026-10-11T02:00:10.159Z",
+  "inputFile": "SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json",
+  "inputSha256": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13",
+  "r2Correction": "R2 对 complex 误读: (1)仅读到 user 侧占位文本, 未审 deep.receipt.proposal 的真实候选; (2)把“候选未被自动采纳/proposed未commit”误判为 state 失败。R3 依据 receipt.proposal 全文+WorkflowPanel 状态合同(proposed=等待用户选择; 采纳才保存计划; 确认方向才保存方向) 修正。修正基于实际证据, 不为“修复误读”自动放行。",
+  "stateContractEvidence": [
+    "WorkflowPanel.tsx: statuses proposed=“分析完成，等待你的选择”，plan_saved=“小探索计划已保存·尚未执行”，direction_saved=“阶段方向已保存”，rejected=“你选择了不采用”；按钮文案“采纳小行动会保存尚未执行的计划；确认方向才会保存阶段选择。”",
+    "UI_PILOT_CHANNEL_PROOF.json: paidProviderCalls=0, realModelQuality=NOT_TESTED → UI 为模拟 Provider，仅证明渠道可渲染(proposed/采纳/刷新)，非真实质量/收益"
+  ],
+  "samples": [
+    {
+      "caseId": "ORD01",
+      "classification": "ordinary",
+      "input": "我还有两小时准备明天的课堂汇报，先做哪一步？",
+      "path": "SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json[\"ordinary\"][\"cases\"]",
+      "artifactSha": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13",
+      "axis": {
+        "technicalCompleted": "PASS",
+        "semanticCorrect": "PASS",
+        "sourceSupported": "PASS_NO_EXTERNAL_CLAIM",
+        "necessaryStateCommitted": "PASS",
+        "intentRespected": "PASS",
+        "crossSessionContinuity": "NOT_TESTED_SINGLE_TURN"
+      },
+      "reasons": {
+        "technical": "run.status=completed, failure=null, llmCallCount=1, 修点无",
+        "semantic": "实际输出: 先把这次要完成的核心内容写成一句话，再用已有材料补这句话。你现在已经有哪部分内容？",
+        "source": "首轮为澄清性反问，无外部事实主张，无检索必要,故记 PASS_NO_EXTERNAL_CLAIM 而非一概 NOT_TESTED(修正R2)",
+        "state": "growth 断言已写入 items(证据引用 message, revision1, memoryEnabled=true)；首轮无目标/计划待保存",
+        "intent": "先澄清/先核对，尊重意图不越权",
+        "continuity": "单会话(SINGLE_TURN)无跨会话复用，不计通过、不谎报连续链"
+      },
+      "continuityStatus": "NOT_TESTED_SINGLE_TURN"
+    },
+    {
+      "caseId": "ORD02",
+      "classification": "ordinary",
+      "input": "我发给学长的问题还没有回复，今天还要催吗？",
+      "path": "SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json[\"ordinary\"][\"cases\"]",
+      "artifactSha": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13",
+      "axis": {
+        "technicalCompleted": "PASS",
+        "semanticCorrect": "PASS",
+        "sourceSupported": "PASS_NO_EXTERNAL_CLAIM",
+        "necessaryStateCommitted": "PASS",
+        "intentRespected": "PASS",
+        "crossSessionContinuity": "NOT_TESTED_SINGLE_TURN"
+      },
+      "reasons": {
+        "technical": "run.status=completed, failure=null, llmCallCount=1, 修点无",
+        "semantic": "实际输出: 先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？",
+        "source": "首轮为澄清性反问，无外部事实主张，无检索必要,故记 PASS_NO_EXTERNAL_CLAIM 而非一概 NOT_TESTED(修正R2)",
+        "state": "growth 断言已写入 items(证据引用 message, revision1, memoryEnabled=true)；首轮无目标/计划待保存",
+        "intent": "先澄清/先核对，尊重意图不越权",
+        "continuity": "单会话(SINGLE_TURN)无跨会话复用，不计通过、不谎报连续链"
+      },
+      "continuityStatus": "NOT_TESTED_SINGLE_TURN"
+    },
+    {
+      "caseId": "ORD03",
+      "classification": "ordinary",
+      "input": "我今天没按原计划做完作业，想调整一个小步骤。",
+      "path": "SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json[\"ordinary\"][\"cases\"]",
+      "artifactSha": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13",
+      "axis": {
+        "technicalCompleted": "PASS",
+        "semanticCorrect": "PASS",
+        "sourceSupported": "PASS_NO_EXTERNAL_CLAIM",
+        "necessaryStateCommitted": "PASS",
+        "intentRespected": "PASS",
+        "crossSessionContinuity": "NOT_TESTED_SINGLE_TURN"
+      },
+      "reasons": {
+        "technical": "run.status=completed, failure=null, llmCallCount=1, 修点无",
+        "semantic": "实际输出: 先回看上次真正做过的那一步和实际反馈，不重新安排整套入门方法。是没开始、做到中途卡住，还是做完后结果不符合预期？",
+        "source": "首轮为澄清性反问，无外部事实主张，无检索必要,故记 PASS_NO_EXTERNAL_CLAIM 而非一概 NOT_TESTED(修正R2)",
+        "state": "growth 断言已写入 items(证据引用 message, revision1, memoryEnabled=true)；首轮无目标/计划待保存",
+        "intent": "先澄清/先核对，尊重意图不越权",
+        "continuity": "单会话(SINGLE_TURN)无跨会话复用，不计通过、不谎报连续链"
+      },
+      "continuityStatus": "NOT_TESTED_SINGLE_TURN"
+    },
+    {
+      "caseId": "VALUE01",
+      "classification": "complex",
+      "question": "我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。",
+      "path": "SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json[\"complex\"][\"cases\"][0]",
+      "artifactSha": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13",
+      "deep": {
+        "status": "proposed",
+        "commit": null,
+        "nodesAllSucceeded": true,
+        "receiptStatus": "proposed",
+        "receiptSkills": [
+          "lifeos-direction-analysis"
+        ],
+        "guideUsageStatus": "not_requested",
+        "growthStatus": "not_requested"
+      },
+      "proposalNextActions": [
+        {
+          "direction": "employment",
+          "estMin": 20,
+          "description": "LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。",
+          "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。；仍需核对：已有作品与目标岗位实际要求如何对应，仍需核对；反馈不能替代岗位要求。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限20分钟或发现必需材料缺失时停止；不自动对外联系。"
+        },
+        {
+          "direction": "employment",
+          "estMin": 15,
+          "description": "LifeOS 编辑建议（未绑定公开攻略）：读一段实际工作内容，写下一个愿意尝试的任务和一个不确定项；先了解工作，再决定是否投递。",
+          "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。；仍需核对：读研或工作的具体动机仍需核对。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限15分钟或发现必需材料缺失时停止；不自动对外联系。"
+        },
+        {
+          "direction": "postgraduate_exam",
+          "estMin": 15,
+          "description": "LifeOS 编辑建议（未绑定公开攻略）：写下读研想解决的一个问题，区分研究兴趣、学历需求与暂时避开就业；不能确定时记为未知，不直接开始全面备考。",
+          "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。；仍需核对：读研或工作的具体动机仍需核对。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限15分钟或发现必需材料缺失时停止；不自动对外联系。"
+        },
+        {
+          "direction": "postgraduate_exam",
+          "estMin": 5,
+          "description": "LifeOS 编辑建议（未绑定公开攻略）：只记下考研当前最关键的一个未知与重新考虑条件，然后暂停这条探索。",
+          "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。；仍需核对：单次经历不能证明稳定能力或长期适配。；尚未提供的条件保持未知，不据此否定路径。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限5分钟或发现必需材料缺失时停止；不自动对外联系。"
+        }
+      ],
+      "axis": {
+        "technicalCompleted": "PASS",
+        "semanticCorrect": "PASS",
+        "sourceSupported": "PASS_NO_EXTERNAL_CLAIM",
+        "necessaryStateCommitted": "PASS",
+        "intentRespected": "PASS",
+        "crossSessionContinuity": "NOT_TESTED_SINGLE_TURN"
+      },
+      "reasons": {
+        "technical": "deep.nodes 全 succeeded, run completed; receipt.proposal 已生成完整候选(含方向/投入上限/依据/停止条件), proposed 为等待用户选择,非失败(修正R2误读)",
+        "semantic": "候选按方向(就业/考研/独立开发)给出“未绑定公开攻略”的LifeOS小行动+仍需核对项+投入上限+停止条件,回应了“深入比较”意图",
+        "source": "候选均明确标注“未绑定公开攻略”(LifeOS编辑建议)并附 stopCondition 区分支持依据/仍需核对/阶段未知, 无未标注的外部事实/效果主张,无需经guideId检索→记 PASS_NO_EXTERNAL_CLAIM",
+        "state": "\"状态合同: proposed 阶段只应有持久任务与候选,不写目标/记忆/计划; 只有 student 采纳小行动才保存“未执行计划”, 确认方向才保存“阶段方向”(WorkflowPanel 状态合同原文)。commit=null 符合合同,非缺陷(修正R2误判 FAIL)",
+        "intent": "分方向给可执行澄清/核实小行动, 尊重比较意图",
+        "continuity": "单会话(SINGLE_TURN)；未进入三会话连续链, 不计通过"
+      },
+      "proposalIssues": [
+        "候选均为“未绑定公开攻略”的LifeOS编辑小行动: 是“先选方向→再行动”, 未直接给出就业/考研硬比较结论, 属非阻塞特性",
+        "real收益未声明(见下 UI 渠道证明)"
+      ],
+      "continuityStatus": "NOT_TESTED_SINGLE_TURN",
+      "gateToChain": {
+        "fiveAxisPassed": true,
+        "note": "五项主轴通过(technical/semantic/source=PASS_NO_EXTERNAL_CLAIM/state/intent), 允许进入三会话连续链以进一步核对 continuity 与真实收益；不代表发布或收益通过"
+      },
+      "uiChannelNote": "WorkflowPanel.tsx 展示 receipt.proposal(alernatives方向比较+nextActions小行动+采纳/确认/拒绝按钮)与状态合同文案; ui-deep-proposed/adopt-refresh 为该UI的 proposed/采纳刷新 readback; UI_PILOT_CHANNEL_PROOF 标注 paidProviderCalls=0, realModelQuality=NOT_TESTED → 该渠道为模拟 Provider, 仅证明 UI 状态渲染能力, 不能作为真实质量/本人收益/发布证据"
+    },
+    {
+      "caseId": "VALUE19",
+      "classification": "complex",
+      "question": "我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。",
+      "path": "SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json[\"complex\"][\"cases\"][1]",
+      "artifactSha": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13",
+      "deep": {
+        "status": "proposed",
+        "commit": null,
+        "nodesAllSucceeded": true,
+        "receiptStatus": "proposed",
+        "receiptSkills": [
+          "lifeos-direction-analysis"
+        ],
+        "guideUsageStatus": "not_requested",
+        "growthStatus": "not_requested"
+      },
+      "proposalNextActions": [
+        {
+          "direction": "employment",
+          "estMin": 20,
+          "description": "LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。",
+          "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。；仍需核对：已有作品与目标岗位实际要求如何对应，仍需核对；反馈不能替代岗位要求。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限20分钟或发现必需材料缺失时停止；不自动对外联系。"
+        },
+        {
+          "direction": "postgraduate_exam",
+          "estMin": 15,
+          "description": "LifeOS 编辑建议（未绑定公开攻略）：写下读研想解决的一个问题，区分研究兴趣、学历需求与暂时避开就业；不能确定时记为未知，不直接开始全面备考。",
+          "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。；仍需核对：读研或工作的具体动机仍需核对。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限15分钟或发现必需材料缺失时停止；不自动对外联系。"
+        },
+        {
+          "direction": "independent_development",
+          "estMin": 20,
+          "description": "LifeOS 编辑建议（未绑定公开攻略）：选一个具体使用场景，写出用户任务与一个可停止的原型范围；先验证问题，不承诺商业化。",
+          "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。；仍需核对：实际交付是否被采用、反馈及效果分别缺哪项证据，仍需核对。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限20分钟或发现必需材料缺失时停止；不自动对外联系。"
+        }
+      ],
+      "axis": {
+        "technicalCompleted": "PASS",
+        "semanticCorrect": "PASS",
+        "sourceSupported": "PASS_NO_EXTERNAL_CLAIM",
+        "necessaryStateCommitted": "PASS",
+        "intentRespected": "PASS",
+        "crossSessionContinuity": "NOT_TESTED_SINGLE_TURN"
+      },
+      "reasons": {
+        "technical": "deep.nodes 全 succeeded, run completed; receipt.proposal 已生成完整候选(含方向/投入上限/依据/停止条件), proposed 为等待用户选择,非失败(修正R2误读)",
+        "semantic": "候选按方向(就业/考研/独立开发)给出“未绑定公开攻略”的LifeOS小行动+仍需核对项+投入上限+停止条件,回应了“深入比较”意图",
+        "source": "候选均明确标注“未绑定公开攻略”(LifeOS编辑建议)并附 stopCondition 区分支持依据/仍需核对/阶段未知, 无未标注的外部事实/效果主张,无需经guideId检索→记 PASS_NO_EXTERNAL_CLAIM",
+        "state": "\"状态合同: proposed 阶段只应有持久任务与候选,不写目标/记忆/计划; 只有 student 采纳小行动才保存“未执行计划”, 确认方向才保存“阶段方向”(WorkflowPanel 状态合同原文)。commit=null 符合合同,非缺陷(修正R2误判 FAIL)",
+        "intent": "分方向给可执行澄清/核实小行动, 尊重比较意图",
+        "continuity": "单会话(SINGLE_TURN)；未进入三会话连续链, 不计通过"
+      },
+      "proposalIssues": [
+        "候选均为“未绑定公开攻略”的LifeOS编辑小行动: 是“先选方向→再行动”, 未直接给出就业/考研硬比较结论, 属非阻塞特性",
+        "real收益未声明(见下 UI 渠道证明)"
+      ],
+      "continuityStatus": "NOT_TESTED_SINGLE_TURN",
+      "gateToChain": {
+        "fiveAxisPassed": true,
+        "note": "五项主轴通过(technical/semantic/source=PASS_NO_EXTERNAL_CLAIM/state/intent), 允许进入三会话连续链以进一步核对 continuity 与真实收益；不代表发布或收益通过"
+      },
+      "uiChannelNote": "WorkflowPanel.tsx 展示 receipt.proposal(alernatives方向比较+nextActions小行动+采纳/确认/拒绝按钮)与状态合同文案; ui-deep-proposed/adopt-refresh 为该UI的 proposed/采纳刷新 readback; UI_PILOT_CHANNEL_PROOF 标注 paidProviderCalls=0, realModelQuality=NOT_TESTED → 该渠道为模拟 Provider, 仅证明 UI 状态渲染能力, 不能作为真实质量/本人收益/发布证据"
+    }
+  ],
+  "summary": {
+    "samples": 5,
+    "ordinary": 3,
+    "complex": 2,
+    "crossSessionCovered": 0,
+    "gates": "five-axis 通过方允许进入三会话连续链; 当前 continuity 均为 NOT_TESTED_SINGLE_TURN, 不得谎报连续链通过或真实收益/发布; UI 模拟渠道不作质量/收益证明",
+    "proposalFirstReviewNote": "本轮首次逐项审 receipt.proposal 的 alternatives/nextActions(本人依据/支持限制未知/阶段/关键核实/改变条件)",
+    "ordinarySourceNote": "普通澄清无外部事实→ source=PASS_NO_EXTERNAL_CLAIM(不因无检索一概 NT)"
+  }
+}

@@ -1,0 +1,75 @@
+name: Deploy to server
+
+# Manual only. Deploys a previously built image from GHCR to the production
+# server over SSH, with a database backup first and rollback to the previous
+# image if the new container does not report ready.
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy (a commit sha, or latest)"
+        required: true
+        default: "latest"
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  IMAGE: ghcr.io/lqyq666/lifeos
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy over SSH
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          DUSER: ${{ secrets.DEPLOY_USER }}
+          DIR: ${{ secrets.DEPLOY_DIR }}
+          TAG: ${{ inputs.image_tag }}
+          REG_USER: ${{ github.actor }}
+          REG_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: ${{ env.IMAGE }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "$DUSER@$HOST" bash -s <<EOF
+          set -euo pipefail
+          cd "$DIR"
+          test -f .env.production || { echo "missing .env.production"; exit 1; }
+          echo "$REG_TOKEN" | docker login ghcr.io -u "$REG_USER" --password-stdin
+          docker pull "$IMAGE:$TAG"
+          PREV=\$(docker inspect lifeos-app-1 --format '{{.Config.Image}}' 2>/dev/null || true)
+          echo "previous image: \${PREV:-<none>}"
+          STAMP=\$(date +%Y%m%d-%H%M%S)
+          REL="$DIR/releases/gha-\$STAMP"
+          mkdir -p "\$REL"
+          printf 'services:\n  app:\n    image: "%s"\n    pull_policy: always\n' "$IMAGE:$TAG" > "\$REL/override.json"
+          # database backup before switching
+          mkdir -p "$DIR/backups"
+          docker exec lifeos-db-1 pg_dump -U lifeos -d lifeos > "$DIR/backups/gha-\$STAMP.sql" || echo "db backup skipped"
+          COMPOSE=(docker compose -f compose.yaml -f "\$REL/override.json" --env-file .env.production)
+          "\${COMPOSE[@]}" config --quiet
+          "\${COMPOSE[@]}" up -d --no-build
+          CID=\$("\${COMPOSE[@]}" ps -q app)
+          ok=0
+          for i in \$(seq 1 20); do
+            if docker exec "\$CID" node -e 'fetch("http://127.0.0.1:8787/api/ready").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))'; then ok=1; break; fi
+            sleep 6
+          done
+          if [ "\$ok" != "1" ]; then
+            echo "health check failed; rolling back to \${PREV}"
+            if [ -n "\${PREV:-}" ]; then
+              printf 'services:\n  app:\n    image: "%s"\n    pull_policy: never\n' "\$PREV" > "\$REL/rollback.json"
+              docker compose -f compose.yaml -f "\$REL/rollback.json" --env-file .env.production up -d --no-build
+            fi
+            exit 1
+          fi
+          echo "deployed $IMAGE:$TAG"
+          EOF

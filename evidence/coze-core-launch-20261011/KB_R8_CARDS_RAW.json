@@ -1,0 +1,293 @@
+{
+  "kind": "INDEPENDENT_ORIGINAL_CARD_REVIEW",
+  "execution": {
+    "taskId": "LIFEOS_KB_R8_ACTUAL_SEMANTICS",
+    "projectId": "7693465311558795327",
+    "sessionId": "363941496948738",
+    "executor": "coze-project-independent-execution",
+    "inputSha256": "43147524695f1efc32a3797cf4cb393bf2f5c1fbb6c7850995654f673f539c91",
+    "startedAt": "2026-10-11T03:00:00Z",
+    "finishedAt": "2026-10-11T03:29:05.795725Z",
+    "inputFile": "assets/KB_SIX_R4_FULL_INPUT.json"
+  },
+  "originals": [
+    {
+      "sourceId": "yangtze-library-batch",
+      "sourceRevision": 1,
+      "boundSourceFingerprint": "617f3ea19ac37d4c289ce1376207ae28990d3f10cc825fc980e4349fa86c35e8",
+      "canonicalUrl": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+      "artifactPath": ".planning/research/workflow-integration/r7-originals/campus_orig.html",
+      "artifactBytesSha256": "9c7bf0f0c986409e1e4ca94730e7ac0a86a443f0e22f89d66e2370df5ceea536",
+      "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/campus_norm.txt",
+      "normalizedTextSha256": "5ccd7b854228f3b637a5a577d7ae34e9abda110f985438f84c9d29e079af3812",
+      "acquisition": "INDEPENDENT_HTTP_FULL_ORIGINAL_READ"
+    },
+    {
+      "sourceId": "ies-learning-located-20261011",
+      "sourceRevision": 1,
+      "boundSourceFingerprint": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+      "canonicalUrl": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "artifactPath": ".planning/research/workflow-integration/r7-originals/ies_orig.html",
+      "artifactBytesSha256": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+      "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/ies_norm.txt",
+      "normalizedTextSha256": "efed8f7bf5702238aef13d3fcd1d3b26a8c4495512bf258085b2b3fd45c75147",
+      "acquisition": "HASH_VERIFIED_DOWNLOADED_ORIGINAL_FULL_BODY_READ"
+    },
+    {
+      "sourceId": "cfpb-income-pdf-20261011",
+      "sourceRevision": 1,
+      "boundSourceFingerprint": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62",
+      "canonicalUrl": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_income_benefits_tool_2018-11_ADA.pdf",
+      "artifactPath": ".planning/research/workflow-integration/r7-originals/cfpb_income.pdf",
+      "artifactBytesSha256": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62",
+      "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/income_p2_norm.txt",
+      "normalizedTextSha256": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6",
+      "acquisition": "INDEPENDENT_HTTP_FULL_ORIGINAL_READ"
+    },
+    {
+      "sourceId": "cfpb-spending-pdf-20261011",
+      "sourceRevision": 1,
+      "boundSourceFingerprint": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+      "canonicalUrl": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+      "artifactPath": ".planning/research/workflow-integration/r7-originals/cfpb_spend.pdf",
+      "artifactBytesSha256": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+      "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/spend_p1_norm.txt",
+      "normalizedTextSha256": "ddb371f04aacfc52b142256858d2ef672f285359815d6c323072add069aa28f1",
+      "acquisition": "INDEPENDENT_HTTP_FULL_ORIGINAL_READ"
+    },
+    {
+      "sourceId": "cfpb-spending-pdf-20261011",
+      "sourceRevision": 1,
+      "boundSourceFingerprint": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+      "canonicalUrl": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+      "artifactPath": ".planning/research/workflow-integration/r7-originals/cfpb_spend.pdf",
+      "artifactBytesSha256": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+      "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/spend_p3_norm.txt",
+      "normalizedTextSha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22",
+      "acquisition": "INDEPENDENT_HTTP_FULL_ORIGINAL_READ"
+    }
+  ],
+  "cards": [
+    {
+      "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+      "revision": 3,
+      "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
+      "decision": "ready_for_owner_approval",
+      "claimChecks": [
+        {
+          "claimId": "campus-resource-scope",
+          "basis": "source_supported",
+          "decision": "supported",
+          "reason": "外部主张：校园图书馆（东/西校区）在新生入馆教育中提供馆藏查询、电子资源获取等实操演示，并开展‘线上学习一周+馆内现场体验’模式。已在附完整原页正文定位引文(304字符,含换行)支撑，slice与content_hash精确一致。",
+          "evidenceChecks": [
+            {
+              "evidenceId": "yangtze-library-batch-campus-resource-e1",
+              "sourceId": "yangtze-library-batch",
+              "sourceRevision": 1,
+              "quote": "使用、服务需求等方面的意见，为后续优化服务提供依据。此外，东校区还拍摄图书馆宣传视频，既展示图书阅览区、自习区等功能空间，又通过实操演示呈现馆藏查询、电子资源获取等操作，让新生直观了解图书馆使用方法。\n西校区分馆通过大学生阅读学社，以“线上学习一周 + 馆内现场体验”模式推进入馆教育。线上帮助新生初步了解资源，线下结合老师讲解与实地参观，介绍《中图法》分类、自助借还机操作、书籍排架及电子资源情况。活动历时28天，覆盖81个班级近3000名新生，32名志愿者全程参与服务，活动尾声发起“六个一”倡议（即借一本书、关注一下图书馆网站、关注一下图书馆微信公众号、至少访问一个中文数据库、至少访问一个外文数据库、",
+              "quoteSha256": "4c8b7818a484ff01963451cd3bf7579fcbc1e3bd16d76feaa7944adf48ed4635",
+              "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/campus_norm.txt",
+              "start": 569,
+              "end": 873,
+              "_ok": true
+            }
+          ]
+        },
+        {
+          "claimId": "campus-resource-editorial",
+          "basis": "editorial_adaptation",
+          "decision": "supported_as_editorial",
+          "reason": "实际编辑步骤=「写清要查的资料或手续，不先交个人敏感信息；从本人学校官网找到负责部门或图书馆入口并记录页面名称及位置；核对适用对象；权限、开放时间未知时只向该部门提出一个问题」。已核对guide.feedbackBranches: not_started→先核对问题归属只备一步不写成执行; blocked→只沿官网入口定位实际卡住处不重送入门全套; waiting_result→未回复/采用/付款/效果各自未知不猜原因、部门未回应只记录等待与未知、无本人许可不反复联系、资料权限被拒即停止获取不换渠道绕过、改列可公开核验替代。stopConditions: 账号/权限不跨校迁移; 本主张为步骤与反馈适配而非外部效果证明；不虚构新人获益。"
+        }
+      ]
+    },
+    {
+      "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+      "revision": 3,
+      "contentHash": "c8680ef307df145857f2357938bd144945d61f0694b0f1e019ae8e473a5fef5b",
+      "decision": "ready_for_owner_approval",
+      "claimChecks": [
+        {
+          "claimId": "retrieval-practice-scope",
+          "basis": "source_supported",
+          "decision": "supported",
+          "reason": "外部主张：‘检索练习/用测验再暴露关键内容’来自IES WWC Practice Guide 1；已在附完整原页全文定位引文‘Use quizzes to re-expose students to key content.’，slice与content_hash精确一致。",
+          "evidenceChecks": [
+            {
+              "evidenceId": "ies-learning-located-20261011-retrieval-practice",
+              "sourceId": "ies-learning-located-20261011",
+              "sourceRevision": 1,
+              "quote": "Use quizzes to re-expose students to key content.",
+              "quoteSha256": "2255e7b8b806dc93beb0a65a04c59d9f6df7c2dc00b12c661f7c81787ed988f3",
+              "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/ies_norm.txt",
+              "start": 1794,
+              "end": 1843,
+              "_ok": true
+            }
+          ]
+        },
+        {
+          "claimId": "retrieval-practice-editorial",
+          "basis": "editorial_adaptation",
+          "decision": "supported_as_editorial",
+          "reason": "实际编辑步骤=「看一小段已学材料→合上材料尝试写出要点→与原文核对标明漏项误项→先核对再继续练→后续只回到遗漏点再试，不能用一次答对推断长期掌握」。已核 feedbackBranches: not_started→先确认检验哪一小段记忆只备一步; blocked→只说还是不行时读回上次步骤再核泄漏/错误/材料缺口，无可核对材料就暂停; waiting_result→练过一次/自信/完成次数不能写成已掌握，不混入联系付款; result→能否不看材料提取，自信与实际答案分开，答对≠长期掌握。未用外部引文假证学习效果。"
+        }
+      ]
+    },
+    {
+      "guideId": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+      "revision": 3,
+      "contentHash": "3d30bf07eecff9422a434c3b1033c724a6c886ac723f598ae01b7f831f076e42",
+      "decision": "ready_for_owner_approval",
+      "claimChecks": [
+        {
+          "claimId": "spaced-review-scope",
+          "basis": "source_supported",
+          "decision": "supported",
+          "reason": "外部主张：‘间隔学习’来自IES WWC Practice Guide 1；已定位引文‘Space learning over time.’，slice与content_hash精确一致。",
+          "evidenceChecks": [
+            {
+              "evidenceId": "ies-learning-located-20261011-spaced-review",
+              "sourceId": "ies-learning-located-20261011",
+              "sourceRevision": 1,
+              "quote": "Space learning over time.",
+              "quoteSha256": "0b29abd52f37af45d3d40b1952433f52f078980677b47bdf0107c67083056246",
+              "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/ies_norm.txt",
+              "start": 1360,
+              "end": 1385,
+              "_ok": true
+            }
+          ]
+        },
+        {
+          "claimId": "spaced-review-editorial",
+          "basis": "editorial_adaptation",
+          "decision": "supported_as_editorial",
+          "reason": "实际编辑步骤=「把一小段复习分到本人实际能用的多个时段不套固定天数；每次先检查能记住什么再只补漏项；错过一次时重新选择下一可用窗口，不补齐惩罚性任务」。已核 feedback: result→只认不同时间实际回忆，计划次数不是学习效果; blocked/waiting→重复只沿同一知识点与上次步骤，练过/完成次数≠掌握。stopConditions: 不规定通用最优间隔、不继承原文示例日期。本主张为进度分配步骤适配，未断言记忆提升幅度。"
+        }
+      ]
+    },
+    {
+      "guideId": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+      "revision": 3,
+      "contentHash": "3fec0f47977375e8c688e1e58425fa129a93535d0d8e60261ec12ab273822028",
+      "decision": "ready_for_owner_approval",
+      "claimChecks": [
+        {
+          "claimId": "worked-example-scope",
+          "basis": "source_supported",
+          "decision": "supported",
+          "reason": "外部主张：‘工作样例与解题练习交错’来自IES WWC Practice Guide 1；已定位引文‘Interleave worked example solutions with problem-solving exercises.’，slice与content_hash精确一致。",
+          "evidenceChecks": [
+            {
+              "evidenceId": "ies-learning-located-20261011-worked-example",
+              "sourceId": "ies-learning-located-20261011",
+              "sourceRevision": 1,
+              "quote": "Interleave worked example solutions with problem-solving exercises.",
+              "quoteSha256": "dceffcb8b92b786e3a1dc13906d3d9e3c415397f4867f8d9fc3430012f285d25",
+              "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/ies_norm.txt",
+              "start": 1408,
+              "end": 1475,
+              "_ok": true
+            }
+          ]
+        },
+        {
+          "claimId": "worked-example-editorial",
+          "basis": "editorial_adaptation",
+          "decision": "supported_as_editorial",
+          "reason": "实际编辑步骤=「先找与当前题相近的已解示例并解释每步在解决什么；盖住后自己做相近问题保留卡点；只回看卡住的步骤再独立试一次；照抄不算独立完成」。已核 feedback: not_started→先确认示例哪步还无法独立完成; blocked→盖住后自己做相近问题只调整卡住处; result→能否不看示例完成对应步骤，答对与后续独立使用分开。stopConditions: 例题与当前问题结构不同不强套。未伪造独立完成证明。"
+        }
+      ]
+    },
+    {
+      "guideId": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+      "revision": 3,
+      "contentHash": "003e6a5077cbb8e7de2e10feefd9f30d65374168f620792443e2b7c9ebc92c43",
+      "decision": "ready_for_owner_approval",
+      "claimChecks": [
+        {
+          "claimId": "explain-understanding-scope",
+          "basis": "source_supported",
+          "decision": "supported",
+          "reason": "外部主张：‘提出深层解释性问题’来自IES WWC Practice Guide 1；已定位引文‘Ask deep explanatory questions.’，slice与content_hash精确一致。",
+          "evidenceChecks": [
+            {
+              "evidenceId": "ies-learning-located-20261011-explain-understanding",
+              "sourceId": "ies-learning-located-20261011",
+              "sourceRevision": 1,
+              "quote": "Ask deep explanatory questions.",
+              "quoteSha256": "b5a8eba92b777a3132d4d3b05f5b5e6a2e2936f4148f5d64cae5b4a9c874d659",
+              "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/ies_norm.txt",
+              "start": 2176,
+              "end": 2207,
+              "_ok": true
+            }
+          ]
+        },
+        {
+          "claimId": "explain-understanding-editorial",
+          "basis": "editorial_adaptation",
+          "decision": "supported_as_editorial",
+          "reason": "实际编辑步骤=「选一个概念回答为什么/如何与已知内容相连；用课程材料检查每一处关系不编补未知；解释卡住时转成具体问题向老师或材料核对」。已核 feedback: waiting_result→练过/自信/完成次数≠理解，表达流畅非掌握证明；result→解释中的关系是否可被核查划分开。stopConditions: 不推断人格或教学天赋。本主张为自我检验步骤适配，未把解释流畅当理解证据。"
+        }
+      ]
+    },
+    {
+      "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+      "revision": 4,
+      "contentHash": "0d7e7c7b8883d9163e65429a04e9c3e570443f3cdc5b20e37db93b446a264f4a",
+      "decision": "ready_for_owner_approval",
+      "claimChecks": [
+        {
+          "claimId": "income-ledger-scope",
+          "basis": "source_supported",
+          "decision": "supported",
+          "reason": "外部主张：收入/支出台账条目来自CFPB官方工具原PDF(income/spending)：净收入每周填写、用信封收集收据、每类每周支出汇总。3条证据分属2个来源(income p2, spending p3, spending p1)，已在各自页规范文本逐字定位，slice与content_hash全部一致。",
+          "evidenceChecks": [
+            {
+              "evidenceId": "cfpb-income-pdf-20261011-e1",
+              "sourceId": "cfpb-income-pdf-20261011",
+              "sourceRevision": 1,
+              "quote": "Fill in the net income amount you receive each week",
+              "quoteSha256": "e7abde58e5945bcf862a12fafbe8965789336be911a93d8adf6a1f123df4fd44",
+              "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/income_p2_norm.txt",
+              "start": 81,
+              "end": 132,
+              "_ok": true
+            },
+            {
+              "evidenceId": "cfpb-spending-pdf-20261011-e1",
+              "sourceId": "cfpb-spending-pdf-20261011",
+              "sourceRevision": 1,
+              "quote": "Get an envelope to collect your receipts.",
+              "quoteSha256": "a09908376a7dbde89fe5ff6d920a48bccc42a5b03fd5ba6fd6199da5ee37b383",
+              "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/spend_p3_norm.txt",
+              "start": 79,
+              "end": 120,
+              "_ok": true
+            },
+            {
+              "evidenceId": "cfpb-spending-pdf-20261011-e2",
+              "sourceId": "cfpb-spending-pdf-20261011",
+              "sourceRevision": 1,
+              "quote": "enter the total you spent in each category for each week.",
+              "quoteSha256": "52be87422ed80abddd2b8d6c4d7c385df1409c9bfcc62747b9d405ed5b7812ed",
+              "normalizedTextPath": ".planning/research/workflow-integration/r7-originals/spend_p1_norm.txt",
+              "start": 1171,
+              "end": 1228,
+              "_ok": true
+            }
+          ]
+        },
+        {
+          "claimId": "income-ledger-editorial",
+          "basis": "editorial_adaptation",
+          "decision": "supported_as_editorial",
+          "reason": "实际编辑步骤=「记录已到账与未到账，金额缺失保持未知，不把报价记收入；单列直接成本、必要开支和本人投入时间，退款或变动另作记录；比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资」。已核五反馈分支含 declined(专项存在): 被拒即停止并保留合法历史，不换名换渠道继续推动，本人重提才恢复；waiting_result→同一笔未到账保持未知，已交付/已采用/已付款分别记录，未回复不推断原因或自动催款；blocked→缺金额留空缺日期不猜所属周、不一致请本人更正。stopConditions: 只借用记账方法不输出税务/投资等中国规则，记账不能证明兼职值得/款项必到/效果。未用引文假证经济效果。"
+        }
+      ]
+    }
+  ],
+  "governance": "零产品模型/零发布/零批准/零新预算/零治理修改; 全部decision为独立执行建议, 服务端读回验证后等owner批准。"
+}
