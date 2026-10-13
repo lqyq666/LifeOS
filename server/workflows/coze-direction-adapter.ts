@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto'
 import {readFileSync,mkdirSync,writeFileSync,appendFileSync} from 'node:fs'
-import {resolve} from 'node:path'
+import {isAbsolute,relative,resolve,sep} from 'node:path'
 import {Value} from 'typebox/value'
 import {CoachProviderBudget,activeCoachFunding,type CoachCallReceipt} from '../../scripts/coach-provider-budget.ts'
 import {CozeCreditBudget} from '../../scripts/coze-credit-budget.ts'
@@ -67,6 +67,8 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
  const cfg=input.config,target=validateCodeEndpoint(cfg.endpoint),budget=input.budget??new CoachProviderBudget(),credits=input.credits??new CozeCreditBudget(cfg.creditsLedgerPath),fetchImpl=input.fetchImpl??fetch
  if(cfg.projectId!=='7693388932939300905'||!Number.isSafeInteger(cfg.maxCreditsPerGraph)||cfg.maxCreditsPerGraph<=0||cfg.token.length<20||cfg.binding.hostSourceDigest!==workflowRuntimeVersion.sourceDigest||cfg.binding.contentHash!==workflowRuntimeVersion.contentHash)throw new WorkflowError('unavailable')
  if(!input.syntheticTransport&&(budget.path!==new CoachProviderBudget().path||credits.path!==resolve('.local/coze-launch/credits-ledger.jsonl'))||input.syntheticTransport&&!input.fetchImpl)throw new WorkflowError('scope_denied')
+ const persistentRoot=resolve('.local/coze-launch'),journalRelative=relative(persistentRoot,resolve(cfg.journalDirectory))
+ if(!input.syntheticTransport&&(!journalRelative||isAbsolute(journalRelative)||journalRelative==='..'||journalRelative.startsWith(`..${sep}`)))throw new WorkflowError('scope_denied')
  const secret=deriveCozePermitSecret(cfg.token),maxCost=0.02
  const canonical=JSON.parse(readFileSync('.planning/research/workflow-integration/COZE_CANONICAL_PUBLIC_ASSETS.json','utf8'))
  if(canonical.canonicalFullCorpusHash!==workflowRuntimeVersion.contentHash||canonical.canonicalSourceRegistryHash!==workflowRuntimeVersion.sourceRegistryHash||canonical.canonicalEvidenceHash!==workflowRuntimeVersion.contentEvidenceHash||!Array.isArray(canonical.cards)||canonical.cards.some((c:any)=>c.guide?.reviewStatus!=='approved'))throw new WorkflowError('source_invalid')

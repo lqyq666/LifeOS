@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {createHash} from 'node:crypto'
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
-import {join,dirname} from 'node:path'
+import {join,dirname,resolve} from 'node:path'
 import {fixture,proposal} from './workflows/fixtures.ts'
 import {CoachProviderBudget} from '../scripts/coach-provider-budget.ts'
 import {CozeCreditBudget} from '../scripts/coze-credit-budget.ts'
@@ -88,4 +88,9 @@ test('known failed critic usage settles before its proposed graph is rejected',a
  assert.ok(Math.abs(rows.reduce((sum,row)=>sum+row.estimatedCostCny,0)-0.00175)<1e-12)
  assert.equal(f.finished.length,5)
  assert.ok(f.finished.some(row=>row.id==='critic'&&row.error==='unavailable'))
+})
+test('real Coze graph rejects journals outside the persistent Coze state mount before dispatch',()=>{
+ const f=setup(async()=>{throw Error('must not dispatch')})
+ const config={...f.config,creditsLedgerPath:resolve('.local/coze-launch/credits-ledger.jsonl'),journalDirectory:join(f.root,'ephemeral-journal')}
+ assert.throws(()=>createCozeDirectionAdapter({config,freezePath:f.freezePath,readEvidence:async()=>f.records,readMethods:async()=>[],budget:new CoachProviderBudget(),credits:new CozeCreditBudget(config.creditsLedgerPath)}),(error:any)=>error?.code==='scope_denied')
 })

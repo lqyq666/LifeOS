@@ -41,6 +41,7 @@ COPY .local/models/bge-small-zh-v1.5 ./.local/models/bge-small-zh-v1.5
 COPY deploy/requirements-embedding.lock ./deploy/requirements-embedding.lock
 ARG LIFEOS_BUILD_COMMIT
 RUN node -e "const fs=require('node:fs');const commit=process.env.LIFEOS_BUILD_COMMIT;if(!/^[a-f0-9]{40}$/.test(commit||''))throw Error('BUILD_COMMIT_REQUIRED');fs.writeFileSync('deploy/build-version.json',JSON.stringify({commit}));"
+LABEL org.opencontainers.image.revision=$LIFEOS_BUILD_COMMIT
 USER node
 EXPOSE 8787
 CMD ["node","--import","tsx","server/index.ts"]

@@ -15,9 +15,17 @@
 
 Docker 构建还需要随包提供的 qwen-default 能力报告与 interface-proof 文件。报告应原样保留，不能伪造。服务器上的私有 .env.production 从 .env.production.example 建立，填入唯一数据库密码、认证密钥、百炼 Key 和正式 HTTPS origin；不提交密钥。
 
+    set -euo pipefail
+    test -z "$(git status --porcelain)"
+    export LIFEOS_BUILD_COMMIT="$(git rev-parse HEAD)"
     docker compose --env-file .env.production config --quiet
     docker compose --env-file .env.production build app
-    docker compose --env-file .env.production up -d --wait --wait-timeout 120
+    IMAGE_PREFLIGHT="$(bash deploy/verify-image.sh .env.production "$LIFEOS_BUILD_COMMIT")"
+    printf '%s\n' "$IMAGE_PREFLIGHT"
+    EXPECTED_IMAGE_ID="$(printf '%s' "$IMAGE_PREFLIGHT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["imageId"])')"
+    docker compose --env-file .env.production up -d --no-build --wait --wait-timeout 120
+    test "$(docker inspect "$(docker compose --env-file .env.production ps -q app)" --format '{{.Image}}')" = "$EXPECTED_IMAGE_ID"
+    test "$(curl --fail --silent http://127.0.0.1:8787/api/run/version | python3 -c 'import json,sys; print(json.load(sys.stdin)["head"])')" = "$LIFEOS_BUILD_COMMIT"
     curl --fail http://127.0.0.1:8787/api/ready
 
 Compose 将应用仅绑定到宿主机 127.0.0.1:8787，数据库没有公网端口。沿用 deploy/nginx.conf.example 配置 TLS 反向代理，关闭 SSE buffering，并设置足够的读取超时。确认 Docker 网桥的精确代理地址后再设置信任代理。

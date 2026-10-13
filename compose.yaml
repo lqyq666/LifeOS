@@ -76,7 +76,7 @@ services:
       LIFEOS_COZE_GROWTH: ${LIFEOS_COZE_GROWTH:-false}
       LIFEOS_COZE_GROWTH_CONFIG: /run/secrets/lifeos-coze-growth-config.json
       LIFEOS_COZE_SYNTHETIC_USER_ID: ${LIFEOS_COZE_SYNTHETIC_USER_ID:-}
-      LIFEOS_WORKFLOW_FREEZE: ${LIFEOS_WORKFLOW_FREEZE:-}
+      LIFEOS_WORKFLOW_FREEZE: /run/secrets/lifeos-workflow-freeze.json
       LIFEOS_COZE_KNOWLEDGE: ${LIFEOS_COZE_KNOWLEDGE:-false}
       LIFEOS_COZE_TRANSPORT: ${LIFEOS_COZE_TRANSPORT:-code_workflow}
       LIFEOS_COZE_CODE_ENDPOINT: ${LIFEOS_COZE_CODE_ENDPOINT:-}
@@ -91,6 +91,22 @@ services:
       - type: bind
         source: ${LIFEOS_COZE_GROWTH_CONFIG_FILE:-./deploy/coze-growth-config.unconfigured.json}
         target: /run/secrets/lifeos-coze-growth-config.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${LIFEOS_COZE_GROWTH_STATE_DIR:-./deploy/coze-growth-runtime-unconfigured}
+        target: /app/.local/coze-launch
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${LIFEOS_COZE_MODEL_BUDGET_DIR:-./deploy/provider-budget-runtime-unconfigured}
+        target: /app/.local/v1.3-action-coach/paid
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${LIFEOS_WORKFLOW_FREEZE_FILE:-./deploy/workflow-freeze.unconfigured.json}
+        target: /run/secrets/lifeos-workflow-freeze.json
         read_only: true
         bind:
           create_host_path: false

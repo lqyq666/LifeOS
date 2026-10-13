@@ -1,5 +1,5 @@
-param([string]$Tag = 'lifeos:coze-core-candidate')
 $ErrorActionPreference = 'Stop'
+$Image = 'lifeos:v1.3-fast-launch-candidate'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 if (git status --porcelain) { throw 'Commit or preserve all changes before building an exact-version image.' }
 $sourceCommit = (git rev-parse HEAD).Trim()
@@ -29,6 +29,6 @@ foreach ($asset in '.local/models/bge-small-zh-v1.5', '.local/docker-embedding/w
     New-Item -ItemType Directory -Path $targetParent -Force | Out-Null
     Copy-Item -LiteralPath $sourcePath -Destination $targetParent -Recurse
 }
-docker build --build-arg "LIFEOS_BUILD_COMMIT=$sourceCommit" -t $Tag $contextPath
+docker build --build-arg "LIFEOS_BUILD_COMMIT=$sourceCommit" -t $Image $contextPath
 if ($LASTEXITCODE -ne 0) { throw 'Image build failed; preserve its first output before repairing.' }
-Write-Output "BUILT $Tag source=$sourceCommit; provider, cloud workflow and release acceptance remain separate."
+Write-Output "BUILT $Image source=$sourceCommit; provider, cloud workflow and release acceptance remain separate."

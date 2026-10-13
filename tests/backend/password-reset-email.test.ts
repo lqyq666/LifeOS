@@ -65,6 +65,36 @@ test('emailed link resets exactly once, expires, and revokes old sessions withou
     const denied=await post('reset-password',{token:expired.slice('reset-password:'.length),newPassword:'Synthetic-expired-'+randomUUID()})
     assert.equal(denied.status,400);assert.equal((await denied.json()).code,'INVALID_TOKEN')
     await clearRate()
+    // A cleanup query failure must not skip Better Auth's subsequent session
+    // revocation after the password has already been updated.
+    const recoveryLogin=await post('sign-in/email',{email,password:winning})
+    assert.equal(recoveryLogin.status,200)
+    const recoveryCookie=recoveryLogin.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ')
+    await pool.query("UPDATE lifeos_password_reset_deliveries SET created_at=now()-interval '2 minutes'")
+    const recoveryRequest=await post('request-password-reset',{email,redirectTo:config.origin+'/#reset'})
+    assert.equal(recoveryRequest.status,200)
+    await drainPasswordResetMail()
+    const [failureHeaders,...failureBody]=messages.at(-1)!.split('\r\n\r\n')
+    const failureEncoded=failureBody.join('\r\n\r\n')
+    const failureText=/Content-Transfer-Encoding: base64/i.test(failureHeaders)?Buffer.from(failureEncoded.replace(/\s/g,''),'base64').toString('utf8'):failureEncoded.replace(/=\r?\n/g,'').replace(/=([0-9A-F]{2})/g,(_,hex:string)=>String.fromCharCode(parseInt(hex,16)))
+    const failureURL=new URL(failureText.match(/http:\/\/[^\s]+/)![0])
+    const failureToken=new URLSearchParams(failureURL.hash.slice('#reset?'.length)).get('token')!
+    const originalQuery=pool.query
+    let cleanupFailureInjected=false
+    ;(pool as any).query=function(...args:any[]){
+      if(typeof args[0]==='string'&&args[0].startsWith('DELETE FROM "verification"')&&!cleanupFailureInjected){cleanupFailureInjected=true;return Promise.reject(new Error('synthetic verification cleanup failure'))}
+      return (originalQuery as any).apply(pool,args)
+    }
+    const failurePassword='Synthetic-after-cleanup-failure-'+randomUUID()
+    let failedCleanupReset:Response
+    try{failedCleanupReset=await post('reset-password',{token:failureToken,newPassword:failurePassword})}
+    finally{(pool as any).query=originalQuery}
+    assert.equal(cleanupFailureInjected,true)
+    assert.equal(failedCleanupReset!.status,200)
+    assert.equal((await fetch(origin+'/api/session',{headers:{Cookie:recoveryCookie}})).status,401)
+    assert.equal((await post('sign-in/email',{email,password:winning})).status,401)
+    assert.equal((await post('sign-in/email',{email,password:failurePassword})).status,200)
+    await clearRate()
     const foreign=await post('request-password-reset',{email,redirectTo:'https://foreign.example.invalid/#reset'})
     assert.equal(foreign.status,403)
     await clearRate()
