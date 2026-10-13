@@ -1,0 +1,51 @@
+{
+  "status": "PASS_EXACT_COMMITTED_IMAGE_BYTES",
+  "commit": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+  "imageId": "sha256:1fb0cf1156c91b682dea896d4146b8027e4df837d888945090bdf3e778f22278",
+  "revision": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+  "files": [
+    {
+      "file": "server/workflows/coze-direction-adapter.ts",
+      "sha256": "014b8163c4634373e45d6801051f3282ce5f7b2adc221b28a579039fdebbfb6b"
+    },
+    {
+      "file": "server/workflows/task-journal.ts",
+      "sha256": "2ec8f467520897e32942d98cf887f263d84f421990a114687b8d02896fcc14b5"
+    },
+    {
+      "file": "server/auth.ts",
+      "sha256": "0bf70d77a440c6df96686fe4f12453b99786e3d7a1351e6d07fa4f6bec015742"
+    },
+    {
+      "file": "skills/lifeos-direction-analysis/SKILL.md",
+      "sha256": "62943fe56bb940650173f2d0172d87ed2805cbe211f11facf20a2f2a778799e8"
+    },
+    {
+      "file": "skills/lifeos-action-review/SKILL.md",
+      "sha256": "e6ee4f68ce5bc62327ea0eb405fef5ffae26976b1d12bbad97c586472888efae"
+    },
+    {
+      "file": "skills/lifeos-experience-evidence/SKILL.md",
+      "sha256": "35f728f885f5fca4d64a54570def72e4adae2253467d2e7a7170279ea1fde814"
+    },
+    {
+      "file": "skills/lifeos-guide-application/SKILL.md",
+      "sha256": "874cda6490c064d9fa26c2b498977f048edcca203e82809fa68c35864cb89661"
+    },
+    {
+      "file": "skills/lifeos-growth-diff/SKILL.md",
+      "sha256": "b8bf44162cd18a59e6a6a2ad43e2164313a7ab9175a88e7b9a3f61f137d03380"
+    }
+  ],
+  "hostRestorationTool": {
+    "file": "deploy/verify-restoration.py",
+    "sha256": "2f9c7c062a6e1958c42da369c3805b287d574a8be3ee2a1ffb3c8b7e49cf3e2f",
+    "scope": "HOST_ARCHIVED_OPERATION_NOT_RUNTIME_IMAGE"
+  },
+  "network": "none",
+  "applicationStarted": false,
+  "databaseMigrated": false,
+  "providerCalls": 0,
+  "cozeCalls": 0,
+  "deployed": false
+}

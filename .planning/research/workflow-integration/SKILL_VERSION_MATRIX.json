@@ -465,7 +465,7 @@
       }
     ],
     "imageByteBinding": {
-      "status": "PASS_LOCAL_ARCHIVE_BLOB_BYTES_CURRENT_IMAGE_READBACK_PENDING",
+      "status": "PASS_LOCAL_ARCHIVE_AND_EXACT_COMMITTED_IMAGE_BYTES",
       "firstFailedImageCommit": "69838a7ac1717fab30ae607eb8d64cb15b559971",
       "firstFailureEvidence": ".local/half-day-20261013/image-69838a7-first-source-mismatch.json",
       "regression": ".local/half-day-20261013/archive-byte-green.log",
@@ -476,7 +476,28 @@
       "sourceEol": "COMMAND_SCOPED_CORE_AUTOCRLF_FALSE_CORE_EOL_LF",
       "persistentGitConfigChanged": false,
       "currentCloudBinding": "MUST_USE_ACTUAL_IMAGE_FINGERPRINT_NOT_WINDOWS_WORKTREE",
-      "newProviderCalls": 0
+      "newProviderCalls": 0,
+      "sourceCommit": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+      "imageId": "sha256:1fb0cf1156c91b682dea896d4146b8027e4df837d888945090bdf3e778f22278",
+      "verifiedRuntimeFiles": 8,
+      "evidence": "evidence/local-agent-workflow-skill-20261013/IMAGE_BYTE_READBACK.json",
+      "evidenceSha256": "c8102e4e2451a6885bf8afb1074c5d829998d131b2c94464ed4a9f744d511fdc",
+      "buildLog": ".local/half-day-20261013/canonical-current-image-build.log",
+      "buildLogSha256": "41c0e80938907d3a64544b0e52da8471b99d847601d11db7436340f90a07e562",
+      "localRestoration": {
+        "status": "PASS_LOCAL_EXACT_IMAGE_RESTART_RESTORATION_READBACK",
+        "evidence": "evidence/local-agent-workflow-skill-20261013/LOCAL_RESTART_READBACK.json",
+        "evidenceSha256": "aba0c9ce6cfcf49753ab1d3e52fe14a17a4641da1fd03707a43b9971e1ebf2ad",
+        "initialGate": "PASS_RESTORATION_READBACK",
+        "restartGate": "PASS_RESTORATION_READBACK",
+        "migrationCount": 37,
+        "allResourcesRemoved": true,
+        "scope": "ISOLATED_SYNTHETIC_DATABASE_READBACK_NOT_PRODUCTION_BACKUP_RESTORE"
+      },
+      "productionModified": false,
+      "deployed": false,
+      "newRealProviderCalls": 0,
+      "newCozeBusinessCalls": 0
     }
   }
 }

@@ -1,0 +1,47 @@
+{
+  "status": "PASS_LOCAL_EXACT_IMAGE_RESTART_RESTORATION_READBACK",
+  "sourceCommit": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+  "imageId": "sha256:1fb0cf1156c91b682dea896d4146b8027e4df837d888945090bdf3e778f22278",
+  "project": "lifeos-e3-restoration-6ef24bff",
+  "migrationCount": 37,
+  "providerCalls": 0,
+  "cozeCalls": 0,
+  "emailsSent": 0,
+  "productionModified": false,
+  "initialGate": {
+    "status": "PASS_RESTORATION_READBACK",
+    "head": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+    "imageId": "sha256:1fb0cf1156c91b682dea896d4146b8027e4df837d888945090bdf3e778f22278",
+    "ready": true,
+    "migrationCount": 37
+  },
+  "restartGate": {
+    "status": "PASS_RESTORATION_READBACK",
+    "head": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+    "imageId": "sha256:1fb0cf1156c91b682dea896d4146b8027e4df837d888945090bdf3e778f22278",
+    "ready": true,
+    "migrationCount": 37
+  },
+  "applicationStarted": true,
+  "databaseMigrated": true,
+  "restartPerformed": true,
+  "migrationManifestSha256": "72462a08de3af560e3e6139b478af22fabfe8b9d066722420ab24450dc1ce8f3",
+  "cleanup": [
+    {
+      "kind": "container",
+      "target": "lifeos-e3-restoration-6ef24bff-app",
+      "removed": true
+    },
+    {
+      "kind": "container",
+      "target": "lifeos-e3-restoration-6ef24bff-db",
+      "removed": true
+    },
+    {
+      "kind": "network",
+      "target": "lifeos-e3-restoration-6ef24bff",
+      "removed": true
+    }
+  ],
+  "allResourcesRemoved": true
+}
