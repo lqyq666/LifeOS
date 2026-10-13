@@ -10,7 +10,11 @@
 // Without --paid the script stops after the free checks (server reachable,
 // signup, conversation, growth read) and prints the paid plan.
 
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
+import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const args = process.argv.slice(2)
 const flag = name => args.includes(name)
@@ -18,11 +22,45 @@ const option = (name, fallback) => { const i = args.indexOf(name); return i >= 0
 const origin = option('--origin', 'http://127.0.0.1:8787')
 const paid = flag('--paid')
 
+const repoRoot = fileURLToPath(new URL('../../../', import.meta.url))
+
+async function main() {
+let expectedHead, mainSkillDigest
+try {
+  expectedHead = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim().toLowerCase()
+  mainSkillDigest = createHash('sha256').update(readFileSync(resolve(repoRoot, 'skills/lifeos-personal-companion/SKILL.md'))).digest('hex')
+  if (!/^[a-f0-9]{40}$/.test(expectedHead)) throw new Error('source head unavailable')
+} catch {
+  console.error('RUNTIME_FINGERPRINT_BLOCKED: developed source identity unavailable')
+  return 2
+}
+
+let runtime
+try {
+  const versionResponse = await fetch(origin + '/api/run/version', { redirect: 'error', signal: AbortSignal.timeout(5000) })
+  if (!versionResponse.ok) throw new Error('HTTP_' + versionResponse.status)
+  runtime = await versionResponse.json()
+} catch (error) {
+  console.error('RUNTIME_FINGERPRINT_BLOCKED: /api/run/version unavailable (' + (error instanceof Error ? error.message : String(error)) + ')')
+  return 2
+}
+const reportedHead = typeof runtime?.head === 'string' ? runtime.head.toLowerCase() : ''
+if (runtime?.service !== 'LifeOS' || !/^[a-f0-9]{7,40}$/.test(reportedHead) || !expectedHead.startsWith(reportedHead) || runtime?.skillVersion !== '1.2.2-candidate' || runtime?.contractGeneration !== 'p4+workflow-v2' || runtime?.mainSkillDigest !== mainSkillDigest) {
+  console.error('RUNTIME_FINGERPRINT_BLOCKED: runtime does not match this source and Skill (' + JSON.stringify({
+    service: runtime?.service,
+    head: runtime?.head,
+    skillVersion: runtime?.skillVersion,
+    contractGeneration: runtime?.contractGeneration,
+    mainSkillDigest: runtime?.mainSkillDigest,
+  }) + ')')
+  return 2
+}
+
 let session
 try { session = await fetch(origin + '/api/session') } catch { session = null }
 // Any HTTP answer (200 or 401 anonymous) means the product is up; only a
 // network-level failure means unreachable.
-if (!session) { console.error('SERVER_NOT_REACHABLE ' + origin + ' — start the local product first (honest offline mode applies, see SKILL.md)'); process.exit(2) }
+if (!session) { console.error('SERVER_NOT_REACHABLE ' + origin + ' — start the local product first (honest offline mode applies, see SKILL.md)'); return 2 }
 
 // Real BetterAuth signup for a synthetic ADULT student; local rate limits can 429.
 const email = 'skill-pc16-' + randomUUID().slice(0, 8) + '@example.invalid'
@@ -33,7 +71,7 @@ for (let attempt = 0; attempt < 8; attempt++) {
     body: JSON.stringify({ email, password: 'Synthetic-' + randomUUID(), name: 'Synthetic skill example (adult)' }),
   })
   if (signup.ok) break
-  if (signup.status !== 429 || attempt === 7) { console.error('SIGNUP_FAILED_' + signup.status); process.exit(2) }
+  if (signup.status !== 429 || attempt === 7) { console.error('SIGNUP_FAILED_' + signup.status); return 2 }
   await new Promise(r => setTimeout(r, 10000))
 }
 const cookie = signup.headers.getSetCookie().map(v => v.split(';')[0]).join('; ')
@@ -87,7 +125,7 @@ if (!paid) {
     ' 2 (answer the follow-up the product actually asks with the hidden process fact)\n' +
     ' 3 "这周我只有两小时，给我一个现在就能开始的具体行动。"\n' +
     ' 4 correction turn "更正一下：材料其实按时交了，是对方临时改了方案才没用的。" then read growth to confirm the corrected fact drives the state.')
-  process.exit(0)
+  return 0
 }
 
 let before = await growthSnapshot()
@@ -106,3 +144,10 @@ for (const [index, text] of steps.entries()) {
   before = after
 }
 console.log('\nPC16 harness finished. Inspect /api/growth for the final personal understanding.')
+return 0
+}
+
+main().then(code => { if (code) process.exitCode = code }).catch(error => {
+  console.error(error instanceof Error ? error.message : String(error))
+  process.exitCode = 1
+})
