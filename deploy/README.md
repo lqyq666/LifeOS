@@ -3,8 +3,9 @@
 本目录包含 Dockerfile/Compose 使用的依赖锁定、Linux wheels 准备、Nginx 示例、容器检查和数据库备份脚本。当前启动流程和权限交接见项目根目录 DEPLOYMENT_HANDOFF.md。
 
 镜像从已提交、clean源码构建；默认标签与Compose服务引用一致：`lifeos:v1.3-fast-launch-candidate`。Windows 使用 `pwsh -NoProfile -File deploy/build-image.ps1`，Linux 服务器按根目录交接步骤从捕获的提交SHA导出构建上下文。
-构建上下文由`git archive "$sourceCommit"`导出脚本启动时捕获的精确提交字节，避免HEAD变化或Windows换行转换使同一提交的冻结摘要不同；临时上下文保留在忽略的`.local/image-build-contexts/`。
+构建上下文由`git -c core.autocrlf=false -c core.eol=lf archive "$sourceCommit"`导出脚本启动时捕获的精确提交字节；两个命令级设置避免Windows全局autocrlf改变归档内的换行，不修改机器Git配置。临时上下文保留在忽略的`.local/image-build-contexts/`。
 依赖已锁定的公开离线BGE资产与Linux wheels；缺失时脚本明确失败，不依赖私人数据库或历史账本。
+Windows工作树的CRLF摘要不能直接当作规范Linux镜像的Skill或source摘要。启用工作流前必须从精确镜像读取当前指纹，在该镜像环境产生受审冻结与云绑定；旧摘要不匹配时保持关闭，不用改写摘要绕过校验。
 Dockerfile 将精确提交写入 OCI revision 标签和 `deploy/build-version.json`。启动前运行 `bash deploy/verify-image.sh <现有安全配置路径> "$LIFEOS_BUILD_COMMIT"`；只有Compose引用、构建参数和本机镜像标签三者一致才会返回镜像不可变 ID。把 ID 写入临时 Compose override 的 `services.app.image`，并设 `pull_policy: never`；启动、检查容器和读版本都使用同一个 override，再核对容器 `.Image` 与预检 ID 一致，以免可变标签在预检后被替换。不要把示例或合成探测凭据用于公网。
 `GET /api/run/version`读回实际加载的提交、来源（Git或镜像构建清单）、主Skill及五专业Skill摘要、攻略/来源/证据摘要。
 `/api/ready`只核查应用、数据库及离线编码器，不证明真实模型、扣子业务或生产验收。

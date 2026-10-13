@@ -2265,6 +2265,20 @@
       "CURRENT_PRODUCTION_WRAPPER_AND_BACKUP_RESTORE_NOT_EXECUTED",
       "PRODUCTION_SMTP_CONFIGURATION_AND_REAL_MAIL_RECEIPT_NOT_VERIFIED",
       "STUDENT_ACCEPTANCE_NOT_COMPLETED"
-    ]
+    ],
+    "archiveByteFollowup": {
+      "status": "PASS_LOCAL_ARCHIVE_BLOB_BYTES_CURRENT_IMAGE_READBACK_PENDING",
+      "firstFailedImageCommit": "69838a7ac1717fab30ae607eb8d64cb15b559971",
+      "firstFailureEvidence": ".local/half-day-20261013/image-69838a7-first-source-mismatch.json",
+      "regression": ".local/half-day-20261013/archive-byte-green.log",
+      "regressionSha256": "1a8770f0001d5c8d42eb0d464b01f4e1ccf4062098264a7817ff17dcee71f629",
+      "subcases": 4,
+      "independentReview": ".local/half-day-20261013/independent-archive-byte-fix/archive-byte-fix/report.json",
+      "independentReviewSha256": "95b3259f4f2de0fa1e3b4e42c82f37bfb56c82b6f516e9ac0a6102a991689cad",
+      "sourceEol": "COMMAND_SCOPED_CORE_AUTOCRLF_FALSE_CORE_EOL_LF",
+      "persistentGitConfigChanged": false,
+      "currentCloudBinding": "MUST_USE_ACTUAL_IMAGE_FINGERPRINT_NOT_WINDOWS_WORKTREE",
+      "newProviderCalls": 0
+    }
   }
 }

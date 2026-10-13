@@ -15,7 +15,7 @@ New-Item -ItemType Directory -Path $contextRoot -Force | Out-Null
 $contextPath = Join-Path $contextRoot ([Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $contextPath | Out-Null
 $archivePath = Join-Path $contextRoot ([Guid]::NewGuid().ToString('N') + '.tar')
-git archive --format=tar --output=$archivePath $sourceCommit
+git -c core.autocrlf=false -c core.eol=lf archive --format=tar --output=$archivePath $sourceCommit
 if ($LASTEXITCODE -ne 0) { throw 'Cannot export committed source.' }
 tar -xf $archivePath -C $contextPath
 if ($LASTEXITCODE -ne 0) { throw 'Cannot extract committed source.' }

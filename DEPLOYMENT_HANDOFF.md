@@ -22,7 +22,7 @@ Docker 构建还需要随包提供的 qwen-default 能力报告与 interface-pro
     BUILD_CONTEXT="$(mktemp -d)"
     IMAGE_OVERRIDE=''
     trap 'rm -rf "$BUILD_CONTEXT"; if [ -n "$IMAGE_OVERRIDE" ]; then rm -f "$IMAGE_OVERRIDE"; fi' EXIT
-    git archive "$LIFEOS_BUILD_COMMIT" | tar -x -C "$BUILD_CONTEXT"
+    git -c core.autocrlf=false -c core.eol=lf archive "$LIFEOS_BUILD_COMMIT" | tar -x -C "$BUILD_CONTEXT"
     mkdir -p "$BUILD_CONTEXT/.local/models" "$BUILD_CONTEXT/.local/docker-embedding"
     test ! -L .local/models/bge-small-zh-v1.5
     test ! -L .local/docker-embedding/wheels
