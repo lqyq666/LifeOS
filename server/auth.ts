@@ -4,11 +4,36 @@ import { pool } from './db.ts'
 import { config } from './config.ts'
 import { queuePasswordResetMail } from './password-reset-mail.ts'
 
+async function retainCurrentPasswordResetToken(userId:string,token:string){
+  const client=await pool.connect(),identifier='reset-password:'+token
+  try{
+    await client.query('BEGIN')
+    await client.query("SELECT pg_advisory_xact_lock(hashtext($1),hashtext($2))",['lifeos-password-reset',userId])
+    const current=await client.query('SELECT 1 FROM "verification" WHERE value=$1 AND identifier=$2 AND "expiresAt">now()',[userId,identifier])
+    if(current.rowCount!==1)throw new Error('PASSWORD_RESET_TOKEN_NOT_PERSISTED')
+    await client.query('DELETE FROM "verification" WHERE value=$1 AND identifier LIKE $2 AND identifier<>$3',[userId,'reset-password:%',identifier])
+    await client.query('COMMIT')
+  }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error}
+  finally{client.release()}
+}
+
 async function clearPasswordResetTokens(userId:string){
-  try{await pool.query('DELETE FROM "verification" WHERE value=$1 AND identifier LIKE $2',[userId,'reset-password:%'])}
+  const sql='DELETE FROM "verification" WHERE value=$1 AND identifier LIKE $2',values=[userId,'reset-password:%']
+  try{await pool.query(sql,values);return}
   catch{
-    // Better Auth revokes sessions immediately after this callback; do not short-circuit that security step.
-    console.error('[PASSWORD_RESET_TOKEN_CLEANUP_FAILED]')
+    // Retry on a separately acquired connection. A transient pool.query error
+    // must not leave a second, still-live reset token behind.
+    let client:any
+    try{
+      client=await pool.connect()
+      await client.query(sql,values)
+      return
+    }catch{
+      console.error('[PASSWORD_RESET_TOKEN_CLEANUP_FAILED]')
+      // This callback runs after the password update. Returning lets Better
+      // Auth continue to its built-in session revocation instead of leaving
+      // old sessions active by short-circuiting the route.
+    }finally{client?.release()}
   }
 }
 
@@ -17,7 +42,11 @@ export const authOptions = {
   emailAndPassword: {
     enabled: true, minPasswordLength: 12, maxPasswordLength:128, disableSignUp: !config.signupEnabled,
     resetPasswordTokenExpiresIn:15*60,revokeSessionsOnPasswordReset:true,
-    sendResetPassword:queuePasswordResetMail,
+    sendResetPassword:async({user,url,token})=>{
+      try{await retainCurrentPasswordResetToken(user.id,token)}
+      catch{console.error('[PASSWORD_RESET_SINGLE_TOKEN_ENFORCEMENT_FAILED]');return}
+      await queuePasswordResetMail({user,url})
+    },
     onPasswordReset:async({user})=>{await clearPasswordResetTokens(user.id)},
   },
   session: { expiresIn: 60 * 60 * 24 * 7 },

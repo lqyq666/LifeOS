@@ -1,14 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createHash} from 'node:crypto'
-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync} from 'node:fs'
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,symlinkSync,rmSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join,dirname,resolve} from 'node:path'
 import {fixture,proposal} from './workflows/fixtures.ts'
 import {CoachProviderBudget} from '../scripts/coach-provider-budget.ts'
 import {CozeCreditBudget} from '../scripts/coze-credit-budget.ts'
 import {captureCoachSource} from '../scripts/coach-source-freeze.ts'
-import {createCozeDirectionAdapter,type CozeDirectionConfig} from '../server/workflows/coze-direction-adapter.ts'
+import {createCozeDirectionAdapter,prepareCozeJournalDirectory,type CozeDirectionConfig} from '../server/workflows/coze-direction-adapter.ts'
 import {workflowRuntimeVersion} from '../server/workflows/runtime-version.ts'
 import {simulationJournal} from '../server/workflows/task-journal.ts'
 
@@ -89,8 +89,71 @@ test('known failed critic usage settles before its proposed graph is rejected',a
  assert.equal(f.finished.length,5)
  assert.ok(f.finished.some(row=>row.id==='critic'&&row.error==='unavailable'))
 })
+
+test('durable cancellation winning finalization cannot be replaced by a local Coze proposal',async()=>{
+ let f!:ReturnType<typeof setup>
+ f=setup(async(_url,init)=>{
+  const body=JSON.parse(init!.body as string),receipt=proposedReceipt(body.host_request,f.config,f.request)
+  receipt.trace.forEach((row:any)=>{row.status='ok'})
+  return new Response(JSON.stringify({host_receipt:receipt}))
+ })
+ const finish=f.journal.finish;let persisted:any
+ f.journal.finish=async(r,receipt)=>{
+  assert.equal(receipt.status,'proposed','cloud proposal must reach the terminal persistence race')
+  persisted={...receipt,status:'unavailable',failure:'cancelled',proposal:undefined}
+  await finish(r,persisted);return persisted
+ }
+ const receipt=await f.adapter.runRemoteGraph!(f.request,f.journal)
+ assert.equal(receipt.status,'unavailable');assert.equal(receipt.failure,'cancelled');assert.equal(receipt.proposal,undefined)
+ assert.deepEqual(receipt,persisted)
+ assert.deepEqual(await f.adapter.runRemoteGraph!(f.request,f.journal),persisted)
+ assert.equal(f.budget.snapshot().calls.length,5,'terminal replay must not create a second graph')
+ assert.equal(f.credits.balance().heldCredits,10,'canonical cancellation cannot refund unknown Coze costs')
+})
+
+test('Coze transport and cleanup share the original graph deadline without a paid retry',async()=>{
+ let graphs=0
+ const f=setup(async(_url,init)=>{
+  const body=JSON.parse(init!.body as string)
+  if(body.host_request.operation)return new Response(JSON.stringify({host_receipt:{status:'unavailable',receiptIncomplete:true,workerFinishedAtReturn:false}}))
+  graphs++
+  await new Promise((_resolve,reject)=>{const signal=init!.signal!;if(signal.aborted)reject(Error('deadline'));else signal.addEventListener('abort',()=>reject(Error('deadline')),{once:true})})
+  throw Error('unreachable')
+ })
+ f.request.modelBudget.deadlineMs=300
+ const started=Date.now(),receipt=await f.adapter.runRemoteGraph!(f.request,f.journal)
+ assert.ok(Date.now()-started<1000,'the original deadline includes transport and cleanup')
+ assert.equal(receipt.failure,'timeout');assert.equal(receipt.proposal,undefined);assert.equal(graphs,1)
+ assert.equal(receipt.costCny,null);assert.equal(receipt.receiptIncomplete,true)
+ assert.equal(f.credits.balance().heldCredits,10)
+})
+
+test('cancellation journal read failure cannot fabricate an authenticated cancellation',async()=>{
+ let f!:ReturnType<typeof setup>,checks=0
+ f=setup(async(_url,init)=>{
+  const body=JSON.parse(init!.body as string)
+  if(body.host_request.operation==='cancel')return new Response(JSON.stringify({host_receipt:{status:'cancel_requested',receiptIncomplete:true,workerFinishedAtReturn:false}}))
+  if(!body.host_request.operation)await new Promise(resolve=>setTimeout(resolve,180))
+  const receipt=proposedReceipt(body.host_request,f.config,f.request);receipt.trace.forEach((row:any)=>{row.status='ok'})
+  return new Response(JSON.stringify({host_receipt:receipt}))
+ })
+ f.journal.cancelled=async()=>{if(++checks>2)throw Error('synthetic database read failure');return false}
+ const receipt=await f.adapter.runRemoteGraph!(f.request,f.journal)
+ assert.equal(receipt.failure,'unavailable');assert.equal(receipt.proposal,undefined)
+ assert.notEqual(receipt.failure,'cancelled','no user or durable cancellation was observed')
+ assert.equal(f.credits.balance().heldCredits,10)
+})
 test('real Coze graph rejects journals outside the persistent Coze state mount before dispatch',()=>{
  const f=setup(async()=>{throw Error('must not dispatch')})
  const config={...f.config,creditsLedgerPath:resolve('.local/coze-launch/credits-ledger.jsonl'),journalDirectory:join(f.root,'ephemeral-journal')}
  assert.throws(()=>createCozeDirectionAdapter({config,freezePath:f.freezePath,readEvidence:async()=>f.records,readMethods:async()=>[],budget:new CoachProviderBudget(),credits:new CozeCreditBudget(config.creditsLedgerPath)}),(error:any)=>error?.code==='scope_denied')
+})
+
+test('persistent Coze journal rejects a symlink or junction that escapes its state mount',()=>{
+ const workspace=mkdtempSync(join(tmpdir(),'lifeos-coze-journal-path-test-')),root=join(workspace,'.local','coze-launch'),outside=join(workspace,'outside'),link=join(root,'journal-link')
+ mkdirSync(root,{recursive:true});mkdirSync(outside)
+ try{
+  symlinkSync(outside,link,process.platform==='win32'?'junction':'dir')
+  assert.throws(()=>prepareCozeJournalDirectory(workspace,root,link),(error:any)=>error?.code==='scope_denied')
+ }finally{rmSync(link,{recursive:true,force:true});rmSync(workspace,{recursive:true,force:true})}
 })

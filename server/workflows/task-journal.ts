@@ -66,6 +66,12 @@ export function postgresJournal():TaskJournal{
    if(task.status==='finished')return task.receipt as WorkflowReceipt
    const spend=(await c.query("SELECT status,reserved_cny,workflow_dispatch_state FROM lifeos_provider_spend WHERE user_id=$1 AND workflow_request_id=$2 AND status<>'not_sent'",[r.internalActorKey,r.requestId])).rows
    if(spend.some(s=>['reserved','unknown'].includes(s.status)))receipt={...receipt,costCny:null,reservedCostCny:Math.max(receipt.reservedCostCny??0,spend.reduce((sum,s)=>sum+Number(s.reserved_cny),0)),providerCalls:Math.max(receipt.providerCalls,spend.filter(s=>s.workflow_dispatch_state!=='prepared'||s.status!=='reserved').length),receiptIncomplete:true,providerCallsAreUpperBound:true,workerFinishedAtReturn:false}
+   if(receipt.status==='proposed'){
+    // Check after acquiring the task lock and reconciling accounting. A
+    // cancellation committed after the graph's final check still wins here.
+    const control=(await c.query('SELECT cancel_requested,deadline_at<=clock_timestamp() AS expired FROM lifeos_workflow_tasks WHERE user_id=$1 AND request_id=$2',[r.internalActorKey,r.requestId])).rows[0]
+    if(control.cancel_requested||control.expired)receipt={...receipt,status:'unavailable',failure:control.cancel_requested?'cancelled':'timeout',proposal:undefined,fallback:'existing_single_agent'}
+   }
    await c.query("UPDATE lifeos_workflow_tasks SET status='finished',receipt=$3,finished_at=now() WHERE user_id=$1 AND request_id=$2 AND status IN ('queued','running')",[r.internalActorKey,r.requestId,JSON.stringify(receipt)])
    return receipt
   }),

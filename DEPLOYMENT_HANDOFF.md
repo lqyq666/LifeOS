@@ -19,14 +19,39 @@ Docker 构建还需要随包提供的 qwen-default 能力报告与 interface-pro
     test -z "$(git status --porcelain)"
     export LIFEOS_BUILD_COMMIT="$(git rev-parse HEAD)"
     docker compose --env-file .env.production config --quiet
-    docker compose --env-file .env.production build app
+    BUILD_CONTEXT="$(mktemp -d)"
+    IMAGE_OVERRIDE=''
+    trap 'rm -rf "$BUILD_CONTEXT"; if [ -n "$IMAGE_OVERRIDE" ]; then rm -f "$IMAGE_OVERRIDE"; fi' EXIT
+    git archive "$LIFEOS_BUILD_COMMIT" | tar -x -C "$BUILD_CONTEXT"
+    mkdir -p "$BUILD_CONTEXT/.local/models" "$BUILD_CONTEXT/.local/docker-embedding"
+    test ! -L .local/models/bge-small-zh-v1.5
+    test ! -L .local/docker-embedding/wheels
+    cp -a .local/models/bge-small-zh-v1.5 "$BUILD_CONTEXT/.local/models/"
+    cp -a .local/docker-embedding/wheels "$BUILD_CONTEXT/.local/docker-embedding/"
+    python3 -c 'import pathlib,json,hashlib,sys; root=pathlib.Path(sys.argv[1]); print(json.dumps([{"name":p.name,"sha256":hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(root.glob("*.sql"))]))' "$BUILD_CONTEXT/server/migrations" > "$BUILD_CONTEXT/expected-migrations.json"
+    EXPECTED_MIGRATION_MANIFEST_SHA256="$(sha256sum "$BUILD_CONTEXT/expected-migrations.json" | cut -d ' ' -f 1)"
+    docker build --build-arg "LIFEOS_BUILD_COMMIT=$LIFEOS_BUILD_COMMIT" -t lifeos:v1.3-fast-launch-candidate "$BUILD_CONTEXT"
     IMAGE_PREFLIGHT="$(bash deploy/verify-image.sh .env.production "$LIFEOS_BUILD_COMMIT")"
     printf '%s\n' "$IMAGE_PREFLIGHT"
     EXPECTED_IMAGE_ID="$(printf '%s' "$IMAGE_PREFLIGHT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["imageId"])')"
-    docker compose --env-file .env.production up -d --no-build --wait --wait-timeout 120
-    test "$(docker inspect "$(docker compose --env-file .env.production ps -q app)" --format '{{.Image}}')" = "$EXPECTED_IMAGE_ID"
+    [[ "$EXPECTED_IMAGE_ID" =~ ^sha256:[a-f0-9]{64}$ ]]
+    IMAGE_OVERRIDE="$(mktemp)"
+    cat >"$IMAGE_OVERRIDE" <<YAML
+    services:
+      app:
+        image: "$EXPECTED_IMAGE_ID"
+        pull_policy: never
+    YAML
+    COMPOSE=(docker compose --env-file .env.production -f compose.yaml -f "$IMAGE_OVERRIDE")
+    "${COMPOSE[@]}" config --quiet
+    "${COMPOSE[@]}" up -d --no-build --wait --wait-timeout 120
+    APP_CONTAINER_ID="$("${COMPOSE[@]}" ps -q app)"
+    test -n "$APP_CONTAINER_ID"
+    test "$(docker inspect "$APP_CONTAINER_ID" --format '{{.Image}}')" = "$EXPECTED_IMAGE_ID"
     test "$(curl --fail --silent http://127.0.0.1:8787/api/run/version | python3 -c 'import json,sys; print(json.load(sys.stdin)["head"])')" = "$LIFEOS_BUILD_COMMIT"
-    curl --fail http://127.0.0.1:8787/api/ready
+    DB_CONTAINER_ID="$("${COMPOSE[@]}" ps -q db)"
+    test -n "$DB_CONTAINER_ID"
+    python3 "$BUILD_CONTEXT/deploy/verify-restoration.py" --origin http://127.0.0.1:8787 --expected-head "$LIFEOS_BUILD_COMMIT" --expected-image-id "$EXPECTED_IMAGE_ID" --migrations "$BUILD_CONTEXT/expected-migrations.json" --migrations-sha256 "$EXPECTED_MIGRATION_MANIFEST_SHA256" --app-container "$APP_CONTAINER_ID" --db-container "$DB_CONTAINER_ID" --timeout-seconds 40
 
 Compose 将应用仅绑定到宿主机 127.0.0.1:8787，数据库没有公网端口。沿用 deploy/nginx.conf.example 配置 TLS 反向代理，关闭 SSE buffering，并设置足够的读取超时。确认 Docker 网桥的精确代理地址后再设置信任代理。
 

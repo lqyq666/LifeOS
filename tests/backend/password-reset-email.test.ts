@@ -7,6 +7,13 @@ import { createApp } from '../../server/http.ts'
 import { pool } from '../../server/db.ts'
 import { sendPasswordResetMail,passwordResetMailLimits,drainPasswordResetMail,queuePasswordResetMail } from '../../server/password-reset-mail.ts'
 
+function tokenFromMessage(raw:string){
+  const [headers,...parts]=raw.split('\r\n\r\n'),encoded=parts.join('\r\n\r\n')
+  const text=/Content-Transfer-Encoding: base64/i.test(headers)?Buffer.from(encoded.replace(/\s/g,''),'base64').toString('utf8'):encoded.replace(/=\r?\n/g,'').replace(/=([0-9A-F]{2})/g,(_,hex:string)=>String.fromCharCode(parseInt(hex,16)))
+  const link=new URL(text.match(/http:\/\/[^\s]+/)![0])
+  return new URLSearchParams(link.hash.slice('#reset?'.length)).get('token')!
+}
+
 test('emailed link resets exactly once, expires, and revokes old sessions without exposing tokens',async()=>{
   const original={...config.mail},messages:string[]=[]
   let activeMessages=0,peakMessages=0
@@ -57,7 +64,7 @@ test('emailed link resets exactly once, expires, and revokes old sessions withou
     assert.equal((await post('sign-in/email',{email,password:winning})).status,200)
     assert.equal((await pool.query('SELECT count(*)::int AS n FROM "verification" WHERE value=$1 AND identifier LIKE $2',[user,'reset-password:%'])).rows[0].n,0)
     await clearRate()
-    await pool.query("UPDATE lifeos_password_reset_deliveries SET created_at=now()-interval '2 minutes'")
+    await pool.query("UPDATE lifeos_password_reset_deliveries SET created_at=now()-interval '2 hours'")
     await post('request-password-reset',{email,redirectTo:config.origin+'/#reset'})
     await drainPasswordResetMail()
     const expired=(await pool.query('SELECT identifier FROM "verification" WHERE value=$1',[user])).rows[0].identifier
@@ -70,15 +77,18 @@ test('emailed link resets exactly once, expires, and revokes old sessions withou
     const recoveryLogin=await post('sign-in/email',{email,password:winning})
     assert.equal(recoveryLogin.status,200)
     const recoveryCookie=recoveryLogin.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ')
-    await pool.query("UPDATE lifeos_password_reset_deliveries SET created_at=now()-interval '2 minutes'")
+    await pool.query("UPDATE lifeos_password_reset_deliveries SET created_at=now()-interval '2 hours'")
+    const olderRequest=await post('request-password-reset',{email,redirectTo:config.origin+'/#reset'})
+    assert.equal(olderRequest.status,200)
+    await drainPasswordResetMail()
+    const olderToken=tokenFromMessage(messages.at(-1)!)
+    await pool.query("UPDATE lifeos_password_reset_deliveries SET created_at=now()-interval '2 hours'")
     const recoveryRequest=await post('request-password-reset',{email,redirectTo:config.origin+'/#reset'})
     assert.equal(recoveryRequest.status,200)
     await drainPasswordResetMail()
-    const [failureHeaders,...failureBody]=messages.at(-1)!.split('\r\n\r\n')
-    const failureEncoded=failureBody.join('\r\n\r\n')
-    const failureText=/Content-Transfer-Encoding: base64/i.test(failureHeaders)?Buffer.from(failureEncoded.replace(/\s/g,''),'base64').toString('utf8'):failureEncoded.replace(/=\r?\n/g,'').replace(/=([0-9A-F]{2})/g,(_,hex:string)=>String.fromCharCode(parseInt(hex,16)))
-    const failureURL=new URL(failureText.match(/http:\/\/[^\s]+/)![0])
-    const failureToken=new URLSearchParams(failureURL.hash.slice('#reset?'.length)).get('token')!
+    const failureToken=tokenFromMessage(messages.at(-1)!)
+    assert.equal((await pool.query('SELECT count(*)::int AS n FROM "verification" WHERE value=$1 AND identifier=$2',[user,'reset-password:'+olderToken])).rows[0].n,0)
+    assert.equal((await pool.query('SELECT count(*)::int AS n FROM "verification" WHERE value=$1 AND identifier=$2',[user,'reset-password:'+failureToken])).rows[0].n,1)
     const originalQuery=pool.query
     let cleanupFailureInjected=false
     ;(pool as any).query=function(...args:any[]){
@@ -94,6 +104,54 @@ test('emailed link resets exactly once, expires, and revokes old sessions withou
     assert.equal((await fetch(origin+'/api/session',{headers:{Cookie:recoveryCookie}})).status,401)
     assert.equal((await post('sign-in/email',{email,password:winning})).status,401)
     assert.equal((await post('sign-in/email',{email,password:failurePassword})).status,200)
+    assert.equal((await pool.query('SELECT count(*)::int AS n FROM "verification" WHERE value=$1 AND identifier LIKE $2',[user,'reset-password:%'])).rows[0].n,0)
+    await clearRate()
+    const superseded=await post('reset-password',{token:olderToken,newPassword:'Synthetic-superseded-'+randomUUID()})
+    assert.equal(superseded.status,400);assert.equal((await superseded.json()).code,'INVALID_TOKEN')
+    // The request callback keeps only the current emailed token. Even if both
+    // redundant post-reset cleanup attempts fail, the callback returns so
+    // Better Auth still executes its built-in session revocation.
+    await clearRate()
+    const persistentLogin=await post('sign-in/email',{email,password:failurePassword})
+    assert.equal(persistentLogin.status,200)
+    const persistentCookie=persistentLogin.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ')
+    await pool.query("UPDATE lifeos_password_reset_deliveries SET created_at=now()-interval '2 hours'")
+    const beforePersistentOlder=messages.length
+    assert.equal((await post('request-password-reset',{email,redirectTo:config.origin+'/#reset'})).status,200)
+    await drainPasswordResetMail()
+    assert.equal(messages.length,beforePersistentOlder+1)
+    const persistentOlderToken=tokenFromMessage(messages.at(-1)!)
+    await pool.query("UPDATE lifeos_password_reset_deliveries SET created_at=now()-interval '2 hours'")
+    const beforePersistentCurrent=messages.length
+    assert.equal((await post('request-password-reset',{email,redirectTo:config.origin+'/#reset'})).status,200)
+    await drainPasswordResetMail()
+    assert.equal(messages.length,beforePersistentCurrent+1)
+    const persistentFailureToken=tokenFromMessage(messages.at(-1)!)
+    assert.equal((await pool.query('SELECT count(*)::int AS n FROM "verification" WHERE value=$1 AND identifier=$2',[user,'reset-password:'+persistentOlderToken])).rows[0].n,0)
+    assert.equal((await pool.query('SELECT count(*)::int AS n FROM "verification" WHERE value=$1 AND identifier=$2',[user,'reset-password:'+persistentFailureToken])).rows[0].n,1)
+    const originalConnect=pool.connect
+    const persistentFailurePassword='Synthetic-failed-finalization-'+randomUUID()
+    ;(pool as any).query=function(...args:any[]){
+      if(typeof args[0]==='string'&&args[0].startsWith('DELETE FROM "verification"'))return Promise.reject(new Error('synthetic persistent verification cleanup failure'))
+      return (originalQuery as any).apply(pool,args)
+    }
+    ;(pool as any).connect=async function(...args:any[]){
+      if(args.length)return (originalConnect as any).apply(pool,args)
+      const client=await (originalConnect as any).call(pool),originalClientQuery=client.query,clientQuery=originalClientQuery.bind(client),originalRelease=client.release.bind(client)
+      client.query=function(...args:any[]){
+        if(typeof args[0]==='string'&&args[0].startsWith('DELETE FROM "verification"'))return Promise.reject(new Error('synthetic persistent verification cleanup failure'))
+        return clientQuery(...args)
+      }
+      client.release=function(...args:any[]){client.query=originalClientQuery;return originalRelease(...args)}
+      return client
+    }
+    let persistentFailureResponse:Response
+    try{persistentFailureResponse=await post('reset-password',{token:persistentFailureToken,newPassword:persistentFailurePassword})}
+    finally{(pool as any).query=originalQuery;(pool as any).connect=originalConnect}
+    assert.equal(persistentFailureResponse!.status,200)
+    assert.equal((await fetch(origin+'/api/session',{headers:{Cookie:persistentCookie}})).status,401)
+    assert.equal((await pool.query('SELECT count(*)::int AS n FROM "verification" WHERE value=$1 AND identifier LIKE $2',[user,'reset-password:%'])).rows[0].n,0)
+    assert.equal((await post('sign-in/email',{email,password:persistentFailurePassword})).status,200)
     await clearRate()
     const foreign=await post('request-password-reset',{email,redirectTo:'https://foreign.example.invalid/#reset'})
     assert.equal(foreign.status,403)

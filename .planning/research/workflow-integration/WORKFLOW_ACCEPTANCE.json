@@ -2178,5 +2178,93 @@
       "actualBasis": null
     }
   },
-  "historicalChecksScope": "Existing counts remain historical scoped evidence, not promoted to current real quality."
+  "historicalChecksScope": "Existing counts remain historical scoped evidence, not promoted to current real quality.",
+  "currentLocalGates20261013": {
+    "status": "PASS_LOCAL_GATES_CLOUD_AND_PRODUCTION_BLOCKED",
+    "capturedAt": "2026-10-13T12:23:54.274Z",
+    "workspaceHeadBeforeCommit": "bacf21efb5fddfc93a037fc6543c26502c19f7f0",
+    "sourceBinding": "EXACT_FILE_SHA256_IN_INDEPENDENT_REVIEW_MANIFESTS",
+    "highestStatus": [
+      "MODIFIED",
+      "TESTED_LOCAL",
+      "BUILT"
+    ],
+    "checks": {
+      "cozeReceiptAndExecution": 20,
+      "durableTerminalRecoveryAndHttp": 10,
+      "actionGrowthAndGuideContracts": 15,
+      "linuxRestoration": 6,
+      "passwordResetAndCozeHost": 6,
+      "serverTypes": "PASS",
+      "build": "PASS_EXISTING_THREE_CHUNK_WARNING"
+    },
+    "evidence": [
+      {
+        "path": ".local/half-day-20261013/coze-deadline-green.log",
+        "sha256": "6b663a7c60e8ffbc305be4971f973dd138f62de52b6e97a508fab94ce60f8267"
+      },
+      {
+        "path": ".local/half-day-20261013/terminal-control-green-final.log",
+        "sha256": "eabbe8eb7e631f53c3ba3608d96fe8af9381600eb5fe5b0ad8dbf7a46abbebcc"
+      },
+      {
+        "path": ".local/half-day-20261013/current-five-skills-contract.log",
+        "sha256": "4615625bf30e56adb02bfbdffba1b0701f4964b4992fed50e6e73249412bb83b"
+      },
+      {
+        "path": ".local/half-day-20261013/restoration-verifier-linux-final.log",
+        "sha256": "2d0e7bf7d2a39db212087676de633811c44f4b753c0f78b9f4ef183cef310d07"
+      },
+      {
+        "path": ".local/half-day-20261013/current-final-backend.log",
+        "sha256": "ee7c0a44fb43ef264da9fcd4e1ea1e02d3d4ff715c401a0165dbf5e4ef9145dc"
+      },
+      {
+        "path": ".local/half-day-20261013/current-final-types.log",
+        "sha256": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612"
+      },
+      {
+        "path": ".local/half-day-20261013/current-final-build.log",
+        "sha256": "e611097f07b7892e043855d6c0bbe45adfc58d2074aa977cf35d7fd5e1003eee"
+      }
+    ],
+    "reviews": [
+      {
+        "role": "restoration",
+        "verdict": "PASS",
+        "path": ".local/half-day-20261013/independent-closure-gates/restoration/report.json",
+        "sha256": "3304dca209bc5a6f56d1d2df18b19ffcd8cc447895b5008f044d01d08fabf8fe"
+      },
+      {
+        "role": "agent-workflow-skill",
+        "verdict": "PASS",
+        "path": ".local/half-day-20261013/independent-terminal-closure/agent-workflow-skill/report.json",
+        "sha256": "7d608bd37c0e0e673bc9b4d8b6d83011b15e91fe0f4c027759b626e821638932"
+      }
+    ],
+    "credits": {
+      "initialCredits": 151559,
+      "chargedCredits": 71462,
+      "heldCredits": 80072,
+      "availableCredits": 0,
+      "observedAccountRemainingCredits": 62658,
+      "maximumAdditionalCredits": 12531,
+      "allowanceAccountedCredits": 0,
+      "allowanceRemainingCredits": 12531
+    },
+    "newRealProviderCalls": 0,
+    "newCozeBusinessCalls": 0,
+    "paidTestsRepeated": 0,
+    "subscriptionReviewCost": "UNKNOWN_NOT_PRODUCT_OR_COZE_BILLING",
+    "deployed": false,
+    "onlineVerifiedCurrentSource": false,
+    "accepted": false,
+    "blocks": [
+      "COZE_AVAILABLE_CREDITS_ZERO_WITH_UNKNOWN_RESERVATIONS_RETAINED",
+      "CURRENT_REAL_CLOUD_MAIN_SKILL_AND_WORKFLOW_EXECUTIONS_NOT_ACCEPTED",
+      "CURRENT_PRODUCTION_WRAPPER_AND_BACKUP_RESTORE_NOT_EXECUTED",
+      "PRODUCTION_SMTP_CONFIGURATION_AND_REAL_MAIL_RECEIPT_NOT_VERIFIED",
+      "STUDENT_ACCEPTANCE_NOT_COMPLETED"
+    ]
+  }
 }

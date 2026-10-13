@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto'
-import {readFileSync,mkdirSync,writeFileSync,appendFileSync} from 'node:fs'
-import {isAbsolute,relative,resolve,sep} from 'node:path'
+import {readFileSync,mkdirSync,writeFileSync,appendFileSync,lstatSync,realpathSync} from 'node:fs'
+import {isAbsolute,join,relative,resolve,sep} from 'node:path'
 import {Value} from 'typebox/value'
 import {CoachProviderBudget,activeCoachFunding,type CoachCallReceipt} from '../../scripts/coach-provider-budget.ts'
 import {CozeCreditBudget} from '../../scripts/coze-credit-budget.ts'
@@ -18,6 +18,35 @@ type Approval=Parameters<typeof reserveCozeHostPermit>[0]['approval']
 export type CozeDirectionConfig={projectId:'7693388932939300905';endpoint:string;token:string;binding:Binding;approval:Approval;creditsLedgerPath:string;maxCreditsPerGraph:number;journalDirectory:string}
 const hash=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const unavailable=async()=>{throw new WorkflowError('unavailable')}
+const contained=(base:string,target:string)=>{const rel=relative(base,target);return rel!==''&&!isAbsolute(rel)&&rel!=='..'&&!rel.startsWith(`..${sep}`)}
+
+function assertNoSymlinkComponents(base:string,target:string,allowMissingTail:boolean){
+ const root=resolve(base),candidate=resolve(target)
+ if(candidate!==root&&!contained(root,candidate))throw new WorkflowError('scope_denied')
+ let current=root
+ try{if(lstatSync(current).isSymbolicLink())throw new WorkflowError('scope_denied')}
+ catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')throw new WorkflowError('scope_denied');throw error}
+ if(candidate===root)return
+ for(const part of relative(root,candidate).split(sep)){
+  current=join(current,part)
+  try{if(lstatSync(current).isSymbolicLink())throw new WorkflowError('scope_denied')}
+  catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT'&&allowMissingTail)return;throw error}
+ }
+}
+
+export function prepareCozeJournalDirectory(workspaceRoot:string,persistentRoot:string,journalDirectory:string){
+ const workspace=resolve(workspaceRoot),root=resolve(persistentRoot),journal=resolve(journalDirectory)
+ if(!contained(workspace,root)||!contained(root,journal))throw new WorkflowError('scope_denied')
+ assertNoSymlinkComponents(workspace,root,false)
+ assertNoSymlinkComponents(root,journal,true)
+ mkdirSync(journal,{recursive:true})
+ assertNoSymlinkComponents(workspace,root,false)
+ assertNoSymlinkComponents(root,journal,false)
+ if(!lstatSync(root).isDirectory()||!lstatSync(journal).isDirectory())throw new WorkflowError('scope_denied')
+ const realRoot=realpathSync(root),realJournal=realpathSync(journal)
+ if(!contained(realRoot,realJournal))throw new WorkflowError('scope_denied')
+ return realJournal
+}
 
 export function parseCozeDirectionReceipt(body:unknown,r:WorkflowRequest,records:Awaited<ReturnType<EvidenceReader>>):WorkflowReceipt{
  const value=body as any
@@ -67,8 +96,11 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
  const cfg=input.config,target=validateCodeEndpoint(cfg.endpoint),budget=input.budget??new CoachProviderBudget(),credits=input.credits??new CozeCreditBudget(cfg.creditsLedgerPath),fetchImpl=input.fetchImpl??fetch
  if(cfg.projectId!=='7693388932939300905'||!Number.isSafeInteger(cfg.maxCreditsPerGraph)||cfg.maxCreditsPerGraph<=0||cfg.token.length<20||cfg.binding.hostSourceDigest!==workflowRuntimeVersion.sourceDigest||cfg.binding.contentHash!==workflowRuntimeVersion.contentHash)throw new WorkflowError('unavailable')
  if(!input.syntheticTransport&&(budget.path!==new CoachProviderBudget().path||credits.path!==resolve('.local/coze-launch/credits-ledger.jsonl'))||input.syntheticTransport&&!input.fetchImpl)throw new WorkflowError('scope_denied')
- const persistentRoot=resolve('.local/coze-launch'),journalRelative=relative(persistentRoot,resolve(cfg.journalDirectory))
- if(!input.syntheticTransport&&(!journalRelative||isAbsolute(journalRelative)||journalRelative==='..'||journalRelative.startsWith(`..${sep}`)))throw new WorkflowError('scope_denied')
+ const persistentRoot=resolve('.local/coze-launch'),journalRelative=relative(persistentRoot,resolve(cfg.journalDirectory));let persistentJournalDirectory=resolve(cfg.journalDirectory)
+ if(!input.syntheticTransport){
+  if(!journalRelative||isAbsolute(journalRelative)||journalRelative==='..'||journalRelative.startsWith(`..${sep}`))throw new WorkflowError('scope_denied')
+  persistentJournalDirectory=prepareCozeJournalDirectory(resolve('.'),persistentRoot,cfg.journalDirectory)
+ }
  const secret=deriveCozePermitSecret(cfg.token),maxCost=0.02
  const canonical=JSON.parse(readFileSync('.planning/research/workflow-integration/COZE_CANONICAL_PUBLIC_ASSETS.json','utf8'))
  if(canonical.canonicalFullCorpusHash!==workflowRuntimeVersion.contentHash||canonical.canonicalSourceRegistryHash!==workflowRuntimeVersion.sourceRegistryHash||canonical.canonicalEvidenceHash!==workflowRuntimeVersion.contentEvidenceHash||!Array.isArray(canonical.cards)||canonical.cards.some((c:any)=>c.guide?.reviewStatus!=='approved'))throw new WorkflowError('source_invalid')
@@ -90,6 +122,9 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
   async runRemoteGraph(r,journal,signal){
    if(!r.synthetic||r.controls.listeningOnly||r.controls.refuseAdvice||r.controls.memoryControl||!journal.durable)throw new WorkflowError('scope_denied')
    const end=Date.now()+r.modelBudget.deadlineMs
+   const directions=r.directions.filter(d=>!r.controls.forbiddenDirections.includes(d.id)),nodeIds=[...directions.map(d=>'path:'+d.id),'critic','synthesize'],safeJournalDirectory=input.syntheticTransport?persistentJournalDirectory:prepareCozeJournalDirectory(resolve('.'),persistentRoot,cfg.journalDirectory)
+   if(safeJournalDirectory!==persistentJournalDirectory)throw new WorkflowError('scope_denied')
+   const path=resolve(safeJournalDirectory,r.requestId+'.jsonl'),responseController=new AbortController()
    let claim=await journal.claim(r,hash(r))
    while(!claim.owned&&!claim.receipt){
     if(signal?.aborted)throw new WorkflowError('cancelled')
@@ -97,18 +132,25 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
     await new Promise(resolve=>setTimeout(resolve,50));claim=await journal.claim(r,hash(r))
    }
    if(claim.receipt)return claim.receipt
-   let wire:CozeHostPermit|undefined,settled=false,creditReserved=false,posted=false,knownReceipt:any,cancelSent=false,polling=false,cancelAcknowledged=false,stopPromise:Promise<void>|undefined
-   const directions=r.directions.filter(d=>!r.controls.forbiddenDirections.includes(d.id)),nodeIds=[...directions.map(d=>'path:'+d.id),'critic','synthesize'],path=resolve(cfg.journalDirectory,r.requestId+'.jsonl'),responseController=new AbortController()
+   let wire:CozeHostPermit|undefined,settled=false,creditReserved=false,posted=false,knownReceipt:any,cancelSent=false,polling=false,cancelAcknowledged=false,stopPromise:Promise<void>|undefined,stopReason:'cancelled'|'timeout'|'unavailable'|undefined,closing=false
    let cancelPoll:ReturnType<typeof setInterval>|undefined,timer:ReturnType<typeof setTimeout>|undefined,pollPromise:Promise<void>|undefined
-   const stop=():Promise<void>=>{
+   const networkSignal=()=>AbortSignal.any([responseController.signal,AbortSignal.timeout(Math.max(1,end-Date.now()))])
+   const waitBeforeDeadline=async(pending:Promise<void>)=>{
+    const remaining=end-Date.now();if(remaining<=0)return
+    let waitTimer:ReturnType<typeof setTimeout>|undefined
+    try{await Promise.race([pending,new Promise<void>(resolve=>{waitTimer=setTimeout(resolve,remaining)})])}finally{if(waitTimer)clearTimeout(waitTimer)}
+   }
+   const stop=(reason:'cancelled'|'timeout'|'unavailable'='cancelled'):Promise<void>=>{
+    if(closing)return Promise.resolve()
+    stopReason??=reason
     if(stopPromise)return stopPromise
-    if(!wire||!posted)return Promise.resolve()
+    if(!wire||!posted||Date.now()>=end)return Promise.resolve()
     cancelSent=true
     stopPromise=(async()=>{
     // One authenticated stop request; leave the original wire connected to
     // receive actual usage. A stop acknowledgement never settles that usage.
-    appendFileSync(path,JSON.stringify({type:'signed_cancel_requested',requestId:r.requestId,at:new Date().toISOString()})+'\n')
-    try{const ack=await post(wire!,r.requestId,'cancel',AbortSignal.timeout(10000));cancelAcknowledged=ack.status==='cancel_requested'&&ack.receiptIncomplete===true&&ack.workerFinishedAtReturn===false;appendFileSync(path,JSON.stringify({type:'signed_cancel_readback',requestId:r.requestId,cancelAcknowledged,workerFinishedAtReturn:false,at:new Date().toISOString()})+'\n');await input.audit?.(r,{kind:'coze_cancel_ack',status:ack.status,workerFinishedAtReturn:ack.workerFinishedAtReturn})}catch{appendFileSync(path,JSON.stringify({type:'signed_cancel_unconfirmed',requestId:r.requestId,reservationRetained:true,at:new Date().toISOString()})+'\n')}
+    appendFileSync(path,JSON.stringify({type:'signed_cancel_requested',requestId:r.requestId,reason,at:new Date().toISOString()})+'\n')
+    try{const ack=await post(wire!,r.requestId,'cancel',networkSignal());cancelAcknowledged=ack.status==='cancel_requested'&&ack.receiptIncomplete===true&&ack.workerFinishedAtReturn===false;appendFileSync(path,JSON.stringify({type:'signed_cancel_readback',requestId:r.requestId,cancelAcknowledged,workerFinishedAtReturn:false,at:new Date().toISOString()})+'\n');await input.audit?.(r,{kind:'coze_cancel_ack',status:ack.status,workerFinishedAtReturn:ack.workerFinishedAtReturn})}catch{appendFileSync(path,JSON.stringify({type:'signed_cancel_unconfirmed',requestId:r.requestId,reservationRetained:true,at:new Date().toISOString()})+'\n')}
     })().catch(()=>{cancelAcknowledged=false})
     return stopPromise
    }
@@ -131,21 +173,25 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
     for(const slot of claims.slots)await journal.startNode(r,{id:slot.nodeId,role:slot.nodeId.startsWith('path:')?'path_analyst':slot.nodeId==='critic'?'independent_critic':'decision_synthesizer',dependencies:[],executionKind:'real_provider',maxCostCny:slot.reservedCostCny,callId:slot.callId,invoke:unavailable})
     if(signal?.aborted||await journal.cancelled(r))throw new WorkflowError('cancelled')
     posted=true;signal?.addEventListener('abort',onAbort,{once:true})
-    cancelPoll=setInterval(()=>{if(polling)return;polling=true;pollPromise=journal.cancelled(r).then(async cancelled=>{if(cancelled)await stop()}).catch(async()=>{await stop()}).finally(()=>{polling=false})},100)
-    timer=setTimeout(()=>{void stop();responseController.abort('bounded_cleanup_timeout')},Math.max(1,end-Date.now())+15000)
-    try{knownReceipt=await post(wire,r.requestId,undefined,responseController.signal)}catch(firstError){
+    cancelPoll=setInterval(()=>{if(polling||closing)return;polling=true;pollPromise=journal.cancelled(r).then(async cancelled=>{if(cancelled&&!closing)await stop()}).catch(async()=>{if(!closing)await stop('unavailable')}).finally(()=>{polling=false})},100)
+    timer=setTimeout(()=>{void stop('timeout');responseController.abort('graph_deadline')},Math.max(1,end-Date.now()))
+    try{knownReceipt=await post(wire,r.requestId,undefined,networkSignal())}catch(firstError){
      // This is an authenticated, explicitly zero-dispatch readback operation,
      // never a retry of the paid graph. Preserve the first transport failure.
      appendFileSync(path,JSON.stringify({type:'first_graph_transport_failure',requestId:r.requestId,paidGraphReissued:false,at:new Date().toISOString()})+'\n')
-     if(stopPromise)await stopPromise
-     try{knownReceipt=await post(wire,r.requestId,'readback',AbortSignal.timeout(10000));if(knownReceipt.receiptIncomplete||knownReceipt.workerFinishedAtReturn!==true)throw firstError}catch{throw firstError}
+     if(stopPromise)await waitBeforeDeadline(stopPromise)
+     if(Date.now()>=end)throw new WorkflowError('timeout')
+     try{knownReceipt=await post(wire,r.requestId,'readback',networkSignal());if(knownReceipt.receiptIncomplete||knownReceipt.workerFinishedAtReturn!==true)throw firstError}catch{throw firstError}
     }
     writeFileSync(path+'.receipt.json',JSON.stringify(knownReceipt)+'\n',{flag:'wx',mode:0o600})
     settleCozeHostReceipt({wire,secret,binding:cfg.binding,budget,receipt:knownReceipt,journalPath:path});settled=true
     receipt={...receipt,providerCalls:knownReceipt.providerCalls,costCny:knownReceipt.costCny,reservedCostCny:knownReceipt.reservedCostCny,receiptIncomplete:false,workerFinishedAtReturn:true}
     for(const row of knownReceipt.trace){const accounting=budget.snapshot().calls.find((c:CoachCallReceipt)=>c.callId===row.callId)!;await journal.finishNode(r,row.nodeId,null,typeof accounting.estimatedCostCny==='number'?accounting.estimatedCostCny:null,row.started===null?0:1,row.status==='ok'?undefined:row.failure??'unavailable');await input.audit?.(r,{kind:'coze_actual_slot',...row})}
     receipt={...receipt,providerCalls:knownReceipt.providerCalls,costCny:knownReceipt.costCny,reservedCostCny:knownReceipt.reservedCostCny}
-    if(signal?.aborted||cancelSent||await journal.cancelled(r))throw new WorkflowError('cancelled')
+    if(signal?.aborted)throw new WorkflowError('cancelled')
+    if(Date.now()>=end)throw new WorkflowError('timeout')
+    if(stopReason)throw new WorkflowError(stopReason)
+    if(await journal.cancelled(r))throw new WorkflowError('cancelled')
     assertCoachSourceFreeze(input.freezePath);await input.readMethods(r)
     receipt=parseCozeDirectionReceipt(knownReceipt,r,await input.readEvidence(r))
    }catch(error){
@@ -165,15 +211,17 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
      }
      for(const id of nodeIds)await journal.finishNode(r,id,null,posted?null:0,posted?1:0,signal?.aborted?'cancelled':'unavailable')
     }
-    receipt={...receipt,proposal:undefined,status:'unavailable',failure:signal?.aborted||cancelSent?'cancelled':error instanceof WorkflowError?error.code:'unavailable',fallback:'existing_single_agent'}
+    receipt={...receipt,proposal:undefined,status:'unavailable',failure:signal?.aborted?'cancelled':Date.now()>=end?'timeout':stopReason??(error instanceof WorkflowError?error.code:'unavailable'),fallback:'existing_single_agent'}
    }finally{
+    closing=true
     if(timer)clearTimeout(timer);if(cancelPoll)clearInterval(cancelPoll);signal?.removeEventListener('abort',onAbort)
-    if(pollPromise)await pollPromise
-    if(stopPromise)await stopPromise
+    if(pollPromise)await waitBeforeDeadline(pollPromise)
+    if(stopPromise)await waitBeforeDeadline(stopPromise)
+    if(stopReason&&receipt.status==='proposed')receipt={...receipt,status:'unavailable',failure:stopReason,proposal:undefined,fallback:'existing_single_agent'}
     if(posted){receipt={...receipt,receiptIncomplete:!settled||knownReceipt?.receiptIncomplete===true,workerFinishedAtReturn:settled&&knownReceipt?.workerFinishedAtReturn!==false,...(cancelSent?{cancelAcknowledged}:{} )};appendFileSync(path,JSON.stringify({type:'host_terminal_observation',requestId:r.requestId,workerFinishedAtReturn:receipt.workerFinishedAtReturn,receiptIncomplete:receipt.receiptIncomplete,cancelAcknowledged:receipt.cancelAcknowledged??null,at:new Date().toISOString()})+'\n')}
     if(creditReserved){try{credits.finishUnknown(r.requestId,receipt.failure==='cancelled'?'cancelled':receipt.status==='proposed'?'completed':'failed',receipt.providerCallsAreUpperBound?null:receipt.providerCalls,r.requestId)}catch{receipt={...receipt,proposal:undefined,status:'unavailable',failure:'budget_exceeded',fallback:'existing_single_agent'};appendFileSync(path,JSON.stringify({type:'credit_attempt_finalization_failed',requestId:r.requestId,reservationRetained:true})+'\n')}}
    }
-   await journal.finish(r,receipt);return receipt
+   const persisted=await journal.finish(r,receipt);return persisted??receipt
   }
  }
 }
