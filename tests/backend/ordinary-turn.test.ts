@@ -21,6 +21,7 @@ import {readGuideUsage,readPriorGuideEvents} from '../../server/guide-usage.ts'
 import {safeEarlySentence} from '../../server/reply-draft.ts'
 import {buildTurnPrompt,providerTurnMessages} from '../../server/turn-prompt.ts'
 import {configureProviderPayload} from '../../server/model-payload.ts'
+import {normalizeWeeklyPlanTasks,validateWeeklyPlanShape,renderProposedWeeklyPlan} from '../../server/weekly-plans.ts'
 
 test('real mixed report keeps editing commands out of the experience and reads later progress',()=>{
   const text='我通过校内邮箱发了消息，他还没回复，把消息改短，别猜他没回复的原因。'
@@ -222,9 +223,13 @@ test('single ordinary generation preserves mixed delivery and real transaction b
     await t.test('requested slack and native plan remain authoritative in one generation',async()=>{
       const plan=(minutes:number)=>({reply:'先处理课程作业，具体题量尚未知；保留余量再调整。',growthUpdates:[{target:{operation:'create'},assertion:'user_reported',kind:'constraint',source:{clauseId:'c0'},timeEvidence:{kind:'calendar_week',which:'this',clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'核对课程作业并尝试一道题',minutes,directionScopes:[]}]}})
       const valid=await prepare('这周还剩两小时，帮我安排课程作业，不要全排满。')
-      outputs.push(plan(90))
+      const withRest=plan(90)
+      withRest.weeklyPlan.items.push({action:'buffer_rest',minutes:30,directionScopes:[]})
+      outputs.push(withRest)
       const result=await engine(valid)
       assert.ok(result.text.includes('未安排：30分钟。'))
+      assert.equal(valid.staged.weeklyPlan?.input.items.length,1)
+      assert.equal(valid.staged.weeklyPlan?.input.items[0]?.minutes,90)
       await store.finishRun(valid.run,valid.staged,result.text,result.usage,valid.signal)
       const invalid=await prepare('这周还剩两小时，帮我安排课程作业，不要全排满。')
       outputs.push(plan(120))
@@ -337,4 +342,19 @@ test('compact provider growth targets keep the exact authorized ID and revision 
   }
   const empty=configureProviderPayload({}, {provider:'bailian',id:'qwen3.8-flash'},'default',contract.schema,'ordinary',8192,randomUUID(),[],[],0,false,undefined,false,['c1']) as any
   assert.ok(empty.response_format.json_schema.schema.properties.growthUpdates.items.anyOf.every((row:any)=>row.properties.target.anyOf.length===1))
+})
+
+
+test('real reported native plan keeps its actual tasks and leaves explicit buffer unallocated',()=>{
+ const input={target:{operation:'create' as const},availableMinutes:120,period:'this_week' as const,budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'list_urgent_tasks',minutes:10,directionScopes:[]},{action:'complete_priority_homework',minutes:50,directionScopes:[]},{action:'review_weak_subjects',minutes:40,directionScopes:[]},{action:'buffer_rest',minutes:20,directionScopes:[]}]}
+ const plan=normalizeWeeklyPlanTasks(input)
+ assert.deepEqual(plan.items.map(item=>item.minutes),[10,50,40])
+ assert.deepEqual(plan.items.map(item=>item.action),['列出紧急任务','完成优先课程作业','复习薄弱科目'])
+ assert.equal(input.items.length,4,'do not mutate the preserved raw output')
+ validateWeeklyPlanShape(plan)
+ assert.ok(renderProposedWeeklyPlan(plan).includes('未安排：20分钟'))
+ const mixed=normalizeWeeklyPlanTasks({...input,items:[{action:'复习后休息',minutes:120,directionScopes:[]}]})
+ assert.equal(mixed.items.length,1,'a real mixed task cannot be silently discarded')
+ const over=normalizeWeeklyPlanTasks({...input,items:[{action:'完成作业',minutes:121,directionScopes:[]}]})
+ assert.throws(()=>validateWeeklyPlanShape(over),'actual overbudget tasks remain invalid')
 })

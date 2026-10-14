@@ -43,6 +43,15 @@ export function renderProposedWeeklyPlan(input:WeeklyPlanInput):string{
   const unused=input.availableMinutes-input.items.reduce((sum,item)=>sum+item.minutes,0)
   return windowLabel+'建议安排（可用'+input.availableMinutes+'分钟；尚未采纳或执行）：\n'+input.items.map(item=>'- '+item.action+'（'+item.minutes+'分钟）').join('\n')+(unused>0?'\n未安排：'+unused+'分钟。':'')
 }
+// Rest is the unallocated part of the host-owned budget, never an action.
+// Normalize only explicit, whole rest/buffer labels; a mixed real task stays
+// intact and remains subject to the ordinary aggregate budget check.
+export function normalizeWeeklyPlanTasks(input:WeeklyPlanInput):WeeklyPlanInput{
+ const rest=/^(?:休息|缓冲|休息和缓冲|休息或缓冲|休息\/缓冲|留白|空闲|未安排时间|rest|buffer|rest_or_buffer|buffer_rest)$/i
+ const labels:Record<string,string>={list_urgent_tasks:'列出紧急任务',complete_priority_homework:'完成优先课程作业',review_weak_subjects:'复习薄弱科目',complete_course_assignment:'完成课程作业',review_exam_materials:'复习考试资料'}
+ return {...input,items:input.items.filter(item=>!rest.test(item.action.trim())).map(item=>({...item,action:labels[item.action.trim()]??item.action}))}
+}
+
 export function requiresPlanSlack(text:string):boolean{
  return /(?:别|不要|不想|不用|避免)(?:把时间|全部|全)?排满|留(?:些|一点|点|有)?(?:余量|缓冲)/.test(text)
 }
