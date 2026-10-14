@@ -2,7 +2,7 @@ import {useEffect,useState} from 'react'
 import {api,dataChanged,explainError} from '../../backend/client'
 import type {WorkflowReceipt} from '../../../server/workflows/contracts'
 import './workflow-panel.css'
-type Task={id:string;conversationId:string;question:string;status:string;historicalVersion?:boolean;receipt:WorkflowReceipt|null;executionKind:string;nodes:{id:string;role:string;status:string;providerCalls:number;costCny:number|null}[];commit?:{stateChange?:{workflow?:{status:string;executed:boolean}}}|null}
+type Task={id:string;conversationId:string;question:string;status:string;historicalSelectionStatus?:'plan_saved'|'direction_saved';historicalVersion?:boolean;receipt:WorkflowReceipt|null;executionKind:string;nodes:{id:string;role:string;status:string;providerCalls:number;costCny:number|null}[];commit?:{stateChange?:{workflow?:{status:string;executed:boolean}}}|null}
 type Capabilities={enabled:boolean;reason:string;directions:Record<string,string>;executionKind:string|null}
 const roles:Record<string,string>={path_analyst:'方向分析',constraint_validator:'来源与预算校验',independent_critic:'候选审阅',evidence_guardian:'事实核对',decision_synthesizer:'综合候选'}
 const statuses:Record<string,string>={queued:'等待开始',running:'正在分析',waiting_user:'先核对一项情况，尚未调用模型',proposed:'分析完成，等待你的选择',plan_saved:'小探索计划已保存 · 采纳时尚未执行',direction_saved:'阶段方向已保存',rejected:'你选择了不采用',cancelled:'已取消',failed:'这次分析未完成'}
@@ -55,7 +55,7 @@ export function WorkflowPanel({conversationId,source,refreshKey,onChanged}:{conv
   </div>}
   {notice&&<p className="qa-workflow-notice" role="status">{notice}</p>}
   {tasks.map(task=><article key={task.id} data-workflow-id={task.id} className="qa-workflow-task">
-   <header><h2>{task.question}</h2><p role="status">{statuses[task.status]??task.status}</p></header>
+   <header><h2>{task.question}</h2><p role="status">{task.status==='failed'&&task.historicalSelectionStatus?'之前采纳的记录保留 · 当前分析依据不可用':statuses[task.status]??task.status}</p></header>
    {task.historicalVersion&&<p className="qa-workflow-meta">这是此前版本的采纳记录；原始依据与回执保留，后续进展以本人反馈为准。</p>}
    {task.executionKind==='simulated_provider'&&<p className="qa-workflow-meta">开发候选 · 模拟 Provider，尚未验证真实服务质量</p>}
    <details><summary>查看协作进度与依据</summary><ol className="qa-workflow-progress">{task.nodes.map(node=><li key={node.id}><span>{roles[node.role]??node.role}{node.id.startsWith('path:')?' · '+(cap?.directions[node.id.slice(5)]??''):''}</span><span>{({dispatched:'已派发',succeeded:'已完成',failed:'未通过',unknown:'结果或费用待核实'} as Record<string,string>)[node.status]??node.status}</span></li>)}</ol><p className="qa-workflow-meta">{task.receipt?.providerCallsAreUpperBound?`实际调用次数待核对，最多 ${task.receipt.providerCalls} 次`:`${task.executionKind==='simulated_provider'?'模拟派发':'已派发'} ${task.receipt?.providerCalls??task.nodes.reduce((sum,x)=>sum+x.providerCalls,0)} 次${task.executionKind==='simulated_provider'?'模拟生成':'模型调用'}`}{task.receipt?` · ${task.receipt.costCny===null?'费用待核实':(task.executionKind==='simulated_provider'?'模拟记账 ¥':'记录费用 ¥')+task.receipt.costCny.toFixed(5)}`:''}</p>{task.receipt?.reviewIssues?.map((issue,index)=><p key={index}>{issue.severity==='needs_clarification'?'需要核对：':'仍未知：'}{issue.text}</p>)}</details>

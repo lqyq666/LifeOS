@@ -117,7 +117,12 @@ test('WF02/03/05/04 host → native SDK engine → finishRun → authenticated G
   assert.equal((await request('/api/workflows/'+body.requestId+'/actions',{requestId:randomUUID(),conversationId:second,kind:'direction',index:0})).status,409,'historical selection cannot be adopted again as a different choice')
   const source=(await pool.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2',[user,base.source_message_id])).rows[0].content
   await pool.query("UPDATE messages SET content='[source withdrawn in isolated test]' WHERE user_id=$1 AND id=$2",[user,base.source_message_id])
-  assert.equal((await json('/api/workflows/'+body.requestId+'?conversationId='+second)).status,'failed','source visibility remains required for committed history')
+  const unavailableHistory=await json('/api/workflows/'+body.requestId+'?conversationId='+second)
+  assert.equal(unavailableHistory.status,'failed','source visibility remains required for committed history')
+  assert.equal(unavailableHistory.historicalSelectionStatus,'plan_saved','retain only the fact of past adoption, not an adoptable old proposal')
+  assert.equal(unavailableHistory.commit,null)
+  assert.equal(unavailableHistory.receipt.proposal,undefined)
+  assert.equal(unavailableHistory.receipt.reviewIssues,undefined,'withdrawn personal text can occur in critic notes too')
   await pool.query('UPDATE messages SET content=$3 WHERE user_id=$1 AND id=$2',[user,base.source_message_id,source])
   await pool.query('UPDATE lifeos_workflow_tasks SET request_payload=$3,receipt=$4 WHERE user_id=$1 AND request_id=$2',[user,body.requestId,JSON.stringify(historical.request_payload),JSON.stringify(historical.receipt)])
   checks.push('committed history: retains original code version across upgrades, no new generation/adoption; cross-account and withdrawn-source reads remain blocked')
