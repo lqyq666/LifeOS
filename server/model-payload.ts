@@ -119,14 +119,18 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
           if(target?.anyOf){
             const create=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='create'),correct=target.anyOf.find((entry:any)=>entry.properties?.operation?.const==='correct')
             if(!create||!correct)throw new Error('GROWTH_TARGET_SCHEMA_REQUIRED')
-            // Each authorized item becomes ONE correct alternative; the model
-            // selects the item, never the operation or the revision.
-            target.anyOf=[create,...Array.from(unique,([id])=>({...correct,properties:{...correct.properties,itemId:{...correct.properties.itemId,enum:[id]}}}))]
+            // Correction carries no revision: one enum is exactly the same
+            // authorized set as one identical alternative per item.
+            target.anyOf=[create,...(unique.size?[{...correct,properties:{...correct.properties,itemId:{...correct.properties.itemId,enum:[...unique.keys()]}}}]:[])]
           }
           if(properties?.assertion?.const==='ai_observation'){
             const alternatives=properties.dependencies.items.anyOf
             const dependency=alternatives.find((branch:any)=>branch.properties?.id),local=alternatives.find((branch:any)=>branch.properties?.updateIndex)
-            properties.dependencies.items={anyOf:[local,...Array.from(unique,([id,revision])=>({...dependency,properties:{...dependency.properties,id:{...dependency.properties.id,enum:[id]},revision:{...dependency.properties.revision,enum:[revision]}}}))]}
+            // Share structure only within the same revision; never allow the
+            // Cartesian product of unrelated item IDs and revisions.
+            const byRevision=new Map<number,string[]>()
+            for(const [id,revision]of unique)byRevision.set(revision,[...byRevision.get(revision)??[],id])
+            properties.dependencies.items={anyOf:[local,...Array.from(byRevision,([revision,ids])=>({...dependency,properties:{...dependency.properties,id:{...dependency.properties.id,enum:ids},revision:{...dependency.properties.revision,enum:[revision]}}}))]}
           }
           return branch
         })

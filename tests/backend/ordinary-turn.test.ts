@@ -20,6 +20,7 @@ import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {readGuideUsage,readPriorGuideEvents} from '../../server/guide-usage.ts'
 import {safeEarlySentence} from '../../server/reply-draft.ts'
 import {buildTurnPrompt,providerTurnMessages} from '../../server/turn-prompt.ts'
+import {configureProviderPayload} from '../../server/model-payload.ts'
 
 test('real mixed report keeps editing commands out of the experience and reads later progress',()=>{
   const text='我通过校内邮箱发了消息，他还没回复，把消息改短，别猜他没回复的原因。'
@@ -309,4 +310,25 @@ test('wire context transmits each method and identical current event once withou
   const conflicting={...event,nodes:[{...event.nodes[0],status:'declined'}]}
   const distinct=JSON.parse(buildTurnPrompt({currentMessageId:id,messages:[current],currentEvent:event,events:[conflicting]}))
   assert.equal(distinct.events.length,1,'do not discard a nonidentical authorization snapshot')
+})
+
+
+test('compact provider growth targets keep the exact authorized ID and revision pairs',()=>{
+  const refs=[{id:randomUUID(),revision:1},{id:randomUUID(),revision:2},{id:randomUUID(),revision:1}]
+  const contract=deriveTurnContract({text:'更正之前的情况',knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
+  const payload=configureProviderPayload({}, {provider:'bailian',id:'qwen3.8-flash'},'default',contract.schema,'ordinary',8192,randomUUID(),[],refs,0,false,undefined,false,['c1']) as any
+  const branches=payload.response_format.json_schema.schema.properties.growthUpdates.items.anyOf
+  for(const branch of branches){
+    const targets=branch.properties.target.anyOf
+    assert.equal(targets.length,2)
+    assert.deepEqual(targets[1].properties.itemId.enum,refs.map(ref=>ref.id))
+    if(branch.properties.assertion.const==='ai_observation'){
+      const bound=branch.properties.dependencies.items.anyOf.filter((row:any)=>row.properties?.id)
+      assert.equal(bound.length,2)
+      const accepted=bound.flatMap((row:any)=>row.properties.id.enum.map((id:string)=>({id,revision:row.properties.revision.enum[0]})))
+      assert.deepEqual(accepted.sort((a:any,b:any)=>a.id.localeCompare(b.id)),[...refs].sort((a,b)=>a.id.localeCompare(b.id)))
+    }
+  }
+  const empty=configureProviderPayload({}, {provider:'bailian',id:'qwen3.8-flash'},'default',contract.schema,'ordinary',8192,randomUUID(),[],[],0,false,undefined,false,['c1']) as any
+  assert.ok(empty.response_format.json_schema.schema.properties.growthUpdates.items.anyOf.every((row:any)=>row.properties.target.anyOf.length===1))
 })
