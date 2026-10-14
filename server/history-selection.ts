@@ -56,6 +56,7 @@ export function selectHistoryForMode(
       picked=takeRecent(4)
       break
     }
+    case 'ordinary':
     case 'event':{
       // Keep the recent window plus any older USER messages that mention the
       // current matter's keywords — the review needs the thread's own turns.

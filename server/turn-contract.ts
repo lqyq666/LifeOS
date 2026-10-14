@@ -1,16 +1,12 @@
-// Turn contract slimming: the provider schema and the system-prompt rule
-// sections are derived from what THIS turn can actually produce. A field the
-// turn cannot use is unrepresentable in the native schema (never a prompt
-// "don't use this"), and mode-specific guidance is appended only when its
-// lane is open. Server authority (clause handles, correct intent, plan
-// minutes/basis, method claimId resolution) is untouched — this layer only
-// narrows what the model is offered.
+// One ordinary contract with composable optional outputs. User controls,
+// requested time arrangements and authorized sources narrow capabilities;
+// legacy mode names are retained only for callers reading old contracts.
 
 import { actionCoachTurnSchema } from './action-coach-contracts.ts'
-import { scanUserClauses,currentConversationOnly,conversationPreferenceClause,refusalPreferenceClause,scopedTaskPauseClause } from './user-command-spans.ts'
-import {deliverableIntent,requiresImmediateMaterial} from './action-coach-events.ts'
+import { scanUserClauses,currentConversationOnly,refusalPreferenceClause,scopedTaskPauseClause } from './user-command-spans.ts'
+import {requiresImmediateMaterial} from './action-coach-events.ts'
 
-export type TurnContractMode='reply_only'|'reply_growth'|'event'|'knowledge'|'planning'|'material'
+export type TurnContractMode='ordinary'|'reply_only'|'reply_growth'|'event'|'knowledge'|'planning'|'material'
 export type TurnContractCapabilities={
   growth:boolean
   candidate:boolean
@@ -30,17 +26,7 @@ export type TurnContract={
 
 const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
 
-// Deterministic reply_only shapes: pure greeting/acknowledgement, a memory
-// meta query, an all-question message, or an explicit listening-only opener.
-// Any plan intent, material request or personal-event report opts out.
-const greetingOnly=/^(?:好的?|好呀|好嘞|好滴|嗯+|哦+|噢+|行|行的|可以|ok|OK|Okay|谢谢|感谢|辛苦了|收到|明白|了解了?|继续|加油|晚安|早安|抱抱|没问题|听你的|先这样|就这样|都行|随你)(?:[了的呀呢啊嘛吧!！。.,，,~\s]*(?:先这样|就这样|听你的|再?说)?)?(?:[了的呀呢啊嘛吧!！。.,，,~\s]*)*$/
-const metaMemoryQuery=/你(?:还)?记得|我说过什么|你知道我什|记得我(?:以前|之前|上次)?说过/
-const listeningOnly=/^(?:我(?:今天|现在|最近)?(?:只想|就想|只?想)(?:倾诉|聊聊|说说|吐个槽|吐槽|说点心里话|说说不开心的|发发牢骚)|我(?:今天|最近)?(?:心里|有点)(?:.{0,6}不舒服|难过|烦|累|迷茫|委屈))[^。！？]*[。！？?]?$/
-// A first-person past-action report opens the event/review lane. The lexicon
-// only flags CANDIDATE clauses; structure (interrogative / attributedToOther /
-// conditional / quoted from scanUserClauses) decides whether the candidate is
-// the USER'S OWN report — a question, a third-party report or a hypothesis
-// never opens the lane.
+// Compatibility evidence helper; ordinary capabilities do not depend on it.
 const personalEventReportLexicon=/(?:做了|做完|做过|交了|交过|发过|发了|投过|写过|整理过|帮过|参加(?:了|过)|弄了|搞了|写了|投了|联系了|问了|试了|试过|没用上?|没效果|没结果|没坚持|卡住了?|导师说|学长说|学姐说|同学说|室友说|对方说|他们没用)/
 export function reportsPersonalEvent(text:string):boolean{
   for(const clause of scanUserClauses(text)){
@@ -60,7 +46,6 @@ export function reportsPersonalEvent(text:string):boolean{
   }
   return false
 }
-const personalEventReport={test:reportsPersonalEvent}
 
 const negativePersonalFact=/^(?:这次|这周|本周|最近)?我(?:目前|现在|暂时|还|仍|一直|并|从来)?(?:没(?:有)?|尚未|还未|未|不)(?:开始|做|学|复习|准备|完成|交付|发送|收到|拿到|有|想|愿意|打算|决定|能)/
 const anchorablePersonalClauses=(text:string)=>scanUserClauses(text).filter(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!clause.quoteSpans.length)
@@ -148,42 +133,18 @@ export function deriveTurnContract(input:{
   planIntent:boolean
   material:boolean
 }):TurnContract{
-  const clauses=scanUserClauses(input.text).filter(clause=>carriesClauseText(clause.text))
-  const allInterrogative=clauses.length>0&&clauses.every(clause=>clause.interrogative)
-  // A question-dominated turn (at least one question, no clause asserting a
-  // first-person fact) cannot carry new personal records.
-  const factBearingClause=new RegExp('我[^，。！？\\n]{0,8}(?:是|在|有|会|能|要|想|做|读|学|喜欢|决定|准备|报|考|找|投|写|交|发|参加|实习|社团|科研|项目|课|专业|大三|大四|大二|大一|研一|研二|每周|小时|岁)|[0-9一二两三四五六七八九十]+(?:小时|天|周|个月)')
-  const hasPersonalFact=reportedPursuitClauses(input.text).length>0||negativePersonalFactClauses(input.text).length>0||resourceBlockedPersonalFactClauses(input.text).length>0||clauses.some(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!conversationPreferenceClause(clause.text)&&!/^(?:请)?只(?:按|依据|区分|回顾|说明|回答)/.test(clause.text)&&factBearingClause.test(clause.text))
+  // Ordinary generation offers composable outputs. Only explicit user controls,
+  // requested planning and available sources narrow the contract; legacy modes
+  // never classify a sentence and close another legitimate output lane.
   const supportOnly=currentConversationOnly(input.text)
-  // A how-to/method/recommendation question is knowledge-seeking: the
-  // citations lane must stay open even though no personal fact is asserted.
-  const knowledgeSeeking=/怎么(?:开始|做|弄|写|准备|验证|提升|学)|有什么[^，。？]{0,8}(?:方法|办法|方式|技巧|建议|路子)|如何(?:开始|做|验证|准备|提升|学)|有哪些|推荐(?:一?下|几个)?(?:方?法|东西|书|课)?|什么(?:是|叫)|区别|对比/.test(input.text)
-  const questionDominated=!knowledgeSeeking&&(/[？?]/.test(input.text)||clauses.some(clause=>clause.interrogative))&&!hasPersonalFact&&!personalEventReport.test(input.text)
-  const trimmed=input.text.trim()
-  const pauseBoundaryQuestion=clauses.some(clause=>clause.interrogative&&/^是不是(?:等于|意味着)/.test(clause.text))&&clauses.every(clause=>clause.interrogative||/^暂停[^，。！？]{1,25}(?:这|一)(?:周|天|个月)$/.test(clause.text))
-  const replyOnlyShape=pauseBoundaryQuestion||allInterrogative||questionDominated||greetingOnly.test(trimmed)||(metaMemoryQuery.test(trimmed)&&/[？?]\s*$/.test(trimmed))||listeningOnly.test(trimmed)
-  const ownPerformed=reportedPerformedTaskClauses(input.text).length>0
-  const eventLane=(input.currentEventExists&&!replyOnlyShape)||personalEventReport.test(input.text)||ownPerformed
-  // A pure-listening turn never carries plan/material/event intent by
-  // definition; a question can still be a plan request, so plan intent wins.
-  const replyOnly=supportOnly?!hasPersonalFact:replyOnlyShape&&!input.planIntent&&!input.material&&!eventLane&&input.knowledgeCount===0
-  const newMaterialFacts=input.material&&clauses.some(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!deliverableIntent(clause.text,'create')&&factBearingClause.test(clause.text))
   const capabilities:TurnContractCapabilities={
-    growth:!replyOnly&&(!input.material||newMaterialFacts||personalEventReport.test(input.text)),
-    candidate:!supportOnly&&!replyOnly&&!input.planIntent&&(personalEventReport.test(input.text)||ownPerformed),
+    growth:true,
+    candidate:!supportOnly,
     plan:!supportOnly&&input.planIntent,
-    citations:!supportOnly&&!replyOnly&&input.knowledgeCount>0,
-    // material output lives in event.action, so a material turn always
-    // opens the event structure.
-    event:!supportOnly&&!replyOnly&&(eventLane||input.material),
-    material:!supportOnly&&input.material,
+    citations:!supportOnly&&input.knowledgeCount>0,
+    event:!supportOnly,
+    material:!supportOnly,
   }
-  const mode:TurnContractMode=capabilities.material?'material'
-    :capabilities.plan?'planning'
-    :capabilities.citations?'knowledge'
-    :capabilities.event?'event'
-    :'reply_growth'
-  const effectiveMode=replyOnly?'reply_only':mode
   const schema=slimActionCoachSchema(capabilities)
   if(capabilities.citations&&input.knowledgeIds){
     // Generation selects from this turn's approved cards. The shared citation
@@ -192,7 +153,7 @@ export function deriveTurnContract(input:{
     citations.items={type:'object',properties:{claimId:{type:'string',enum:[...new Set(input.knowledgeIds)]}},required:['claimId'],additionalProperties:false}
     if(input.requiredKnowledgeCitation){citations.minItems=1;(schema.required as string[]).push('citations')}
   }
-  return {mode:effectiveMode,capabilities,schema,schemaChars:JSON.stringify(schema).length}
+  return {mode:'ordinary',capabilities,schema,schemaChars:JSON.stringify(schema).length}
 }
 
 export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Record<string,unknown>{
@@ -243,13 +204,6 @@ export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:numbe
  plan.properties.availableMinutes={type:'integer',enum:[budget.minutes]}
  plan.properties.period={type:'string',enum:[budget.period]}
  if(budget.minutes>0)plan.properties.items.minItems=1
- if(budget.minutes>1&&/课程/.test(currentText)&&/备考|考试复习|复习/.test(currentText)){
-  const courseMinutes=Math.floor(budget.minutes/2)
-  plan.properties.items.enum=[[
-   {action:'课程：核对当前必须完成的任务与截止，先处理其中最紧要的一项',minutes:courseMinutes,directionScopes:[]},
-   {action:'备考：沿用当前进度，尝试一个具体题目或步骤并记录受阻处',minutes:budget.minutes-courseMinutes,directionScopes:[]},
-  ]]
- }
  if(budget.minutes===0){
   plan.properties.items.maxItems=0
   schema.properties.reply={type:'string',enum:[budget.period==='next_week'?'下周没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。':'当前安排的时段没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。']}
