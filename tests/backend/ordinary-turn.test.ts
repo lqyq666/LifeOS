@@ -19,6 +19,7 @@ import {boundedRecallReply} from '../../server/bounded-reply.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {readGuideUsage} from '../../server/guide-usage.ts'
 import {indexCoachEventOnce} from '../../server/coach-retrieval.ts'
+import {safeEarlySentence} from '../../server/reply-draft.ts'
 
 test('real mixed report keeps editing commands out of the experience and reads later progress',()=>{
   const text='我通过校内邮箱发了消息，他还没回复，把消息改短，别猜他没回复的原因。'
@@ -57,6 +58,12 @@ test('provider material metadata cannot authorize source or readiness',()=>{
   assert.ok('draft'in action)
   assert.equal('materialEvidence'in action.draft,false)
   assert.equal('readiness'in action.draft,false)
+})
+
+test('first useful content skips politeness without skipping unsafe assertions',()=>{
+  assert.equal(safeEarlySentence(JSON.stringify({reply:'收到。先给课程作业留一个小时间块，剩余时间保留缓冲。'})),'先给课程作业留一个小时间块，剩余时间保留缓冲')
+  assert.equal(safeEarlySentence(JSON.stringify({reply:'好的，这是一条简短、礼貌且尊重对方时间的请教消息，你可以直接复制使用：\n\n'})),null)
+  assert.equal(safeEarlySentence(JSON.stringify({reply:'已经替你发送了消息。还想聊什么？'})),null)
 })
 
 test('real natural requests bind material delivery without taking over review',()=>{
@@ -127,6 +134,7 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       assert.match(result.text,/不能判断原因/)
       assert.ok(result.text.includes(material))
       assert.equal((requests.at(-1).response_format.json_schema.schema.properties.reply as any).enum,undefined)
+      assert.ok(requests.at(-1).response_format.json_schema.schema.properties.event.properties.target.anyOf[0].properties.source.properties.quote.enum.includes('我给学长发了请教消息'))
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       event=saved.event
       assert.equal(event.actions[0].draft.content,material)

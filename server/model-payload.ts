@@ -39,6 +39,15 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
     body.temperature=0
     body.presence_penalty=0
     const compiled=providerSchema(schema,currentMessageId) as any
+    if(currentMessageId&&growthTimeBinding?.clauses.length){
+      const quotes=[...new Set(growthTimeBinding.clauses.map(clause=>clause.text).filter(Boolean))]
+      const bindQuotes=(node:any)=>{
+        if(!node||typeof node!=='object')return
+        if(node.properties?.messageId&&node.properties?.quote)node.properties.quote={...node.properties.quote,enum:quotes}
+        for(const value of Object.values(node))if(Array.isArray(value))value.forEach(bindQuotes);else if(value&&typeof value==='object')bindQuotes(value)
+      }
+      bindQuotes(compiled)
+    }
     if(eventTargets&&compiled.properties?.event){
       const target=compiled.properties?.event?.properties?.target
       if(!target?.anyOf)throw new Error('EVENT_TARGET_SCHEMA_REQUIRED')

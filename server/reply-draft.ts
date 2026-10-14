@@ -56,7 +56,7 @@ export function openingQuestionDraft(raw:string):string|null{
 // sentence must carry real substance — politeness-only fillers, status
 // claims, URLs, diagnoses, personality verdicts and policy facts stay gated.
 const unsafeEarly=/(?:https?:\/\/|诊断|症状|抑郁症|焦虑症|你总是|你就是|你其实|你就是.{0,6}人|你一定|已(?:经)?(?:为你|帮你|替你)?(?:保存|记录|完成|发送|报名|起草|发出|发好|更正|更新)|保证|一定可以|肯定能|录取|报名截止|资格)/
-const fillerOnly=/^(?:好的?|嗯+|哦+|行|可以|明白|了解|收到|谢谢|感谢|不客气|没问题|我在听|继续|加油)[。！!，,~\s]*$/
+const fillerOnly=/^(?:好的?|嗯+|哦+|行|可以|明白|了解|收到|谢谢|感谢|不客气|没问题|我在听|继续|加油)[。！!，,~\s]*$|^好的?，这是一条[^。！？]{0,80}(?:消息|材料|文稿)[^。！？]{0,40}(?:复制|使用)[:：]?$/
 export function safeEarlySentence(raw:string,maxChars=120):string|null{
   const opening=/^\s*(?:```(?:json)?\s*)?\{\s*"reply"\s*:\s*"/.exec(raw)
   if(!opening)return null
@@ -85,13 +85,13 @@ export function safeEarlySentence(raw:string,maxChars=120):string|null{
     const parts=decoded.split(terminator)
     const firstTerminator=parts.findIndex((part,index)=>index%2===1)
     if(firstTerminator<1)continue
-    const sentence=parts[0]!.trim()
-    if(!sentence)continue
-    if(sentence.length>maxChars)continue
-    if(fillerOnly.test(sentence))continue
-    if(unsafeEarly.test(sentence))continue
-    if(!/[\p{L}]{2,}/u.test(sentence))continue
-    return sentence
+    for(let index=0;index+1<parts.length;index+=2){
+      const sentence=parts[index]!.trim()
+      if(!sentence||fillerOnly.test(sentence))continue
+      if(sentence.length>maxChars||unsafeEarly.test(sentence))return null
+      if(!/[\p{L}]{2,}/u.test(sentence))continue
+      return sentence
+    }
   }
   return null
 }
