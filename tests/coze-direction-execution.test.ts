@@ -77,6 +77,22 @@ test('cancel acknowledgement does not settle missing original response or abort 
  const rows=readFileSync(f.budget.path,'utf8');assert.match(rows,/unknown/)
 })
 
+test('public GraphOutput receipt alias settles actual usage before rejecting invalid proposal',async()=>{
+ let f!:ReturnType<typeof setup>,posts=0
+ f=setup(async(_url,init)=>{
+  posts++
+  const body=JSON.parse(init!.body as string)
+  return new Response(JSON.stringify({reply:'',route:[],receipt:proposedReceipt(body.host_request,f.config,f.request),run_id:f.request.requestId}))
+ })
+ const receipt=await f.adapter.runRemoteGraph!(f.request,f.journal)
+ assert.equal(posts,1)
+ assert.equal(receipt.receiptIncomplete,false)
+ assert.equal(receipt.workerFinishedAtReturn,true)
+ assert.equal(receipt.providerCalls,5)
+ assert.equal(receipt.failure,'invalid_contract')
+ assert.ok(f.budget.snapshot().calls.some((c:any)=>typeof c.estimatedCostCny==='number'&&c.estimatedCostCny>0))
+})
+
 test('known failed critic usage settles before its proposed graph is rejected',async()=>{
  let f!:ReturnType<typeof setup>,posts=0
  f=setup(async(_url,init)=>{

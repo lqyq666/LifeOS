@@ -160,6 +160,10 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   `可以从你已经做过的部分聊起：「${reportedContribution.text}」。其中哪一个具体环节你愿意再做，哪一个不太想继续？先说一个就好。这能提供了解偏好的线索，还不能据此判断你适合哪种职业，也不用现在选定方向。`,
  ])
  if(input.knowledgeCount&&!contactQuestion)return null
+ // A direct request for a personally grounded next action needs the model's
+ // actual advice. Mentioning an unstarted alternative is not a report that
+ // the student's current activity failed.
+ if(/(?:帮我|请|给我|想)[^。！？\n]{0,24}(?:选|找|确定)[^。！？\n]{0,16}(?:最小行动|能做的一步|小探索)/.test(own))return null
  if(/(?:海报|作品)/.test(own)&&/(?:自由职业|接单)/.test(own)&&/(?:先整理|整理哪|从哪)/.test(own))return make('start','作品用途与本人承担的部分',[
   '先选一张你已有的海报，分别写清作品用途和你本人负责的部分；同伴的贡献另列，不补猜客户、采用或收入。你想从哪张现成作品开始？',
  ])

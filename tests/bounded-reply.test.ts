@@ -1,6 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
+test('actual UI request for a grounded minimal action is not a generic past-failure questionnaire',()=>{
+ const text='我是成年大学生。上一学期做过一个课程工具，交给同学后是否采用、付款和效果仍未知。这周还剩九十分钟，我想先了解就业实习，创业只做小探索，考研尚未开始准备。请按我的实际情况帮我选一个能做的最小行动，不要把做过工具当作适合创业的证明。'
+ assert.equal(make(text),null)
+})
+
 test('real course V18: reported blocker and a narrow budget correction never promise marks or sufficient time',()=>{
  const blocked=make('上次排的课程作业，我已经列好题目了，但第三题不会做。')!
  assert.equal(blocked?.stage,'blocked')

@@ -118,10 +118,14 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
   let bytes=0,text='';const decoder=new TextDecoder()
   while(true){const chunk=await reader.read();if(chunk.done)break;bytes+=chunk.value.byteLength;if(bytes>512000){await reader.cancel();throw new WorkflowError('invalid_contract')};text+=decoder.decode(chunk.value,{stream:true})}
   text+=decoder.decode();const output=JSON.parse(text)
-  // The existing GraphOutput exposes host_receipt, not a legacy workflow data
-  // string. Unknown envelopes fail closed without another paid request.
-  if(!output||typeof output.host_receipt!=='object')throw new WorkflowError('invalid_contract')
-  return output.host_receipt
+  // The native graph field is host_receipt; the deployed GraphOutput emits
+  // its receipt alias. Accept only these observed forms; downstream checks
+  // still validate the full signed runtime and actual node usage.
+  if(!output||typeof output!=='object'||Array.isArray(output))throw new WorkflowError('invalid_contract')
+  if(output.host_receipt!==undefined&&output.receipt!==undefined)throw new WorkflowError('invalid_contract')
+  const receipt=output.host_receipt??output.receipt
+  if(!receipt||typeof receipt!=='object'||Array.isArray(receipt))throw new WorkflowError('invalid_contract')
+  return receipt
  }
  return {executionKind:'real_provider',maxCostPerCallCny:maxCost,analyze:unavailable,critic:unavailable,synthesize:unavailable,
   async runRemoteGraph(r,journal,signal){
