@@ -194,17 +194,24 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
 // Explicit delivery requests must instantiate an artifact, never a bare
 // presentation prefix. Clarifications remain legal for incomplete requests.
 export function bindMaterialDeliverySchema(contract:TurnContract,text:string,groundedSelection=false):TurnContract{
+  const quotes=[...new Set(scanUserClauses(text).map(clause=>clause.text).filter(Boolean))]
+  const bindQuotes=(node:any)=>{
+    if(!node||typeof node!=='object')return
+    if(node.properties?.messageId&&node.properties?.quote)node.properties.quote={...node.properties.quote,enum:quotes}
+    for(const value of Object.values(node))if(Array.isArray(value))value.forEach(bindQuotes);else if(value&&typeof value==='object')bindQuotes(value)
+  }
+  if(quotes.length)bindQuotes((contract.schema.properties as any)?.event)
   const action=(contract.schema.properties as any)?.event?.properties?.action
   if(!groundedSelection)for(const branch of action?.anyOf??[]){
     const draft=branch.properties?.draft
     if(draft?.anyOf)draft.anyOf=draft.anyOf.filter((format:any)=>format.properties?.kind?.const!=='resume_portfolio')
   }
- if(!contract.capabilities.material||!requiresImmediateMaterial(text))return contract
+ if(!contract.capabilities.material||!requiresImmediateMaterial(text))return {...contract,schemaChars:JSON.stringify(contract.schema).length}
  const schema=structuredClone(contract.schema) as any,event=schema.properties.event
  schema.required=[...new Set([...(schema.required??[]),'event'])]
  event.required=[...new Set([...(event.required??[]),'action'])]
  event.properties.action.anyOf=event.properties.action.anyOf.filter((branch:any)=>branch.properties?.draft)
- return {...contract,schema}
+ return {...contract,schema,schemaChars:JSON.stringify(schema).length}
 }
 
 // The authoritative obligation has already resolved the student's current
