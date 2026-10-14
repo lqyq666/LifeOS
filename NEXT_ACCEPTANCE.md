@@ -20,7 +20,7 @@
 - `.local/cloud-closeout-20261014/slim/transport-final-corrected-metrics.json`、四份`ordinary-pooled-pause-final-*-results.json`、`transport-timing.jsonl`：真实四条、118秒空闲、占位排除和TLS事件证据；先前60秒失败等原文件保留。
 - 同目录`transport-independent-review.md`、`transport-independent-followup.md`、`transport-independent-final.md`、`performance-budget-current.json`、`production-memory-transport-final.json`、`professional-current-host-replay.json`、`cloud-binding-dev-proof.jpg`；截图只证明中间开发提交4fded292，不能证明ff49f51提交或公开发布。
 - `.local/coze-launch/slim-runtime-observed.json`已明确标注最终云提交未知，保存最近确认值和最后未确认命令；旧云提交及Skill摘要的转录错误已纠正，原记录保存于`slim/slim-runtime-observed-before-transport-correction.json`。恢复连接后先读实际HEAD、staged及绑定，不能重发已发送命令或假定其失败。
-- `.local/coze-launch/slim-host-binding-pending.json`以本地运行中`/api/run/version`及source freeze为依据：宿主2110f86，sourceDigest **e44a6d53d5abdfb3600aa2cbbb61a03c48d59c74374130e549abb13d57bd7916**。默认shell配置的知识库摘要与隔离服务不同，不能用于云绑定。
+- `.local/coze-launch/slim-host-binding-pending.json`以本地运行中`/api/run/version`及source freeze为依据：宿主2110f86，sourceDigest **e44a6d53d5abdfb3600aa2cbbb61a03c48d59c74374130e549abb13d57bd7916**。默认shell的运行配置指纹与隔离服务不同，不能用于云绑定；文档提交不冒充运行中的产品提交，准备脚本核对真实运行版本和冻结文件清单。
 - 本地隔离服务`http://127.0.0.1:18126`已运行2110f86，原18124和生产服务未动；`start-real.mjs --resume`沿用同一隔离库与费用baseline。采集脚本已补逐帧收到时间，下一条证据不再缺有效delta时间；尚未使用它重新收费采样。
 
 用户原脏文件`tests/backend/action-coach-engine.test.ts`的SHA256仍为`6D834BDC20B462B285F97E8384BDA488A392B0FB7104B68F6A531BE005BF0C67`，未改、未运行、未提交。唯一模型账本仍为`.local/v1.3-action-coach/paid/provider-calls.json`；Secret/私密账号/数据库串不输出上传。
