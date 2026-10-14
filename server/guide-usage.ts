@@ -4,7 +4,7 @@ import {transaction,HttpError,requireRow} from './db.ts'
 import type {Run} from './store.ts'
 import {readCoachEvent} from './action-coach-events.ts'
 import type {KnowledgeCard} from './campus-knowledge.ts'
-import {scanUserClauses} from './user-command-spans.ts'
+import {scanUserClauses,methodReferenceClause} from './user-command-spans.ts'
 import {growthQuoteSuppressed} from './growth-privacy.ts'
 import {assertCoachKnowledge} from './coach-knowledge.ts'
 import {kbTerms} from './evergreen-guide.ts'
@@ -18,7 +18,7 @@ export function feedbackMatchesCurrent(text:string,title:string,task:string){
  if(named.length&&!named.some(pattern=>pattern.test(title+' '+task)))return false
  if(/(?:我|这次)[^，。；]{0,20}(?:不想继续|暂时不继续|先不继续|不再试|拒绝继续)|先停在这里/.test(text))return true
  if(/按上次|这个方法|这次行动|我愿意试|我不想继续|我不做了/.test(text))return true
- if(/^(?:那就|那|就|先)?(?:用|按|参考)(?:刚才|上次|那个|这个)[^。！？]{0,20}(?:方法|攻略|指南)/.test(text.trim()))return true
+ if(methodReferenceClause(text))return true
  const taskTerms=new Set(kbTerms(title+' '+task))
  return kbTerms(text).filter(t=>taskTerms.has(t)).length>=2
 }

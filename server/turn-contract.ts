@@ -143,6 +143,7 @@ export function deriveTurnContract(input:{
   text:string
   knowledgeCount:number
   knowledgeIds?:readonly string[]
+  requiredKnowledgeCitation?:boolean
   currentEventExists:boolean
   planIntent:boolean
   material:boolean
@@ -189,6 +190,7 @@ export function deriveTurnContract(input:{
     // validator still owns revision, scope and withdrawal checks at commit.
     const citations=(schema.properties as Record<string,any>).citations
     citations.items={type:'object',properties:{claimId:{type:'string',enum:[...new Set(input.knowledgeIds)]}},required:['claimId'],additionalProperties:false}
+    if(input.requiredKnowledgeCitation){citations.minItems=1;(schema.required as string[]).push('citations')}
   }
   return {mode:effectiveMode,capabilities,schema,schemaChars:JSON.stringify(schema).length}
 }

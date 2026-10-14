@@ -39,6 +39,9 @@ export function conversationPreferenceClause(text:string):boolean{
 }
 // A request to the assistant is not autobiographical evidence. Keep this
 // separate from listening preferences: positive requests still need delivery.
+export function methodReferenceClause(text:string):boolean{
+ return /^(?:请|麻烦|那就|那|就|先)?(?:用|按|参考)(?:刚才|上次|那个|这个)[^。！？\n]{0,20}(?:方法|攻略|指南)/.test(text.trim())
+}
 export function assistantRequestClause(text:string):boolean{
  const clause=text.trim().replace(/^(?:也|并且|而且)/,'')
  return conversationPreferenceClause(clause)

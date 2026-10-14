@@ -1,7 +1,7 @@
 import {createHash} from 'node:crypto'
 import {estimateTokens} from './context.ts'
 import type {KnowledgeCard} from './campus-knowledge.ts'
-import {scanUserClauses,currentConversationOnly,assistantRequestClause} from './user-command-spans.ts'
+import {scanUserClauses,currentConversationOnly,assistantRequestClause,methodReferenceClause} from './user-command-spans.ts'
 
 export type GuideReviewStatus='draft'|'needs_review'|'approved'|'rejected'|'retired'
 export type GuideClaim={id:string;text:string;basis:'source_supported'|'bounded_synthesis'|'editorial_adaptation'|'unsupported';evidenceIds:string[];scope:string;limitations:string}
@@ -84,7 +84,7 @@ export function knowledgeIntent(text:string,context:{eventTitle?:string;hasPrior
  let query=omitted&&context.eventTitle?text+'\n当前事情：'+context.eventTitle:text
  // Resolve a short reference only from caller-authorized user history. Never
  // use assistant suggestions or bypass history suppression to recover a name.
- if(/^(?:那就|那|就|先)?(?:用|按|参考)(?:刚才|上次|那个|这个).{0,20}(?:攻略|指南|方法)/.test(text.trim())){
+ if(methodReferenceClause(text)){
   const prior=[...(context.lastUserTexts??[])].reverse().flatMap(previous=>scanUserClauses(previous).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&assistantRequestClause(c.text)&&/用|使用|按|参考|依据/.test(c.text)&&/攻略|指南|方法/.test(c.text)).map(c=>c.text)).find(clause=>/[“「][^”」]+[”」]/.test(clause))
   if(prior)query+='\n此前本人指定的方法：'+prior
  }
