@@ -16,13 +16,28 @@ export interface LifeFlywheelProps {
   controller: CognitionController
 }
 
-function SceneError({retry}:{retry:()=>void}) {
-  return <div className="scene-error" role="alert"><h2>三维空间暂时无法打开</h2><p>WebGL 未能正常运行。请重试，或检查浏览器的图形加速设置。</p><button onClick={retry}>重试三维场景</button></div>
+function supportsWebGL(){
+  try{
+    const canvas=document.createElement('canvas'),context=canvas.getContext('webgl2')
+    if(!context)return false
+    context.getExtension('WEBGL_lose_context')?.loseContext()
+    return true
+  }catch{return false}
 }
-class SceneBoundary extends Component<{children:ReactNode;onRetry:()=>void},{failed:boolean}> {
+
+function SceneError({retry,controller}:{retry:()=>void;controller:CognitionController}) {
+  const view=useSyncExternalStore(controller.subscribe,controller.getSnapshot)
+  // There is no Canvas to finish the camera transition after WebGL failure.
+  useEffect(()=>{if(view.transitioning)controller.update({transitioning:false})},[controller,view.transitioning])
+  const nodes=graph.data.nodes.filter(node=>node.type!=='self'&&(!view.focusValueId||controller.candidates().includes(node.id)))
+  return <div className="scene-error"><h2>三维空间暂时无法打开</h2><p>你仍可查看主题、经历与依据，也可以重试三维场景。</p>
+    {view.mode!=='LANDING'&&view.mode!=='EXPERIENCE_DETAIL'&&<nav className="scene-fallback-records" aria-label="主题与经历列表">{nodes.length?nodes.map(node=><button key={node.id} onClick={()=>controller.open(node.id)}>{node.title}<span>{node.type==='value'?'查看主题':'阅读经历'} ↗</span></button>):<p>暂无有效关联，可返回全景查看其他主题。</p>}</nav>}
+    <button onClick={retry}>重试三维场景</button></div>
+}
+class SceneBoundary extends Component<{children:ReactNode;onRetry:()=>void;controller:CognitionController},{failed:boolean}> {
   state={failed:false}
   static getDerivedStateFromError(){return {failed:true}}
-  render(){return this.state.failed?<SceneError retry={()=>{this.setState({failed:false});this.props.onRetry()}}/>:this.props.children}
+  render(){return this.state.failed?<SceneError controller={this.props.controller} retry={()=>{this.setState({failed:false});this.props.onRetry()}}/>:this.props.children}
 }
 
 export default function LifeFlywheel({core,paused=false,reducedMotion=false,stage=0,className='',controller}:LifeFlywheelProps) {
@@ -32,7 +47,7 @@ export default function LifeFlywheel({core,paused=false,reducedMotion=false,stag
   const labels=useMemo(()=>new Map<string,HTMLElement>(),[])
   const [pageVisible,setPageVisible]=useState(!document.hidden)
   const [mobile,setMobile]=useState(()=>matchMedia('(max-width: 600px)').matches)
-  const [attempt,setAttempt]=useState(0),[lost,setLost]=useState(false)
+  const [attempt,setAttempt]=useState(0),[lost,setLost]=useState(()=>!supportsWebGL())
   const contextListeners=useRef<AbortController|null>(null)
   const orbitInput=useOrbitInput(controller)
   const landing=view.mode==='LANDING'
@@ -45,7 +60,7 @@ export default function LifeFlywheel({core,paused=false,reducedMotion=false,stag
     query.addEventListener('change',resize);document.addEventListener('visibilitychange',visibility)
     return()=>{query.removeEventListener('change',resize);document.removeEventListener('visibilitychange',visibility);contextListeners.current?.abort()}
   },[controller])
-  const retry=()=>{contextListeners.current?.abort();setLost(false);setAttempt(n=>n+1)}
+  const retry=()=>{contextListeners.current?.abort();setLost(!supportsWebGL());setAttempt(n=>n+1)}
   return <div ref={host} className={`life-flywheel ${className}`} tabIndex={landing?0:-1} {...orbitInput}
     role="group" aria-label={landing?'交互式成长飞轮。拖动或使用方向键旋转，Home 键复位。':'认知空间。横向拖动沿轨道浏览，点击价值观或经历。'}
     onKeyDown={event=>{
@@ -72,11 +87,11 @@ export default function LifeFlywheel({core,paused=false,reducedMotion=false,stag
     onPointerCancel={()=>{interaction.current.dragging=false;orbitInput.onPointerCancel()}}
     onLostPointerCapture={()=>{interaction.current.dragging=false;orbitInput.onLostPointerCapture()}}
     onPointerLeave={()=>{if(landing&&!interaction.current.dragging){interaction.current.x=0;interaction.current.y=0;controller.invalidate()}}}>
-    {lost?<SceneError retry={retry}/>:<SceneBoundary onRetry={retry}>
+    {lost?<SceneError retry={retry} controller={controller}/>:<SceneBoundary onRetry={retry} controller={controller}>
       <Canvas key={attempt} resize={{debounce:0}} camera={{position:[0,0,14.3],fov:35,near:0.1,far:150}}
         dpr={mobile?[1,1.25]:[1,1.5]} frameloop={active?'always':'demand'}
         gl={{antialias:true,alpha:true,powerPreference:'high-performance',toneMapping:THREE.ACESFilmicToneMapping,toneMappingExposure:1.1}}
-        fallback={<SceneError retry={retry}/>} onCreated={state=>{
+        fallback={null} onCreated={state=>{
           controller.invalidate=state.invalidate
           state.gl.setClearColor('#070910',0);state.gl.transmissionResolutionScale=mobile?0.5:0.65
           state.gl.domElement.dataset.instance=crypto.randomUUID();state.gl.domElement.dataset.renderer=crypto.randomUUID()
