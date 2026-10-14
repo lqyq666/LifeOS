@@ -72,6 +72,9 @@ export function parseCozeDirectionReceipt(body:unknown,r:WorkflowRequest,records
  proposal.actionSelection??='unranked_options'
  const issues:ReviewIssue[]=(value.reviewIssues??[]).map((raw:any)=>{
   const issue={...raw,...(raw.resolution==='waiting_user'?{resolution:raw.severity==='needs_clarification'?'ask_user':'keep_unknown'}:{})}
+  // Python's dataclass receipt emits absent optional fields as null. Normalize
+  // only these known optional fields; all required/unknown fields stay strict.
+  for(const key of ['category','affectedClaims','resolution'])if(issue[key]===null)delete issue[key]
   if(!Value.Check(reviewIssueSchema,issue))throw new WorkflowError('invalid_contract')
   validateEvidence(r,issue.evidenceRefs,records)
   return issue

@@ -18,6 +18,21 @@ test('actual-shaped receipt preserves proposal, unknown review and versioned Ski
  assert.equal(r.reviewIssues?.[0].resolution,'keep_unknown');assert.deepEqual(r.proposal,f.body.proposal)
  assert.deepEqual(r.skillLoadReceipts,f.body.skills.map(s=>({...s,loaded:true})))
 })
+
+test('actual Python review issues normalize only null optional fields',()=>{
+ const f=sample(),body=structuredClone(f.body) as any
+ Object.assign(body.reviewIssues[0],{category:null,affectedClaims:null})
+ const issue=parseCozeDirectionReceipt(body,f.request,f.records).reviewIssues![0]
+ assert.equal(issue.resolution,'keep_unknown')
+ assert.equal(Object.hasOwn(issue,'category'),false)
+ assert.equal(Object.hasOwn(issue,'affectedClaims'),false)
+ body.reviewIssues[0].resolution=null
+ assert.equal(Object.hasOwn(parseCozeDirectionReceipt(body,f.request,f.records).reviewIssues![0],'resolution'),false)
+ for(const bad of [{text:null},{evidenceRefs:null},{category:'invented'},{affectedClaims:'invented'},{unexpected:null}]){
+  const invalid=structuredClone(body);Object.assign(invalid.reviewIssues[0],bad)
+  assert.throws(()=>parseCozeDirectionReceipt(invalid,f.request,f.records),/invalid_contract/)
+ }
+})
 test('synthesis cannot add a claim or restore an unreviewed action',()=>{
  for(const mutate of [
   (x:ReturnType<typeof sample>)=>{x.body.proposal.alternatives[0].pros.push('已付款且效果很好')},
