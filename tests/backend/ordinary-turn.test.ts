@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createServer} from 'node:http'
 import {randomUUID} from 'node:crypto'
+import {readFileSync} from 'node:fs'
 import {createTurnEngine} from '../../server/agent.ts'
 import {model} from '../../server/model.ts'
 import {config} from '../../server/config.ts'
@@ -14,6 +15,8 @@ import {requiresImmediateMaterial,deliverableIntent} from '../../server/action-c
 import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
 import {selectStructuralCandidate} from '../../server/experience-content.ts'
 import {boundedRecallReply} from '../../server/bounded-reply.ts'
+import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
+import {readGuideUsage} from '../../server/guide-usage.ts'
 
 test('real mixed report keeps editing commands out of the experience and reads later progress',()=>{
   const text='我通过校内邮箱发了消息，他还没回复，把消息改短，别猜他没回复的原因。'
@@ -155,6 +158,42 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       assert.equal(requests.at(-1).response_format.json_schema.schema.properties.reply.enum,undefined)
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       assert.ok(String(saved.event!.actions[0]!.draft!.content).includes('我负责排版'))
+    })
+    await t.test('a recall question does not close an independent new goal in the same message',async()=>{
+      const input=await prepare('你记得我之前说过什么吗？我现在决定先就业。')
+      outputs.push({reply:'你报告过联系和课程分工；接下来先按就业这个新重点来。',growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:'c1'}}]})
+      const result=await engine(input)
+      assert.ok(requests.at(-1).response_format.json_schema.schema.properties.growthUpdates)
+      const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      assert.ok(saved.growthIds.length)
+      const rows=(await pool.query('SELECT text FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])',[user,saved.growthIds])).rows
+      assert.ok(rows.some(row=>row.text==='我现在决定先就业'))
+    })
+    await t.test('a named reviewed method keeps its owned task and failure continuation even when the model only returns prose',async()=>{
+      const read=(name:string)=>readFileSync('.planning/research/evergreen/'+name,'utf8').trim().split(/\r?\n/).map(line=>JSON.parse(line))
+      const cards=read('KB_GUIDES.jsonl').filter(card=>card.guide?.reviewStatus==='approved')
+      await importEvergreenCorpus(cards,read('KB_SOURCE_REGISTRY.jsonl'),read('KB_EVIDENCE.jsonl'))
+      const card=cards.find(card=>card.title==='从示例走向独立完成')!
+      const actor='ordinary-method-'+randomUUID(),chat=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+      await setMemorySettings(actor,{requestId:randomUUID(),enabled:true,expectedRevision:0})
+      await store.createConversation(actor,{id:chat,title:'SYNTHETIC reviewed method'})
+      async function methodInput(text:string){
+        const run=(await store.startRun(actor,chat,randomUUID(),text)).run
+        return {run,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:(_event:Record<string,unknown>)=>{}}
+      }
+      const first=await methodInput('请用已审核的“从示例走向独立完成”方法。我的课程第三题不会做。')
+      outputs.push({reply:'先确定题目对应的知识点，再对照一个已解示例；没有题干时不猜题型。',citations:[{claimId:card.id}]})
+      const firstReply=await engine(first),saved=await store.finishRun(first.run,first.staged,firstReply.text,firstReply.usage,first.signal)
+      assert.equal(saved.event?.title,'我的课程第三题不会做')
+      assert.equal((await readGuideUsage(actor,chat,saved.event!.id))[0]?.guide_id,card.id)
+      const next=await methodInput('还是卡住了，这个方法的第一步我找不到适用的已解示例，怎么继续？')
+      outputs.push({reply:'先保留示例缺失这个阻碍，核对题干或关键词后再找相同知识点的例子，不换到另一套方法。',citations:[{claimId:card.id}]})
+      const nextReply=await engine(next)
+      const context=JSON.parse(requests.at(-1).messages[1].content)
+      assert.deepEqual(context.methodContext.map((row:any)=>row.id),[card.id])
+      assert.equal(next.staged.guideUsage?.[0]?.guideId,card.id)
+      await store.finishRun(next.run,next.staged,nextReply.text,nextReply.usage,next.signal)
     })
     await t.test('listening is naturally generated with no unsolicited material',async()=>{
       const input=await prepare('今天只想聊聊，不要给我安排任务。')

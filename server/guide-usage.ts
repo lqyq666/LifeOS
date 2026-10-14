@@ -28,6 +28,7 @@ export function classifyGuideFeedback(text:string):Exclude<GuideUsageStatus,'sug
  const acted=/(?:我|按上次)[^；]{0,35}(?:已经|已)?(?:发了|交了|交付了|完成了|做完|尝试了?|试了|联系了|开始了)/.test(report)&&!/(?:我|按上次)[^；]{0,16}(?:没|没有|未)(?:开始|尝试|完成|交付|发)/.test(report)
  if(acted&&/等(?:待)?(?:结果|回复)|(?:还)?没(?:有)?(?:回复|收到结果)|没收到结果/.test(report))return 'waiting_result'
  if(/(?:我|按上次)[^；]{0,35}(?:没|没有|未)(?:开始|做|尝试)/.test(report)&&/打不开|找不到|缺少|卡住|没材料/.test(report))return 'blocked'
+ if(/(?:我[^；]{0,24}(?:打不开|找不到|卡住)|(?:还是|仍然)(?:不行|卡住|打不开))/.test(report))return 'blocked'
  if(acted&&/没效果|没人回|没回复|卡住|失败|没用/.test(report))return 'blocked'
  if(acted&&/结果|收到|回复|付款|用上|通过/.test(report))return 'completed'
  if(acted)return 'attempted'

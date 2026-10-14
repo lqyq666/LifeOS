@@ -376,7 +376,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const newMatterExplicit=scanUserClauses(current.content).some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:换个|换一件|另一件|另一个|新事情|新话题|转到|转而|不谈上次)/.test(clause.text))
   const explicitMaterialRequest=clauseCatalogue.some(clause=>!clause.conditional&&!clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&deliverableIntent(clause.text,'create'))
   const asksRecall=methodIntent.reason==='memory_query'||/(?:我报告过|我之前把|按我(?:提供|报告)|你(?:目前|现在)?知道.{0,20}(?:实际做过|做过什么|报告过)|你会把|是不是(?:等于|意味着)|如果.{0,15}只想聊天)|^(?:我)?(?:本周|这周).{0,35}(?:是多少|多久|多少时间)/.test(current.content)
-  const readOnlyQuestion=methodIntent.decision==='NONE'&&asksRecall&&!currentConversationOnly(current.content)&&!explicitMaterialRequest&&!reportsOwnContribution(current.content)&&!reportedPerformedTaskClauses(current.content).length&&clauseCatalogue.some(clause=>clause.interrogative)
+  const onlyReadback=clauseCatalogue.every(clause=>clause.interrogative||clause.conditional||clause.quoted||clause.code||clause.attributedToOther||assistantRequestClause(clause.text)||/^(?:请)?只(?:按|说|回答|回顾|说明)|^按我(?:提供|报告)/.test(clause.text))
+  const readOnlyQuestion=methodIntent.decision==='NONE'&&asksRecall&&onlyReadback&&obligations.requiredEffects.length===0&&!currentConversationOnly(current.content)&&!explicitMaterialRequest&&clauseCatalogue.some(clause=>clause.interrogative)
   const boundaryNeedsClarification=!readOnlyQuestion&&!currentConversationOnly(current.content)&&!newMatterExplicit&&(pendingRecommendationIds.size>0||unresolvedTaskBoundaries.some(item=>current.content.includes(item.taskBoundary!.targetText)))
   const growthSelection=selectRelevantGrowth(growthAll.filter(item=>!recommendationBlockedIds.has(item.id)&&!item.taskBoundary),current.content)
   const growth=growthSelection.selected
@@ -438,8 +439,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // the validator can never disagree about the lane.
   const materialIntent=!readOnlyQuestion&&!boundaryNeedsClarification&&(resumePortfolioMode||deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create'))
   const planBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
-  const requestedGuide=knowledge.length===1&&knowledge[0].guide&&methodIntent.query.includes(knowledge[0].title)&&clauseCatalogue.some(clause=>!clause.quoted&&!clause.conditional&&!clause.attributedToOther&&assistantRequestClause(clause.text)&&/(?:用|使用|按|参考|依据).{0,80}(?:攻略|指南|方法)/.test(clause.text))
-  const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,knowledgeIds:knowledge.map(card=>card.id),requiredKnowledgeCitation:Boolean(requestedGuide&&matchingGuideEvent),currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent}),planBudget?.type==='weekly_plan'?planBudget:undefined,current.content)
+  const requestedGuide=clauseCatalogue.some(clause=>!clause.quoted&&!clause.conditional&&!clause.attributedToOther&&assistantRequestClause(clause.text)&&/(?:用|使用|按|参考|依据).{0,80}(?:攻略|指南|方法)/.test(clause.text))?knowledge.find(card=>card.guide&&methodIntent.query.includes(card.title)):undefined
+  const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,knowledgeIds:requestedGuide?[requestedGuide.id]:knowledge.map(card=>card.id),requiredKnowledgeCitation:Boolean(requestedGuide&&matchingGuideEvent),currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent,readOnly:readOnlyQuestion}),planBudget?.type==='weekly_plan'?planBudget:undefined,current.content)
   const priorInterviewQuestions=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion)&&requestedQuestionEditClauses(item.text).length>0).map(item=>item.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/, '').replace(/^[“「『]|[”」』]$/g,'')).filter(q=>q.length>0&&q.length<=300)
   const priorInterviewQuestion=priorInterviewQuestions.length===1?priorInterviewQuestions[0]:undefined
   const boundedReply:BoundedReply|null=boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停的是当时的备考或复习，尚未确认和这次是否同一事项。先核对这次要继续的是哪件事；不把旧暂停套到另一个考试，也不先安排任务。']}:readOnlyQuestion?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):null
@@ -490,6 +491,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   async function validateOutputInner(raw:string):Promise<ActionCoachTurn>{
     let result:ActionCoachTurn
     try{result=parseActionCoachTurn(raw)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
+    if(readOnlyQuestion&&(result.event||result.experienceCandidate||result.weeklyPlan||result.growthUpdates?.length))throw new HttpError(502,'COACH_OUTPUT_INVALID')
     if((currentConversationOnly(current.content)||boundaryNeedsClarification)&&(result.experienceCandidate||result.event||result.weeklyPlan||result.citations?.length))throw new HttpError(502,'COACH_OUTPUT_INVALID')
     if(!boundedReplyAccepts(result.reply,boundedReply))throw new HttpError(502,'BOUNDED_REPLY_INVALID')
     staged.coach=undefined;staged.candidates=[];staged.memoryChanges=[];staged.growth=undefined
@@ -596,6 +598,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       result.reply+='\n\n'+renderProposedWeeklyPlan(planInput)
     }
     const checkedCitations=await validateCoachCitations(result.reply,result.citations??[],knowledge,current.content,messages.filter(row=>row.role==='user').map(row=>row.content))
+    if(requestedGuide&&checkedCitations.refs.length&&!checkedCitations.refs.some(ref=>ref.sourceId===requestedGuide.id))throw new HttpError(400,'COACH_CITATION_INVALID')
     result.reply=checkedCitations.text
     // P5.3 step 8: the final reply must not contradict the verified effects.
     try{
@@ -947,6 +950,17 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(result.background?.length){
       for(const fact of result.background)if(fact.source.messageId!==run.source_message_id||!fact.source.quote.trim()||!current.content.includes(fact.source.quote)||!fact.source.quote.includes(fact.value))throw new HttpError(400,'COACH_BACKGROUND_INVALID')
       staged.memoryChanges=await stageCoachBackground(run.user_id,run.conversation_id,run.source_message_id,result.background,snapshot)
+    }
+    // A cited, explicitly requested method must retain its task identity even
+    // when the model only returns prose. Bind only a current owned task clause;
+    // no biography, completed action or guessed historical identity is created.
+    if(!result.event&&!currentEvent&&!matchingGuideEvent&&!readOnlyQuestion&&!currentConversationOnly(current.content)&&requestedGuide&&checkedCitations.refs.some(ref=>ref.sourceId===requestedGuide.id)&&(newMatterExplicit||!retrieval.ambiguous)){
+      const task=reportedTaskBoundaryClauses(current.content).find(clause=>!refusalPreferenceClause(clause.text)&&!conversationPreferenceClause(clause.text))??resourceBlockedPersonalFactClauses(current.content)[0]??negativePersonalFactClauses(current.content)[0]
+      if(task){
+        const source={messageId:run.source_message_id,quote:task.text}
+        result.event={target:{operation:'create',title:task.text.slice(0,120),source},nodes:[{kind:'fact',source}]}
+        staged.audit.push({phase:'guide_task_source_bound',guideId:requestedGuide.id,providerCalls:0})
+      }
     }
     if(result.event){
       // Only identities actually supplied in this user's authorized snapshot

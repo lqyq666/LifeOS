@@ -71,7 +71,7 @@ export function reportedTaskBoundaryClauses(text:string){
  const clauses=anchorablePersonalClauses(text)
  return clauses.filter(clause=>refusalPreferenceClause(clause.text)
   ||scopedTaskPauseClause(clause.text)
-  ||(/^(?:但)?第[一二三四五六七八九十\d]+(?:道|个)?题(?:还是|还)?(?:不会做|不会|不懂|没思路|没有思路|不知道从哪里下手)$/.test(clause.text)
+  ||(/^(?:但)?(?:我的(?:课程|作业)?)?第[一二三四五六七八九十\d]+(?:道|个)?题(?:还是|还)?(?:不会做|不会|不懂|没思路|没有思路|不知道从哪里下手)$/.test(clause.text)
    &&clauses.some(other=>other.sentenceStart===clause.sentenceStart&&/(?:我|本人)/.test(other.text))))
 }
 
@@ -132,20 +132,21 @@ export function deriveTurnContract(input:{
   currentEventExists:boolean
   planIntent:boolean
   material:boolean
+  readOnly?:boolean
 }):TurnContract{
   // Ordinary generation offers composable outputs. Only explicit user controls,
   // requested planning and available sources narrow the contract; legacy modes
   // never classify a sentence and close another legitimate output lane.
   const supportOnly=currentConversationOnly(input.text)
   const capabilities:TurnContractCapabilities={
-    growth:true,
+    growth:!input.readOnly,
     // Experience extraction and star-map updates are program-owned. The main
     // model need not generate a second copy of the same autobiographical span.
     candidate:false,
-    plan:!supportOnly&&input.planIntent,
-    citations:!supportOnly&&input.knowledgeCount>0,
-    event:!supportOnly,
-    material:!supportOnly,
+    plan:!input.readOnly&&!supportOnly&&input.planIntent,
+    citations:!input.readOnly&&!supportOnly&&input.knowledgeCount>0,
+    event:!input.readOnly&&!supportOnly,
+    material:!input.readOnly&&!supportOnly,
   }
   const schema=slimActionCoachSchema(capabilities)
   if(capabilities.citations&&input.knowledgeIds){

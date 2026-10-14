@@ -52,7 +52,7 @@ export function assistantRequestClause(text:string):boolean{
   ||/^(?:我想|现在想|请)?把[^。！？\n]{0,24}(?:消息|邮件|短信|文案|草稿|问题|简历|描述)[^。！？\n]{0,12}(?:改短|缩短|润色|重写)/.test(clause)
   ||/^(?:先|继续)(?:处理|解决|看|聊|整理|核对)(?:这个|这件|原来|刚才|上述|一下)/.test(clause)
   ||/^(?:请|麻烦)(?:按|根据|结合|基于|依据)[^。！？\n]{0,24}(?:帮我|给我|替我)(?:选|找|确定|想|分析|安排|写)/.test(clause)
-  ||/^(?:请)?不要(?:把|将)[^。！？\n]{0,36}(?:当作|看作|视为|算作|推断|判断|认定|说成)/.test(clause)
+  ||/^(?:请)?(?:不要|别)(?:把|将)[^。！？\n]{0,36}(?:当作|当成|看作|视为|算作|算成|推断|判断|认定|说成)/.test(clause)
 }
 // A status report alone does not express an affirmative pursuit. A separate
 // explicit wish remains valid even if the student has not started it yet.
