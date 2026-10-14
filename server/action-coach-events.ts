@@ -8,6 +8,7 @@ import type { Run } from './store.ts'
 import type { CoachKnowledgeRef } from './coach-knowledge.ts'
 import { growthQuoteSuppressed } from './growth-privacy.ts'
 import {reconcileActionStages,type ActionCase} from './workflows/action-review.ts'
+import {scanUserClauses} from './user-command-spans.ts'
 
 // Provider selections are rendered before staging. Keep the provider contract
 // unchanged while checking the complete server-created provenance here.
@@ -137,6 +138,13 @@ function materialRequest(text:string,operation:'create'|'modify'):'requested'|'d
 }
 export function deliverableIntent(text:string,operation:'create'|'modify'){
   return materialRequest(text,operation)==='requested'
+}
+// Explicit blank forms contain no inferred personal or job facts. They use the
+// existing material transaction and the same user-clause/request authority.
+export function requestedBlankJobWorksheet(text:string){
+ const clauses=scanUserClauses(text).filter(clause=>!clause.quoted&&!clause.code&&!clause.attributedToOther&&!clause.conditional&&!clause.interrogative)
+ if(!clauses.some(clause=>deliverableIntent(clause.text,'create')&&/岗位/.test(clause.text)&&/核对表|空白表|填写表/.test(clause.text))||!clauses.some(clause=>/未知处留空|未知.*留空|空白.*模板/.test(clause.text)))return null
+ return {readiness:'template' as const,content:'岗位职责与要求核对表（待填写）\n\n岗位名称：________\n公开说明链接：________\n发布单位：________\n截止时间：________\n\n一项职责（摘录公开说明原文）：________\n一项要求（摘录公开说明原文）：________\n我的对应证据（没有则留空）：________\n目前仍不知道的事：________\n\n未查到的字段留空，不补造要求。填写或复制此表不表示已投递、已被采用或具备岗位能力。'}
 }
 export function requiresImmediateMaterial(text:string){
   return deliverableIntent(text,'create')&&text.split(/[，,。！？!?；;\n]/).some(part=>{

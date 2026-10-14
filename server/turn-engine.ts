@@ -10,7 +10,7 @@ import { stream, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
 import { providerError } from './provider-errors.ts'
 import { parseActionCoachTurn, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
-import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation, type CoachEvent } from './action-coach-events.ts'
+import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation,requestedBlankJobWorksheet, type CoachEvent } from './action-coach-events.ts'
 import { estimateTokens } from './context.ts'
 import { loadSnapshot, stageCoachBackground } from './memory.ts'
 import { initialModelRoute, readKnownMajor } from './model-router.ts'
@@ -1095,11 +1095,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     const edit=requestedQuestionEditClauses(current.content)[0]?.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/,'').trim()
     const compressed=scanUserClauses(current.content).find(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/^把(?:这个|上次的|我要问的)?问题压成一句[:：]/.test(clause.text))?.text.replace(/^把(?:这个|上次的|我要问的)?问题压成一句[:：]/,'').replace(/^我想(?:了解|问|知道)/,'').trim()
     const question=(edit??compressed)?.replace(/[。？?]+$/,'')
-    const draft=contribution.length===1?{kind:'resume_portfolio' as const,selectedFactIds:[...(contributionWork.length===1?[contributionWork[0]!.catalogueId]:[]),contribution[0]!.catalogueId]}:question&&question.length<=159?{content:question+'？'}:undefined
+    const worksheet=requestedBlankJobWorksheet(current.content)
+    const draft=worksheet??(contribution.length===1?{kind:'resume_portfolio' as const,selectedFactIds:[...(contributionWork.length===1?[contributionWork[0]!.catalogueId]:[]),contribution[0]!.catalogueId]}:question&&question.length<=159?{content:question+'？'}:undefined)
     if(draft){
       const previous=currentEvent?.actions.find(action=>action.status==='proposed')
-      explicitMaterial={reply:'按你提供的内容，整理如下：',event:{target:currentEvent?{operation:'continue',eventId:currentEvent.id,expectedRevision:currentEvent.revision}:{operation:'create',title:contribution.length===1?'作品描述':'问题草稿',source:{messageId:run.source_message_id,quote:current.content}},action:previous?{operation:'modify',actionId:previous.id,expectedRevision:previous.revision,draft}:{operation:'create',draft}}}
-      staged.audit.push({phase:'explicit_material_rendered_without_generation',basis:contribution.length===1?'unique_verified_contribution':'complete_user_supplied_question',providerCalls:0})
+      explicitMaterial={reply:'按你提供的内容，整理如下：',event:{target:currentEvent?{operation:'continue',eventId:currentEvent.id,expectedRevision:currentEvent.revision}:{operation:'create',title:worksheet?'岗位核对表':contribution.length===1?'作品描述':'问题草稿',source:{messageId:run.source_message_id,quote:current.content}},action:previous?{operation:'modify',actionId:previous.id,expectedRevision:previous.revision,draft}:{operation:'create',draft}}}
+      staged.audit.push({phase:'explicit_material_rendered_without_generation',basis:worksheet?'explicit_blank_job_worksheet':contribution.length===1?'unique_verified_contribution':'complete_user_supplied_question',providerCalls:0})
     }
   }
   try{

@@ -185,6 +185,23 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
     return {run,staged,input:{run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:(_event:any)=>{}}}
   }
   try{
+    await t.test('saved real timeout case delivers and commits a blank worksheet with zero provider calls',async()=>{
+      const text='刚才只有前缀，没有核对表。我仍未开始查岗位，这周只剩二十分钟。先帮我写一个可以直接复制填写的岗位职责和要求核对表，未知处留空；不要替我发送消息，不要把这个模板记为已经完成的行动。'
+      const worksheetUser='worksheet-'+randomUUID(),worksheetChat=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[worksheetUser,worksheetUser+'@example.invalid'])
+      await store.createConversation(worksheetUser,{id:worksheetChat,title:'SYNTHETIC blank worksheet'})
+      const run=(await store.startRun(worksheetUser,worksheetChat,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
+      const prepared={run,staged,input:{run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:(_event:any)=>{}}}
+      const before=requests.length,result=await engine(prepared.input)
+      assert.equal(requests.length,before)
+      assert.match(result.text,/岗位职责与要求核对表（待填写）/)
+      assert.match(result.text,/一项职责.*________/)
+      assert.match(result.text,/一项要求.*________/)
+      assert.equal(prepared.staged.candidates.length,0)
+      assert.ok(prepared.staged.audit.some((row:any)=>row.phase==='explicit_material_rendered_without_generation'&&row.basis==='explicit_blank_job_worksheet'))
+      await store.finishRun(prepared.run,prepared.staged,result.text,result.usage,new AbortController().signal)
+      assert.equal((await pool.query('select count(*)::int n from experiences where user_id=$1',[worksheetUser])).rows[0].n,0)
+    })
     // reply_only: schema offers ONLY reply; the turn saves with zero growth writes.
     const meta=await prepare('你记得我之前说过什么吗？')
     outputs.push({reply:boundedRecallReply('你记得我之前说过什么吗？',[]).choices[0]})

@@ -3,8 +3,13 @@ import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { pool } from '../../server/db.ts'
 import * as store from '../../server/store.ts'
-import { stageCoachEvent, coachEventView, deliverableIntent, requiresImmediateMaterial } from '../../server/action-coach-events.ts'
+import { stageCoachEvent, coachEventView, deliverableIntent, requiresImmediateMaterial,requestedBlankJobWorksheet } from '../../server/action-coach-events.ts'
 import type { EventDelta } from '../../server/action-coach-contracts.ts'
+test('blank job worksheet is an explicit editable template, never an inferred job or performed action',()=>{
+ const draft=requestedBlankJobWorksheet('先帮我写一个岗位职责和要求核对表，未知处留空。')!
+ assert.equal(draft.readiness,'template');assert.match(draft.content,/职责.*原文/);assert.match(draft.content,/不表示已投递/)
+ for(const text of ['不要帮我写岗位核对表，未知处留空。','如果帮我写岗位核对表，未知处留空，会怎么样？','同学说先帮我写岗位核对表，未知处留空。','“先帮我写一个岗位核对表，未知处留空。”','帮我填好这个真实岗位核对表。'])assert.equal(requestedBlankJobWorksheet(text),null,text)
+})
 
 test('actual UI minimal-action request must not become an empty material preamble',()=>{
   const inputs=[
