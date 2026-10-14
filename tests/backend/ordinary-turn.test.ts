@@ -13,7 +13,8 @@ import {setMemorySettings} from '../../server/memory.ts'
 import {deriveTurnContract,bindPlanBudgetSchema,taskOutcomeReadback} from '../../server/turn-contract.ts'
 import {requiresImmediateMaterial,deliverableIntent} from '../../server/action-coach-events.ts'
 import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
-import {selectStructuralCandidate} from '../../server/experience-content.ts'
+import {selectStructuralCandidate,clauseReportsCompleted} from '../../server/experience-content.ts'
+import {parseActionCoachTurn} from '../../server/action-coach-contracts.ts'
 import {boundedRecallReply} from '../../server/bounded-reply.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {readGuideUsage} from '../../server/guide-usage.ts'
@@ -34,6 +35,19 @@ test('real mixed report keeps editing commands out of the experience and reads l
   assert.equal(outcome.adoption.status,'reported_not_used')
   assert.equal(outcome.payment.status,'reported_unpaid')
   assert.equal(outcome.effect.status,'unknown')
+  assert.equal(clauseReportsCompleted('我问了一个同学'),true)
+  assert.equal(clauseReportsCompleted('同学问了我'),false)
+  assert.equal(clauseReportsCompleted('我打算问了再决定'),false)
+})
+
+test('provider material metadata cannot authorize source or readiness',()=>{
+  const c=deriveTurnContract({text:'帮我写一句消息',knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+  assert.ok(!JSON.stringify(c.schema).includes('materialEvidence'))
+  const result=parseActionCoachTurn(JSON.stringify({reply:'这里是简短消息。',event:{target:{operation:'create',title:'请教消息',source:{messageId:randomUUID(),quote:'帮我写一句消息'}},action:{operation:'create',draft:{content:'你好，方便请教一下吗？',readiness:'ready',materialEvidence:[{type:'invented_authority'}],materialFactIds:['fake']}}}}))
+  const action=result.event!.action!
+  assert.ok('draft'in action)
+  assert.equal('materialEvidence'in action.draft,false)
+  assert.equal('readiness'in action.draft,false)
 })
 
 test('real natural requests bind material delivery without taking over review',()=>{
@@ -136,7 +150,7 @@ test('single ordinary generation preserves mixed delivery and real transaction b
     await t.test('review does not rewrite declined material or force a fixed response',async()=>{
       const input=await prepare('填过表但卡住了，别重写，我不知道选哪个岗位。')
       const reply='卡住的是岗位选择，先保留你已经填的表。里面哪两个岗位让你拿不准？'
-      outputs.push({reply})
+      outputs.push({reply,event:{target:{operation:'create',title:'岗位比较受阻',source:{messageId:input.run.source_message_id,quote:'填过表但卡住了'}},nodes:[{kind:'fact',source:{messageId:input.run.source_message_id,quote:'填过表但卡住了'}}],action:{operation:'create',draft:{content:'不被用户要求的第二份表格'}}}})
       const before=requests.length,result=await engine(input)
       assert.equal(requests.length-before,1)
       assert.equal(result.text,reply)

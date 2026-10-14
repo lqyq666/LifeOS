@@ -108,6 +108,11 @@ export type ResumePortfolioDraft=Static<typeof resumePortfolioDraftSchema>
 
 export function parseActionCoachTurn(raw:string):ActionCoachTurn {
   const output=JSON.parse(raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')) as unknown
+  // Provider-authored metadata has no authority. Provenance and readiness are
+  // rebuilt from the host catalogue after this parser, never accepted from a
+  // model's invented field/type or claim that the material was verified.
+  const draft=(output as any)?.event?.action?.draft
+  if(draft&&typeof draft==='object'&&!Array.isArray(draft))for(const key of ['readiness','missingRequired','materialFactIds','materialEvidence'])delete draft[key]
   // Constrained decoding sometimes satisfies a required expiry with an empty
   // string. It carries no time information, so treat it as absent and let the
   // staging guards decide whether that item survives.

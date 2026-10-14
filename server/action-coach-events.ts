@@ -120,7 +120,7 @@ const materialVerb=/(?:写|起草|拟|做|改|换|压成|缩短|润色|重写|�
 // A bare 别 is a command only when it introduces a material/contact verb.
 // Narrative nouns such as 别的发送方式 must not become a lasting stop request.
 const negativeRequest=new RegExp('(?:不要|不用|不必|不想|不需要|无需|别(?=(?:再|先|帮我|替我|给我)*'+materialVerb.source+')|暂不|先不|^不)')
-function materialRequest(text:string,operation:'create'|'modify'):'requested'|'declined'|'unspecified'{
+export function materialRequest(text:string,operation:'create'|'modify'):'requested'|'declined'|'unspecified'{
   // A declined request contains the same verbs as an affirmative one. Evaluate
   // clauses separately so "不用写长邮件，帮我写一句" keeps its positive
   // request without treating "不要帮我写，只想聊聊" as permission.
@@ -139,6 +139,17 @@ function materialRequest(text:string,operation:'create'|'modify'):'requested'|'d
 }
 export function deliverableIntent(text:string,operation:'create'|'modify'){
   return materialRequest(text,operation)==='requested'
+}
+export function effectiveMaterialRequest(text:string,operation:'create'|'modify',event:CoachEvent|null){
+  let disposition=materialRequest(text,operation)
+  if(disposition==='unspecified'&&event){
+    for(const turn of [...event.processTurns??[]].reverse()){
+      const fragments=[...turn.inputSources??[],...event.nodes.filter(node=>turn.nodeIds.includes(node.id)&&node.source).map(node=>node.source!)]
+      const previous=materialRequest(fragments.map(source=>source.quote).join('\n'),operation)
+      if(previous!=='unspecified'){disposition=previous;break}
+    }
+  }
+  return {disposition,inheritedCreateRequest:operation==='create'&&disposition==='requested'&&materialRequest(text,operation)==='unspecified'&&Boolean(event)&&!event!.actions.some(action=>action.status==='proposed')}
 }
 // Explicit blank forms contain no inferred personal or job facts. They use the
 // existing material transaction and the same user-clause/request authority.
@@ -228,18 +239,10 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
   if(delta.action&&delta.action.operation!=='close'){
     const operation=delta.action.operation==='modify'?'modify':'create'
     const current=await sourceContent(c,run.user_id,{messageId:run.source_message_id,conversationId:run.conversation_id,quote:''})
-    let disposition=materialRequest(current??'',operation)
-    if(disposition==='unspecified'&&delta.target.operation==='continue'){
-      // Use only the existing authorized view, whose source withdrawal and
-      // correction filtering also governs the model's process/request context.
-      const event=await readCoachEvent(c,run.user_id,run.conversation_id,delta.target.eventId)
-      for(const turn of [...event.processTurns??[]].reverse()){
-        const fragments=[...turn.inputSources??[],...event.nodes.filter(node=>turn.nodeIds.includes(node.id)&&node.source).map(node=>node.source!)]
-        const previous=materialRequest(fragments.map(source=>source.quote).join('\n'),operation)
-        if(previous!=='unspecified'){disposition=previous;break}
-      }
-      inheritedCreateRequest=delta.action.operation==='create'&&disposition==='requested'&&!event.actions.some(action=>action.status==='proposed')
-    }
+    const event=materialRequest(current??'',operation)==='unspecified'&&delta.target.operation==='continue'?await readCoachEvent(c,run.user_id,run.conversation_id,delta.target.eventId):null
+    const effective=effectiveMaterialRequest(current??'',operation,event)
+    inheritedCreateRequest=delta.action.operation==='create'&&effective.inheritedCreateRequest
+    const disposition=effective.disposition
     if(disposition==='declined')throw new HttpError(400,'COACH_ACTION_DECLINED')
   }
   if(delta.action&&'draft' in delta.action){

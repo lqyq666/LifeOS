@@ -49,7 +49,8 @@ export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]):
 export function clauseReportsCompleted(text: string): boolean {
   if(/(?:没(?:有)?|尚未|还未|未曾).{0,6}(?:开始|完成|做|复习|尝试|交付|发|提交)/.test(text))return false
   if(/(?:记录|经历).{0,6}(?:保留|留着|不(?:用|要)?删)|(?:保留|留着).{0,6}(?:记录|经历)/.test(text))return false
-  return (COMPLETED_ACTION.test(text)||clauseReportsAttempted(text)) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
+  const ownedContactOrForm=/^(?:我|本人)(?:已经|实际|今天|昨天|刚刚|之前)?(?:问了|问过|聊过|填过|填了)/.test(text)
+  return (COMPLETED_ACTION.test(text)||ownedContactOrForm||clauseReportsAttempted(text)) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
 }
 
 // An attempt is an actual contribution, not successful completion of its task.

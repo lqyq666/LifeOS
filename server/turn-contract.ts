@@ -165,6 +165,12 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
     required?:string[]
   }
   const properties=schema.properties
+  const action=(properties.event as any)?.properties?.action
+  for(const branch of action?.anyOf??[]){
+    for(const draft of branch.properties?.draft?.anyOf??[]){
+      for(const key of ['readiness','missingRequired','materialFactIds','materialEvidence'])if(draft.properties)delete draft.properties[key]
+    }
+  }
   // The legacy background lane is never offered under the native growth
   // protocol regardless of mode.
   delete properties.background
