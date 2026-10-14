@@ -90,6 +90,12 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
       else entryButton.current?.focus()
     })
   }
+  const openCognition = () => {
+    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    setConversationOpen(false)
+    if (controller.view.mode === 'LANDING') controller.enter('conversation')
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('[data-focus-key="rail"]')?.focus())
+  }
   useEffect(() => {
     let generation = 0
     const changed = async () => {
@@ -244,7 +250,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     {view.mode === 'EXPERIENCE_DETAIL' && <RecordPanel controller={controller} onBack={back} />}
     {themePanelOpen && view.focusValueId?.startsWith('theme-') && <ThemePanel themeNodeId={view.focusValueId} onClose={() => setThemePanelOpen(false)} />}
     {!landing && view.mode !== 'EXPERIENCE_DETAIL' && <div className="timeaxis-wrap"><TimeAxis events={liveGraph.data.changeEvents ?? []} nextStep={liveGraph.data.starmapNextStep} onJumpChat={openConversation} /></div>}
-    {conversationVisited && <ConversationPage open={conversationOpen} onClose={closeConversation} onRequestAuth={onDone => openAuth('login', onDone)} sessionRefresh={sessionRefresh} />}
+    {conversationVisited && <ConversationPage open={conversationOpen} onClose={closeConversation} onOpenCognition={openCognition} onRequestAuth={onDone => openAuth('login', onDone)} sessionRefresh={sessionRefresh} />}
     {authMode && <AuthForm key={authNavigation} mode={authMode} onModeChange={changeAuthMode} onDone={completeAuth} onCancel={cancelAuth} />}
   </div>
 }

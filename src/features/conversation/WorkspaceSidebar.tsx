@@ -7,13 +7,14 @@ type Edit = { kind: 'chat' | 'project' | 'new'; id: string; name: string; descri
 type Props = {
   workspace: Workspace; busy: boolean; open: boolean; mobile: boolean; projectId: string | null
   onClose: () => void; onExit: () => void; onSelect: (id: string) => void; onProject: (id: string) => void
+  onOpenCognition?: () => void
   onNew: (projectId?: string | null) => void; onChat: (id: string, patch: Partial<Chat>) => void
   onSaveProject: (id: string | null, name: string, description: string) => void
   accountConnected?: boolean
 }
 
 export function WorkspaceSidebar(props: Props) {
-  const { workspace, busy, open, mobile, projectId, onClose, onExit, onSelect, onProject, onNew, onChat, onSaveProject } = props
+  const { workspace, busy, open, mobile, projectId, onClose, onExit, onOpenCognition=onExit, onSelect, onProject, onNew, onChat, onSaveProject } = props
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [edit, setEdit] = useState<Edit | null>(null)
@@ -84,7 +85,7 @@ export function WorkspaceSidebar(props: Props) {
     <nav className="qa-sidebar-actions" aria-label="工作区导航">
       <button type="button" disabled={busy} onClick={() => onNew()}><Icon name="compose" /><span>新对话</span><kbd>↗</kbd></button>
       <button type="button" onClick={() => { setSearchOpen(!searchOpen); setQuery('') }} aria-expanded={searchOpen}><Icon name="search" /><span>搜索对话</span></button>
-      <button type="button" onClick={onExit}><Icon name="orbit" /><span>认知空间</span></button>
+      <button type="button" onClick={onOpenCognition}><Icon name="orbit" /><span>认知空间</span></button>
     </nav>
     {searchOpen && <div className="qa-sidebar-search"><input ref={search} aria-label="搜索对话" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索标题或内容" /></div>}
     <div className="qa-sidebar-scroll">

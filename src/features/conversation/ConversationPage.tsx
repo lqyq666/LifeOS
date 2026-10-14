@@ -18,7 +18,7 @@ import { api, ApiError, dataChanged, explainError, loadWorkspace, streamChat, ty
 import './conversation.css'
 import './workspace.css'
 
-export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh }: { open: boolean; onClose: () => void; onRequestAuth: (onDone: () => Promise<void>) => void; sessionRefresh: RefObject<(() => Promise<void>) | null> }) {
+export function ConversationPage({ open, onClose, onOpenCognition=onClose, onRequestAuth, sessionRefresh }: { open: boolean; onClose: () => void; onOpenCognition?: () => void; onRequestAuth: (onDone: () => Promise<void>) => void; sessionRefresh: RefObject<(() => Promise<void>) | null> }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [memoryOpen, setMemoryOpen] = useState(false)
@@ -402,7 +402,7 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
 
   return <dialog ref={dialog} tabIndex={-1} className="qa-page" aria-label="LifeOS 聊一聊" onCancel={event => { event.preventDefault(); if (memoryOpen) closeMemory(); else if (mobile && sidebarOpen) closeSidebar(); else onClose() }}>
     <div className="qa-app-layout">
-      <WorkspaceSidebar workspace={workspace} busy={busy || connecting} accountConnected={!!user} open={sidebarOpen} mobile={mobile} projectId={projectId} onClose={closeSidebar} onExit={onClose} onSelect={selectChat} onProject={openProject} onNew={createChat} onChat={patchChat}
+      <WorkspaceSidebar workspace={workspace} busy={busy || connecting} accountConnected={!!user} open={sidebarOpen} mobile={mobile} projectId={projectId} onClose={closeSidebar} onExit={onClose} onOpenCognition={onOpenCognition} onSelect={selectChat} onProject={openProject} onNew={createChat} onChat={patchChat}
         onSaveProject={(id, name, description) => {
           const nextId = id ?? crypto.randomUUID()
           setWorkspace(value => ({ ...value, projects: id ? value.projects.map(item => item.id === id ? { ...item, name, description } : item) : [...value.projects, { id: nextId, name, description }] }))
@@ -418,12 +418,12 @@ export function ConversationPage({ open, onClose, onRequestAuth, sessionRefresh 
           {user && !project && <button ref={memoryTrigger} type="button" disabled={busy} aria-expanded={memoryOpen} aria-controls="qa-memory-panel" onClick={() => memoryOpen ? closeMemory() : setMemoryOpen(true)}>长期记忆</button>}
           {user ? <button type="button" disabled={busy} onClick={() => void logout()} title={user.email}>退出登录</button> : <button type="button" disabled={connecting} onClick={() => onRequestAuth(loggedIn)}>登录</button>}
           {!empty && !project && <button type="button" onClick={fresh} disabled={busy}>新对话</button>}
-          <button type="button" className="qa-space-return" onClick={onClose} aria-label="回到认知空间"><Icon name="orbit" /><span>认知空间</span></button>
+          <button type="button" className="qa-space-return" onClick={onOpenCognition} aria-label="回到认知空间"><Icon name="orbit" /><span>认知空间</span></button>
         </div>
       </header>
       {memoryOpen && user && !project && <MemoryPanel conversationId={!empty&&!conversation.demo?active.id:undefined} messageCount={conversation.messages.length} onClose={closeMemory} />}
       {storageNotice && <p className="qa-storage-notice" role="alert">{storageNotice}</p>}
-      {starMapUpdate && !busy && <button type="button" className="qa-starmap-chip" onClick={onClose}>✦ {starMapUpdate} · 查看星图</button>}
+      {starMapUpdate && !busy && <button type="button" className="qa-starmap-chip" onClick={onOpenCognition}>✦ {starMapUpdate} · 查看星图</button>}
 
       {project ? <main className="qa-project-page">
         <div className="qa-project-title"><Icon name="folder" size={28} /><h1>{project.name}</h1></div>
