@@ -1,3 +1,4 @@
+import {mainCompanionPolicy} from '../../server/companion-policy.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
@@ -178,11 +179,19 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
     const metaResult=await engine(meta.input)
     const metaContract=(meta.staged.audit.find((a:any)=>a.phase==='turn_contract')) as any
     assert.equal(metaContract.mode,'reply_only')
+    assert.ok(requests.at(-1).messages[0].content.includes(mainCompanionPolicy.instructions),'actual SDK wire consumes the main Skill business policy')
+    assert.ok(!requests.at(-1).messages[0].content.includes('Ensure the local server is up'),'external host setup is not a model capability')
+    const activation=meta.staged.audit.find((row:any)=>row.phase==='main_skill_payload') as Record<string,unknown>|undefined
+    assert.equal(activation?.policyDigest,mainCompanionPolicy.policyDigest)
+    assert.ok(meta.staged.audit.some((row:any)=>row.phase==='model_call_completed'&&row.callId===activation?.callId),'activation links to the completed call whose reply is saved')
+
     assert.deepEqual(Object.keys((requests.at(-1)!.response_format.json_schema.schema.properties)),['reply'],'native schema offers only reply')
     const metaContext=JSON.parse(requests.at(-1)!.messages.find((m:any)=>m.role==='user').content)
     assert.equal(metaContext.methodSourceAvailability.status,'NOT_REQUESTED')
     assert.ok(metaContract.schemaChars<JSON.stringify(actionCoachTurnSchema).length/10)
     const metaSaved=await store.finishRun(meta.run,meta.staged,metaResult.text,metaResult.usage,new AbortController().signal)
+    const committedAudit=(await pool.query('SELECT tool_audit FROM runs WHERE user_id=$1 AND request_id=$2',[user,meta.run.request_id])).rows[0].tool_audit as Record<string,unknown>[]
+    assert.ok(committedAudit.some(row=>row.phase==='main_skill_payload'&&row.callId===activation?.callId&&row.policyDigest===mainCompanionPolicy.policyDigest),'Skill payload evidence survives the actual turn transaction')
     assert.deepEqual(metaSaved.growthIds,[])
     assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1',[user])).rows[0].n,0)
     await t.test('planning turn keeps weeklyPlan and persists the plan',async()=>{

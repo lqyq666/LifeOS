@@ -1,4 +1,5 @@
 import {randomUUID} from 'node:crypto'
+import {mainCompanionPolicy} from './companion-policy.ts'
 import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from './provider-spend.ts'
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
@@ -96,6 +97,9 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     const eventTargets=[authorized.currentEvent,...authorized.events??[]].filter(Boolean).map((event:any)=>({id:event.id,revision:event.revision,activeUnknownIds:(event.nodes??[]).filter((node:any)=>node.kind==='unknown'&&node.status==='active').map((node:any)=>node.id),nodeIds:(event.nodes??[]).map((node:any)=>node.id),actionIds:(event.actions??[]).map((action:any)=>action.id)}))
     const source=stream(runtime.model,{systemPrompt,messages},{apiKey:runtime.apiKey,maxTokens:maxOutputTokens,timeoutMs:60000,maxRetries:0,signal,onPayload:(payload,selected)=>{
       const configured=configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,(authorized.growth??[]).map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(authorized.currentUserMessage.text),resumePortfolioCatalogueIds,slimUpdateTimeMode,clauseIds,requireCandidate,{clauses:buildClauseCatalogue(authorized.currentUserMessage.text),requestTimeUtc:authorized.requestTimeUtc})
+      // Actual outgoing instructions, tied to the existing call/completion and
+      // final commit receipt. Never log user context or assert model compliance.
+      if(JSON.stringify(configured).includes(JSON.stringify(mainCompanionPolicy.instructions).slice(1,-1)))staged.audit.push({phase:'main_skill_payload',callId,requestId,skill:mainCompanionPolicy.name,skillVersion:mainCompanionPolicy.version,skillDigest:mainCompanionPolicy.sourceDigest,policyDigest:mainCompanionPolicy.policyDigest,scope:mainCompanionPolicy.scope,status:'included_in_provider_payload'})
       // Explicit isolated instrumentation only. The observer cannot mutate the
       // actual outgoing body, and the production engine has no payload logger.
       if(observer?.payload)observer.payload(Object.freeze({...record}),structuredClone(configured))

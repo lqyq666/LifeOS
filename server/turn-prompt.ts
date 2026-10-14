@@ -5,6 +5,7 @@ import type { KnowledgeCard } from './campus-knowledge.ts'
 import type { Message } from '@mariozechner/pi-ai'
 import type { GrowthItem } from '../src/features/growth/types.ts'
 import type { TurnContract } from './turn-contract.ts'
+import {mainCompanionPolicy} from './companion-policy.ts'
 
 // Turn-contract prompt sections. The CORE block runs on every turn; each
 // lane's rules are appended only while that lane is open in the slimmed
@@ -58,7 +59,7 @@ export function turnSystemPrompt(tier:'default'|'reasoning'='default',modelId='q
   if(!contract){
     return FULL_PROMPT(tier,modelId)
   }
-  const sections:string[]=[CORE]
+  const sections:string[]=[mainCompanionPolicy.instructions,CORE]
   if(contract.capabilities.growth)sections.push(GROWTH)
   if(contract.capabilities.candidate)sections.push(CANDIDATE)
   if(contract.capabilities.plan)sections.push(PLANNING)
