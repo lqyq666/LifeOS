@@ -31,7 +31,7 @@ import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grou
 import { stageWeeklyPlan, renderProposedWeeklyPlan } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
-import { scanUserClauses,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,refusalPreferenceClause } from './user-command-spans.ts'
+import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,refusalPreferenceClause } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseExpressesWishToAct, clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
@@ -505,7 +505,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         &&!(turnDerivedControls.status==='explicit'&&turnDerivedControls.changes.some(change=>change.quote===handle.text))
         &&!negativePersonalFactClauses(current.content).some(clause=>clause.text===handle.text)
         &&!deliverableIntent(handle.text,'create')
-        &&!conversationPreferenceClause(handle.text)
+        &&!assistantRequestClause(handle.text)
         &&!deferredPursuitClause(handle.text)
         &&!/^我(?:今天|现在|目前|这次)?(?:只想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说说|说点|倾诉|吐槽|陪我)/.test(handle.text)
         &&!/^我.{0,6}不想(?:再|继续)?(?:聊|说|讨论)/.test(handle.text)
@@ -679,7 +679,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     const contributionFacts=scanUserClauses(current.content).filter(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&(/^我(?:只)?负责.{1,80}$/.test(clause.text)||(/^(?:补充(?:作品|项目)分工[:：])?.{1,20}(?:由|是)(?:同伴|同学|队友).{0,12}(?:完成|负责|画的)$/.test(clause.text)&&clauseCatalogue.some(own=>!own.conditional&&!own.interrogative&&!own.attributedToOther&&/^我(?:只)?负责/.test(own.text)))))
     const explicitTaskFacts=[...contributionFacts,...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content),...reportedAdoptionClauses(current.content),...requestedQuestionEditClauses(current.content),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content,growthAll.some(item=>item.assertion==='user_reported'&&item.kind==='feedback'&&item.progressState==='completed')),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
     const taskFactSupplement=snapshot.settings.enabled&&!readOnlyQuestion?[...new Map(explicitTaskFacts.map(clause=>[clause.text,clause])).values()].filter(clause=>
-      !conversationPreferenceClause(clause.text)&&
+      !assistantRequestClause(clause.text)&&
       !controlClauseTexts.includes(clause.text)&&
       !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&
       !growthAll.some(item=>item.status==='active'&&!item.unavailableReason&&item.text===clause.text)
@@ -1079,7 +1079,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     const refusal=clauseCatalogue.find(c=>refusalPreferenceClause(c.text))!
     // A personal task can be stored as feedback or context. Bind the boundary
     // to its original record without changing its kind or inventing a goal.
-    const primaryCandidates=growthAll.filter(item=>((['goal','direction'].includes(item.kind)&&['user_reported','user_edit'].includes(item.assertion))||(item.kind==='priority'&&Boolean(item.structuredPlan))||(['context','feedback'].includes(item.kind)&&['user_reported','user_edit'].includes(item.assertion)&&scanUserClauses(item.text).some(clause=>!clause.quoted&&!clause.code&&!clause.quoteSpans.length&&!clause.codeSpans.length&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative&&/^我/.test(clause.text.trim())&&clauseExpressesWishToAct(clause.text)&&!conversationPreferenceClause(clause.text)&&!deferredPursuitClause(clause.text))))&&['active','proposed'].includes(item.status)&&!item.unavailableReason&&!item.recommendationStopped)
+    const primaryCandidates=growthAll.filter(item=>((['goal','direction'].includes(item.kind)&&['user_reported','user_edit'].includes(item.assertion))||(item.kind==='priority'&&Boolean(item.structuredPlan))||(['context','feedback'].includes(item.kind)&&['user_reported','user_edit'].includes(item.assertion)&&scanUserClauses(item.text).some(clause=>!clause.quoted&&!clause.code&&!clause.quoteSpans.length&&!clause.codeSpans.length&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative&&/^我/.test(clause.text.trim())&&clauseExpressesWishToAct(clause.text)&&!assistantRequestClause(clause.text)&&!deferredPursuitClause(clause.text))))&&['active','proposed'].includes(item.status)&&!item.unavailableReason&&!item.recommendationStopped)
     const candidates=primaryCandidates.length?primaryCandidates:scoreForgetTargets(growthAll.filter(item=>item.kind==='context'&&['user_reported','user_edit'].includes(item.assertion)&&item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&!item.taskBoundary),refusal.text,current.content).filter(entry=>entry.overlap>=2).map(entry=>entry.item)
     const previousUser=(await pool.query("SELECT id FROM messages WHERE user_id=$1 AND conversation_id=$2 AND role='user' AND id<>$3 AND created_at<=(SELECT created_at FROM messages WHERE id=$3) ORDER BY created_at DESC,id DESC LIMIT 1",[run.user_id,run.conversation_id,current.id])).rows[0] as {id:string}|undefined
     const directlyNamed=previousUser?candidates.filter(item=>item.sources.some(source=>source.type==='message'&&source.id===previousUser.id)):[]

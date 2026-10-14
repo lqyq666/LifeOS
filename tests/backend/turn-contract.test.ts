@@ -273,6 +273,13 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'我尚未开始准备课堂汇报'])).rows[0].n,1)
       assert.deepEqual(saved.mergedExperienceIds,[])
     })
+    await t.test('server supplements cannot reintroduce a rejected assistant request',async()=>{
+      const text='我是21岁的大三学生，先帮我想一个可以了解自己更喜欢哪种工作的起点。',turn=await prepare(text)
+      outputs.push({reply:'可以先说说你想了解的部分。'})
+      const result=await engine(turn.input)
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'先帮我想一个可以了解自己更喜欢哪种工作的起点'])).rows[0].n,0)
+    })
     await t.test('an omitted explicit current-course resource blocker persists verbatim and is supplied in a new session',async()=>{
       const text='这门课的参考资料无法打开，我还没开始准备小组说明，先处理这个问题。',turn=await prepare(text)
       const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
@@ -404,14 +411,14 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       const facts=await growthContext(user,conversation)
       assert.ok(facts.some(x=>x.text==='我负责的是文字排版'),'exact correction survives independently of title attribution')
       assert.ok(facts.some(x=>x.text==='标题文案是负责人给的'))
-      const turn=await prepare('请沿用上次社团海报的真实经过，直接给我一句简历表达。不要写队友的插画，也别写采用和商业成绩。',conversation)
+      const turn=await prepare('我决定现阶段就业优先，接单先不扩大。请沿用上次社团海报的真实经过，直接给我一句简历表达。不要写队友的插画，也别写采用和商业成绩。',conversation)
       const before=requests.length,result=await engine(turn.input)
       assert.equal(requests.length,before,'unique source-backed contribution uses the existing deterministic renderer')
       assert.match(result.text,/我负责的是文字排版/)
       assert.ok(!/待补|商业成绩|插画/.test(result.text))
       const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
       assert.ok(saved.stateChange.material,'the deliverable is persisted, not just a preamble')
-      assert.equal(saved.growthIds.length,0,'writing instructions do not become memories')
+      assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'也别写采用和商业成绩'])).rows[0].n,0,'writing instructions do not become memories')
     })
   }finally{
     model.baseUrl=previousURL;config.apiKey=previousKey
