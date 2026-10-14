@@ -7,6 +7,7 @@ test('actual UI action and interpretation instructions are not autobiographical 
  assert.equal(assistantRequestClause('请按我的实际情况帮我选一个能做的最小行动'),true)
  assert.equal(assistantRequestClause('不要把做过工具当作适合创业的证明'),true)
  assert.equal(assistantRequestClause('我想先了解就业实习'),false)
+ assert.equal(assistantRequestClause('那就用那个贡献核对方法吧'),true)
  assert.equal(assistantRequestClause('我不会把一次付款当作稳定收入'),false)
 })
 

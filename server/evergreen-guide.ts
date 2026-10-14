@@ -1,7 +1,7 @@
 import {createHash} from 'node:crypto'
 import {estimateTokens} from './context.ts'
 import type {KnowledgeCard} from './campus-knowledge.ts'
-import {scanUserClauses,currentConversationOnly} from './user-command-spans.ts'
+import {scanUserClauses,currentConversationOnly,assistantRequestClause} from './user-command-spans.ts'
 
 export type GuideReviewStatus='draft'|'needs_review'|'approved'|'rejected'|'retired'
 export type GuideClaim={id:string;text:string;basis:'source_supported'|'bounded_synthesis'|'editorial_adaptation'|'unsupported';evidenceIds:string[];scope:string;limitations:string}
@@ -81,7 +81,13 @@ export function knowledgeIntent(text:string,context:{eventTitle?:string;hasPrior
  const compare=/比较|对比|案例|失败路径|区别|取舍/.test(text)
  const stage=feedback?'adjust':compare?'compare':'start'
  const omitted=/^(?:那|这|又|还是|他们|客户)/.test(text.trim())||/^(?:怎么办|怎么调整|从哪下手)[？?]?$/.test(text.trim())
- const query=omitted&&context.eventTitle?text+'\n当前事情：'+context.eventTitle:text
+ let query=omitted&&context.eventTitle?text+'\n当前事情：'+context.eventTitle:text
+ // Resolve a short reference only from caller-authorized user history. Never
+ // use assistant suggestions or bypass history suppression to recover a name.
+ if(omitted&&/(?:那个|这个|刚才|上次).{0,20}(?:攻略|指南|方法)/.test(text)){
+  const prior=(context.lastUserTexts??[]).slice(-4).reverse().flatMap(previous=>scanUserClauses(previous).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&assistantRequestClause(c.text)&&/用|使用|按|参考|依据/.test(c.text)&&/攻略|指南|方法/.test(c.text)).map(c=>c.text)).find(clause=>/[“「][^”」]+[”」]/.test(clause))
+  if(prior)query+='\n此前本人指定的方法：'+prior
+ }
  const wantsCase=/案例|失败路径/.test(text)
  return make(wantsCase&&/方法|怎么|如何|从哪/.test(text)?'METHOD_CASE':wantsCase?'CASE':'METHOD','explicit_task',query,stage,feedback&&Boolean(context.hasPriorGuide))
 }

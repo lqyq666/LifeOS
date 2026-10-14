@@ -7,6 +7,15 @@ import {unsupportedMethodAssertion} from '../server/evergreen-scope-guard.ts'
 const root='.planning/research/evergreen/'
 const cards=readFileSync(root+'KB_GUIDES.jsonl','utf8').trim().split('\n').map(s=>JSON.parse(s)) as KnowledgeCard[]
 const benchmark=JSON.parse(readFileSync(root+'KB_QUERY_BENCHMARK.json','utf8'))
+
+test('a natural method reference uses only available user history and keeps new matters separate',()=>{
+ const previous='请用当前已审核的“从经历整理本人贡献”攻略。'
+ const text='那就用那个贡献核对方法吧。'
+ assert.match(knowledgeIntent(text,{eventTitle:'岗位核对表',lastUserTexts:[previous]}).query,/从经历整理本人贡献/)
+ assert.doesNotMatch(knowledgeIntent(text,{eventTitle:'岗位核对表',lastUserTexts:[]}).query,/从经历整理本人贡献/)
+ assert.doesNotMatch(knowledgeIntent('我想换个学习方法',{lastUserTexts:[previous]}).query,/从经历整理本人贡献/)
+ assert.doesNotMatch(knowledgeIntent(text,{lastUserTexts:['同学说请用“从经历整理本人贡献”攻略。']}).query,/从经历整理本人贡献/)
+})
 test('actual named approved guide request opens method retrieval without fabricating approval',()=>{
  const text='接着这份岗位核对表里的本人证据栏：上学期那个课程工具中，表格页面由我负责，其他部分是队友做的；采用、付款和效果仍未知。我现在想分清自己的贡献和队友的贡献。请用当前已审核的“从经历整理本人贡献”攻略，给出一项能开始、能停止的核对动作，并展示公开来源和适用边界。先不写简历成品，不把作品当稳定能力或商业成绩。'
  assert.equal(knowledgeIntent(text).decision,'METHOD')

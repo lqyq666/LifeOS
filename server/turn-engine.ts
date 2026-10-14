@@ -263,12 +263,13 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const historicalEvents=retrieval.events.filter(event=>event.id!==currentEvent?.id)
   preRetrievalMs=Math.round(performance.now()-engineStageClock)
   const knowledgeStart=performance.now()
+  const allContextMessages=await redactGrowthHistory(run.user_id,context.filter(row=>row.id===run.source_message_id||!snapshot.suppressedMessageIds?.includes(row.id)))
   // An unambiguous owned event can carry its method into another conversation.
   // A new or competing matter must not inherit that event's usage or branch.
   const guideEvent=currentEvent??(!retrieval.ambiguous&&historicalEvents.length===1?historicalEvents[0]:null)
   const matchingGuideEvent=guideEvent&&feedbackMatchesCurrent(current.content,guideEvent.title,guideEvent.title)?guideEvent:null
   const previousGuideUsage=matchingGuideEvent?await readGuideUsage(run.user_id,run.conversation_id,matchingGuideEvent.id):[]
-  const methodIntent=knowledgeIntent(current.content,{eventTitle:matchingGuideEvent?.title,hasPriorGuide:previousGuideUsage.length>0})
+  const methodIntent=knowledgeIntent(current.content,{eventTitle:matchingGuideEvent?.title,hasPriorGuide:previousGuideUsage.length>0,lastUserTexts:allContextMessages.filter(row=>row.role==='user'&&row.id!==run.source_message_id).map(row=>row.content)})
   const needsKnowledge=!['NONE','CLARIFY'].includes(methodIntent.decision)
   let knowledge=needsKnowledge?await retrieveCoachKnowledge(methodIntent.query,signal,methodIntent):[]
   staged.audit.push({phase:'knowledge_intent',decision:methodIntent.decision,reason:methodIntent.reason,stage:methodIntent.stage,providerCalls:0})
@@ -355,7 +356,6 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   knowledge=knowledge.filter(card=>methodContext.knowledge.some(row=>row.id===card.id))
   staged.audit.push({phase:'method_context',budgetTokens:methodContext.budgetTokens,estimatedTokens:methodContext.estimatedTokens,estimateKind:methodContext.estimateKind,dropped:methodContext.dropped,cardIds:knowledge.map(card=>card.id)})
   const contextKnowledge=[...(currentEvent?[currentEvent]:[]),...historicalEvents].flatMap(event=>event.actions.flatMap(action=>action.knowledgeRefs??[]))
-  const allContextMessages=await redactGrowthHistory(run.user_id,context.filter(row=>row.id===run.source_message_id||!snapshot.suppressedMessageIds?.includes(row.id)))
   // G4 placeholder: selection happens after the contract is derived (it needs
   // the mode); until then the full bounded context keeps today's behavior.
   let historySelection:{selected:typeof allContextMessages;totalMessages:number;totalChars:number;selectedChars:number}|null=null
