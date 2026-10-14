@@ -6,7 +6,7 @@ import {boundedOrdinaryReply,boundedRecallReply} from '../server/bounded-reply.t
 import {deriveTurnContract,negativePersonalFactClauses,reportsPersonalEvent,taskOutcomeReadback} from '../server/turn-contract.ts'
 import {deliverableIntent,requiresImmediateMaterial} from '../server/action-coach-events.ts'
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
-import {resolveSelectedMaterialFacts} from '../server/grounded-material.ts'
+import {resolveSelectedMaterialFacts,reportsOwnContribution} from '../server/grounded-material.ts'
 
 test('production compound recall cannot become a new pursuit',()=>{
  const text='你记得我想用什么渠道联系学长，目前是否已经联系吗？只按我之前报告的内容回答。'
@@ -94,4 +94,13 @@ test('saved real correction never replaces own contribution with another persons
  const result=resolveGrowthDeltas({currentMessageId:'m',currentText:text,catalogue,authorized:[old],correctionPlan:plan,controlClauseTexts:[],deltas:[{target:{operation:'create'},assertion:'user_reported',kind:'context',source:{clauseId:catalogue[1]!.clauseId}}]})
  assert.equal(result.deltas[0]?.source.quote,'标题文案是负责人给的')
  assert.equal(result.deltas[0]?.target.operation,'create','unrelated fact cannot consume the correction; engine fallback supplies the exact correction')
+})
+
+
+test('verbatim inverted contribution remains usable without expanding its scope',()=>{
+ const text='社团海报的文字排版是我做的'
+ assert.equal(reportsOwnContribution(text),true)
+ for(const other of ['插画是队友做的','文字排版不是我做的','如果文字排版是我做的'])assert.equal(reportsOwnContribution(other),false)
+ const result=resolveSelectedMaterialFacts(['own'],[{catalogueId:'own',field:'project',text,sourceKind:'user_reported',completeForField:false,sourceRef:{type:'growth',id:'own',revision:1}}],'u','u','contribution_sentence')
+ assert.equal(result.content,text+'。')
 })

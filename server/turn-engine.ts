@@ -27,7 +27,7 @@ import { redactGrowthHistory } from './growth-privacy.ts'
 import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCandidates, CozeRetrievalError } from './coze-knowledge.ts'
 import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKnowledge, CodeWorkflowError, type CodeWorkflowConfig } from './coze-code-workflow.ts'
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
-import { buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
+import { reportsOwnContribution, buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
 import { stageWeeklyPlan, renderProposedWeeklyPlan } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
@@ -676,7 +676,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // NP_NEG_01 / BS_RESOURCE_01: optional model deltas omitted explicit status.
     // Retain only the speaker's guarded verbatim status, never an experience,
     // inferred cause, goal or completion. Corrections and controls keep authority.
-    const contributionFacts=scanUserClauses(current.content).filter(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&(/^我(?:只)?负责.{1,80}$/.test(clause.text)||(/^(?:补充(?:作品|项目)分工[:：])?.{1,20}(?:由|是)(?:同伴|同学|队友).{0,12}(?:完成|负责|画的)$/.test(clause.text)&&clauseCatalogue.some(own=>!own.conditional&&!own.interrogative&&!own.attributedToOther&&/^我(?:只)?负责/.test(own.text)))))
+    const contributionFacts=scanUserClauses(current.content).filter(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&(reportsOwnContribution(clause.text)||(/^(?:补充(?:作品|项目)分工[:：])?.{1,20}(?:由|是)(?:同伴|同学|队友).{0,12}(?:完成|负责|画的)$/.test(clause.text)&&clauseCatalogue.some(own=>!own.conditional&&!own.interrogative&&!own.attributedToOther&&reportsOwnContribution(own.text)))))
     const explicitTaskFacts=[...contributionFacts,...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content),...reportedAdoptionClauses(current.content),...requestedQuestionEditClauses(current.content),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content,growthAll.some(item=>item.assertion==='user_reported'&&item.kind==='feedback'&&item.progressState==='completed')),...reportedPerformedTaskClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
     const taskFactSupplement=snapshot.settings.enabled&&!readOnlyQuestion?[...new Map(explicitTaskFacts.map(clause=>[clause.text,clause])).values()].filter(clause=>
       !assistantRequestClause(clause.text)&&
@@ -1090,7 +1090,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   let result:ActionCoachTurn,firstText:string|undefined
   let explicitMaterial:ActionCoachTurn|undefined
   if(contract.capabilities.material&&!boundaryNeedsClarification){
-    const contribution=contributionSentenceMode?materialCatalogue.filter(fact=>/^我负责/.test(fact.text)):[]
+    const contribution=contributionSentenceMode?materialCatalogue.filter(fact=>reportsOwnContribution(fact.text)):[]
     const contributionWork=contribution.length===1?materialCatalogue.filter(fact=>fact.label==='work_context'&&fact.contextKey&&fact.contextKey===contribution[0]!.contextKey):[]
     const edit=requestedQuestionEditClauses(current.content)[0]?.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/,'').trim()
     const compressed=scanUserClauses(current.content).find(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/^把(?:这个|上次的|我要问的)?问题压成一句[:：]/.test(clause.text))?.text.replace(/^把(?:这个|上次的|我要问的)?问题压成一句[:：]/,'').replace(/^我想(?:了解|问|知道)/,'').trim()

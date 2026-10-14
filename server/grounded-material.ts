@@ -1,6 +1,13 @@
 import {createHash} from 'node:crypto'
 import type { GrowthItem } from '../src/features/growth/types.ts'
 
+// Match explicit personal contribution reports in either common word order.
+// Preserve the original wording; this is not a claim of skill or adoption.
+export function reportsOwnContribution(text:string):boolean{
+ return /^我(?:只)?负责.{1,80}$/.test(text)
+  ||/^[^，。！？\n]{1,40}(?:由我负责|是我(?:做|完成|负责)的)$/.test(text)&&!/(?:不|并非|不是|如果|假如)/.test(text)
+}
+
 /** Renderer accepts server-verified catalogue entries, never free model factual prose. */
 export type MaterialField = 'identity' | 'target' | 'project' | 'skill' | 'contact'
 export type MaterialSourceRef =
@@ -134,7 +141,7 @@ export function buildMaterialFactCatalogue(growth:readonly GrowthItem[],confirme
       const fact=catalogue.find(entry=>entry.text===item.text&&entry.sourceRef.type==='growth'&&entry.sourceRef.id===item.id)
       if(fact){fact.label='work_context';fact.contextKey=item.conversationId}
     }
-    if(/^我(?:只)?负责/.test(item.text)&&!labeled.length)push('project',item.text,sourceKind,false,sourceRef)
+    if(reportsOwnContribution(item.text)&&!labeled.length)push('project',item.text,sourceKind,false,sourceRef)
     else if(bucket&&!labeled.length)push(bucket,item.text,sourceKind,false,sourceRef)
     for(const fact of catalogue.filter(entry=>entry.sourceRef.type==='growth'&&entry.sourceRef.id===item.id))fact.contextKey=item.conversationId
   }
@@ -171,7 +178,7 @@ export function resolveSelectedMaterialFacts(selectedIds:readonly string[],catal
   const selected=selectedIds.map(id=>catalogue.find(fact=>fact.catalogueId===id)).filter((fact):fact is VerifiedMaterialFact=>Boolean(fact))
   const rendered=renderGroundedResume(selectedIds,catalogue)
   if(format==='contribution_sentence'){
-    const contributions=selected.filter(fact=>fact.field==='project'&&/^我(?:只)?负责/.test(fact.text))
+    const contributions=selected.filter(fact=>fact.field==='project'&&reportsOwnContribution(fact.text))
     if(contributions.length!==1)throw new Error('MATERIAL_REFERENCE_INVALID')
     const fact=contributions[0]!
     const work=selected.filter(entry=>entry.label==='work_context'&&entry.contextKey&&entry.contextKey===fact.contextKey)
