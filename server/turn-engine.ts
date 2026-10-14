@@ -44,7 +44,7 @@ import { findEpisode } from './experience-episodes.ts'
 import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.ts'
 import { readRecommendationControls,listControlRequests } from './memory-controls.ts'
 import {knowledgeIntent,deduplicateGuides,methodPromptContext} from './evergreen-guide.ts'
-import {readGuideUsage,classifyGuideFeedback,feedbackMatchesCurrent} from './guide-usage.ts'
+import {readGuideUsage,readPriorGuideEvents,classifyGuideFeedback,feedbackMatchesCurrent} from './guide-usage.ts'
 import {boundedRecallReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts,type BoundedReply} from './bounded-reply.ts'
 export type FocusContext={type:'theme'|'experience';id:string;label:string}
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void;focusContext?:FocusContext|null}
@@ -273,16 +273,18 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // Several semantic neighbours do not imply several previously used methods.
   // Resolve a natural continuation only when exactly one authorized matching
   // event has actual valid guide usage; competing usages stay unresolved.
-  if(!currentEvent&&!previousGuideUsage.length&&methodReferenceClause(current.content)){
+  if(!previousGuideUsage.length&&methodReferenceClause(current.content)){
     const matches=[]
-    for(const event of historicalEvents.filter(event=>feedbackMatchesCurrent(current.content,event.title,event.title))){
+    const guideEvents=await readPriorGuideEvents(run.user_id,run.conversation_id)
+    for(const event of guideEvents.filter(event=>feedbackMatchesCurrent(current.content,event.title,event.title))){
       const usage=await readGuideUsage(run.user_id,run.conversation_id,event.id)
       if(usage.length)matches.push({event,usage})
     }
     if(matches.length===1){matchingGuideEvent=matches[0].event;previousGuideUsage=matches[0].usage}
   }
   const methodIntent=knowledgeIntent(current.content,{eventTitle:matchingGuideEvent?.title,hasPriorGuide:previousGuideUsage.length>0,lastUserTexts:allContextMessages.filter(row=>row.role==='user'&&row.id!==run.source_message_id).map(row=>row.content)})
-  if(!currentEvent&&methodIntent.continuation&&matchingGuideEvent&&previousGuideUsage.length){
+  if(methodIntent.continuation&&matchingGuideEvent&&previousGuideUsage.length){
+    if(currentEvent&&currentEvent.id!==matchingGuideEvent.id)historicalEvents=[...historicalEvents,currentEvent]
     currentEvent=matchingGuideEvent
     historicalEvents=historicalEvents.filter(event=>event.id!==currentEvent!.id)
   }

@@ -18,7 +18,6 @@ import {parseActionCoachTurn} from '../../server/action-coach-contracts.ts'
 import {boundedRecallReply} from '../../server/bounded-reply.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {readGuideUsage} from '../../server/guide-usage.ts'
-import {indexCoachEventOnce} from '../../server/coach-retrieval.ts'
 import {safeEarlySentence} from '../../server/reply-draft.ts'
 
 test('real mixed report keeps editing commands out of the experience and reads later progress',()=>{
@@ -63,6 +62,7 @@ test('provider material metadata cannot authorize source or readiness',()=>{
 test('first useful content skips politeness without skipping unsafe assertions',()=>{
   assert.equal(safeEarlySentence(JSON.stringify({reply:'收到。先给课程作业留一个小时间块，剩余时间保留缓冲。'})),'先给课程作业留一个小时间块，剩余时间保留缓冲')
   assert.equal(safeEarlySentence(JSON.stringify({reply:'好的，这是一条简短、礼貌且尊重对方时间的请教消息，你可以直接复制使用：\n\n'})),null)
+  assert.equal(safeEarlySentence(JSON.stringify({reply:'这是一份简短的请教消息草稿，你可以直接复制使用。尚未联系过对方时，先询问是否方便交流。'})),'尚未联系过对方时，先询问是否方便交流')
   assert.equal(safeEarlySentence(JSON.stringify({reply:'已经替你发送了消息。还想聊什么？'})),null)
 })
 
@@ -227,7 +227,8 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       const firstReply=await engine(first),saved=await store.finishRun(first.run,first.staged,firstReply.text,firstReply.usage,first.signal)
       assert.equal(saved.event?.title,'我的课程第三题不会做')
       assert.equal((await readGuideUsage(actor,chat,saved.event!.id))[0]?.guide_id,card.id)
-      while(await indexCoachEventOnce()){}
+      // The next conversation can begin before the asynchronous index job.
+      // Persisted guide identity must remain available in that interval.
       const followup=randomUUID()
       await store.createConversation(actor,{id:followup,title:'SYNTHETIC cross-session method'})
       const next=await methodInput('接着上次第三题的那个方法，我找不到适用的已解示例，课件链接也打不开。先不重做计划，怎样继续？',followup)

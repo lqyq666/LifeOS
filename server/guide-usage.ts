@@ -2,7 +2,7 @@ import {randomUUID} from 'node:crypto'
 import type {PoolClient} from 'pg'
 import {transaction,HttpError,requireRow} from './db.ts'
 import type {Run} from './store.ts'
-import {readCoachEvent} from './action-coach-events.ts'
+import {readCoachEvent,type CoachEvent} from './action-coach-events.ts'
 import type {KnowledgeCard} from './campus-knowledge.ts'
 import {scanUserClauses,methodReferenceClause} from './user-command-spans.ts'
 import {growthQuoteSuppressed} from './growth-privacy.ts'
@@ -48,6 +48,21 @@ export async function readGuideUsage(user:string,conversation:string,eventId:str
  const allowed=[]
  for(const row of rows)if(!row.source_quote||!await growthQuoteSuppressed(c,user,row.source_message_id,row.source_quote))allowed.push(row)
  return allowed
+ })
+}
+// Explicit continuation follows persisted owned identities while indexing is
+// pending, using the same memory and source checks as semantic retrieval.
+export async function readPriorGuideEvents(user:string,conversation:string):Promise<CoachEvent[]>{
+ return transaction(async c=>{
+  requireRow((await c.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2',[user,conversation])).rows[0])
+  const rows=(await c.query(`SELECT u.event_id FROM kb_guide_usage u JOIN coach_events e ON e.user_id=u.user_id AND e.id=u.event_id
+   WHERE u.user_id=$1 AND e.status='active' AND (e.conversation_id=$2 OR (SELECT enabled FROM user_memory_settings WHERE user_id=$1))
+   GROUP BY u.event_id ORDER BY max(u.created_at) DESC LIMIT 12`,[user,conversation])).rows
+  const events:CoachEvent[]=[]
+  for(const row of rows)try{events.push(await readCoachEvent(c,user,conversation,row.event_id))}catch(error){
+   if(!(error instanceof HttpError)||!['NOT_FOUND','COACH_SOURCE_REVOKED','MEMORY_DISABLED'].includes(error.code))throw error
+  }
+  return events
  })
 }
 export function suggestedGuideUsage(card:KnowledgeCard,eventId:string,branchId?:string):GuideUsage|null{
