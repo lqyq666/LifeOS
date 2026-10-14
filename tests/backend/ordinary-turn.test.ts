@@ -9,8 +9,29 @@ import {pool} from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
 import {setMemorySettings} from '../../server/memory.ts'
-import {deriveTurnContract,bindPlanBudgetSchema} from '../../server/turn-contract.ts'
+import {deriveTurnContract,bindPlanBudgetSchema,taskOutcomeReadback} from '../../server/turn-contract.ts'
 import {requiresImmediateMaterial,deliverableIntent} from '../../server/action-coach-events.ts'
+import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
+import {selectStructuralCandidate} from '../../server/experience-content.ts'
+import {boundedRecallReply} from '../../server/bounded-reply.ts'
+
+test('real mixed report keeps editing commands out of the experience and reads later progress',()=>{
+  const text='我通过校内邮箱发了消息，他还没回复，把消息改短，别猜他没回复的原因。'
+  const result=selectStructuralCandidate(text,buildClauseCatalogue(text),'2026-10-14T03:00:00Z')
+  assert.equal(result?.quote,'我通过校内邮箱发了消息，他还没回复')
+  const recall=boundedRecallReply('上次请教学长那件事，你目前知道实际做过什么？',[
+    {text:'想向学长请教实习方向',createdAt:'2026-10-14T01:00:00Z'},
+    {text:'还没联系过',createdAt:'2026-10-14T01:00:00Z'},
+    {text:'我通过校内邮箱发了消息',createdAt:'2026-10-14T02:00:00Z'},
+    {text:'他还没回复',createdAt:'2026-10-14T02:00:00Z'},
+  ]).choices[0]!
+  assert.ok(recall.includes('我通过校内邮箱发了消息'))
+  assert.ok(!recall.includes('「还没联系过」'))
+  const outcome=taskOutcomeReadback('我问了一个同学，也没人采用或付款。')
+  assert.equal(outcome.adoption.status,'reported_not_used')
+  assert.equal(outcome.payment.status,'reported_unpaid')
+  assert.equal(outcome.effect.status,'unknown')
+})
 
 test('real natural requests bind material delivery without taking over review',()=>{
   for(const text of ['帮我写一句简短的请教消息，不要替我发送。','帮我写一段只包含本人贡献的作品描述。','我通过校内邮箱发了消息，他还没回复，把消息改短，别猜他没回复的原因。']){
@@ -45,7 +66,8 @@ test('single ordinary generation preserves mixed delivery and real transaction b
     req.on('data',chunk=>chunks.push(Buffer.from(chunk)))
     req.on('end',()=>{
       requests.push(JSON.parse(Buffer.concat(chunks).toString('utf8')))
-      const output=outputs.shift()
+      const queued=outputs.shift()
+      const output=typeof queued==='function'?queued(requests.at(-1)):queued
       if(output===undefined){res.writeHead(500);res.end();return}
       res.writeHead(200,{'Content-Type':'text/event-stream'})
       const base={id:'ordinary-synthetic-'+requests.length,object:'chat.completion.chunk',created:1,model:model.id}
@@ -73,7 +95,7 @@ test('single ordinary generation preserves mixed delivery and real transaction b
     await t.test('feedback and shorter material share one call and persist together',async()=>{
       const input=await prepare('我给学长发了请教消息，他还没回复，把消息改短。')
       const material='学长，方便说说你最初怎么选实习方向的吗？'
-      outputs.push({reply:'没有回复还不能判断原因。可以先把问题缩到一个具体点：',event:{target:{operation:'create',title:'向学长请教实习方向',source:{messageId:input.run.source_message_id,quote:'我给学长发了请教消息'}},nodes:[{kind:'fact',source:{messageId:input.run.source_message_id,quote:'他还没回复'}}],action:{operation:'create',draft:{content:material}}},growthUpdates:[{target:{operation:'create'},kind:'feedback',assertion:'user_reported',progressState:'completed',source:{clauseId:'c0'}},{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c1'}}]})
+      outputs.push({reply:'没有回复还不能判断原因。可以先把问题缩到一个具体点：',event:{target:{operation:'create',title:'向学长请教实习方向',source:{messageId:input.run.source_message_id,quote:'我给学长发了请教消息'}},nodes:[{kind:'fact',source:{messageId:input.run.source_message_id,quote:'他还没回复'}}],action:{operation:'create',draft:{content:material}}},growthUpdates:[{target:{operation:'create'},kind:'feedback',assertion:'user_reported',progressState:'completed',source:{clauseId:'c0'}},{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c1'}}],experienceCandidate:{source:{clauseIds:['c0','c1','c2']},action:{clauseId:'c0'},result:{clauseId:'c1'}}})
       const before=requests.length,result=await engine(input)
       assert.equal(requests.length-before,1)
       assert.match(result.text,/不能判断原因/)
@@ -85,6 +107,8 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       const rows=(await pool.query('SELECT text FROM growth_items WHERE user_id=$1',[user])).rows
       assert.ok(rows.some(row=>row.text==='我给学长发了请教消息'))
       assert.ok(rows.some(row=>row.text==='他还没回复'))
+      const experiences=(await pool.query('SELECT source_quote FROM experiences WHERE user_id=$1 AND source_message_id=$2',[user,input.run.source_message_id])).rows
+      assert.equal(experiences[0]?.source_quote,'我给学长发了请教消息，他还没回复')
     })
     await t.test('new conversation receives real feedback and Memory OFF removes it',async()=>{
       const next=randomUUID()
@@ -115,6 +139,22 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       assert.equal(result.text,reply)
       assert.equal(input.staged.coach?.actionId,undefined)
       await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+    })
+    await t.test('a contribution paragraph can select multiple verified facts without becoming a one-sentence mode',async()=>{
+      const input=await prepare('换一件事。我在课程小组里负责整理资料，我负责排版。帮我写一段只包含本人贡献的作品描述。')
+      outputs.push((request:any)=>{
+        const state=JSON.parse(request.messages[1].content)
+        const selected=state.growthCatalogue.filter((fact:any)=>fact.text==='我在课程小组里负责整理资料'||fact.text==='我负责排版')
+        assert.equal(selected.length,2)
+        return {reply:'只保留你明确负责的两部分，其他成果不补写。',event:{target:{operation:'create',title:'课程小组本人贡献',source:{messageId:input.run.source_message_id,quote:'我在课程小组里负责整理资料，我负责排版'}},action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:selected.map((fact:any)=>fact.catalogueId)}}}}
+      })
+      const result=await engine(input)
+      assert.ok(result.text.includes('我在课程小组里负责整理资料'))
+      assert.ok(result.text.includes('我负责排版'))
+      assert.ok(!result.text.includes('交付终版'))
+      assert.equal(requests.at(-1).response_format.json_schema.schema.properties.reply.enum,undefined)
+      const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      assert.ok(String(saved.event!.actions[0]!.draft!.content).includes('我负责排版'))
     })
     await t.test('listening is naturally generated with no unsolicited material',async()=>{
       const input=await prepare('今天只想聊聊，不要给我安排任务。')

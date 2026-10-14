@@ -5,7 +5,7 @@
 import { resolveClause, unprotectedClauseText, type ClauseHandle } from './clause-catalogue.ts'
 import { resolveOccurredDate } from './growth-time.ts'
 import { classifyWithLexicon } from './category-lexicon.ts'
-import {conversationPreferenceClause} from './user-command-spans.ts'
+import {conversationPreferenceClause,assistantRequestClause,refusalPreferenceClause} from './user-command-spans.ts'
 
 export type ResolvedCandidateContent = { action: string; result: string; occurredAt: string }
 
@@ -82,16 +82,23 @@ export function selectStructuralCandidate(sourceText: string, catalogue: readonl
   if (!matched) return null
   // Commas chain clauses inside one sentence (sentenceStart resets only at
   // terminators), so the candidate is the whole comma chain the action sits in.
-  const inSentence = catalogue.filter(handle => handle.sentenceStart === matched.sentenceStart)
+  const sentence = catalogue.filter(handle => handle.sentenceStart === matched.sentenceStart)
+  const isCommand=(handle:ClauseHandle)=>!handle.quoted&&!handle.code&&(assistantRequestClause(handle.text)||conversationPreferenceClause(handle.text)||refusalPreferenceClause(handle.text))
+  const anchor=sentence.indexOf(matched)
+  let first=anchor,last=anchor
+  while(first>0&&!isCommand(sentence[first-1]!))first--
+  while(last+1<sentence.length&&!isCommand(sentence[last+1]!))last++
+  const inSentence=sentence.slice(first,last+1)
   const following=catalogue.find(handle=>handle.start>Math.max(...inSentence.map(c=>c.end)))
   if(following&&!following.conditional&&!following.interrogative&&!following.quoted&&!following.code&&/^(?:对方|客户|导师|老师).{0,12}(?:看过|读过|已读|回复|回应|采用|用了)/.test(following.text))inSentence.push(following)
   const end = Math.max(...inSentence.map(handle => handle.end))
-  const quote = sourceText.slice(matched.sentenceStart, end)
+  const start=inSentence[0]!.start
+  const quote = sourceText.slice(start, end)
   const action = inSentence.find(handle => !handle.interrogative&&!handle.conditional&&!handle.attributedToOther&&clauseReportsCompleted(unprotectedClauseText(handle)))
   const resultCandidates = inSentence.filter(handle => RESULT_SHAPE.test(unprotectedClauseText(handle)) && handle !== action)
   const result = resultCandidates.at(-1)
   return {
-    quote, start: matched.sentenceStart, end,
+    quote, start, end,
     content: {
       action: action?.text ?? '',
       result: result?.text ?? '',

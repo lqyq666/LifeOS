@@ -30,7 +30,7 @@ export function boundedRecallReply(text:string,facts:{text:string;createdAt:stri
   :/(?:付款|用过|使用|稳定收入)/.test(text)?/(?:交给|交付|看过|用过|使用|采用|会不会用|付款|付费|付钱)/:null
  const selected=facts.filter(row=>!pattern||pattern.test(row.text)).sort((a,b)=>Number.isFinite(Date.parse(a.createdAt))&&Number.isFinite(Date.parse(b.createdAt))?Date.parse(a.createdAt)-Date.parse(b.createdAt):a.createdAt.localeCompare(b.createdAt))
  if(!selected.length)return make('授权记录里没有足够信息回答这个问题。我先保留未知，不补猜，也不因此安排任务。')
- if(/(?:渠道|联系)/.test(text)&&/(?:目前|现在|是否已经|已经联系)/.test(text)&&selected.every(row=>Number.isFinite(Date.parse(row.createdAt)))){
+ if(/(?:渠道|联系|学长|学姐|邮件|消息)/.test(text)&&/(?:目前|现在|是否已经|已经联系|实际做过|做过什么|实际做了)/.test(text)&&selected.every(row=>Number.isFinite(Date.parse(row.createdAt)))){
   const counterpart=/(?:学长|学姐|导师|老师|客户|同学)(?:[甲乙丙丁戊己庚辛壬癸A-Z]|(?!(?:还|已|没|未|课|项|的|发|回|现|目|想|将|曾|通过|校内|说|怎样|用))[\u4e00-\u9fa5]{1,3}(?=的|还|已经|没有|发了|回复|[，。？?]|$))?/g,target=text.match(counterpart)?.[0]
   const named=new Set(selected.flatMap(row=>row.text.match(counterpart)??[]))
   let activeTarget:string|undefined

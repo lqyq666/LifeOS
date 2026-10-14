@@ -118,7 +118,7 @@ export function taskOutcomeReadback(text:string,authorizedQuotes?:ReadonlySet<st
   else if(responseYes)result.response={status:'reported_response',quote:q}
   if(!/承诺|打算|计划|是否|会不会/.test(q)&&/(?:没(?:有)?|尚未|还未|未).{0,6}(?:采用|使用|用过|用了)|还没用/.test(q))result.adoption={status:'reported_not_used',quote:q}
   else if(/(?:已经|已).{0,3}(?:采用|使用|用了)/.test(q))result.adoption={status:'reported_used',quote:q}
-  if(/(?:没(?:有)?|尚未|还未|未)(?:付款|付费|付)|还没付/.test(q))result.payment={status:'reported_unpaid',quote:q}
+  if(/(?:没(?:有)?|尚未|还未|未)(?:付款|付费|付)|还没付|没人(?:采用|使用)(?:或|和|也|、)(?:付款|付费)/.test(q))result.payment={status:'reported_unpaid',quote:q}
   else if(/(?:已经|已).{0,3}(?:付款|付费)|付了/.test(q))result.payment={status:'reported_paid',quote:q}
  }
  return result

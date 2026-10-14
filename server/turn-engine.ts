@@ -197,7 +197,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   if(turnDerivedControls.status==='explicit'){
     staged.directionControls=await stageDirectionControls(run,turnDerivedControls.changes,expectedControlKey)
   }
-  const contributionSentenceMode=requiresImmediateMaterial(current.content)&&/(?:作品描述|一句简历(?:表达|描述))/.test(current.content)
+  const contributionSentenceMode=requiresImmediateMaterial(current.content)&&/(?:一句(?:简历(?:表达|描述)|作品描述)|作品描述.{0,8}(?:压成|缩成|写成)一句)/.test(current.content)
+  const contributionParagraphMode=requiresImmediateMaterial(current.content)&&/作品描述/.test(current.content)&&!contributionSentenceMode
   const resumePortfolioMode=requiresImmediateMaterial(current.content)&&/简历|作品清单|作品集|个人介绍|作品描述/.test(current.content)
   const obligations=deriveTurnObligations(current.content,{resumePortfolioMode,...(turnDerivedControls.status==='explicit'?{directionControls:turnDerivedControls.changes}:{})})
   staged.turnObligations=obligations
@@ -445,6 +446,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const contract=bindMaterialDeliverySchema(bindBoundedReplySchema(originalContract,boundedReply),current.content)
   if(contract.capabilities.material){
     const schema=contract.schema as {properties:Record<string,unknown>}
+    // Grounded first-person material is authored only by selecting verified
+    // catalogue entries. Keep an original, short explanatory reply rather
+    // than letting a second factual artifact bypass those selections.
+    if(resumePortfolioMode)schema.properties.reply={type:'string',minLength:1,maxLength:160,description:'只简短说明选择和未知边界；不要在reply另写作品描述、简历正文或扩写个人事实。完整材料由selectedFactIds对应的原话渲染。'}
     if(/(?:问题|提问).{0,10}(?:压成一句|缩成一句|改成)/.test(current.content)){
       const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content)node.properties.content.maxLength=160;for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
       narrow(schema)
@@ -532,7 +537,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       if(draft&&typeof draft==='object'&&'kind'in draft&&(draft as {kind:string}).kind==='resume_portfolio'){
         const selection=draft as unknown as {selectedFactIds:string[]}
         try{
-          const material=resolveSelectedMaterialFacts(selection.selectedFactIds??[],materialCatalogue,run.user_id,run.user_id,contributionSentenceMode?'contribution_sentence':'resume')
+          const material=resolveSelectedMaterialFacts(selection.selectedFactIds??[],materialCatalogue,run.user_id,run.user_id,contributionSentenceMode?'contribution_sentence':contributionParagraphMode?'contribution_paragraph':'resume')
           ;(result.event.action as {draft:unknown}).draft={content:material.content,readiness:material.readiness,missingRequired:material.missingRequired,materialFactIds:material.usedCatalogueIds,materialEvidence:material.facts.map(fact=>({field:fact.field,text:fact.text,sourceRef:fact.sourceRef}))}
         }catch(error){
           throw error instanceof Error&&(error.message==='MATERIAL_REFERENCE_INVALID'||error.message==='MATERIAL_CATALOGUE_INVALID'||error.message==='MATERIAL_OUTPUT_LIMIT')?new HttpError(400,'MATERIAL_REFERENCE_INVALID'):error
@@ -905,7 +910,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // not contain it. A correction naming no old value at all stays strict.
       const namesOldValue=/(?:说成|说错|搞错|记错|写错|看错|不对|之前说|以前说|原本是)/.test(oldValueRemainder)
       const claimDishonest=relatedActiveItem||!namesOldValue
-      if(!amendedNow&&claimDishonest&&/(?:已更正|更正为|更正已记录|已把.{0,10}改|已经?改成|更新为|已更新|已修改)/.test(result.reply))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
+      if(!amendedNow&&claimDishonest&&/(?:已更正|更正为|更正已记录|已把.{0,24}(?:改|撤|移除|删除)|已经?改成|已经?.{0,12}撤掉|更新为|已更新|已修改)/.test(result.reply))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
 
     }
     // P4 (F03): the forget-claim guard runs INDEPENDENTLY of any correction
@@ -1006,7 +1011,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         // 退化短选段（如只选了「对了」两个字）不足以代表经历：结构句更长时
         // 采用整句，同一套服务器选段规则。
         const degenerate=selection.quote.trim().length<6
-        const span=structural&&(coveredByStructural||(degenerate&&structural.quote.length>selection.quote.length))?structural:{quote:selection.quote,start:selection.start,end:selection.end}
+        const includesCommand=clauseCatalogue.some(handle=>handle.start>=selection.start&&handle.end<=selection.end&&!handle.quoted&&!handle.code&&(assistantRequestClause(handle.text)||conversationPreferenceClause(handle.text)||refusalPreferenceClause(handle.text)))
+        const span=structural&&(includesCommand||coveredByStructural||(degenerate&&structural.quote.length>selection.quote.length))?structural:{quote:selection.quote,start:selection.start,end:selection.end}
         const extracted=resolveCandidateContent(clauseCatalogue,span,result.experienceCandidate,anchorIso)
         if(span===structural){
           if(!clauseReportsCompleted(extracted.content.action))extracted.content.action=structural!.content.action

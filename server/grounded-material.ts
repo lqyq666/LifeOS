@@ -1,10 +1,11 @@
 import {createHash} from 'node:crypto'
 import type { GrowthItem } from '../src/features/growth/types.ts'
+import {scanUserClauses} from './user-command-spans.ts'
 
 // Match explicit personal contribution reports in either common word order.
 // Preserve the original wording; this is not a claim of skill or adoption.
 export function reportsOwnContribution(text:string):boolean{
- return /^我(?:只)?负责.{1,80}$/.test(text)
+ return /^我(?:在[^，。！？\n]{1,24})?(?:只)?负责.{1,80}$/.test(text)&&!/(?:如果|假如|并非|不是|没有负责)/.test(text)
   ||/^[^，。！？\n]{1,40}(?:由我负责|是我(?:做|完成|负责)的)$/.test(text)&&!/(?:不|并非|不是|如果|假如)/.test(text)
 }
 
@@ -153,6 +154,10 @@ export function buildMaterialFactCatalogue(growth:readonly GrowthItem[],confirme
     const labeled=extractExplicitMaterialFields(currentMessage.text)
     if(labeled.length)labeledBySource.push(labeled)
     for(const field of labeled)push(field.field,field.text,'user_reported',true,{type:'message',id:currentMessage.id,conversationId:currentMessage.conversationId,quote:field.quote})
+    for(const clause of scanUserClauses(currentMessage.text)){
+      if(clause.interrogative||clause.conditional||clause.quoted||clause.code||clause.attributedToOther||clause.quoteSpans.length||!reportsOwnContribution(clause.text))continue
+      push('project',clause.text,'user_reported',false,{type:'message',id:currentMessage.id,conversationId:currentMessage.conversationId,quote:clause.text})
+    }
   }
   // Project completeness is a GROUP property: a source whose labeled fields
   // carry name+contribution completes its project entries.
@@ -173,10 +178,16 @@ export function buildMaterialFactCatalogueForMessage(message:{id:string;conversa
 // Resolve a model's selection against THIS turn's server catalogue; any
 // invented, stale or cross-account id is MATERIAL_REFERENCE_INVALID.
 export type SelectedMaterialResult=MaterialResult&{facts:VerifiedMaterialFact[]}
-export function resolveSelectedMaterialFacts(selectedIds:readonly string[],catalogue:readonly VerifiedMaterialFact[],ownerId:string,expectedOwnerId:string,format:'resume'|'contribution_sentence'='resume'):SelectedMaterialResult{
+export function resolveSelectedMaterialFacts(selectedIds:readonly string[],catalogue:readonly VerifiedMaterialFact[],ownerId:string,expectedOwnerId:string,format:'resume'|'contribution_sentence'|'contribution_paragraph'='resume'):SelectedMaterialResult{
   if(ownerId!==expectedOwnerId)throw new Error('MATERIAL_REFERENCE_INVALID')
   const selected=selectedIds.map(id=>catalogue.find(fact=>fact.catalogueId===id)).filter((fact):fact is VerifiedMaterialFact=>Boolean(fact))
   const rendered=renderGroundedResume(selectedIds,catalogue)
+  if(format==='contribution_paragraph'){
+    const facts=selected.filter(fact=>fact.field==='project'&&reportsOwnContribution(fact.text))
+    if(!facts.length)throw new Error('MATERIAL_REFERENCE_INVALID')
+    const quotes=[...new Set(facts.map(fact=>fact.text.replace(/[。！!]+$/,'')))]
+    return {content:quotes.join('；')+'。',readiness:'draft_for_user_review',missingRequired:[],usedCatalogueIds:facts.map(fact=>fact.catalogueId),facts}
+  }
   if(format==='contribution_sentence'){
     const contributions=selected.filter(fact=>fact.field==='project'&&reportsOwnContribution(fact.text))
     if(contributions.length!==1)throw new Error('MATERIAL_REFERENCE_INVALID')
