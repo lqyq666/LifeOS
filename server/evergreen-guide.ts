@@ -60,7 +60,8 @@ export function knowledgeIntent(text:string,context:{eventTitle?:string;hasPrior
  const make=(decision:KnowledgeDecision,reason:string,query=text,stage:KnowledgeIntent['stage']='start',continuation=false):KnowledgeIntent=>({decision,reason,query,stage,continuation})
  if(currentConversationOnly(text))return make('NONE','listening_or_refusal')
  if(scanUserClauses(text).some(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&!c.interrogative&&/^(?:我)?(?:愿意|决定|打算|准备|会)(?:尝试|试试|试|使用|用|采纳|做).{0,20}(?:方法|行动|建议|刚才那一步)[。！!\s]*$/.test(c.text.trim()))&&!/不想继续|不做了|拒绝继续|不要建议/.test(text))return make('NONE','adoption_not_method_request')
- const positive=/(?:怎么|如何|怎么办|从哪|去哪|怎样|方法|办法|做法|练法|学法|写法|步骤|技巧|思路|调整|比较|对比|取舍|区别|案例|一直改稿|又改需求|有什么依据|依据支持|原理是什么|为什么有效|(?:先|该|应该|能用).{0,12}(?:什么|哪些)|有什么小尝试)/.test(text)
+ const explicitMethodUse=scanUserClauses(text).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&/^(?:请|帮我|给我|想请你|我想请你)(?:先)?(?:用|使用|按|参考|依据)[^。！？]{0,80}(?:攻略|指南|方法)/.test(clause.text.trim()))
+ const positive=explicitMethodUse||/(?:怎么|如何|怎么办|从哪|去哪|怎样|方法|办法|做法|练法|学法|写法|步骤|技巧|思路|调整|比较|对比|取舍|区别|案例|一直改稿|又改需求|有什么依据|依据支持|原理是什么|为什么有效|(?:先|该|应该|能用).{0,12}(?:什么|哪些)|有什么小尝试)/.test(text)
  const actionQuestion=/(?:能(?:不能)?|帮我|先).{0,12}(?:找|理解|整理|核对|练|开始|记录).{0,16}(?:吗|哪|[？?])/.test(text)
  const listening=/(?:只想|就想)(?:聊|倾诉|说说|吐槽)|(?:不要|不用|不想|不需要|别)(?:再)?(?:给我|帮我)?(?:建议|推荐|方法|办法|做法|练法|学法|写法|攻略|行动|复盘)|(?:我|本人).{0,6}(?:不想继续|不做了|拒绝继续)/.test(text)
  // Refusals win unless a later clause explicitly asks for a new method.
@@ -74,7 +75,7 @@ export function knowledgeIntent(text:string,context:{eventTitle?:string;hasPrior
  if(/治疗|用什么药|买什么股票|推荐股票|选.{0,8}股票|必涨|投资组合|法律结论|胜诉|录取概率|成功率|(?:医疗|疾病|失眠|精神).{0,8}诊断|诊断.{0,8}(?:疾病|失眠|精神)/.test(text))return make('NONE','professional_or_prediction_boundary')
  if(/^(?:这|那|这个|那件|这样|那个)(?:怎么办|怎么弄|怎么做|如何)[？?]?$/.test(text.trim())&&!context.eventTitle)return make('CLARIFY','object_missing')
  const feedback=/没(?:有)?开始|还没做|联系了|按上次|尝试|试了|试过|完成了|等待结果|没人回|没(?:有)?回复|没效果|打不开|卡住|又改需求|一直改稿|还是不行/.test(text)
- const feedbackAsks=/(?:怎么|如何|从哪|怎样|怎么办|调整|又改需求|一直改稿)|(?:有什么|找个|推荐|给我).{0,8}(?:方法|办法|做法|练法|学法|写法|案例)/.test(text)
+ const feedbackAsks=explicitMethodUse||/(?:怎么|如何|从哪|怎样|怎么办|调整|又改需求|一直改稿)|(?:有什么|找个|推荐|给我).{0,8}(?:方法|办法|做法|练法|学法|写法|案例)/.test(text)
  if(feedback&&!feedbackAsks&&!/[？?]|取舍|比较|区分|有什么区别/.test(text))return make('NONE','inspect_feedback_first',text,'adjust',Boolean(context.hasPriorGuide))
  if(!positive&&!actionQuestion)return make('NONE','no_method_request')
  const compare=/比较|对比|案例|失败路径|区别|取舍/.test(text)

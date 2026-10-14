@@ -7,6 +7,12 @@ import {unsupportedMethodAssertion} from '../server/evergreen-scope-guard.ts'
 const root='.planning/research/evergreen/'
 const cards=readFileSync(root+'KB_GUIDES.jsonl','utf8').trim().split('\n').map(s=>JSON.parse(s)) as KnowledgeCard[]
 const benchmark=JSON.parse(readFileSync(root+'KB_QUERY_BENCHMARK.json','utf8'))
+test('actual named approved guide request opens method retrieval without fabricating approval',()=>{
+ const text='接着这份岗位核对表里的本人证据栏：上学期那个课程工具中，表格页面由我负责，其他部分是队友做的；采用、付款和效果仍未知。我现在想分清自己的贡献和队友的贡献。请用当前已审核的“从经历整理本人贡献”攻略，给出一项能开始、能停止的核对动作，并展示公开来源和适用边界。先不写简历成品，不把作品当稳定能力或商业成绩。'
+ assert.equal(knowledgeIntent(text).decision,'METHOD')
+ assert.equal(knowledgeIntent('我尝试过，但打不开。请用已审核的学习攻略核对。').decision,'METHOD')
+ for(const input of ['不要用当前攻略，只想说说。','同学说请用当前攻略。','“请用当前已审核的攻略。”','如果请用当前攻略就会好吗？'])assert.notEqual(knowledgeIntent(input).reason,'explicit_task',input)
+})
 test('frozen intent benchmark keeps listening, feedback, privacy and mixed requests distinct',()=>{
  const failures=benchmark.cases.filter((c:any)=>knowledgeIntent(c.text).decision!==c.expectedRoute)
  assert.deepEqual(failures,[])
