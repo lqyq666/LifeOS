@@ -24,6 +24,7 @@ export class CozeCreditBudget{
   if(!positive(initial)||opening.budgetUnit!=='coze_credits'||opening.newBudget!==0)throw Error('COZE_LEDGER_FUNDING_INVALID')
   const reserved=new Map<string,Row>(),settled=new Set<string>(),charges=new Map<string,number>();let charged=0,held=0
   let allowance:Row|null=null,priorReservations=new Set<string>()
+  let acceptanceWindow:Row|null=null,windowPrior=new Set<string>()
   for(const row of rows){
    if(row.type==='development_reserved'||row.type==='credits_reserved'){
     if(typeof row.requestId!=='string'||reserved.has(row.requestId)||!positive(row.reservedCredits)||row.budgetUnit!=='coze_credits')throw Error('COZE_LEDGER_RESERVATION_INVALID')
@@ -35,18 +36,25 @@ export class CozeCreditBudget{
    }else if(row.type==='account_allowance_bound'){
     if(allowance||row.percentage!==0.2||!positive(row.observedRemainingCredits)||row.maximumAdditionalCredits!==Math.floor(Number(row.observedRemainingCredits)*0.2)||!positive(row.maximumAdditionalCredits)||!digest(row.approvalDigest)||!digest(row.balanceEvidenceDigest)||typeof row.observedAt!=='string'||!Number.isFinite(Date.parse(row.observedAt))||row.newBudget!==0)throw Error('COZE_ACCOUNT_ALLOWANCE_INVALID')
     allowance=row;priorReservations=new Set(reserved.keys())
+   }else if(row.type==='owner_acceptance_window'){
+    if(acceptanceWindow||!allowance||row.newBudget!==0||row.oldUnknownReservations!=='retained_excluded_from_this_window'||!positive(row.observedRemainingCredits)||!positive(row.maximumCredits)||Number(row.maximumCredits)>Math.floor(Number(row.observedRemainingCredits)*0.2)||!digest(row.approvalDigest)||!digest(row.balanceEvidenceDigest)||typeof row.observedAt!=='string'||!Number.isFinite(Date.parse(row.observedAt)))throw Error('COZE_ACCEPTANCE_WINDOW_INVALID')
+    acceptanceWindow=row;windowPrior=new Set(reserved.keys())
    }else if(row.type!=='existing_credit_balance'&&row.type!=='credits_attempt_finished')throw Error('COZE_LEDGER_ROW_INVALID')
   }
   for(const [id,row] of reserved)if(!settled.has(id))held+=Number(row.reservedCredits)
-  if(charged+held>initial)throw Error('COZE_LEDGER_OVERCOMMITTED')
+  const legacyAccounted=acceptanceWindow?[...windowPrior].reduce((sum,id)=>sum+(settled.has(id)?charges.get(id)!:Number(reserved.get(id)!.reservedCredits)),0):charged+held
+  if(legacyAccounted>initial)throw Error('COZE_LEDGER_OVERCOMMITTED')
   let allowanceAccounted=0,newCharged=0
   if(allowance)for(const [id,row] of reserved)if(!priorReservations.has(id)){allowanceAccounted+=settled.has(id)?charges.get(id)!:Number(row.reservedCredits);newCharged+=charges.get(id)??0}
   if(allowance&&allowanceAccounted>Number(allowance.maximumAdditionalCredits))throw Error('COZE_ALLOWANCE_OVERCOMMITTED')
   const allowanceRemaining=allowance?Number(allowance.maximumAdditionalCredits)-allowanceAccounted:null
+  const windowAccounted=acceptanceWindow?[...reserved].filter(([id])=>!windowPrior.has(id)).reduce((sum,[id,row])=>sum+(settled.has(id)?charges.get(id)!:Number(row.reservedCredits)),0):0
+  if(acceptanceWindow&&windowAccounted>Number(acceptanceWindow.maximumCredits))throw Error('COZE_ACCEPTANCE_WINDOW_OVERCOMMITTED')
   // A fresh account snapshot already includes past known charges. Old opaque
   // holds remain conservative; resolving them requires their observed bills.
   const accountAvailable=allowance?Math.max(0,Number(allowance.observedRemainingCredits)-held-newCharged):null
-  return {initialCredits:initial,chargedCredits:charged,heldCredits:held,availableCredits:Math.min(initial-charged-held,allowanceRemaining??Infinity,accountAvailable??Infinity),...(allowance?{observedAccountRemainingCredits:Number(allowance.observedRemainingCredits),maximumAdditionalCredits:Number(allowance.maximumAdditionalCredits),allowanceAccountedCredits:allowanceAccounted,allowanceRemainingCredits:allowanceRemaining!}:{}),reservations:reserved,settled}
+  const available=acceptanceWindow?Math.min(Number(acceptanceWindow.maximumCredits)-windowAccounted,Number(acceptanceWindow.observedRemainingCredits)-windowAccounted,allowanceRemaining??Infinity):Math.min(initial-charged-held,allowanceRemaining??Infinity,accountAvailable??Infinity)
+  return {initialCredits:initial,chargedCredits:charged,heldCredits:held,availableCredits:available,...(acceptanceWindow?{acceptanceWindowMaximumCredits:Number(acceptanceWindow.maximumCredits),acceptanceWindowAccountedCredits:windowAccounted}:{}),...(allowance?{observedAccountRemainingCredits:Number(allowance.observedRemainingCredits),maximumAdditionalCredits:Number(allowance.maximumAdditionalCredits),allowanceAccountedCredits:allowanceAccounted,allowanceRemainingCredits:allowanceRemaining!}:{}),reservations:reserved,settled}
  }
  balance(){const {reservations,settled,...balance}=this.view(this.rows());return balance}
  private append(make:(rows:Row[])=>Row){
@@ -81,6 +89,16 @@ export class CozeCreditBudget{
    const view=this.view(rows)
    if(!view.reservations.has(requestId)||rows.some(row=>row.type==='credits_attempt_finished'&&row.requestId===requestId))throw Error('COZE_ATTEMPT_NOT_RESERVED_OR_ALREADY_FINISHED')
    return {type:'credits_attempt_finished',requestId,outcome,providerCalls,receiptId,costCredits:'unknown',costCny:'unknown_not_converted',reservationRetained:true}
+  })
+ }
+ authorizeAcceptanceWindow(input:{observedRemainingCredits:number;maximumCredits:number;observedAt:string;approvalDigest:string;balanceEvidenceDigest:string}){
+  this.append(rows=>{
+   const before=this.view(rows)
+   if(rows.some(row=>row.type==='owner_acceptance_window'))throw Error('COZE_ACCEPTANCE_WINDOW_ALREADY_BOUND')
+   if(!positive(input.maximumCredits)||input.maximumCredits>(before.allowanceRemainingCredits??0))throw Error('COZE_ACCEPTANCE_WINDOW_INVALID')
+   const row={type:'owner_acceptance_window',budgetUnit:'coze_credits',newBudget:0,oldUnknownReservations:'retained_excluded_from_this_window',...input}
+   this.view([...rows,row])
+   return row
   })
  }
  // Only an independently observed account bill can release a reservation.
