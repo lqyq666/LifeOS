@@ -102,4 +102,19 @@ class RecoveryWatchdogTests(unittest.TestCase):
         self.assertTrue(self.original['State']['Running'])
         self.assertFalse(any(args[:2] in (['docker','stop'],['docker','kill']) for args,_ in self.calls))
 
+    def test_creation_intent_gap_restores_original_without_claiming_or_touching_inert_container(self):
+        name=next(iter(self.containers));current=self.containers[name]
+        manifest=json.loads((self.root/'private-ownership.json').read_text())
+        del manifest['containers'][name]
+        manifest['creationIntents']={name:{'name':name,'imageId':current['Image'],'token':'a'*32}}
+        (self.root/'private-ownership.json').write_text(json.dumps(manifest))
+        current['Config']['Labels']['lifeos.creation-intent']='a'*32
+        current['State']={'Running':False,'Status':'created','Pid':0,'StartedAt':'0001-01-01T00:00:00Z'}
+        current['NetworkSettings']={'Networks':{'none':{}}}
+        self.recover()
+        self.assertTrue(self.original['State']['Running'])
+        self.assertTrue(any(args[0]=='python3' for args,_ in self.calls))
+        self.assertFalse(any(args[:2] in (['docker','stop'],['docker','kill'],['docker','start']) and args[-1]==current['Id'] for args,_ in self.calls))
+        self.assertEqual(json.loads((self.root/'private-ownership.json').read_text()),manifest)
+
 if __name__=='__main__':unittest.main(verbosity=2)

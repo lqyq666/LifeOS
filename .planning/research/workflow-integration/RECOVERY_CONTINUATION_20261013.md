@@ -1,6 +1,6 @@
 # 当前版本恢复与真实云验收推进断点
 
-本文件为2026-10-13本轮自包含断点。最终目标仍是Agent、工作流、五Skill真实云验收及完整发布门槛全部通过后发布。当前 `WIP_NOT_READY`；没有执行生产暂停、重启、发布或新产品/Coze调用。原账号/原额度授权继续，不购买、不升级、不重复已通过的付费测试，不自动重发收费请求。
+本文件已更新至2026-10-14本地开发断点。最终目标仍是Agent、工作流、五Skill真实云验收及完整发布门槛全部通过后发布。当前 `WIP_NOT_READY`；没有执行生产暂停、重启、发布或新产品/Coze调用。原账号/原额度授权继续，不购买、不升级、不重复已通过的付费测试，不自动重发收费请求。
 
 ## 已完成的实际工作
 
@@ -34,19 +34,19 @@
 
 唯一Coze账本 `.local/coze-launch/credits-ledger.jsonl`，本轮未修改SHA `235365dfd5a90d45fc071bd9e6f6bae916e7dd52aa354ddadc4fc843658364b4`。已知71462、未决80072、可调度0。只在得到与请求可核对的实际账单后沿原reconcile方法结算，不分摊项目合计，不把托管显示0当精确零费用。产品模型CNY账本仍为 `.local/v1.3-action-coach/paid/provider-calls.json`，与Coze积分分开；本轮未调用。
 
-## 当前镜像传输与下一步顺序
+## 当前开发断点（2026-10-14，以本节覆盖历史记录）
 
-唯一暂存目录 `/opt/lifeos/releases/recovery-e3aec6d-76ceda52`。归档600073449字节，SHA `5ce5e000d4e82137038fa55a072e96b33f79245b60573f49090bf0f50b36b5e6`。初始SCP因速率不足主动结束，仅停止本任务已核对的SCP/SSH进程，生产未受影响。第一SFTP进程19288连接中断，云助手读到200605696字节前缀SHA734f18a264f77f3dae03898fad94d736e9747368dfaeacf0eaf93d7492d5871a；两端一致后PID29472续传。它随后EOF退出，发送计数252248064不能当远端字节数；云助手实际读到250773504字节、SHA46173a0b61d348b64895ed1223491ed9c2343be3415bfb03000341c796aad173。第三PID12764在SSH banner前失败，未进入前缀校验/写入。当前无活跃传输，两个既有工具会话95608/83437均已退出；不得假设第三次已上传。三次日志及前两次失败回执保留，当前回执是第三次失败。
+用户最新要求：直接在本地继续开发，停止重复仓库、账单和现有服务巡检。只读取修改所必需的源文件和运行必要验证；完成最终验收门槛后自行沿已有服务发布/重启，保留其他服务与真实数据。没有放宽付费额度、真实云验收或安全恢复要求。
 
-云助手实际执行/读回可用（不能只凭提交成功），已确认原应用ID/image及启动时间2026-10-12T11:24:26.359594841Z未变、公网ready、campus active、测试资源无残留。SSH服务MainPID902/ActiveState active/NRestarts0，无近期相关错误、当前无连接；fail2ban不存在、ufw inactive、INPUT ACCEPT，云防火墙22/TCP现有开放规则未变。SSH本地显示TCP建立后在协议banner前被关闭，原因尚未确认；未重启服务器/SSH、未改变防火墙、VPN或账号安全。Windows当前进程非管理员。下次先检查进程/锁、必要时用现有云助手读实际前缀，再只续传该文件；脚本已加15秒keepalive和30秒SFTP读写超时，仍保留严格known_hosts及两端前缀SHA，未实现自动重试。
+镜像已完成：同一 e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4 镜像、唯一目录 /opt/lifeos/releases/recovery-e3aec6d-76ceda52，600073449字节完整SHA 5ce5e000d4e82137038fa55a072e96b33f79245b60573f49090bf0f50b36b5e6。实际 image ID sha256:1fb0cf1156c91b682dea896d4146b8027e4df837d888945090bdf3e778f22278；47文件及37迁移逐字PASS。原默认docker images过滤漏掉无标签镜像，曾误判加载失败；实际按ID及--all确认后不再加载。SCP迁移复制超时后保留23个已匹配文件，仅补14个缺失文件，完整核验已通过。所有首次失败回执保留，旧stage/complete/resume程序不得再次运行，不再上传归档。
 
-1. 先读 `.local/continuation-20261013/image-transfer-resume.json` 与日志。状态 `TRANSFERRING_VERIFIED_PREFIX` 时核对回执中的PID仍是本任务Python，保持原工作者运行，**不得重复派发上传**。当前三次PID均已退出；需要先核对远端文件/本地前缀与记录，再决定续传，不删除未知锁或假设成功。实际读取云助手回执可沿 `.local/continuation-20261013/read-after-second-drop-via-cloud.mjs`、`DescribeInvocationResult` 和保存的JSON；既有attempt先读结果，不再次派发未知操作。
-2. 只有状态 `PASS_COMPLETE_REMOTE_ARCHIVE_SHA256`，运行 `node .local/continuation-20261013/complete-image-staging.mjs`。该实际脚本复用原暂存程序的归档加载、8运行文件逐字核验、37个Git blob迁移和manifest同步阶段；不再次上传镜像、不启动应用。已有completion-attempt回执时先检查实际远端结果，不重发。成功输出 `image-staging-final.json`，用实际远端image ID；不得假定它等于本机Docker image ID。
-3. 成功后运行 `node .local/continuation-20261013/prepare-bound-recovery.mjs`。该实际脚本重读公网ready/version、原容器/属主、33迁移并要求与首次读回一致；还要求DB image/version/locale与独立 `canonical-schema-proof.json` 相同，生成含三个源码SHA、37迁移预期及DDL SHA的精确绑定，暂存三个受审Python文件及绑定；只暂存不执行。规范DDL已从e3aec6d的37个Git blob、精确PostgreSQL17.11镜像隔离生成，摘要06e1212069ef21df207d241421384da4fe47b050646f704c91d06de1c2d80142；合成DB已按不可变ID清理。原容器/版本改变时重新审查，不能覆盖他人更新。
-4. 将最新绑定文件、暂存及宿主只读证据、全部源码、实际包装器、规范DDL来源和watchdog锁/子进程/Docker中断机制证据一起独审。核对远端暂存文件SHA/路径/属主、image实际字节及37迁移、资源和看门狗配置；必须得到该精确绑定 `PASS / executionEligible=true` 才运行包装器 `--execute`。当前 `recover_original` 共享45秒清理、110秒整次预算，systemd115秒运行+5秒终止等待，持续失败重试每20秒；这不是重试总时长上限。直接恢复也通过同一个受监督服务，最多112秒观察且收缩到父操作剩余时间，未知时保留armed状态。创建资源到记录ID之间的小窗口仅允许未启动/未连接资源保留，不自动认领未知对象。失败或未知先读远端 `isolated-rehearsal-report.json`、公网、原容器和恢复unit，不重派相同演练。
+上轮实际源码/绑定4文件已暂存并读回SHA，服务器私有演练前备份749390字节，SHA ba23f4dccf41950516933b8aaa40192e88a5435cfeae52103191d9c8f426f802；仅pg_restore --list结构验证，不是恢复通过。原服务未停止。执行级双路独审在 .local/continuation-20261013/reviews/exact-bound-operation-20261014/ 拒绝：创建后ID持久化前中断会阻断恢复；停服前缺少内存容量证明。executionEligible=false，未执行生产演练。
 
-   最终网络顺序为每个容器 `create --network none` → 核验ID/name/image/label并fsync → 核验并仅将该ID从none断开 → 核验内部network不可变ID后connect → 再核验归属/仅有私有网络 → start。Docker禁止none与其他网络同时连接，直接connect红测已保留，none断开后连接/启动的真实本地Docker探针通过；运行应用的NetworkID还须与持久记录一致。停止/连接中被中断的模拟恢复测试已通过。实际服务器两处中断的sleep容器测试也通过，但不替代完整当前恢复操作。
-5. 恢复演练实际成功后记录范围：是原生产备份到原服务器私有库、旧/新串行启动、原公网恢复，不是新版本生产发布或学生接受。继续取得9笔可映射费用与当前授权原额度，再只补未通过、与当前源码有关的真实云样本及正常宿主五Skill、SMTP实际收信/学生价值门槛。原已通过付费样本不重跑，已曝光结果不当盲测。全部最终门槛通过后才发布并读回；当前不得发布。
+本轮直接修改 deploy/rehearse-production.py、deploy/recovery-guards.py：先fsync唯一创建意图token，再docker create附相同label；ID未提交时，仅允许完全匹配意图且Status=created/Pid=0/从未启动/network none的容器被只读保留，不认领、不启动、不停止它，继续核验并恢复原服务。缺意图、令牌不符、已启动或联网均拒绝；已提交容器仍严格校验不可变ID。停服前读取原容器精确cgroup匿名内存与MemAvailable，要求640MiB应用+256MiB宿主+64MiB余量；不把文件缓存当作额外可回收内存。停服后8秒立即再次检查实际可用内存，不足则在创建dump/恢复/迁移之前退出并恢复原服务；每次私有应用启动前复用同一门槛。
+
+10项守卫+7项Linux隔离模拟恢复=17项通过。局部源码独审最终PASS_SOURCE_ONLY（reviews/local-intent-memory-final），executionEligible=false；审查源码哈希与当前文件一致。新增中断场景先红后绿；首次整套测试因只读容器没有/tmp失败，补临时tmpfs后全部通过，两个日志都保留。本机真实Docker从未启动容器状态通过，按ID/令牌核验后已移除；此证据不证明生产恢复。实际文件：tests/recovery_guards_test.py、tests/recovery_watchdog_test.py，及 .local/continuation-20261013/LOCAL_RECOVERY_INTENT_MEMORY.json、creation-intent-red.log、creation-intent-memory-green.log、local-inert-intent-docker-proof.json。
+
+本地恢复源码已改变，远端旧绑定与旧独审不能用于新源码。局部修复Review已通过；下一步只补真实缺口，继续现有Agent/四工作流/五Skill目标，不制造新候选包或重复已通过的付费验收。后续真正进入发布阶段时，在同一release内保留旧回执并重新绑定变更宿主源码，经精确执行独审与恢复演练后才可发布；旧attempt不得删除或盲目重派。原9笔Coze仍未逐请求核清，唯一原账本可调度0，余额/项目合计只保留既有观测，不冒称本轮重查。整体WIP_NOT_READY。
 
 ## 私有证据与长期推进
 

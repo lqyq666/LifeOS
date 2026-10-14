@@ -44,6 +44,24 @@ def require_network(current, expected, label):
         raise ValueError('PRIVATE_NETWORK_IMMUTABLE_OWNERSHIP_CHANGED')
 
 
+def require_private_or_inert_intent(current, expected, intent, name, image, label):
+    """An uncommitted creation may be observed, never adopted or mutated."""
+    if expected:
+        require_private(current, expected, label)
+        return
+    state=current.get('State', {})
+    labels=current.get('Config', {}).get('Labels', {}) or {}
+    if (not isinstance(intent, dict) or intent.get('name')!=name or intent.get('imageId')!=image or
+            not re.fullmatch('[a-f0-9]{32}',str(intent.get('token',''))) or
+            not re.fullmatch('[a-f0-9]{64}',str(current.get('Id',''))) or
+            current.get('Name')!='/'+name or current.get('Image')!=image or
+            labels.get('lifeos.rehearsal')!=label or labels.get('lifeos.creation-intent')!=intent['token'] or
+            state.get('Running') is not False or state.get('Status')!='created' or state.get('Pid')!=0 or
+            state.get('StartedAt')!='0001-01-01T00:00:00Z' or
+            set(current.get('NetworkSettings',{}).get('Networks',{}))!={'none'}):
+        raise ValueError('PRIVATE_CONTAINER_IMMUTABLE_OWNERSHIP_CHANGED')
+
+
 def schema_sha256(text):
     stable='\n'.join(line for line in text.strip().splitlines() if not line.startswith(('--','\\restrict ','\\unrestrict ')))
     return hashlib.sha256(stable.encode()).hexdigest()
@@ -75,6 +93,39 @@ def require_encoder_exclusive(allowed_containers=(), proc=Path('/proc')):
     if any(row['containerId'] not in allowed_containers for row in observed):
         raise ValueError('HOST_MODEL_ENCODER_EXCLUSIVITY_UNCONFIRMED')
     return observed
+
+
+def require_recovery_memory(current, proc=Path('/proc'), cgroups=Path('/sys/fs/cgroup')):
+    """Count only the bound private-IPC cgroup's anonymous memory, with headroom."""
+    cid=current.get('Id','');pid=current.get('State',{}).get('Pid',0)
+    if (not re.fullmatch('[a-f0-9]{64}',str(cid)) or not isinstance(pid,int) or pid<=0 or
+            current.get('State',{}).get('Running') is not True or
+            current.get('HostConfig',{}).get('IpcMode')!='private'):
+        raise ValueError('RECOVERY_MEMORY_IDENTITY_UNCONFIRMED')
+    lines=(proc/str(pid)/'cgroup').read_text().splitlines()
+    paths=[line[3:] for line in lines if line.startswith('0::')]
+    if len(paths)!=1 or paths[0] not in ('/system.slice/docker-'+cid+'.scope','/docker/'+cid):
+        raise ValueError('RECOVERY_MEMORY_CGROUP_UNCONFIRMED')
+    group=cgroups/paths[0].lstrip('/')
+    if not group.resolve().is_relative_to(cgroups.resolve()) or str(pid) not in (group/'cgroup.procs').read_text().split():
+        raise ValueError('RECOVERY_MEMORY_CGROUP_UNCONFIRMED')
+    stats=dict(row.split() for row in (group/'memory.stat').read_text().splitlines())
+    anonymous=int(stats['anon']);charged=int((group/'memory.current').read_text())
+    available=int(next(row.split()[1] for row in (proc/'meminfo').read_text().splitlines() if row.startswith('MemAvailable:')))*1024
+    if not 0<=anonymous<=charged or available<0:
+        raise ValueError('RECOVERY_MEMORY_COUNTERS_INVALID')
+    # 640 MiB minimum app + 256 MiB host reserve + 64 MiB uncertainty margin.
+    if available+anonymous<960*1024**2:
+        raise ValueError('LOW_MEMORY_BEFORE_PUBLIC_STOP')
+    return {'availableBytes':available,'boundAnonymousBytes':anonymous,'requiredBytes':960*1024**2,
+            'originalContainerId':cid,'originalPid':pid,'cgroup':paths[0]}
+
+
+def recovery_memory_cap(available_bytes):
+    cap=min(768,available_bytes//(1024*1024)-256)
+    if cap<640:
+        raise ValueError('LOW_MEMORY_NO_ENCODER_STARTED')
+    return cap
 
 
 def read_binding(path, operation, guards, verifier):
@@ -151,7 +202,8 @@ def recover_original(binding_path, migration_path, migration_sha256):
             except subprocess.CalledProcessError:
                 assert not run(['docker','ps','-aq','--filter','name=^/'+name+'$'],phase_deadline=cleanup_deadline)
                 return None
-            require_private(current,expected,binding['releaseLabel'])
+            require_private_or_inert_intent(current,expected,manifest.get('creationIntents',{}).get(name),
+                                           name,images[name],binding['releaseLabel'])
             return current
         for name in images:
             current=owned(name)

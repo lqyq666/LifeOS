@@ -84,7 +84,7 @@ def main():
  private_env.write_text('\n'.join(k+'='+v for k,v in env.items())+'\n');os.chmod(private_env,0o600)
  backup.mkdir(mode=0o700)
  ownership_path=release/'private-ownership.json';assert not ownership_path.exists()
- ownership={'releaseLabel':label,'containers':{},'network':None}
+ ownership={'releaseLabel':label,'containers':{},'network':None,'creationIntents':{}}
  def save_ownership():
   temporary=release/'private-ownership.next'
   with temporary.open('w') as output:
@@ -107,10 +107,14 @@ def main():
    return None
   current=json.loads(result.stdout)[0]
   persisted=json.loads(ownership_path.read_text());assert persisted['releaseLabel']==label
-  guards['require_private'](current,persisted['containers'].get(name),label)
+  image=old_image if name==names[0] else EXPECTED_IMAGE_ID
+  guards['require_private_or_inert_intent'](current,persisted['containers'].get(name),persisted.get('creationIntents',{}).get(name),name,image,label)
   return current
  def create_private(args,name,image,command=()):
-  container_id=run(args+[image,*command]);assert re.fullmatch('[a-f0-9]{64}',container_id)
+  assert name not in ownership['creationIntents'] and name not in ownership['containers']
+  token=uuid.uuid4().hex
+  ownership['creationIntents'][name]={'name':name,'imageId':image,'token':token};save_ownership()
+  container_id=run(args+['--label','lifeos.creation-intent='+token,image,*command]);assert re.fullmatch('[a-f0-9]{64}',container_id)
   expected={'name':name,'containerId':container_id,'imageId':image}
   guards['require_private'](json.loads(run(['docker','inspect',container_id]))[0],expected,label)
   ownership['containers'][name]=expected;save_ownership()
@@ -141,9 +145,11 @@ def main():
   guards['require_original'](current,expected_original,binding['originalLabels'])
   assert version(original['Id'])['head']==old_head
   exclusive([original['Id']])
+  report['preStopMemory']=guards['require_recovery_memory'](current)
   run(['docker','stop','--time','35',original['Id']],timeout=45)
   exclusive()
   pause(8)
+  report['postStopMemoryCapMiB']=guards['recovery_memory_cap'](available())
   dump=backup/'quiescent.dump'
   with dump.open('wb') as f:bounded_run(['docker','exec','lifeos-db-1','pg_dump','-U','lifeos','-d','lifeos','--format=custom','--no-owner','--no-acl'],stdout=f,stderr=subprocess.DEVNULL,check=True,timeout=budget(90))
   os.chmod(dump,0o600);run(['docker','exec','lifeos-db-1','createdb','-U','lifeos',db])
@@ -192,7 +198,7 @@ def main():
   migrations=['034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql']
   for kind,image in [('old',old_image),('new',EXPECTED_IMAGE_ID)]:
    exclusive()
-   mem=available();cap=min(768,mem//(1024*1024)-256);assert cap>=640,'LOW_MEMORY_NO_ENCODER_STARTED'
+   cap=guards['recovery_memory_cap'](available())
    name=names[0 if kind=='old' else 1]
    args=['docker','create','--name',name,'--label','lifeos.rehearsal='+label,'--network','none','--init','--pids-limit','96','--log-driver','local','--log-opt','max-size=2m','--log-opt','max-file=2','--read-only','--tmpfs','/tmp:rw,nosuid,size=64m','--cap-drop','ALL','--security-opt','no-new-privileges:true','--memory',str(cap)+'m','--memory-swap',str(cap)+'m','--cpus','1','--env-file',str(private_env)]
    if kind=='new':args+=['-e','LIFEOS_EVIDENCE=/app/evidence/v1.3-action-coach/provider/qwen-current','-e','LIFEOS_BUILD_COMMIT='+EXPECTED_HEAD]

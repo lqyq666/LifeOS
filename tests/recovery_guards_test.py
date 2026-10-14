@@ -12,6 +12,62 @@ spec.loader.exec_module(guards)
 
 
 class RecoveryGuardsTests(unittest.TestCase):
+    def test_actual_post_stop_operation_prefix_rejects_low_memory_before_dump(self):
+        import ast
+        from unittest.mock import Mock
+        source=(Path(__file__).resolve().parents[1]/'deploy/rehearse-production.py').read_text(encoding='utf-8')
+        main=next(node for node in ast.parse(source).body if isinstance(node,ast.FunctionDef) and node.name=='main')
+        operation=next(node for node in main.body if isinstance(node,ast.Try))
+        start=next(i for i,node in enumerate(operation.body) if isinstance(node,ast.Expr) and isinstance(node.value,ast.Call) and isinstance(node.value.func,ast.Name) and node.value.func.id=='pause')
+        end=next(i for i,node in enumerate(operation.body) if isinstance(node,ast.With))
+        actual=ast.Module(body=operation.body[start:end+1],type_ignores=[])
+        dump=Mock();backup=Mock();backup.__truediv__=Mock(return_value=dump)
+        env={'pause':Mock(),'report':{},'guards':{'recovery_memory_cap':guards.recovery_memory_cap},'available':lambda:895*1024**2,'backup':backup,'bounded_run':Mock(),'subprocess':Mock(),'budget':lambda n:n}
+        with self.assertRaisesRegex(ValueError,'LOW_MEMORY_NO_ENCODER_STARTED'):
+            exec(compile(actual,'actual-post-stop-prefix','exec'),env)
+        backup.__truediv__.assert_not_called();dump.open.assert_not_called();env['bounded_run'].assert_not_called()
+        self.assertEqual(guards.recovery_memory_cap(896*1024**2),640)
+        self.assertEqual(guards.recovery_memory_cap(2048*1024**2),768)
+
+    def test_uncommitted_creation_requires_exact_intent_and_never_started_network_none(self):
+        intent={'name':'private','imageId':'sha256:'+'b'*64,'token':'c'*32}
+        current={'Id':'a'*64,'Image':intent['imageId'],'Name':'/private',
+                 'Config':{'Labels':{'lifeos.rehearsal':'owned','lifeos.creation-intent':intent['token']}},
+                 'State':{'Running':False,'Status':'created','Pid':0,'StartedAt':'0001-01-01T00:00:00Z'},
+                 'NetworkSettings':{'Networks':{'none':{}}}}
+        def check(value,record=intent):
+            guards.require_private_or_inert_intent(value,None,record,'private',intent['imageId'],'owned')
+        check(current)
+        import copy
+        cases=[]
+        for key,value in [('Running',True),('Status','exited'),('Pid',42),('StartedAt','2026-10-14T00:00:00Z')]:
+            changed=copy.deepcopy(current);changed['State'][key]=value;cases.append(changed)
+        for networks in ({},{'private':{}},{'none':{},'private':{}}):
+            changed=copy.deepcopy(current);changed['NetworkSettings']['Networks']=networks;cases.append(changed)
+        changed=copy.deepcopy(current);changed['Config']['Labels']['lifeos.creation-intent']='d'*32;cases.append(changed)
+        for changed in cases:
+            with self.assertRaisesRegex(ValueError,'IMMUTABLE_OWNERSHIP_CHANGED'):check(changed)
+        with self.assertRaisesRegex(ValueError,'IMMUTABLE_OWNERSHIP_CHANGED'):check(current,None)
+
+    def test_memory_gate_counts_bound_anonymous_memory_not_cache_and_rejects_wrong_cgroup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);proc=root/'proc';cgroups=root/'cgroup';cid='a'*64
+            (proc/'123').mkdir(parents=True)
+            group=cgroups/('system.slice/docker-'+cid+'.scope');group.mkdir(parents=True)
+            (proc/'123/cgroup').write_text('0::/system.slice/docker-'+cid+'.scope\n')
+            (proc/'meminfo').write_text('MemAvailable: 524288 kB\n')
+            (group/'cgroup.procs').write_text('123\n')
+            (group/'memory.current').write_text(str(700*1024**2))
+            (group/'memory.stat').write_text('anon '+str(512*1024**2)+'\nfile 0\n')
+            current={'Id':cid,'State':{'Pid':123,'Running':True},'HostConfig':{'IpcMode':'private'}}
+            self.assertEqual(guards.require_recovery_memory(current,proc,cgroups)['boundAnonymousBytes'],512*1024**2)
+            (group/'memory.stat').write_text('anon 0\nfile '+str(700*1024**2)+'\n')
+            with self.assertRaisesRegex(ValueError,'LOW_MEMORY_BEFORE_PUBLIC_STOP'):
+                guards.require_recovery_memory(current,proc,cgroups)
+            (proc/'123/cgroup').write_text('0::/system.slice/docker-'+'b'*64+'.scope\n')
+            with self.assertRaisesRegex(ValueError,'CGROUP_UNCONFIRMED'):
+                guards.require_recovery_memory(current,proc,cgroups)
+
     def test_private_replacement_copied_label_and_network_identity_rejected(self):
         expected={'containerId':'a'*64,'imageId':'sha256:'+'b'*64,'name':'private'}
         current={'Id':expected['containerId'],'Image':expected['imageId'],'Name':'/private','Config':{'Labels':{'lifeos.rehearsal':'owned'}}}

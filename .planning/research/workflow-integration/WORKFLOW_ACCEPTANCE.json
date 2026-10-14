@@ -2303,7 +2303,7 @@
     }
   },
   "currentRecoveryContinuation20261013": {
-    "status": "RECOVERY_SOURCE_AND_SCOPED_FIXTURES_PASS_FULL_IMAGE_TRANSFER_AND_BILL_MAPPING_PENDING",
+    "status": "IMAGE_AND_47_FILES_STAGED_LOCAL_RECOVERY_FIX_TESTED_EXECUTION_NOT_ELIGIBLE",
     "capturedAt": "2026-10-13T15:54:49.513Z",
     "browser": "STANDARD_BROWSER_RECONNECTED_SAME_VERSION_BYTES_SECURITY_CHECKS_RETAINED",
     "accountBalanceObserved": 62658,
@@ -2370,19 +2370,29 @@
         "persistentRetryDelaySeconds": 20,
         "persistentRetryTotalDuration": "UNBOUNDED_FAILSAFE_NOT_GLOBAL_TIME_BOUND"
       },
-      "scopedEvidence": "evidence/local-agent-workflow-skill-20261013/RECOVERY_WATCHDOG_CONTRACTS.json"
+      "scopedEvidence": "evidence/local-agent-workflow-skill-20261013/RECOVERY_WATCHDOG_CONTRACTS.json",
+      "latestLocalFix": "currentLocalRecoveryFix20261014",
+      "priorSourceReviewScope": "HISTORICAL_3b5e517_SUPERSEDED_BY_EXECUTION_REJECTION_AND_LOCAL_FIX"
     },
     "transfer": {
       "directory": "/opt/lifeos/releases/recovery-e3aec6d-76ceda52",
       "receipt": ".local/continuation-20261013/image-transfer-resume.json",
-      "status": "TRANSFER_FAILED_OR_UNKNOWN_RETAIN_PREFIX",
+      "status": "PASS_COMPLETE_REMOTE_ARCHIVE_SHA256",
       "totalBytes": 600073449,
       "archiveSha256": "5ce5e000d4e82137038fa55a072e96b33f79245b60573f49090bf0f50b36b5e6",
-      "lastRemoteVerifiedBytes": 250773504,
-      "lastRemotePrefixSha256": "46173a0b61d348b64895ed1223491ed9c2343be3415bfb03000341c796aad173",
+      "lastRemoteVerifiedBytes": 600073449,
+      "lastRemotePrefixSha256": "5ce5e000d4e82137038fa55a072e96b33f79245b60573f49090bf0f50b36b5e6",
       "activeWorker": false,
-      "fullRemoteArchiveVerified": false,
-      "latestFailure": "SSH_BANNER_BEFORE_ANY_PREFIX_WRITE"
+      "fullRemoteArchiveVerified": true,
+      "pid": 28584,
+      "remote": "/opt/lifeos/releases/recovery-e3aec6d-76ceda52/image.tar.gz",
+      "paidCalls": 0,
+      "serviceStopped": false,
+      "transport": "EXISTING_OPENSSH_SFTP_STRICT_KNOWN_HOSTS",
+      "resumedOffset": 250773504,
+      "childPid": 9036,
+      "attempt": ".local/continuation-20261013/native-sftp-d63e1557-f350-46ff-9132-7e054fa78400",
+      "exitCode": 0
     },
     "evidence": [
       {
@@ -2524,6 +2534,66 @@
         }
       ],
       "productionRehearsalExecuted": false
+    },
+    "staging": {
+      "status": "PASS_REMOTE_CANONICAL_IMAGE_AND_STAGED_MIGRATION_BYTES",
+      "files": 47,
+      "migrations": 37,
+      "receipt": ".local/continuation-20261013/exact-staged-release-readback.json",
+      "boundFilesReceipt": ".local/continuation-20261013/bound-recovery-upload-final.json",
+      "remoteBindingUsableForCurrentSource": false
+    }
+  },
+  "currentLocalRecoveryFix20261014": {
+    "status": "PASS_LOCAL_RECOVERY_INTENT_AND_PRESTOP_MEMORY_CONTRACTS",
+    "date": "2026-10-14",
+    "sources": [
+      {
+        "file": "deploy/recovery-guards.py",
+        "sha256": "659096f189ae8b207761511c9e8a509b187d34e039d62d51726e334d107cdc25"
+      },
+      {
+        "file": "deploy/rehearse-production.py",
+        "sha256": "75bfa346e764285ae9a6336334de7d8235508f5badfc7ed1b53e9ee012b639b7"
+      },
+      {
+        "file": "tests/recovery_guards_test.py",
+        "sha256": "d8fb34e161872ea697e1fd93521509217f4da98260a821ed31160e00d2edcd41"
+      },
+      {
+        "file": "tests/recovery_watchdog_test.py",
+        "sha256": "84c0893e677103f2764d51be3a6c9ee1fbbe08d026a457454120765eaa990b0d"
+      }
+    ],
+    "tests": {
+      "guard": 10,
+      "linuxSimulatedWatchdog": 7,
+      "total": 17,
+      "log": ".local/continuation-20261013/creation-intent-memory-poststop-green.log",
+      "logSha256": "ac9ed431e53f2db85ee90bc6d5d2e640f51d67bd39bed3bc0a94f9dc5eb4cfd7"
+    },
+    "actualLocalDocker": {
+      "path": ".local/continuation-20261013/local-inert-intent-docker-proof.json",
+      "sha256": "5c7882a57f7b374f62737b87d12f10a8de30b6bd1dc5630de97c0cf43005fbbb",
+      "scope": "NEVER_STARTED_CONTAINER_SHAPE_AND_OWNED_CLEANUP_ONLY"
+    },
+    "executionEligible": false,
+    "remoteBinding": "SUPERSEDED_BY_LOCAL_SOURCE_CHANGE_DO_NOT_EXECUTE",
+    "productionRehearsalExecuted": false,
+    "realProviderCalls": 0,
+    "cozeCalls": 0,
+    "paidTestsRepeated": 0,
+    "published": false,
+    "remaining": [
+      "Rebind changed host operation only when resuming authorized deployment work",
+      "Actual production recovery and current real Agent/workflow/five Skill gates",
+      "Request-mappable billing or other required resources remain unavailable"
+    ],
+    "sourceReview": {
+      "verdict": "PASS_SOURCE_ONLY",
+      "executionEligible": false,
+      "path": ".local/continuation-20261013/reviews/local-intent-memory-final/report.json",
+      "sha256": "ee7283d3ff433a14e5d6dc92200780b51f02a04132b4c8bcfce1d3b4f3fec4c9"
     }
   }
 }
