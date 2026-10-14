@@ -197,7 +197,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   if(turnDerivedControls.status==='explicit'){
     staged.directionControls=await stageDirectionControls(run,turnDerivedControls.changes,expectedControlKey)
   }
-  const contributionSentenceMode=requiresImmediateMaterial(current.content)&&/作品描述/.test(current.content)
+  const contributionSentenceMode=requiresImmediateMaterial(current.content)&&/(?:作品描述|一句简历(?:表达|描述))/.test(current.content)
   const resumePortfolioMode=requiresImmediateMaterial(current.content)&&/简历|作品清单|作品集|个人介绍|作品描述/.test(current.content)
   const obligations=deriveTurnObligations(current.content,{resumePortfolioMode,...(turnDerivedControls.status==='explicit'?{directionControls:turnDerivedControls.changes}:{})})
   staged.turnObligations=obligations

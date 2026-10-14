@@ -68,3 +68,20 @@ test('R3 actual failures: unattempted choices cannot open experience and invalid
   assert.ok(negativePersonalFactClauses('我是成年大学生，想了解同学选课的麻烦，还没访谈，也没有人承诺使用工具。怎样开始了解？').some(c=>c.text==='也没有人承诺使用工具'),'the supplied absence of a usage promise must not depend on provider extraction')
  assert.equal(taskOutcomeReadback('但还没有用过我做的东西',undefined,true).adoption.status,'reported_not_used')
 })
+
+
+test('real three-session requests are not personal memories and direct resume delivery is immediate',()=>{
+ for(const text of ['先帮我想一个可以了解自己更喜欢哪种工作的起点','也别写采用和商业成绩','不要写队友的插画','请沿用上次社团海报的真实经过']){
+  const catalogue=buildClauseCatalogue(text)
+  const result=resolveGrowthDeltas({deltas:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:catalogue[0]!.clauseId}}],currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[]})
+  assert.equal(result.deltas.length,0,text)
+ }
+ const text='我决定现阶段就业优先，接单先不扩大。请沿用上次社团海报的真实经过，直接给我一句简历表达。不要写队友的插画，也别写采用和商业成绩。'
+ assert.equal(requiresImmediateMaterial(text),true)
+ assert.equal(deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:deliverableIntent(text,'create')}).capabilities.material,true)
+ assert.equal(requiresImmediateMaterial('不要直接给我一句简历表达，只想聊聊。'),false)
+ for(const text of ['我想了解自己更喜欢哪种工作','我决定现阶段就业优先']){
+  const catalogue=buildClauseCatalogue(text)
+  assert.equal(resolveGrowthDeltas({deltas:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:catalogue[0]!.clauseId}}],currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[]}).deltas[0]?.kind,'goal')
+ }
+})

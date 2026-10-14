@@ -1,3 +1,4 @@
+import {growthContext,stageGrowthUpdates} from '../../server/growth.ts'
 import {mainCompanionPolicy} from '../../server/companion-policy.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -388,6 +389,20 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       await assert.rejects(engine(turn.input),(error:any)=>error.code==='BOUNDED_REPLY_INVALID')
       assert.equal(requests.length-requestCount,1,'invalid prose is not a paid automatic repair')
       assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1',[user])).rows[0].n,before)
+    })
+    await t.test('saved real resume request delivers the verified contribution without another model call',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC resume regression'})
+      const factTurn=await prepare('我负责文字排版，插画是队友做的。',conversation)
+      const growth=await stageGrowthUpdates(factTurn.run,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:factTurn.run.source_message_id,quote:'我负责文字排版'}}],await growthContext(user,conversation))
+      await store.finishRun(factTurn.run,{candidates:[],audit:[],growth},'已记录。',null,new AbortController().signal)
+      const turn=await prepare('请沿用上次社团海报的真实经过，直接给我一句简历表达。不要写队友的插画，也别写采用和商业成绩。',conversation)
+      const before=requests.length,result=await engine(turn.input)
+      assert.equal(requests.length,before,'unique source-backed contribution uses the existing deterministic renderer')
+      assert.match(result.text,/我负责文字排版/)
+      assert.ok(!/待补|商业成绩|插画/.test(result.text))
+      const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.ok(saved.stateChange.material,'the deliverable is persisted, not just a preamble')
+      assert.equal(saved.growthIds.length,0,'writing instructions do not become memories')
     })
   }finally{
     model.baseUrl=previousURL;config.apiKey=previousKey

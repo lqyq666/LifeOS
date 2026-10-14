@@ -11,7 +11,7 @@ import { resolveClause } from './clause-catalogue.ts'
 import type { GrowthInputDelta, ResolvedGrowthDelta, ResolvedGrowthTarget } from './growth-model-contracts.ts'
 import type { CorrectionPlan } from './turn-obligations.ts'
 import {applicableTimeBudget} from './turn-obligations.ts'
-import {conversationPreferenceClause,currentConversationOnly,deferredPursuitClause} from './user-command-spans.ts'
+import {assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause} from './user-command-spans.ts'
 import {reportedPursuitClauses} from './turn-contract.ts'
 
 export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null;status?:string}
@@ -66,13 +66,7 @@ export function resolveGrowthDeltas(input:{
     // fact the user asserted — the meta-query shape (你记得我之前说过什么吗)
     // can no longer ground a user_reported create (L1OFF).
     if(delta.assertion==='user_reported'){
-      if(conversationPreferenceClause(clause.text)){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue}
-      // SP_STATUS_01: a request about THIS conversation is not a pursuit or
-      // personal fact, even if the provider selects it as a goal. Short genuine
-      // direction statements (先就业/先探索科研) remain eligible.
-      if(/^(?:(?:请|麻烦|帮我|给我)(?:先|继续)?(?:处理|解释|看看|分析|安排|写|修改|听|聊)|(?:先|继续)(?:处理|解决|看|聊|整理|核对)(?:这个|这件|原来|刚才|上述|一下))/.test(clause.text.trim())){
-        audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue
-      }
+      if(assistantRequestClause(clause.text)){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue}
       // A pure connective/adverbial fragment (顺便/然后/另外…) is not a fact.
       if(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成/.test(clause.text)){
         audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue

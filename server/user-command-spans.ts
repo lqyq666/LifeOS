@@ -37,6 +37,16 @@ export function conversationPreferenceClause(text:string):boolean{
  if(/^(?:只想|就想)(?:听|聊|说说|倾诉)|^(?:今天|现在)?(?:先)?听我(?:讲|说)/.test(text))return true
  return /^(?:我(?:今天|现在|目前|这次|最近|先|暂时)?(?:只想|只是想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说(?:说|一下|点)|倾诉|吐(?:个)?槽|陪我)|(?:请|麻烦)?(?:先|暂时)?(?:不要|不用|不想|不需要|别)(?:再)?(?:给(?:我)?|帮我(?:想)?)?(?:别的|其他)?(?:建议|推荐|方法|办法|做法|练法|学法|写法|攻略|行动|复盘)|(?:先)?听我说)/.test(text.trim())
 }
+// A request to the assistant is not autobiographical evidence. Keep this
+// separate from listening preferences: positive requests still need delivery.
+export function assistantRequestClause(text:string):boolean{
+ const clause=text.trim().replace(/^(?:也|并且|而且)/,'')
+ return conversationPreferenceClause(clause)
+  ||/^(?:请|麻烦)?(?:先|继续|直接|马上|现在)?(?:帮我|给我|替我)(?:先|继续)?(?:想|处理|解释|看看|分析|安排|写|修改|听|聊|整理|起草|拟|一(?:句|段|份|条))/.test(clause)
+  ||/^(?:请|麻烦)(?:先|继续)?(?:处理|解释|看看|分析|安排|写|修改|听|聊|沿用)/.test(clause)
+  ||/^(?:请)?(?:先|暂时)?(?:不要|别|不用)(?:再)?(?:帮我|给我|替我)?(?:写|添加|编造|夸大|列入)/.test(clause)
+  ||/^(?:先|继续)(?:处理|解决|看|聊|整理|核对)(?:这个|这件|原来|刚才|上述|一下)/.test(clause)
+}
 // Deferring a named alternative records a boundary, not an active pursuit.
 export function deferredPursuitClause(text:string):boolean{
  return /(?:稍后|以后|之后|改天|过阵子|过段时间|晚些时候)再(?:看|说)|(?:暂时|暂|先)不(?:推进|继续|安排|扩大|备考|复习)/.test(text)
