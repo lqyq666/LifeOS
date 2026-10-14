@@ -8,19 +8,17 @@ import {resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
 import {fixture} from '../workflows/fixtures.ts'
 import {randomUUID,createHash} from 'node:crypto'
-import {businessSkills,loadBusinessSkill,validateDeclaredSkillOutput,growthConfirmationPolicy} from '../../server/workflows/skills.ts'
+import {businessSkills,loadBusinessSkill} from '../../server/workflows/skills.ts'
 import {createTrace} from '../../server/workflows/trace.ts'
 import {pool} from '../../server/db.ts'
 test.after(()=>pool.end())
-test('frozen Skill output declarations enforce required fields and personal confirmation boundaries',()=>{
- const trace=createTrace(),growth=loadBusinessSkill('lifeos-growth-diff',randomUUID(),trace),action=loadBusinessSkill('lifeos-action-review',randomUUID(),trace),guide=loadBusinessSkill('lifeos-guide-application',randomUUID(),trace)
- assert.equal(growthConfirmationPolicy(growth,false,false),false)
- assert.equal(growthConfirmationPolicy(growth,true,false),true)
- assert.equal(growthConfirmationPolicy(growth,false,true),true)
- assert.throws(()=>validateDeclaredSkillOutput(growth,[{now:'猜测'}]),/invalid_contract/)
- assert.throws(()=>growthConfirmationPolicy({...growth,instructions:growth.instructions.replace('AI观察或proposed=true','AI观察或proposed=false')},true,false),/source_invalid/)
- assert.throws(()=>validateDeclaredSkillOutput(action,{reply:'已完成'}),/invalid_contract/)
- assert.throws(()=>validateDeclaredSkillOutput(guide,{nextActions:[{description:'发送消息'}]}),/invalid_contract/)
+test('the host contract preserves confirmation boundaries without parsing Skill prose',()=>{
+ const f=fixture();f.request.mode='growth_diff'
+ for(const [assertion,status,expected] of [['user_reported','active',false],['ai_observation','active',true],['user_reported','proposed',true]] as const){
+  const source=f.records[0]!,after=[{ref:source.ref,kind:'context' as const,status,assertion,text:source.text}]
+  const output=growthDiff(f.request,{traceId:f.request.traceId,requestId:f.request.requestId,committed:true,changedIds:[source.ref.id]},[],after,f.records)
+  assert.equal(output[0].needsConfirmation,expected)
+ }
 })
 test('Skill invocation loads the frozen actual version and refuses missing or replaced instructions',()=>{
  const trace=createTrace(),loaded=businessSkills.map(name=>loadBusinessSkill(name,randomUUID(),trace))
