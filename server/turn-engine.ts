@@ -437,7 +437,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // the validator can never disagree about the lane.
   const materialIntent=!readOnlyQuestion&&!boundaryNeedsClarification&&(resumePortfolioMode||deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create'))
   const planBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
-  const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent}),planBudget?.type==='weekly_plan'?planBudget:undefined,current.content)
+  const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,knowledgeIds:knowledge.map(card=>card.id),currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent}),planBudget?.type==='weekly_plan'?planBudget:undefined,current.content)
   const zeroBudgetChoices=(originalContract.schema.properties as any).reply.enum as string[]|undefined
   const verifiedBudget=applicableTimeBudget(current.content)
   const priorInterviewQuestions=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion)&&requestedQuestionEditClauses(item.text).length>0).map(item=>item.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/, '').replace(/^[“「『]|[”」』]$/g,'')).filter(q=>q.length>0&&q.length<=300)

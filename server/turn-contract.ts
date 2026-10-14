@@ -142,6 +142,7 @@ export function taskOutcomeReadback(text:string,authorizedQuotes?:ReadonlySet<st
 export function deriveTurnContract(input:{
   text:string
   knowledgeCount:number
+  knowledgeIds?:readonly string[]
   currentEventExists:boolean
   planIntent:boolean
   material:boolean
@@ -183,6 +184,12 @@ export function deriveTurnContract(input:{
     :'reply_growth'
   const effectiveMode=replyOnly?'reply_only':mode
   const schema=slimActionCoachSchema(capabilities)
+  if(capabilities.citations&&input.knowledgeIds){
+    // Generation selects from this turn's approved cards. The shared citation
+    // validator still owns revision, scope and withdrawal checks at commit.
+    const citations=(schema.properties as Record<string,any>).citations
+    citations.items={type:'object',properties:{claimId:{type:'string',enum:[...new Set(input.knowledgeIds)]}},required:['claimId'],additionalProperties:false}
+  }
   return {mode:effectiveMode,capabilities,schema,schemaChars:JSON.stringify(schema).length}
 }
 

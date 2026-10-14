@@ -20,6 +20,17 @@ import { Value } from 'typebox/value'
 import {readFileSync} from 'node:fs'
 import {boundedOrdinaryReply,boundedPlanningReply,boundedRecallReply} from '../../server/bounded-reply.ts'
 import {knowledgeIntent} from '../../server/evergreen-guide.ts'
+
+test('method citation selectors cannot name another or withdrawn card during generation',()=>{
+ const allowed='6262d479-9403-4140-8910-48de23cd2600'
+ const contract=deriveTurnContract({text:'那就用那个贡献核对方法吧。',knowledgeCount:1,knowledgeIds:[allowed],currentEventExists:true,planIntent:false,material:false})
+ assert.equal(Value.Check(contract.schema as any,{reply:'先核对本人负责的一项。',citations:[{claimId:allowed}]}),true)
+ assert.equal(Value.Check(contract.schema as any,{reply:'先核对一项。',citations:[{claimId:randomUUID()}]}),false)
+ assert.equal(Value.Check(contract.schema as any,{reply:'先核对一项。',citations:[{claimId:'own-contribution'}]}),false)
+ assert.equal(Value.Check(contract.schema as any,{reply:'这次只听你说。'}),true)
+ const without=deriveTurnContract({text:'先别给方法。',knowledgeCount:0,knowledgeIds:[],currentEventExists:true,planIntent:false,material:false})
+ assert.equal(Value.Check(without.schema as any,{reply:'好。',citations:[{claimId:allowed}]}),false)
+})
 test('actual second-session blank-form request rejects an empty preamble before dispatch',()=>{
  const text='接着上次就业实习的小探索。我还没有开始查岗位，我卡在不知道选哪个岗位；上次只采纳计划，不代表已经完成。我这周现在只剩二十分钟。先帮我写一个可以直接复制填写的岗位职责和要求核对表，未知处留空，不要替我发送消息，也不要推断我适合创业。'
  const original=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true}),contract=bindMaterialDeliverySchema(original,text)
