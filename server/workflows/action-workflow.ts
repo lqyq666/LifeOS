@@ -3,7 +3,7 @@ import {validateProposal} from './evidence-gate.ts'
 import {createOrchestrator,type WorkflowNode} from './orchestrator.ts'
 import {resolveActionCase,reviewAction,type ActionCase,type ActionReview} from './action-review.ts'
 import {proposalReceipt} from './receipts.ts'
-import {loadBusinessSkill} from './skills.ts'
+import {loadBusinessSkill,recordSkillOutput} from './skills.ts'
 import {routeWorkflow} from './router.ts'
 import type {TraceRow} from './trace.ts'
 import type {TaskJournal} from './task-journal.ts'
@@ -21,6 +21,7 @@ export function createActionWorkflow(readEvidence:EvidenceReader,sink?:(row:Trac
   const receipt=await runner.run(request,nodes,async r=>{
    if(!review)throw new WorkflowError('unavailable')
    validateProposal(r,review.proposal,await readEvidence(r))
+   recordSkillOutput(skill,r.traceId,runner.trace,{eventId:actionCase!.eventId,revision:actionCase!.revision,feedbackSource},review,review.proposal.evidenceRefs.map(ref=>ref.id))
    return proposalReceipt(r,review.proposal,{providerCalls:0,costCny:0,reservedCostCny:0,executionKind:'local_deterministic',skills:[skill.name]})
   },signal)
   const key=request.internalActorKey+':'+request.requestId

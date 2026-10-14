@@ -58,6 +58,7 @@ test('G2 asynchronous caller mutations cannot change the authorized action or fe
   f.actionCase.object='不同的对象';f.actionCase.revision=9;f.current.quote='我做完了。'
   release()
   const output=await pending
+  assert.ok(wf.trace.rows.some(row=>row.skill==='lifeos-action-review'&&row.skillPhase==='output_validated'&&row.usedEvidenceIds.includes(f.current.id)))
   assert.equal(output.receipt.status,'proposed');assert.equal(output.review?.feedback,'waiting_result');assert.ok(output.review?.reply.includes('学长甲'))
  }finally{if(previousFlag===undefined)delete process.env.LIFEOS_ADVANCED_WORKFLOWS;else process.env.LIFEOS_ADVANCED_WORKFLOWS=previousFlag}
 })

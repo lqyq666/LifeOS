@@ -34,7 +34,9 @@ test('G4 correction and withdrawal never reprint old forgotten quote or infer id
 test('G5 only current approved host guide may apply, candidate status stays suggested',()=>{
  const f=fixture(),ref={type:'knowledge' as const,id:'synthetic-guide',revision:1};f.request.authorizedEvidenceRefs.push(ref);f.records.push({ref,owner:null,conversationId:null,role:'public',status:'active',text:'公开方法',approved:true})
  const guide={guideId:ref.id,revision:1,sourceHash:'a'.repeat(64),reviewStatus:'approved' as const,current:true,branch:'b',stepId:'s',description:'先用5分钟列出一个实际问题。',minutes:5,stopCondition:'5分钟结束',support:'lifeos_adaptation' as const}
- const result=applyGuide(f.request,guide,f.records,sink);assert.equal(result.guideUsageCandidate.status,'suggested');assert.deepEqual(result.proposal.suggestedStateChanges,[])
+ const rows:import('../../server/workflows/trace.ts').TraceRow[]=[]
+ const result=applyGuide(f.request,guide,f.records,row=>{rows.push(row);sink(row)});assert.equal(result.guideUsageCandidate.status,'suggested');assert.deepEqual(result.proposal.suggestedStateChanges,[])
+ assert.ok(rows.some(row=>row.skill==='lifeos-guide-application'&&row.skillPhase==='output_validated'&&row.usedEvidenceIds.includes(ref.id)))
  assert.throws(()=>applyGuide(f.request,{...guide,reviewStatus:'needs_review'},f.records),/source_invalid/)
  assert.throws(()=>applyGuide(f.request,{...guide,current:false},f.records),/source_invalid/)
  f.request.controls.refuseAdvice=true;assert.throws(()=>applyGuide(f.request,guide,f.records),/scope_denied/)
