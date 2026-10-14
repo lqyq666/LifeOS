@@ -6,6 +6,16 @@ import * as store from '../../server/store.ts'
 import { stageCoachEvent, coachEventView, deliverableIntent, requiresImmediateMaterial } from '../../server/action-coach-events.ts'
 import type { EventDelta } from '../../server/action-coach-contracts.ts'
 
+test('actual UI minimal-action request must not become an empty material preamble',()=>{
+  const inputs=[
+    '我是成年大学生。上一学期做过一个课程工具，交给同学后是否采用、付款和效果仍未知。这周还剩九十分钟，我想先了解就业实习，创业只做小探索，考研尚未开始准备。请按我的实际情况帮我选一个能做的最小行动，不要把做过工具当作适合创业的证明。',
+    '帮我选一个能做的最小行动',
+    '请帮我做一个小探索',
+  ]
+  for(const text of inputs)assert.equal(deliverableIntent(text,'create'),false,text)
+  for(const text of ['请帮我做一份计划','帮我做一个简历草稿','请按我的经历做一份作品集介绍'])assert.equal(deliverableIntent(text,'create'),true,text)
+})
+
 test('personal capacity and exploration statements do not request a material artifact',()=>{
   for(const text of ['每周可以拿出六小时做探索','我想先看真实反馈','我打算做一次尝试','我需要时间做决定','可以使用排版工具做海报','准备通过学校邮箱请教学长丙，想问他的项目如何放进实习作品集。应该先怎么联系？','想请教学姐项目怎么用于实习申请，应该先怎么联系？'])assert.equal(deliverableIntent(text,'create'),false,text)
   for(const text of ['请帮我做一份计划','先做一份清单','我想写一封介绍邮件','可以写一句发给社团的消息吗？','给我一句确认是否需要的话'])assert.equal(deliverableIntent(text,'create'),true,text)
