@@ -10,7 +10,7 @@ import {pool} from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
 import {setMemorySettings} from '../../server/memory.ts'
-import {deriveTurnContract,bindPlanBudgetSchema,taskOutcomeReadback} from '../../server/turn-contract.ts'
+import {deriveTurnContract,bindPlanBudgetSchema,bindMaterialDeliverySchema,taskOutcomeReadback} from '../../server/turn-contract.ts'
 import {requiresImmediateMaterial,deliverableIntent} from '../../server/action-coach-events.ts'
 import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
 import {selectStructuralCandidate,clauseReportsCompleted} from '../../server/experience-content.ts'
@@ -44,6 +44,8 @@ test('real mixed report keeps editing commands out of the experience and reads l
 test('provider material metadata cannot authorize source or readiness',()=>{
   const c=deriveTurnContract({text:'帮我写一句消息',knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
   assert.ok(!JSON.stringify(c.schema).includes('materialEvidence'))
+  const interview=bindMaterialDeliverySchema(c,'帮我写一句访谈问题',false)
+  assert.ok(!JSON.stringify(interview.schema).includes('resume_portfolio'))
   const result=parseActionCoachTurn(JSON.stringify({reply:'这里是简短消息。',event:{target:{operation:'create',title:'请教消息',source:{messageId:randomUUID(),quote:'帮我写一句消息'}},action:{operation:'create',draft:{content:'你好，方便请教一下吗？',readiness:'ready',materialEvidence:[{type:'invented_authority'}],materialFactIds:['fake']}}}}))
   const action=result.event!.action!
   assert.ok('draft'in action)

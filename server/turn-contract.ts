@@ -193,7 +193,12 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
 
 // Explicit delivery requests must instantiate an artifact, never a bare
 // presentation prefix. Clarifications remain legal for incomplete requests.
-export function bindMaterialDeliverySchema(contract:TurnContract,text:string):TurnContract{
+export function bindMaterialDeliverySchema(contract:TurnContract,text:string,groundedSelection=false):TurnContract{
+  const action=(contract.schema.properties as any)?.event?.properties?.action
+  if(!groundedSelection)for(const branch of action?.anyOf??[]){
+    const draft=branch.properties?.draft
+    if(draft?.anyOf)draft.anyOf=draft.anyOf.filter((format:any)=>format.properties?.kind?.const!=='resume_portfolio')
+  }
  if(!contract.capabilities.material||!requiresImmediateMaterial(text))return contract
  const schema=structuredClone(contract.schema) as any,event=schema.properties.event
  schema.required=[...new Set([...(schema.required??[]),'event'])]
