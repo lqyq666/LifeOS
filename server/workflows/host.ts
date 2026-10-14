@@ -41,10 +41,10 @@ export async function actionReviewHints(input:{run:Run;staged:Staged;text:string
   const envelope=await Promise.race([envelopePromise,new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(new Error('unavailable')),request.modelBudget.deadlineMs)})]).finally(()=>{if(timer)clearTimeout(timer)})
   const remaining=Math.floor(request.modelBudget.deadlineMs-(performance.now()-started))
   if(remaining<=0)throw new Error('unavailable')
-  const {receipt,review}=await wf.run(request,[envelope.actionCase],current,input.signal)
+  const {receipt,review,skillInstructions}=await wf.run(request,[envelope.actionCase],current,input.signal)
   if(receipt.status!=='proposed'||!review){input.staged.audit.push({phase:'workflow_fallback',mode:'action_review',status:'unavailable',providerCalls:0});return null}
   // Facts and state writes still use the model's native event clause handles and finishRun.
-  return {schemaVersion:2,status:'proposed',eventId:event.id,eventRevision:event.revision,feedbackCandidate:review.feedback,stages:review.stages,knownResultBoundary:review.reply,nextActionCandidates:review.proposal.nextActions,rule:'Candidate guidance only. No state change has been persisted. Use exact authorized current clause handles; preserve refusal and unknown causes.'}
+  return {schemaVersion:2,status:'proposed',eventId:event.id,eventRevision:event.revision,skillInstructions,feedbackCandidate:review.feedback,stages:review.stages,knownResultBoundary:review.reply,nextActionCandidates:review.proposal.nextActions,rule:'Candidate guidance only. No state change has been persisted. Use exact authorized current clause handles; preserve refusal and unknown causes.'}
  }catch{input.staged.audit.push({phase:'workflow_fallback',mode:'action_review',status:'unavailable',providerCalls:0});return null}
 }
 

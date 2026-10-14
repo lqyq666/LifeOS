@@ -30,5 +30,37 @@ export function loadBusinessSkill(name:BusinessSkill,traceId:string,trace:{appen
 // Call only after the host has validated the output. This records deterministic
 // capability execution, not a model invocation or a committed user action.
 export function recordSkillOutput(skill:ReturnType<typeof loadBusinessSkill>,traceId:string,trace:{append:(row:TraceRow)=>void;digest:(x:unknown)=>string},input:unknown,output:unknown,evidenceIds:string[]){
+ validateDeclaredSkillOutput(skill,output)
  trace.append({workflowId:'lifeos-workflows',version:2,traceId,agentRole:'skill',skill:skill.name,skillDigest:skill.digest,skillVersion:skill.version,skillPhase:'output_validated',inputRefDigest:trace.digest(input),outputRefDigest:trace.digest(output),usedEvidenceIds:[...new Set(evidenceIds)],latencyMs:0,providerCalls:0,costCny:0,reservedCostCny:0,status:'succeeded',executionKind:'local_deterministic'})
+}
+
+// Deterministic Skills execute the output declaration in their frozen body.
+// Host evidence/permission checks remain mandatory and cannot be weakened by it.
+export function validateDeclaredSkillOutput(skill:ReturnType<typeof loadBusinessSkill>,output:unknown){
+ const declared=(label:string)=>skill.instructions.split(/\r?\n/).find(line=>line.startsWith(label))
+ const requireFields=(value:unknown,fields:string[])=>{if(!value||typeof value!=='object'||fields.some(field=>!Object.hasOwn(value,field)))throw new WorkflowError('invalid_contract')}
+ if(skill.name==='lifeos-growth-diff'){
+  const declaration=declared('GrowthDelta v2:')
+  if(!declaration?.includes('本人已确认=false')||!declaration.includes('AI观察或proposed=true')||!declaration.includes('没有写权限'))throw new WorkflowError('source_invalid')
+  const fields=declaration.slice('GrowthDelta v2:'.length).split('（')[0].split(',').map(field=>field.trim())
+  if(!Array.isArray(output))throw new WorkflowError('invalid_contract')
+  for(const delta of output)requireFields(delta,fields)
+ }else if(skill.name==='lifeos-action-review'){
+  const declaration=declared('ActionReview:')
+  if(!declaration)throw new WorkflowError('source_invalid')
+  requireFields(output,declaration.slice('ActionReview:'.length).replace(/\([^)]*\)/g,'').split(',').map(field=>field.trim()))
+ }else if(skill.name==='lifeos-guide-application'){
+  const declaration=declared('WorkflowProposal v2；')
+  if(!declaration?.includes('nextActions有依据/分钟/stopCondition'))throw new WorkflowError('source_invalid')
+  requireFields(output,['nextActions'])
+  for(const action of (output as {nextActions:unknown[]}).nextActions)requireFields(action,['evidenceRefs','estimatedMinutes','stopCondition'])
+ }
+}
+
+export function growthConfirmationPolicy(skill:ReturnType<typeof loadBusinessSkill>,observation:boolean,proposed:boolean){
+ // Validate the actual declared rule before using it. Never accept a new rule
+ // that could silently treat AI observations as confirmed personal facts.
+ validateDeclaredSkillOutput(skill,[])
+ const declaration=skill.instructions.split(/\r?\n/).find(line=>line.startsWith('GrowthDelta v2:'))!
+ return /AI观察或proposed=true/.test(declaration)&&(observation||proposed)
 }

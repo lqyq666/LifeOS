@@ -10,7 +10,7 @@ import type {TaskJournal} from './task-journal.ts'
 export function createActionWorkflow(readEvidence:EvidenceReader,sink?:(row:TraceRow)=>void,journal?:TaskJournal){
  const runner=createOrchestrator({readEvidence,traceSink:sink,journal})
  const reviews=new Map<string,ActionReview>()
- async function run(raw:WorkflowRequest,cases:ActionCase[],current:EvidenceRef,signal?:AbortSignal):Promise<{receipt:WorkflowReceipt;review:ActionReview|null}>{
+  async function run(raw:WorkflowRequest,cases:ActionCase[],current:EvidenceRef,signal?:AbortSignal):Promise<{receipt:WorkflowReceipt;review:ActionReview|null;skillInstructions:string|null}>{
   const request=structuredClone(parseRequest(raw)),authorizedCases=structuredClone(cases),feedbackSource=structuredClone(current)
   if(request.mode!=='action_review'||routeWorkflow(request).route!=='candidate')throw new WorkflowError('scope_denied')
   const skill=loadBusinessSkill('lifeos-action-review',request.traceId,runner.trace)
@@ -26,7 +26,7 @@ export function createActionWorkflow(readEvidence:EvidenceReader,sink?:(row:Trac
   },signal)
   const key=request.internalActorKey+':'+request.requestId
   if(receipt.status==='proposed'&&review)reviews.set(key,structuredClone(review))
-  return {receipt,review:receipt.status==='proposed'?structuredClone(reviews.get(key)??null):null}
+  return {receipt,review:receipt.status==='proposed'?structuredClone(reviews.get(key)??null):null,skillInstructions:receipt.status==='proposed'?skill.instructions:null}
  }
  return {run,trace:runner.trace}
 }

@@ -8,10 +8,20 @@ import {resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
 import {fixture} from '../workflows/fixtures.ts'
 import {randomUUID,createHash} from 'node:crypto'
-import {businessSkills,loadBusinessSkill} from '../../server/workflows/skills.ts'
+import {businessSkills,loadBusinessSkill,validateDeclaredSkillOutput,growthConfirmationPolicy} from '../../server/workflows/skills.ts'
 import {createTrace} from '../../server/workflows/trace.ts'
 import {pool} from '../../server/db.ts'
 test.after(()=>pool.end())
+test('frozen Skill output declarations enforce required fields and personal confirmation boundaries',()=>{
+ const trace=createTrace(),growth=loadBusinessSkill('lifeos-growth-diff',randomUUID(),trace),action=loadBusinessSkill('lifeos-action-review',randomUUID(),trace),guide=loadBusinessSkill('lifeos-guide-application',randomUUID(),trace)
+ assert.equal(growthConfirmationPolicy(growth,false,false),false)
+ assert.equal(growthConfirmationPolicy(growth,true,false),true)
+ assert.equal(growthConfirmationPolicy(growth,false,true),true)
+ assert.throws(()=>validateDeclaredSkillOutput(growth,[{now:'猜测'}]),/invalid_contract/)
+ assert.throws(()=>growthConfirmationPolicy({...growth,instructions:growth.instructions.replace('AI观察或proposed=true','AI观察或proposed=false')},true,false),/source_invalid/)
+ assert.throws(()=>validateDeclaredSkillOutput(action,{reply:'已完成'}),/invalid_contract/)
+ assert.throws(()=>validateDeclaredSkillOutput(guide,{nextActions:[{description:'发送消息'}]}),/invalid_contract/)
+})
 test('Skill invocation loads the frozen actual version and refuses missing or replaced instructions',()=>{
  const trace=createTrace(),loaded=businessSkills.map(name=>loadBusinessSkill(name,randomUUID(),trace))
  for(const s of loaded){assert.equal(s.digest,createHash('sha256').update(readFileSync('skills/'+s.name+'/SKILL.md')).digest('hex'));assert.equal(s.version,'0.2.0-candidate');assert.ok(s.instructions.includes(s.name))}
