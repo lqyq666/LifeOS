@@ -39,6 +39,12 @@ test('real mixed report keeps editing commands out of the experience and reads l
   assert.equal(clauseReportsCompleted('我问了一个同学'),true)
   assert.equal(clauseReportsCompleted('同学问了我'),false)
   assert.equal(clauseReportsCompleted('我打算问了再决定'),false)
+  const contribution='我整理了资料，代码是队友做的。帮我写一段作品描述，不要扩写成收集全部资料或交付终版。'
+  const experience=selectStructuralCandidate(contribution,buildClauseCatalogue(contribution),'2026-10-14T03:00:00Z')
+  assert.equal(experience?.quote,'我整理了资料，代码是队友做的')
+  assert.equal(experience?.content.action,'我整理了资料')
+  const instruction='我在课程小组里负责整理资料和排版，代码是队友做的。帮我写一段只包含本人贡献的作品描述，不要扩写成收集全部资料或交付终版。'
+  assert.equal(selectStructuralCandidate(instruction,buildClauseCatalogue(instruction),'2026-10-14T03:00:00Z'),null)
 })
 
 test('provider material metadata cannot authorize source or readiness',()=>{
