@@ -240,6 +240,14 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       assert.equal(requests.length-before,1)
       await store.terminateRun(user,invalid.run.request_id,'failed','WEEKLY_PLAN_SLACK_REQUIRED')
     })
+    await t.test('the preserved reverse-buffer provider failure commits only its real task allocations',async()=>{
+      const input=await prepare('我是成年大学生，目前期末课程优先，备考只保留少量时间。这周还剩两小时，帮我安排课程作业和复习，不要全排满。')
+      outputs.push({reply:'两小时排课程作业加少量复习，留缓冲不排满。具体题目和章节仍未知。',weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:1},{updateIndex:2},{updateIndex:3}],items:[{action:'课程作业',minutes:60,directionScopes:['undergraduate_upgrade']},{action:'期末复习',minutes:30,directionScopes:['undergraduate_upgrade']},{action:'缓冲/休息',minutes:30,directionScopes:['undergraduate_upgrade']}]}})
+      const result=await engine(input)
+      assert.ok(result.text.includes('未安排：30分钟。'))
+      assert.deepEqual(input.staged.weeklyPlan?.input.items.map(item=>item.minutes),[60,30])
+      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+    })
     await t.test('a named reviewed method keeps its owned task and failure continuation even when the model only returns prose',async()=>{
       const read=(name:string)=>readFileSync('.planning/research/evergreen/'+name,'utf8').trim().split(/\r?\n/).map(line=>JSON.parse(line))
       const cards=read('KB_GUIDES.jsonl').filter(card=>card.guide?.reviewStatus==='approved')
@@ -353,6 +361,7 @@ test('real reported native plan keeps its actual tasks and leaves explicit buffe
  assert.deepEqual(plan.items.map(item=>item.minutes),[10,50,40])
  assert.deepEqual(plan.items.map(item=>item.action),['列出紧急任务','完成优先课程作业','复习薄弱科目'])
  assert.equal(input.items.length,4,'do not mutate the preserved raw output')
+ for(const label of ['缓冲/休息','休息/缓冲','休息与缓冲','rest_or_buffer','buffer_rest'])assert.equal(normalizeWeeklyPlanTasks({...input,items:[{action:label,minutes:30,directionScopes:[]},input.items[0]!]}).items.length,1,label)
  assert.deepEqual(normalizeWeeklyPlanTasks({...input,items:[{action:'course_homework',minutes:50,directionScopes:[]},{action:'review',minutes:40,directionScopes:[]}]}).items.map(item=>item.action),['课程作业','复习'])
  validateWeeklyPlanShape(plan)
  assert.ok(renderProposedWeeklyPlan(plan).includes('未安排：20分钟'))
