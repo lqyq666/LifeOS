@@ -515,7 +515,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     staged.coach=undefined;staged.candidates=[];staged.memoryChanges=[];staged.growth=undefined
     if(result.event?.action&&'draft'in result.event.action&&!materialIntent){
       const target=result.event.target,event=target.operation==='continue'?[currentEvent,...historicalEvents].find(event=>event?.id===target.eventId)??null:null
-      if(effectiveMaterialRequest(current.content,result.event.action.operation==='modify'?'modify':'create',event).disposition!=='requested'){
+      if(!effectiveMaterialRequest(current.content,result.event.action.operation==='modify'?'modify':'create',event).inheritedCreateRequest){
         delete result.event.action
         staged.audit.push({phase:'unsolicited_material_dropped',providerCalls:0})
         if(!result.event.nodes?.length&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event

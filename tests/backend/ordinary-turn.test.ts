@@ -128,6 +128,15 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       const experiences=(await pool.query('SELECT source_quote FROM experiences WHERE user_id=$1 AND source_message_id=$2',[user,input.run.source_message_id])).rows
       assert.equal(experiences[0]?.source_quote,'我给学长发了请教消息，他还没回复')
     })
+    await t.test('a later feedback question does not authorize modifying a previously requested material',async()=>{
+      const input=await prepare('我又问了一个同学，他也没有给出原因。下一步怎么判断？')
+      const reply='目前原因仍未知；先核对收到的具体反馈，不把猜测当结果。'
+      outputs.push({reply,event:{target:{operation:'continue',eventId:event.id,expectedRevision:event.revision},action:{operation:'modify',actionId:event.actions[0].id,expectedRevision:event.actions[0].revision,draft:{content:'未经当前请求擅自修改的消息'}}}})
+      const result=await engine(input)
+      assert.equal(result.text,reply)
+      assert.ok(input.staged.audit.some((row:any)=>row.phase==='unsolicited_material_dropped'))
+      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+    })
     await t.test('new conversation receives real feedback and Memory OFF removes it',async()=>{
       const next=randomUUID()
       await store.createConversation(user,{id:next,title:'SYNTHETIC follow-up'})
