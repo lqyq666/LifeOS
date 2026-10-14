@@ -1,6 +1,21 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { openingQuestionDraft } from '../server/reply-draft.ts'
+import { openingQuestionDraft, safeEarlySentence } from '../server/reply-draft.ts'
+
+test('slim real framing prefixes wait for substantive content rather than fake first content',()=>{
+  for(const prefix of ['这是一句可直接复制的简短消息，发送前请自行核对老师姓名和课程名称：','围绕最近一次实际选课经历，可以这样问：']){
+    assert.equal(safeEarlySentence(JSON.stringify({reply:prefix+'\n\n'})),null)
+    const content='你最近一次选课时，具体是怎么决定选哪门课的？'
+    assert.equal(safeEarlySentence(JSON.stringify({reply:prefix+'\n\n'+content})),content.slice(0,-1))
+  }
+  assert.equal(safeEarlySentence(JSON.stringify({reply:'105分钟按作业60、复习30、缓冲15分配。'})),'105分钟按作业60、复习30、缓冲15分配')
+  assert.equal(safeEarlySentence(JSON.stringify({reply:'围绕最近一次选课，先核对课程的先修要求。'})),'围绕最近一次选课，先核对课程的先修要求')
+  const substantial='这是一条把105分钟分成作业60、复习30、缓冲15的安排消息：'
+  assert.equal(safeEarlySentence(JSON.stringify({reply:substantial+'\n\n'})),substantial)
+  for(const unsafe of ['方案已完成。','这是一句可直接复制的简短消息，已为你发送：\n\n','围绕你有焦虑症、必须马上停课的判断，可以这样说：\n\n','这是一条已经替你发送成功的消息：\n\n']){
+    assert.equal(safeEarlySentence(JSON.stringify({reply:unsafe+'接下来先核对课程的先修要求。'})),null)
+  }
+})
 
 test('progressive JSON decoding waits for a complete question and handles split escapes',()=>{
   const raw=JSON.stringify({reply:'你想先处理哪一步？然后我们再看。',event:{}})
