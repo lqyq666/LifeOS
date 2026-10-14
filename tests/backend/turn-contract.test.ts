@@ -1,3 +1,4 @@
+import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
 import {growthContext,stageGrowthUpdates} from '../../server/growth.ts'
 import {mainCompanionPolicy} from '../../server/companion-policy.ts'
 import test from 'node:test'
@@ -392,13 +393,21 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
     })
     await t.test('saved real resume request delivers the verified contribution without another model call',async()=>{
       const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC resume regression'})
-      const factTurn=await prepare('我负责文字排版，插画是队友做的。',conversation)
-      const growth=await stageGrowthUpdates(factTurn.run,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:factTurn.run.source_message_id,quote:'我负责文字排版'}}],await growthContext(user,conversation))
+      const factTurn=await prepare('社团海报的文字排版是我做的，插画是队友做的。',conversation)
+      const growth=await stageGrowthUpdates(factTurn.run,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:factTurn.run.source_message_id,quote:'社团海报的文字排版是我做的'}}],await growthContext(user,conversation))
       await store.finishRun(factTurn.run,{candidates:[],audit:[],growth},'已记录。',null,new AbortController().signal)
+      const correctionText='更正一下：我负责的是文字排版，标题文案是负责人给的。我现在只想聊聊，先别给方案。'
+      const correction=await prepare(correctionText,conversation)
+      outputs.push({reply:'我在听。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:buildClauseCatalogue(correctionText).find(c=>c.text==='标题文案是负责人给的')!.clauseId}}]})
+      const corrected=await engine(correction.input)
+      await store.finishRun(correction.run,correction.staged,corrected.text,corrected.usage,new AbortController().signal)
+      const facts=await growthContext(user,conversation)
+      assert.ok(facts.some(x=>x.text==='我负责的是文字排版'),'exact correction survives independently of title attribution')
+      assert.ok(facts.some(x=>x.text==='标题文案是负责人给的'))
       const turn=await prepare('请沿用上次社团海报的真实经过，直接给我一句简历表达。不要写队友的插画，也别写采用和商业成绩。',conversation)
       const before=requests.length,result=await engine(turn.input)
       assert.equal(requests.length,before,'unique source-backed contribution uses the existing deterministic renderer')
-      assert.match(result.text,/我负责文字排版/)
+      assert.match(result.text,/我负责的是文字排版/)
       assert.ok(!/待补|商业成绩|插画/.test(result.text))
       const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
       assert.ok(saved.stateChange.material,'the deliverable is persisted, not just a preamble')

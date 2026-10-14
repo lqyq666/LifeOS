@@ -85,3 +85,13 @@ test('real three-session requests are not personal memories and direct resume de
   assert.equal(resolveGrowthDeltas({deltas:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:catalogue[0]!.clauseId}}],currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[]}).deltas[0]?.kind,'goal')
  }
 })
+
+
+test('saved real correction never replaces own contribution with another persons title text',()=>{
+ const text='更正一下：我负责的是文字排版，标题文案是负责人给的。',catalogue=buildClauseCatalogue(text)
+ const old={id:'own',revision:1,kind:'context',assertion:'user_reported',text:'社团海报的文字排版是我做的',status:'active',unavailableReason:null}
+ const plan={newQuote:'我负责的是文字排版',target:{itemId:old.id,expectedRevision:1,beforeQuote:old.text,kind:old.kind}}
+ const result=resolveGrowthDeltas({currentMessageId:'m',currentText:text,catalogue,authorized:[old],correctionPlan:plan,controlClauseTexts:[],deltas:[{target:{operation:'create'},assertion:'user_reported',kind:'context',source:{clauseId:catalogue[1]!.clauseId}}]})
+ assert.equal(result.deltas[0]?.source.quote,'标题文案是负责人给的')
+ assert.equal(result.deltas[0]?.target.operation,'create','unrelated fact cannot consume the correction; engine fallback supplies the exact correction')
+})
