@@ -19,6 +19,7 @@ import {boundedRecallReply} from '../../server/bounded-reply.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {readGuideUsage,readPriorGuideEvents} from '../../server/guide-usage.ts'
 import {safeEarlySentence} from '../../server/reply-draft.ts'
+import {buildTurnPrompt,providerTurnMessages} from '../../server/turn-prompt.ts'
 
 test('real mixed report keeps editing commands out of the experience and reads later progress',()=>{
   const text='我通过校内邮箱发了消息，他还没回复，把消息改短，别猜他没回复的原因。'
@@ -284,4 +285,28 @@ test('single ordinary generation preserves mixed delivery and real transaction b
     await localEmbedding.close()
     await pool.end()
   }
+})
+
+
+test('wire context transmits each method and identical current event once without losing authorization',()=>{
+  const id=randomUUID(),eventId=randomUUID(),otherId=randomUUID()
+  const current={id,role:'user',content:'接着上次的方法，第三题仍不会做',created_at:'2026-10-14T03:00:00Z'} as any
+  const event={id:eventId,revision:3,nodes:[{id:randomUUID(),kind:'unknown',status:'active',text:'第三题条件尚未核对'}],actions:[],processTurns:[]} as any
+  const other={...event,id:otherId}
+  const method={id:randomUUID(),version:2,branch:'C04-3',step:'C04-3-1',body:'先核对已解示例及其适用条件。',sourceStatus:'approved'}
+  const context=JSON.parse(buildTurnPrompt({currentMessageId:id,messages:[current],currentEvent:event,events:[event,other],methodContext:[method],knowledge:[method] as any,growthBoundaries:[],blockedDirectionScopes:['postgraduate'],allowedDirectionScopes:['employment']}))
+  assert.equal(context.knowledge,undefined)
+  assert.deepEqual(context.methodContext,[method])
+  assert.equal(context.currentEvent.id,eventId)
+  assert.deepEqual(context.events.map((row:any)=>row.id),[otherId])
+  assert.deepEqual(context.blockedDirectionScopes,['postgraduate'])
+  assert.deepEqual(context.currentEvent.nodes,event.nodes)
+  const wire=providerTurnMessages(JSON.stringify(context),{provider:'bailian',id:'qwen3.8-flash'})
+  assert.equal(JSON.stringify(wire).split(method.body).length-1,1)
+  assert.equal(wire.at(-1)!.content,current.content)
+  const legacy=JSON.parse(buildTurnPrompt({currentMessageId:id,messages:[current],knowledge:[method] as any}))
+  assert.deepEqual(legacy.knowledge,[method])
+  const conflicting={...event,nodes:[{...event.nodes[0],status:'declined'}]}
+  const distinct=JSON.parse(buildTurnPrompt({currentMessageId:id,messages:[current],currentEvent:event,events:[conflicting]}))
+  assert.equal(distinct.events.length,1,'do not discard a nonidentical authorization snapshot')
 })
