@@ -35,7 +35,7 @@ git ls-remote origin
 
 **CI/CD 连接**：仓库内 `.github/workflows/`
 - `build-image.yml`：推 `main` 或手动 → 构建镜像 → 推 `ghcr.io/lqyq666/lifeos`
-- `deploy.yml`：手动 → SSH 到服务器部署（含备份与回滚）
+- `deploy.yml`：手动运行只返回阻断，不连接服务器；旧不安全发布入口已禁用。
 
 **部署 Secrets**（GitHub 仓库设置里的 Actions secrets）：
 `DEPLOY_HOST`、`DEPLOY_USER`、`DEPLOY_DIR`、`DEPLOY_SSH_KEY`

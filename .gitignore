@@ -26,3 +26,7 @@ dist/
 /.planning/research/**/*.zip
 /.planning/research/**/WORKFLOW_REAL_TRACES_*.json
 /.planning/research/workflow-integration/probe-original.jsonl
+
+# Python bytecode is local cache, never release content.
+__pycache__/
+*.py[cod]
