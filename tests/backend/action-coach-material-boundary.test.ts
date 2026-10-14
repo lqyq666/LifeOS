@@ -20,6 +20,10 @@ test('actual UI minimal-action request must not become an empty material preambl
   for(const text of inputs)assert.equal(deliverableIntent(text,'create'),false,text)
   for(const text of ['请帮我做一份计划','帮我做一个简历草稿','请按我的经历做一份作品集介绍'])assert.equal(deliverableIntent(text,'create'),true,text)
 })
+test('actual third-session worksheet attempt is feedback, not another drafting request',()=>{
+ for(const text of ['我尝试填写了这份表，只先列了待查岗位，并写下上学期课程工具的情况','只先列了待查岗位','我先写过一封邮件','我先做了一个表格'])assert.equal(deliverableIntent(text,'create'),false,text)
+ for(const text of ['先列一份岗位清单','帮我整理我先列了的岗位清单','请把我写过的邮件压成一句'])assert.equal(deliverableIntent(text,'create'),true,text)
+})
 
 test('personal capacity and exploration statements do not request a material artifact',()=>{
   for(const text of ['每周可以拿出六小时做探索','我想先看真实反馈','我打算做一次尝试','我需要时间做决定','可以使用排版工具做海报','准备通过学校邮箱请教学长丙，想问他的项目如何放进实习作品集。应该先怎么联系？','想请教学姐项目怎么用于实习申请，应该先怎么联系？'])assert.equal(deliverableIntent(text,'create'),false,text)

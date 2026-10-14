@@ -128,9 +128,10 @@ function materialRequest(text:string,operation:'create'|'modify'):'requested'|'d
   for(const clause of text.split(/[，,。！？!?；;\n]/)){
     if(/^\s*(?:我)?(?:想|打算|希望)(?:先)?做(?:一个|个)(?:校园产品|校园项目|产品|项目)\s*$/.test(clause))continue
     const request=requestIntent.exec(clause)
+    const narratedRequest=request&&/^(?:了|过)/.test(clause.slice(request.index+request[0].length))&&!/帮我|请|给我|麻烦|能不?能|可不可以/.test(request[0])
     const directTransform=/(?:^|现在想|我想)(?:把)[^。！？\n]{1,36}(?:压成一(?:句|段)|写成一(?:句|段)|问题改成[:：])/.exec(clause.trim())
     const rewrite=operation==='modify'?rewriteIntent.exec(clause):null
-    if([request,rewrite,directTransform].some(match=>match&&!negativeRequest.test(clause.slice(0,match.index+match[0].length))))requested=true
+    if([narratedRequest?null:request,rewrite,directTransform].some(match=>match&&!negativeRequest.test(clause.slice(0,match.index+match[0].length))))requested=true
     const negative=negativeRequest.exec(clause)
     if(negative&&materialVerb.test(clause.slice(negative.index+negative[0].length)))declined=true
   }
