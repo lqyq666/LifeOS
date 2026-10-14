@@ -113,3 +113,16 @@ test('G2 actual host transaction: contact → no reply → refusal across 3 owne
   appendFileSync((process.env.LIFEOS_WORKFLOW_EVIDENCE??'.planning/research/agent-workflows/evidence')+'/G2_CONTINUOUS_CHAIN.jsonl',JSON.stringify({evidence:'REAL_ISOLATED_POSTGRESQL_SYNTHETIC_ADULT_NO_PROVIDER',sessions:3,statuses,twoEventIsolation:true,repeatReads:true,memoryOffDenied:true,crossAccountDenied:true,sourceWithdrawalHidesUsage:true,paidCalls:0,normalMainEntry:'NOT_INTEGRATED'})+'\n')
  }finally{if(withdrawnSource)await pool.query('UPDATE kb_sources SET status=$2 WHERE source_id=$1',[withdrawnSource.source_id,withdrawnSource.status]);await new Promise<void>(resolve=>server.close(()=>resolve()));if(user)await pool.query('DELETE FROM "user" WHERE id=$1',[user]);delete process.env.LIFEOS_ADVANCED_WORKFLOWS}
 })
+
+
+test('actual delivery phrasing reaches waiting feedback while adoption stays explicitly unknown',()=>{
+ const f=actionFixture('我已经把排版稿交给负责人了，对方没回复，是否采用还不知道，也没有付款。')
+ f.actionCase.known.used=true
+ const result=reviewAction(f.request,f.actionCase,f.current)
+ assert.equal(result.stages.sent,true);assert.equal(result.stages.used,null);assert.equal(result.stages.replied,false)
+ assert.equal(result.feedback,'waiting_result');assert.ok(result.reply.includes('原因仍未知'))
+ for(const text of ['我打算把排版稿交给负责人','如果我已经把排版稿交给负责人了怎么办？','同学说我已经把排版稿交给负责人了']){
+  const f=actionFixture(text),r=reviewAction(f.request,f.actionCase,f.current)
+  assert.equal(r.stages.sent,false,text);assert.equal(r.feedback,null,text)
+ }
+})

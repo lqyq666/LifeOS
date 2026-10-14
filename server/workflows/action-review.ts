@@ -3,6 +3,8 @@ import {WorkflowError,emptyProposal,type EvidenceRef,type WorkflowRequest,type W
 
 export type ActionCase={eventId:string;revision:number;object:string;request:string;known:{sent:boolean|null;read:boolean|null;replied:boolean|null;used:boolean|null;effect:string|null};usage:{status:ActionUsageStatus;source:EvidenceRef}[];answeredQuestions:string[]}
 export type ActionReview={proposal:WorkflowProposal;feedback:ActionUsageStatus|null;stages:ActionCase['known'];reply:string;feedbackSource:EvidenceRef|null;needsClarification:boolean}
+// Shared by stage reconciliation and feedback classification; plans are not delivery.
+const reportedDelivery=/(?:我|按上次)[^；]{0,40}(?:发了|发出|发送了|联系了|提交了)|我(?:已经|已)(?:把[^；]{1,30})?(?:交给[^；]{1,20}了|交付了|提交了)/
 // False is an explicit negative report; null means the student has not established it.
 // Apply authorized messages chronologically. Corrections replace, rather than OR with, old facts.
 export function reconcileActionStages(before:ActionCase['known'],quote:string,reported?:(field:keyof ActionCase['known'],evidenceQuotes:string[])=>void):ActionCase['known']{
@@ -10,10 +12,10 @@ export function reconcileActionStages(before:ActionCase['known'],quote:string,re
  const text=clauses.map(x=>x.text).join('；'),stages={...before}
  if(!clauses.some(x=>/我|本人|按上次/.test(x.text)))return stages
  const facts:Record<'sent'|'read'|'replied'|'used',[RegExp,RegExp,RegExp]>={
-  sent:[/还没发|没(?:有)?发(?:出|送)|没有联系|没联系|没提交/,/(?:我|按上次)[^；]{0,40}(?:发了|发出|发送了|联系了|提交了)/,/不(?:知道|确定)[^；]{0,12}(?:是否|有没有)?(?:发出|发送|提交)/],
+  sent:[/还没发|没(?:有)?发(?:出|送)|没有联系|没联系|没提交/,reportedDelivery,/不(?:知道|确定)[^；]{0,12}(?:是否|有没有)?(?:发出|发送|提交)/],
   read:[/没(?:有)?(?:看|读)|未读/,/已读|已经(?:看|读)(?:了|过)/,/不(?:知道|确定)[^；]{0,12}(?:看|读)/],
   replied:[/没(?:有)?回复|未回复|还没回|没人回/,/回复了|收到了回复|已经回复/,/不(?:知道|确定)[^；]{0,12}(?:回|回复)/],
-  used:[/没(?:有)?(?:用|使用|采用)|未(?:使用|采用)/,/(?:已经)?(?:用上了|使用了)|已经采用|采用了/,/不(?:知道|确定)[^；]{0,12}(?:用|使用|采用)|(?:是否|有没有)(?:使用|采用)[^；]{0,8}(?:我|本人)?不(?:知道|确定)/]
+  used:[/没(?:有)?(?:用|使用|采用)|未(?:使用|采用)/,/(?:已经)?(?:用上了|使用了)|已经采用|采用了/,/不(?:知道|确定)[^；]{0,12}(?:用|使用|采用)|(?:是否|有没有)(?:使用|采用)[^；]{0,8}(?:我|本人)?(?:还|仍|尚)?不(?:知道|确定)/]
  }
  for(const key of ['sent','read','replied','used'] as const){
   const [no,yes,unknown]=facts[key]
@@ -53,7 +55,7 @@ export function reviewAction(request:WorkflowRequest,actionCase:ActionCase,curre
  if(negative){feedback='declined';reply='好，我们先停下这件事。'}
  else if(previouslyDeclined&&!reopen){reply='上次你选择了暂停；先按这个选择继续。'}
  else if(own){
-  const sent=/(?:我|按上次)[^；]{0,40}(?:发了|发出|发送了|联系了|提交了)/.test(text)
+  const sent=reportedDelivery.test(text)
   const noReply=/没(?:有)?回复|未回复|还没回|等(?:待)?回复|没人回/.test(text)
   if(stages.sent&&noReply){feedback='waiting_result';reply=`你已经向${actionCase.object}发出了${actionCase.request}，目前只知道还没回复，原因仍未知。`}
   else if(/卡住|没效果|没用上|打不开/.test(text)){feedback='blocked';reply='这次有具体卡点，但暂时不能据此判断你的能力或对方的动机。'}
