@@ -89,8 +89,8 @@ test('ordinary contract composes review, material and facts without competing mo
   const s=bindPlanBudgetSchema(c,{minutes:120,period:'this_week'},'课程和备考').schema as any
   assert.equal(s.properties.weeklyPlan.properties.items.enum,undefined,'model chooses the actual tasks')
   assert.deepEqual(s.properties.weeklyPlan.properties.availableMinutes.enum,[120],'time binding remains authoritative')
-  assert.ok(new RegExp(s.properties.reply.pattern).test('先处理课程作业；具体题量未知，保留缓冲。'))
-  assert.ok(!new RegExp(s.properties.reply.pattern).test('安排1.5小时作业，再留0.5小时复习。'))
+  assert.equal(s.properties.reply.enum,undefined,'plan explanation stays naturally generated')
+  assert.equal(s.properties.reply.maxLength,160)
 })
 
 test('single ordinary generation preserves mixed delivery and real transaction boundaries (simulated provider)',async t=>{
