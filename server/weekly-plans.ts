@@ -40,7 +40,11 @@ export function renderProposedWeeklyPlan(input:WeeklyPlanInput):string{
   validateWeeklyPlanShape(input)
   const windowLabel=input.period==='next_week'?'下周':input.period==='this_week'?'本周':'当前时段'
   if(input.availableMinutes===0)return windowLabel+'没有可用时间，先不安排任务；等可用时间改变后再调整。'
-  return windowLabel+'建议安排（可用'+input.availableMinutes+'分钟；尚未采纳或执行）：\n'+input.items.map(item=>'- '+item.action+'（'+item.minutes+'分钟）').join('\n')
+  const unused=input.availableMinutes-input.items.reduce((sum,item)=>sum+item.minutes,0)
+  return windowLabel+'建议安排（可用'+input.availableMinutes+'分钟；尚未采纳或执行）：\n'+input.items.map(item=>'- '+item.action+'（'+item.minutes+'分钟）').join('\n')+(unused>0?'\n未安排：'+unused+'分钟。':'')
+}
+export function requiresPlanSlack(text:string):boolean{
+ return /(?:别|不要|不想|不用|避免)(?:把时间|全部|全)?排满|留(?:些|一点|点|有)?(?:余量|缓冲)/.test(text)
 }
 
 // Pure shape validation: integer minutes, 0-budget ⇒ no items, totals within

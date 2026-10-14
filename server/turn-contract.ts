@@ -225,6 +225,7 @@ export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:numbe
  plan.properties.availableMinutes={type:'integer',enum:[budget.minutes]}
  plan.properties.period={type:'string',enum:[budget.period]}
  if(budget.minutes>0)plan.properties.items.minItems=1
+ if(budget.minutes>0)schema.properties.reply={type:'string',minLength:1,maxLength:160,pattern:'^(?![\\s\\S]*(?:[0-9一二两三四五六七八九十半]+)(?:\\.[0-9]+)?\\s*(?:小时|分钟))[\\s\\S]*$',description:'简短说明取舍、实际反馈或未知；具体时间只在weeklyPlan展示，不另写数字日程。'}
  if(budget.minutes===0){
   plan.properties.items.maxItems=0
   schema.properties.reply={type:'string',enum:[budget.period==='next_week'?'下周没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。':'当前安排的时段没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。']}

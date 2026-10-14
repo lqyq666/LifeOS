@@ -17,7 +17,7 @@ import {selectStructuralCandidate,clauseReportsCompleted} from '../../server/exp
 import {parseActionCoachTurn} from '../../server/action-coach-contracts.ts'
 import {boundedRecallReply} from '../../server/bounded-reply.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
-import {readGuideUsage} from '../../server/guide-usage.ts'
+import {readGuideUsage,readPriorGuideEvents} from '../../server/guide-usage.ts'
 import {safeEarlySentence} from '../../server/reply-draft.ts'
 
 test('real mixed report keeps editing commands out of the experience and reads later progress',()=>{
@@ -89,6 +89,8 @@ test('ordinary contract composes review, material and facts without competing mo
   const s=bindPlanBudgetSchema(c,{minutes:120,period:'this_week'},'课程和备考').schema as any
   assert.equal(s.properties.weeklyPlan.properties.items.enum,undefined,'model chooses the actual tasks')
   assert.deepEqual(s.properties.weeklyPlan.properties.availableMinutes.enum,[120],'time binding remains authoritative')
+  assert.ok(new RegExp(s.properties.reply.pattern).test('先处理课程作业；具体题量未知，保留缓冲。'))
+  assert.ok(!new RegExp(s.properties.reply.pattern).test('安排1.5小时作业，再留0.5小时复习。'))
 })
 
 test('single ordinary generation preserves mixed delivery and real transaction boundaries (simulated provider)',async t=>{
@@ -209,6 +211,20 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       const rows=(await pool.query('SELECT text FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])',[user,saved.growthIds])).rows
       assert.ok(rows.some(row=>row.text==='我现在决定先就业'))
     })
+    await t.test('requested slack and native plan remain authoritative in one generation',async()=>{
+      const plan=(minutes:number)=>({reply:'先处理课程作业，具体题量尚未知；保留余量再调整。',growthUpdates:[{target:{operation:'create'},assertion:'user_reported',kind:'constraint',source:{clauseId:'c0'},timeEvidence:{kind:'calendar_week',which:'this',clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'核对课程作业并尝试一道题',minutes,directionScopes:[]}]}})
+      const valid=await prepare('这周还剩两小时，帮我安排课程作业，不要全排满。')
+      outputs.push(plan(90))
+      const result=await engine(valid)
+      assert.ok(result.text.includes('未安排：30分钟。'))
+      await store.finishRun(valid.run,valid.staged,result.text,result.usage,valid.signal)
+      const invalid=await prepare('这周还剩两小时，帮我安排课程作业，不要全排满。')
+      outputs.push(plan(120))
+      const before=requests.length
+      await assert.rejects(engine(invalid),error=>Boolean((error as any).code==='WEEKLY_PLAN_SLACK_REQUIRED'))
+      assert.equal(requests.length-before,1)
+      await store.terminateRun(user,invalid.run.request_id,'failed','WEEKLY_PLAN_SLACK_REQUIRED')
+    })
     await t.test('a named reviewed method keeps its owned task and failure continuation even when the model only returns prose',async()=>{
       const read=(name:string)=>readFileSync('.planning/research/evergreen/'+name,'utf8').trim().split(/\r?\n/).map(line=>JSON.parse(line))
       const cards=read('KB_GUIDES.jsonl').filter(card=>card.guide?.reviewStatus==='approved')
@@ -237,7 +253,10 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       const context=JSON.parse(requests.at(-1).messages[1].content)
       assert.deepEqual(context.methodContext.map((row:any)=>row.id),[card.id])
       assert.equal(next.staged.guideUsage?.[0]?.guideId,card.id)
+      assert.equal(next.staged.guideUsage?.[0]?.status,'blocked')
       await store.finishRun(next.run,next.staged,nextReply.text,nextReply.usage,next.signal)
+      await setMemorySettings(actor,{requestId:randomUUID(),enabled:false,expectedRevision:1})
+      assert.deepEqual(await readPriorGuideEvents(actor,followup),[],'index-independent lookup must respect Memory OFF')
     })
     await t.test('listening is naturally generated with no unsolicited material',async()=>{
       const input=await prepare('今天只想聊聊，不要给我安排任务。')

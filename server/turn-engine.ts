@@ -28,7 +28,7 @@ import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCa
 import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKnowledge, CodeWorkflowError, type CodeWorkflowConfig } from './coze-code-workflow.ts'
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
 import { reportsOwnContribution, buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
-import { stageWeeklyPlan, renderProposedWeeklyPlan } from './weekly-plans.ts'
+import { stageWeeklyPlan, renderProposedWeeklyPlan, requiresPlanSlack } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
 import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,refusalPreferenceClause,methodReferenceClause } from './user-command-spans.ts'
@@ -625,6 +625,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         staged.audit.push({phase:'weekly_plan_budget_server_overridden',modelMinutes:planInput.availableMinutes,bindingMinutes:planObligation.minutes,providerCalls:0})
         planInput.availableMinutes=planObligation.minutes
       }
+      if(planInput.availableMinutes>0&&requiresPlanSlack(current.content)&&planInput.items.reduce((sum,item)=>sum+item.minutes,0)>=planInput.availableMinutes)throw new HttpError(400,'WEEKLY_PLAN_SLACK_REQUIRED')
       staged.weeklyPlan=await stageWeeklyPlan(run,planInput,{user:run.user_id,expectedControlSnapshotKey:expectedControlKey,effectiveBlockedScopes:blockedDirectionScopes})
       // A plan's visible period and totals come from the same validated
       // structure that is persisted, not free prose recalling an older week.
