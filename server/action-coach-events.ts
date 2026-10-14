@@ -148,6 +148,7 @@ export function requiresImmediateMaterial(text:string){
     return /^(?:请)?(?:直接|马上|现在)(?:帮我|给我|替我)?(?:写|起草|拟|做|生成|整理|改写|润色)/.test(clause)
       ||/^(?:请)?(?:直接|马上|现在)给我一(?:句|段|份|条)/.test(clause)
       ||clause.startsWith('直接起草')||clause.startsWith('请直接起草')
+      ||/^(?:请)?(?:先)?(?:帮我|给我|替我)(?:写|起草|拟|做|整理)[^。！？]{0,60}(?:模板|空白表|核对表|填写表)/.test(clause)
       ||/^(?:现在想|我想)?把[^。！？\n]{1,36}(?:压成一(?:句|段)|写成一(?:句|段)|问题改成[:：])/.test(clause)
   })
 }

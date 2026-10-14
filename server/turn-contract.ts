@@ -8,7 +8,7 @@
 
 import { actionCoachTurnSchema } from './action-coach-contracts.ts'
 import { scanUserClauses,currentConversationOnly,conversationPreferenceClause,refusalPreferenceClause,scopedTaskPauseClause } from './user-command-spans.ts'
-import {deliverableIntent} from './action-coach-events.ts'
+import {deliverableIntent,requiresImmediateMaterial} from './action-coach-events.ts'
 
 export type TurnContractMode='reply_only'|'reply_growth'|'event'|'knowledge'|'planning'|'material'
 export type TurnContractCapabilities={
@@ -210,6 +210,17 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
   }
   schema.required=['reply']
   return schema as unknown as Record<string,unknown>
+}
+
+// Explicit delivery requests must instantiate an artifact, never a bare
+// presentation prefix. Clarifications remain legal for incomplete requests.
+export function bindMaterialDeliverySchema(contract:TurnContract,text:string):TurnContract{
+ if(!contract.capabilities.material||!requiresImmediateMaterial(text))return contract
+ const schema=structuredClone(contract.schema) as any,event=schema.properties.event
+ schema.required=[...new Set([...(schema.required??[]),'event'])]
+ event.required=[...new Set([...(event.required??[]),'action'])]
+ event.properties.action.anyOf=event.properties.action.anyOf.filter((branch:any)=>branch.properties?.draft)
+ return {...contract,schema}
 }
 
 // The authoritative obligation has already resolved the student's current

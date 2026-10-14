@@ -35,7 +35,7 @@ import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,cur
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseExpressesWishToAct, clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
-import { deriveTurnContract, bindPlanBudgetSchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses,reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
+import { deriveTurnContract, bindPlanBudgetSchema, bindMaterialDeliverySchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses,reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
@@ -443,10 +443,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const priorInterviewQuestions=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion)&&requestedQuestionEditClauses(item.text).length>0).map(item=>item.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/, '').replace(/^[“「『]|[”」』]$/g,'')).filter(q=>q.length>0&&q.length<=300)
   const priorInterviewQuestion=priorInterviewQuestions.length===1?priorInterviewQuestions[0]:undefined
   const boundedReply:BoundedReply|null=boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停的是当时的备考或复习，尚未确认和这次是否同一事项。先核对这次要继续的是哪件事；不把旧暂停套到另一个考试，也不先安排任务。']}:readOnlyQuestion?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):planBudget?.type==='weekly_plan'&&planBudget.minutes===0?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'可用时间改变后再调整；不重复询问明确零时间',choices:zeroBudgetChoices!}:planBudget?.type==='weekly_plan'&&route.tier==='default'&&!materialIntent?boundedPlanningReply(planBudget):boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier,priorInterviewQuestion,...(verifiedBudget?{verifiedBudget:{minutes:verifiedBudget.amountMinutes,period:verifiedBudget.period,quote:verifiedBudget.quote}}: {})})
-  const contract=bindBoundedReplySchema(originalContract,boundedReply)
+  const contract=bindMaterialDeliverySchema(bindBoundedReplySchema(originalContract,boundedReply),current.content)
   if(contract.capabilities.material){
     const schema=contract.schema as {properties:Record<string,unknown>}
-    schema.properties.reply={type:'string',enum:['按你提供的内容，整理如下：']}
+    if(requiresImmediateMaterial(current.content))schema.properties.reply={type:'string',enum:['按你提供的内容，整理如下：']}
     if(/(?:问题|提问).{0,10}(?:压成一句|缩成一句|改成)/.test(current.content)){
       const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content)node.properties.content.maxLength=160;for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
       narrow(schema)
@@ -542,13 +542,13 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         }
       }
     }
-    if(contract.capabilities.material)result.reply='按你提供的内容，整理如下：'
     const hasMaterial=result.event?.action&&'draft'in result.event.action
+    if(contract.capabilities.material&&hasMaterial)result.reply='按你提供的内容，整理如下：'
     const requestedMaterial=deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
     // A direct drafting instruction requests delivery now. Abstract advice is
     // not a completed delivery, even when it lacks the old framing markers.
     const directDraft=requiresImmediateMaterial(current.content)
-    if(!boundaryNeedsClarification&&!hasMaterial&&requestedMaterial&&(directDraft||coachMaterialPresentation(result.reply)))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
+    if(!boundaryNeedsClarification&&!hasMaterial&&requestedMaterial&&(directDraft||coachMaterialPresentation(result.reply)||result.reply.trim()==='按你提供的内容，整理如下：'))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
     staged.usedKnowledgeRefs=undefined
     const narrativeChars=result.reply.length
     try{result.reply=renderCoachReply(result)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}

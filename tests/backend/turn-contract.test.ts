@@ -10,7 +10,7 @@ import * as store from '../../server/store.ts'
 import { createTurnEngine } from '../../server/agent.ts'
 import { model } from '../../server/model.ts'
 import { config } from '../../server/config.ts'
-import { deriveTurnContract, slimActionCoachSchema, negativePersonalFactClauses } from '../../server/turn-contract.ts'
+import { deriveTurnContract, slimActionCoachSchema, negativePersonalFactClauses,bindMaterialDeliverySchema } from '../../server/turn-contract.ts'
 import { actionCoachTurnSchema, parseActionCoachTurn } from '../../server/action-coach-contracts.ts'
 import { turnSystemPrompt } from '../../server/turn-prompt.ts'
 import { configureProviderPayload } from '../../server/model-payload.ts'
@@ -20,6 +20,16 @@ import { Value } from 'typebox/value'
 import {readFileSync} from 'node:fs'
 import {boundedOrdinaryReply,boundedPlanningReply,boundedRecallReply} from '../../server/bounded-reply.ts'
 import {knowledgeIntent} from '../../server/evergreen-guide.ts'
+test('actual second-session blank-form request rejects an empty preamble before dispatch',()=>{
+ const text='接着上次就业实习的小探索。我还没有开始查岗位，我卡在不知道选哪个岗位；上次只采纳计划，不代表已经完成。我这周现在只剩二十分钟。先帮我写一个可以直接复制填写的岗位职责和要求核对表，未知处留空，不要替我发送消息，也不要推断我适合创业。'
+ const original=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true}),contract=bindMaterialDeliverySchema(original,text)
+ assert.equal(Value.Check(contract.schema as any,{reply:'按你提供的内容，整理如下：'}),false)
+ const event={target:{operation:'create',title:'岗位核对表',source:{messageId:randomUUID(),quote:'先帮我写一个可以直接复制填写的岗位职责和要求核对表'}},action:{operation:'create',draft:{content:'岗位名称：___\n公开来源：___\n职责原文：___\n要求原文：___\n尚未知：___'}}}
+ assert.equal(Value.Check(contract.schema as any,{reply:'按你提供的内容，整理如下：',event}),true)
+ assert.equal(Value.Check(contract.schema as any,{reply:'按你提供的内容，整理如下：',event:{...event,action:{operation:'close',actionId:randomUUID(),expectedRevision:1}}}),false)
+ const incomplete=deriveTurnContract({text:'帮我写一封邮件，但还不知道发给谁。',knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+ assert.equal(Value.Check(bindMaterialDeliverySchema(incomplete,'帮我写一封邮件，但还不知道发给谁。').schema as any,{reply:'这封邮件准备发给谁？'}),true)
+})
 
 test('retained actual knowledge probe candidate is unrepresentable in the ordinary runtime contract',()=>{
   const retained=JSON.parse(readFileSync('evidence/coze-core-launch-20261011/MODEL_CAPABILITY_FIRST_FAIL.json','utf8'))
