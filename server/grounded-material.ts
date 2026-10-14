@@ -178,8 +178,11 @@ export function buildMaterialFactCatalogueForMessage(message:{id:string;conversa
 // Resolve a model's selection against THIS turn's server catalogue; any
 // invented, stale or cross-account id is MATERIAL_REFERENCE_INVALID.
 export type SelectedMaterialResult=MaterialResult&{facts:VerifiedMaterialFact[]}
-export function resolveSelectedMaterialFacts(selectedIds:readonly string[],catalogue:readonly VerifiedMaterialFact[],ownerId:string,expectedOwnerId:string,format:'resume'|'contribution_sentence'|'contribution_paragraph'='resume'):SelectedMaterialResult{
+export function resolveSelectedMaterialFacts(suppliedIds:readonly string[],catalogue:readonly VerifiedMaterialFact[],ownerId:string,expectedOwnerId:string,format:'resume'|'contribution_sentence'|'contribution_paragraph'='resume'):SelectedMaterialResult{
   if(ownerId!==expectedOwnerId)throw new Error('MATERIAL_REFERENCE_INVALID')
+  // Repeated references to the same authorized fact add no information. The
+  // renderer still rejects every unknown identity and checks every source.
+  const selectedIds=[...new Set(suppliedIds)]
   const selected=selectedIds.map(id=>catalogue.find(fact=>fact.catalogueId===id)).filter((fact):fact is VerifiedMaterialFact=>Boolean(fact))
   const rendered=renderGroundedResume(selectedIds,catalogue)
   if(format==='contribution_paragraph'){

@@ -139,7 +139,9 @@ export function deriveTurnContract(input:{
   const supportOnly=currentConversationOnly(input.text)
   const capabilities:TurnContractCapabilities={
     growth:true,
-    candidate:!supportOnly,
+    // Experience extraction and star-map updates are program-owned. The main
+    // model need not generate a second copy of the same autobiographical span.
+    candidate:false,
     plan:!supportOnly&&input.planIntent,
     citations:!supportOnly&&input.knowledgeCount>0,
     event:!supportOnly,

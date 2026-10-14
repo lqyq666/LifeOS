@@ -48,7 +48,7 @@ test('ordinary contract composes review, material and facts without competing mo
     assert.equal(c.capabilities.growth,true)
     assert.equal(c.capabilities.event,true)
     assert.equal(c.capabilities.material,true)
-    assert.equal(c.capabilities.candidate,true)
+    assert.equal(c.capabilities.candidate,false,'star-map experience extraction is program-owned')
     assert.equal(c.capabilities.citations,false)
     assert.equal((c.schema.properties as any).reply.enum,undefined)
   }
@@ -146,7 +146,7 @@ test('single ordinary generation preserves mixed delivery and real transaction b
         const state=JSON.parse(request.messages[1].content)
         const selected=state.growthCatalogue.filter((fact:any)=>fact.text==='我在课程小组里负责整理资料'||fact.text==='我负责排版')
         assert.equal(selected.length,2)
-        return {reply:'只保留你明确负责的两部分，其他成果不补写。',event:{target:{operation:'create',title:'课程小组本人贡献',source:{messageId:input.run.source_message_id,quote:'我在课程小组里负责整理资料，我负责排版'}},action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:selected.map((fact:any)=>fact.catalogueId)}}}}
+        return {reply:'只保留你明确负责的两部分，其他成果不补写。\n\n我负责交付终版。',event:{target:{operation:'create',title:'课程小组本人贡献',source:{messageId:input.run.source_message_id,quote:'我在课程小组里负责整理资料，我负责排版'}},action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[selected[0].catalogueId,...selected.map((fact:any)=>fact.catalogueId)]}}}}
       })
       const result=await engine(input)
       assert.ok(result.text.includes('我在课程小组里负责整理资料'))

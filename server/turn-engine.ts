@@ -375,7 +375,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const clauseCatalogue=buildClauseCatalogue(current.content)
   const newMatterExplicit=scanUserClauses(current.content).some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:换个|换一件|另一件|另一个|新事情|新话题|转到|转而|不谈上次)/.test(clause.text))
   const explicitMaterialRequest=clauseCatalogue.some(clause=>!clause.conditional&&!clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&deliverableIntent(clause.text,'create'))
-  const asksRecall=methodIntent.reason==='memory_query'||/(?:我报告过|我之前把|按我(?:提供|报告)|你会把|是不是(?:等于|意味着)|如果.{0,15}只想聊天)|^(?:我)?(?:本周|这周).{0,35}(?:是多少|多久|多少时间)/.test(current.content)
+  const asksRecall=methodIntent.reason==='memory_query'||/(?:我报告过|我之前把|按我(?:提供|报告)|你(?:目前|现在)?知道.{0,20}(?:实际做过|做过什么|报告过)|你会把|是不是(?:等于|意味着)|如果.{0,15}只想聊天)|^(?:我)?(?:本周|这周).{0,35}(?:是多少|多久|多少时间)/.test(current.content)
   const readOnlyQuestion=methodIntent.decision==='NONE'&&asksRecall&&!currentConversationOnly(current.content)&&!explicitMaterialRequest&&!reportsOwnContribution(current.content)&&!reportedPerformedTaskClauses(current.content).length&&clauseCatalogue.some(clause=>clause.interrogative)
   const boundaryNeedsClarification=!readOnlyQuestion&&!currentConversationOnly(current.content)&&!newMatterExplicit&&(pendingRecommendationIds.size>0||unresolvedTaskBoundaries.some(item=>current.content.includes(item.taskBoundary!.targetText)))
   const growthSelection=selectRelevantGrowth(growthAll.filter(item=>!recommendationBlockedIds.has(item.id)&&!item.taskBoundary),current.content)
@@ -539,6 +539,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         try{
           const material=resolveSelectedMaterialFacts(selection.selectedFactIds??[],materialCatalogue,run.user_id,run.user_id,contributionSentenceMode?'contribution_sentence':contributionParagraphMode?'contribution_paragraph':'resume')
           ;(result.event.action as {draft:unknown}).draft={content:material.content,readiness:material.readiness,missingRequired:material.missingRequired,materialFactIds:material.usedCatalogueIds,materialEvidence:material.facts.map(fact=>({field:fact.field,text:fact.text,sourceRef:fact.sourceRef}))}
+          // This class has one authoritative factual artifact. Keep the
+          // model's original introductory paragraph; an additional free-text
+          // body must not bypass the verified fact selection and rendering.
+          const explanation=result.reply.split(/\n\s*\n/,1)[0]!.trim()
+          if(explanation!==result.reply){result.reply=explanation;staged.audit.push({phase:'grounded_material_duplicate_body_removed',providerCalls:0})}
         }catch(error){
           throw error instanceof Error&&(error.message==='MATERIAL_REFERENCE_INVALID'||error.message==='MATERIAL_CATALOGUE_INVALID'||error.message==='MATERIAL_OUTPUT_LIMIT')?new HttpError(400,'MATERIAL_REFERENCE_INVALID'):error
         }
@@ -1037,7 +1042,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         }
       }
     }
-    if(!result.experienceCandidate&&(contract.capabilities.candidate||(snapshot.settings.enabled&&currentConversationOnly(current.content)&&reportedPerformedTaskClauses(current.content).length>0))&&!slimUpdateTimeMode&&requiresExperienceCandidate(clauseCatalogue)){
+    if(!result.experienceCandidate&&!slimUpdateTimeMode&&requiresExperienceCandidate(clauseCatalogue)){
       // Constrained decoding only guides, it does not force: flash-tier models
       // keep omitting the optional lane even when the schema requires it. A
       // structurally unambiguous completed first-person action report still
@@ -1057,7 +1062,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         }
       }
     }
-    if(!staged.candidates.length&&contract.capabilities.candidate){
+    if(!staged.candidates.length){
       // 反述直连：模型把追述写进 feedback 通道时，事件身份仍由服务器判定——
       // 原始消息里有明确指代且命中既有经历（同一套区别性词元+时间守卫），
       // 就 staged 一条合并指令，由 finishRun 在事务里落盘。
