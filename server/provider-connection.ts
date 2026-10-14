@@ -7,7 +7,7 @@ function officialProviderUrl(profile:Profile){
 }
 // Only this origin uses a persistent pool and a shared TLS-session connector.
 // Coze/local requests retain the original dispatcher; SDK retries/cancel stay intact.
-export function configureProviderTransport(profile:Profile,createAgent:()=>Dispatcher=()=>new Agent({keepAliveTimeout:60000,keepAliveMaxTimeout:60000,connect:buildConnector({timeout:10000})})){
+export function configureProviderTransport(profile:Profile,createAgent:()=>Dispatcher=()=>new Agent({keepAliveTimeout:600000,keepAliveMaxTimeout:600000,connect:buildConnector({timeout:10000})})){
  const url=officialProviderUrl(profile);if(!url)return {configured:false}
  const previous=getGlobalDispatcher(),target=createAgent()
  class ScopedDispatcher extends Dispatcher{
