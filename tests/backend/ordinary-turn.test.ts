@@ -10,6 +10,15 @@ import * as store from '../../server/store.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
 import {setMemorySettings} from '../../server/memory.ts'
 import {deriveTurnContract,bindPlanBudgetSchema} from '../../server/turn-contract.ts'
+import {requiresImmediateMaterial,deliverableIntent} from '../../server/action-coach-events.ts'
+
+test('real natural requests bind material delivery without taking over review',()=>{
+  for(const text of ['帮我写一句简短的请教消息，不要替我发送。','帮我写一段只包含本人贡献的作品描述。','我通过校内邮箱发了消息，他还没回复，把消息改短，别猜他没回复的原因。']){
+    assert.equal(deliverableIntent(text,'create'),true,text)
+    assert.equal(requiresImmediateMaterial(text),true,text)
+  }
+  for(const text of ['填过表但卡住了，别重写。','同学说帮我写一句消息。','“帮我写一句消息”是什么意思？','帮我写一封邮件，但还不知道发给谁。'])assert.equal(requiresImmediateMaterial(text),false,text)
+})
 
 test('ordinary contract composes review, material and facts without competing modes',()=>{
   for(const text of ['填过表但卡住了，别重写','他没回复，把消息改短','我每周三小时，帮我安排并写一句消息']){
