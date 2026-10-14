@@ -104,3 +104,13 @@ test('verbatim inverted contribution remains usable without expanding its scope'
  const result=resolveSelectedMaterialFacts(['own'],[{catalogueId:'own',field:'project',text,sourceKind:'user_reported',completeForField:false,sourceRef:{type:'growth',id:'own',revision:1}}],'u','u','contribution_sentence')
  assert.equal(result.content,text+'。')
 })
+
+
+test('undecided exploration asks about reported contribution without inventing career stereotypes',()=>{
+ const text='社团海报的文字排版是我做的。我还没确定就业还是自由职业，先帮我想一个可以了解自己更喜欢哪种工作的起点。'
+ const contract=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
+ const reply=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract,knowledgeCount:0,tier:'default'})!
+ assert.equal(reply.basis,'editorial_adaptation')
+ assert.ok(reply.choices.every(choice=>choice.includes('社团海报的文字排版是我做的')&&choice.includes('还不能据此判断')))
+ assert.ok(reply.choices.every(choice=>!/(?:收费|五分钟|几小时|核心差别)/.test(choice)))
+})

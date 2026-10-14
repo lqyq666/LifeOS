@@ -1,3 +1,4 @@
+import {reportsOwnContribution} from './grounded-material.ts'
 import {scanUserClauses,currentConversationOnly,refusalPreferenceClause} from './user-command-spans.ts'
 import {reportedPerformedTaskClauses,reportedCompletedContactClauses,reportedTaskOutcomeClauses,taskOutcomeReadback} from './turn-contract.ts'
 import {hoursIn} from './turn-obligations.ts'
@@ -152,6 +153,12 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
    `先分清${label}的${input.verifiedBudget.minutes}分钟和其他时段，再选当前最需要处理的一项。具体任务还待核对，不把时间分配当成执行；哪一项有明确要求？`,
   ])
  }
+ // An undecided user asking to understand their own preferences needs a
+ // grounded follow-up, not an invented causal test of career suitability.
+ const reportedContribution=clauses.find(c=>!c.conditional&&!c.interrogative&&!c.quoted&&!c.code&&!c.attributedToOther&&reportsOwnContribution(c.text))
+ if(reportedContribution&&/(?:没确定|没想好|不确定).{0,24}(?:就业|职业|方向)/.test(own)&&/(?:了解自己|更喜欢哪种|探索起点)/.test(own)&&!/(?:比较|对比|选哪个)/.test(own))return make('start','本人在已报告工作中的具体偏好与受阻环节',[
+  `可以从你已经做过的部分聊起：「${reportedContribution.text}」。其中哪一个具体环节你愿意再做，哪一个不太想继续？先说一个就好。这能提供了解偏好的线索，还不能据此判断你适合哪种职业，也不用现在选定方向。`,
+ ])
  if(input.knowledgeCount&&!contactQuestion)return null
  if(/(?:海报|作品)/.test(own)&&/(?:自由职业|接单)/.test(own)&&/(?:先整理|整理哪|从哪)/.test(own))return make('start','作品用途与本人承担的部分',[
   '先选一张你已有的海报，分别写清作品用途和你本人负责的部分；同伴的贡献另列，不补猜客户、采用或收入。你想从哪张现成作品开始？',
