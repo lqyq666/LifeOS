@@ -18,7 +18,7 @@ type Slot={nodeId:string;callId:string;reservedCostCny:number}
 type Claims=Binding&{schemaVersion:1;kind:'LIFEOS_COZE_HOST_RESERVED_GRAPH';requestId:string;projectId:'7693388932939300905';payloadDigest:string;issuedAt:string;expiresAt:string;model:'qwen3.8-flash';endpoint:string;maxOutputTokens:2048;maxPromptUtf8Bytes:12000|32768;inputCnyPerMillion:0.8;outputCnyPerMillion:2.7;slots:Slot[]}
 export type CozeHostPermit={payloadB64:string;claimsB64:string;signature:string}
 type RestoredApproval={kind:string;approvalSource:string;cozePauseLifted:boolean;productModelPauseLifted:boolean;directHttpRouteApproval?:{source:string;exactAnswer:string;newBudget:number;automaticPaidRetry:boolean;publishBeforeCoreGates:boolean}}
-function validateBinding(binding:Binding){
+export function validateBinding(binding:Binding){
  if(!/^[a-f0-9]{40}$/.test(binding.cloudCommit)||Object.entries(binding).some(([key,value])=>key!=='cloudCommit'&&!digest(value)))throw Error('CLOUD_REAL_BUILD_BINDING_REQUIRED')
 }
 function mac(secret:string,value:string){if(!digest(secret))throw Error('PERMIT_SECRET_INVALID');return createHmac('sha256',secret).update(value,'ascii').digest('hex')}

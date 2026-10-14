@@ -1,10 +1,10 @@
-import {createHash} from 'node:crypto'
+import {createHash,randomUUID} from 'node:crypto'
 import {readFileSync,mkdirSync,writeFileSync,appendFileSync,lstatSync,realpathSync} from 'node:fs'
 import {isAbsolute,join,relative,resolve,sep} from 'node:path'
 import {Value} from 'typebox/value'
 import {CoachProviderBudget,activeCoachFunding,type CoachCallReceipt} from '../../scripts/coach-provider-budget.ts'
 import {CozeCreditBudget} from '../../scripts/coze-credit-budget.ts'
-import {reserveCozeHostPermit,verifyCozeHostPermit,deriveCozePermitSecret,settleCozeHostReceipt,retainUnknownCozeGraph,cozeMaxCostPerCallCny,type CozeHostPermit} from '../../scripts/coze-host-permit.ts'
+import {validateBinding,reserveCozeHostPermit,verifyCozeHostPermit,deriveCozePermitSecret,settleCozeHostReceipt,retainUnknownCozeGraph,cozeMaxCostPerCallCny,type CozeHostPermit} from '../../scripts/coze-host-permit.ts'
 import {assertCoachSourceFreeze} from '../../scripts/coach-source-freeze.ts'
 import {validateCodeEndpoint} from '../coze-code-workflow.ts'
 import {workflowRuntimeVersion} from './runtime-version.ts'
@@ -98,6 +98,7 @@ export function parseCozeDirectionReceipt(body:unknown,r:WorkflowRequest,records
 }
 
 export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;readMethods:(r:WorkflowRequest)=>Promise<Record<string,unknown>[]>;freezePath:string;config:CozeDirectionConfig;budget?:CoachProviderBudget;credits?:CozeCreditBudget;fetchImpl?:typeof fetch;syntheticTransport?:boolean;audit?:(r:WorkflowRequest,row:Record<string,unknown>)=>Promise<void>}):DecisionAdapter{
+ validateBinding(input.config.binding)
  const cfg=input.config,target=validateCodeEndpoint(cfg.endpoint),budget=input.budget??new CoachProviderBudget(),credits=input.credits??new CozeCreditBudget(cfg.creditsLedgerPath),fetchImpl=input.fetchImpl??fetch
  if(cfg.projectId!=='7693388932939300905'||!Number.isSafeInteger(cfg.maxCreditsPerGraph)||cfg.maxCreditsPerGraph<=0||cfg.token.length<20||cfg.binding.hostSourceDigest!==workflowRuntimeVersion.sourceDigest||cfg.binding.contentHash!==workflowRuntimeVersion.contentHash)throw new WorkflowError('unavailable')
  if(!input.syntheticTransport&&(budget.path!==new CoachProviderBudget().path||credits.path!==resolve('.local/coze-launch/credits-ledger.jsonl'))||input.syntheticTransport&&!input.fetchImpl)throw new WorkflowError('scope_denied')
@@ -172,6 +173,17 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
     const funding=activeCoachFunding(budget.snapshot())
     if(!funding||funding.paused||funding.remainingCny<nodeIds.length*maxCost||credits.balance().availableCredits<cfg.maxCreditsPerGraph)throw new WorkflowError('budget_exceeded')
     const methods=await input.readMethods(r);if(methods.length>2)throw new WorkflowError('invalid_contract')
+    // An unsigned, empty readback reaches the cloud's zero-model rejection
+    // path. Check deployed bytes/version before reserving any model slots.
+    // Coze HTTP accounting is separate; retain its original credit reserve.
+    const preflightId=randomUUID();let preflight:any
+    credits.reserve({requestId:preflightId,projectId:cfg.projectId,purpose:'business',reservedCredits:cfg.maxCreditsPerGraph,payloadDigest:hash({kind:'ZERO_MODEL_RUNTIME_READBACK',requestId:r.requestId}),sourceDigest:cfg.binding.hostSourceDigest})
+    try{
+     preflight=await post({payloadB64:'',claimsB64:'',signature:''},preflightId,'readback',AbortSignal.any([networkSignal(),AbortSignal.timeout(10000),...(signal?[signal]:[])]))
+     writeFileSync(path+'.preflight.json',JSON.stringify({requestId:r.requestId,preflightId,receipt:preflight})+'\n',{flag:'wx',mode:0o600})
+     const runtime=preflight.runtime
+     if(preflight.status!=='unavailable'||preflight.providerCalls!==0||preflight.reservedCostCny!==0||!Array.isArray(preflight.trace)||preflight.trace.length||preflight.suggestedStateChanges?.length||runtime?.projectId!==cfg.projectId||runtime.businessRole!=='growth'||runtime.hostSourceDigest!==cfg.binding.hostSourceDigest||runtime.cloudCommit!==cfg.binding.cloudCommit||runtime.cloudSourceDigest!==cfg.binding.cloudSourceDigest||runtime.canonicalContentHash!==cfg.binding.contentHash||runtime.skillsDigest!==cfg.binding.skillsDigest)throw new WorkflowError('unavailable')
+    }finally{credits.finishUnknown(preflightId,preflight?'completed':'failed',preflight?.providerCalls===0?0:null,preflightId)}
     const remainingMs=end-Date.now()
     if(remainingMs<1)throw new WorkflowError('timeout')
     const payload={...r,directions,modelBudget:{...r.modelBudget,deadlineMs:remainingMs},businessRole:'growth',syntheticAdult:true,evidenceRecords:records,canonicalMethods:methods,contentBinding}
