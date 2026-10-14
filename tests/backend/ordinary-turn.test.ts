@@ -361,6 +361,7 @@ test('real reported native plan keeps its actual tasks and leaves explicit buffe
  assert.deepEqual(plan.items.map(item=>item.minutes),[10,50,40])
  assert.deepEqual(plan.items.map(item=>item.action),['列出紧急任务','完成优先课程作业','复习薄弱科目'])
  assert.equal(input.items.length,4,'do not mutate the preserved raw output')
+ assert.deepEqual(normalizeWeeklyPlanTasks({...input,items:[{action:'list_tasks',minutes:10,directionScopes:[]},{action:'prioritize_and_schedule',minutes:20,directionScopes:[]}]}).items.map(item=>item.action),['列出任务','按优先级安排任务'])
  for(const label of ['缓冲/休息','休息/缓冲','休息与缓冲','rest_or_buffer','buffer_rest'])assert.equal(normalizeWeeklyPlanTasks({...input,items:[{action:label,minutes:30,directionScopes:[]},input.items[0]!]}).items.length,1,label)
  assert.deepEqual(normalizeWeeklyPlanTasks({...input,items:[{action:'course_homework',minutes:50,directionScopes:[]},{action:'review',minutes:40,directionScopes:[]}]}).items.map(item=>item.action),['课程作业','复习'])
  validateWeeklyPlanShape(plan)
