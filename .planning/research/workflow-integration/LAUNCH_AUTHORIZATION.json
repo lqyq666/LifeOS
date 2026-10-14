@@ -87,5 +87,21 @@
     "additionalCandidatePackages": false,
     "independentReviewStillRequired": true
   },
-  "guideApprovalExecution": "OWNER_GRANTED_CONDITIONAL_EXECUTION_EXACT_INDEPENDENT_REVIEWED_VERSION_REQUIRED"
+  "guideApprovalExecution": "OWNER_GRANTED_CONDITIONAL_EXECUTION_EXACT_INDEPENDENT_REVIEWED_VERSION_REQUIRED",
+  "restrictedGatewayAcceptanceApproval": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[\"request_user_input_async\",\"call_c481ca1159af447897b9588fb6222414\",0]",
+    "exactAnswer": "允许受限候选先发布并验收",
+    "recordedAt": "2026-10-14T15:55:40.709Z",
+    "projectId": "7693388932939300905",
+    "candidateCommit": "dc28cef33c3645e6234f0bceffc13bc3ff474875",
+    "rollbackCommit": "d3c540234751e5695dc86ce07d7340325f3149c9",
+    "gateway": "https://v8bjn44ynd.coze.site/run",
+    "publishBeforeCoreGatesForThisCandidate": true,
+    "scope": "Existing restricted synthetic-adult Gateway normal professional entry, adoption/refusal, feedback and new-session acceptance only",
+    "productionLifeOSServicePublication": false,
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "wholeProductAccepted": false
+  }
 }
