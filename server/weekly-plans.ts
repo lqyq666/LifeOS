@@ -48,7 +48,7 @@ export function renderProposedWeeklyPlan(input:WeeklyPlanInput):string{
 // intact and remains subject to the ordinary aggregate budget check.
 export function normalizeWeeklyPlanTasks(input:WeeklyPlanInput):WeeklyPlanInput{
  const rest=/^(?:休息|缓冲|休息和缓冲|休息或缓冲|休息\/缓冲|留白|空闲|未安排时间|rest|buffer|rest_or_buffer|buffer_rest)$/i
- const labels:Record<string,string>={list_urgent_tasks:'列出紧急任务',complete_priority_homework:'完成优先课程作业',review_weak_subjects:'复习薄弱科目',complete_course_assignment:'完成课程作业',review_exam_materials:'复习考试资料'}
+ const labels:Record<string,string>={course_homework:'课程作业',review:'复习',list_urgent_tasks:'列出紧急任务',complete_priority_homework:'完成优先课程作业',review_weak_subjects:'复习薄弱科目',complete_course_assignment:'完成课程作业',review_exam_materials:'复习考试资料'}
  return {...input,items:input.items.filter(item=>!rest.test(item.action.trim())).map(item=>({...item,action:labels[item.action.trim()]??item.action}))}
 }
 

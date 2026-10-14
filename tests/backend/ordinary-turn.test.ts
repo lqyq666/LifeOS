@@ -63,6 +63,8 @@ test('provider material metadata cannot authorize source or readiness',()=>{
 })
 
 test('first useful content skips politeness without skipping unsafe assertions',()=>{
+  assert.equal(safeEarlySentence(JSON.stringify({reply:'消息已写好，你可以直接复制使用。'})),null)
+  assert.equal(safeEarlySentence(JSON.stringify({reply:'消息已写好，你可以直接复制使用。尚未联系过对方时，先询问是否方便交流。'})),'尚未联系过对方时，先询问是否方便交流')
   assert.equal(safeEarlySentence(JSON.stringify({reply:'基于期末优先，我为你规划了一个轻量级方案。'})),null)
   assert.equal(safeEarlySentence(JSON.stringify({reply:'基于期末优先，我为你规划了一个轻量级方案。先给课程作业留一块时间，其余保留余量。'})),'先给课程作业留一块时间，其余保留余量')
   assert.equal(safeEarlySentence(JSON.stringify({reply:'收到。先给课程作业留一个小时间块，剩余时间保留缓冲。'})),'先给课程作业留一个小时间块，剩余时间保留缓冲')
@@ -351,6 +353,7 @@ test('real reported native plan keeps its actual tasks and leaves explicit buffe
  assert.deepEqual(plan.items.map(item=>item.minutes),[10,50,40])
  assert.deepEqual(plan.items.map(item=>item.action),['列出紧急任务','完成优先课程作业','复习薄弱科目'])
  assert.equal(input.items.length,4,'do not mutate the preserved raw output')
+ assert.deepEqual(normalizeWeeklyPlanTasks({...input,items:[{action:'course_homework',minutes:50,directionScopes:[]},{action:'review',minutes:40,directionScopes:[]}]}).items.map(item=>item.action),['课程作业','复习'])
  validateWeeklyPlanShape(plan)
  assert.ok(renderProposedWeeklyPlan(plan).includes('未安排：20分钟'))
  const mixed=normalizeWeeklyPlanTasks({...input,items:[{action:'复习后休息',minutes:120,directionScopes:[]}]})
