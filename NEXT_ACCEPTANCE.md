@@ -1,3 +1,34 @@
+# 2026-10-14 续开发：性能、专业入口与上线阻塞的当前事实
+
+本轮以精简 Brief 和所有者“之前的测试不要管、优先性能/专业入口闭环/上线阻塞”为准。当前产品代码 **e69587bec27dce380a4dcbc02097f3ab20891247**，状态 **MODIFIED / TESTED / BUILT / WIP_NOT_READY**。本批独立增量复核 **PASS_WITH_LIMITATIONS**；没有签收整体 REFACTOR_ACCEPTED 或 RELEASE_ACCEPTED。下方旧记录仅保存事实链，不构成本轮旧测试门槛。
+
+本批完成：删除重复授权方法和完全相同的当前事件上下文；在原 SDK Schema Hook 中合并等价更新目标，观察依赖仍按精确 revision 分组，不放宽来源与更新权限。普通回合仍至多一次生成、零收费修复。明确留余量时任务分钟小于可用预算；纯休息/缓冲项在原计划归一化边界转为未安排分钟，混合真实任务与其分钟保留。过滤“方案已规划好”“消息已写好”等无内容首草稿。实际返回的 course_homework、review、list_tasks、prioritize_and_schedule 等计划动作在展示边界转为中文，原始模型产物保留。
+
+| 项目 | 当前证据与限制 |
+|---|---|
+| A/B/C/D/F | 原单伙伴、四工作流、五专业 Skill、原 SDK/Schema/来源/索引/finishRun 保留。当前相关20项隔离 PostgreSQL 测试通过，覆盖单调用混合反馈与材料、Memory OFF、攻略续接、目标/revision、计划余量及实际失败重放。普通相关独立复核无新增 P1/P2；完整专业采纳/拒绝→反馈→新会话与核心追求正常页面证据仍不足。 |
+| E 专业入口 | 原两方向4节点、三方向5节点真实产物在当前宿主重新校验均通过，新增模型调用0；这只证明已有产物兼容。2026-10-14 22时浏览器恢复，实际云端仍为16798318262e3105e0bd36579689ff16b908543d，绑定旧宿主d74762d，业务与Skill摘要未变。当前宿主e69587b及sourceDigest 63a05f3097e9fed1b7dcdd9e029078338449c1f904cc455a8f036e8c83158133已本地准备，尚未应用云端。公开Gateway仍为此前观测的d3c5402，不能接入时伪装成当前绑定。正常入口整链尚未验证；浏览器故障已解除，不再列为当前阻塞。 |
+| G 性能 | 冻结0914d94的四主线各3会话共20次真实普通生成全部完成，每回合1调用、0修复、0零调用、0失败。剔除一个占位首草稿后，以该回合最终提交时间作保守上界：有效首内容p50≤1.880秒、p95≤3.868秒，完整p95=13.761秒。该20条满足本组指标，但后续真实补验仍出现首内容8.06/12.41秒、完整17.26/20.84秒；不得宣称当前延迟稳定达标。无认证HEAD预热实验不能证明改善，已撤掉实验，不引入产品路径。 |
+| H 上线 | 最新只读精确应用资源检查：MemAvailable 524,255,232字节 + 本应用匿名内存427,606,016 = 951,861,248字节；原安全门槛1,006,632,960，短缺54,771,712字节（52.23MiB）。LOW_MEMORY_BEFORE_PUBLIC_STOP。未停止生产或同机服务、未降低守卫、未运行旧恢复包。公网版本此前实际观测仍为99ca3f6；本轮未部署，当前版本备份/恢复及上线验证未完成。 |
+
+验证与复核：当前相关 `ordinary-turn.test.ts` **20/20通过**，服务端typecheck、当前e69587b生产构建和diff检查通过。3份已有实际模型计划经当前渲染重放通过，分钟、来源、余量不变，新增模型调用0；不能把渲染重放当新真实生成。独立复核从 `performance-independent-review.md` 的2项P2，到 `performance-independent-followup.md` 的1项P2，再到 `plan-label-independent-final.md` **PASS_WITH_LIMITATIONS**，旧失败保留。Three资源大包提示仍为非阻断项。用户原脏文件 `tests/backend/action-coach-engine.test.ts` 哈希仍为 `6D834BDC20B462B285F97E8384BDA488A392B0FB7104B68F6A531BE005BF0C67`，未修改、运行或提交。
+
+费用与额度：本性能续批从模型原账本baselineCalls=3611起42次调用，已知估算0.1415393元，1次unknown仍保留预留0.1245184元；合计保守占用0.2660577元，在本批原有额度内0.5元上限中。自最初3500起累计153次，已知0.6121943元、2次unknown共保留0.2490368元；不能当实际已结算账单。原有效额度剩余3.9118069元。无新增预算、自动收费重试或本批新扣子派发。现场扣子余额60,458积分；后续本续批追加积分上限冻结为500，低于现场20%上界12,091，并仍须受原唯一积分账本约束，未改旧unknown为0、未扩大原授权窗口。
+
+继续所需的实际文件（均沿用原位置，没有新候选包）：
+
+- `.local/cloud-closeout-20261014/slim/`：`ordinary-performance20-results.json`、`ordinary-performance20-corrected-metrics.json`、`ordinary-review-fixes-results.json`、`ordinary-reverse-buffer-fix-results.json`、`ordinary-transport-warm-first-results.json`；完整慢样本/失败不删除。
+- 同目录：`plan-rendering-replay.json`、`professional-current-host-replay.json`、`plan-label-independent-final.md`、`performance-budget-current.json`、`coze-continuation-credit-freeze.json`、`production-memory-continuation.json`、`real-ready.json`、`real-source-freeze.json`。`start-real.mjs --resume`恢复同一隔离库，不重置费用baseline。
+- `.local/coze-launch/slim-runtime-observed.json`保留旧实际云绑定；`slim-host-binding-pending.json`只是当前本地准备。原 `credits-ledger.jsonl` 与模型 `.local/v1.3-action-coach/paid/provider-calls.json` 是唯一账本。私密env/permit/连接串不上传、不放入公开包。
+
+本地隔离服务已恢复 `http://127.0.0.1:18126`，运行产品head e69587b；原18124和生产服务未动。当前SDK接口签名 `c92c6519974ae39759415759fd89fb84dbe10f6f0816f646b87a8b6698d4f38f` 的四项真实能力探针已通过；标签修复没有改变该接口，不重复收费探针。
+
+下一步只解决真实剩余项：确认并改善模型慢首内容/长尾，再完成当前绑定的专业正常入口、采纳/拒绝与跨会话闭环；满足核心门槛后，核验云端精确版本和原恢复路径，有足够安全资源再发布与检查公网。原所有者授权 `publishBeforeCoreGates=false` 仍有效，所以当前不能用先发布旧Gateway来绕过性能验收。需要的生产安全余量目前约52MiB，不能靠停止未授权服务或降低守卫补齐。
+
+---
+
+以下为历史记录；上方为当前唯一有效状态。
+
 # 2026-10-14 本轮精简开发：当前验收记录
 
 本轮以 `LifeOS_Codex_Slim_Final_Brief.md` 和所有者“以本轮精简要求为主，之前的测试不要管它”为准。当前产品代码 **`d74762d4c5f616c0b9ad3800a670014c4e9e51d0`**；状态 **MODIFIED / TESTED / BUILT / REAL_SYNTHETIC_ADULT_VERIFIED_IN_PART / WIP_NOT_READY**。普通相关功能独立增量审阅为 **PASS_WITH_LIMITATIONS**；尚未整体签收 `REFACTOR_ACCEPTED` 或 `RELEASE_ACCEPTED`。以下历史记录保留为事实链，不叠加为本轮旧测试门槛。
