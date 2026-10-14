@@ -20,7 +20,7 @@ export function loadBusinessSkill(name:BusinessSkill,traceId:string,trace:{appen
   throw new WorkflowError('unavailable')
  }
  const digest=createHash('sha256').update(source).digest('hex'),valid=digest===expected.sha256&&expected.version!=='unknown'
- trace.append({workflowId:'lifeos-workflows',version:2,traceId,agentRole:'skill' as AgentRole,inputRefDigest:trace.digest(name),outputRefDigest:trace.digest(digest),usedEvidenceIds:[],latencyMs:0,providerCalls:0,costCny:0,reservedCostCny:0,status:valid?'succeeded':'failed',executionKind:'local_deterministic',skill:name,skillDigest:digest,skillVersion:expected.version,...(!valid?{error:'source_invalid' as const}:{})})
+ trace.append({workflowId:'lifeos-workflows',version:2,traceId,agentRole:'skill' as AgentRole,inputRefDigest:trace.digest(name),outputRefDigest:trace.digest(digest),usedEvidenceIds:[],latencyMs:0,providerCalls:0,costCny:0,reservedCostCny:0,status:valid?'succeeded':'failed',executionKind:'local_deterministic',skill:name,skillPhase:'loaded',skillDigest:digest,skillVersion:expected.version,...(!valid?{error:'source_invalid' as const}:{})})
  if(!valid)throw new WorkflowError('source_invalid')
  return {name,digest,version:expected.version,instructions:source}
 }

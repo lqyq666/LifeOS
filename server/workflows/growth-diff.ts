@@ -1,16 +1,18 @@
+import {growthLabels,type GrowthKind} from '../../src/features/growth/types.ts'
 import {WorkflowError,type EvidenceRecord,type EvidenceRef,type WorkflowRequest} from './contracts.ts'
 import {validateEvidence} from './evidence-gate.ts'
 import {createTrace,type TraceRow} from './trace.ts'
 import {loadBusinessSkill} from './skills.ts'
-export type GrowthSnapshotItem={ref:EvidenceRef;kind:'experience'|'goal'|'constraint'|'observation'|'identity';status:'active'|'proposed'|'withdrawn';text:string;assertion:'user_reported'|'user_edit'|'ai_observation'}
+export type GrowthSnapshotItem={ref:EvidenceRef;kind:GrowthKind|'experience'|'identity';status:'active'|'proposed'|'withdrawn';text:string;assertion:'user_reported'|'user_edit'|'ai_observation'}
 export type GrowthDelta={schemaVersion:2;before:string;evidenceRefs:EvidenceRef[];now:string;unknowns:string[];needsConfirmation:boolean;change:'added'|'corrected'|'withdrawn';itemId:string}
 // Host-produced committed IDs are the only trigger. This computes a view; it owns no write tool.
 export function growthDiff(request:WorkflowRequest,host:{traceId:string;requestId:string;committed:boolean;changedIds:string[]},before:GrowthSnapshotItem[],after:GrowthSnapshotItem[],records:EvidenceRecord[],sink?:(row:TraceRow)=>void):GrowthDelta[]{
  if(request.mode!=='growth_diff'||!host.committed||host.traceId!==request.traceId||host.requestId!==request.requestId)throw new WorkflowError('stale_snapshot')
  if(!host.changedIds.length)return []
  const trace=createTrace(sink)
+ let skill:ReturnType<typeof loadBusinessSkill>
  try{
-  loadBusinessSkill('lifeos-growth-diff',request.traceId,trace)
+  skill=loadBusinessSkill('lifeos-growth-diff',request.traceId,trace)
   loadBusinessSkill('lifeos-experience-evidence',request.traceId,trace)
  }catch(error){
   // This optional view has no authority to discard valid host facts. Keep its
@@ -35,7 +37,8 @@ export function growthDiff(request:WorkflowRequest,host:{traceId:string;requestI
   const source=records.find(x=>x.ref.type===current.ref.type&&x.ref.id===current.ref.id)!
   if(current.text!==source.text)throw new WorkflowError('source_invalid')
   const observation=current.assertion==='ai_observation'||current.kind==='observation'
-  changes.push({schemaVersion:2,before:old?'此前这条理解已被更新；旧原话不重新展示。':'此前还没有这条记录。',evidenceRefs:[current.ref],now:observation?'新增了一条待本人核对的观察，尚未形成身份认同。':`${old?'更正后的':'新增的'}本人报告：${source.text}`,unknowns:current.kind==='experience'?['这次任务范围外的稳定能力与实际适配仍未知。']:['这条信息对其他事情的影响仍待本人核对。'],needsConfirmation:observation||current.status==='proposed',change:old?'corrected':'added',itemId:id})
+  changes.push({schemaVersion:2,before:old?'此前这条理解已被更新；旧原话不重新展示。':'此前还没有这条记录。',evidenceRefs:[current.ref],now:observation?'新增了一条待本人核对的观察，尚未形成身份认同。':`${old?'更正后的':'新增的'}${current.kind==='experience'?'本人经历':current.kind==='identity'?'本人认可的描述':growthLabels[current.kind]}：${source.text}`,unknowns:current.kind==='feedback'?['本次行动反馈不等于稳定能力、长期适配或所有后续结果；未报告的采用、付款与效果仍未知。']:current.kind==='experience'?['这次任务范围外的稳定能力与实际适配仍未知。']:['这条信息对其他事情的影响仍待本人核对。'],needsConfirmation:observation||current.status==='proposed',change:old?'corrected':'added',itemId:id})
  }
+ if(changes.length)trace.append({workflowId:'lifeos-workflows',version:2,traceId:request.traceId,agentRole:'skill',skill:skill.name,skillDigest:skill.digest,skillVersion:skill.version,skillPhase:'output_validated',inputRefDigest:trace.digest({before,after,changedIds:host.changedIds}),outputRefDigest:trace.digest(changes),usedEvidenceIds:[...new Set(changes.flatMap(change=>change.evidenceRefs.map(ref=>ref.id)))],latencyMs:0,providerCalls:0,costCny:0,reservedCostCny:0,status:'succeeded',executionKind:'local_deterministic'})
  return changes
 }

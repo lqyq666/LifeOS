@@ -6,7 +6,7 @@ import type {GrowthItem} from '../../src/features/growth/types.ts'
 import {growthDiff,type GrowthSnapshotItem,type GrowthDelta} from './growth-diff.ts'
 import type {WorkflowRequest,EvidenceRecord} from './contracts.ts'
 import type {TraceRow} from './trace.ts'
-export const growthSnapshot=(items:GrowthItem[]):GrowthSnapshotItem[]=>items.filter(x=>!x.unavailableReason&&['active','proposed'].includes(x.status)&&['user_reported','user_edit','ai_observation'].includes(x.assertion)).map(x=>({ref:{type:'growth',id:x.id,revision:x.revision},text:x.text,status:x.status as 'active'|'proposed',assertion:x.assertion as GrowthSnapshotItem['assertion'],kind:x.kind==='observation'?'observation':x.kind==='constraint'||x.kind==='context'?'constraint':'goal'}))
+export const growthSnapshot=(items:GrowthItem[]):GrowthSnapshotItem[]=>items.filter(x=>!x.unavailableReason&&['active','proposed'].includes(x.status)&&['user_reported','user_edit','ai_observation'].includes(x.assertion)).map(x=>({ref:{type:'growth',id:x.id,revision:x.revision},text:x.text,status:x.status as 'active'|'proposed',assertion:x.assertion as GrowthSnapshotItem['assertion'],kind:x.kind}))
 export async function committedSnapshot(c:Pick<PoolClient,'query'>,actor:string,conversationId:string):Promise<GrowthSnapshotItem[]>{
  const result=growthSnapshot((await growthView(actor,conversationId,c)).items)
  const rows=(await c.query(`SELECT e.id,e.revision,e.content,e.source_message_id,e.source_quote FROM experiences e

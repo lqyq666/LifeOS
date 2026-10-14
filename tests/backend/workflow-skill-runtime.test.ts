@@ -1,3 +1,6 @@
+import {growthSnapshot} from '../../server/workflows/committed-growth-diff.ts'
+import {growthDiff} from '../../server/workflows/growth-diff.ts'
+import type {GrowthItem} from '../../src/features/growth/types.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {mkdirSync,readFileSync,writeFileSync,rmSync} from 'node:fs'
@@ -25,6 +28,7 @@ test('Skill invocation loads the frozen actual version and refuses missing or re
 test('a failed optional growth Skill yields no explanation and preserves the committed host facts',async()=>{
  const root=resolve('.local/simulation-skill-fallback-'+randomUUID());assert.ok(root.startsWith(resolve('.local')+'\\'));mkdirSync(resolve(root,'server/workflows'),{recursive:true})
  try{
+  mkdirSync(resolve(root,'src/features/growth'),{recursive:true});writeFileSync(resolve(root,'src/features/growth/types.ts'),readFileSync('src/features/growth/types.ts'))
   for(const name of ['growth-diff.ts','skills.ts','contracts.ts','trace.ts','evidence-gate.ts'])writeFileSync(resolve(root,'server/workflows',name),readFileSync('server/workflows/'+name))
   for(const name of businessSkills){mkdirSync(resolve(root,'skills',name),{recursive:true});writeFileSync(resolve(root,'skills',name,'SKILL.md'),readFileSync('skills/'+name+'/SKILL.md'))}
   const {growthDiff}=await import(pathToFileURL(resolve(root,'server/workflows/growth-diff.ts')).href)
@@ -35,4 +39,18 @@ test('a failed optional growth Skill yields no explanation and preserves the com
   assert.deepEqual(growthDiff(f.request,{traceId:f.request.traceId,requestId:f.request.requestId,committed:true,changedIds:[after[0].ref.id]},[],after,f.records,(r:any)=>trace.append(r)),[])
   assert.equal(JSON.stringify(after),before);assert.equal(trace.rows.at(-1)!.status,'failed');assert.equal(trace.rows.at(-1)!.providerCalls,0)
  }finally{assert.ok(root.startsWith(resolve('.local')+'\\'));rmSync(root,{recursive:true})}
+})
+
+
+test('feedback keeps its kind and a completed Skill trace binds the actual explanation',()=>{
+ const f=fixture();f.request.mode='growth_diff'
+ const source=f.records[0]!,item={id:source.ref.id,revision:source.ref.revision,kind:'feedback',text:source.text,status:'active',assertion:'user_reported',unavailableReason:null} as GrowthItem
+ const after=growthSnapshot([item]);assert.equal(after[0]!.kind,'feedback')
+ after[0]!.ref=source.ref
+ const trace=createTrace(),changes=growthDiff(f.request,{traceId:f.request.traceId,requestId:f.request.requestId,committed:true,changedIds:[source.ref.id]},[],after,f.records,row=>trace.append(row))
+ assert.match(changes[0]!.now,/行动反馈/)
+ assert.ok(changes[0]!.unknowns[0]!.includes('未报告的采用、付款与效果仍未知'))
+ const execution=trace.rows.find(row=>row.skillPhase==='output_validated')!
+ assert.equal(execution.skill,'lifeos-growth-diff');assert.deepEqual(execution.usedEvidenceIds,[source.ref.id]);assert.equal(execution.providerCalls,0)
+ assert.notEqual(execution.outputRefDigest,trace.rows.find(row=>row.skill===execution.skill&&row.skillPhase==='loaded')!.outputRefDigest)
 })
