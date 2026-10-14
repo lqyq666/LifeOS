@@ -1,7 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {weeklyTimeIntent} from '../server/turn-obligations.ts'
-import {scanUserClauses,parseExactHours} from '../server/user-command-spans.ts'
+import {scanUserClauses,parseExactHours,assistantRequestClause} from '../server/user-command-spans.ts'
+
+test('actual UI action and interpretation instructions are not autobiographical context',()=>{
+ assert.equal(assistantRequestClause('请按我的实际情况帮我选一个能做的最小行动'),true)
+ assert.equal(assistantRequestClause('不要把做过工具当作适合创业的证明'),true)
+ assert.equal(assistantRequestClause('我想先了解就业实习'),false)
+ assert.equal(assistantRequestClause('我不会把一次付款当作稳定收入'),false)
+})
 
 // N1.1/N1.2 behavioral red→green suite: the audit cases from AUDIT_EVIDENCE §3
 // asserted against the live detectors. Questions never become settings,

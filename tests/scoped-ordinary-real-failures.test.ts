@@ -20,12 +20,20 @@ test('production compound recall cannot become a new pursuit',()=>{
 })
 
 test('first real ordinary failures: actual reports and emotions cannot become pursuits',()=>{
- for(const text of ['我实际问了一位同学','他说排课时间不好找','也没有付款','但还没用过任何我做的东西','我不想改到私人微信去催','我有点担心折腾很久还是不知道方向']){
+ for(const text of ['我实际问了一位同学','他说排课时间不好找','也没有付款','但还没用过任何我做的东西','我不想改到私人微信去催','我有点担心折腾很久还是不知道方向','考研尚未开始准备']){
   const catalogue=buildClauseCatalogue(text),r=resolveGrowthDeltas({deltas:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:catalogue[0]!.clauseId}}],currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[]})
   assert.ok(r.deltas.every(x=>x.kind!=='goal'&&x.kind!=='direction'),text)
  }
  const text='我想了解同学选课的麻烦',catalogue=buildClauseCatalogue(text)
  assert.equal(resolveGrowthDeltas({deltas:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:catalogue[0]!.clauseId}}],currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[]}).deltas[0]?.kind,'goal')
+})
+
+test('actual UI command clauses remain in the conversation, never new personal facts',()=>{
+ for(const text of ['请按我的实际情况帮我选一个能做的最小行动','不要把做过工具当作适合创业的证明']){
+  const catalogue=buildClauseCatalogue(text)
+  const result=resolveGrowthDeltas({deltas:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:catalogue[0]!.clauseId}}],currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[]})
+  assert.equal(result.deltas.length,0,text)
+ }
 })
 test('first real artifact requests open actual delivery and not generic coaching',()=>{
  for(const text of ['把我要问的问题压成一句：我想知道这门课程项目能不能用来说明实习需要的能力。','把上次的问题改成：你最近一次找排课时间时，具体用了什么办法？','现在想把我负责的排版写成一句实习作品描述，别说我画了插画。']){

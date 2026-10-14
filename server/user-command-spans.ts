@@ -46,6 +46,14 @@ export function assistantRequestClause(text:string):boolean{
   ||/^(?:请|麻烦)(?:先|继续)?(?:处理|解释|看看|分析|安排|写|修改|听|聊|沿用)/.test(clause)
   ||/^(?:请)?(?:先|暂时)?(?:不要|别|不用)(?:再)?(?:帮我|给我|替我)?(?:写|添加|编造|夸大|列入)/.test(clause)
   ||/^(?:先|继续)(?:处理|解决|看|聊|整理|核对)(?:这个|这件|原来|刚才|上述|一下)/.test(clause)
+  ||/^(?:请|麻烦)(?:按|根据|结合|基于|依据)[^。！？\n]{0,24}(?:帮我|给我|替我)(?:选|找|确定|想|分析|安排|写)/.test(clause)
+  ||/^(?:请)?不要(?:把|将)[^。！？\n]{0,36}(?:当作|看作|视为|算作|推断|判断|认定|说成)/.test(clause)
+}
+// A status report alone does not express an affirmative pursuit. A separate
+// explicit wish remains valid even if the student has not started it yet.
+export function unstartedActivityOnlyClause(text:string):boolean{
+ return /(?:尚未|还未|还没(?:有)?|未|没有|没)(?:开始|启动|着手)/.test(text)
+  && !/(?:想|打算|希望|计划|决定|目标|优先)|^(?:我|本人)(?:要|将|准备)/.test(text.trim())
 }
 // Deferring a named alternative records a boundary, not an active pursuit.
 export function deferredPursuitClause(text:string):boolean{

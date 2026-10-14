@@ -1,12 +1,23 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { deriveThemeCandidates, mergeThemeCandidates, relationForExperience, themeTitle, type GrowthFact, type ThemeRow } from '../server/user-themes.ts'
+import { deriveThemeCandidates, mergeThemeCandidates, relationForExperience, themeTitle, themeNextStep, type GrowthFact, type ThemeRow } from '../server/user-themes.ts'
 import { findEpisode, episodeSimilarity, mergeContent } from '../server/experience-episodes.ts'
 import { derivePatternProposals, type PatternExperience } from '../server/experience-patterns.ts'
 import { requiresExperienceCandidate } from '../server/experience-content.ts'
 import { buildClauseCatalogue } from '../server/clause-catalogue.ts'
 
 const fact = (over: Partial<GrowthFact>): GrowthFact => ({ id: 'g-' + Math.random().toString(36).slice(2, 8), kind: 'goal', text: '我要准备保研', assertion: 'user_reported', status: 'active', ...over })
+
+test('actual UI: unstarted exam report does not become an active pursuit or outrank employment',()=>{
+ assert.deepEqual(deriveThemeCandidates([fact({text:'考研尚未开始准备'})]),[])
+ assert.equal(deriveThemeCandidates([fact({text:'我想准备考研，但还没开始'})]).length,1,'an explicit wish remains a wish even before execution')
+ const themes=[{title:'考研',status:'active',pinned:false,source_refs:[{growthItemId:'old-exam',quote:'考研尚未开始准备'}]},{title:'就业',status:'pending',pinned:false,source_refs:[{growthItemId:'job',quote:'我想先了解就业实习'}]}]
+ assert.match(themeNextStep(themes,new Set()),/就业/)
+ assert.doesNotMatch(themeNextStep(themes,new Set()),/考研|最优先/)
+ assert.doesNotMatch(themeNextStep([{title:'就业',status:'active',pinned:false,source_refs:[{growthItemId:'job',quote:'我想就业'}]}],new Set()),/本人设定|最优先/,'latest update is not explicit priority')
+ assert.match(themeNextStep([{...themes[1],pinned:true}],new Set()),/就业/)
+ assert.equal(themeNextStep(themes,new Set(['就业'])), '', 'a paused real pursuit cannot be replaced by an unstarted background')
+})
 
 test('ending a main path stays a boundary rather than becoming the next pursuit',()=>{
  const rows=deriveThemeCandidates([fact({text:'我决定本阶段就业优先'}),fact({text:'不再把自由职业作为主线'}),fact({kind:'preference',text:'不再把自由职业作为主线'}),fact({kind:'preference',text:'我暂停扩大接单'})])

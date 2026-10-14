@@ -6,7 +6,7 @@ import type { PoolClient,Pool } from 'pg'
 import { matchPathTheme } from './path-lexicon.ts'
 import { recordChangeEvent } from './identity.ts'
 import { distinctiveGrams } from './experience-episodes.ts'
-import {deferredPursuitClause,conversationPreferenceClause} from './user-command-spans.ts'
+import {deferredPursuitClause,conversationPreferenceClause,assistantRequestClause,unstartedActivityOnlyClause} from './user-command-spans.ts'
 
 // 路径同义词表：主题锚词除标题片段外，还接受该路径的领域词（行测↔考公、
 // 雅思↔留学）。这只是连线候选的召回面；成线仍需本人经历原文包含锚词。
@@ -89,6 +89,7 @@ const HEDGING = /(?:可能|也许|大概|说不定|不一定|不太确定|还没
 const DECIDED_MARK = /(?:决定|确定|定了|一定要|铁了心|就选)/
 const endedMainPath=(quote:string):boolean=>/不再.{0,20}(?:作为|当作).{0,4}(?:主线|重点)|暂停(?:扩大)?接单/.test(quote)
 export function pursuitLevel(quote: string): { kind: 'pursuit' | 'exploration'; status: 'active' | 'pending' } | null {
+  if(unstartedActivityOnlyClause(quote)||assistantRequestClause(quote))return null
   if(deferredPursuitClause(quote)||conversationPreferenceClause(quote))return null
   if(endedMainPath(quote))return null
   if (REJECTED_PURSUIT.test(quote) && !BOUNDARY_PURSUIT.test(quote)) return null
@@ -154,6 +155,18 @@ export type ThemeRow = {
   source_refs: { growthItemId: string; quote: string }[]
   pinned: boolean
   revision: number
+}
+
+export function themeHasPursuitSource(theme: Pick<ThemeRow,'pinned'|'source_refs'>): boolean {
+  return theme.pinned||!theme.source_refs.length||theme.source_refs.some(ref=>!unstartedActivityOnlyClause(ref.quote)&&!assistantRequestClause(ref.quote)&&!deferredPursuitClause(ref.quote))
+}
+export function themeNextStep(themes: readonly Pick<ThemeRow,'title'|'status'|'pinned'|'source_refs'>[], paused: ReadonlySet<string>): string {
+  const active=themes.filter(theme=>['active','pending'].includes(theme.status)&&!paused.has(theme.title)&&themeHasPursuitSource(theme))
+  const pinned=active.find(theme=>theme.pinned)
+  if(pinned)return `当前最优先：${pinned.title}（本人置顶）`
+  const explicit=active.find(theme=>theme.source_refs.some(ref=>!assistantRequestClause(ref.quote)&&!/^计划[:：]/.test(ref.quote)&&/(?:我(?:确认|决定|想)?(?:本阶段|当前|现在|本周|这周)?(?:优先|先了解|先考虑|先探索)|(?:本阶段|当前|现在|本周|这周).{0,8}(?:优先|重点))/.test(ref.quote)))
+  if(explicit)return `当前重点：${explicit.title}（本人表达）`
+  return active[0]?`正在探索：${active[0].title}；优先顺序尚未确认。`:''
 }
 
 // 幂等上投影：同一来源 growth 项或同义标题只更新既有主题（修订+1、追加证据），

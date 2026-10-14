@@ -17,7 +17,8 @@ import { persistMemoryControl, persistPendingControlRequest, type MemoryControlR
 import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
 import { derivePatternProposals } from './experience-patterns.ts'
 import { findEpisode, mergeContent,timeContradiction } from './experience-episodes.ts'
-import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth } from './user-themes.ts'
+import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth, themeNextStep, themeHasPursuitSource } from './user-themes.ts'
+import { matchPathTheme } from './path-lexicon.ts'
 import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction } from './identity.ts'
 import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
 import { buildExperienceRelations } from './starmap-enrichment.ts'
@@ -477,12 +478,14 @@ export async function cognitionGraph(user:string) {
   const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[]),...(skillTagList.length?[`本次任务涉及：${skillTagList.map(t=>t.tag).join('、')}；稳定能力仍未知`]:[])]
   const self={...selfRow,description:selfDescriptionParts.join('\n')||'当前还没有本人确认的自我描述。',identityAccepted:accepted,identityObservations:observations,skillTags:skillTagList} as any
   const changeEvents=(await pool.query("SELECT subject_type,subject_id,transition,reason,committed_at,user_confirmation,unknowns,old_snapshot FROM identity_change_events WHERE user_id=$1 ORDER BY committed_at DESC LIMIT 12",[user])).rows
-  // “下一步”只来自当前有效事实：最旧的进行中追求或最新行动重点；没有就空。
-  const nextStepRow=(await pool.query("SELECT title FROM user_themes WHERE user_id=$1 AND status='active' ORDER BY pinned DESC, updated_at DESC LIMIT 1",[user])).rows[0]
-  const pausedThemeLabels=new Set((await readDirectionControls(user)).filter(control=>control.state==='paused').map(control=>directionScopeLabel(control.scope)))
-  const starmapNextStep=nextStepRow&&!pausedThemeLabels.has(nextStepRow.title)?`当前最优先：${nextStepRow.title}（本人设定）`:''
+  // Recency is not a user-confirmed priority. Read current source statements;
+  // historical unstarted-status projections never become a current pursuit.
+  const pausedThemeLabels=new Set((await readDirectionControls(user)).filter(control=>control.state==='paused').map(control=>{const label=directionScopeLabel(control.scope);return matchPathTheme(label)?.title??label}))
   const nodes=[self] as any[]
-  const themes=(await pool.query("SELECT * FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC",[user])).rows
+  const storedThemes=(await pool.query("SELECT * FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC",[user])).rows
+  const invalidThemeIds=new Set(storedThemes.filter(theme=>!themeHasPursuitSource(theme)).map(theme=>theme.id))
+  const themes=storedThemes.filter(theme=>!invalidThemeIds.has(theme.id))
+  const starmapNextStep=themeNextStep(themes,pausedThemeLabels)
   const edges:any[]=[]
   const THEME_KIND_LABEL:Record<string,string>={goal:'目标',pursuit:'阶段追求',valued_point:'重视点',interest:'兴趣探索'}
   for(const theme of themes.slice(0,3)){
@@ -536,7 +539,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
   }
   const valueOrder=themes.slice(0,3).map(theme=>'theme-'+theme.id)
   return {...seed,purpose:'当前登录用户的成长星图：主题来自本人陈述的目标与追求',notice:'主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。',nodes,edges,
-    viewConfig:{...seed.viewConfig,valueOrder,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false,starmapNextStep,changeEvents:changeEvents.map(event=>{
+    viewConfig:{...seed.viewConfig,valueOrder,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false,starmapNextStep,changeEvents:changeEvents.filter(event=>event.subject_type!=='theme'||!invalidThemeIds.has(event.subject_id)).map(event=>{
       const current=event.subject_type==='theme'?themes.find(x=>x.id===event.subject_id)?.title:event.subject_type==='experience'?experiences.find(x=>x.id===event.subject_id)?.content?.title:event.subject_type==='identity_claim'?claims.find(x=>x.id===event.subject_id)?.text:undefined
       return {subjectType:event.subject_type,transition:event.transition,reason:current?event.reason:'原记录已改变、结束或撤回，不再展示历史原话。',committedAt:event.committed_at,userConfirmation:event.user_confirmation,before:event.old_snapshot?'此前记录已被更新；历史原话不在此重新展示。':undefined,now:current?String(current):'这项记录当前不可用于建议。',unknowns:current?event.unknowns:''}
     })}

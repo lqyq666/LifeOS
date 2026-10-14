@@ -11,7 +11,7 @@ import { resolveClause } from './clause-catalogue.ts'
 import type { GrowthInputDelta, ResolvedGrowthDelta, ResolvedGrowthTarget } from './growth-model-contracts.ts'
 import type { CorrectionPlan } from './turn-obligations.ts'
 import {applicableTimeBudget} from './turn-obligations.ts'
-import {assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause} from './user-command-spans.ts'
+import {assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,unstartedActivityOnlyClause} from './user-command-spans.ts'
 import {reportedPursuitClauses} from './turn-contract.ts'
 
 export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null;status?:string}
@@ -105,6 +105,7 @@ export function resolveGrowthDeltas(input:{
        !/(?:想|打算|希望|准备|计划|优先|决定|目标|我(?:要|将)|先(?:就业|考研|考公|探索|处理))|^(?:就业|考研|保研|考公|创业|留学|专升本)$/.test(clause.text)))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&/^我想把(?:验证问题|访谈问题|提问|这个问题)/.test(clause.text))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&deferredPursuitClause(clause.text))next.kind='context'
+    if(['goal','direction'].includes(next.kind)&&unstartedActivityOnlyClause(clause.text))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&/^我(?:愿意|想)(?:试|尝试)(?:这个|刚才|上述)(?:方法|那一步)?/.test(clause.text))next.kind='context'
     if(next.assertion==='user_reported'&&['context','constraint'].includes(next.kind)){
       const budget=[applicableTimeBudget(input.currentText,undefined,'this_week'),applicableTimeBudget(input.currentText,undefined,'next_week')].find(b=>b?.quote===clause.text&&b.period!=='current')
