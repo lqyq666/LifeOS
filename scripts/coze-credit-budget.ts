@@ -39,6 +39,9 @@ export class CozeCreditBudget{
    }else if(row.type==='owner_acceptance_window'){
     if(acceptanceWindow||!allowance||row.newBudget!==0||row.oldUnknownReservations!=='retained_excluded_from_this_window'||!positive(row.observedRemainingCredits)||!positive(row.maximumCredits)||Number(row.maximumCredits)>Math.floor(Number(row.observedRemainingCredits)*0.2)||!digest(row.approvalDigest)||!digest(row.balanceEvidenceDigest)||typeof row.observedAt!=='string'||!Number.isFinite(Date.parse(row.observedAt)))throw Error('COZE_ACCEPTANCE_WINDOW_INVALID')
     acceptanceWindow=row;windowPrior=new Set(reserved.keys())
+   }else if(row.type==='owner_acceptance_window_increased'){
+    if(!acceptanceWindow||row.newBudget!==0||row.previousApprovalDigest!==acceptanceWindow.approvalDigest||!positive(row.maximumCredits)||Number(row.maximumCredits)<=Number(acceptanceWindow.maximumCredits)||Number(row.maximumCredits)>Number(acceptanceWindow.observedRemainingCredits)||!digest(row.approvalDigest))throw Error('COZE_ACCEPTANCE_WINDOW_INVALID')
+    acceptanceWindow={...acceptanceWindow,maximumCredits:row.maximumCredits,approvalDigest:row.approvalDigest}
    }else if(row.type!=='existing_credit_balance'&&row.type!=='credits_attempt_finished')throw Error('COZE_LEDGER_ROW_INVALID')
   }
   for(const [id,row] of reserved)if(!settled.has(id))held+=Number(row.reservedCredits)
@@ -46,14 +49,14 @@ export class CozeCreditBudget{
   if(legacyAccounted>initial)throw Error('COZE_LEDGER_OVERCOMMITTED')
   let allowanceAccounted=0,newCharged=0
   if(allowance)for(const [id,row] of reserved)if(!priorReservations.has(id)){allowanceAccounted+=settled.has(id)?charges.get(id)!:Number(row.reservedCredits);newCharged+=charges.get(id)??0}
-  if(allowance&&allowanceAccounted>Number(allowance.maximumAdditionalCredits))throw Error('COZE_ALLOWANCE_OVERCOMMITTED')
+  if(allowance&&!acceptanceWindow&&allowanceAccounted>Number(allowance.maximumAdditionalCredits))throw Error('COZE_ALLOWANCE_OVERCOMMITTED')
   const allowanceRemaining=allowance?Number(allowance.maximumAdditionalCredits)-allowanceAccounted:null
   const windowAccounted=acceptanceWindow?[...reserved].filter(([id])=>!windowPrior.has(id)).reduce((sum,[id,row])=>sum+(settled.has(id)?charges.get(id)!:Number(row.reservedCredits)),0):0
   if(acceptanceWindow&&windowAccounted>Number(acceptanceWindow.maximumCredits))throw Error('COZE_ACCEPTANCE_WINDOW_OVERCOMMITTED')
   // A fresh account snapshot already includes past known charges. Old opaque
   // holds remain conservative; resolving them requires their observed bills.
   const accountAvailable=allowance?Math.max(0,Number(allowance.observedRemainingCredits)-held-newCharged):null
-  const available=acceptanceWindow?Math.min(Number(acceptanceWindow.maximumCredits)-windowAccounted,Number(acceptanceWindow.observedRemainingCredits)-windowAccounted,allowanceRemaining??Infinity):Math.min(initial-charged-held,allowanceRemaining??Infinity,accountAvailable??Infinity)
+  const available=acceptanceWindow?Math.min(Number(acceptanceWindow.maximumCredits)-windowAccounted,Number(acceptanceWindow.observedRemainingCredits)-windowAccounted):Math.min(initial-charged-held,allowanceRemaining??Infinity,accountAvailable??Infinity)
   return {initialCredits:initial,chargedCredits:charged,heldCredits:held,availableCredits:available,...(acceptanceWindow?{acceptanceWindowMaximumCredits:Number(acceptanceWindow.maximumCredits),acceptanceWindowAccountedCredits:windowAccounted}:{}),...(allowance?{observedAccountRemainingCredits:Number(allowance.observedRemainingCredits),maximumAdditionalCredits:Number(allowance.maximumAdditionalCredits),allowanceAccountedCredits:allowanceAccounted,allowanceRemainingCredits:allowanceRemaining!}:{}),reservations:reserved,settled}
  }
  balance(){const {reservations,settled,...balance}=this.view(this.rows());return balance}
@@ -99,6 +102,13 @@ export class CozeCreditBudget{
    const row={type:'owner_acceptance_window',budgetUnit:'coze_credits',newBudget:0,oldUnknownReservations:'retained_excluded_from_this_window',...input}
    this.view([...rows,row])
    return row
+  })
+ }
+ increaseAcceptanceWindow(input:{maximumCredits:number;previousApprovalDigest:string;approvalDigest:string}){
+  this.append(rows=>{
+   this.view(rows)
+   const row={type:'owner_acceptance_window_increased',newBudget:0,budgetUnit:'coze_credits',...input}
+   this.view([...rows,row]);return row
   })
  }
  // Only an independently observed account bill can release a reservation.
