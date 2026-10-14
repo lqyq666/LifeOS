@@ -42,7 +42,7 @@ export function conversationPreferenceClause(text:string):boolean{
 export function assistantRequestClause(text:string):boolean{
  const clause=text.trim().replace(/^(?:也|并且|而且)/,'')
  return conversationPreferenceClause(clause)
-  ||/^(?:请|麻烦|那就|那|就)(?:先)?(?:用|使用|按|参考|依据)[^。！？\n]{0,80}(?:攻略|指南|方法)/.test(clause)
+  ||/^(?:请|麻烦|那就|那|就|先)(?:先)?(?:用|使用|按|参考|依据)[^。！？\n]{0,80}(?:攻略|指南|方法)/.test(clause)
   ||/^(?:请|麻烦)?(?:先|继续|直接|马上|现在)?(?:帮我|给我|替我)(?:先|继续)?(?:想|处理|解释|看看|分析|安排|写|修改|听|聊|整理|起草|拟|一(?:句|段|份|条))/.test(clause)
   ||/^(?:请|麻烦)(?:先|继续)?(?:处理|解释|看看|分析|安排|写|修改|听|聊|沿用)/.test(clause)
   ||/^(?:请)?(?:先|暂时)?(?:不要|别|不用)(?:再)?(?:帮我|给我|替我)?(?:写|添加|编造|夸大|列入)/.test(clause)

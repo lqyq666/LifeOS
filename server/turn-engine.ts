@@ -950,7 +950,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       staged.coach=await stageCoachEvent(run,result.event,result.reply);staged.coach.knowledgeRefs=staged.usedKnowledgeRefs
     }
     const refusalEvent=refusalOnly&&!retrieval.ambiguous&&historicalEvents.length===1&&matchingGuideEvent?.id===historicalEvents[0].id?matchingGuideEvent:null
-    const usageEventId=staged.coach?.eventId??currentEvent?.id??refusalEvent?.id
+    const usageEventId=staged.coach?.eventId??currentEvent?.id??refusalEvent?.id??(needsKnowledge?matchingGuideEvent?.id:undefined)
     staged.guideUsage=[]
     if(usageEventId){
       const feedback=classifyGuideFeedback(current.content),previous=previousGuideUsage[0]

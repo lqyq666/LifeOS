@@ -12,6 +12,7 @@ test('a natural method reference uses only available user history and keeps new 
  const previous='请用当前已审核的“从经历整理本人贡献”攻略。'
  const text='那就用那个贡献核对方法吧。'
  assert.match(knowledgeIntent(text,{eventTitle:'岗位核对表',lastUserTexts:[previous]}).query,/从经历整理本人贡献/)
+ assert.match(knowledgeIntent('先用那个贡献核对方法，只核对表格页面这一项。',{lastUserTexts:[previous,...Array(5).fill('接着核对这一项。')]}).query,/从经历整理本人贡献/)
  assert.doesNotMatch(knowledgeIntent(text,{eventTitle:'岗位核对表',lastUserTexts:[]}).query,/从经历整理本人贡献/)
  assert.doesNotMatch(knowledgeIntent('我想换个学习方法',{lastUserTexts:[previous]}).query,/从经历整理本人贡献/)
  assert.doesNotMatch(knowledgeIntent(text,{lastUserTexts:['同学说请用“从经历整理本人贡献”攻略。']}).query,/从经历整理本人贡献/)
