@@ -81,7 +81,9 @@ export function parseCozeDirectionReceipt(body:unknown,r:WorkflowRequest,records
  if(!Array.isArray(actual)||actual.length===0)throw new WorkflowError('source_invalid')
  const seenSkills=new Set<string>()
  const skillLoadReceipts=actual.map((s:any)=>{
-  const expected=workflowRuntimeVersion.skills.find(x=>x.name===s?.name)
+  const expected=s?.name==='lifeos-personal-companion'
+   ?{name:'lifeos-personal-companion',version:workflowRuntimeVersion.skillVersion,sha256:workflowRuntimeVersion.mainSkillDigest}
+   :workflowRuntimeVersion.skills.find(x=>x.name===s?.name)
   if(!expected||seenSkills.has(expected.name)||![true,'True'].includes(s.loaded)||s.sha256!==expected.sha256||s.version!==expected.version)throw new WorkflowError('source_invalid')
   seenSkills.add(expected.name)
   return {name:expected.name,version:expected.version,sha256:expected.sha256,loaded:true as const}

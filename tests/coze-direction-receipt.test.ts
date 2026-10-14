@@ -73,6 +73,22 @@ test('invalid call counts and fabricated zero or negative accounting cannot expo
  const f=sample()
  for(const row of [{providerCalls:6},{providerCalls:0},{costCny:-1},{reservedCostCny:999},{costCny:undefined}])assert.throws(()=>parseCozeDirectionReceipt({...f.body,...row},f.request,f.records),/invalid_contract/)
 })
+
+test('cloud main companion Skill is preserved with exact frozen metadata, never trusted by name alone',()=>{
+ const f=sample(),main={name:'lifeos-personal-companion',version:workflowRuntimeVersion.skillVersion,sha256:workflowRuntimeVersion.mainSkillDigest,loaded:'True'}
+ f.body.skills.push(main)
+ const accepted=parseCozeDirectionReceipt(f.body,f.request,f.records)
+ assert.deepEqual(accepted.skillLoadReceipts?.find(s=>s.name===main.name),{...main,loaded:true})
+ assert.ok(accepted.skills.includes(main.name))
+ for(const patch of [{sha256:'0'.repeat(64)},{version:'old'},{loaded:'False'},{name:'invented-companion'}]){
+  const body=structuredClone(f.body);Object.assign(body.skills.at(-1)!,patch)
+  assert.throws(()=>parseCozeDirectionReceipt(body,f.request,f.records),/source_invalid/)
+ }
+ const duplicate=structuredClone(f.body);duplicate.skills.push({...main})
+ assert.throws(()=>parseCozeDirectionReceipt(duplicate,f.request,f.records),/source_invalid/)
+ const mainOnly={...f.body,skills:[main]}
+ assert.throws(()=>parseCozeDirectionReceipt(mainOnly,f.request,f.records),/source_invalid/)
+})
 test('same field gate serves both remote and existing native synthesis',()=>{
  const f=sample();validateReviewedFields(f.body.proposal,{...f.body.reviewedProposalFields,hypotheses:[]})
  assert.throws(()=>validateReviewedFields({...f.body.proposal,hypotheses:[{text:'已经适合创业',limitation:'未知',needsConfirmation:true}]},{...f.body.reviewedProposalFields,hypotheses:[]}),/source_invalid/)
