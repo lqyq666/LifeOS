@@ -41,7 +41,7 @@ export class CozeCreditBudget{
     acceptanceWindow=row;windowPrior=new Set(reserved.keys())
    }else if(row.type==='owner_acceptance_window_increased'){
     if(!acceptanceWindow||row.newBudget!==0||row.previousApprovalDigest!==acceptanceWindow.approvalDigest||!positive(row.maximumCredits)||Number(row.maximumCredits)<=Number(acceptanceWindow.maximumCredits)||Number(row.maximumCredits)>Number(acceptanceWindow.observedRemainingCredits)||!digest(row.approvalDigest))throw Error('COZE_ACCEPTANCE_WINDOW_INVALID')
-    acceptanceWindow={...acceptanceWindow,maximumCredits:row.maximumCredits,approvalDigest:row.approvalDigest}
+    acceptanceWindow=Object.assign({},acceptanceWindow,{maximumCredits:row.maximumCredits,approvalDigest:row.approvalDigest})
    }else if(row.type!=='existing_credit_balance'&&row.type!=='credits_attempt_finished')throw Error('COZE_LEDGER_ROW_INVALID')
   }
   for(const [id,row] of reserved)if(!settled.has(id))held+=Number(row.reservedCredits)

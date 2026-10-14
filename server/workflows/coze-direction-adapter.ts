@@ -4,7 +4,7 @@ import {isAbsolute,join,relative,resolve,sep} from 'node:path'
 import {Value} from 'typebox/value'
 import {CoachProviderBudget,activeCoachFunding,type CoachCallReceipt} from '../../scripts/coach-provider-budget.ts'
 import {CozeCreditBudget} from '../../scripts/coze-credit-budget.ts'
-import {reserveCozeHostPermit,verifyCozeHostPermit,deriveCozePermitSecret,settleCozeHostReceipt,retainUnknownCozeGraph,type CozeHostPermit} from '../../scripts/coze-host-permit.ts'
+import {reserveCozeHostPermit,verifyCozeHostPermit,deriveCozePermitSecret,settleCozeHostReceipt,retainUnknownCozeGraph,cozeMaxCostPerCallCny,type CozeHostPermit} from '../../scripts/coze-host-permit.ts'
 import {assertCoachSourceFreeze} from '../../scripts/coach-source-freeze.ts'
 import {validateCodeEndpoint} from '../coze-code-workflow.ts'
 import {workflowRuntimeVersion} from './runtime-version.ts'
@@ -103,7 +103,7 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
   if(!journalRelative||isAbsolute(journalRelative)||journalRelative==='..'||journalRelative.startsWith(`..${sep}`))throw new WorkflowError('scope_denied')
   persistentJournalDirectory=prepareCozeJournalDirectory(resolve('.'),persistentRoot,cfg.journalDirectory)
  }
- const secret=deriveCozePermitSecret(cfg.token),maxCost=0.02
+ const secret=deriveCozePermitSecret(cfg.token),maxCost=cozeMaxCostPerCallCny
  const canonical=JSON.parse(readFileSync('.planning/research/workflow-integration/COZE_CANONICAL_PUBLIC_ASSETS.json','utf8'))
  if(canonical.canonicalFullCorpusHash!==workflowRuntimeVersion.contentHash||canonical.canonicalSourceRegistryHash!==workflowRuntimeVersion.sourceRegistryHash||canonical.canonicalEvidenceHash!==workflowRuntimeVersion.contentEvidenceHash||!Array.isArray(canonical.cards)||canonical.cards.some((c:any)=>c.guide?.reviewStatus!=='approved'))throw new WorkflowError('source_invalid')
  const approvedSubsetHash=createHash('sha256').update(canonical.cards.map((c:any)=>createHash('sha256').update(String(c.claim??'')+'\n'+String(c.excerpt??'')+'\n'+(c.mechanisms??[]).map(String).join(' ')+'\n'+String(c.limitations??'')).digest('hex')).sort().join('')).digest('hex')

@@ -3,6 +3,9 @@ import {openSync,closeSync,writeSync,fsyncSync,appendFileSync} from 'node:fs'
 import {CoachProviderBudget,activeCoachFunding} from './coach-provider-budget.ts'
 
 export const cozeModelEndpoint='https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'
+export const cozeMaxPromptUtf8Bytes=32768
+export const cozeMaxInputTokens=36864
+export const cozeMaxCostPerCallCny=0.04
 const sha=(bytes:string|Buffer)=>createHash('sha256').update(bytes).digest('hex')
 const digest=(x:unknown):x is string=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x)
 const uuid=(x:unknown):x is string=>typeof x==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(x)
@@ -12,7 +15,7 @@ export function deriveCozePermitSecret(existingRunToken:string){
 }
 type Binding={hostSourceDigest:string;cloudCommit:string;cloudSourceDigest:string;contentHash:string;skillsDigest:string}
 type Slot={nodeId:string;callId:string;reservedCostCny:number}
-type Claims=Binding&{schemaVersion:1;kind:'LIFEOS_COZE_HOST_RESERVED_GRAPH';requestId:string;projectId:'7693388932939300905';payloadDigest:string;issuedAt:string;expiresAt:string;model:'qwen3.8-flash';endpoint:string;maxOutputTokens:2048;maxPromptUtf8Bytes:12000;inputCnyPerMillion:0.8;outputCnyPerMillion:2.7;slots:Slot[]}
+type Claims=Binding&{schemaVersion:1;kind:'LIFEOS_COZE_HOST_RESERVED_GRAPH';requestId:string;projectId:'7693388932939300905';payloadDigest:string;issuedAt:string;expiresAt:string;model:'qwen3.8-flash';endpoint:string;maxOutputTokens:2048;maxPromptUtf8Bytes:12000|32768;inputCnyPerMillion:0.8;outputCnyPerMillion:2.7;slots:Slot[]}
 export type CozeHostPermit={payloadB64:string;claimsB64:string;signature:string}
 type RestoredApproval={kind:string;approvalSource:string;cozePauseLifted:boolean;productModelPauseLifted:boolean;directHttpRouteApproval?:{source:string;exactAnswer:string;newBudget:number;automaticPaidRetry:boolean;publishBeforeCoreGates:boolean}}
 function validateBinding(binding:Binding){
@@ -31,12 +34,12 @@ function claimsAndPayload(wire:CozeHostPermit,secret:string,binding:Binding,now:
  if(claims.schemaVersion!==1||claims.kind!=='LIFEOS_COZE_HOST_RESERVED_GRAPH'||claims.projectId!=='7693388932939300905'||!uuid(claims.requestId)||claims.requestId!==payload.requestId||sha(payloadBytes)!==claims.payloadDigest||Object.entries(binding).some(([key,value])=>claims[key as keyof Claims]!==value))throw Error('PERMIT_PAYLOAD_OR_RUNTIME_CONFLICT')
  const issued=Date.parse(claims.issuedAt),expires=Date.parse(claims.expiresAt)
  if(!Number.isFinite(issued)||!Number.isFinite(expires)||issued>now||expires<=now||expires-issued>300000||expires<=issued)throw Error('PERMIT_EXPIRED_OR_CLOCK_INVALID')
- if(claims.model!=='qwen3.8-flash'||claims.endpoint!==cozeModelEndpoint||claims.maxOutputTokens!==2048||claims.maxPromptUtf8Bytes!==12000||claims.inputCnyPerMillion!==0.8||claims.outputCnyPerMillion!==2.7)throw Error('PERMIT_MODEL_OR_LIMIT_CONFLICT')
- validatePayload(payload,claims.slots?.map(x=>x.nodeId),claims.slots?.[0]?.reservedCostCny)
+ if(claims.model!=='qwen3.8-flash'||claims.endpoint!==cozeModelEndpoint||claims.maxOutputTokens!==2048||![12000,cozeMaxPromptUtf8Bytes].includes(claims.maxPromptUtf8Bytes)||claims.inputCnyPerMillion!==0.8||claims.outputCnyPerMillion!==2.7)throw Error('PERMIT_MODEL_OR_LIMIT_CONFLICT')
+ validatePayload(payload,claims.slots?.map(x=>x.nodeId),claims.slots?.[0]?.reservedCostCny,claims.maxPromptUtf8Bytes===12000?16384:cozeMaxInputTokens)
  if(!Array.isArray(claims.slots)||new Set(claims.slots.map(x=>x.callId)).size!==claims.slots.length||claims.slots.some(x=>!uuid(x.callId)||x.reservedCostCny!==claims.slots[0].reservedCostCny))throw Error('PERMIT_SLOTS_INVALID')
  return {claims,payload}
 }
-function validatePayload(payload:any,nodeIds:string[],maximum:number){
+function validatePayload(payload:any,nodeIds:string[],maximum:number,inputTokenCap=cozeMaxInputTokens){
  if(!payload||payload.schemaVersion!==2||payload.businessRole!=='growth'||payload.syntheticAdult!==true||!uuid(payload.requestId)||!['direction_decision','action_review','growth_diff','kb_maintenance'].includes(payload.mode))throw Error('SYNTHETIC_AUTHORIZED_HOST_PAYLOAD_REQUIRED')
  if(!Array.isArray(nodeIds)||nodeIds.length<1||nodeIds.length>5||new Set(nodeIds).size!==nodeIds.length||nodeIds.some(x=>typeof x!=='string'||!x.length||x.length>100))throw Error('PERMIT_GRAPH_INVALID')
  if(payload.mode==='direction_decision'){
@@ -46,7 +49,7 @@ function validatePayload(payload:any,nodeIds:string[],maximum:number){
  }
  // A conservative UTF-8/token cap is enforced again on the actual complete
  // messages by the cloud. Use full input price, never optimistic cache pricing.
- const minimum=(16384*0.8+2048*2.7)/1e6
+ const minimum=(inputTokenCap*0.8+2048*2.7)/1e6
  if(!Number.isFinite(maximum)||maximum<minimum||!payload.modelBudget||!Number.isInteger(payload.modelBudget.maxProviderCalls)||payload.modelBudget.maxProviderCalls<nodeIds.length||payload.modelBudget.maxProviderCalls>5||!(payload.modelBudget.maxCostCny>=nodeIds.length*maximum)||!Number.isInteger(payload.modelBudget.deadlineMs)||payload.modelBudget.deadlineMs<1||payload.modelBudget.deadlineMs>120000)throw Error('PERMIT_GRAPH_BUDGET_INVALID')
 }
 
@@ -62,9 +65,9 @@ export function reserveCozeHostPermit(input:{payload:Record<string,unknown>;bind
  if(payloadBytes.length>256000)throw Error('HOST_PAYLOAD_TOO_LARGE')
  const requestId=payload.requestId as string,fd=openSync(input.journalPath,'wx',0o600)
  try{writeSync(fd,JSON.stringify({type:'first_graph_intent',requestId,payloadDigest,binding,nodeIds:input.nodeIds,newBudget:0})+'\n');fsyncSync(fd)}finally{closeSync(fd)}
- const signature=sha(JSON.stringify({binding,endpoint:cozeModelEndpoint,model:'qwen3.8-flash',maxOutputTokens:2048,maxPromptUtf8Bytes:12000}))
+ const signature=sha(JSON.stringify({binding,endpoint:cozeModelEndpoint,model:'qwen3.8-flash',maxOutputTokens:2048,maxPromptUtf8Bytes:cozeMaxPromptUtf8Bytes}))
  const slots=budget.reserveGraph(input.nodeIds.map(nodeId=>({runId:requestId,purpose:'diagnostic',tier:'default',provider:'bailian',model:'qwen3.8-flash',signature,sourceDigest:binding.hostSourceDigest,logicalCallId:sha(requestId+':'+nodeId),reservedCostCny:input.maxCostPerCallCny}))).map((row,index)=>({nodeId:input.nodeIds[index],callId:row.callId,reservedCostCny:input.maxCostPerCallCny}))
- const claims:Claims={schemaVersion:1,kind:'LIFEOS_COZE_HOST_RESERVED_GRAPH',requestId,projectId:'7693388932939300905',payloadDigest,...binding,issuedAt:new Date(now).toISOString(),expiresAt:new Date(now+300000).toISOString(),model:'qwen3.8-flash',endpoint:cozeModelEndpoint,maxOutputTokens:2048,maxPromptUtf8Bytes:12000,inputCnyPerMillion:0.8,outputCnyPerMillion:2.7,slots}
+ const claims:Claims={schemaVersion:1,kind:'LIFEOS_COZE_HOST_RESERVED_GRAPH',requestId,projectId:'7693388932939300905',payloadDigest,...binding,issuedAt:new Date(now).toISOString(),expiresAt:new Date(now+300000).toISOString(),model:'qwen3.8-flash',endpoint:cozeModelEndpoint,maxOutputTokens:2048,maxPromptUtf8Bytes:cozeMaxPromptUtf8Bytes,inputCnyPerMillion:0.8,outputCnyPerMillion:2.7,slots}
  const claimsB64=Buffer.from(JSON.stringify(claims)).toString('base64'),wire={payloadB64:payloadBytes.toString('base64'),claimsB64,signature:mac(input.secret,claimsB64)}
  const out=openSync(input.journalPath,'a',0o600)
  try{writeSync(out,JSON.stringify({type:'reserved_signed_first_attempt',wire})+'\n');fsyncSync(out)}finally{closeSync(out)}
@@ -117,7 +120,7 @@ export function settleCozeHostReceipt(input:{wire:CozeHostPermit;secret:string;b
    if(usage!==null&&usage!==undefined){
     for(const key of ['prompt_tokens','completion_tokens','total_tokens'])if(usage[key]!==undefined&&(!Number.isSafeInteger(usage[key])||usage[key]<0))fail()
     if(Number.isSafeInteger(usage.prompt_tokens)&&Number.isSafeInteger(usage.completion_tokens)){
-     if(r.model!==claims.model||typeof r.providerResponseId!=='string'||!r.providerResponseId||!Number.isSafeInteger(r.actualPromptBytes)||r.actualPromptBytes<1||r.actualPromptBytes>claims.maxPromptUtf8Bytes||usage.prompt_tokens>16384||usage.completion_tokens>claims.maxOutputTokens||usage.total_tokens!==undefined&&usage.total_tokens!==usage.prompt_tokens+usage.completion_tokens)fail()
+     if(r.model!==claims.model||typeof r.providerResponseId!=='string'||!r.providerResponseId||!Number.isSafeInteger(r.actualPromptBytes)||r.actualPromptBytes<1||r.actualPromptBytes>claims.maxPromptUtf8Bytes||usage.prompt_tokens>(claims.maxPromptUtf8Bytes===12000?16384:cozeMaxInputTokens)||usage.completion_tokens>claims.maxOutputTokens||usage.total_tokens!==undefined&&usage.total_tokens!==usage.prompt_tokens+usage.completion_tokens)fail()
      estimatedCostCny=(usage.prompt_tokens*claims.inputCnyPerMillion+usage.completion_tokens*claims.outputCnyPerMillion)/1e6
      if(estimatedCostCny>slot.reservedCostCny+1e-9)fail()
      cost+=estimatedCostCny

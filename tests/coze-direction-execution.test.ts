@@ -25,8 +25,17 @@ function setup(fetchImpl:typeof fetch){
  const config:CozeDirectionConfig={projectId:'7693388932939300905',endpoint:'https://synthetic-test.coze.site/run',token:'synthetic-existing-token-only-not-real',binding:{hostSourceDigest:workflowRuntimeVersion.sourceDigest,cloudCommit:'a'.repeat(40),cloudSourceDigest:'b'.repeat(64),contentHash:workflowRuntimeVersion.contentHash,skillsDigest:'c'.repeat(64)},approval:{kind:'OWNER_APPROVED_LIFEOS_COZE_CORE_LAUNCH',approvalSource:'CURRENT_CHAT_DIRECT_HUMAN_REPLY',cozePauseLifted:true,productModelPauseLifted:true,directHttpRouteApproval:{source:'CURRENT_CHAT_DIRECT_HUMAN_REPLY',exactAnswer:'批准新的实现路线，仍只用已有额度',newBudget:0,automaticPaidRetry:false,publishBeforeCoreGates:false}},creditsLedgerPath:creditPath,maxCreditsPerGraph:10,journalDirectory:join(root,'journal')}
  const f=fixture(),journal={...simulationJournal(),durable:true},finished:any[]=[];journal.finishNode=async(_r,id,_result,cost,calls,error)=>{finished.push({id,cost,calls,error})}
  const adapter=createCozeDirectionAdapter({config,freezePath,readEvidence:async()=>f.records,readMethods:async()=>[],budget,credits,fetchImpl,syntheticTransport:true})
+ f.request.modelBudget.maxCostCny=adapter.maxCostPerCallCny*(f.request.directions.length+2)
  return {...f,budget,credits,journal,adapter,finished,root,config}
 }
+
+test('an older smaller request budget cannot silently fund the enlarged input envelope',async()=>{
+ let posts=0;const f=setup(async()=>{posts++;throw Error('must not dispatch')})
+ f.request.modelBudget.maxCostCny=.1
+ const receipt=await f.adapter.runRemoteGraph!(f.request,f.journal)
+ assert.equal(receipt.status,'unavailable');assert.equal(posts,0)
+ assert.equal(f.budget.snapshot().calls.length,0);assert.equal(f.credits.balance().heldCredits,0)
+})
 
 function proposedReceipt(wire:any,config:CozeDirectionConfig,request:ReturnType<typeof fixture>['request']){
  const claims=JSON.parse(Buffer.from(wire.claimsB64,'base64').toString('utf8'))
