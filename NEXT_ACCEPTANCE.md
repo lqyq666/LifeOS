@@ -1,3 +1,24 @@
+# 2026-10-14 当前云端核查与实际阻塞（优先于下方历史）
+
+产品提交 `2fa5129f6f67c7b949d20b2a474262ae2ce73e53`；原成长项目实际云端提交 `92b010168074ec9742b81901894408a86014593b`，绑定宿主摘要 `24658df1f25fee8c733cef593e43ae7813cd47d9cfc6ef63c921753ce512c6e7`。本次保持原工作流和六个业务Skill字节，不新增Agent。状态 **TESTED / CLOUD_DEV_BOUND / WIP_NOT_READY**，不是已发布或全链接受。
+
+- 现场确认旧聊天R12不代表实际云代码；开发环境原实际R33为74562ef。保留全部既有未跟踪文件，备份后只提交宿主版本绑定，先e70eddc，收到本地修复后再绑定92b0101。
+- 修复确定的真实协议接入缺口：云端回执包含主Skill，但本地只允许五专业Skill，合法主Skill导致source_invalid。现在允许精确冻结版本和哈希的主Skill，仍拒绝错误哈希/版本、未加载、重复、未知Skill及仅主Skill无必要专业Skill的回执。新增检查先失败，修复后回执和派发相关21项通过，服务端类型检查通过；不将协议fixture当真实业务通过。
+- 当前云端完整HTTP入口实际执行空permit预检，返回permit_missing、providerCalls=0、实际92b0101及当前宿主摘要。它证明真实开发入口与安全拒绝分支，**不证明新模型建议、实际行动、反馈记忆星图闭环**。主Skill/五专业Skill哈希与本地一致，加载也不等于模型实际消费。
+- CLI实际部署状态仍为公共Gateway旧提交4aa53641b7177604cfa96631b9584de991531324，域名https://v8bjn44ynd.coze.site；未发布当前开发代码。公网LifeOS版本接口仍为99ca3f6d5975604e59f1b7fa2819c248b89b2991，https://lqynb.xyz。
+
+| 当前必需阻塞 | 已核对事实 / 解除所需 |
+|---|---|
+| 新扣子收费验证 | 原额度校验availableCredits=0，历史未知预留保留。实际官方账户余额62658，但官方请求明细入口当前仅返回项目汇总（成长79892.35），没有可准确对应旧请求的分项；不能将汇总随意分配或未知补零。需要平台提供可绑定旧请求的结算证据，或所有者明确调整这项既有预算执行规则；本次没有新增付费派发、充值、重试或改预算逻辑。 |
+| 生产恢复资源 | 只读实际守卫：可用548667392字节 + 原应用私有cgroup匿名426491904字节 < 要求1006632960字节，约差30MiB。LOW_MEMORY_BEFORE_PUBLIC_STOP；未停止应用或同机服务。须有可安全释放的资源或实际资源条件改善，不能降低守卫冒险发布。 |
+| 完整签收 | 当前真实收费云链、独立业务复核、当前版本三会话演示和性能均未完成，不能发布后再以旧版200倒推通过。 |
+
+整项A—H仍未完成：A FAIL（既有性能与整体语义签收未通过）；B BLOCKED（真实扣子新调用）；C NOT_TESTED（当前四条真实云链）；D NOT_TESTED（当前完整真实链，已有跨会话局部证据保留）；E NOT_TESTED（当前真实云反馈到星图）；F BLOCKED（完整专业Skill真实运行证据）；G NOT_TESTED（当前全链攻略覆盖）；H BLOCKED（恢复资源及上述核心门槛）。未制作新候选包、未创建/上传安全发布副本，原授权待完整验收后执行。
+
+原始证据只保留一处：`.local/cloud-closeout-20261014/`。`receipt-first.log`保留新增失败；`receipt-fixed.log`21项；`typecheck.log`；`gateway-deployment.json`；`production-memory.json`；`final/host-runtime.json`、`final/cloud-binding-terminal.txt`、`final/cloud-entry-terminal.txt`、`final/cloud-entry.png`。首次只读内存包装器误进入CLI参数解析的失败另存，修正后未执行任何恢复操作。原工作区`tests/backend/action-coach-engine.test.ts`改动保留。
+
+---
+
 # 2026-10-14 专业 Skill 与反馈闭环继续开发
 
 本批产品提交：`d804353`、`5a89047`、`17e4be9`。保持原Agent、四工作流与五专业Skill。状态 **MODIFIED / TESTED**；本批未运行真实扣子、未部署，不替代下方完整首发门槛。
