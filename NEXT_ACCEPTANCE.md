@@ -1,3 +1,36 @@
+# 2026-10-14 最新续开发：连接长尾已修复一项，首内容与上线仍待验收
+
+本轮沿用精简 Brief、“优先性能长尾/专业正常入口/上线阻塞、之前的测试不要管”的直接要求。当前产品代码 **2110f865a8869fa767ccef7dc926c148c5cee149**，状态 **MODIFIED / TESTED / BUILT / WIP_NOT_READY**；没有签收整体 REFACTOR_ACCEPTED、RELEASE_ACCEPTED、ONLINE_VERIFIED 或学生 ACCEPTED。下方旧记录仅保留事实链，不作为本轮旧测试门槛。
+
+本批产品提交：`45cd91c` 启动时无凭据 GET 预热；`23a8378` 将预热截止限定为10秒；`9ca4466` 为百炼官方 origin 设置独立持久连接池及共享 TLS connector；`ff49f51` 根据实际60秒空闲后的失败，将该池空闲期限改为10分钟；`2110f86` 过滤两种实际占位开场，并先执行敏感断言拦截，避免假首内容和安全边界放宽。其他 origin 沿用原 dispatcher；普通回合仍至多一次生成，SDK/Schema/finishRun/来源、账号、费用、取消边界保留。预热401仅是传输观察，不是模型健康或能力通过，未发送凭据或学生内容，未生成模型输出。
+
+| 优先项 | 当前事实与限制 |
+|---|---|
+| G 连接长尾 | 实际诊断定位到重新建 TLS 连接，原60秒池空闲后连接耗时6.204秒、首内容8.940秒。`ff49f51` 四条受影响真实补验均完成，每条1次生成、0 repair、0失败；匹配的四条 POST trace 均没有新 connection_start。就业样本在前轮完成后空闲117.824秒，仍复用连接，首内容2.899秒、完整8.972秒。这证明一次跨原60秒边界的改善，不证明所有网络状况或超过10分钟空闲稳定达标。 |
+| G 有效首内容 | 四条补验原始计时中，联系和访谈两条只是“可以复制/可以这样问”的引导语，已排除，不能报告原始3.10秒首内容P95为通过。缺少独立有效delta时间，采用完整提交时间作保守上界：有效首内容p50上界2.899秒、p95上界12.282秒，完整p95=12.282秒。首内容P95≤5秒仍未证实。冻结0914d94的原20条保留基线证据，不与这4条拼成新的同版20条；新过滤提交只有定向本地验证，没有新收费补验。 |
+| E 专业正常入口 | 既有两方向4节点、三方向5节点实际产物在2110f86宿主免费重放均通过，新增模型调用0；加载Skill元数据不升级为新执行证据，也不等于正常入口通过。已确认的云开发元数据提交为 **4fded292eb12024dcec6d70c163f2d574565b1f6**，绑定9ca44662，业务及Skill正文摘要不变。后续ff49f51绑定命令发送后，原Edge控制连接断开，最终云提交及实际绑定 **UNCONFIRMED**，不可盲目重发。公开Gateway只读状态仍为d3c540234751e5695dc86ce07d7340325f3149c9。采纳/拒绝→反馈→新会话正常入口整链尚未闭环。 |
+| H 上线阻塞 | 最新只读资源结果：MemAvailable 556,711,936字节 + 精确本应用匿名内存427,610,112 = 984,322,048字节；原门槛1,006,632,960，短缺22,310,912字节（21.28MiB），仍为LOW_MEMORY_BEFORE_PUBLIC_STOP。未停止生产或同机服务、未改数据库、未降低守卫或执行旧恢复包；本批未部署生产。公网旧版本99ca3f6保持此前实际观测等级，不因连接池修复自动升级为当前版本。 |
+
+验收与复核：当前连接池定向4项检查已通过，包括真实SDK的本地模拟流式返回、maxRetries=0与在途取消；新占位过滤定向1项检查（多条边界断言）、服务端typecheck、生产build、diff检查通过，没有运行旧套件或用户原脏测试。连接池独立复核无P1/P2；过滤初次复核的1个P1、1个P2均修复，最终独立复核无新增P1/P2。四条真实回复保留未代发、队友程序不是本人成果、访谈实际经历不问购买、105分钟保留15分钟余量。原失败和未经纠正的原始计时不覆盖删除。Three资源大包提示仍为非阻断项。
+
+费用：自原baselineCalls=3611起本续批55次模型调用，已知估算0.1686785元，1次unknown预留0.1245184元，保守占用0.2931969元，未超原0.5元续批上限；其中本次新增13次、已知增量0.0271392元。自最初3500起累计166次，已知0.6393335元、2次unknown预留共0.2490368元，原有效额度剩余3.8846677元。不是结算账单；没有新增预算或自动收费重试。扣子仍受原唯一积分账本及500积分本续批冻结上限约束，本次没有新扣子模型派发；重连后在任何新收费派发前复查余额，旧unknown保持未知。
+
+继续所需的实际文件仍在原位置，没有新候选包：
+
+- `.local/cloud-closeout-20261014/slim/transport-final-corrected-metrics.json`、四份`ordinary-pooled-pause-final-*-results.json`、`transport-timing.jsonl`：真实四条、118秒空闲、占位排除和TLS事件证据；先前60秒失败等原文件保留。
+- 同目录`transport-independent-review.md`、`transport-independent-followup.md`、`transport-independent-final.md`、`performance-budget-current.json`、`production-memory-transport-final.json`、`professional-current-host-replay.json`、`cloud-binding-dev-proof.jpg`；截图只证明中间开发提交4fded292，不能证明ff49f51提交或公开发布。
+- `.local/coze-launch/slim-runtime-observed.json`已明确标注最终云提交未知，保存最近确认值和最后未确认命令；旧云提交及Skill摘要的转录错误已纠正，原记录保存于`slim/slim-runtime-observed-before-transport-correction.json`。恢复连接后先读实际HEAD、staged及绑定，不能重发已发送命令或假定其失败。
+- `.local/coze-launch/slim-host-binding-pending.json`以本地运行中`/api/run/version`及source freeze为依据：宿主2110f86，sourceDigest **e44a6d53d5abdfb3600aa2cbbb61a03c48d59c74374130e549abb13d57bd7916**。默认shell配置的知识库摘要与隔离服务不同，不能用于云绑定。
+- 本地隔离服务`http://127.0.0.1:18126`已运行2110f86，原18124和生产服务未动；`start-real.mjs --resume`沿用同一隔离库与费用baseline。采集脚本已补逐帧收到时间，下一条证据不再缺有效delta时间；尚未使用它重新收费采样。
+
+用户原脏文件`tests/backend/action-coach-engine.test.ts`的SHA256仍为`6D834BDC20B462B285F97E8384BDA488A392B0FB7104B68F6A531BE005BF0C67`，未改、未运行、未提交。唯一模型账本仍为`.local/v1.3-action-coach/paid/provider-calls.json`；Secret/私密账号/数据库串不输出上传。
+
+下一步：恢复原扣子浏览器控制连接，先确认最后开发提交，再按实际运行版本校准现有绑定；继续改善材料/访谈有效首内容，完成专业正常入口与采纳/拒绝反馈跨会话。原所有者授权`publishBeforeCoreGates=false`有效，不能在首内容门槛尚未确认时静默先发布；如果正常入口确实必须先发布受限候选，须在精确版本和恢复路径就绪后单独解决该门槛顺序冲突。完整生产发布还需满足原内存守卫、精确备份恢复及公网验收。
+
+---
+
+以下为历史记录；上方为当前唯一有效状态。
+
 # 2026-10-14 续开发：性能、专业入口与上线阻塞的当前事实
 
 本轮以精简 Brief 和所有者“之前的测试不要管、优先性能/专业入口闭环/上线阻塞”为准。当前产品代码 **e69587bec27dce380a4dcbc02097f3ab20891247**，状态 **MODIFIED / TESTED / BUILT / WIP_NOT_READY**。本批独立增量复核 **PASS_WITH_LIMITATIONS**；没有签收整体 REFACTOR_ACCEPTED 或 RELEASE_ACCEPTED。下方旧记录仅保存事实链，不构成本轮旧测试门槛。
