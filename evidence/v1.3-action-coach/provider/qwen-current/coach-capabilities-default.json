@@ -1,16 +1,16 @@
 {
-  "at": "2026-10-12T13:42:39.687Z",
-  "runId": "coach-probe-default-1791812559687-b1d465a9",
+  "at": "2026-10-14T12:57:20.750Z",
+  "runId": "coach-probe-default-1791982640749-8ebbe014",
   "status": "PASS",
   "evidence": "REAL_PROVIDER_API",
   "contract": "action-coach-v1.3",
-  "probeContractMode": "actual_runtime_subsets",
+  "probeContractMode": "legacy_full_contract",
   "sourceFreeze": {
-    "path": "D:\\aaaLife\\LifeOS\\.local\\half-day-20261012\\capability-daf1c1c-first-freeze.json",
-    "digest": "926fbe08bce8471ef381f66a7cb41f141a0791ef21087133f3f6b9512133492a"
+    "path": "D:\\aaaLife\\LifeOS\\.local\\cloud-closeout-20261014\\slim\\real-source-freeze.json",
+    "digest": "4a356bc5eb9aa4e71fbb16865093d70cc058a35f6bcd48c47d824c93b7e38a3e"
   },
-  "contractSignature": "3cf4a97004db78789a17be60be1e367ad1e05b8ed020c3bb6364ada051cbec99",
-  "interfaceSignature": "f947edc666dcf307a0f609ed527cd24ec36f6e753b93e4b393b99a5480d36c5c",
+  "contractSignature": "231ce7b0378eefdad96db2f35d887547dde59f0fdaf4569b12a13b815d0c1746",
+  "interfaceSignature": "c92c6519974ae39759415759fd89fb84dbe10f6f0816f646b87a8b6698d4f38f",
   "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
   "tier": "default",
   "provider": "bailian",
@@ -28,64 +28,64 @@
     "streaming": {
       "passed": true,
       "stopReason": "stop",
-      "elapsedMs": 5508,
-      "firstRawDeltaMs": 5395,
-      "deltas": 6,
+      "elapsedMs": 13029,
+      "firstRawDeltaMs": 7541,
+      "deltas": 5,
       "usage": {
-        "uncachedInputTokens": 2662,
+        "uncachedInputTokens": 3452,
         "cacheWriteInputTokens": 0,
         "cachedInputTokens": 0,
-        "outputTokens": 13
+        "outputTokens": 8
       },
-      "estimatedCostCny": 0.0021647,
-      "callId": "9f93afe6-3cb1-449f-a78c-8a5af2cebc4e",
+      "estimatedCostCny": 0.0027832,
+      "callId": "ae649568-b6da-46ee-ba3c-21f175d56944",
       "cancelledAfterDelta": false,
-      "actualContractMode": "reply_growth",
-      "schemaSha256": "82536e5726ec688acbc51b2e3af1efec966d6326e8f3ed97dcb3d6e9361b178b",
+      "actualContractMode": null,
+      "schemaSha256": null,
       "errorCategory": null,
-      "reply": "嗯，我在听。你想聊什么？",
+      "reply": "我在，你说。",
       "note": "Raw delta timing is transport evidence, not meaningful first content."
     },
     "freeOutput": {
       "passed": true,
       "stopReason": "stop",
-      "elapsedMs": 5414,
-      "firstRawDeltaMs": 3271,
-      "deltas": 26,
+      "elapsedMs": 9306,
+      "firstRawDeltaMs": 7749,
+      "deltas": 25,
       "usage": {
-        "uncachedInputTokens": 792,
+        "uncachedInputTokens": 374,
         "cacheWriteInputTokens": 0,
-        "cachedInputTokens": 1024,
-        "outputTokens": 78
+        "cachedInputTokens": 3072,
+        "outputTokens": 81
       },
-      "estimatedCostCny": 0.0009466,
-      "callId": "637adc71-a509-4771-ac09-059d6461773b",
+      "estimatedCostCny": 0.0008251,
+      "callId": "fd1fc24d-2537-4dc7-8a7a-e4c2e5f61951",
       "cancelledAfterDelta": false,
-      "actualContractMode": "reply_only",
-      "schemaSha256": "0dc3ba289c6984a4b3dd0af203c8d39c8b78ceb2d7add473bec7240a95b1cc8d",
+      "actualContractMode": null,
+      "schemaSha256": null,
       "errorCategory": null,
-      "reply": "递归是一种通过函数调用自身来解决问题的编程技巧。它通常包含两个关键部分：基准情形（Base Case），即停止递归的条件，防止无限循环；以及递归步骤（Recursive Step），即函数调用自身并处理更小规模的问题。简单来说，就是把大问题拆解成结构相同的小问题，直到小问题可以直接解决为止。",
+      "reply": "递归就是函数直接或间接调用自身来解决问题的过程。它的核心在于把一个大问题拆解成结构相同但规模更小的子问题，直到触碰到一个可以直接得出答案的“基准情形”（Base Case），然后逐层返回结果。比如计算阶乘，n! 等于 n 乘以 (n-1)!，这就是典型的递归逻辑。",
       "output": {
-        "reply": "递归是一种通过函数调用自身来解决问题的编程技巧。它通常包含两个关键部分：基准情形（Base Case），即停止递归的条件，防止无限循环；以及递归步骤（Recursive Step），即函数调用自身并处理更小规模的问题。简单来说，就是把大问题拆解成结构相同的小问题，直到小问题可以直接解决为止。"
+        "reply": "递归就是函数直接或间接调用自身来解决问题的过程。它的核心在于把一个大问题拆解成结构相同但规模更小的子问题，直到触碰到一个可以直接得出答案的“基准情形”（Base Case），然后逐层返回结果。比如计算阶乘，n! 等于 n 乘以 (n-1)!，这就是典型的递归逻辑。"
       }
     },
     "actionOutput": {
       "passed": true,
       "stopReason": "stop",
-      "elapsedMs": 17076,
-      "firstRawDeltaMs": 12213,
-      "deltas": 54,
+      "elapsedMs": 12585,
+      "firstRawDeltaMs": 6099,
+      "deltas": 112,
       "usage": {
-        "uncachedInputTokens": 1504,
+        "uncachedInputTokens": 545,
         "cacheWriteInputTokens": 0,
-        "cachedInputTokens": 1792,
-        "outputTokens": 175
+        "cachedInputTokens": 3072,
+        "outputTokens": 372
       },
-      "estimatedCostCny": 0.0018549,
-      "callId": "f6823f3e-a6cf-4d3b-b76c-989b6dabfb3d",
+      "estimatedCostCny": 0.0017476,
+      "callId": "fbe6871e-5755-4506-92f2-5de80802d71d",
       "cancelledAfterDelta": false,
-      "actualContractMode": "material",
-      "schemaSha256": "77d3db6c67fd829b3f5b233e43d4555ab6f1c4644ba377a83a6d787d613797ce",
+      "actualContractMode": null,
+      "schemaSha256": null,
       "errorCategory": null,
       "fixture": {
         "evidence": "SYNTHETIC_API_CONTRACT_STATE_NOT_PERSISTED_TRAJECTORY",
@@ -93,36 +93,45 @@
         "revision": 3
       },
       "output": {
-        "reply": "要不直接问清楚他具体需要哪部分，这样你也不用急着重新做。可以这样发：\n\n“之前发你的资料手机打不开，那部分先不管了。你现在主要需要哪一块内容？我看看怎么方便给你。”\n\n这样既接住了他打不开的情况，又把重点拉回到他真正需要的部分，不用你马上动手重做。",
+        "reply": "既然对方已经明确反馈了“手机打不开”这个具体障碍，那现在的核心就不是“资料好不好”，而是“怎么让他能看”。\n\n直接问“那怎么办”容易把球踢回给对方，不如你主动给个台阶或方案。你可以试试这样发：\n\n“收到，是我没考虑到手机格式的问题。要不我转成PDF发你？或者你方便的时候告诉我哪种格式能打开，我重新弄一下。”\n\n这样既接住了他的反馈，又把“重新制作”的动作揽在自己身上，对方只需要回答“行”或者“不用了”，沟通成本最低。",
         "event": {
           "target": {
             "operation": "continue",
             "eventId": "00000000-0000-4000-8000-000000000021",
             "expectedRevision": 3
           },
+          "nodes": [
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "00000000-0000-4000-8000-000000000011",
+                "quote": "他明确说手机打不开"
+              }
+            }
+          ],
           "action": {
             "operation": "create",
             "draft": {
-              "content": "之前发你的资料手机打不开，那部分先不管了。你现在主要需要哪一块内容？我看看怎么方便给你。"
+              "content": "收到，是我没考虑到手机格式的问题。要不我转成PDF发你？或者你方便的时候告诉我哪种格式能打开，我重新弄一下。"
             }
           }
         }
       },
-      "renderedReply": "要不直接问清楚他具体需要哪部分，这样你也不用急着重新做。可以这样发：\n\n“之前发你的资料手机打不开，那部分先不管了。你现在主要需要哪一块内容？我看看怎么方便给你。”\n\n这样既接住了他打不开的情况，又把重点拉回到他真正需要的部分，不用你马上动手重做。",
+      "renderedReply": "既然对方已经明确反馈了“手机打不开”这个具体障碍，那现在的核心就不是“资料好不好”，而是“怎么让他能看”。\n\n直接问“那怎么办”容易把球踢回给对方，不如你主动给个台阶或方案。你可以试试这样发：\n\n“收到，是我没考虑到手机格式的问题。要不我转成PDF发你？或者你方便的时候告诉我哪种格式能打开，我重新弄一下。”\n\n这样既接住了他的反馈，又把“重新制作”的动作揽在自己身上，对方只需要回答“行”或者“不用了”，沟通成本最低。",
       "note": "Existing event identity/revision, exact new source and one authoritative material. Optional candidate remains unconfirmed. Final quality still needs trajectory review."
     },
     "cancel": {
       "passed": true,
       "stopReason": "aborted",
-      "elapsedMs": 7159,
-      "firstRawDeltaMs": 6945,
+      "elapsedMs": 7204,
+      "firstRawDeltaMs": 6989,
       "deltas": 1,
       "usage": "unknown",
       "estimatedCostCny": "unknown",
-      "callId": "f48bfb33-2e58-4dff-ae90-3f87b358bdd6",
+      "callId": "6319fe3b-c3a3-4413-a54e-67f2f170191e",
       "cancelledAfterDelta": true,
-      "actualContractMode": "reply_growth",
-      "schemaSha256": "82536e5726ec688acbc51b2e3af1efec966d6326e8f3ed97dcb3d6e9361b178b",
+      "actualContractMode": null,
+      "schemaSha256": null,
       "errorCategory": null,
       "note": "Provider final billing is unknown unless nonempty usage is actually reported."
     }
@@ -130,124 +139,124 @@
   "calls": [
     {
       "reservedCostCny": 0.1245184,
-      "runId": "coach-probe-default-1791812559687-b1d465a9",
+      "runId": "coach-probe-default-1791982640749-8ebbe014",
       "purpose": "capability",
       "tier": "default",
       "provider": "bailian",
       "model": "qwen3.8-flash",
       "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
-      "sourceDigest": "926fbe08bce8471ef381f66a7cb41f141a0791ef21087133f3f6b9512133492a",
+      "sourceDigest": "4a356bc5eb9aa4e71fbb16865093d70cc058a35f6bcd48c47d824c93b7e38a3e",
       "funding": "current_grant",
-      "callId": "9f93afe6-3cb1-449f-a78c-8a5af2cebc4e",
-      "startedAt": "2026-10-12T13:42:39.782Z",
+      "callId": "ae649568-b6da-46ee-ba3c-21f175d56944",
+      "startedAt": "2026-10-14T12:57:20.890Z",
       "status": "finished",
       "outcome": "stop",
       "usage": {
-        "uncachedInputTokens": 2662,
+        "uncachedInputTokens": 3452,
         "cacheWriteInputTokens": 0,
         "cachedInputTokens": 0,
-        "outputTokens": 13
+        "outputTokens": 8
       },
-      "estimatedCostCny": 0.0021647,
-      "providerResponseId": "chatcmpl-e8042a9f-53ea-9c26-821b-6daf3095ee01",
-      "finishedAt": "2026-10-12T13:42:45.115Z"
+      "estimatedCostCny": 0.0027832,
+      "providerResponseId": "chatcmpl-4bc85de1-ebb5-9db1-8135-50eb345ca120",
+      "finishedAt": "2026-10-14T12:57:33.591Z"
     },
     {
       "reservedCostCny": 0.1245184,
-      "runId": "coach-probe-default-1791812559687-b1d465a9",
+      "runId": "coach-probe-default-1791982640749-8ebbe014",
       "purpose": "capability",
       "tier": "default",
       "provider": "bailian",
       "model": "qwen3.8-flash",
       "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
-      "sourceDigest": "926fbe08bce8471ef381f66a7cb41f141a0791ef21087133f3f6b9512133492a",
+      "sourceDigest": "4a356bc5eb9aa4e71fbb16865093d70cc058a35f6bcd48c47d824c93b7e38a3e",
       "funding": "current_grant",
-      "callId": "637adc71-a509-4771-ac09-059d6461773b",
-      "startedAt": "2026-10-12T13:42:45.291Z",
+      "callId": "fd1fc24d-2537-4dc7-8a7a-e4c2e5f61951",
+      "startedAt": "2026-10-14T12:57:34.064Z",
       "status": "finished",
       "outcome": "stop",
       "usage": {
-        "uncachedInputTokens": 792,
+        "uncachedInputTokens": 374,
         "cacheWriteInputTokens": 0,
-        "cachedInputTokens": 1024,
-        "outputTokens": 78
+        "cachedInputTokens": 3072,
+        "outputTokens": 81
       },
-      "estimatedCostCny": 0.0009466,
-      "providerResponseId": "chatcmpl-d4cd400d-6e1f-9e1c-877c-8656a64e64ff",
-      "finishedAt": "2026-10-12T13:42:50.424Z"
+      "estimatedCostCny": 0.0008251,
+      "providerResponseId": "chatcmpl-f9d63d62-5fda-914f-8bbd-a01c12e22c66",
+      "finishedAt": "2026-10-14T12:57:42.905Z"
     },
     {
       "reservedCostCny": 0.1245184,
-      "runId": "coach-probe-default-1791812559687-b1d465a9",
+      "runId": "coach-probe-default-1791982640749-8ebbe014",
       "purpose": "capability",
       "tier": "default",
       "provider": "bailian",
       "model": "qwen3.8-flash",
       "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
-      "sourceDigest": "926fbe08bce8471ef381f66a7cb41f141a0791ef21087133f3f6b9512133492a",
+      "sourceDigest": "4a356bc5eb9aa4e71fbb16865093d70cc058a35f6bcd48c47d824c93b7e38a3e",
       "funding": "current_grant",
-      "callId": "f6823f3e-a6cf-4d3b-b76c-989b6dabfb3d",
-      "startedAt": "2026-10-12T13:42:50.747Z",
+      "callId": "fbe6871e-5755-4506-92f2-5de80802d71d",
+      "startedAt": "2026-10-14T12:57:43.350Z",
       "status": "finished",
       "outcome": "stop",
       "usage": {
-        "uncachedInputTokens": 1504,
+        "uncachedInputTokens": 545,
         "cacheWriteInputTokens": 0,
-        "cachedInputTokens": 1792,
-        "outputTokens": 175
+        "cachedInputTokens": 3072,
+        "outputTokens": 372
       },
-      "estimatedCostCny": 0.0018549,
-      "providerResponseId": "chatcmpl-d3cb8d12-5a32-9a95-8252-9fcfc7fa111e",
-      "finishedAt": "2026-10-12T13:43:07.501Z"
+      "estimatedCostCny": 0.0017476,
+      "providerResponseId": "chatcmpl-38b4ac5b-e307-9296-896f-855a08d6bafb",
+      "finishedAt": "2026-10-14T12:57:55.501Z"
     },
     {
       "reservedCostCny": 0.1245184,
-      "runId": "coach-probe-default-1791812559687-b1d465a9",
+      "runId": "coach-probe-default-1791982640749-8ebbe014",
       "purpose": "capability",
       "tier": "default",
       "provider": "bailian",
       "model": "qwen3.8-flash",
       "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
-      "sourceDigest": "926fbe08bce8471ef381f66a7cb41f141a0791ef21087133f3f6b9512133492a",
+      "sourceDigest": "4a356bc5eb9aa4e71fbb16865093d70cc058a35f6bcd48c47d824c93b7e38a3e",
       "funding": "current_grant",
-      "callId": "f48bfb33-2e58-4dff-ae90-3f87b358bdd6",
-      "startedAt": "2026-10-12T13:43:07.908Z",
+      "callId": "6319fe3b-c3a3-4413-a54e-67f2f170191e",
+      "startedAt": "2026-10-14T12:57:55.931Z",
       "status": "finished",
       "outcome": "aborted",
       "usage": "unknown",
       "estimatedCostCny": "unknown",
-      "providerResponseId": "chatcmpl-e1dc882b-cc3f-9b79-8494-0179c2c7efd0",
-      "finishedAt": "2026-10-12T13:43:14.683Z"
+      "providerResponseId": "chatcmpl-01f8c0c2-f40d-9a05-9961-9f8d823c57c3",
+      "finishedAt": "2026-10-14T12:58:02.709Z"
     }
   ],
   "note": "Capability/transport evidence only; not A01–A08 quality or the 20-sample speed acceptance.",
   "rawOutputs": [
     {
       "check": "R1",
-      "path": ".local/v1.3-action-coach/coach-probe-default-1791812559687-b1d465a9/R1.txt",
-      "chars": 24,
-      "sha256": "8b719dcba8ad102244d1dc51f4b781f0ef79d5b04a1c467be6db65249fa80253",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1791982640749-8ebbe014/R1.txt",
+      "chars": 18,
+      "sha256": "6478eeec4e540e47dabb938aacf80b765cb96a5c73135ce26dc5ed53ae4b27b8",
       "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
     },
     {
       "check": "R2",
-      "path": ".local/v1.3-action-coach/coach-probe-default-1791812559687-b1d465a9/R2.txt",
-      "chars": 163,
-      "sha256": "101d3b0629b5a2b5cbb5372aa09e2be66ebe0232943906c2d6767c97f9a27c03",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1791982640749-8ebbe014/R2.txt",
+      "chars": 147,
+      "sha256": "79a91960cfff39cb8e2582b0c3d1ec78b6834c5939821470627da2e7757d91cf",
       "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
     },
     {
       "check": "R3",
-      "path": ".local/v1.3-action-coach/coach-probe-default-1791812559687-b1d465a9/R3.txt",
-      "chars": 353,
-      "sha256": "54868725da4172ac9e349ba21f1fafe75b0a9c9ec84e04024d986f48d7ee016a",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1791982640749-8ebbe014/R3.txt",
+      "chars": 718,
+      "sha256": "432927e0a4a2a23d78cebe9ea3096d85c002e9ee9aa39f5cf0da666eddd798f4",
       "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
     },
     {
       "check": "R4",
-      "path": ".local/v1.3-action-coach/coach-probe-default-1791812559687-b1d465a9/R4.txt",
-      "chars": 2,
-      "sha256": "6017dbca8e3eeb2f73be4123b0032c736d8c8f9bf8c86e6631887342c06fec90",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1791982640749-8ebbe014/R4.txt",
+      "chars": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
       "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
     }
   ],
@@ -260,7 +269,7 @@
     "activatedAt": "2026-10-05T13:30:33.694Z",
     "noCallLimit": true,
     "paused": false,
-    "accountedCny": 21.5647745,
-    "remainingCny": 6.0552255
+    "accountedCny": 23.5843997,
+    "remainingCny": 4.0356003
   }
 }

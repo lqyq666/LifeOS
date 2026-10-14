@@ -93,6 +93,10 @@ test('ordinary contract composes review, material and facts without competing mo
   assert.deepEqual(s.properties.weeklyPlan.properties.availableMinutes.enum,[120],'time binding remains authoritative')
   assert.equal(s.properties.reply.enum,undefined,'plan explanation stays naturally generated')
   assert.equal(s.properties.reply.maxLength,160)
+  const slack=bindPlanBudgetSchema(c,{minutes:120,period:'this_week'},'安排课程作业和复习，不要全排满').schema as any
+  assert.ok(slack.properties.weeklyPlan.description.includes('合计至多119分钟'))
+  assert.equal(slack.properties.weeklyPlan.properties.items.items.properties.minutes.maximum,119)
+  assert.equal(slack.properties.weeklyPlan.properties.items.enum,undefined)
 })
 
 test('single ordinary generation preserves mixed delivery and real transaction boundaries (simulated provider)',async t=>{
