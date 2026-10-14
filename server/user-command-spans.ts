@@ -40,11 +40,12 @@ export function conversationPreferenceClause(text:string):boolean{
 // A request to the assistant is not autobiographical evidence. Keep this
 // separate from listening preferences: positive requests still need delivery.
 export function methodReferenceClause(text:string):boolean{
- return /^(?:请|麻烦|那就|那|就|先)?(?:用|按|参考)(?:刚才|上次|那个|这个)[^。！？\n]{0,20}(?:方法|攻略|指南)/.test(text.trim())
+ return /^(?:请|麻烦|那就|那|就|先)?(?:用|按|参考)(?:刚才|上次|那个|这个)[^。！？\n]{0,20}(?:方法|攻略|指南)|^接着上次[^。！？\n]{0,20}(?:方法|攻略|指南)/.test(text.trim())
 }
 export function assistantRequestClause(text:string):boolean{
  const clause=text.trim().replace(/^(?:也|并且|而且)/,'')
  return conversationPreferenceClause(clause)
+  ||/^(?:先)?只(?:说|给)(?:我)?一(?:个|步|条)|^(?:别|不要)重新给(?:我)?完整计划/.test(clause)
   ||/^(?:请|麻烦|那就|那|就|先)(?:先)?(?:用|使用|按|参考|依据)[^。！？\n]{0,80}(?:攻略|指南|方法)/.test(clause)
   ||/^(?:请|麻烦)?(?:先|继续|直接|马上|现在)?(?:帮我|给我|替我)(?:先|继续)?(?:想|处理|解释|看看|分析|安排|写|修改|听|聊|整理|起草|拟|一(?:句|段|份|条))/.test(clause)
   ||/^(?:请|麻烦)(?:先|继续)?(?:处理|解释|看看|分析|安排|写|修改|听|聊|沿用)/.test(clause)

@@ -31,7 +31,7 @@ import { reportsOwnContribution, buildMaterialFactCatalogue, resolveSelectedMate
 import { stageWeeklyPlan, renderProposedWeeklyPlan } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
-import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,refusalPreferenceClause } from './user-command-spans.ts'
+import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,refusalPreferenceClause,methodReferenceClause } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseExpressesWishToAct, clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
@@ -261,16 +261,31 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const retrievalStarted=performance.now()
   const retrieval=await searchCoachEvents(run.user_id,run.conversation_id,{query:current.content},signal)
   staged.audit.push({phase:'coach_retrieval_completed',latencyMs:Math.round(performance.now()-retrievalStarted),eventCount:retrieval.events.length,indexPending:retrieval.indexPending,ambiguous:retrieval.ambiguous,embedding:'local_offline'})
-  const historicalEvents=retrieval.events.filter(event=>event.id!==currentEvent?.id)
+  let historicalEvents=retrieval.events.filter(event=>event.id!==currentEvent?.id)
   preRetrievalMs=Math.round(performance.now()-engineStageClock)
   const knowledgeStart=performance.now()
   const allContextMessages=await redactGrowthHistory(run.user_id,context.filter(row=>row.id===run.source_message_id||!snapshot.suppressedMessageIds?.includes(row.id)))
   // An unambiguous owned event can carry its method into another conversation.
   // A new or competing matter must not inherit that event's usage or branch.
   const guideEvent=currentEvent??(!retrieval.ambiguous&&historicalEvents.length===1?historicalEvents[0]:null)
-  const matchingGuideEvent=guideEvent&&feedbackMatchesCurrent(current.content,guideEvent.title,guideEvent.title)?guideEvent:null
-  const previousGuideUsage=matchingGuideEvent?await readGuideUsage(run.user_id,run.conversation_id,matchingGuideEvent.id):[]
+  let matchingGuideEvent=guideEvent&&feedbackMatchesCurrent(current.content,guideEvent.title,guideEvent.title)?guideEvent:null
+  let previousGuideUsage=matchingGuideEvent?await readGuideUsage(run.user_id,run.conversation_id,matchingGuideEvent.id):[]
+  // Several semantic neighbours do not imply several previously used methods.
+  // Resolve a natural continuation only when exactly one authorized matching
+  // event has actual valid guide usage; competing usages stay unresolved.
+  if(!currentEvent&&!previousGuideUsage.length&&methodReferenceClause(current.content)){
+    const matches=[]
+    for(const event of historicalEvents.filter(event=>feedbackMatchesCurrent(current.content,event.title,event.title))){
+      const usage=await readGuideUsage(run.user_id,run.conversation_id,event.id)
+      if(usage.length)matches.push({event,usage})
+    }
+    if(matches.length===1){matchingGuideEvent=matches[0].event;previousGuideUsage=matches[0].usage}
+  }
   const methodIntent=knowledgeIntent(current.content,{eventTitle:matchingGuideEvent?.title,hasPriorGuide:previousGuideUsage.length>0,lastUserTexts:allContextMessages.filter(row=>row.role==='user'&&row.id!==run.source_message_id).map(row=>row.content)})
+  if(!currentEvent&&methodIntent.continuation&&matchingGuideEvent&&previousGuideUsage.length){
+    currentEvent=matchingGuideEvent
+    historicalEvents=historicalEvents.filter(event=>event.id!==currentEvent!.id)
+  }
   const needsKnowledge=!['NONE','CLARIFY'].includes(methodIntent.decision)
   let knowledge=needsKnowledge?await retrieveCoachKnowledge(methodIntent.query,signal,methodIntent):[]
   staged.audit.push({phase:'knowledge_intent',decision:methodIntent.decision,reason:methodIntent.reason,stage:methodIntent.stage,providerCalls:0})

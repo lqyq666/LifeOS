@@ -18,6 +18,7 @@ import {parseActionCoachTurn} from '../../server/action-coach-contracts.ts'
 import {boundedRecallReply} from '../../server/bounded-reply.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {readGuideUsage} from '../../server/guide-usage.ts'
+import {indexCoachEventOnce} from '../../server/coach-retrieval.ts'
 
 test('real mixed report keeps editing commands out of the experience and reads later progress',()=>{
   const text='我通过校内邮箱发了消息，他还没回复，把消息改短，别猜他没回复的原因。'
@@ -192,8 +193,8 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
       await setMemorySettings(actor,{requestId:randomUUID(),enabled:true,expectedRevision:0})
       await store.createConversation(actor,{id:chat,title:'SYNTHETIC reviewed method'})
-      async function methodInput(text:string){
-        const run=(await store.startRun(actor,chat,randomUUID(),text)).run
+      async function methodInput(text:string,target=chat){
+        const run=(await store.startRun(actor,target,randomUUID(),text)).run
         return {run,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:(_event:Record<string,unknown>)=>{}}
       }
       const first=await methodInput('请用已审核的“从示例走向独立完成”方法。我的课程第三题不会做。')
@@ -201,7 +202,10 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       const firstReply=await engine(first),saved=await store.finishRun(first.run,first.staged,firstReply.text,firstReply.usage,first.signal)
       assert.equal(saved.event?.title,'我的课程第三题不会做')
       assert.equal((await readGuideUsage(actor,chat,saved.event!.id))[0]?.guide_id,card.id)
-      const next=await methodInput('还是卡住了，这个方法的第一步我找不到适用的已解示例，怎么继续？')
+      while(await indexCoachEventOnce()){}
+      const followup=randomUUID()
+      await store.createConversation(actor,{id:followup,title:'SYNTHETIC cross-session method'})
+      const next=await methodInput('接着上次第三题的那个方法，我找不到适用的已解示例，课件链接也打不开。先不重做计划，怎样继续？',followup)
       outputs.push({reply:'先保留示例缺失这个阻碍，核对题干或关键词后再找相同知识点的例子，不换到另一套方法。',citations:[{claimId:card.id}]})
       const nextReply=await engine(next)
       const context=JSON.parse(requests.at(-1).messages[1].content)
