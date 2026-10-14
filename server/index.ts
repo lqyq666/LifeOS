@@ -5,6 +5,7 @@ import { pool } from './db.ts'
 import { config, validateConfig } from './config.ts'
 import { verifySchema } from './schema.ts'
 import {drainPasswordResetMail,stopPasswordResetMail} from './password-reset-mail.ts'
+import {warmProviderConnection} from './provider-connection.ts'
 validateConfig()
 const owner=await pool.connect()
 try{
@@ -14,8 +15,9 @@ try{
   await owner.query("UPDATE runs SET status='failed',error_code='SERVER_RESTARTED',finished_at=now() WHERE status='running'")
 }catch(error){await localEmbedding.close();owner.release();await pool.end();throw error}
 const stopIndexing=startCoachIndexing()
+const providerConnectionWarmup=await warmProviderConnection(config.modelTiers.default)
 const app=createApp()
-app.listen(config.port,config.host,()=>console.log(JSON.stringify({service:'LifeOS',port:config.port,host:config.host,embeddingPid:localEmbedding.pid,modelCapabilitiesVerified:modelReady(),providerLiveness:'not_checked_at_startup',database:'postgresql',signupEnabled:config.signupEnabled})))
+app.listen(config.port,config.host,()=>console.log(JSON.stringify({service:'LifeOS',port:config.port,host:config.host,embeddingPid:localEmbedding.pid,modelCapabilitiesVerified:modelReady(),providerConnectionWarmup,providerLiveness:'not_checked_at_startup',database:'postgresql',signupEnabled:config.signupEnabled})))
 let stopping=false
 async function stop(){
   if(stopping)return;stopping=true
