@@ -62,6 +62,8 @@ test('provider material metadata cannot authorize source or readiness',()=>{
 })
 
 test('first useful content skips politeness without skipping unsafe assertions',()=>{
+  assert.equal(safeEarlySentence(JSON.stringify({reply:'基于期末优先，我为你规划了一个轻量级方案。'})),null)
+  assert.equal(safeEarlySentence(JSON.stringify({reply:'基于期末优先，我为你规划了一个轻量级方案。先给课程作业留一块时间，其余保留余量。'})),'先给课程作业留一块时间，其余保留余量')
   assert.equal(safeEarlySentence(JSON.stringify({reply:'收到。先给课程作业留一个小时间块，剩余时间保留缓冲。'})),'先给课程作业留一个小时间块，剩余时间保留缓冲')
   assert.equal(safeEarlySentence(JSON.stringify({reply:'好的，这是一条简短、礼貌且尊重对方时间的请教消息，你可以直接复制使用：\n\n'})),null)
   assert.equal(safeEarlySentence(JSON.stringify({reply:'这是一份简短的请教消息草稿，你可以直接复制使用。尚未联系过对方时，先询问是否方便交流。'})),'尚未联系过对方时，先询问是否方便交流')

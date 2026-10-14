@@ -87,7 +87,7 @@ export function safeEarlySentence(raw:string,maxChars=120):string|null{
     if(firstTerminator<1)continue
     for(let index=0;index+1<parts.length;index+=2){
       const sentence=parts[index]!.trim()
-      if(!sentence||fillerOnly.test(sentence))continue
+      if(!sentence||fillerOnly.test(sentence)||/(?:我(?:已|为你|给你)|已为你).{0,8}(?:规划|整理|准备|制定|写)(?:了|好)?(?:一(?:份|个|段))?.{0,12}(?:方案|计划|安排|草稿|清单)$/.test(sentence))continue
       if(sentence.length>maxChars||unsafeEarly.test(sentence))return null
       if(!/[\p{L}]{2,}/u.test(sentence))continue
       return sentence
