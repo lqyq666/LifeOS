@@ -1,0 +1,11 @@
+{
+  "kind": "SYNTHETIC_ADULT_MAIN_SKILL_THREE_SESSION_FIRST",
+  "hypothesis": "Grounded preference follow-up excludes career stereotypes, invented milestones and chat-instruction memories. Only the changed first turn is repeated.",
+  "cases": [
+    {
+      "caseId": "MAIN_SKILL_SESSION1",
+      "session": 0,
+      "input": "我是21岁的大三学生，平时每周有六小时，但这周只剩两小时。社团海报的文字排版是我做的，插画是队友做的，还没有收费订单。我还没确定就业还是自由职业，先帮我想一个可以了解自己更喜欢哪种工作的起点。"
+    }
+  ]
+}
