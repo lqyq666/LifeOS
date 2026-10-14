@@ -5,7 +5,7 @@ import { checkCampusSource } from './campus.ts'
 import { validate } from './contracts.ts'
 import { growthCreateSchema, growthActionSchema, type GrowthCreate, type GrowthAction } from './growth-contracts.ts'
 import { amendExactClause, carriesPersonalText, fromLegacyText, FragmentError, type Fragment, type Source } from './growth-source-fragments.ts'
-import { scanUserClauses } from './user-command-spans.ts'
+import { scanUserClauses,unstartedActivityOnlyClause } from './user-command-spans.ts'
 import { resolveTimeWindow, legacyValidUntilMatchesQuote, quoteStatedCutoff, TimeEvidenceError, type TimeWindow, type Zone } from './growth-time.ts'
 import { redactDirectionControlsForMessages } from './growth-controls.ts'
 import type { GrowthItem, GrowthRef, GrowthView } from '../src/features/growth/types.ts'
@@ -37,7 +37,8 @@ function item(row: Row, reason: string | null = null): GrowthItem {
   const taskBoundary=!hidden&&row.assertion==='user_reported'&&scopedTaskPauseClause(row.text)?{kind:'pause' as const,scope:'current_matter' as const,targetText:(row.text.includes('备考')?'备考':'复习') as '备考'|'复习',sourceConversationId:row.conversation_id,sourceMessageId:row.sources.find(source=>source.type==='message')?.id??null,matterBinding:'needs_same_matter_confirmation' as const,expiresAt:row.valid_until?.toISOString()??null,quote:row.text}:undefined
   const outcomes=taskOutcomeReadback(row.text,undefined,true)
   const feedbackEvidence=!hidden&&row.assertion==='user_reported'&&(row.kind==='feedback'||Object.values(outcomes).some(value=>value.status!=='unknown'))?{reportedAt:row.created_at.toISOString(),taskBinding:'unknown' as const,outcomes}:undefined
-  return { ...(feedbackEvidence?{feedbackEvidence}:{}),id: row.id, conversationId: row.conversation_id, kind: row.kind, text: hidden ? '' : row.text, assertion: row.assertion,
+  const kind=['goal','direction'].includes(row.kind)&&row.assertion==='user_reported'&&unstartedActivityOnlyClause(row.text)?'context':row.kind
+  return { ...(feedbackEvidence?{feedbackEvidence}:{}),id: row.id, conversationId: row.conversation_id, kind, text: hidden ? '' : row.text, assertion: row.assertion,
     status: reason && reason!=='not_yet_active' && ['active','proposed'].includes(row.status) ? 'stale' : row.status, sources: hidden ? [] : row.sources, dependencies: hidden ? [] : row.dependencies,
     validUntil: row.valid_until?.toISOString() ?? null, validFrom: row.valid_from?.toISOString() ?? null, timeBasis: row.time_basis ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null,directionScopes:row.direction_scopes??[],structuredPlan:hidden?null:row.structured_plan??null,...(taskBoundary?{taskBoundary}:{}) }
 }

@@ -354,7 +354,7 @@ export async function readStarMapContext(c: PoolClient|Pool, user: string): Prom
   // 跨会话星图个人事实——主题本身就是跨会话投影。
   const settings=(await c.query('SELECT enabled FROM user_memory_settings WHERE user_id=$1',[user])).rows[0]
   if(!settings?.enabled)return null
-  const themes = (await c.query("SELECT id, title, kind, status, pinned, source_refs, revision FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC LIMIT 3", [user])).rows
+  const themes = (await c.query("SELECT id, title, kind, status, pinned, source_refs, revision FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC LIMIT 12", [user])).rows
   if (!themes.length) return null
   // 主题来源事实必须仍有效：全部失效的主题不得进入决策上下文。
   // Share the existing availability gate: raw status='active' does not establish
@@ -362,7 +362,7 @@ export async function readStarMapContext(c: PoolClient|Pool, user: string): Prom
   const {growthView}=await import('./growth.ts')
   const effective=(await growthView(user,undefined,c)).items.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped)
   const liveSourceIds=new Set(effective.map(item=>item.id))
-  const validThemes=themes.filter((theme:any)=>(theme.source_refs??[]).some((ref:any)=>liveSourceIds.has(ref.growthItemId)))
+  const validThemes=themes.filter((theme:any)=>themeHasPursuitSource(theme)&&(theme.source_refs??[]).some((ref:any)=>liveSourceIds.has(ref.growthItemId))).slice(0,3)
   if(!validThemes.length)return null
   const links = (await c.query(`SELECT t.title AS theme_title, l.relation, l.confirmed, l.revision AS link_revision, l.experience_id, l.theme_id,
     left(e.content->>'summary', 80) AS summary, e.source_quote, e.source_message_id
@@ -374,7 +374,9 @@ export async function readStarMapContext(c: PoolClient|Pool, user: string): Prom
     ORDER BY l.created_at DESC LIMIT 6`, [user])).rows
   // 来源未被遗忘/停止使用（growth 隐私抑制表）；被抑制的引用不可进入决策。
   const validLinks=[]
+  const validThemeIds=new Set(validThemes.map(theme=>theme.id))
   for(const link of links){
+    if(!validThemeIds.has(link.theme_id))continue
     // 与 growth 隐私抑制同源的一条查询（内联以保持本模块可在纯函数测试中
     // 被 strip-types 加载）：被遗忘/停止使用的原话不进入模型上下文。
     const suppressed=(await c.query('SELECT 1 FROM growth_source_suppressions WHERE user_id=$1 AND message_id=$2 AND (strpos($3,quote)>0 OR strpos(quote,$3)>0) LIMIT 1',[user,link.source_message_id,link.source_quote])).rowCount
