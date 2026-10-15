@@ -1,3 +1,11 @@
+import {scanUserClauses} from './user-command-spans.ts'
+
+// Selecting one question is an ordinary reply request, not a request to save
+// a material. Use the existing clause boundaries for quoted/conditional text.
+export function requestsOneQuestionReply(text:string):boolean{
+  return scanUserClauses(text).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&/^(?:请|麻烦|那就|先)?(?:先)?(?:帮我|给我)(?:选|找|想|确定)(?:出)?一(?:个|条)[^。！？\n]{0,14}(?:问题|提问)[。！？\s]*$/.test(clause.text.trim()))
+}
+
 // Only a complete plain question can appear before provenance validation.
 // Facts, recommendations, materials and status claims wait for atomic commit.
 export function openingQuestionDraft(raw:string):string|null{
@@ -106,7 +114,7 @@ export function safeEarlySentence(raw:string,maxChars=120):string|null{
       // Salutation/name placeholders and a chat-only acknowledgement are
       // framing. Keep looking for the actual request or supportive content.
       if(/^[“「『"']?[^。！？]{0,16}(?:你好|您好)[，,\s]*(?:我是[^。！？]{1,32})?$/.test(sentence))continue
-      if(/^(?:好的?[，,]?|明白[，,]?)?(?:今天)?(?:不安排(?:任何)?任务|不给你安排(?:任何)?任务)(?:[，,](?:就)?(?:陪你聊聊|聊聊天|聊聊))?$/.test(sentence))continue
+      if(/^(?:好的?[，,]?|明白[，,]?)?(?:那就)?(?:今天)?(?:不安排(?:任何)?任务|不给你安排(?:任何)?任务)(?:[，,](?:(?:就)?(?:陪你聊聊|聊聊天|聊聊)|也不催你做任何事))?$/.test(sentence))continue
       // A paragraph ending in a colon announces content that has not arrived.
       // Do not count arbitrary material headers as useful first content.
       if(/[:：]\s*$/.test(sentence))continue

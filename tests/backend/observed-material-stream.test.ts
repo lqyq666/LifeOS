@@ -20,6 +20,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    const schema=body.response_format.json_schema.schema,selection=schema.properties.event?.properties.action?.anyOf[0]?.properties.draft?.anyOf?.[0]?.properties.selectedFactIds
    let output:any={reply:'先围绕你想了解的岗位，核对一项实际要求。'}
    if(turn===7)output={reply:'先问一个具体对象：你整理排版的那份课程资料，有没有被小组外的人看过或用过？'}
+   if(turn===3)output={reply:'你整理排版的那份课程资料，有没有被小组外的人看过或用过？\n\n两小时可以分三步：找需求、定价格、写介绍。'}
    if(selection){
     assert.ok(selection.maxItems<=new Set(selection.items.enum).size,'one catalogue fact must not expand into repeated generated selections')
     const messageId=schema.properties.event.properties.target.anyOf[0].properties.source.properties.messageId.enum[0]
@@ -110,8 +111,9 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   const unchanged=(await pool.query('SELECT content,revision FROM coach_nodes WHERE id=$1',[historyEvent.nodes[0].id])).rows[0]
   assert.equal(unchanged.content,'我填过岗位核对表但卡住了')
   assert.equal(unchanged.revision,historyEvent.nodes[0].revision)
-  const ordinary=await run('想了解实习岗位，先看哪一项？')
-  assert.equal(requests.length,4);assert.ok(ordinary.frames.some(f=>f.type==='draft'&&f.text.includes('核对一项实际要求')));assert.equal(ordinary.saved.status,'completed')
+  const ordinary=await run('想了解实习岗位，先帮我选一个值得了解的问题。')
+  assert.equal(requests.length,4);assert.ok(ordinary.frames.some(f=>f.type==='draft'&&f.text.includes('有没有被小组外的人看过或用过？')));assert.equal(ordinary.saved.status,'completed')
+  assert.equal(ordinary.frames.find(f=>f.type==='delta')?.text,'你整理排版的那份课程资料，有没有被小组外的人看过或用过？')
   const mixed=await run('上次我的本人贡献和这周时间分别是什么？未知要求不要替我补。再帮我拟一个暂不催促的后续沟通问题。')
   assert.equal(requests.length,5)
   assert.equal(mixed.saved.status,'completed','recall does not take over an explicit drafting request')
