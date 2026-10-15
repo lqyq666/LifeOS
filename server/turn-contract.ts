@@ -194,7 +194,7 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
 
 // Explicit delivery requests must instantiate an artifact, never a bare
 // presentation prefix. Clarifications remain legal for incomplete requests.
-export function bindMaterialDeliverySchema(contract:TurnContract,text:string,groundedSelection=false,replyBody:boolean|'first_paragraph'=false):TurnContract{
+export function bindMaterialDeliverySchema(contract:TurnContract,text:string,groundedSelection=false,replyBody:boolean|'with_context'=false):TurnContract{
   const quotes=[...new Set(scanUserClauses(text).map(clause=>clause.text).filter(Boolean))]
   const bindQuotes=(node:any)=>{
     if(!node||typeof node!=='object')return
@@ -238,8 +238,13 @@ export function bindMaterialDeliverySchema(contract:TurnContract,text:string,gro
  event.properties.action.anyOf=event.properties.action.anyOf.filter((branch:any)=>branch.properties?.draft)
  if(replyBody&&!groundedSelection){
   schema.properties.reply={type:'string',minLength:1,maxLength:12000,description:'本轮reply就是完整可使用的材料正文，不另写介绍、已完成声明或第二份正文。draft仅返回fromReply:true，服务器将同一正文保存为材料。'}
-  if(replyBody==='first_paragraph')schema.properties.reply={type:'string',minLength:1,maxLength:1200,description:'先在第一段直接给出唯一一个完整可用的中性问题，以问号结束，不加标题、引号、说明或虚构姓名/岗位占位符。空一行后，回答本轮读回事实、时间和未知的要求。材料只保存第一段，后面的读回仍完整展示。'}
-  for(const branch of event.properties.action.anyOf)branch.properties.draft={type:'object',properties:{fromReply:replyBody==='first_paragraph'?{type:'string',const:'first_paragraph'}:{type:'boolean',const:true}},required:['fromReply'],additionalProperties:false}
+  if(replyBody==='with_context'){
+   schema.properties.reply={type:'string',minLength:1,maxLength:160,description:'仅一个完整可使用的中性问题，不加引号、标题、虚构姓名或岗位占位符；本轮读回和未知只放materialContext。'}
+   schema.properties.materialContext={type:'string',minLength:1,maxLength:1000,description:'完整回应本轮读回本人事实、时间、已有反馈与未知的要求；不再重复材料问题。服务器把此说明展示在问题之后，材料只保存reply。'}
+   schema.required.push('materialContext')
+  }
+  for(const branch of event.properties.action.anyOf)branch.properties.draft={type:'object',properties:{fromReply:{type:'boolean',const:true}},required:['fromReply'],additionalProperties:false}
+
  }
  return {...contract,schema,schemaChars:JSON.stringify(schema).length}
 }

@@ -52,10 +52,10 @@ test('real mixed report keeps editing commands out of the experience and reads l
 })
 
 test('provider material metadata cannot authorize source or readiness',()=>{
-  const mixed=parseActionCoachTurn(JSON.stringify({reply:'请问我应先核对哪项公开岗位要求？\n\n本人报告只负责整理资料和排版，本周还剩半小时；适配仍未知。',event:{target:{operation:'create',title:'岗位问题',source:{messageId:randomUUID(),quote:'帮我拟一个问题'}},action:{operation:'create',draft:{fromReply:'first_paragraph'}}}}))
+  const mixed=parseActionCoachTurn(JSON.stringify({reply:'请问我应先核对哪项公开岗位要求？',materialContext:'本人报告只负责整理资料和排版，本周还剩半小时；适配仍未知。',event:{target:{operation:'create',title:'岗位问题',source:{messageId:randomUUID(),quote:'帮我拟一个问题'}},action:{operation:'create',draft:{fromReply:true}}}}))
   assert.equal((mixed.event!.action as any).draft.content,'请问我应先核对哪项公开岗位要求？')
   assert.ok(mixed.reply.includes('本周还剩半小时'))
-  assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:'材料如下：\n\n正文未到。',event:{action:{draft:{fromReply:'first_paragraph'}}}})),/ACTION_COACH_OUTPUT_INVALID/)
+  assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:'',materialContext:'正文未到。',event:{action:{draft:{fromReply:true}}}})),/ACTION_COACH_OUTPUT_INVALID/)
 
   const singleBody={reply:'你好，方便请教一下实习方向吗？',event:{target:{operation:'create',title:'请教消息',source:{messageId:randomUUID(),quote:'帮我写一句消息'}},action:{operation:'create',draft:{fromReply:true}}}}
   const decoded=parseActionCoachTurn(JSON.stringify(singleBody))

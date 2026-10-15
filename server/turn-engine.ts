@@ -472,7 +472,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const replyMaterial=materialIntent&&!resumePortfolioMode&&!asksRecall&&!hasSeparateQuestion&&!planIntent&&requiresImmediateMaterial(current.content)
   const singleQuestionMaterial=requestsSingleQuestionMaterial(current.content)
   const questionFirstMaterial=materialIntent&&!resumePortfolioMode&&!planIntent&&singleQuestionMaterial&&(asksRecall||hasSeparateQuestion)&&requiresImmediateMaterial(current.content)
-  const contract=bindMaterialDeliverySchema(bindBoundedReplySchema(originalContract,boundedReply),current.content,resumePortfolioMode,questionFirstMaterial?'first_paragraph':replyMaterial)
+  const contract=bindMaterialDeliverySchema(bindBoundedReplySchema(originalContract,boundedReply),current.content,resumePortfolioMode,questionFirstMaterial?'with_context':replyMaterial)
   if(replyMaterial&&singleQuestionMaterial)(contract.schema.properties as any).reply.maxLength=160
   if(contract.capabilities.material){
     const schema=contract.schema as {properties:Record<string,unknown>}
