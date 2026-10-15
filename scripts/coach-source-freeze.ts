@@ -42,7 +42,10 @@ export function captureCoachSource(root=process.cwd()){
 // executable host code and its policies, not browser assets or test reports.
 export function workflowCompatibilityDigest(snapshot:ReturnType<typeof captureCoachSource>){
   const executionScripts=new Set(['scripts/coach-source-freeze.ts','scripts/coach-provider-budget.ts','scripts/coze-credit-budget.ts','scripts/coze-host-permit.ts'])
-  const files=snapshot.files.filter(file=>file.path.startsWith('server/')||file.path.startsWith('skills/')||file.path.startsWith('evidence/v1.3-action-coach/research/')||executionScripts.has(file.path)||['package.json','package-lock.json','src/features/growth/types.ts','src/features/cognition/data/lifeos-graph.seed.json','.planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json','.planning/research/workflow-integration/INDEPENDENT_EXECUTION_BINDINGS.json'].includes(file.path))
+  // Professional tasks/adoption use task-host, task-commit and store directly;
+  // the ordinary generator and its provisional display parser are not invoked.
+  const ordinaryOnly=new Set(['server/turn-engine.ts','server/reply-draft.ts'])
+  const files=snapshot.files.filter(file=>file.path.startsWith('server/')&&!ordinaryOnly.has(file.path)||file.path.startsWith('skills/')||file.path.startsWith('evidence/v1.3-action-coach/research/')||executionScripts.has(file.path)||['package.json','package-lock.json','src/features/growth/types.ts','src/features/cognition/data/lifeos-graph.seed.json','.planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json','.planning/research/workflow-integration/INDEPENDENT_EXECUTION_BINDINGS.json'].includes(file.path))
   return hash(JSON.stringify({kind:'workflow-host-execution-v1',files,runtime:snapshot.runtime}))
 }
 export function assertCoachSourceFreeze(path:string,root=process.cwd(),scope:'complete'|'workflow'='complete'){

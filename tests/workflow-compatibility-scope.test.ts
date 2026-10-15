@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {createHash} from 'node:crypto'
-import {captureCoachSource,workflowCompatibilityDigest} from '../scripts/coach-source-freeze.ts'
+import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs'
+import {tmpdir} from 'node:os'
+import {join} from 'node:path'
+import {captureCoachSource,workflowCompatibilityDigest,assertCoachSourceFreeze} from '../scripts/coach-source-freeze.ts'
 
 const snapshot=captureCoachSource()
 function changed(path:string){
@@ -14,7 +17,7 @@ function changed(path:string){
 }
 
 test('Coze compatibility survives browser/test changes while the complete audit digest changes',()=>{
-  for(const path of ['tests/unrelated.test.ts','src/features/conversation/ConversationPage.tsx','public/icon.svg','scripts/unrelated-test-report.ts','PRODUCT.md']){
+  for(const path of ['tests/unrelated.test.ts','src/features/conversation/ConversationPage.tsx','public/icon.svg','scripts/unrelated-test-report.ts','PRODUCT.md','server/turn-engine.ts','server/reply-draft.ts']){
     const next=changed(path)
     assert.notEqual(next.digest,snapshot.digest,path)
     assert.equal(workflowCompatibilityDigest(next),workflowCompatibilityDigest(snapshot),path)
@@ -28,4 +31,19 @@ test('execution, account controls, protocol, Skill and source verification still
   const configured=structuredClone(snapshot)
   configured.runtime.access.entitlementsEnabled=!configured.runtime.access.entitlementsEnabled
   assert.notEqual(workflowCompatibilityDigest(configured),workflowCompatibilityDigest(snapshot))
+})
+
+test('the real dispatch freeze permits UI edits but still refuses changed protocol bytes',()=>{
+ const prefix=join(tmpdir(),'lifeos-coze-compat-'),root=mkdtempSync(prefix)
+ try{
+  for(const path of ['server/workflows','src/backend'])mkdirSync(join(root,path),{recursive:true})
+  for(const path of ['package.json','server/turn-engine.ts','server/action-coach-contracts.ts','src/backend/client.ts','server/workflows/contracts.ts'])writeFileSync(join(root,path),'original')
+  const path=join(root,'freeze.json');writeFileSync(path,JSON.stringify(captureCoachSource(root)))
+  writeFileSync(join(root,'src/backend/client.ts'),'new UI')
+  writeFileSync(join(root,'server/turn-engine.ts'),'new ordinary generator')
+  assert.doesNotThrow(()=>assertCoachSourceFreeze(path,root,'workflow'))
+  assert.throws(()=>assertCoachSourceFreeze(path,root),/SOURCE_OR_CONFIG_CHANGED/)
+  writeFileSync(join(root,'server/workflows/contracts.ts'),'new protocol')
+  assert.throws(()=>assertCoachSourceFreeze(path,root,'workflow'),/SOURCE_OR_CONFIG_CHANGED/)
+ }finally{assert.ok(root.startsWith(prefix));rmSync(root,{recursive:true})}
 })

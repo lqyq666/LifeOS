@@ -6,6 +6,14 @@ export const cozeModelEndpoint='https://dashscope.aliyuncs.com/compatible-mode/v
 export const cozeMaxPromptUtf8Bytes=32768
 export const cozeMaxInputTokens=36864
 export const cozeMaxCostPerCallCny=0.04
+// Use the clock already observed on the authenticated Gateway response. The
+// earlier clock keeps issuedAt valid on both hosts without extending the TTL.
+export function cozePermitClock(httpDate:string|null,localNow=Date.now()){
+ const peer=Date.parse(httpDate??'')
+ if(!Number.isFinite(peer))return localNow
+ if(localNow-peer>=300000)throw Error('GATEWAY_CLOCK_OUTSIDE_PERMIT_LIFETIME')
+ return Math.min(localNow,peer)
+}
 const sha=(bytes:string|Buffer)=>createHash('sha256').update(bytes).digest('hex')
 const digest=(x:unknown):x is string=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x)
 const uuid=(x:unknown):x is string=>typeof x==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(x)

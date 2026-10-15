@@ -4,7 +4,7 @@ import {isAbsolute,join,relative,resolve,sep} from 'node:path'
 import {Value} from 'typebox/value'
 import {CoachProviderBudget,activeCoachFunding,type CoachCallReceipt} from '../../scripts/coach-provider-budget.ts'
 import {CozeCreditBudget} from '../../scripts/coze-credit-budget.ts'
-import {validateBinding,reserveCozeHostPermit,verifyCozeHostPermit,deriveCozePermitSecret,settleCozeHostReceipt,retainUnknownCozeGraph,cozeMaxCostPerCallCny,type CozeHostPermit} from '../../scripts/coze-host-permit.ts'
+import {validateBinding,reserveCozeHostPermit,verifyCozeHostPermit,deriveCozePermitSecret,settleCozeHostReceipt,retainUnknownCozeGraph,cozeMaxCostPerCallCny,cozePermitClock,type CozeHostPermit} from '../../scripts/coze-host-permit.ts'
 import {assertCoachSourceFreeze} from '../../scripts/coach-source-freeze.ts'
 import {validateCodeEndpoint} from '../coze-code-workflow.ts'
 import {workflowRuntimeVersion} from './runtime-version.ts'
@@ -17,6 +17,7 @@ type Binding=Parameters<typeof reserveCozeHostPermit>[0]['binding']
 type Approval=Parameters<typeof reserveCozeHostPermit>[0]['approval']
 export type CozeDirectionConfig={projectId:'7693388932939300905';endpoint:string;token:string;binding:Binding;approval:Approval;creditsLedgerPath:string;maxCreditsPerGraph:number;journalDirectory:string}
 const hash=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex')
+const gatewayClock=Symbol('authenticated Gateway HTTP Date')
 const unavailable=async()=>{throw new WorkflowError('unavailable')}
 const contained=(base:string,target:string)=>{const rel=relative(base,target);return rel!==''&&!isAbsolute(rel)&&rel!=='..'&&!rel.startsWith(`..${sep}`)}
 
@@ -126,6 +127,7 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
   if(output.host_receipt!==undefined&&output.receipt!==undefined)throw new WorkflowError('invalid_contract')
   const receipt=output.host_receipt??output.receipt
   if(!receipt||typeof receipt!=='object'||Array.isArray(receipt))throw new WorkflowError('invalid_contract')
+  Object.defineProperty(receipt,gatewayClock,{value:response.headers.get('date')})
   return receipt
  }
  return {executionKind:'real_provider',maxCostPerCallCny:maxCost,analyze:unavailable,critic:unavailable,synthesize:unavailable,
@@ -188,7 +190,9 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
     if(remainingMs<1)throw new WorkflowError('timeout')
     const payload={...r,directions,modelBudget:{...r.modelBudget,deadlineMs:remainingMs},businessRole:'growth',syntheticAdult:true,evidenceRecords:records,canonicalMethods:methods,contentBinding}
     mkdirSync(cfg.journalDirectory,{recursive:true})
-    wire=reserveCozeHostPermit({payload,binding:cfg.binding,nodeIds,maxCostPerCallCny:maxCost,secret,approval:cfg.approval,budget,journalPath:path})
+    const permitNow=cozePermitClock(preflight[gatewayClock])
+    writeFileSync(path+'.clock.json',JSON.stringify({type:'permit_clock_reference',localObservedAt:new Date().toISOString(),issuedAtReference:new Date(permitNow).toISOString(),ttlMs:300000})+'\n',{flag:'wx',mode:0o600})
+    wire=reserveCozeHostPermit({payload,binding:cfg.binding,nodeIds,maxCostPerCallCny:maxCost,secret,approval:cfg.approval,budget,journalPath:path,now:permitNow})
     credits.reserve({requestId:r.requestId,projectId:'7693388932939300905',purpose:'business',reservedCredits:cfg.maxCreditsPerGraph,payloadDigest:hash(payload),sourceDigest:cfg.binding.hostSourceDigest});creditReserved=true
     const {claims}=verifyCozeHostPermit(wire,secret,cfg.binding)
     for(const slot of claims.slots)await journal.startNode(r,{id:slot.nodeId,role:slot.nodeId.startsWith('path:')?'path_analyst':slot.nodeId==='critic'?'independent_critic':'decision_synthesizer',dependencies:[],executionKind:'real_provider',maxCostCny:slot.reservedCostCny,callId:slot.callId,invoke:unavailable})
