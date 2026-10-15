@@ -19,7 +19,7 @@ import {parseActionCoachTurn} from '../../server/action-coach-contracts.ts'
 import {boundedRecallReply} from '../../server/bounded-reply.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {readGuideUsage,readPriorGuideEvents} from '../../server/guide-usage.ts'
-import {safeEarlySentence} from '../../server/reply-draft.ts'
+import {safeEarlySentence,openingQuestionDraft} from '../../server/reply-draft.ts'
 import {buildTurnPrompt,providerTurnMessages,turnSystemPrompt} from '../../server/turn-prompt.ts'
 import {configureProviderPayload} from '../../server/model-payload.ts'
 import {normalizeWeeklyPlanTasks,validateWeeklyPlanShape,renderProposedWeeklyPlan} from '../../server/weekly-plans.ts'
@@ -85,6 +85,8 @@ test('first useful content skips politeness without skipping unsafe assertions',
 })
 
 test('real natural requests bind material delivery without taking over review',()=>{
+  assert.equal(openingQuestionDraft(JSON.stringify({reply:'想请教一下，整理资料这类工作大概占多少比重？最核心产出是什么？'})),'想请教一下，整理资料这类工作大概占多少比重？')
+  assert.equal(openingQuestionDraft(JSON.stringify({reply:'可好？最核心产出是什么？'})),null)
   assert.equal(requiresImmediateMaterial('上次我的本人贡献和这周时间分别是什么？未知要求不要替我补。现在先就业探索，自由职业暂缓。再帮我拟一个向学长核对岗位要求的问题，不替我判断适合。'),true)
   assert.equal(requiresImmediateMaterial('他说：再帮我拟一个问题'),false)
   assert.equal(requiresImmediateMaterial('不要再帮我拟一个问题'),false)
