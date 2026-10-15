@@ -111,8 +111,15 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   // Provider-authored metadata has no authority. Provenance and readiness are
   // rebuilt from the host catalogue after this parser, never accepted from a
   // model's invented field/type or claim that the material was verified.
-  const draft=(output as any)?.event?.action?.draft
+  let draft=(output as any)?.event?.action?.draft
   if(draft&&typeof draft==='object'&&!Array.isArray(draft))for(const key of ['readiness','missingRequired','materialFactIds','materialEvidence'])delete draft[key]
+  // The native body reference has one authority: the actual generated reply.
+  // Expand it here into the existing canonical draft, before all validation.
+  if(draft&&typeof draft==='object'&&!Array.isArray(draft)&&'fromReply'in draft){
+    if(draft.fromReply!==true||Object.keys(draft).length!==1||typeof(output as any).reply!=='string'||!(output as any).reply.trim())throw new Error('ACTION_COACH_OUTPUT_INVALID')
+    draft={content:(output as any).reply}
+    ;(output as any).event.action.draft=draft
+  }
   // Constrained decoding sometimes satisfies a required expiry with an empty
   // string. It carries no time information, so treat it as absent and let the
   // staging guards decide whether that item survives.

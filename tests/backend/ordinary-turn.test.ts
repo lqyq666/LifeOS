@@ -52,6 +52,11 @@ test('real mixed report keeps editing commands out of the experience and reads l
 })
 
 test('provider material metadata cannot authorize source or readiness',()=>{
+  const singleBody={reply:'你好，方便请教一下实习方向吗？',event:{target:{operation:'create',title:'请教消息',source:{messageId:randomUUID(),quote:'帮我写一句消息'}},action:{operation:'create',draft:{fromReply:true}}}}
+  const decoded=parseActionCoachTurn(JSON.stringify(singleBody))
+  assert.deepEqual((decoded.event!.action as any).draft,{content:singleBody.reply})
+  assert.throws(()=>parseActionCoachTurn(JSON.stringify({...singleBody,reply:''})))
+  assert.throws(()=>parseActionCoachTurn(JSON.stringify({...singleBody,event:{...singleBody.event,action:{operation:'create',draft:{fromReply:true,content:'另一份正文'}}}})))
   const c=deriveTurnContract({text:'帮我写一句消息',knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
   assert.ok(!JSON.stringify(c.schema).includes('materialEvidence'))
   const interview=bindMaterialDeliverySchema(c,'帮我写一句访谈问题',false)

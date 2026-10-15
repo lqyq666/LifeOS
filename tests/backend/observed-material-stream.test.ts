@@ -16,7 +16,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
  const fake=createServer((req,res)=>{
   const chunks:Buffer[]=[];req.on('data',c=>chunks.push(Buffer.from(c)));req.on('end',()=>{
    const body=JSON.parse(Buffer.concat(chunks).toString());requests.push(body)
-   const schema=body.response_format.json_schema.schema,selection=schema.properties.event?.properties.action?.anyOf[0]?.properties.draft?.anyOf[0]?.properties.selectedFactIds
+   const schema=body.response_format.json_schema.schema,selection=schema.properties.event?.properties.action?.anyOf[0]?.properties.draft?.anyOf?.[0]?.properties.selectedFactIds
    let output:any={reply:'先围绕你想了解的岗位，核对一项实际要求。'}
    if(requests.length===7)output={reply:'先问一个具体对象：你整理排版的那份课程资料，有没有被小组外的人看过或用过？'}
    if(selection){
@@ -34,8 +34,9 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    if(requests.length===2)output={reply:'比较岗位时，先找出两个岗位日常工作上的一项实际差异。核对表里哪一项最难区分？',event:{target:{operation:'continue',eventId:materialEvent.id,expectedRevision:materialEvent.revision},nodes:[{kind:'fact',source:{messageId,quote:'我填过岗位核对表但卡住了'}}],action:{operation:'reuse',actionId:materialEvent.actions[0].id,expectedRevision:materialEvent.actions[0].revision}}}
    if(requests.length===4)output={reply:'先保留已知经过，未报告的结果仍未知。',event:{target:{operation:'create',title:'未来沟通问题',source:{messageId,quote:'再帮我拟一个暂不催促的后续沟通问题'}},action:{operation:'create',draft:{content:'下次自然有机会交流时，想请教你当时是怎么选择实习方向的？'}}}}
    if(requests.length===8){
-    assert.equal(schema.properties.reply.minLength,0,'ordinary material does not force duplicate prose')
-    output={reply:'',event:{target:{operation:'create',title:'请教消息',source:{messageId,quote:'帮我写一句给学长的请教消息'}},action:{operation:'create',draft:{content:'学长你好，方便时想请教一下你是怎样选择实习方向的？'}}}}
+    assert.equal(schema.properties.reply.minLength,1,'the one generated body is the visible reply')
+    assert.equal(schema.properties.event.properties.action.anyOf[0].properties.draft.properties.fromReply.const,true)
+    output={reply:'学长你好，方便时想请教一下你是怎样选择实习方向的？',event:{target:{operation:'create',title:'请教消息',source:{messageId,quote:'帮我写一句给学长的请教消息'}},action:{operation:'create',draft:{fromReply:true}}}}
    }
    if(requests.length===9)output={reply:'已有信息保持原样。\n\n“你上次选课具体怎么操作的？中间哪一步卡住了？”',event:{target:{operation:'create',title:'一次选课提问',source:{messageId,quote:'帮我写一句能问出最近一次选课经历的问题'}},action:{operation:'create',draft:{content:'“你上次选课具体怎么操作的？中间哪一步卡住了？”'}}}}
    if([5,6,10].includes(requests.length)&&selection){
