@@ -200,7 +200,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     staged.directionControls=await stageDirectionControls(run,turnDerivedControls.changes,expectedControlKey)
   }
   const contributionDescription=/(?:作品|(?:本人|个人|我的)?贡献)描述/.test(current.content)
-  const contributionSentenceMode=requiresImmediateMaterial(current.content)&&/(?:一句(?:简历(?:表达|描述)|(?:作品|(?:本人|个人|我的)?贡献)描述)|(?:作品|(?:本人|个人|我的)?贡献)描述[^。！？\n]{0,8}(?:压成|缩成|写成)一句)/.test(current.content)
+  const contributionSentenceMode=requiresImmediateMaterial(current.content)&&scanUserClauses(current.content).some(clause=>
+    !clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative
+    &&(deliverableIntent(clause.text,'create')||deliverableIntent(clause.text,'modify'))
+    &&/(?:一句(?:简历(?:表达|描述)|(?:作品|(?:本人|个人|我的)?贡献)描述)|(?:作品|(?:本人|个人|我的)?贡献)描述[^。！？\n]{0,8}(?:压成|缩成|写成)一句)/.test(clause.text))
   const contributionParagraphMode=requiresImmediateMaterial(current.content)&&contributionDescription&&!contributionSentenceMode
   const resumePortfolioMode=requiresImmediateMaterial(current.content)&&(contributionDescription||/简历|作品清单|作品集|个人介绍/.test(current.content))
   const obligations=deriveTurnObligations(current.content,{resumePortfolioMode,...(turnDerivedControls.status==='explicit'?{directionControls:turnDerivedControls.changes}:{})})
