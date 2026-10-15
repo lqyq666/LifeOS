@@ -17,7 +17,7 @@ function changed(path:string){
 }
 
 test('Coze compatibility survives browser/test changes while the complete audit digest changes',()=>{
-  for(const path of ['tests/unrelated.test.ts','src/features/conversation/ConversationPage.tsx','public/icon.svg','scripts/unrelated-test-report.ts','PRODUCT.md','server/turn-engine.ts','server/reply-draft.ts']){
+  for(const path of ['tests/unrelated.test.ts','src/features/conversation/ConversationPage.tsx','public/icon.svg','scripts/unrelated-test-report.ts','PRODUCT.md','server/turn-engine.ts','server/reply-draft.ts','server/turn-prompt.ts']){
     const next=changed(path)
     assert.notEqual(next.digest,snapshot.digest,path)
     assert.equal(workflowCompatibilityDigest(next),workflowCompatibilityDigest(snapshot),path)
