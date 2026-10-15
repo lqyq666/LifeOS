@@ -20,7 +20,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    let output:any={reply:'先围绕你想了解的岗位，核对一项实际要求。'}
    if(selection){
     const messageId=schema.properties.event.properties.target.anyOf[0].properties.source.properties.messageId.enum[0]
-    output={reply:'已根据你提供的信息撰写了作品描述。\n\n【作品描述】\n我精通软件开发。',event:{target:{operation:'create',title:'本人贡献作品描述',source:{messageId,quote:'帮我写一段只包含本人贡献的作品描述'}},nodes:[{kind:'fact',source:{messageId,quote:'不要替我发送'}}],action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[selection.items.enum[0]]}}}}
+    output={reply:'已根据你提供的信息撰写了作品描述。\n\n【作品描述】\n我精通软件开发。',event:{target:{operation:'create',title:'本人贡献作品描述',source:{messageId,quote:requests.length===1?'只帮我写一段本人贡献描述':'帮我写一段只包含本人贡献的作品描述'}},nodes:[{kind:'fact',source:{messageId,quote:'不要替我发送'}}],action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[selection.items.enum[0]]}}}}
    }
    const messageId=JSON.parse(body.messages.find((m:any)=>m.role==='user').content).currentUserMessage.id
    if(requests.length===2)output={reply:'比较岗位时，先找出两个岗位日常工作上的一项实际差异。核对表里哪一项最难区分？',event:{target:{operation:'continue',eventId:materialEvent.id,expectedRevision:materialEvent.revision},nodes:[{kind:'fact',source:{messageId,quote:'我填过岗位核对表但卡住了'}}],action:{operation:'reuse',actionId:materialEvent.actions[0].id,expectedRevision:materialEvent.actions[0].revision}}}
@@ -56,12 +56,12 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   const signup=await request('/api/auth/sign-up/email',{name:'Synthetic material delivery',email:'delivery-'+randomUUID()+'@example.invalid',password:'Synthetic-'+randomUUID()});assert.equal(signup.status,200)
   assert.ok((await signup.json()).user.id);cookie=signup.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ')
   assert.equal((await request('/api/conversations',{id:chat,title:'Synthetic verified material'})).status,201)
-  const material=await run('我在课程小组里负责整理资料和排版，代码是队友做的。帮我写一段只包含本人贡献的作品描述，不要替我发送。')
+  const material=await run('我在课程小组里负责整理资料和排版，代码是队友做的。只帮我写一段本人贡献描述，不要替我发送。')
   assert.equal(requests.length,1)
   const reported=requests[0].response_format.json_schema.schema.properties.event.properties.nodes.items.anyOf.find((node:any)=>node.properties?.source)
   assert.ok(reported.properties.source.properties.quote.enum.includes('我在课程小组里负责整理资料和排版'))
   assert.ok(!reported.properties.source.properties.quote.enum.includes('不要替我发送'),'writing commands must not be native fact choices')
-  assert.ok(!reported.properties.source.properties.quote.enum.includes('帮我写一段只包含本人贡献的作品描述'))
+  assert.ok(!reported.properties.source.properties.quote.enum.includes('只帮我写一段本人贡献描述'))
   assert.deepEqual(material.frames.filter(f=>f.type==='draft'),[])
   const deltas=material.frames.filter(f=>f.type==='delta');assert.equal(deltas.length,1);assert.equal(deltas[0].saved,true);assert.equal(deltas[0].replace,true)
   assert.equal(deltas[0].text.split('我在课程小组里负责整理资料和排版').length-1,1)
