@@ -40,7 +40,7 @@ export const eventDeltaSchema=Type.Object({
     Type.Object({operation:Type.Literal('create'),title:text(200),source:processSourceSchema},{additionalProperties:false,description:'仅用于没有对应已存在事件的新事情。用户回答上轮问题、补充制作或交付细节不是新事情，不得复制当前事件的标题再创建。标题只概括已知经过，不把未使用改成未反馈或拒绝。'}),
     Type.Object({operation:Type.Literal('continue'),eventId:id,expectedRevision:Type.Integer({minimum:1})},{additionalProperties:false,description:'对currentEvent或已准确定位的events补充、回答、修正和共创时使用。必须原样取对应id/revision；nodes仅新增当前原话，既有过程由服务器保留。'}),
   ],{description:'先定位事情，再选择目标。同一事情的不同轮次共用eventId；新的用户消息不等于新的事件。'}),
-  nodes:Type.Optional(Type.Array(processNode,{maxItems:24})),
+  nodes:Type.Optional(Type.Array(processNode,{maxItems:24,description:'仅新增必要的实际过程变化。纯起草时，已由事件source或过程原话保留的需求和限制不再复制成fact/unknown节点；混合复盘仍保存本人新报告的行动、回应与关键未知。'})),
   corrections:Type.Optional(Type.Array(Type.Object({nodeId:id,source:processSourceSchema},{additionalProperties:false}),{maxItems:12,description:'用户实质更正已有陈述时才替换对应节点。重复旧话或补充另一个事实使用nodes，不能缩小覆盖其他旧事实。'})),
   resolveUnknowns:Type.Optional(Type.Array(id,{maxItems:24,description:'仅标记授权事件中实际已回答的对应未知问题ID；按问题与回答对应，不因本轮有任何新事实就任意选择ID。记不清仍未知。'})),
   declineUnknowns:Type.Optional(Type.Array(id,{maxItems:24,description:'仅在用户明确拒绝回答对应问题时标记该问题ID；记不清不是拒答，不标记declined，也不转移到另一个旧问题。原因不想讲可保留为declined，另一个时间记不清仍active。'})),
@@ -58,7 +58,7 @@ export const coachCitationSchema=Type.Union([
 ])
 export type CoachCitation=Static<typeof coachCitationSchema>
 export const actionCoachTurnSchema=Type.Object({
-  reply:Type.String({minLength:1,maxLength:16000,description:'自然简洁地回应本轮诉求。复盘先问关键未知问题，已知事实用于理解，不逐句复述。要交付成品时这里只写必要说明，完整可复制文本放event.action.draft.content，服务器展示同一材料。'}),
+  reply:Type.String({minLength:1,maxLength:16000,description:'自然简洁地回应本轮诉求。复盘先问关键未知问题，已知事实用于理解，不逐句复述。交付材料时这里只写确有必要的提醒或未知边界，不引用或复写成品，不额外解释材料的作用；完整可复制文本只放event.action.draft.content，由服务器展示同一材料。'}),
   citations:Type.Optional(Type.Array(coachCitationSchema,{maxItems:6,description:'仅对确实使用的有效知识条目逐命题引用；普通追问、个人起草和倾听通常省略。不得编造来源。'})),
   event:Type.Optional(eventDeltaSchema),
   growthUpdates:Type.Optional(Type.Array(growthDeltaSchema,{maxItems:8,description:'只有当前个人情况、方向/近期判断或实际反馈新增/变化才给小粒度增量。普通知识/倾听无需建档。明确陈述与带局限的待核对AI观察分开，每条一项；不要求每轮补齐档案。'})),
