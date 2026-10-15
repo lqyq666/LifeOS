@@ -17,11 +17,23 @@ function changed(path:string){
 }
 
 test('Coze compatibility survives browser/test changes while the complete audit digest changes',()=>{
-  for(const path of ['tests/unrelated.test.ts','src/features/conversation/ConversationPage.tsx','public/icon.svg','scripts/unrelated-test-report.ts','PRODUCT.md','server/turn-engine.ts','server/reply-draft.ts','server/turn-prompt.ts']){
+  for(const path of ['tests/unrelated.test.ts','src/features/conversation/ConversationPage.tsx','public/icon.svg','scripts/unrelated-test-report.ts','PRODUCT.md','server/turn-engine.ts','server/reply-draft.ts','server/turn-prompt.ts','server/model-payload.ts']){
     const next=changed(path)
     assert.notEqual(next.digest,snapshot.digest,path)
     assert.equal(workflowCompatibilityDigest(next),workflowCompatibilityDigest(snapshot),path)
   }
+})
+
+test('ordinary model capability signatures stay in the audit without forcing Coze synchronization',()=>{
+ const ordinary=structuredClone(snapshot)
+ for(const route of ordinary.runtime.models){route.contractSignature='new-ordinary-contract';route.interfaceSignature='new-ordinary-payload'}
+ assert.notDeepEqual(ordinary.runtime,snapshot.runtime)
+ assert.equal(workflowCompatibilityDigest(ordinary),workflowCompatibilityDigest(snapshot))
+ for(const field of ['model','signature','available','pricing'] as const){
+  const next=structuredClone(snapshot)
+  ;(next.runtime.models[0] as any)[field]=field==='available'?!next.runtime.models[0]!.available:field==='pricing'?{input:999,output:999}:'changed-professional-model'
+  assert.notEqual(workflowCompatibilityDigest(next),workflowCompatibilityDigest(snapshot),field)
+ }
 })
 
 test('execution, account controls, protocol, Skill and source verification still invalidate compatibility',()=>{
