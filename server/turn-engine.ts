@@ -4,7 +4,7 @@ import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from '.
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
 import { retrieveCoachKnowledge, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
-import { openingQuestionDraft, safeEarlySentence } from './reply-draft.ts'
+import { openingQuestionDraft, safeEarlySentence, weeklyPlanExplanation } from './reply-draft.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
@@ -482,7 +482,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // than letting a second factual artifact bypass those selections.
     if(resumePortfolioMode)schema.properties.reply={type:'string',minLength:0,maxLength:160,description:'没有必要的反馈、提醒或未知时用空字符串，不为填字段复述已知贡献、宣布已撰写或补出待填项。混合复盘仍可写必要回应。完整材料由selectedFactIds对应的原话渲染，不另写正文。'}
     if(singleQuestionMaterial||/(?:问题|提问).{0,10}(?:压成一句|缩成一句|改成)/.test(current.content)){
-      const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content){node.properties.content.maxLength=160;if(singleQuestionMaterial)node.properties.content.description='只写一个完整、独立的提问，不追加第二个问题或其他追问。'}for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
+      const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content){node.properties.content.maxLength=160;if(singleQuestionMaterial)node.properties.content.description='只写一个完整提问，针对已有具体线索问可观察的环节；不要先写笼统的过程总问，再把关键细节放到第二个问题。'}for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
       narrow(schema)
     }
   }
@@ -494,7 +494,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const selectedIds=new Set(historySelection.selected.map(row=>row.id))
   const messages=allContextMessages.filter(row=>row.id===run.source_message_id||selectedIds.has(row.id))
   staged.audit.push({phase:'history_selection',mode:contract.mode,historyTotalMessages:historySelection.totalMessages,historySelectedMessages:historySelection.selected.length,historyTotalChars:historySelection.totalChars,historySelectedChars:historySelection.selectedChars,providerCalls:0})
-  const systemPrompt=turnSystemPrompt('default',runtime.model.id,contract,materialIntent)+(questionFirstMaterial?'\n本轮先输出event.action.draft.content里的唯一完整中性问题，再输出event其他字段和reply。reply只完整回答用户要求读回的事实、时间和未知，不重复问题；不使用fromReply。不因对另一位同学的反馈预设本次访谈对象也遇到同样困难。':'')+(currentConversationOnly(current.content)?'\n本轮本人只想倾听或明确拒绝方法：回应当前表达，不给行动、方法、解决问题的追问或安排，不重发上轮建议。对本次聊天的偏好不存为个人目标、经历或长期事实；独立的新本人事实如有则保留原话与未知。':'')+(boundedReply?'\nboundedReply是本轮服务端授权的编辑动作与过程追问，不是获审公共攻略。reply必须完整选择choices中适合当前请求的一项，不增加事实、因果、效果、时间或情绪判断；其他合法状态更新仍按原契约锚定本人原话。':'')
+  const systemPrompt=turnSystemPrompt('default',runtime.model.id,contract,materialIntent)+(questionFirstMaterial?'\n本轮先输出event.action.draft.content里的唯一完整中性问题，再输出event其他字段和reply。reply先列最近本人报告的事实和时间，再列从未提供或此后未更新的结果，不重复问题；不使用fromReply。问题围绕已有具体线索追问可观察的环节；对新对象询问其如何核查该线索，不预设对方也经历了上次反馈的困难。':'')+(currentConversationOnly(current.content)?'\n本轮本人只想倾听或明确拒绝方法：回应当前表达，不给行动、方法、解决问题的追问或安排，不重发上轮建议。对本次聊天的偏好不存为个人目标、经历或长期事实；独立的新本人事实如有则保留原话与未知。':'')+(boundedReply?'\nboundedReply是本轮服务端授权的编辑动作与过程追问，不是获审公共攻略。reply必须完整选择choices中适合当前请求的一项，不增加事实、因果、效果、时间或情绪判断；其他合法状态更新仍按原契约锚定本人原话。':'')
   const baseUserPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,methodContext:methodContext.knowledge,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,taskBoundaries:unresolvedTaskBoundaries.map(item=>item.taskBoundary!),directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
   const workflowHints=await actionReviewHints({run,staged,text:current.content,memoryEnabled:snapshot.settings.enabled,currentEvent,historicalEvents,ambiguous:retrieval.ambiguous,listeningOnly:currentConversationOnly(current.content),signal})
   const promptContext=JSON.parse(baseUserPrompt)
@@ -550,9 +550,13 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         if(!result.event.nodes?.length&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
       }
     }
-    if(result.event?.nodes){
-      result.event.nodes=result.event.nodes.filter(node=>node.kind==='unknown'||!scanUserClauses(node.source.quote).every(clause=>!clause.quoted&&!clause.code&&assistantRequestClause(clause.text)))
-      if(!result.event.nodes.length&&!result.event.action&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
+    if(result.event){
+      // Apply the same instruction boundary to corrections: a new request or
+      // continuation cue cannot overwrite the history it refers to.
+      const commandSource=(quote:string)=>scanUserClauses(quote).every(clause=>!clause.quoted&&!clause.code&&(assistantRequestClause(clause.text)||/^(?:接着|继续|回到)(?:上次|之前|刚才)[^，。！？\n]*$/.test(clause.text)||/^只看[^，。！？\n]{1,40}(?:就好|即可)$/.test(clause.text)))
+      if(result.event.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind==='unknown'||!commandSource(node.source.quote))
+      if(result.event.corrections)result.event.corrections=result.event.corrections.filter(correction=>!commandSource(correction.source.quote))
+      if(!result.event.nodes?.length&&!result.event.action&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
     }
 
     {
@@ -670,7 +674,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       staged.weeklyPlan=await stageWeeklyPlan(run,planInput,{user:run.user_id,expectedControlSnapshotKey:expectedControlKey,effectiveBlockedScopes:blockedDirectionScopes})
       // A plan's visible period and totals come from the same validated
       // structure that is persisted, not free prose recalling an older week.
-      result.reply+='\n\n'+renderProposedWeeklyPlan(planInput)
+      result.reply=[weeklyPlanExplanation(result.reply),renderProposedWeeklyPlan(planInput)].filter(Boolean).join('\n\n')
     }
     const checkedCitations=await validateCoachCitations(result.reply,result.citations??[],knowledge,current.content,messages.filter(row=>row.role==='user').map(row=>row.content))
     if(requestedGuide&&checkedCitations.refs.length&&!checkedCitations.refs.some(ref=>ref.sourceId===requestedGuide.id))throw new HttpError(400,'COACH_CITATION_INVALID')

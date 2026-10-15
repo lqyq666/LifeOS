@@ -12,7 +12,7 @@ import {localEmbedding} from '../../server/local-embedding.ts'
 test('verified material and streamed failures respect real HTTP/SDK/PG delivery boundaries',{timeout:30000},async()=>{
  await localEmbedding.start()
  const previous={url:model.baseUrl,key:config.apiKey,origin:config.origin,access:config.entitlementsEnabled},requests:any[]=[]
- let materialEvent:any
+ let materialEvent:any,historyEvent:any
  const fake=createServer((req,res)=>{
   const chunks:Buffer[]=[];req.on('data',c=>chunks.push(Buffer.from(c)));req.on('end',()=>{
    const body=JSON.parse(Buffer.concat(chunks).toString());requests.push(body)
@@ -40,6 +40,16 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
     output={reply:'学长你好，方便时想请教一下你是怎样选择实习方向的？',event:{target:{operation:'create',title:'请教消息',source:{messageId,quote:'帮我写一句给学长的请教消息'}},action:{operation:'create',draft:{fromReply:true}}}}
    }
    if(requests.length===9)output={reply:'已有信息保持原样。\n\n“你上次选课具体怎么操作的？中间哪一步卡住了？”',event:{target:{operation:'create',title:'一次选课提问',source:{messageId,quote:'帮我写一句能问出最近一次选课经历的问题'}},action:{operation:'create',draft:{content:'“你上次选课具体怎么操作的？中间哪一步卡住了？”'}}}}
+   if([11,12].includes(requests.length)){
+    const quote=requests.length===11?'只看一个岗位就好':'接着上次实习探索'
+    output={reply:'已报告的卡点仍保留，新的范围要求不覆盖它。',event:{target:{operation:'continue',eventId:historyEvent.id,expectedRevision:historyEvent.revision},nodes:[{kind:'fact',source:{messageId,quote}}],corrections:[{nodeId:historyEvent.nodes[0].id,source:{messageId,quote}}]}}
+   }
+   if(requests.length===13){
+    const context=JSON.parse(body.messages.find((m:any)=>m.role==='user').content)
+    const clause=context.currentUserMessage.clauses.find((c:any)=>c.text==='这周还剩两小时')
+    assert.ok(clause)
+    output={reply:'具体截止日仍未知。\n\n- 0–50min：课程作业\n- 50–60min：缓冲\n- 60–90min：复习\n- 90–120min：作业收尾\n\n总计120min，含10min缓冲。',growthUpdates:[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{clauseId:clause.id},timeEvidence:{kind:'calendar_week',which:'this',clauseId:clause.id}}],weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'课程作业',minutes:50,directionScopes:[]},{action:'复习',minutes:30,directionScopes:[]}]}}
+   }
    if([5,6,10].includes(requests.length)&&selection){
     assert.equal(schema.properties.reply.minLength,0)
     output.reply=''
@@ -52,7 +62,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    res.writeHead(200,{'Content-Type':'text/event-stream'})
    const base={id:'synthetic-verified-material',object:'chat.completion.chunk',created:1,model:model.id}
    res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\n')
-   if(requests.length===11){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
+   if(requests.length===14){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
    res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
   })
  })
@@ -92,6 +102,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.equal(blocked.saved.response.event.actions[0].revision,materialEvent.actions[0].revision)
   assert.equal(blocked.saved.response.event.actions[0].draft.content,materialEvent.actions[0].draft.content)
   assert.ok(blocked.saved.response.event.nodes.some((n:any)=>n.content==='我填过岗位核对表但卡住了'))
+  historyEvent=blocked.saved.response.event
   const ordinary=await run('想了解实习岗位，先看哪一项？')
   assert.equal(requests.length,3);assert.ok(ordinary.frames.some(f=>f.type==='draft'&&f.text.includes('核对一项实际要求')));assert.equal(ordinary.saved.status,'completed')
   const mixed=await run('上次我的本人贡献和这周时间分别是什么？未知要求不要替我补。再帮我拟一个暂不催促的后续沟通问题。')
@@ -136,9 +147,24 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.equal((await request('/api/growth',{requestId:randomUUID(),conversationId:chat,kind:'context',text:'我负责封面排版'})).status,201)
   const pureCatalogue=await run('我想先了解实习岗位，别把小组成果都算成我的能力。帮我写一段只包含本人贡献的作品描述，不要替我发送。')
   assert.equal(pureCatalogue.saved.status,'completed')
+  for(const text of ['只看一个岗位就好。','接着上次实习探索。']){
+   const instruction=await run(text)
+   assert.equal(instruction.saved.status,'completed')
+   const historical=(await pool.query('SELECT content,revision FROM coach_nodes WHERE id=$1',[historyEvent.nodes[0].id])).rows[0]
+   assert.equal(historical.content,'我填过岗位核对表但卡住了')
+   assert.equal(historical.revision,historyEvent.nodes[0].revision,'an instruction cannot revise a historical report')
+   assert.equal((await pool.query('SELECT count(*)::int AS n FROM coach_nodes WHERE event_id=$1',[historyEvent.id])).rows[0].n,historyEvent.nodes.length)
+  }
+  const plan=await run('这周还剩两小时，帮我安排课程作业和复习，不要全排满。')
+  assert.equal(plan.saved.status,'completed')
+  const planReply=plan.frames.find(f=>f.type==='delta')?.text
+  assert.ok(planReply.includes('具体截止日仍未知'))
+  assert.ok(planReply.includes('未安排：40分钟'))
+  assert.ok(!planReply.includes('90–120min')&&!planReply.includes('含10min'))
+  assert.equal(planReply.split('本周建议安排').length-1,1)
   // Keep the failed provider last: its ordinary cooldown must remain effective.
   const failure=await run('现在先聊聊实习方向，可以先看什么？')
-  assert.equal(requests.length,11,'stream failure never triggers a second call')
+  assert.equal(requests.length,14,'stream failure never triggers a second call')
   assert.ok(failure.frames.some(f=>f.type==='draft_discarded'))
   assert.equal(failure.frames.find(f=>f.type==='error')?.code,'MODEL_REQUEST_FAILED')
   assert.ok(!failure.frames.some(f=>f.type==='done'||f.type==='delta'))

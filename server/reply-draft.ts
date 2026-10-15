@@ -49,6 +49,15 @@ export function openingQuestionDraft(raw:string):string|null{
   return null
 }
 
+// A validated structured plan owns the timetable. Preserve explanatory prose,
+// but do not append a second model-authored schedule with different totals.
+export function weeklyPlanExplanation(reply:string):string{
+  return reply.split(/\n\s*\n/).filter(paragraph=>
+    !/(?:^|\n)\s*(?:[-*•]|\d+[.)、])\s*[^\n]*(?:\d|[一二两三四五六七八九十])\s*(?:min|分钟|小时)|\d+\s*[–—~～-]\s*\d+\s*(?:min|分钟|小时)/i.test(paragraph)
+    &&!/(?:总计|共计|合计|未安排|含)[^。\n]{0,16}\d+\s*(?:min|分钟|小时)/i.test(paragraph)
+  ).join('\n\n').trim()
+}
+
 
 // G3 mode-aware early draft: in reply_only turns the schema guarantees the
 // payload is exactly {reply}, so the FIRST complete safe sentence of the
