@@ -14,7 +14,7 @@ import {assertCoachSourceFreeze} from './coach-source-freeze.ts'
 import {config} from '../server/config.ts'
 import {requiresImmediateMaterial} from '../server/action-coach-events.ts'
 import {buildClauseCatalogue} from '../server/clause-catalogue.ts'
-import {deriveTurnContract} from '../server/turn-contract.ts'
+import {deriveTurnContract,bindMaterialDeliverySchema} from '../server/turn-contract.ts'
 
 const args=process.argv.slice(2),arg=(name:string)=>args[args.indexOf(name)+1]
 const runtimeContracts=args.includes('--runtime-contracts')
@@ -51,7 +51,7 @@ async function call(id:keyof typeof inputs){
   report.calls.push(receipt);save() // Reservation precedes any network request.
   let answer:AssistantMessage|null=null,thrown:unknown,firstMs:number|null=null,deltas=0,cancelled=false
   const material=requiresImmediateMaterial(inputs[id]),catalogue=buildClauseCatalogue(inputs[id])
-  const contract=runtimeContracts?deriveTurnContract({text:inputs[id],knowledgeCount:0,currentEventExists:id==='R3',planIntent:false,material}):undefined
+  const contract=runtimeContracts?bindMaterialDeliverySchema(deriveTurnContract({text:inputs[id],knowledgeCount:0,currentEventExists:id==='R3',planIntent:false,material}),inputs[id]):undefined
   const timer=setTimeout(()=>controller.abort(),60000)
   try{
     const source=stream(runtime.model,{systemPrompt:turnSystemPrompt(tier==='reasoning'?'reasoning':'default',runtime.model.id,contract),messages:providerTurnMessages(buildTurnPrompt({currentMessageId:messageId,messages:[{id:messageId,role:'user',content:inputs[id]}],currentEvent:id==='R3'?existingEvent:null}),runtime.model)},{apiKey:runtime.apiKey,maxTokens:outputTokenLimit(runtime.model,tier),maxRetries:0,timeoutMs:60000,signal:controller.signal,onPayload:(payload,profile)=>configureProviderPayload(payload,profile,tier,contract?.schema,undefined,outputTokenLimit(runtime.model,tier),messageId,id==='R3'?[existingEvent]:[],[],tier==='default'?config.qwenThinkingBudget:0,material,undefined,false,runtimeContracts?catalogue.map(c=>c.clauseId):undefined)})
@@ -77,7 +77,7 @@ async function call(id:keyof typeof inputs){
   report.calls[report.calls.length-1]=finished;save()
   assertCoachSourceFreeze(freezePath!)
   let result:ReturnType<typeof parseActionCoachTurn>|undefined
-  try{result=parseActionCoachTurn(text)}catch{}
+  try{result=parseActionCoachTurn(text,{allowEmptyReplyWithCompleteDraft:runtimeContracts})}catch{}
   const diagnostics={stopReason:stop,elapsedMs:Math.round(performance.now()-started),firstRawDeltaMs:firstMs,deltas,usage:recordedUsage??'unknown',estimatedCostCny:cost,callId:receipt.callId,cancelledAfterDelta:cancelled,actualContractMode:contract?.mode??null,schemaSha256:contract?createHash('sha256').update(JSON.stringify(contract.schema)).digest('hex'):null,errorCategory:thrown||stop==='error'?probeErrorCategory(redact(answer?.errorMessage??thrown)):null}
   if(id==='R1')report.checks.streaming={passed:stop==='stop'&&deltas>1&&Boolean(result&&/[\u4e00-\u9fff]/.test(result.reply)),...diagnostics,reply:result?.reply??null,note:'Raw delta timing is transport evidence, not meaningful first content.'}
   if(id==='R2')report.checks.freeOutput={passed:stop==='stop'&&Boolean(result&&!result.event&&!result.background?.length&&!result.growthUpdates?.length&&!result.experienceCandidate&&!result.citations?.length),...diagnostics,reply:result?.reply??null,output:result??null}
