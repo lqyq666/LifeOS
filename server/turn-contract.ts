@@ -3,7 +3,7 @@
 // legacy mode names are retained only for callers reading old contracts.
 
 import { actionCoachTurnSchema } from './action-coach-contracts.ts'
-import { scanUserClauses,currentConversationOnly,refusalPreferenceClause,scopedTaskPauseClause } from './user-command-spans.ts'
+import { scanUserClauses,currentConversationOnly,refusalPreferenceClause,scopedTaskPauseClause,assistantRequestClause } from './user-command-spans.ts'
 import {requiresImmediateMaterial} from './action-coach-events.ts'
 import {requiresPlanSlack} from './weekly-plans.ts'
 
@@ -202,6 +202,18 @@ export function bindMaterialDeliverySchema(contract:TurnContract,text:string,gro
     for(const value of Object.values(node))if(Array.isArray(value))value.forEach(bindQuotes);else if(value&&typeof value==='object')bindQuotes(value)
   }
   if(quotes.length)bindQuotes((contract.schema.properties as any)?.event)
+  if(groundedSelection){
+    // Do not spend material generation on command nodes that validation would
+    // discard. The event target may still cite the request; real feedback stays.
+    const reportedQuotes=quotes.filter(quote=>!assistantRequestClause(quote))
+    const nodes=(contract.schema.properties as any)?.event?.properties?.nodes
+    if(nodes?.items?.anyOf)nodes.items.anyOf=nodes.items.anyOf.filter((node:any)=>{
+      if(!node.properties?.source)return true
+      if(!reportedQuotes.length)return false
+      node.properties.source.properties.quote={...node.properties.source.properties.quote,enum:reportedQuotes}
+      return true
+    })
+  }
   const action=(contract.schema.properties as any)?.event?.properties?.action
   if(!groundedSelection)for(const branch of action?.anyOf??[]){
     const draft=branch.properties?.draft
