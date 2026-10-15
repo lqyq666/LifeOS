@@ -18,6 +18,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    const body=JSON.parse(Buffer.concat(chunks).toString());requests.push(body)
    const schema=body.response_format.json_schema.schema,selection=schema.properties.event?.properties.action?.anyOf[0]?.properties.draft?.anyOf[0]?.properties.selectedFactIds
    let output:any={reply:'先围绕你想了解的岗位，核对一项实际要求。'}
+   if(requests.length===7)output={reply:'先问一个具体对象：你整理排版的那份课程资料，有没有被小组外的人看过或用过？'}
    if(selection){
     const messageId=schema.properties.event.properties.target.anyOf[0].properties.source.properties.messageId.enum[0]
     output={reply:'已根据你提供的信息撰写了作品描述。\n\n【作品描述】\n我精通软件开发。',event:{target:{operation:'create',title:'本人贡献作品描述',source:{messageId,quote:requests.length===1?'只帮我写一段本人贡献描述':'帮我写一段只包含本人贡献的作品描述'}},nodes:[{kind:'fact',source:{messageId,quote:'不要替我发送'}}],action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[selection.items.enum[0]]}}}}
@@ -37,7 +38,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    res.writeHead(200,{'Content-Type':'text/event-stream'})
    const base={id:'synthetic-verified-material',object:'chat.completion.chunk',created:1,model:model.id}
    res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\n')
-   if(requests.length===7){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
+   if(requests.length===8){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
    res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
   })
  })
@@ -96,9 +97,11 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.equal(badSelection.saved.status,'failed')
   assert.equal(badSelection.frames.find(f=>f.type==='error')?.code,'MATERIAL_REFERENCE_INVALID')
   assert.ok(!badSelection.frames.some(f=>['draft','delta','done'].includes(f.type)))
+  const questionChoice=await run('我是成年大学生，想先了解就业和自由职业。我在课程小组里负责整理资料和排版，代码是队友做的。目前没有客户，每周能花两小时。先帮我选一个值得了解的问题。')
+  assert.equal(questionChoice.saved.status,'completed','choosing a question does not require a saved material')
   // Keep the failed provider last: its ordinary cooldown must remain effective.
   const failure=await run('现在先聊聊实习方向，可以先看什么？')
-  assert.equal(requests.length,7,'stream failure never triggers a second call')
+  assert.equal(requests.length,8,'stream failure never triggers a second call')
   assert.ok(failure.frames.some(f=>f.type==='draft_discarded'))
   assert.equal(failure.frames.find(f=>f.type==='error')?.code,'MODEL_REQUEST_FAILED')
   assert.ok(!failure.frames.some(f=>f.type==='done'||f.type==='delta'))
