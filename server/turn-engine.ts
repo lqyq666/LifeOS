@@ -1185,6 +1185,19 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       staged.audit.push({phase:'explicit_material_rendered_without_generation',basis:'explicit_blank_job_worksheet',providerCalls:0})
     }
   }
+  if(!explicitMaterial&&materialOnly&&contributionParagraphMode&&!boundaryNeedsClarification){
+    const contributions=materialCatalogue.filter(fact=>fact.field==='project'&&reportsOwnContribution(fact.text))
+    if(contributions.length===1){
+      // This exact literal paragraph already has one authorized source and no
+      // selection judgment. Reuse the existing deterministic material lane;
+      // resolution, source validation and atomic persistence still run below.
+      const selected=resolveSelectedMaterialFacts([contributions[0]!.catalogueId],materialCatalogue,run.user_id,run.user_id,'contribution_paragraph')
+      if(selected.facts.length===1){
+        explicitMaterial={reply:'',event:{target:currentEvent?{operation:'continue',eventId:currentEvent.id,expectedRevision:currentEvent.revision}:{operation:'create',title:'本人贡献描述',source:{messageId:run.source_message_id,quote:current.content}},action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[contributions[0]!.catalogueId]}}}}
+        staged.audit.push({phase:'explicit_material_rendered_without_generation',basis:'single_verified_literal_contribution',providerCalls:0})
+      }
+    }
+  }
   try{
     if(!explicitMaterial&&!refusalOnly)await checkModelCooldown()
     if(refusalOnly)staged.audit.push({phase:'explicit_refusal_deterministic',providerCalls:0})
