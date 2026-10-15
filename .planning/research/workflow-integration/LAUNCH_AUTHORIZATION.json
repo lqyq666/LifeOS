@@ -103,5 +103,18 @@
     "newBudget": 0,
     "automaticPaidRetry": false,
     "wholeProductAccepted": false
+  },
+  "unifiedReleaseInstruction": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_MESSAGE",
+    "recordedDate": "2026-10-15",
+    "exactRequest": "所有问题都修复好后，再统一发布，达到真实验收要求后再统一发布",
+    "intermediateGatewayPublicationAllowed": false,
+    "withheldCandidate": "28711a7fe8f1d1c0603538ff9a047646a7ee62e4",
+    "withheldCandidateAnswer": "暂不发布",
+    "nextReleaseRequiresActualAcceptance": true,
+    "existingDevelopmentAndVerificationAuthorizationRetained": true,
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "productionLifeOSServicePublishedByThisInstruction": false
   }
 }
