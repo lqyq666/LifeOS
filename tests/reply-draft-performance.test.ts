@@ -35,3 +35,10 @@ test('material headers do not count as content, while an actual completed answer
  }
  assert.equal(safeEarlySentence(JSON.stringify({reply:'已为你保存：\n\n先问对方最近一次实际选课时怎么决定。'})),null)
 })
+
+test('observed portfolio completion announcement waits for actual material',()=>{
+ const header='作品描述已按你实际负责的整理资料和排版撰写，代码部分未计入。'
+ assert.equal(safeEarlySentence(JSON.stringify({reply:header})),null)
+ assert.equal(safeEarlySentence(JSON.stringify({reply:header+'本人负责课程小组的资料整理和排版。'})),'本人负责课程小组的资料整理和排版')
+ assert.equal(safeEarlySentence(JSON.stringify({reply:'我已替你发送作品描述。本人负责资料整理。'})),null)
+})

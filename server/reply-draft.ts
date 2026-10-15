@@ -97,6 +97,7 @@ export function safeEarlySentence(raw:string,maxChars=120):string|null{
       // A paragraph ending in a colon announces content that has not arrived.
       // Do not count arbitrary material headers as useful first content.
       if(/[:：]\s*$/.test(sentence))continue
+      if(/^(?:作品描述|简历|个人介绍|消息|材料|文稿|草稿|计划|清单|方案|安排)(?:已经|已)(?:按[^。！？]{0,80})?(?:撰写|起草|编写|生成|整理|准备|写好|完成)/.test(sentence))continue
       if(!sentence||fillerOnly.test(sentence)||/^这是一(?:条|份|段|句)(?:可直接复制的)?简短(?:消息|材料|文稿|草稿)(?:，发送前请自行核对老师姓名和课程名称)?[:：]$/.test(sentence)||/^(?:围绕|关于)最近一次实际选课经历，可以这样问[:：]$/.test(sentence)||/(?:消息|材料|文稿|草稿|计划|清单|方案|安排)(?:已经|已)(?:写好|整理好|准备好|规划好|完成)[^。！？]*$/.test(sentence)||/(?:我(?:已|为你|给你)|已为你).{0,8}(?:规划|整理|准备|制定|写)(?:了|好)?(?:一(?:份|个|段))?.{0,12}(?:方案|计划|安排|草稿|清单)$/.test(sentence))continue
       if(sentence.length>maxChars)return null
       if(!/[\p{L}]{2,}/u.test(sentence))continue
