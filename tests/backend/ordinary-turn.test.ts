@@ -348,6 +348,13 @@ test('wire context transmits each method and identical current event once withou
   const wire=providerTurnMessages(JSON.stringify(context),{provider:'bailian',id:'qwen3.8-flash'})
   assert.equal(JSON.stringify(wire).split(method.body).length-1,1)
   assert.equal(wire.at(-1)!.content,current.content)
+  const growth={id:randomUUID(),revision:2,kind:'constraint',text:'这周还剩半小时',status:'active',assertion:'user_reported',sources:[{id,type:'message',quote:'这周还剩半小时'}],dependencies:[],validUntil:'2026-10-18T15:59:59Z',validFrom:null,timeBasis:{kind:'calendar_week'},createdAt:current.created_at,updatedAt:current.created_at,unavailableReason:null,limitation:''} as any
+  const original=JSON.stringify(growth)
+  const compact=JSON.parse(buildTurnPrompt({currentMessageId:id,messages:[current],growth:[growth]})).growth[0]
+  assert.equal(compact.id,growth.id);assert.equal(compact.revision,2)
+  assert.equal(compact.text,growth.text);assert.equal(compact.sources[0].id,id)
+  assert.equal(compact.sources[0].quote,undefined);assert.equal(compact.validUntil,growth.validUntil)
+  assert.deepEqual(compact.timeBasis,growth.timeBasis);assert.equal(JSON.stringify(growth),original)
   const legacy=JSON.parse(buildTurnPrompt({currentMessageId:id,messages:[current],knowledge:[method] as any}))
   assert.deepEqual(legacy.knowledge,[method])
   const conflicting={...event,nodes:[{...event.nodes[0],status:'declined'}]}
