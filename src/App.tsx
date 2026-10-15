@@ -189,7 +189,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     return () => query.removeEventListener('change', changed)
   }, [])
 
-  if (graphError&&!authMode) {
+  if (graphError&&!authMode&&!conversationOpen) {
     return <div className="campus-page is-cognition"><div className="scene-error" role="alert"><h2>星图暂时没能加载</h2><p>{graphError}这里不会用演示数据冒充你的档案。</p><button type="button" onClick={() => { setGraphError(null); window.dispatchEvent(new CustomEvent('lifeos-data-changed')) }}>重试加载</button></div></div>
   }
   return <div className={`campus-page ${landing ? 'is-landing' : 'is-cognition'}`} data-mode={view.mode}>
@@ -223,9 +223,9 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     {!landing && view.storageError && view.mode !== 'EXPERIENCE_DETAIL' && <p className="storage-banner" role="alert">{view.storageError}</p>}
     <main className="entry-main" inert={conversationOpen || !!authMode} aria-hidden={conversationOpen || !!authMode}>
       <section className="flywheel-section" aria-label="LifeOS Growth Flywheel">
-        <Suspense fallback={<div className="scene-loading" role="status"><span />正在唤醒成长核心</div>}>
-          <LifeFlywheel paused={paused || conversationOpen || !!authMode} reducedMotion={reduce || !!authMode} controller={controller} />
-        </Suspense>
+        {!conversationOpen&&!authMode&&<Suspense fallback={<div className="scene-loading" role="status"><span />正在唤醒成长核心</div>}>
+          <LifeFlywheel paused={paused} reducedMotion={reduce} controller={controller} />
+        </Suspense>}
         <button hidden={!landing} className="motion-toggle" onClick={() => setPaused(!paused)}
           disabled={reduce} aria-label={reduce ? '已跟随系统减少动态效果' : paused ? '播放飞轮动画' : '暂停飞轮动画'}
           title={reduce ? '跟随系统减少动态效果' : paused ? '播放动画' : '暂停动画'} aria-pressed={paused || reduce}>
