@@ -168,5 +168,18 @@
     "businessStatus": "FAILED_SOURCE_QUOTE_PAIRING_2_CALLS_UNKNOWN_COST_RETAINED",
     "noLifeOSProductionRelease": true,
     "noAutomaticPaidRetry": true
+  },
+  "sourcePairFullBranchVerificationException20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "call_19de4680c72c4110962e481e1e7ede2e",
+    "exactAnswer": "允许该必要修复候选及核对、专业验收",
+    "candidateCommit": "1301f165d1c08de7b2291e6f0fb70b1a0faea69c",
+    "rollbackCommit": "1135882a81c9d9f18fae885feebaaa0bb40d6834",
+    "scope": "Original Gateway, HOST_COMMIT and HOST_SOURCE_DIGEST, one manual zero-model readback then necessary synthetic-adult professional refusal/feedback/new-session acceptance",
+    "manualZeroModelRequests": 1,
+    "automaticPaidRetry": false,
+    "lifeosProductionPublication": false,
+    "phaseCumulativeCny": 20,
+    "at": "2026-10-15T10:26:45.231Z"
   }
 }
