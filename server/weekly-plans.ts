@@ -48,7 +48,7 @@ export function renderProposedWeeklyPlan(input:WeeklyPlanInput):string{
 // Normalize only explicit, whole rest/buffer labels; a mixed real task stays
 // intact and remains subject to the ordinary aggregate budget check.
 export function normalizeWeeklyPlanTasks(input:WeeklyPlanInput):WeeklyPlanInput{
- const rest=/^(?:休息|缓冲|留白|空闲|未安排时间|rest|buffer)(?:\s*(?:[\/、_&+-]|和|或|与|及|and|or)+\s*(?:休息|缓冲|留白|空闲|未安排时间|rest|buffer))*$/i
+ const rest=/^(?:休息|缓冲|留白|空闲|未安排时间|rest|buffer)(?:\s*(?:[\/、_&+-]|和|或|与|及|and|or)*\s*(?:休息|缓冲|留白|空闲|未安排时间|rest|buffer))*(?:[，,]\s*(?:不|未)安排任务)?$/i
  return {...input,items:input.items.filter(item=>!rest.test(item.action.trim())).map(item=>({...item,action:weeklyPlanActionLabels[item.action.trim()]??item.action}))}
 }
 
