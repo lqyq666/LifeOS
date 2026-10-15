@@ -56,7 +56,7 @@ export function openingQuestionDraft(raw:string):string|null{
 // sentence must carry real substance — politeness-only fillers, status
 // claims, URLs, diagnoses, personality verdicts and policy facts stay gated.
 const unsafeEarly=/(?:https?:\/\/|诊断|症状|抑郁症|焦虑症|你总是|你就是|你其实|你就是.{0,6}人|你一定|已(?:经)?(?:为你|帮你|替你)?(?:保存|记录|完成|发送|报名|起草|发出|发好|更正|更新)|保证|一定可以|肯定能|录取|报名截止|资格)/
-const fillerOnly=/^(?:好的?|嗯+|哦+|行|可以|明白|了解|收到|谢谢|感谢|不客气|没问题|我在听|继续|加油)[。！!，,~\s]*$|^(?:好的?，)?这是一(?:条|份|段)[^。！？]{0,80}(?:消息|材料|文稿|草稿)[^。！？]{0,40}(?:复制|使用)[:：]?$/
+const fillerOnly=/^(?:好的?|嗯+|哦+|行|可以|明白|了解|收到(?:更正|补充|反馈)?|谢谢|感谢|不客气|没问题|我在听|继续|加油)[。！!，,~\s]*$|^(?:好的?，)?这是一(?:条|份|段)[^。！？]{0,80}(?:消息|材料|文稿|草稿)[^。！？]{0,40}(?:复制|使用)[:：]?$/
 export function safeEarlySentence(raw:string,maxChars=120):string|null{
   const opening=/^\s*(?:```(?:json)?\s*)?\{\s*"reply"\s*:\s*"/.exec(raw)
   if(!opening)return null
@@ -97,7 +97,7 @@ export function safeEarlySentence(raw:string,maxChars=120):string|null{
       // Salutation/name placeholders and a chat-only acknowledgement are
       // framing. Keep looking for the actual request or supportive content.
       if(/^[“「『"']?[^。！？]{0,16}(?:你好|您好)[，,\s]*(?:我是[^。！？]{1,32})?$/.test(sentence))continue
-      if(/^(?:好的?[，,]?|明白[，,]?)?(?:今天)?(?:不安排任务|不给你安排任务)[，,](?:就)?(?:陪你聊聊|聊聊天|聊聊)$/.test(sentence))continue
+      if(/^(?:好的?[，,]?|明白[，,]?)?(?:今天)?(?:不安排(?:任何)?任务|不给你安排(?:任何)?任务)(?:[，,](?:就)?(?:陪你聊聊|聊聊天|聊聊))?$/.test(sentence))continue
       // A paragraph ending in a colon announces content that has not arrived.
       // Do not count arbitrary material headers as useful first content.
       if(/[:：]\s*$/.test(sentence))continue
