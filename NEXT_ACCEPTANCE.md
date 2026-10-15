@@ -25,6 +25,8 @@
 
 证据沿用原目录：`.local/cloud-closeout-20261014/slim/portfolio-ff637ca-new-validation-{once,result,corrected}.json`、原唯一模型账本、`.local/launch-recovery-20261015/{production-resource-recovery-inventory,recovery-existing-readonly,coze-dev-clock-boundary,public-current-readonly}.json`。临时供应商错误帧观察只在18128隔离进程，未记录请求头/请求正文、无自动重试；本次成功没有错误帧，不能补造旧错误。当前不触发无关云绑定同步。
 
+首内容显示补修：原真实输出“学长你好，我是[你的名字]”及“明白，今天不安排任务，就陪你聊聊”不再独立显示为首内容；原解析器继续等后续实质句，敏感断言仍阻断。现场原话检查先红后绿，连同原CPU/转义/材料边界共5项通过，服务端typecheck通过；这仅修正实际显示，不宣称供应商等待已缩短。
+
 最新真实失败收口：b9a2af4就业复盘“填过岗位核对表但卡住了，别重写”被模型附带reuse动作触发COACH_ACTION_DECLINED；现仅在当前明确拒绝材料操作时丢弃该动作，保留合法复盘/节点，原动作内容和revision不变。混合读回+“再帮我拟一个暂不催促的后续沟通问题”曾被贪婪匹配到后面的“问”，误当拒绝；原requestIntent改为优先首个请求动词，不新增解析器。新增原话单元检查及5回合真实HTTP/SDK/隔离PG模拟检查通过，覆盖材料、拒绝重写复盘、普通流式、混合读回与起草、错误后撤回；服务端typecheck及生产build通过。这些是本地修复证据，修后真实补验另留新请求记录，不覆盖b9a2af4首次失败。原用户脏测试未修改/运行/提交。
 
 本组原件：`ordinary-final-launch-b9a2af4-{attempts.jsonl,results.json,corrected-metrics.json}`；当前星图UI读回为`.local/launch-recovery-20261015/current-ui-readback-b9a2af4.json`。

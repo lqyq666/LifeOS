@@ -94,6 +94,10 @@ export function safeEarlySentence(raw:string,maxChars=120):string|null{
     for(let index=0;index+1<parts.length;index+=2){
       const sentence=parts[index]!.trim()
       if(unsafeEarly.test(sentence))return null
+      // Salutation/name placeholders and a chat-only acknowledgement are
+      // framing. Keep looking for the actual request or supportive content.
+      if(/^[“「『"']?[^。！？]{0,16}(?:你好|您好|好)[，,\s]*(?:我是[^。！？]{1,32})?$/.test(sentence))continue
+      if(/^(?:好的?[，,]?|明白[，,]?)?(?:今天)?(?:不安排任务|不给你安排任务)[，,](?:就)?(?:陪你聊聊|聊聊天|聊聊)$/.test(sentence))continue
       // A paragraph ending in a colon announces content that has not arrived.
       // Do not count arbitrary material headers as useful first content.
       if(/[:：]\s*$/.test(sentence))continue
