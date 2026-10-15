@@ -81,6 +81,7 @@ export function validateWeeklyPlanShape(input:WeeklyPlanInput):void{
   for(const item of input.items){
     if(!Number.isSafeInteger(item.minutes)||item.minutes<=0||item.minutes>10080)throw new HttpError(400,'WEEKLY_PLAN_INVALID')
     if(typeof item.action!=='string'||!item.action.trim()||item.action.length>200)throw new HttpError(400,'WEEKLY_PLAN_INVALID')
+    if(/^(?:create|modify|replace|reuse|close)$/i.test(item.action.trim()))throw new HttpError(400,'WEEKLY_PLAN_INVALID')
     if(!validScopeList(item.directionScopes))throw new HttpError(400,'WEEKLY_PLAN_INVALID')
   }
   if(input.basis.length>12||!input.basis.length)throw new HttpError(400,'WEEKLY_PLAN_INVALID')

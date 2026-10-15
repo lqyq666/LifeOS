@@ -22,7 +22,7 @@ import { configureProviderPayload, outputTokenLimit, type OutputPath } from './m
 import { estimateProviderCallCostCny } from './cost-workload.ts'
 import { growthContext, growthBoundaryContext, growthSnapshotKey, stageGrowthUpdates } from './growth.ts'
 import { selectRelevantGrowth, splitGrowthByCurrentTopic } from './growth-selection.ts'
-import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionControls, overlayDirectionChanges, directionControlsSnapshotKey, allScopes } from './growth-controls.ts'
+import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionControls, overlayDirectionChanges, directionControlsSnapshotKey, allScopes,mentionedDirectionScopes } from './growth-controls.ts'
 import { redactGrowthHistory } from './growth-privacy.ts'
 import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCandidates, CozeRetrievalError } from './coze-knowledge.ts'
 import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKnowledge, CodeWorkflowError, type CodeWorkflowConfig } from './coze-code-workflow.ts'
@@ -463,7 +463,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const materialIntent=!readOnlyQuestion&&!boundaryNeedsClarification&&(resumePortfolioMode||deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create'))
   const planBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
   const requestedGuide=clauseCatalogue.some(clause=>!clause.quoted&&!clause.conditional&&!clause.attributedToOther&&assistantRequestClause(clause.text)&&/(?:用|使用|按|参考|依据).{0,80}(?:攻略|指南|方法)/.test(clause.text))?knowledge.find(card=>card.guide&&methodIntent.query.includes(card.title)):undefined
-  const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,knowledgeIds:requestedGuide?[requestedGuide.id]:knowledge.map(card=>card.id),requiredKnowledgeCitation:Boolean(requestedGuide),currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent,readOnly:readOnlyQuestion}),planBudget?.type==='weekly_plan'?planBudget:undefined,current.content)
+  const allowedPlanScopes=mentionedDirectionScopes([current.content,...growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>item.text)].join('\n'))
+  const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,knowledgeIds:requestedGuide?[requestedGuide.id]:knowledge.map(card=>card.id),requiredKnowledgeCitation:Boolean(requestedGuide),currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent,readOnly:readOnlyQuestion}),planBudget?.type==='weekly_plan'?planBudget:undefined,current.content,allowedPlanScopes)
   const priorInterviewQuestions=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion)&&requestedQuestionEditClauses(item.text).length>0).map(item=>item.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/, '').replace(/^[“「『]|[”」』]$/g,'')).filter(q=>q.length>0&&q.length<=300)
   const priorInterviewQuestion=priorInterviewQuestions.length===1?priorInterviewQuestions[0]:undefined
   const boundedReply:BoundedReply|null=boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停的是当时的备考或复习，尚未确认和这次是否同一事项。先核对这次要继续的是哪件事；不把旧暂停套到另一个考试，也不先安排任务。']}:readOnlyQuestion?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):null
@@ -616,6 +617,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // control snapshot and the EFFECTIVE blocked scopes; the budget is
       // checked against the verified weekly effect (never rendered from an
       // unverified number), and the durable text comes from persistWeeklyPlan.
+      if(result.weeklyPlan.items.some(item=>item.directionScopes.some(scope=>!allowedPlanScopes.includes(scope))))throw new HttpError(400,'WEEKLY_PLAN_SCOPE_UNGROUNDED')
       const planInput=normalizeWeeklyPlanTasks(result.weeklyPlan as unknown as import('./weekly-plans.ts').WeeklyPlanInput)
       result.reply=normalizeWeeklyPlanReply(result.reply,result.weeklyPlan as unknown as import('./weekly-plans.ts').WeeklyPlanInput)
       if(planInput.items.length!==result.weeklyPlan.items.length)staged.audit.push({phase:'weekly_plan_rest_as_unallocated',removedBufferItems:result.weeklyPlan.items.length-planInput.items.length,providerCalls:0})

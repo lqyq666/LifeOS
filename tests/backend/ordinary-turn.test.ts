@@ -12,6 +12,8 @@ import {localEmbedding} from '../../server/local-embedding.ts'
 import {setMemorySettings} from '../../server/memory.ts'
 import {deriveTurnContract,bindPlanBudgetSchema,bindMaterialDeliverySchema,taskOutcomeReadback} from '../../server/turn-contract.ts'
 import {requiresImmediateMaterial,deliverableIntent} from '../../server/action-coach-events.ts'
+import {mentionedDirectionScopes} from '../../server/growth-controls.ts'
+import {validateWeeklyPlanShape} from '../../server/weekly-plans.ts'
 import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
 import {selectStructuralCandidate,clauseReportsCompleted} from '../../server/experience-content.ts'
 import {parseActionCoachTurn} from '../../server/action-coach-contracts.ts'
@@ -102,6 +104,14 @@ test('ordinary contract composes review, material and facts without competing mo
   assert.ok(slack.properties.weeklyPlan.description.includes('合计至多119分钟'))
   assert.equal(slack.properties.weeklyPlan.properties.items.items.properties.minutes.maximum,119)
   assert.equal(slack.properties.weeklyPlan.properties.items.enum,undefined)
+  const course=bindPlanBudgetSchema(c,{minutes:120,period:'this_week'},'安排课程作业和复习，不要全排满',[]).schema as any
+  assert.equal(course.properties.weeklyPlan.properties.items.items.properties.directionScopes.maxItems,0,'generic coursework cannot invent a degree direction')
+  assert.equal(new RegExp(course.properties.weeklyPlan.properties.items.items.properties.action.pattern).test('create'),false)
+  assert.equal(new RegExp(course.properties.weeklyPlan.properties.items.items.properties.action.pattern).test('完成课程作业'),true)
+  assert.deepEqual(mentionedDirectionScopes('期末课程优先，备考只保留少量时间。'),[])
+  assert.deepEqual(mentionedDirectionScopes('我想先了解就业。'),['employment'])
+  assert.deepEqual(mentionedDirectionScopes('同学说他想考研。我读过“专升本”的文章。'),[])
+  assert.throws(()=>validateWeeklyPlanShape({target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'create',minutes:60,directionScopes:[]}]}),{code:'WEEKLY_PLAN_INVALID'})
 })
 
 test('single ordinary generation preserves mixed delivery and real transaction boundaries (simulated provider)',async t=>{
@@ -240,13 +250,11 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       assert.equal(requests.length-before,1)
       await store.terminateRun(user,invalid.run.request_id,'failed','WEEKLY_PLAN_SLACK_REQUIRED')
     })
-    await t.test('the preserved reverse-buffer provider failure commits only its real task allocations',async()=>{
+    await t.test('the preserved course plan cannot invent a degree direction',async()=>{
       const input=await prepare('我是成年大学生，目前期末课程优先，备考只保留少量时间。这周还剩两小时，帮我安排课程作业和复习，不要全排满。')
       outputs.push({reply:'两小时排课程作业加少量复习，留缓冲不排满。具体题目和章节仍未知。',weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:1},{updateIndex:2},{updateIndex:3}],items:[{action:'课程作业',minutes:60,directionScopes:['undergraduate_upgrade']},{action:'期末复习',minutes:30,directionScopes:['undergraduate_upgrade']},{action:'缓冲/休息',minutes:30,directionScopes:['undergraduate_upgrade']}]}})
-      const result=await engine(input)
-      assert.ok(result.text.includes('未安排：30分钟。'))
-      assert.deepEqual(input.staged.weeklyPlan?.input.items.map(item=>item.minutes),[60,30])
-      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      await assert.rejects(engine(input),{code:'WEEKLY_PLAN_SCOPE_UNGROUNDED'})
+      await store.terminateRun(user,input.run.request_id,'failed','WEEKLY_PLAN_SCOPE_UNGROUNDED')
     })
     await t.test('a named reviewed method keeps its owned task and failure continuation even when the model only returns prose',async()=>{
       const read=(name:string)=>readFileSync('.planning/research/evergreen/'+name,'utf8').trim().split(/\r?\n/).map(line=>JSON.parse(line))

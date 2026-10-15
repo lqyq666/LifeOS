@@ -73,6 +73,19 @@ const quoted=(clause:string,index:number):boolean=>{
     }
   return false
 }
+// Restrict proposed plan labels to directions present in authorized personal
+// text. This is not a pause/resume command or a new direction judgment.
+export function mentionedDirectionScopes(text:string):DirectionScope[]{
+  const scopes=new Set<DirectionScope>()
+  for(const clause of scanUserClauses(text)){
+    if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)continue
+    for(const {pattern,scopes:resolve} of directionPatterns){
+      const match=pattern.exec(clause.text)
+      if(match&&!quoted(clause.text,match.index))for(const scope of resolve())scopes.add(scope)
+    }
+  }
+  return [...scopes]
+}
 // An explicit command must be the user's own current instruction: no third
 // party attribution, no negation of the command, no question form, no quotes.
 const commandIsUsersOwn=(clause:string,verbIndex:number):boolean=>{

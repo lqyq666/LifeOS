@@ -238,7 +238,7 @@ export function bindMaterialDeliverySchema(contract:TurnContract,text:string,gro
 // The authoritative obligation has already resolved the student's current
 // event and week. Constrain generation before dispatch; never discard illegal
 // model tasks after the fact or ask the student to confirm an explicit zero.
-export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:number;period:string}|undefined,currentText=''):TurnContract{
+export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:number;period:string}|undefined,currentText='',allowedPlanScopes?:readonly string[]):TurnContract{
  if(!budget||!contract.capabilities.plan)return contract
  const schema=structuredClone(contract.schema) as any
  const plan=schema.properties.weeklyPlan
@@ -248,7 +248,15 @@ export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:numbe
  if(budget.minutes>0){
   plan.properties.items.minItems=1
   plan.properties.items.items.properties.action.description='用中文写用户实际请求的课程、复习或探索任务，不写字段名或英文代号。休息和缓冲是未安排时间，不列为任务。'
+  if(/[\u4e00-\u9fff]/.test(currentText))plan.properties.items.items.properties.action.pattern='[\\u4e00-\\u9fff]'
   plan.properties.items.items.properties.directionScopes.description='只有实际属于该方向的任务才标注；普通课程作业用空数组，不把课程或一般备考自动标为专升本或考研。'
+  if(allowedPlanScopes){
+   const scopes=plan.properties.items.items.properties.directionScopes
+   const choices=(scopes.items.enum??scopes.items.anyOf?.map((item:{const:string})=>item.const)??[]) as string[]
+   const permitted=choices.filter(scope=>allowedPlanScopes.includes(scope))
+   scopes.items=permitted.length?{type:'string',enum:permitted}:{type:'string'}
+   scopes.maxItems=permitted.length
+  }
   if(requiresPlanSlack(currentText)){
    plan.description=`本人明确不要排满：可用${budget.minutes}分钟，items中的任务分钟合计至多${budget.minutes-1}分钟。休息/缓冲保留在任务列表外，由服务器显示未安排量。`
    plan.properties.items.items.properties.minutes.maximum=budget.minutes-1
