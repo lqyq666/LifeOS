@@ -205,6 +205,12 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
         compiled.description=drafts.every((branch:any)=>branch.properties.draft.properties?.fromReply?.const===true)?'本轮明确要求直接起草，reply就是唯一生成的完整正文；event.action.draft只返回fromReply:true。服务器将同一正文展示并保存，不另写介绍、说明或重复正文。':'本轮明确要求直接起草，reply与event.action均必填。完整可用成品仅生成于draft.content，由服务器展示同一材料；不能仅承诺稍后起草。'
       }
     }
+    const event=compiled.properties?.event,targets=event?.properties?.target?.anyOf
+    // Express the existing transaction rule before generation as well as at
+    // commit: a new event cannot mutate another event's nodes or actions.
+    // Keep shared properties in place; only the target-dependent constraints
+    // vary, rather than duplicating the full event/action schema.
+    if(targets?.some((target:any)=>target.properties?.operation?.const==='create'))event.anyOf=targets.map((target:any)=>({properties:{target,...(target.properties?.operation?.const==='create'?{corrections:{maxItems:0},resolveUnknowns:{maxItems:0},declineUnknowns:{maxItems:0},action:{properties:{operation:{const:'create'}}}}:{})}}))
     body.response_format={type:'json_schema',json_schema:{name:schemaName,strict:true,schema:compiled}}
     if(maxOutputTokens)body.max_completion_tokens=maxOutputTokens
     delete body.max_tokens

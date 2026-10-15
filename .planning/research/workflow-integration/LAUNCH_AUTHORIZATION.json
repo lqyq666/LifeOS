@@ -155,5 +155,18 @@
     "automaticRetry": false,
     "purchaseOrTopup": false,
     "at": "2026-10-15T08:23:32.056298+00:00"
+  },
+  "zeroTimeAndCurrentBindingException20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "call_473616cd8e2b46d7a0f3c4e8ac1ab050",
+    "exactAnswer": "允许该最小验证例外",
+    "candidateCommit": "1135882a81c9d9f18fae885feebaaa0bb40d6834",
+    "rollbackCommit": "96ebaccb54e312b042cfd667f3524d7ddc80ef70",
+    "scope": "Original Gateway publication, one manual zero-model readback, necessary synthetic-adult professional closure",
+    "manualZeroModelReadbackConsumed": true,
+    "normalEntryPreflightMatched": true,
+    "businessStatus": "FAILED_SOURCE_QUOTE_PAIRING_2_CALLS_UNKNOWN_COST_RETAINED",
+    "noLifeOSProductionRelease": true,
+    "noAutomaticPaidRetry": true
   }
 }
