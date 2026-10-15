@@ -25,6 +25,7 @@ function Arrow({ className = '' }: { className?: string }) {
 
 export default function App({ onEnter }: { onEnter?: () => void }) {
   const [reduce, setReduce] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [flywheelReady, setFlywheelReady] = useState(false)
   const [paused, setPaused] = useState(false)
   const [conversationOpen, setConversationOpen] = useState(() => window.location.hash === '#conversation')
   const [conversationVisited, setConversationVisited] = useState(() => window.location.hash === '#conversation')
@@ -189,7 +190,30 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     return () => query.removeEventListener('change', changed)
   }, [])
 
-  if (graphError&&!authMode&&!conversationOpen) {
+  useEffect(() => {
+    if (conversationOpen || authMode) {
+      setFlywheelReady(false)
+      return
+    }
+    let timer: number | undefined
+    let idleId: number | undefined
+    const start = () => setFlywheelReady(true)
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number
+      cancelIdleCallback?: (handle: number) => void
+    }
+    if (typeof idleWindow.requestIdleCallback === 'function') {
+      idleId = idleWindow.requestIdleCallback(start, { timeout: 1200 })
+    } else {
+      timer = window.setTimeout(start, 350)
+    }
+    return () => {
+      if (timer !== undefined) window.clearTimeout(timer)
+      if (idleId !== undefined) idleWindow.cancelIdleCallback?.(idleId)
+    }
+  }, [conversationOpen, authMode])
+
+  if (graphError&&!authMode&&!conversationOpen&&!landing) {
     return <div className="campus-page is-cognition"><div className="scene-error" role="alert"><h2>星图暂时没能加载</h2><p>{graphError}这里不会用演示数据冒充你的档案。</p><button type="button" onClick={() => { setGraphError(null); window.dispatchEvent(new CustomEvent('lifeos-data-changed')) }}>重试加载</button></div></div>
   }
   return <div className={`campus-page ${landing ? 'is-landing' : 'is-cognition'}`} data-mode={view.mode}>
@@ -223,9 +247,9 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
     {!landing && view.storageError && view.mode !== 'EXPERIENCE_DETAIL' && <p className="storage-banner" role="alert">{view.storageError}</p>}
     <main className="entry-main" inert={conversationOpen || !!authMode} aria-hidden={conversationOpen || !!authMode}>
       <section className="flywheel-section" aria-label="LifeOS Growth Flywheel">
-        {!conversationOpen&&!authMode&&<Suspense fallback={<div className="scene-loading" role="status"><span />正在唤醒成长核心</div>}>
+        {!conversationOpen&&!authMode&&(flywheelReady ? <Suspense fallback={<div className="scene-loading" role="status"><span />正在唤醒成长核心</div>}>
           <LifeFlywheel paused={paused} reducedMotion={reduce} controller={controller} />
-        </Suspense>}
+        </Suspense> : <div className="scene-loading" aria-hidden="true"><span /></div>)}
         <button hidden={!landing} className="motion-toggle" onClick={() => setPaused(!paused)}
           disabled={reduce} aria-label={reduce ? '已跟随系统减少动态效果' : paused ? '播放飞轮动画' : '暂停飞轮动画'}
           title={reduce ? '跟随系统减少动态效果' : paused ? '播放动画' : '暂停动画'} aria-pressed={paused || reduce}>
