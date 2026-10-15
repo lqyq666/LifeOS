@@ -106,7 +106,7 @@ export type EventDelta=Static<typeof eventDeltaSchema>
 export type ActionDraft=Static<typeof legacyDraftSchema>
 export type ResumePortfolioDraft=Static<typeof resumePortfolioDraftSchema>
 
-export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExplanation?:boolean}={}):ActionCoachTurn {
+export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExplanation?:boolean;allowEmptyReplyWithCompleteDraft?:boolean}={}):ActionCoachTurn {
   const output=JSON.parse(raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')) as unknown
   // Provider-authored metadata has no authority. Provenance and readiness are
   // rebuilt from the host catalogue after this parser, never accepted from a
@@ -121,7 +121,10 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   }
   // Only the host catalogue lane can omit prose: it still needs a complete
   // selection that the engine resolves and validates before any delivery.
-  const schema=options.allowEmptyMaterialExplanation&&draft?.kind==='resume_portfolio'
+  const action=(output as any)?.event?.action
+  const completeOrdinaryDraft=action&&['create','modify'].includes(action.operation)&&draft&&typeof draft==='object'&&!('kind'in draft)&&typeof draft.content==='string'&&draft.content.trim().length>0
+  const mayOmitReply=options.allowEmptyMaterialExplanation&&draft?.kind==='resume_portfolio'||options.allowEmptyReplyWithCompleteDraft&&(output as any)?.reply===''&&completeOrdinaryDraft
+  const schema=mayOmitReply
     ?{...actionCoachTurnSchema,properties:{...actionCoachTurnSchema.properties,reply:{...actionCoachTurnSchema.properties.reply,minLength:0}}}
     :actionCoachTurnSchema
   if(!Value.Check(schema,output))throw new Error('ACTION_COACH_OUTPUT_INVALID')

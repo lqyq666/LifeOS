@@ -18,7 +18,7 @@ test('a closed historical draft remains readable but cannot be selected for modi
    const body=JSON.parse(Buffer.concat(chunks).toString());requests.push(body)
    const context=JSON.parse(body.messages.find((m:any)=>m.role==='user').content),messageId=context.currentUserMessage.id
    let event:any,reply='原因仍未知，保留原请教目的。'
-   if(requests.length===1)event={target:{operation:'create',title:'向学长请教实习方向',source:{messageId,quote:'帮我写一句向学长请教实习方向的消息'}},action:{operation:'create',draft:{content:'学长你好，想请教你当时如何了解实习方向，方便聊几句吗？'}}}
+  if(requests.length===1){reply='';event={target:{operation:'create',title:'向学长请教实习方向',source:{messageId,quote:'帮我写一句向学长请教实习方向的消息'}},action:{operation:'create',draft:{content:'学长你好，想请教你当时如何了解实习方向，方便聊几句吗？'}}}}
    else if(requests.length===2)event={target:{operation:'continue',eventId:current.id,expectedRevision:current.revision},action:{operation:'create',draft:{content:'学长好，想了解你当时怎样选择实习方向，方便时聊几句吗？'}}}
    else{
     const schema=body.response_format.json_schema.schema,modify=schema.properties.event.properties.action.anyOf.find((b:any)=>b.properties.operation.const==='modify')

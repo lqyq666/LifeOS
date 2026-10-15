@@ -509,7 +509,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   async function validateOutputInner(raw:string):Promise<ActionCoachTurn>{
     let result:ActionCoachTurn
-    try{result=parseActionCoachTurn(raw,{allowEmptyMaterialExplanation:resumePortfolioMode})}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
+    try{result=parseActionCoachTurn(raw,{allowEmptyMaterialExplanation:resumePortfolioMode,allowEmptyReplyWithCompleteDraft:true})}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
     if(requestedGuide&&!result.citations?.length)throw new HttpError(400,'COACH_CITATION_INVALID')
     if(/"(?:readiness|missingRequired|materialFactIds|materialEvidence)"\s*:/.test(raw))staged.audit.push({phase:'provider_material_metadata_ignored',providerCalls:0})
     if(explicitMaterial?.event?.action&&'draft'in explicitMaterial.event.action&&result.event?.action&&'draft'in result.event.action)result.event.action.draft=explicitMaterial.event.action.draft

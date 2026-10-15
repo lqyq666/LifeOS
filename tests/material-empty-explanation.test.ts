@@ -15,3 +15,16 @@ test('only an explicitly enabled catalogue selection can omit its explanation',(
  assert.equal(renderCoachReply(rendered),'我负责整理资料和排版。')
  rendered.event.action.draft.content='';assert.throws(()=>renderCoachReply(rendered))
 })
+
+test('an empty explanation is accepted only when the same turn contains a complete ordinary draft',()=>{
+ const draft={reply:'',event:{target:{operation:'create',title:'请教实习方向',source:{messageId:'00000000-0000-4000-8000-000000000001',quote:'帮我写一句请教消息'}},action:{operation:'create',draft:{content:'学长你好，想请教你当时如何了解实习方向，方便聊几句吗？'}}}}
+ assert.throws(()=>parseActionCoachTurn(JSON.stringify(draft)))
+ const accepted=parseActionCoachTurn(JSON.stringify(draft),{allowEmptyReplyWithCompleteDraft:true})
+ assert.equal(accepted.reply,'')
+ assert.equal(renderCoachReply(accepted),'学长你好，想请教你当时如何了解实习方向，方便聊几句吗？')
+ for(const output of [
+  {reply:''},
+  {...draft,event:{...draft.event,action:{operation:'create',draft:{content:' '}}}},
+  {...draft,event:{...draft.event,action:{operation:'reuse',actionId:'00000000-0000-4000-8000-000000000002',expectedRevision:1}}},
+ ])assert.throws(()=>parseActionCoachTurn(JSON.stringify(output),{allowEmptyReplyWithCompleteDraft:true}))
+})

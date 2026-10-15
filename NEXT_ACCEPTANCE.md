@@ -27,6 +27,8 @@
 
 本增量修复复现的历史关闭草稿误入修改枚举：只把仍为 `proposed` 的动作ID绑定到现有模型Schema，关闭动作继续留在授权上下文和历史中供阅读，原低层关闭状态拒绝、来源权限和提交事务均未改变。此前真实正常请求复现 `COACH_ACTION_CLOSED` 且零自动重试；修后同一HTTP/SDK/隔离PG场景通过一次调用完成修改并保留原关闭版本。`observed-material-stream.test.ts`原有目录来源边界复验通过；服务端typecheck通过。合并批跑时新用例第二步曾出现非目标 `MODEL_REQUEST_FAILED`，独立重跑通过，故记录该波动并保持小范围单测结果，不外推为整体验收。
 
+在提交 `c9be517` 的当前版本启动四主线20条真实验收后，首条联系草稿真实模型回了空 `reply`、同时给出完整非空动作草稿，整轮被旧非空规则拒绝为 `COACH_OUTPUT_INVALID`。已保留首次派发及原始输出，未自动重试或计入性能通过。随后同一解析器增加窄条件：只有请求显式允许且同轮 `create/modify` 含非空普通草稿时，空 `reply` 才通过；无草稿、空白草稿和 `reuse` 仍拒绝。定向纯函数与HTTP/SDK/隔离PG红绿检查及服务器typecheck通过；真实模型修后确认与新的20条完整验收尚待执行。
+
 本次有效增量：服务器按真实来源目录渲染的 `resume_portfolio` 不再显示模型未验证的开场，因为这些文字尚不是实际材料；普通 prose 与其他成品路径仍可流式显示。新增 `observed-material-stream.test.ts` 在隔离PG和真实SDK本地模拟流上先复现错误草稿，修后通过，同时验证未授权自由正文被舍弃、指令节点排除、实际材料保存、普通实质句仍流式。服务端typecheck通过；没有运行旧套件或用户脏测试。该增量是本地检查，不冒充真实模型修后复验。
 
 后续已补真实HTTP/SSE边界：同一新增测试经正常登录/会话/消息接口，在隔离SDK与PG上验证目录通道无draft、唯一saved/replace delta含服务器来源正文、未授权自由正文不出现、写作指令不入节点、普通回复仍early draft。另复现“先有text_delta再有400 schema错误”：错误时draft_discarded、无done/已保存delta、run.failed且无持久回复、供应商私密错误文字不对外、总调用数不增加。错误映射现在仅在尚未收到文本时可报告MODEL_SCHEMA_UNSUPPORTED；已流式返回文本后的同类消息使用原MODEL_REQUEST_FAILED，避免错误码冒充根因。原首次供应商故障仍未归因，不宣称已修复。11项新增定向检查、该隔离HTTP检查、服务端typecheck、生产build通过。
