@@ -113,7 +113,9 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     for await(const event of source){
       signal.throwIfAborted()
       if(event.type==='text_delta')record.firstRawDeltaMs??=Math.max(0,Math.round(performance.now()-startedMonotonicMs))
-      if(event.type==='text_delta'&&emitDraft&&!draftSent){
+      // Catalogue-backed material is rendered by the host after validation;
+      // model prose cannot be its first delivered content or a completion receipt.
+      if(event.type==='text_delta'&&emitDraft&&!draftSent&&resumePortfolioCatalogueIds===undefined){
         partialReply+=event.delta
         const question=openingQuestionDraft(partialReply)
         if(question&&boundedDraftAccepts(question,boundedReply)){record.firstQuestionDraftMs=Math.max(0,Math.round(performance.now()-startedMonotonicMs));emitDraft(question,'safe_question');draftSent=true;earlyDraftKind='safe_question'}
