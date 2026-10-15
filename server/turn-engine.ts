@@ -28,7 +28,7 @@ import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCa
 import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKnowledge, CodeWorkflowError, type CodeWorkflowConfig } from './coze-code-workflow.ts'
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
 import { reportsOwnContribution, buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
-import { stageWeeklyPlan, renderProposedWeeklyPlan, requiresPlanSlack, normalizeWeeklyPlanTasks } from './weekly-plans.ts'
+import { stageWeeklyPlan, renderProposedWeeklyPlan, requiresPlanSlack, normalizeWeeklyPlanTasks, normalizeWeeklyPlanReply } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
 import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,refusalPreferenceClause,methodReferenceClause } from './user-command-spans.ts'
@@ -610,6 +610,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // checked against the verified weekly effect (never rendered from an
       // unverified number), and the durable text comes from persistWeeklyPlan.
       const planInput=normalizeWeeklyPlanTasks(result.weeklyPlan as unknown as import('./weekly-plans.ts').WeeklyPlanInput)
+      result.reply=normalizeWeeklyPlanReply(result.reply,result.weeklyPlan as unknown as import('./weekly-plans.ts').WeeklyPlanInput)
       if(planInput.items.length!==result.weeklyPlan.items.length)staged.audit.push({phase:'weekly_plan_rest_as_unallocated',removedBufferItems:result.weeklyPlan.items.length-planInput.items.length,providerCalls:0})
       // P2 (B05/B10): the plan's budget is the OBLIGATION's binding amount —
       // the budget applying to the plan's own period, never just the tightest
