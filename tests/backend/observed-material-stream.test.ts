@@ -31,7 +31,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
     // Later turns have several catalogue fields. Select the actual contribution,
     // rather than relying on the first enum entry still being a project.
     const catalogue=JSON.parse(body.messages.find((m:any)=>m.role==='user').content).growthCatalogue
-    output.event.action.draft.selectedFactIds=[catalogue.find((f:any)=>f.field==='project'&&f.text==='我在课程小组里负责整理资料和排版').catalogueId]
+    output.event.action.draft.selectedFactIds=catalogue.filter((f:any)=>f.field==='project'&&['我在课程小组里负责整理资料和排版','我负责封面排版'].includes(f.text)).map((f:any)=>f.catalogueId)
     if(requests.length===6)output.event.action.draft.selectedFactIds=['mf-not-authorized']
    }
    res.writeHead(200,{'Content-Type':'text/event-stream'})
@@ -81,7 +81,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.equal(requests.length,4)
   assert.equal(mixed.saved.status,'completed','recall does not take over an explicit drafting request')
   assert.ok(mixed.frames.find(f=>f.type==='delta')?.text.includes('下次自然有机会交流时'))
-  const sourceText='我在课程小组里负责整理资料和排版，代码是队友做的。我把作品发给老师了，他还没有回复。帮我写一段只包含本人贡献的作品描述，不要替我发送。'
+  const sourceText='我在课程小组里负责整理资料和排版，代码是队友做的。队友补了一句说明。我负责封面排版。我把作品发给老师了，他还没有回复。帮我写一段只包含本人贡献的作品描述，不要替我发送。'
   const withoutExplanation=await run(sourceText)
   assert.equal(withoutExplanation.saved.status,'completed')
   const feedbackQuotes=requests[4].response_format.json_schema.schema.properties.event.properties.nodes.items.anyOf.find((node:any)=>node.properties?.source).properties.source.properties.quote.enum
@@ -89,7 +89,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.ok(feedbackQuotes.includes('他还没有回复'),'real mixed feedback remains a legal native source')
   assert.deepEqual(withoutExplanation.frames.filter(f=>f.type==='draft'),[])
   const body=withoutExplanation.frames.find(f=>f.type==='delta')
-  assert.equal(body?.text,'我在课程小组里负责整理资料和排版。')
+  assert.equal(body?.text,'我在课程小组里负责整理资料和排版；我负责封面排版。')
   assert.equal(body?.saved,true);assert.equal(body?.replace,true)
   assert.equal(withoutExplanation.saved.response.event.actions.find((a:any)=>a.status==='proposed').draft.content,body.text)
   const badSelection=await run(sourceText)
