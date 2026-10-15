@@ -6,7 +6,7 @@ import { searchCoachEvents } from './coach-retrieval.ts'
 import { retrieveCoachKnowledge, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
 import { openingQuestionDraft, safeEarlySentence } from './reply-draft.ts'
 import { renderCoachReply } from './coach-reply.ts'
-import { stream, type AssistantMessage } from '@mariozechner/pi-ai'
+import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
 import { providerError } from './provider-errors.ts'
 import { parseActionCoachTurn, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
@@ -76,7 +76,7 @@ function usageSummary(calls:CallRecord[],contextTokenEstimate:number,retrievedMe
   return {source:calls.length?'provider':zeroLlm?'deterministic':'unknown',provider:last?.provider??null,model:last?.model??null,modelTier:tiers.length?tiers.join('+'):'none',inputTokens:totalInputTokens,totalInputTokens,uncachedInputTokens:input,cacheWriteInputTokens:cacheWrite,outputTokens:sum('outputTokens'),cachedInputTokens:cachedInput,retrievedMemoryCount,contextTokenEstimate,contextTokenEstimateKind:'heuristic',escalated,escalationReason,repairReason,repairCalls:calls.filter(call=>call.purpose==='repair').length,groundingReviewCalls:0,zeroLlm,llmCallCount:calls.length,estimatedCostCny,calls:callLedger}
 }
 
-async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string,kind:'safe_question'|'safe_sentence')=>void,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds:readonly string[]=[],earlyDraftMode:'none'|'safe_sentence'='none',requireCandidate=false,boundedReply:BoundedReply|null=null):Promise<string>{
+async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string,kind:'safe_question'|'safe_sentence')=>void,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds:readonly string[]=[],earlyDraftMode:'none'|'safe_sentence'|'material_question'='none',requireCandidate=false,boundedReply:BoundedReply|null=null):Promise<string>{
   signal.throwIfAborted()
   if(!runtime.available)throw new HttpError(503,'MODEL_TIER_UNAVAILABLE')
   if(!capabilityVerified(runtime.tier))throw new HttpError(503,'MODEL_CAPABILITY_TEST_REQUIRED')
@@ -117,7 +117,8 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
       // model prose cannot be its first delivered content or a completion receipt.
       if(event.type==='text_delta'&&emitDraft&&!draftSent&&resumePortfolioCatalogueIds===undefined){
         partialReply+=event.delta
-        const question=openingQuestionDraft(partialReply)
+        const materialPreview=earlyDraftMode==='material_question'?parseStreamingJson<any>(partialReply)?.event?.action?.draft?.content:undefined
+        const question=openingQuestionDraft(typeof materialPreview==='string'?JSON.stringify({reply:materialPreview}):earlyDraftMode==='material_question'?'':partialReply)
         if(question&&boundedDraftAccepts(question,boundedReply)){record.firstQuestionDraftMs=Math.max(0,Math.round(performance.now()-startedMonotonicMs));emitDraft(question,'safe_question');draftSent=true;earlyDraftKind='safe_question'}
         else if(earlyDraftMode==='safe_sentence'||boundedReply){
           const sentence=safeEarlySentence(partialReply)
@@ -472,7 +473,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const replyMaterial=materialIntent&&!resumePortfolioMode&&!asksRecall&&!hasSeparateQuestion&&!planIntent&&requiresImmediateMaterial(current.content)
   const singleQuestionMaterial=requestsSingleQuestionMaterial(current.content)
   const questionFirstMaterial=materialIntent&&!resumePortfolioMode&&!planIntent&&singleQuestionMaterial&&(asksRecall||hasSeparateQuestion)&&requiresImmediateMaterial(current.content)
-  const contract=bindMaterialDeliverySchema(bindBoundedReplySchema(originalContract,boundedReply),current.content,resumePortfolioMode,questionFirstMaterial?'with_context':replyMaterial)
+  const contract=bindMaterialDeliverySchema(bindBoundedReplySchema(originalContract,boundedReply),current.content,resumePortfolioMode,questionFirstMaterial?'question_first':replyMaterial)
   if(replyMaterial&&singleQuestionMaterial)(contract.schema.properties as any).reply.maxLength=160
   if(contract.capabilities.material){
     const schema=contract.schema as {properties:Record<string,unknown>}
@@ -493,7 +494,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const selectedIds=new Set(historySelection.selected.map(row=>row.id))
   const messages=allContextMessages.filter(row=>row.id===run.source_message_id||selectedIds.has(row.id))
   staged.audit.push({phase:'history_selection',mode:contract.mode,historyTotalMessages:historySelection.totalMessages,historySelectedMessages:historySelection.selected.length,historyTotalChars:historySelection.totalChars,historySelectedChars:historySelection.selectedChars,providerCalls:0})
-  const systemPrompt=turnSystemPrompt('default',runtime.model.id,contract,materialIntent)+(currentConversationOnly(current.content)?'\n本轮本人只想倾听或明确拒绝方法：回应当前表达，不给行动、方法、解决问题的追问或安排，不重发上轮建议。对本次聊天的偏好不存为个人目标、经历或长期事实；独立的新本人事实如有则保留原话与未知。':'')+(boundedReply?'\nboundedReply是本轮服务端授权的编辑动作与过程追问，不是获审公共攻略。reply必须完整选择choices中适合当前请求的一项，不增加事实、因果、效果、时间或情绪判断；其他合法状态更新仍按原契约锚定本人原话。':'')
+  const systemPrompt=turnSystemPrompt('default',runtime.model.id,contract,materialIntent)+(questionFirstMaterial?'\n本轮先输出event.action.draft.content里的唯一完整中性问题，再输出event其他字段和reply。reply只完整回答用户要求读回的事实、时间和未知，不重复问题；不使用fromReply。不因对另一位同学的反馈预设本次访谈对象也遇到同样困难。':'')+(currentConversationOnly(current.content)?'\n本轮本人只想倾听或明确拒绝方法：回应当前表达，不给行动、方法、解决问题的追问或安排，不重发上轮建议。对本次聊天的偏好不存为个人目标、经历或长期事实；独立的新本人事实如有则保留原话与未知。':'')+(boundedReply?'\nboundedReply是本轮服务端授权的编辑动作与过程追问，不是获审公共攻略。reply必须完整选择choices中适合当前请求的一项，不增加事实、因果、效果、时间或情绪判断；其他合法状态更新仍按原契约锚定本人原话。':'')
   const baseUserPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,methodContext:methodContext.knowledge,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,taskBoundaries:unresolvedTaskBoundaries.map(item=>item.taskBoundary!),directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
   const workflowHints=await actionReviewHints({run,staged,text:current.content,memoryEnabled:snapshot.settings.enabled,currentEvent,historicalEvents,ambiguous:retrieval.ambiguous,listeningOnly:currentConversationOnly(current.content),signal})
   const promptContext=JSON.parse(baseUserPrompt)
@@ -1209,7 +1210,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   try{
     if(!explicitMaterial&&!refusalOnly)await checkModelCooldown()
     if(refusalOnly)staged.audit.push({phase:'explicit_refusal_deterministic',providerCalls:0})
-    firstText=explicitMaterial?JSON.stringify(explicitMaterial):refusalOnly?JSON.stringify({reply:'好的，先不继续建议或安排这件事。'}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',(text,draftKind)=>emit({type:'draft',text,saved:false,draftKind}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,clauseCatalogue.map(handle=>handle.clauseId),'safe_sentence',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue),boundedReply)
+    firstText=explicitMaterial?JSON.stringify(explicitMaterial):refusalOnly?JSON.stringify({reply:'好的，先不继续建议或安排这件事。'}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',(text,draftKind)=>emit({type:'draft',text,saved:false,draftKind}),observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,clauseCatalogue.map(handle=>handle.clauseId),questionFirstMaterial?'material_question':'safe_sentence',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue),boundedReply)
     result=await validateOutput(firstText)
   }catch(error){
     // Invalid output is a visible failure with its original receipt. No

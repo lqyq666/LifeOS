@@ -202,7 +202,7 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
         compiled.description='本轮要求直接起草简历/作品清单类材料。action.draft只能是resume_portfolio选择：从growthCatalogue的catalogueId中选择事实，服务器核对并渲染内容与缺口；不得提交自由文本、新id或宣称可直接发送。'
       }else{
         action.anyOf=drafts
-        compiled.description=compiled.properties.materialContext?'reply只写唯一完整中性问题，不写标题或虚构姓名/岗位占位符；本轮读回事实、时间和未知完整写在materialContext。draft只返回fromReply:true；服务器只保存reply为材料，同时展示说明。':drafts.every((branch:any)=>branch.properties.draft.properties?.fromReply?.const===true)?'本轮明确要求直接起草，reply就是唯一生成的完整正文；event.action.draft只返回fromReply:true。服务器将同一正文展示并保存，不另写介绍、说明或重复正文。':'本轮明确要求直接起草，reply与event.action均必填。完整可用成品仅生成于draft.content，由服务器展示同一材料；不能仅承诺稍后起草。'
+        compiled.description=drafts.every((branch:any)=>branch.properties.draft.properties?.fromReply?.const===true)?'本轮明确要求直接起草，reply就是唯一生成的完整正文；event.action.draft只返回fromReply:true。服务器将同一正文展示并保存，不另写介绍、说明或重复正文。':'本轮明确要求直接起草，reply与event.action均必填。完整可用成品仅生成于draft.content，由服务器展示同一材料；不能仅承诺稍后起草。'
       }
     }
     body.response_format={type:'json_schema',json_schema:{name:schemaName,strict:true,schema:compiled}}

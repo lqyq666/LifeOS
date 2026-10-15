@@ -194,7 +194,7 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
 
 // Explicit delivery requests must instantiate an artifact, never a bare
 // presentation prefix. Clarifications remain legal for incomplete requests.
-export function bindMaterialDeliverySchema(contract:TurnContract,text:string,groundedSelection=false,replyBody:boolean|'with_context'=false):TurnContract{
+export function bindMaterialDeliverySchema(contract:TurnContract,text:string,groundedSelection=false,replyBody:boolean|'question_first'=false):TurnContract{
   const quotes=[...new Set(scanUserClauses(text).map(clause=>clause.text).filter(Boolean))]
   const bindQuotes=(node:any)=>{
     if(!node||typeof node!=='object')return
@@ -236,16 +236,18 @@ export function bindMaterialDeliverySchema(contract:TurnContract,text:string,gro
  schema.required=[...new Set([...(schema.required??[]),'event'])]
  event.required=[...new Set([...(event.required??[]),'action'])]
  event.properties.action.anyOf=event.properties.action.anyOf.filter((branch:any)=>branch.properties?.draft)
- if(replyBody&&!groundedSelection){
+ if(replyBody==='question_first'){
+  // Use the original canonical material field; put it before explanatory text
+  // so a safe question can stream without waiting for readback/state metadata.
+  for(const branch of event.properties.action.anyOf)branch.properties={draft:branch.properties.draft,...Object.fromEntries(Object.entries(branch.properties).filter(([key])=>key!=='draft'))}
+  event.properties={action:event.properties.action,...Object.fromEntries(Object.entries(event.properties).filter(([key])=>key!=='action'))}
+  schema.properties={event,...Object.fromEntries(Object.entries(schema.properties).filter(([key])=>key!=='event'))}
+  schema.properties.reply={type:'string',minLength:1,maxLength:1000,description:'回应本轮读回事实、时间和未知，不重复draft.content中的材料问题。'}
+ }else if(replyBody&&!groundedSelection){
   schema.properties.reply={type:'string',minLength:1,maxLength:12000,description:'本轮reply就是完整可使用的材料正文，不另写介绍、已完成声明或第二份正文。draft仅返回fromReply:true，服务器将同一正文保存为材料。'}
-  if(replyBody==='with_context'){
-   schema.properties.reply={type:'string',minLength:1,maxLength:160,description:'仅一个完整可使用的中性问题，不加引号、标题、虚构姓名或岗位占位符；本轮读回和未知只放materialContext。'}
-   schema.properties.materialContext={type:'string',minLength:1,maxLength:1000,description:'完整回应本轮读回本人事实、时间、已有反馈与未知的要求；不再重复材料问题。服务器把此说明展示在问题之后，材料只保存reply。'}
-   schema.required.push('materialContext')
-  }
   for(const branch of event.properties.action.anyOf)branch.properties.draft={type:'object',properties:{fromReply:{type:'boolean',const:true}},required:['fromReply'],additionalProperties:false}
-
  }
+
  return {...contract,schema,schemaChars:JSON.stringify(schema).length}
 }
 

@@ -118,12 +118,6 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   if(draft&&typeof draft==='object'&&!Array.isArray(draft)&&'fromReply'in draft){
     if(draft.fromReply!==true||Object.keys(draft).length!==1||typeof(output as any).reply!=='string'||!(output as any).reply.trim())throw new Error('ACTION_COACH_OUTPUT_INVALID')
     draft={content:(output as any).reply}
-    if('materialContext'in (output as any)){
-      const context=(output as any).materialContext
-      if(typeof context!=='string'||!context.trim())throw new Error('ACTION_COACH_OUTPUT_INVALID')
-      ;(output as any).reply+='\n\n'+context
-      delete (output as any).materialContext
-    }
     ;(output as any).event.action.draft=draft
   }
   // Constrained decoding sometimes satisfies a required expiry with an empty
