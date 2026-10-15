@@ -4,7 +4,7 @@
 
 import { actionCoachTurnSchema } from './action-coach-contracts.ts'
 import { scanUserClauses,currentConversationOnly,refusalPreferenceClause,scopedTaskPauseClause,assistantRequestClause } from './user-command-spans.ts'
-import {requiresImmediateMaterial} from './action-coach-events.ts'
+import {requiresImmediateMaterial,deliverableIntent} from './action-coach-events.ts'
 import {requiresPlanSlack} from './weekly-plans.ts'
 
 export type TurnContractMode='ordinary'|'reply_only'|'reply_growth'|'event'|'knowledge'|'planning'|'material'
@@ -233,6 +233,10 @@ export function bindMaterialDeliverySchema(contract:TurnContract,text:string,gro
  event.required=[...new Set([...(event.required??[]),'action'])]
  event.properties.action.anyOf=event.properties.action.anyOf.filter((branch:any)=>branch.properties?.draft)
  return {...contract,schema,schemaChars:JSON.stringify(schema).length}
+}
+
+export function requestsSingleQuestionMaterial(text:string){
+ return scanUserClauses(text).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.quoteSpans.length&&!clause.codeSpans.length&&deliverableIntent(clause.text,'create')&&/(?:一句|一个)[^。！？\n]{0,32}(?:问题|提问)/.test(clause.text))
 }
 
 // The authoritative obligation has already resolved the student's current

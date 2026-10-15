@@ -10,10 +10,9 @@ import {pool} from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
 import {setMemorySettings} from '../../server/memory.ts'
-import {deriveTurnContract,bindPlanBudgetSchema,bindMaterialDeliverySchema,taskOutcomeReadback} from '../../server/turn-contract.ts'
+import {deriveTurnContract,bindPlanBudgetSchema,bindMaterialDeliverySchema,taskOutcomeReadback,requestsSingleQuestionMaterial} from '../../server/turn-contract.ts'
 import {requiresImmediateMaterial,deliverableIntent} from '../../server/action-coach-events.ts'
 import {mentionedDirectionScopes} from '../../server/growth-controls.ts'
-import {validateWeeklyPlanShape} from '../../server/weekly-plans.ts'
 import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
 import {selectStructuralCandidate,clauseReportsCompleted} from '../../server/experience-content.ts'
 import {parseActionCoachTurn} from '../../server/action-coach-contracts.ts'
@@ -76,6 +75,9 @@ test('first useful content skips politeness without skipping unsafe assertions',
 })
 
 test('real natural requests bind material delivery without taking over review',()=>{
+  assert.equal(requestsSingleQuestionMaterial('先问一个同学就好，帮我写一句能问出最近一次选课经历的问题。'),true)
+  assert.equal(requestsSingleQuestionMaterial('再帮我拟一个向学长核对岗位要求的问题。'),true)
+  for(const text of ['我写了一个问题。','同学说帮我写一个问题。','“帮我写一个问题”是什么意思？'])assert.equal(requestsSingleQuestionMaterial(text),false,text)
   for(const text of ['帮我写一句简短的请教消息，不要替我发送。','帮我写一段只包含本人贡献的作品描述。','我通过校内邮箱发了消息，他还没回复，把消息改短，别猜他没回复的原因。']){
     assert.equal(deliverableIntent(text,'create'),true,text)
     assert.equal(requiresImmediateMaterial(text),true,text)

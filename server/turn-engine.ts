@@ -35,7 +35,7 @@ import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,cur
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseExpressesWishToAct, clauseReportsCompleted, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
-import { deriveTurnContract, bindPlanBudgetSchema, bindMaterialDeliverySchema, negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses,reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
+import { deriveTurnContract, bindPlanBudgetSchema, bindMaterialDeliverySchema, requestsSingleQuestionMaterial,negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses,reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
@@ -469,14 +469,15 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const priorInterviewQuestion=priorInterviewQuestions.length===1?priorInterviewQuestions[0]:undefined
   const boundedReply:BoundedReply|null=boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停的是当时的备考或复习，尚未确认和这次是否同一事项。先核对这次要继续的是哪件事；不把旧暂停套到另一个考试，也不先安排任务。']}:readOnlyQuestion?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):null
   const contract=bindMaterialDeliverySchema(bindBoundedReplySchema(originalContract,boundedReply),current.content,resumePortfolioMode)
+  const singleQuestionMaterial=requestsSingleQuestionMaterial(current.content)
   if(contract.capabilities.material){
     const schema=contract.schema as {properties:Record<string,unknown>}
     // Grounded first-person material is authored only by selecting verified
     // catalogue entries. Keep an original, short explanatory reply rather
     // than letting a second factual artifact bypass those selections.
     if(resumePortfolioMode)schema.properties.reply={type:'string',minLength:0,maxLength:160,description:'没有必要的反馈、提醒或未知时用空字符串，不为填字段复述已知贡献、宣布已撰写或补出待填项。混合复盘仍可写必要回应。完整材料由selectedFactIds对应的原话渲染，不另写正文。'}
-    if(/(?:问题|提问).{0,10}(?:压成一句|缩成一句|改成)/.test(current.content)){
-      const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content)node.properties.content.maxLength=160;for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
+    if(singleQuestionMaterial||/(?:问题|提问).{0,10}(?:压成一句|缩成一句|改成)/.test(current.content)){
+      const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content){node.properties.content.maxLength=160;if(singleQuestionMaterial)node.properties.content.pattern='^[^？?]*[？?]?[^？?]*$'}for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
       narrow(schema)
     }
   }
@@ -593,6 +594,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       }
     }
     const hasMaterial=result.event?.action&&'draft'in result.event.action
+    const deliveredDraft=materialDraftOf(result)
+    if(singleQuestionMaterial&&deliveredDraft?.content&&(deliveredDraft.content.match(/[？?]/g)?.length??0)>1)throw new HttpError(400,'COACH_MATERIAL_QUANTITY_INVALID')
     const requestedMaterial=deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
     // A direct drafting instruction requests delivery now. Abstract advice is
     // not a completed delivery, even when it lacks the old framing markers.

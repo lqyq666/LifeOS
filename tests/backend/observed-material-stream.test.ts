@@ -31,6 +31,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
     assert.equal(schema.properties.reply.minLength,0,'ordinary material does not force duplicate prose')
     output={reply:'',event:{target:{operation:'create',title:'请教消息',source:{messageId,quote:'帮我写一句给学长的请教消息'}},action:{operation:'create',draft:{content:'学长你好，方便时想请教一下你是怎样选择实习方向的？'}}}}
    }
+   if(requests.length===9)output={reply:'',event:{target:{operation:'create',title:'一次选课提问',source:{messageId,quote:'帮我写一句能问出最近一次选课经历的问题'}},action:{operation:'create',draft:{content:'你上次选课具体怎么操作的？中间哪一步卡住了？'}}}}
    if((requests.length===5||requests.length===6)&&selection){
     assert.equal(schema.properties.reply.minLength,0)
     output.reply=''
@@ -43,7 +44,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    res.writeHead(200,{'Content-Type':'text/event-stream'})
    const base={id:'synthetic-verified-material',object:'chat.completion.chunk',created:1,model:model.id}
    res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\n')
-   if(requests.length===9){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
+   if(requests.length===10){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
    res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
   })
  })
@@ -109,9 +110,12 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   const materialOnly=await run('帮我写一句给学长的请教消息，不要替我发送。')
   assert.equal(materialOnly.saved.status,'completed')
   assert.equal(materialOnly.frames.find(f=>f.type==='delta')?.text,'学长你好，方便时想请教一下你是怎样选择实习方向的？')
+  const tooManyQuestions=await run('先问一个同学就好，帮我写一句能问出最近一次选课经历的问题。')
+  assert.equal(tooManyQuestions.saved.status,'failed','the actual two-question artifact is not a one-question delivery')
+  assert.equal(tooManyQuestions.frames.find(f=>f.type==='error')?.code,'COACH_MATERIAL_QUANTITY_INVALID')
   // Keep the failed provider last: its ordinary cooldown must remain effective.
   const failure=await run('现在先聊聊实习方向，可以先看什么？')
-  assert.equal(requests.length,9,'stream failure never triggers a second call')
+  assert.equal(requests.length,10,'stream failure never triggers a second call')
   assert.ok(failure.frames.some(f=>f.type==='draft_discarded'))
   assert.equal(failure.frames.find(f=>f.type==='error')?.code,'MODEL_REQUEST_FAILED')
   assert.ok(!failure.frames.some(f=>f.type==='done'||f.type==='delta'))
