@@ -221,6 +221,9 @@ export function bindMaterialDeliverySchema(contract:TurnContract,text:string,gro
   }
  if(!contract.capabilities.material||!requiresImmediateMaterial(text))return {...contract,schemaChars:JSON.stringify(contract.schema).length}
  const schema=structuredClone(contract.schema) as any,event=schema.properties.event
+ // The material body has its own validated field and is rendered once by the
+ // host. A mandatory nonempty reply makes the model generate it a second time.
+ schema.properties.reply={type:'string',minLength:0,maxLength:160,description:'完整材料只写在event.action.draft；没有额外必要的反馈、提醒或未知时reply用空字符串，不重复材料正文，也不宣布已写好。混合复盘可保留必要回应。'}
  schema.required=[...new Set([...(schema.required??[]),'event'])]
  event.required=[...new Set([...(event.required??[]),'action'])]
  event.properties.action.anyOf=event.properties.action.anyOf.filter((branch:any)=>branch.properties?.draft)

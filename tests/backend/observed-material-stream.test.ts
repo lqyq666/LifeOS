@@ -25,7 +25,10 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    }
    const messageId=JSON.parse(body.messages.find((m:any)=>m.role==='user').content).currentUserMessage.id
    if(requests.length===2)output={reply:'比较岗位时，先找出两个岗位日常工作上的一项实际差异。核对表里哪一项最难区分？',event:{target:{operation:'continue',eventId:materialEvent.id,expectedRevision:materialEvent.revision},nodes:[{kind:'fact',source:{messageId,quote:'我填过岗位核对表但卡住了'}}],action:{operation:'reuse',actionId:materialEvent.actions[0].id,expectedRevision:materialEvent.actions[0].revision}}}
-   if(requests.length===4)output={reply:'先保留已知经过，未报告的结果仍未知。',event:{target:{operation:'create',title:'未来沟通问题',source:{messageId,quote:'再帮我拟一个暂不催促的后续沟通问题'}},action:{operation:'create',draft:{content:'下次自然有机会交流时，想请教你当时是怎么选择实习方向的？'}}}}
+   if(requests.length===4){
+    assert.equal(schema.properties.reply.minLength,0,'ordinary material does not force duplicate prose')
+    output={reply:'',event:{target:{operation:'create',title:'未来沟通问题',source:{messageId,quote:'再帮我拟一个暂不催促的后续沟通问题'}},action:{operation:'create',draft:{content:'下次自然有机会交流时，想请教你当时是怎么选择实习方向的？'}}}}
+   }
    if((requests.length===5||requests.length===6)&&selection){
     assert.equal(schema.properties.reply.minLength,0)
     output.reply=''
