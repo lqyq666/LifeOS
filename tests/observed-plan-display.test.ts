@@ -8,4 +8,5 @@ test('the observed conflicting prose timetable yields to the persisted plan',()=
  assert.equal(weeklyPlanExplanation(reply),explanation)
  assert.equal(weeklyPlanExplanation('先保课程作业。\n\n- 复习（30分钟）\n\n截止时间仍未知。'),'先保课程作业。\n\n截止时间仍未知。')
  assert.equal(weeklyPlanExplanation('你上次报告每周两小时，当前具体截止日仍未知。'),'你上次报告每周两小时，当前具体截止日仍未知。')
+ assert.equal(weeklyPlanExplanation(explanation+'\n\n【课程作业】50分钟：挑一门最急的。\n【复习】30分钟：只看一门课。\n【缓冲】40分钟：不安排任务。'),explanation)
 })

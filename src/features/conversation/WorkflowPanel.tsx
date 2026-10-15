@@ -12,7 +12,7 @@ const hasReviewedPriority=(task:Task)=>hasIndependentReview(task)&&task.nodes.so
 const actionSectionTitle=(task:Task)=>hasReviewedPriority(task)?task.status==='plan_saved'?'已保存的小探索 · 采纳时尚未执行':task.status==='direction_saved'?'本阶段可优先核实的一步':'目前优先核实的一步 · 待你选择':task.receipt?.proposal?.nextActions.length?'可以先试的一小步':'暂不新增行动'
 const actionSectionHint=(task:Task)=>hasReviewedPriority(task)?task.status==='plan_saved'?'这是独立审阅后的阶段探索；计划已保存，尚未执行。依据、仍未知和停止条件列在下面。':task.status==='direction_saved'?'这是独立审阅后的阶段探索建议；方向已保存，但这一步尚未采纳或执行。依据、仍未知和停止条件列在下面。':'这一步来自同一比较维度下的候选和独立审阅综合；下方列出个人依据、仍未知和停止条件。是否采纳由你决定。':task.receipt?.proposal?.nextActions.length?'下面是备选行动，由你选择一个开始；排列顺序不代表已经替你确定优先级，不要求全部执行。':hasIndependentReview(task)?'本次没有能凭现有依据明确优先的一步。你可以补充一项会改变比较的情况，或暂缓。':'当前没有可选的小行动；未知仍保留，你可以继续聊或暂缓。'
 const hints:[string,RegExp][]=[['employment',/就业|实习|找工作|求职/],['research_exploration',/科研探索|科研体验|联系实验室|了解研究内容/],['postgraduate_exam',/考研/],['postgraduate_recommendation',/保研|推免/],['freelance',/自由职业|接单/],['independent_development',/独立开发|小程序/],['entrepreneurship',/创业/],['overseas_study',/留学/],['public_service',/考公|考编/],['undergraduate_upgrade',/专升本/]]
-export function WorkflowPanel({conversationId,source,refreshKey,onChanged}:{conversationId:string;source:{id:string;text:string}|null;refreshKey:number;onChanged:()=>void}){
+export function WorkflowPanel({conversationId,source,refreshKey,onChanged}:{conversationId:string;source:{id:string;text:string}|null;refreshKey:number;onChanged:(selectionSaved:boolean)=>void}){
  const [tasks,setTasks]=useState<Task[]>([]),[cap,setCap]=useState<Capabilities|null>(null),[selecting,setSelecting]=useState(false),[selected,setSelected]=useState<string[]>([]),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false)
  const eligible=source?hints.filter(([,pattern])=>pattern.test(source.text)).map(([id])=>id):[]
  useEffect(()=>{let current=true;api<Capabilities>('/api/workflows/capabilities').then(value=>{if(current)setCap(value)}).catch(()=>{if(current)setCap(null)});return()=>{current=false}},[])
@@ -40,7 +40,7 @@ export function WorkflowPanel({conversationId,source,refreshKey,onChanged}:{conv
    const result=await api<{status?:string;stateChange?:{workflow?:{status:string;executed:boolean}}}>('/api/workflows/'+task.id+'/actions',{requestId:crypto.randomUUID(),conversationId,kind,index})
    const status=result.stateChange?.workflow?.status
    setNotice(status==='plan_saved'?'已保存这个小探索计划，尚未执行。':status==='direction_saved'?'已保存你明确确认的阶段方向。':'已记录不采用，本次分析没有改变你的目标。')
-   dataChanged();onChanged()
+   dataChanged();onChanged(status==='plan_saved'||status==='direction_saved')
   }catch(error){setNotice(explainError(error))}finally{setBusy(false)}
  }
  async function cancel(task:Task){setBusy(true);try{await api('/api/workflows/'+task.id+'/cancel',{});setNotice('已请求取消；已派发节点的用量会保留。')}catch(error){setNotice(explainError(error))}finally{setBusy(false)}}

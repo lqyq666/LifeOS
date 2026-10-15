@@ -53,7 +53,7 @@ export function openingQuestionDraft(raw:string):string|null{
 // but do not append a second model-authored schedule with different totals.
 export function weeklyPlanExplanation(reply:string):string{
   return reply.split(/\n\s*\n/).filter(paragraph=>
-    !/(?:^|\n)\s*(?:[-*•]|\d+[.)、])\s*[^\n]*(?:\d|[一二两三四五六七八九十])\s*(?:min|分钟|小时)|\d+\s*[–—~～-]\s*\d+\s*(?:min|分钟|小时)/i.test(paragraph)
+    !/(?:^|\n)\s*(?:[-*•]|\d+[.)、]|【[^】\n]+】)\s*[^\n]*(?:\d|[一二两三四五六七八九十])\s*(?:min|分钟|小时)|\d+\s*[–—~～-]\s*\d+\s*(?:min|分钟|小时)/i.test(paragraph)
     &&!/(?:总计|共计|合计|未安排|含)[^。\n]{0,16}\d+\s*(?:min|分钟|小时)/i.test(paragraph)
   ).join('\n\n').trim()
 }
