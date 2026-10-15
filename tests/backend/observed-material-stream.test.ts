@@ -20,6 +20,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    let output:any={reply:'先围绕你想了解的岗位，核对一项实际要求。'}
    if(requests.length===7)output={reply:'先问一个具体对象：你整理排版的那份课程资料，有没有被小组外的人看过或用过？'}
    if(selection){
+    assert.ok(selection.maxItems<=new Set(selection.items.enum).size,'one catalogue fact must not expand into repeated generated selections')
     const messageId=schema.properties.event.properties.target.anyOf[0].properties.source.properties.messageId.enum[0]
     output={reply:'已根据你提供的信息撰写了作品描述。\n\n【作品描述】\n我精通软件开发。',event:{target:{operation:'create',title:'本人贡献作品描述',source:{messageId,quote:requests.length===1?'只帮我写一段本人贡献描述':'帮我写一段只包含本人贡献的作品描述'}},nodes:[{kind:'fact',source:{messageId,quote:'不要替我发送'}}],action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[selection.items.enum[0]]}}}}
    }

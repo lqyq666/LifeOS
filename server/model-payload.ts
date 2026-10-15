@@ -195,7 +195,8 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
         if(!create)throw new Error('MATERIAL_SCHEMA_REQUIRED')
         const selection=create.properties.draft.anyOf?.find((branch:any)=>branch.properties?.kind?.const==='resume_portfolio')
         if(!selection)throw new Error('MATERIAL_SCHEMA_REQUIRED')
-        selection.properties.selectedFactIds={type:'array',items:{type:'string',enum:[...resumePortfolioCatalogueIds]},maxItems:32,description:'只能选择本轮growthCatalogue列出的catalogueId；不能自创新id或提交文字。'}
+        const selectableIds=[...new Set(resumePortfolioCatalogueIds)]
+        selection.properties.selectedFactIds={type:'array',items:selectableIds.length?{type:'string',enum:selectableIds}:{type:'string'},maxItems:Math.min(32,selectableIds.length),description:'只能选择本轮growthCatalogue列出的catalogueId，每个ID最多选一次；不能自创新id或提交文字。'}
         create.properties.draft={...create.properties.draft,anyOf:[selection]}
         action.anyOf=[create]
         compiled.description='本轮要求直接起草简历/作品清单类材料。action.draft只能是resume_portfolio选择：从growthCatalogue的catalogueId中选择事实，服务器核对并渲染内容与缺口；不得提交自由文本、新id或宣称可直接发送。'
