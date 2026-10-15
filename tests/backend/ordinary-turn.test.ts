@@ -20,7 +20,7 @@ import {boundedRecallReply} from '../../server/bounded-reply.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {readGuideUsage,readPriorGuideEvents} from '../../server/guide-usage.ts'
 import {safeEarlySentence} from '../../server/reply-draft.ts'
-import {buildTurnPrompt,providerTurnMessages} from '../../server/turn-prompt.ts'
+import {buildTurnPrompt,providerTurnMessages,turnSystemPrompt} from '../../server/turn-prompt.ts'
 import {configureProviderPayload} from '../../server/model-payload.ts'
 import {normalizeWeeklyPlanTasks,validateWeeklyPlanShape,renderProposedWeeklyPlan} from '../../server/weekly-plans.ts'
 
@@ -100,6 +100,7 @@ test('ordinary contract composes review, material and facts without competing mo
     assert.equal((c.schema.properties as any).reply.enum,undefined)
   }
   const c=deriveTurnContract({text:'我每周两小时，安排课程和备考',knowledgeCount:0,currentEventExists:false,planIntent:true,material:false})
+  assert.ok(turnSystemPrompt('default','qwen3.8-flash',c,false).length<turnSystemPrompt('default','qwen3.8-flash',c).length,'ordinary replies omit irrelevant material instructions without changing capabilities')
   const s=bindPlanBudgetSchema(c,{minutes:120,period:'this_week'},'课程和备考').schema as any
   assert.equal(s.properties.weeklyPlan.properties.items.enum,undefined,'model chooses the actual tasks')
   assert.deepEqual(s.properties.weeklyPlan.properties.availableMinutes.enum,[120],'time binding remains authoritative')
@@ -111,8 +112,8 @@ test('ordinary contract composes review, material and facts without competing mo
   assert.equal(slack.properties.weeklyPlan.properties.items.enum,undefined)
   const course=bindPlanBudgetSchema(c,{minutes:120,period:'this_week'},'安排课程作业和复习，不要全排满',[]).schema as any
   assert.equal(course.properties.weeklyPlan.properties.items.items.properties.directionScopes.maxItems,0,'generic coursework cannot invent a degree direction')
-  assert.equal(new RegExp(course.properties.weeklyPlan.properties.items.items.properties.action.pattern).test('create'),false)
-  assert.equal(new RegExp(course.properties.weeklyPlan.properties.items.items.properties.action.pattern).test('完成课程作业'),true)
+  assert.deepEqual(course.properties.weeklyPlan.properties.items.items.properties.action.enum,['课程作业','复习'])
+  assert.equal(course.properties.weeklyPlan.properties.items.maxItems,2)
   assert.deepEqual(mentionedDirectionScopes('期末课程优先，备考只保留少量时间。'),[])
   assert.deepEqual(mentionedDirectionScopes('我想先了解就业。'),['employment'])
   assert.deepEqual(mentionedDirectionScopes('同学说他想考研。我读过“专升本”的文章。'),[])

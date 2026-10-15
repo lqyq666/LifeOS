@@ -24,6 +24,12 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
     const messageId=schema.properties.event.properties.target.anyOf[0].properties.source.properties.messageId.enum[0]
     output={reply:'已根据你提供的信息撰写了作品描述。\n\n【作品描述】\n我精通软件开发。',event:{target:{operation:'create',title:'本人贡献作品描述',source:{messageId,quote:requests.length===1?'只帮我写一段本人贡献描述':'帮我写一段只包含本人贡献的作品描述'}},nodes:[{kind:'fact',source:{messageId,quote:'不要替我发送'}}],action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[selection.items.enum[0]]}}}}
    }
+   if(requests.length===10&&selection){
+    const context=JSON.parse(body.messages.find((m:any)=>m.role==='user').content)
+    const events=[context.currentEvent,...context.events??[]].filter(Boolean)
+    assert.ok(events.length)
+    for(const event of events){assert.equal(event.processTurns,undefined);assert.ok(event.actions.every((action:any)=>!('draft'in action)))}
+   }
    const messageId=JSON.parse(body.messages.find((m:any)=>m.role==='user').content).currentUserMessage.id
    if(requests.length===2)output={reply:'比较岗位时，先找出两个岗位日常工作上的一项实际差异。核对表里哪一项最难区分？',event:{target:{operation:'continue',eventId:materialEvent.id,expectedRevision:materialEvent.revision},nodes:[{kind:'fact',source:{messageId,quote:'我填过岗位核对表但卡住了'}}],action:{operation:'reuse',actionId:materialEvent.actions[0].id,expectedRevision:materialEvent.actions[0].revision}}}
    if(requests.length===4)output={reply:'先保留已知经过，未报告的结果仍未知。',event:{target:{operation:'create',title:'未来沟通问题',source:{messageId,quote:'再帮我拟一个暂不催促的后续沟通问题'}},action:{operation:'create',draft:{content:'下次自然有机会交流时，想请教你当时是怎么选择实习方向的？'}}}}
@@ -32,7 +38,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
     output={reply:'',event:{target:{operation:'create',title:'请教消息',source:{messageId,quote:'帮我写一句给学长的请教消息'}},action:{operation:'create',draft:{content:'学长你好，方便时想请教一下你是怎样选择实习方向的？'}}}}
    }
    if(requests.length===9)output={reply:'',event:{target:{operation:'create',title:'一次选课提问',source:{messageId,quote:'帮我写一句能问出最近一次选课经历的问题'}},action:{operation:'create',draft:{content:'你上次选课具体怎么操作的？中间哪一步卡住了？'}}}}
-   if((requests.length===5||requests.length===6)&&selection){
+   if([5,6,10].includes(requests.length)&&selection){
     assert.equal(schema.properties.reply.minLength,0)
     output.reply=''
     // Later turns have several catalogue fields. Select the actual contribution,
@@ -44,7 +50,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    res.writeHead(200,{'Content-Type':'text/event-stream'})
    const base={id:'synthetic-verified-material',object:'chat.completion.chunk',created:1,model:model.id}
    res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\n')
-   if(requests.length===10){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
+   if(requests.length===11){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
    res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
   })
  })
@@ -114,9 +120,14 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.equal(tooManyQuestions.saved.status,'completed','the existing safe question extractor bounds the actual two-question artifact without another call')
   assert.equal(tooManyQuestions.frames.find(f=>f.type==='delta')?.text,'你上次选课具体怎么操作的？')
   assert.equal(tooManyQuestions.saved.response.event.actions.find((a:any)=>a.status==='proposed'&&a.draft.content==='你上次选课具体怎么操作的？')?.draft.content,'你上次选课具体怎么操作的？')
+  // This fake provider has not emitted a growth fact. Supply the synthetic
+  // contribution through the ordinary user-edit API before a later readback.
+  assert.equal((await request('/api/growth',{requestId:randomUUID(),conversationId:chat,kind:'context',text:'我在课程小组里负责整理资料和排版'})).status,201)
+  const pureCatalogue=await run('我想先了解实习岗位，别把小组成果都算成我的能力。帮我写一段只包含本人贡献的作品描述，不要替我发送。')
+  assert.equal(pureCatalogue.saved.status,'completed')
   // Keep the failed provider last: its ordinary cooldown must remain effective.
   const failure=await run('现在先聊聊实习方向，可以先看什么？')
-  assert.equal(requests.length,10,'stream failure never triggers a second call')
+  assert.equal(requests.length,11,'stream failure never triggers a second call')
   assert.ok(failure.frames.some(f=>f.type==='draft_discarded'))
   assert.equal(failure.frames.find(f=>f.type==='error')?.code,'MODEL_REQUEST_FAILED')
   assert.ok(!failure.frames.some(f=>f.type==='done'||f.type==='delta'))

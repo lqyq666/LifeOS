@@ -256,7 +256,13 @@ export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:numbe
  if(budget.minutes>0){
   plan.properties.items.minItems=1
   plan.properties.items.items.properties.action.description='用中文写用户实际请求的课程、复习或探索任务，不写字段名或英文代号。休息和缓冲是未安排时间，不列为任务。'
-  if(/[\u4e00-\u9fff]/.test(currentText))plan.properties.items.items.properties.action.pattern='[\\u4e00-\\u9fff]'
+  // Reuse the existing finite plan lane for this explicit pair of requested
+  // tasks. No other task or direction is inferred from generic "备考".
+  if(scanUserClauses(currentText).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&/^(?:请)?(?:帮我)?安排课程作业(?:和|及|、)复习$/.test(clause.text))){
+   plan.properties.items.items.properties.action.enum=['课程作业','复习']
+   plan.properties.items.minItems=2
+   plan.properties.items.maxItems=2
+  }
   plan.properties.items.items.properties.directionScopes.description='只有实际属于该方向的任务才标注；普通课程作业用空数组，不把课程或一般备考自动标为专升本或考研。'
   if(allowedPlanScopes){
    const scopes=plan.properties.items.items.properties.directionScopes
