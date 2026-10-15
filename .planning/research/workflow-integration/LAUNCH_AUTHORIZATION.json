@@ -116,5 +116,44 @@
     "newBudget": 0,
     "automaticPaidRetry": false,
     "productionLifeOSServicePublishedByThisInstruction": false
+  },
+  "gatewayClockVerificationException20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[\"request_user_input_async\",\"call_ef19844369804ef88ab9bd5cf5c4d59a\",0]",
+    "exactAnswer": "允许上述最小 Gateway 验证例外",
+    "candidateCommit": "28711a7fe8f1d1c0603538ff9a047646a7ee62e4",
+    "rollbackCommit": "91b6dd9bfecb6963948f07628c1c7ec58502bc2b",
+    "projectId": "7693388932939300905",
+    "scope": "Existing Gateway, necessary non-secret source-bound deployment declaration, once zero-model check then synthetic-adult normal professional closure, existing budgets only",
+    "zeroModelAuthenticatedRequests": 1,
+    "automaticPaidRetry": false,
+    "lifeosProductionPublication": false,
+    "newBudget": 0
+  },
+  "independentMaterialBindingException20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[\"request_user_input_async\",\"call_a7f5c73b3e18443f994be285c714b7c9\",0]",
+    "exactAnswer": "允许该必要绑定候选及一次核对、专业验收",
+    "candidateCommit": "96ebaccb54e312b042cfd667f3524d7ddc80ef70",
+    "reportedCandidateCommitTranscription": "96ebaccb54e312b042cfd667f3524d7dcd80ef70",
+    "transcriptionCorrection": "Same prepared candidate, prefix 96ebaccb54, exact same three metadata fields; full actual SHA confirmed by platform deployment and git, correction disclosed to owner. No substituted code or scope.",
+    "rollbackCommit": "28711a7fe8f1d1c0603538ff9a047646a7ee62e4",
+    "zeroModelAuthenticatedRequests": 1,
+    "thenNormalProfessionalAcceptance": true,
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "lifeosProductionPublication": false
+  },
+  "amountAllocationAuthorization20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[request_user_input_async,call_9e84c3bb1dd541b89e65bfcb8d95d194,0]",
+    "exactAnswer": "金额相关的，我现在批准你20元，然后你自己分配。类似的问题，不要再寻求我的建议",
+    "cumulativeCeilingCny": 20,
+    "allocationDelegatedToCodex": true,
+    "baselineUnchanged": 3671,
+    "unknownRetained": true,
+    "automaticRetry": false,
+    "purchaseOrTopup": false,
+    "at": "2026-10-15T08:23:32.056298+00:00"
   }
 }
