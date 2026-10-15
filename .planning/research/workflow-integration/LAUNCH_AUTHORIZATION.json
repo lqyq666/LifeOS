@@ -181,5 +181,26 @@
     "lifeosProductionPublication": false,
     "phaseCumulativeCny": 20,
     "at": "2026-10-15T10:26:45.231Z"
+  },
+  "zeroAvailabilityHostBindingException20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "call_7b276bf99e46499b93770cd87ccd4a09",
+    "exactAnswer": "允许必要绑定候选、核对及专业闭环",
+    "candidateCommit": "449cb14ae263cd1d4c4ff53aecc665d48bd1ad4c",
+    "rollbackCommit": "1301f165d1c08de7b2291e6f0fb70b1a0faea69c",
+    "manualZeroModelRequests": 1,
+    "noAutomaticPaidRetry": true,
+    "noLifeOSPublication": true
+  },
+  "incrementalGatewayPublicationDelegation20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_MESSAGE",
+    "exactRequest": "以后的小发布我都批准了，类似的问题不要再问我",
+    "scope": "Necessary small repairs and host bindings of existing Gateway for this acceptance, with rollback, existing budgets and synthetic-adult verification",
+    "repeatPermissionQuestionRequired": false,
+    "lifeosUnifiedReleaseGateRetained": true,
+    "noPurchases": true,
+    "noAutomaticPaidRetry": true,
+    "unknownRetained": true,
+    "at": "2026-10-15T10:47:27.824Z"
   }
 }
