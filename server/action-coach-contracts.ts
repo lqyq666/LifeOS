@@ -116,8 +116,10 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   // The native body reference has one authority: the actual generated reply.
   // Expand it here into the existing canonical draft, before all validation.
   if(draft&&typeof draft==='object'&&!Array.isArray(draft)&&'fromReply'in draft){
-    if(draft.fromReply!==true||Object.keys(draft).length!==1||typeof(output as any).reply!=='string'||!(output as any).reply.trim())throw new Error('ACTION_COACH_OUTPUT_INVALID')
-    draft={content:(output as any).reply}
+    if(![true,'first_paragraph'].includes(draft.fromReply)||Object.keys(draft).length!==1||typeof(output as any).reply!=='string'||!(output as any).reply.trim())throw new Error('ACTION_COACH_OUTPUT_INVALID')
+    const body=draft.fromReply==='first_paragraph'?(output as any).reply.trim().split(/\r?\n\s*\r?\n/,1)[0]:(output as any).reply
+    if(draft.fromReply==='first_paragraph'&&!/[？?]$/.test(body))throw new Error('ACTION_COACH_OUTPUT_INVALID')
+    draft={content:body}
     ;(output as any).event.action.draft=draft
   }
   // Constrained decoding sometimes satisfies a required expiry with an empty
