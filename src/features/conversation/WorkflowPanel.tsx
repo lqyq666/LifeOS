@@ -18,6 +18,7 @@ export function WorkflowPanel({conversationId,source,refreshKey,onChanged}:{conv
  useEffect(()=>{setSelecting(false);setSelected(eligible.slice(0,3))},[source?.id])
  const running=tasks.some(task=>['queued','running'].includes(task.status))
  useEffect(()=>{
+  if(busy)return
   if(!cap?.enabled){setTasks([]);return}
   let current=true,timer:ReturnType<typeof setTimeout>|undefined,pollDelay=400
   async function load(){try{const rows=await api<Task[]>('/api/workflows?conversationId='+conversationId);if(current){setTasks(rows);if(rows.some(task=>['queued','running'].includes(task.status))){timer=setTimeout(load,pollDelay);pollDelay=Math.min(pollDelay*2,2000)}}}catch(error){if(current)setNotice(explainError(error))}}
