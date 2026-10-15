@@ -16,53 +16,55 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
  const fake=createServer((req,res)=>{
   const chunks:Buffer[]=[];req.on('data',c=>chunks.push(Buffer.from(c)));req.on('end',()=>{
    const body=JSON.parse(Buffer.concat(chunks).toString());requests.push(body)
+   const turn=requests.length===3?0:requests.length>3?requests.length-1:requests.length
    const schema=body.response_format.json_schema.schema,selection=schema.properties.event?.properties.action?.anyOf[0]?.properties.draft?.anyOf?.[0]?.properties.selectedFactIds
    let output:any={reply:'先围绕你想了解的岗位，核对一项实际要求。'}
-   if(requests.length===7)output={reply:'先问一个具体对象：你整理排版的那份课程资料，有没有被小组外的人看过或用过？'}
+   if(turn===7)output={reply:'先问一个具体对象：你整理排版的那份课程资料，有没有被小组外的人看过或用过？'}
    if(selection){
     assert.ok(selection.maxItems<=new Set(selection.items.enum).size,'one catalogue fact must not expand into repeated generated selections')
     const messageId=schema.properties.event.properties.target.anyOf[0].properties.source.properties.messageId.enum[0]
-    output={reply:'已根据你提供的信息撰写了作品描述。\n\n【作品描述】\n我精通软件开发。',event:{target:{operation:'create',title:'本人贡献作品描述',source:{messageId,quote:requests.length===1?'只帮我写一段本人贡献描述':'帮我写一段只包含本人贡献的作品描述'}},nodes:[{kind:'fact',source:{messageId,quote:'不要替我发送'}}],action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[selection.items.enum[0]]}}}}
+    output={reply:'已根据你提供的信息撰写了作品描述。\n\n【作品描述】\n我精通软件开发。',event:{target:{operation:'create',title:'本人贡献作品描述',source:{messageId,quote:turn===1?'只帮我写一段本人贡献描述':'帮我写一段只包含本人贡献的作品描述'}},nodes:[{kind:'fact',source:{messageId,quote:'不要替我发送'}}],action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[selection.items.enum[0]]}}}}
    }
-   if(requests.length===10&&selection){
+   if(turn===10&&selection){
     const context=JSON.parse(body.messages.find((m:any)=>m.role==='user').content)
     const events=[context.currentEvent,...context.events??[]].filter(Boolean)
     assert.ok(events.length)
     for(const event of events){assert.equal(event.processTurns,undefined);assert.ok(event.actions.every((action:any)=>!('draft'in action)))}
    }
    const messageId=JSON.parse(body.messages.find((m:any)=>m.role==='user').content).currentUserMessage.id
-   if(requests.length===2)output={reply:'比较岗位时，先找出两个岗位日常工作上的一项实际差异。核对表里哪一项最难区分？',event:{target:{operation:'continue',eventId:materialEvent.id,expectedRevision:materialEvent.revision},nodes:[{kind:'fact',source:{messageId,quote:'我填过岗位核对表但卡住了'}}],action:{operation:'reuse',actionId:materialEvent.actions[0].id,expectedRevision:materialEvent.actions[0].revision}}}
-   if(requests.length===4){assert.ok(schema.properties.event.anyOf.some((branch:any)=>branch.properties.target.properties.operation.const==='create'&&branch.properties.corrections.maxItems===0));assert.ok(schema.required.includes('event'));assert.ok(schema.properties.event.required.includes('action'));assert.equal(Object.keys(schema.properties)[0],'event');assert.equal(Object.keys(schema.properties.event.properties)[0],'action')}
-   if(requests.length===4)output={event:{action:{draft:{content:'下次自然有机会交流时，想请教你当时是怎么选择实习方向的？'},operation:'create'},target:{operation:'create',title:'未来沟通问题',source:{messageId,quote:'再帮我拟一个暂不催促的后续沟通问题'}}},reply:'先保留已知经过，未报告的结果仍未知。'}
-   if(requests.length===8){
+   if(turn===2)output={reply:'比较岗位时，先找出两个岗位日常工作上的一项实际差异。核对表里哪一项最难区分？',event:{target:{operation:'continue',eventId:materialEvent.id,expectedRevision:materialEvent.revision},nodes:[{kind:'fact',source:{messageId,quote:'我填过岗位核对表但卡住了'}}],action:{operation:'reuse',actionId:materialEvent.actions[0].id,expectedRevision:materialEvent.actions[0].revision}}}
+   if(turn===4){assert.ok(schema.properties.event.anyOf.some((branch:any)=>branch.properties.target.properties.operation.const==='create'&&branch.properties.corrections.maxItems===0));assert.ok(schema.required.includes('event'));assert.ok(schema.properties.event.required.includes('action'));assert.equal(Object.keys(schema.properties)[0],'event');assert.equal(Object.keys(schema.properties.event.properties)[0],'action')}
+   if(turn===4)output={event:{action:{draft:{content:'下次自然有机会交流时，想请教你当时是怎么选择实习方向的？'},operation:'create'},target:{operation:'create',title:'未来沟通问题',source:{messageId,quote:'再帮我拟一个暂不催促的后续沟通问题'}}},reply:'先保留已知经过，未报告的结果仍未知。'}
+   if(turn===8){
     assert.equal(schema.properties.reply.minLength,1,'the one generated body is the visible reply')
     assert.equal(schema.properties.event.properties.action.anyOf[0].properties.draft.properties.fromReply.const,true)
     output={reply:'学长你好，方便时想请教一下你是怎样选择实习方向的？',event:{target:{operation:'create',title:'请教消息',source:{messageId,quote:'帮我写一句给学长的请教消息'}},action:{operation:'create',draft:{fromReply:true}}}}
    }
-   if(requests.length===9)output={reply:'已有信息保持原样。\n\n“你上次选课具体怎么操作的？中间哪一步卡住了？”',event:{target:{operation:'create',title:'一次选课提问',source:{messageId,quote:'帮我写一句能问出最近一次选课经历的问题'}},action:{operation:'create',draft:{content:'“你上次选课具体怎么操作的？中间哪一步卡住了？”'}}}}
-   if([11,12].includes(requests.length)){
-    const quote=requests.length===11?'只看一个岗位就好':'接着上次实习探索'
+   if(turn===9)output={reply:'已有信息保持原样。\n\n“你上次选课具体怎么操作的？中间哪一步卡住了？”',event:{target:{operation:'create',title:'一次选课提问',source:{messageId,quote:'帮我写一句能问出最近一次选课经历的问题'}},action:{operation:'create',draft:{content:'“你上次选课具体怎么操作的？中间哪一步卡住了？”'}}}}
+   if([11,12].includes(turn)){
+    const quote=turn===11?'只看一个岗位就好':'接着上次实习探索'
     output={reply:'已报告的卡点仍保留，新的范围要求不覆盖它。',event:{target:{operation:'continue',eventId:historyEvent.id,expectedRevision:historyEvent.revision},nodes:[{kind:'fact',source:{messageId,quote}}],corrections:[{nodeId:historyEvent.nodes[0].id,source:{messageId,quote}}]}}
    }
-   if(requests.length===13){
+   if(turn===13){
     const context=JSON.parse(body.messages.find((m:any)=>m.role==='user').content)
     const clause=context.currentUserMessage.clauses.find((c:any)=>c.text==='这周还剩两小时')
     assert.ok(clause)
     output={reply:'具体截止日仍未知。\n\n- 0–50min：课程作业\n- 50–60min：缓冲\n- 60–90min：复习\n- 90–120min：作业收尾\n\n总计120min，含10min缓冲。',growthUpdates:[{target:{operation:'create'},kind:'constraint',assertion:'user_reported',source:{clauseId:clause.id},timeEvidence:{kind:'calendar_week',which:'this',clauseId:clause.id}}],weeklyPlan:{target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'课程作业',minutes:50,directionScopes:[]},{action:'复习',minutes:30,directionScopes:[]}]}}
    }
-   if([5,6,10].includes(requests.length)&&selection){
+   if(turn===0)output={reply:'你报告的原卡点仍保留，具体技术要求尚未提供。',event:{target:{operation:'continue',eventId:historyEvent.id,expectedRevision:historyEvent.revision},corrections:[{nodeId:historyEvent.nodes[0].id,source:{messageId,quote:'卡住了'}}]}}
+   if([5,6,10].includes(turn)&&selection){
     assert.equal(schema.properties.reply.minLength,0)
     output.reply=''
     // Later turns have several catalogue fields. Select the actual contribution,
     // rather than relying on the first enum entry still being a project.
     const catalogue=JSON.parse(body.messages.find((m:any)=>m.role==='user').content).growthCatalogue
     output.event.action.draft.selectedFactIds=catalogue.filter((f:any)=>f.field==='project'&&['我在课程小组里负责整理资料和排版','我负责封面排版'].includes(f.text)).map((f:any)=>f.catalogueId)
-    if(requests.length===6)output.event.action.draft.selectedFactIds=['mf-not-authorized']
+    if(turn===6)output.event.action.draft.selectedFactIds=['mf-not-authorized']
    }
    res.writeHead(200,{'Content-Type':'text/event-stream'})
    const base={id:'synthetic-verified-material',object:'chat.completion.chunk',created:1,model:model.id}
    res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\n')
-   if(requests.length===14){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
+   if(requests.length===15){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
    res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
   })
  })
@@ -103,10 +105,15 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.equal(blocked.saved.response.event.actions[0].draft.content,materialEvent.actions[0].draft.content)
   assert.ok(blocked.saved.response.event.nodes.some((n:any)=>n.content==='我填过岗位核对表但卡住了'))
   historyEvent=blocked.saved.response.event
+  const repeated=await run('接着上次实习探索，我填过岗位核对表但卡住了，没有完成；现在不用安排新任务。')
+  assert.equal(repeated.saved.status,'completed','a repeated factual fragment must not abort otherwise valid feedback')
+  const unchanged=(await pool.query('SELECT content,revision FROM coach_nodes WHERE id=$1',[historyEvent.nodes[0].id])).rows[0]
+  assert.equal(unchanged.content,'我填过岗位核对表但卡住了')
+  assert.equal(unchanged.revision,historyEvent.nodes[0].revision)
   const ordinary=await run('想了解实习岗位，先看哪一项？')
-  assert.equal(requests.length,3);assert.ok(ordinary.frames.some(f=>f.type==='draft'&&f.text.includes('核对一项实际要求')));assert.equal(ordinary.saved.status,'completed')
+  assert.equal(requests.length,4);assert.ok(ordinary.frames.some(f=>f.type==='draft'&&f.text.includes('核对一项实际要求')));assert.equal(ordinary.saved.status,'completed')
   const mixed=await run('上次我的本人贡献和这周时间分别是什么？未知要求不要替我补。再帮我拟一个暂不催促的后续沟通问题。')
-  assert.equal(requests.length,4)
+  assert.equal(requests.length,5)
   assert.equal(mixed.saved.status,'completed','recall does not take over an explicit drafting request')
   assert.ok(mixed.frames.find(f=>f.type==='delta')?.text.includes('下次自然有机会交流时'))
   assert.ok(mixed.frames.find(f=>f.type==='delta')?.text.includes('先保留已知经过'))
@@ -115,7 +122,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   const sourceText='我在课程小组里负责整理资料和排版，代码是队友做的。队友补了一句作品描述。我负责封面排版。我把作品发给老师了，他还没有回复。帮我写一段只包含本人贡献的作品描述，不要替我发送。'
   const withoutExplanation=await run(sourceText)
   assert.equal(withoutExplanation.saved.status,'completed')
-  const feedbackQuotes=requests[4].response_format.json_schema.schema.properties.event.properties.nodes.items.anyOf.find((node:any)=>node.properties?.source).properties.source.properties.quote.enum
+  const feedbackQuotes=requests[5].response_format.json_schema.schema.properties.event.properties.nodes.items.anyOf.find((node:any)=>node.properties?.source).properties.source.properties.quote.enum
   assert.ok(feedbackQuotes.includes('我把作品发给老师了'))
   assert.ok(feedbackQuotes.includes('他还没有回复'),'real mixed feedback remains a legal native source')
   assert.deepEqual(withoutExplanation.frames.filter(f=>f.type==='draft'),[])
@@ -164,7 +171,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.equal(planReply.split('本周建议安排').length-1,1)
   // Keep the failed provider last: its ordinary cooldown must remain effective.
   const failure=await run('现在先聊聊实习方向，可以先看什么？')
-  assert.equal(requests.length,14,'stream failure never triggers a second call')
+  assert.equal(requests.length,15,'stream failure never triggers a second call')
   assert.ok(failure.frames.some(f=>f.type==='draft_discarded'))
   assert.equal(failure.frames.find(f=>f.type==='error')?.code,'MODEL_REQUEST_FAILED')
   assert.ok(!failure.frames.some(f=>f.type==='done'||f.type==='delta'))

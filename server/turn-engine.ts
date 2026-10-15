@@ -555,7 +555,19 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // continuation cue cannot overwrite the history it refers to.
       const commandSource=(quote:string)=>scanUserClauses(quote).every(clause=>!clause.quoted&&!clause.code&&(assistantRequestClause(clause.text)||/^(?:接着|继续|回到)(?:上次|之前|刚才)[^，。！？\n]*$/.test(clause.text)||/^只看[^，。！？\n]{1,40}(?:就好|即可)$/.test(clause.text)))
       if(result.event.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind==='unknown'||!commandSource(node.source.quote))
-      if(result.event.corrections)result.event.corrections=result.event.corrections.filter(correction=>!commandSource(correction.source.quote))
+      if(result.event.corrections){
+        const target=result.event.target,event=target.operation==='continue'?[currentEvent,...historicalEvents].find(event=>event?.id===target.eventId):null
+        result.event.corrections=result.event.corrections.filter(correction=>{
+          if(commandSource(correction.source.quote))return false
+          const node=event?.nodes.find(node=>node.id===correction.nodeId)
+          // Repeating an existing grounded fragment is a no-op, not a rewrite
+          // of the larger historical report. Changed facts still validate and
+          // commit through the original strict correction transaction.
+          const unchanged=node&&node.kind!=='unknown'&&node.content.includes(correction.source.quote)&&correction.source.messageId===run.source_message_id&&current.content.includes(correction.source.quote)
+          if(unchanged)staged.audit.push({phase:'repeated_fact_correction_ignored',nodeId:node.id,providerCalls:0})
+          return !unchanged
+        })
+      }
       if(!result.event.nodes?.length&&!result.event.action&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
     }
 
