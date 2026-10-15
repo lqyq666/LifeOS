@@ -316,7 +316,7 @@ export async function persistCoachEvent(c:PoolClient,run:Run,staged:CoachStaged)
           JOIN messages m ON m.user_id=t.user_id AND m.id=t.source_message_id
           WHERE r.user_id=$1 AND r.event_id=$2 AND m.role='user'
           AND r.snapshot->>'actionChange' IN ('create','modify')
-          AND EXISTS(SELECT 1 FROM jsonb_array_elements(COALESCE(r.snapshot#>'{event,actions}','[]'::jsonb)) a WHERE a->>'id'=$3 AND a->>'status'='proposed')
+          AND (r.snapshot->>'actionId'=$3 OR (NOT (r.snapshot ? 'actionId') AND EXISTS(SELECT 1 FROM jsonb_array_elements(COALESCE(r.snapshot#>'{event,actions}','[]'::jsonb)) a WHERE a->>'id'=$3 AND a->>'status'='proposed')))
           AND NOT EXISTS(SELECT 1 FROM memory_suppressions s WHERE s.user_id=m.user_id AND s.source_message_id=m.id)
           AND NOT EXISTS(SELECT 1 FROM coach_source_withdrawals w WHERE w.user_id=m.user_id AND w.message_id=m.id)
           AND NOT EXISTS(SELECT 1 FROM experiences e WHERE e.user_id=m.user_id AND e.source_message_id=m.id AND e.status='deleted')`,[run.user_id,staged.eventId,change.actionId])).rows
@@ -324,7 +324,6 @@ export async function persistCoachEvent(c:PoolClient,run:Run,staged:CoachStaged)
       }
       sources.push(run.source_message_id)
       if(change.operation==='create'){
-        await c.query("UPDATE coach_actions SET status='closed',closed_reason='replaced',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND status='proposed'",[run.user_id,staged.eventId])
         await c.query('INSERT INTO coach_actions(id,user_id,event_id,draft,source_message_ids,knowledge_refs) VALUES($1,$2,$3,$4,$5,$6)',[staged.actionId,run.user_id,staged.eventId,change.draft,[...new Set(sources)],JSON.stringify(staged.knowledgeRefs??[])])
       }else{
         await c.query("UPDATE coach_actions SET draft=$4,status='proposed',source_message_ids=$5,knowledge_refs=$6,revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND id=$3",[run.user_id,staged.eventId,change.actionId,change.draft,[...new Set(sources)],JSON.stringify(staged.knowledgeRefs??[])])
@@ -341,7 +340,7 @@ export async function persistCoachEvent(c:PoolClient,run:Run,staged:CoachStaged)
   // recursively into each revision snapshot or classified as answered/refused.
   const {processTurns,...snapshotEvent}=event
   snapshotEvent.actions=event.actions.map(({requestSources,...action})=>action)
-  await c.query('INSERT INTO coach_event_revisions(user_id,event_id,revision,generation,request_id,snapshot) VALUES($1,$2,$3,$4,$5,$6)',[run.user_id,event.id,event.revision,event.generation,run.request_id,{event:snapshotEvent,askedThisTurn,actionChange:change?.operation??null}])
+  await c.query('INSERT INTO coach_event_revisions(user_id,event_id,revision,generation,request_id,snapshot) VALUES($1,$2,$3,$4,$5,$6)',[run.user_id,event.id,event.revision,event.generation,run.request_id,{event:snapshotEvent,askedThisTurn,actionChange:change?.operation??null,actionId:staged.actionId??(change&&'actionId'in change?change.actionId:null)}])
   return readCoachEvent(c,run.user_id,run.conversation_id,event.id)
 }
 
@@ -349,7 +348,7 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
   const row=await eventFor(c,user,conversation,id)
   const rows=(await c.query("SELECT * FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' ORDER BY created_at,id",[user,id])).rows
   const actionRows=(await c.query('SELECT *,coach_knowledge_refs_valid(knowledge_refs) AS knowledge_valid FROM coach_actions WHERE user_id=$1 AND event_id=$2 ORDER BY created_at,id',[user,id])).rows
-  const history=(await c.query("SELECT r.revision,r.snapshot->'askedThisTurn' AS asked,r.snapshot#>'{event,nodes}' AS nodes,r.snapshot->>'actionChange' AS action_change,ARRAY(SELECT a->>'id' FROM jsonb_array_elements(COALESCE(r.snapshot#>'{event,actions}','[]'::jsonb)) a WHERE a->>'status'='proposed') AS action_ids,t.source_message_id FROM coach_event_revisions r JOIN runs t ON t.user_id=r.user_id AND t.request_id=r.request_id WHERE r.user_id=$1 AND r.event_id=$2 ORDER BY r.revision",[user,id])).rows
+  const history=(await c.query("SELECT r.revision,r.snapshot->'askedThisTurn' AS asked,r.snapshot#>'{event,nodes}' AS nodes,r.snapshot->>'actionChange' AS action_change,CASE WHEN r.snapshot ? 'actionId' THEN ARRAY[r.snapshot->>'actionId'] ELSE ARRAY(SELECT a->>'id' FROM jsonb_array_elements(COALESCE(r.snapshot#>'{event,actions}','[]'::jsonb)) a WHERE a->>'status'='proposed') END AS action_ids,t.source_message_id FROM coach_event_revisions r JOIN runs t ON t.user_id=r.user_id AND t.request_id=r.request_id WHERE r.user_id=$1 AND r.event_id=$2 ORDER BY r.revision",[user,id])).rows
   const recent=history.slice(-8)
   const ids=[...new Set([row.title_source.messageId,...rows.flatMap(node=>node.source?[node.source.messageId]:[]),...actionRows.flatMap(action=>action.source_message_ids),...recent.map(turn=>turn.source_message_id)])]
   const available=(await c.query(`SELECT m.id,m.content,m.conversation_id FROM messages m

@@ -104,7 +104,7 @@ export function ConversationSummary({ conversation, conversationId, live = false
     finally { setSaving(false) }
   }
   const reference = event ? `「${event.title}」${event.nodes.find(node => node.source)?.content ? `（之前说过：${event.nodes.find(node => node.source)!.content}）` : ''}` : ''
-  const action = event?.actions.find(item => item.status === 'proposed' && item.draft)
+  const actions = event?.actions.filter(item => item.status === 'proposed' && item.draft) ?? []
   const unknowns = event?.nodes.filter(node => node.kind === 'unknown' && node.status === 'active') ?? []
   return <main className="qa-review" aria-label="事件与材料">
     <div className="qa-review-scroll"><div className="qa-review-content">
@@ -113,9 +113,9 @@ export function ConversationSummary({ conversation, conversationId, live = false
       {loading ? <p role="status" className="qa-event-muted">正在读取已保存的记录…</p> : event ? <>
         <h2 className="qa-event-title">{event.title}</h2>
         {!!unknowns.length && <section className="qa-event-unknowns" aria-label="尚未核对"><h3>接着核对</h3>{unknowns.map(node => <p key={node.id}>{node.content}</p>)}</section>}
-        {action?.draft?.content && <section className="qa-event-material" aria-label="可用材料"><div className="qa-event-section-head"><h3>准备好的材料</h3><button type="button" disabled={saving} onClick={() => void copy(action)}>复制材料</button></div><p className="qa-event-muted">这是待你使用的草稿，还没有发送或执行。</p><div className="qa-event-text" tabIndex={0} aria-label="完整材料">{action.draft.content}</div>
+        {actions.map(action => action.draft?.content && <section key={action.id} className="qa-event-material" aria-label="可用材料"><div className="qa-event-section-head"><h3>准备好的材料</h3><button type="button" disabled={saving} onClick={() => void copy(action)}>复制材料</button></div><p className="qa-event-muted">这是待你使用的草稿，还没有发送或执行。</p><div className="qa-event-text" tabIndex={0} aria-label="完整材料">{action.draft.content}</div>
           {(action.draft.start || action.draft.observable || action.draft.stopWhen || action.draft.effort || action.draft.goal || action.draft.materials?.length) && <details><summary>怎么开始与何时结束</summary><dl>{[['要达到什么', action.draft.goal], ['从这里开始', action.draft.start], ['使用已有材料', action.draft.materials?.join('\n')], ['可观察的产物', action.draft.observable], ['可承受投入', action.draft.effort], ['暂停或结束', action.draft.stopWhen]].filter(([, value]) => value).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></details>}
-        </section>}
+        </section>)}
         {event.actions.some(item => item.status === 'stale') && <p className="qa-event-muted">之前的材料依据已改变，需要重新核对后再用。</p>}
         <details className="qa-event-process"><summary>查看事情经过（{event.nodes.length}条）</summary><ol>{event.nodes.map(node => <li key={node.id}><span className="qa-event-muted">{kinds[node.kind]}{node.status === 'resolved' ? ' · 已回答' : node.status === 'declined' ? ' · 暂不追问' : ''}</span><p>{node.content}</p>{node.source && <button type="button" onClick={() => onContinue(`更正「${event.title}」中的原话「${node.content}」：`)}>补充或更正</button>}</li>)}</ol>{event.asked.length > 0 && <details><summary>回复中的问句</summary><ul>{event.asked.map(question => <li key={question}>{question}</li>)}</ul></details>}</details>
         {event.actions.some(item => item.status === 'closed') && <details><summary>已结束的行动</summary>{event.actions.filter(item => item.status === 'closed').map(item => <div key={item.id}><p>{item.closedReason === 'replaced' ? '已由新的材料替代' : item.closedReason || '已结束'}</p>{item.draft?.content && <p className="qa-event-text">{item.draft.content}</p>}</div>)}</details>}
