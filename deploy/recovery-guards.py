@@ -161,8 +161,8 @@ def read_binding(path, operation, guards, verifier):
             len({row['name'] for row in migrations})!=len(migrations)):
         raise ValueError('ORIGINAL_MIGRATION_MANIFEST_REQUIRED')
     expected=value.get('expectedMigrations')
-    additions={'034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql'}
-    if (not isinstance(expected,list) or len(expected)!=len(migrations)+4 or
+    additions={'034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql','038-independent-coach-materials.sql'}
+    if (not isinstance(expected,list) or len(expected)!=len(migrations)+len(additions) or
             any(not isinstance(row,dict) or set(row)!={'name','sha256'} or
                 not re.fullmatch(r'[0-9]+-[a-z0-9.-]+\.sql',str(row['name'])) or
                 not re.fullmatch(r'[a-f0-9]{64}',str(row['sha256'])) for row in expected) or

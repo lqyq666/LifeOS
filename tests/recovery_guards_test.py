@@ -151,9 +151,11 @@ class RecoveryGuardsTests(unittest.TestCase):
                    'publicOrigin':'https://lqynb.xyz','providerCalls':0,'cozeCalls':0,'publish':False,
                    'oldMigrations':[{'name':'000-original.sql','sha256':'f'*64}],
                    'expectedSchemaSha256':'a'*64,'databaseImageId':'sha256:'+'b'*64}
-            value['expectedMigrations']=value['oldMigrations']+[{'name':name,'sha256':'e'*64} for name in ['034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql']]
+            value['expectedMigrations']=value['oldMigrations']+[{'name':name,'sha256':'e'*64} for name in ['034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql','038-independent-coach-materials.sql']]
             binding=root/'binding.json';binding.write_text(json.dumps(value))
             self.assertEqual(guards.read_binding(binding,*files),value)
+            with self.assertRaisesRegex(ValueError,'CANONICAL_POST_MIGRATION_BINDING_REQUIRED'):
+                binding.write_text(json.dumps({**value,'expectedMigrations':value['expectedMigrations'][:-1]}));guards.read_binding(binding,*files)
             for key,wrong in [('operationSha256','f'*64),('originalContainerId','short'),('releaseLabel','../escape'),('publicOrigin','http://lqynb.xyz'),('publish',True),('providerCalls',1),('oldMigrations',[]),('expectedMigrations',value['oldMigrations']),('expectedSchemaSha256','short'),('databaseImageId','mutable-tag')]:
                 with self.subTest(key=key),self.assertRaises(ValueError):
                     binding.write_text(json.dumps({**value,key:wrong}));guards.read_binding(binding,*files)
