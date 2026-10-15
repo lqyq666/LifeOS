@@ -9,4 +9,5 @@ test('observed greetings and chat-only acknowledgements wait for substantive con
  }
  assert.equal(safeEarlySentence(JSON.stringify({reply:'明白，今天不安排任务，就陪你聊聊。已替你发送。先聊聊。'})),null)
  assert.equal(safeEarlySentence(JSON.stringify({reply:'学长你好，我想请教你当时是怎么选择实习方向的？'})),'学长你好，我想请教你当时是怎么选择实习方向的')
+ for(const text of ['这个安排很好。','这样就很好。'])assert.equal(safeEarlySentence(JSON.stringify({reply:text})),text.slice(0,-1))
 })
