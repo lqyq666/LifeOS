@@ -116,10 +116,18 @@ export async function createGrowthItem(user: string, raw: GrowthCreate, client?:
   if (input.kind === 'constraint' && !validUntil) throw new HttpError(400, 'GROWTH_TIME_REQUIRED')
   if(input.kind!=='feedback'&&input.progressState!==undefined)throw new HttpError(400,'GROWTH_FEEDBACK_INVALID')
   const write=async(c:PoolClient)=>{
+    await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[user+':memory-settings'])
     await lockGrowth(c, user)
-    const previous = await replay(c, user, input.requestId, hash); if (previous) return previous
+    const previous = await replay(c, user, input.requestId, hash)
     await owner(c, user, input.conversationId)
     const view = await growthView(user, input.conversationId, c)
+    // Idempotency avoids a second write; it does not authorize reading sources
+    // that have since been corrected, forgotten or hidden by Memory OFF.
+    if(previous){
+      const visible=view.items.find(row=>row.id===previous.id)
+      if(!visible||visible.unavailableReason)throw new HttpError(409,'GROWTH_DEPENDENCY_INVALID')
+      return visible
+    }
     for (const ref of input.dependencies ?? []) {
       const found = view.items.find(row => row.id === ref.id && row.revision === ref.revision)
       if (!found || found.unavailableReason || !['active','proposed'].includes(found.status)) throw new HttpError(409, 'GROWTH_DEPENDENCY_INVALID')

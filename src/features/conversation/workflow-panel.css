@@ -21,4 +21,11 @@
 .qa-workflow-progress li span:last-child { margin-left: 12px; color: var(--qa-muted); }
 .qa-workflow-alternatives>section { padding: 0 0 16px; border-bottom: 1px solid var(--qa-line); }
 .qa-workflow-action { padding: 8px 0 16px; }
+.qa-workflow-feedback { margin-top: 16px; border-top: 1px solid var(--qa-line); }
+.qa-workflow-feedback fieldset { margin: 16px 0; padding: 0; border: 0; }
+.qa-workflow-feedback fieldset>label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.qa-workflow-feedback input { accent-color: var(--qa-ink); }
+.qa-workflow-feedback .qa-workflow-feedback-text { display: grid; gap: 8px; margin-top: 12px; }
+.qa-workflow-feedback textarea { box-sizing: border-box; width: 100%; min-height: 88px; padding: 10px; border: 1px solid var(--qa-line); border-radius: 8px; color: var(--qa-ink); background: var(--qa-surface); font: inherit; resize: vertical; }
+.qa-workflow-feedback textarea:focus-visible,.qa-workflow-feedback input:focus-visible { outline: 2px solid var(--qa-ink); outline-offset: 3px; }
 @media(max-width:600px) { .qa-workflow-picker,.qa-workflow-task { padding: 16px; } .qa-workflow-buttons button { flex: 1 1 auto; } }

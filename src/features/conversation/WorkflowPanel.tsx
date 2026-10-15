@@ -1,8 +1,9 @@
 import {useEffect,useState} from 'react'
 import {api,dataChanged,explainError} from '../../backend/client'
 import type {WorkflowReceipt} from '../../../server/workflows/contracts'
+import {WorkflowFeedback} from './WorkflowFeedback'
 import './workflow-panel.css'
-type Task={id:string;conversationId:string;question:string;status:string;historicalSelectionStatus?:'plan_saved'|'direction_saved';historicalVersion?:boolean;receipt:WorkflowReceipt|null;executionKind:string;nodes:{id:string;role:string;status:string;providerCalls:number;costCny:number|null}[];commit?:{stateChange?:{workflow?:{status:string;executed:boolean}}}|null}
+type Task={id:string;conversationId:string;question:string;status:string;historicalSelectionStatus?:'plan_saved'|'direction_saved';historicalVersion?:boolean;receipt:WorkflowReceipt|null;executionKind:string;nodes:{id:string;role:string;status:string;providerCalls:number;costCny:number|null}[];commit?:{stateChange?:{workflow?:{status:string;executed:boolean;itemId:string;revision:number}}}|null}
 type Capabilities={enabled:boolean;reason:string;directions:Record<string,string>;executionKind:string|null}
 const roles:Record<string,string>={path_analyst:'方向分析',constraint_validator:'来源与预算校验',independent_critic:'候选审阅',evidence_guardian:'事实核对',decision_synthesizer:'综合候选'}
 const statuses:Record<string,string>={queued:'等待开始',running:'正在分析',waiting_user:'先核对一项情况，尚未调用模型',proposed:'分析完成，等待你的选择',plan_saved:'小探索计划已保存 · 采纳时尚未执行',direction_saved:'阶段方向已保存',rejected:'你选择了不采用',cancelled:'已取消',failed:'这次分析未完成'}
@@ -69,6 +70,7 @@ export function WorkflowPanel({conversationId,source,refreshKey,onChanged}:{conv
     <h3>{actionSectionTitle(task)}</h3><p>{actionSectionHint(task)}</p>{task.receipt.proposal.nextActions.map((action,index)=><div className="qa-workflow-action" key={index}><p>{action.description}</p><p className="qa-workflow-meta">{action.estimatedMinutes===null?'投入时间尚未核实':`建议尝试 ${action.estimatedMinutes} 分钟`} · {action.stopCondition}</p>{task.status==='proposed'&&<button type="button" disabled={busy} onClick={()=>void act(task,'action',index)}>{hasReviewedPriority(task)?'采纳这一步':'只采纳这个小行动'}</button>}</div>)}
     {task.status==='proposed'&&<div className="qa-workflow-buttons"><p>采纳小行动会保存尚未执行的计划；确认方向才会保存阶段选择。</p><button type="button" disabled={busy} onClick={()=>void act(task,'reject',0)}>不采用，继续聊</button></div>}
    </details>}
+   {task.status==='plan_saved'&&task.commit?.stateChange?.workflow?.itemId&&<WorkflowFeedback key={task.commit.stateChange.workflow.itemId} conversationId={conversationId} planRef={{id:task.commit.stateChange.workflow.itemId,revision:task.commit.stateChange.workflow.revision}}/>}
    {task.status==='failed'&&<p>本次候选不可继续采纳。已保存的聊天仍可继续；你也可以按最新情况重新发起分析。</p>}
    {task.status==='waiting_user'&&<><p>在聊天里补充本人可用时间。可以直接说“六小时”“大概两小时”或“最多一小时”，也可以说明下周、没空或暂不继续。原来的背景和方向会保留。</p>{task.conversationId===conversationId&&<div className="qa-workflow-buttons"><button type="button" disabled={busy||running||!source||source.text===task.question} onClick={()=>void resume(task)}>继续这次比较</button><button type="button" disabled={busy} onClick={()=>void cancel(task)}>取消这次比较</button></div>}</>}
   </article>)}
