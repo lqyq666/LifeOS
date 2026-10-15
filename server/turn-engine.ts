@@ -517,9 +517,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if((currentConversationOnly(current.content)||boundaryNeedsClarification)&&(result.experienceCandidate||result.event||result.weeklyPlan||result.citations?.length))throw new HttpError(502,'COACH_OUTPUT_INVALID')
     if(!boundedReplyAccepts(result.reply,boundedReply))throw new HttpError(502,'BOUNDED_REPLY_INVALID')
     staged.coach=undefined;staged.candidates=[];staged.memoryChanges=[];staged.growth=undefined
-    if(result.event?.action&&'draft'in result.event.action&&!materialIntent){
+    if(result.event?.action&&result.event.action.operation!=='close'&&!materialIntent){
       const target=result.event.target,event=target.operation==='continue'?[currentEvent,...historicalEvents].find(event=>event?.id===target.eventId)??null:null
-      if(!effectiveMaterialRequest(current.content,result.event.action.operation==='modify'?'modify':'create',event).inheritedCreateRequest){
+      const effective=effectiveMaterialRequest(current.content,result.event.action.operation==='modify'?'modify':'create',event)
+      if(effective.disposition==='declined'||'draft'in result.event.action&&!effective.inheritedCreateRequest){
         delete result.event.action
         staged.audit.push({phase:'unsolicited_material_dropped',providerCalls:0})
         if(!result.event.nodes?.length&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
