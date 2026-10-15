@@ -19,8 +19,8 @@ export function WorkflowPanel({conversationId,source,refreshKey,onChanged}:{conv
  const running=tasks.some(task=>['queued','running'].includes(task.status))
  useEffect(()=>{
   if(!cap?.enabled){setTasks([]);return}
-  let current=true,timer:ReturnType<typeof setTimeout>|undefined
-  async function load(){try{const rows=await api<Task[]>('/api/workflows?conversationId='+conversationId);if(current){setTasks(rows);if(rows.some(task=>['queued','running'].includes(task.status)))timer=setTimeout(load,400)}}catch(error){if(current)setNotice(explainError(error))}}
+  let current=true,timer:ReturnType<typeof setTimeout>|undefined,pollDelay=400
+  async function load(){try{const rows=await api<Task[]>('/api/workflows?conversationId='+conversationId);if(current){setTasks(rows);if(rows.some(task=>['queued','running'].includes(task.status))){timer=setTimeout(load,pollDelay);pollDelay=Math.min(pollDelay*2,2000)}}}catch(error){if(current)setNotice(explainError(error))}}
   void load();return()=>{current=false;if(timer)clearTimeout(timer)}
  },[conversationId,refreshKey,busy,cap?.enabled])
  async function start(){
