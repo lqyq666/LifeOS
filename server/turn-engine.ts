@@ -572,6 +572,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
           if(unchanged)staged.audit.push({phase:'repeated_fact_correction_ignored',nodeId:node.id,providerCalls:0})
           return !unchanged
         })
+        // One provider output may both revise an existing fact and add the
+        // exact same kind/source as a new node. The correction owns that one
+        // current fact; do not create a second copy of the same source span.
+        if(result.event.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind==='unknown'||!result.event!.corrections!.some(correction=>event?.nodes.some(existing=>existing.id===correction.nodeId&&existing.kind===node.kind)&&correction.source.messageId===node.source.messageId&&correction.source.quote===node.source.quote))
       }
       if(!result.event.nodes?.length&&!result.event.action&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
     }
