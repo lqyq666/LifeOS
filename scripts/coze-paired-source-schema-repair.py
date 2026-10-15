@@ -8,17 +8,17 @@ from lifeos_host.http_route import provider_http as provider
 
 target = Path('src/lifeos_host/http_route/provider_http.py')
 before = target.read_bytes()
-assert hashlib.sha256(before).hexdigest() == 'efa91af8587e1c72f606906a2d6bf5356a5e29a4c9a368c6d4a4c77e65561600'
+before_hash = hashlib.sha256(before).hexdigest()
+assert before_hash in ('efa91af8587e1c72f606906a2d6bf5356a5e29a4c9a368c6d4a4c77e65561600', 'fc7383b05aeec0b72b8eb774f3fbcb2288e4fc0c502d8d371aed159d3a3cbd53')
 source = before.decode()
+partial = '        # A globally valid quote can still belong to another source. Constrain\n        # the pair before generation; the strict parser remains authoritative.\n        props["assessments"]["items"]["anyOf"] = [\n            {"properties": {"evidenceId": {"const": fid}, "quote": {"enum": [q for q in quote_choices if q in fact["text"]]}}}\n            for fid, fact in facts.items()\n        ]\n'
+if before_hash == 'fc7383b05aeec0b72b8eb774f3fbcb2288e4fc0c502d8d371aed159d3a3cbd53':
+    assert source.count(partial) == 1
+    source = source.replace(partial, '')
+baseline = source
 anchor = '        props["assessments"]["items"]["properties"]["quote"]["enum"] = quote_choices\n'
 assert source.count(anchor) == 1
-source = source.replace(anchor, anchor + '''        # A globally valid quote can still belong to another source. Constrain
-        # the pair before generation; the strict parser remains authoritative.
-        props["assessments"]["items"]["anyOf"] = [
-            {"properties": {"evidenceId": {"const": fid}, "quote": {"enum": [q for q in quote_choices if q in fact["text"]]}}}
-            for fid, fact in facts.items()
-        ]
-''')
+source = source.replace(anchor, anchor + '        # Keep complete branches: the provider may ignore shared properties\n        # when decoding a partial anyOf. The strict parser remains unchanged.\n        assessment = props["assessments"]["items"]\n        paired = []\n        for fid, fact in facts.items():\n            branch = json.loads(json.dumps(assessment))\n            branch["properties"]["evidenceId"] = {"type": "string", "const": fid}\n            branch["properties"]["quote"]["enum"] = [q for q in quote_choices if q in fact["text"]]\n            paired.append(branch)\n        assessment["anyOf"] = paired\n')
 compile(source, str(target), 'exec')
 
 def context_from(code, minutes):
@@ -36,7 +36,7 @@ def context_from(code, minutes):
     return env['analyzer_context']({'id': 'employment', 'title': 'Employment'}), facts
 
 for minutes in (0, 30, None):
-    old, facts = context_from(before.decode(), minutes)
+    old, facts = context_from(baseline, minutes)
     ctx, _ = context_from(source, minutes)
     schema = ctx['schema']['properties']['assessments']['items']
     ids = list(facts)
@@ -54,6 +54,13 @@ for minutes in (0, 30, None):
         assert ctx['schema']['properties']['actionIds']['maxItems'] == 0
         obj = {'actionIds': [], 'tradeoffIds': [], 'stageReasonId': '', 'stopCondition': next(iter(ctx['stopReasons'].values())), 'weeklyMinutes': 0, 'assessments': [assessment], 'decisionReason': 'No new action is proposed while available time is zero.'}
         provider._parse_analyst(json.dumps(obj), facts, ctx)
+        for bad in (mismatched, invalid, {**assessment, 'evidenceId': 'foreign-source'}):
+            try:
+                provider._parse_analyst(json.dumps({**obj, 'assessments': [bad]}), facts, ctx)
+            except provider.WorkflowError:
+                pass
+            else:
+                raise AssertionError('strict source validation was bypassed')
     unchanged = copy.deepcopy(ctx)
     del unchanged['schema']['properties']['assessments']['items']['anyOf']
     assert unchanged == old, 'only the source/quote pair constraint may change'

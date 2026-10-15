@@ -208,9 +208,22 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
     const event=compiled.properties?.event,targets=event?.properties?.target?.anyOf
     // Express the existing transaction rule before generation as well as at
     // commit: a new event cannot mutate another event's nodes or actions.
-    // Keep shared properties in place; only the target-dependent constraints
-    // vary, rather than duplicating the full event/action schema.
-    if(targets?.some((target:any)=>target.properties?.operation?.const==='create'))event.anyOf=targets.map((target:any)=>({properties:{target,...(target.properties?.operation?.const==='create'?{corrections:{maxItems:0},resolveUnknowns:{maxItems:0},declineUnknowns:{maxItems:0},action:{properties:{operation:{const:'create'}}}}:{})}}))
+    // Retain the shared schema and constrain each target branch before decoding.
+    if(targets?.some((target:any)=>target.properties?.operation?.const==='create')){
+      const base=structuredClone(event)
+      const bounded=targets.map((target:any)=>{
+        const branch=structuredClone(base);branch.properties.target=target
+        if(target.properties?.operation?.const==='create'){
+          for(const key of ['corrections','resolveUnknowns','declineUnknowns'])if(branch.properties[key])branch.properties[key].maxItems=0
+          const action=branch.properties.action
+          if(action?.anyOf)action.anyOf=action.anyOf.filter((operation:any)=>operation.properties?.operation?.const==='create')
+        }
+        return branch
+      })
+      // This provider decodes a partial anyOf branch without the shared fields.
+      // Each native branch must retain the complete original required shape.
+      event.anyOf=bounded
+    }
     body.response_format={type:'json_schema',json_schema:{name:schemaName,strict:true,schema:compiled}}
     if(maxOutputTokens)body.max_completion_tokens=maxOutputTokens
     delete body.max_tokens
