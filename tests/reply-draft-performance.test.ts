@@ -27,3 +27,11 @@ test('streamed drafts retain completed-sentence, Unicode and source-sensitive bo
  assert.equal(safeEarlySentence(JSON.stringify({reply:'先核对课程的先修要求\n\n还需了解具体课程。'})),content.slice(0,-1))
  assert.equal(safeEarlySentence(JSON.stringify({reply:'尚未完成的句子'})),null)
 })
+
+test('material headers do not count as content, while an actual completed answer still streams',()=>{
+ for(const header of ['消息如下，你自行发送即可：','给同学的访谈问题：','这次可以从这里开始:']){
+  assert.equal(safeEarlySentence(JSON.stringify({reply:header+'\n\n'})),null)
+  assert.equal(safeEarlySentence(JSON.stringify({reply:header+'\n\n先问对方最近一次实际选课时怎么决定。'})),'先问对方最近一次实际选课时怎么决定')
+ }
+ assert.equal(safeEarlySentence(JSON.stringify({reply:'已为你保存：\n\n先问对方最近一次实际选课时怎么决定。'})),null)
+})
