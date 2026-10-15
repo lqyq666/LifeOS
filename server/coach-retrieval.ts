@@ -72,12 +72,20 @@ export async function searchCoachEvents(user:string,conversation:string,input:Ev
       AND ($5::uuid IS NULL OR e.id=$5) AND ($6::uuid IS NULL OR EXISTS(SELECT 1 FROM coach_actions a WHERE a.user_id=e.user_id AND a.event_id=e.id AND a.id=$6))
       AND ($7::text IS NULL OR position($7 in e.title)>0 OR EXISTS(SELECT 1 FROM coach_nodes n WHERE n.user_id=e.user_id AND n.event_id=e.id AND n.status<>'withdrawn' AND position($7 in n.content)>0))
       AND ($8::timestamptz IS NULL OR e.created_at >= $8) AND ($9::timestamptz IS NULL OR e.created_at <= $9)`,[user,conversation,embeddingSignature,enabled,input.eventId??null,input.actionId??null,input.object??null,input.after??null,input.before??null])).rows
-    const ranked=new Map<string,{score:number;row:any}>(),pending=new Set<string>()
+    const ranked=new Map<string,{score:number;row:any}>(),pending=new Map<string,any>()
     for(const row of rows){
       signal?.throwIfAborted()
-      if(vector&&!row.embedding){pending.add(row.id);continue}
+      if(vector&&!row.embedding){pending.set(row.id,row);continue}
       const score=vector?row.embedding.reduce((sum:number,value:number,index:number)=>sum+value*vector[index],0):1
       if(!ranked.has(row.id)||ranked.get(row.id)!.score<score)ranked.set(row.id,{score,row})
+    }
+    // A just-saved revision is readable before the background index catches up.
+    // Rank at most three recent pending titles with the existing offline encoder;
+    // they remain navigation candidates and still pass readCoachEvent below.
+    if(vector&&pending.size){
+      const recent=[...pending.values()].sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at)).slice(0,3)
+      const embeddings=await localEmbedding.encode(recent.map(row=>row.title),false,signal)
+      recent.forEach((row,index)=>ranked.set(row.id,{row,score:embeddings[index].reduce((sum,value,dimension)=>sum+value*vector[dimension],0)}))
     }
     const selected=[...ranked.values()].sort((a,b)=>b.score-a.score||Date.parse(b.row.updated_at)-Date.parse(a.row.updated_at))
     const events:CoachEvent[]=[]
