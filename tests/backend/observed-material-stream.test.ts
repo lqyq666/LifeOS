@@ -25,10 +25,19 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
    const messageId=JSON.parse(body.messages.find((m:any)=>m.role==='user').content).currentUserMessage.id
    if(requests.length===2)output={reply:'比较岗位时，先找出两个岗位日常工作上的一项实际差异。核对表里哪一项最难区分？',event:{target:{operation:'continue',eventId:materialEvent.id,expectedRevision:materialEvent.revision},nodes:[{kind:'fact',source:{messageId,quote:'我填过岗位核对表但卡住了'}}],action:{operation:'reuse',actionId:materialEvent.actions[0].id,expectedRevision:materialEvent.actions[0].revision}}}
    if(requests.length===4)output={reply:'先保留已知经过，未报告的结果仍未知。',event:{target:{operation:'create',title:'未来沟通问题',source:{messageId,quote:'再帮我拟一个暂不催促的后续沟通问题'}},action:{operation:'create',draft:{content:'下次自然有机会交流时，想请教你当时是怎么选择实习方向的？'}}}}
+   if((requests.length===5||requests.length===6)&&selection){
+    assert.equal(schema.properties.reply.minLength,0)
+    output.reply=''
+    // Later turns have several catalogue fields. Select the actual contribution,
+    // rather than relying on the first enum entry still being a project.
+    const catalogue=JSON.parse(body.messages.find((m:any)=>m.role==='user').content).growthCatalogue
+    output.event.action.draft.selectedFactIds=[catalogue.find((f:any)=>f.field==='project'&&f.text==='我在课程小组里负责整理资料和排版').catalogueId]
+    if(requests.length===6)output.event.action.draft.selectedFactIds=['mf-not-authorized']
+   }
    res.writeHead(200,{'Content-Type':'text/event-stream'})
    const base={id:'synthetic-verified-material',object:'chat.completion.chunk',created:1,model:model.id}
    res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\n')
-   if(requests.length===5){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
+   if(requests.length===7){res.end('data: '+JSON.stringify({error:{code:'invalid_json_schema',message:'400 schema generation failed; synthetic-private-payload'}})+'\n\n');return}
    res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
   })
  })
@@ -68,9 +77,21 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.equal(requests.length,4)
   assert.equal(mixed.saved.status,'completed','recall does not take over an explicit drafting request')
   assert.ok(mixed.frames.find(f=>f.type==='delta')?.text.includes('下次自然有机会交流时'))
+  const sourceText='我在课程小组里负责整理资料和排版，代码是队友做的。帮我写一段只包含本人贡献的作品描述，不要替我发送。'
+  const withoutExplanation=await run(sourceText)
+  assert.equal(withoutExplanation.saved.status,'completed')
+  assert.deepEqual(withoutExplanation.frames.filter(f=>f.type==='draft'),[])
+  const body=withoutExplanation.frames.find(f=>f.type==='delta')
+  assert.equal(body?.text,'我在课程小组里负责整理资料和排版。')
+  assert.equal(body?.saved,true);assert.equal(body?.replace,true)
+  assert.equal(withoutExplanation.saved.response.event.actions.find((a:any)=>a.status==='proposed').draft.content,body.text)
+  const badSelection=await run(sourceText)
+  assert.equal(badSelection.saved.status,'failed')
+  assert.equal(badSelection.frames.find(f=>f.type==='error')?.code,'MATERIAL_REFERENCE_INVALID')
+  assert.ok(!badSelection.frames.some(f=>['draft','delta','done'].includes(f.type)))
   // Keep the failed provider last: its ordinary cooldown must remain effective.
   const failure=await run('现在先聊聊实习方向，可以先看什么？')
-  assert.equal(requests.length,5,'stream failure never triggers a second call')
+  assert.equal(requests.length,7,'stream failure never triggers a second call')
   assert.ok(failure.frames.some(f=>f.type==='draft_discarded'))
   assert.equal(failure.frames.find(f=>f.type==='error')?.code,'MODEL_REQUEST_FAILED')
   assert.ok(!failure.frames.some(f=>f.type==='done'||f.type==='delta'))

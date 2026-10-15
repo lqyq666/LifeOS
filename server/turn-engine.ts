@@ -469,7 +469,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // Grounded first-person material is authored only by selecting verified
     // catalogue entries. Keep an original, short explanatory reply rather
     // than letting a second factual artifact bypass those selections.
-    if(resumePortfolioMode)schema.properties.reply={type:'string',minLength:1,maxLength:160,description:'只简短说明选择和未知边界；不要在reply另写作品描述、简历正文或扩写个人事实。完整材料由selectedFactIds对应的原话渲染。'}
+    if(resumePortfolioMode)schema.properties.reply={type:'string',minLength:0,maxLength:160,description:'没有必要的反馈、提醒或未知时用空字符串，不为填字段复述已知贡献、宣布已撰写或补出待填项。混合复盘仍可写必要回应。完整材料由selectedFactIds对应的原话渲染，不另写正文。'}
     if(/(?:问题|提问).{0,10}(?:压成一句|缩成一句|改成)/.test(current.content)){
       const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content)node.properties.content.maxLength=160;for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
       narrow(schema)
@@ -509,7 +509,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   async function validateOutputInner(raw:string):Promise<ActionCoachTurn>{
     let result:ActionCoachTurn
-    try{result=parseActionCoachTurn(raw)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
+    try{result=parseActionCoachTurn(raw,{allowEmptyMaterialExplanation:resumePortfolioMode})}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
     if(requestedGuide&&!result.citations?.length)throw new HttpError(400,'COACH_CITATION_INVALID')
     if(/"(?:readiness|missingRequired|materialFactIds|materialEvidence)"\s*:/.test(raw))staged.audit.push({phase:'provider_material_metadata_ignored',providerCalls:0})
     if(explicitMaterial?.event?.action&&'draft'in explicitMaterial.event.action&&result.event?.action&&'draft'in result.event.action)result.event.action.draft=explicitMaterial.event.action.draft

@@ -19,5 +19,5 @@ export function renderCoachReply(turn:ActionCoachTurn):string{
     const plain=turn.reply.replace(/(?<![\\\w*])\*\*(\S(?:[^\n]*?\S)?)\*\*(?![\w*])/g,'$1')
     if(plain.includes(material))return plain
   }
-  return turn.reply+'\n\n'+material
+  return turn.reply.trim()?turn.reply+'\n\n'+material:material
 }

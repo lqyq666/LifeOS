@@ -106,7 +106,7 @@ export type EventDelta=Static<typeof eventDeltaSchema>
 export type ActionDraft=Static<typeof legacyDraftSchema>
 export type ResumePortfolioDraft=Static<typeof resumePortfolioDraftSchema>
 
-export function parseActionCoachTurn(raw:string):ActionCoachTurn {
+export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExplanation?:boolean}={}):ActionCoachTurn {
   const output=JSON.parse(raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')) as unknown
   // Provider-authored metadata has no authority. Provenance and readiness are
   // rebuilt from the host catalogue after this parser, never accepted from a
@@ -119,8 +119,13 @@ export function parseActionCoachTurn(raw:string):ActionCoachTurn {
   if(Array.isArray((output as {growthUpdates?:unknown[]})?.growthUpdates)){
     for(const update of (output as {growthUpdates:{validUntil?:unknown}[]}).growthUpdates)if(update&&typeof update==='object'&&update.validUntil==='')delete update.validUntil
   }
-  if(!Value.Check(actionCoachTurnSchema,output))throw new Error('ACTION_COACH_OUTPUT_INVALID')
-  return output
+  // Only the host catalogue lane can omit prose: it still needs a complete
+  // selection that the engine resolves and validates before any delivery.
+  const schema=options.allowEmptyMaterialExplanation&&draft?.kind==='resume_portfolio'
+    ?{...actionCoachTurnSchema,properties:{...actionCoachTurnSchema.properties,reply:{...actionCoachTurnSchema.properties.reply,minLength:0}}}
+    :actionCoachTurnSchema
+  if(!Value.Check(schema,output))throw new Error('ACTION_COACH_OUTPUT_INVALID')
+  return output as ActionCoachTurn
 }
 
 export const eventSearchSchema=Type.Object({query:Type.String({maxLength:16000}),eventId:Type.Optional(id),actionId:Type.Optional(id),object:Type.Optional(text(200)),after:Type.Optional(text(100)),before:Type.Optional(text(100))},{additionalProperties:false})
