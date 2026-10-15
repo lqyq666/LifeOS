@@ -75,6 +75,9 @@ test('first useful content skips politeness without skipping unsafe assertions',
 })
 
 test('real natural requests bind material delivery without taking over review',()=>{
+  const pureText='我想先了解实习岗位，别把小组成果都算成我的能力。帮我写一段只包含本人贡献的作品描述。'
+  const pure=bindMaterialDeliverySchema(deriveTurnContract({text:pureText,knowledgeCount:0,currentEventExists:true,planIntent:false,material:true}),pureText,true).schema as any
+  assert.equal(pure.properties.event.properties.nodes,undefined,'a material intent already retained as source must not generate repeated process nodes')
   assert.equal(requestsSingleQuestionMaterial('先问一个同学就好，帮我写一句能问出最近一次选课经历的问题。'),true)
   assert.equal(requestsSingleQuestionMaterial('再帮我拟一个向学长核对岗位要求的问题。'),true)
   for(const text of ['我写了一个问题。','同学说帮我写一个问题。','“帮我写一个问题”是什么意思？'])assert.equal(requestsSingleQuestionMaterial(text),false,text)

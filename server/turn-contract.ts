@@ -60,7 +60,7 @@ export function negativePersonalFactClauses(text:string){
 }
 export function reportedPursuitClauses(text:string){
  const own=anchorablePersonalClauses(text)
- return own.filter(clause=>/^想(?:要|用|了解)/.test(clause.text)&&own.some(other=>other.sentenceStart===clause.sentenceStart&&/(?:我|本人)/.test(other.text)))
+ return own.filter(clause=>/^(?:(?:我|本人)想(?:先)?(?:要|用|了解)|想(?:要|用|了解))/.test(clause.text)&&own.some(other=>other.sentenceStart===clause.sentenceStart&&/(?:我|本人)/.test(other.text)))
 }
 export function resourceBlockedPersonalFactClauses(text:string){
   // BS_RESOURCE_01: only an explicit resource of the speaker's current course.
@@ -205,8 +205,12 @@ export function bindMaterialDeliverySchema(contract:TurnContract,text:string,gro
   if(groundedSelection){
     // Do not spend material generation on command nodes that validation would
     // discard. The event target may still cite the request; real feedback stays.
-    const reportedQuotes=quotes.filter(quote=>!assistantRequestClause(quote))
+    const pursuitQuotes=new Set(reportedPursuitClauses(text).map(clause=>clause.text))
+    const reportedQuotes=quotes.filter(quote=>!assistantRequestClause(quote)&&!pursuitQuotes.has(quote))
     const nodes=(contract.schema.properties as any)?.event?.properties?.nodes
+    // Intent-only drafting has no new process report. The original intent
+    // remains in target/process input sources and the personal growth lane.
+    if(nodes&&!reportedQuotes.length)delete (contract.schema.properties as any).event.properties.nodes
     // A saved real response repeated the same report ten times before reaching
     // its artifact and was aborted by the provider. This material lane needs
     // at most one process node per report and one critical unknown; complete

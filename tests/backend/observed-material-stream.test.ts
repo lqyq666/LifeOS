@@ -111,8 +111,9 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.equal(materialOnly.saved.status,'completed')
   assert.equal(materialOnly.frames.find(f=>f.type==='delta')?.text,'学长你好，方便时想请教一下你是怎样选择实习方向的？')
   const tooManyQuestions=await run('先问一个同学就好，帮我写一句能问出最近一次选课经历的问题。')
-  assert.equal(tooManyQuestions.saved.status,'failed','the actual two-question artifact is not a one-question delivery')
-  assert.equal(tooManyQuestions.frames.find(f=>f.type==='error')?.code,'COACH_MATERIAL_QUANTITY_INVALID')
+  assert.equal(tooManyQuestions.saved.status,'completed','the existing safe question extractor bounds the actual two-question artifact without another call')
+  assert.equal(tooManyQuestions.frames.find(f=>f.type==='delta')?.text,'你上次选课具体怎么操作的？')
+  assert.equal(tooManyQuestions.saved.response.event.actions.find((a:any)=>a.status==='proposed'&&a.draft.content==='你上次选课具体怎么操作的？')?.draft.content,'你上次选课具体怎么操作的？')
   // Keep the failed provider last: its ordinary cooldown must remain effective.
   const failure=await run('现在先聊聊实习方向，可以先看什么？')
   assert.equal(requests.length,10,'stream failure never triggers a second call')

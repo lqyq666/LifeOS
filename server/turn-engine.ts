@@ -477,7 +477,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // than letting a second factual artifact bypass those selections.
     if(resumePortfolioMode)schema.properties.reply={type:'string',minLength:0,maxLength:160,description:'没有必要的反馈、提醒或未知时用空字符串，不为填字段复述已知贡献、宣布已撰写或补出待填项。混合复盘仍可写必要回应。完整材料由selectedFactIds对应的原话渲染，不另写正文。'}
     if(singleQuestionMaterial||/(?:问题|提问).{0,10}(?:压成一句|缩成一句|改成)/.test(current.content)){
-      const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content){node.properties.content.maxLength=160;if(singleQuestionMaterial)node.properties.content.pattern='^[^？?]*[？?]?[^？?]*$'}for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
+      const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content){node.properties.content.maxLength=160;if(singleQuestionMaterial)node.properties.content.description='只写一个完整、独立的提问，不追加第二个问题或其他追问。'}for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
       narrow(schema)
     }
   }
@@ -595,7 +595,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     }
     const hasMaterial=result.event?.action&&'draft'in result.event.action
     const deliveredDraft=materialDraftOf(result)
-    if(singleQuestionMaterial&&deliveredDraft?.content&&(deliveredDraft.content.match(/[？?]/g)?.length??0)>1)throw new HttpError(400,'COACH_MATERIAL_QUANTITY_INVALID')
+    if(singleQuestionMaterial&&deliveredDraft?.content&&(deliveredDraft.content.match(/[？?]/g)?.length??0)>1){
+      const question=openingQuestionDraft(JSON.stringify({reply:deliveredDraft.content}))
+      if(!question)throw new HttpError(400,'COACH_MATERIAL_QUANTITY_INVALID')
+      deliveredDraft.content=question
+      staged.audit.push({phase:'single_question_material_bounded',providerCalls:0})
+    }
     const requestedMaterial=deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
     // A direct drafting instruction requests delivery now. Abstract advice is
     // not a completed delivery, even when it lacks the old framing markers.
