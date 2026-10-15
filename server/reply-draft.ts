@@ -65,6 +65,7 @@ export function safeEarlySentence(raw:string,maxChars=120):string|null{
     const char=raw[i]
     if(char==='"')break
     encoded+=char
+    let atBoundary=/[。！!？?\r\n]/.test(char)
     if(char===String.fromCharCode(92)){
       const next=raw[++i]
       if(next===undefined)break
@@ -73,8 +74,13 @@ export function safeEarlySentence(raw:string,maxChars=120):string|null{
         const hex=raw.slice(i+1,i+5)
         if(!/^[0-9a-f]{4}$/i.test(hex))break
         encoded+=hex;i+=4
+        atBoundary=/^(?:3002|ff01|ff1f|0021|003f|000a|000d)$/i.test(hex)
       }
+      else atBoundary=next==='n'||next==='r'
     }
+    // No draft can surface until a sentence/paragraph boundary is complete.
+    // Decode at those boundaries rather than reparsing every growing prefix.
+    if(!atBoundary)continue
     let decoded:string
     try{decoded=JSON.parse('"'+encoded+'"')}catch{continue}
     if(decoded.length>16000)return null
