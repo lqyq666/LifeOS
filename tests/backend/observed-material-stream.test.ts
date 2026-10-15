@@ -37,7 +37,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
     assert.equal(schema.properties.reply.minLength,0,'ordinary material does not force duplicate prose')
     output={reply:'',event:{target:{operation:'create',title:'请教消息',source:{messageId,quote:'帮我写一句给学长的请教消息'}},action:{operation:'create',draft:{content:'学长你好，方便时想请教一下你是怎样选择实习方向的？'}}}}
    }
-   if(requests.length===9)output={reply:'',event:{target:{operation:'create',title:'一次选课提问',source:{messageId,quote:'帮我写一句能问出最近一次选课经历的问题'}},action:{operation:'create',draft:{content:'你上次选课具体怎么操作的？中间哪一步卡住了？'}}}}
+   if(requests.length===9)output={reply:'已有信息保持原样。\n\n“你上次选课具体怎么操作的？中间哪一步卡住了？”',event:{target:{operation:'create',title:'一次选课提问',source:{messageId,quote:'帮我写一句能问出最近一次选课经历的问题'}},action:{operation:'create',draft:{content:'“你上次选课具体怎么操作的？中间哪一步卡住了？”'}}}}
    if([5,6,10].includes(requests.length)&&selection){
     assert.equal(schema.properties.reply.minLength,0)
     output.reply=''
@@ -118,7 +118,7 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.equal(materialOnly.frames.find(f=>f.type==='delta')?.text,'学长你好，方便时想请教一下你是怎样选择实习方向的？')
   const tooManyQuestions=await run('先问一个同学就好，帮我写一句能问出最近一次选课经历的问题。')
   assert.equal(tooManyQuestions.saved.status,'completed','the existing safe question extractor bounds the actual two-question artifact without another call')
-  assert.equal(tooManyQuestions.frames.find(f=>f.type==='delta')?.text,'你上次选课具体怎么操作的？')
+  assert.equal(tooManyQuestions.frames.find(f=>f.type==='delta')?.text,'已有信息保持原样。\n\n你上次选课具体怎么操作的？')
   assert.equal(tooManyQuestions.saved.response.event.actions.find((a:any)=>a.status==='proposed'&&a.draft.content==='你上次选课具体怎么操作的？')?.draft.content,'你上次选课具体怎么操作的？')
   // This fake provider has not emitted a growth fact. Supply the synthetic
   // contribution through the ordinary user-edit API before a later readback.

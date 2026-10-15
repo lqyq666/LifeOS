@@ -609,9 +609,13 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     const hasMaterial=result.event?.action&&'draft'in result.event.action
     const deliveredDraft=materialDraftOf(result)
     if(singleQuestionMaterial&&deliveredDraft?.content&&(deliveredDraft.content.match(/[？?]/g)?.length??0)>1){
-      const question=openingQuestionDraft(JSON.stringify({reply:deliveredDraft.content}))
+      const original=deliveredDraft.content
+      let body=original.trim()
+      for(const [open,close] of [['“','”'],['「','」'],['『','』']])if(body.startsWith(open!)&&body.endsWith(close!)){body=body.slice(1,-1);break}
+      const question=openingQuestionDraft(JSON.stringify({reply:body}))
       if(!question)throw new HttpError(400,'COACH_MATERIAL_QUANTITY_INVALID')
       deliveredDraft.content=question
+      result.reply=result.reply.replace(original,question)
       staged.audit.push({phase:'single_question_material_bounded',providerCalls:0})
     }
     const requestedMaterial=deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
