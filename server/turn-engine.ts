@@ -140,7 +140,7 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     finishCall('completed')
     staged.modelUsage=usageSummary(calls,totalContextEstimate,retrievedMemoryCount,escalated,escalationReason,false,purpose==='repair'?'coach_contract_repair':null)
     signal.throwIfAborted()
-    if(message.stopReason==='error'||message.stopReason==='aborted')throw providerError(message.errorMessage??'Provider request failed')
+    if(message.stopReason==='error'||message.stopReason==='aborted')throw providerError(message.errorMessage??'Provider request failed',record.firstRawDeltaMs!==null)
     const totalInput=uncached!==null&&cacheWrite!==null&&record.cachedInputTokens!==null?uncached+cacheWrite+record.cachedInputTokens:null
     const raw=assistantText(message)
     // Explicit local acceptance instrumentation only. The default production
