@@ -57,6 +57,7 @@ export function visibleCoachQuestions(reply:string,material?:string):string[]{
   const visible=(material?reply.split(material).join('\n'):reply)
     .replace(/```[\s\S]*?```|`[^`]*`/g,'\n')
     .replace(/[“「『][\s\S]*?[”」』]/g,quote=>/[？?]/.test(quote)?'\n':quote)
+    .replace(/!?\[[^\]\n]*\]\((?:\/|https?:\/\/)[^)\n]*(?:\)|$)/g,'\n')
     .replace(/https?:\/\/\S+/g,'\n')
   return [...new Set((visible.match(/[^。！？!?;；\n]*[？?]/g)??[]).map(question=>question.trim().replace(/^[\d.、\-#*\s]+/,'')))]
 }
@@ -350,6 +351,9 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
   const actionRows=(await c.query('SELECT *,coach_knowledge_refs_valid(knowledge_refs) AS knowledge_valid FROM coach_actions WHERE user_id=$1 AND event_id=$2 ORDER BY created_at,id',[user,id])).rows
   const history=(await c.query("SELECT r.revision,r.snapshot->'askedThisTurn' AS asked,r.snapshot#>'{event,nodes}' AS nodes,r.snapshot->>'actionChange' AS action_change,CASE WHEN r.snapshot ? 'actionId' THEN ARRAY[r.snapshot->>'actionId'] ELSE ARRAY(SELECT a->>'id' FROM jsonb_array_elements(COALESCE(r.snapshot#>'{event,actions}','[]'::jsonb)) a WHERE a->>'status'='proposed') END AS action_ids,t.source_message_id FROM coach_event_revisions r JOIN runs t ON t.user_id=r.user_id AND t.request_id=r.request_id WHERE r.user_id=$1 AND r.event_id=$2 ORDER BY r.revision",[user,id])).rows
   const recent=history.slice(-8)
+  // Older snapshots may contain a citation truncated at its query marker.
+  // Reuse the display extractor on read; retain the original audit snapshots.
+  for(const turn of history)turn.asked=(turn.asked??[]).flatMap((question:string)=>visibleCoachQuestions(question))
   const ids=[...new Set([row.title_source.messageId,...rows.flatMap(node=>node.source?[node.source.messageId]:[]),...actionRows.flatMap(action=>action.source_message_ids),...recent.map(turn=>turn.source_message_id)])]
   const available=(await c.query(`SELECT m.id,m.content,m.conversation_id FROM messages m
     WHERE m.user_id=$1 AND m.id=ANY($2::uuid[]) AND m.role='user'

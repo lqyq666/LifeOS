@@ -13,4 +13,8 @@ test('question metadata comes from literal visible reply, never model paraphrase
   const excessive='哪件事？对象是谁？你怎么判断没用？'
   assert.equal(visibleCoachQuestions(excessive).length,3)
   assert.deepEqual(visibleCoachQuestions('今天先听你说，不做计划。'),[])
+  const reference='[查看完整方法](/api/knowledge/418188a9-dfd0-46d3-8f35-6fdff72de1c9?revision=1)'
+  assert.deepEqual(visibleCoachQuestions(reference),[],'a relative citation query is not a question')
+  assert.deepEqual(visibleCoachQuestions(reference+'\n你从哪一步卡住了？'),['你从哪一步卡住了？'])
+  assert.deepEqual(visibleCoachQuestions('[查看完整方法](/api/knowledge/418188a9-dfd0-46d3-8f35-6fdff72de1c9?'),[],'old truncated citation metadata must not pollute continued context')
 })
