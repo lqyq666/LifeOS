@@ -207,6 +207,11 @@ export function bindMaterialDeliverySchema(contract:TurnContract,text:string,gro
     // discard. The event target may still cite the request; real feedback stays.
     const reportedQuotes=quotes.filter(quote=>!assistantRequestClause(quote))
     const nodes=(contract.schema.properties as any)?.event?.properties?.nodes
+    // A saved real response repeated the same report ten times before reaching
+    // its artifact and was aborted by the provider. This material lane needs
+    // at most one process node per report and one critical unknown; complete
+    // source text and the authoritative event history remain available.
+    if(nodes)nodes.maxItems=Math.min(nodes.maxItems??24,reportedQuotes.length+1)
     if(nodes?.items?.anyOf)nodes.items.anyOf=nodes.items.anyOf.filter((node:any)=>{
       if(!node.properties?.source)return true
       if(!reportedQuotes.length)return false

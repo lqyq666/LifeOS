@@ -67,6 +67,8 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   assert.ok(reported.properties.source.properties.quote.enum.includes('我在课程小组里负责整理资料和排版'))
   assert.ok(!reported.properties.source.properties.quote.enum.includes('不要替我发送'),'writing commands must not be native fact choices')
   assert.ok(!reported.properties.source.properties.quote.enum.includes('只帮我写一段本人贡献描述'))
+  const materialNodes=requests[0].response_format.json_schema.schema.properties.event.properties.nodes
+  assert.ok(materialNodes.maxItems<=reported.properties.source.properties.quote.enum.length+1,'material schema bounds the observed repeated-source generation before the artifact')
   assert.deepEqual(material.frames.filter(f=>f.type==='draft'),[])
   const deltas=material.frames.filter(f=>f.type==='delta');assert.equal(deltas.length,1);assert.equal(deltas[0].saved,true);assert.equal(deltas[0].replace,true)
   assert.equal(deltas[0].text.split('我在课程小组里负责整理资料和排版').length-1,1)
