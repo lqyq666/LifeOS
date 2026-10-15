@@ -106,7 +106,7 @@ export function weeklyTimeIntent(text:string):{quote:string;minutes:number;perio
 // sit in an earlier clause of the same sentence (这周，只剩两小时). Next-week
 // clauses and marker-less statements stay out rather than being guessed into
 // this week. Spent time (花了/用了) and attached nouns (两小时课) never count.
-const remainingBudget=/(剩余时间(?:要)?(?:改成|改为)|(?:只)?还?剩(?:下|着)?|(?:只|就)?有|(?:只|就)|可用)[^，,。；;！？!?\n]{0,4}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头|分钟))(?![课班])/
+const remainingBudget=/(剩余(?:可投入|可用)?时间(?:要)?(?:更正为|改成|改为)|(?:只)?还?剩(?:下|着)?|(?:只|就)?有|(?:只|就)|可用)[^，,。；;！？!?\n]{0,4}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头|分钟))(?![课班])/
 // 半小时=30, 一个半小时=90 resolve through parseExactHours on the whole token
 // first; bare amounts (两小时) strip the unit. Ambiguous forms (两个半小时) refuse.
 const remainingMinutes=(token:string):number|null=>{
