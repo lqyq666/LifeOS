@@ -485,7 +485,8 @@ export async function cognitionGraph(user:string) {
   const storedThemes=(await pool.query("SELECT * FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC",[user])).rows
   const invalidThemeIds=new Set(storedThemes.filter(theme=>!themeHasPursuitSource(theme)).map(theme=>theme.id))
   const themes=storedThemes.filter(theme=>!invalidThemeIds.has(theme.id))
-  const starmapNextStep=themeNextStep(themes,pausedThemeLabels)
+  const pursuitFacts=(await growthView(user)).items.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped)
+  const starmapNextStep=themeNextStep(themes,pausedThemeLabels,pursuitFacts)
   const edges:any[]=[]
   const THEME_KIND_LABEL:Record<string,string>={goal:'目标',pursuit:'阶段追求',valued_point:'重视点',interest:'兴趣探索'}
   for(const theme of themes.slice(0,3)){

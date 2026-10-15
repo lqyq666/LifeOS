@@ -6,7 +6,7 @@ import type { PoolClient,Pool } from 'pg'
 import { matchPathTheme } from './path-lexicon.ts'
 import { recordChangeEvent } from './identity.ts'
 import { distinctiveGrams } from './experience-episodes.ts'
-import {deferredPursuitClause,conversationPreferenceClause,assistantRequestClause,unstartedActivityOnlyClause} from './user-command-spans.ts'
+import {deferredPursuitClause,conversationPreferenceClause,assistantRequestClause,unstartedActivityOnlyClause,scanUserClauses} from './user-command-spans.ts'
 
 // 路径同义词表：主题锚词除标题片段外，还接受该路径的领域词（行测↔考公、
 // 雅思↔留学）。这只是连线候选的召回面；成线仍需本人经历原文包含锚词。
@@ -69,7 +69,7 @@ const PAST_EVENT_OPEN = /^(?:上周|上个月|上月|昨天|前天|上次|之前
 const THIRD_PARTY = /(?:他|她|它)(?:说|打算|想|决定|要)|室友说|同学说|朋友说|别人|老师说|父母说|爸妈说|大家|周围人|他们/
 // 主题必须带有意图词：目标/想要/打算/不再……。模型的 feedback/direction
 // 误分类（"部长说效果还不错"）没有意图词，进不了主题。
-const INTENT_MARKER = /(?:想|要|打算|准备|希望|计划|决定|争取|目标|重点|优先|不再|不想|追求|放第一|第一位|以.{0,4}为主|觉得.{0,8}适合|觉得自己.{0,8}适合|适合做)/
+const INTENT_MARKER = /(?:想|要|打算|准备|希望|计划|决定|争取|目标|重点|优先|更重视|不再|不想|追求|放第一|第一位|以.{0,4}为主|觉得.{0,8}适合|觉得自己.{0,8}适合|适合做)/
 const normalize = (text: string) => text.replace(WISH_PREFIX, '').replace(/[\s，。、！？?！,.\-—]/g, '')
 
 export type ThemeCandidate = { kind: ThemeKind; status:'active'|'pending'; title: string; sourceGrowthId: string; quote: string }
@@ -88,7 +88,11 @@ const EXPLORING_MARK = /(?:考虑|在想|也许|可能|想试试|试试|了解�
 const HEDGING = /(?:可能|也许|大概|说不定|不一定|不太确定|还没想清楚|说不好)/
 const DECIDED_MARK = /(?:决定|确定|定了|一定要|铁了心|就选)/
 const endedMainPath=(quote:string):boolean=>/不再.{0,20}(?:作为|当作).{0,4}(?:主线|重点)|暂停(?:扩大)?接单/.test(quote)
+// A request for an unspecified next step remains useful context, not a pursuit.
+const immediateStep=(quote:string)=>/^(?:我)?(?:想|希望)(?:先)?(?:找|选|确定)(?:一件|一个|一条|一步)[^。！？]{0,50}(?:小事|小探索|下一步)$/.test(quote.trim())
+const explicitPriority=(quote:string)=>scanUserClauses(quote).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!assistantRequestClause(clause.text)&&/^(?:我(?:确认|决定|想)?(?:本阶段|当前|现在|目前|本周|这周)?(?:优先|更重视|先了解|先考虑|先探索)|(?:本阶段|当前|现在|目前|本周|这周)(?:我)?(?:优先|更重视|重点(?:是|在|放在)))/.test(clause.text))
 export function pursuitLevel(quote: string): { kind: 'pursuit' | 'exploration'; status: 'active' | 'pending' } | null {
+  if(immediateStep(quote))return null
   if(unstartedActivityOnlyClause(quote)||assistantRequestClause(quote))return null
   if(deferredPursuitClause(quote)||conversationPreferenceClause(quote))return null
   if(endedMainPath(quote))return null
@@ -96,7 +100,7 @@ export function pursuitLevel(quote: string): { kind: 'pursuit' | 'exploration'; 
   // 不确定语气不建主题："我可能在考虑考研" 不占星图
   if (HEDGING.test(quote)) return null
   if(/^(?:我)?(?:现在|目前|本阶段).{0,8}(?:主要)?探索/.test(quote))return {kind:'exploration',status:'active'}
-  if(/优先|放第一|第一位/.test(quote))return {kind:'pursuit',status:'active'}
+  if(/优先|更重视|放第一|第一位/.test(quote))return {kind:'pursuit',status:'active'}
   if (BOUNDARY_PURSUIT.test(quote)) return { kind: 'pursuit', status: 'active' }
   if (EXPLORING_MARK.test(quote) && !DECIDED_MARK.test(quote)) return { kind: 'exploration', status: 'pending' }
   if (FUTURE_MARK.test(quote) && !DECIDED_MARK.test(quote)) return { kind: 'exploration', status: 'pending' }
@@ -122,7 +126,7 @@ export function deriveThemeCandidates(facts: readonly GrowthFact[]): ThemeCandid
     // identity 层按原话捕获。
     if (/我(?:是|算是|觉得自己是|认为自己(?:是|属于)|属于)(?:那种|一个|个)?[^，。；！？]{2,30}?(?:的人|的性格|的类型|做事方式|风格)/.test(quote)) continue
     let kind: ThemeKind, status: 'active' | 'pending'
-    if (['goal', 'direction', 'priority', 'decision'].includes(fact.kind)) {
+    if (['goal', 'direction', 'priority', 'decision'].includes(fact.kind)||fact.kind==='context'&&explicitPriority(quote)) {
       if (!INTENT_MARKER.test(quote) && !EXPLORING_MARK.test(quote) && !BOUNDARY_PURSUIT.test(quote)) continue
       const level = pursuitLevel(quote)
       if (!level) continue
@@ -158,13 +162,13 @@ export type ThemeRow = {
 }
 
 export function themeHasPursuitSource(theme: Pick<ThemeRow,'pinned'|'source_refs'>): boolean {
-  return theme.pinned||!theme.source_refs.length||theme.source_refs.some(ref=>!unstartedActivityOnlyClause(ref.quote)&&!assistantRequestClause(ref.quote)&&!deferredPursuitClause(ref.quote))
+  return theme.pinned||!theme.source_refs.length||theme.source_refs.some(ref=>!immediateStep(ref.quote)&&!unstartedActivityOnlyClause(ref.quote)&&!assistantRequestClause(ref.quote)&&!deferredPursuitClause(ref.quote))
 }
-export function themeNextStep(themes: readonly Pick<ThemeRow,'title'|'status'|'pinned'|'source_refs'>[], paused: ReadonlySet<string>): string {
+export function themeNextStep(themes: readonly Pick<ThemeRow,'title'|'status'|'pinned'|'source_refs'>[], paused: ReadonlySet<string>, facts:readonly GrowthFact[]=[]): string {
   const active=themes.filter(theme=>['active','pending'].includes(theme.status)&&!paused.has(theme.title)&&themeHasPursuitSource(theme))
   const pinned=active.find(theme=>theme.pinned)
   if(pinned)return `当前最优先：${pinned.title}（本人置顶）`
-  const explicit=active.find(theme=>theme.source_refs.some(ref=>!assistantRequestClause(ref.quote)&&!/^计划[:：]/.test(ref.quote)&&/(?:我(?:确认|决定|想)?(?:本阶段|当前|现在|本周|这周)?(?:优先|先了解|先考虑|先探索)|(?:本阶段|当前|现在|本周|这周).{0,8}(?:优先|重点))/.test(ref.quote)))
+  const explicit=active.find(theme=>theme.source_refs.some(ref=>explicitPriority(ref.quote))||facts.some(fact=>fact.status==='active'&&['user_reported','user_edit'].includes(fact.assertion)&&explicitPriority(fact.text)&&(matchPathTheme(fact.text)?.title===theme.title||!matchPathTheme(fact.text)&&fact.text.includes(theme.title))))
   if(explicit)return `当前重点：${explicit.title}（本人表达）`
   return active[0]?`正在探索：${active[0].title}；优先顺序尚未确认。`:''
 }
