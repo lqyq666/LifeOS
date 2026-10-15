@@ -38,8 +38,16 @@ export function captureCoachSource(root=process.cwd()){
   const exactRuntime={...runtime,comparison}
   return {kind:'FROZEN_SOURCE_AND_RUNTIME_CONFIG' as const,files,runtime:exactRuntime,digest:hash(JSON.stringify({files,runtime:exactRuntime}))}
 }
-export function assertCoachSourceFreeze(path:string,root=process.cwd()){
+// The complete snapshot remains the audit trail. Coze compatibility depends on
+// executable host code and its policies, not browser assets or test reports.
+export function workflowCompatibilityDigest(snapshot:ReturnType<typeof captureCoachSource>){
+  const executionScripts=new Set(['scripts/coach-source-freeze.ts','scripts/coach-provider-budget.ts','scripts/coze-credit-budget.ts','scripts/coze-host-permit.ts'])
+  const files=snapshot.files.filter(file=>file.path.startsWith('server/')||file.path.startsWith('skills/')||file.path.startsWith('evidence/v1.3-action-coach/research/')||executionScripts.has(file.path)||['package.json','package-lock.json','src/features/growth/types.ts','src/features/cognition/data/lifeos-graph.seed.json','.planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json','.planning/research/workflow-integration/INDEPENDENT_EXECUTION_BINDINGS.json'].includes(file.path))
+  return hash(JSON.stringify({kind:'workflow-host-execution-v1',files,runtime:snapshot.runtime}))
+}
+export function assertCoachSourceFreeze(path:string,root=process.cwd(),scope:'complete'|'workflow'='complete'){
   const frozen=JSON.parse(readFileSync(path,'utf8')),current=captureCoachSource(root)
-  if(frozen.kind!==current.kind||frozen.digest!==current.digest||hash(JSON.stringify({files:frozen.files,runtime:frozen.runtime}))!==frozen.digest)throw new Error('COACH_SOURCE_OR_CONFIG_CHANGED')
+  const matches=scope==='workflow'?workflowCompatibilityDigest(frozen)===workflowCompatibilityDigest(current):frozen.digest===current.digest
+  if(frozen.kind!==current.kind||!matches||hash(JSON.stringify({files:frozen.files,runtime:frozen.runtime}))!==frozen.digest)throw new Error('COACH_SOURCE_OR_CONFIG_CHANGED')
   return current.digest
 }

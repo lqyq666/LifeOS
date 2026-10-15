@@ -167,7 +167,7 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
    const onAbort=()=>{void stop()}
    let receipt:WorkflowReceipt={schemaVersion:2,traceId:r.traceId,status:'unavailable',failure:'unavailable',providerCalls:0,costCny:0,reservedCostCny:0,executionKind:'real_provider',skills:[],fallback:'existing_single_agent'}
    try{
-    assertCoachSourceFreeze(input.freezePath)
+    assertCoachSourceFreeze(input.freezePath,undefined,'workflow')
     if(signal?.aborted||await journal.cancelled(r))throw new WorkflowError('cancelled')
     const records=await input.readEvidence(r);validateEvidence(r,r.authorizedEvidenceRefs,records)
     const funding=activeCoachFunding(budget.snapshot())
@@ -213,7 +213,7 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
     if(Date.now()>=end)throw new WorkflowError('timeout')
     if(stopReason)throw new WorkflowError(stopReason)
     if(await journal.cancelled(r))throw new WorkflowError('cancelled')
-    assertCoachSourceFreeze(input.freezePath);await input.readMethods(r)
+    assertCoachSourceFreeze(input.freezePath,undefined,'workflow');await input.readMethods(r)
     receipt=parseCozeDirectionReceipt(knownReceipt,r,await input.readEvidence(r))
    }catch(error){
     if(wire&&!settled){
