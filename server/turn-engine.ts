@@ -77,7 +77,7 @@ function usageSummary(calls:CallRecord[],contextTokenEstimate:number,retrievedMe
   return {source:calls.length?'provider':zeroLlm?'deterministic':'unknown',provider:last?.provider??null,model:last?.model??null,modelTier:tiers.length?tiers.join('+'):'none',inputTokens:totalInputTokens,totalInputTokens,uncachedInputTokens:input,cacheWriteInputTokens:cacheWrite,outputTokens:sum('outputTokens'),cachedInputTokens:cachedInput,retrievedMemoryCount,contextTokenEstimate,contextTokenEstimateKind:'heuristic',escalated,escalationReason,repairReason,repairCalls:calls.filter(call=>call.purpose==='repair').length,groundingReviewCalls:0,zeroLlm,llmCallCount:calls.length,estimatedCostCny,calls:callLedger}
 }
 
-async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string,kind:'safe_question'|'safe_sentence')=>void,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds:readonly string[]=[],earlyDraftMode:'none'|'safe_sentence'|'material_question'|'weekly_plan'='none',requireCandidate=false,boundedReply:BoundedReply|null=null,earlyPlan:WeeklyPlanDraftExpectation|null=null):Promise<string>{
+async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string,kind:'safe_question'|'safe_sentence'|'waiting_hint')=>void,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds:readonly string[]=[],earlyDraftMode:'none'|'safe_sentence'|'material_question'|'weekly_plan'='none',requireCandidate=false,boundedReply:BoundedReply|null=null,earlyPlan:WeeklyPlanDraftExpectation|null=null):Promise<string>{
   signal.throwIfAborted()
   if(!runtime.available)throw new HttpError(503,'MODEL_TIER_UNAVAILABLE')
   if(!capabilityVerified(runtime.tier))throw new HttpError(503,'MODEL_CAPABILITY_TEST_REQUIRED')
@@ -113,8 +113,9 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     let earlyDraftKind:'none'|'safe_sentence'|'safe_question'='none'
     const boundedPlanBoundary=earlyDraftMode==='weekly_plan'&&earlyPlan?weeklyPlanBoundaryDraft(earlyPlan):null
     if(emitDraft&&boundedPlanBoundary){
-      record.firstSafeSentenceMs=Math.max(0,Math.round(performance.now()-startedMonotonicMs))
-      emitDraft(boundedPlanBoundary,'safe_sentence');draftSent=true;earlyDraftKind='safe_sentence'
+      // The host-owned budget confirmation is only a waiting hint. It must not
+      // consume the one substantive preview slot or its timing measurement.
+      emitDraft(boundedPlanBoundary,'waiting_hint')
     }
     for await(const event of source){
       signal.throwIfAborted()
