@@ -22,9 +22,20 @@ test('Jev method fit makes one pre-generation request and keeps only applicable 
  assert.equal(calls,1);assert.equal(payload.model,'jev-1.14.0');assert.equal(Object.keys(payload.questions).length,3)
  assert.equal(payload.state.eligibility.userAskedForHelp,true)
  assert.equal(payload.state.eligibility.refusalAndListeningOnlyAlreadyBlocked,true)
- assert.match(payload.questions.candidate_0.instructions,/方法用于核实未知本身不算缺前提/)
+ assert.match(payload.questions.candidate_0.instructions.question,/方法用于核实未知本身不算缺前提/)
+ assert.equal(payload.questions.candidate_0.instructions.candidate.id,cards[0].id)
+ assert.equal(payload.questions.candidate_1.instructions.candidate.id,cards[1].id)
+ assert.equal(payload.questions.candidate_0.instructions.request,'校园项目需求一直变，我该用什么方法确认真正需求？')
  assert.deepEqual(result.cards.map(card=>card.id),[cards[1].id]);assert.equal(result.trace.status,'selected');assert.deepEqual(result.trace.selected.map(row=>row.id),[cards[1].id]);assert.deepEqual(result.trace.usage,{inputTokens:123,outputTokens:6});assert.deepEqual(result.trace.cost,{currency:'USD',amount:.000005166,basis:'published_input_rate',inputUsdPerMillion:.042})
  assert.ok(!JSON.stringify(result.trace).includes('校园项目'))
+})
+
+test('an adjustment alias does not override a different applicable candidate',async()=>{
+ const answers=Object.fromEntries(cards.map((_,i)=>['candidate_'+i,{type:'choice',choice:i===0?'applicable':'unsuitable',confidence:.9,probabilities:{applicable:i===0?0.9:0.02,missing_prerequisite:.03,needs_clarification:.05,unsuitable:i===0?0.02:0.9}}]))
+ const transport:JevTransport=async()=>response(answers)
+ const adjusted={...intent,stage:'adjust' as const,continuation:false}
+ const result=await selectJevMethodCandidates(cards,'选课问题还没开始，我该怎么核实？',adjusted,{enabled:true,apiKey:'x'.repeat(24),transport})
+ assert.deepEqual(result.cards.map(card=>card.id),[cards[0].id])
 })
 
 test('Jev method fit allows all candidates to be unsuitable',async()=>{
