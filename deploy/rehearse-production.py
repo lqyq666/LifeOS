@@ -71,8 +71,9 @@ def main():
   assert not any(re.search(r'ollama|vllm|embedding|encoder|llama',line.split()[0],re.I) for line in units.splitlines() if line.split()),'HOST_MODEL_SERVICE_RUNNING'
  exclusive([original['Id']])
  assert run(['docker','image','inspect','--format','{{.Id}}',EXPECTED_IMAGE_ID])==EXPECTED_IMAGE_ID
- image_preflight="const fs=require('fs');require.resolve('tsx');for(const file of ['scripts/migrate-db.ts','server/migration-checksum.ts'])if(!fs.statSync(file).isFile())process.exit(2);console.log('MIGRATION_RUNTIME_READY')"
- assert run(['docker','run','--rm','--network','none','--read-only','--pids-limit','32','--memory','128m','--memory-swap','128m','--cpus','0.5','--cap-drop','ALL','--security-opt','no-new-privileges','--entrypoint','node',EXPECTED_IMAGE_ID,'-e',image_preflight],timeout=20)=='MIGRATION_RUNTIME_READY'
+ image_preflight="const fs=require('fs');require.resolve('tsx');for(const file of ['scripts/migrate-db.ts','server/migration-checksum.ts'])if(!fs.statSync(file).isFile())process.exit(2);for(const name of JSON.parse(process.env.STAGED_MIGRATIONS))fs.readFileSync('/staged-migrations/'+name);console.log('MIGRATION_RUNTIME_READY')"
+ staged_names=json.dumps([row['name'] for row in binding['stagedMigrations']])
+ assert run(['docker','run','--rm','--network','none','--read-only','--pids-limit','32','--memory','128m','--memory-swap','128m','--cpus','0.5','--cap-drop','ALL','--security-opt','no-new-privileges','--mount','type=bind,src='+str(release/'app/server/migrations')+',dst=/staged-migrations,readonly','-e','STAGED_MIGRATIONS='+staged_names,'--entrypoint','node',EXPECTED_IMAGE_ID,'-e',image_preflight],timeout=20)=='MIGRATION_RUNTIME_READY'
  assert json.loads(sql('lifeos',MIGRATION_QUERY))==binding['oldMigrations']
  for name in names:
   assert bounded_run(['docker','inspect',name],capture_output=True,timeout=8).returncode!=0,'EXISTING_PRIVATE_TARGET'
@@ -198,6 +199,7 @@ def main():
    return guards['schema_sha256'](text)
   clone_schema= schema_digest(db)
   assert clone_schema==binding['expectedSchemaSha256'],'CANONICAL_POST_MIGRATION_SCHEMA_CHANGED'
+  migrations=['034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql','038-independent-coach-materials.sql']
   for kind,image in [('old',old_image),('new',EXPECTED_IMAGE_ID)]:
    exclusive()
    cap=guards['recovery_memory_cap'](available())
@@ -207,6 +209,7 @@ def main():
    else:
     for mount in original['Mounts']:
      if mount['Type']=='bind':args+=['--mount','type=bind,src='+mount['Source']+',dst='+mount['Destination']+',readonly']
+    for migration in migrations:args+=['--mount','type=bind,src='+str(release/'app/server/migrations'/migration)+',dst=/app/server/migrations/'+migration+',readonly']
    created.append(name);container_id=create_private(args,name,image)
    assert attach_private(name)==container_id
    assert private_state(name);run(['docker','start',container_id])
