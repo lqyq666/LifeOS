@@ -57,6 +57,41 @@ export function openingQuestionDraft(raw:string):string|null{
   return null
 }
 
+export type WeeklyPlanDraftExpectation={
+  period:string
+  availableMinutes:number
+  allowedActions?:readonly string[]
+  mustLeaveSlack:boolean
+}
+
+// A streamed plan can become visible only after its whole allocation has
+// closed in the structured payload. The caller proves that boundary by
+// waiting for the following top-level reply field; this helper validates the
+// allocation itself against the same server-owned budget and finite task lane.
+export function weeklyPlanDraft(raw:unknown,expected:WeeklyPlanDraftExpectation):string|null{
+  if(!raw||typeof raw!=='object'||!Number.isInteger(expected.availableMinutes)||expected.availableMinutes<=0)return null
+  const plan=raw as {period?:unknown;availableMinutes?:unknown;items?:unknown}
+  if(plan.period!==expected.period||plan.availableMinutes!==expected.availableMinutes||!Array.isArray(plan.items)||plan.items.length<1||plan.items.length>12)return null
+  const allowed=expected.allowedActions?.length?new Set(expected.allowedActions):null
+  const parts:string[]=[]
+  const seen=new Set<string>()
+  let assigned=0
+  for(const rawItem of plan.items){
+    if(!rawItem||typeof rawItem!=='object')return null
+    const item=rawItem as {action?:unknown;minutes?:unknown}
+    if(typeof item.action!=='string'||typeof item.minutes!=='number'||!Number.isInteger(item.minutes)||item.minutes<=0)return null
+    const action=item.action.trim()
+    if(!action||action.length>80||seen.has(action)||(allowed&&!allowed.has(action)))return null
+    assigned+=item.minutes
+    if(assigned>expected.availableMinutes)return null
+    seen.add(action);parts.push(`${action}${item.minutes}分钟`)
+  }
+  const remaining=expected.availableMinutes-assigned
+  if(expected.mustLeaveSlack&&remaining<=0)return null
+  const draft=`先安排${parts.join('、')}${remaining>0?`，保留${remaining}分钟未安排`:''}。`
+  return draft.length<=160?draft:null
+}
+
 // A validated structured plan owns the timetable. Preserve explanatory prose,
 // but do not append a second model-authored schedule with different totals.
 export function weeklyPlanExplanation(reply:string):string{
@@ -115,9 +150,11 @@ export function safeEarlySentence(raw:string,maxChars=120):string|null{
       // framing. Keep looking for the actual request or supportive content.
       if(/^[“「『"']?[^。！？]{0,16}(?:你好|您好)[，,\s]*(?:我是[^。！？]{1,32})?$/.test(sentence))continue
       if(/^(?:好的?[，,]?|明白[，,]?)?(?:那就)?(?:今天)?(?:不安排(?:任何)?任务|不给你安排(?:任何)?任务)(?:[，,](?:(?:就)?(?:陪你聊聊|聊聊天|聊聊)|也不催你做任何事))?$/.test(sentence))continue
-      // A paragraph ending in a colon announces content that has not arrived.
-      // Do not count arbitrary material headers as useful first content.
-      if(/[:：]\s*$/.test(sentence))continue
+      // A paragraph ending in a colon usually announces content that has not
+      // arrived. A self-contained bounded allocation is already useful even
+      // when the model appends a colon before elaborating it.
+      const concreteAllocation=/\d+\s*(?:分钟|小时).*(?:作业|复习|任务|安排|分配).*\d+.*\d+/.test(sentence)
+      if(/[:：]\s*$/.test(sentence)&&!concreteAllocation)continue
       if(/^(?:作品描述|简历|个人介绍|消息|材料|文稿|草稿|计划|清单|方案|安排)(?:已经|已)(?:按[^。！？]{0,80})?(?:撰写|起草|编写|生成|整理|准备|写好|完成)/.test(sentence))continue
       if(!sentence||fillerOnly.test(sentence)||/^这是一(?:条|份|段|句)(?:可直接复制的)?简短(?:消息|材料|文稿|草稿)(?:，发送前请自行核对老师姓名和课程名称)?[:：]$/.test(sentence)||/^(?:围绕|关于)最近一次实际选课经历，可以这样问[:：]$/.test(sentence)||/(?:消息|材料|文稿|草稿|计划|清单|方案|安排)(?:已经|已)(?:写好|整理好|准备好|规划好|完成)[^。！？]*$/.test(sentence)||/(?:我(?:已|为你|给你)|已为你).{0,8}(?:规划|整理|准备|制定|写)(?:了|好)?(?:一(?:份|个|段))?.{0,12}(?:方案|计划|安排|草稿|清单)$/.test(sentence))continue
       if(sentence.length>maxChars)return null

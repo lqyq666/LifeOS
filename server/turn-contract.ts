@@ -289,6 +289,13 @@ export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:numbe
   }
  }
  if(budget.minutes>0)schema.properties.reply={type:'string',minLength:1,maxLength:160,description:'简短说明取舍、实际反馈或未知；具体时间只在weeklyPlan展示，不另写数字日程。'}
+ if(budget.minutes>0){
+  // Structured providers emit properties in schema order. Put the bounded
+  // allocation first so the following reply key is an unambiguous streaming
+  // boundary: every weeklyPlan item has arrived before any draft is shown.
+  const {weeklyPlan,...remaining}=schema.properties
+  schema.properties={weeklyPlan,...remaining}
+ }
  if(budget.minutes===0){
   plan.properties.items.maxItems=0
   schema.properties.reply={type:'string',enum:[budget.period==='next_week'?'下周没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。':'当前安排的时段没有可用时间，先不安排课程或备考任务；等可用时间改变后再调整。']}

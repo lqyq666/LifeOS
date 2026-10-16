@@ -126,6 +126,7 @@ test('ordinary contract composes review, material and facts without competing mo
   assert.equal(slack.properties.weeklyPlan.properties.items.items.properties.minutes.maximum,119)
   assert.equal(slack.properties.weeklyPlan.properties.items.enum,undefined)
   const course=bindPlanBudgetSchema(c,{minutes:120,period:'this_week'},'安排课程作业和复习，不要全排满',[]).schema as any
+  assert.equal(Object.keys(course.properties)[0],'weeklyPlan')
   assert.equal(course.properties.weeklyPlan.properties.items.items.properties.directionScopes.maxItems,0,'generic coursework cannot invent a degree direction')
   assert.deepEqual(course.properties.weeklyPlan.properties.items.items.properties.action.enum,['课程作业','复习'])
   assert.equal(course.properties.weeklyPlan.properties.items.maxItems,2)

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { openingQuestionDraft, safeEarlySentence } from '../server/reply-draft.ts'
+import { openingQuestionDraft, safeEarlySentence, weeklyPlanDraft } from '../server/reply-draft.ts'
 
 test('slim real framing prefixes wait for substantive content rather than fake first content',()=>{
   for(const prefix of ['这是一句可直接复制的简短消息，发送前请自行核对老师姓名和课程名称：','围绕最近一次实际选课经历，可以这样问：']){
@@ -15,6 +15,17 @@ test('slim real framing prefixes wait for substantive content rather than fake f
   for(const unsafe of ['方案已完成。','这是一句可直接复制的简短消息，已为你发送：\n\n','围绕你有焦虑症、必须马上停课的判断，可以这样说：\n\n','这是一条已经替你发送成功的消息：\n\n']){
     assert.equal(safeEarlySentence(JSON.stringify({reply:unsafe+'接下来先核对课程的先修要求。'})),null)
   }
+})
+
+test('a streamed weekly plan becomes useful first content only after its bounded allocation is complete',()=>{
+ const expected={period:'this_week',availableMinutes:120,allowedActions:['课程作业','复习'],mustLeaveSlack:true}
+ assert.equal(weeklyPlanDraft({period:'this_week',availableMinutes:120,items:[{action:'课程作业',minutes:40},{action:'复习',minutes:40}]},expected),'先安排课程作业40分钟、复习40分钟，保留40分钟未安排。')
+ for(const value of [
+  {period:'this_week',availableMinutes:120,items:[{action:'课程作业',minutes:60},{action:'复习',minutes:60}]},
+  {period:'this_week',availableMinutes:120,items:[{action:'联系学长',minutes:40}]},
+  {period:'next_week',availableMinutes:120,items:[{action:'课程作业',minutes:40}]},
+  {period:'this_week',availableMinutes:120,items:[{action:'课程作业',minutes:121}]},
+ ])assert.equal(weeklyPlanDraft(value,expected),null)
 })
 
 test('progressive JSON decoding waits for a complete question and handles split escapes',()=>{
