@@ -20,6 +20,7 @@ import {captureCoachSource} from '../../scripts/coach-source-freeze.ts'
 import {createRuntimeDecisionAdapter} from '../../server/workflows/provider-adapter.ts'
 import {createWorkflowHost} from '../../server/workflows/task-host.ts'
 import {readWorkflowEvidence} from '../../server/workflows/task-sources.ts'
+import {createGrowthItem} from '../../server/growth.ts'
 
 test('WF02/03/05/04 host → native SDK engine → finishRun → authenticated GET → refresh → new session; durable deep task adoption and cancellation',async()=>{
  const previous={url:model.baseUrl,key:config.apiKey,origin:config.origin,access:config.entitlementsEnabled,rate:config.messagesPerMinute,flag:process.env.LIFEOS_ADVANCED_WORKFLOWS}
@@ -73,6 +74,7 @@ test('WF02/03/05/04 host → native SDK engine → finishRun → authenticated G
   for(const conversation of [chat,chat,second]){const view=await json('/api/conversations/'+conversation+'/event?id='+eventId);assert.equal(view.actionStages.used,null);assert.equal(view.actionStages.replied,false);assert.equal(view.actionStages.sent,true);assert.equal(view.actionStages.read,true);assert.equal(view.actionStages.effect,null);assert.ok(view.nodes.filter((n:any)=>n.source?.messageId!==unknownDone.event.actionStageEvidence.used.sourceMessageId).some((n:any)=>n.supersededByActionCorrection))}assert.equal((await json('/api/runs/'+unknownId)).response.event.actionStages.used,null);checks.push('explicit unknown: native SDK once → finishRun → GET refresh/new session used=null, prior reply=false and sent/read retained, old positive/negative use premises superseded')
   const missingRun=(await store.startRun(user,chat,randomUUID(),'我想深入比较就业和考研，还不知道本周空余时间。')).run;await store.finishRun(missingRun,{candidates:[],audit:[]},'可以先核对空余时间。',null,new AbortController().signal)
   const missingId=randomUUID(),missingWire=wire.length;await json('/api/workflows',{requestId:missingId,conversationId:chat,currentMessageId:missingRun.source_message_id,directions:['employment','postgraduate_exam'],consent:true});assert.equal((await json('/api/workflows/'+missingId)).status,'waiting_user');assert.equal(wire.length,missingWire);checks.push('unknown available time: durable waiting_user targeted clarification, zero model dispatch')
+  const historicalFact=await createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind:'goal',text:'我决定本阶段就业优先，并在比较就业和考研。'})
   const prompt='我在比较就业和考研，这周可用20小时，尚未确定读研动机。',base=(await store.startRun(user,chat,randomUUID(),prompt)).run;await store.finishRun(base,{candidates:[],audit:[]},'可以先分别核对。',null,new AbortController().signal)
   const deep=(id=randomUUID(),directions=['employment','postgraduate_exam'])=>({requestId:id,conversationId:chat,currentMessageId:base.source_message_id,directions,consent:true})
   const body=deep(),beforeGrowth=(await pool.query('SELECT count(*) AS n FROM growth_items WHERE user_id=$1',[user])).rows[0].n
@@ -118,6 +120,17 @@ test('WF02/03/05/04 host → native SDK engine → finishRun → authenticated G
   const afterControlChange=await json('/api/workflows/'+body.requestId+'?conversationId='+second)
   assert.equal(afterControlChange.status,'plan_saved','later memory controls do not erase an already committed selection')
   assert.equal(wire.length,priorCalls,'historical control changes do not regenerate a committed task')
+  const historicalGrowthRef=historicalPayload.authorizedEvidenceRefs.find((ref:any)=>ref.type==='growth'&&ref.id===historicalFact.id)
+  assert.ok(historicalGrowthRef,'fixture must authorize the committed growth fact')
+  const growthBefore=(await pool.query('SELECT status,revision FROM growth_items WHERE user_id=$1 AND id=$2',[user,historicalGrowthRef.id])).rows[0]
+  await pool.query("UPDATE growth_items SET status='paused',revision=revision+1 WHERE user_id=$1 AND id=$2",[user,historicalGrowthRef.id])
+  const afterSameFactPause=await json('/api/workflows/'+body.requestId+'?conversationId='+second)
+  assert.equal(afterSameFactPause.status,'plan_saved','a later plan can pause the same unchanged fact without erasing the committed selection')
+  await pool.query("UPDATE growth_items SET text=text||'（已更正）' WHERE user_id=$1 AND id=$2",[user,historicalGrowthRef.id])
+  assert.equal((await json('/api/workflows/'+body.requestId+'?conversationId='+second)).status,'failed','a text correction still invalidates the committed source')
+  await pool.query("UPDATE growth_items SET text=$3,status='rejected' WHERE user_id=$1 AND id=$2",[user,historicalGrowthRef.id,historicalFact.text])
+  assert.equal((await json('/api/workflows/'+body.requestId+'?conversationId='+second)).status,'failed','an explicit rejection still invalidates the committed source')
+  await pool.query('UPDATE growth_items SET text=$3,status=$4,revision=$5 WHERE user_id=$1 AND id=$2',[user,historicalGrowthRef.id,historicalFact.text,growthBefore.status,growthBefore.revision])
   if(memoryBefore)await pool.query('UPDATE user_memory_settings SET enabled=$2,revision=$3 WHERE user_id=$1',[user,memoryBefore.enabled,memoryBefore.revision])
   else await pool.query('DELETE FROM user_memory_settings WHERE user_id=$1',[user])
   assert.equal((await request('/api/workflows/'+body.requestId,undefined,otherCookie)).status,404)

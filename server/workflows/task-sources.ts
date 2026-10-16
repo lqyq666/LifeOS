@@ -10,6 +10,34 @@ import {applicableTimeBudget,type BudgetContext} from '../turn-obligations.ts'
 import {resolveTimeWindow} from '../growth-time.ts'
 import {WorkflowError,type WorkflowRequest,type EvidenceRecord} from './contracts.ts'
 type DB=Pick<PoolClient,'query'>
+type HistoricalGrowthSnapshot={text?:unknown;assertion?:unknown;status?:unknown;conversationId?:unknown;sources?:unknown;dependencies?:unknown}
+async function committedGrowthEvidence(r:WorkflowRequest,ref:Extract<WorkflowRequest['authorizedEvidenceRefs'][number],{type:'growth'}>,memoryEnabled:boolean,c:DB):Promise<EvidenceRecord|undefined>{
+ const current=(await c.query('SELECT text,assertion,status FROM growth_items WHERE user_id=$1 AND id=$2',[r.internalActorKey,ref.id])).rows[0] as {text:string;assertion:string;status:string}|undefined
+ const revision=(await c.query('SELECT snapshot FROM growth_revisions WHERE user_id=$1 AND item_id=$2 AND revision=$3',[r.internalActorKey,ref.id,ref.revision])).rows[0] as {snapshot:HistoricalGrowthSnapshot}|undefined
+ const snapshot=revision?.snapshot
+ if(!current||!snapshot||!['active','proposed'].includes(String(snapshot.status))||!['active','proposed','paused','completed'].includes(current.status))return
+ if(!['user_reported','user_edit'].includes(String(snapshot.assertion))||current.text!==snapshot.text||current.assertion!==snapshot.assertion)return
+ if(typeof snapshot.conversationId!=='string'||!Array.isArray(snapshot.sources)||!Array.isArray(snapshot.dependencies))return
+ if(ref.quote!==undefined&&!current.text.includes(ref.quote))return
+ // The exact committed revision remains historical evidence only while its
+ // original user-owned sources are still readable. A correction, rejection,
+ // forget, redaction or revoked message continues to invalidate the task.
+ for(const source of snapshot.sources){
+  if(!source||typeof source!=='object')return
+  const value=source as {type?:unknown;id?:unknown;quote?:unknown}
+  if(value.type==='user_edit')continue
+  try{await checkCampusSource(c,r.internalActorKey,snapshot.conversationId,memoryEnabled,value as Parameters<typeof checkCampusSource>[4])}catch(error){if(error instanceof HttpError)return;throw error}
+  if(value.type==='message'&&typeof value.id==='string'&&typeof value.quote==='string'&&await growthQuoteSuppressed(c,r.internalActorKey,value.id,value.quote))return
+ }
+ const growth=await growthView(r.internalActorKey,r.conversationId,c)
+ for(const dependency of snapshot.dependencies){
+  if(!dependency||typeof dependency!=='object')return
+  const value=dependency as {id?:unknown;revision?:unknown}
+  if(typeof value.id!=='string'||typeof value.revision!=='number'||!growth.items.some(x=>x.id===value.id&&x.revision===value.revision&&!x.unavailableReason&&['active','proposed'].includes(x.status)))return
+ }
+ const budget=applicableTimeBudget(current.text,undefined,r.hostSnapshot?.budgetQuestion?.period)
+ return {ref:{...ref},owner:r.internalActorKey,conversationId:snapshot.conversationId,status:'active',role:'user',text:current.text,...(budget?{budget}:{})}
+}
 export async function workflowControls(user:string,c:DB=pool){
  const memory=(await c.query('SELECT enabled,revision FROM user_memory_settings WHERE user_id=$1',[user])).rows[0]??{enabled:false,revision:0}
  const directions=await readDirectionControls(user,c),stopped=await readRecommendationControls(user,c)
@@ -52,7 +80,10 @@ export async function readWorkflowEvidence(r:WorkflowRequest,c:DB=pool,options:{
  for(const ref of r.authorizedEvidenceRefs){
   if(ref.type==='growth'){
    const found=growth.items.find(x=>x.id===ref.id)
-   if(!found||found.revision!==ref.revision||found.unavailableReason||!['active','proposed'].includes(found.status)||found.recommendationStopped)continue
+   if(!found||found.revision!==ref.revision||found.unavailableReason||!['active','proposed'].includes(found.status)||found.recommendationStopped){
+    if(options.historicalCommit){const historical=await committedGrowthEvidence(r,ref,controls.memory.enabled,c);if(historical)records.push(historical)}
+    continue
+   }
    // AI observations remain candidates; never label them student facts.
    if(!['user_reported','user_edit'].includes(found.assertion))continue
    if(ref.quote!==undefined&&!found.text.includes(ref.quote))continue
