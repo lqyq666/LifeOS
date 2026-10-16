@@ -168,7 +168,7 @@ def read_binding(path, operation, guards, verifier):
                 not re.fullmatch(r'[a-f0-9]{64}',str(row['sha256'])) for row in expected) or
             len({row['name'] for row in expected})!=len(expected) or
             {row['name'] for row in expected}-{row['name'] for row in migrations}!=additions or
-            any(row not in expected for row in migrations) or
+            not {row['name'] for row in migrations}.issubset({row['name'] for row in expected}) or
             not re.fullmatch(r'[a-f0-9]{64}',str(value.get('expectedSchemaSha256',''))) or
             not re.fullmatch(r'sha256:[a-f0-9]{64}',str(value.get('databaseImageId','')))):
         raise ValueError('CANONICAL_POST_MIGRATION_BINDING_REQUIRED')
