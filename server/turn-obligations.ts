@@ -291,7 +291,10 @@ const hoursIn=(text:string):number|null=>{
     // parser handles minute tokens and standalone zero; this context does not
     // supply temporal authority to staging or turn obligations.
     const available=applicableTimeBudget(text,{period:'this_week',question:'本人可用时间',anchor:'AMOUNT_CHECK_ONLY_NOT_TIME_AUTHORITY'})
-    return available?.qualification==='exact'?available.amountMinutes:null
+    // This helper compares the stated quantity, not its certainty. An upper
+    // bound such as "这周最多能用90分钟" still carries the exact numeric limit
+    // 90; qualification remains preserved separately on the budget record.
+    return available?.amountMinutes??null
   }
   return remainingMinutes(bare[0]!)
 }

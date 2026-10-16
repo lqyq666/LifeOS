@@ -177,6 +177,22 @@ test('supplementMissingBudgetDeltas stages only what the model failed to persist
   assert.equal(supplementMissingBudgetDeltas(remaining,weekScoped as never,'m2').length,0)
 })
 
+test('a current-week upper bound keeps its numeric amount through obligation verification',()=>{
+  const text='我大三，做过一个校园活动工具。我只负责访谈同学和画原型，代码是队友写的。这周最多能用90分钟。'
+  const obligations=deriveTurnObligations(text)
+  const effect=obligations.requiredEffects.find(item=>item.type==='weekly_time')
+  assert.deepEqual(effect,{type:'weekly_time',quote:'这周最多能用90分钟',minutes:90,period:'this_week'})
+  const growth={changes:[{
+    target:{operation:'create'},
+    kind:'constraint',
+    assertion:'user_reported',
+    text:'这周最多能用90分钟',
+    validUntil:'2026-10-18T16:00:00.000Z',
+    source:{messageId:'m-upper-bound',quote:'这周最多能用90分钟'},
+  }],prepared:[],inputIndexBindings:new Map()}
+  verifyTurnObligations(obligations,{growth:growth as never,controls:undefined,currentText:text,reply:'我会按90分钟上限给你建议。'})
+})
+
 test('P2 input family: availability without 剩, clock units, decimals, zero budget and wrong-period guards',()=>{
   // B01 family — 这周我只有N小时 is a this-week availability statement.
   assert.equal(deriveTurnObligations('这周我只有两小时，给我一个现在就能开始的具体行动。').requiredEffects.some(effect=>effect.type==='remaining_time'&&effect.minutes===120),true)
