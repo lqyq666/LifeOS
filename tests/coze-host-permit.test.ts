@@ -41,15 +41,20 @@ test('tampered payload, forged signature, wrong real build and expired permit ar
  const claims=JSON.parse(Buffer.from(wire.claimsB64,'base64').toString()),claimsB64=Buffer.from(JSON.stringify({...claims,maxOutputTokens:8192})).toString('base64')
  assert.throws(()=>verifyCozeHostPermit({...wire,claimsB64,signature:createHmac('sha256',secret).update(claimsB64).digest('hex')},secret,binding,input.now),/LIMIT_CONFLICT/)
 })
-test('missing direct-human route approval, non-synthetic data and unbounded graphs reserve nothing',()=>{
+test('missing direct-human route approval and unbounded graphs reserve nothing',()=>{
  for(const mutation of [
   (x:ReturnType<typeof fixture>)=>({...x,approval:{...approval,directHttpRouteApproval:undefined}}),
-  (x:ReturnType<typeof fixture>)=>({...x,payload:{...x.payload,syntheticAdult:false}}),
   (x:ReturnType<typeof fixture>)=>({...x,binding:{...binding,cloudCommit:'unknown'}}),
   (x:ReturnType<typeof fixture>)=>({...x,nodeIds:[...x.nodeIds,'hidden_retry']}),
   (x:ReturnType<typeof fixture>)=>({...x,maxCostPerCallCny:0.00001}),
   (x:ReturnType<typeof fixture>)=>({...x,payload:{...x.payload,modelBudget:{...x.payload.modelBudget,maxCostCny:0.01}}})
  ]){const x=fixture();assert.throws(()=>reserveCozeHostPermit(mutation(x)));assert.equal(x.budget.snapshot().calls.length,0)}
+})
+test('a normal authorized account is signed with syntheticAdult false without changing its identity',()=>{
+ const input=fixture(),payload={...input.payload,syntheticAdult:false}
+ const wire=reserveCozeHostPermit({...input,payload})
+ assert.equal(verifyCozeHostPermit(wire,secret,binding,input.now).payload.syntheticAdult,false)
+ assert.equal(input.budget.snapshot().calls.length,4)
 })
 test('cancelled or missing cloud receipt keeps full unknown reserve across process recreation',()=>{
  const input=fixture(),wire=reserveCozeHostPermit(input)

@@ -57,6 +57,15 @@ test('source invalidation before POST produces no charged retry and known zero a
  const receipt=await f.adapter.runRemoteGraph!(f.request,f.journal)
  assert.equal(receipt.failure,'source_invalid');assert.equal(receipt.providerCalls,0);assert.equal(receipt.costCny,0);assert.equal(posts,0);assert.equal(f.budget.snapshot().calls.length,0);assert.equal(f.credits.balance().heldCredits,0)
 })
+test('an entitled ordinary account passes the identity gate before evidence validation',async()=>{
+ let posts=0
+ const f=setup(async()=>{posts++;throw Error('must not dispatch after source invalidation')})
+ f.request.synthetic=false
+ f.records[0].status='withdrawn'
+ const receipt=await f.adapter.runRemoteGraph!(f.request,f.journal)
+ assert.equal(posts,0)
+ assert.equal(receipt.failure,'source_invalid')
+})
 test('cancel before POST after reservation releases only proven unsent CNY; credit cost stays unknown',async()=>{
  let posts=0,checks=0;const f=setup(async()=>{posts++;throw Error('must not dispatch')});f.journal.cancelled=async()=>++checks>=2
  const receipt=await f.adapter.runRemoteGraph!(f.request,f.journal)

@@ -132,7 +132,12 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
  }
  return {executionKind:'real_provider',maxCostPerCallCny:maxCost,analyze:unavailable,critic:unavailable,synthesize:unavailable,
   async runRemoteGraph(r,journal,signal){
-   if(!r.synthetic||r.controls.listeningOnly||r.controls.refuseAdvice||r.controls.memoryControl||!journal.durable)throw new WorkflowError('scope_denied')
+   // A normal entitled account reaches this adapter only through task-host's
+   // account gate. Keep its identity truthful and require the existing explicit
+   // deep-analysis consent instead of reusing the former synthetic-only launch
+   // restriction. Evidence ownership/minimization and signed permits remain
+   // enforced below for both account kinds.
+   if((!r.synthetic&&!r.consent.deepAnalysis)||r.controls.listeningOnly||r.controls.refuseAdvice||r.controls.memoryControl||!journal.durable)throw new WorkflowError('scope_denied')
    const end=Date.now()+r.modelBudget.deadlineMs
    const directions=r.directions.filter(d=>!r.controls.forbiddenDirections.includes(d.id)),nodeIds=[...directions.map(d=>'path:'+d.id),'critic','synthesize'],safeJournalDirectory=input.syntheticTransport?persistentJournalDirectory:prepareCozeJournalDirectory(resolve('.'),persistentRoot,cfg.journalDirectory)
    if(safeJournalDirectory!==persistentJournalDirectory)throw new WorkflowError('scope_denied')

@@ -48,7 +48,7 @@ function claimsAndPayload(wire:CozeHostPermit,secret:string,binding:Binding,now:
  return {claims,payload}
 }
 function validatePayload(payload:any,nodeIds:string[],maximum:number,inputTokenCap=cozeMaxInputTokens){
- if(!payload||payload.schemaVersion!==2||payload.businessRole!=='growth'||payload.syntheticAdult!==true||!uuid(payload.requestId)||!['direction_decision','action_review','growth_diff','kb_maintenance'].includes(payload.mode))throw Error('SYNTHETIC_AUTHORIZED_HOST_PAYLOAD_REQUIRED')
+ if(!payload||payload.schemaVersion!==2||payload.businessRole!=='growth'||typeof payload.syntheticAdult!=='boolean'||!uuid(payload.requestId)||!['direction_decision','action_review','growth_diff','kb_maintenance'].includes(payload.mode))throw Error('AUTHORIZED_HOST_PAYLOAD_REQUIRED')
  if(!Array.isArray(nodeIds)||nodeIds.length<1||nodeIds.length>5||new Set(nodeIds).size!==nodeIds.length||nodeIds.some(x=>typeof x!=='string'||!x.length||x.length>100))throw Error('PERMIT_GRAPH_INVALID')
  if(payload.mode==='direction_decision'){
   if(!Array.isArray(payload.directions)||![2,3].includes(payload.directions.length)||payload.directions.some((d:any)=>typeof d.id!=='string'||!d.id))throw Error('PERMIT_DIRECTIONS_INVALID')
