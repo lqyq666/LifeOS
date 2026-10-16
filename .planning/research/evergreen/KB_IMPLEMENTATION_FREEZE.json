@@ -1,0 +1,124 @@
+{
+  "baseline": "70914b1cbd55b75a4d0f74785163d33519f70f71",
+  "at": "2026-10-10T03:21:59.008Z",
+  "code": [
+    {
+      "file": "scripts/evergreen-audit.ts",
+      "sha256": "b624d4ae117dd7e4b80ca59f054f02dcef51be477ec6b1b9f6da0b4e2fb588bd"
+    },
+    {
+      "file": "scripts/evergreen-evaluation.ts",
+      "sha256": "77080cefdf9b73ffd1bf685377dbd6b4ab778d697e63c66459fc905fbe78448f"
+    },
+    {
+      "file": "scripts/evergreen-evidence-enrichment.ts",
+      "sha256": "31ac65ded8abcb09f8a9fa31239fb4d4a899e09c04179931c475223beb086876"
+    },
+    {
+      "file": "scripts/evergreen-knowledge.ts",
+      "sha256": "2119b453688437cd47373c609af66720a019a704faade42391f98897190ee0c2"
+    },
+    {
+      "file": "scripts/evergreen-seed.ts",
+      "sha256": "a0b50f4e78c345c4d1a5963d6af0024e673185d4a4e9be6e2178d8ed8af5cd95"
+    },
+    {
+      "file": "scripts/evergreen-semantic-review.ts",
+      "sha256": "128e9b11e23ccfef6d548b02df57b6efe92907a50de38d836fde0bf43786cf0d"
+    },
+    {
+      "file": "scripts/evergreen-web-fragments.ts",
+      "sha256": "e967bf69773be5acab18e3c99456f01015c19d4362e28b35d09cfee6d92921f4"
+    },
+    {
+      "file": "server/campus-knowledge.ts",
+      "sha256": "7f840dc5f5970958a7bc5e2be003cd00f1a0747011f092635edcff6157c4fc2d"
+    },
+    {
+      "file": "server/coach-knowledge.ts",
+      "sha256": "ff68f2aca4b2848d29080053349809407afa90c864d73cff8b4a1ec93fd3f3ed"
+    },
+    {
+      "file": "server/coze-knowledge.ts",
+      "sha256": "84e5ce9d089a6df57904baaa2184da6a9274115d224e8b9a23b064dbe6672057"
+    },
+    {
+      "file": "server/evergreen-guide.ts",
+      "sha256": "948f1d19d3c49fea6d18b70b4f8169a8405e4f9e1d1f277c8664deb1559ac52e"
+    },
+    {
+      "file": "server/evergreen-maintenance.ts",
+      "sha256": "3555d316a1da4000fc2eb2772b299879c591ca215f44bcefc59f6c5228707171"
+    },
+    {
+      "file": "server/evergreen-scope-guard.ts",
+      "sha256": "8751ac14a39bf7ff4acc7f69bc36b63a00edca814de7a6ef4b60ce94a4931c0a"
+    },
+    {
+      "file": "server/guide-usage.ts",
+      "sha256": "639236d604acbb72c995587ccfdaa05880d82ea96f50c984b1026d345b989a85"
+    },
+    {
+      "file": "server/http.ts",
+      "sha256": "691d449e12f832cdf4568bf9cee977c230b86eda17aa70bf84405f09d1e70dd6"
+    },
+    {
+      "file": "server/knowledge-index.ts",
+      "sha256": "60210947986e2f992cedc05d9579f951b02c15e383eb06bd7e5fab4519b1e0c4"
+    },
+    {
+      "file": "server/migrations/029-evergreen-knowledge.sql",
+      "sha256": "0612e8d823adcd7b85cc2eaa9f29b81f5a80ad68cfe41a5db3b51aa606c9882d"
+    },
+    {
+      "file": "server/store.ts",
+      "sha256": "ef2dc972db87e953e3bd49186a9f01e7c8fef492f6a6bf74b5dc6540d5ccbb8d"
+    },
+    {
+      "file": "server/turn-contract.ts",
+      "sha256": "c39238d98298ce19e8bb6ef4488f888348f88316c95e0979b6cdbfa732fe6553"
+    },
+    {
+      "file": "server/turn-engine.ts",
+      "sha256": "d40c3babb9e6b2a2c5592018a11840ba9152fcd39a241432fce7cd91b9fad3fb"
+    },
+    {
+      "file": "server/turn-prompt.ts",
+      "sha256": "f5acc95e29f56d9e28c4fec71cd4ea1627435b37be233aee4f828583743ddc82"
+    },
+    {
+      "file": "src/features/conversation/FullMethod.tsx",
+      "sha256": "93fb7e843d10d08f1860ac2e2f20837d5679605bd07ab579ebec3bf59c0423be"
+    },
+    {
+      "file": "src/features/conversation/ReplyMarkdown.tsx",
+      "sha256": "25167aa63f8ece0dacd9ccb405e93a4c6730590b8a178294ae877857e68e18c2"
+    },
+    {
+      "file": "src/features/conversation/conversation.css",
+      "sha256": "8880efd83804144b05d50db505bfab89628be41a65c92fd695187ba923f5c351"
+    },
+    {
+      "file": "tests/backend/evergreen-browser.test.ts",
+      "sha256": "7ea49cc0afb1c761f9f7d6ee0b3759191ed96f7f2176498b9daa3f8e9306b52a"
+    },
+    {
+      "file": "tests/backend/evergreen-index-load.test.ts",
+      "sha256": "91203eeaf18e83ee8029928f3389f99683526fa2a83ba4a52771967feebef2b4"
+    },
+    {
+      "file": "tests/backend/evergreen-knowledge.test.ts",
+      "sha256": "eb65b3e4af999dd77b8c2745f73c59bbb64c72d2167f169eba3caf7402e4225f"
+    },
+    {
+      "file": "tests/evergreen-guide.test.ts",
+      "sha256": "5a8afb0adc5fdd61b7b129dbaa545da6c10fad613211d9f52d63eb000e0f4b5d"
+    }
+  ],
+  "corpus": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+  "evidence": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+  "benchmark": "51d0ed528443144a1f10640712b55222e5ca4e2cec3c2d304fa72ac473ae6d51",
+  "encoder": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1",
+  "modelChanged": false,
+  "productionDatabaseModified": false
+}

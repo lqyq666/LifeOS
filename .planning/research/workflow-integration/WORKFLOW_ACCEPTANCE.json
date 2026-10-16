@@ -1,0 +1,2599 @@
+{
+  "schemaVersion": 6,
+  "version": "workflow-v2-integration-1f6b4b7a393b",
+  "head": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+  "codeCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+  "status": "WIP_NOT_READY",
+  "highestStatus": [
+    "MODIFIED",
+    "TESTED_LOCAL",
+    "BUILT",
+    "COMMITTED_LOCAL",
+    "LOCAL_RETRIEVAL_REGRESSION_GATES_PASS"
+  ],
+  "notClaimed": [
+    "LOCAL_CANDIDATE_VERIFIED_ALL_GATES",
+    "DEPLOYED",
+    "ONLINE_VERIFIED",
+    "ACCEPTED",
+    "REAL_MODEL_BENEFIT"
+  ],
+  "evidenceRoot": "evidence/retrieval-followup-20261010/",
+  "checks": {
+    "root": {
+      "passed": 143,
+      "evidence": "evidence/coze-core-launch-20261011/resource-verbatim-root-first.log",
+      "scope": "CURRENT_RESOURCE_FIX_ROOT_143_FREE_REGRESSION_NOT_FRESH_CHECKOUT"
+    },
+    "serverTypes": "PASS",
+    "frontendTypes": "PASS_BUILD_TSC",
+    "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
+    "maintenanceApi": {
+      "passed": 1,
+      "evidence": "evidence/coze-core-launch-20261011/maintenance-superseded-green-first.log",
+      "realReviewImportsInIsolatedAccount": 1,
+      "realReviewImportsInNonTestDb": 0,
+      "ownerApprovals": 0,
+      "publications": 0,
+      "supersededImportReviewApprove": "REFUSED_KB_DRAFT_SUPERSEDED"
+    },
+    "realEntry": {
+      "passed": 4,
+      "evidence": "evidence/long-batch-20261010/final-performance-cloud-entry.log",
+      "actualPaidCalls": 0
+    },
+    "cozeEntry": {
+      "passed": 2,
+      "evidence": "evidence/long-batch-20261010/final-performance-cloud-entry.log",
+      "actualCloudCalls": 0
+    },
+    "canonicalIndex": {
+      "passed": 5,
+      "evidence": "evidence/retrieval-followup-20261010/index-confidence-final.log"
+    },
+    "deepCanonicalContext": {
+      "passed": 1,
+      "evidence": "evidence/long-batch-20261010/final-method-entry-green.log"
+    },
+    "safetyAndSkills": {
+      "passed": 26,
+      "evidence": "evidence/long-batch-20261010/final-safety-skills.log"
+    },
+    "personalBasisAndDirection": {
+      "evidence": "evidence/long-batch-20261010/final-personal-basis.log",
+      "fourSameBudgetProfiles": "PASS_NATIVE_SDK_LOCAL_SCRIPTED_ABCD_NOT_REAL_CHOICE_QUALITY",
+      "fourProfilesEvidence": "evidence/long-batch-20261010/PERSONAL_BASIS_ABCD.json"
+    },
+    "currentCandidateBrowser": {
+      "status": "PASS_HISTORICAL_F36B933_LOCAL_UI_NOT_CURRENT_SOURCE_REVERIFIED",
+      "codeCommit": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+      "widths": [
+        1440,
+        390
+      ],
+      "evidence": "evidence/coze-core-launch-20261011/current-ui-f36b933-api-readback.json",
+      "screenshot": "evidence/coze-core-launch-20261011/actual-r8-waiting-owner-f36b933.png",
+      "syntheticOverridesAfterRuntimeSnapshot": true,
+      "realModelQuality": false,
+      "serviceClosed": true
+    },
+    "student16": {
+      "status": "PASS_LOCAL_CONTRACT",
+      "rounds": 96,
+      "sessions": 48,
+      "students": 16,
+      "coreFourIncludedOnce": true,
+      "testedCodeCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+      "productSourceEquivalentToFinalCode": false,
+      "productionFilesCompared": 219,
+      "annotationRevision": 2,
+      "blind": false,
+      "apiReadback": true,
+      "provider": "SCRIPTED_LOOPBACK_ONLY",
+      "evidence": "evidence/coze-core-launch-20261011/student16-b31aaed-first/STUDENT16_TRAJECTORIES.json",
+      "firstFailuresPreserved": true,
+      "sixAxesReadBack": true,
+      "paidCalls": 0,
+      "cloudCalls": 0
+    },
+    "reproduction": {
+      "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+      "report": "evidence/coze-core-launch-20261011/REPRODUCTION_F36B933_FIRST.json",
+      "status": "HISTORICAL_PASS_SEPARATE_REPRODUCTION_CANCELLED_BY_OWNER",
+      "currentCodeDifference": "Current-course resource persistence and contact draft v6 changed after the historical fresh-checkout report. No claim of fresh-checkout equivalence.",
+      "futureSeparateCandidateDelivery": "CANCELLED_BY_OWNER",
+      "steps": 23,
+      "ledgerPrivateDbKeysCopied": false
+    },
+    "retrievalQuality": {
+      "status": "PASS_LOCAL_EXPOSED_REGRESSION_THRESHOLDS_NOT_FULL_KB_OR_INDEPENDENT_BLIND",
+      "firstNew160": {
+        "route": {
+          "numerator": 159,
+          "denominator": 160
+        },
+        "recall5": {
+          "numerator": 63,
+          "denominator": 64
+        },
+        "top1": {
+          "numerator": 60,
+          "denominator": 64
+        },
+        "missingTarget": {
+          "numerator": 64,
+          "denominator": 128
+        },
+        "noMatchingMethod": 7,
+        "controls": 0
+      },
+      "current": {
+        "old235": {
+          "routing": {
+            "numerator": 235,
+            "denominator": 235
+          },
+          "recall5": {
+            "numerator": 56,
+            "denominator": 56
+          },
+          "top1": {
+            "numerator": 55,
+            "denominator": 56
+          }
+        },
+        "development232": {
+          "route": {
+            "numerator": 116,
+            "denominator": 116
+          },
+          "recall5": {
+            "numerator": 48,
+            "denominator": 48
+          },
+          "top1": {
+            "numerator": 44,
+            "denominator": 48
+          },
+          "missingTarget": {
+            "numerator": 49,
+            "denominator": 97
+          },
+          "noMatchingMethod": 1
+        },
+        "exposedFormerSealed232": {
+          "route": {
+            "numerator": 116,
+            "denominator": 116
+          },
+          "recall5": {
+            "numerator": 48,
+            "denominator": 48
+          },
+          "top1": {
+            "numerator": 47,
+            "denominator": 48
+          },
+          "missingTarget": {
+            "numerator": 48,
+            "denominator": 96
+          },
+          "noMatchingMethod": 1
+        },
+        "exposed160": {
+          "route": {
+            "numerator": 160,
+            "denominator": 160
+          },
+          "recall5": {
+            "numerator": 64,
+            "denominator": 64
+          },
+          "top1": {
+            "numerator": 62,
+            "denominator": 64
+          },
+          "missingTarget": {
+            "numerator": 64,
+            "denominator": 128
+          },
+          "noMatchingMethod": 7,
+          "controls": 0
+        },
+        "status": "PASS_DECLARED_THRESHOLDS",
+        "independentBlind": false,
+        "exposedFirstReserve32": {
+          "status": "FIRST_UNTUNED_RESULT_PRESERVED_NOW_REGRESSION_ONLY",
+          "route": {
+            "numerator": 32,
+            "denominator": 32
+          },
+          "recall5": {
+            "numerator": 16,
+            "denominator": 16
+          },
+          "top1": {
+            "numerator": 16,
+            "denominator": 16
+          },
+          "eligibleDenominator": 16,
+          "totalQueries": 32,
+          "missingLegalCardQueries": 16,
+          "evidence": ".planning/research/workflow-integration/evidence/retrieval-reserve-20261011/NATURAL_reserve_first-final.json"
+        }
+      },
+      "reserve": {
+        "sha256": "00cbe036f298b59a21393d7d803bd5a49a0683b10c3e6cc3676c0220e48261a0",
+        "count": 64,
+        "executions": 0,
+        "usedForTuning": false,
+        "status": "NOT_TESTED",
+        "labelsAuthor": "current-main-codex",
+        "independentBlindTest": false,
+        "excludedFromIndexVocabulary": true,
+        "oldReserve32": "first result retained; exposed regression only",
+        "annotationPath": ".planning/research/evergreen/KB_RETRIEVAL_NEXT_RESERVE.json"
+      },
+      "firstFailureRetained": "evidence/long-batch-20261010/NATURAL_sealed_final.json"
+    },
+    "sourceFreeze": {
+      "status": "PASS_SYNTHETIC_AUTHORIZATION_PRIVATE_GRANT_NOT_COPIED",
+      "evidence": "evidence/retrieval-followup-20261010/source-freeze-portable.log"
+    },
+    "methodContinuation": {
+      "passed": 2,
+      "evidence": "evidence/retrieval-followup-20261010/continuation-confidence-final.log",
+      "provider": "SCRIPTED_LOOPBACK_ONLY"
+    },
+    "safetyCurrent": {
+      "passed": 9,
+      "evidence": "evidence/retrieval-followup-20261010/safety-confidence-final.log"
+    },
+    "repairPilot7": {
+      "status": "FAIL_BUSINESS_AND_P95_FIRST_PRESERVED",
+      "codeCommit": "25273bac5add2f49caceda078ef0406d6ffeea37",
+      "technicalCompleted": 7,
+      "total": 7,
+      "firstContentP50Ms": 2471.6373,
+      "firstContentP95Ms": 7696.6836,
+      "completeP95Ms": 7696.7272,
+      "evidence": "evidence/coze-core-launch-20261011/REPAIR_PILOT_CONTACT_TIME_25273BA_FIRST.json",
+      "replacesOriginal24": false,
+      "final20Accepted": false
+    },
+    "actualOriginalReviewImport": "ACTUAL_R8_NORMAL_UI_IMPORTED_WAITING_OWNER_IN_ISOLATED_ACCOUNT",
+    "localCoreSkills": {
+      "evidence": "evidence/coze-core-launch-20261011/student16-b31aaed-first/SKILL_HOST_EXECUTIONS.json",
+      "scope": "FOUR_NORMAL_CORE_HOST_SKILLS_NATIVE_SDK_AND_READBACK_DIRECTION_SKILL_SEPARATE_NOT_ALL_FIVE_REAL_SKILLS"
+    },
+    "resourceVerbatim": {
+      "codeCommit": "e37ae7b",
+      "passed": 22,
+      "sourceSafetyPassed": 1,
+      "evidence": "evidence/coze-core-launch-20261011/RESOURCE_VERBATIM_LOCAL.json",
+      "scope": "LOCAL_SDK_PG_MEMORY_ON_OFF_CONTEXT_NOT_PERSISTENT_EVENT_OR_REAL_MODEL_ACCEPTANCE",
+      "realModelRevalidated": false
+    },
+    "mentorDraftV6": {
+      "codeCommit": "19438c1",
+      "contentPassed": 7,
+      "maintenancePassed": 1,
+      "evidence": "evidence/coze-core-launch-20261011/mentor-original-content-maintenance-first.log",
+      "ownerApprovals": 0,
+      "newPublished": 0
+    },
+    "productionImageStartup": {
+      "status": "BUILT_MIGRATIONS_STARTUP_VERIFIED_NOT_ONLINE_VERIFIED",
+      "head": "ab0204c2432b73a668998f465db7dfff50e143bb",
+      "image": "lifeos:launch-ab0204c",
+      "imageId": "sha256:598400a1a676e2b8c764f45594dc61a8f9f591a2044264194b6206612f740478",
+      "migrations": 32,
+      "checks": {
+        "migrations": true,
+        "startup": true,
+        "exactImageCommit": true,
+        "noImplicitFunding": true
+      },
+      "evidence": "evidence/coze-core-launch-20261011/production-image-ab0204c-startup-second.json",
+      "firstFailure": "evidence/coze-core-launch-20261011/production-image-ab0204c-startup-first.json",
+      "providerCalls": 0,
+      "cloudCalls": 0,
+      "serviceClosed": true,
+      "productionDeployed": false
+    },
+    "cozeNormalTaskConnection": {
+      "status": "LOCAL_PROTOCOL_TESTED_BUILT_NOT_REAL_CLOUD_ACCEPTED",
+      "firstIndependentVerdict": "BLOCKED",
+      "targetedProtocolChecks": 11,
+      "actualIsolatedHostCheck": 1,
+      "providerDispatchInTheseChecks": 0,
+      "duplicateDispatchPrevented": true,
+      "cancelAckNotWorkerCompletion": true,
+      "unknownCallsMarkedUpperBound": true,
+      "currentControlChangeInvalidatesProposal": true,
+      "currentUiBuilt": true,
+      "currentUiBrowser": "NOT_TESTED_THIS_INCREMENT",
+      "realCloudEndpointAndCreditCeiling": "NOT_CONFIGURED",
+      "independentReport": "evidence/coze-core-launch-20261011/independent-cli-lv3-remote-second.json",
+      "remaining": "Actual cloud durable terminal readback, selector failure provenance, current binding and real graph execution",
+      "protocolChecks": 21,
+      "contentDomainHashVerification": "SIGNED_PAYLOAD_AND_ACTUAL_RECEIPT_EXACT",
+      "zeroDispatchReadback": "EXPLICIT_OPERATION_ONE_NO_PAID_GRAPH_RETRY",
+      "currentCloudDevelopment": {
+        "projectId": "7693388932939300905",
+        "developmentCommit": "be738b569e5af678f75720981eae6d3bb6ad26da",
+        "status": "R16_COMMITTED_ACTUAL_PG_11_PLUS_SIGNED_READBACK_4_CHECKS_NOT_REAL_MODEL_GRAPH",
+        "cloudSourceDigest": "771580ccbbb951913ecc7e5c0eedb201cc80d358106289ae96c5e2e067e08c12",
+        "evidence": "evidence/coze-core-launch-20261011/r16-committed-runtime.json",
+        "productionPublished": false
+      },
+      "independentCurrentRepair": "WAITING_NEW_REVIEW"
+    }
+  },
+  "content": {
+    "revisedCards": 32,
+    "previousApprovedRechecked": 16,
+    "previousPendingRevised": 16,
+    "structuredEditorialDrafts": 32,
+    "newSourceRecords": 19,
+    "distinctNewSourceUrls": 11,
+    "locatedEvidenceFragments": 30,
+    "sourceAttempts": 39,
+    "failedSourceAttempts": 9,
+    "distinctBodiesRead": 29,
+    "newBodiesRead": 16,
+    "gapsResearched": 59,
+    "sourceOrScopeGapsRemaining": 59,
+    "formalApproved": 16,
+    "formalPending": 16,
+    "newIndependentReviews": 0,
+    "newHumanApprovals": 0,
+    "newPublished": 0,
+    "draftsServed": false,
+    "historicalBeforeFollowup": true,
+    "followup": {
+      "newUsableSources": 14,
+      "newLocatedQuotes": 22,
+      "draftsSupplemented": 21,
+      "allReviewPreparations": 32,
+      "sourceScopedDraftReady": 21,
+      "partialImproved": 11,
+      "stillTaskSpecificSourceGap": 38,
+      "actualIndependentReviews": 0,
+      "actualHumanApprovals": 0,
+      "formalCoverageUnchangedUntilApproval": true,
+      "partialImprovedIncludedInRemaining": true,
+      "shortQuoteOnlyCapture": "Upwork delivery original is located short quote, not full HTML capture.",
+      "previous": {
+        "newUsableSources": 5,
+        "newLocatedQuotes": 5,
+        "draftsSupplemented": 8,
+        "allReviewPreparations": 32,
+        "sourceScopedDraftReady": 15,
+        "partialImproved": 8,
+        "stillTaskSpecificSourceGap": 44,
+        "actualIndependentReviews": 0,
+        "actualHumanApprovals": 0,
+        "formalCoverageUnchangedUntilApproval": true
+      },
+      "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
+      "reReadExistingOriginals": 1,
+      "draftsSupplementedCountsRevisionEvents": true,
+      "actualIndependentReviewExecutions": 32,
+      "currentExternalVersionBindings": 30,
+      "actualIndependentReviewsMeaning": "0 imported independent receipts in non-test maintenance DB; observed external executions and exact current card bindings are separate. No human approval or publication.",
+      "actualIndependentReviewExecutionRuns": 2,
+      "actualIndependentCardReviewEvents": 38,
+      "acceptedRealReviewImportsInIsolatedAccount": 1
+    },
+    "reviewPreparationClaims": 77,
+    "currentSourceRecords": 37,
+    "currentEvidenceFragments": 54
+  },
+  "maintenance": {
+    "normalEntry": "/#maintenance",
+    "actualDraftState": "ONE_SOURCE_CARD_WAITING_OWNER_IN_HISTORICAL_ISOLATED_PROCESS_OTHER_GATES_REMAIN",
+    "technicallyCanReachOwnerApprovalCheckpoint": true,
+    "checkpointEvidence": "MAINTENANCE_HTTP.json_SYNTHETIC_ACCOUNTS_ONLY",
+    "actualIndependentReviews": 0,
+    "actualHumanApprovals": 0,
+    "actualPublication": false,
+    "reviewPreparation": "32_CURRENT_REVISION_HASH_CLAIM_BINDINGS_PREPARED_CONTACT_V6_EXAM_V5_NEW_INDEPENDENT_REVIEW_PENDING",
+    "latestActualBrowserEvidence": "evidence/coze-core-launch-20261011/current-ui-f36b933-api-readback.json",
+    "actualIndependentExecutionRuns": 2,
+    "actualIndependentCardReviewEvents": 38,
+    "currentExternalVersionBindings": 30,
+    "acceptedRealReviewImportsInIsolatedAccount": 1
+  },
+  "realEntry": {
+    "status": "RESTORED_AUTHORIZED_SMALL_FIRST_ATTEMPTS_EXECUTED_LARGER_GATES_BLOCKED",
+    "modelBlocks": [
+      "CURRENT_RESOURCE_FIX_REAL_REVALIDATION_REQUIRED",
+      "CURRENT_SEMANTIC_INDEPENDENT_REVIEW_REQUIRED",
+      "FULL_EVENT_CONTINUITY_NOT_PROVEN"
+    ],
+    "cozeBlocks": [
+      "CURRENT_HOST_BINDING_REQUIRED",
+      "CURRENT_REAL_CLOUD_CONTRACT_NOT_ACCEPTED",
+      "UNRESOLVED_COZE_CREDIT_HOLDS"
+    ],
+    "configuredAfterAuthorizationRunRequiresNoSourceEdit": true,
+    "independentReviewRequiredBetweenStages": true,
+    "cozeCurrentCopyReadbackStillRequired": true,
+    "actualPaidExecution": 130,
+    "actualCloudExecution": "PAUSED_NOT_RUN",
+    "unverifiedExecutionRisks": [
+      "Authorized paid path has not been exercised against a real provider",
+      "Cloud current runtime contract has not been read back",
+      "Independent external evidence authenticity cannot be inferred from the locally checked receipt format",
+      "Terminated real batches retain attempts and cannot be reissued; keep one authorized process alive for intervening reviews"
+    ],
+    "defaultUnauthorisedPath": "ZERO_DISPATCH_FAIL_CLOSED"
+  },
+  "paused": {
+    "realModels": "RESTORED_AUTHORIZATION_CURRENT_RESOURCE_FIX_NOT_REAL_REVERIFIED",
+    "fourRealChains": "FIRST_24_PRESERVED_NOT_ACCEPTED",
+    "complex20PairedBlind": "NOT_TESTED_SMALL_AND_INDEPENDENT_GATES_REQUIRED",
+    "ordinary20RealPerformance": "NOT_TESTED_SAME_VERSION_20_BUSINESS_SAMPLES_REQUIRED",
+    "cozeExistingTwoProjects": "RESTORED_DEVELOPMENT_R13_R8_NOT_ACCEPTED_REAL_CLOUD",
+    "cloudSkills": "NOT_TESTED_CURRENT_CLOUD_EXECUTION",
+    "studentAcceptance": "NOT_TESTED"
+  },
+  "realPerformance": {
+    "samples": 0,
+    "firstContentP50Ms": null,
+    "firstContentP95Ms": null,
+    "completeReplyP95Ms": null,
+    "status": "NOT_TESTED_FINAL_SAME_VERSION_20_REPAIR_SMALL_SAMPLES_SEPARATE"
+  },
+  "actualPaidCostAddedCny": 0.2727784,
+  "realCallsAdded": 130,
+  "cloudCallsAdded": 0,
+  "newBudget": 0,
+  "paidLedgerUnchanged": false,
+  "paidLedgerSha256": "58e9f47b53f06aeea8c897d055be7c181b378373f820b40bb6adbfe7e9bf6ef1",
+  "unknownHistoricalCostsRetained": true,
+  "simulatedUsageIsNotActualCost": true,
+  "sourceGaps": 59,
+  "needsReviewFormalCards": 16,
+  "needsReviewRevisions": 32,
+  "newIndependentReview": false,
+  "humanApproval": false,
+  "historicalProtocolsUnchanged": {
+    "COMPLEX_DECISION_AB_EVAL.json": "6c3252608e2b70166388767849d2e28cb708f479e5cde0bd546737bcf519734b",
+    "ORDINARY_PERFORMANCE_PROTOCOL.json": "e8ef483b0b1b499b0420f6a8b44acd03d0dd9c5755343e63c29f5c590ce57fd4",
+    "SAFETY_EVAL.json": "bdedbb8328298dc21ae9d9ddf473c1d8503152c68969a5a9400b7abb07235b28"
+  },
+  "historicalAcceptance": "evidence/retrieval-followup-20261010/baseline-519f/WORKFLOW_ACCEPTANCE.json",
+  "noPushMergeDeploy": true,
+  "sourceScopedCandidatesReadyPendingReview": 21,
+  "remainingTaskSpecificSourceOrScopeGaps": 38,
+  "launch": {
+    "scopeRestored": true,
+    "status": "NOT_RELEASED_BLOCKED",
+    "authorization": "LAUNCH_AUTHORIZATION.json",
+    "latestIncrementCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+    "evidence": "evidence/coze-core-launch-20261011/",
+    "productionWrites": 0,
+    "newBudget": 0,
+    "modelCalls": 130,
+    "interfaceCalls": 19,
+    "ordinaryPilotCalls": 9,
+    "ordinaryPilotVersions": 3,
+    "ordinaryTwentyAccepted": 0,
+    "cozeBusinessCalls": 0,
+    "cozeDevelopmentRequests": 5,
+    "development": "GROWTH_R7_PROCESSING_ACK_CONFIRMED_NO_DUPLICATE",
+    "cloudContracts": "LEGACY_READBACK_ONLY_NEW_HTTP_NOT_ACCEPTED",
+    "runtimeSpendEntry": "HOST_SIGNED_ORIGINAL_CNY_RESERVATION_LOCAL_TESTED_CLOUD_BRIDGE_NOT_TESTED",
+    "modelLedgerMetadataOnly": {
+      "sha256": "82a81897e67adc8e0dc172554854f55ce08235ec3b34f2362a8b652961613646",
+      "copied": false,
+      "startingCallCount": 2022,
+      "currentCallCount": 2050,
+      "newCalls": 28,
+      "newBudget": 0,
+      "knownEstimatedCostCny": 0.0348158,
+      "unknownCalls": 4,
+      "unknownReservedCny": 0.4980736,
+      "remainingCny": 10.7274504
+    },
+    "cozeCredits": {
+      "initial": 151559,
+      "charged": 71462,
+      "held": 80000,
+      "available": 97,
+      "newBudget": 0,
+      "status": "UNKNOWN_TASK_FEES_RETAIN_FULL_HOLDS"
+    },
+    "image": "6c5e5d8_FRESH_IMAGE_44_SCOPED_CHECKS_PASS_NOT_REAL_ACCEPTANCE",
+    "ordinaryPilot": {
+      "sourceCommit": "c468f05112323afc411356e10d7f64bfac70a357",
+      "firstAttempts": 3,
+      "firstContentObserved": 3,
+      "noFirstContent": 0,
+      "completeReplyObserved": 3,
+      "noCompleteReply": 0,
+      "firstContentP50Ms": 3504.5131,
+      "firstContentP95Ms": 4453.771700000001,
+      "observedCompleteReplyP95Ms": 5382.983400000001,
+      "countedTowardOrdinary20": false,
+      "status": "FAILED_SOURCE_CURRENT_EVENT_AND_FIRST_CONTENT_P50",
+      "independentReview": "NOT_TESTED",
+      "samples": 3
+    },
+    "previousChecksScope": "Historical regression and isolated interface evidence are not real current cloud/student acceptance.",
+    "cloudHttpCommit": "b8a95308ee60962b086e695061669a77ca732383",
+    "freshReproduction": {
+      "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+      "report": "evidence/coze-core-launch-20261011/REPRODUCTION_F36B933_FIRST.json",
+      "status": "HISTORICAL_PASS_SEPARATE_REPRODUCTION_CANCELLED_BY_OWNER",
+      "currentCodeDifference": "Current-course resource persistence and contact draft v6 changed after the historical fresh-checkout report. No claim of fresh-checkout equivalence.",
+      "futureSeparateCandidateDelivery": "CANCELLED_BY_OWNER"
+    },
+    "sourceReview": "evidence/coze-core-launch-20261011/COZE_R6_SOURCE_REVIEW.json",
+    "retrievalIncrement": {
+      "status": "LOCAL_EXPOSED_RETRIEVAL_REGRESSION_GATES_PASS",
+      "baseCommit": "a681dd84baf977930e9e77545b1746690ce9961b",
+      "scope": "Offline BGE encoder, isolated PostgreSQL, canonical historical approved cards. No real product model calls; no new blind-test claim.",
+      "files": {
+        "SEMANTIC_ONLY_FIRST_FAIL_160.json": "2027cd8ec4ab2baba83566d319dabf50119601aa99008e728bbba0a9039b45e2",
+        "SEMANTIC_ONLY_FIRST_FAIL_DEVELOPMENT.json": "c505b03a04e2608117fd5a9aa31a647a192a18d796a8531e5b74773d9761452c",
+        "REGRESSION160.json": "9df5ec4fa338beff01fb794f3902c94046f73caaa24ded6db12e07ba06515ace",
+        "REGRESSION_DEVELOPMENT116.json": "b144656ece0eadaf255fff65e82a65a816b380a804ae0f2a5322ab464689da5e",
+        "REGRESSION_EXPOSED_SEALED116.json": "94724792748e1309f0749f3a87baa81d1a619aca1aa74bf33af7a90ed1484c36",
+        "REGRESSION_LEGACY235.json": "5f08121c3c5ab238d4f81e60a84a23a1568d2ef820c5f40538392922ed364215",
+        "READONLY_TEST_ARTIFACT_FIRST_FAIL.log": "6cff94b4fc8e0a13b3c1399b3a4d689e1c987d7c124a341069a975f132d60c46",
+        "ISOLATED_SAFETY_LEGACY_SEALED_PASS.log": "42a7a560db907cebf5a992e99d79532219bcfca36b07bdd6cc82a49aa076caa1",
+        "ROOT_METHOD_REQUEST_PASS.log": "660738f8be09caa81bd32db442a8f3391c71b2a298a52183b89f55d3be06bd10",
+        "SERVER_TYPES_PASS.log": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612"
+      },
+      "patchedSourceHashes": {
+        "server/evergreen-guide.ts": "3bf1e40d22dcdfd3bd5b862a3790592c7a311705d7afc4adfef7ef000814505c",
+        "server/knowledge-index.ts": "c73897deb5f8f5cd35279241692e20cb1eeb6cea83c13e320545c2207112995d",
+        "scripts/evergreen-evaluation.ts": "cffca96cec18b23727fed59142af3dc5d8ba42b521de9b196beac5a505355b2e",
+        "tests/backend/evergreen-knowledge.test.ts": "b7c12538c497a0fe8036d09582447dbe3887cefc572aaea11b948b6aeb0ec87e",
+        "tests/backend/evergreen-legacy-regression.test.ts": "8e276d191f22cb15d70ac76fb3c2c5fcd988f2bb12737eb30e9c96ca9913f9c0",
+        "tests/evergreen-guide.test.ts": "84f39f242f8815e51574826eec9cb548331703ab2c47a73564d64b4bf04d11af"
+      },
+      "metrics": {
+        "exposed160": {
+          "route": {
+            "numerator": 160,
+            "denominator": 160
+          },
+          "recall5": {
+            "numerator": 64,
+            "denominator": 64
+          },
+          "top1": {
+            "numerator": 62,
+            "denominator": 64
+          },
+          "missingTarget": {
+            "numerator": 64,
+            "denominator": 128
+          },
+          "noMatchingMethod": 7,
+          "controls": 0
+        },
+        "development116": {
+          "route": {
+            "numerator": 116,
+            "denominator": 116
+          },
+          "recall5": {
+            "numerator": 48,
+            "denominator": 48
+          },
+          "top1": {
+            "numerator": 44,
+            "denominator": 48
+          },
+          "missingTarget": {
+            "numerator": 49,
+            "denominator": 97
+          },
+          "noMatchingMethod": 1
+        },
+        "exposedSealed116": {
+          "route": {
+            "numerator": 116,
+            "denominator": 116
+          },
+          "recall5": {
+            "numerator": 48,
+            "denominator": 48
+          },
+          "top1": {
+            "numerator": 47,
+            "denominator": 48
+          },
+          "missingTarget": {
+            "numerator": 48,
+            "denominator": 96
+          },
+          "noMatchingMethod": 1
+        },
+        "legacy235": {
+          "routing": {
+            "numerator": 235,
+            "denominator": 235
+          },
+          "recall5": {
+            "numerator": 56,
+            "denominator": 56
+          },
+          "top1": {
+            "numerator": 55,
+            "denominator": 56
+          },
+          "unavailablePositiveTargets": 59
+        }
+      },
+      "untunedReserve": {
+        "path": ".planning/research/evergreen/KB_RETRIEVAL_RESERVE.json",
+        "count": 32,
+        "executions": 0,
+        "tuningUse": 0,
+        "independentBlind": false
+      },
+      "firstFailuresRetained": true,
+      "wholeKnowledgeBaseComplete": false,
+      "paidCallsAdded": 0
+    },
+    "directionContentIncrement": {
+      "at": "2026-10-10T15:36:45.099Z",
+      "guideId": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
+      "revision": 3,
+      "previousDraftHash": "02a9dad5e5f34008666577c16677ebd4ffbf111e76662428806c937f2d713fdf",
+      "newContentHash": "98e0a24a01835f06ac903403447e7c3e6f8b6b043bb638bd09f03c9d54ebd46b",
+      "substantivelyCorrectedBranches": 8,
+      "newDistinctOriginals": 1,
+      "newLocatedQuotes": 1,
+      "unresolvedTaskSpecificBranches": [
+        "C11-1",
+        "C22-1",
+        "C23-1"
+      ],
+      "independentReviews": 0,
+      "humanApprovals": 0,
+      "published": 0,
+      "claimChecksTotal": 78,
+      "summary": {
+        "newUsableSources": 9,
+        "newLocatedQuotes": 10,
+        "draftsSupplemented": 10,
+        "allReviewPreparations": 32,
+        "sourceScopedDraftReady": 21,
+        "partialImproved": 7,
+        "stillTaskSpecificSourceGap": 38,
+        "actualIndependentReviews": 0,
+        "actualHumanApprovals": 0,
+        "formalCoverageUnchangedUntilApproval": true,
+        "previous": {
+          "newUsableSources": 5,
+          "newLocatedQuotes": 5,
+          "draftsSupplemented": 8,
+          "allReviewPreparations": 32,
+          "sourceScopedDraftReady": 15,
+          "partialImproved": 8,
+          "stillTaskSpecificSourceGap": 44,
+          "actualIndependentReviews": 0,
+          "actualHumanApprovals": 0,
+          "formalCoverageUnchangedUntilApproval": true
+        },
+        "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
+        "reReadExistingOriginals": 1,
+        "draftsSupplementedCountsRevisionEvents": true
+      },
+      "evidence": "Actual original HTML read with exact located short quote; editor revision is not independent review or approval.",
+      "contentTest": "6/6 isolated PostgreSQL content and unapproved student-read rejection checks PASS"
+    },
+    "sourceAvailabilityAndUi": {
+      "status": "LOCAL_SOURCE_CONTEXT_SDK_AND_MAINTENANCE_SCOPED_PASS_NOT_REAL_MODEL_ACCEPTANCE",
+      "runtimeBackend": "Existing owned synthetic maintenance HTTP process; native turn engine verified separately in isolated PG + loopback SDK fixture.",
+      "currentFrontendBundle": "main-D4kk1gJ2.js",
+      "sourceFiles": {
+        "server/turn-prompt.ts": "8499c63b9273b715010e15b2cebb7a0e82e4cd8724fabaff7c9814b1a696b446",
+        "src/features/maintenance/MaintenancePage.tsx": "8ed33db524f5b4d4bb7a25f2e5bf84ce1f99d33fc4d7ff278a979981cb6cf883",
+        "package.json": "58d69024c55f0366dab731f15b4db3d7424d2222d4b07c39a6909306a0d3147c",
+        "tests/backend/turn-contract.test.ts": "ae11737266b14c7a9aa739311bb1ee046d8949cbb614178e7ca21bdba7458828",
+        "tests/backend/turn-source-availability.test.ts": "f6ccc9524cf783e21bb7eea302021707eb7e2e0057ebcf61d1f9a7d284cd6972"
+      },
+      "checks": {
+        "root": 127,
+        "sdkAndContext": 12,
+        "serverTypes": "PASS",
+        "build": "PASS",
+        "desktop": {
+          "width": 1440,
+          "height": 900,
+          "horizontalOverflow": false,
+          "selectedRevisions": [
+            3
+          ]
+        },
+        "mobile": {
+          "width": 390,
+          "height": 844,
+          "horizontalOverflow": false,
+          "keyboardSwitch": "Actual Enter v2 readback then v3"
+        },
+        "actualIndependentReviews": 0,
+        "humanApprovals": 0,
+        "published": 0
+      },
+      "paidModelCalls": 0,
+      "firstFailuresRetained": true,
+      "realSemanticImprovement": "NOT_TESTED_NEW_VERSION",
+      "ordinaryPerformance": "PRIOR_FAILED_SMALL_PILOT_RETAINED",
+      "changed": "Always-present source boundary; explicit selected method availability in provider context. Revision-specific aria-pressed. Declared test command uses already locked tsx so existing parameter properties are executable."
+    },
+    "currentSmallReadbackReview": "evidence/coze-core-launch-20261011/ORDINARY_SOURCE_AVAILABILITY_READBACK_REVIEW.json",
+    "cozeR5SourceReview": "evidence/coze-core-launch-20261011/COZE_R5_SOURCE_REVIEW.json",
+    "latestImageSource": {
+      "service": "LifeOS",
+      "head": "c468f05112323afc411356e10d7f64bfac70a357",
+      "versionSource": "image_build_manifest",
+      "skillVersion": "1.2.2-candidate",
+      "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+      "workflowVersion": "v2-integration",
+      "sourceDigest": "fcc00d8da1d1e6e2b00e5191fe1fb359c204fce633651d825f96c563acd6d541",
+      "sourceFreezeDigest": "a787bc40adfbff985b9d0bb614d4ec4b9cd704683430120d5efc27cb4015aa41",
+      "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+      "sourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+      "contentEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+      "skills": [
+        {
+          "name": "lifeos-direction-analysis",
+          "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-action-review",
+          "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-experience-evidence",
+          "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-guide-application",
+          "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-growth-diff",
+          "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+          "version": "0.2.0-candidate"
+        }
+      ],
+      "loadedAt": "2026-10-10T16:11:30.080Z",
+      "contractGeneration": "p4+workflow-v2",
+      "growthApi": true
+    },
+    "temporaryTimeScope": "evidence/coze-core-launch-20261011/TEMPORARY_TIME_SCOPE_INCREMENT.json",
+    "ordinaryNextPaidBatch": "SMALL_LATENCY_THRESHOLDS_MET_PENDING_INDEPENDENT_REVIEW_AND_COMPLEX_SMALL",
+    "scienceRecordCorrection": {
+      "at": "2026-10-10T16:27:37.097Z",
+      "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+      "revision": 4,
+      "previousDraftHash": "566a7da6b824000a804f6a4dfc2e1d9c99a7f24d8b169a204aa37ce8c0047b99",
+      "newContentHash": "299b0a324888fe7ae2a671220aed4e5ad0fc5e79679ca8b48146c0c1653e5f54",
+      "newDistinctOriginals": 1,
+      "newLocatedQuotes": 1,
+      "partialTask": "C09-4",
+      "remainingClaim": "实验记录整理已有直接培训原文；科研失败归因、代码调试、文献阅读和写作方法仍缺直接材料。",
+      "independentReviews": 0,
+      "humanApprovals": 0,
+      "published": 0,
+      "sourceProgress": {
+        "newUsableSources": 10,
+        "newLocatedQuotes": 11,
+        "draftsSupplemented": 11,
+        "allReviewPreparations": 32,
+        "sourceScopedDraftReady": 21,
+        "partialImproved": 8,
+        "stillTaskSpecificSourceGap": 38,
+        "actualIndependentReviews": 0,
+        "actualHumanApprovals": 0,
+        "formalCoverageUnchangedUntilApproval": true,
+        "previous": {
+          "newUsableSources": 5,
+          "newLocatedQuotes": 5,
+          "draftsSupplemented": 8,
+          "allReviewPreparations": 32,
+          "sourceScopedDraftReady": 15,
+          "partialImproved": 8,
+          "stillTaskSpecificSourceGap": 44,
+          "actualIndependentReviews": 0,
+          "actualHumanApprovals": 0,
+          "formalCoverageUnchangedUntilApproval": true
+        },
+        "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
+        "reReadExistingOriginals": 1,
+        "draftsSupplementedCountsRevisionEvents": true
+      },
+      "claimChecks": 79,
+      "status": "DRAFT_REVISED_PENDING_INDEPENDENT_REVIEW_AND_OWNER_APPROVAL",
+      "contentTest": "6/6 isolated PostgreSQL content/import/deny-student-read checks PASS",
+      "evidence": "evidence/coze-core-launch-20261011/SCIENCE_RECORD_CONTENT_PASS.log"
+    },
+    "boundedOrdinaryReply": {
+      "status": "LOCAL_BOUNDED_REPLY_ROUTE_VERIFIED_NOT_REAL_MODEL_ACCEPTANCE",
+      "sourceBaseCommit": "d21f4bc",
+      "scope": "ordinary action/process questions without an authorized public method; delivery/planning/sourced methods/listening/controls/comparison retain original contracts",
+      "mechanism": "server editorial action/question catalogue binds native reply enum; server rejects out-of-catalogue prose before state staging; early question must be an authorized suffix",
+      "checks": {
+        "pure": 3,
+        "actualLoopbackSdkAndIsolatedPg": 15,
+        "serverTypes": "PASS"
+      },
+      "firstFailure": "initial local action-question detection missed clauses marked declarative by shared parser; quoted/attributed spans still excluded, explicit action grammar added; original failure log retained",
+      "limits": [
+        "No real quality or performance acceptance for this source yet",
+        "This bounded editorial subset does not prove personalized multi-direction decisions",
+        "Model transport latency remains to be measured"
+      ],
+      "sourceFiles": {
+        "server/bounded-reply.ts": "3b240ad3b3b2095905fc512d30f5f998ed652c8d81fa9255fc742c2aec31352b",
+        "server/turn-engine.ts": "0ac26c8b64540c28de90fafd5d841619b2fef228a327874566fa15d19e47c1f4",
+        "tests/bounded-reply.test.ts": "a159c32100056200f096f58c25a0b91adea1d76eb7b23dc33b99a67a8b188f67",
+        "tests/backend/turn-contract.test.ts": "dd9d77a8836e6a57fd494e68a164fb3b97b54cfb715929cfd1dc9d0c78ee09a5"
+      },
+      "realModelCallsAdded": 0,
+      "automaticPaidRetry": false,
+      "newBudget": 0,
+      "published": false
+    },
+    "boundedOrdinaryReplyReal": {
+      "kind": "REAL_FIRST_ATTEMPTS_WITH_INTEGRATOR_READBACK_NOT_INDEPENDENT_REVIEW",
+      "sourceCommit": "4fae14d2ba3eef3175739854f1321323efe092b4",
+      "sourceDigest": "0fb82490dae2155acda62c104bc3185b577eb0cbd68909324866426edd99a20f",
+      "modelSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "checks": [
+        {
+          "caseId": "ORD01",
+          "reply": "先把这次要完成的核心内容写成一句话，再用已有材料补这句话。你现在已经有哪部分内容？",
+          "firstUsefulMs": 2137.752999999999,
+          "replyCompleteMs": 3050.9075999999986,
+          "costCny": 0.0024746,
+          "technical": "SAVED",
+          "source": "EDITORIAL_CATALOGUE_NO_EXTERNAL_EFFECT_CLAIM",
+          "state": "EXACT_CURRENT_CLAUSE_READ_BACK_NO_EXPERIENCE",
+          "intent": "PROCESS_HELP_ONE_UNKNOWN",
+          "continuity": "MEMORY_ON_SEPARATE_CONVERSATIONS_NO_OLD_TIME_IN_REPLY",
+          "semantic": "INTEGRATOR_READBACK_SCOPED_ONLY",
+          "fact": {
+            "text": "我还有两小时准备明天的课堂汇报",
+            "kind": "context",
+            "progressState": null
+          },
+          "llmCalls": 1,
+          "paidRepairCalls": 0
+        },
+        {
+          "caseId": "ORD02",
+          "reply": "先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？",
+          "firstUsefulMs": 1091.2825999999986,
+          "replyCompleteMs": 2043.2213999999985,
+          "costCny": 0.0011157,
+          "technical": "SAVED",
+          "source": "EDITORIAL_CATALOGUE_NO_EXTERNAL_EFFECT_CLAIM",
+          "state": "EXACT_CURRENT_CLAUSE_READ_BACK_NO_EXPERIENCE",
+          "intent": "PROCESS_HELP_ONE_UNKNOWN",
+          "continuity": "MEMORY_ON_SEPARATE_CONVERSATIONS_NO_OLD_TIME_IN_REPLY",
+          "semantic": "INTEGRATOR_READBACK_SCOPED_ONLY",
+          "fact": {
+            "text": "我发给学长的问题还没有回复",
+            "kind": "feedback",
+            "progressState": "unknown"
+          },
+          "llmCalls": 1,
+          "paidRepairCalls": 0
+        },
+        {
+          "caseId": "ORD03",
+          "reply": "先回看上次真正做过的那一步和实际反馈，不重新安排整套入门方法。是没开始、做到中途卡住，还是做完后结果不符合预期？",
+          "firstUsefulMs": 1992.6046999999999,
+          "replyCompleteMs": 4146.447899999999,
+          "costCny": 0.0019418,
+          "technical": "SAVED",
+          "source": "EDITORIAL_CATALOGUE_NO_EXTERNAL_EFFECT_CLAIM",
+          "state": "EXACT_CURRENT_CLAUSE_READ_BACK_NO_EXPERIENCE",
+          "intent": "PROCESS_HELP_ONE_UNKNOWN",
+          "continuity": "MEMORY_ON_SEPARATE_CONVERSATIONS_NO_OLD_TIME_IN_REPLY",
+          "semantic": "INTEGRATOR_READBACK_SCOPED_ONLY",
+          "fact": {
+            "text": "我今天没按原计划做完作业",
+            "kind": "feedback",
+            "progressState": "stuck"
+          },
+          "llmCalls": 1,
+          "paidRepairCalls": 0
+        }
+      ],
+      "metrics": {
+        "firstAttempts": 3,
+        "firstContentObserved": 3,
+        "noFirstContent": 0,
+        "completeReplyObserved": 3,
+        "noCompleteReply": 0,
+        "firstContentP50Ms": 1992.6046999999999,
+        "firstContentP95Ms": 2137.752999999999,
+        "observedCompleteReplyP95Ms": 4146.447899999999,
+        "countedTowardOrdinary20": false,
+        "status": "PILOT_ONLY_NOT_ACCEPTED"
+      },
+      "knownEstimatedCostCny": 0.0055321,
+      "providerInterfaceProofReusedWithoutNewProbe": true,
+      "firstAttempts": 3,
+      "automaticRetry": false,
+      "firstFailureBeforeHarnessStartRetained": {
+        "dispatches": 0,
+        "evidence": "evidence/coze-core-launch-20261011/BOUNDED_REPLY_REAL_ISOLATION_FIRST_FAIL.log"
+      },
+      "independentReview": "PENDING_ACTUAL_INDEPENDENT_EXECUTION",
+      "ordinary20": "NOT_TESTED",
+      "complexSmall": "NOT_TESTED_CURRENT_CLOUD",
+      "largerStages": "NOT_TESTED_UNTIL_REQUIRED_SMALL_REVIEW",
+      "ledger": {
+        "originalPath": ".local/v1.3-action-coach/paid/provider-calls.json",
+        "entries": 2053,
+        "sha256": "d1fef94d2a62259573c5def76f213635590edfb32be2ee52d5b76daa75f4b6ef",
+        "funding": {
+          "authorizationSha256": "e4603013b30dbe82f0ae3253cb88a5347403075b1c3c8c07856a2b85248f0e4e",
+          "grantSha256": "a2bfb70cad1bd316f12137df2179bbcf979f0e07f20d8f20c15de3128a4623d5",
+          "limitCny": 27.62,
+          "startingCall": 422,
+          "activatedAt": "2026-10-05T13:30:33.694Z",
+          "noCallLimit": true,
+          "paused": false,
+          "accountedCny": 16.8980817,
+          "remainingCny": 10.7219183
+        },
+        "batchCallsAdded": 31,
+        "priorFailedOrdinary9Retained": true
+      },
+      "newBudget": 0,
+      "productionWrites": 0,
+      "temporaryAcceptanceHttpClosed": true
+    },
+    "untunedRetrievalReserve": {
+      "status": "LOCAL_UNTUNED_RESERVE_RETRIEVAL_GATES_PASS",
+      "evaluatedCommit": "8a12342",
+      "benchmarkHash": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
+      "firstExecutionOnly": true,
+      "usedForTuning": false,
+      "independentBlindTest": false,
+      "labelsAuthor": "current-main-codex",
+      "metrics": {
+        "route": {
+          "numerator": 32,
+          "denominator": 32
+        },
+        "recall5": {
+          "numerator": 16,
+          "denominator": 16
+        },
+        "top1": {
+          "numerator": 16,
+          "denominator": 16
+        },
+        "missingTarget": {
+          "numerator": 16,
+          "denominator": 32
+        },
+        "noMatchingMethod": 0
+      },
+      "byDomain": {
+        "10": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "13": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "14": {
+          "route": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "noMatchingMethod": 0
+        },
+        "15": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "16": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "17": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "18": {
+          "route": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "noMatchingMethod": 0
+        },
+        "19": {
+          "route": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "noMatchingMethod": 0
+        },
+        "21": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "22": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "01": {
+          "route": {
+            "numerator": 3,
+            "denominator": 3
+          },
+          "recall5": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "top1": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 3
+          },
+          "noMatchingMethod": 0
+        },
+        "02": {
+          "route": {
+            "numerator": 3,
+            "denominator": 3
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 3,
+            "denominator": 3
+          },
+          "noMatchingMethod": 0
+        },
+        "03": {
+          "route": {
+            "numerator": 3,
+            "denominator": 3
+          },
+          "recall5": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "top1": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 3
+          },
+          "noMatchingMethod": 0
+        },
+        "04": {
+          "route": {
+            "numerator": 4,
+            "denominator": 4
+          },
+          "recall5": {
+            "numerator": 4,
+            "denominator": 4
+          },
+          "top1": {
+            "numerator": 4,
+            "denominator": 4
+          },
+          "missingTarget": {
+            "numerator": 0,
+            "denominator": 4
+          },
+          "noMatchingMethod": 0
+        },
+        "05": {
+          "route": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "noMatchingMethod": 0
+        },
+        "06": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "top1": {
+            "numerator": 0,
+            "denominator": 0
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "08": {
+          "route": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "noMatchingMethod": 0
+        },
+        "09": {
+          "route": {
+            "numerator": 2,
+            "denominator": 2
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "noMatchingMethod": 0
+        }
+      },
+      "byStage": {
+        "start": {
+          "route": {
+            "numerator": 28,
+            "denominator": 28
+          },
+          "recall5": {
+            "numerator": 15,
+            "denominator": 15
+          },
+          "top1": {
+            "numerator": 15,
+            "denominator": 15
+          },
+          "missingTarget": {
+            "numerator": 13,
+            "denominator": 28
+          },
+          "noMatchingMethod": 0
+        },
+        "adjust": {
+          "route": {
+            "numerator": 4,
+            "denominator": 4
+          },
+          "recall5": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "top1": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "missingTarget": {
+            "numerator": 3,
+            "denominator": 4
+          },
+          "noMatchingMethod": 0
+        }
+      },
+      "missingCardsRemainExplicit": true,
+      "rankingFiles": {
+        "server/knowledge-index.ts": "c73897deb5f8f5cd35279241692e20cb1eeb6cea83c13e320545c2207112995d",
+        "server/evergreen-guide.ts": "3bf1e40d22dcdfd3bd5b862a3790592c7a311705d7afc4adfef7ef000814505c",
+        ".planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json": "281b9dbd6db49e0364be55148b4965e97c62b5aac0aa2e6956aa023a41cd3bee"
+      },
+      "productCalls": 0,
+      "newBudget": 0,
+      "evidence": ".planning/research/workflow-integration/evidence/retrieval-reserve-20261011/NATURAL_reserve_first-final.json",
+      "futureUse": "Exposed after this execution; any later tuning informed by these labels or outcomes must mark this as regression, never a new unseen cohort."
+    },
+    "freshReproductionHead": "a786526a25df4543fee6d80067d161ccc1fb1715",
+    "freshReproductionStatus": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
+    "complexSmall": {
+      "head": "5d76c0dd17403a0f415547655de50913291d5ff2",
+      "status": "TWO_SOURCE_FAILURES_RETAINED_BOUNDED_SELECTOR_LOCAL_12_PASS",
+      "evidence": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_5d76c0d_FIRST_FAILURE.json",
+      "review": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_5d76c0d_REVIEW.json",
+      "actualProviderCalls": 7,
+      "knownCostCny": 0.0150756,
+      "largerCohorts": "NOT_TESTED"
+    },
+    "cozeR7Dispatch": "evidence/coze-core-launch-20261011/COZE_R7_DISPATCH.json",
+    "latestModelFunding": {
+      "restorationBaselineCallCount": 2022,
+      "reservationEntriesNew": 136,
+      "actualDispatchedNew": 130,
+      "notSentNew": 6,
+      "actualUnknownFeesNew": 6,
+      "knownNewCostCny": 0.2727784,
+      "unknownFeesReservedCny": 0.7139328,
+      "remainingOriginalFundingCny": 10.2736286,
+      "ledgerEntries": 2158,
+      "newBudget": 0,
+      "ledgerSha256": "58e9f47b53f06aeea8c897d055be7c181b378373f820b40bb6adbfe7e9bf6ef1",
+      "ledgerCopied": false
+    },
+    "previousOrdinaryRepair": {
+      "codeCommit": "1d711d2bfda93dcbff59003e60fb893232900aaa",
+      "status": "TWO_REAL_FIRST_ATTEMPTS_NOT_ACCEPTED_BOUNDARY_AND_CHAT_GOAL_FAILURE",
+      "evidence": "evidence/coze-core-launch-20261011/STATUS_PERSIST_1D711D2_FIRST.json",
+      "mainReview": "evidence/coze-core-launch-20261011/STATUS_PERSIST_MAIN_REVIEW.json",
+      "knownCostCny": 0.003689
+    },
+    "latestOrdinaryRepair": {
+      "codeCommit": "b31aaeda188bc02c50a6664ff59dcd95e54a11ca",
+      "status": "MAIN_OBSERVED_BOUNDARY_AND_STATUS_REPAIR_NOT_FINAL_ACCEPTANCE",
+      "evidence": "evidence/coze-core-launch-20261011/BOUNDED_STATUS_B31AAED_FIRST.json",
+      "mainReview": "evidence/coze-core-launch-20261011/BOUNDED_STATUS_MAIN_REVIEW.json",
+      "knownCostCny": 0.0038314,
+      "firstAttempts": 2,
+      "normalGenerations": 2,
+      "automaticRepairCalls": 0,
+      "metrics": {
+        "firstAttempts": 2,
+        "firstContentObserved": 2,
+        "noFirstContent": 0,
+        "completeReplyObserved": 2,
+        "noCompleteReply": 0,
+        "firstContentP50Ms": 1674.4254,
+        "firstContentP95Ms": 4617.316199999999,
+        "observedCompleteReplyP95Ms": 5977.0098,
+        "countedTowardOrdinary20": false,
+        "status": "PILOT_ONLY_NOT_ACCEPTED"
+      },
+      "limitations": [
+        "No independent semantic reviewer yet.",
+        "API proves the original not-started fact remains in the next session; this run did not capture the exact outgoing provider context.",
+        "The first unavailable-material clause was not saved as a persistent event; full event continuity is not proven.",
+        "Two small samples do not qualify the final twenty-sample business/performance gate."
+      ],
+      "finalTwenty": false,
+      "independent": false
+    }
+  },
+  "preRestorationCheckpoint": {
+    "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+    "version": "workflow-v2-integration-0c4ce842100e",
+    "codeCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+    "paused": {
+      "realModels": "PAUSED_NOT_RUN",
+      "fourRealChains": "PAUSED_NOT_RUN",
+      "complex20PairedBlind": "PAUSED_NOT_RUN",
+      "ordinary20RealPerformance": "PAUSED_NOT_RUN",
+      "cozeExistingTwoProjects": "PAUSED_NOT_RUN",
+      "cloudSkills": "PAUSED_NOT_RUN",
+      "studentAcceptance": "PAUSED_NOT_RUN"
+    },
+    "realCallsAdded": 0,
+    "actualPaidCostAddedCny": 0,
+    "paidLedgerSha256": "03891a1f7f7da4ae969cf36c5a11777b92b353c012f3a3591a7e2d15f682a1a4",
+    "checksScope": "PRE_RESTORATION_HISTORICAL_NOT_CURRENT"
+  },
+  "currentImplementationCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+  "unknownCostsRetainedCny": 0.7139328,
+  "currentComplexPilot": {
+    "head": "47c7098e3471a12f933d74e9594cd9d52cf46f38",
+    "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+    "firstAttempts": 2,
+    "technicalProposed": 2,
+    "actualCalls": 9,
+    "knownCostCny": 0.0215556,
+    "mandatoryBasisAndStage": "PRESENT_IN_ACTUAL_RESULTS",
+    "businessAccepted": "WAITING_ACTUAL_INDEPENDENT_REVIEW",
+    "ordinary3": "PREVIOUS_FIRST3_NOT_REISSUED_NOT_FINAL20",
+    "totalBatchesRetained": 5
+  },
+  "currentIndependentContentReview": {
+    "projectId": "7693465311558795327",
+    "firstAttempt": {
+      "status": "COMPLETED_BUT_32_WRONG_HASH_BINDINGS_REJECTED",
+      "cards": 32,
+      "sourceURLs": 30,
+      "suggestedReady": 25,
+      "suggestedNeedsReview": 7,
+      "validReceipts": 0,
+      "evidence": "KB_INDEPENDENT32_BINDING_FIRST_FAIL.json"
+    },
+    "next": {
+      "requestId": "LIFEOS_KB_INDEPENDENT_32_20261011_R2_BINDING_AND_SMALL_REVIEW",
+      "status": "ACK_PROCESSING",
+      "sourceRereads": "Reuse actual public files; no product model",
+      "reservedCredits": 40313
+    },
+    "humanApproval": 0,
+    "published": 0
+  },
+  "currentCozeR7": {
+    "head": "d881683ec576b9d0d169db8f6beb2323bc93bbcd",
+    "sourceHashes": {
+      "entry.py": "5d7cb4f6db3d06995c9e50054c69299d543549170ffb367e63cd670237f6807a",
+      "provider_http.py": "a144759e5f68f9cfcd0b01267e68950c7e3c14286ce24280be37ed3c75376894",
+      "transport_http.py": "0158f7a01ddf8ea4598392cf15ed71d5a51464df0c45c74b1950be5f64995bec"
+    },
+    "checks": {
+      "passed": 3,
+      "failed": 9
+    },
+    "evidence": "COZE_R7_SOURCE_CONTRACT_FIRST_FAIL.json",
+    "status": "FAILED_SOURCE_CONTRACT_REVIEW",
+    "actualCredits": 6413.06,
+    "newBudget": 0
+  },
+  "previousTopLevelSnapshot": {
+    "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+    "version": "workflow-v2-integration-0c4ce842100e"
+  },
+  "currentCozeR8": {
+    "requestId": "LIFEOS_COZE_CORE_20261011_GROWTH_R8_REPAIR",
+    "projectId": "7693388932939300905",
+    "status": "ACK_PROCESSING",
+    "reservedExistingCredits": 60000,
+    "newBudget": 0
+  },
+  "currentPaidAccounting": {
+    "restorationBaselineCallCount": 2022,
+    "reservationEntriesNew": 136,
+    "actualDispatchedNew": 130,
+    "notSentNew": 6,
+    "actualUnknownFeesNew": 6,
+    "knownNewCostCny": 0.2727784,
+    "unknownFeesReservedCny": 0.7139328,
+    "remainingOriginalFundingCny": 10.2736286,
+    "ledgerEntries": 2158,
+    "newBudget": 0,
+    "ledgerSha256": "58e9f47b53f06aeea8c897d055be7c181b378373f820b40bb6adbfe7e9bf6ef1",
+    "ledgerCopied": false
+  },
+  "currentIncrement": {
+    "ui": "OFFLINE_UNSAVED_MESSAGE_AND_STALE_STAR_NOTICE_REPAIRED_ACTUAL_BROWSER_SCOPED_PASS",
+    "freshBase": {
+      "head": "9ceb766787e3d7e0889f4482e52654395555eb87",
+      "status": "17_RELEVANT_FREE_PASS_EXTENDED_PRIVATE_DEPENDENCY_FAILURE_RETAINED_CURRENT_FIX_PENDING_FRESH"
+    },
+    "simulationBudget": "NO_PRIVATE_HISTORY_REQUIRED_PAID_AUTHORIZATION_UNCHANGED",
+    "independentReview": {
+      "head": "9de635ed496db585cb98a1cbe3164692bcc8ada5",
+      "versionBindings": 32,
+      "claims": 79,
+      "recommendations": 25,
+      "sourceNeedsReview": 7,
+      "humanApproved": 0,
+      "published": 0,
+      "small5": "ACTUAL_R2_FAIL_REQUIRES_SCOPE_AND_RENDERED_CANDIDATE_RECHECK"
+    },
+    "cozeCredits": {
+      "initial": 151559,
+      "charged": 52951,
+      "held": 60000,
+      "available": 38608,
+      "newBudget": 0
+    },
+    "productionWrites": 0,
+    "status": "WIP_NOT_READY"
+  },
+  "iesFourRevision": {
+    "at": "2026-10-11T01:25:27.942Z",
+    "canonicalOriginal": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+    "newDistinctOriginals": 0,
+    "repeatedOriginalLocatedQuotes": 4,
+    "newDraftRevisions": 4,
+    "sourceHtmlSha256": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+    "bodySha256": "34820db71d25403d4f89a3350c341a0a2a2fdff3bd01a91e23f1ea8b23a201fd",
+    "failedBackend": "Jina returned actual401; original GET and web open read body",
+    "revisions": [
+      {
+        "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+        "key": "retrieval-practice",
+        "revision": 3,
+        "previousHash": "1515e7f8beca791ad7b88e67d21d7b6e55aa0f34c689b812906d83d939685e09",
+        "contentHash": "c8680ef307df145857f2357938bd144945d61f0694b0f1e019ae8e473a5fef5b",
+        "evidenceId": "ies-learning-located-20261011-retrieval-practice",
+        "quoteHash": "2255e7b8b806dc93beb0a65a04c59d9f6df7c2dc00b12c661f7c81787ed988f3",
+        "independentReview": "PREVIOUS_R2_REVIEW_IS_OLD_REVISION_NEW_REVIEW_REQUIRED",
+        "humanApproval": null,
+        "publication": false
+      },
+      {
+        "guideId": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+        "key": "spaced-review",
+        "revision": 3,
+        "previousHash": "2a594e3ce3151d8a731ffd23925662b5559dd140385c1b2df5fdf95aa7fd51c3",
+        "contentHash": "3d30bf07eecff9422a434c3b1033c724a6c886ac723f598ae01b7f831f076e42",
+        "evidenceId": "ies-learning-located-20261011-spaced-review",
+        "quoteHash": "0b29abd52f37af45d3d40b1952433f52f078980677b47bdf0107c67083056246",
+        "independentReview": "PREVIOUS_R2_REVIEW_IS_OLD_REVISION_NEW_REVIEW_REQUIRED",
+        "humanApproval": null,
+        "publication": false
+      },
+      {
+        "guideId": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+        "key": "worked-example",
+        "revision": 3,
+        "previousHash": "bff977dcc13ddaeb520a2c9dd40da7a5c039f9973153edf22e8b89d3056f5ee6",
+        "contentHash": "3fec0f47977375e8c688e1e58425fa129a93535d0d8e60261ec12ab273822028",
+        "evidenceId": "ies-learning-located-20261011-worked-example",
+        "quoteHash": "dceffcb8b92b786e3a1dc13906d3d9e3c415397f4867f8d9fc3430012f285d25",
+        "independentReview": "PREVIOUS_R2_REVIEW_IS_OLD_REVISION_NEW_REVIEW_REQUIRED",
+        "humanApproval": null,
+        "publication": false
+      },
+      {
+        "guideId": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+        "key": "explain-understanding",
+        "revision": 3,
+        "previousHash": "0706626699bab64a76bc181c79cb8fd2eb34b43b2aef0aad2916335bd46e02f6",
+        "contentHash": "003e6a5077cbb8e7de2e10feefd9f30d65374168f620792443e2b7c9ebc92c43",
+        "evidenceId": "ies-learning-located-20261011-explain-understanding",
+        "quoteHash": "b5a8eba92b777a3132d4d3b05f5b5e6a2e2936f4148f5d64cae5b4a9c874d659",
+        "independentReview": "PREVIOUS_R2_REVIEW_IS_OLD_REVISION_NEW_REVIEW_REQUIRED",
+        "humanApproval": null,
+        "publication": false
+      }
+    ],
+    "currentMatchingIndependentReceipts": 26,
+    "newRevisionAwaitingReview": 6,
+    "humanApproval": 0,
+    "published": 0
+  },
+  "fresh9efe806": {
+    "status": "FAIL_OR_INCOMPLETE",
+    "passedBeforeFailure": 17,
+    "failure": "HTTP_CHAIN_429_PRIVATE_QUOTA_DEPENDENCY",
+    "evidence": "evidence/coze-core-launch-20261011/fresh-9efe806-first/REPRODUCTION.json",
+    "repair": "explicit synthetic test-only 20/min quota, production unchanged",
+    "latestFresh": "NOT_RUN"
+  },
+  "fresh36823e1": {
+    "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
+    "steps": 21,
+    "evidence": "evidence/coze-core-launch-20261011/fresh-36823e1/REPRODUCTION.json",
+    "privateFilesCopied": false,
+    "modelCalls": 0,
+    "scope": "36823e1 code; later content supplement locally tested separately"
+  },
+  "sourceSupplement": {
+    "newUsableSources": 14,
+    "newLocatedQuotes": 22,
+    "draftsSupplemented": 21,
+    "allReviewPreparations": 32,
+    "sourceScopedDraftReady": 21,
+    "partialImproved": 11,
+    "stillTaskSpecificSourceGap": 38,
+    "actualIndependentReviews": 0,
+    "actualHumanApprovals": 0,
+    "formalCoverageUnchangedUntilApproval": true,
+    "previous": {
+      "newUsableSources": 5,
+      "newLocatedQuotes": 5,
+      "draftsSupplemented": 8,
+      "allReviewPreparations": 32,
+      "sourceScopedDraftReady": 15,
+      "partialImproved": 8,
+      "stillTaskSpecificSourceGap": 44,
+      "actualIndependentReviews": 0,
+      "actualHumanApprovals": 0,
+      "formalCoverageUnchangedUntilApproval": true
+    },
+    "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
+    "reReadExistingOriginals": 1,
+    "draftsSupplementedCountsRevisionEvents": true,
+    "actualIndependentReviewExecutions": 32,
+    "currentExternalVersionBindings": 30,
+    "actualIndependentReviewsMeaning": "0 imported independent receipts in non-test maintenance DB; observed external executions and exact current card bindings are separate. No human approval or publication.",
+    "actualIndependentReviewExecutionRuns": 2,
+    "actualIndependentCardReviewEvents": 38,
+    "acceptedRealReviewImportsInIsolatedAccount": 1
+  },
+  "growthR8": {
+    "commit": "c4073ae989b274dea24a0ae68d3848252f017f16",
+    "sourceHashesVerified": true,
+    "firstSourceReplay": {
+      "passed": 2,
+      "failed": 10,
+      "evidence": "evidence/coze-core-launch-20261011/R8_SOURCE_CONTRACT_FIRST.json"
+    },
+    "actualCredits": 5989.83,
+    "accountedCredits": 5990,
+    "cloudModelRuns": 0,
+    "status": "SOURCE_REPAIR_REQUIRED_R9_SENT_ONCE"
+  },
+  "cozeCreditsCurrent": {
+    "initial": 151559,
+    "charged": 71462,
+    "held": 80000,
+    "available": 97,
+    "newBudget": 0,
+    "status": "UNKNOWN_TASK_FEES_RETAIN_FULL_HOLDS"
+  },
+  "fresh321197e": {
+    "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
+    "steps": 21,
+    "evidence": "evidence/coze-core-launch-20261011/fresh-321197e/REPRODUCTION.json",
+    "privateFilesCopied": false,
+    "modelCalls": 0,
+    "scope": "321197e frozen code; later content and UI changes checked separately"
+  },
+  "growthR9": {
+    "commit": "37202e2f3e21b73c69c0d107209394bbc83c4b10",
+    "sourceHashesVerified": true,
+    "first": {
+      "passed": 11,
+      "failed": 1,
+      "evidence": "evidence/coze-core-launch-20261011/R9_SOURCE_CONTRACT_FIRST.json"
+    },
+    "additionalFirst": {
+      "passed": 1,
+      "failed": 6,
+      "evidence": "evidence/coze-core-launch-20261011/R9_SOURCE_CONTRACT_ADDITIONAL_FIRST.json",
+      "selectedActionCaseSupersededByCorrectCatalogueAddendum": true
+    },
+    "correctCatalogueAddendum": {
+      "status": "FAIL",
+      "actualSelectedMinutes": 35,
+      "actualBudgetMinutes": 30,
+      "evidence": "evidence/coze-core-launch-20261011/R9_SOURCE_CONTRACT_TOTAL_ADDENDUM_FIRST.json"
+    },
+    "actualCredits": 3059.97,
+    "accountedCredits": 3060,
+    "cloudModelRuns": 0,
+    "status": "ACTUAL_SOURCE_GUARDS_FAIL_R10_SENT_ONCE"
+  },
+  "browserIncrement": {
+    "naturalShortAnswer": "CONTINUES_ORIGINAL_TASK_SIMULATED_PROVIDER",
+    "adoption": "PLAN_SAVED_NOT_EXECUTED_REFRESH_READBACK",
+    "newChat": "STALE_TASK_FIRST_FAILURE_PRESERVED_FIXED",
+    "evidence": "evidence/coze-core-launch-20261011/ui-new-chat-fixed-FIRST.txt",
+    "modelQuality": "NOT_TESTED_BY_THIS_UI_CHECK",
+    "realHumanApproval": 0
+  },
+  "knowledgeR3": {
+    "status": "DONE_ACTUAL_BYTES_VERIFIED",
+    "cloudCommit": "974926e093eaf934b0268acad4cadde10a01652c",
+    "report": "evidence/coze-core-launch-20261011/KB_SIX_R3_RESULT.json",
+    "smallReport": "evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json",
+    "proof": "evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json",
+    "currentSixReviewExecutions": 6,
+    "readyRecommendations": 5,
+    "needsReview": 1,
+    "formalOriginalProofImport": 0,
+    "sourceReadLimits": "IES/CFPB fetch failed; campus temp original path could not be read back. Full originals R4 single dispatch; no formal source review accepted.",
+    "smallFiveAxesPass": 5,
+    "crossSession": "NOT_TESTED_SINGLE_TURN",
+    "allowsContinuityTest": true,
+    "previousFailedR2Preserved": true,
+    "actualCredits": 1757.17,
+    "accountedCredits": 1758,
+    "humanApproval": 0,
+    "publication": 0
+  },
+  "knowledgeR4": {
+    "status": "ACTUAL_DONE_IMPORT_REJECTED_INCOMPLETE_BINDING",
+    "cloudCommit": "0cca049d047bee817314116da2f72b8c9990d04e",
+    "actualIndependentFullOriginals": 3,
+    "formalImportedReview": 0,
+    "issues": [
+      "no exact guide revision/hash/claim binding",
+      "income locator wrongly points to campus",
+      "income PDF hash wrongly spending PDF",
+      "IES full body not independently read"
+    ],
+    "humanApproval": 0,
+    "publication": 0
+  },
+  "realContinuationEntry": {
+    "status": "TESTED_LOCAL_ZERO_DISPATCH",
+    "registeredExternalReport": "coze-kb-r3-real-small",
+    "root133": "PASS",
+    "entry7": "PASS",
+    "proof2": "PASS",
+    "freeze1": "PASS",
+    "sourceContent6": "PASS",
+    "types": "PASS",
+    "build": "PASS",
+    "originalCallsReissued": false,
+    "continuity": "NOT_TESTED",
+    "finalPerformance": "NOT_TESTED"
+  },
+  "realFourChainsFirst": {
+    "kind": "MAIN_DIAGNOSTIC_NOT_INDEPENDENT_ACCEPTANCE",
+    "codeCommit": "f3b3b08ed5d7927ede3c775eb98d782e9d6a5401",
+    "actualCalls": 24,
+    "technicalCompleted": 23,
+    "failures": [
+      {
+        "caseId": "course-4",
+        "error": "WEEKLY_PLAN_INVALID",
+        "firstUsefulMs": null,
+        "costCny": 0.0046978
+      }
+    ],
+    "costCny": 0.06089470000000001,
+    "unknownCostSamples": 0,
+    "semanticFailuresObserved": [
+      "contact-0 contact treated as delivery",
+      "contact-1 unsupported easier-response effect; adoption is not execution",
+      "contact-3 already stated request asked again",
+      "freelance-2 invented first order and confirmed-demand closed loop",
+      "startup-3 unsupported avoids politeness effect",
+      "course-5 current week zero reused while next week is current request"
+    ],
+    "independentReview": "WAITING",
+    "release": "WIP_NOT_READY",
+    "originalCallsReissued": false,
+    "automaticPaidRetries": 0,
+    "newBudget": 0
+  },
+  "realChainRepair": {
+    "status": "TESTED_LOCAL",
+    "root": 134,
+    "isolatedSdkPg": 12,
+    "realModelRevalidation": "NOT_TESTED",
+    "firstFailuresPreserved": true
+  },
+  "at": "2026-10-11T05:37:42.547Z",
+  "currentExecution": {
+    "repositoryHead": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+    "codeCommit": "19438c1a00a6180f77141c4bc65dd6cd5aa2ee0c",
+    "sourceFingerprint": "0a1f40f843e77a0f3ede32cce551dc9102c44e867fb7cf8b74b2f5ac8d6068f3",
+    "process": {
+      "service": "LifeOS",
+      "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+      "versionSource": "git",
+      "skillVersion": "1.2.2-candidate",
+      "mainSkillDigest": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6",
+      "workflowVersion": "v2-integration",
+      "sourceDigest": "fa6bf16ad7aa5e16fb021e3d55d2004aa74e9dfe8adae70d129b04385b589e83",
+      "sourceFreezeDigest": "62209cffa7d7e4628c9e824b72094218ad3218cce6a82471839faf50f589807e",
+      "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+      "sourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+      "contentEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+      "skills": [
+        {
+          "name": "lifeos-direction-analysis",
+          "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-action-review",
+          "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-experience-evidence",
+          "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-guide-application",
+          "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+          "version": "0.2.0-candidate"
+        },
+        {
+          "name": "lifeos-growth-diff",
+          "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+          "version": "0.2.0-candidate"
+        }
+      ],
+      "loadedAt": "2026-10-11T04:59:44.314Z",
+      "contractGeneration": "p4+workflow-v2",
+      "growthApi": true,
+      "processKind": "ACTUAL_LOCAL_SYNTHETIC_UI_PROCESS_CLOSED_AFTER_ACCEPTANCE",
+      "evidence": "evidence/coze-core-launch-20261011/current-ui-f36b933-api-readback.json",
+      "syntheticOverridesAfterRuntimeSnapshot": true,
+      "paidModel": false,
+      "realQuality": "NOT_TESTED_CURRENT_REPAIR"
+    },
+    "cozeGrowth": {
+      "projectId": "7693388932939300905",
+      "developmentCommit": "39482ae36cdfd1dac11f610d642a5477963986e1",
+      "status": "R13_ACTUAL_SQL_SCRIPTED_HTTP_LOCAL_14_CHECKS_PASS_NOT_REAL_CLOUD_MODEL",
+      "evidence": "evidence/coze-core-launch-20261011/r13-observed/",
+      "newProductionDeployment": false
+    },
+    "cozeKnowledge": {
+      "projectId": "7693465311558795327",
+      "developmentCommit": "10b80bfb5f20f068a7dfaa050813ece970468fab",
+      "status": "R8_ACTUAL_INDEPENDENT_ORIGINAL_CARD_REVIEW_EXECUTED",
+      "currentCardBindings": 30,
+      "ownerApprovals": 0,
+      "newPublications": 0
+    },
+    "installedSkills": "READ_ONLY_CHECKED_NO_USER_CUSTOMIZATIONS_OVERWRITTEN",
+    "productionWrites": 0,
+    "status": "WIP_NOT_READY",
+    "extraCandidatePackaging": "CANCELLED_BY_OWNER_ONLY_REAL_DEPLOYMENT_NECESSARY_VALIDATION"
+  },
+  "ownerPublicGuidePublication": {
+    "status": "ACTUAL_LOCAL_PRIMARY_NORMAL_AUTHENTICATED_HTTP_PUBLISHED_AND_STUDENT_READBACK",
+    "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+    "revision": 3,
+    "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
+    "independentExecutionId": "coze-kb-r8-original-cards",
+    "approvalReceiptId": "4fff4e4c-9d77-4eb9-a24b-1840661d778c",
+    "ownerApproval": "Direct current human instruction, executed by authenticated delegated service principal; not a claimed human UI click.",
+    "newOwnerApprovals": 1,
+    "newPublishedRevisions": 1,
+    "approvedCards": 16,
+    "needsReviewCards": 16,
+    "modelCalls": 0,
+    "cozeCalls": 0,
+    "backup": "Private original primary backup verified before additive migrations; no private database copied to tests or public artifacts.",
+    "normalStudentMethodReadback": true,
+    "normalPublicRetrievalReadback": true,
+    "indexedOnlyChangedCardSegments": 8,
+    "nextIndexEncodedSegments": 0,
+    "publicEvidence": "evidence/coze-core-launch-20261011/owner-public-guide-publication-first.json",
+    "productionDeployment": false,
+    "remoteCorpusBinding": "NOT_SYNCED_AFTER_OWNER_PUBLICATION"
+  },
+  "latestIndependentCodeReview": {
+    "report": "evidence/coze-core-launch-20261011/independent-r18-code-first.json",
+    "verdict": "BLOCKED_HIGH_DEFECTS",
+    "priorResolved": 3,
+    "newHigh": 2,
+    "repairs": "LOCAL_TRANSACTION_AND_ACTUAL_R19_CLOUD_REPAIR_TESTED_NOT_INDEPENDENTLY_REVERIFIED"
+  },
+  "latestCloudDevelopment": {
+    "commit": "24af9b737042ff9854aa52b7d612997eedbaff21",
+    "sourceDigest": "f8d8a041933060b071e4a1633b8b1a42b7744753aa1dccddeeb9d4dae267d08d",
+    "evidence": "evidence/coze-core-launch-20261011/r19-committed-runtime.json",
+    "actualDevelopmentChecks": {
+      "status": "ACTUAL_EXISTING_DEVELOPMENT_PG_R19_CLOSE_PATHS_PASS_NOT_REAL_MODEL_GRAPH",
+      "checks": [
+        "transport close exception with actual reserved PG slots produces durable unavailable receipt and all not_sent",
+        "close and terminal persistence faults retain unfinished incomplete state"
+      ],
+      "count": 2,
+      "modelCalls": 0,
+      "faultInjectionDeclared": true,
+      "runtime": {
+        "projectId": "7693388932939300905",
+        "businessRole": "growth",
+        "candidateRelease": "0.2.0-candidate",
+        "hostCodeCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4",
+        "hostSourceDigest": "680e4f08bbf826b4f20679d49e2b96afeb002431c37babb9d925914803c30427",
+        "canonicalContentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+        "canonicalSourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+        "canonicalEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+        "cloudCommit": "435bf2f11726f81f2ac97509caae5629f0f01c27",
+        "cloudSourceDigest": "f8d8a041933060b071e4a1633b8b1a42b7744753aa1dccddeeb9d4dae267d08d",
+        "cloudSourceHashes": {
+          "src/lifeos_host/http_route/__init__.py": "f652ea299d2dab4ec6428633943e21f3c4d5fa6cd3734a13b80af82fdb02d3c8",
+          "src/lifeos_host/http_route/provider_http.py": "5c39242f421463af371abe3da80f08c5c7407ad2a537f422071ec95b58c5562d",
+          "src/lifeos_host/http_route/dispatch.py": "f504a56f36cd29d802c6dc6eb04aeacc0ebe5c3e056992b600d99605ca383174",
+          "src/lifeos_host/http_route/wire.py": "31a304cabe19730678a03ca63c101eeecd48786e1dad637bbd87ff9a30ea6342",
+          "src/lifeos_host/http_route/runtime_binding.py": "7f3e1a9f7fcdaaf862efbcf3739d69ed2b2a0b9e9eb569d4cae91a31fb9630b8",
+          "src/lifeos_host/http_route/transport_http.py": "e72b6acebfd75c6521f8d6bd89033b92407ac67e14e1c8b6871e2fe5be88ae6d",
+          "src/lifeos_host/http_route/entry.py": "b5a58b25a3686b60b25f4c6a7f2c112b03aa55823943ae9bf975d7db733dcd73",
+          "src/lifeos_host/contracts.py": "b4b87219ce3e27cf9db008f586dae52e86ddb3ffaaabe7ae2ef82d1e2a767ee0",
+          "src/lifeos_host/transport.py": "9bd67ba590de35723dc2bd29bf8f9632a0ef1ea8be209a607cd1edee67454d3b",
+          "src/lifeos_host/host.py": "2b0a64b18e9b5a3ff02856772aa2e37fa8696e6ee855950500f41d64dddfa793",
+          "src/lifeos_host/provider.py": "5a2238075dbdc749387889074f8ffcc068a3bc79360800f546bf450be6dbbc4e",
+          "src/lifeos_host/execution.py": "f3741eff2589fadb74e8a648c58fc057640b08146e8b47da6625909ee83bc119",
+          "src/lifeos_host/persist.py": "1b552c8ec2c596a6e4fb4ec508e976be8897589991db2213a283ae0009a2b257",
+          "src/lifeos_host/skills_registry.py": "0ee371278ca554a496bbfc846d642a35e888f41f9e61eef5eaa6e7c15365d8c1",
+          "src/lifeos_host/__init__.py": "54851b4ee95819a25bdbec9de776519464d7c93558665a6b95da1022c3536c5e",
+          "src/graphs/graph.py": "72867f5c34329b8ed247499a2f33a199db953c73f9473ca709a198be4ffec5eb",
+          "src/graphs/state.py": "e016a08ed0b062dc32b91189f806091ccfa012d6076804845ed11db8facf6c7e",
+          "src/graphs/nodes/lifeos_host_node.py": "1b853189e1c261a6659b2a782a2063923820c5f9ff0f9e0edb5eb7d876b3e321",
+          "src/graphs/nodes/entry_router_node.py": "3279060354ef84bcb08fff89954b2e36d8eec0dd1c750d5401d7eb8641628c13",
+          "src/graphs/nodes/lifeos_http_node.py": "30d0498c080ce70bd06b032c56e3af1b01e2c2d262780a5abf13e85778df6201"
+        },
+        "skillsDigest": "8917dbcebb168e135485871520a68fececb13dd14dba83bcade993373d1ce9a8",
+        "skillHashes": {
+          "assets/skills/lifeos-action-review.md": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+          "assets/skills/lifeos-direction-analysis.md": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+          "assets/skills/lifeos-experience-evidence.md": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+          "assets/skills/lifeos-growth-diff.md": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+          "assets/skills/lifeos-guide-application.md": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+          "assets/skills/lifeos-personal-companion.md": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
+        },
+        "canonicalCardsHash": "862ba500f77f8f5efd307aeecc173bffaff02ec48a807c24800d8d5af54d2a6d",
+        "approvedSubsetHash": "862ba500f77f8f5efd307aeecc173bffaff02ec48a807c24800d8d5af54d2a6d",
+        "fullCorpusHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+        "canonicalCards": {
+          "card:4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d": "c2bec4773a4f2a89611e46c48626a90d3e6540ab0757e6896162c1b4c61b0f33",
+          "card:7ff3638d-87dc-4842-8908-352ea1ed308e": "86cc863b6c3e097ed8f9e2b3c62da201fbb6d56f026d581e2dd291f09d3b8793",
+          "card:e6ad610b-549e-4b09-89bc-34223577fb49": "73d5744c2491c9714125670a75b71e95cb2c4ca6ba0f017b681946170c456bc2",
+          "card:fec4a7ce-91a7-4fa8-8278-ff6b61e1404a": "7649933189d45706e2649ae74fea621f3a5a31e2a61b4d5c10b8ea834c0a3ae6",
+          "card:418188a9-dfd0-46d3-8f35-6fdff72de1c9": "48354f4b077063aa253eabaf3b80f3fd183b307f99d823b47f02b64ae036cbca",
+          "card:d1cb5277-c602-4909-8a48-b4fc52f15d63": "7225480e42cdce16b5e6ca57fe726f5c06bb5c6207b08954f7d4deff11fb5c82",
+          "card:5fde19ca-e307-478c-8a96-5781df392991": "eea24875ccdf39d9cb4302e5a5f67ed1473b97293112778a302671f309f382dc",
+          "card:48e4e604-8fd8-4016-862c-f6d3219c776d": "50cc605d907cba3389ea00b2522c7b632fe258acaa4ad28ca7a05e48df90721c",
+          "card:6262d479-9403-4140-8910-48de23cd2600": "b8aadd9a0b34f435fb31c87b70531cccc0761b20e8011efb47b5f6efb2cfa247",
+          "card:563bc621-e36d-416b-8176-c82bbe0469f3": "8ad4816bf2cbbf9756672b3dce15f7119d34a574a78c71dc49fece45b08ef056",
+          "card:4795f7b2-f739-4ba5-8052-2d04f5894bbe": "23bd29fd3a80d3661d6936ed6cb69c60ec7851f8d2d0f6dad1b0979f27362c79",
+          "card:43e47ad6-3543-4c97-84f6-42bb0a1e6cb3": "185c80a660bcc5720cb13669b0c55886a818612be146c64cef5b4ce58f189754",
+          "card:061bf547-823f-492e-89c2-cf11daf153b5": "c7f34a3daf0031dca26564cc37dc6d40d36e8f0c20ace66f9d4b7c8ff8941abb",
+          "card:ea53cc08-3420-442f-8e5c-98070be7909a": "e46372c7d948d89aeee449b90235815aa10128d8c6295f60d9878879fa3afb1e",
+          "card:349634c2-27c1-4a99-8f54-3f8e072d5ce0": "3d97d8c219a696a16019504f3ea1daf51c2f64d392530992329c7c996af14029",
+          "card:1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a": "15145936216176c6fbc39c639f0e38e8266fe6df6ab97c4f4ce46197b688983b"
+        },
+        "noPrivateStudentData": true,
+        "noCredentials": true,
+        "note": "zero-model permit-free runtime readback; no key/secret exposed"
+      }
+    },
+    "realModelGraph": "NOT_TESTED",
+    "productionDeployment": "NOT_UPDATED",
+    "independentReview": "PENDING_R19"
+  },
+  "latestRealFourChains": {
+    "head": "aae0a82475a3ed4da5c77f587702789e0837db0f",
+    "sourceDigest": "fe4e499974f819a88e7961ef96a47ec61e1528857879e8ffc4176971f676859d",
+    "allFirstAttempts": 24,
+    "technicalDone": 24,
+    "realGeneratedTurns": 23,
+    "deterministicZeroModelTurns": 1,
+    "knownCostCny": 0.0591222,
+    "originalUnknownCostRows": [
+      {
+        "caseId": "course-4",
+        "actualUsage": {
+          "source": "deterministic",
+          "provider": null,
+          "model": null,
+          "modelTier": "none",
+          "inputTokens": 0,
+          "totalInputTokens": 0,
+          "uncachedInputTokens": 0,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 0,
+          "cachedInputTokens": 0,
+          "retrievedMemoryCount": 0,
+          "contextTokenEstimate": 0,
+          "contextTokenEstimateKind": "heuristic",
+          "escalated": false,
+          "escalationReason": null,
+          "repairReason": null,
+          "repairCalls": 0,
+          "groundingReviewCalls": 0,
+          "zeroLlm": true,
+          "llmCallCount": 0,
+          "estimatedCostCny": 0,
+          "calls": []
+        },
+        "clarification": "CONFIRMED_ZERO_DISPATCH_ZERO_COST_ORIGINAL_MISCLASSIFICATION_RETAINED"
+      }
+    ],
+    "firstContentP50Ms": 1388.5072999999975,
+    "firstContentP95Ms": 4013.3015000000014,
+    "completeReplyP95Ms": 6291.976599999998,
+    "quantileMethod": "nearest_rank_all_first_attempts_no_sample_replacement",
+    "businessQualification": "FOUR_CHAINS_INDEPENDENT_FAIL",
+    "performanceAcceptance": "NOT_ACCEPTED_BUSINESS_GATES_FAILED_NOT_FINAL_ORDINARY20",
+    "independentReview": "evidence/coze-core-launch-20261011/independent-four-chains-aae0a82-first.json"
+  },
+  "latestRealNaturalPilot": {
+    "sourceCommit": "62002f7",
+    "evidence": "evidence/coze-core-launch-20261011/natural-v4-first-readback.json",
+    "firstAttempts": 8,
+    "technicalDone": 8,
+    "independentReview": "evidence/coze-core-launch-20261011/independent-natural-v4-first.json",
+    "verdict": "BLOCKED_RETAINED",
+    "contactContinuity": "PASS",
+    "otherThreeLines": "FAIL_REPAIRS_LOCAL_TESTED_NOT_REAL_REVERIFIED",
+    "firstSampleFirstContentMs": 9159.0522,
+    "latencyFailureRetained": true
+  },
+  "currentBudgetReadback": {
+    "knownRemainingCny": 10.1847703,
+    "cozeAvailableCredits": 97,
+    "cozeHeldUnknownCredits": 80000,
+    "newBudget": 0,
+    "automaticPaidRetry": false
+  },
+  "currentLaunchExecution": {
+    "at": "2026-10-11T11:24:35.036Z",
+    "codeCommit": "1da6805bf05de88ffea7da3dbbbd33ef8eca58b0",
+    "status": "WIP_NOT_READY",
+    "ordinaryPilot": "THREE_NEW_REAL_FIRST_SAMPLES_PASS_WITH_LIMITATIONS_NOT_TWENTY_FINAL",
+    "nativeTwoDirections": "TECHNICAL_COMPLETION_BUSINESS_REVIEW_BLOCKED",
+    "nativeThreeDirections": "NOT_TESTED_CURRENT_VERSION",
+    "publicGateway": "NOT_TESTED_CURRENT_CANDIDATE_OLD_DEPLOYMENT_401",
+    "modelRemainingCny": 9.7248789,
+    "coze": {
+      "initialCredits": 151559,
+      "chargedCredits": 71462,
+      "heldCredits": 80048,
+      "availableCredits": 49
+    },
+    "firstResultsPreserved": true,
+    "newBudget": 0,
+    "extraCandidatePackages": "CANCELLED_BY_OWNER",
+    "cloudCurrent": {
+      "projectId": "7693388932939300905",
+      "businessRole": "growth",
+      "candidateRelease": "0.2.0-candidate",
+      "hostCodeCommit": "1f3a0acaf9bae34846aa5d64c63d28d50c20a19b",
+      "hostSourceDigest": "6a1133ba7a39af0a8c533090ee13a190024b265b7855ce3f97f4064eabcceb7a",
+      "canonicalContentHash": "6b944620597fb1c9e466af9fb98b6528fdae5d0106d8bb2bed4aa9c7f8537600",
+      "canonicalSourceRegistryHash": "7a4395c15688b3e7f284ee128f0784d6512a757cd9241f1aec191d8fae3a21a9",
+      "canonicalEvidenceHash": "d8122194d970f0dfd90b232af8428dbd99bc6d44996f4bdfa115842ac37c4e1a",
+      "cloudCommit": "74562efe01d9eb4be6c43e9376be9d0b24f65e92",
+      "cloudSourceDigest": "aa39dec5372574aa156fc8a1758e4d0974c37bad51b1f9a998bcd852a69b1c70",
+      "cloudSourceHashes": {
+        "src/lifeos_host/http_route/__init__.py": "f652ea299d2dab4ec6428633943e21f3c4d5fa6cd3734a13b80af82fdb02d3c8",
+        "src/lifeos_host/http_route/provider_http.py": "eaecde0f313e8e485af9c450d52aceee2fbb3e19a198e6ec7355ca6b53ecbc22",
+        "src/lifeos_host/http_route/dispatch.py": "3110811d5a162db83586aa6f5e6a05bf8e21a92f03d5a28693535d9e3d02d704",
+        "src/lifeos_host/http_route/wire.py": "31a304cabe19730678a03ca63c101eeecd48786e1dad637bbd87ff9a30ea6342",
+        "src/lifeos_host/http_route/runtime_binding.py": "7f3e1a9f7fcdaaf862efbcf3739d69ed2b2a0b9e9eb569d4cae91a31fb9630b8",
+        "src/lifeos_host/http_route/transport_http.py": "06d77eba8bcd4494fb34abc7bda44c1092a5d5646ba530e8da85be7de027d5f2",
+        "src/lifeos_host/http_route/entry.py": "45517f419a0bd8ec8175bc12cf7cf19ae40939c297015a6433fc43ca60fbeda2",
+        "src/lifeos_host/contracts.py": "b4b87219ce3e27cf9db008f586dae52e86ddb3ffaaabe7ae2ef82d1e2a767ee0",
+        "src/lifeos_host/transport.py": "9bd67ba590de35723dc2bd29bf8f9632a0ef1ea8be209a607cd1edee67454d3b",
+        "src/lifeos_host/host.py": "2b0a64b18e9b5a3ff02856772aa2e37fa8696e6ee855950500f41d64dddfa793",
+        "src/lifeos_host/provider.py": "5a2238075dbdc749387889074f8ffcc068a3bc79360800f546bf450be6dbbc4e",
+        "src/lifeos_host/execution.py": "f3741eff2589fadb74e8a648c58fc057640b08146e8b47da6625909ee83bc119",
+        "src/lifeos_host/persist.py": "1b552c8ec2c596a6e4fb4ec508e976be8897589991db2213a283ae0009a2b257",
+        "src/lifeos_host/skills_registry.py": "0ee371278ca554a496bbfc846d642a35e888f41f9e61eef5eaa6e7c15365d8c1",
+        "src/lifeos_host/__init__.py": "54851b4ee95819a25bdbec9de776519464d7c93558665a6b95da1022c3536c5e",
+        "src/graphs/graph.py": "72867f5c34329b8ed247499a2f33a199db953c73f9473ca709a198be4ffec5eb",
+        "src/graphs/state.py": "e016a08ed0b062dc32b91189f806091ccfa012d6076804845ed11db8facf6c7e",
+        "src/graphs/nodes/lifeos_host_node.py": "1b853189e1c261a6659b2a782a2063923820c5f9ff0f9e0edb5eb7d876b3e321",
+        "src/graphs/nodes/entry_router_node.py": "3279060354ef84bcb08fff89954b2e36d8eec0dd1c750d5401d7eb8641628c13",
+        "src/graphs/nodes/lifeos_http_node.py": "30d0498c080ce70bd06b032c56e3af1b01e2c2d262780a5abf13e85778df6201"
+      },
+      "skillsDigest": "8917dbcebb168e135485871520a68fececb13dd14dba83bcade993373d1ce9a8",
+      "skillHashes": {
+        "assets/skills/lifeos-action-review.md": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+        "assets/skills/lifeos-direction-analysis.md": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+        "assets/skills/lifeos-experience-evidence.md": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+        "assets/skills/lifeos-growth-diff.md": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+        "assets/skills/lifeos-guide-application.md": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+        "assets/skills/lifeos-personal-companion.md": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
+      },
+      "canonicalCardsHash": "6a1b89047fd1f816eec06e0f5d5af045927db5e1237599f9c6591bf6f8d2a2d3",
+      "approvedSubsetHash": "6a1b89047fd1f816eec06e0f5d5af045927db5e1237599f9c6591bf6f8d2a2d3",
+      "fullCorpusHash": "6b944620597fb1c9e466af9fb98b6528fdae5d0106d8bb2bed4aa9c7f8537600",
+      "canonicalCards": {
+        "card:4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d": "d725c263d84182367a17b5192068e0656d328827c9f769f6c80213d231e349c7",
+        "card:7ff3638d-87dc-4842-8908-352ea1ed308e": "86cc863b6c3e097ed8f9e2b3c62da201fbb6d56f026d581e2dd291f09d3b8793",
+        "card:e6ad610b-549e-4b09-89bc-34223577fb49": "73d5744c2491c9714125670a75b71e95cb2c4ca6ba0f017b681946170c456bc2",
+        "card:fec4a7ce-91a7-4fa8-8278-ff6b61e1404a": "7649933189d45706e2649ae74fea621f3a5a31e2a61b4d5c10b8ea834c0a3ae6",
+        "card:418188a9-dfd0-46d3-8f35-6fdff72de1c9": "48354f4b077063aa253eabaf3b80f3fd183b307f99d823b47f02b64ae036cbca",
+        "card:d1cb5277-c602-4909-8a48-b4fc52f15d63": "7225480e42cdce16b5e6ca57fe726f5c06bb5c6207b08954f7d4deff11fb5c82",
+        "card:5fde19ca-e307-478c-8a96-5781df392991": "eea24875ccdf39d9cb4302e5a5f67ed1473b97293112778a302671f309f382dc",
+        "card:48e4e604-8fd8-4016-862c-f6d3219c776d": "50cc605d907cba3389ea00b2522c7b632fe258acaa4ad28ca7a05e48df90721c",
+        "card:6262d479-9403-4140-8910-48de23cd2600": "b8aadd9a0b34f435fb31c87b70531cccc0761b20e8011efb47b5f6efb2cfa247",
+        "card:563bc621-e36d-416b-8176-c82bbe0469f3": "8ad4816bf2cbbf9756672b3dce15f7119d34a574a78c71dc49fece45b08ef056",
+        "card:4795f7b2-f739-4ba5-8052-2d04f5894bbe": "23bd29fd3a80d3661d6936ed6cb69c60ec7851f8d2d0f6dad1b0979f27362c79",
+        "card:43e47ad6-3543-4c97-84f6-42bb0a1e6cb3": "185c80a660bcc5720cb13669b0c55886a818612be146c64cef5b4ce58f189754",
+        "card:061bf547-823f-492e-89c2-cf11daf153b5": "c7f34a3daf0031dca26564cc37dc6d40d36e8f0c20ace66f9d4b7c8ff8941abb",
+        "card:ea53cc08-3420-442f-8e5c-98070be7909a": "e46372c7d948d89aeee449b90235815aa10128d8c6295f60d9878879fa3afb1e",
+        "card:349634c2-27c1-4a99-8f54-3f8e072d5ce0": "3d97d8c219a696a16019504f3ea1daf51c2f64d392530992329c7c996af14029",
+        "card:1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a": "15145936216176c6fbc39c639f0e38e8266fe6df6ab97c4f4ce46197b688983b"
+      },
+      "noPrivateStudentData": true,
+      "noCredentials": true,
+      "note": "zero-model permit-free runtime readback; no key/secret exposed"
+    },
+    "currentProductCodeCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+    "currentRuntimeSourceDigest": "c93606e498bd25a60a627472b685aea8e06df97d0a342859b4599be55d8e8a67",
+    "nativeCurrentVersion": "R33_LOCAL_CONTRACT_GUARDS_PASS_REAL_BUSINESS_NOT_TESTED",
+    "currentSourceReview": "SOURCE_REVIEW_PASS_PRIOR_HIGH_FINDINGS_REPAIRED_REAL_MODEL_VERIFICATION_MISSING",
+    "currentRealModelStatus": "NOT_TESTED_CURRENT_CODE_V18_FIRST_BLOCKED_RETAINED",
+    "localUiState": "STOPPED_OLD_7FF_SCRIPTED_LOOPBACK_NOT_CURRENT_CANDIDATE",
+    "cozeAdditionalAllowance": {
+      "path": ".planning/research/workflow-integration/COZE_CREDIT_ALLOWANCE_20261011.json",
+      "status": "AUTHORIZED_PENDING_ACTUAL_BALANCE_AND_LEDGER_BINDING_ZERO_NEW_DISPATCH",
+      "percentage": 0.2,
+      "actualBasis": null
+    }
+  },
+  "historicalChecksScope": "Existing counts remain historical scoped evidence, not promoted to current real quality.",
+  "currentLocalGates20261013": {
+    "status": "PASS_LOCAL_GATES_CLOUD_AND_PRODUCTION_BLOCKED",
+    "capturedAt": "2026-10-13T12:23:54.274Z",
+    "workspaceHeadBeforeCommit": "bacf21efb5fddfc93a037fc6543c26502c19f7f0",
+    "sourceBinding": "EXACT_FILE_SHA256_IN_INDEPENDENT_REVIEW_MANIFESTS",
+    "highestStatus": [
+      "MODIFIED",
+      "TESTED_LOCAL",
+      "BUILT"
+    ],
+    "checks": {
+      "cozeReceiptAndExecution": 20,
+      "durableTerminalRecoveryAndHttp": 10,
+      "actionGrowthAndGuideContracts": 15,
+      "linuxRestoration": 6,
+      "passwordResetAndCozeHost": 6,
+      "serverTypes": "PASS",
+      "build": "PASS_EXISTING_THREE_CHUNK_WARNING"
+    },
+    "evidence": [
+      {
+        "path": ".local/half-day-20261013/coze-deadline-green.log",
+        "sha256": "6b663a7c60e8ffbc305be4971f973dd138f62de52b6e97a508fab94ce60f8267"
+      },
+      {
+        "path": ".local/half-day-20261013/terminal-control-green-final.log",
+        "sha256": "eabbe8eb7e631f53c3ba3608d96fe8af9381600eb5fe5b0ad8dbf7a46abbebcc"
+      },
+      {
+        "path": ".local/half-day-20261013/current-five-skills-contract.log",
+        "sha256": "4615625bf30e56adb02bfbdffba1b0701f4964b4992fed50e6e73249412bb83b"
+      },
+      {
+        "path": ".local/half-day-20261013/restoration-verifier-linux-final.log",
+        "sha256": "2d0e7bf7d2a39db212087676de633811c44f4b753c0f78b9f4ef183cef310d07"
+      },
+      {
+        "path": ".local/half-day-20261013/current-final-backend.log",
+        "sha256": "ee7c0a44fb43ef264da9fcd4e1ea1e02d3d4ff715c401a0165dbf5e4ef9145dc"
+      },
+      {
+        "path": ".local/half-day-20261013/current-final-types.log",
+        "sha256": "de555adeb2388777af803b195ef1376a475ebc067f586b6f1574a1387ca94612"
+      },
+      {
+        "path": ".local/half-day-20261013/current-final-build.log",
+        "sha256": "e611097f07b7892e043855d6c0bbe45adfc58d2074aa977cf35d7fd5e1003eee"
+      }
+    ],
+    "reviews": [
+      {
+        "role": "restoration",
+        "verdict": "PASS",
+        "path": ".local/half-day-20261013/independent-closure-gates/restoration/report.json",
+        "sha256": "3304dca209bc5a6f56d1d2df18b19ffcd8cc447895b5008f044d01d08fabf8fe"
+      },
+      {
+        "role": "agent-workflow-skill",
+        "verdict": "PASS",
+        "path": ".local/half-day-20261013/independent-terminal-closure/agent-workflow-skill/report.json",
+        "sha256": "7d608bd37c0e0e673bc9b4d8b6d83011b15e91fe0f4c027759b626e821638932"
+      }
+    ],
+    "credits": {
+      "initialCredits": 151559,
+      "chargedCredits": 71462,
+      "heldCredits": 80072,
+      "availableCredits": 0,
+      "observedAccountRemainingCredits": 62658,
+      "maximumAdditionalCredits": 12531,
+      "allowanceAccountedCredits": 0,
+      "allowanceRemainingCredits": 12531
+    },
+    "newRealProviderCalls": 0,
+    "newCozeBusinessCalls": 0,
+    "paidTestsRepeated": 0,
+    "subscriptionReviewCost": "UNKNOWN_NOT_PRODUCT_OR_COZE_BILLING",
+    "deployed": false,
+    "onlineVerifiedCurrentSource": false,
+    "accepted": false,
+    "blocks": [
+      "COZE_AVAILABLE_CREDITS_ZERO_WITH_UNKNOWN_RESERVATIONS_RETAINED",
+      "CURRENT_REAL_CLOUD_MAIN_SKILL_AND_WORKFLOW_EXECUTIONS_NOT_ACCEPTED",
+      "CURRENT_PRODUCTION_WRAPPER_AND_BACKUP_RESTORE_NOT_EXECUTED",
+      "PRODUCTION_SMTP_CONFIGURATION_AND_REAL_MAIL_RECEIPT_NOT_VERIFIED",
+      "STUDENT_ACCEPTANCE_NOT_COMPLETED"
+    ],
+    "archiveByteFollowup": {
+      "status": "PASS_LOCAL_ARCHIVE_AND_EXACT_COMMITTED_IMAGE_BYTES",
+      "firstFailedImageCommit": "69838a7ac1717fab30ae607eb8d64cb15b559971",
+      "firstFailureEvidence": ".local/half-day-20261013/image-69838a7-first-source-mismatch.json",
+      "regression": ".local/half-day-20261013/archive-byte-green.log",
+      "regressionSha256": "1a8770f0001d5c8d42eb0d464b01f4e1ccf4062098264a7817ff17dcee71f629",
+      "subcases": 4,
+      "independentReview": ".local/half-day-20261013/independent-archive-byte-fix/archive-byte-fix/report.json",
+      "independentReviewSha256": "95b3259f4f2de0fa1e3b4e42c82f37bfb56c82b6f516e9ac0a6102a991689cad",
+      "sourceEol": "COMMAND_SCOPED_CORE_AUTOCRLF_FALSE_CORE_EOL_LF",
+      "persistentGitConfigChanged": false,
+      "currentCloudBinding": "MUST_USE_ACTUAL_IMAGE_FINGERPRINT_NOT_WINDOWS_WORKTREE",
+      "newProviderCalls": 0,
+      "sourceCommit": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+      "imageId": "sha256:1fb0cf1156c91b682dea896d4146b8027e4df837d888945090bdf3e778f22278",
+      "verifiedRuntimeFiles": 8,
+      "evidence": "evidence/local-agent-workflow-skill-20261013/IMAGE_BYTE_READBACK.json",
+      "evidenceSha256": "c8102e4e2451a6885bf8afb1074c5d829998d131b2c94464ed4a9f744d511fdc",
+      "buildLog": ".local/half-day-20261013/canonical-current-image-build.log",
+      "buildLogSha256": "41c0e80938907d3a64544b0e52da8471b99d847601d11db7436340f90a07e562",
+      "localRestoration": {
+        "status": "PASS_LOCAL_EXACT_IMAGE_RESTART_RESTORATION_READBACK",
+        "evidence": "evidence/local-agent-workflow-skill-20261013/LOCAL_RESTART_READBACK.json",
+        "evidenceSha256": "aba0c9ce6cfcf49753ab1d3e52fe14a17a4641da1fd03707a43b9971e1ebf2ad",
+        "initialGate": "PASS_RESTORATION_READBACK",
+        "restartGate": "PASS_RESTORATION_READBACK",
+        "migrationCount": 37,
+        "allResourcesRemoved": true,
+        "scope": "ISOLATED_SYNTHETIC_DATABASE_READBACK_NOT_PRODUCTION_BACKUP_RESTORE"
+      },
+      "productionModified": false,
+      "deployed": false,
+      "newRealProviderCalls": 0,
+      "newCozeBusinessCalls": 0
+    }
+  },
+  "currentRecoveryContinuation20261013": {
+    "status": "IMAGE_AND_47_FILES_STAGED_LOCAL_RECOVERY_FIX_TESTED_EXECUTION_NOT_ELIGIBLE",
+    "capturedAt": "2026-10-13T15:54:49.513Z",
+    "browser": "STANDARD_BROWSER_RECONNECTED_SAME_VERSION_BYTES_SECURITY_CHECKS_RETAINED",
+    "accountBalanceObserved": 62658,
+    "frozenAdditionalAllowance": 12531,
+    "originalLedgerSha256": "235365dfd5a90d45fc071bd9e6f6bae916e7dd52aa354ddadc4fc843658364b4",
+    "pendingCozeRequests": 9,
+    "heldCredits": 80072,
+    "availableCredits": 0,
+    "projectAggregates": {
+      "growth": 79892.35,
+      "publicKnowledge": 12015.95,
+      "individualCharges": "UNKNOWN_NOT_ALLOCATED"
+    },
+    "groupReconciliationDraft": "REJECTED_AND_REMOVED_ORIGINAL_RULES_AND_LEDGER_UNCHANGED",
+    "recovery": {
+      "codeReview": "TWO_PASS_SOURCE_ONLY",
+      "executionEligible": false,
+      "guardTestsPassed": 7,
+      "linuxSimulatedWatchdogTestsPassed": 6,
+      "runtimeSourceCommit": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+      "sources": [
+        {
+          "file": "deploy/rehearse-production.py",
+          "sha256": "05d23da1449b5b648efcabfa674a543886cd6832de96e88c52caea737bd72946"
+        },
+        {
+          "file": "deploy/recovery-guards.py",
+          "sha256": "641e7893c70ee1fdb0868a8b629a2a369768748f0de8a3312f12ca74a8253eb2"
+        },
+        {
+          "file": "deploy/verify-restoration.py",
+          "sha256": "2f9c7c062a6e1958c42da369c3805b287d574a8be3ee2a1ffb3c8b7e49cf3e2f"
+        },
+        {
+          "file": "scripts/run-production-recovery.mjs",
+          "sha256": "b468c711843dad2e846ae68e3147c1cbe5d2197874d7443ac50a0d4c4c13c1ee"
+        },
+        {
+          "file": "tests/recovery_guards_test.py",
+          "sha256": "a7b113308c79680235226d94c689b1a56e10f587ffa039a44e0ef589933d08ce"
+        },
+        {
+          "file": "tests/recovery_watchdog_test.py",
+          "sha256": "4b9f2f5550117ced68ebff62fa9c46397dc09ee4dc8606cf820ab04c9b56b339"
+        },
+        {
+          "file": ".local/continuation-20261013/prepare-bound-recovery.mjs",
+          "sha256": "ae60bb2ae867bc7b9eb4ebba3c45c17acccc7d94ced5f01d4ce127cc2388d343"
+        },
+        {
+          "file": ".local/continuation-20261013/freeze-canonical-schema.mjs",
+          "sha256": "e98c0df306fb505b4e42fa89da46fe45acbdfe591af5f833203cf1f056d27f4e"
+        }
+      ],
+      "productionRehearsalExecuted": false,
+      "budgets": {
+        "mainSeconds": 300,
+        "parentRecoverySeconds": 125,
+        "parentOverallSeconds": 435,
+        "watchdogPrivateCleanupSeconds": 45,
+        "watchdogAttemptSeconds": 110,
+        "systemdRuntimeSeconds": 115,
+        "systemdStopSeconds": 5,
+        "persistentRetryDelaySeconds": 20,
+        "persistentRetryTotalDuration": "UNBOUNDED_FAILSAFE_NOT_GLOBAL_TIME_BOUND"
+      },
+      "scopedEvidence": "evidence/local-agent-workflow-skill-20261013/RECOVERY_WATCHDOG_CONTRACTS.json",
+      "latestLocalFix": "currentLocalRecoveryFix20261014",
+      "priorSourceReviewScope": "HISTORICAL_3b5e517_SUPERSEDED_BY_EXECUTION_REJECTION_AND_LOCAL_FIX"
+    },
+    "transfer": {
+      "directory": "/opt/lifeos/releases/recovery-e3aec6d-76ceda52",
+      "receipt": ".local/continuation-20261013/image-transfer-resume.json",
+      "status": "PASS_COMPLETE_REMOTE_ARCHIVE_SHA256",
+      "totalBytes": 600073449,
+      "archiveSha256": "5ce5e000d4e82137038fa55a072e96b33f79245b60573f49090bf0f50b36b5e6",
+      "lastRemoteVerifiedBytes": 600073449,
+      "lastRemotePrefixSha256": "5ce5e000d4e82137038fa55a072e96b33f79245b60573f49090bf0f50b36b5e6",
+      "activeWorker": false,
+      "fullRemoteArchiveVerified": true,
+      "pid": 28584,
+      "remote": "/opt/lifeos/releases/recovery-e3aec6d-76ceda52/image.tar.gz",
+      "paidCalls": 0,
+      "serviceStopped": false,
+      "transport": "EXISTING_OPENSSH_SFTP_STRICT_KNOWN_HOSTS",
+      "resumedOffset": 250773504,
+      "childPid": 9036,
+      "attempt": ".local/continuation-20261013/native-sftp-d63e1557-f350-46ff-9132-7e054fa78400",
+      "exitCode": 0
+    },
+    "evidence": [
+      {
+        "path": ".local/continuation-20261013/account-project-bills-20261008-13.ax.txt",
+        "sha256": "17fdff771deaad1ab52197e8d34db6b76fd90044926e38aac382773cae284774"
+      },
+      {
+        "path": ".local/continuation-20261013/account-project-bills-20261008-13.png",
+        "sha256": "b10437511ddae8853898f97dcaded277a07f3fe16d3505392eae83b82d6bda85"
+      },
+      {
+        "path": ".local/continuation-20261013/growth-statistics-current.ax.txt",
+        "sha256": "67cb506b6b7a5e797992c8e9ba20a1e60465e319b890595ec81202da8efe9c6f"
+      },
+      {
+        "path": ".local/continuation-20261013/production-preflight-current.json",
+        "sha256": "6b98a08303e6b789d5f0852f1130d36647afebcfd45bb8b76e8bd1407ad2243e"
+      },
+      {
+        "path": ".local/continuation-20261013/production-migration-binding.json",
+        "sha256": "e905da723083241db228715d409615f36002a551bba868f2a9c301bd3320aa95"
+      },
+      {
+        "path": ".local/continuation-20261013/host-encoder-guards-current.json",
+        "sha256": "b399815d7f36300947f2df01e65045651590fbcfa62e7e9319d2de3fdaa03e41"
+      },
+      {
+        "path": ".local/continuation-20261013/recovery-guards-gate.log",
+        "sha256": "1a6f3c424ac71761ba5d0c9dc8b29526af44c2df1698cb652d46c0da91ec6167"
+      },
+      {
+        "path": ".local/continuation-20261013/reviews/recovery/report.json",
+        "sha256": "8a4fc5804878a14ae33cded3b570c1ed8df25f8869abdb6437412a97cf1cda52"
+      },
+      {
+        "path": ".local/continuation-20261013/reviews/recovery/manifest.json",
+        "sha256": "41444d99e1998c04c4a9ca116ddb85eedbba039462034292b6b9269a4d5bef36"
+      },
+      {
+        "path": ".local/continuation-20261013/reviews/accounting/report.json",
+        "sha256": "565f6c057e755140c47aa8d913e12f49c28b8443ca5daf3cd4cb7fab3fc3b6f4"
+      },
+      {
+        "path": ".local/continuation-20261013/recovery-final-guards.log",
+        "sha256": "e99e691235e217437254c196fd3503b89ed78ac2c9e44a6540d79048270e4bc0"
+      },
+      {
+        "path": ".local/continuation-20261013/watchdog-shared-budget-network-final.log",
+        "sha256": "7971a6ae2ffe3d8d722a2a8c4971b1dd750c6bdd053e22b26c97d1b3001d9768"
+      },
+      {
+        "path": ".local/continuation-20261013/watchdog-runtime-proof-second.log",
+        "sha256": "755bce15ae912ceaff7448fa5bf45f61c7aa563d338955c964c7aa00e5560031"
+      },
+      {
+        "path": ".local/continuation-20261013/watchdog-docker-interruption-proof.json",
+        "sha256": "a6ae48cdae324054643874c262b7960a7a9154cb660d401c6bd722475642855c"
+      },
+      {
+        "path": ".local/continuation-20261013/watchdog-config-final-proof.json",
+        "sha256": "d0d42a4045b7e76a8e07e8e85f337c69a4636bb529103999ab949884ecde013d"
+      },
+      {
+        "path": ".local/continuation-20261013/create-none-detach-connect-proof.json",
+        "sha256": "72b49e86b785ddf6226a5dd0d0838782f403f5442c66d38651aea927e7698606"
+      },
+      {
+        "path": ".local/continuation-20261013/canonical-schema-proof.json",
+        "sha256": "ad1ce7b35061e24f590b43dc640d296fba2a17bb2076f8c930deffe4dfaf914e"
+      },
+      {
+        "path": ".local/continuation-20261013/after-second-drop-actual-readback.json",
+        "sha256": "2f0eaaac59d3c8c3b1e6789522096262428e00933ff5fe015798e8faa4f1dbdd"
+      },
+      {
+        "path": ".local/continuation-20261013/ssh-diagnosis-readback.json",
+        "sha256": "48e7f6ebb8c06db740a0aa83d0b06476c32f3a0092434334e65618c7211a2356"
+      },
+      {
+        "path": "evidence/local-agent-workflow-skill-20261013/RECOVERY_WATCHDOG_CONTRACTS.json",
+        "sha256": "1cb151b5f736b36800f5405aac60f1209d7ca28a3526c84f3598eb1e62da789f"
+      },
+      {
+        "path": ".local/continuation-20261013/reviews/recovery-network-final/runtime-containment/report.json",
+        "sha256": "521a4428e3e6d24980b48f6bc8d9f2730130fde14c36a346947f2244e2ba161d"
+      },
+      {
+        "path": ".local/continuation-20261013/reviews/recovery-network-final/runtime-containment/manifest.json",
+        "sha256": "385d56c05e002bca64c1a2864dd20dce64c55961deca5e35bf1360051bb64606"
+      },
+      {
+        "path": ".local/continuation-20261013/reviews/recovery-network-final/serial-recovery/report.json",
+        "sha256": "7bcea91a745d607bb3faaec6381277eb2042f92f7320142612eda8b972c58d2c"
+      },
+      {
+        "path": ".local/continuation-20261013/reviews/recovery-network-final/serial-recovery/manifest.json",
+        "sha256": "e96be95215825a324eb265ab22e453774d2cc66d01aaf1f925fa824a2a18d661"
+      }
+    ],
+    "automation": {
+      "id": "lifeos",
+      "kind": "heartbeat",
+      "hourInterval": 1,
+      "status": "ACTIVE"
+    },
+    "realProviderCalls": 0,
+    "cozeCalls": 0,
+    "paidTestsRepeated": 0,
+    "productionServiceModified": false,
+    "published": false,
+    "finalAcceptance": false,
+    "handoff": ".planning/research/workflow-integration/RECOVERY_CONTINUATION_20261013.md",
+    "supersededRecoverySourceReview": {
+      "codeReview": "PASS_SOURCE_ONLY",
+      "executionEligible": false,
+      "guardTestsPassed": 4,
+      "hostEncoderReadback": "PASS_READ_ONLY",
+      "runtimeSourceCommit": "e3aec6dbb22b2655e7517e7be7f80e5ea57f42e4",
+      "sources": [
+        {
+          "file": "deploy/rehearse-production.py",
+          "sha256": "cae6c66319d452d2fb974bd65feaec3d2fbae700a98d22363e3ebc39173496e3"
+        },
+        {
+          "file": "deploy/recovery-guards.py",
+          "sha256": "2339d4370be449b213021ec3b0d6db9ce24ed9c95737bee0783a41bdcb83d7f2"
+        },
+        {
+          "file": "deploy/verify-restoration.py",
+          "sha256": "2f9c7c062a6e1958c42da369c3805b287d574a8be3ee2a1ffb3c8b7e49cf3e2f"
+        },
+        {
+          "file": "scripts/run-production-recovery.mjs",
+          "sha256": "b468c711843dad2e846ae68e3147c1cbe5d2197874d7443ac50a0d4c4c13c1ee"
+        },
+        {
+          "file": "tests/recovery_guards_test.py",
+          "sha256": "0ab83b4b81df8313ff15ab119446fe0493448f09e10d49d98e2cb386c5e38160"
+        }
+      ],
+      "productionRehearsalExecuted": false
+    },
+    "staging": {
+      "status": "PASS_REMOTE_CANONICAL_IMAGE_AND_STAGED_MIGRATION_BYTES",
+      "files": 47,
+      "migrations": 37,
+      "receipt": ".local/continuation-20261013/exact-staged-release-readback.json",
+      "boundFilesReceipt": ".local/continuation-20261013/bound-recovery-upload-final.json",
+      "remoteBindingUsableForCurrentSource": false
+    }
+  },
+  "currentLocalRecoveryFix20261014": {
+    "status": "PASS_LOCAL_RECOVERY_INTENT_AND_PRESTOP_MEMORY_CONTRACTS",
+    "date": "2026-10-14",
+    "sources": [
+      {
+        "file": "deploy/recovery-guards.py",
+        "sha256": "659096f189ae8b207761511c9e8a509b187d34e039d62d51726e334d107cdc25"
+      },
+      {
+        "file": "deploy/rehearse-production.py",
+        "sha256": "75bfa346e764285ae9a6336334de7d8235508f5badfc7ed1b53e9ee012b639b7"
+      },
+      {
+        "file": "tests/recovery_guards_test.py",
+        "sha256": "d8fb34e161872ea697e1fd93521509217f4da98260a821ed31160e00d2edcd41"
+      },
+      {
+        "file": "tests/recovery_watchdog_test.py",
+        "sha256": "84c0893e677103f2764d51be3a6c9ee1fbbe08d026a457454120765eaa990b0d"
+      }
+    ],
+    "tests": {
+      "guard": 10,
+      "linuxSimulatedWatchdog": 7,
+      "total": 17,
+      "log": ".local/continuation-20261013/creation-intent-memory-poststop-green.log",
+      "logSha256": "ac9ed431e53f2db85ee90bc6d5d2e640f51d67bd39bed3bc0a94f9dc5eb4cfd7"
+    },
+    "actualLocalDocker": {
+      "path": ".local/continuation-20261013/local-inert-intent-docker-proof.json",
+      "sha256": "5c7882a57f7b374f62737b87d12f10a8de30b6bd1dc5630de97c0cf43005fbbb",
+      "scope": "NEVER_STARTED_CONTAINER_SHAPE_AND_OWNED_CLEANUP_ONLY"
+    },
+    "executionEligible": false,
+    "remoteBinding": "SUPERSEDED_BY_LOCAL_SOURCE_CHANGE_DO_NOT_EXECUTE",
+    "productionRehearsalExecuted": false,
+    "realProviderCalls": 0,
+    "cozeCalls": 0,
+    "paidTestsRepeated": 0,
+    "published": false,
+    "remaining": [
+      "Rebind changed host operation only when resuming authorized deployment work",
+      "Actual production recovery and current real Agent/workflow/five Skill gates",
+      "Request-mappable billing or other required resources remain unavailable"
+    ],
+    "sourceReview": {
+      "verdict": "PASS_SOURCE_ONLY",
+      "executionEligible": false,
+      "path": ".local/continuation-20261013/reviews/local-intent-memory-final/report.json",
+      "sha256": "ee7283d3ff433a14e5d6dc92200780b51f02a04132b4c8bcfce1d3b4f3fec4c9"
+    }
+  }
+}

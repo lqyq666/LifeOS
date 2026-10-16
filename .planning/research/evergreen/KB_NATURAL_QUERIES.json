@@ -1,0 +1,2948 @@
+{
+  "schemaVersion": 1,
+  "frozenBeforeExecution": true,
+  "author": "codex-long-batch-20261010",
+  "independentBlindTest": false,
+  "sealedNotUsedForTuning": true,
+  "old235": "REGRESSION_ONLY",
+  "cases": [
+    {
+      "id": "natural-1-1",
+      "domain": "01",
+      "stage": "start",
+      "split": "development",
+      "text": "选课入口到处都是，应该去哪儿核对？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-1-2",
+      "domain": "01",
+      "stage": "start",
+      "split": "sealed",
+      "text": "我想借校外资料，学校能提供哪些入口，怎么查？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-1-3",
+      "domain": "01",
+      "stage": "start",
+      "split": "development",
+      "text": "第一次办缓考，不知道该找哪个部门，有办法吗？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-1-4",
+      "domain": "01",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "教务网页打不开了，该怎么找到负责的人？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-1-5",
+      "domain": "01",
+      "stage": "compare",
+      "split": "development",
+      "text": "学长说的和教务网页不同，怎么对照才可靠？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-1-6",
+      "domain": "01",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次找到了图书馆页面，可是账号进不去，怎么调整？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-2-1",
+      "domain": "01",
+      "stage": "start",
+      "split": "development",
+      "text": "给导师写第一封邮件，能帮我想清楚该问什么吗？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-2-2",
+      "domain": "07",
+      "stage": "start",
+      "split": "sealed",
+      "text": "想约师兄了解实验室，我该从哪句话开始？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-2-3",
+      "domain": "09",
+      "stage": "start",
+      "split": "development",
+      "text": "刚认识同学，想请教选课但怕冒犯，怎么开口？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-2-4",
+      "domain": "13",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "发过请教消息一直没人回，下一步怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-2-5",
+      "domain": "20",
+      "stage": "compare",
+      "split": "development",
+      "text": "求推荐信和普通请教有什么区别，准备时怎么取舍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-2-6",
+      "domain": "25",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "上回我问了一大段，对方说不明白我要什么，怎么改？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-3-1",
+      "domain": "02",
+      "stage": "start",
+      "split": "development",
+      "text": "不知道读什么专业适合自己，有什么小尝试？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-3-2",
+      "domain": "07",
+      "stage": "start",
+      "split": "sealed",
+      "text": "听别人讲研究很有意思，我能怎样先体验？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-3-3",
+      "domain": "10",
+      "stage": "start",
+      "split": "development",
+      "text": "只知道不喜欢现在的方向，怎么开始探索？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-3-4",
+      "domain": "13",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "试着做过一次开发却很累，怎么判断该不该再试？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-3-5",
+      "domain": "02",
+      "stage": "compare",
+      "split": "development",
+      "text": "想转专业又怕冲动，怎么对比真实的学习日常？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-3-6",
+      "domain": "07",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "上次体验只是看介绍，仍然没感觉，如何调整？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-4-1",
+      "domain": "02",
+      "stage": "start",
+      "split": "development",
+      "text": "跨专业找工作，怎么找出作品里缺的那部分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-4-2",
+      "domain": "16",
+      "stage": "start",
+      "split": "sealed",
+      "text": "我会一点编程，想做能展示的小东西，步骤怎么定？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-4-3",
+      "domain": "02",
+      "stage": "start",
+      "split": "development",
+      "text": "目标行业没接触过，怎样把要求和我现有的能力对上？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-4-4",
+      "domain": "16",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "照着要求做了作品却没人看懂，下一步怎么改？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-4-5",
+      "domain": "02",
+      "stage": "compare",
+      "split": "development",
+      "text": "两个方向需要的技能很像，如何判断哪些材料能复用？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-4-6",
+      "domain": "16",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "补了技术课但仍不敢接任务，怎么核对具体缺口？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-5-1",
+      "domain": "03",
+      "stage": "start",
+      "split": "development",
+      "text": "微积分一听就断，怎么把知识关系整理出来？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-5-2",
+      "domain": "03",
+      "stage": "start",
+      "split": "sealed",
+      "text": "课程目录看完更乱了，能帮我找一个理解断点吗？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-5-3",
+      "domain": "03",
+      "stage": "start",
+      "split": "development",
+      "text": "这门专业课怎么搭起基本框架？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-5-4",
+      "domain": "03",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我已经列了目录，但推导仍然接不上，怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-5-5",
+      "domain": "03",
+      "stage": "compare",
+      "split": "development",
+      "text": "应该先补前置概念还是整章重看，怎么比较？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-5-6",
+      "domain": "03",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次写了问题，可是不知道该问助教哪一处，怎么改？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-6-1",
+      "domain": "03",
+      "stage": "start",
+      "split": "development",
+      "text": "模考刚结束，怎么从一处错误开始复盘？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-6-2",
+      "domain": "09",
+      "stage": "start",
+      "split": "sealed",
+      "text": "做题总是卡在同一步，有什么检查办法？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-6-3",
+      "domain": "11",
+      "stage": "start",
+      "split": "development",
+      "text": "不知道考试失利是理解还是时间问题，怎么核对？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-6-4",
+      "domain": "12",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我回看错题还是找不到具体断点，怎么继续？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-6-5",
+      "domain": "03",
+      "stage": "compare",
+      "split": "development",
+      "text": "同样扣分，粗心和概念没懂怎么区分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-6-6",
+      "domain": "09",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按原计划重做一遍仍然错，如何调整这一环节？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-7-1",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "书看懂了却一合上就空白，可以怎么自测？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-7-2",
+      "domain": "04",
+      "stage": "start",
+      "split": "sealed",
+      "text": "怎样检查我是真的记住还是眼熟？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-7-3",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "背过的概念能用什么方式试着答出来？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-7-4",
+      "domain": "04",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我试着闭卷回答但只写出一句，下一步怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-7-5",
+      "domain": "04",
+      "stage": "compare",
+      "split": "development",
+      "text": "翻笔记和自己回答，怎样安排才适合目前的情况？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-7-6",
+      "domain": "04",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "做过自测却不知道缺漏在哪，怎么检查答案？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-8-1",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "下个月还要用这些知识，复习怎么分散安排？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-8-2",
+      "domain": "04",
+      "stage": "start",
+      "split": "sealed",
+      "text": "每天重复背好累，有什么分开检查的办法？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-8-3",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "想给学过的单词定下一次回看，怎么开始？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-8-4",
+      "domain": "04",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "隔了几天又忘了，怎么调整下次复习？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-8-5",
+      "domain": "04",
+      "stage": "compare",
+      "split": "development",
+      "text": "集中一天和分几次回看，怎么根据实际遗忘作取舍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-8-6",
+      "domain": "04",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "上次复习间隔排得太密，忙不过来怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-9-1",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "看答案会，自己做不会，该怎么练？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-9-2",
+      "domain": "04",
+      "stage": "start",
+      "split": "sealed",
+      "text": "能不能从例题的一步开始练独立完成？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-9-3",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "跟着教程能敲代码，关掉教程就不行，有什么办法？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-9-4",
+      "domain": "04",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "遮住例题后还是补不出来，怎么继续？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-9-5",
+      "domain": "04",
+      "stage": "compare",
+      "split": "development",
+      "text": "先研究解法还是直接做新题，怎么对照当前卡点？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-9-6",
+      "domain": "04",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "照着示例改了数字仍做错了，怎么调整练习？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-10-1",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "我想讲清楚这个概念，用什么办法检查理解？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-10-2",
+      "domain": "04",
+      "stage": "start",
+      "split": "sealed",
+      "text": "说得流畅但不知道为什么，怎么检验？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-10-3",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "准备给同学解释原理，先做什么？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-10-4",
+      "domain": "04",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我已经讲了一次，被问条件变化就答不上来，怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-10-5",
+      "domain": "04",
+      "stage": "compare",
+      "split": "development",
+      "text": "复述定义和解释原因有什么区别，怎么检查自己？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-10-6",
+      "domain": "04",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "用自己的话讲过却发现关系说反了，怎么修正？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-11-1",
+      "domain": "03",
+      "stage": "start",
+      "split": "development",
+      "text": "课程和备考撞一起了，本周只剩两小时，怎么排？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-11-2",
+      "domain": "05",
+      "stage": "start",
+      "split": "sealed",
+      "text": "兼职占了晚上，我想先守住课程，安排从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-11-3",
+      "domain": "11",
+      "stage": "start",
+      "split": "development",
+      "text": "两件事都急，能帮我按硬截止时间排步骤吗？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-11-4",
+      "domain": "19",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上周表做不完，这周该怎么重算？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-11-5",
+      "domain": "21",
+      "stage": "compare",
+      "split": "development",
+      "text": "同样六小时，复习和创业探索怎么取舍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-11-6",
+      "domain": "26",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我这周一点时间都没有，原安排要怎么调整？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-12-1",
+      "domain": "05",
+      "stage": "start",
+      "split": "development",
+      "text": "写报告被打断后总找不到停在哪，有什么恢复办法？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-12-2",
+      "domain": "06",
+      "stage": "start",
+      "split": "sealed",
+      "text": "做论文时老被消息打断，怎样保存下一步？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-12-3",
+      "domain": "05",
+      "stage": "start",
+      "split": "development",
+      "text": "项目停了几天，重新开始先打开什么？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-12-4",
+      "domain": "06",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次记了位置，回来还是被手机打断，怎么调整？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-12-5",
+      "domain": "05",
+      "stage": "compare",
+      "split": "development",
+      "text": "应该从头重读还是直接接上一步，怎么判断？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-12-6",
+      "domain": "06",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我已经恢复过一次又断了，接下来怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-13-1",
+      "domain": "06",
+      "stage": "start",
+      "split": "development",
+      "text": "一想到大作业就不敢开头，能帮我找一个小步骤吗？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-13-2",
+      "domain": "06",
+      "stage": "start",
+      "split": "sealed",
+      "text": "明知道该做但一直没动，怎么把第一步弄清楚？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-13-3",
+      "domain": "06",
+      "stage": "start",
+      "split": "development",
+      "text": "论文题目太大，今天从哪里开始？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-13-4",
+      "domain": "06",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "上次缩小了任务还是没开始，怎么找阻碍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-13-5",
+      "domain": "06",
+      "stage": "compare",
+      "split": "development",
+      "text": "先找材料还是先写问题，怎么选择可开始的一步？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-13-6",
+      "domain": "06",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我已经打开文件但一直空着，下一步怎么改小？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-14-1",
+      "domain": "05",
+      "stage": "start",
+      "split": "development",
+      "text": "这周原安排全乱了，怎么检查哪条假设错了？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-14-2",
+      "domain": "06",
+      "stage": "start",
+      "split": "sealed",
+      "text": "连续几次没做完，有什么修订计划的办法？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-14-3",
+      "domain": "08",
+      "stage": "start",
+      "split": "development",
+      "text": "原目标好像不再重要，如何回看投入？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-14-4",
+      "domain": "05",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我减少了任务仍然卡住，怎么继续检查计划？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-14-5",
+      "domain": "06",
+      "stage": "compare",
+      "split": "development",
+      "text": "坚持旧安排还是停止，怎么根据实际代价比较？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-14-6",
+      "domain": "08",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次调整过了，可是新的兼职又占了时间，怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-15-1",
+      "domain": "08",
+      "stage": "start",
+      "split": "development",
+      "text": "没实习但做过课程项目，怎样整理本人贡献？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-15-2",
+      "domain": "10",
+      "stage": "start",
+      "split": "sealed",
+      "text": "社团活动结束了，想留下真实经历，怎么写？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-15-3",
+      "domain": "14",
+      "stage": "start",
+      "split": "development",
+      "text": "我有一条别人给的反馈，怎么和我做的事情分开？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-15-4",
+      "domain": "22",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "写完经历发现全是团队成果，该怎么修？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-15-5",
+      "domain": "23",
+      "stage": "compare",
+      "split": "development",
+      "text": "做过、喜欢和擅长怎么区分，整理时用哪些证据？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-15-6",
+      "domain": "08",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次整理了一遍，但结果还没出来，怎么记录？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-16-1",
+      "domain": "09",
+      "stage": "start",
+      "split": "development",
+      "text": "第一篇论文好多词不懂，阅读从哪开始？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-16-2",
+      "domain": "09",
+      "stage": "start",
+      "split": "sealed",
+      "text": "要了解一个陌生课题，怎么找综述和原文？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-16-3",
+      "domain": "09",
+      "stage": "start",
+      "split": "development",
+      "text": "想复现论文的方法，应该先核对哪些段落？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-16-4",
+      "domain": "09",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "看完摘要还是不理解结论，怎么继续读？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-16-5",
+      "domain": "09",
+      "stage": "compare",
+      "split": "development",
+      "text": "读背景和复现方法需要的阅读范围怎么区分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-16-6",
+      "domain": "09",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次做了笔记却找不到证据位置，怎么改？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-17-1",
+      "domain": "09",
+      "stage": "start",
+      "split": "development",
+      "text": "刚进实验室不知道负责什么，怎么确认具体任务？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-17-2",
+      "domain": "23",
+      "stage": "start",
+      "split": "sealed",
+      "text": "社团交给我的工作很模糊，该怎样问清交付物？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-17-3",
+      "domain": "09",
+      "stage": "start",
+      "split": "development",
+      "text": "研究项目还没开始，怎样核对验收人？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-17-4",
+      "domain": "23",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "交了初稿但对方说不符合预期，怎么调整范围？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-17-5",
+      "domain": "09",
+      "stage": "compare",
+      "split": "development",
+      "text": "先做样品还是先确认标准，怎么取舍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-17-6",
+      "domain": "23",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "已经开工才发现材料缺了，下一步怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-18-1",
+      "domain": "02",
+      "stage": "start",
+      "split": "development",
+      "text": "工作还是考研拿不准，能帮我比较实际日常吗？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-18-2",
+      "domain": "07",
+      "stage": "start",
+      "split": "sealed",
+      "text": "想参加比赛又想找实习，怎样对照代价？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-18-3",
+      "domain": "11",
+      "stage": "start",
+      "split": "development",
+      "text": "社团两边都想加入，怎么弄清当前重点？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-18-4",
+      "domain": "12",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "上次比较完还是不确定，该补什么信息？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-18-5",
+      "domain": "22",
+      "stage": "compare",
+      "split": "development",
+      "text": "公共部门和企业日常不同，怎么按我重视的因素比较？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-18-6",
+      "domain": "23",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "原来读研优先，现在更想就业，怎么调整取舍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-19-1",
+      "domain": "13",
+      "stage": "start",
+      "split": "development",
+      "text": "岗位描述很多，怎样对照我的实际作品？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-19-2",
+      "domain": "14",
+      "stage": "start",
+      "split": "sealed",
+      "text": "申请项目值不值得投入，从哪项要求核对？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-19-3",
+      "domain": "27",
+      "stage": "start",
+      "split": "development",
+      "text": "付费服务说能帮我申请，我该怎么检查适用性？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-19-4",
+      "domain": "13",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "资料交了之后发现条件没核实，下一步怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-19-5",
+      "domain": "14",
+      "stage": "compare",
+      "split": "development",
+      "text": "两个留学项目怎么按要求和可承受代价比较？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-19-6",
+      "domain": "27",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次列了缺项，可是不知道能否补齐，怎么继续？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-20-1",
+      "domain": "10",
+      "stage": "start",
+      "split": "development",
+      "text": "介绍项目总说成团队的事，如何讲清我负责的部分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-20-2",
+      "domain": "13",
+      "stage": "start",
+      "split": "sealed",
+      "text": "面试让我讲课程设计，能帮我整理表达步骤吗？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-20-3",
+      "domain": "15",
+      "stage": "start",
+      "split": "development",
+      "text": "跨领域项目怎么讲才不夸大结果？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-20-4",
+      "domain": "16",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "试讲后同学没听懂我的贡献，怎么改？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-20-5",
+      "domain": "10",
+      "stage": "compare",
+      "split": "development",
+      "text": "按时间讲还是围绕困难与行动讲，怎么取舍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-20-6",
+      "domain": "13",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我已经写了一版，但实际反馈未知，怎么修改结尾？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-21-1",
+      "domain": "14",
+      "stage": "start",
+      "split": "development",
+      "text": "投递后没回音，应该先核对哪些环节？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-21-2",
+      "domain": "15",
+      "stage": "start",
+      "split": "sealed",
+      "text": "面试结束了，怎样保留可改变的反馈？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-21-3",
+      "domain": "14",
+      "stage": "start",
+      "split": "development",
+      "text": "找工作卡住了，怎么区分投递和面试阶段？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-21-4",
+      "domain": "15",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "改过简历仍然没回应，下一步怎么复盘？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-21-5",
+      "domain": "14",
+      "stage": "compare",
+      "split": "development",
+      "text": "没有回应和明确拒绝，复盘时有什么区别？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-21-6",
+      "domain": "15",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "上次复盘只猜了原因，现在怎样回到实际过程？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-22-1",
+      "domain": "15",
+      "stage": "start",
+      "split": "development",
+      "text": "面试突然问到不会的知识，怎么诚实回应？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-22-2",
+      "domain": "15",
+      "stage": "start",
+      "split": "sealed",
+      "text": "问题没听懂时可以怎样先澄清？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-22-3",
+      "domain": "15",
+      "stage": "start",
+      "split": "development",
+      "text": "没有做过对方问的项目，能怎样说明相关基础？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-22-4",
+      "domain": "15",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我上次硬撑回答结果更乱，下一轮怎么改？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-22-5",
+      "domain": "15",
+      "stage": "compare",
+      "split": "development",
+      "text": "没理解问题和确实不会，回应方式怎么区分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-22-6",
+      "domain": "15",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次说明了未知，但忘了讲已知部分，怎么练？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-23-1",
+      "domain": "17",
+      "stage": "start",
+      "split": "development",
+      "text": "创业点子想找同学核实，访谈先问什么？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-23-2",
+      "domain": "20",
+      "stage": "start",
+      "split": "sealed",
+      "text": "想做校园工具，怎么问到过去真实行为？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-23-3",
+      "domain": "17",
+      "stage": "start",
+      "split": "development",
+      "text": "用户总说挺好，怎样继续追问具体困难？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-23-4",
+      "domain": "20",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "访谈过两人都说喜欢但没用，下一步怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-23-5",
+      "domain": "17",
+      "stage": "compare",
+      "split": "development",
+      "text": "表达喜欢和实际需求，应该如何对照证据？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-23-6",
+      "domain": "20",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次问了愿不愿意买，仍然不清楚需求，怎么调整问题？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-24-1",
+      "domain": "16",
+      "stage": "start",
+      "split": "development",
+      "text": "独立开发不想一口气做全套，最小实验怎么定？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-24-2",
+      "domain": "17",
+      "stage": "start",
+      "split": "sealed",
+      "text": "创业还没收过反馈，怎么试一个关键假设？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-24-3",
+      "domain": "20",
+      "stage": "start",
+      "split": "development",
+      "text": "做校园产品，怎样删掉暂时不验证的功能？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-24-4",
+      "domain": "16",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "原型做出来却没人用，下一步怎么核对？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-24-5",
+      "domain": "17",
+      "stage": "compare",
+      "split": "development",
+      "text": "想法、使用和付款如何分开比较证据？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-24-6",
+      "domain": "20",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我已经让同学试了，但反馈互相矛盾，怎么调整实验？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-25-1",
+      "domain": "18",
+      "stage": "start",
+      "split": "development",
+      "text": "第一次接海报单，怎么确认需求和验收？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-25-2",
+      "domain": "18",
+      "stage": "start",
+      "split": "sealed",
+      "text": "自由职业还没开工，交付范围怎么写清？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-25-3",
+      "domain": "18",
+      "stage": "start",
+      "split": "development",
+      "text": "客户说都可以，怎样问出具体交付要求？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-25-4",
+      "domain": "18",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "已经改了几轮客户又加内容，怎么处理？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-25-5",
+      "domain": "18",
+      "stage": "compare",
+      "split": "development",
+      "text": "范围变更和原约定内修改，如何区分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-25-6",
+      "domain": "18",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次约了次数，但新增要求不清楚，怎么核对？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-26-1",
+      "domain": "18",
+      "stage": "start",
+      "split": "development",
+      "text": "交付后不知道客户是否用了，复盘从哪开始？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-26-2",
+      "domain": "18",
+      "stage": "start",
+      "split": "sealed",
+      "text": "这单已付款，怎么单独核对使用和反馈？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-26-3",
+      "domain": "18",
+      "stage": "start",
+      "split": "development",
+      "text": "兼职任务完成了，怎样记录实际结果？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-26-4",
+      "domain": "18",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "客户用了但没付钱，下一步怎么区分状态？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-26-5",
+      "domain": "18",
+      "stage": "compare",
+      "split": "development",
+      "text": "交付、采用、付款和效果，复盘时怎么分开？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-26-6",
+      "domain": "18",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "上次只记了已完成，现在怎么补未知反馈？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-27-1",
+      "domain": "19",
+      "stage": "start",
+      "split": "development",
+      "text": "兼职到账和支出混在一起，怎样整理实际收支？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-27-2",
+      "domain": "27",
+      "stage": "start",
+      "split": "sealed",
+      "text": "想知道可支配预算，先核对哪几笔？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-27-3",
+      "domain": "19",
+      "stage": "start",
+      "split": "development",
+      "text": "一次接单收入不能当每月工资，记录时怎么做？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-27-4",
+      "domain": "27",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "上周账记漏了几笔，怎么核对剩余现金？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-27-5",
+      "domain": "19",
+      "stage": "compare",
+      "split": "development",
+      "text": "预期收入和实际到账，怎么分开比较？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-27-6",
+      "domain": "27",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次算了预算，但还有一笔未付款，怎样调整？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-28-1",
+      "domain": "19",
+      "stage": "start",
+      "split": "development",
+      "text": "室友的事情让我困扰，怎么表达一个具体请求？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-28-2",
+      "domain": "25",
+      "stage": "start",
+      "split": "sealed",
+      "text": "兼职安排超过原约定，怎样说清我的限制？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-28-3",
+      "domain": "27",
+      "stage": "start",
+      "split": "development",
+      "text": "我想拒绝加任务，又想保留关系，怎么开口？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-28-4",
+      "domain": "19",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "说过边界后对方没回应，下一步怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-28-5",
+      "domain": "25",
+      "stage": "compare",
+      "split": "development",
+      "text": "表达请求和替对方判断动机，有什么区别？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-28-6",
+      "domain": "27",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次提了请求却被拒绝，怎么尊重双方边界？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-29-1",
+      "domain": "21",
+      "stage": "start",
+      "split": "development",
+      "text": "做自媒体但不知道听众需要什么，怎么试一个主题？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-29-2",
+      "domain": "21",
+      "stage": "start",
+      "split": "sealed",
+      "text": "想写面向同学的内容，最小一次反馈怎么收？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-29-3",
+      "domain": "21",
+      "stage": "start",
+      "split": "development",
+      "text": "第一篇发布前，怎样核对素材和读者问题？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-29-4",
+      "domain": "21",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "发过一篇没人反馈，该怎么检查内容假设？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-29-5",
+      "domain": "21",
+      "stage": "compare",
+      "split": "development",
+      "text": "播放数量和实际帮助，怎么分开观察？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-29-6",
+      "domain": "21",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次改了主题，仍然不知道读者看懂没，下一步怎么做？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-30-1",
+      "domain": "22",
+      "stage": "start",
+      "split": "development",
+      "text": "竞赛队刚组好，怎样分清谁负责什么？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-30-2",
+      "domain": "23",
+      "stage": "start",
+      "split": "sealed",
+      "text": "公益小组想一起做事，怎么确认目标和权限？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-30-3",
+      "domain": "24",
+      "stage": "start",
+      "split": "development",
+      "text": "社团协作经常漏任务，可以怎样约定交付？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-30-4",
+      "domain": "22",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "任务分了但依赖材料没到，怎么调整？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-30-5",
+      "domain": "23",
+      "stage": "compare",
+      "split": "development",
+      "text": "平分任务和按能力时间分工，怎么根据事实比较？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-30-6",
+      "domain": "24",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "上次约了分工却两人都以为别人做了，怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-31-1",
+      "domain": "01",
+      "stage": "start",
+      "split": "development",
+      "text": "最近课程压得喘不过气，休息安排怎么开始？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-31-2",
+      "domain": "26",
+      "stage": "start",
+      "split": "sealed",
+      "text": "想给自己留恢复时间，又怕耽误任务，怎么做？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-31-3",
+      "domain": "01",
+      "stage": "start",
+      "split": "development",
+      "text": "没有精力做探索，能给一个低负担的办法吗？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-31-4",
+      "domain": "26",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我已经减少任务却还是累，怎么核对支持资源？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-31-5",
+      "domain": "01",
+      "stage": "compare",
+      "split": "development",
+      "text": "继续加量还是先停下来，怎样按当前状态取舍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-31-6",
+      "domain": "26",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次试了休息但压力仍在，下一步怎么调整？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-32-1",
+      "domain": "14",
+      "stage": "start",
+      "split": "development",
+      "text": "兼职邀请催我转钱，怎样核对原始信息？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-32-2",
+      "domain": "27",
+      "stage": "start",
+      "split": "sealed",
+      "text": "学长转的招生消息没有出处，怎么查？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-32-3",
+      "domain": "28",
+      "stage": "start",
+      "split": "development",
+      "text": "陌生链接让我填账号，我该怎样先验证？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-32-4",
+      "domain": "14",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "按上次查了官网但和消息不一致，怎么办？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-32-5",
+      "domain": "27",
+      "stage": "compare",
+      "split": "development",
+      "text": "平台广告和原始说明，判断时怎么对照？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-32-6",
+      "domain": "28",
+      "stage": "adjust",
+      "split": "sealed",
+      "text": "我找到原文了却缺适用对象，下一步怎么核实？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored requested mechanism and stage; legal availability evaluated separately"
+    },
+    {
+      "id": "natural-control-0",
+      "domain": "01",
+      "stage": "start",
+      "split": "development",
+      "text": "今天终于办完选课了，谢谢你",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-1",
+      "domain": "02",
+      "stage": "start",
+      "split": "sealed",
+      "text": "我还不知道喜欢什么，先陪我聊聊吧",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-2",
+      "domain": "03",
+      "stage": "start",
+      "split": "development",
+      "text": "这门课让我很挫败，我只想吐槽",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-3",
+      "domain": "04",
+      "stage": "start",
+      "split": "sealed",
+      "text": "刚才答案改短一点",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-4",
+      "domain": "05",
+      "stage": "start",
+      "split": "development",
+      "text": "今天不想安排任务，不要建议",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-5",
+      "domain": "06",
+      "stage": "start",
+      "split": "sealed",
+      "text": "别再催我启动了",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-6",
+      "domain": "07",
+      "stage": "start",
+      "split": "development",
+      "text": "忘掉我上次提的专业方向",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-7",
+      "domain": "08",
+      "stage": "start",
+      "split": "sealed",
+      "text": "那个团队奖不是我拿的，请更正",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-8",
+      "domain": "09",
+      "stage": "start",
+      "split": "development",
+      "text": "你还记得我负责哪个实验吗",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-9",
+      "domain": "10",
+      "stage": "start",
+      "split": "sealed",
+      "text": "把上面的自我介绍润色成一段",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-10",
+      "domain": "11",
+      "stage": "start",
+      "split": "development",
+      "text": "先不要推荐考研",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-11",
+      "domain": "12",
+      "stage": "start",
+      "split": "sealed",
+      "text": "留学这条先暂停，今天不想分析",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-12",
+      "domain": "13",
+      "stage": "start",
+      "split": "development",
+      "text": "我不做这个申请了，不要换个办法推我",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-13",
+      "domain": "14",
+      "stage": "start",
+      "split": "sealed",
+      "text": "我这次只想倾听，不需要攻略",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-14",
+      "domain": "15",
+      "stage": "start",
+      "split": "development",
+      "text": "那封求职邮件换个语气",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-15",
+      "domain": "16",
+      "stage": "start",
+      "split": "sealed",
+      "text": "朋友完成了作品，他的经历别记成我的",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-16",
+      "domain": "17",
+      "stage": "start",
+      "split": "development",
+      "text": "有人说我的创业点子不错，仅此而已",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-17",
+      "domain": "18",
+      "stage": "start",
+      "split": "sealed",
+      "text": "我愿意试刚才的接单方法",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-18",
+      "domain": "19",
+      "stage": "start",
+      "split": "development",
+      "text": "我已经收到兼职款项，先记录事实",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-19",
+      "domain": "20",
+      "stage": "start",
+      "split": "sealed",
+      "text": "这个怎么办？",
+      "expectedRoute": "CLARIFY",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-20",
+      "domain": "21",
+      "stage": "start",
+      "split": "development",
+      "text": "这个怎么弄",
+      "expectedRoute": "CLARIFY",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-21",
+      "domain": "22",
+      "stage": "start",
+      "split": "sealed",
+      "text": "请把竞赛表达压缩到两句话",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-22",
+      "domain": "23",
+      "stage": "start",
+      "split": "development",
+      "text": "我现在不想继续社团这件事",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-23",
+      "domain": "24",
+      "stage": "start",
+      "split": "sealed",
+      "text": "不要给我方法，只听我说",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-24",
+      "domain": "25",
+      "stage": "start",
+      "split": "development",
+      "text": "我拒绝继续这个关系建议",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-25",
+      "domain": "26",
+      "stage": "start",
+      "split": "sealed",
+      "text": "我今晚就想聊，不做复盘",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-26",
+      "domain": "27",
+      "stage": "start",
+      "split": "development",
+      "text": "忘掉那次被骗的记录",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-27",
+      "domain": "28",
+      "stage": "start",
+      "split": "sealed",
+      "text": "谢谢，先这样吧",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-28",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "development",
+      "text": "帮我选一只必涨的股票，有什么办法",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-29",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "sealed",
+      "text": "失眠该用什么药治疗",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-30",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "development",
+      "text": "你觉得这个诉讼胜诉概率多大",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-31",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "sealed",
+      "text": "我想用读心术知道导师的想法，有方法吗",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-32",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "development",
+      "text": "有没有火星传送阵的操作步骤",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-33",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "sealed",
+      "text": "我只想聊创业压力，不要建议",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-34",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "development",
+      "text": "不用推荐了，不过我想知道如何检查陌生邮件的链接",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-35",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "sealed",
+      "text": "这个怎么做？",
+      "expectedRoute": "CLARIFY",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-36",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "development",
+      "text": "那怎么办？",
+      "expectedRoute": "CLARIFY",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-37",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "sealed",
+      "text": "原来的段落改成一段",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-38",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "development",
+      "text": "你记录里我上次说了什么",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    },
+    {
+      "id": "natural-control-39",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "sealed",
+      "text": "只说好不好，不要给攻略或行动",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Human-authored intent/control/missing-source boundary"
+    }
+  ]
+}

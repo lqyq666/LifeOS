@@ -1,0 +1,22 @@
+export const growthLabels = {
+  context: '当前处境', ability: '能力依据', preference: '兴趣与重视因素', observation: '待核对观察',
+  unknown: '尚待了解', goal: '当前目标', direction: '正在探索的方向', constraint: '现实约束',
+  priority: '近期重点', decision: '眼前的选择', feedback: '行动反馈',
+} as const
+export type GrowthKind = keyof typeof growthLabels
+export type GrowthStatus = 'active' | 'proposed' | 'paused' | 'completed' | 'rejected' | 'forgotten' | 'stale'
+export type GrowthRef = { id: string; revision: number }
+export type GrowthSource = { type: 'user_edit'; quote: string } | { type: 'message'; id: string; quote: string }
+export type GrowthTimeBasis = Record<string, unknown> | null
+export type GrowthItem = {
+  id: string; conversationId: string; kind: GrowthKind; text: string;
+  assertion: 'user_reported' | 'user_edit' | 'ai_observation' | 'unknown'; status: GrowthStatus;
+  sources: GrowthSource[]; dependencies: GrowthRef[]; validUntil: string | null; validFrom?: string | null; timeBasis?: GrowthTimeBasis;
+  revision: number; createdAt: string; updatedAt: string; unavailableReason: string | null;
+  limitation?: string; progressState?: 'unattempted' | 'attempted' | 'stuck' | 'completed' | 'unknown' | null;
+  directionScopes?: string[]; structuredPlan?: Record<string, unknown> | null;
+  recommendationStopped?: boolean;
+  feedbackEvidence?: {reportedAt:string;taskBinding:'unknown';outcomes:Record<'read'|'response'|'adoption'|'payment'|'effect',{status:string;quote:string|null}>};
+  taskBoundary?: {kind:'pause';scope:'current_matter';targetText:'备考'|'复习';sourceConversationId:string;sourceMessageId:string|null;matterBinding:'needs_same_matter_confirmation';expiresAt:string|null;quote:string};
+}
+export type GrowthView = { memoryEnabled: boolean; items: GrowthItem[] }

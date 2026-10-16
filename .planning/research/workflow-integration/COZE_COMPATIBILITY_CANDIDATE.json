@@ -1,0 +1,491 @@
+{
+  "schemaVersion": 1,
+  "status": "EXISTING_TWO_PROJECTS_DEVELOPED_CURRENT_REAL_CLOUD_CONTRACT_NOT_ACCEPTED",
+  "newProjects": 0,
+  "uploads": "AUTHORIZED_PUBLIC_ORIGINALS_AND_SYNTHETIC_FIXTURES_OBSERVED_COUNT_NOT_RECONCILED",
+  "privateData": false,
+  "adultSyntheticOnly": true,
+  "sourceDigest": "764378f14f493f148503b4a8ebc1264a8dd774a83d3f44a96cb5eaacc986e750",
+  "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+  "skills": [
+    {
+      "name": "lifeos-direction-analysis",
+      "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+      "version": "0.2.0-candidate"
+    },
+    {
+      "name": "lifeos-action-review",
+      "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+      "version": "0.2.0-candidate"
+    },
+    {
+      "name": "lifeos-experience-evidence",
+      "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+      "version": "0.2.0-candidate"
+    },
+    {
+      "name": "lifeos-guide-application",
+      "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+      "version": "0.2.0-candidate"
+    },
+    {
+      "name": "lifeos-growth-diff",
+      "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+      "version": "0.2.0-candidate"
+    }
+  ],
+  "receiptContract": {
+    "runtimeRequired": [
+      "projectId",
+      "businessRole",
+      "release",
+      "sourceDigest",
+      "contentHash"
+    ],
+    "receiptRequired": [
+      "id",
+      "usageCompleteness"
+    ],
+    "usageCompleteness": [
+      "complete",
+      "unknown"
+    ],
+    "knowledgeItemRequired": [
+      "documentId",
+      "content",
+      "revision",
+      "contentHash"
+    ],
+    "workflowReceiptRequired": [
+      "providerCalls",
+      "skills"
+    ],
+    "skillReceiptFields": [
+      "name",
+      "version",
+      "sha256"
+    ],
+    "maximumDeepProviderCalls": 5,
+    "studentStateCommitAllowed": false,
+    "unknownCost": "retain full authorized reservation until independent reconciliation",
+    "description": "Expected output examples below are business subsets; these runtime and receipt fields are mandatory in the current copy."
+  },
+  "projects": [
+    {
+      "projectId": "7693465311558795327",
+      "businessRole": "public_knowledge",
+      "currentCloudVersion": "10b80bfb5f20f068a7dfaa050813ece970468fab",
+      "legacyVersion": "1.2.0_HISTORICAL_ONLY",
+      "candidateContract": "existing public knowledge /run schemaVersion=1/items",
+      "input": {
+        "schemaVersion": 1,
+        "topics": [
+          "课程复习",
+          "创业需求"
+        ],
+        "query": "课程主动回忆与创业访谈",
+        "maxItems": 2
+      },
+      "expectedOutput": {
+        "schemaVersion": 1,
+        "items": []
+      },
+      "allowlist": [
+        {
+          "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+          "revision": 1,
+          "canonicalKey": "campus-resource",
+          "contentHash": "92bd95009d51a1146577675de0ee38af363c1bd5f59bc284bc366c2f8d19bf55",
+          "url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+          "evidenceIds": [
+            "yangtze-library-e1"
+          ]
+        },
+        {
+          "guideId": "7ff3638d-87dc-4842-8908-352ea1ed308e",
+          "revision": 1,
+          "canonicalKey": "course-frame",
+          "contentHash": "87770cf6377e090c26d4e7476a6df583a749e3d202e1493299172c6e1b01c632",
+          "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+          "evidenceIds": [
+            "tsinghua-exam-e1"
+          ]
+        },
+        {
+          "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+          "revision": 1,
+          "canonicalKey": "retrieval-practice",
+          "contentHash": "e15b183ad1721750a9008342bfb0f72e0911f7b5af1c088407d8e39f7ce308aa",
+          "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+          "evidenceIds": [
+            "ies-learning-e1"
+          ]
+        },
+        {
+          "guideId": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+          "revision": 1,
+          "canonicalKey": "spaced-review",
+          "contentHash": "52d92f72313737e618c05a4f7bdc67c8473c2371197a54bfc076e42ee13248c2",
+          "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+          "evidenceIds": [
+            "ies-learning-e1"
+          ]
+        },
+        {
+          "guideId": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+          "revision": 1,
+          "canonicalKey": "worked-example",
+          "contentHash": "9c1745b3206513dc37e98efa5c5b09224c8e7dcf7eda4e5d066cba4cf58b1001",
+          "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+          "evidenceIds": [
+            "ies-learning-e1"
+          ]
+        },
+        {
+          "guideId": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+          "revision": 1,
+          "canonicalKey": "explain-understanding",
+          "contentHash": "9e7cec87e13aab9fe2932321f5b7ef2d4d710dc9c5e225aa6556f20276f91c00",
+          "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+          "evidenceIds": [
+            "ies-learning-e1"
+          ]
+        },
+        {
+          "guideId": "5fde19ca-e307-478c-8a96-5781df392991",
+          "revision": 1,
+          "canonicalKey": "priority-budget",
+          "contentHash": "a5a0061953ae44819e3a11924c1044d71515c466b33b2b6a9d0813e6e330b577",
+          "url": "https://learning.tsinghua.edu.cn/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+          "evidenceIds": [
+            "tsinghua-efficiency-e1"
+          ]
+        },
+        {
+          "guideId": "48e4e604-8fd8-4016-862c-f6d3219c776d",
+          "revision": 1,
+          "canonicalKey": "plan-review",
+          "contentHash": "6b16e3545164e5496c5256f4d6cb670d70c09e712fec95d2208f57e8ffdee6d4",
+          "url": "https://learning.tsinghua.edu.cn/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+          "evidenceIds": [
+            "tsinghua-efficiency-e1"
+          ]
+        },
+        {
+          "guideId": "6262d479-9403-4140-8910-48de23cd2600",
+          "revision": 1,
+          "canonicalKey": "experience-evidence",
+          "contentHash": "3519764fc02bc8196bcd6f464e6f1e54d8c9ed213fbe12d689c7e5dbf6620f33",
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "evidenceIds": [
+            "yangtze-star-e1"
+          ]
+        },
+        {
+          "guideId": "563bc621-e36d-416b-8176-c82bbe0469f3",
+          "revision": 1,
+          "canonicalKey": "research-reading",
+          "contentHash": "6b377fa3131bdb1b84e114eaeafba95e98d608faf177f96f8f880a3306cfeae9",
+          "url": "https://soci.ecnu.edu.cn/af/61/c10712a438113/page.htm",
+          "evidenceIds": [
+            "ecnu-literature-e1"
+          ]
+        },
+        {
+          "guideId": "4795f7b2-f739-4ba5-8052-2d04f5894bbe",
+          "revision": 1,
+          "canonicalKey": "project-story",
+          "contentHash": "cd8f53de79d39ac8e78419e26c8e83e106e4213df98c8e7bcf267f7b40b5939c",
+          "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+          "evidenceIds": [
+            "yangtze-star-e1"
+          ]
+        },
+        {
+          "guideId": "43e47ad6-3543-4c97-84f6-42bb0a1e6cb3",
+          "revision": 1,
+          "canonicalKey": "user-interview",
+          "contentHash": "09315caa65cfd6de2857186a4a4b1ed1cfe7108dc07042e51159506d19b6cc53",
+          "url": "https://www.nsf.gov/funding/initiatives/i-corps/about-teams",
+          "evidenceIds": [
+            "nsf-interview-e1"
+          ]
+        },
+        {
+          "guideId": "061bf547-823f-492e-89c2-cf11daf153b5",
+          "revision": 1,
+          "canonicalKey": "prototype-test",
+          "contentHash": "031b4099a58945b60bafa1d5d0b2fb6bee94a72e479c33d44ebefb0a9c881765",
+          "url": "https://www.sem.tsinghua.edu.cn/info/1171/38255.htm",
+          "evidenceIds": [
+            "tsinghua-mvp-e1"
+          ]
+        },
+        {
+          "guideId": "ea53cc08-3420-442f-8e5c-98070be7909a",
+          "revision": 1,
+          "canonicalKey": "delivery-scope",
+          "contentHash": "fddaa73ecabe5f26962f0c7161b0d4758a84c8846fdd606857bca2c3051bff52",
+          "url": "https://www.upwork.com/resources/managing-client-expectations",
+          "evidenceIds": [
+            "upwork-scope-e1"
+          ]
+        },
+        {
+          "guideId": "349634c2-27c1-4a99-8f54-3f8e072d5ce0",
+          "revision": 1,
+          "canonicalKey": "boundary-request",
+          "contentHash": "357d144b0e84ada81c528eb8634780b3d569968f95f62aabc5eebc6f6c8d4769",
+          "url": "https://www.xljk.sdu.edu.cn/info/1008/10852.htm",
+          "evidenceIds": [
+            "sdu-boundaries-e1"
+          ]
+        },
+        {
+          "guideId": "1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a",
+          "revision": 1,
+          "canonicalKey": "recovery-support",
+          "contentHash": "96c452e9c73f6df526b272604f5c844dc10389c7ae6317b35b3de6f6c334e971",
+          "url": "https://xlzx.situ.edu.cn/info/1079/2963.htm",
+          "evidenceIds": [
+            "situ-recovery-e1"
+          ]
+        }
+      ],
+      "rejectionCases": [
+        "wrong_release",
+        "withdrawn_source",
+        "same_revision_changed_source",
+        "legacy_envelope",
+        "invented_author",
+        "oversized_items",
+        "cancelled_request"
+      ],
+      "development": {
+        "projectId": "7693465311558795327",
+        "developmentCommit": "10b80bfb5f20f068a7dfaa050813ece970468fab",
+        "status": "R8_ACTUAL_INDEPENDENT_ORIGINAL_CARD_REVIEW_EXECUTED",
+        "currentCardBindings": 30,
+        "ownerApprovals": 0,
+        "newPublications": 0
+      },
+      "realCloudBusiness": "NOT_TESTED_CURRENT_CANDIDATE",
+      "productionRelease": "HISTORICAL_NOT_CURRENT_CANDIDATE"
+    },
+    {
+      "projectId": "7693388932939300905",
+      "businessRole": "growth",
+      "currentCloudVersion": "be738b569e5af678f75720981eae6d3bb6ad26da",
+      "legacyVersion": "1.2.0_HISTORICAL_ONLY",
+      "candidateContract": "existing LifeOS workflow-v2 request/proposal/receipt; local host owns authorization and state commit",
+      "input": {
+        "adult": true,
+        "synthetic": true,
+        "currentRequest": "这周只剩两小时，比较就业与创业探索",
+        "personalFacts": [
+          {
+            "kind": "goal",
+            "text": "就业优先"
+          },
+          {
+            "kind": "feedback",
+            "text": "交付一次，采用和付款未知"
+          }
+        ],
+        "controls": {
+          "refuseAdvice": false,
+          "memoryEnabled": true
+        },
+        "directions": [
+          "employment",
+          "entrepreneurship"
+        ],
+        "maxProviderCalls": 4
+      },
+      "expectedOutput": {
+        "schemaVersion": 2,
+        "status": "proposed",
+        "suggestedStateChanges": [],
+        "costCny": "unknown_until_actual_receipt"
+      },
+      "rejectionCases": [
+        "cross_user",
+        "unapproved_method",
+        "fabricated_personal_fact",
+        "cancelled_graph",
+        "source_conflict",
+        "missing_cost_usage",
+        "wrong_skill_version"
+      ],
+      "development": {
+        "projectId": "7693388932939300905",
+        "developmentCommit": "be738b569e5af678f75720981eae6d3bb6ad26da",
+        "status": "R16_COMMITTED_ACTUAL_PG_11_PLUS_SIGNED_READBACK_4_CHECKS_NOT_REAL_MODEL_GRAPH",
+        "cloudSourceDigest": "771580ccbbb951913ecc7e5c0eedb201cc80d358106289ae96c5e2e067e08c12",
+        "evidence": "evidence/coze-core-launch-20261011/r16-committed-runtime.json",
+        "productionPublished": false
+      },
+      "realCloudBusiness": "NOT_TESTED_CURRENT_R16",
+      "productionRelease": "HISTORICAL_NOT_CURRENT_CANDIDATE"
+    }
+  ],
+  "releaseBoundary": "Owner restored existing-budget development and runtime scope. Current copies must read back role/source/skill/content hashes and separate actual runtime funding; old deployment success never accepts this candidate.",
+  "historicalUploads": 0,
+  "currentHostBinding": {
+    "status": "REQUIRES_CURRENT_HOST_CONFIG_REFRESH_BEFORE_REAL_GRAPH",
+    "path": ".planning/research/workflow-integration/COZE_HTTP_HOST_BINDING.json",
+    "historicalHostCodeCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4"
+  },
+  "latestObservedGrowthDevelopment": {
+    "kind": "ACTUAL_OBSERVED_COMMITTED_R19_PUBLIC_SOURCE",
+    "runtime": {
+      "projectId": "7693388932939300905",
+      "businessRole": "growth",
+      "candidateRelease": "0.2.0-candidate",
+      "hostCodeCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4",
+      "hostSourceDigest": "680e4f08bbf826b4f20679d49e2b96afeb002431c37babb9d925914803c30427",
+      "canonicalContentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+      "canonicalSourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+      "canonicalEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+      "cloudCommit": "24af9b737042ff9854aa52b7d612997eedbaff21",
+      "cloudSourceDigest": "f8d8a041933060b071e4a1633b8b1a42b7744753aa1dccddeeb9d4dae267d08d",
+      "cloudSourceHashes": {
+        "src/lifeos_host/http_route/__init__.py": "f652ea299d2dab4ec6428633943e21f3c4d5fa6cd3734a13b80af82fdb02d3c8",
+        "src/lifeos_host/http_route/provider_http.py": "5c39242f421463af371abe3da80f08c5c7407ad2a537f422071ec95b58c5562d",
+        "src/lifeos_host/http_route/dispatch.py": "f504a56f36cd29d802c6dc6eb04aeacc0ebe5c3e056992b600d99605ca383174",
+        "src/lifeos_host/http_route/wire.py": "31a304cabe19730678a03ca63c101eeecd48786e1dad637bbd87ff9a30ea6342",
+        "src/lifeos_host/http_route/runtime_binding.py": "7f3e1a9f7fcdaaf862efbcf3739d69ed2b2a0b9e9eb569d4cae91a31fb9630b8",
+        "src/lifeos_host/http_route/transport_http.py": "e72b6acebfd75c6521f8d6bd89033b92407ac67e14e1c8b6871e2fe5be88ae6d",
+        "src/lifeos_host/http_route/entry.py": "b5a58b25a3686b60b25f4c6a7f2c112b03aa55823943ae9bf975d7db733dcd73",
+        "src/lifeos_host/contracts.py": "b4b87219ce3e27cf9db008f586dae52e86ddb3ffaaabe7ae2ef82d1e2a767ee0",
+        "src/lifeos_host/transport.py": "9bd67ba590de35723dc2bd29bf8f9632a0ef1ea8be209a607cd1edee67454d3b",
+        "src/lifeos_host/host.py": "2b0a64b18e9b5a3ff02856772aa2e37fa8696e6ee855950500f41d64dddfa793",
+        "src/lifeos_host/provider.py": "5a2238075dbdc749387889074f8ffcc068a3bc79360800f546bf450be6dbbc4e",
+        "src/lifeos_host/execution.py": "f3741eff2589fadb74e8a648c58fc057640b08146e8b47da6625909ee83bc119",
+        "src/lifeos_host/persist.py": "1b552c8ec2c596a6e4fb4ec508e976be8897589991db2213a283ae0009a2b257",
+        "src/lifeos_host/skills_registry.py": "0ee371278ca554a496bbfc846d642a35e888f41f9e61eef5eaa6e7c15365d8c1",
+        "src/lifeos_host/__init__.py": "54851b4ee95819a25bdbec9de776519464d7c93558665a6b95da1022c3536c5e",
+        "src/graphs/graph.py": "72867f5c34329b8ed247499a2f33a199db953c73f9473ca709a198be4ffec5eb",
+        "src/graphs/state.py": "e016a08ed0b062dc32b91189f806091ccfa012d6076804845ed11db8facf6c7e",
+        "src/graphs/nodes/lifeos_host_node.py": "1b853189e1c261a6659b2a782a2063923820c5f9ff0f9e0edb5eb7d876b3e321",
+        "src/graphs/nodes/entry_router_node.py": "3279060354ef84bcb08fff89954b2e36d8eec0dd1c750d5401d7eb8641628c13",
+        "src/graphs/nodes/lifeos_http_node.py": "30d0498c080ce70bd06b032c56e3af1b01e2c2d262780a5abf13e85778df6201"
+      },
+      "skillsDigest": "8917dbcebb168e135485871520a68fececb13dd14dba83bcade993373d1ce9a8",
+      "skillHashes": {
+        "assets/skills/lifeos-action-review.md": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+        "assets/skills/lifeos-direction-analysis.md": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+        "assets/skills/lifeos-experience-evidence.md": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+        "assets/skills/lifeos-growth-diff.md": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+        "assets/skills/lifeos-guide-application.md": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+        "assets/skills/lifeos-personal-companion.md": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
+      },
+      "canonicalCardsHash": "862ba500f77f8f5efd307aeecc173bffaff02ec48a807c24800d8d5af54d2a6d",
+      "approvedSubsetHash": "862ba500f77f8f5efd307aeecc173bffaff02ec48a807c24800d8d5af54d2a6d",
+      "fullCorpusHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+      "canonicalCards": {
+        "card:4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d": "c2bec4773a4f2a89611e46c48626a90d3e6540ab0757e6896162c1b4c61b0f33",
+        "card:7ff3638d-87dc-4842-8908-352ea1ed308e": "86cc863b6c3e097ed8f9e2b3c62da201fbb6d56f026d581e2dd291f09d3b8793",
+        "card:e6ad610b-549e-4b09-89bc-34223577fb49": "73d5744c2491c9714125670a75b71e95cb2c4ca6ba0f017b681946170c456bc2",
+        "card:fec4a7ce-91a7-4fa8-8278-ff6b61e1404a": "7649933189d45706e2649ae74fea621f3a5a31e2a61b4d5c10b8ea834c0a3ae6",
+        "card:418188a9-dfd0-46d3-8f35-6fdff72de1c9": "48354f4b077063aa253eabaf3b80f3fd183b307f99d823b47f02b64ae036cbca",
+        "card:d1cb5277-c602-4909-8a48-b4fc52f15d63": "7225480e42cdce16b5e6ca57fe726f5c06bb5c6207b08954f7d4deff11fb5c82",
+        "card:5fde19ca-e307-478c-8a96-5781df392991": "eea24875ccdf39d9cb4302e5a5f67ed1473b97293112778a302671f309f382dc",
+        "card:48e4e604-8fd8-4016-862c-f6d3219c776d": "50cc605d907cba3389ea00b2522c7b632fe258acaa4ad28ca7a05e48df90721c",
+        "card:6262d479-9403-4140-8910-48de23cd2600": "b8aadd9a0b34f435fb31c87b70531cccc0761b20e8011efb47b5f6efb2cfa247",
+        "card:563bc621-e36d-416b-8176-c82bbe0469f3": "8ad4816bf2cbbf9756672b3dce15f7119d34a574a78c71dc49fece45b08ef056",
+        "card:4795f7b2-f739-4ba5-8052-2d04f5894bbe": "23bd29fd3a80d3661d6936ed6cb69c60ec7851f8d2d0f6dad1b0979f27362c79",
+        "card:43e47ad6-3543-4c97-84f6-42bb0a1e6cb3": "185c80a660bcc5720cb13669b0c55886a818612be146c64cef5b4ce58f189754",
+        "card:061bf547-823f-492e-89c2-cf11daf153b5": "c7f34a3daf0031dca26564cc37dc6d40d36e8f0c20ace66f9d4b7c8ff8941abb",
+        "card:ea53cc08-3420-442f-8e5c-98070be7909a": "e46372c7d948d89aeee449b90235815aa10128d8c6295f60d9878879fa3afb1e",
+        "card:349634c2-27c1-4a99-8f54-3f8e072d5ce0": "3d97d8c219a696a16019504f3ea1daf51c2f64d392530992329c7c996af14029",
+        "card:1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a": "15145936216176c6fbc39c639f0e38e8266fe6df6ab97c4f4ce46197b688983b"
+      },
+      "noPrivateStudentData": true,
+      "noCredentials": true,
+      "note": "zero-model permit-free runtime readback; no key/secret exposed"
+    },
+    "actualDevelopmentChecks": {
+      "status": "ACTUAL_EXISTING_DEVELOPMENT_PG_R19_CLOSE_PATHS_PASS_NOT_REAL_MODEL_GRAPH",
+      "checks": [
+        "transport close exception with actual reserved PG slots produces durable unavailable receipt and all not_sent",
+        "close and terminal persistence faults retain unfinished incomplete state"
+      ],
+      "count": 2,
+      "modelCalls": 0,
+      "faultInjectionDeclared": true,
+      "runtime": {
+        "projectId": "7693388932939300905",
+        "businessRole": "growth",
+        "candidateRelease": "0.2.0-candidate",
+        "hostCodeCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4",
+        "hostSourceDigest": "680e4f08bbf826b4f20679d49e2b96afeb002431c37babb9d925914803c30427",
+        "canonicalContentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+        "canonicalSourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+        "canonicalEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+        "cloudCommit": "435bf2f11726f81f2ac97509caae5629f0f01c27",
+        "cloudSourceDigest": "f8d8a041933060b071e4a1633b8b1a42b7744753aa1dccddeeb9d4dae267d08d",
+        "cloudSourceHashes": {
+          "src/lifeos_host/http_route/__init__.py": "f652ea299d2dab4ec6428633943e21f3c4d5fa6cd3734a13b80af82fdb02d3c8",
+          "src/lifeos_host/http_route/provider_http.py": "5c39242f421463af371abe3da80f08c5c7407ad2a537f422071ec95b58c5562d",
+          "src/lifeos_host/http_route/dispatch.py": "f504a56f36cd29d802c6dc6eb04aeacc0ebe5c3e056992b600d99605ca383174",
+          "src/lifeos_host/http_route/wire.py": "31a304cabe19730678a03ca63c101eeecd48786e1dad637bbd87ff9a30ea6342",
+          "src/lifeos_host/http_route/runtime_binding.py": "7f3e1a9f7fcdaaf862efbcf3739d69ed2b2a0b9e9eb569d4cae91a31fb9630b8",
+          "src/lifeos_host/http_route/transport_http.py": "e72b6acebfd75c6521f8d6bd89033b92407ac67e14e1c8b6871e2fe5be88ae6d",
+          "src/lifeos_host/http_route/entry.py": "b5a58b25a3686b60b25f4c6a7f2c112b03aa55823943ae9bf975d7db733dcd73",
+          "src/lifeos_host/contracts.py": "b4b87219ce3e27cf9db008f586dae52e86ddb3ffaaabe7ae2ef82d1e2a767ee0",
+          "src/lifeos_host/transport.py": "9bd67ba590de35723dc2bd29bf8f9632a0ef1ea8be209a607cd1edee67454d3b",
+          "src/lifeos_host/host.py": "2b0a64b18e9b5a3ff02856772aa2e37fa8696e6ee855950500f41d64dddfa793",
+          "src/lifeos_host/provider.py": "5a2238075dbdc749387889074f8ffcc068a3bc79360800f546bf450be6dbbc4e",
+          "src/lifeos_host/execution.py": "f3741eff2589fadb74e8a648c58fc057640b08146e8b47da6625909ee83bc119",
+          "src/lifeos_host/persist.py": "1b552c8ec2c596a6e4fb4ec508e976be8897589991db2213a283ae0009a2b257",
+          "src/lifeos_host/skills_registry.py": "0ee371278ca554a496bbfc846d642a35e888f41f9e61eef5eaa6e7c15365d8c1",
+          "src/lifeos_host/__init__.py": "54851b4ee95819a25bdbec9de776519464d7c93558665a6b95da1022c3536c5e",
+          "src/graphs/graph.py": "72867f5c34329b8ed247499a2f33a199db953c73f9473ca709a198be4ffec5eb",
+          "src/graphs/state.py": "e016a08ed0b062dc32b91189f806091ccfa012d6076804845ed11db8facf6c7e",
+          "src/graphs/nodes/lifeos_host_node.py": "1b853189e1c261a6659b2a782a2063923820c5f9ff0f9e0edb5eb7d876b3e321",
+          "src/graphs/nodes/entry_router_node.py": "3279060354ef84bcb08fff89954b2e36d8eec0dd1c750d5401d7eb8641628c13",
+          "src/graphs/nodes/lifeos_http_node.py": "30d0498c080ce70bd06b032c56e3af1b01e2c2d262780a5abf13e85778df6201"
+        },
+        "skillsDigest": "8917dbcebb168e135485871520a68fececb13dd14dba83bcade993373d1ce9a8",
+        "skillHashes": {
+          "assets/skills/lifeos-action-review.md": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f",
+          "assets/skills/lifeos-direction-analysis.md": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89",
+          "assets/skills/lifeos-experience-evidence.md": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494",
+          "assets/skills/lifeos-growth-diff.md": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333",
+          "assets/skills/lifeos-guide-application.md": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c",
+          "assets/skills/lifeos-personal-companion.md": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
+        },
+        "canonicalCardsHash": "862ba500f77f8f5efd307aeecc173bffaff02ec48a807c24800d8d5af54d2a6d",
+        "approvedSubsetHash": "862ba500f77f8f5efd307aeecc173bffaff02ec48a807c24800d8d5af54d2a6d",
+        "fullCorpusHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+        "canonicalCards": {
+          "card:4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d": "c2bec4773a4f2a89611e46c48626a90d3e6540ab0757e6896162c1b4c61b0f33",
+          "card:7ff3638d-87dc-4842-8908-352ea1ed308e": "86cc863b6c3e097ed8f9e2b3c62da201fbb6d56f026d581e2dd291f09d3b8793",
+          "card:e6ad610b-549e-4b09-89bc-34223577fb49": "73d5744c2491c9714125670a75b71e95cb2c4ca6ba0f017b681946170c456bc2",
+          "card:fec4a7ce-91a7-4fa8-8278-ff6b61e1404a": "7649933189d45706e2649ae74fea621f3a5a31e2a61b4d5c10b8ea834c0a3ae6",
+          "card:418188a9-dfd0-46d3-8f35-6fdff72de1c9": "48354f4b077063aa253eabaf3b80f3fd183b307f99d823b47f02b64ae036cbca",
+          "card:d1cb5277-c602-4909-8a48-b4fc52f15d63": "7225480e42cdce16b5e6ca57fe726f5c06bb5c6207b08954f7d4deff11fb5c82",
+          "card:5fde19ca-e307-478c-8a96-5781df392991": "eea24875ccdf39d9cb4302e5a5f67ed1473b97293112778a302671f309f382dc",
+          "card:48e4e604-8fd8-4016-862c-f6d3219c776d": "50cc605d907cba3389ea00b2522c7b632fe258acaa4ad28ca7a05e48df90721c",
+          "card:6262d479-9403-4140-8910-48de23cd2600": "b8aadd9a0b34f435fb31c87b70531cccc0761b20e8011efb47b5f6efb2cfa247",
+          "card:563bc621-e36d-416b-8176-c82bbe0469f3": "8ad4816bf2cbbf9756672b3dce15f7119d34a574a78c71dc49fece45b08ef056",
+          "card:4795f7b2-f739-4ba5-8052-2d04f5894bbe": "23bd29fd3a80d3661d6936ed6cb69c60ec7851f8d2d0f6dad1b0979f27362c79",
+          "card:43e47ad6-3543-4c97-84f6-42bb0a1e6cb3": "185c80a660bcc5720cb13669b0c55886a818612be146c64cef5b4ce58f189754",
+          "card:061bf547-823f-492e-89c2-cf11daf153b5": "c7f34a3daf0031dca26564cc37dc6d40d36e8f0c20ace66f9d4b7c8ff8941abb",
+          "card:ea53cc08-3420-442f-8e5c-98070be7909a": "e46372c7d948d89aeee449b90235815aa10128d8c6295f60d9878879fa3afb1e",
+          "card:349634c2-27c1-4a99-8f54-3f8e072d5ce0": "3d97d8c219a696a16019504f3ea1daf51c2f64d392530992329c7c996af14029",
+          "card:1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a": "15145936216176c6fbc39c639f0e38e8266fe6df6ab97c4f4ce46197b688983b"
+        },
+        "noPrivateStudentData": true,
+        "noCredentials": true,
+        "note": "zero-model permit-free runtime readback; no key/secret exposed"
+      }
+    },
+    "modelCalls": 0,
+    "hostBinding": "OLD_HOST_AND_CANONICAL_CORPUS_REQUIRES_REFRESH_BEFORE_REAL_GRAPH",
+    "realGraphStatus": "NOT_TESTED",
+    "publishedRuntimeStatus": "NOT_UPDATED",
+    "runtimeCreditCeiling": "UNKNOWN_NOT_ASSUMED_ZERO"
+  }
+}

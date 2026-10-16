@@ -1,0 +1,31 @@
+{
+  "kind": "PREDECLARED_NEW_REPAIR_PILOT_NOT_FINAL_COHORT",
+  "hypothesis": "Natural pending-response and inaccessible-course-link branches use actual feedback; next-week candidate request must save concrete proposed tasks",
+  "historicalFirstAttempts": "FEEDBACK_BOUNDARY_90186B0_FIRST.json",
+  "cases": [
+    {
+      "caseId": "FN_WAIT_01",
+      "session": 0,
+      "input": "我是成年大学生，已经用学校邮箱发了请教项目作品的消息，对方还未回应，我下一步怎么办？",
+      "expected": "等待回应，原因未知；核对实际约定而不问已经给出的原问题"
+    },
+    {
+      "caseId": "FN_LINK_02",
+      "session": 1,
+      "input": "先聊课程，课件链接无法打开，我还没开始复习，怎么继续？",
+      "expected": "当前课程优先，回到实际课件缺件；不假称已完成、不问已知进度"
+    },
+    {
+      "caseId": "FN_PLAN_03",
+      "session": 1,
+      "input": "下周仅剩两小时，帮我为课程和备考安排下周候选任务。",
+      "expected": "下周120分钟，具体候选/数据库计划一致且proposed；不是执行"
+    },
+    {
+      "caseId": "FN_ZERO_04",
+      "session": 2,
+      "input": "本周没有可用时间，只建立一份空计划。",
+      "expected": "本周0分钟、0生成、空计划与原话保存"
+    }
+  ]
+}

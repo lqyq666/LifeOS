@@ -1,0 +1,10 @@
+# LIFEOS_COZE_CORE_20261011_GROWTH_R8_REPAIR
+继续原成长项目7693388932939300905、原HTTP路线，实际R7 d881683ec576b9d0d169db8f6beb2323bc93bbcd。附件是主端真实下载且hash匹配的AST回放3通过/9失败，两个截止项为源码缺失检测，不能假称云运行已测。保留R7/R6失败，不放宽门槛，不重写通过wire/SQL/精确源/合法目录，不改AGENTS或已过框架、不新增节点/Agent/项目、不部署。修复轮数不限；本次新修复预留60000既有积分，产品模型零调用，不自动重试收费，不增预算。
+1. _parse_analyst允许任意stopCondition和weeklyMinutes显示为本人已付款/优秀/扩大接单，重复evidence/action也接受。只能选择服务器给的行动目录与停止/阶段/取舍理由，严格字段/唯一ID/本人actionBasis；每个关键行动必须个人支持/限制/未知、适用阶段、下一步核实与改变建议条件。不把整个周预算重复分配动作，不把用户整个混合原话全部标支持，不默认未知30。正常零时间允许空行动但保留未知，不因acts为空拒绝完整任务。附当前宿主强制actionBasis/阶段与具体critic claims的新契约供兼容参考。
+2. _next_actions不使用选中的actionCatalogue.text，只模板+原话+任意stop。只能读实际获准选中的行动目录，分别尊重优先/暂停/已有反馈/采用未知/愿意探索，不用首张攻略任何方向都套。synthesis空alternativeOrder目前提出空proposal，未知actionIds被静默忽略；必须invalid_contract。非法id、重复、没有依据的组合拒绝，不丢合法已保存事实。
+3. action_review只输出单一paid并称效果仍需核对，真实feedback已effective也被丢弃。交付/采用/付款/效果必须独立读回、分别判unknown或具体状态，不能一项覆盖其余；反馈授权出处逐项核对，不能仅payload任意dictionary当本人认可。无反馈不是证明not_started，明确拒绝停止推动；前次失败后的针对原行动对应分支，不再次发送整套入门。kb_maintenance当前仍fake directionId=kb_maintenance，需与主端真实编辑准备合同兼容，不能伪造独审/真人签字。
+4. pre-CAS _prompt_over_limit收到完整schema，实际_call传schema标签，build_request_body同函数仍不同body。统一先生成唯一bytes，再以原bytes预检、CAS、POST，验证真实角色schema/Skill/candidate context在实际POST；12000边界±1多字节样本，超限零POST零开始。不只直接比较运输函数返回bytes就通过。
+5. transporttimeout仍使用整段timeout_ms，不取_mono_deadline剩余；deadline从首POST才设，不含reserve/加载。sync wrapper线程daemon，join_timeout后未cancel/await便返回零成本且线程可能继续收费。整图从入口验证开始统一monotonic截止，含准备/调用/关闭，POST取remaining，取消全部并await/close后回执真实账本，绝不能后台线程继续收费。实际本地慢HTTP并发/多顺序阶段/线程timeout验证，无百炼；此前源文件docstring宣称与实现矛盾也修正。
+6. 已有schema不使用qwen native strict response schema只是json_object +schema标签，若继续采用有界JSON务必真正提供完整schema并按完整合法字段严格后校验；不能用schema标签和Mock遵守格式代替真实契约。新AI critic未知只能uncertainty/clarify，真实阻断定位实际candidate claim与原话，rejected路径须匹配具体blocker，不降低来源门槛。
+保留原路径作用域/权限/整图max5/原UUID槽位/唯一CNY账本已知和未知成本/2进程SQLCAS/重启不重派。每项先实际失败重放再修复，有新可执行具体检查，不能仅自报booleans。同角色name不当独立最终产品审阅。真实百炼、真实学生收益、发布都NOT_TESTED。
+输出实际commit/runtime_readback/源hash/执行日志，实际用了哪个Skill版本/指令字节、错版本/缺失诚实降级。task已耗R7 6413.06，原账本结算；此次与公共项目独审修复并行分摊原余100313，预留60000，本轮不新增预算。

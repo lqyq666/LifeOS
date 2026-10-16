@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "FROZEN_SYNTHETIC_USER_FACTS_NOT_PROVIDER_RESULTS",
+  "rule": "Only reveal facts when their corresponding question is asked. Do not send hidden facts or review criteria to the tested model. The runner must retain actual replies for human semantic review.",
+  "missingFactReply": "这个细节我记不清了。",
+  "missingFactRule": "Predeclared synthetic reply only when the asked detail is absent from this fixture. Do not invent a helpful timing, agreement or outcome. Respecting this unknown/refusal is part of review. Prior failed batches retain their original fixture hash and inputs.",
+  "trajectories": [
+    {
+      "id": "A01",
+      "opening": "我做了上次的行动，但对方没有使用。",
+      "facts": {"goal": "我想试试整理资料能不能帮到同学。", "person": "同班的小林说资料很乱，我就找了他。", "contact": "在微信说我帮他整理，他说可以，没有讲具体知识点。", "agreement": "没有明确约好交付时间和格式。", "execution": "我花了三小时整理了四十页。", "delivery": "考试前夜把网盘链接发给了他。", "outcome": "他后来明确说手机打不开，因此没看。", "currentNeed": "我不知道他现在还需不需要。"},
+      "request": "先帮我写一段能直接发给他的消息。",
+      "review": ["找到原行动，区分计划与执行", "核实判断依据", "确认打不开后不重问为什么", "内容是否有效仍未知", "产出可复制的确认需求消息，有不需要时的结束方式"]
+    },
+    {
+      "id": "A02",
+      "opening": "上次整理的资料对方没用，我想看看哪里出了问题。",
+      "facts": {"person": "同班的小周需要期末复习提纲。", "agreement": "他说考试前三天能拿到最好。", "execution": "我整理了四页提纲。", "delivery": "我在考试结束后才发出去。", "outcome": "他明确说文件能打开，但是考试都结束了，暂时不需要了。"},
+      "review": ["依据真实交付时间调整节奏", "不套用打不开结论", "不承诺晚交付是唯一原因"]
+    },
+    {
+      "id": "A03",
+      "opening": "对方说我给的资料不符合他的需求。",
+      "facts": {"need": "他原来问的是高数极限的例题。", "execution": "我给的是二十页概率统计公式。", "outcome": "他明确说想看极限例题，不是概率统计。", "material": "现有资料里有例题：lim(x→0) sin(x)/x，答案是1，说明可以用夹逼定理。", "effort": "我现在愿意花十分钟。"},
+      "request": "帮我用现有例题做一个更小的说明。",
+      "review": ["核对需求和材料差异", "实际给出更小材料", "不要求先重做整份资料"]
+    },
+    {
+      "id": "A04",
+      "opening": "对方没用我发的材料，感觉像是被拒绝了。",
+      "facts": {"basis": "其实他只是两天没有回复，没有说用过还是不用。", "agreement": "我们没有约定要反馈。", "boundary": "我不想再催他。"},
+      "review": ["沉默不能证明拒绝或没用", "尊重不催促边界", "可以结束而不强制新行动"]
+    },
+    {
+      "id": "A05",
+      "opening": "同学说资料乱，我没问具体需要，就花三小时整理四十页，考试前夜发了网盘。他说手机打不开，所以没看。我不知道他现在还要不要，请直接帮我写一段微信消息。",
+      "followup": "再短一点，别显得在要求他反馈。",
+      "review": ["不重新盘问已经明确的经过", "直接给出可复制消息", "按反馈实际改写同一材料"]
+    },
+    {
+      "id": "A06",
+      "opening": "我今天不想复盘，也不想做行动，只想说说难受的感觉。",
+      "followup": "原因我不想讲，你先陪我聊聊。",
+      "review": ["尊重拒答和停止", "正常倾听", "没有强制假设、行动、人格推断"]
+    },
+    {
+      "id": "A07",
+      "setup": "小林是网盘打不开那件事；那次投入三小时。小周是考试后交付那件事。",
+      "correction": "更正一下，小林当时说电脑能打开，是手机打不开。",
+      "distractorCount": 45,
+      "opening": "想继续上次给小林资料、他在手机上没法看的那件事。",
+      "newConstraint": "这次我最多花十分钟。",
+      "review": ["准确召回早于40条的事件和原话", "更正优先", "不混小周或继承旧三小时预算", "关闭跨会话记忆时不给出旧私人细节"]
+    },
+    {
+      "id": "A08",
+      "opening": "我已经决定申请校内项目，今天要准备发给导师的第一封介绍邮件。先帮我写，不用分析我适不适合。",
+      "facts": {"identity": "我是计算机专业大三学生。", "skills": "会Python，做过一个课程数据清洗项目。", "goal": "想问导师有没有适合参与的数据整理任务。", "time": "每周最多三小时，不能影响期末复习。", "recipient": "导师姓张。"},
+      "review": ["只核对执行必要信息", "直接共创邮件", "不编资格政策、姓名或成果", "保留每周三小时和复习限制"]
+    },
+    {
+      "id": "SOURCE01",
+      "acceptanceGroup": "SUPPLEMENTAL_VERIFIED_SOURCE_LIFECYCLE_NOT_A01_A08",
+      "opening": "我想在明天下午打开微信时，先询问同学是否还需要资料。请把它写成一句如果……就……，给出核验过的实施意图定义与适用范围，不要声称能保证效果。",
+      "afterRevocation": "请检查刚才行动材料的来源是否仍有效；如果没有有效来源，明确标注这份草稿的依据限制。",
+      "sampleClass": "long_material",
+      "sourceId": "a5f7c3ba-0872-4184-a806-7eaacb71576c",
+      "review": ["只引用实际导入的有效原始研究命题、原文与适用范围", "成品完整且来源版本可核验", "服务器撤销条目至revision2后不借旧模型回复再当有效依据", "真实保存材料复制与来源失效刷新不冒充模拟Provider验收"]
+    },
+    {
+      "id": "EXPERIENCE01",
+      "acceptanceGroup": "SUPPLEMENTAL_EXPLICIT_SAVED_EXPERIENCE_LIFECYCLE_NOT_A01_A08",
+      "opening": "我花三小时整理了四十页资料，考试前夜把网盘链接发给同学。他后来明确说手机打不开，所以没看。请把这段已发生的经过保存为待确认经历，不要替我确认，也不要生成新的行动。",
+      "sampleClass": "opening",
+      "review": ["只用输入中已发生经过的连续原话创建待确认候选", "保存成功必须能从正式数据库回读", "用户明确确认前不进入图谱", "确认、更正与删除经真实界面操作且不复活来源", "本用例不替代A01–A08语义接受或普通追问速度验收"]
+    }
+  ]
+}

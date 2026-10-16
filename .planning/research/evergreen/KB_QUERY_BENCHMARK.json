@@ -1,0 +1,2353 @@
+{
+  "schemaVersion": 1,
+  "frozenBeforeTuning": true,
+  "createdAt": "2026-10-10T02:46:01.468Z",
+  "cases": [
+    {
+      "id": "C01-1-direct",
+      "domain": "01",
+      "stage": "start",
+      "split": "development",
+      "text": "了解大学运行方式，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ]
+    },
+    {
+      "id": "C01-1-refusal",
+      "domain": "01",
+      "stage": "start",
+      "split": "development",
+      "text": "了解大学运行方式让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C01-2-direct",
+      "domain": "01",
+      "stage": "start",
+      "split": "holdout",
+      "text": "寻找可靠校园信息，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ]
+    },
+    {
+      "id": "C01-2-refusal",
+      "domain": "01",
+      "stage": "start",
+      "split": "holdout",
+      "text": "寻找可靠校园信息让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C01-3-direct",
+      "domain": "01",
+      "stage": "start",
+      "split": "development",
+      "text": "从零建立社交，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ]
+    },
+    {
+      "id": "C01-3-refusal",
+      "domain": "01",
+      "stage": "start",
+      "split": "development",
+      "text": "从零建立社交让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C01-4-direct",
+      "domain": "01",
+      "stage": "start",
+      "split": "holdout",
+      "text": "适应独立生活，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ]
+    },
+    {
+      "id": "C01-4-refusal",
+      "domain": "01",
+      "stage": "start",
+      "split": "holdout",
+      "text": "适应独立生活让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C02-1-direct",
+      "domain": "02",
+      "stage": "start",
+      "split": "development",
+      "text": "判断专业适配，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ]
+    },
+    {
+      "id": "C02-1-refusal",
+      "domain": "02",
+      "stage": "start",
+      "split": "development",
+      "text": "判断专业适配让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C02-2-direct",
+      "domain": "02",
+      "stage": "start",
+      "split": "holdout",
+      "text": "了解真实工作，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ]
+    },
+    {
+      "id": "C02-2-refusal",
+      "domain": "02",
+      "stage": "start",
+      "split": "holdout",
+      "text": "了解真实工作让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C02-3-direct",
+      "domain": "02",
+      "stage": "start",
+      "split": "development",
+      "text": "低成本尝试另一专业，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ]
+    },
+    {
+      "id": "C02-3-refusal",
+      "domain": "02",
+      "stage": "start",
+      "split": "development",
+      "text": "低成本尝试另一专业让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C02-4-direct",
+      "domain": "02",
+      "stage": "start",
+      "split": "holdout",
+      "text": "迁移已有能力，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ]
+    },
+    {
+      "id": "C02-4-refusal",
+      "domain": "02",
+      "stage": "start",
+      "split": "holdout",
+      "text": "迁移已有能力让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C03-1-direct",
+      "domain": "03",
+      "stage": "start",
+      "split": "development",
+      "text": "理解困难课程，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ]
+    },
+    {
+      "id": "C03-1-refusal",
+      "domain": "03",
+      "stage": "start",
+      "split": "development",
+      "text": "理解困难课程让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C03-2-direct",
+      "domain": "03",
+      "stage": "start",
+      "split": "holdout",
+      "text": "整理知识框架，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ]
+    },
+    {
+      "id": "C03-2-refusal",
+      "domain": "03",
+      "stage": "start",
+      "split": "holdout",
+      "text": "整理知识框架让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C03-3-direct",
+      "domain": "03",
+      "stage": "start",
+      "split": "development",
+      "text": "期末复习抓重点，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ]
+    },
+    {
+      "id": "C03-3-refusal",
+      "domain": "03",
+      "stage": "start",
+      "split": "development",
+      "text": "期末复习抓重点让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C03-4-direct",
+      "domain": "03",
+      "stage": "start",
+      "split": "holdout",
+      "text": "考试失利诊断，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ]
+    },
+    {
+      "id": "C03-4-refusal",
+      "domain": "03",
+      "stage": "start",
+      "split": "holdout",
+      "text": "考试失利诊断让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C04-1-direct",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "主动回忆，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ]
+    },
+    {
+      "id": "C04-1-refusal",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "主动回忆让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C04-2-direct",
+      "domain": "04",
+      "stage": "start",
+      "split": "holdout",
+      "text": "间隔复习，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ]
+    },
+    {
+      "id": "C04-2-refusal",
+      "domain": "04",
+      "stage": "start",
+      "split": "holdout",
+      "text": "间隔复习让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C04-3-direct",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "从模仿到独立完成，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ]
+    },
+    {
+      "id": "C04-3-refusal",
+      "domain": "04",
+      "stage": "start",
+      "split": "development",
+      "text": "从模仿到独立完成让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C04-4-direct",
+      "domain": "04",
+      "stage": "start",
+      "split": "holdout",
+      "text": "通过输出检验理解，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ]
+    },
+    {
+      "id": "C04-4-refusal",
+      "domain": "04",
+      "stage": "start",
+      "split": "holdout",
+      "text": "通过输出检验理解让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C05-1-direct",
+      "domain": "05",
+      "stage": "start",
+      "split": "development",
+      "text": "多任务排序，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ]
+    },
+    {
+      "id": "C05-1-refusal",
+      "domain": "05",
+      "stage": "start",
+      "split": "development",
+      "text": "多任务排序让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C05-2-direct",
+      "domain": "05",
+      "stage": "start",
+      "split": "holdout",
+      "text": "低时间预算，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ]
+    },
+    {
+      "id": "C05-2-refusal",
+      "domain": "05",
+      "stage": "start",
+      "split": "holdout",
+      "text": "低时间预算让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C05-3-direct",
+      "domain": "05",
+      "stage": "start",
+      "split": "development",
+      "text": "被打断后恢复，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ]
+    },
+    {
+      "id": "C05-3-refusal",
+      "domain": "05",
+      "stage": "start",
+      "split": "development",
+      "text": "被打断后恢复让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C05-4-direct",
+      "domain": "05",
+      "stage": "start",
+      "split": "holdout",
+      "text": "减少或坚持任务，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ]
+    },
+    {
+      "id": "C05-4-refusal",
+      "domain": "05",
+      "stage": "start",
+      "split": "holdout",
+      "text": "减少或坚持任务让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C06-1-direct",
+      "domain": "06",
+      "stage": "start",
+      "split": "development",
+      "text": "知道该做却无法开始，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ]
+    },
+    {
+      "id": "C06-1-refusal",
+      "domain": "06",
+      "stage": "start",
+      "split": "development",
+      "text": "知道该做却无法开始让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C06-2-direct",
+      "domain": "06",
+      "stage": "start",
+      "split": "holdout",
+      "text": "拆最小行动，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ]
+    },
+    {
+      "id": "C06-2-refusal",
+      "domain": "06",
+      "stage": "start",
+      "split": "holdout",
+      "text": "拆最小行动让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C06-3-direct",
+      "domain": "06",
+      "stage": "start",
+      "split": "development",
+      "text": "改善启动环境，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ]
+    },
+    {
+      "id": "C06-3-refusal",
+      "domain": "06",
+      "stage": "start",
+      "split": "development",
+      "text": "改善启动环境让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C06-4-direct",
+      "domain": "06",
+      "stage": "start",
+      "split": "holdout",
+      "text": "连续失败后调整计划，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ]
+    },
+    {
+      "id": "C06-4-refusal",
+      "domain": "06",
+      "stage": "start",
+      "split": "holdout",
+      "text": "连续失败后调整计划让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C07-1-direct",
+      "domain": "07",
+      "stage": "start",
+      "split": "development",
+      "text": "不知道未来做什么，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ]
+    },
+    {
+      "id": "C07-1-refusal",
+      "domain": "07",
+      "stage": "start",
+      "split": "development",
+      "text": "不知道未来做什么让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C07-2-direct",
+      "domain": "07",
+      "stage": "start",
+      "split": "holdout",
+      "text": "比较发展方向，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ]
+    },
+    {
+      "id": "C07-2-refusal",
+      "domain": "07",
+      "stage": "start",
+      "split": "holdout",
+      "text": "比较发展方向让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C07-3-direct",
+      "domain": "07",
+      "stage": "start",
+      "split": "development",
+      "text": "找到行业知情人，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ]
+    },
+    {
+      "id": "C07-3-refusal",
+      "domain": "07",
+      "stage": "start",
+      "split": "development",
+      "text": "找到行业知情人让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C07-4-direct",
+      "domain": "07",
+      "stage": "start",
+      "split": "holdout",
+      "text": "体验后决定是否继续，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ]
+    },
+    {
+      "id": "C07-4-refusal",
+      "domain": "07",
+      "stage": "start",
+      "split": "holdout",
+      "text": "体验后决定是否继续让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C08-1-direct",
+      "domain": "08",
+      "stage": "start",
+      "split": "development",
+      "text": "区分做过/擅长/喜欢，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ]
+    },
+    {
+      "id": "C08-1-refusal",
+      "domain": "08",
+      "stage": "start",
+      "split": "development",
+      "text": "区分做过/擅长/喜欢让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C08-2-direct",
+      "domain": "08",
+      "stage": "start",
+      "split": "holdout",
+      "text": "从经历寻找局部规律，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ]
+    },
+    {
+      "id": "C08-2-refusal",
+      "domain": "08",
+      "stage": "start",
+      "split": "holdout",
+      "text": "从经历寻找局部规律让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C08-3-direct",
+      "domain": "08",
+      "stage": "start",
+      "split": "development",
+      "text": "理解他人评价，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ]
+    },
+    {
+      "id": "C08-3-refusal",
+      "domain": "08",
+      "stage": "start",
+      "split": "development",
+      "text": "理解他人评价让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C08-4-direct",
+      "domain": "08",
+      "stage": "start",
+      "split": "holdout",
+      "text": "改变目标后更新自我认识，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ]
+    },
+    {
+      "id": "C08-4-refusal",
+      "domain": "08",
+      "stage": "start",
+      "split": "holdout",
+      "text": "改变目标后更新自我认识让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C09-1-direct",
+      "domain": "09",
+      "stage": "start",
+      "split": "development",
+      "text": "首次联系导师，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ]
+    },
+    {
+      "id": "C09-1-refusal",
+      "domain": "09",
+      "stage": "start",
+      "split": "development",
+      "text": "首次联系导师让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C09-2-direct",
+      "domain": "09",
+      "stage": "start",
+      "split": "holdout",
+      "text": "阅读陌生论文，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ]
+    },
+    {
+      "id": "C09-2-refusal",
+      "domain": "09",
+      "stage": "start",
+      "split": "holdout",
+      "text": "阅读陌生论文让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C09-3-direct",
+      "domain": "09",
+      "stage": "start",
+      "split": "development",
+      "text": "进组明确任务，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ]
+    },
+    {
+      "id": "C09-3-refusal",
+      "domain": "09",
+      "stage": "start",
+      "split": "development",
+      "text": "进组明确任务让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C09-4-direct",
+      "domain": "09",
+      "stage": "start",
+      "split": "holdout",
+      "text": "科研受阻复盘，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ]
+    },
+    {
+      "id": "C09-4-refusal",
+      "domain": "09",
+      "stage": "start",
+      "split": "holdout",
+      "text": "科研受阻复盘让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C10-1-direct",
+      "domain": "10",
+      "stage": "start",
+      "split": "development",
+      "text": "判断是否愿意走学术道路，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ]
+    },
+    {
+      "id": "C10-1-refusal",
+      "domain": "10",
+      "stage": "start",
+      "split": "development",
+      "text": "判断是否愿意走学术道路让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C10-2-direct",
+      "domain": "10",
+      "stage": "start",
+      "split": "holdout",
+      "text": "整理科研课程经历，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ]
+    },
+    {
+      "id": "C10-2-refusal",
+      "domain": "10",
+      "stage": "start",
+      "split": "holdout",
+      "text": "整理科研课程经历让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C10-3-direct",
+      "domain": "10",
+      "stage": "start",
+      "split": "development",
+      "text": "说明本人贡献，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ]
+    },
+    {
+      "id": "C10-3-refusal",
+      "domain": "10",
+      "stage": "start",
+      "split": "development",
+      "text": "说明本人贡献让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C10-4-direct",
+      "domain": "10",
+      "stage": "start",
+      "split": "holdout",
+      "text": "介绍真实研究项目，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ]
+    },
+    {
+      "id": "C10-4-refusal",
+      "domain": "10",
+      "stage": "start",
+      "split": "holdout",
+      "text": "介绍真实研究项目让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C11-1-direct",
+      "domain": "11",
+      "stage": "start",
+      "split": "development",
+      "text": "评估研究方向，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ]
+    },
+    {
+      "id": "C11-1-refusal",
+      "domain": "11",
+      "stage": "start",
+      "split": "development",
+      "text": "评估研究方向让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C11-2-direct",
+      "domain": "11",
+      "stage": "start",
+      "split": "holdout",
+      "text": "拆长期备考阶段，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ]
+    },
+    {
+      "id": "C11-2-refusal",
+      "domain": "11",
+      "stage": "start",
+      "split": "holdout",
+      "text": "拆长期备考阶段让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C11-3-direct",
+      "domain": "11",
+      "stage": "start",
+      "split": "development",
+      "text": "平衡课程与备考，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ]
+    },
+    {
+      "id": "C11-3-refusal",
+      "domain": "11",
+      "stage": "start",
+      "split": "development",
+      "text": "平衡课程与备考让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C11-4-direct",
+      "domain": "11",
+      "stage": "start",
+      "split": "holdout",
+      "text": "诊断模拟练习问题，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ]
+    },
+    {
+      "id": "C11-4-refusal",
+      "domain": "11",
+      "stage": "start",
+      "split": "holdout",
+      "text": "诊断模拟练习问题让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C12-1-direct",
+      "domain": "12",
+      "stage": "start",
+      "split": "development",
+      "text": "了解实际工作，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ]
+    },
+    {
+      "id": "C12-1-refusal",
+      "domain": "12",
+      "stage": "start",
+      "split": "development",
+      "text": "了解实际工作让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C12-2-direct",
+      "domain": "12",
+      "stage": "start",
+      "split": "holdout",
+      "text": "稳定与自主的取舍，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ]
+    },
+    {
+      "id": "C12-2-refusal",
+      "domain": "12",
+      "stage": "start",
+      "split": "holdout",
+      "text": "稳定与自主的取舍让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C12-3-direct",
+      "domain": "12",
+      "stage": "start",
+      "split": "development",
+      "text": "练习复盘，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ]
+    },
+    {
+      "id": "C12-3-refusal",
+      "domain": "12",
+      "stage": "start",
+      "split": "development",
+      "text": "练习复盘让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C12-4-direct",
+      "domain": "12",
+      "stage": "start",
+      "split": "holdout",
+      "text": "与其他发展方向比较，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ]
+    },
+    {
+      "id": "C12-4-refusal",
+      "domain": "12",
+      "stage": "start",
+      "split": "holdout",
+      "text": "与其他发展方向比较让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C13-1-direct",
+      "domain": "13",
+      "stage": "start",
+      "split": "development",
+      "text": "评估海外学习适配，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ]
+    },
+    {
+      "id": "C13-1-refusal",
+      "domain": "13",
+      "stage": "start",
+      "split": "development",
+      "text": "评估海外学习适配让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C13-2-direct",
+      "domain": "13",
+      "stage": "start",
+      "split": "holdout",
+      "text": "比较项目内容，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ]
+    },
+    {
+      "id": "C13-2-refusal",
+      "domain": "13",
+      "stage": "start",
+      "split": "holdout",
+      "text": "比较项目内容让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C13-3-direct",
+      "domain": "13",
+      "stage": "start",
+      "split": "development",
+      "text": "讲真实个人经历，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ]
+    },
+    {
+      "id": "C13-3-refusal",
+      "domain": "13",
+      "stage": "start",
+      "split": "development",
+      "text": "讲真实个人经历让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C13-4-direct",
+      "domain": "13",
+      "stage": "start",
+      "split": "holdout",
+      "text": "向老师请求推荐，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ]
+    },
+    {
+      "id": "C13-4-refusal",
+      "domain": "13",
+      "stage": "start",
+      "split": "holdout",
+      "text": "向老师请求推荐让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C14-1-direct",
+      "domain": "14",
+      "stage": "start",
+      "split": "development",
+      "text": "寻找并核验岗位信息，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ]
+    },
+    {
+      "id": "C14-1-refusal",
+      "domain": "14",
+      "stage": "start",
+      "split": "development",
+      "text": "寻找并核验岗位信息让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C14-2-direct",
+      "domain": "14",
+      "stage": "start",
+      "split": "holdout",
+      "text": "无实习时整理经历，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ]
+    },
+    {
+      "id": "C14-2-refusal",
+      "domain": "14",
+      "stage": "start",
+      "split": "holdout",
+      "text": "无实习时整理经历让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C14-3-direct",
+      "domain": "14",
+      "stage": "start",
+      "split": "development",
+      "text": "判断岗位是否值得投递，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ]
+    },
+    {
+      "id": "C14-3-refusal",
+      "domain": "14",
+      "stage": "start",
+      "split": "development",
+      "text": "判断岗位是否值得投递让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C14-4-direct",
+      "domain": "14",
+      "stage": "start",
+      "split": "holdout",
+      "text": "投递无回应复盘，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ]
+    },
+    {
+      "id": "C14-4-refusal",
+      "domain": "14",
+      "stage": "start",
+      "split": "holdout",
+      "text": "投递无回应复盘让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C15-1-direct",
+      "domain": "15",
+      "stage": "start",
+      "split": "development",
+      "text": "自我介绍，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ]
+    },
+    {
+      "id": "C15-1-refusal",
+      "domain": "15",
+      "stage": "start",
+      "split": "development",
+      "text": "自我介绍让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C15-2-direct",
+      "domain": "15",
+      "stage": "start",
+      "split": "holdout",
+      "text": "讲清项目，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ]
+    },
+    {
+      "id": "C15-2-refusal",
+      "domain": "15",
+      "stage": "start",
+      "split": "holdout",
+      "text": "讲清项目让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C15-3-direct",
+      "domain": "15",
+      "stage": "start",
+      "split": "development",
+      "text": "处理不会回答的问题，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ]
+    },
+    {
+      "id": "C15-3-refusal",
+      "domain": "15",
+      "stage": "start",
+      "split": "development",
+      "text": "处理不会回答的问题让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C15-4-direct",
+      "domain": "15",
+      "stage": "start",
+      "split": "holdout",
+      "text": "面试后复盘，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ]
+    },
+    {
+      "id": "C15-4-refusal",
+      "domain": "15",
+      "stage": "start",
+      "split": "holdout",
+      "text": "面试后复盘让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C16-1-direct",
+      "domain": "16",
+      "stage": "start",
+      "split": "development",
+      "text": "从原专业进入新领域，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ]
+    },
+    {
+      "id": "C16-1-refusal",
+      "domain": "16",
+      "stage": "start",
+      "split": "development",
+      "text": "从原专业进入新领域让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C16-2-direct",
+      "domain": "16",
+      "stage": "start",
+      "split": "holdout",
+      "text": "识别能力缺口，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ]
+    },
+    {
+      "id": "C16-2-refusal",
+      "domain": "16",
+      "stage": "start",
+      "split": "holdout",
+      "text": "识别能力缺口让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C16-3-direct",
+      "domain": "16",
+      "stage": "start",
+      "split": "development",
+      "text": "用小作品验证能力，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ]
+    },
+    {
+      "id": "C16-3-refusal",
+      "domain": "16",
+      "stage": "start",
+      "split": "development",
+      "text": "用小作品验证能力让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C16-4-direct",
+      "domain": "16",
+      "stage": "start",
+      "split": "holdout",
+      "text": "解释跨领域经历，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ]
+    },
+    {
+      "id": "C16-4-refusal",
+      "domain": "16",
+      "stage": "start",
+      "split": "holdout",
+      "text": "解释跨领域经历让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C17-1-direct",
+      "domain": "17",
+      "stage": "start",
+      "split": "development",
+      "text": "发现值得解决的问题，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ]
+    },
+    {
+      "id": "C17-1-refusal",
+      "domain": "17",
+      "stage": "start",
+      "split": "development",
+      "text": "发现值得解决的问题让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C17-2-direct",
+      "domain": "17",
+      "stage": "start",
+      "split": "holdout",
+      "text": "找目标用户，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ]
+    },
+    {
+      "id": "C17-2-refusal",
+      "domain": "17",
+      "stage": "start",
+      "split": "holdout",
+      "text": "找目标用户让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C17-3-direct",
+      "domain": "17",
+      "stage": "start",
+      "split": "development",
+      "text": "最小实验，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ]
+    },
+    {
+      "id": "C17-3-refusal",
+      "domain": "17",
+      "stage": "start",
+      "split": "development",
+      "text": "最小实验让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C17-4-direct",
+      "domain": "17",
+      "stage": "start",
+      "split": "holdout",
+      "text": "项目没人用的诊断，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ]
+    },
+    {
+      "id": "C17-4-refusal",
+      "domain": "17",
+      "stage": "start",
+      "split": "holdout",
+      "text": "项目没人用的诊断让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C18-1-direct",
+      "domain": "18",
+      "stage": "start",
+      "split": "development",
+      "text": "尝试第一单，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ]
+    },
+    {
+      "id": "C18-1-refusal",
+      "domain": "18",
+      "stage": "start",
+      "split": "development",
+      "text": "尝试第一单让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C18-2-direct",
+      "domain": "18",
+      "stage": "start",
+      "split": "holdout",
+      "text": "确认需求与交付范围，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ]
+    },
+    {
+      "id": "C18-2-refusal",
+      "domain": "18",
+      "stage": "start",
+      "split": "holdout",
+      "text": "确认需求与交付范围让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C18-3-direct",
+      "domain": "18",
+      "stage": "start",
+      "split": "development",
+      "text": "处理反复修改，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ]
+    },
+    {
+      "id": "C18-3-refusal",
+      "domain": "18",
+      "stage": "start",
+      "split": "development",
+      "text": "处理反复修改让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C18-4-direct",
+      "domain": "18",
+      "stage": "start",
+      "split": "holdout",
+      "text": "复盘交付与复购，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ]
+    },
+    {
+      "id": "C18-4-refusal",
+      "domain": "18",
+      "stage": "start",
+      "split": "holdout",
+      "text": "复盘交付与复购让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C19-1-direct",
+      "domain": "19",
+      "stage": "start",
+      "split": "development",
+      "text": "判断兼职价值，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ]
+    },
+    {
+      "id": "C19-1-refusal",
+      "domain": "19",
+      "stage": "start",
+      "split": "development",
+      "text": "判断兼职价值让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C19-2-direct",
+      "domain": "19",
+      "stage": "start",
+      "split": "holdout",
+      "text": "平衡收入/课程/精力，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ]
+    },
+    {
+      "id": "C19-2-refusal",
+      "domain": "19",
+      "stage": "start",
+      "split": "holdout",
+      "text": "平衡收入/课程/精力让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C19-3-direct",
+      "domain": "19",
+      "stage": "start",
+      "split": "development",
+      "text": "记录投入与收益，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ]
+    },
+    {
+      "id": "C19-3-refusal",
+      "domain": "19",
+      "stage": "start",
+      "split": "development",
+      "text": "记录投入与收益让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C19-4-direct",
+      "domain": "19",
+      "stage": "start",
+      "split": "holdout",
+      "text": "合作问题的事实整理与沟通，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ]
+    },
+    {
+      "id": "C19-4-refusal",
+      "domain": "19",
+      "stage": "start",
+      "split": "holdout",
+      "text": "合作问题的事实整理与沟通让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C20-1-direct",
+      "domain": "20",
+      "stage": "start",
+      "split": "development",
+      "text": "发现小产品问题，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ]
+    },
+    {
+      "id": "C20-1-refusal",
+      "domain": "20",
+      "stage": "start",
+      "split": "development",
+      "text": "发现小产品问题让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C20-2-direct",
+      "domain": "20",
+      "stage": "start",
+      "split": "holdout",
+      "text": "缩减原型功能，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ]
+    },
+    {
+      "id": "C20-2-refusal",
+      "domain": "20",
+      "stage": "start",
+      "split": "holdout",
+      "text": "缩减原型功能让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C20-3-direct",
+      "domain": "20",
+      "stage": "start",
+      "split": "development",
+      "text": "找首批使用者，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ]
+    },
+    {
+      "id": "C20-3-refusal",
+      "domain": "20",
+      "stage": "start",
+      "split": "development",
+      "text": "找首批使用者让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C20-4-direct",
+      "domain": "20",
+      "stage": "start",
+      "split": "holdout",
+      "text": "根据反馈选择改进，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ]
+    },
+    {
+      "id": "C20-4-refusal",
+      "domain": "20",
+      "stage": "start",
+      "split": "holdout",
+      "text": "根据反馈选择改进让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C21-1-direct",
+      "domain": "21",
+      "stage": "start",
+      "split": "development",
+      "text": "选择表达主题，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ]
+    },
+    {
+      "id": "C21-1-refusal",
+      "domain": "21",
+      "stage": "start",
+      "split": "development",
+      "text": "选择表达主题让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C21-2-direct",
+      "domain": "21",
+      "stage": "start",
+      "split": "holdout",
+      "text": "第一批内容实验，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ]
+    },
+    {
+      "id": "C21-2-refusal",
+      "domain": "21",
+      "stage": "start",
+      "split": "holdout",
+      "text": "第一批内容实验让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C21-3-direct",
+      "domain": "21",
+      "stage": "start",
+      "split": "development",
+      "text": "表现不好时复盘，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ]
+    },
+    {
+      "id": "C21-3-refusal",
+      "domain": "21",
+      "stage": "start",
+      "split": "development",
+      "text": "表现不好时复盘让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C21-4-direct",
+      "domain": "21",
+      "stage": "start",
+      "split": "holdout",
+      "text": "保持可持续创作，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ]
+    },
+    {
+      "id": "C21-4-refusal",
+      "domain": "21",
+      "stage": "start",
+      "split": "holdout",
+      "text": "保持可持续创作让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C22-1-direct",
+      "domain": "22",
+      "stage": "start",
+      "split": "development",
+      "text": "判断比赛是否值得，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ]
+    },
+    {
+      "id": "C22-1-refusal",
+      "domain": "22",
+      "stage": "start",
+      "split": "development",
+      "text": "判断比赛是否值得让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C22-2-direct",
+      "domain": "22",
+      "stage": "start",
+      "split": "holdout",
+      "text": "选队友，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ]
+    },
+    {
+      "id": "C22-2-refusal",
+      "domain": "22",
+      "stage": "start",
+      "split": "holdout",
+      "text": "选队友让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C22-3-direct",
+      "domain": "22",
+      "stage": "start",
+      "split": "development",
+      "text": "分工与贡献，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ]
+    },
+    {
+      "id": "C22-3-refusal",
+      "domain": "22",
+      "stage": "start",
+      "split": "development",
+      "text": "分工与贡献让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C22-4-direct",
+      "domain": "22",
+      "stage": "start",
+      "split": "holdout",
+      "text": "无奖项时提取真实收获，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ]
+    },
+    {
+      "id": "C22-4-refusal",
+      "domain": "22",
+      "stage": "start",
+      "split": "holdout",
+      "text": "无奖项时提取真实收获让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C23-1-direct",
+      "domain": "23",
+      "stage": "start",
+      "split": "development",
+      "text": "选择组织，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ]
+    },
+    {
+      "id": "C23-1-refusal",
+      "domain": "23",
+      "stage": "start",
+      "split": "development",
+      "text": "选择组织让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C23-2-direct",
+      "domain": "23",
+      "stage": "start",
+      "split": "holdout",
+      "text": "新人找到具体任务，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ]
+    },
+    {
+      "id": "C23-2-refusal",
+      "domain": "23",
+      "stage": "start",
+      "split": "holdout",
+      "text": "新人找到具体任务让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C23-3-direct",
+      "domain": "23",
+      "stage": "start",
+      "split": "development",
+      "text": "组织小活动，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ]
+    },
+    {
+      "id": "C23-3-refusal",
+      "domain": "23",
+      "stage": "start",
+      "split": "development",
+      "text": "组织小活动让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C23-4-direct",
+      "domain": "23",
+      "stage": "start",
+      "split": "holdout",
+      "text": "判断活动收获，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ]
+    },
+    {
+      "id": "C23-4-refusal",
+      "domain": "23",
+      "stage": "start",
+      "split": "holdout",
+      "text": "判断活动收获让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C24-1-direct",
+      "domain": "24",
+      "stage": "start",
+      "split": "development",
+      "text": "明确共同目标，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ]
+    },
+    {
+      "id": "C24-1-refusal",
+      "domain": "24",
+      "stage": "start",
+      "split": "development",
+      "text": "明确共同目标让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C24-2-direct",
+      "domain": "24",
+      "stage": "start",
+      "split": "holdout",
+      "text": "解决分工不清，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ]
+    },
+    {
+      "id": "C24-2-refusal",
+      "domain": "24",
+      "stage": "start",
+      "split": "holdout",
+      "text": "解决分工不清让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C24-3-direct",
+      "domain": "24",
+      "stage": "start",
+      "split": "development",
+      "text": "处理延误，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ]
+    },
+    {
+      "id": "C24-3-refusal",
+      "domain": "24",
+      "stage": "start",
+      "split": "development",
+      "text": "处理延误让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C24-4-direct",
+      "domain": "24",
+      "stage": "start",
+      "split": "holdout",
+      "text": "在分歧中确定下一步，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ]
+    },
+    {
+      "id": "C24-4-refusal",
+      "domain": "24",
+      "stage": "start",
+      "split": "holdout",
+      "text": "在分歧中确定下一步让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C25-1-direct",
+      "domain": "25",
+      "stage": "start",
+      "split": "development",
+      "text": "认识新朋友，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ]
+    },
+    {
+      "id": "C25-1-refusal",
+      "domain": "25",
+      "stage": "start",
+      "split": "development",
+      "text": "认识新朋友让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C25-2-direct",
+      "domain": "25",
+      "stage": "start",
+      "split": "holdout",
+      "text": "沟通宿舍冲突，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ]
+    },
+    {
+      "id": "C25-2-refusal",
+      "domain": "25",
+      "stage": "start",
+      "split": "holdout",
+      "text": "沟通宿舍冲突让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C25-3-direct",
+      "domain": "25",
+      "stage": "start",
+      "split": "development",
+      "text": "表达拒绝，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ]
+    },
+    {
+      "id": "C25-3-refusal",
+      "domain": "25",
+      "stage": "start",
+      "split": "development",
+      "text": "表达拒绝让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C25-4-direct",
+      "domain": "25",
+      "stage": "start",
+      "split": "holdout",
+      "text": "提出需求与边界，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ]
+    },
+    {
+      "id": "C25-4-refusal",
+      "domain": "25",
+      "stage": "start",
+      "split": "holdout",
+      "text": "提出需求与边界让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C26-1-direct",
+      "domain": "26",
+      "stage": "start",
+      "split": "development",
+      "text": "区分感受与待解决事情，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ]
+    },
+    {
+      "id": "C26-1-refusal",
+      "domain": "26",
+      "stage": "start",
+      "split": "development",
+      "text": "区分感受与待解决事情让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C26-2-direct",
+      "domain": "26",
+      "stage": "start",
+      "split": "holdout",
+      "text": "减少过载任务，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ]
+    },
+    {
+      "id": "C26-2-refusal",
+      "domain": "26",
+      "stage": "start",
+      "split": "holdout",
+      "text": "减少过载任务让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C26-3-direct",
+      "domain": "26",
+      "stage": "start",
+      "split": "development",
+      "text": "安排休息，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ]
+    },
+    {
+      "id": "C26-3-refusal",
+      "domain": "26",
+      "stage": "start",
+      "split": "development",
+      "text": "安排休息让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C26-4-direct",
+      "domain": "26",
+      "stage": "start",
+      "split": "holdout",
+      "text": "寻找现实支持，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ]
+    },
+    {
+      "id": "C26-4-refusal",
+      "domain": "26",
+      "stage": "start",
+      "split": "holdout",
+      "text": "寻找现实支持让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C27-1-direct",
+      "domain": "27",
+      "stage": "start",
+      "split": "development",
+      "text": "简单预算，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ]
+    },
+    {
+      "id": "C27-1-refusal",
+      "domain": "27",
+      "stage": "start",
+      "split": "development",
+      "text": "简单预算让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C27-2-direct",
+      "domain": "27",
+      "stage": "start",
+      "split": "holdout",
+      "text": "评估付费服务，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ]
+    },
+    {
+      "id": "C27-2-refusal",
+      "domain": "27",
+      "stage": "start",
+      "split": "holdout",
+      "text": "评估付费服务让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C27-3-direct",
+      "domain": "27",
+      "stage": "start",
+      "split": "development",
+      "text": "识别合作可疑信号，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ]
+    },
+    {
+      "id": "C27-3-refusal",
+      "domain": "27",
+      "stage": "start",
+      "split": "development",
+      "text": "识别合作可疑信号让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C27-4-direct",
+      "domain": "27",
+      "stage": "start",
+      "split": "holdout",
+      "text": "整理费用争议事实，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ]
+    },
+    {
+      "id": "C27-4-refusal",
+      "domain": "27",
+      "stage": "start",
+      "split": "holdout",
+      "text": "整理费用争议事实让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C28-1-direct",
+      "domain": "28",
+      "stage": "start",
+      "split": "development",
+      "text": "区分经验和证据，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ]
+    },
+    {
+      "id": "C28-1-refusal",
+      "domain": "28",
+      "stage": "start",
+      "split": "development",
+      "text": "区分经验和证据让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C28-2-direct",
+      "domain": "28",
+      "stage": "start",
+      "split": "holdout",
+      "text": "提出具体问题，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ]
+    },
+    {
+      "id": "C28-2-refusal",
+      "domain": "28",
+      "stage": "start",
+      "split": "holdout",
+      "text": "提出具体问题让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C28-3-direct",
+      "domain": "28",
+      "stage": "start",
+      "split": "development",
+      "text": "核验AI建议，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ]
+    },
+    {
+      "id": "C28-3-refusal",
+      "domain": "28",
+      "stage": "start",
+      "split": "development",
+      "text": "核验AI建议让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "C28-4-direct",
+      "domain": "28",
+      "stage": "start",
+      "split": "holdout",
+      "text": "保护个人资料与作品，从哪下手？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ]
+    },
+    {
+      "id": "C28-4-refusal",
+      "domain": "28",
+      "stage": "start",
+      "split": "holdout",
+      "text": "保护个人资料与作品让我很烦，只想聊，不要建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "edge-listen",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "很烦，只想聊",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "edge-mixed",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "很烦，但想知道第一单怎么开始",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ]
+    },
+    {
+      "id": "edge-control",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "不要再推荐考研",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "edge-rewrite",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "简历改短一点",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "edge-feedback",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "按上次办法联系了两人，没人回",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "edge-change",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "那客户又改需求了",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ]
+    },
+    {
+      "id": "edge-switch",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "现在想验证创业需求，怎么开始？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview",
+        "prototype-test"
+      ]
+    },
+    {
+      "id": "edge-clarify",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "这个怎么办？",
+      "expectedRoute": "CLARIFY",
+      "acceptableKeys": []
+    },
+    {
+      "id": "edge-medical",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "该用什么药治疗失眠？",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "edge-memory",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "你记得我上次说过什么吗？",
+      "expectedRoute": "NONE",
+      "acceptableKeys": []
+    },
+    {
+      "id": "edge-empty",
+      "domain": "boundary",
+      "stage": "start",
+      "split": "holdout",
+      "text": "帮我找火星传送阵的使用方法",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": []
+    }
+  ]
+}

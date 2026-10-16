@@ -1,0 +1,255 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "当前登录用户的成长星图：主题来自本人陈述的目标与追求",
+  "notice": "主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。",
+  "rootId": "self-current",
+  "nodes": [
+    {
+      "id": "self-current",
+      "type": "self",
+      "title": "当前自我",
+      "description": "当前还没有本人确认的自我描述。",
+      "identityAccepted": [],
+      "identityObservations": [],
+      "skillTags": []
+    },
+    {
+      "id": "theme-bc69160f-0fdf-4cd1-b82b-7a1206f38940",
+      "type": "value",
+      "title": "愿意试这个方法",
+      "description": "阶段追求 · 待核对\n来自你说的：「我愿意试这个方法」",
+      "overviewOrder": 1,
+      "themeId": "bc69160f-0fdf-4cd1-b82b-7a1206f38940",
+      "themeKind": "pursuit",
+      "themeStatus": "pending",
+      "themePinned": false,
+      "themeRevision": 2,
+      "themeUpdatedAt": "2026-10-10T07:39:09.009Z",
+      "media": []
+    },
+    {
+      "id": "theme-0a60b765-6faa-4bf7-a26f-c5be3bc78a0a",
+      "type": "value",
+      "title": "提出需求与边界",
+      "description": "阶段追求 · 进行中\n来自你说的：「我想先提出需求与边界」",
+      "overviewOrder": 2,
+      "themeId": "0a60b765-6faa-4bf7-a26f-c5be3bc78a0a",
+      "themeKind": "pursuit",
+      "themeStatus": "active",
+      "themePinned": false,
+      "themeRevision": 1,
+      "themeUpdatedAt": "2026-10-10T07:39:08.513Z",
+      "media": []
+    },
+    {
+      "id": "theme-b2ddc0e9-100b-4665-b4c0-e8dbee1a4ff3",
+      "type": "value",
+      "title": "向学长甲请教项目课对实习的帮",
+      "description": "阶段追求 · 进行中\n来自你说的：「想向学长甲请教项目课对实习的帮助」",
+      "overviewOrder": 3,
+      "themeId": "b2ddc0e9-100b-4665-b4c0-e8dbee1a4ff3",
+      "themeKind": "pursuit",
+      "themeStatus": "active",
+      "themePinned": false,
+      "themeRevision": 2,
+      "themeUpdatedAt": "2026-10-10T07:39:08.513Z",
+      "media": []
+    },
+    {
+      "id": "exp-927c4725-45c5-455c-a612-b02f1d38a37b",
+      "type": "experience",
+      "tags": [],
+      "title": "我通过学校邮箱请教学长甲，原请求是想知道项目课能否提供实习作品。对方已经",
+      "action": "",
+      "result": "",
+      "source": "用户对话原话",
+      "summary": "我通过学校邮箱请教学长甲，原请求是想知道项目课能否提供实习作品。对方已经读了，但没有回复，也没有采用",
+      "occurredAt": "",
+      "reflection": "",
+      "contentStatus": "auto_confirmed",
+      "evidenceStatus": "user_testimony",
+      "overviewOrder": 4,
+      "media": [],
+      "serverId": "927c4725-45c5-455c-a612-b02f1d38a37b",
+      "serverRevision": 2,
+      "extractionSource": "model",
+      "conversationId": "5b37b525-5b67-4873-be8f-151fb58d6f65",
+      "conversationTitle": "SYNTHETIC 联系学长甲请教项目课",
+      "sourceMessageId": "6622f6f5-0162-4f5a-8537-10e3a2906cc8",
+      "blocked": false,
+      "externalFeedback": false,
+      "skillTags": [],
+      "insight": {
+        "headline": "这是一条经历记录，可以继续核对当时的经过。",
+        "evidence": "这段经历记录了向「向学长甲请教项目课对实习的帮」方向的一次行动",
+        "relatedTitles": [],
+        "nextStep": "如果你愿意，可以核对这次经历与「向学长甲请教项目课对实习的帮」的关系。",
+        "skillNote": ""
+      }
+    },
+    {
+      "id": "exp-f1ed127f-129d-440b-bc25-c34713789601",
+      "type": "experience",
+      "tags": [],
+      "title": "按上次办法，我已经发了消息，三天还没有回复",
+      "action": "我已经发了消息",
+      "result": "",
+      "source": "用户对话原话",
+      "summary": "按上次办法，我已经发了消息，三天还没有回复",
+      "occurredAt": "",
+      "reflection": "",
+      "contentStatus": "auto_confirmed",
+      "evidenceStatus": "user_testimony",
+      "overviewOrder": 5,
+      "media": [],
+      "serverId": "f1ed127f-129d-440b-bc25-c34713789601",
+      "serverRevision": 2,
+      "extractionSource": "model",
+      "conversationId": "5b37b525-5b67-4873-be8f-151fb58d6f65",
+      "conversationTitle": "SYNTHETIC 联系学长甲请教项目课",
+      "sourceMessageId": "410b920f-de6d-44c2-81ed-d7af5775ea31",
+      "blocked": true,
+      "externalFeedback": false,
+      "skillTags": [],
+      "insight": {
+        "headline": "这次记录包含一个卡点；具体原因仍需核对。",
+        "evidence": "",
+        "relatedTitles": [
+          "我通过学校邮箱请教学长甲，原请求是想知道项目课能否提供实习作品。对方已经"
+        ],
+        "nextStep": "这件事卡在哪了？跟 AI 聊聊卡点，拆成最小的一步。",
+        "skillNote": ""
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "has-bc69160f-0fdf-4cd1-b82b-7a1206f38940",
+      "type": "HAS_VALUE",
+      "sourceId": "self-current",
+      "targetId": "theme-bc69160f-0fdf-4cd1-b82b-7a1206f38940",
+      "status": "confirmed_structure"
+    },
+    {
+      "id": "has-0a60b765-6faa-4bf7-a26f-c5be3bc78a0a",
+      "type": "HAS_VALUE",
+      "sourceId": "self-current",
+      "targetId": "theme-0a60b765-6faa-4bf7-a26f-c5be3bc78a0a",
+      "status": "confirmed_structure"
+    },
+    {
+      "id": "has-b2ddc0e9-100b-4665-b4c0-e8dbee1a4ff3",
+      "type": "HAS_VALUE",
+      "sourceId": "self-current",
+      "targetId": "theme-b2ddc0e9-100b-4665-b4c0-e8dbee1a4ff3",
+      "status": "confirmed_structure"
+    },
+    {
+      "id": "exp-rel-f1ed127f-129d-440b-bc25-c34713789601-927c4725-45c5-455c-a612-b02f1d38a37b",
+      "type": "RELATES_TO_VALUE",
+      "sourceId": "exp-f1ed127f-129d-440b-bc25-c34713789601",
+      "targetId": "exp-927c4725-45c5-455c-a612-b02f1d38a37b",
+      "reason": "时间上先后发生",
+      "status": "follows",
+      "sourceEvidence": [],
+      "confidence": 1,
+      "sourceEvidenceType": "experience_relation"
+    },
+    {
+      "id": "rel-927c4725-45c5-455c-a612-b02f1d38a37b-b2ddc0e9-100b-4665-b4c0-e8dbee1a4ff3",
+      "type": "RELATES_TO_VALUE",
+      "sourceId": "exp-927c4725-45c5-455c-a612-b02f1d38a37b",
+      "targetId": "theme-b2ddc0e9-100b-4665-b4c0-e8dbee1a4ff3",
+      "reason": "经历原话提到「长甲」",
+      "status": "acting_toward",
+      "sourceEvidence": [
+        "我通过学校邮箱请教学长甲，原请求是想知道项目课能否提供实习作品。对方已经读了，但没有回复，也没有采用"
+      ],
+      "confirmed": false,
+      "confidence": null
+    }
+  ],
+  "viewConfig": {
+    "defaultMode": "overview",
+    "valueOrder": [
+      "theme-bc69160f-0fdf-4cd1-b82b-7a1206f38940",
+      "theme-0a60b765-6faa-4bf7-a26f-c5be3bc78a0a",
+      "theme-b2ddc0e9-100b-4665-b4c0-e8dbee1a4ff3"
+    ],
+    "overviewExperienceOrder": [
+      "exp-927c4725-45c5-455c-a612-b02f1d38a37b",
+      "exp-f1ed127f-129d-440b-bc25-c34713789601"
+    ],
+    "overviewRailCandidates": [
+      "value-creation",
+      "value-autonomy",
+      "value-growth"
+    ],
+    "overviewRailMeaning": "沿轨道浏览三个价值观；外围经历随空间轨道同步运行，仍可直接点击经历。",
+    "valueRailMeaning": "仅沿轨道浏览与当前价值观关联的经历。",
+    "autoplayInitially": false,
+    "showAllNodesInOverview": true,
+    "showAllEdgesAtFullOpacity": false,
+    "visibilityRule": "演示模式展示全部候选节点；正式结论只可基于已确认且有来源的关联。",
+    "contentReviewBadge": "示例关联 · 待确认",
+    "experienceEndState": "readable_record_not_planet",
+    "motionDefaults": {
+      "dragThresholdCssPx": 7,
+      "snapDurationMs": 300,
+      "focusDurationMs": 700,
+      "dampingPerSecond": 8,
+      "maxInertiaSeconds": 0.8
+    },
+    "motionDefaultsNotice": "这些数值是交互调试起点，不是测试成绩或固定设计限制。"
+  },
+  "storage": "postgresql",
+  "interpretationsAutomaticallyConfirmed": false,
+  "starmapNextStep": "当前最优先：提出需求与边界（本人设定）",
+  "changeEvents": [
+    {
+      "subjectType": "experience",
+      "transition": "created",
+      "reason": "对话中报告的已发生行动",
+      "committedAt": "2026-10-10T07:39:09.851Z",
+      "userConfirmation": "none",
+      "now": "我通过学校邮箱请教学长甲，原请求是想知道项目课能否提供实习作品。对方已经",
+      "unknowns": "后续反馈和长期意义还未知"
+    },
+    {
+      "subjectType": "experience",
+      "transition": "created",
+      "reason": "对话中报告的已发生行动",
+      "committedAt": "2026-10-10T07:39:09.490Z",
+      "userConfirmation": "none",
+      "now": "按上次办法，我已经发了消息，三天还没有回复",
+      "unknowns": "后续反馈和长期意义还未知"
+    },
+    {
+      "subjectType": "theme",
+      "transition": "created",
+      "reason": "用户陈述的目标或追求",
+      "committedAt": "2026-10-10T07:39:09.009Z",
+      "userConfirmation": "none",
+      "now": "愿意试这个方法",
+      "unknowns": "这是刚出现的追求，还没有对应行动证据"
+    },
+    {
+      "subjectType": "theme",
+      "transition": "created",
+      "reason": "用户陈述的目标或追求",
+      "committedAt": "2026-10-10T07:39:08.513Z",
+      "userConfirmation": "none",
+      "now": "提出需求与边界",
+      "unknowns": "这是刚出现的追求，还没有对应行动证据"
+    },
+    {
+      "subjectType": "theme",
+      "transition": "created",
+      "reason": "用户陈述的目标或追求",
+      "committedAt": "2026-10-10T07:39:08.513Z",
+      "userConfirmation": "none",
+      "now": "向学长甲请教项目课对实习的帮",
+      "unknowns": "这是刚出现的追求，还没有对应行动证据"
+    }
+  ]
+}

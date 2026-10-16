@@ -1,0 +1,17 @@
+{
+  "kind": "CAMPUS_ACCEPTANCE_REAL_FAILURE_REPLAY",
+  "sourceRunId": "coach-b2dd4d6c-f00d-43a6-80c2-58f7f36a23eb",
+  "note": "Two real C10 time-update failures from the 4th full real run: the model answered the old delivery topic (old feedback candidate / old event nodes) while the required 3h update was absent. Codes observed: SOURCE_QUOTE_MISMATCH and COACH_SOURCE_INVALID. Originals untouched in .local; this fixture replays them against the repaired engine contract.",
+  "input": "最近课程变多了，每周只有3小时了，安排帮我改一下。",
+  "compositePrior": "我有三个数字媒体作品，每周能投入6小时，倾向就业但想看看真实反馈。",
+  "failures": [
+    {
+      "code": "SOURCE_QUOTE_MISMATCH",
+      "rawOutput": "{\"reply\":\"阿然，先别急着把“没回复”当成“没效果”。你投了五个岗位、又发了两个招聘方，加起来才过两天，还在正常等待窗口里——招聘方筛选简历通常需要3-7个工作日，两天没动静不代表作品被否了。\\n\\n现在真正卡住你的，不是“要不要继续投”，而是**你投出去之后，不知道对方到底看没看、卡在哪一步**。所以眼前这一步不是再改清单，而是**确认反馈渠道**：\\n\\n- 你发给这两个招聘方时，是投在招聘平台的岗位申请里，还是直接发给某个人（比如HR或负责人）的？\\n- 他们当时有没有明确说过“收到后会看”或者“大概几天内回复”？\\n\\n这两个答案会决定你下一步是“等”还是“主动问一句”。先确认这个，再决定要不要调整投递节奏。\",\"growthUpdates\":[{\"target\":{ \"operation\":\"replace\",\"itemId\":\"8bb3882b-dd3f-48e6-948e-bb7df1b7e9bc\",\"expectedRevision\":1},\"assertion\":\"user_reported\",\"kind\":\"feedback\",\"source\":{\"messageId\":\"cccfe8fb-d3e2-4ce7-8456-f90e33658d6b\",\"quote\":\"我把清单发给两个招聘方了，还没有回复，感觉没什么效果。\"},\"progressState\":\"completed\"}],\"experienceCandidate\":{ \"source\":{\"messageId\":\"cccfe8fb-d3e2-4ce7-8456-f90e33658d6b\",\"quote\":\"我把清单发给两个招聘方了，还没有回复，感觉没什么效果。\"}}}"
+    },
+    {
+      "code": "COACH_SOURCE_INVALID",
+      "rawOutput": "{\"reply\":\"阿然，清单已经发出去了，这一步你完成了。两天没回复在求职里很常见，不代表“没效果”，只是反馈还没到。\\n\\n现在你每周6小时、期末忙、两个招聘方在等回复——这个状态下，最该做的不是再投更多，而是**先确认眼前这一轮到底卡在哪**。\\n\\n我想先问一个关键环节：你发给这两个招聘方时，是投在招聘平台的岗位申请里，还是直接发给某个人（比如HR或负责人）的？另外，他们当时有没有明确说过“收到后会看”或者“大概几天内回复”？\",\"event\":{\"target\":{\"operation\":\"continue\",\"eventId\":\"34614ba9-e29a-465e-a57f-e98883c5a612\",\"expectedRevision\":2},\"nodes\":[{\"kind\":\"fact\",\"source\":{\"messageId\":\"1602c500-5eb0-4908-ad29-b5da45d8054d\",\"quote\":\"我把清单发给两个招聘方了，还没有回复，感觉没什么效果。\"}},{\"kind\":\"feeling\",\"source\":{\"messageId\":\"1602c500-5eb0-4908-ad29-b5da45d8054d\",\"quote\":\"感觉没什么效果。\"}},{\"kind\":\"unknown\",\"question\":\"两个招聘方是谁、通过什么渠道联系、对方原需求是什么、约定了怎样的反馈时间？\"}]}}"
+    }
+  ]
+}

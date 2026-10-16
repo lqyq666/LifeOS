@@ -1,0 +1,12 @@
+{
+  "evidence": "REAL_CHROME_REAL_AUTH_ISOLATED_POSTGRESQL_SIMULATED_ENGINE",
+  "realProviderCalls": 0,
+  "physicalPhone": false,
+  "checks": [
+    "desktop native details: full guide, scope and source visible",
+    "emulated 390px phone: executable branch visible without horizontal overflow",
+    "read-only endpoint rejects withdrawn source and rejects unauthenticated access"
+  ],
+  "errors": [],
+  "status": "PASS"
+}

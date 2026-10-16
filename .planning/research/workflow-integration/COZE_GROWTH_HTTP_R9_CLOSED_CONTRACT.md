@@ -1,0 +1,6 @@
+# LIFEOS_COZE_CORE_20261011_GROWTH_R9_CLOSED_CONTRACT
+继续原项目7693388932939300905，实际R8 HEAD c4073ae989b274dea24a0ae68d3848252f017f16。附件是主端从实际编辑器读回且三源hash匹配云终端的首次函数复放：2通过10失败。旧失败必须保留，不能改变验收断言消除失败。本批预留30000原有积分，模型零调用/不部署/不新建项目或Agent。修复不限轮数。
+只做这两组实质修复并复核实际函数：
+1. 真正有界。停止条件改为从服务端stopReasons选择，任意文字一律拒绝，不能关键词黑名单。预算从实际当前事件结构化weeklyTimeBudgetMinutes读取，未知为None、0保留0，拒绝bool/超过实际上限/跨事件旧预算；整个方案的行动时长之和<=上限，不能每个方向复用整周预算。actionIds/tradeoffIds/evidenceIds/unknownIds各自唯一；每个所选行动都必须有对应个人actionBasis，stageReason必选合法值。零时间允许无行动并保留方向/未知，不把无行动统一当非法。个人support/limit/unknown必须按实际证据关系，原话中就业优先和暂停不能整个称支持自由职业。沿用当前主端TypeBox后校验/有界行动目录/四工作流五Skill；不要另建完整攻略库。_next_actions只能使用获准目录及合法依据，不能basis缺失回退所有事实、时长未知回退整周。revision/hash/来源不降低。
+2. 单一截止和真实取消。entry验证开始就创建绝对monotonic_deadline，transport构造时绑定这个绝对值，不能首次POST再延长。每POST timeout=min(perCall,positiveRemaining)，不允许max(0.2,remaining)超出剩余。同步wrapper把实际Task/loop句柄保存，deadline时call_soon_threadsafe(task.cancel)，等待cancel/close/worker结束，之后从真实原SQL账本读回已开始次数和未知成本；线程未终止绝不能_zero_model_receipt且后台继续发请求。不要只写注释声称已结束。验证实际slow HTTP、reserve延迟、client.close延迟、同步异常、等待模型中取消；真实超时账本不改零，cancel不重发。
+修复前原首次复放保持，修复后使用实际相同函数/真实本地HTTP及两个进程SQL测试，输出含负例的具体日志/原输入/实际产物，不仅boolean。保持已有wire/HMAC/槽位/正确源/版本/获准操作/取消/5调用上限/唯一CNY账本/崩溃不重派。诚实免费验证，真实百炼/云模型/学生收益/生产NOT_TESTED。更新实际源码+commit、3源码hash、runtime_readback，返回本批实际Skill指令版本与字节核对。旧治理规则不改。

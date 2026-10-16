@@ -1,0 +1,21 @@
+{
+  "kind": "PREDECLARED_NEW_REPAIR_PILOT_NOT_FINAL_COHORT",
+  "hypothesis": "The repaired ordinary route handles an unavailable course resource with one bounded generation, saves only the explicit not-started personal fact and carries it into the next session; a request to help in this chat must never become a personal goal.",
+  "historicalFirstAttempts": ["PERSONAL_NEGATIVE_D428A34_FIRST.json", "STATUS_PERSIST_1D711D2_FIRST.json"],
+  "notReplacement": true,
+  "independentReview": "REQUIRED_SEPARATELY_NOT_MAIN_SELF_SCORE",
+  "cases": [
+    {
+      "caseId": "BS_RESOURCE_01",
+      "session": 0,
+      "input": "这门课的参考资料无法打开，我还没开始准备小组说明，先处理这个问题。",
+      "expected": "实际读回本人尚未开始原话；不存先处理这个问题为目标；有界回复不添加网站故障原因、效果主张、期限或新任务，不生成完成经历，正常生成最多一次。"
+    },
+    {
+      "caseId": "BS_CONTINUE_02",
+      "session": 1,
+      "input": "还是那份课程资料无法打开，继续原来卡住的地方。",
+      "expected": "开启记忆后的新会话保留原本人状态和同一问题；不把尚未开始转为完成，不重复问已知资料无法打开，不重送入门方法，不把继续原来卡住的地方存为个人目标。"
+    }
+  ]
+}

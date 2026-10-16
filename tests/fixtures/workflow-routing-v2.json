@@ -1,0 +1,18 @@
+[
+ {"name":"ordinary greeting","patch":{"mode":"action_review"},"consent":{"continueReview":false},"expected":"fast"},
+ {"name":"listening takes priority","patch":{},"controls":{"listeningOnly":true},"expected":"fast"},
+ {"name":"advice refusal","patch":{},"controls":{"refuseAdvice":true},"expected":"fast"},
+ {"name":"memory control","patch":{},"controls":{"memoryControl":true},"expected":"fast"},
+ {"name":"paused recommendations","patch":{},"controls":{"recommendationsPaused":true},"expected":"fast"},
+ {"name":"ordinary question","patch":{},"consent":{"deepAnalysis":false},"expected":"fast"},
+ {"name":"ordinary how-to","patch":{"mode":"action_review"},"consent":{"continueReview":false},"expected":"fast"},
+ {"name":"new opportunity","patch":{"mode":"action_review"},"consent":{"continueReview":false},"expected":"fast"},
+ {"name":"hypothetical feedback","patch":{"mode":"action_review"},"consent":{"continueReview":false},"expected":"fast"},
+ {"name":"third-party story","patch":{"mode":"action_review"},"consent":{"continueReview":false},"expected":"fast"},
+ {"name":"review unresolved event","patch":{"mode":"action_review","authorizedEvidenceRefs":[]},"consent":{"continueReview":true},"expected":"fast"},
+ {"name":"owned event review","patch":{"mode":"action_review"},"consent":{"continueReview":true},"expected":"candidate"},
+ {"name":"deep without time budget","patch":{"budget":null},"expected":"fast"},
+ {"name":"general path question","patch":{"directions":[]},"expected":"fast"},
+ {"name":"three-path explicit deep","patch":{},"expected":"candidate"},
+ {"name":"postcommit is separate trigger","patch":{"mode":"growth_diff"},"expected":"fast"}
+]

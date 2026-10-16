@@ -1,0 +1,21 @@
+{
+  "kind": "SYNTHETIC_ADULT_MAIN_SKILL_THREE_SESSION_FIRST",
+  "hypothesis": "The loaded follow-up/deliver/stop policy remains compatible with personal contribution boundaries, uncertain outcomes and cross-session direction changes. This is not a Coze or full performance acceptance.",
+  "cases": [
+    {
+      "caseId": "MAIN_SKILL_SESSION1",
+      "session": 0,
+      "input": "我是21岁的大三学生，平时每周有六小时，但这周只剩两小时。社团海报的文字排版是我做的，插画是队友做的，还没有收费订单。我还没确定就业还是自由职业，先帮我想一个可以了解自己更喜欢哪种工作的起点。"
+    },
+    {
+      "caseId": "MAIN_SKILL_SESSION2",
+      "session": 1,
+      "input": "接着说社团海报那件事。我已经把排版稿交给负责人了，对方没回复，是否采用还不知道，也没有付款。更正一下：我负责的是文字排版，标题文案是负责人给的。我现在只想聊聊，先别给方案。"
+    },
+    {
+      "caseId": "MAIN_SKILL_SESSION3",
+      "session": 2,
+      "input": "我决定现阶段就业优先，接单先不扩大。请沿用上次社团海报的真实经过，直接给我一句简历表达。不要写队友的插画，也别写采用和商业成绩。"
+    }
+  ]
+}

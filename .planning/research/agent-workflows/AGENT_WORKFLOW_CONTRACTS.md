@@ -1,0 +1,14 @@
+# Workflow v2 契约
+可执行权威定义：server/workflows/contracts.ts，使用已有TypeBox依赖，无新增运行依赖。旧主Agent/Coze v1协议未被替换；v2是本地候选协作契约，不宣称旧云项目已支持。
+
+WorkflowRequest：schemaVersion/traceId/requestId/mode/internalActorKey/conversationId/eventId、authorizedEvidenceRefs、currentIntent、consent、controls、budget、modelBudget、directions、synthetic。额外字段拒绝，方向最多3，modelBudget调用最多5、费用最多30元（上界并非新增授权）、deadline最多120秒。host用于普通行动候选实际是0调用/0元/250ms。模型传回的permission标签不能成为权限来源。
+
+EvidenceRef包括type/id/revision/可选quote。EvidenceReader必须返回host读取的owner/conversation/status/role/text/版本；预算引用同时带host解析的period+amountMinutes元数据。即使引用ID正确，捏造金额/期间仍被拒绝。Memory OFF只能本会话；他人、助手、撤回、暂停、拒绝、过期版本不构成本人事实；公开knowledge要求当前approved。每节点与最终阶段重新读取；幂等重放也再校验，以免撤回事实复活。
+
+WorkflowProposal：evidenceRefs、hypotheses(needsConfirmation=true)、alternatives(directionId/pros/tradeoffs/unknowns/weeklyMinutes/evidenceRefs)、nextActions(description/estimatedMinutes/stopCondition/evidenceRefs)、suggestedStateChanges=[]。候选不得直接提出数据库变更。本阶段同时建议的动作总投入受预算约束；每个单独路径也受预算约束，不能把互斥方案全当同时投入。
+
+WorkflowReceipt：proposed/approved_by_user/persisted/rejected/unavailable。普通编排仅生成proposed；persisted要求内部host真实提交回执，不能靠模型一句“已保存”。失败含failure、existing_single_agent降级、调用数量、费用与预留、executionKind、实际Skill名单。
+
+错误码：invalid_contract/unavailable/cancelled/timeout/stale_snapshot/source_invalid/scope_denied/budget_exceeded/request_conflict/constraint_conflict/unsupported_mode/ambiguous_event。不可见原因不泄露原始异常。取消或超时后的不透明调用费用未知为null，保留预留，绝不补0；已知超额计入真实报告后失败。整图预检在任何调用前完成，收费重试为0。
+
+trace版本2含workflowId/traceId/agentRole/inputRefDigest/outputRefDigest/usedEvidenceIds/latencyMs/providerCalls/costCny/reservedCostCny/executionKind/status/error。started状态调用0；实际调用才增加。observer错误不影响事务。执行类型local_deterministic/simulated_provider/real_provider分开。

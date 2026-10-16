@@ -1,0 +1,11 @@
+# LIFEOS_KB_R5_EXACT_RECEIPT_AND_REAL_CHAINS
+
+仅原资料项目7693465311558795327，预留20000既有开发积分，零产品模型/发布/新预算。保持R4原文件与失败，不能只把结论换名。R4实际报告已按原SHA读回，但正式维护导入拒绝：无guideId/revision/contentHash/claimChecks；income卡locator误指校园；income bytes SHA填成spending PDF，spending填n/a；IES只依短引用，不能正式独立全文通过。
+
+任务A：按所附KB_SIX_R4_FULL_INPUT.json实际cards的id/revision/guide.contentHash/guide.claims逐项绑定，优先至少校园卡和income v4。使用你已实际持久下载并读过的全文/原件，核验实际hash，按所附R4工单规定的INDEPENDENT_ORIGINAL_CARD_REVIEW完整结构输出assets/kb_original_card_review_r5.json，originals+cards+execution全部必填。PDF每页保存全文UTF8，start/end是字符串字符索引且text.slice(start,end)精确等于quote，quoteSha256按UTF8；不把全文byte offset冒充字符索引。每项external/source_supported必须有完整originals/artifact/normalized全文+短引用定位；每个editorial具体核对适用范围/拒绝/失败/未知，不虚假以引文证明效果。使用sourceRevision和boundSourceFingerprint从输入真实sources/evidence取，不用你重新下载的全HTMLhash替代主端范围fingerprint。下载原HTML变化可记录新的原始bytes SHA并核对主张未变；若正文支持有变化应needs_review。
+
+IES如只看附着短引用保持needs_review，不要求强行通过。能独立读附着原站完整HTML才可以按实际原站工件hash+全文保存+定位核对，诚实标acquisition。没有完整正文绝不ready。
+
+任务B：所附FOUR_REAL_CHAINS_F3B3B08_FIRST.json是24条真实SDK+实际授权API读回（4独立合成成年账户，每链跨3会话），不是模拟；请实际独立六轴逐条审输入、当前requestId对应的assistant/message stateChange/growth/starMap，不采信生成者checks或MAIN_DIAGNOSTIC结论。readback.messages包含多会话，必须用run_request_id==本样本requestId找本轮assistant，不能at(-1)误拿旧会话回复。未知/缺证据/技术失败保留。特别核对联系/交付不混、愿意试!=已执行、交付采用付款效果分开、已知不复问、更正影响旧事实、拒绝下次持续、创业方向暂停/升学改变后建议改变、本周零与下周六小时隔离。每轮六轴给PASS/FAIL/NOT_TESTED具体原因+原文证据引用+实际读回路径，保存assets/four_real_chains_independent_r5.json：kind=INDEPENDENT_REAL_CHAIN_REVIEW，execution上述项目/session与本任务ID，inputSha256按附文件原字节，cases每项caseId/requestId/axes/reasons/evidencePaths，chains每项id/sessionCount/continuityVerdict，scope原冻结f3b3b08，不宣称最新修复已过。整体不够即FAIL，不把HTTP23成功推成23合格；首失败及费用不替换，不自动收费重试。
+
+所有全文与报告持久提交；返回实际commit及每个报告/全文SHA路径。最终真人批准仍0，独立建议不能发布。不要改治理，不调用产品模型。

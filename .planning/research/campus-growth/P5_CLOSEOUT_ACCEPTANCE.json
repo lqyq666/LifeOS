@@ -1,0 +1,24 @@
+{
+  "kind": "P5_CLOSEOUT_ACCEPTANCE",
+  "generatedAt": "2026-10-08T02:35:00+08:00",
+  "baseline": {"startHead": "2c824fac6b6cc8e6e9c9c9e2e4c6af9d55508f69", "finalHead": "676be00 (+docs)", "commits": ["bec847b", "676be00"], "freeze": "1e6109d5bfb9e2c1b14bac7d93605243bac58e376e28f88e9138cf0416b34729"},
+  "cases": [
+    {"id": "R01-existing-fix", "verdict": "PASS", "layer": "pure", "evidence": "ZERO_NETWORK_CHECKS 7/7"},
+    {"id": "R02-current-evidence", "verdict": "PASS", "layer": "pure", "observed": "focused research fact kept with 45 unrelated feedbacks"},
+    {"id": "R03-budget-accounting", "verdict": "PASS", "layer": "pure", "observed": "serialized (incl sources/metadata) within declared 60k"},
+    {"id": "R04-method-query", "verdict": "PASS", "layer": "pure", "observed": "all 4 method questions -> questionKind=method with anchored topics"},
+    {"id": "A1-correction-targeting", "verdict": "PASS", "layer": "isolated+real", "evidence": "engine growthAll authorization; L1 T6 correction SAVED at correct poster target (coach-4254fc09)"},
+    {"id": "A3-forget-lifecycle", "verdict": "PARTIAL", "layer": "real", "evidence": "execution+confirmation-card code in engine; L1 T8 guard refused false claim (honest failure); unique-target execution path covered by code review, real-run positive pending"},
+    {"id": "B2-trace-portfolio", "verdict": "PASS", "layer": "online", "evidence": ".local/campus-growth/p5c-b2-traces.json - guide-portfolio-evidence + guide-intern-first-contact verified=true, personalized reply, growth applied"},
+    {"id": "B2-trace-exam", "verdict": "PASS", "layer": "online", "evidence": "same file - guide-exam-course-conflict verified=true, correct 4h follow-up"},
+    {"id": "B2-negative", "verdict": "PASS", "layer": "online", "evidence": "pre-anchor trace returned news docs verified=false; mapper left unverified; reply cited nothing"},
+    {"id": "F01-current-question", "verdict": "PASS-this-run", "layer": "real", "evidence": "coach-4254fc09 T9 analyzes the CURRENT 4h opportunity with correct evidence strength; prior run variance recorded (coach-93cf159e)"},
+    {"id": "C1-skill-fingerprint", "verdict": "PASS", "layer": "host", "evidence": "GET /api/run/version head=bec847b growthApi=true on live isolated server"},
+    {"id": "C2-coze-native-skill", "verdict": "BLOCKED", "blocked": "code.coze.cn skill tab requires account-owner scan-code login; no pre-authorized browser session available; CLI has no command; minimal handoff = skills/lifeos-personal-companion package (no secrets)"},
+    {"id": "speed", "verdict": "NOT_MET", "note": "p95 first-content supplier TTFT; no new 20-sample batch this run"},
+    {"id": "production", "verdict": "NOT_DEPLOYED"}
+  ],
+  "cost": {"p5cSpendCnyApprox": 0.4, "ledgerPending": 0},
+  "reviewIdentity": "GLM (implementer); no independent reviewer or user sign-off",
+  "overall": "WIP_NOT_READY"
+}

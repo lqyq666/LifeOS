@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LifeOS · 虚拟伙伴状态动画</title>
+  <style>
+    :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;color:#eeedf4;background:#0c0e17;color-scheme:dark}
+    *{box-sizing:border-box}body{margin:0;min-width:320px;padding:36px 32px}main{max-width:1400px;margin:auto}
+    header{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}h1{font-size:24px;font-weight:500;margin:0 0 12px}p{color:#b5adc7;font-size:14px;line-height:1.8;margin:0}
+    a{color:#cdbaf5;text-decoration:none;font-size:14px;display:inline-flex;align-items:center;min-height:44px}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:2px solid #c7b5ef;outline-offset:4px}
+    .controls{display:flex;gap:24px;align-items:center;margin:28px 0 8px}.controls button{padding:10px 0;min-height:44px;background:none;border:0;color:#cdbaf5;font-size:14px}.controls p{font-size:12px}
+    .states{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:16px;margin:32px 0 40px}.state{padding:0;border:0;background:none;text-align:center;color:inherit;min-width:0}.state canvas{display:block;width:100%;height:auto;aspect-ratio:1;max-width:192px;margin:0 auto 12px;image-rendering:pixelated}.state h2{font-size:15px;font-weight:500;line-height:1.6;margin:0 0 4px}.state p{font-size:12px}.state:hover h2{color:#d9c5ff}
+    .note{padding-top:24px;border-top:1px solid #302b3c;font-size:12px}.error{color:#ffc5b4}.caption{font-size:12px;color:#b5adc7;margin-top:8px}.state-item{text-align:center;min-width:0}.state{width:100%}.download{font-size:11px;color:#a9a4b8;margin-top:4px}.download:hover{color:#d9c5ff}
+    @media(max-width:1000px){.states{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:28px}}
+    @media(max-width:640px){body{padding:24px 20px}.states{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 12px}h1{font-size:21px}.controls{gap:20px;flex-wrap:wrap}.controls p{flex-basis:100%}}
+  </style>
+</head>
+<body>
+  <main>
+    <header><div><h1>飞轮 · 状态动画</h1><p>同一个伙伴，陪你把想法慢慢说清。</p></div><a href="/#conversation">回到问答页</a></header>
+    <div class="controls"><button id="replay" type="button">全部重播</button><button id="pause" type="button" aria-pressed="false">暂停</button><p>点击任一角色，可单独重播。</p></div>
+    <div class="states" id="states" aria-label="七种伙伴动画"></div>
+    <p id="status" class="caption" role="status">正在加载动画…</p>
+    <p class="note">每种状态包含 6 帧透明像素图。“查找相关经历”在此预览，当前问答页尚未接入真实检索。系统启用“减少动态”时显示静态画面。</p>
+  </main>
+  <script type="module">
+    import { createCompanionPlayer, loadCompanionAssets } from './src/features/conversation/companion-player.ts';
+    const root=document.getElementById('states');
+    const status=document.getElementById('status');
+    const players=new Map();
+    let paused=false;
+    try{
+      const {manifest}=await loadCompanionAssets();
+      for(const [key,definition] of Object.entries(manifest.states)){
+        const button=document.createElement('button');button.type='button';button.className='state';button.dataset.state=key;button.setAttribute('aria-label',`重播${definition.label}动画`);
+        const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;canvas.setAttribute('aria-hidden','true');
+        const heading=document.createElement('h2');heading.textContent=definition.label;
+        const description=document.createElement('p');description.textContent=definition.description;
+        const item=document.createElement('div');item.className='state-item';
+        const download=document.createElement('a');download.className='download';download.href='./assets/companion/animations/'+key+'.webp';download.download='lifeos-'+key+'.webp';download.textContent='下载动画';download.setAttribute('aria-label','下载'+definition.label+'动画');
+        button.append(canvas,heading,description);item.append(button,download);root.append(item);
+        const player=await createCompanionPlayer(canvas,{state:key,animated:true});players.set(key,player);
+        button.addEventListener('click',()=>{player.setState(key,true);player.setAnimated(!paused)});
+      }
+      status.textContent='7 种状态 · 42 帧 · 已加载';
+      document.getElementById('replay').addEventListener('click',()=>{for(const [key,player]of players)player.setState(key,true)});
+      document.getElementById('pause').addEventListener('click',event=>{paused=!paused;for(const player of players.values())player.setAnimated(!paused);event.currentTarget.textContent=paused?'播放':'暂停';event.currentTarget.setAttribute('aria-pressed',String(paused))});
+    }catch(error){status.className='error';status.textContent='动画暂时无法加载，请刷新重试。';console.error(error)}
+  </script>
+</body>
+</html>

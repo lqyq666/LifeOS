@@ -1,0 +1,2600 @@
+{
+  "schemaVersion": 6,
+  "version": "workflow-v2-integration-1f6b4b7a393b",
+  "head": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+  "codeCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+  "status": "WIP_NOT_READY",
+  "at": "2026-10-11T12:36:02.636Z",
+  "baselineManifest": "evidence/retrieval-followup-20261010/baseline-519f/SOURCE_MANIFEST.json",
+  "sourceFingerprint": "1f6b4b7a393b15377b18ba4bcdbb5c6944d7f23d477b99c0e11eee36fd371577",
+  "fingerprintAlgorithm": "sha256(UTF8 sorted-key compact JSON path-to-sha256 map of committed Git blob bytes)",
+  "hashDomain": "COMMITTED_GIT_BLOB_BYTES_BEFORE_WORKTREE_EOL_CONVERSION",
+  "scope": "captureCoachSource allowlist bound to committed Git blobs; exact per-process workspace bytes/config and startup digest are frozen separately. CRLF/LF checkout bytes need not be identical.",
+  "files": {
+    ".dockerignore": "1751b1c26b976abb062f36714a9c06e1d4cfe1ccb920c24b5921c98bcfdc216f",
+    ".planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json": "74e3e267c57e880cb58dda697c75d4b4e4fd1d58953b0221be8f753ecc7ec3cb",
+    ".planning/research/workflow-integration/INDEPENDENT_EXECUTION_BINDINGS.json": "62883dcf2330d8c4a2945f873a9a90c67241b0c50444d5c74bcdbf0288ff4132",
+    ".planning/research/workflow-integration/KB_SIX_R4_FULL_INPUT.json": "43147524695f1efc32a3797cf4cb393bf2f5c1fbb6c7850995654f673f539c91",
+    ".planning/research/workflow-integration/SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13",
+    "AGENTS.md": "b064860641f09ae1f6caaafc4bd595e2f720a86c755755d39aab6caa4977dc3d",
+    "Dockerfile": "e180f7219edba8ca8c2005b88df4b3f306655505512085d11c34a244bcef1b6b",
+    "PRODUCT.md": "11d9640e63eaf94f3e92be1062c54baaf7305993474ecb0b4c797774b850d16b",
+    "compose.yaml": "96afe47ff39bf9e7f18047c388b48e3deee6b71a8bab73a29cde5c4671dde1c8",
+    "deploy/README.md": "ef7f5dc0636a5ae4096b18988dc6bceec49b625612c9d48fb63096498b053827",
+    "deploy/backup.sh": "6afc28ab577e810509cffc16aad9847d07493b6bad1b92a4c43887e1273802ee",
+    "deploy/build-image.ps1": "5ffa11b0cb6f5fb90a6ef94491a4ab6e528a1ab04100953d0296376cdf4c7816",
+    "deploy/check-container.mjs": "c9351b7eb6fa1bf7162ef0fa87b5b53a5092f3c734133284e3d79d78e86628fe",
+    "deploy/check-embedding.py": "b034c17021a096a8052a8b2a15200d817f6a4cb4c6f5bd0102608c20a1444816",
+    "deploy/embedding-wheels.json": "a6902657df4b727d8e8b7be905017e69b797880a93ae33d31455744a456f51d9",
+    "deploy/lock-embedding.py": "1e27ee0a983c6af2ddefca256de6c56cc74ff358e541b09e1b5cd2870dd849a9",
+    "deploy/nginx.conf.example": "5509e021f02558bac1fd56338629fbdea9557abb4f8328d987cbe57cfc572f5d",
+    "deploy/prepare-cpu-torch.py": "d98b5779b836997da1d4c37631e15ead6ce30562d5c0d15a037fbaa9188ac5f2",
+    "deploy/requirements-embedding.in": "e133ae8934f934f9bec4d30516ed9996ae91b64d0d7e00e5895b623d8c4de889",
+    "deploy/requirements-embedding.lock": "8014ff8e61825b52a9674e303e6c94b30cf3d8568c6178474ef1ec997ed4bce9",
+    "docs/v1.3-action-coach/OBJECTIVE_V1_3_ACTION_COACH.md": "554f7f60e1eb2330114d781dfe403ccf8b4f68212f58723085e5007d5a929393",
+    "evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json": "dcce306ba9be45e5385d32e910e3b096211af3a25e9306dec956b8de6064ee5c",
+    "evidence/coze-core-launch-20261011/INDEPENDENT_R7_EXECUTION_PROOF.json": "3df55127501e87ed2159a8d507386cbc31be609cd5c5700cbbd0edf299471590",
+    "evidence/coze-core-launch-20261011/INDEPENDENT_R8_EXECUTION_PROOF.json": "d273a4e30d55bb52af0f2a4f82456aabff2bf658cc8210318102837c13360caa",
+    "evidence/coze-core-launch-20261011/KB_R7_FORMAL_RAW.json": "7989f8a55c84708a9c275b9b3eb52d78206b3ab40cac0794be8b3bc129fc9886",
+    "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66",
+    "evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json": "59dca996a5acfd058f657a80339e8d1186f219976b3495bfd5762d6e710b4a7d",
+    "evidence/coze-core-launch-20261011/r7-originals/campus_norm.txt": "5ccd7b854228f3b637a5a577d7ae34e9abda110f985438f84c9d29e079af3812",
+    "evidence/coze-core-launch-20261011/r7-originals/campus_orig.html": "9c7bf0f0c986409e1e4ca94730e7ac0a86a443f0e22f89d66e2370df5ceea536",
+    "evidence/coze-core-launch-20261011/r7-originals/cfpb_income.pdf": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62",
+    "evidence/coze-core-launch-20261011/r7-originals/cfpb_spend.pdf": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+    "evidence/coze-core-launch-20261011/r7-originals/ies_norm.txt": "efed8f7bf5702238aef13d3fcd1d3b26a8c4495512bf258085b2b3fd45c75147",
+    "evidence/coze-core-launch-20261011/r7-originals/ies_orig.html": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+    "evidence/coze-core-launch-20261011/r7-originals/income_p2_norm.txt": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6",
+    "evidence/coze-core-launch-20261011/r7-originals/spend_p1_norm.txt": "ddb371f04aacfc52b142256858d2ef672f285359815d6c323072add069aa28f1",
+    "evidence/coze-core-launch-20261011/r7-originals/spend_p3_norm.txt": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22",
+    "evidence/v1.3-action-coach/research/source-verification.json": "3d8d4c76052205057d6326bc10086237d603133f9843ee0bfb89555b2e8e1e30",
+    "evidence/v1.3-action-coach/research/verified-method-cards.json": "af79c4244b147c80fec78c10d5701fb3d7c4ac13cbfb47300934e915481f47fc",
+    "index.html": "3480efcfa98f27950f9ee0965a2194a41bd9aaa13c07c269dd6040ad19f36bff",
+    "package-lock.json": "db0757e53d3ec62d9fe211b296925daa5a5df4292821f992ddc6fe7c2aae0b0b",
+    "package.json": "fa38da55f288a514c6f7b0a39a6bd0550dfaa4e9d872dc89108d75422a16cc2e",
+    "public/assets/companion/GENERATION.md": "8355df19d95e97dd638bfba71d6f29b1f26703d029368a22dfad56baf3255d3a",
+    "public/assets/companion/animations/answering.webp": "9872f25a9e85e8c5e2f1ccc123997d15cddb27fed5cd0ca931ee50445213dd51",
+    "public/assets/companion/animations/complete.webp": "b88e583d18a7744a9052eabfaa1d7b58b4f4d3a6138fdba7c6c755c10c4909a3",
+    "public/assets/companion/animations/idle.webp": "ecc019f555eeca699f143c1b1e966b6782533b4f6803e35b301589976c2890fc",
+    "public/assets/companion/animations/received.webp": "7debb0296d0cd43db07d35c25f52084393f089bc3c5748e3a5f3ab68199a30be",
+    "public/assets/companion/animations/searching.webp": "86baa01518347b8f4501fed6e6f09287f6f6b485dfdb317fb7d2cd75b55e260a",
+    "public/assets/companion/animations/thinking.webp": "3eb5f57b9ae35b0c43bd77e34d64df85185126d94da27325bbbc1eff7a793888",
+    "public/assets/companion/animations/waiting.webp": "23c3cd56f6681713d96b7901fb3123a22725b6739630c37cc1cdd7bbb8ccf9b6",
+    "public/assets/companion/lifeos-motion-atlas.png": "81e81f2b47d461a0d1088589f6dfb461acac539945a95fd4d1eed5043eb4168d",
+    "public/assets/companion/motions.json": "0a5c93e18b585b31becabbc9be72fc85121a40b120283ceca1cc07cbc119e2d0",
+    "public/assets/lifeos-companion.png": "bee508091493cfd7f14b161abf4cd52e44bc94a026408d135084401413c24f03",
+    "public/favicon.svg": "cacc96d97919881c1f35921838e1250bb13fa309c8493a051ce53551b9cef8da",
+    "scripts/access-recovery-action.ts": "8a580ae69c59a278fd1ba29ae5fbcdc67aefee70bec49ad6a7dadf86715f9e9c",
+    "scripts/audit-action-coach-budget.mjs": "3869758ce0399402d93b2bd5a457bbf12a2755f1019542434c7de99980664d26",
+    "scripts/backend-test-preload.ts": "df26118c2eddba9ed3ea8313f547dfe713c54bf70f6ed375ae869c9311274428",
+    "scripts/backend-test-selection.ts": "97c5dae53d38c144e25a91e1be8f72218386e1b3dae3a38d1abd1393be750d55",
+    "scripts/campus-benchmark-summary.ts": "88370e97259eb47152d95a7cc5c53fca49a1c412a28bfb8a3ddfef54c6876823",
+    "scripts/campus-continuous-operator.ts": "7277f4851ab91f2d4b842cd69b13d0f97198a8a782a709e4bafba565261072e6",
+    "scripts/campus-recovery-action.ts": "34cbbfc77f24979fbf2153de3b019f428c23389a40e46862acb2d6bcdf8c39a7",
+    "scripts/campus-review-extract.mjs": "5b20c6e4a408f0df06cd296c7c0e9f97f0aa08fde01f15dc3c821f3bad1be009",
+    "scripts/coach-budget-observer.ts": "43228c76bc186238f4985847a4b4e02ce094840a82cfc4cbbfc2688c180af05e",
+    "scripts/coach-history-fixture.ts": "334ff5d45b79a2429d39e20f32efadb2594ba4e0e982e48f60705cc9555a182d",
+    "scripts/coach-provider-budget.ts": "9494ca3263a4584fba10390fefcf275738c0c4489704ec274529650a63a83059",
+    "scripts/coach-recovery-action.ts": "4ab2341121d9490f383a5c1329784078d248af9483e00c2b29ca712257c1783d",
+    "scripts/coach-service-test-preload.ts": "df9ee43f3530761efcceafc07de79f34e3006bd4e8eb7e4d66b17fcaf3e7d7d5",
+    "scripts/coach-source-freeze.ts": "d8b0407e6b45ff85c3911acf9d140b30e5a696a87f714d39375b8f6fb62a2b20",
+    "scripts/coach-stream-evidence.ts": "201c0a67edc7f05f7586440d3ece65f3aefa9a182fd1b8f85db291ea87a3e0d2",
+    "scripts/compare-campus-models.ts": "fd6d0bef8475b1835acfd9591a741aa7c1cfaa1a0c40dd4a11de8630824cbc7e",
+    "scripts/compare-coach-model.ts": "ddd6009de83705d37b8e3a1343db12c4dfe7bb982fc7e652c7c58693455d21d4",
+    "scripts/compare-coze-retrieval.ts": "89ef1c66347bdf5d08bc1adc099180e0daab101c098811555b95614738f08854",
+    "scripts/coze-access-audit.ps1": "737455f85b489c23b298a029268a1f2ecaaba561302cc4d16e79850ad294474f",
+    "scripts/coze-credit-budget.ts": "d1e5ef8a90865c7789479b6dfe143bd54efa3f1e33ac6eed9eb7bb1a26ccadf6",
+    "scripts/coze-host-permit.ts": "47469f70bcfddd5431e7f344ff13042f29f21597c93afa63903c35134ef5ceb6",
+    "scripts/coze-prepare-mirror.ts": "a02ccfab2c3f39300c397bd53d4910b2a64c3aa448949cf9183d3205411017f5",
+    "scripts/create-user.ts": "cde7d8225ca936202ee1186c642adb407e439bbc91d14e0b5b9a678c7a30cadb",
+    "scripts/diagnose-coach-material.ts": "84845f3c0edd7a715cc586393a5f998f1b8f50eac7ab882c10dd35eccc113828",
+    "scripts/evergreen-audit.ts": "b624d4ae117dd7e4b80ca59f054f02dcef51be477ec6b1b9f6da0b4e2fb588bd",
+    "scripts/evergreen-batch-content.ts": "97a4a5d3349804a7e269bb0496c4477f579d37d87acff62ae9c371d94e0f3bb5",
+    "scripts/evergreen-batch-sources.ts": "8edf2ec6c5f42e0194564a62dee0ddb5f55556cf53447c8cd96896ccc83775fa",
+    "scripts/evergreen-evaluation.ts": "6cf3295c5cf0d3eb88562160f23da758d40520df13fa46825b83f3264a4b8320",
+    "scripts/evergreen-evidence-enrichment.ts": "31ac65ded8abcb09f8a9fa31239fb4d4a899e09c04179931c475223beb086876",
+    "scripts/evergreen-knowledge.ts": "2119b453688437cd47373c609af66720a019a704faade42391f98897190ee0c2",
+    "scripts/evergreen-natural-queries.ts": "96416f9bdb4d61fd20fbafd547cfbf4b42cdeaf414016d4fd0aeb3776bff3f66",
+    "scripts/evergreen-seed.ts": "a0b50f4e78c345c4d1a5963d6af0024e673185d4a4e9be6e2178d8ed8af5cd95",
+    "scripts/evergreen-semantic-review.ts": "128e9b11e23ccfef6d548b02df57b6efe92907a50de38d836fde0bf43786cf0d",
+    "scripts/evergreen-web-fragments.ts": "e967bf69773be5acab18e3c99456f01015c19d4362e28b35d09cfee6d92921f4",
+    "scripts/freeze-action-coach.ts": "2780dc82f76942b806f4929271cbb5cd887bb98d170b9dcfafb4e449ccf126f3",
+    "scripts/growth-recovery-action.ts": "242c0c406ce5600c32f374829b0f68501de25dd9d22f3b345bce0686001a9f21",
+    "scripts/import-campus-knowledge.ts": "7b3ae8274ce7fb4649965547abe24e39f1debbdcc5851362dd21bec60f8febd3",
+    "scripts/manage-access.ts": "28272bd1518e4fd1c0e72d307d60baee55d7414e35e40bfc9044fef13a152338",
+    "scripts/manage-provider-budget.ts": "78e92278a0fd813ac8ce9a2f71333b4cf031deac82b025ce35df6cc214aca7f7",
+    "scripts/migrate-db.ts": "946b8bfcbb15af12c62dfdbbd3f3e4e20285b8e4264041d0efe747ff184ddbb3",
+    "scripts/official-recovery-action.ts": "86f182915f8c24c48bfc76e6938ef7e37f2bce44ff28e6b2fb876e2bda778924",
+    "scripts/probe-diagnostics.ts": "1a13177588955b6d7a64066cc5918e27aa9c786b6fa78eb5a2b2b93c5e672412",
+    "scripts/probe-model.ts": "55a6cb34b962c814d71a79bfe851bb2ffeedba2166fd3dd2fe7cedc224527f85",
+    "scripts/reuse-coach-capability.ts": "dbb516b0ffedec6282089981a8608328052aa39ba7cff9c1c2ca61f9938d7828",
+    "scripts/run-action-coach.ts": "c2693a53a947dd860a54e0ae74d2fca9df5e507b0b858468ee1d1d715c62a1ec",
+    "scripts/setup-coach-embedding.py": "768ac25d99367a930c25a3248e89e0c57eece4db09194bd8b8e57fbe2fef5776",
+    "scripts/setup-db.ts": "0a3804d28664da61b01ac0a683fd26f0eddbf15f94e678ad092111618fa8d720",
+    "scripts/student16-fixtures.ts": "cb2bd7fbb2bb614554e680cb5f314a690dcc98c92e6a55b385a4e49084cffe3f",
+    "scripts/sync-official-sources.ts": "ddf18b4b33251daf26c26a2e564255560f1a9bee16f34201e3b9324b0ead09eb",
+    "scripts/test-backend-isolated.ts": "a5eb402dac8aba5afcccaf0b8a3f3488386eb63c6f29251380282a3ce9e85845",
+    "scripts/validate-coze-code-workflow.ts": "7aca3b03affd3c36323e2e88d0a908e4890af9d74448b8e50610464a320abe85",
+    "scripts/validation-preflight.ts": "a2c47d52126747c0a2de39197718941c8d9ae4c14c24176091c1846a6f4c9ef1",
+    "scripts/verify-browser.cjs": "b8b4db4a13a2930613abfd11b56e40844dfd00248dfb96c306ea5b2f3f11045c",
+    "scripts/verify-db-recovery.ts": "d7b40d523a17d2d1d07f89658e4033030656618f129b43b7ae31b7424cd91e40",
+    "scripts/workflow-baseline.ts": "56d6b4367aca0274a817d9783e7f5c55bb1bfb3793f01b43681a73e002eb0d32",
+    "scripts/workflow-coze-candidate.ts": "a01c9b9c21f3ecde4bece4aa566b359405fe15ce8ce1c13faa8034cc84a206f5",
+    "scripts/workflow-coze-readonly.ps1": "8d954a8f46f927125e7246389a35a65ce3785d231bad646f823513d96cba41ca",
+    "scripts/workflow-coze-real.ts": "4c6a73311b8880a3609a919581cc032595be01c1e22bcbd810d7da3f4bdeccf9",
+    "scripts/workflow-deliver.py": "c1d1bc5a5b3baad6e5f3882b1a9121ed896be32847b8b3ea6418d03e07c46e7d",
+    "scripts/workflow-demo.ts": "357c1c6d07d1c091b33eb3977838f682954c8f1277fcaf188c916a3673aa5cd6",
+    "scripts/workflow-pending-review.ts": "2e8f8d3d220df60649da95fb4a5a051f3eae2c51a6255a46f582a31a9b930ba5",
+    "scripts/workflow-public-card.ts": "5aec028a108335478cbeed1a23995c50799c6ef4a507008840d2de5c1c79a835",
+    "scripts/workflow-real-batch.ts": "17021da9028354b357c2e7992d6da4396a5bd58a24cedc653ea2b40903c837e2",
+    "scripts/workflow-reconcile-ledger.ts": "9eaf196aeb39a66ba57d8ba3d7ee8b6f16fa1dc14045b2a3fd8fc0d9be6cc0ac",
+    "scripts/workflow-record-demo.ts": "ee5bf885d589b96d6429f8078262335ab6604b575fa1b808e4b6a063bc4c6fbb",
+    "scripts/workflow-replay-dgate.ts": "0955a675215e0e9389ccb5ea2789f1940443a73a5ec65908bfa571f716424b32",
+    "scripts/workflow-reproduce.ts": "059fca7c535536e6da2468de70d3ae34e59cfef2ebc137cb5633f8861437b9e2",
+    "scripts/workflow-verify.ps1": "e21d0c786ed33de63f7aed6cdc07c50e6ecf65580c8d9b17ad68e7031445e7c8",
+    "server/action-coach-contracts.ts": "fa0d3c3f72e5e671af94ff453c117077fe9338983d5add75200409efdd8d54f3",
+    "server/action-coach-events.ts": "b522053c9d6df03caba72dd48689cb89c1b1040a9e1a61fb942925857a1d2cfb",
+    "server/agent.ts": "5abae8bbb52b256b5d232f6f4696113fb02c81e5e11eda6824f889bceb199cd4",
+    "server/auth.ts": "f26d76932ecb1e718c368d369c3ccd97b33582fb3d0688bb2e3378f57a6435ad",
+    "server/bounded-reply.ts": "93be42826fc012ddee2703a791f223e931c322e3bd87e5c8eff18699d02694c8",
+    "server/campus-contracts.ts": "f48663f83cd9594ff636f354bd9174fc1262544369a67f3172458a413aefce0e",
+    "server/campus-knowledge.ts": "4912d2f8c231ed7afb83faa337d3eb5bce0c797e2bccd4bc1bf2779539f824e4",
+    "server/campus-reference-data.ts": "139683f0f80029a329e776922b61ed86386cbdcbbf6121233f7921dbc576be30",
+    "server/campus.ts": "d4e8f39f78d2d2da7932e18c4f8ca97a0d5b71fecd163ab1a62b4066b8a9c54c",
+    "server/category-lexicon.ts": "bfd518a63478d065336b976ef97b8404af17ec55c25ae501584d501e2569379d",
+    "server/clause-catalogue.ts": "ce68ba69bc1dd054c56e7d096914970431bac23b0a15fe194e4750d8f51a6a71",
+    "server/coach-embedding-worker.py": "fb4f88ec7623f9fb4352685ff7d6580e3aa0b7bad69fb391a64b5b17bf3b991d",
+    "server/coach-history.ts": "7b87047f44fa6fcedbeb9f94a2a3b72ea18b9bbd6943d3c765a4cd8b443eaae2",
+    "server/coach-knowledge.ts": "309e8c49827e1244dda11870d4660a9d77e144d3e61c3c3566cf97c848b3b648",
+    "server/coach-reply.ts": "27696f21a10f85d3cba27f55faf4b205e0fd28e14a3cd82cc860bbd1c46a2b87",
+    "server/coach-retrieval.ts": "014663faf22338f32ccc3a39b42d4ffe7e417488ccc58d67c9087ce53b1774d4",
+    "server/config.ts": "81fd65225b7f4701b827c57e15a406dd0009a83896d1148c023b2937c1c71df4",
+    "server/context.ts": "b26aa816dc84ba205e57fdc8b4e94e2a57e324a9d9cedf9798531db26b9a4ad7",
+    "server/contracts.ts": "1c974b2e9df3e766c4813fd165cd176b30d086f72ac16c4fd6c21c188b47462f",
+    "server/cost-workload.ts": "8c878f327384e31cbd3a471f67f4fc23b7adf78d20ddc60675aaf4090a6d0f8d",
+    "server/coze-code-workflow.ts": "c2e0ece3c80c49b9a583c30b107ddd101c7fd7f110d7bf40d0d220e699f05af3",
+    "server/coze-knowledge.ts": "69dc96b0fa2319fb540a3a07bb82dfe639ee8b283b20cb6f4dc3aea9c5d17d69",
+    "server/coze-public-query.ts": "6baf719fd757479c4633079f1a97040a763ddbada95dbf61f12e524f9ceaee30",
+    "server/db.ts": "de68c66a0167c10aab70d0dfeff6771aa014e91be3e0b354ec145889adadafa8",
+    "server/dialogue.ts": "3cab46cc8429671d4f54bf52d98d2b23cad9050f0128cec38268d8c1d9b6c936",
+    "server/embedding-signature.ts": "252b71fc865862a2634adb9e53cc81f0810b323fd257059c9b070ee1c632f8be",
+    "server/entitlements.ts": "a7e8c7420a25c20606e4edef78b85e41703d60346b849719e8fe2fe88c7a3b83",
+    "server/evergreen-guide.ts": "0d04c31f8db7146bdefa78fd233379e7ac3eeb259b50fcac8aeb6ca56f7b8402",
+    "server/evergreen-maintenance.ts": "9f249b5aec14d2775ac69d78ce30be9beec339e07cd14ccb6600562e8cdbb6a2",
+    "server/evergreen-scope-guard.ts": "8751ac14a39bf7ff4acc7f69bc36b63a00edca814de7a6ef4b60ce94a4931c0a",
+    "server/experience-content.ts": "c5b3b23ec1d4b73032209e2cc566d7dd0a4babfbc9ab378c6bc309137f400116",
+    "server/experience-episodes.ts": "a48a43e7dcac457dd6d8b396112448b8ff39a95f8c3ec9df51006a0a92fc545c",
+    "server/experience-insight.ts": "8c68e43f42af33b50eb8e0e17191633cfe2676b16031ef2b37ae650999f040c3",
+    "server/experience-patterns.ts": "fae05f163e3fcfde9359febc25ebc9b04806e478b026c74b4b450cc4ed16439d",
+    "server/forget-intent.ts": "67deffd72737218751711bb21f60ac2f428c789eeb64bacc63c1211e05bcc238",
+    "server/grounded-material.ts": "37de54b59ce7fcd1535be782b28ece37621bd73eacb19135770fe35a5d1e51eb",
+    "server/growth-authority.ts": "bae7346a0a46270ad1ced2a0e80cdc38ca131205e9288435b0232420b240be85",
+    "server/growth-contracts.ts": "94e5e978d0fce64a9cf5a9096e90cfcb246c6693cc06523b0d4a71bfda87df71",
+    "server/growth-controls.ts": "baa53382dccf7eac5ffd6ba1f63621efad9b4062d32502bbd98214d5ddb1cf70",
+    "server/growth-model-contracts.ts": "063616e6bc318e5051505b5a594d15c526dce3432eefc5f8bd103e65e4d2f55f",
+    "server/growth-privacy.ts": "3a4882dca45053e8b84c235654bbc7e5eb028bdf07ef85b50d2d630254d5815e",
+    "server/growth-selection.ts": "2df5cb5199c85d5f74bd5070ae46ebf70ab26d29037b2a0931d4a3a2e473ae91",
+    "server/growth-source-fragments.ts": "eefaceaf9bef34a98b2a806fbd5979e63d92c60628307acc070a24f6fb64e933",
+    "server/growth-time.ts": "83caae9a5778430fe267e42dfd161ebb4ab0605e770718f9cae4670de46f9d82",
+    "server/growth.ts": "05c91471ca58104b578c70f2cbb850ba7192f62cc9163d3d81431fde30264d69",
+    "server/guide-usage.ts": "7d3ee8d3a90448c00528d627da2e40b0f8001695cc672e816fb3f20a32b542fd",
+    "server/history-selection.ts": "7f9ed122f44d081eeceea5411c810e6d22ed30b6757d4955d837eafbc7578f66",
+    "server/http.ts": "4f24f9cbea48a9c0838b4ccd4b6134afa1bfeaa3bdf967f79bd7dfcf5b074185",
+    "server/identity-levels.ts": "f069eb2b66ce6abad7edde13df8714f94f8c6e3538f6f6bac45de9628ea9bd00",
+    "server/identity.ts": "0c5475944e22ce509d421764188eb2bbc0e02a8f235b29e20ea0e40f8c68a007",
+    "server/independent-review.ts": "cd91938dd0975f4d38c800ba260ef2c87f5fa3a86a9fd1790326af835c9342e9",
+    "server/index.ts": "891e3599da63a36cde0f671d49adb7afc4a60f962b2abff9c70555b22c0a3864",
+    "server/kb-maintenance.ts": "e342fcf67027a5e6e2dbbfa8d185a07118ef27bc6bc7ab46f1b677bad124492f",
+    "server/knowledge-index.ts": "bd8344e2c389682c30b95932a26324dac6348ad91c38a5bdeb4a290e978fa958",
+    "server/local-embedding.ts": "6b1ef67b8b1422900779e22fe882a041410fe4a8d1bfb7670315b9578d80a787",
+    "server/memory-controls.ts": "c15fd3b705559208accc0b236ab54985309fceb659fe1d12f04956f1653be8eb",
+    "server/memory.ts": "fbe7c7acd4946e74c0a0c24bc440f2fd2639eb20d6bbf207c3e781fe9c0aa5f2",
+    "server/migrations/000-better-auth-1.7.7.sql": "bba085156e7c16e9aa5ea6f2876cd7091b4d9bb051e6afa73bc8a81f7122971f",
+    "server/migrations/001-business.sql": "fd472f70f533bd0c8af001a6ae56e314155926578ae0380234b82d5778d13458",
+    "server/migrations/002-better-auth-rate-limit-1.7.7.sql": "bd44e34f6a557b753276117968f59743c4b674c8c16909e6d2fb56d3f2290171",
+    "server/migrations/003-operations.sql": "f9dcdef32dc072d43e716d67ee443fa650c65ec73d39bf481982f1eb042fd929",
+    "server/migrations/004-dialogue-memory.sql": "6753c3c0ac4955f2072b14fca9d786159f3c53c4e61fa0fb43c3164f7cb7296e",
+    "server/migrations/005-cost-routing.sql": "35bcfbd06ad83fcd5b9ffc33e08dc17fe72a08e26cf7ddce7595ba68a4414706",
+    "server/migrations/006-campus.sql": "6fbf0a8b44021abaeffe7e576f575a09f88dbbf1552f148dad4e6de0132b8935",
+    "server/migrations/007-inquiry-scoped-task-memory.sql": "bef5d107980424f5d0efe409ca4e6f3079d28dc16ff8918851a27808b1c38cec",
+    "server/migrations/008-action-coach-events.sql": "5336ab965a3f2afc0de1c28fbf1a423ba5c63b9857960073beeaf4ffb8de4b6c",
+    "server/migrations/009-coach-semantic-index.sql": "a622d595a0f9b62f60835b7646b3d348faa2b63979bfdfc136a331ba835afb39",
+    "server/migrations/010-coach-knowledge-citations.sql": "14e59e7fde11dec3ba55852c6e971e5e9b75b00a054a2d6f31abaa9d2116ff82",
+    "server/migrations/011-invite-entitlements.sql": "c24a4cf45f920553353b109006067147515ed50b2b756eb75d49a88ef9f19025",
+    "server/migrations/012-provider-spend.sql": "c790432859613ba0fd7f5b67491e5a1c82baa4da3324739e1e7bea829d61fe06",
+    "server/migrations/013-coach-unknown-declined.sql": "6b671af4180bc1a49fba87068939e558235a99a6eeed2f86f3794a778a4c7199",
+    "server/migrations/014-growth-workspace.sql": "ccfb5fc0c2ddae1252706d7a17b6d1a5347d197ca1e425e5844281c1e65abaec",
+    "server/migrations/015-growth-observations.sql": "4549583ccc54d6c57541d54988fbfeb8b519efacd3fbad5d32112b75d6a2c077",
+    "server/migrations/016-official-source-snapshots.sql": "15ed27426d1d9f8ed4c7cc9328e62702d25a41b053cac767a7237b06a3120917",
+    "server/migrations/017-official-attachments.sql": "fe713cf610fa6ba225b11662eb1b7d5c1303461e061810b7eef227eb736c8205",
+    "server/migrations/018-growth-provenance.sql": "aaac38b4f7345576a6e99751684dd6a7e60ae3cc9a7f3de59e0a44a519407524",
+    "server/migrations/019-growth-controls.sql": "bf481e4fc85ef17209fafc07094bdd097f6d7a750757285584d8c2fc83bf8b01",
+    "server/migrations/020-growth-plan-evidence.sql": "cb8331330047bf333e0dde96976d78dff87a20a9c4d8cd92938eab9cfa4aa2d1",
+    "server/migrations/021-memory-control-requests.sql": "2f6a9a8811cb70efdc492c94ec8312280d999b8780d66227043f85a1d72757cb",
+    "server/migrations/022-recommendation-controls.sql": "e839f9f29f9e93139fc37164079f1c51eab54633b1085462e4078f1040f9919f",
+    "server/migrations/023-experience-confirm-source.sql": "134fc0d8bf8e742603780b8a095fe0e973fb84df98d5abfdce67d57dd6646197",
+    "server/migrations/024-user-themes.sql": "11876d5cc7e397a8214cb2d5da8c28a7961ec1e3bb2a1f3d15e61fced3b672ca",
+    "server/migrations/025-theme-lifecycle.sql": "a52453b3281cff749906b15949d31d69811cf5d7d6478457f01e45efb4301f72",
+    "server/migrations/026-identity-layer.sql": "0a7d412aa1d129b18b255c1bcaf98d09fe9cdd9c6bb4650a5c0492f65cd61b83",
+    "server/migrations/027-identity-change-fields.sql": "296546bf3874f0b7af46a4a4bd6dec5d3879a174338b9c14df39f6d7943c781a",
+    "server/migrations/028-experience-relations.sql": "3fd5ca9fd8867a4c4b9a00810e035fda399d25638ece45c0c8e99458b1e0175a",
+    "server/migrations/029-evergreen-knowledge.sql": "0612e8d823adcd7b85cc2eaa9f29b81f5a80ad68cfe41a5db3b51aa606c9882d",
+    "server/migrations/030-workflow-tasks.sql": "2e6b2cf04bfedd299de9e6d7edf3e4aaf2429942c57b4129a783d236e897d601",
+    "server/migrations/032-kb-maintenance.sql": "e96186799a007692a825e9e7ab3eab2c8e3508b84eff783e894215ded29267a4",
+    "server/migrations/033-freelance-direction-control.sql": "0eeb96dc5505e8c51e430944a9ffc8a66839ec427c96da96314a60c703af527a",
+    "server/model-payload.ts": "bbc3d8a823d60af1c10bde5d27af84cd4902b1441e89c1a2a8495e4bb4f5a075",
+    "server/model-router.ts": "8aa0e968f1b21d02b392dd5c92ba06b7e971a2054e8492c9ece449188bf66ecf",
+    "server/model.ts": "26319da64514997a75ebf8dd9cef3f34b9111c41522d173cf518abcf8e8bba5e",
+    "server/official-attachment-extract.ts": "6a3780143f50d42190c51718c07807e29aa81fc80c2258fc9613af14004b4ee0",
+    "server/official-attachment-parser.ts": "681ce33a1f12dc12428c4b3c9b3aac7820eb4046f60392457098d6fe71a9d6a0",
+    "server/official-attachment-worker.ts": "9c0f1b98b83d620d0a49abb389374e1fee26fabbffafc9414f3092df4931d91c",
+    "server/official-attachments.ts": "170aff1ef099ef82ec300702f42fcf0962b88f3a4b899e201847eb2c1d3f16f8",
+    "server/official-extract.ts": "11c091adab1c70b3ac1bcdbc570d26b492152921ffe48323613a8d59c96a9f89",
+    "server/official-fetch.ts": "be3273ba06fe4e6702bc304ce5091dc582e81b7c3ecd8bc6cca19ba66afb3e9a",
+    "server/official-paths.ts": "e56dc004c559c26ebdce930d2335bc90bd5640cd95f7549752adc37ef08efc5d",
+    "server/official-sources.ts": "7edf81958b68bd30bc13d16fb643ca203164dfe030c9a3882fc31a5084f3ae9b",
+    "server/operations.ts": "bc40d2624708590b35d888ae121643f1ed76539c4fac893da98473a6bcbf1a3c",
+    "server/path-lexicon.ts": "c0c610539a7c379116c0f6dddd6a0c50ab6aa79a5a1e49cbc3d5c780b78f7d15",
+    "server/provider-errors.ts": "47a955709a5ef98a403c5120596046cecc943d59ac5c3a0f0020ba5ddeb66dad",
+    "server/provider-spend.ts": "0c3900223b5e4264d3a64b721bac9523f0ddb0894fe4d0fe82714ec3aebb106f",
+    "server/reply-draft.ts": "eb2bb973eb5d951ad3936d74d0bd7ea4f12d2e57a468549ec291485f804bff8a",
+    "server/request-scheduler.ts": "49dac1782b8272e8d819271cdcdf6158caaf7350420c07851153a2960b132271",
+    "server/schema.ts": "d43f91f2220682738664033ee5f0b592408af6100ca912a70055f225a9d2fbc1",
+    "server/semantic-search.ts": "2c0ead56cfc07979d944ceda6e23d849eafc0a3e1c9d782a31690fc3255d91ff",
+    "server/starmap-enrichment.ts": "2759f114970125486cf563d658d197b1833d85ffc55c2fed1049080a5f4b508c",
+    "server/store.ts": "ad74ed02f49545d1969256001909d693bbda16b9333c8b19a25cf32f9dc1104d",
+    "server/turn-contract.ts": "76dacec3f23bbfb5db946dba15c0f5af251dff0a733fb29ac910338ff4fa550a",
+    "server/turn-engine.ts": "d814d8f9b822619938b7f03d4fc3eaa5f2c42af9bb77a4768722879627ea82ee",
+    "server/turn-obligations.ts": "9bb24d6aa1f795c34add41d771ce1d9ff853642959c35d1cf43dd507eb6ff809",
+    "server/turn-prompt.ts": "0438b2d7111545c879a18de22c50b5b3d9c48ed94ec0e1fcb8b0a39af403c2cf",
+    "server/user-command-spans.ts": "243145ea82289c71dc3b271e2e58245d1634371254ac86cefd6c0278782e9c03",
+    "server/user-themes.ts": "e653b0a7f38cfd6f70781426e16d88350f0f537df92881fc54596802e9f432f0",
+    "server/weekly-plans.ts": "98e58121559dbf213192aae2ca411dfe211960c683cbea3ef18ddaa89e3c043a",
+    "server/workflows/action-review.ts": "35d286e3f445d4ef51e608526c80e0288204a1631e5ae1dd0c5151d6d5918c8c",
+    "server/workflows/action-workflow.ts": "bc5cdbd8cd18683ffba1dad23ff89e50e5e0773626bf65bf488c79f76d1bb553",
+    "server/workflows/adapters.ts": "0d8a4385a7c1b5e10619c55c0a549144adb0e782195e12e7d0a079e38fe0d6f3",
+    "server/workflows/committed-growth-diff.ts": "79796e86846db99f7a07c9bc27ea7c2c4f132a8e10cb04a5948de0e00466ce3f",
+    "server/workflows/contracts.ts": "05e188dea6d6b9b4a1ff1df618bdac80f1189744e51668d64fe9aade03213b93",
+    "server/workflows/coze-direction-adapter.ts": "1e789cc72408cc433d1b1d6db167f176ed47985e7a240d81cefff0a60a0f385b",
+    "server/workflows/direction-decision.ts": "2de1734dbe6739e01b0d145745543d3cd0d394118141a52f3abe03de320c3288",
+    "server/workflows/evidence-gate.ts": "f04b3c317b59280237c7d08adbe1727f4b672059a7b05369bf2181eca88e004e",
+    "server/workflows/growth-diff.ts": "9e57ae1e7ed250b7ecc1113c53739e2ceec91ee99f6a65a553a54a941c600f32",
+    "server/workflows/guide-application.ts": "9063e03a4be05df197c6431e1c6804b93f18a3b308556045cdad2541584c122f",
+    "server/workflows/host.ts": "dc9539292a22818b8bc36ce9b92abb6f6cda1018554579bfc2148ce25e8e0212",
+    "server/workflows/knowledge-maintenance.ts": "5fb1390718f980bfb800a91410fbfae5da73db61d25f29118eaa194318ec87cb",
+    "server/workflows/method-context.ts": "f5cd043825921859e0672f7bd18be5ccf86167c737b253ddff10d23cb1f6f902",
+    "server/workflows/orchestrator.ts": "b7e4118290ab8e295b57414a132349d33dd201a803ed2d63092b43bfffd2ed5b",
+    "server/workflows/provider-adapter.ts": "a7772651875cf3135c1acdc3097da392fdcc96e662804d109e87ab715df57c72",
+    "server/workflows/receipts.ts": "2252f7f9276f7c1cd9f382297d8eaeadd96d80772bb0ab79cf1c8689f8cccccd",
+    "server/workflows/reviewed-fields.ts": "5bf8f5252f38473c3ebaae6cf750ebb3a5274638ee752908e2a1164cd7b8960f",
+    "server/workflows/router.ts": "64487d0c0ab4f6e29f4a70ecb17c283b7637460a24d95cff93964c9bade4de59",
+    "server/workflows/runtime-version.ts": "e18c3ffac830c0241765e7c29f5fa6348493b4e22f57ae6277ea3c8181591eb3",
+    "server/workflows/skills.ts": "3e3122cb2ef5af0320d0d27f368be1d72c222c96d7b917af5f2b7ea48e017a55",
+    "server/workflows/task-commit.ts": "7527cf6c88f451ac5adf9770826beb1c5a619d8c55367b3d0ad2defa8130223e",
+    "server/workflows/task-host.ts": "723bacd092374c1178784976c92fd99d30aaea7661a15024a3684daa42b83bf3",
+    "server/workflows/task-journal.ts": "8e95f31eb5d2c257d663c2a0800aa1a0761fdf48552cf41260e172613e43a25a",
+    "server/workflows/task-sources.ts": "c4becfa85167f672710d81ee7b3b5d06ce688757db8739661e6d1390901326f2",
+    "server/workflows/trace.ts": "d7fb14fe0856b939c1f3ace316c59efbbdff73447ca6195fb58292ffa8eef749",
+    "skills/lifeos-action-review/SKILL.md": "e6ee4f68ce5bc62327ea0eb405fef5ffae26976b1d12bbad97c586472888efae",
+    "skills/lifeos-direction-analysis/SKILL.md": "62943fe56bb940650173f2d0172d87ed2805cbe211f11facf20a2f2a778799e8",
+    "skills/lifeos-experience-evidence/SKILL.md": "35f728f885f5fca4d64a54570def72e4adae2253467d2e7a7170279ea1fde814",
+    "skills/lifeos-growth-diff/SKILL.md": "b8bf44162cd18a59e6a6a2ad43e2164313a7ab9175a88e7b9a3f61f137d03380",
+    "skills/lifeos-guide-application/SKILL.md": "874cda6490c064d9fa26c2b498977f048edcca203e82809fa68c35864cb89661",
+    "skills/lifeos-personal-companion/SKILL.md": "50aef5cf0b45610eb36e44ca6f4861586ac32c0bf7c9b146debbacb1d4747253",
+    "skills/lifeos-personal-companion/examples/multirun.mjs": "0002e54afd528f7a08f19340901f8374268e622de5736f0b46597f2b4dd177e8",
+    "skills/lifeos-personal-companion/references/host-api.md": "3cce1d72f71ffed9353065e526f1648dde273787381fcbff5c2ab6a860851699",
+    "src/App.tsx": "ae4fb42619764093b9d896efdee8201b38b88d3fdcb97cc6b6ba480b7e55acdf",
+    "src/backend/AuthForm.tsx": "2230387b4aee143aba52dc94b85b63ef48dd3de29f24f4df34b25693e8ecd20e",
+    "src/backend/auth.css": "1070c1ff132fcdfc37b04bf9bd5c80a95fb1aa4e3da3f39f688a1564e95db5cd",
+    "src/backend/client.ts": "459994007fa2c44a51ff4101a724cd55ba2a1d06757352a892ce988fc26b72f5",
+    "src/components/animations/ClickSpark.tsx": "259937a56fb8d25674742817d2103b66942f013b46c542610a9015abaabb9a59",
+    "src/components/three/ControlledReflection.tsx": "41a4413f08d1ca838e7cfb4496cdcd64a81dd05c847b7e2975fc9755b8df6832",
+    "src/components/three/Core.tsx": "aa4489a55756fa5aba191e5b8e933042f767d19929e7c00bf52c0ffdef7e9924",
+    "src/components/three/FlywheelEnvironment.tsx": "3a198c61db6903feea01cfad475542b4a6cb2b5376483c14b8395f984fd1074c",
+    "src/components/three/FlywheelModel.tsx": "2a7096a6924142dcf4444b610caf8d8a1d0311fe851aafcd82abeb4ce75b6249",
+    "src/components/three/LifeFlywheel.tsx": "f9e7a301be720920a6ccf5fd10446eee19f5e73ec40c2b78dac968154797de82",
+    "src/components/three/flywheelRings.ts": "a88de39d53e945db9ab93a2b29fff31e750791af2d773381a6c42f9bff66f142",
+    "src/components/ui/CodexSelect.tsx": "a773656ce3d8b950c8abc6f45b47a3c04f614e77ba3c89e7fa8fb71b0b502e90",
+    "src/components/ui/codex-select.css": "8f18a62765a6c39490dcdf8efabce1f9392089b5819e9bc384901ccd96179461",
+    "src/features/cognition/CognitionScene.tsx": "bbb16e784b92afa7681db3d685c1389874395ba3b62025bf065d167242ba7afd",
+    "src/features/cognition/LandingGuide.tsx": "28bb4e309ab05e50dfd157c9add8beb90d8408713167ba7e7978a37e161b5ad1",
+    "src/features/cognition/OrbitRail.tsx": "527a88cb04798e77b628f08e0bfb56d6d1522bac03357ef8b282494e1aa9bac8",
+    "src/features/cognition/RecordPanel.tsx": "823c69336bd173b9350e58ff8771cbaa29c26b9e925d707870aee1c4f5f8aa46",
+    "src/features/cognition/SatelliteNode.tsx": "b0497fde16c941b07b59cad9f7f993c030f76cc1de536bdbcbecd066cc1500d5",
+    "src/features/cognition/StarmapDemo.tsx": "923be455b624fdb331309caef87c838eed9c5d69c4ac1ba70c4262ab95fa02ae",
+    "src/features/cognition/ThemePanel.tsx": "e819e995fa25fb520e01088eac1d2341e46881d3a3f4371552dbe9dac2d7fdfb",
+    "src/features/cognition/TimeAxis.tsx": "0d7e3b9b68909f5c5c59b99d82d6286ac97de23ef25048810077c6423bdedd2f",
+    "src/features/cognition/cognition.css": "742fcc3ce85ec18ef37bae2893decd6ff46f4d0b01fb7ccb8b4a15966c35ca26",
+    "src/features/cognition/data/lifeos-graph.seed.json": "96e4780ca7b14fd030021e7b901822f47d929faed308b845dad869c006a4bc31",
+    "src/features/cognition/graph.ts": "6c5a2e484b25bd7dad39bc90e9f9d1dc57f0a2dfb856e1add99557d8678a931f",
+    "src/features/cognition/onboarding.css": "ea3ea192af8a3f3da4a249d5e1eb57e6efcca74a842e209049e8bc7b35c360ec",
+    "src/features/cognition/orbit.ts": "fad2b25ac8778def4fe305c0cea4e6cb70a2e2d3020ac16eec2a3238ed31e291",
+    "src/features/cognition/recordDraft.ts": "ef95a21cde6850b360e703e2ec1b45c1fb318cda7ddf078963b50e727441df83",
+    "src/features/cognition/state.ts": "892b427fac9ce4b49c18e87f4512d9d4106d9c1d108fe9af18b84bf2e2922de8",
+    "src/features/cognition/useOrbitInput.ts": "17f6254bf18397086a5f27e405781265211fc0352f7ad731c9dce58b58c3ad98",
+    "src/features/conversation/AnswerChoices.tsx": "8681c3f48451d09d7b4c530a504072250a578286a929aadb601a157291f826e8",
+    "src/features/conversation/AutoTextarea.tsx": "974aea7fc768d5d5ec292cf5e087647e73e2e8a201ed10bd9fabc78e0168c7b2",
+    "src/features/conversation/Companion.tsx": "b36b3cabb5bbae4073f1fea155111f10b6551bf7175dc9f2e553624bb90e275d",
+    "src/features/conversation/ControlCards.tsx": "7fd8b7fab8b7b1ba451afca42413699d9c9f2a75cf56d240e5a611830623e109",
+    "src/features/conversation/ConversationPage.tsx": "73ee05c4027a48e554260c4f7115eae6413677d5fadd23ad8d7ffd9ce13bd18f",
+    "src/features/conversation/ConversationSummary.tsx": "9c25463638f678690e2192612b94cdc94520536fc09d256ed526a617ddf62d08",
+    "src/features/conversation/FullMethod.tsx": "93fb7e843d10d08f1860ac2e2f20837d5679605bd07ab579ebec3bf59c0423be",
+    "src/features/conversation/MemoryPanel.tsx": "ae74d77cb927401873f7a3dd9a6e847cfb9625c456c5d848839c476afb4b7632",
+    "src/features/conversation/ReplyMarkdown.tsx": "25167aa63f8ece0dacd9ccb405e93a4c6730590b8a178294ae877857e68e18c2",
+    "src/features/conversation/WorkflowPanel.tsx": "7405f42670aa960d0cbd31b0b69636dfe9526b1010e74d2382698b8031593545",
+    "src/features/conversation/WorkspaceIcon.tsx": "f0dac35f1382b64cce36574dbc4aed18ed5fc97b290624845fa788f53626d6c0",
+    "src/features/conversation/WorkspaceSidebar.tsx": "5f9d675c66a99492af0eefcc047e6c5133f1829e90eb3650222bbccd6c28460b",
+    "src/features/conversation/choices.ts": "4d9239e92e768494d73af8e32532f8070f63002a6442dbfda06684e27553056d",
+    "src/features/conversation/companion-player.ts": "cadfedaf8a629abb2fe4316fa5922d91152438ceb4a544e087745ff2ffa7f6cf",
+    "src/features/conversation/conversation.css": "8745083ec1ecf3e8f062babaafde5a6f3173e666790a221df0868298879f4711",
+    "src/features/conversation/flow.ts": "03fb0e24c27344e75b2324b08f54b2a8dc79038ddcc672e8abf0c2417207ce4d",
+    "src/features/conversation/memory-panel.css": "7a2dbcebe5380d357b5bae9ac6a8c9d14d553890bda7c084e44706c46b4a7743",
+    "src/features/conversation/summary.css": "01bdb5a250b6a9d4fe4650d442fcffe4e4d86931649ce3cd5c87a92201da3072",
+    "src/features/conversation/useVoiceInput.ts": "9862f2b42b6ae2741607bc8bf97ec4b72224f3f3dd5ca27688eba660307449ac",
+    "src/features/conversation/workflow-panel.css": "28e1223b0d4332c5c8467a71f2d332a81ef5422607aadf79531866a28e0f1cca",
+    "src/features/conversation/workspace.css": "6f8f5e4072feac8618f01c3157593c80371bddc8eec3e65c59547cf0e74bf76a",
+    "src/features/conversation/workspace.ts": "9097a64e9c97f55dacc6157672fc00115b88d9ead812d3fdd0cd09f77e486783",
+    "src/features/growth/types.ts": "a6f953f440a453bd1dd8b946b47fd4481eb36b900c43b2d9dfcd6747cb269325",
+    "src/features/maintenance/MaintenancePage.tsx": "d1f5478f72822cac11b4503af841c658a8282bf6e3db255dcca51eca504eed79",
+    "src/features/maintenance/maintenance.css": "94ff55608967f6864807e052156dbb2bf148f0eaeb9d1090d793abd50407949a",
+    "src/main.tsx": "85f2b9480b945f3e7d2054feafe8884083cb2abe0f7d4f1d3da25f8826f5bc68",
+    "src/styles.css": "627435b938f16a52a1f06b636c255233195104f04c273b7124a6c3b528f1fda0",
+    "tests/backend-test-selection.test.ts": "3a623312a9776fb1594406903e05a1a7243d1f33c6075c4739431c0ab063ecf8",
+    "tests/backend/action-coach-browser.test.ts": "1506b29a3ac1d13551b73eda292901de7ecf20b1e1d93273d2047720f094124e",
+    "tests/backend/action-coach-contracts.test.ts": "a98da47d3f9f73a538aeacc18bc54ca1c091b4f407176219d333ad2b441ff3aa",
+    "tests/backend/action-coach-engine.test.ts": "93bab8bdd1ca428d8db394bbbda0a1cececda93bc05a2f7b09ff314b04362b3c",
+    "tests/backend/action-coach-events.test.ts": "155a892538c6f98079ddf5a000b97c2d4fa74860d23c4252dfa8955b31b22136",
+    "tests/backend/action-coach-material-boundary.test.ts": "d89d42fb357555e24f2b73e16e515bdd36737172d197ea458cfeaebbc20ee350",
+    "tests/backend/campus-actor-isolation.test.ts": "b9e0dabded957f306faa1102888bb9616d3e0d46aef604b394a38df3ca9068b6",
+    "tests/backend/campus-benchmark.test.ts": "c142a87091ba38a71defc7dcea047d91f6509e875bf2cc746c34af7876876951",
+    "tests/backend/campus-comparison-real-review.test.ts": "78b968ee9285231c82f32c58220bd30862010e6e17b3799fd5f3da3f41d3d3dd",
+    "tests/backend/campus-comparison-restriction.test.ts": "99045f639514e474bc286e7b42a03826c2b141e61ce3632ae166d120eec90fbc",
+    "tests/backend/campus-grounding-contract.test.ts": "67d55fa445823bfa12e4a522fb14520b26e51ea91c3293e8c3483d7a35665e06",
+    "tests/backend/campus-r2-browser.test.ts": "4b1b81a8f4b695571927d0b5099686f915a953dc7d6c79934908b0822dc2d986",
+    "tests/backend/campus-reference-context.test.ts": "2acd19a1b820d2ae249da7212c18c504f12441e2238dbf7f1274732b50c98cd1",
+    "tests/backend/campus-reliability.test.ts": "47bc92365490930e34d352c6ec8b7effe0acddf48f9ef696acd8e806b67f3652",
+    "tests/backend/campus-repair.test.ts": "480feff216c3bed80dc6f7e13c57265b0c63d21e26a536243f01387cbbdef17b",
+    "tests/backend/coach-action-request-sources.test.ts": "a1b491764dfa778735832b194d7bef49759ed448d6d486543786c7be6cb594b2",
+    "tests/backend/coach-capability.test.ts": "726944c7d7913a1a7d09335d709e165213a903b11797ba64735f280b2b69a922",
+    "tests/backend/coach-history-fixture.test.ts": "e6fa31694b7217c7c375994ea49716549fd208f0cf017853c4180a880a9e9692",
+    "tests/backend/coach-history.test.ts": "c932402e3a7a080e361fa98cc16e10005b8272ec472d278e1c03b54cce7e7612",
+    "tests/backend/coach-knowledge-relevance.test.ts": "a66db41034944161091fa1048948856c9b1eb193ef98a9001fd06330114d037a",
+    "tests/backend/coach-knowledge.test.ts": "df1f842886aaf30a02f5abc6c7473c168dda133e4b76d35d35bbff5d5b3096a2",
+    "tests/backend/coach-process-turns.test.ts": "043b8da2e0b30eee42c49f096290030c033fe52780df0d2580247f7d2a594818",
+    "tests/backend/coach-provider-budget.test.ts": "63c006d061e78458a24401645b562ce0647a138d5b6837009482f579bff0a343",
+    "tests/backend/coach-retrieval.test.ts": "af7d80620aeee0ce4ff73d9c0c9b6e8a591bf1cc2473a2e825da4ea5f3f4422a",
+    "tests/backend/coach-service.test.ts": "f87127a83df209822abeadf429db2317875bf1d5e5bd346b562fede5bf22425f",
+    "tests/backend/coach-source-freeze.test.ts": "4bcf17688542561ec7f712b4674d063aca40aee739f3de57e82abcbb832638ff",
+    "tests/backend/coach-stream-evidence.test.ts": "474ae2991a4ea4b3cfe0de3c41e9e10b8af06986cb69573f66c4e084ee7523e1",
+    "tests/backend/coach-user-boundaries.test.ts": "7849d9ff516d492ffbb84be1eb430b720ff5a4d565cef39685ba5abd728e54c5",
+    "tests/backend/coach-visible-questions.test.ts": "accaab647ecbd33899e3b52ce97b0c9257e9d57f9840f65d3f99c07f1ff1c9a3",
+    "tests/backend/context-budget.test.ts": "0cc5c97df94288e86bcb6243b9a15bce3da7a8100ab44a9a88bd5706ba64d687",
+    "tests/backend/correction-target.test.ts": "a129ef9167714148ef0350bb777ba7dfc2fd781f2b6b06e365cfcbd30cd76107",
+    "tests/backend/coze-code-workflow.test.ts": "851248e9c3325d963bbea3623d0ededc5ca585d7542baca042ce440c6a643161",
+    "tests/backend/coze-controlled-miss.test.ts": "1cc5b8bb4549bf04dbd4b3d2135897a2a3bc52788a69f33f358d46b67c09d3e2",
+    "tests/backend/coze-knowledge.test.ts": "5e41fcc2ab398cdfc9f73f784ff7a7d651306e1e790593ac70383b4e0553199f",
+    "tests/backend/deadline.test.ts": "6c6efd70e89bee783cfb312883e47cf71a84ad3ec7348c449d57ecdaf279f6fb",
+    "tests/backend/dialogue-memory.test.ts": "ed6a6b9ae159dc39ab5415b96dbfef340054a4b833e41443aad77c2eea541b45",
+    "tests/backend/early-draft.test.ts": "b7d609e8dbb4f58491b0f61d98ecd4e461d14c086f38db919e5978fbb0a5ea4f",
+    "tests/backend/entitlements.test.ts": "1765f48b5d6024ef1ccf95cf242216a414b1ee8adbbcbd06d148213703f2b49a",
+    "tests/backend/evergreen-acceptance2.test.ts": "d8b26fe54c06fba822277548ddf122ebb433a304a79f0b45fabe825fe36b79d2",
+    "tests/backend/evergreen-batch-content.test.ts": "5e90f04f81b2625a5fd0a25e9fffac7ba9628d8173bbf9208f4520efe13fabbc",
+    "tests/backend/evergreen-browser.test.ts": "7ea49cc0afb1c761f9f7d6ee0b3759191ed96f7f2176498b9daa3f8e9306b52a",
+    "tests/backend/evergreen-index-load.test.ts": "91203eeaf18e83ee8029928f3389f99683526fa2a83ba4a52771967feebef2b4",
+    "tests/backend/evergreen-knowledge.test.ts": "b7c12538c497a0fe8036d09582447dbe3887cefc572aaea11b948b6aeb0ec87e",
+    "tests/backend/evergreen-legacy-regression.test.ts": "8e276d191f22cb15d70ac76fb3c2c5fcd988f2bb12737eb30e9c96ca9913f9c0",
+    "tests/backend/evergreen-natural.test.ts": "cd1989dae06d6b06cf55bd3db3146b15a2ca20c9aba8ca82877780fab455d98b",
+    "tests/backend/forget-intent.test.ts": "87ddbaedc2a6a94a1f096e7f3b1641faa99e005e7163ae1c94574db52b4bc6e7",
+    "tests/backend/grounded-material.test.ts": "b8a8720efe83bc442624dba9a11473ebc672d6bf06923398177006ce5ea52aa6",
+    "tests/backend/growth-amendment.test.ts": "7f58199a2ed9a48286c35d690003ea7cc1900cb98dfa36b7010404e651598228",
+    "tests/backend/growth-controls.test.ts": "92fccf8d8fb045bf411c4cfc5dec8ca8f6247d0084d7b9c5ccbbf9eb006ef18b",
+    "tests/backend/growth-local-dependency.test.ts": "b084920273817f47c44be2c78a52e8bb6d6eb46204536efb3d556453f911e218",
+    "tests/backend/growth-model.test.ts": "3fe39620e19150dcb499ee4a8c42ffa94f154e70e783570206a2831aeeff604b",
+    "tests/backend/growth-r2-integration.test.ts": "ed14009c4fff562a3fb60e625e19b34ef90e72114f4c4ce421bd4ce0f4ef34d0",
+    "tests/backend/growth-required-effects.test.ts": "409f7111ee16bfdc681dce4e4f37cdf66b2c832f97f0aaa93a3979309e8d0423",
+    "tests/backend/growth-scale.test.ts": "0de9d8ab67177b74710fc13b09c8282e45c7a4dc222a13acb68398a92aa3cfa4",
+    "tests/backend/growth-source-span.test.ts": "7f84ab4f089b1b9582125a95fc827e22a412d8e65f842077e5ed70af5e821a82",
+    "tests/backend/growth-topic-split.test.ts": "448646d521ab74cbc219420dcb89c2f5bdb5c7e793c8356a450207056e818e85",
+    "tests/backend/growth-workspace.test.ts": "a471d157c8d532eaa93517be97360c3d6da502bb80883a09badd275a4ed4cfa4",
+    "tests/backend/guide-usage-http.test.ts": "2b034b9d7f5041575307d7cc2824501307dcb1b819205b6143ee2ec160143247",
+    "tests/backend/history-selection.test.ts": "13257170c12c195425bb29e05f4b5899df4ed7269f67214f285d1a928ec2402f",
+    "tests/backend/kb-maintenance-http.test.ts": "3750b205a56e4f56c2cdc67113744b14832b4effa64f701d8d93fc4732d11de8",
+    "tests/backend/maintenance-browser.test.ts": "e643f3a00894f7ca9e4bcbac263e4f772c864ec155968713a0b4ef3f0fc42317",
+    "tests/backend/memory-control-http.test.ts": "ea2db01bdbd7be00510935276291ff5d6ecef371efcd961e0e32ac2b64676935",
+    "tests/backend/memory-inquiry.test.ts": "817f5640cb40fa2892ae6ec2ed98fa93b68b20abeb887971a488a38acc2b7a86",
+    "tests/backend/model-payload.test.ts": "e9c10406c92719ddcb3428428039ce2de1aba12ce81243a3a06da52d192edaa4",
+    "tests/backend/official-attachment-public.test.ts": "9d15e8c77ec9e35049f5c6b8d6e0ca59d9d9ea6c43f5fcf7aa8a34961b67f6f0",
+    "tests/backend/official-attachments.test.ts": "76100cc4abc9183fa6af80372199da7c676651fe6cf53caed11fc6cf3c089f9e",
+    "tests/backend/official-paths.test.ts": "e71892ba8e3d8f5198d449d79295b2205e6e254a71ab141a7c7ca7b530d2daf8",
+    "tests/backend/official-source-public.test.ts": "d424e0dfd30145e70d03bd116a18e09156c476906390f1f5adfb15a14217c185",
+    "tests/backend/official-sources.test.ts": "87bdc0452256a2f75a2b9cc57d8ed3e9c93378bd49669ee0985a83a9967df4f0",
+    "tests/backend/operations.test.ts": "80010b8d6e99cb2eefc376b1e498addabc9d64a427442062f3f2084d4012a77a",
+    "tests/backend/p2-corrections-budget.test.ts": "434f31ef949754232652ba853fd25cd8ef92b006f9f5ac576a9c03febe38809c",
+    "tests/backend/pattern-memory.test.ts": "c92a3b4f1e4ff2380fb05787d23ab764f634b6b77ad7a56a4f28469661d700fd",
+    "tests/backend/probe-diagnostics.test.ts": "8ce9ff86e561ad46b468b30df5aedb0858e061c19248766e1dc9f258c00bcde2",
+    "tests/backend/production-reset-boundary.test.ts": "eb6f632a69aec5b36527fb7ce90134a027603c7dc945f8efd7dc4b55b3d8fc78",
+    "tests/backend/provider-errors.test.ts": "e06cbce5629bb8d9faf876c12536266be6ee097833a9a24ebeea32c78409a055",
+    "tests/backend/provider-spend.test.ts": "944ed9c54c3ed48d8c7c93ea00786781463768f1067348123887d31dc05b07b6",
+    "tests/backend/remaining-plan-source.test.ts": "cb3f0b115c275d5dd98d6905b1734b2599e5475c0f0d2479586e1701b3193cf0",
+    "tests/backend/reply-draft-http.test.ts": "88143be87499b160daad1b2692ff7334dbd4ec13d1d21977739f44822341dea5",
+    "tests/backend/request-scheduler.test.ts": "93c8042ac2ec09b00b4de9f04f0770d6e0cdca3fb9c4e1e2bfcab34e4c8506fc",
+    "tests/backend/safety.test.ts": "b91357ce36aec8db5a2ac19ba55715b67df9ded81f218cc7050d00fcf9c8dfa7",
+    "tests/backend/starmap-g1.test.ts": "25a76481651e10681daf555c1b026291e571b9fecfb03c6ece34d6dd1c35a6fc",
+    "tests/backend/starmap-trust.test.ts": "5c6d130532f883af0e50cffdb054133f43b578558e415a9d950fa135dde43b82",
+    "tests/backend/task-outcome-verbatim.test.ts": "bdc6cea4b04b775a2b11f004b3b9531c66474fbfcea618b0b11327eb48517bbc",
+    "tests/backend/theme-lifecycle.test.ts": "5bc2c68e1e1d23b93bc5c3475ddfa81cb827459e7dfc2e911dfba6271fb4ea5c",
+    "tests/backend/turn-contract-events.test.ts": "9572a0b0176e352f80331f4a5bf5739897adf705dc8fabdbe5de1b21d9af5c9f",
+    "tests/backend/turn-contract.test.ts": "48133a845674b35cfa356101d7e8237a0a057fbdd72f0def79d79c5c67192c37",
+    "tests/backend/turn-source-availability.test.ts": "66e19fa0e010885e171074e5ee2fb08fed59b5c5337f79e44efe6335c87e6991",
+    "tests/backend/weekly-plans.test.ts": "648620bc4210994a7f408007df6cc044fc584171c1651134fae968da1de5ccf5",
+    "tests/backend/workflow-action.test.ts": "d5f93311896bd89f053403e6f19997d3c5199a491e1c09fc0e90b5bb34cc2ea8",
+    "tests/backend/workflow-adoption-guard.test.ts": "d7f457a46f31905421f3a14b4c8b9bb87a9619c65b22578973975153e7433b94",
+    "tests/backend/workflow-audit-boundaries.test.ts": "58333c5a7af1e8c22e172302ba37433aaec2568b4b9052de40d5d1313c603291",
+    "tests/backend/workflow-continuity-browser.test.ts": "5bfd6075f18ff26df15a1c5b782f9315c1255ded8cf4b477bcab798aa4a8448a",
+    "tests/backend/workflow-continuity.test.ts": "fa940a161e6dbc35757e7eb3d66468a5698a452547b6b69dc41f5c6633859fe8",
+    "tests/backend/workflow-contracts.test.ts": "1bf27980f601f2124911cac99db09bc0f9ad7ce560e5b234e5a12705ec813393",
+    "tests/backend/workflow-coze-real-entry.test.ts": "2cfbc24b75e8f153a818934143faba50513e358d360f510b625f4c5eb03ef4c2",
+    "tests/backend/workflow-direction.test.ts": "7d0fcf65633da275a232273bafd85739a7880ea200fdbdeb5c5d839d5a1ca5e6",
+    "tests/backend/workflow-growth-knowledge.test.ts": "e2b7a6b5894826be4bf69aab1d078cdc514470ffde279b1fe19e05ce8dd465ec",
+    "tests/backend/workflow-guide-continuation.test.ts": "9c6e402c1f96a7f3e52d96a72c23a7c336813659f5d2d6aa56d85fefd80c3d30",
+    "tests/backend/workflow-http-chain.test.ts": "2f1710b7bf67314501c22de228df8d99ea416b1355449efbfbfc5bf88a407e55",
+    "tests/backend/workflow-journal.test.ts": "70b9c864fe7ae621aed643fcf0d2f135a3de0021d595bd318c677bbe63acdd9c",
+    "tests/backend/workflow-main-entry.test.ts": "430d02b3988166d351e1d32eaa88a40ba9fca53c1d7d6e4c3351c4dfafcc8f76",
+    "tests/backend/workflow-method-context.test.ts": "cb02d0b8deec5c181fa7978f0bb9b7bd719d5efd3041319e401b052a0d397553",
+    "tests/backend/workflow-pending-review.test.ts": "a9a5112f997a244c96774fdd517d85fd5808c72e767f697d4b9bb3dbbc11fccf",
+    "tests/backend/workflow-personal-basis.test.ts": "aaab79638a9269e48131b3f540640368a3d2f8ecd2908393ee3918d39672e2d0",
+    "tests/backend/workflow-personalization.test.ts": "e1a9ae4acf9f751dcdd45c8d302934b614514044a320f3a32a4e21ddf74a8b93",
+    "tests/backend/workflow-public-card.test.ts": "0b1dc155666c144a2bd4f2119378f87641fa2404b20d34c32ea18a6a30029b23",
+    "tests/backend/workflow-real-entry.test.ts": "6cb6c9bc347c06f3ec4208b962c4af5dec6fe92cc54c0bb1be8e0bd212f26625",
+    "tests/backend/workflow-runtime-adapter.test.ts": "7e7f9340a1721df09351ee3dac00bb89bfe8bf7224207abc633fbd13bd1909a5",
+    "tests/backend/workflow-skill-runtime.test.ts": "cfcaca07a4c056628a241d0c6d38a39960d108067a47f8215f18aa8cf379ddd2",
+    "tests/backend/workflow-starmap-time.test.ts": "3c95dc6ce02c1206be580603c5e3e981ae12f75a395b48e994f91455f103ebeb",
+    "tests/backend/workflow-student16.test.ts": "061d8733587f2cc3d987c1b74b55cd881894cf5a40ed2b512b7ec94d37c5d3eb",
+    "tests/backend/workflow-time-browser.test.ts": "ae13b8e5611c66d0b5bdbb382637b2d9f6bd33ca63c7c571eaf3a7635347e646",
+    "tests/backend/workflow-time-host.test.ts": "3384754b54a3db997e0ef10f9f9fbe531c9725e096547b0dc15ddf93708f94f5",
+    "tests/backend/workflow-time.test.ts": "a6dd9b2023218c47d80ff7c711047f985e897bdeebe1c5c3e9fda374194eb267",
+    "tests/backend/workflow-trajectories.test.ts": "1ec25bacd6bce684a00cc9890936064f7d6552edd6cde5d89721ea9f0f66f7c8",
+    "tests/backend/workflow-zero.test.ts": "e3ed357ef4710acbbcbaa53aba64feff0b5a78238721c685d57c02490cf10f73",
+    "tests/bounded-reply.test.ts": "305201ddf3e7f53a6534b90f2e6f2c4cb1c1952c5e649faf470e3ec6f59afc11",
+    "tests/campus-acceptance-summary.test.ts": "90fdf72552dd7635e5813a968786634b994d11c4e45ef1b514eec0ae4b4b691c",
+    "tests/category-patterns.test.ts": "fe95a4a2297972bbd2f4632ef6f68a994c21e573e3ee1e6905ddab1131aabc91",
+    "tests/client-errors.test.ts": "e1c90ee1d9c5fbebedc1b1a3440aa3d15db5355136f743e85c60e621c2e6ccd5",
+    "tests/client-workspace.test.ts": "02b55cf38074882bef6cebc4df9f59ce2aa974aeae0e9caea84dc532361880e9",
+    "tests/coach-reply.test.ts": "931ebcdd52496ff41a876812563cbedd8a33a12b0bc99b4bc7f3cc2c9561eea7",
+    "tests/coach-simulation-reproduction.test.ts": "1e2d0bd8f2554dbec6d323be8a2bdb2c42fc647b2632331e6bf967311f29052a",
+    "tests/cognition.test.ts": "f34a890a3c79016ac75fabf78422443970d4a8f5b8b4df5bcbbff84d78661f9f",
+    "tests/conversation.test.ts": "58a03e397d49d7cc731b62ab0c3e8b5f1937003159095f446befd2e50ae71db9",
+    "tests/cost-workload.test.ts": "904862b1c9b81af9fb8855886dd92edc790ccc61a3313927627c80eb1a2ea1db",
+    "tests/coze-credit-budget.test.ts": "f811c140499e9bf43d8b751874ed8839493f32a72930b002a1a1f1945394f45f",
+    "tests/coze-direction-execution.test.ts": "7ab1782d3ae30512f3036ff768583c88121a9d9efd535e06ab26f8c1c33a4a8d",
+    "tests/coze-direction-receipt.test.ts": "feafdba7250c0a044b36a7f939e6f41e4fa134f9c950293c7412a7499b58a31e",
+    "tests/coze-host-permit.test.ts": "d5401e914e4e30e602c0bd7164fbc8834a5a0ae909c5bf5dc4872346b7a486b5",
+    "tests/evergreen-guide.test.ts": "bd7dccf7d690080a312e3df52c9e6ecf666273531291af458986d0fa5148d2e0",
+    "tests/experience-content.test.ts": "1aa8a0952c25a3920529553aa6e3f007157b2b2bad8ead44b0aec856653ab05f",
+    "tests/fixtures/action-coach-retrieval.json": "515109aed06b8f05e076b83784b5334602314cf709b7b00542a88e080820ad33",
+    "tests/fixtures/action-coach-trajectories.json": "828dacc2f614597b0e0cbd1a9eb23c0c5485f9d4eb8a023a38100a347f3f0154",
+    "tests/fixtures/campus-acceptance-regressions.json": "842286f87c06fce867fbfd152eecf60d3befaf75df29c0eead6d0fa6d9d9fbaa",
+    "tests/fixtures/campus-growth-trajectories.json": "c3305595624f568032f8c3ddb3d4679c363a5946d043cb870afc1ce5b5208bbc",
+    "tests/fixtures/campus-saved-contract-gaps.json": "ce2bf4bd8ac6d547b1ced077910dc97ce08cea0ba0bc90ead56962dd3f1f3582",
+    "tests/fixtures/campus-saved-reliability.json": "edced3fcade85485715efea1c5c07a3578bc285b361c9076a4834333a88c913a",
+    "tests/fixtures/campus-scenarios.ts": "0c66b66e58f64415aedc575a66c3787423cdd511df88c297c00807a7216a743f",
+    "tests/fixtures/coach-invalid-background.json": "962690de0c2bfb78cc66e73b3524218e3aaa59d3440deb114d1ff6c40246cffa",
+    "tests/fixtures/coach-invalid-unknown-resolution.json": "5d6938a5cf3b82dff7c0bcbd5532e3cddd6f0ef2e5a957b4da2c4c6f0598eb09",
+    "tests/fixtures/coach-invented-event.json": "77a071da5f42132bd40fe7e8b7e14c1d9499ab9bfbeffbf7ddb542d318f5d114",
+    "tests/fixtures/coach-knowledge-relevance.json": "472b8db48e6025da23f9b12c22842846c9d8a7a5b3a0f8a1dea7ed7b41b0b63f",
+    "tests/fixtures/coach-markdown-material-duplicate.json": "feb0f29b3fdb40c2f1ce9c920cbbed15a8bd27130f6f3d85eea27c0fa7acfa00",
+    "tests/fixtures/coach-missing-citation.json": "e39482f501941938ab0e20d3c7557b4e0d2fe688e167624810b68573a713e966",
+    "tests/fixtures/coach-unknown-only-repeat.json": "a7684dd520d88c1a466f11fc4215b74c00a7b6b8bd14623bae083da2d007c661",
+    "tests/fixtures/official-office.ts": "d0b0eecf3a8854aadb18c65c6c89cc76303a7b76f67567ea96de77c7e27bfd02",
+    "tests/fixtures/official-recommendation-dom.json": "f5a66a8f985f7f463792c67bd99b5100cbdf53e51cf172fd4db9a36480eb4510",
+    "tests/fixtures/official-source-dom.json": "4db64f00a993492fc5a841be70e676e9cb79fc7ebf2ebb8a5b9e1bcec5e353fd",
+    "tests/fixtures/workflow-graph-failure.json": "b972b04ec6433860daf86dcabf2ded3c8d394ec346e17c93b71796db50eaed16",
+    "tests/fixtures/workflow-local-trajectories.json": "ee3dcdc43b72b81fb334e50625f201650e049e25a3033c99e2f66b3b924f9390",
+    "tests/fixtures/workflow-routing-v2.json": "248024a9a46b82b400b04184f03cff6132ad1122915737b7281bf259f2e4ca79",
+    "tests/fixtures/workflow-student16.json": "e070626ede368ab5caaf61671502fefb1135366e683c1e3411c2d9f86e5bb735",
+    "tests/ftp-dependency.test.ts": "195b6f491b7f76940ed238ebbe2118d495cc57d241d91c8eaeaf656c98600509",
+    "tests/grounded-material.test.ts": "1ef1400dc6f77efa00515677b01d38b73c6f8c6764e1d58c01cbbeff0138d803",
+    "tests/growth-source-fragments.test.ts": "7074f1bc2a1d2ec2dd23d9fe6181e66d586e92eef895d2e50689c699346ca3c5",
+    "tests/growth-time.test.ts": "de919ab6f9218867bb140c0dbc651bdbfdd4c72bbc5d03089ff754ffe5f8e9e9",
+    "tests/independent-review.test.ts": "cdc8b12f3753201797b2acab8f6f81d7b748ea4572f053bf1aec7319db497330",
+    "tests/model-config.test.ts": "7f8321f51f607e0321d04ed17a7e33ee81d45b90ea14f60b6b3bb59fd7193535",
+    "tests/model-router.test.ts": "3d3727045d85273029c19de8afd98273155737b286102bfccd6c988cd9b23100",
+    "tests/record-draft.test.ts": "5f512385983064797cc4431013e7ea1e0a65737a6f9a3102da22b27afb4339f3",
+    "tests/reply-draft.test.ts": "9e21b3243f11b7dbc54c26d577204547905e42c11a4d6a0979ba161f8f4a2374",
+    "tests/starmap-acceptance.test.ts": "a81f4172514f526150d71b1fc1af0b9cdd2f23da78affae58ac29620b86b7f68",
+    "tests/starmap-trajectories.test.ts": "fbb0f1086125384b935edfa081a7c363d005abfa0a72d242c8e030557ca1b07c",
+    "tests/task-outcome-verbatim.test.ts": "183ff69587f293e01be0be9e35281d2ae926e53c358c8bb715b4c7b49abd191d",
+    "tests/themes-episodes.test.ts": "74b667d21becacba7ff0522373ef450f574aa83288ce1196c23525a8a6467b80",
+    "tests/turn-obligations.test.ts": "5520bbf1602ef712360446f16a7d9e522acc9191cbdd16877a0c80bcc833e480",
+    "tests/user-command-spans.test.ts": "2dd8ac8ba37ec86ec5c32ffaa6f42669411d047e1ca63087a2009768481b1e62",
+    "tests/workflow-graph.test.ts": "ba2df800cdfd33fca0fad7e304ec8e96ef168b4edfad9675ac524fbfbb560756",
+    "tests/workflows/fixtures.ts": "6523b7683716698638e819d8e7388abd094eff298ab3b14f6a45b7aca8c8cbdf",
+    "tests/workspace.test.ts": "3869661b2ab71c018f48bebd49a9b621f789d3ec1f1633218edcfa66fc1a8ddd",
+    "tsconfig.json": "6aaa2c6f95642dbe4f62cf196de8e4e81b53500180abd427266c96eea1366e45",
+    "tsconfig.server.json": "5b1a0f244cacb0c5fa8b7477114b1169ab8afc398f706b7c49e9524bbf0033b0",
+    "tsconfig.workflows.json": "5f4810cf8205997db9fbd3196d9321c7eadd5652c541f27e29b0909b73906c8e",
+    "vite.config.ts": "e517b09d4aac75d0cc11348bb9fbc9e6cb43575d2f977fcc351f44b48a328949"
+  },
+  "runtimeFreeze": {
+    "kind": "FROZEN_SOURCE_AND_RUNTIME_CONFIG",
+    "files": [
+      {
+        "path": ".dockerignore",
+        "sha256": "1751b1c26b976abb062f36714a9c06e1d4cfe1ccb920c24b5921c98bcfdc216f"
+      },
+      {
+        "path": ".planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json",
+        "sha256": "281b9dbd6db49e0364be55148b4965e97c62b5aac0aa2e6956aa023a41cd3bee"
+      },
+      {
+        "path": ".planning/research/workflow-integration/INDEPENDENT_EXECUTION_BINDINGS.json",
+        "sha256": "62883dcf2330d8c4a2945f873a9a90c67241b0c50444d5c74bcdbf0288ff4132"
+      },
+      {
+        "path": ".planning/research/workflow-integration/KB_SIX_R4_FULL_INPUT.json",
+        "sha256": "43147524695f1efc32a3797cf4cb393bf2f5c1fbb6c7850995654f673f539c91"
+      },
+      {
+        "path": ".planning/research/workflow-integration/SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json",
+        "sha256": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13"
+      },
+      {
+        "path": "AGENTS.md",
+        "sha256": "02a85e9253fd085ab80cb19c4e1b0361a1185917410b8995c24a954d5a6b76c8"
+      },
+      {
+        "path": "compose.yaml",
+        "sha256": "96afe47ff39bf9e7f18047c388b48e3deee6b71a8bab73a29cde5c4671dde1c8"
+      },
+      {
+        "path": "deploy/backup.sh",
+        "sha256": "6afc28ab577e810509cffc16aad9847d07493b6bad1b92a4c43887e1273802ee"
+      },
+      {
+        "path": "deploy/build-image.ps1",
+        "sha256": "5ffa11b0cb6f5fb90a6ef94491a4ab6e528a1ab04100953d0296376cdf4c7816"
+      },
+      {
+        "path": "deploy/check-container.mjs",
+        "sha256": "e51eab05c983502f3910317a03cd1a9179fdbd31631d79548ca227b6cd745176"
+      },
+      {
+        "path": "deploy/check-embedding.py",
+        "sha256": "b034c17021a096a8052a8b2a15200d817f6a4cb4c6f5bd0102608c20a1444816"
+      },
+      {
+        "path": "deploy/embedding-wheels.json",
+        "sha256": "d91982eaf8bfb5718c818a25ed0cae571f860da00e310248010619735947228e"
+      },
+      {
+        "path": "deploy/lock-embedding.py",
+        "sha256": "1e27ee0a983c6af2ddefca256de6c56cc74ff358e541b09e1b5cd2870dd849a9"
+      },
+      {
+        "path": "deploy/nginx.conf.example",
+        "sha256": "5509e021f02558bac1fd56338629fbdea9557abb4f8328d987cbe57cfc572f5d"
+      },
+      {
+        "path": "deploy/prepare-cpu-torch.py",
+        "sha256": "d98b5779b836997da1d4c37631e15ead6ce30562d5c0d15a037fbaa9188ac5f2"
+      },
+      {
+        "path": "deploy/README.md",
+        "sha256": "ef7f5dc0636a5ae4096b18988dc6bceec49b625612c9d48fb63096498b053827"
+      },
+      {
+        "path": "deploy/requirements-embedding.in",
+        "sha256": "e133ae8934f934f9bec4d30516ed9996ae91b64d0d7e00e5895b623d8c4de889"
+      },
+      {
+        "path": "deploy/requirements-embedding.lock",
+        "sha256": "aa64856bbe9c7827444937d0983e0d041c41a9f4ee189450f33d461092757b33"
+      },
+      {
+        "path": "Dockerfile",
+        "sha256": "e180f7219edba8ca8c2005b88df4b3f306655505512085d11c34a244bcef1b6b"
+      },
+      {
+        "path": "docs/v1.3-action-coach/OBJECTIVE_V1_3_ACTION_COACH.md",
+        "sha256": "8be2c81cc5b03a86a2a36bf45054064fa031d1acac6a5c13ed2f5b2c64114b73"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json",
+        "sha256": "dcce306ba9be45e5385d32e910e3b096211af3a25e9306dec956b8de6064ee5c"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/INDEPENDENT_R7_EXECUTION_PROOF.json",
+        "sha256": "3df55127501e87ed2159a8d507386cbc31be609cd5c5700cbbd0edf299471590"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/INDEPENDENT_R8_EXECUTION_PROOF.json",
+        "sha256": "d273a4e30d55bb52af0f2a4f82456aabff2bf658cc8210318102837c13360caa"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/KB_R7_FORMAL_RAW.json",
+        "sha256": "7989f8a55c84708a9c275b9b3eb52d78206b3ab40cac0794be8b3bc129fc9886"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json",
+        "sha256": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/campus_norm.txt",
+        "sha256": "5ccd7b854228f3b637a5a577d7ae34e9abda110f985438f84c9d29e079af3812"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/campus_orig.html",
+        "sha256": "9c7bf0f0c986409e1e4ca94730e7ac0a86a443f0e22f89d66e2370df5ceea536"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/cfpb_income.pdf",
+        "sha256": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/cfpb_spend.pdf",
+        "sha256": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/ies_norm.txt",
+        "sha256": "efed8f7bf5702238aef13d3fcd1d3b26a8c4495512bf258085b2b3fd45c75147"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/ies_orig.html",
+        "sha256": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/income_p2_norm.txt",
+        "sha256": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/spend_p1_norm.txt",
+        "sha256": "ddb371f04aacfc52b142256858d2ef672f285359815d6c323072add069aa28f1"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/r7-originals/spend_p3_norm.txt",
+        "sha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22"
+      },
+      {
+        "path": "evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json",
+        "sha256": "59dca996a5acfd058f657a80339e8d1186f219976b3495bfd5762d6e710b4a7d"
+      },
+      {
+        "path": "evidence/v1.3-action-coach/research/source-verification.json",
+        "sha256": "3d8d4c76052205057d6326bc10086237d603133f9843ee0bfb89555b2e8e1e30"
+      },
+      {
+        "path": "evidence/v1.3-action-coach/research/verified-method-cards.json",
+        "sha256": "af79c4244b147c80fec78c10d5701fb3d7c4ac13cbfb47300934e915481f47fc"
+      },
+      {
+        "path": "index.html",
+        "sha256": "3480efcfa98f27950f9ee0965a2194a41bd9aaa13c07c269dd6040ad19f36bff"
+      },
+      {
+        "path": "package-lock.json",
+        "sha256": "5669ad0c48aa50729d9d89911374bbeb2dfaecd75ab30d8cd7c3aee04052ddc6"
+      },
+      {
+        "path": "package.json",
+        "sha256": "58d69024c55f0366dab731f15b4db3d7424d2222d4b07c39a6909306a0d3147c"
+      },
+      {
+        "path": "PRODUCT.md",
+        "sha256": "11d9640e63eaf94f3e92be1062c54baaf7305993474ecb0b4c797774b850d16b"
+      },
+      {
+        "path": "public/assets/companion/animations/answering.webp",
+        "sha256": "9872f25a9e85e8c5e2f1ccc123997d15cddb27fed5cd0ca931ee50445213dd51"
+      },
+      {
+        "path": "public/assets/companion/animations/complete.webp",
+        "sha256": "b88e583d18a7744a9052eabfaa1d7b58b4f4d3a6138fdba7c6c755c10c4909a3"
+      },
+      {
+        "path": "public/assets/companion/animations/idle.webp",
+        "sha256": "ecc019f555eeca699f143c1b1e966b6782533b4f6803e35b301589976c2890fc"
+      },
+      {
+        "path": "public/assets/companion/animations/received.webp",
+        "sha256": "7debb0296d0cd43db07d35c25f52084393f089bc3c5748e3a5f3ab68199a30be"
+      },
+      {
+        "path": "public/assets/companion/animations/searching.webp",
+        "sha256": "86baa01518347b8f4501fed6e6f09287f6f6b485dfdb317fb7d2cd75b55e260a"
+      },
+      {
+        "path": "public/assets/companion/animations/thinking.webp",
+        "sha256": "3eb5f57b9ae35b0c43bd77e34d64df85185126d94da27325bbbc1eff7a793888"
+      },
+      {
+        "path": "public/assets/companion/animations/waiting.webp",
+        "sha256": "23c3cd56f6681713d96b7901fb3123a22725b6739630c37cc1cdd7bbb8ccf9b6"
+      },
+      {
+        "path": "public/assets/companion/GENERATION.md",
+        "sha256": "8355df19d95e97dd638bfba71d6f29b1f26703d029368a22dfad56baf3255d3a"
+      },
+      {
+        "path": "public/assets/companion/lifeos-motion-atlas.png",
+        "sha256": "81e81f2b47d461a0d1088589f6dfb461acac539945a95fd4d1eed5043eb4168d"
+      },
+      {
+        "path": "public/assets/companion/motions.json",
+        "sha256": "8ba98e1f854296c16a5fb6e783279386ee1484e57688a07cddcf23659d337a01"
+      },
+      {
+        "path": "public/assets/lifeos-companion.png",
+        "sha256": "bee508091493cfd7f14b161abf4cd52e44bc94a026408d135084401413c24f03"
+      },
+      {
+        "path": "public/favicon.svg",
+        "sha256": "cacc96d97919881c1f35921838e1250bb13fa309c8493a051ce53551b9cef8da"
+      },
+      {
+        "path": "scripts/access-recovery-action.ts",
+        "sha256": "28949c089bf925557d9cd0a075fa98e5cfe93d2fb0c04d7f31138d82be1f9da1"
+      },
+      {
+        "path": "scripts/audit-action-coach-budget.mjs",
+        "sha256": "3869758ce0399402d93b2bd5a457bbf12a2755f1019542434c7de99980664d26"
+      },
+      {
+        "path": "scripts/backend-test-preload.ts",
+        "sha256": "df26118c2eddba9ed3ea8313f547dfe713c54bf70f6ed375ae869c9311274428"
+      },
+      {
+        "path": "scripts/backend-test-selection.ts",
+        "sha256": "c8d1855f9aa4dd171ea125a96446de94cbf95dcd781b286c239f76279c38bec0"
+      },
+      {
+        "path": "scripts/campus-benchmark-summary.ts",
+        "sha256": "aacb7951d71edfc208a268ebcb5ce169252e946c80e781de089523bd0c4bc82d"
+      },
+      {
+        "path": "scripts/campus-continuous-operator.ts",
+        "sha256": "c1afc1191a943d1465e6a788cb7b4be1b93ccc9c1a8025bd27911559786288fe"
+      },
+      {
+        "path": "scripts/campus-recovery-action.ts",
+        "sha256": "34cbbfc77f24979fbf2153de3b019f428c23389a40e46862acb2d6bcdf8c39a7"
+      },
+      {
+        "path": "scripts/campus-review-extract.mjs",
+        "sha256": "5b20c6e4a408f0df06cd296c7c0e9f97f0aa08fde01f15dc3c821f3bad1be009"
+      },
+      {
+        "path": "scripts/coach-budget-observer.ts",
+        "sha256": "f65732bb6ed0a53ec56658882bf4a49d398018e74b4c1d20e98cda75c75cca8f"
+      },
+      {
+        "path": "scripts/coach-history-fixture.ts",
+        "sha256": "334ff5d45b79a2429d39e20f32efadb2594ba4e0e982e48f60705cc9555a182d"
+      },
+      {
+        "path": "scripts/coach-provider-budget.ts",
+        "sha256": "645bf6adc529dd9a2a6c1664ff2850c3f91f1d6932e3f153ae60befd5b569098"
+      },
+      {
+        "path": "scripts/coach-recovery-action.ts",
+        "sha256": "a1369be3ac2cf0a51dc90a48f3d63656b24ae9168137645faef91ef7cc957f1e"
+      },
+      {
+        "path": "scripts/coach-service-test-preload.ts",
+        "sha256": "df9ee43f3530761efcceafc07de79f34e3006bd4e8eb7e4d66b17fcaf3e7d7d5"
+      },
+      {
+        "path": "scripts/coach-source-freeze.ts",
+        "sha256": "0185fa1b7c5b391b7d3571ebc666914246de0757ef3ad84ced4ec28543e31b07"
+      },
+      {
+        "path": "scripts/coach-stream-evidence.ts",
+        "sha256": "01706db35d3ddc090f1d8ad9949ef134092d0f87bdcbe302db8cba2e3c6a960f"
+      },
+      {
+        "path": "scripts/compare-campus-models.ts",
+        "sha256": "fd6d0bef8475b1835acfd9591a741aa7c1cfaa1a0c40dd4a11de8630824cbc7e"
+      },
+      {
+        "path": "scripts/compare-coach-model.ts",
+        "sha256": "1d962c3149f78632dd0bf223301fbc68b8e0152aa3d29299ef6106a03ea5e934"
+      },
+      {
+        "path": "scripts/compare-coze-retrieval.ts",
+        "sha256": "89ef1c66347bdf5d08bc1adc099180e0daab101c098811555b95614738f08854"
+      },
+      {
+        "path": "scripts/coze-access-audit.ps1",
+        "sha256": "737455f85b489c23b298a029268a1f2ecaaba561302cc4d16e79850ad294474f"
+      },
+      {
+        "path": "scripts/coze-credit-budget.ts",
+        "sha256": "d1e5ef8a90865c7789479b6dfe143bd54efa3f1e33ac6eed9eb7bb1a26ccadf6"
+      },
+      {
+        "path": "scripts/coze-host-permit.ts",
+        "sha256": "47469f70bcfddd5431e7f344ff13042f29f21597c93afa63903c35134ef5ceb6"
+      },
+      {
+        "path": "scripts/coze-prepare-mirror.ts",
+        "sha256": "a02ccfab2c3f39300c397bd53d4910b2a64c3aa448949cf9183d3205411017f5"
+      },
+      {
+        "path": "scripts/create-user.ts",
+        "sha256": "cde7d8225ca936202ee1186c642adb407e439bbc91d14e0b5b9a678c7a30cadb"
+      },
+      {
+        "path": "scripts/diagnose-coach-material.ts",
+        "sha256": "84845f3c0edd7a715cc586393a5f998f1b8f50eac7ab882c10dd35eccc113828"
+      },
+      {
+        "path": "scripts/evergreen-audit.ts",
+        "sha256": "b624d4ae117dd7e4b80ca59f054f02dcef51be477ec6b1b9f6da0b4e2fb588bd"
+      },
+      {
+        "path": "scripts/evergreen-batch-content.ts",
+        "sha256": "97a4a5d3349804a7e269bb0496c4477f579d37d87acff62ae9c371d94e0f3bb5"
+      },
+      {
+        "path": "scripts/evergreen-batch-sources.ts",
+        "sha256": "8edf2ec6c5f42e0194564a62dee0ddb5f55556cf53447c8cd96896ccc83775fa"
+      },
+      {
+        "path": "scripts/evergreen-evaluation.ts",
+        "sha256": "cffca96cec18b23727fed59142af3dc5d8ba42b521de9b196beac5a505355b2e"
+      },
+      {
+        "path": "scripts/evergreen-evidence-enrichment.ts",
+        "sha256": "31ac65ded8abcb09f8a9fa31239fb4d4a899e09c04179931c475223beb086876"
+      },
+      {
+        "path": "scripts/evergreen-knowledge.ts",
+        "sha256": "2119b453688437cd47373c609af66720a019a704faade42391f98897190ee0c2"
+      },
+      {
+        "path": "scripts/evergreen-natural-queries.ts",
+        "sha256": "96416f9bdb4d61fd20fbafd547cfbf4b42cdeaf414016d4fd0aeb3776bff3f66"
+      },
+      {
+        "path": "scripts/evergreen-seed.ts",
+        "sha256": "a0b50f4e78c345c4d1a5963d6af0024e673185d4a4e9be6e2178d8ed8af5cd95"
+      },
+      {
+        "path": "scripts/evergreen-semantic-review.ts",
+        "sha256": "128e9b11e23ccfef6d548b02df57b6efe92907a50de38d836fde0bf43786cf0d"
+      },
+      {
+        "path": "scripts/evergreen-web-fragments.ts",
+        "sha256": "e967bf69773be5acab18e3c99456f01015c19d4362e28b35d09cfee6d92921f4"
+      },
+      {
+        "path": "scripts/freeze-action-coach.ts",
+        "sha256": "2780dc82f76942b806f4929271cbb5cd887bb98d170b9dcfafb4e449ccf126f3"
+      },
+      {
+        "path": "scripts/growth-recovery-action.ts",
+        "sha256": "242c0c406ce5600c32f374829b0f68501de25dd9d22f3b345bce0686001a9f21"
+      },
+      {
+        "path": "scripts/import-campus-knowledge.ts",
+        "sha256": "7b3ae8274ce7fb4649965547abe24e39f1debbdcc5851362dd21bec60f8febd3"
+      },
+      {
+        "path": "scripts/manage-access.ts",
+        "sha256": "f4cd2f4ec1c5c28a8ca72e4fd524250b96ea76f67d3941c53e6dfb59b4fc632d"
+      },
+      {
+        "path": "scripts/manage-provider-budget.ts",
+        "sha256": "e32a93f99d395fbab7c4888c3cb0a99259403c6fdaba515fef1972b80d491433"
+      },
+      {
+        "path": "scripts/migrate-db.ts",
+        "sha256": "946b8bfcbb15af12c62dfdbbd3f3e4e20285b8e4264041d0efe747ff184ddbb3"
+      },
+      {
+        "path": "scripts/official-recovery-action.ts",
+        "sha256": "86f182915f8c24c48bfc76e6938ef7e37f2bce44ff28e6b2fb876e2bda778924"
+      },
+      {
+        "path": "scripts/probe-diagnostics.ts",
+        "sha256": "1a13177588955b6d7a64066cc5918e27aa9c786b6fa78eb5a2b2b93c5e672412"
+      },
+      {
+        "path": "scripts/probe-model.ts",
+        "sha256": "82995029b698f87f66f6dcc0096d0f7d70a7ff92988e6a9cede58fcd8c1d2228"
+      },
+      {
+        "path": "scripts/reuse-coach-capability.ts",
+        "sha256": "dbb516b0ffedec6282089981a8608328052aa39ba7cff9c1c2ca61f9938d7828"
+      },
+      {
+        "path": "scripts/run-action-coach.ts",
+        "sha256": "ceefbc24f3a9a5bbddd9f8cea5b02bb3b1582e48d0197b8290b73b1d00d77bd0"
+      },
+      {
+        "path": "scripts/setup-coach-embedding.py",
+        "sha256": "768ac25d99367a930c25a3248e89e0c57eece4db09194bd8b8e57fbe2fef5776"
+      },
+      {
+        "path": "scripts/setup-db.ts",
+        "sha256": "0a3804d28664da61b01ac0a683fd26f0eddbf15f94e678ad092111618fa8d720"
+      },
+      {
+        "path": "scripts/student16-fixtures.ts",
+        "sha256": "cb4f227183e55651070d1db9c61e2dc90af97d69c56895ea4bfc601a444402ca"
+      },
+      {
+        "path": "scripts/sync-official-sources.ts",
+        "sha256": "ddf18b4b33251daf26c26a2e564255560f1a9bee16f34201e3b9324b0ead09eb"
+      },
+      {
+        "path": "scripts/test-backend-isolated.ts",
+        "sha256": "44c7069f5ebe49c33660fe18606c1de4a55ae053777292313773aec2ccea8ebf"
+      },
+      {
+        "path": "scripts/validate-coze-code-workflow.ts",
+        "sha256": "69f20ee34e6d030a050367c3c78aeafc702c9fbb5fcdb4b96f3c25990b79cad5"
+      },
+      {
+        "path": "scripts/validation-preflight.ts",
+        "sha256": "90ff7603f2c4c97249d797c1d1dcab93a81469c161a30f53bdf3ec45ea006b2d"
+      },
+      {
+        "path": "scripts/verify-browser.cjs",
+        "sha256": "b9de9fb10894eada4113a28e0a6ed3a246ed9d0f7e0d82e82d8ba5ff84ddc4ec"
+      },
+      {
+        "path": "scripts/verify-db-recovery.ts",
+        "sha256": "c12b67b16d3d3e383854a909c6b230a0495f7bc311a793c74831d9991d57dbc7"
+      },
+      {
+        "path": "scripts/workflow-baseline.ts",
+        "sha256": "56d6b4367aca0274a817d9783e7f5c55bb1bfb3793f01b43681a73e002eb0d32"
+      },
+      {
+        "path": "scripts/workflow-coze-candidate.ts",
+        "sha256": "a01c9b9c21f3ecde4bece4aa566b359405fe15ce8ce1c13faa8034cc84a206f5"
+      },
+      {
+        "path": "scripts/workflow-coze-readonly.ps1",
+        "sha256": "8d954a8f46f927125e7246389a35a65ce3785d231bad646f823513d96cba41ca"
+      },
+      {
+        "path": "scripts/workflow-coze-real.ts",
+        "sha256": "4c6a73311b8880a3609a919581cc032595be01c1e22bcbd810d7da3f4bdeccf9"
+      },
+      {
+        "path": "scripts/workflow-deliver.py",
+        "sha256": "c1d1bc5a5b3baad6e5f3882b1a9121ed896be32847b8b3ea6418d03e07c46e7d"
+      },
+      {
+        "path": "scripts/workflow-demo.ts",
+        "sha256": "357c1c6d07d1c091b33eb3977838f682954c8f1277fcaf188c916a3673aa5cd6"
+      },
+      {
+        "path": "scripts/workflow-pending-review.ts",
+        "sha256": "2e8f8d3d220df60649da95fb4a5a051f3eae2c51a6255a46f582a31a9b930ba5"
+      },
+      {
+        "path": "scripts/workflow-public-card.ts",
+        "sha256": "5aec028a108335478cbeed1a23995c50799c6ef4a507008840d2de5c1c79a835"
+      },
+      {
+        "path": "scripts/workflow-real-batch.ts",
+        "sha256": "17021da9028354b357c2e7992d6da4396a5bd58a24cedc653ea2b40903c837e2"
+      },
+      {
+        "path": "scripts/workflow-reconcile-ledger.ts",
+        "sha256": "9eaf196aeb39a66ba57d8ba3d7ee8b6f16fa1dc14045b2a3fd8fc0d9be6cc0ac"
+      },
+      {
+        "path": "scripts/workflow-record-demo.ts",
+        "sha256": "ee5bf885d589b96d6429f8078262335ab6604b575fa1b808e4b6a063bc4c6fbb"
+      },
+      {
+        "path": "scripts/workflow-replay-dgate.ts",
+        "sha256": "0955a675215e0e9389ccb5ea2789f1940443a73a5ec65908bfa571f716424b32"
+      },
+      {
+        "path": "scripts/workflow-reproduce.ts",
+        "sha256": "deb2fa4bb43fee429296bf085704ae355bae3f5e05622cb8bd0cd0b6f0785bef"
+      },
+      {
+        "path": "scripts/workflow-verify.ps1",
+        "sha256": "e21d0c786ed33de63f7aed6cdc07c50e6ecf65580c8d9b17ad68e7031445e7c8"
+      },
+      {
+        "path": "server/action-coach-contracts.ts",
+        "sha256": "eeeff91d0d32a912f69da044ffd7b62a9667183a89d79bb2f44a2e6688c4fb77"
+      },
+      {
+        "path": "server/action-coach-events.ts",
+        "sha256": "105b934c57aef01cb52db0196bf73017c62ac3ce897d387d65c1fad6a6ff2d6e"
+      },
+      {
+        "path": "server/agent.ts",
+        "sha256": "5abae8bbb52b256b5d232f6f4696113fb02c81e5e11eda6824f889bceb199cd4"
+      },
+      {
+        "path": "server/auth.ts",
+        "sha256": "56989bc91ef604503748f58ded2936fb8eb29cb0ff449c5aec28baab36d80e46"
+      },
+      {
+        "path": "server/bounded-reply.ts",
+        "sha256": "93be42826fc012ddee2703a791f223e931c322e3bd87e5c8eff18699d02694c8"
+      },
+      {
+        "path": "server/campus-contracts.ts",
+        "sha256": "f48663f83cd9594ff636f354bd9174fc1262544369a67f3172458a413aefce0e"
+      },
+      {
+        "path": "server/campus-knowledge.ts",
+        "sha256": "7f840dc5f5970958a7bc5e2be003cd00f1a0747011f092635edcff6157c4fc2d"
+      },
+      {
+        "path": "server/campus-reference-data.ts",
+        "sha256": "1c2f137da37d310eb60d6a1b9ee2fbe8913d5613fbec3c27a056c1ce12de6cdd"
+      },
+      {
+        "path": "server/campus.ts",
+        "sha256": "d6e573147441bd6b5d641027327226d0844e536ff764154bce67ce427869aef3"
+      },
+      {
+        "path": "server/category-lexicon.ts",
+        "sha256": "bfd518a63478d065336b976ef97b8404af17ec55c25ae501584d501e2569379d"
+      },
+      {
+        "path": "server/clause-catalogue.ts",
+        "sha256": "ce68ba69bc1dd054c56e7d096914970431bac23b0a15fe194e4750d8f51a6a71"
+      },
+      {
+        "path": "server/coach-embedding-worker.py",
+        "sha256": "d5dfcafee4028ab94289024521ff2c73e4a7c90b452cb1639527a13ead125d07"
+      },
+      {
+        "path": "server/coach-history.ts",
+        "sha256": "8d6349155ebad9c54494706de4c1c0172f29495e02dc960ae1ad9c4f7299e80c"
+      },
+      {
+        "path": "server/coach-knowledge.ts",
+        "sha256": "b336f4fc593b84bd6562458859789289c8cb4cbd9025fee5afd18281ec67de47"
+      },
+      {
+        "path": "server/coach-reply.ts",
+        "sha256": "916174f061a2559512ed1a57851378b8a9ab52b7bdf7810a94a2877664b6939b"
+      },
+      {
+        "path": "server/coach-retrieval.ts",
+        "sha256": "6335ee9a098e23d22b87d23ed3383ab3411b92d817310b6d035fd4523fe171d4"
+      },
+      {
+        "path": "server/config.ts",
+        "sha256": "60988d02b25e57dc93dd294ba118b5e96bf0664296c42a84eaf68113463355ea"
+      },
+      {
+        "path": "server/context.ts",
+        "sha256": "b26aa816dc84ba205e57fdc8b4e94e2a57e324a9d9cedf9798531db26b9a4ad7"
+      },
+      {
+        "path": "server/contracts.ts",
+        "sha256": "ee38e3e7e9b8cb8b92b05eee8299903805af10ce973268f0b61e8c9adc86ca15"
+      },
+      {
+        "path": "server/cost-workload.ts",
+        "sha256": "a758be868457f770d6da6c44307d5b594ee7da4dfc9111792d7741c9cc717a52"
+      },
+      {
+        "path": "server/coze-code-workflow.ts",
+        "sha256": "6ad6f9d31eeb3f491d15589dd5806fd1a499db7a2846474036952400985c3375"
+      },
+      {
+        "path": "server/coze-knowledge.ts",
+        "sha256": "84e5ce9d089a6df57904baaa2184da6a9274115d224e8b9a23b064dbe6672057"
+      },
+      {
+        "path": "server/coze-public-query.ts",
+        "sha256": "7fa2ae17f8b6c8ee21b8c7480dbc2d9f7aae7753f72a46b317a6fe12db7b2714"
+      },
+      {
+        "path": "server/db.ts",
+        "sha256": "de68c66a0167c10aab70d0dfeff6771aa014e91be3e0b354ec145889adadafa8"
+      },
+      {
+        "path": "server/dialogue.ts",
+        "sha256": "9e61b79e3f458c8cb0804c0b89c8ef44a69e3c02a93cc0cd4e043d7c849170bd"
+      },
+      {
+        "path": "server/embedding-signature.ts",
+        "sha256": "252b71fc865862a2634adb9e53cc81f0810b323fd257059c9b070ee1c632f8be"
+      },
+      {
+        "path": "server/entitlements.ts",
+        "sha256": "dc6545d2b0ca3d390d4ed6bd4019e3781e22a0d36d9fb1af6ae6aecb62efc45f"
+      },
+      {
+        "path": "server/evergreen-guide.ts",
+        "sha256": "56d478fd9018e239d068d84f2892564f1f870cac54c450be94d7c6f39261589c"
+      },
+      {
+        "path": "server/evergreen-maintenance.ts",
+        "sha256": "9f249b5aec14d2775ac69d78ce30be9beec339e07cd14ccb6600562e8cdbb6a2"
+      },
+      {
+        "path": "server/evergreen-scope-guard.ts",
+        "sha256": "8751ac14a39bf7ff4acc7f69bc36b63a00edca814de7a6ef4b60ce94a4931c0a"
+      },
+      {
+        "path": "server/experience-content.ts",
+        "sha256": "3a4ae23d6cfcba4bc09e613b64582f8484b75069c94d0cd1ec8c29bd9b76a5f9"
+      },
+      {
+        "path": "server/experience-episodes.ts",
+        "sha256": "967de7f988e990e3ef3b4a020bbdad07ab3128db6e7f223729a629bf62d7eedd"
+      },
+      {
+        "path": "server/experience-insight.ts",
+        "sha256": "8c68e43f42af33b50eb8e0e17191633cfe2676b16031ef2b37ae650999f040c3"
+      },
+      {
+        "path": "server/experience-patterns.ts",
+        "sha256": "eca57bd2d51981100982e6d3d2d8a96a9f6068aa764761be2f564dbe589b09be"
+      },
+      {
+        "path": "server/forget-intent.ts",
+        "sha256": "fb081076116aca70a44ba9851ac63ad67d316222d668cc95a2adee8728fbb91c"
+      },
+      {
+        "path": "server/grounded-material.ts",
+        "sha256": "3b871ae8e051355c23cc9643c628be7d6333d9b4b2fae89463d45c962a1520b6"
+      },
+      {
+        "path": "server/growth-authority.ts",
+        "sha256": "cc1080925efc4936841e5f3fb0c868579f89aec346e001a95306a5ed14a62f4b"
+      },
+      {
+        "path": "server/growth-contracts.ts",
+        "sha256": "94e5e978d0fce64a9cf5a9096e90cfcb246c6693cc06523b0d4a71bfda87df71"
+      },
+      {
+        "path": "server/growth-controls.ts",
+        "sha256": "26d3010eb905316ee7c5d72f44888a0f7233bddca9891a72fa9e7ce2550ac334"
+      },
+      {
+        "path": "server/growth-model-contracts.ts",
+        "sha256": "48a80ae85668f84116d1a139a607c24c801b3c30b2b188a8d838f949770e252c"
+      },
+      {
+        "path": "server/growth-privacy.ts",
+        "sha256": "3a4882dca45053e8b84c235654bbc7e5eb028bdf07ef85b50d2d630254d5815e"
+      },
+      {
+        "path": "server/growth-selection.ts",
+        "sha256": "4bfc75aaccc2891772d7d3220b92c9df16c5144d473845f8e8b4eee195c334ec"
+      },
+      {
+        "path": "server/growth-source-fragments.ts",
+        "sha256": "eefaceaf9bef34a98b2a806fbd5979e63d92c60628307acc070a24f6fb64e933"
+      },
+      {
+        "path": "server/growth-time.ts",
+        "sha256": "83caae9a5778430fe267e42dfd161ebb4ab0605e770718f9cae4670de46f9d82"
+      },
+      {
+        "path": "server/growth.ts",
+        "sha256": "f96c7d4e1ef3e604a4f673c7235a839984ed885dc629275bf99ad06f0e3008ce"
+      },
+      {
+        "path": "server/guide-usage.ts",
+        "sha256": "7d3ee8d3a90448c00528d627da2e40b0f8001695cc672e816fb3f20a32b542fd"
+      },
+      {
+        "path": "server/history-selection.ts",
+        "sha256": "f2452fae58edcd00de12c4bbb51116b723ada0b1c2479e753794e95c6bf4d5f3"
+      },
+      {
+        "path": "server/http.ts",
+        "sha256": "259c71f00c7ea73cbbeff94d324bea41f0b6949ab55cf13378be2a56a846aaa2"
+      },
+      {
+        "path": "server/identity-levels.ts",
+        "sha256": "f069eb2b66ce6abad7edde13df8714f94f8c6e3538f6f6bac45de9628ea9bd00"
+      },
+      {
+        "path": "server/identity.ts",
+        "sha256": "97cf86087e5c18c1d8de9c6131458a2c391e1d1daa0ecbc3c30f73c4f0aad207"
+      },
+      {
+        "path": "server/independent-review.ts",
+        "sha256": "cd91938dd0975f4d38c800ba260ef2c87f5fa3a86a9fd1790326af835c9342e9"
+      },
+      {
+        "path": "server/index.ts",
+        "sha256": "b93e59db86f81b06908b9790505e62594b426a0a19fc3251a9a444f330b1c9f8"
+      },
+      {
+        "path": "server/kb-maintenance.ts",
+        "sha256": "e342fcf67027a5e6e2dbbfa8d185a07118ef27bc6bc7ab46f1b677bad124492f"
+      },
+      {
+        "path": "server/knowledge-index.ts",
+        "sha256": "c73897deb5f8f5cd35279241692e20cb1eeb6cea83c13e320545c2207112995d"
+      },
+      {
+        "path": "server/local-embedding.ts",
+        "sha256": "84758465adc60a060a05ae72410b22fdb18039ef9723e3ebc898afbfdca0da4c"
+      },
+      {
+        "path": "server/memory-controls.ts",
+        "sha256": "06ea28392f87b0cf66170e6b2135328229e5b0fcdc483affc527896e8d6fc6ad"
+      },
+      {
+        "path": "server/memory.ts",
+        "sha256": "7ef0b93dd85816ae786c4bfdb8e86cb9e2a21c945fdcdfa27086b56c53ce9963"
+      },
+      {
+        "path": "server/migrations/000-better-auth-1.7.7.sql",
+        "sha256": "bba085156e7c16e9aa5ea6f2876cd7091b4d9bb051e6afa73bc8a81f7122971f"
+      },
+      {
+        "path": "server/migrations/001-business.sql",
+        "sha256": "fd472f70f533bd0c8af001a6ae56e314155926578ae0380234b82d5778d13458"
+      },
+      {
+        "path": "server/migrations/002-better-auth-rate-limit-1.7.7.sql",
+        "sha256": "bd44e34f6a557b753276117968f59743c4b674c8c16909e6d2fb56d3f2290171"
+      },
+      {
+        "path": "server/migrations/003-operations.sql",
+        "sha256": "f9dcdef32dc072d43e716d67ee443fa650c65ec73d39bf481982f1eb042fd929"
+      },
+      {
+        "path": "server/migrations/004-dialogue-memory.sql",
+        "sha256": "6753c3c0ac4955f2072b14fca9d786159f3c53c4e61fa0fb43c3164f7cb7296e"
+      },
+      {
+        "path": "server/migrations/005-cost-routing.sql",
+        "sha256": "35bcfbd06ad83fcd5b9ffc33e08dc17fe72a08e26cf7ddce7595ba68a4414706"
+      },
+      {
+        "path": "server/migrations/006-campus.sql",
+        "sha256": "6fbf0a8b44021abaeffe7e576f575a09f88dbbf1552f148dad4e6de0132b8935"
+      },
+      {
+        "path": "server/migrations/007-inquiry-scoped-task-memory.sql",
+        "sha256": "bef5d107980424f5d0efe409ca4e6f3079d28dc16ff8918851a27808b1c38cec"
+      },
+      {
+        "path": "server/migrations/008-action-coach-events.sql",
+        "sha256": "5336ab965a3f2afc0de1c28fbf1a423ba5c63b9857960073beeaf4ffb8de4b6c"
+      },
+      {
+        "path": "server/migrations/009-coach-semantic-index.sql",
+        "sha256": "a622d595a0f9b62f60835b7646b3d348faa2b63979bfdfc136a331ba835afb39"
+      },
+      {
+        "path": "server/migrations/010-coach-knowledge-citations.sql",
+        "sha256": "14e59e7fde11dec3ba55852c6e971e5e9b75b00a054a2d6f31abaa9d2116ff82"
+      },
+      {
+        "path": "server/migrations/011-invite-entitlements.sql",
+        "sha256": "aa37831cf394233ce8b00716d9f4d75d478415fe12acd4038f020aa94876c547"
+      },
+      {
+        "path": "server/migrations/012-provider-spend.sql",
+        "sha256": "86f8d0d46af5a3d417a33112f1d97d40d89bc61c372973bbb733143f75d23926"
+      },
+      {
+        "path": "server/migrations/013-coach-unknown-declined.sql",
+        "sha256": "6b671af4180bc1a49fba87068939e558235a99a6eeed2f86f3794a778a4c7199"
+      },
+      {
+        "path": "server/migrations/014-growth-workspace.sql",
+        "sha256": "ccfb5fc0c2ddae1252706d7a17b6d1a5347d197ca1e425e5844281c1e65abaec"
+      },
+      {
+        "path": "server/migrations/015-growth-observations.sql",
+        "sha256": "4549583ccc54d6c57541d54988fbfeb8b519efacd3fbad5d32112b75d6a2c077"
+      },
+      {
+        "path": "server/migrations/016-official-source-snapshots.sql",
+        "sha256": "15ed27426d1d9f8ed4c7cc9328e62702d25a41b053cac767a7237b06a3120917"
+      },
+      {
+        "path": "server/migrations/017-official-attachments.sql",
+        "sha256": "fe713cf610fa6ba225b11662eb1b7d5c1303461e061810b7eef227eb736c8205"
+      },
+      {
+        "path": "server/migrations/018-growth-provenance.sql",
+        "sha256": "aaac38b4f7345576a6e99751684dd6a7e60ae3cc9a7f3de59e0a44a519407524"
+      },
+      {
+        "path": "server/migrations/019-growth-controls.sql",
+        "sha256": "bf481e4fc85ef17209fafc07094bdd097f6d7a750757285584d8c2fc83bf8b01"
+      },
+      {
+        "path": "server/migrations/020-growth-plan-evidence.sql",
+        "sha256": "cb8331330047bf333e0dde96976d78dff87a20a9c4d8cd92938eab9cfa4aa2d1"
+      },
+      {
+        "path": "server/migrations/021-memory-control-requests.sql",
+        "sha256": "2f6a9a8811cb70efdc492c94ec8312280d999b8780d66227043f85a1d72757cb"
+      },
+      {
+        "path": "server/migrations/022-recommendation-controls.sql",
+        "sha256": "e839f9f29f9e93139fc37164079f1c51eab54633b1085462e4078f1040f9919f"
+      },
+      {
+        "path": "server/migrations/023-experience-confirm-source.sql",
+        "sha256": "134fc0d8bf8e742603780b8a095fe0e973fb84df98d5abfdce67d57dd6646197"
+      },
+      {
+        "path": "server/migrations/024-user-themes.sql",
+        "sha256": "11876d5cc7e397a8214cb2d5da8c28a7961ec1e3bb2a1f3d15e61fced3b672ca"
+      },
+      {
+        "path": "server/migrations/025-theme-lifecycle.sql",
+        "sha256": "a52453b3281cff749906b15949d31d69811cf5d7d6478457f01e45efb4301f72"
+      },
+      {
+        "path": "server/migrations/026-identity-layer.sql",
+        "sha256": "f0dce902de6de79d4ca020d4a0ef7c639184c62438fd1ae47af0c6e9c9be8479"
+      },
+      {
+        "path": "server/migrations/027-identity-change-fields.sql",
+        "sha256": "503470f158afa74b6c99bddabc02738be8eccb16afa0ff87b9313e851c610836"
+      },
+      {
+        "path": "server/migrations/028-experience-relations.sql",
+        "sha256": "3fd5ca9fd8867a4c4b9a00810e035fda399d25638ece45c0c8e99458b1e0175a"
+      },
+      {
+        "path": "server/migrations/029-evergreen-knowledge.sql",
+        "sha256": "0612e8d823adcd7b85cc2eaa9f29b81f5a80ad68cfe41a5db3b51aa606c9882d"
+      },
+      {
+        "path": "server/migrations/030-workflow-tasks.sql",
+        "sha256": "2e6b2cf04bfedd299de9e6d7edf3e4aaf2429942c57b4129a783d236e897d601"
+      },
+      {
+        "path": "server/migrations/032-kb-maintenance.sql",
+        "sha256": "e96186799a007692a825e9e7ab3eab2c8e3508b84eff783e894215ded29267a4"
+      },
+      {
+        "path": "server/migrations/033-freelance-direction-control.sql",
+        "sha256": "0eeb96dc5505e8c51e430944a9ffc8a66839ec427c96da96314a60c703af527a"
+      },
+      {
+        "path": "server/model-payload.ts",
+        "sha256": "ec95305706f7523302dee47f80c7ccf1d020124fdba007d4272367ba8859a0ba"
+      },
+      {
+        "path": "server/model-router.ts",
+        "sha256": "0d07bab3ec9ff6fc4cbc06edb655cb20400266d817af8adc06ddea2f5d900931"
+      },
+      {
+        "path": "server/model.ts",
+        "sha256": "efb7d8ac88f4e911d2420f225ba34590042f4981fcb21a736f2cd7ba438be664"
+      },
+      {
+        "path": "server/official-attachment-extract.ts",
+        "sha256": "6a3780143f50d42190c51718c07807e29aa81fc80c2258fc9613af14004b4ee0"
+      },
+      {
+        "path": "server/official-attachment-parser.ts",
+        "sha256": "681ce33a1f12dc12428c4b3c9b3aac7820eb4046f60392457098d6fe71a9d6a0"
+      },
+      {
+        "path": "server/official-attachment-worker.ts",
+        "sha256": "9c0f1b98b83d620d0a49abb389374e1fee26fabbffafc9414f3092df4931d91c"
+      },
+      {
+        "path": "server/official-attachments.ts",
+        "sha256": "2022119fdc02e4180168004d5e4ed76d63b8f5c7c5927f0328a108724a162d4a"
+      },
+      {
+        "path": "server/official-extract.ts",
+        "sha256": "11c091adab1c70b3ac1bcdbc570d26b492152921ffe48323613a8d59c96a9f89"
+      },
+      {
+        "path": "server/official-fetch.ts",
+        "sha256": "be3273ba06fe4e6702bc304ce5091dc582e81b7c3ecd8bc6cca19ba66afb3e9a"
+      },
+      {
+        "path": "server/official-paths.ts",
+        "sha256": "e56dc004c559c26ebdce930d2335bc90bd5640cd95f7549752adc37ef08efc5d"
+      },
+      {
+        "path": "server/official-sources.ts",
+        "sha256": "5ce9b5834bd42770def74226eb09d02e30e8116620068303152928b0eae79689"
+      },
+      {
+        "path": "server/operations.ts",
+        "sha256": "bc40d2624708590b35d888ae121643f1ed76539c4fac893da98473a6bcbf1a3c"
+      },
+      {
+        "path": "server/path-lexicon.ts",
+        "sha256": "f40de28f21e26c67652d8d0f2816662d55bc961e8c79b3886d4efc762eb60423"
+      },
+      {
+        "path": "server/provider-errors.ts",
+        "sha256": "47a955709a5ef98a403c5120596046cecc943d59ac5c3a0f0020ba5ddeb66dad"
+      },
+      {
+        "path": "server/provider-spend.ts",
+        "sha256": "43b2e6e404af9f4cd267b2310c75b5851e6b5150a789e22393e38578311886db"
+      },
+      {
+        "path": "server/reply-draft.ts",
+        "sha256": "2c1d486020e0e07aabf50c0288260d87068c6bf3f0615c3e148889bbcf70c171"
+      },
+      {
+        "path": "server/request-scheduler.ts",
+        "sha256": "49dac1782b8272e8d819271cdcdf6158caaf7350420c07851153a2960b132271"
+      },
+      {
+        "path": "server/schema.ts",
+        "sha256": "d43f91f2220682738664033ee5f0b592408af6100ca912a70055f225a9d2fbc1"
+      },
+      {
+        "path": "server/semantic-search.ts",
+        "sha256": "2c0ead56cfc07979d944ceda6e23d849eafc0a3e1c9d782a31690fc3255d91ff"
+      },
+      {
+        "path": "server/starmap-enrichment.ts",
+        "sha256": "1b129706135bf581b3f86196a9fc796a2cf72f5953e216c732657b341032946b"
+      },
+      {
+        "path": "server/store.ts",
+        "sha256": "b4f883c835b74f4cb350a69b3aaeab4d609945e141062ca7efd2e8e775aec6c6"
+      },
+      {
+        "path": "server/turn-contract.ts",
+        "sha256": "c75042f1836775a82fdb9ed64b167e84eddd50fe732accb73d2a3803a93f7186"
+      },
+      {
+        "path": "server/turn-engine.ts",
+        "sha256": "d814d8f9b822619938b7f03d4fc3eaa5f2c42af9bb77a4768722879627ea82ee"
+      },
+      {
+        "path": "server/turn-obligations.ts",
+        "sha256": "ea87ead92886511eff6be0a68667d147c372676ad064366e01f303caccfa082a"
+      },
+      {
+        "path": "server/turn-prompt.ts",
+        "sha256": "4297c76fba50ad66d66d21086468f482d9f45f37d5c33fb49ca42943a93375f0"
+      },
+      {
+        "path": "server/user-command-spans.ts",
+        "sha256": "35182d4da19e61f1f86e51af445b78eb8f3f889997f3c5b010b3dc16f3670593"
+      },
+      {
+        "path": "server/user-themes.ts",
+        "sha256": "6ef0c2c988e88ff6ca492c840b4de9ec6326ec873e42daced03af09da7127c70"
+      },
+      {
+        "path": "server/weekly-plans.ts",
+        "sha256": "60eb7f4481cabcb1df61a695d998e04de16f9b53f701655e1b809787ca427c87"
+      },
+      {
+        "path": "server/workflows/action-review.ts",
+        "sha256": "35d286e3f445d4ef51e608526c80e0288204a1631e5ae1dd0c5151d6d5918c8c"
+      },
+      {
+        "path": "server/workflows/action-workflow.ts",
+        "sha256": "bc5cdbd8cd18683ffba1dad23ff89e50e5e0773626bf65bf488c79f76d1bb553"
+      },
+      {
+        "path": "server/workflows/adapters.ts",
+        "sha256": "0d8a4385a7c1b5e10619c55c0a549144adb0e782195e12e7d0a079e38fe0d6f3"
+      },
+      {
+        "path": "server/workflows/committed-growth-diff.ts",
+        "sha256": "79796e86846db99f7a07c9bc27ea7c2c4f132a8e10cb04a5948de0e00466ce3f"
+      },
+      {
+        "path": "server/workflows/contracts.ts",
+        "sha256": "4941bd3dc0fc1a62751ac07323569147a06dc4b69ab90f2cfbee735b0d2b268c"
+      },
+      {
+        "path": "server/workflows/coze-direction-adapter.ts",
+        "sha256": "1e789cc72408cc433d1b1d6db167f176ed47985e7a240d81cefff0a60a0f385b"
+      },
+      {
+        "path": "server/workflows/direction-decision.ts",
+        "sha256": "2de1734dbe6739e01b0d145745543d3cd0d394118141a52f3abe03de320c3288"
+      },
+      {
+        "path": "server/workflows/evidence-gate.ts",
+        "sha256": "f04b3c317b59280237c7d08adbe1727f4b672059a7b05369bf2181eca88e004e"
+      },
+      {
+        "path": "server/workflows/growth-diff.ts",
+        "sha256": "9e57ae1e7ed250b7ecc1113c53739e2ceec91ee99f6a65a553a54a941c600f32"
+      },
+      {
+        "path": "server/workflows/guide-application.ts",
+        "sha256": "9063e03a4be05df197c6431e1c6804b93f18a3b308556045cdad2541584c122f"
+      },
+      {
+        "path": "server/workflows/host.ts",
+        "sha256": "dc9539292a22818b8bc36ce9b92abb6f6cda1018554579bfc2148ce25e8e0212"
+      },
+      {
+        "path": "server/workflows/knowledge-maintenance.ts",
+        "sha256": "5fb1390718f980bfb800a91410fbfae5da73db61d25f29118eaa194318ec87cb"
+      },
+      {
+        "path": "server/workflows/method-context.ts",
+        "sha256": "f5cd043825921859e0672f7bd18be5ccf86167c737b253ddff10d23cb1f6f902"
+      },
+      {
+        "path": "server/workflows/orchestrator.ts",
+        "sha256": "b7e4118290ab8e295b57414a132349d33dd201a803ed2d63092b43bfffd2ed5b"
+      },
+      {
+        "path": "server/workflows/provider-adapter.ts",
+        "sha256": "a7772651875cf3135c1acdc3097da392fdcc96e662804d109e87ab715df57c72"
+      },
+      {
+        "path": "server/workflows/receipts.ts",
+        "sha256": "2252f7f9276f7c1cd9f382297d8eaeadd96d80772bb0ab79cf1c8689f8cccccd"
+      },
+      {
+        "path": "server/workflows/reviewed-fields.ts",
+        "sha256": "5bf8f5252f38473c3ebaae6cf750ebb3a5274638ee752908e2a1164cd7b8960f"
+      },
+      {
+        "path": "server/workflows/router.ts",
+        "sha256": "64487d0c0ab4f6e29f4a70ecb17c283b7637460a24d95cff93964c9bade4de59"
+      },
+      {
+        "path": "server/workflows/runtime-version.ts",
+        "sha256": "e18c3ffac830c0241765e7c29f5fa6348493b4e22f57ae6277ea3c8181591eb3"
+      },
+      {
+        "path": "server/workflows/skills.ts",
+        "sha256": "3e3122cb2ef5af0320d0d27f368be1d72c222c96d7b917af5f2b7ea48e017a55"
+      },
+      {
+        "path": "server/workflows/task-commit.ts",
+        "sha256": "7527cf6c88f451ac5adf9770826beb1c5a619d8c55367b3d0ad2defa8130223e"
+      },
+      {
+        "path": "server/workflows/task-host.ts",
+        "sha256": "accd430d25ff3a41f5a0c6982c73540969949d611dbe7b3a54232af613d4bb6d"
+      },
+      {
+        "path": "server/workflows/task-journal.ts",
+        "sha256": "3bdaf8c4645afb49187a84370df43006f79e2f9aa11bf5795a94fa1ca387615b"
+      },
+      {
+        "path": "server/workflows/task-sources.ts",
+        "sha256": "c4becfa85167f672710d81ee7b3b5d06ce688757db8739661e6d1390901326f2"
+      },
+      {
+        "path": "server/workflows/trace.ts",
+        "sha256": "d7fb14fe0856b939c1f3ace316c59efbbdff73447ca6195fb58292ffa8eef749"
+      },
+      {
+        "path": "skills/lifeos-action-review/SKILL.md",
+        "sha256": "4edd974969dbaa682737b8a305394c9bebbc560cfdb0793d591ce2ab556eed8f"
+      },
+      {
+        "path": "skills/lifeos-direction-analysis/SKILL.md",
+        "sha256": "6a523cbf1592837ca9c64eaf9e0c87c51affe4697880317d700f8166e1ac8f89"
+      },
+      {
+        "path": "skills/lifeos-experience-evidence/SKILL.md",
+        "sha256": "b1eafff728ad362d458e6ecfa1aaef1b91438531204187caf478ace6fee1f494"
+      },
+      {
+        "path": "skills/lifeos-growth-diff/SKILL.md",
+        "sha256": "a87255ce55407a6b90f237fe5eed73ddcd6f56439b80d0c8e954880f1c260333"
+      },
+      {
+        "path": "skills/lifeos-guide-application/SKILL.md",
+        "sha256": "e023ff4a0e0107818e0cb98a781a2e3180a9b369b6b3a79303d0fd3339863b6c"
+      },
+      {
+        "path": "skills/lifeos-personal-companion/examples/multirun.mjs",
+        "sha256": "0002e54afd528f7a08f19340901f8374268e622de5736f0b46597f2b4dd177e8"
+      },
+      {
+        "path": "skills/lifeos-personal-companion/references/host-api.md",
+        "sha256": "3cce1d72f71ffed9353065e526f1648dde273787381fcbff5c2ab6a860851699"
+      },
+      {
+        "path": "skills/lifeos-personal-companion/SKILL.md",
+        "sha256": "e4bfd9cb4a48d8273ad5f53a82c558727289af642d4eb5403bf8ec19688079a6"
+      },
+      {
+        "path": "src/App.tsx",
+        "sha256": "6ed2dc05cf6735fbd1e66a4e70316cde522dfeb0c28a8b95d00e1ff3d2a807dd"
+      },
+      {
+        "path": "src/backend/auth.css",
+        "sha256": "1070c1ff132fcdfc37b04bf9bd5c80a95fb1aa4e3da3f39f688a1564e95db5cd"
+      },
+      {
+        "path": "src/backend/AuthForm.tsx",
+        "sha256": "71d3022fddde445d9432939be9ba05aca9cd6d44654aaa95b2c167b82e0d4a76"
+      },
+      {
+        "path": "src/backend/client.ts",
+        "sha256": "8f7281c78f396b56c35a891846d06ebd09658989ca773442408a2d212935e786"
+      },
+      {
+        "path": "src/components/animations/ClickSpark.tsx",
+        "sha256": "259937a56fb8d25674742817d2103b66942f013b46c542610a9015abaabb9a59"
+      },
+      {
+        "path": "src/components/three/ControlledReflection.tsx",
+        "sha256": "41a4413f08d1ca838e7cfb4496cdcd64a81dd05c847b7e2975fc9755b8df6832"
+      },
+      {
+        "path": "src/components/three/Core.tsx",
+        "sha256": "aa4489a55756fa5aba191e5b8e933042f767d19929e7c00bf52c0ffdef7e9924"
+      },
+      {
+        "path": "src/components/three/FlywheelEnvironment.tsx",
+        "sha256": "3560ced294ac79bcbc88c0d06cec88f402bd76d749d437ab064b3fead813eeb3"
+      },
+      {
+        "path": "src/components/three/FlywheelModel.tsx",
+        "sha256": "ac5ddfd9c3e92bfc2f47d7c8780538ca0db8ca3fb38ee20173637f5c45e0a9e3"
+      },
+      {
+        "path": "src/components/three/flywheelRings.ts",
+        "sha256": "96456af521a938a389d239013bc792eb1cc27128830f61e8f74a09c995fddad5"
+      },
+      {
+        "path": "src/components/three/LifeFlywheel.tsx",
+        "sha256": "7155a8ae29ef8fe79172632ba635395beb87dd098da509cb24bdf38eb82f1815"
+      },
+      {
+        "path": "src/components/ui/codex-select.css",
+        "sha256": "8f18a62765a6c39490dcdf8efabce1f9392089b5819e9bc384901ccd96179461"
+      },
+      {
+        "path": "src/components/ui/CodexSelect.tsx",
+        "sha256": "a773656ce3d8b950c8abc6f45b47a3c04f614e77ba3c89e7fa8fb71b0b502e90"
+      },
+      {
+        "path": "src/features/cognition/cognition.css",
+        "sha256": "742fcc3ce85ec18ef37bae2893decd6ff46f4d0b01fb7ccb8b4a15966c35ca26"
+      },
+      {
+        "path": "src/features/cognition/CognitionScene.tsx",
+        "sha256": "c402950856a626d3d6a051721bbea019d90aefc46514518a1d493ae0799e2e45"
+      },
+      {
+        "path": "src/features/cognition/data/lifeos-graph.seed.json",
+        "sha256": "96e4780ca7b14fd030021e7b901822f47d929faed308b845dad869c006a4bc31"
+      },
+      {
+        "path": "src/features/cognition/graph.ts",
+        "sha256": "ebe98def0be890df63c0bce6778992150277ab85e603ada7aef094ce6dae8af6"
+      },
+      {
+        "path": "src/features/cognition/LandingGuide.tsx",
+        "sha256": "28bb4e309ab05e50dfd157c9add8beb90d8408713167ba7e7978a37e161b5ad1"
+      },
+      {
+        "path": "src/features/cognition/onboarding.css",
+        "sha256": "ea3ea192af8a3f3da4a249d5e1eb57e6efcca74a842e209049e8bc7b35c360ec"
+      },
+      {
+        "path": "src/features/cognition/orbit.ts",
+        "sha256": "2b7b50e48c1e4e4f878aca2bc10ba88144393c337f99ebd67051e4b9fc47aec3"
+      },
+      {
+        "path": "src/features/cognition/OrbitRail.tsx",
+        "sha256": "e9c2fed94e5ba420309d75e8db84e6bd4821190dc4d7366c1e327357a92ff2f7"
+      },
+      {
+        "path": "src/features/cognition/recordDraft.ts",
+        "sha256": "ef95a21cde6850b360e703e2ec1b45c1fb318cda7ddf078963b50e727441df83"
+      },
+      {
+        "path": "src/features/cognition/RecordPanel.tsx",
+        "sha256": "3723112f1d157143c8636f909e19aad9784798cd872bdc4c7cdad190fadd3dd2"
+      },
+      {
+        "path": "src/features/cognition/SatelliteNode.tsx",
+        "sha256": "45475a67204cf049b6c71282a6ba5b606fe9c2a418c0750b4b492b6bb8c4d256"
+      },
+      {
+        "path": "src/features/cognition/StarmapDemo.tsx",
+        "sha256": "923be455b624fdb331309caef87c838eed9c5d69c4ac1ba70c4262ab95fa02ae"
+      },
+      {
+        "path": "src/features/cognition/state.ts",
+        "sha256": "892b427fac9ce4b49c18e87f4512d9d4106d9c1d108fe9af18b84bf2e2922de8"
+      },
+      {
+        "path": "src/features/cognition/ThemePanel.tsx",
+        "sha256": "27ec29e2a4264cf4fb1fa9024415bce5579c2a7f1a27d82005dc2c01bc98f65b"
+      },
+      {
+        "path": "src/features/cognition/TimeAxis.tsx",
+        "sha256": "36a413a14c38ace92fe6c7eaa4b1f596f06a0b34aa8a97c80505e0c3a08c746d"
+      },
+      {
+        "path": "src/features/cognition/useOrbitInput.ts",
+        "sha256": "17f6254bf18397086a5f27e405781265211fc0352f7ad731c9dce58b58c3ad98"
+      },
+      {
+        "path": "src/features/conversation/AnswerChoices.tsx",
+        "sha256": "8681c3f48451d09d7b4c530a504072250a578286a929aadb601a157291f826e8"
+      },
+      {
+        "path": "src/features/conversation/AutoTextarea.tsx",
+        "sha256": "974aea7fc768d5d5ec292cf5e087647e73e2e8a201ed10bd9fabc78e0168c7b2"
+      },
+      {
+        "path": "src/features/conversation/choices.ts",
+        "sha256": "02959b3e36c713eaa291a6820fa4864f44364172699cec8c3b6d81440c8a1e65"
+      },
+      {
+        "path": "src/features/conversation/companion-player.ts",
+        "sha256": "cadfedaf8a629abb2fe4316fa5922d91152438ceb4a544e087745ff2ffa7f6cf"
+      },
+      {
+        "path": "src/features/conversation/Companion.tsx",
+        "sha256": "b36b3cabb5bbae4073f1fea155111f10b6551bf7175dc9f2e553624bb90e275d"
+      },
+      {
+        "path": "src/features/conversation/ControlCards.tsx",
+        "sha256": "8761a3dbd4a9bb00745ecbf1c4e451049ddae74fa7d239511934af28f00ca101"
+      },
+      {
+        "path": "src/features/conversation/conversation.css",
+        "sha256": "8880efd83804144b05d50db505bfab89628be41a65c92fd695187ba923f5c351"
+      },
+      {
+        "path": "src/features/conversation/ConversationPage.tsx",
+        "sha256": "ba7d2b78ed1596e84ae5e0820a57677827ef8b8850de7b8262ee1f5bfe5dd8aa"
+      },
+      {
+        "path": "src/features/conversation/ConversationSummary.tsx",
+        "sha256": "eb51c617fcef16945eeaf74258450800ad2248a1c801018def87e88eb39a9295"
+      },
+      {
+        "path": "src/features/conversation/flow.ts",
+        "sha256": "147ceaec1550ebef71b7f561aead4d63aa499ba7e6c63f9de9efcc6ada9ce9a4"
+      },
+      {
+        "path": "src/features/conversation/FullMethod.tsx",
+        "sha256": "93fb7e843d10d08f1860ac2e2f20837d5679605bd07ab579ebec3bf59c0423be"
+      },
+      {
+        "path": "src/features/conversation/memory-panel.css",
+        "sha256": "e6e8e7cdc257d4931da8e42b0fe307990be8030544e04112ed080d0b64a291d2"
+      },
+      {
+        "path": "src/features/conversation/MemoryPanel.tsx",
+        "sha256": "9454741716f10eb318f6124eb467e3f9e3ca84d1e4e2329ff9a2880f3c68b7e0"
+      },
+      {
+        "path": "src/features/conversation/ReplyMarkdown.tsx",
+        "sha256": "25167aa63f8ece0dacd9ccb405e93a4c6730590b8a178294ae877857e68e18c2"
+      },
+      {
+        "path": "src/features/conversation/summary.css",
+        "sha256": "658990ac743ae6e05a65983a4cd28dbf59f23ce2e9b02e9953b347eaee6458ca"
+      },
+      {
+        "path": "src/features/conversation/useVoiceInput.ts",
+        "sha256": "9862f2b42b6ae2741607bc8bf97ec4b72224f3f3dd5ca27688eba660307449ac"
+      },
+      {
+        "path": "src/features/conversation/workflow-panel.css",
+        "sha256": "28e1223b0d4332c5c8467a71f2d332a81ef5422607aadf79531866a28e0f1cca"
+      },
+      {
+        "path": "src/features/conversation/WorkflowPanel.tsx",
+        "sha256": "6fdfc61ed9ff8fa1c49bdd25036d8cd243881f948b012977d64af683e1fab9d4"
+      },
+      {
+        "path": "src/features/conversation/workspace.css",
+        "sha256": "6f8f5e4072feac8618f01c3157593c80371bddc8eec3e65c59547cf0e74bf76a"
+      },
+      {
+        "path": "src/features/conversation/workspace.ts",
+        "sha256": "9097a64e9c97f55dacc6157672fc00115b88d9ead812d3fdd0cd09f77e486783"
+      },
+      {
+        "path": "src/features/conversation/WorkspaceIcon.tsx",
+        "sha256": "f0dac35f1382b64cce36574dbc4aed18ed5fc97b290624845fa788f53626d6c0"
+      },
+      {
+        "path": "src/features/conversation/WorkspaceSidebar.tsx",
+        "sha256": "5f9d675c66a99492af0eefcc047e6c5133f1829e90eb3650222bbccd6c28460b"
+      },
+      {
+        "path": "src/features/growth/types.ts",
+        "sha256": "5e9fe346672e593276b87293bf34c8f248dcb60b00757412063782d147142f28"
+      },
+      {
+        "path": "src/features/maintenance/maintenance.css",
+        "sha256": "94ff55608967f6864807e052156dbb2bf148f0eaeb9d1090d793abd50407949a"
+      },
+      {
+        "path": "src/features/maintenance/MaintenancePage.tsx",
+        "sha256": "d1f5478f72822cac11b4503af841c658a8282bf6e3db255dcca51eca504eed79"
+      },
+      {
+        "path": "src/main.tsx",
+        "sha256": "85f2b9480b945f3e7d2054feafe8884083cb2abe0f7d4f1d3da25f8826f5bc68"
+      },
+      {
+        "path": "src/styles.css",
+        "sha256": "34d9d95d23dc9bde89c8f604885114121a606bcbd9fcd5e04638bff168c3f7fe"
+      },
+      {
+        "path": "tests/backend-test-selection.test.ts",
+        "sha256": "3a623312a9776fb1594406903e05a1a7243d1f33c6075c4739431c0ab063ecf8"
+      },
+      {
+        "path": "tests/backend/action-coach-browser.test.ts",
+        "sha256": "ad250b97a15e3c5ad815dcd908c2071a57d9d8c9eb69da9487a53c0ba6e2645c"
+      },
+      {
+        "path": "tests/backend/action-coach-contracts.test.ts",
+        "sha256": "a98da47d3f9f73a538aeacc18bc54ca1c091b4f407176219d333ad2b441ff3aa"
+      },
+      {
+        "path": "tests/backend/action-coach-engine.test.ts",
+        "sha256": "93bab8bdd1ca428d8db394bbbda0a1cececda93bc05a2f7b09ff314b04362b3c"
+      },
+      {
+        "path": "tests/backend/action-coach-events.test.ts",
+        "sha256": "c8b1757c7326df94cb39e38ec407a95ca661e153f0da5d319f2961d0e38cecb9"
+      },
+      {
+        "path": "tests/backend/action-coach-material-boundary.test.ts",
+        "sha256": "309c3da7850848ba597ebb4dbbcabafe047ecd62ad53676c40e28c0b522165fe"
+      },
+      {
+        "path": "tests/backend/campus-actor-isolation.test.ts",
+        "sha256": "b9e0dabded957f306faa1102888bb9616d3e0d46aef604b394a38df3ca9068b6"
+      },
+      {
+        "path": "tests/backend/campus-benchmark.test.ts",
+        "sha256": "0a8e8e3b3f13a36694de106aafed2342bfdf19198a6caf197dc49439271a8f4e"
+      },
+      {
+        "path": "tests/backend/campus-comparison-real-review.test.ts",
+        "sha256": "78b968ee9285231c82f32c58220bd30862010e6e17b3799fd5f3da3f41d3d3dd"
+      },
+      {
+        "path": "tests/backend/campus-comparison-restriction.test.ts",
+        "sha256": "99045f639514e474bc286e7b42a03826c2b141e61ce3632ae166d120eec90fbc"
+      },
+      {
+        "path": "tests/backend/campus-grounding-contract.test.ts",
+        "sha256": "b4f99f8c9ba09d290e5f4616f964cbe53036beb458dff0ba53d43b2f05f37fd8"
+      },
+      {
+        "path": "tests/backend/campus-r2-browser.test.ts",
+        "sha256": "dd42890f9f1da30ebe358b72a94c61733dc4b120312c47d02205b235452a505c"
+      },
+      {
+        "path": "tests/backend/campus-reference-context.test.ts",
+        "sha256": "20d9871dcdcab32b41b7ded57a19e985f700a74b6837b19a5735153255a54eb6"
+      },
+      {
+        "path": "tests/backend/campus-reliability.test.ts",
+        "sha256": "09c5309c244faa746a09fde3a1aa47e804e023d63f2b84237a7941e8838296bd"
+      },
+      {
+        "path": "tests/backend/campus-repair.test.ts",
+        "sha256": "0618ec571db48415316403b182e0ad675293abd3945bf1aa0e928a2691e06947"
+      },
+      {
+        "path": "tests/backend/coach-action-request-sources.test.ts",
+        "sha256": "a1b491764dfa778735832b194d7bef49759ed448d6d486543786c7be6cb594b2"
+      },
+      {
+        "path": "tests/backend/coach-capability.test.ts",
+        "sha256": "726944c7d7913a1a7d09335d709e165213a903b11797ba64735f280b2b69a922"
+      },
+      {
+        "path": "tests/backend/coach-history-fixture.test.ts",
+        "sha256": "e6fa31694b7217c7c375994ea49716549fd208f0cf017853c4180a880a9e9692"
+      },
+      {
+        "path": "tests/backend/coach-history.test.ts",
+        "sha256": "c932402e3a7a080e361fa98cc16e10005b8272ec472d278e1c03b54cce7e7612"
+      },
+      {
+        "path": "tests/backend/coach-knowledge-relevance.test.ts",
+        "sha256": "a66db41034944161091fa1048948856c9b1eb193ef98a9001fd06330114d037a"
+      },
+      {
+        "path": "tests/backend/coach-knowledge.test.ts",
+        "sha256": "e5e66079598aab410128a8b998de05867a2e43e8830f639e4e27afba112b97cd"
+      },
+      {
+        "path": "tests/backend/coach-process-turns.test.ts",
+        "sha256": "043b8da2e0b30eee42c49f096290030c033fe52780df0d2580247f7d2a594818"
+      },
+      {
+        "path": "tests/backend/coach-provider-budget.test.ts",
+        "sha256": "d25a5e8ed085b9a96bd2f20b6f36e57d684c0d37a3734c921e55232c066dbde0"
+      },
+      {
+        "path": "tests/backend/coach-retrieval.test.ts",
+        "sha256": "8a2e04224ee4ee44b5318e84910e7c3bee6874f41f4f80e8967dfab861e5788d"
+      },
+      {
+        "path": "tests/backend/coach-service.test.ts",
+        "sha256": "f87127a83df209822abeadf429db2317875bf1d5e5bd346b562fede5bf22425f"
+      },
+      {
+        "path": "tests/backend/coach-source-freeze.test.ts",
+        "sha256": "4bcf17688542561ec7f712b4674d063aca40aee739f3de57e82abcbb832638ff"
+      },
+      {
+        "path": "tests/backend/coach-stream-evidence.test.ts",
+        "sha256": "474ae2991a4ea4b3cfe0de3c41e9e10b8af06986cb69573f66c4e084ee7523e1"
+      },
+      {
+        "path": "tests/backend/coach-user-boundaries.test.ts",
+        "sha256": "7849d9ff516d492ffbb84be1eb430b720ff5a4d565cef39685ba5abd728e54c5"
+      },
+      {
+        "path": "tests/backend/coach-visible-questions.test.ts",
+        "sha256": "accaab647ecbd33899e3b52ce97b0c9257e9d57f9840f65d3f99c07f1ff1c9a3"
+      },
+      {
+        "path": "tests/backend/context-budget.test.ts",
+        "sha256": "4318b6d6cbc98397937a66e343609d9455e225ec190e4b93059eaa8f83330394"
+      },
+      {
+        "path": "tests/backend/correction-target.test.ts",
+        "sha256": "98afec6494e1a0ad8ef9c65972ad81f6600c21d9b33c950f432a5cdeec140c57"
+      },
+      {
+        "path": "tests/backend/coze-code-workflow.test.ts",
+        "sha256": "8fcbe22fafe8555f04b45d4552a40a50190895c475733fc942889abac7e9209e"
+      },
+      {
+        "path": "tests/backend/coze-controlled-miss.test.ts",
+        "sha256": "dd540dcc9595033bb3e03c829ad5090174f4f56125f1070a536aee5468a379d0"
+      },
+      {
+        "path": "tests/backend/coze-knowledge.test.ts",
+        "sha256": "84ce4f975788a48ac02617dffca68b9ce8e82f6834cf71e97e0e53e351d85288"
+      },
+      {
+        "path": "tests/backend/deadline.test.ts",
+        "sha256": "6c6efd70e89bee783cfb312883e47cf71a84ad3ec7348c449d57ecdaf279f6fb"
+      },
+      {
+        "path": "tests/backend/dialogue-memory.test.ts",
+        "sha256": "53d2c80dbc552fefb234d011c99ed1e311400be2291fd854c1591782d1b6de75"
+      },
+      {
+        "path": "tests/backend/early-draft.test.ts",
+        "sha256": "45fece0458bdbbe876c2dcd3f7db399efcd8672c3bb734c549b17c0b69401464"
+      },
+      {
+        "path": "tests/backend/entitlements.test.ts",
+        "sha256": "205c6298f807e4b77b023ba33029e535927f7897da8f41f5d378e423dfc208bf"
+      },
+      {
+        "path": "tests/backend/evergreen-acceptance2.test.ts",
+        "sha256": "d8b26fe54c06fba822277548ddf122ebb433a304a79f0b45fabe825fe36b79d2"
+      },
+      {
+        "path": "tests/backend/evergreen-batch-content.test.ts",
+        "sha256": "5e90f04f81b2625a5fd0a25e9fffac7ba9628d8173bbf9208f4520efe13fabbc"
+      },
+      {
+        "path": "tests/backend/evergreen-browser.test.ts",
+        "sha256": "7ea49cc0afb1c761f9f7d6ee0b3759191ed96f7f2176498b9daa3f8e9306b52a"
+      },
+      {
+        "path": "tests/backend/evergreen-index-load.test.ts",
+        "sha256": "91203eeaf18e83ee8029928f3389f99683526fa2a83ba4a52771967feebef2b4"
+      },
+      {
+        "path": "tests/backend/evergreen-knowledge.test.ts",
+        "sha256": "b7c12538c497a0fe8036d09582447dbe3887cefc572aaea11b948b6aeb0ec87e"
+      },
+      {
+        "path": "tests/backend/evergreen-legacy-regression.test.ts",
+        "sha256": "8e276d191f22cb15d70ac76fb3c2c5fcd988f2bb12737eb30e9c96ca9913f9c0"
+      },
+      {
+        "path": "tests/backend/evergreen-natural.test.ts",
+        "sha256": "ad336a2b7fae4d54df6fea70d287698aed04c4c2da89fe8b0843cd2cf139582f"
+      },
+      {
+        "path": "tests/backend/forget-intent.test.ts",
+        "sha256": "d2202ce32a61198574cee494021a3556289e964241cbe27cff767f49db269ed8"
+      },
+      {
+        "path": "tests/backend/grounded-material.test.ts",
+        "sha256": "1528888fdc597b3326621ddf900c1ebbe4b3d90717f6ebbbd480509422dc3676"
+      },
+      {
+        "path": "tests/backend/growth-amendment.test.ts",
+        "sha256": "6e9d1d77c424ddcd380cee843115c332bbb1ebf35a86b2065bf5dfb6c5f5d326"
+      },
+      {
+        "path": "tests/backend/growth-controls.test.ts",
+        "sha256": "74105c7738a2ab5f148e680eaca43beccc38cf754ac3be61f6cfcf85cbfc7cc5"
+      },
+      {
+        "path": "tests/backend/growth-local-dependency.test.ts",
+        "sha256": "727d03dc9e0734f3387b608954312121e9e896d079a5539a97ce176c6ffce5b1"
+      },
+      {
+        "path": "tests/backend/growth-model.test.ts",
+        "sha256": "aabd042c329b1c04fb6781ce3f26b438171611014831f3776216eb954945818f"
+      },
+      {
+        "path": "tests/backend/growth-r2-integration.test.ts",
+        "sha256": "66ee00cec321da4ab33687e496f0122a33885594b3c874e8c7d06db3d399f076"
+      },
+      {
+        "path": "tests/backend/growth-required-effects.test.ts",
+        "sha256": "cdd442487448e969729de6a8ca838e9117b1deb41e6fad80846e56c122f74867"
+      },
+      {
+        "path": "tests/backend/growth-scale.test.ts",
+        "sha256": "8c4fa0a14d87dc7211884c7a9474a4de872632447defe65a8d2e238703451638"
+      },
+      {
+        "path": "tests/backend/growth-source-span.test.ts",
+        "sha256": "663423208958ed892542e406292a17c9e12713e258f7477eda4dc6681bc31c4a"
+      },
+      {
+        "path": "tests/backend/growth-topic-split.test.ts",
+        "sha256": "73c8857e2efe53d35f613d7078f4db635fdd083db627fa69200d1587e603cc4a"
+      },
+      {
+        "path": "tests/backend/growth-workspace.test.ts",
+        "sha256": "a471d157c8d532eaa93517be97360c3d6da502bb80883a09badd275a4ed4cfa4"
+      },
+      {
+        "path": "tests/backend/guide-usage-http.test.ts",
+        "sha256": "2b034b9d7f5041575307d7cc2824501307dcb1b819205b6143ee2ec160143247"
+      },
+      {
+        "path": "tests/backend/history-selection.test.ts",
+        "sha256": "13257170c12c195425bb29e05f4b5899df4ed7269f67214f285d1a928ec2402f"
+      },
+      {
+        "path": "tests/backend/kb-maintenance-http.test.ts",
+        "sha256": "3750b205a56e4f56c2cdc67113744b14832b4effa64f701d8d93fc4732d11de8"
+      },
+      {
+        "path": "tests/backend/maintenance-browser.test.ts",
+        "sha256": "e643f3a00894f7ca9e4bcbac263e4f772c864ec155968713a0b4ef3f0fc42317"
+      },
+      {
+        "path": "tests/backend/memory-control-http.test.ts",
+        "sha256": "63b8120a69f20b1b466d99e9ea1a487a3b8f70ed3961f0d9e3f0bb3cc504fd62"
+      },
+      {
+        "path": "tests/backend/memory-inquiry.test.ts",
+        "sha256": "817f5640cb40fa2892ae6ec2ed98fa93b68b20abeb887971a488a38acc2b7a86"
+      },
+      {
+        "path": "tests/backend/model-payload.test.ts",
+        "sha256": "ce2ce8b2c8ebf61b03ceb8c653583abfb5b902c360f9eb270b50705d0b2f6453"
+      },
+      {
+        "path": "tests/backend/official-attachment-public.test.ts",
+        "sha256": "9d15e8c77ec9e35049f5c6b8d6e0ca59d9d9ea6c43f5fcf7aa8a34961b67f6f0"
+      },
+      {
+        "path": "tests/backend/official-attachments.test.ts",
+        "sha256": "76100cc4abc9183fa6af80372199da7c676651fe6cf53caed11fc6cf3c089f9e"
+      },
+      {
+        "path": "tests/backend/official-paths.test.ts",
+        "sha256": "e71892ba8e3d8f5198d449d79295b2205e6e254a71ab141a7c7ca7b530d2daf8"
+      },
+      {
+        "path": "tests/backend/official-source-public.test.ts",
+        "sha256": "d424e0dfd30145e70d03bd116a18e09156c476906390f1f5adfb15a14217c185"
+      },
+      {
+        "path": "tests/backend/official-sources.test.ts",
+        "sha256": "87bdc0452256a2f75a2b9cc57d8ed3e9c93378bd49669ee0985a83a9967df4f0"
+      },
+      {
+        "path": "tests/backend/operations.test.ts",
+        "sha256": "80010b8d6e99cb2eefc376b1e498addabc9d64a427442062f3f2084d4012a77a"
+      },
+      {
+        "path": "tests/backend/p2-corrections-budget.test.ts",
+        "sha256": "6788949b435bfb2775f451c2b42454853fdfe2870afc9773371166910f646b32"
+      },
+      {
+        "path": "tests/backend/pattern-memory.test.ts",
+        "sha256": "eafac0de7bc7e36c26e38053f5cf32b9e46993303e465098449dd4a9f85b4597"
+      },
+      {
+        "path": "tests/backend/probe-diagnostics.test.ts",
+        "sha256": "8ce9ff86e561ad46b468b30df5aedb0858e061c19248766e1dc9f258c00bcde2"
+      },
+      {
+        "path": "tests/backend/production-reset-boundary.test.ts",
+        "sha256": "eb6f632a69aec5b36527fb7ce90134a027603c7dc945f8efd7dc4b55b3d8fc78"
+      },
+      {
+        "path": "tests/backend/provider-errors.test.ts",
+        "sha256": "e06cbce5629bb8d9faf876c12536266be6ee097833a9a24ebeea32c78409a055"
+      },
+      {
+        "path": "tests/backend/provider-spend.test.ts",
+        "sha256": "dcdfc8f29b0d79255e839b2936cdacd5f1e27a925e18e17ff08149531973f82e"
+      },
+      {
+        "path": "tests/backend/remaining-plan-source.test.ts",
+        "sha256": "cb3f0b115c275d5dd98d6905b1734b2599e5475c0f0d2479586e1701b3193cf0"
+      },
+      {
+        "path": "tests/backend/reply-draft-http.test.ts",
+        "sha256": "88143be87499b160daad1b2692ff7334dbd4ec13d1d21977739f44822341dea5"
+      },
+      {
+        "path": "tests/backend/request-scheduler.test.ts",
+        "sha256": "93c8042ac2ec09b00b4de9f04f0770d6e0cdca3fb9c4e1e2bfcab34e4c8506fc"
+      },
+      {
+        "path": "tests/backend/safety.test.ts",
+        "sha256": "d0add773334a0def5e8c95dd870521bba2ecba4b4125c5a5744580fed8be7909"
+      },
+      {
+        "path": "tests/backend/starmap-g1.test.ts",
+        "sha256": "c52a48aa8c735dabec8f83e357f571e3ab72f9fc98cfda4a557893c71d57b990"
+      },
+      {
+        "path": "tests/backend/starmap-trust.test.ts",
+        "sha256": "a9335ce7114d9b546b79937f02c0f72839bf20457769af5f8bc679d55fe5754e"
+      },
+      {
+        "path": "tests/backend/task-outcome-verbatim.test.ts",
+        "sha256": "bdc6cea4b04b775a2b11f004b3b9531c66474fbfcea618b0b11327eb48517bbc"
+      },
+      {
+        "path": "tests/backend/theme-lifecycle.test.ts",
+        "sha256": "5bc2c68e1e1d23b93bc5c3475ddfa81cb827459e7dfc2e911dfba6271fb4ea5c"
+      },
+      {
+        "path": "tests/backend/turn-contract-events.test.ts",
+        "sha256": "9572a0b0176e352f80331f4a5bf5739897adf705dc8fabdbe5de1b21d9af5c9f"
+      },
+      {
+        "path": "tests/backend/turn-contract.test.ts",
+        "sha256": "b2548156373ff4494c2ff6ea76e4009d83dda153c899da37ad71f876d2756b62"
+      },
+      {
+        "path": "tests/backend/turn-source-availability.test.ts",
+        "sha256": "66e19fa0e010885e171074e5ee2fb08fed59b5c5337f79e44efe6335c87e6991"
+      },
+      {
+        "path": "tests/backend/weekly-plans.test.ts",
+        "sha256": "5c46176ee4ed1eb98e73404e16900352706c6bfde90f29729b15bafa7932f608"
+      },
+      {
+        "path": "tests/backend/workflow-action.test.ts",
+        "sha256": "d5f93311896bd89f053403e6f19997d3c5199a491e1c09fc0e90b5bb34cc2ea8"
+      },
+      {
+        "path": "tests/backend/workflow-adoption-guard.test.ts",
+        "sha256": "d7f457a46f31905421f3a14b4c8b9bb87a9619c65b22578973975153e7433b94"
+      },
+      {
+        "path": "tests/backend/workflow-audit-boundaries.test.ts",
+        "sha256": "58333c5a7af1e8c22e172302ba37433aaec2568b4b9052de40d5d1313c603291"
+      },
+      {
+        "path": "tests/backend/workflow-continuity-browser.test.ts",
+        "sha256": "e4c36dfbec8f254a4ed19f54738e1eb1654695263ddeaaa1efd81e19e791eaa2"
+      },
+      {
+        "path": "tests/backend/workflow-continuity.test.ts",
+        "sha256": "0b458974d539eb4f738c7719a3f6d68ef0672c81fb90aa0aa4657b1c10d61f79"
+      },
+      {
+        "path": "tests/backend/workflow-contracts.test.ts",
+        "sha256": "1bf27980f601f2124911cac99db09bc0f9ad7ce560e5b234e5a12705ec813393"
+      },
+      {
+        "path": "tests/backend/workflow-coze-real-entry.test.ts",
+        "sha256": "2cfbc24b75e8f153a818934143faba50513e358d360f510b625f4c5eb03ef4c2"
+      },
+      {
+        "path": "tests/backend/workflow-direction.test.ts",
+        "sha256": "7d0fcf65633da275a232273bafd85739a7880ea200fdbdeb5c5d839d5a1ca5e6"
+      },
+      {
+        "path": "tests/backend/workflow-growth-knowledge.test.ts",
+        "sha256": "e2b7a6b5894826be4bf69aab1d078cdc514470ffde279b1fe19e05ce8dd465ec"
+      },
+      {
+        "path": "tests/backend/workflow-guide-continuation.test.ts",
+        "sha256": "9c6e402c1f96a7f3e52d96a72c23a7c336813659f5d2d6aa56d85fefd80c3d30"
+      },
+      {
+        "path": "tests/backend/workflow-http-chain.test.ts",
+        "sha256": "3a5d496fe2e2d35391cfec986967ac5e635f1cce909304929e6e5eddca42c1b4"
+      },
+      {
+        "path": "tests/backend/workflow-journal.test.ts",
+        "sha256": "70b9c864fe7ae621aed643fcf0d2f135a3de0021d595bd318c677bbe63acdd9c"
+      },
+      {
+        "path": "tests/backend/workflow-main-entry.test.ts",
+        "sha256": "430d02b3988166d351e1d32eaa88a40ba9fca53c1d7d6e4c3351c4dfafcc8f76"
+      },
+      {
+        "path": "tests/backend/workflow-method-context.test.ts",
+        "sha256": "cb02d0b8deec5c181fa7978f0bb9b7bd719d5efd3041319e401b052a0d397553"
+      },
+      {
+        "path": "tests/backend/workflow-pending-review.test.ts",
+        "sha256": "a9a5112f997a244c96774fdd517d85fd5808c72e767f697d4b9bb3dbbc11fccf"
+      },
+      {
+        "path": "tests/backend/workflow-personal-basis.test.ts",
+        "sha256": "aaab79638a9269e48131b3f540640368a3d2f8ecd2908393ee3918d39672e2d0"
+      },
+      {
+        "path": "tests/backend/workflow-personalization.test.ts",
+        "sha256": "9fd9f969191a61d8cfafe4633df61fcea8ad5d2343295c7968e4e6a562e33c53"
+      },
+      {
+        "path": "tests/backend/workflow-public-card.test.ts",
+        "sha256": "0b1dc155666c144a2bd4f2119378f87641fa2404b20d34c32ea18a6a30029b23"
+      },
+      {
+        "path": "tests/backend/workflow-real-entry.test.ts",
+        "sha256": "6cb6c9bc347c06f3ec4208b962c4af5dec6fe92cc54c0bb1be8e0bd212f26625"
+      },
+      {
+        "path": "tests/backend/workflow-runtime-adapter.test.ts",
+        "sha256": "14dba7760fd5df7c9a460c7550abdf77b4948d63d04b4ba9690a382034a3a89f"
+      },
+      {
+        "path": "tests/backend/workflow-skill-runtime.test.ts",
+        "sha256": "cfcaca07a4c056628a241d0c6d38a39960d108067a47f8215f18aa8cf379ddd2"
+      },
+      {
+        "path": "tests/backend/workflow-starmap-time.test.ts",
+        "sha256": "3c95dc6ce02c1206be580603c5e3e981ae12f75a395b48e994f91455f103ebeb"
+      },
+      {
+        "path": "tests/backend/workflow-student16.test.ts",
+        "sha256": "cef9611e80c6a406d95ffcffd0e468e431795baf775d2bc5c9a97b7ae3acab1d"
+      },
+      {
+        "path": "tests/backend/workflow-time-browser.test.ts",
+        "sha256": "cf54dba23a8e36341e8c8c37638fff6ed9b4f687daa24df3fbdb551fae959db0"
+      },
+      {
+        "path": "tests/backend/workflow-time-host.test.ts",
+        "sha256": "4245a4e60b5305933a81ab883062bbb6ea07be05fbcff8f95810bb50433af4a6"
+      },
+      {
+        "path": "tests/backend/workflow-time.test.ts",
+        "sha256": "cbd5f1870d6e51c078240dbaacb59c4a26a03587b7b7be66a33aa85b5a952d9d"
+      },
+      {
+        "path": "tests/backend/workflow-trajectories.test.ts",
+        "sha256": "1fe1fc9f261f523ccab6e9fa1f1252ba20eab8b6c8da04f3cbe7f828b3f6919e"
+      },
+      {
+        "path": "tests/backend/workflow-zero.test.ts",
+        "sha256": "e43c232c245fbc398dd02807de441e934fb56c9ba9cecbe51ddf972debf0adf6"
+      },
+      {
+        "path": "tests/bounded-reply.test.ts",
+        "sha256": "305201ddf3e7f53a6534b90f2e6f2c4cb1c1952c5e649faf470e3ec6f59afc11"
+      },
+      {
+        "path": "tests/campus-acceptance-summary.test.ts",
+        "sha256": "cdf413f704c1f1c0233ba4e89e5c89df61fd3bd3f59948e3d1c8887f8bddad08"
+      },
+      {
+        "path": "tests/category-patterns.test.ts",
+        "sha256": "fe95a4a2297972bbd2f4632ef6f68a994c21e573e3ee1e6905ddab1131aabc91"
+      },
+      {
+        "path": "tests/client-errors.test.ts",
+        "sha256": "e1c90ee1d9c5fbebedc1b1a3440aa3d15db5355136f743e85c60e621c2e6ccd5"
+      },
+      {
+        "path": "tests/client-workspace.test.ts",
+        "sha256": "02b55cf38074882bef6cebc4df9f59ce2aa974aeae0e9caea84dc532361880e9"
+      },
+      {
+        "path": "tests/coach-reply.test.ts",
+        "sha256": "c7930c892fa0e428a2da72a8f622e75d9bb0f58dbff14e7289f70a4aae04ac10"
+      },
+      {
+        "path": "tests/coach-simulation-reproduction.test.ts",
+        "sha256": "1e2d0bd8f2554dbec6d323be8a2bdb2c42fc647b2632331e6bf967311f29052a"
+      },
+      {
+        "path": "tests/cognition.test.ts",
+        "sha256": "dbed870b78fbb5050713665f98c18e5dd5bc9cbcc7393ed9835bc4826e407210"
+      },
+      {
+        "path": "tests/conversation.test.ts",
+        "sha256": "58a03e397d49d7cc731b62ab0c3e8b5f1937003159095f446befd2e50ae71db9"
+      },
+      {
+        "path": "tests/cost-workload.test.ts",
+        "sha256": "904862b1c9b81af9fb8855886dd92edc790ccc61a3313927627c80eb1a2ea1db"
+      },
+      {
+        "path": "tests/coze-credit-budget.test.ts",
+        "sha256": "f811c140499e9bf43d8b751874ed8839493f32a72930b002a1a1f1945394f45f"
+      },
+      {
+        "path": "tests/coze-direction-execution.test.ts",
+        "sha256": "7ab1782d3ae30512f3036ff768583c88121a9d9efd535e06ab26f8c1c33a4a8d"
+      },
+      {
+        "path": "tests/coze-direction-receipt.test.ts",
+        "sha256": "feafdba7250c0a044b36a7f939e6f41e4fa134f9c950293c7412a7499b58a31e"
+      },
+      {
+        "path": "tests/coze-host-permit.test.ts",
+        "sha256": "d5401e914e4e30e602c0bd7164fbc8834a5a0ae909c5bf5dc4872346b7a486b5"
+      },
+      {
+        "path": "tests/evergreen-guide.test.ts",
+        "sha256": "bd7dccf7d690080a312e3df52c9e6ecf666273531291af458986d0fa5148d2e0"
+      },
+      {
+        "path": "tests/experience-content.test.ts",
+        "sha256": "1aa8a0952c25a3920529553aa6e3f007157b2b2bad8ead44b0aec856653ab05f"
+      },
+      {
+        "path": "tests/fixtures/action-coach-retrieval.json",
+        "sha256": "939e87d6d5852e1d81af8889b33e6dc90da13832125453d35c684348bf67af87"
+      },
+      {
+        "path": "tests/fixtures/action-coach-trajectories.json",
+        "sha256": "828dacc2f614597b0e0cbd1a9eb23c0c5485f9d4eb8a023a38100a347f3f0154"
+      },
+      {
+        "path": "tests/fixtures/campus-acceptance-regressions.json",
+        "sha256": "842286f87c06fce867fbfd152eecf60d3befaf75df29c0eead6d0fa6d9d9fbaa"
+      },
+      {
+        "path": "tests/fixtures/campus-growth-trajectories.json",
+        "sha256": "7d384db2cd40fd2b827781f744f9ae26b0314f0a6515fa19020626d3565ca9f1"
+      },
+      {
+        "path": "tests/fixtures/campus-saved-contract-gaps.json",
+        "sha256": "68d3df11ae436729a42b2f28c3a2ebf867d2ddc702b3119f4843a8ef2855a218"
+      },
+      {
+        "path": "tests/fixtures/campus-saved-reliability.json",
+        "sha256": "1cc446d5a01ccf7e2c8a52990d1502220d4c6b878a28d35a20b24d4c6232d966"
+      },
+      {
+        "path": "tests/fixtures/campus-scenarios.ts",
+        "sha256": "0c66b66e58f64415aedc575a66c3787423cdd511df88c297c00807a7216a743f"
+      },
+      {
+        "path": "tests/fixtures/coach-invalid-background.json",
+        "sha256": "3cf77c12f024cc43fd059c5bc478eeac4912f2f19ca8da4b377b9f6e1869d6bf"
+      },
+      {
+        "path": "tests/fixtures/coach-invalid-unknown-resolution.json",
+        "sha256": "5d6938a5cf3b82dff7c0bcbd5532e3cddd6f0ef2e5a957b4da2c4c6f0598eb09"
+      },
+      {
+        "path": "tests/fixtures/coach-invented-event.json",
+        "sha256": "1abb7741cd83b29f46b9344442d2746498d31fd7c20fa2542ba9d74414eb8b1e"
+      },
+      {
+        "path": "tests/fixtures/coach-knowledge-relevance.json",
+        "sha256": "472b8db48e6025da23f9b12c22842846c9d8a7a5b3a0f8a1dea7ed7b41b0b63f"
+      },
+      {
+        "path": "tests/fixtures/coach-markdown-material-duplicate.json",
+        "sha256": "36a431ab33afe64fa23757a04b8cc9353c2a8a4947ae6ca4610bf93d6bb86cd2"
+      },
+      {
+        "path": "tests/fixtures/coach-missing-citation.json",
+        "sha256": "674e3bb6b6a5d3a5827f05d6ee08763bbe923dac94c1406822a180e05876cd48"
+      },
+      {
+        "path": "tests/fixtures/coach-unknown-only-repeat.json",
+        "sha256": "a7684dd520d88c1a466f11fc4215b74c00a7b6b8bd14623bae083da2d007c661"
+      },
+      {
+        "path": "tests/fixtures/official-office.ts",
+        "sha256": "d0b0eecf3a8854aadb18c65c6c89cc76303a7b76f67567ea96de77c7e27bfd02"
+      },
+      {
+        "path": "tests/fixtures/official-recommendation-dom.json",
+        "sha256": "f5a66a8f985f7f463792c67bd99b5100cbdf53e51cf172fd4db9a36480eb4510"
+      },
+      {
+        "path": "tests/fixtures/official-source-dom.json",
+        "sha256": "4db64f00a993492fc5a841be70e676e9cb79fc7ebf2ebb8a5b9e1bcec5e353fd"
+      },
+      {
+        "path": "tests/fixtures/workflow-graph-failure.json",
+        "sha256": "ed93d7aaca696be0ab5c1dad13f8104928a50feca93e16492c2a95dda82ffab2"
+      },
+      {
+        "path": "tests/fixtures/workflow-local-trajectories.json",
+        "sha256": "ee3dcdc43b72b81fb334e50625f201650e049e25a3033c99e2f66b3b924f9390"
+      },
+      {
+        "path": "tests/fixtures/workflow-routing-v2.json",
+        "sha256": "248024a9a46b82b400b04184f03cff6132ad1122915737b7281bf259f2e4ca79"
+      },
+      {
+        "path": "tests/fixtures/workflow-student16.json",
+        "sha256": "e070626ede368ab5caaf61671502fefb1135366e683c1e3411c2d9f86e5bb735"
+      },
+      {
+        "path": "tests/ftp-dependency.test.ts",
+        "sha256": "5f1d1ec01693a747274ad1ba3c4458a58e5b4004b1328e2985f2378498264b4a"
+      },
+      {
+        "path": "tests/grounded-material.test.ts",
+        "sha256": "d49139fe6cfb3d8b5a97b534c2d211c9783cb26b6f4385ff709ad9f6fc7a2a21"
+      },
+      {
+        "path": "tests/growth-source-fragments.test.ts",
+        "sha256": "bfa6684208b6afed52067298dbca6cdfdba72f6252e5b82e5b910b76c410d9d4"
+      },
+      {
+        "path": "tests/growth-time.test.ts",
+        "sha256": "de919ab6f9218867bb140c0dbc651bdbfdd4c72bbc5d03089ff754ffe5f8e9e9"
+      },
+      {
+        "path": "tests/independent-review.test.ts",
+        "sha256": "cdc8b12f3753201797b2acab8f6f81d7b748ea4572f053bf1aec7319db497330"
+      },
+      {
+        "path": "tests/model-config.test.ts",
+        "sha256": "7f8321f51f607e0321d04ed17a7e33ee81d45b90ea14f60b6b3bb59fd7193535"
+      },
+      {
+        "path": "tests/model-router.test.ts",
+        "sha256": "3e87c07823dfbc62ad5c1382210a9c1188899deba049c8d7e87df33f9bb05ad4"
+      },
+      {
+        "path": "tests/record-draft.test.ts",
+        "sha256": "5f512385983064797cc4431013e7ea1e0a65737a6f9a3102da22b27afb4339f3"
+      },
+      {
+        "path": "tests/reply-draft.test.ts",
+        "sha256": "077537341a159d501af9eaa0d4f9a3196f63b569e4f9535e64405fd428ccb233"
+      },
+      {
+        "path": "tests/starmap-acceptance.test.ts",
+        "sha256": "cedcdd4d1da53fae4e830c4be8732b373aca83d2bfb5001aeb593ba5e537ed03"
+      },
+      {
+        "path": "tests/starmap-trajectories.test.ts",
+        "sha256": "12ad97d08f2540db0b0a0f20ecb14734eb9cbd7fca43c2ed17f26633a73e1ada"
+      },
+      {
+        "path": "tests/task-outcome-verbatim.test.ts",
+        "sha256": "183ff69587f293e01be0be9e35281d2ae926e53c358c8bb715b4c7b49abd191d"
+      },
+      {
+        "path": "tests/themes-episodes.test.ts",
+        "sha256": "154479cc71b476cfd95101b340783508a40829c4d9881a3eec8ff530e78cb42a"
+      },
+      {
+        "path": "tests/turn-obligations.test.ts",
+        "sha256": "4b7a6b0789081dcb88b24bd0ec7ce1f984300a7b96ab45e298274346165cb400"
+      },
+      {
+        "path": "tests/user-command-spans.test.ts",
+        "sha256": "9fc8f28e9e5eacb36d70d8f8832f2522ad34452339b199d9138f11bcd8eb496d"
+      },
+      {
+        "path": "tests/workflow-graph.test.ts",
+        "sha256": "ba2df800cdfd33fca0fad7e304ec8e96ef168b4edfad9675ac524fbfbb560756"
+      },
+      {
+        "path": "tests/workflows/fixtures.ts",
+        "sha256": "6523b7683716698638e819d8e7388abd094eff298ab3b14f6a45b7aca8c8cbdf"
+      },
+      {
+        "path": "tests/workspace.test.ts",
+        "sha256": "3869661b2ab71c018f48bebd49a9b621f789d3ec1f1633218edcfa66fc1a8ddd"
+      },
+      {
+        "path": "tsconfig.json",
+        "sha256": "66705aab0be7e0bdd7dfb89ad6adb6da8c7896aafcd5d4da5093e1d18b83b079"
+      },
+      {
+        "path": "tsconfig.server.json",
+        "sha256": "5b1a0f244cacb0c5fa8b7477114b1169ab8afc398f706b7c49e9524bbf0033b0"
+      },
+      {
+        "path": "tsconfig.workflows.json",
+        "sha256": "5f4810cf8205997db9fbd3196d9321c7eadd5652c541f27e29b0909b73906c8e"
+      },
+      {
+        "path": "vite.config.ts",
+        "sha256": "e517b09d4aac75d0cc11348bb9fbc9e6cb43575d2f977fcc351f44b48a328949"
+      }
+    ],
+    "runtime": {
+      "node": "v24.18.0",
+      "platform": "win32",
+      "arch": "x64",
+      "embedding": "bge-small-zh-v1.5:7999e1d3359715c523056ef9478215996d62a620:normalized-chunk-mean-v1",
+      "generationConcurrency": 4,
+      "generationQueueLimit": 32,
+      "access": {
+        "entitlementsEnabled": false,
+        "providerBudgetEnabled": false,
+        "providerBudgetId": "production",
+        "signupEnabled": true
+      },
+      "models": [
+        {
+          "tier": "default",
+          "provider": "bailian",
+          "model": "qwen3.8-flash",
+          "available": false,
+          "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+          "contractSignature": "38214c306e303fea95596dd88b007df7fa366fc0bdfcb80b85330b13337cef7a",
+          "interfaceSignature": "686e6dcf58b09117b7f38d2bab7581fbc12d1b4f81142b37b970a65dcb3cbd7f",
+          "pricing": {
+            "inputCnyPerMillion": 0.8,
+            "outputCnyPerMillion": 2.7,
+            "cachedInputCnyPerMillion": 0.1
+          }
+        },
+        {
+          "tier": "reasoning",
+          "provider": "bailian",
+          "model": "deepseek-v4.1-flash",
+          "available": false,
+          "signature": "bailian:deepseek-v4.1-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+          "contractSignature": "841335c97941ea3e7755736cfd1b63f3b6cf058b5293395d3723f57d39de906a",
+          "interfaceSignature": "5e91eaf40a07eb0cc629c7d12f614b4eed3330f820ef5126d4c565e19834be63",
+          "pricing": {
+            "inputCnyPerMillion": 2,
+            "outputCnyPerMillion": 8,
+            "cachedInputCnyPerMillion": 0.2
+          }
+        }
+      ],
+      "comparison": {
+        "qwenThinkingBudget": 0
+      }
+    },
+    "digest": "53f2384c9aa2d3718db7eadf509f32b228e4d88f3889b1d5c93d0dfbacb69c52"
+  },
+  "runtimeFreezeDigest": "53f2384c9aa2d3718db7eadf509f32b228e4d88f3889b1d5c93d0dfbacb69c52",
+  "privateStateIncluded": false,
+  "declaredPublicInputs": [
+    "evidence/v1.3-action-coach/research/source-verification.json",
+    "evidence/v1.3-action-coach/research/verified-method-cards.json"
+  ],
+  "historicalPublicInputsAreNotNewApproval": true,
+  "reproduction": {
+    "head": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+    "report": "evidence/coze-core-launch-20261011/REPRODUCTION_F36B933_FIRST.json",
+    "status": "HISTORICAL_PASS_SEPARATE_REPRODUCTION_CANCELLED_BY_OWNER",
+    "currentCodeDifference": "Current-course resource persistence and contact draft v6 changed after the historical fresh-checkout report. No claim of fresh-checkout equivalence.",
+    "futureSeparateCandidateDelivery": "CANCELLED_BY_OWNER"
+  },
+  "runtimeFreezeScope": "CURRENT_WORKSPACE_AND_CONFIG_SNAPSHOT_NOT_A_RUNNING_PRODUCT_PROCESS",
+  "currentProductCodeCommit": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+  "currentProductSourceDigest": "c93606e498bd25a60a627472b685aea8e06df97d0a342859b4599be55d8e8a67"
+}

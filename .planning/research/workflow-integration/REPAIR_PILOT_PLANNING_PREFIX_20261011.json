@@ -1,0 +1,11 @@
+{
+ "kind":"PREDECLARED_NEW_REPAIR_PILOT_NOT_FINAL_COHORT",
+ "hypothesis":"Verified planning boundaries can appear as genuine first content before the model completes structured tasks; final reply still renders validated tasks",
+ "historicalFirstAttempts":"evidence/coze-core-launch-20261011/HTTP_ZERO_A1AECE4_FIRST.json",
+ "cases":[
+  {"caseId":"PLAN_PREFIX_THIS_01","session":0,"input":"我是成年大学生，本周我能拿出两小时，帮我安排这周课程复习和备考。","expected":"本周120分钟边界可先显示；最终回复含具体合法候选任务与投入，数据库计划相同；不算执行"},
+  {"caseId":"PLAN_PREFIX_ZERO_02","session":1,"input":"这周我没有可用时间了，请安排这周课程和备考。","expected":"本人本周零时间与空计划保存，不挤时间，不误认普通否定"},
+  {"caseId":"PLAN_PREFIX_NEXT_03","session":1,"input":"下周我能拿出五小时，帮我安排下周课程和备考。","expected":"下周300分钟边界与具体候选任务可见，旧本周零不串线；实际结构一致"},
+  {"caseId":"PLAN_PREFIX_KNOWLEDGE_04","session":2,"input":"请简短解释递归是什么，只回答知识，不需要记录经历或制定计划。","expected":"正常知识回答，无本人经历/计划/成长写入；完整实质首内容，不用问句搪塞"}
+ ]
+}

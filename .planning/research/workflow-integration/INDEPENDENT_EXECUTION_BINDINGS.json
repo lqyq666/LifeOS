@@ -1,0 +1,135 @@
+{
+  "kind": "OBSERVED_INDEPENDENT_EXECUTION_BINDINGS",
+  "executions": [
+    {
+      "id": "coze-kb-r3-real-small",
+      "scope": "real_small_pilot",
+      "taskId": "LIFEOS_KB_R3_CURRENT_SIX_AND_REAL_PILOT_REVIEW",
+      "cloudCommit": "974926e093eaf934b0268acad4cadde10a01652c",
+      "proofPath": "evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json",
+      "proofSha256": "dcce306ba9be45e5385d32e910e3b096211af3a25e9306dec956b8de6064ee5c",
+      "reportPath": "evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json",
+      "reportSha256": "59dca996a5acfd058f657a80339e8d1186f219976b3495bfd5762d6e710b4a7d",
+      "inputPath": ".planning/research/workflow-integration/SMALL_REAL_INDEPENDENT_REVIEW_INPUT.json",
+      "inputSha256": "8a71888d4b5f8bea62401123db8b4e4fe8058386a353bc5002195c2e10910b13"
+    },
+    {
+      "id": "coze-kb-r7-original-cards",
+      "scope": "kb_original_card_review",
+      "taskId": "LIFEOS_KB_R7_EXACT_PROTOCOL_FULL_BODY",
+      "cloudCommit": "30d784fad83bf67cfd52804d88744540c077e43b",
+      "proofPath": "evidence/coze-core-launch-20261011/INDEPENDENT_R7_EXECUTION_PROOF.json",
+      "proofSha256": "3df55127501e87ed2159a8d507386cbc31be609cd5c5700cbbd0edf299471590",
+      "reportPath": "evidence/coze-core-launch-20261011/KB_R7_FORMAL_RAW.json",
+      "reportSha256": "7989f8a55c84708a9c275b9b3eb52d78206b3ab40cac0794be8b3bc129fc9886",
+      "inputPath": ".planning/research/workflow-integration/KB_SIX_R4_FULL_INPUT.json",
+      "inputSha256": "43147524695f1efc32a3797cf4cb393bf2f5c1fbb6c7850995654f673f539c91",
+      "artifacts": [
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/campus_norm.txt",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/campus_norm.txt",
+          "sha256": "5ccd7b854228f3b637a5a577d7ae34e9abda110f985438f84c9d29e079af3812"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/campus_orig.html",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/campus_orig.html",
+          "sha256": "9c7bf0f0c986409e1e4ca94730e7ac0a86a443f0e22f89d66e2370df5ceea536"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/cfpb_income.pdf",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/cfpb_income.pdf",
+          "sha256": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/cfpb_spend.pdf",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/cfpb_spend.pdf",
+          "sha256": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/ies_norm.txt",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/ies_norm.txt",
+          "sha256": "efed8f7bf5702238aef13d3fcd1d3b26a8c4495512bf258085b2b3fd45c75147"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/ies_orig.html",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/ies_orig.html",
+          "sha256": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/income_p2_norm.txt",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/income_p2_norm.txt",
+          "sha256": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/spend_p1_norm.txt",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/spend_p1_norm.txt",
+          "sha256": "ddb371f04aacfc52b142256858d2ef672f285359815d6c323072add069aa28f1"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/spend_p3_norm.txt",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/spend_p3_norm.txt",
+          "sha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22"
+        }
+      ]
+    },
+    {
+      "id": "coze-kb-r8-original-cards",
+      "scope": "kb_original_card_review",
+      "taskId": "LIFEOS_KB_R8_ACTUAL_SEMANTICS",
+      "cloudCommit": "10b80bfb5f20f068a7dfaa050813ece970468fab",
+      "proofPath": "evidence/coze-core-launch-20261011/INDEPENDENT_R8_EXECUTION_PROOF.json",
+      "proofSha256": "d273a4e30d55bb52af0f2a4f82456aabff2bf658cc8210318102837c13360caa",
+      "reportPath": "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json",
+      "reportSha256": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66",
+      "inputPath": ".planning/research/workflow-integration/KB_SIX_R4_FULL_INPUT.json",
+      "inputSha256": "43147524695f1efc32a3797cf4cb393bf2f5c1fbb6c7850995654f673f539c91",
+      "artifacts": [
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/campus_norm.txt",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/campus_norm.txt",
+          "sha256": "5ccd7b854228f3b637a5a577d7ae34e9abda110f985438f84c9d29e079af3812"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/campus_orig.html",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/campus_orig.html",
+          "sha256": "9c7bf0f0c986409e1e4ca94730e7ac0a86a443f0e22f89d66e2370df5ceea536"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/cfpb_income.pdf",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/cfpb_income.pdf",
+          "sha256": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/cfpb_spend.pdf",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/cfpb_spend.pdf",
+          "sha256": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/ies_norm.txt",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/ies_norm.txt",
+          "sha256": "efed8f7bf5702238aef13d3fcd1d3b26a8c4495512bf258085b2b3fd45c75147"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/ies_orig.html",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/ies_orig.html",
+          "sha256": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/income_p2_norm.txt",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/income_p2_norm.txt",
+          "sha256": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/spend_p1_norm.txt",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/spend_p1_norm.txt",
+          "sha256": "ddb371f04aacfc52b142256858d2ef672f285359815d6c323072add069aa28f1"
+        },
+        {
+          "remotePath": ".planning/research/workflow-integration/r7-originals/spend_p3_norm.txt",
+          "path": "evidence/coze-core-launch-20261011/r7-originals/spend_p3_norm.txt",
+          "sha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22"
+        }
+      ]
+    }
+  ]
+}

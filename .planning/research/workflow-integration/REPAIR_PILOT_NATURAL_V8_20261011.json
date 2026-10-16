@@ -1,0 +1,56 @@
+{
+  "kind": "PREDECLARED_NEW_FIRST_REAL_REPAIR_SET",
+  "historicalFirstFailuresPreserved": true,
+  "notReplacement": true,
+  "independentReview": "REQUIRED",
+  "cases": [
+    {
+      "caseId": "NC8_PATH",
+      "session": 0,
+      "input": "我现在主要探索接单，实习过段时间再看。只记录，不安排任务。",
+      "expected": "Current exploration grounded; deferred alternative is context, no extra action."
+    },
+    {
+      "caseId": "NC8_WORK",
+      "session": 0,
+      "input": "我把海报交给客户了。客户已经用了，费用还没付。实际效果我不知道。",
+      "expected": "Delivery, participant adoption, unpaid and unknown effect separate; own work completed in map, no quality claim."
+    },
+    {
+      "caseId": "NC8_PRIORITY",
+      "session": 1,
+      "input": "我不再把自由职业作为主线，我现在优先找实习，之前的海报交付记录保留。",
+      "expected": "New explicit priority active; same named deferred internship context superseded; completed poster kept."
+    },
+    {
+      "caseId": "NC8_PAUSE",
+      "session": 2,
+      "input": "这次访谈我先不继续，也不要给我别的方法。使用结果仍未知。",
+      "expected": "Real durable recommendation control and exact boundary context; no unsolicited map CTA."
+    },
+    {
+      "caseId": "NC8_AVAILABLE",
+      "session": 3,
+      "input": "我这周只剩七十五分钟，课程与备考怎么取舍？",
+      "expected": "Actual current remaining 75-minute scoped constraint, concrete task unknown, no invented allocation."
+    },
+    {
+      "caseId": "NC8_NEXT_WEEK",
+      "session": 4,
+      "input": "这周没有可用时间。下周大概有两小时，先不安排具体任务。",
+      "expected": "Current zero retires prior75 constraint; future estimate120 retained distinct active/not_yet_active; no schedule."
+    },
+    {
+      "caseId": "NC8_MAIL",
+      "session": 5,
+      "input": "我请教导师的邮件发出去了。对方读过但没有回应。我现在只想倾诉，不用给建议。",
+      "expected": "Own contact experience with contiguous outcome evidence while listening, no invented relation or next-action CTA."
+    },
+    {
+      "caseId": "NC8_RETURN",
+      "session": 6,
+      "input": "还是请教的那封邮件，等着没回应挺失落的，先听我说。",
+      "expected": "No known-fact reasking; same matter continuation, listening respected across sessions."
+    }
+  ]
+}

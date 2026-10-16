@@ -1,0 +1,25 @@
+{
+  "kind": "PREDECLARED_NEW_REPAIR_PILOT_NOT_FINAL_COHORT",
+  "hypothesis": "Negative factual statements permit grounded state saves; cross-session material feedback uses actual prior context; listening preference cannot create a goal",
+  "historicalFirstAttempts": "FEEDBACK_NATURAL_F2D3B1B_FIRST.json",
+  "cases": [
+    {
+      "caseId": "NP_NEG_01",
+      "session": 0,
+      "input": "备考材料这次无法打开，我还没开始看这一章，怎么继续？",
+      "expected": "保留未开始的本人原话；材料阻碍不假称已经完成，不能创建已发生经历"
+    },
+    {
+      "caseId": "NP_RETURN_02",
+      "session": 1,
+      "input": "昨天那份备考材料还是打不开，先继续这件事。",
+      "expected": "真实API/发往模型上下文读回之前未开始事实；同件缺材料继续，不发完整入门流程"
+    },
+    {
+      "caseId": "NP_LISTEN_03",
+      "session": 2,
+      "input": "我今天只想倾诉，不要把聊天变成任务。",
+      "expected": "回应倾听；无新目标、计划、星图变化，不把聊天意图变成身份或追求"
+    }
+  ]
+}

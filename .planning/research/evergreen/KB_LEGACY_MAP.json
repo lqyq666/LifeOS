@@ -1,0 +1,134 @@
+{
+  "self_authored": [
+    {
+      "old_id": "9defe55f-6687-4cae-b275-92cce03d6672",
+      "old_revision": 1,
+      "old_document_id": "guide-direction-lowtime",
+      "source_type": "self_authored_method",
+      "canonical_id": "3c534028-eb02-48bd-8dd4-3dd9473a4a29",
+      "history": "preserved; no remote write or silent revision upgrade"
+    },
+    {
+      "old_id": "fbf24484-5938-4d1b-88b8-283596853031",
+      "old_revision": 1,
+      "old_document_id": "guide-research-review",
+      "source_type": "self_authored_method",
+      "canonical_id": "6262d479-9403-4140-8910-48de23cd2600",
+      "history": "preserved; no remote write or silent revision upgrade"
+    },
+    {
+      "old_id": "318d2980-16e7-4d4a-817c-37ca69cbee64",
+      "old_revision": 1,
+      "old_document_id": "guide-portfolio-evidence",
+      "source_type": "self_authored_method",
+      "canonical_id": "6262d479-9403-4140-8910-48de23cd2600",
+      "history": "preserved; no remote write or silent revision upgrade"
+    },
+    {
+      "old_id": "6a367fb8-309e-42ed-a409-664d8ca215b7",
+      "old_revision": 1,
+      "old_document_id": "guide-intern-first-contact",
+      "source_type": "self_authored_method",
+      "canonical_id": "257bea5b-e782-427a-82c0-39e84e086ad9",
+      "history": "preserved; no remote write or silent revision upgrade"
+    },
+    {
+      "old_id": "f05a8cb2-a295-4171-877a-618ff27a3040",
+      "old_revision": 1,
+      "old_document_id": "guide-exam-course-conflict",
+      "source_type": "self_authored_method",
+      "canonical_id": "5fde19ca-e307-478c-8a96-5781df392991",
+      "history": "preserved; no remote write or silent revision upgrade"
+    },
+    {
+      "old_id": "e4aa18f7-f030-44d7-b03b-40f1749288a9",
+      "old_revision": 1,
+      "old_document_id": "guide-need-interview",
+      "source_type": "self_authored_method",
+      "canonical_id": "43e47ad6-3543-4c97-84f6-42bb0a1e6cb3",
+      "history": "preserved; no remote write or silent revision upgrade"
+    },
+    {
+      "old_id": "3082d431-a19e-4fc1-97a8-e670481db895",
+      "old_revision": 1,
+      "old_document_id": "guide-competition-review",
+      "source_type": "self_authored_method",
+      "canonical_id": "6262d479-9403-4140-8910-48de23cd2600",
+      "history": "preserved; no remote write or silent revision upgrade"
+    },
+    {
+      "old_id": "c40921d4-bb1f-4d8c-b254-4ef99c2a5de6",
+      "old_revision": 1,
+      "old_document_id": "guide-lowtime-weekly-plan",
+      "source_type": "self_authored_method",
+      "canonical_id": "5fde19ca-e307-478c-8a96-5781df392991",
+      "history": "preserved; no remote write or silent revision upgrade"
+    }
+  ],
+  "research": [
+    {
+      "old_id": "12000000-0000-4000-8000-000000000001",
+      "old_revision": 1,
+      "source_type": "research_method",
+      "canonical_id": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+      "history": "Alias points to reviewed canonical method only when that method is approved; historical citation still uses original id/revision"
+    },
+    {
+      "old_id": "12000000-0000-4000-8000-000000000002",
+      "old_revision": 1,
+      "source_type": "research_method",
+      "canonical_id": "e6ad610b-549e-4b09-89bc-34223577fb49",
+      "history": "Alias points to reviewed canonical method only when that method is approved; historical citation still uses original id/revision"
+    },
+    {
+      "old_id": "12000000-0000-4000-8000-000000000003",
+      "old_revision": 1,
+      "source_type": "research_method",
+      "canonical_id": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+      "history": "Alias points to reviewed canonical method only when that method is approved; historical citation still uses original id/revision"
+    },
+    {
+      "old_id": "12000000-0000-4000-8000-000000000004",
+      "old_revision": 1,
+      "source_type": "research_method",
+      "canonical_id": "43e47ad6-3543-4c97-84f6-42bb0a1e6cb3",
+      "history": "Alias points to reviewed canonical method only when that method is approved; historical citation still uses original id/revision"
+    },
+    {
+      "old_id": "12000000-0000-4000-8000-000000000005",
+      "old_revision": 1,
+      "source_type": "research_case",
+      "canonical_id": null,
+      "history": "Distinct case evidence retained, not rewritten as a campus success story"
+    },
+    {
+      "old_id": "12000000-0000-4000-8000-000000000006",
+      "old_revision": 1,
+      "source_type": "research_case",
+      "canonical_id": null,
+      "history": "Distinct case evidence retained, not rewritten as a campus success story"
+    },
+    {
+      "old_id": "12000000-0000-4000-8000-000000000007",
+      "old_revision": 1,
+      "source_type": "research_case",
+      "canonical_id": null,
+      "history": "Distinct case evidence retained, not rewritten as a campus success story"
+    },
+    {
+      "old_id": "12000000-0000-4000-8000-000000000008",
+      "old_revision": 1,
+      "source_type": "research_case",
+      "canonical_id": null,
+      "history": "Distinct case evidence retained, not rewritten as a campus success story"
+    }
+  ],
+  "optional12Drafts": {
+    "status": "MISSING",
+    "searched": [
+      "workspace",
+      "Downloads"
+    ],
+    "contentImported": false
+  }
+}

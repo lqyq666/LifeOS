@@ -1,0 +1,223 @@
+{
+  "version": "workflow-v2-integration-0c4ce842100e",
+  "at": "2026-10-10T12:03:20.970250+00:00",
+  "head": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+  "status": "PASS_CHANGED_TECHNICAL_SCOPE_AND_LOCAL_RETRIEVAL_GATES_WIP_NOT_READY",
+  "reviewKind": "MAIN_CODEX_DIFF_REVIEW_NOT_INDEPENDENT_SOURCE_OR_MODEL_REVIEW",
+  "codeBlocker": [],
+  "codeHigh": [],
+  "acceptanceFailures": [
+    "Unseen reserve32 not executed; exposed regressions do not prove generalization or independent blind quality",
+    "44 task-specific source/scope gaps; 15 scoped candidates await actual independent review and human approval",
+    "All 32 draft approvals absent; no new real publication",
+    "96 round student trace is historical; current retrieval candidate has scoped method continuity only",
+    "Real model choices, paired benefit, ordinary latency, current cloud copies and real Skills remain PAUSED_NOT_RUN"
+  ],
+  "validation": {
+    "root": {
+      "passed": 118,
+      "evidence": "evidence/retrieval-followup-20261010/root-confidence-final.log"
+    },
+    "serverTypes": "PASS",
+    "frontendTypes": "PASS_BUILD_TSC",
+    "build": "PASS_EXISTING_THREE_CHUNK_WARNING",
+    "maintenanceApi": {
+      "passed": 1,
+      "evidence": "evidence/retrieval-followup-20261010/MAINTENANCE_HTTP.json",
+      "syntheticApprovalsOnly": true
+    },
+    "realEntry": {
+      "passed": 4,
+      "evidence": "evidence/long-batch-20261010/final-performance-cloud-entry.log",
+      "actualPaidCalls": 0
+    },
+    "cozeEntry": {
+      "passed": 2,
+      "evidence": "evidence/long-batch-20261010/final-performance-cloud-entry.log",
+      "actualCloudCalls": 0
+    },
+    "canonicalIndex": {
+      "passed": 5,
+      "evidence": "evidence/retrieval-followup-20261010/index-confidence-final.log"
+    },
+    "deepCanonicalContext": {
+      "passed": 1,
+      "evidence": "evidence/long-batch-20261010/final-method-entry-green.log"
+    },
+    "safetyAndSkills": {
+      "passed": 26,
+      "evidence": "evidence/long-batch-20261010/final-safety-skills.log"
+    },
+    "personalBasisAndDirection": {
+      "evidence": "evidence/long-batch-20261010/final-personal-basis.log",
+      "fourSameBudgetProfiles": "PASS_NATIVE_SDK_LOCAL_SCRIPTED_ABCD_NOT_REAL_CHOICE_QUALITY",
+      "fourProfilesEvidence": "evidence/long-batch-20261010/PERSONAL_BASIS_ABCD.json"
+    },
+    "currentCandidateBrowser": {
+      "status": "PASS_CURRENT_MAINTENANCE_UI_STUDENT_CHAIN_HISTORICAL",
+      "widths": [
+        1440,
+        390
+      ],
+      "maintenance": "evidence/retrieval-followup-20261010/MAINTENANCE_BROWSER.json",
+      "student": "evidence/long-batch-20261010/BROWSER_CHAIN.json",
+      "shortAnswer": "evidence/long-batch-20261010/WAITING_BROWSER_GREEN.json",
+      "physicalPhone": false
+    },
+    "student16": {
+      "status": "HISTORICAL_PASS_LOCAL_CONTRACT_NOT_RERUN_AFTER_RETRIEVAL_CHANGE",
+      "rounds": 96,
+      "sessions": 48,
+      "students": 16,
+      "coreFourIncludedOnce": true,
+      "testedCodeCommit": "8bdd7408b8913724fefed7c56160c4bb2b1bdfdb",
+      "productSourceEquivalentToFinalCode": false,
+      "productionFilesCompared": 219,
+      "annotationRevision": 2,
+      "blind": false,
+      "apiReadback": true,
+      "provider": "SCRIPTED_LOOPBACK_ONLY",
+      "evidence": "evidence/long-batch-20261010/student16-final/STUDENT16_TRAJECTORIES.json",
+      "firstFailuresPreserved": true
+    },
+    "reproduction": {
+      "status": "PASS_FRESH_CHECKOUT_RELEVANT_FREE_SCOPE",
+      "codeCommit": "96aca1f998e9ac506dd17e5cb329b4db178ffe64",
+      "steps": 15,
+      "evidence": "evidence/retrieval-followup-20261010/reproduction-confidence/REPRODUCTION.json",
+      "ledgerPrivateDbKeysCopied": false,
+      "firstFailureRetained": "evidence/retrieval-followup-20261010/reproduction/REPRODUCTION.json"
+    },
+    "retrievalQuality": {
+      "status": "PASS_LOCAL_EXPOSED_REGRESSION_THRESHOLDS_NOT_FULL_KB_OR_INDEPENDENT_BLIND",
+      "firstNew160": {
+        "route": {
+          "numerator": 159,
+          "denominator": 160
+        },
+        "recall5": {
+          "numerator": 63,
+          "denominator": 64
+        },
+        "top1": {
+          "numerator": 60,
+          "denominator": 64
+        },
+        "missingTarget": {
+          "numerator": 64,
+          "denominator": 128
+        },
+        "noMatchingMethod": 7,
+        "controls": 0
+      },
+      "current": {
+        "old235": {
+          "routing": {
+            "numerator": 235,
+            "denominator": 235
+          },
+          "recall5": {
+            "numerator": 56,
+            "denominator": 56
+          },
+          "top1": {
+            "numerator": 55,
+            "denominator": 56
+          }
+        },
+        "development232": {
+          "route": {
+            "numerator": 116,
+            "denominator": 116
+          },
+          "recall5": {
+            "numerator": 48,
+            "denominator": 48
+          },
+          "top1": {
+            "numerator": 45,
+            "denominator": 48
+          },
+          "missingTarget": {
+            "numerator": 49,
+            "denominator": 97
+          },
+          "noMatchingMethod": 1
+        },
+        "exposedFormerSealed232": {
+          "route": {
+            "numerator": 116,
+            "denominator": 116
+          },
+          "recall5": {
+            "numerator": 48,
+            "denominator": 48
+          },
+          "top1": {
+            "numerator": 47,
+            "denominator": 48
+          },
+          "missingTarget": {
+            "numerator": 48,
+            "denominator": 96
+          },
+          "noMatchingMethod": 1
+        },
+        "exposed160": {
+          "route": {
+            "numerator": 159,
+            "denominator": 160
+          },
+          "recall5": {
+            "numerator": 63,
+            "denominator": 64
+          },
+          "top1": {
+            "numerator": 61,
+            "denominator": 64
+          },
+          "missingTarget": {
+            "numerator": 64,
+            "denominator": 128
+          },
+          "noMatchingMethod": 7,
+          "controls": 0
+        },
+        "status": "PASS_DECLARED_THRESHOLDS",
+        "independentBlind": false
+      },
+      "reserve": {
+        "count": 32,
+        "sha256": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
+        "executions": 0,
+        "usedForTuning": false,
+        "status": "NOT_TESTED"
+      },
+      "firstFailureRetained": "evidence/long-batch-20261010/NATURAL_sealed_final.json"
+    },
+    "sourceFreeze": {
+      "status": "PASS_SYNTHETIC_AUTHORIZATION_PRIVATE_GRANT_NOT_COPIED",
+      "evidence": "evidence/retrieval-followup-20261010/source-freeze-portable.log"
+    },
+    "methodContinuation": {
+      "passed": 2,
+      "evidence": "evidence/retrieval-followup-20261010/continuation-confidence-final.log",
+      "provider": "SCRIPTED_LOOPBACK_ONLY"
+    },
+    "safetyCurrent": {
+      "passed": 9,
+      "evidence": "evidence/retrieval-followup-20261010/safety-confidence-final.log"
+    }
+  },
+  "risks": [
+    "Authorized paid path has not been exercised against a real provider",
+    "Cloud current runtime contract has not been read back",
+    "Independent external evidence authenticity cannot be inferred from the locally checked receipt format",
+    "Terminated real batches retain attempts and cannot be reissued; keep one authorized process alive for intervening reviews"
+  ],
+  "actualIndependentReview": 0,
+  "humanApproval": 0,
+  "studentAcceptance": "NOT_TESTED",
+  "realModels": "PAUSED_NOT_RUN",
+  "coze": "PAUSED_NOT_RUN"
+}

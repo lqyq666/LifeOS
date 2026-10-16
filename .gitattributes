@@ -1,0 +1,37 @@
+
+# Preserve captured public source bytes for offline evidence hash validation.
+.planning/research/workflow-integration/evidence/public-card/original.html -text -whitespace
+
+# Frozen textual corpus hashes must survive a Windows checkout without CRLF conversion.
+.planning/research/evergreen/** text eol=lf
+.planning/research/workflow-integration/evidence/long-batch-20261010/*.log -text -whitespace
+.planning/research/workflow-integration/evidence/long-batch-20261010/** -text -whitespace
+.planning/research/workflow-integration/*.json -text
+.planning/research/workflow-integration/*.md -text
+NEXT_ACCEPTANCE.md text eol=lf
+evidence/v1.3-action-coach/research/*.json -text
+.planning/research/evergreen/KB_BASELINE_CHECKS.json -text
+.planning/research/evergreen/KB_GAPS.md -text
+.planning/research/workflow-integration/evidence/retrieval-followup-20261010/** -text -whitespace
+evidence/coze-core-launch-20261011/*.log -text -whitespace
+evidence/coze-core-launch-20261011/**/*.log -text -whitespace
+evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json -text
+evidence/coze-core-launch-20261011/SMALL_REAL_R2_REVIEW.json -text
+evidence/coze-core-launch-20261011/KB_SIX_R3_RESULT.json -text
+evidence/coze-core-launch-20261011/SMALL_REAL_R3_REVIEW.json -text
+evidence/coze-core-launch-20261011/INDEPENDENT_R3_EXECUTION_PROOF.json -text
+evidence/coze-core-launch-20261011/*.json -text
+evidence/coze-core-launch-20261011/r7-originals/** -text -whitespace
+
+evidence/coze-core-launch-20261011/exam-originals/** -text -whitespace
+
+evidence/coze-core-launch-20261011/r12-source/** -text -whitespace
+
+# Original Coze main-execution source snapshots retain Linux byte hashes.
+evidence/coze-core-launch-20261011/r13-observed/** -text -whitespace
+evidence/coze-core-launch-20261011/r13-*.py -text -whitespace
+
+evidence/coze-core-launch-20261011/campus-contact-originals/** -text -whitespace
+evidence/coze-core-launch-20261011/*.ax.txt -text -whitespace
+evidence/coze-core-launch-20261011/mentor-originals/** -text -whitespace
+evidence/coze-core-launch-20261011/student16-b31aaed-first/*.json -text

@@ -1,0 +1,46 @@
+{
+  "kind": "PREDECLARED_NEW_REPAIR_PILOT_NOT_FINAL_COHORT",
+  "hypothesis": "Known contact, adoption, material blockage and pure zero budget preserve the current event and actual state without extra generation",
+  "historicalFirstAttempts": [
+    "FOUR_REAL_CHAINS_F3B3B08_FIRST.json",
+    "PLANNING_PREFIX_E6D06FF_FIRST.json"
+  ],
+  "cases": [
+    {
+      "caseId": "FB_CONTACT_01",
+      "session": 0,
+      "input": "我是成年大学生，想请教学姐项目课的作品是否能放进实习申请，先怎么联系？",
+      "expected": "回应联系与原问题，不误称交付，不补保证回复的效果"
+    },
+    {
+      "caseId": "FB_ADOPTION_02",
+      "session": 1,
+      "input": "我愿意尝试刚才这个方法。",
+      "expected": "跨会话续接原联系，合法保存采纳原话，行动状态不得attempted/completed"
+    },
+    {
+      "caseId": "FB_WAITING_03",
+      "session": 1,
+      "input": "我已经通过学校邮箱发了那条项目课问题，对方未回应，接下来怎么办？",
+      "expected": "发送、未回应分别记录，回应原因未知，不重新追问已提供的问题"
+    },
+    {
+      "caseId": "FB_MATERIAL_04",
+      "session": 2,
+      "input": "换件事，我还没有开始课程复习，教材链接打不开了，应该怎么调整？",
+      "expected": "当前课程优先，核对打不开的具体材料，不假称有已完成部分，不重发教程"
+    },
+    {
+      "caseId": "FB_ZERO_05",
+      "session": 2,
+      "input": "这周没有可用时间，只保存一个空安排。",
+      "expected": "0生成；本周零预算及空计划原子保存，实际首内容与成本如实保留"
+    },
+    {
+      "caseId": "FB_NEXT_06",
+      "session": 2,
+      "input": "下周仅有一小时，请给课程和备考安排下周的候选任务。",
+      "expected": "下周60分钟，同版真实具体候选与结构读回一致，不借本周零时间，不当执行"
+    }
+  ]
+}

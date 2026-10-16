@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "kind": "OWNER_APPROVED_LIFEOS_COZE_CORE_LAUNCH",
+  "approvalSource": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+  "questionItemId": "[\"request_user_input_async\",\"call_6561d2ef49114229a6d754ba91851c24\",0]",
+  "exactAnswer": "批准上述完整范围，仅用各自既有额度",
+  "recordedAt": "2026-10-10T21:04:14.842445+08:00",
+  "productModelPauseLifted": true,
+  "cozePauseLifted": true,
+  "projectIds": [
+    "7693388932939300905",
+    "7693465311558795327"
+  ],
+  "scope": [
+    "existing-budget real acceptance",
+    "existing Coze project development and candidate runtime",
+    "after core gates, verified backup and rollback of existing LifeOS app/database and these project releases"
+  ],
+  "limits": [
+    "no added budget",
+    "separate authorized cost pools",
+    "no automatic paid retry",
+    "synthetic adults only for acceptance",
+    "no DNS change",
+    "no unrelated services",
+    "no push or merge main"
+  ],
+  "budgetAmountAddedCny": 0,
+  "doesNotConstituteGuideApproval": false,
+  "directHttpRouteApproval": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[\"request_user_input_async\",\"call_JkoBkQVo7Q8CourQYHXZrBWV\",0]",
+    "exactAnswer": "批准新的实现路线，仍只用已有额度",
+    "scope": [
+      "existing two projects use official Bailian asynchronous HTTP",
+      "securely configure the existing Bailian key in growth project development environment",
+      "model consumption uses original unique CNY ledger",
+      "Coze development consumption uses original credits ledger"
+    ],
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "publishBeforeCoreGates": false,
+    "retainedPreviousRepairRounds": 2
+  },
+  "browserAuthorization": {
+    "exactAnswer": "你自己打开扣子有内置浏览器，然后获取相关权限，我批准你获取所有的需要开发的权限，你自己打开扣子内置浏览器获取吧。",
+    "loginConfirmedByHuman": "登录好了",
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "noNewBudget": true
+  },
+  "boundedOrdinaryReplyRouteApproval": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[\"request_user_input_async\",\"call_928c54ab58c64e07b2bf1f5d4a85c2f1\",0]",
+    "exactAnswer": "批准新路线，仅用既有额度",
+    "scope": "Server limits current event evidence and legal methods/editor actions; existing model selects and expresses within bounds; local validation precedes small new first samples.",
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "publishBeforeCoreGates": false
+  },
+  "repairRoundPolicy": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REQUEST",
+    "exactRequest": "把两次修复的上限都去掉.从相关文件中去掉这个限制",
+    "recordedDate": "2026-10-11",
+    "maximumRepairRounds": null,
+    "continueUntil": "Acceptance passes or essential resources, rule conflict, business/legal/core product decision requires human input.",
+    "firstFailuresRetained": true,
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "publishBeforeCoreGates": false,
+    "globalRules": {
+      "path": "C:\\Users\\LQY\\.codex\\AGENTS.md",
+      "beforeSha256": "49db4e16e74aef2986f0bbb767a33cc09e155a5b59a9f28481a9bcc32c97854c",
+      "afterSha256": "b3b378c501e5e8ded004930740c0ae906cbdcabcb5b481c81955ff12911c8b04",
+      "localBackupPath": ".local\\launch-20261011\\policy-backup\\AGENTS.before-round-cap-removal.md"
+    },
+    "frozenHistoricalReproductionsChanged": false,
+    "alreadyDispatchedCozeAttachment": "Historical snapshot retained; no paid duplicate dispatch. Subsequent repair instructions use current policy."
+  },
+  "latestLaunchApproval": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REQUEST",
+    "recordedAt": "2026-10-11T06:01:44.192Z",
+    "exactRequest": "继续加快开发，优先修完真实上线的阻塞项，不要再做额外候选包或重复模拟验收。沿用已有授权和额度，每个有效增量及时提交，争取今天下午6点前完成；审批我现在全部同意。",
+    "scope": "Continue existing authorized implementation, synthetic-adult real model/Coze acceptance and rollbackable launch after actual core gates. Owner permits approval execution for exact eligible independently reviewed content; apply a version-bound receipt at execution, not an automatic blanket PASS.",
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "publishBeforeCoreGates": false,
+    "additionalCandidatePackages": false,
+    "independentReviewStillRequired": true
+  },
+  "guideApprovalExecution": "OWNER_GRANTED_CONDITIONAL_EXECUTION_EXACT_INDEPENDENT_REVIEWED_VERSION_REQUIRED",
+  "restrictedGatewayAcceptanceApproval": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[\"request_user_input_async\",\"call_c481ca1159af447897b9588fb6222414\",0]",
+    "exactAnswer": "允许受限候选先发布并验收",
+    "recordedAt": "2026-10-14T15:55:40.709Z",
+    "projectId": "7693388932939300905",
+    "candidateCommit": "dc28cef33c3645e6234f0bceffc13bc3ff474875",
+    "rollbackCommit": "d3c540234751e5695dc86ce07d7340325f3149c9",
+    "gateway": "https://v8bjn44ynd.coze.site/run",
+    "publishBeforeCoreGatesForThisCandidate": true,
+    "scope": "Existing restricted synthetic-adult Gateway normal professional entry, adoption/refusal, feedback and new-session acceptance only",
+    "productionLifeOSServicePublication": false,
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "wholeProductAccepted": false
+  },
+  "unifiedReleaseInstruction": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_MESSAGE",
+    "recordedDate": "2026-10-15",
+    "exactRequest": "所有问题都修复好后，再统一发布，达到真实验收要求后再统一发布",
+    "intermediateGatewayPublicationAllowed": false,
+    "withheldCandidate": "28711a7fe8f1d1c0603538ff9a047646a7ee62e4",
+    "withheldCandidateAnswer": "暂不发布",
+    "nextReleaseRequiresActualAcceptance": true,
+    "existingDevelopmentAndVerificationAuthorizationRetained": true,
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "productionLifeOSServicePublishedByThisInstruction": false
+  },
+  "gatewayClockVerificationException20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[\"request_user_input_async\",\"call_ef19844369804ef88ab9bd5cf5c4d59a\",0]",
+    "exactAnswer": "允许上述最小 Gateway 验证例外",
+    "candidateCommit": "28711a7fe8f1d1c0603538ff9a047646a7ee62e4",
+    "rollbackCommit": "91b6dd9bfecb6963948f07628c1c7ec58502bc2b",
+    "projectId": "7693388932939300905",
+    "scope": "Existing Gateway, necessary non-secret source-bound deployment declaration, once zero-model check then synthetic-adult normal professional closure, existing budgets only",
+    "zeroModelAuthenticatedRequests": 1,
+    "automaticPaidRetry": false,
+    "lifeosProductionPublication": false,
+    "newBudget": 0
+  },
+  "independentMaterialBindingException20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[\"request_user_input_async\",\"call_a7f5c73b3e18443f994be285c714b7c9\",0]",
+    "exactAnswer": "允许该必要绑定候选及一次核对、专业验收",
+    "candidateCommit": "96ebaccb54e312b042cfd667f3524d7ddc80ef70",
+    "reportedCandidateCommitTranscription": "96ebaccb54e312b042cfd667f3524d7dcd80ef70",
+    "transcriptionCorrection": "Same prepared candidate, prefix 96ebaccb54, exact same three metadata fields; full actual SHA confirmed by platform deployment and git, correction disclosed to owner. No substituted code or scope.",
+    "rollbackCommit": "28711a7fe8f1d1c0603538ff9a047646a7ee62e4",
+    "zeroModelAuthenticatedRequests": 1,
+    "thenNormalProfessionalAcceptance": true,
+    "newBudget": 0,
+    "automaticPaidRetry": false,
+    "lifeosProductionPublication": false
+  },
+  "amountAllocationAuthorization20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "[request_user_input_async,call_9e84c3bb1dd541b89e65bfcb8d95d194,0]",
+    "exactAnswer": "金额相关的，我现在批准你20元，然后你自己分配。类似的问题，不要再寻求我的建议",
+    "cumulativeCeilingCny": 20,
+    "allocationDelegatedToCodex": true,
+    "baselineUnchanged": 3671,
+    "unknownRetained": true,
+    "automaticRetry": false,
+    "purchaseOrTopup": false,
+    "at": "2026-10-15T08:23:32.056298+00:00"
+  },
+  "zeroTimeAndCurrentBindingException20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "call_473616cd8e2b46d7a0f3c4e8ac1ab050",
+    "exactAnswer": "允许该最小验证例外",
+    "candidateCommit": "1135882a81c9d9f18fae885feebaaa0bb40d6834",
+    "rollbackCommit": "96ebaccb54e312b042cfd667f3524d7ddc80ef70",
+    "scope": "Original Gateway publication, one manual zero-model readback, necessary synthetic-adult professional closure",
+    "manualZeroModelReadbackConsumed": true,
+    "normalEntryPreflightMatched": true,
+    "businessStatus": "FAILED_SOURCE_QUOTE_PAIRING_2_CALLS_UNKNOWN_COST_RETAINED",
+    "noLifeOSProductionRelease": true,
+    "noAutomaticPaidRetry": true
+  },
+  "sourcePairFullBranchVerificationException20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "call_19de4680c72c4110962e481e1e7ede2e",
+    "exactAnswer": "允许该必要修复候选及核对、专业验收",
+    "candidateCommit": "1301f165d1c08de7b2291e6f0fb70b1a0faea69c",
+    "rollbackCommit": "1135882a81c9d9f18fae885feebaaa0bb40d6834",
+    "scope": "Original Gateway, HOST_COMMIT and HOST_SOURCE_DIGEST, one manual zero-model readback then necessary synthetic-adult professional refusal/feedback/new-session acceptance",
+    "manualZeroModelRequests": 1,
+    "automaticPaidRetry": false,
+    "lifeosProductionPublication": false,
+    "phaseCumulativeCny": 20,
+    "at": "2026-10-15T10:26:45.231Z"
+  },
+  "zeroAvailabilityHostBindingException20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_REPLY",
+    "questionItemId": "call_7b276bf99e46499b93770cd87ccd4a09",
+    "exactAnswer": "允许必要绑定候选、核对及专业闭环",
+    "candidateCommit": "449cb14ae263cd1d4c4ff53aecc665d48bd1ad4c",
+    "rollbackCommit": "1301f165d1c08de7b2291e6f0fb70b1a0faea69c",
+    "manualZeroModelRequests": 1,
+    "noAutomaticPaidRetry": true,
+    "noLifeOSPublication": true
+  },
+  "incrementalGatewayPublicationDelegation20261015": {
+    "source": "CURRENT_CHAT_DIRECT_HUMAN_MESSAGE",
+    "exactRequest": "以后的小发布我都批准了，类似的问题不要再问我",
+    "scope": "Necessary small repairs and host bindings of existing Gateway for this acceptance, with rollback, existing budgets and synthetic-adult verification",
+    "repeatPermissionQuestionRequired": false,
+    "lifeosUnifiedReleaseGateRetained": true,
+    "noPurchases": true,
+    "noAutomaticPaidRetry": true,
+    "unknownRetained": true,
+    "at": "2026-10-15T10:47:27.824Z"
+  }
+}

@@ -1,0 +1,98 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {randomUUID} from 'node:crypto'
+import {pool} from '../../server/db.ts'
+import * as store from '../../server/store.ts'
+import {parseActionCoachTurn} from '../../server/action-coach-contracts.ts'
+import {configureProviderPayload} from '../../server/model-payload.ts'
+import {Value} from 'typebox/value'
+import {stageGrowthUpdates,growthView,actOnGrowthItem} from '../../server/growth.ts'
+
+test('source-only reported facts use verified user spans while legacy paraphrases and forged sources still fail atomically',async()=>{
+  const user='growth-span-'+randomUUID(),chat=randomUUID()
+  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
+  try{
+    await store.createConversation(user,{id:chat,title:'SYNTHETIC source selector'})
+    const academicYear=new Date().getUTCFullYear()+1,academicSpan=`本学期每周最多四小时，截至${academicYear}年12月31日`
+    const text='我是20岁的大二学生。团队项目拿了奖，但我只做了访谈整理，没有写代码。本周仅两小时。先不联系，可以吗？本学期每周最多四小时。'+academicSpan+'。'
+    const run=(await store.startRun(user,chat,randomUUID(),text)).run
+    const delta=(quote:string)=>({target:{operation:'create' as const},kind:'context' as const,assertion:'user_reported' as const,source:{messageId:run.source_message_id,quote}})
+    // Internal (resolved) spans for direct staging, and the wire form the
+    // model now emits: clause handles only, server-owned spans.
+    const wireDelta=(clauseId:string)=>({target:{operation:'create' as const},kind:'context' as const,assertion:'user_reported' as const,source:{clauseId}})
+    const selected=[delta('团队项目拿了奖，但我只做了访谈整理，没有写代码'),delta('先不联系，可以吗？'),{...delta('本周仅两小时'),kind:'constraint' as const,timeEvidence:{kind:'calendar_week' as const,which:'this' as const,quote:'本周'}}]
+    const wireSelected=[wireDelta('c1'),wireDelta('c5'),{...wireDelta('c4'),kind:'constraint' as const,timeEvidence:{kind:'calendar_week' as const,which:'this' as const,clauseId:'c4'}}]
+    const parsed=parseActionCoachTurn(JSON.stringify({reply:'保持当前边界，先核对情况。',growthUpdates:wireSelected}))
+    const request=configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,run.source_message_id,[],[]) as any
+    assert.equal(Value.Check(request.response_format.json_schema.schema,parsed),true,'native constrained schema accepts clause-anchored reported facts without authoring quote text')
+    const parsedMissing=parseActionCoachTurn(JSON.stringify({reply:'期限仍需核对。',growthUpdates:[{...wireDelta('c4'),kind:'constraint' as const}]}))
+    assert.equal(Value.Check(request.response_format.json_schema.schema,parsedMissing),true,'the schema defers expiry verification to the server; an unevidenced constraint is dropped there, never saved with a guessed date')
+    assert.equal(Value.Check(request.response_format.json_schema.schema,{reply:'保留原话并核对期限。',growthUpdates:[wireDelta('c7')]}),true,'an unbounded semester budget can remain a source-only context')
+    assert.equal(Value.Check(request.response_format.json_schema.schema,{reply:'尚无动作状态。',growthUpdates:[{...wireDelta('c4'),kind:'feedback'}]}),false,'feedback requires an explicit progress state in the native schema')
+    assert.equal(Value.Check(request.response_format.json_schema.schema,{reply:'事实没有动作状态。',growthUpdates:[{...wireDelta('c4'),progressState:'completed'}]}),false,'non-feedback branches cannot carry progress states')
+    assert.ok(parsed.growthUpdates?.every(row=>!('text'in row)))
+    const staged=await stageGrowthUpdates(run,selected,[])
+    assert.deepEqual(staged.changes.map(row=>row.text),selected.map(row=>row.source.quote))
+    await assert.rejects(stageGrowthUpdates(run,[{...selected[0],text:'我具备稳定技术能力'}],[]),{code:'GROWTH_SOURCE_INVALID'})
+    // A spliced quote that is the user's verbatim words nowhere is dropped
+    // without failing the turn; nothing unverified is ever saved.
+    const spliced=await stageGrowthUpdates(run,[delta('团队项目...没有写代码'),delta('先不联系，可以吗？')],[])
+    assert.deepEqual(spliced.changes.map(row=>row.text),['先不联系，可以吗？'])
+    assert.equal(spliced.skipped?.[0].reason,'unverified_span')
+    await assert.rejects(stageGrowthUpdates(run,[{...selected[0],source:{...selected[0].source,messageId:randomUUID()}}],[]),{code:'GROWTH_SOURCE_INVALID'})
+    const timeSkipped=await stageGrowthUpdates(run,[{...delta('本周仅两小时'),kind:'constraint'},{...delta('先不联系，可以吗？')}],[])
+    assert.deepEqual(timeSkipped.changes.map(row=>row.text),['先不联系，可以吗？'],'missing constraint expiry drops only that item')
+    assert.equal(timeSkipped.skipped?.[0].reason,'unverifiable_constraint_time')
+    // A supplied legacy expiry the user never stated is never saved. Since P1
+    // an invented constraint expiry is skipped item-wise (the real-run model
+    // kept attaching made-up windows to ordinary weekly budgets and poisoned
+    // whole turns); it is still never silently counted as a complete update.
+    const invented=await stageGrowthUpdates(run,[{...delta('本学期每周最多四小时'),kind:'constraint',validUntil:`${academicYear}-12-31T23:59:59Z`}],[])
+    assert.equal(invented.changes.length,0)
+    assert.equal(invented.skipped?.some(skip=>skip.reason==='unverifiable_constraint_time'),true)
+    // An explicitly stated cutoff resolves server-side: Shanghai Oct-21-style
+    // right-open boundary, with the basis stored for later verification.
+    const dated=(await stageGrowthUpdates(run,[{...delta(academicSpan),kind:'constraint',timeEvidence:{kind:'date_inclusive',date:`${academicYear}-12-31`,quote:`截至${academicYear}年12月31日`}}],[])).changes[0]!
+    assert.equal(dated.text,academicSpan)
+    assert.equal('validUntil'in dated?dated.validUntil:null,`${academicYear}-12-31T16:00:00.000Z`)
+    assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:'未知不猜。',growthUpdates:[{...wireDelta('c5'),kind:'unknown',assertion:'unknown'}]})),/OUTPUT_INVALID/)
+    assert.equal((await growthView(user,chat)).items.length,0,'all validation failures precede any writes')
+    await store.finishRun(run,{candidates:[],audit:[],growth:staged},'保持当前边界，先核对情况。',null,new AbortController().signal)
+    const view=await growthView(user,chat)
+    assert.equal(view.items.length,3)
+    for(const item of view.items){assert.equal(item.assertion,'user_reported');assert.equal(item.sources[0].quote,item.text);assert.ok(text.includes(item.text))}
+    assert.ok(view.items.some(item=>item.text==='先不联系，可以吗？'))
+    assert.ok(view.items.some(item=>item.text==='本周仅两小时'))
+    assert.ok(!view.items.some(item=>item.text.includes('稳定技术能力')))
+    const forgotten=view.items.find(item=>item.text===selected[0].source.quote)!
+    await actOnGrowthItem(user,forgotten.id,{requestId:randomUUID(),expectedRevision:forgotten.revision,action:'forget'})
+    await assert.rejects(stageGrowthUpdates(run,[selected[0]],[]),{code:'CAMPUS_SOURCE_FORGOTTEN'})
+    assert.equal((await stageGrowthUpdates(run,[selected[1]],[])).changes[0].text,'先不联系，可以吗？','forgetting one selected span preserves independent question-form boundaries')
+    // Re-asserting words the user verbatim said in an earlier message drops the
+    // duplicate instead of failing the turn; genuine fabrication still fails.
+    const secondRun=(await store.startRun(user,chat,randomUUID(),'先不联系，可以吗？我再说一次本周仅两小时。')).run
+    const reasserted={...delta('我是20岁的大二学生。'),source:{messageId:secondRun.source_message_id,quote:'我是20岁的大二学生。'}}
+    const mixed=await stageGrowthUpdates(secondRun,[reasserted,{...reasserted,source:{messageId:secondRun.source_message_id,quote:'本周仅两小时'}}],[])
+    assert.deepEqual(mixed.changes.map(row=>row.text),['本周仅两小时'],'old-message re-assertions are dropped while current-message facts persist')
+    assert.equal(mixed.skipped?.[0].reason,'reasserted_prior_message')
+    const fabricated=await stageGrowthUpdates(secondRun,[{...reasserted,source:{messageId:secondRun.source_message_id,quote:'我从没说过的原话'}}],[])
+    assert.equal(fabricated.changes.length,0,'a quote that is the user\'s words nowhere is never saved')
+    assert.equal(fabricated.skipped?.[0].reason,'unverified_span')
+    await store.terminateRun(user,secondRun.request_id,'cancelled','SYNTHETIC_REASSERTION_PROBE')
+    const longText='我'.repeat(4001),oversize=(await store.startRun(user,chat,randomUUID(),longText)).run
+    const longDelta={...delta(longText),source:{messageId:oversize.source_message_id,quote:longText}}
+    await assert.rejects(stageGrowthUpdates(oversize,[longDelta],[]),{code:'GROWTH_SOURCE_INVALID'})
+    await store.terminateRun(user,oversize.request_id,'cancelled','SYNTHETIC_OVERSIZE_NO_TRUNCATION')
+    const adoption=(await store.startRun(user,chat,randomUUID(),'我愿意试这个方法。')).run
+    const offered={target:{operation:'create' as const},kind:'feedback' as const,assertion:'user_reported' as const,source:{messageId:adoption.source_message_id,quote:'我愿意试这个方法'},progressState:'attempted' as const}
+    const accepted=await stageGrowthUpdates(adoption,[offered],[])
+    assert.equal('progressState'in accepted.changes[0]?accepted.changes[0].progressState:null,'unknown','willingness does not prove an action started')
+    await store.finishRun(adoption,{candidates:[],audit:[],growth:accepted},'愿意尝试已经记下，是否实际开始仍未知。',null,new AbortController().signal)
+    const adopted=(await growthView(user,chat)).items.find(item=>item.text==='我愿意试这个方法')!
+    assert.equal(adopted.progressState,'unknown');assert.equal(adopted.sources[0].quote,'我愿意试这个方法')
+    const acted=(await store.startRun(user,chat,randomUUID(),'我已经尝试了这个方法。')).run
+    const actual=await stageGrowthUpdates(acted,[{...offered,source:{messageId:acted.source_message_id,quote:'我已经尝试了这个方法'}}],[])
+    assert.equal('progressState'in actual.changes[0]?actual.changes[0].progressState:null,'attempted','actual reported attempts stay attempts')
+    await store.terminateRun(user,acted.request_id,'cancelled','SYNTHETIC_PROGRESS_GUARD_ONLY')
+  }finally{await pool.query('DELETE FROM "user" WHERE id=$1',[user]);await pool.end()}
+})

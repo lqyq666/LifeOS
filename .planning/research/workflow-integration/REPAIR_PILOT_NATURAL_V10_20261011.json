@@ -1,0 +1,20 @@
+{
+  "kind": "PREDECLARED_NEW_FIRST_REAL_REPAIR_SET",
+  "historicalFirstFailuresPreserved": true,
+  "notReplacement": true,
+  "independentReview": "REQUIRED",
+  "cases": [
+    {
+      "caseId": "NC10_LISTEN",
+      "session": 0,
+      "input": "我给学姐发出的项目课程邮件，对方已经读过但尚未回应。我现在只想说说这件事，别给我办法。",
+      "expected": "Own send reported; read and no-response source distinct; adoption/payment/effect unknown; no affect inference, suggestions or CTA."
+    },
+    {
+      "caseId": "NC10_RETURN",
+      "session": 1,
+      "input": "还是前面那封邮件。先听我讲，不用猜我现在是什么感受。",
+      "expected": "Same mail source preserved across sessions; no repeating questions, no inferred feeling, no new experience or outcome."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "observed_at_window": "2026-10-10T12:40:52+08:00/2026-10-10T12:43:52+08:00",
+  "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
+  "candidate": "workflow-v2-ffd2186a2231",
+  "source_manifest_checked": 36,
+  "source_manifest_mismatches": [],
+  "kind": "ORIGINAL_FUNCTIONS_SYNTHETIC_INPUTS_NO_NETWORK_NO_DB_WRITES",
+  "real_model_calls": 0,
+  "cases": [
+    {"id": "WF01", "result": "real_provider adapter rejected with unavailable"},
+    {"id": "WF02", "input": "更正一下，我之前说错了：对方没有回复，也没有使用我发的材料。", "feedback": "waiting_result", "stages": {"sent": true, "read": true, "replied": true, "used": true, "effect": "之前误报有效"}},
+    {"id": "WF03", "result": "nonblocking unknown in critic issues causes unavailable", "failure": "constraint_conflict", "synthesis_calls": 0},
+    {"id": "WF04", "maxEntries": 2, "three_completed_unique_requests": ["proposed", "proposed", "unavailable"]},
+    {"id": "WF05", "result": "proposed", "unsupported_final_claim": "用户已有十个付费客户，月收入稳定过万元", "scope": "合法引用ID，但最终综合的自然语言不由这些事实支持；模拟输出，不是真实模型事故"}
+  ]
+}

@@ -1,0 +1,294 @@
+{
+ "version": "1.1",
+ "baseline": "650b086",
+ "generatedAt": "2026-10-09T07:47:36.270Z",
+ "suites": {
+  "unit": {
+   "tests": 105,
+   "pass": 105
+  },
+  "backend-isolated": {
+   "pass": "all selected"
+  },
+  "graphContract": {
+   "pass": true,
+   "evidence": "0/1/2/3/>3 createGraph"
+  }
+ },
+ "matrix": {
+  "校园创业": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "自由职业": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "独立开发": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "就业实习": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "保研": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "考研": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "考公": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "留学": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "跨专业转型": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "自媒体": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "兼职收入": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "科研探索": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "竞赛社团": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "公益社区": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "生活平衡": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "目标未定": {
+   "themeDerived": true,
+   "stagesCovered": [
+    "初次追求",
+    "行动(经历)",
+    "结果(合并)",
+    "反思(修正)",
+    "变化(否定/取代)"
+   ],
+   "evidence": "tests/starmap-acceptance.test.ts + tests/themes-episodes.test.ts"
+  },
+  "复合:创业+考研": {
+   "splitPursuitExploration": true,
+   "evidence": "starmap-acceptance compound"
+  },
+  "复合:自由职业+就业": {
+   "adviceShiftVerified": true,
+   "evidence": "freelance-chain.json"
+  },
+  "复合:自媒体+休息": {
+   "boundaryIntentKept": true,
+   "evidence": "pursuitLevel 不再熬夜=pursuit"
+  },
+  "复合:收入约束+保研": {
+   "constraintIntoContext": true,
+   "evidence": "readStarMapContext constraints"
+  },
+  "方向变化多会话链": {
+   "supersedeRetires": true,
+   "evidence": "starmap2-verify.json C persona"
+  }
+ },
+ "negative": {
+  "无档案不冒充": {
+   "pass": true,
+   "evidence": "graphShowsOnlyOwnThemes + D 对照"
+  },
+  "否定不当追求": {
+   "pass": true,
+   "evidence": "pursuitLevel 不想/放弃=null"
+  },
+  "第三方不升级": {
+   "pass": true,
+   "evidence": "THIRD_PARTY guard"
+  },
+  "相似活动不误并": {
+   "pass": true,
+   "evidence": "distinctive-gram + time contradiction"
+  },
+  "单经历不推人格": {
+   "pass": true,
+   "evidence": "patterns 需≥2段+描述性措辞"
+  },
+  "遗忘不复活": {
+   "pass": true,
+   "evidence": "theme-lifecycle.test.ts"
+  },
+  "退休连线不进决策": {
+   "pass": true,
+   "evidence": "starmap-trust.test.ts"
+  },
+  "跨账号隔离": {
+   "pass": true,
+   "evidence": "starmap-trust.test.ts"
+  },
+  "memoryOff不泄漏": {
+   "pass": true,
+   "evidence": "starmap-trust.test.ts"
+  }
+ },
+ "realChains": {
+  "freelance": {
+   "turns": 5,
+   "checks": {
+    "t1SuggestsSmallScale": true,
+    "t2CitesRealProject": true,
+    "t3MentionsTimeBoundary": true,
+    "t4RespectsEmploymentPriority": true,
+    "t5NotPushingFreelanceExpansion": true,
+    "freelanceExperienceRecorded": true,
+    "themesIncludeFreelanceOrEmployment": "捕获词表已补(考虑/想试试)，链未重跑——由单测覆盖"
+   },
+   "evidence": ".local/campus-growth/freelance-chain.json"
+  }
+ },
+ "round2": {
+  "gate": "价值闭环开发与验收 (b59f133 baseline)",
+  "g1": {
+   "sourceVerification": "strpos+抑制表真源校验(隔离DB)",
+   "snapshotOrder": "校验先于写入+含连线修订(隔离DB)",
+   "identityLifecycle": "遗忘退休+原话清除+这不是我API(隔离DB)"
+  },
+  "g2": {
+   "freelanceReplay": "5/5 turns PASS (t1经内容复核,证据见.local/campus-growth/g2-replay.json)"
+  },
+  "g4": {
+   "causalA": "引用真实300元项目+5小时约束",
+   "causalB": "丢失真实项目引用(反复询问已知时间约束)",
+   "tokenDelta": "<200 tokens/turn(≈5%),成本差<¥0.0003",
+   "conclusion": "星图投影提供可测的个性化增量"
+  },
+  "g5": {
+   "trajectories": "16类+复合 全过 (tests/starmap-trajectories.test.ts, zero-network)"
+  },
+  "g6": {
+   "units": "107/107",
+   "backendIsolated": "all selected",
+   "build": "pass"
+  }
+ }
+}

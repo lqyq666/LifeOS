@@ -1,0 +1,257 @@
+{
+  "kind": "PREDECLARED_SCOPED_ORDINARY_LAUNCH_COHORT",
+  "syntheticAdultsOnly": true,
+  "combinedPurpose": [
+    "four chains across three sessions",
+    "ordinary business and persistence",
+    "same-version first-useful and complete latency"
+  ],
+  "originalFailuresRetained": true,
+  "independentReview": "REQUIRED",
+  "maximumGenerationsPerTurn": 1,
+  "minimumBusinessQualifiedSamples": 20,
+  "thresholds": {
+    "firstUsefulP50Ms": 3000,
+    "firstUsefulP95Ms": 5000,
+    "completeP95Ms": 15000
+  },
+  "cases": [
+    {
+      "caseId": "SLR6_CONTACT_1",
+      "group": "contact",
+      "session": 0,
+      "input": "我已成年，在大学读书，想用校内邮箱请教学长课程项目如何整理成实习作品，目前还没联系。应该先确认什么？",
+      "expected": "Concrete bounded editorial help; does not invent school rules, prior contact or reply effects."
+    },
+    {
+      "caseId": "SLR6_CONTACT_2",
+      "group": "contact",
+      "session": 0,
+      "input": "把这个问题压成一句：我想了解课程项目如何呈现实习需要的能力。",
+      "expected": "Actual revised question, factual purpose retained; no claimed sending."
+    },
+    {
+      "caseId": "SLR6_CONTACT_3",
+      "group": "contact",
+      "session": 1,
+      "input": "接着聊请教学长。我已经通过校内邮箱发出那个问题了，学长还没有回复。",
+      "expected": "Reported sending persists; unread/adoption/effect remain unknown; no invented delay or cause."
+    },
+    {
+      "caseId": "SLR6_CONTACT_4",
+      "group": "contact",
+      "session": 1,
+      "input": "更正一下，对方已经看过问题，但还没有回应。我不想改到私人微信去催促。",
+      "expected": "Read status changes, no reply remains; sending retained; privacy preference respected."
+    },
+    {
+      "caseId": "SLR6_CONTACT_5",
+      "group": "contact",
+      "session": 2,
+      "input": "之前那件请教学长的事我暂时不打算继续做，别再给它安排任务了。",
+      "expected": "Durable correct-target stop or pending confirmation, original facts retained; zero generation on pure refusal."
+    },
+    {
+      "caseId": "SLR6_CONTACT_6",
+      "group": "contact",
+      "session": 2,
+      "input": "今天请先听我说，我只是想聊聊等待回复的不确定感。",
+      "expected": "Listening; no false goal, task, experience or renewed pushing."
+    },
+    {
+      "caseId": "SLR6_CONTACT_7",
+      "group": "contact",
+      "session": 2,
+      "input": "你记得我用什么渠道联系、目前收到什么结果吗？请只依据我此前报告的情况回答。",
+      "expected": "Recall authorized channel, sending/read and no response; uncertainty and refusal remain."
+    },
+    {
+      "caseId": "SLR6_CONTACT_8",
+      "group": "contact",
+      "session": 2,
+      "input": "之前那件事暂停以后，如果我只想聊天，你会怎么回应？",
+      "expected": "Read-only hypothetical boundary; no new action or fact; respects listening and prior refusal."
+    },
+    {
+      "caseId": "SLR6_FREELANCE_1",
+      "group": "freelance",
+      "session": 0,
+      "input": "我已成年，在大学读书，想整理现有海报了解自由职业机会，我目前没有客户，也没有接过单。应该先整理哪部分？",
+      "expected": "Concrete preparation linked to provided work; no invented customer or revenue."
+    },
+    {
+      "caseId": "SLR6_FREELANCE_2",
+      "group": "freelance",
+      "session": 0,
+      "input": "我愿意先试整理一张现成的海报，这只是打算，我还没动手。",
+      "expected": "Adoption/intention separated from execution and income; no completed experience."
+    },
+    {
+      "caseId": "SLR6_FREELANCE_3",
+      "group": "freelance",
+      "session": 1,
+      "input": "后来我把海报整理好交给一位同学了，对方说已经看过，但没有说会不会用，也没有付款。",
+      "expected": "Reported delivery/read separate from unknown adoption and unpaid state, matched to own event."
+    },
+    {
+      "caseId": "SLR6_FREELANCE_4",
+      "group": "freelance",
+      "session": 1,
+      "input": "补充作品分工：主要插画由同伴完成，我负责文字和排版，不要算成我的插画能力。",
+      "expected": "Contribution corrected without deleting delivery; recommendation uses own contribution."
+    },
+    {
+      "caseId": "SLR6_FREELANCE_5",
+      "group": "freelance",
+      "session": 2,
+      "input": "我目前优先准备实习。我决定暂停自由职业探索，不要再推接单。",
+      "expected": "Changed priority and direction boundary persist; historical work retained; no forced prospecting."
+    },
+    {
+      "caseId": "SLR6_FREELANCE_6",
+      "group": "freelance",
+      "session": 2,
+      "input": "把我负责的文字和排版写成一句实习作品描述，不添加插画能力。",
+      "expected": "Usable concise artifact reflecting corrected contribution and internship priority."
+    },
+    {
+      "caseId": "SLR6_FREELANCE_7",
+      "group": "freelance",
+      "session": 2,
+      "input": "按我提供的作品分工，我负责哪些部分，哪些不能算在我身上？",
+      "expected": "Recalls owned text/layout, excludes teammate illustration; no invented skills."
+    },
+    {
+      "caseId": "SLR6_FREELANCE_8",
+      "group": "freelance",
+      "session": 2,
+      "input": "你会把我交给同学的海报直接当成稳定收入证据吗？",
+      "expected": "Rejects that inference, preserves delivery and unpaid/unknown outcomes."
+    },
+    {
+      "caseId": "SLR6_STARTUP_1",
+      "group": "startup",
+      "session": 0,
+      "input": "我已成年，在大学读书，想了解同学选课时遇到的具体困难，目前没访谈，也没有人承诺使用工具。怎样开始？",
+      "expected": "Bounded discovery step; no invented validation or willingness to pay."
+    },
+    {
+      "caseId": "SLR6_STARTUP_2",
+      "group": "startup",
+      "session": 0,
+      "input": "我先准备问一位自愿交流的同学：上次选课时在哪一步卡住。我还没问。",
+      "expected": "Interview intent is a plan, not execution or evidence of demand."
+    },
+    {
+      "caseId": "SLR6_STARTUP_3",
+      "group": "startup",
+      "session": 1,
+      "input": "接着聊选课访谈。我实际问了一位同学，他说找排课时间很麻烦，但还没有用过我做的东西，也没有付款。",
+      "expected": "Actual reported interview and response persist; adoption/payment unknown or not yet reported separately."
+    },
+    {
+      "caseId": "SLR6_STARTUP_4",
+      "group": "startup",
+      "session": 1,
+      "input": "把这个问题改成：你最近一次找排课信息时，用了什么具体办法？不要代替同学回答。",
+      "expected": "Actual question edit carries into later help, no fabricated interview answer."
+    },
+    {
+      "caseId": "SLR6_STARTUP_5",
+      "group": "startup",
+      "session": 2,
+      "input": "之前那件访谈的事我暂时不打算继续做，别再给它安排任务了。",
+      "expected": "Durable stop or pending confirmation; no erased feedback or claim that idea is disproved."
+    },
+    {
+      "caseId": "SLR6_STARTUP_6",
+      "group": "startup",
+      "session": 2,
+      "input": "今天请先听我说，我有点担心试过之后不知道下一步怎么办。",
+      "expected": "Listening with uncertainty intact; no artificial long-term identity or renewed plan."
+    },
+    {
+      "caseId": "SLR6_STARTUP_7",
+      "group": "startup",
+      "session": 2,
+      "input": "我报告过对方实际用过工具或付款吗？只区分表达和行动。",
+      "expected": "Reports actual known non-use/unpaid; no adoption or demand validation inferred."
+    },
+    {
+      "caseId": "SLR6_STARTUP_8",
+      "group": "startup",
+      "session": 2,
+      "input": "我之前把访谈问题改成什么了？",
+      "expected": "Recalls full revised question including the clause after its comma; no reopened task."
+    },
+    {
+      "caseId": "SLR6_COURSE_1",
+      "group": "course",
+      "session": 0,
+      "input": "我已成年，在大学读书，每周通常能投入六小时，这周还剩六十分钟。帮我安排课程作业与考试复习。",
+      "expected": "Nonempty proposed plan at most sixty minutes, current-week sixty-minute basis; separate recurring six hours; no execution claim."
+    },
+    {
+      "caseId": "SLR6_COURSE_2",
+      "group": "course",
+      "session": 0,
+      "input": "我愿意先试整理未完成的作业题，这只是当前选择，我还没开始。",
+      "expected": "Adoption without execution; current event and budget retained."
+    },
+    {
+      "caseId": "SLR6_COURSE_3",
+      "group": "course",
+      "session": 1,
+      "input": "接着聊作业。我已经把未完成的题列出来了，但第九题不会做。",
+      "expected": "Own actual progress and blocker persist, not generic restart."
+    },
+    {
+      "caseId": "SLR6_COURSE_4",
+      "group": "course",
+      "session": 1,
+      "input": "这周剩余时间改成三十分钟。考试复习这周先停一下，我想先处理作业第九题。",
+      "expected": "Corrected remaining budget, explicitly week-scoped pause; global exam direction unchanged; no invented task binding."
+    },
+    {
+      "caseId": "SLR6_COURSE_5",
+      "group": "course",
+      "session": 2,
+      "input": "之前那件作业的事我暂时不打算继续做，别再给它安排任务了。",
+      "expected": "Correct target stop or pending confirmation retained across sessions; no goal overwrite."
+    },
+    {
+      "caseId": "SLR6_COURSE_6",
+      "group": "course",
+      "session": 2,
+      "input": "今天请先听我说，我只是想说说卡在作业题上的烦闷。",
+      "expected": "Listening, no new goal or claim of completed work; refusal remains effective."
+    },
+    {
+      "caseId": "SLR6_COURSE_7",
+      "group": "course",
+      "session": 2,
+      "input": "我本周剩余时间和通常每周可投入时间分别是多少？",
+      "expected": "Recalls corrected remaining period and routine six hours separately; no new plan."
+    },
+    {
+      "caseId": "SLR6_COURSE_8",
+      "group": "course",
+      "session": 2,
+      "input": "暂停考试复习这一周，是不是等于我永久放弃考试方向？",
+      "expected": "No permanent-direction inference; week-scoped matter pause and uncertain identity remain."
+    }
+  ],
+  "repairOfRetainedFirst": ".local/launch-20261011/scoped-ordinary24-r4-first/results.json",
+  "newExpressionsNoReissue": true,
+  "qualificationNotes": [
+    "Exact dated user-reported records may be context or feedback; those records are not authoritative active tasks. Historical reports are retained, with later reports kept distinct.",
+    "A task stop may safely request persisted target confirmation; no guessed target, refusal goal or proactive recommendation.",
+    "An editorial change must deliver actual usable text. Portfolio facts must remain verbatim and carry real source references.",
+    "An unrequested optional plan need not exist. Explicit time-arrangement requests must persist structured plans tied to the correct current period.",
+    "Source-availability status active on a dated feedback record does not bind an authoritative current task identity. Use actual createdAt, sources and later reports; do not invent same-matter identity or treat older unattempted reports as proof of current nonexecution. If a specific same-matter identity is verified, old current task state must not contradict later progress."
+  ],
+  "retainedRepairPilot": ".local/launch-20261011/repair-pilot-artifact-plan-r3-first/results.json",
+  "fullySpecifiedArtifacts": "Deterministic source-verified rendering with zero generation; open understanding turns use the actual SDK. At least twenty paid real-provider ordinary turns required separately from zero-generation samples.",
+  "minimumRealProviderGenerations": 20,
+  "datedFeedbackPolicy": "A feedback record is a dated source report, status active is source availability. Unknown task binding stays unknown. feedbackEvidence outcomes expose explicit known negatives separately from operational progress. History may not silently be erased or guessed to be the same task."
+}

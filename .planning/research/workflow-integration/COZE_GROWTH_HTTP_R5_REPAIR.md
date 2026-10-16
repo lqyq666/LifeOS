@@ -1,0 +1,25 @@
+# LIFEOS_COZE_CORE_20261011_GROWTH_R5_HTTP_REPAIR1
+
+这是本人批准新百炼HTTP路线后的第一次实现修复，不是重发R4或新申请预算。原R4终态8cd83cd5bd8c464c3e96a20ffcaedb880654a614未通过：主端实际读取源码，ISO时间和ASCII HMAC宿主凭证零网络跨语言回放FAIL，wire.py实际SHA256=fed0c0ff7fa29cbdfc9c48c3d8c0136511a8869730a56022ec99d7cef2db6660。保留R4/之前首次失败。只修改原成长项目7693388932939300905，不创建项目、不部署、不改AGENTS/认证/权限，不真实调用百炼自测。既有开发积分沿原积分账本，真实模型仍由主端原唯一CNY账本先整图预留。绝不查询、打印、发送现有环境Key或签名值。仅合成成年/公开已审资料，无独立攻略审批授权。
+
+附件实际宿主脚本、契约与生成的离线fixture是规范，不能改宿主契约来配合错误云实现。fixture的syntheticTestSecret不是现有密钥；测试显式注入此值、绑定和testNowUtc，生产禁止fixture注入。fixture由真实reserveCozeHostPermit生成、verifyCozeHostPermit读回通过，隔离模拟账本，不触原CNY账本。不要用云端sign_claims自签自验冒充跨语言通过。
+
+## 修复已核对的真实阻断
+
+1. wire.py：LIFEOS_HOST_PERMIT_SECRET已是主端一次派生后的64hex ASCII字符串。用它ASCII字节直接HMAC claimsB64，严禁再HMAC(context)、严禁hex解码。issuedAt/expiresAt为ISO UTC字符串，不是整数。标准base64严格canonical roundtrip、最大长度、UTF-8与JSON形状校验；常量/完整40hexcommit/64hexhash/固定项目/UUID/TTL<=300秒/实际原字节digest/金额和完整图必须严格校验。先签名再消费可信claims。方向节点必须path:<directionId>、critic、synthesize，2方向4slot、3方向5slot；callId只能使用原claims UUID。maxPromptUtf8Bytes=12000、固定价格0.8/2.7、maxOutputTokens=2048，最低保守每slot费用0.0186368 CNY、足额总预算。不得只校验>0。
+
+2. entry.py/dispatch.py：使用envelope.payload_bytes SHA256及claimsB64摘要，不用normalized_payload_digest丢失新增上下文。规范完整payload是附件WorkflowRequest的平铺字段+businessRole=growth、syntheticAdult=true+evidenceRecords/realFeedback/canonicalMethods；不强迫主端改成request嵌套或author字段。始终保留controls全部字段、原quote/owner/event/revision/status。请求、整图全部slot、payloadDigest+claimsDigest必须一个DB事务原子INSERT并唯一；发生重复就核对原内容读回，不ON CONFLICT覆盖。DB错误禁止MemoryStore回退；MemoryStore仅显式注入无模型测试。Sql字段必须真实unique_key，不把camel键传Table.insert。start为DB CAS reserved→started及rowcount=1；并发/重启只能一方取得派发权。SQL真实隔离表验证，两并发进程同时提交相同wire，不能只测内存。finish失败仍保留started+未知和持久化失败状态，不回proposed；重新访问只读unknown，不重派。已拒绝/取消请求原状态不得覆盖。不要创建第二份资金预算账本。
+
+3. entry.py/provider_http.py：读取完整获准evidenceRecords，逐ref验证owner=internalActorKey、同conversation/event、active、精确revision和本人原文归属，knowledge必须来自批准资料；不能从refs制造approved=true、internal-actor或缺quote占位事实。growth/experience是本人证据，不是public；tool/assistant不能冒充本人认可。同样交付但采用/付款未知应保持未知。0–2 canonicalMethods从宿主传入真实规范卡片片段并按源/版本/hash核对；不把Skill正文当已审攻略；无方法需要可空，无主张依据不捏造guideId。
+
+4. provider_http.py：每个模型真实messages包含对应实际Skill文本、完整具体JSON schema、分段当前请求/个人事实/本事件与上次行动/真实反馈/关键未知/方法/控制。分析必须从提供的个人依据、编辑候选动作、阶段/未知ID选择，保留support/limit/unknown与actionBasis的连接。参照附件provider-adapter.ts的受界选择实现，但不是复制另一套完整攻略；编辑动作明标LifeOS编辑适配，停下条件、下一步核实、阶段适用、什么结果会改变建议有实际内容，不能固定“推进本方向”或“依据N条”。critic必须取得分析产生的实际完整候选和相应原文，使用实际experience-evidence Skill（不是所有角色只用direction文本）；blocker实质拒绝/移除相应候选，普通unknown保留或waiting_user，不能一律全图失败。synthesis只允许选择已审原字段，不能空排序后偷偷恢复全部，更不能造新事实。每个HTTP真实返回JSON驱动结果，不丢弃relation、action描述而用模板。实际加载并消费过的Skill才进入执行回执。
+
+5. transport_http.py：在每个POST之前计算真实完整messages JSON UTF-8字节（含Skill/schema/审阅方案/综合），>12000零派发该slot；不是小ctx+120假检查。总图deadline是payload.modelBudget.deadlineMs<=120000，用单一monotonic截止；asyncio timeout/cancel传到真实httpx请求，cancel并await所有任务再关loop。maxRetries=0、retries=0、不重定向、不备用模型、不自动修复。unknown usage任一已开始slot存在则总costCny=null，不得过滤None求部分和；保留每slot原reservedCostCny，not_sent也保留可验证状态。每slot回执含原callId/nodeId、started/ended/实际responseId/usage/finish_reason/actualPromptBytes/model/failure。没有首内容不写0ms。依然是估算费用，不是供应商结算。
+
+6. runtime_binding.py：用附件当前规范宿主绑定6c5e5d8及16张原正式批准公共卡，不用旧4566/8卡。COZE_CANONICAL_PUBLIC_ASSETS.json中全规范库哈希与批准子集hash明确不同域；只导入16批准卡及关联公共source/evidence，不含待审稿，不改它们原字节/适用阶段/来源。runtime实际逐文件读取云生产源码、6Skill、16卡，完整真实Git HEAD和真实公开内容摘要；主端绑定与cloud源码摘要不能混成一项。免凭证零模型runtime_readback必须通过正常/run路由有实际读取产物，并禁止走旧corpus_selfheal。固定projectId不得unknown。只标真实启用模式；补齐原action_review/growth_diff/kb_maintenance的相应结果通道，复用现有4workflow结构/5专业Skill，不扩图、不新增Agent。kb维护只是准备，不能生成独立审阅或本人批准回执。单项未实装如实unavailable，不拖假PASS。
+
+## 必須提供的实际验证
+
+全部禁止真实百炼：真实宿主fixture冻结时间、有效协议+MockHttpTransport合成产物；原UUID和完整证据/控制读回；同ID仅evidenceRecords/feedback/方法任何字段变化拒绝；进行中重放和两进程SQL CAS；DB断开/写失败零模型；超长实际messages门；图deadline/进行中取消真实异步传输Mock服务器、join完成后无剩余请求；未知usage不变零或部分合计；审阅看到实际analysis、阻断与unknown分离；新造事实/行动引用/已撤回来源/错Skill/跨人或跨事件零违规；同一个事实变化带来有依据取舍变化。四模式对应实际Skill字节进入真实请求可通过无模型spy验证。
+
+提交新源码后从正常/runtime_readback读取最终Git完整commit及hash域、16卡/6Skill/启用模式，保存原始输入输出和原始测试日志。不以生成者的33/49 PASS、角色名或布尔值作为上线结果。AGENTS.md仅核对保持原治理，不能再改。旧部署保留，不部署。所有首次失败也交付。主Codex会再次源码核对、跨语言与真正入口小批；当前仍WIP_NOT_READY。

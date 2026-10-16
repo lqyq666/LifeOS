@@ -1,0 +1,2326 @@
+{
+  "kind": "CURRENT_SIX_REVISIONS_WITH_PREVIOUS_INDEPENDENT_ISSUES",
+  "generatedAt": "2026-10-11T01:52:13.082Z",
+  "generator": "Codex_main_editor",
+  "drafts": [
+    {
+      "id": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "找到可核验的校园信息",
+      "url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+      "publisher": "长江大学图书馆",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.544Z",
+      "validUntil": null,
+      "excerpt": "使用、服务需求等方面的意见，为后续优化服务提供依据。此外，东校区还拍摄图书馆宣传视频，既展示图书阅览区、自习区等功能空间，又通过实操演示呈现馆藏查询、电子资源获取等操作，让新生直观了解图书馆使用方法。\n西校区分馆通过大学生阅读学社，以“线上学习一周 + 馆内现场体验”模式推进入馆教育。线上帮助新生初步了解资源，线下结合老师讲解与实地参观，介绍《中图法》分类、自助借还机操作、书籍排架及电子资源情况。活动历时28天，覆盖81个班级近3000名新生，32名志愿者全程参与服务，活动尾声发起“六个一”倡议（即借一本书、关注一下图书馆网站、关注一下图书馆微信公众号、至少访问一个中文数据库、至少访问一个外文数据库、",
+      "claim": "该馆公开介绍馆藏查询和电子资源获取。",
+      "scope": "写清要查的资料或手续，不先交个人敏感信息。；适用范围按每个分支核对。",
+      "limitations": "该校账号与权限不能迁移到其他学校。",
+      "mechanisms": [
+        "寻找官方入口"
+      ],
+      "sourceHash": "9ef997b3b94440c80247a70a788394a5512185685f3c82ca95b5ca18333dce9c",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+        "canonicalKey": "campus-resource",
+        "aliases": [
+          "新生",
+          "选课",
+          "教务",
+          "校园信息",
+          "运行方式",
+          "可靠信息",
+          "图书馆",
+          "了解大学运行方式",
+          "寻找可靠校园信息"
+        ],
+        "domains": [
+          "01"
+        ],
+        "task": "找到可核验的校园信息",
+        "stage": "start/adjust/compare",
+        "mechanism": "寻找官方入口",
+        "prerequisites": [
+          "问题属于哪项学校资源或办事流程？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "该校账号与权限不能迁移到其他学校。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "yangtze-library-batch-campus-resource-e1"
+        ],
+        "claims": [
+          {
+            "id": "campus-resource-scope",
+            "text": "该馆公开介绍馆藏查询和电子资源获取。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "yangtze-library-batch-campus-resource-e1"
+            ],
+            "scope": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。",
+            "limitations": "该校账号与权限不能迁移到其他学校。"
+          },
+          {
+            "id": "campus-resource-editorial",
+            "text": "写清要查的资料或手续，不先交个人敏感信息。；从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。；核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "yangtze-library-batch-campus-resource-e1"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "yangtze-library"
+        ],
+        "principle": "该馆公开介绍馆藏查询和电子资源获取。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C01-1",
+            "candidateId": "C01-1",
+            "task": "了解大学运行方式",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C01-1-r2-1",
+                "text": "当前任务「了解大学运行方式」：写清要查的资料或手续，不先交个人敏感信息。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-1-r2-2",
+                "text": "从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-1-r2-3",
+                "text": "核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C01-2",
+            "candidateId": "C01-2",
+            "task": "寻找可靠校园信息",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C01-2-r2-1",
+                "text": "当前任务「寻找可靠校园信息」：写清要查的资料或手续，不先交个人敏感信息。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-2-r2-2",
+                "text": "从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-2-r2-3",
+                "text": "核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "问题属于哪项学校资源或办事流程？",
+        "smallestAction": "写清要查的资料或手续，不先交个人敏感信息。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“问题属于哪项学校资源或办事流程？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "该校账号与权限不能迁移到其他学校。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「找到可核验的校园信息」时，先核对：问题属于哪项学校资源或办事流程？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。只调整卡住处，不重送入门全套。",
+          "waiting_result": "已尝试不等于有效。等待「是否找到本人能实际访问的入口；未访问不算获得资源。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。 部门尚未回应时只记录等待与未知；没有本人许可不反复联系。资料权限被拒绝时停止获取，不换账号或渠道绕过，改列可公开核验的替代资料。",
+          "result": "只用本人报告的新反馈检查：是否找到本人能实际访问的入口；未访问不算获得资源。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
+          "declined": "停止「找到可核验的校园信息」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。 明确拒绝获取权限、联系部门或继续查找时一并停止，不把拒绝当失败经历。"
+        },
+        "expectedObservation": "是否找到本人能实际访问的入口；未访问不算获得资源。",
+        "retrievalSummary": "找到可核验的校园信息；campus-resource；问题属于哪项学校资源或办事流程？；了解大学运行方式；寻找可靠校园信息；写清要查的资料或手续，不先交个人敏感信息。；从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。；核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+        "referenceBody": "找到可核验的校园信息\n原文范围：该馆公开介绍馆藏查询和电子资源获取。\n什么时候用：问题属于哪项学校资源或办事流程？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：该校账号与权限不能迁移到其他学校。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：问题属于哪项学校资源或办事流程？\nLifeOS编辑步骤：\n写清要查的资料或手续，不先交个人敏感信息。\n从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。\n核对适用对象；权限、开放时间未知时只向该部门提出一个问题。\n资源不足：不必完成全套；只处理“问题属于哪项学校资源或办事流程？”中的一项已有材料，零时间保留未知并暂停。\n观察：是否找到本人能实际访问的入口；未访问不算获得资源。\nnot_started：尚未开始「找到可核验的校园信息」时，先核对：问题属于哪项学校资源或办事流程？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「是否找到本人能实际访问的入口；未访问不算获得资源。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。 部门尚未回应时只记录等待与未知；没有本人许可不反复联系。资料权限被拒绝时停止获取，不换账号或渠道绕过，改列可公开核验的替代资料。\nresult：只用本人报告的新反馈检查：是否找到本人能实际访问的入口；未访问不算获得资源。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「找到可核验的校园信息」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。 明确拒绝获取权限、联系部门或继续查找时一并停止，不把拒绝当失败经历。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
+        "indexSignature": "02548ef20a2432975cd4351d4b8f33847c6ee84f6847a691645ce6a259463b81",
+        "legacyIds": [],
+        "replaces": []
+      }
+    },
+    {
+      "id": "e6ad610b-549e-4b09-89bc-34223577fb49",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "合上材料检查记忆",
+      "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "publisher": "美国教育科学研究院 WWC",
+      "publishedYear": "2007",
+      "verifiedAt": "2026-10-10T10:08:23.548Z",
+      "validUntil": null,
+      "excerpt": "Use quizzing to promote learning. Use pre-questions to introduce a new topic.\n Show More\n Show Less\n 5b\nUse quizzing to promote learning. Use quizzes to re-expose students to key content.\n Show More\n Show Less\n 6a\nHelp students allocate stu",
+      "claim": "该教学实践指南建议用测验再次接触关键课程内容；这是教学建议，不能证明某个学生已经掌握。",
+      "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+      "limitations": "不固定每天次数或声称所有学科同一收益。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+      "mechanisms": [
+        "提取练习"
+      ],
+      "sourceHash": "639c15b43645ca01d86d3453c61d54955ea6261f5707473ca143b664584aab4f",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+        "canonicalKey": "retrieval-practice",
+        "aliases": [
+          "主动回忆",
+          "提取练习",
+          "不看答案",
+          "自测",
+          "记不住",
+          "主动回忆"
+        ],
+        "domains": [
+          "04"
+        ],
+        "task": "合上材料检查记忆",
+        "stage": "start/adjust/compare",
+        "mechanism": "提取练习",
+        "prerequisites": [
+          "当前需要检验哪一小段知识的记忆？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "不固定每天次数或声称所有学科同一收益。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "ies-learning-located-20261011-retrieval-practice"
+        ],
+        "claims": [
+          {
+            "id": "retrieval-practice-scope",
+            "text": "该教学实践指南建议用测验再次接触关键课程内容；这是教学建议，不能证明某个学生已经掌握。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "ies-learning-located-20261011-retrieval-practice"
+            ],
+            "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+            "limitations": "不固定每天次数或声称所有学科同一收益。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。"
+          },
+          {
+            "id": "retrieval-practice-editorial",
+            "text": "看一小段已学材料，然后合上材料尝试写出要点。；与原文核对，标明漏项和误项；先核对再继续练。；后续只回到遗漏点再试，不能用一次答对推断长期掌握。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "ies-learning-located-20261011-retrieval-practice"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "ies-learning"
+        ],
+        "principle": "IES公开学习指南建议用测验促进学习。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C04-1",
+            "candidateId": "C04-1",
+            "task": "主动回忆",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C04-1-r2-1",
+                "text": "当前任务「主动回忆」：看一小段已学材料，然后合上材料尝试写出要点。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-retrieval-practice"
+                ]
+              },
+              {
+                "id": "C04-1-r2-2",
+                "text": "与原文核对，标明漏项和误项；先核对再继续练。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-retrieval-practice"
+                ]
+              },
+              {
+                "id": "C04-1-r2-3",
+                "text": "后续只回到遗漏点再试，不能用一次答对推断长期掌握。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-retrieval-practice"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "当前需要检验哪一小段知识的记忆？",
+        "smallestAction": "看一小段已学材料，然后合上材料尝试写出要点。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“当前需要检验哪一小段知识的记忆？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "不固定每天次数或声称所有学科同一收益。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「合上材料检查记忆」时，先核对：当前需要检验哪一小段知识的记忆？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：与原文核对，标明漏项和误项；先核对再继续练。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。",
+          "waiting_result": "只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。",
+          "result": "只用本人报告的新反馈检查：能否在不看材料时提取；自信与实际答案分开。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。",
+          "declined": "停止「合上材料检查记忆」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "能否在不看材料时提取；自信与实际答案分开。",
+        "retrievalSummary": "合上材料检查记忆；retrieval-practice；当前需要检验哪一小段知识的记忆？；主动回忆；看一小段已学材料，然后合上材料尝试写出要点。；与原文核对，标明漏项和误项；先核对再继续练。；后续只回到遗漏点再试，不能用一次答对推断长期掌握。",
+        "referenceBody": "合上材料检查记忆\n原文范围：该教学实践指南建议用测验再次接触关键课程内容；这是教学建议，不能证明某个学生已经掌握。\n什么时候用：当前需要检验哪一小段知识的记忆？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：不固定每天次数或声称所有学科同一收益。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：当前需要检验哪一小段知识的记忆？\nLifeOS编辑步骤：\n任务：主动回忆\n当前任务「主动回忆」：看一小段已学材料，然后合上材料尝试写出要点。\n与原文核对，标明漏项和误项；先核对再继续练。\n后续只回到遗漏点再试，不能用一次答对推断长期掌握。\n最小一步：看一小段已学材料，然后合上材料尝试写出要点。\n资源不足：不必完成全套；只处理“当前需要检验哪一小段知识的记忆？”中的一项已有材料，零时间保留未知并暂停。\n观察：能否在不看材料时提取；自信与实际答案分开。\nnot_started：尚未开始「合上材料检查记忆」时，先核对：当前需要检验哪一小段知识的记忆？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：与原文核对，标明漏项和误项；先核对再继续练。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。\nwaiting_result：只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。\nresult：只用本人报告的新反馈检查：能否在不看材料时提取；自信与实际答案分开。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。\ndeclined：停止「合上材料检查记忆」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：不固定每天次数或声称所有学科同一收益。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "c8680ef307df145857f2357938bd144945d61f0694b0f1e019ae8e473a5fef5b",
+        "indexSignature": "b85eb91bf1b4119b18da4c90ed9827f408e3e7bce8d59bac46e6a2c05523727e",
+        "legacyIds": [
+          "12000000-0000-4000-8000-000000000002"
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "id": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "把复习分散到不同时间",
+      "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "publisher": "美国教育科学研究院 WWC",
+      "publishedYear": "2007",
+      "verifiedAt": "2026-10-10T10:08:23.548Z",
+      "validUntil": null,
+      "excerpt": "Space learning over time.\n Show More\n Show Less\n 2\n Interleave worked example solutions with problem-solving exercises.\n Show More\n Show Less\n 3\n Combine graphics with verbal descriptions.\n Show More\n Show Less\n 4\n Connect and integrate abs",
+      "claim": "该教学实践指南建议把学习分散到不同时间；不提供适用于所有学生的固定最优间隔。",
+      "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+      "limitations": "不规定通用最优间隔或继承原文示例日期。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+      "mechanisms": [
+        "分散学习"
+      ],
+      "sourceHash": "6dcff419b6ecdbd65e3d9ac89fa4f752f90d158016aea9049b0ef13d543a90e2",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+        "canonicalKey": "spaced-review",
+        "aliases": [
+          "间隔复习",
+          "分散复习",
+          "反复忘记",
+          "复习节奏",
+          "间隔复习"
+        ],
+        "domains": [
+          "04"
+        ],
+        "task": "把复习分散到不同时间",
+        "stage": "start/adjust/compare",
+        "mechanism": "分散学习",
+        "prerequisites": [
+          "距离下一次需要使用知识还有哪些可用时段？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "不规定通用最优间隔或继承原文示例日期。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "ies-learning-located-20261011-spaced-review"
+        ],
+        "claims": [
+          {
+            "id": "spaced-review-scope",
+            "text": "该教学实践指南建议把学习分散到不同时间；不提供适用于所有学生的固定最优间隔。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "ies-learning-located-20261011-spaced-review"
+            ],
+            "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+            "limitations": "不规定通用最优间隔或继承原文示例日期。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。"
+          },
+          {
+            "id": "spaced-review-editorial",
+            "text": "把一小段复习分到本人实际能用的多个时段，不套固定天数。；每次先检查能记住什么，再只补漏项。；错过一次时重新选择下一可用窗口，不补齐惩罚性任务。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "ies-learning-located-20261011-spaced-review"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "ies-learning"
+        ],
+        "principle": "IES公开学习指南建议把学习分散在不同时间。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C04-2",
+            "candidateId": "C04-2",
+            "task": "间隔复习",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C04-2-r2-1",
+                "text": "当前任务「间隔复习」：把一小段复习分到本人实际能用的多个时段，不套固定天数。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-spaced-review"
+                ]
+              },
+              {
+                "id": "C04-2-r2-2",
+                "text": "每次先检查能记住什么，再只补漏项。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-spaced-review"
+                ]
+              },
+              {
+                "id": "C04-2-r2-3",
+                "text": "错过一次时重新选择下一可用窗口，不补齐惩罚性任务。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-spaced-review"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "距离下一次需要使用知识还有哪些可用时段？",
+        "smallestAction": "把一小段复习分到本人实际能用的多个时段，不套固定天数。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“距离下一次需要使用知识还有哪些可用时段？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "不规定通用最优间隔或继承原文示例日期。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「把复习分散到不同时间」时，先核对：距离下一次需要使用知识还有哪些可用时段？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：每次先检查能记住什么，再只补漏项。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。",
+          "waiting_result": "只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。",
+          "result": "只用本人报告的新反馈检查：不同时间的实际回忆情况；计划次数不是学习效果。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。",
+          "declined": "停止「把复习分散到不同时间」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "不同时间的实际回忆情况；计划次数不是学习效果。",
+        "retrievalSummary": "把复习分散到不同时间；spaced-review；距离下一次需要使用知识还有哪些可用时段？；间隔复习；把一小段复习分到本人实际能用的多个时段，不套固定天数。；每次先检查能记住什么，再只补漏项。；错过一次时重新选择下一可用窗口，不补齐惩罚性任务。",
+        "referenceBody": "把复习分散到不同时间\n原文范围：该教学实践指南建议把学习分散到不同时间；不提供适用于所有学生的固定最优间隔。\n什么时候用：距离下一次需要使用知识还有哪些可用时段？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：不规定通用最优间隔或继承原文示例日期。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：距离下一次需要使用知识还有哪些可用时段？\nLifeOS编辑步骤：\n任务：间隔复习\n当前任务「间隔复习」：把一小段复习分到本人实际能用的多个时段，不套固定天数。\n每次先检查能记住什么，再只补漏项。\n错过一次时重新选择下一可用窗口，不补齐惩罚性任务。\n最小一步：把一小段复习分到本人实际能用的多个时段，不套固定天数。\n资源不足：不必完成全套；只处理“距离下一次需要使用知识还有哪些可用时段？”中的一项已有材料，零时间保留未知并暂停。\n观察：不同时间的实际回忆情况；计划次数不是学习效果。\nnot_started：尚未开始「把复习分散到不同时间」时，先核对：距离下一次需要使用知识还有哪些可用时段？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：每次先检查能记住什么，再只补漏项。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。\nwaiting_result：只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。\nresult：只用本人报告的新反馈检查：不同时间的实际回忆情况；计划次数不是学习效果。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。\ndeclined：停止「把复习分散到不同时间」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：不规定通用最优间隔或继承原文示例日期。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "3d30bf07eecff9422a434c3b1033c724a6c886ac723f598ae01b7f831f076e42",
+        "indexSignature": "eef2bb03e0b64585269d1dd48e61a89bdf8c44b8b835f862c76f1c02f1891487",
+        "legacyIds": [
+          "12000000-0000-4000-8000-000000000001"
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "id": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "从示例走向独立完成",
+      "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "publisher": "美国教育科学研究院 WWC",
+      "publishedYear": "2007",
+      "verifiedAt": "2026-10-10T10:08:23.548Z",
+      "validUntil": null,
+      "excerpt": "Interleave worked example solutions with problem-solving exercises.\n Show More\n Show Less\n 3\n Combine graphics with verbal descriptions.\n Show More\n Show Less\n 4\n Connect and integrate abstract and concrete representations of concepts.\n Sho",
+      "claim": "该教学实践指南建议交替查看已解示例与独立解题练习；同一学生的具体卡点仍要从实际尝试核对。",
+      "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+      "limitations": "例题与当前问题结构不同就不强套。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+      "mechanisms": [
+        "主动学习与对照"
+      ],
+      "sourceHash": "fc7ea8aaf33af66f35e5785b10f59275751261069007e30377b92d0d65235b2f",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+        "canonicalKey": "worked-example",
+        "aliases": [
+          "模仿",
+          "独立完成",
+          "看答案",
+          "做不出",
+          "例题",
+          "从模仿到独立完成"
+        ],
+        "domains": [
+          "04"
+        ],
+        "task": "从示例走向独立完成",
+        "stage": "start/adjust/compare",
+        "mechanism": "主动学习与对照",
+        "prerequisites": [
+          "示例的哪一步是本人还无法独立完成的？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "例题与当前问题结构不同就不强套。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "ies-learning-located-20261011-worked-example"
+        ],
+        "claims": [
+          {
+            "id": "worked-example-scope",
+            "text": "该教学实践指南建议交替查看已解示例与独立解题练习；同一学生的具体卡点仍要从实际尝试核对。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "ies-learning-located-20261011-worked-example"
+            ],
+            "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+            "limitations": "例题与当前问题结构不同就不强套。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。"
+          },
+          {
+            "id": "worked-example-editorial",
+            "text": "先找与当前题相近的已解示例，解释每步在解决什么。；盖住后自己做一个相近问题，保留卡点。；只回看卡住的步骤，再独立试一次；照抄不算独立完成。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "ies-learning-located-20261011-worked-example"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "ies-learning"
+        ],
+        "principle": "IES公开学习指南建议交替查看已解示例和独立解题。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C04-3",
+            "candidateId": "C04-3",
+            "task": "从模仿到独立完成",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C04-3-r2-1",
+                "text": "当前任务「从模仿到独立完成」：先找与当前题相近的已解示例，解释每步在解决什么。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-worked-example"
+                ]
+              },
+              {
+                "id": "C04-3-r2-2",
+                "text": "盖住后自己做一个相近问题，保留卡点。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-worked-example"
+                ]
+              },
+              {
+                "id": "C04-3-r2-3",
+                "text": "只回看卡住的步骤，再独立试一次；照抄不算独立完成。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-worked-example"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "示例的哪一步是本人还无法独立完成的？",
+        "smallestAction": "先找与当前题相近的已解示例，解释每步在解决什么。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“示例的哪一步是本人还无法独立完成的？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "例题与当前问题结构不同就不强套。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「从示例走向独立完成」时，先核对：示例的哪一步是本人还无法独立完成的？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：盖住后自己做一个相近问题，保留卡点。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。",
+          "waiting_result": "只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。",
+          "result": "只用本人报告的新反馈检查：能否在不看示例时完成对应步骤。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。",
+          "declined": "停止「从示例走向独立完成」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "能否在不看示例时完成对应步骤。",
+        "retrievalSummary": "从示例走向独立完成；worked-example；示例的哪一步是本人还无法独立完成的？；从模仿到独立完成；先找与当前题相近的已解示例，解释每步在解决什么。；盖住后自己做一个相近问题，保留卡点。；只回看卡住的步骤，再独立试一次；照抄不算独立完成。",
+        "referenceBody": "从示例走向独立完成\n原文范围：该教学实践指南建议交替查看已解示例与独立解题练习；同一学生的具体卡点仍要从实际尝试核对。\n什么时候用：示例的哪一步是本人还无法独立完成的？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：例题与当前问题结构不同就不强套。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：示例的哪一步是本人还无法独立完成的？\nLifeOS编辑步骤：\n任务：从模仿到独立完成\n当前任务「从模仿到独立完成」：先找与当前题相近的已解示例，解释每步在解决什么。\n盖住后自己做一个相近问题，保留卡点。\n只回看卡住的步骤，再独立试一次；照抄不算独立完成。\n最小一步：先找与当前题相近的已解示例，解释每步在解决什么。\n资源不足：不必完成全套；只处理“示例的哪一步是本人还无法独立完成的？”中的一项已有材料，零时间保留未知并暂停。\n观察：能否在不看示例时完成对应步骤。\nnot_started：尚未开始「从示例走向独立完成」时，先核对：示例的哪一步是本人还无法独立完成的？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：盖住后自己做一个相近问题，保留卡点。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。\nwaiting_result：只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。\nresult：只用本人报告的新反馈检查：能否在不看示例时完成对应步骤。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。\ndeclined：停止「从示例走向独立完成」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：例题与当前问题结构不同就不强套。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "3fec0f47977375e8c688e1e58425fa129a93535d0d8e60261ec12ab273822028",
+        "indexSignature": "e523e41196d6630886158e21ecf6a573ce4e0545084308935e294096cc23cf4b",
+        "legacyIds": [],
+        "replaces": []
+      }
+    },
+    {
+      "id": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "用输出检查理解",
+      "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "publisher": "美国教育科学研究院 WWC",
+      "publishedYear": "2007",
+      "verifiedAt": "2026-10-10T10:08:23.548Z",
+      "validUntil": null,
+      "excerpt": "Ask deep explanatory questions.\n Show More\n Show Less\n Arrange to review key elements of course content after a delay of several weeks to several months after initial presentation.\n Learn More About This Recommendation (995 KB)\n Have studen",
+      "claim": "该教学实践指南建议提出深层解释性问题；解释表达流畅不能直接证明已经理解或能够独立使用。",
+      "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+      "limitations": "表达流畅不是掌握证明，不推断人格或教学天赋。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+      "mechanisms": [
+        "解释性问题"
+      ],
+      "sourceHash": "388bd714b6ac743b8cf5b8649e2956f190bc23598bd7fd684bea77ba82ddbd45",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+        "canonicalKey": "explain-understanding",
+        "aliases": [
+          "输出",
+          "检验理解",
+          "讲不清",
+          "费曼",
+          "原理",
+          "因果",
+          "通过输出检验理解"
+        ],
+        "domains": [
+          "04"
+        ],
+        "task": "用输出检查理解",
+        "stage": "start/adjust/compare",
+        "mechanism": "解释性问题",
+        "prerequisites": [
+          "哪一个概念可以说出来但解释不了？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "表达流畅不是掌握证明，不推断人格或教学天赋。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "ies-learning-located-20261011-explain-understanding"
+        ],
+        "claims": [
+          {
+            "id": "explain-understanding-scope",
+            "text": "该教学实践指南建议提出深层解释性问题；解释表达流畅不能直接证明已经理解或能够独立使用。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "ies-learning-located-20261011-explain-understanding"
+            ],
+            "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+            "limitations": "表达流畅不是掌握证明，不推断人格或教学天赋。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。"
+          },
+          {
+            "id": "explain-understanding-editorial",
+            "text": "选择一个概念，回答“为什么”“如何与已知内容相连”。；用课程材料检查解释中的每一处关系，不编补未知。；解释卡住时转成一个具体问题向老师或材料核对。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "ies-learning-located-20261011-explain-understanding"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "ies-learning"
+        ],
+        "principle": "IES公开学习指南提出深层解释性问题帮助理解。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C04-4",
+            "candidateId": "C04-4",
+            "task": "通过输出检验理解",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C04-4-r2-1",
+                "text": "当前任务「通过输出检验理解」：选择一个概念，回答“为什么”“如何与已知内容相连”。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-explain-understanding"
+                ]
+              },
+              {
+                "id": "C04-4-r2-2",
+                "text": "用课程材料检查解释中的每一处关系，不编补未知。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-explain-understanding"
+                ]
+              },
+              {
+                "id": "C04-4-r2-3",
+                "text": "解释卡住时转成一个具体问题向老师或材料核对。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-explain-understanding"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "哪一个概念可以说出来但解释不了？",
+        "smallestAction": "选择一个概念，回答“为什么”“如何与已知内容相连”。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“哪一个概念可以说出来但解释不了？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "表达流畅不是掌握证明，不推断人格或教学天赋。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「用输出检查理解」时，先核对：哪一个概念可以说出来但解释不了？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：用课程材料检查解释中的每一处关系，不编补未知。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。",
+          "waiting_result": "只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。",
+          "result": "只用本人报告的新反馈检查：解释中的关系是否可被核查。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。",
+          "declined": "停止「用输出检查理解」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "解释中的关系是否可被核查。",
+        "retrievalSummary": "用输出检查理解；explain-understanding；哪一个概念可以说出来但解释不了？；通过输出检验理解；选择一个概念，回答“为什么”“如何与已知内容相连”。；用课程材料检查解释中的每一处关系，不编补未知。；解释卡住时转成一个具体问题向老师或材料核对。",
+        "referenceBody": "用输出检查理解\n原文范围：该教学实践指南建议提出深层解释性问题；解释表达流畅不能直接证明已经理解或能够独立使用。\n什么时候用：哪一个概念可以说出来但解释不了？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：表达流畅不是掌握证明，不推断人格或教学天赋。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：哪一个概念可以说出来但解释不了？\nLifeOS编辑步骤：\n任务：通过输出检验理解\n当前任务「通过输出检验理解」：选择一个概念，回答“为什么”“如何与已知内容相连”。\n用课程材料检查解释中的每一处关系，不编补未知。\n解释卡住时转成一个具体问题向老师或材料核对。\n最小一步：选择一个概念，回答“为什么”“如何与已知内容相连”。\n资源不足：不必完成全套；只处理“哪一个概念可以说出来但解释不了？”中的一项已有材料，零时间保留未知并暂停。\n观察：解释中的关系是否可被核查。\nnot_started：尚未开始「用输出检查理解」时，先核对：哪一个概念可以说出来但解释不了？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：用课程材料检查解释中的每一处关系，不编补未知。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。\nwaiting_result：只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。\nresult：只用本人报告的新反馈检查：解释中的关系是否可被核查。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。\ndeclined：停止「用输出检查理解」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：表达流畅不是掌握证明，不推断人格或教学天赋。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "003e6a5077cbb8e7de2e10feefd9f30d65374168f620792443e2b7c9ebc92c43",
+        "indexSignature": "bd304869ae214ad475fc0a9c06397b9f70f3719348c253ef83f163aa47321f6e",
+        "legacyIds": [
+          "12000000-0000-4000-8000-000000000003"
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "id": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "记录时间投入与可用经济预算",
+      "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+      "publisher": "CFPB",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.554Z",
+      "validUntil": null,
+      "excerpt": "Tracking Income and Benefits\n Paying Bills\n Getting through the Month\n Dealing with Debt\n Understanding Credit Reports and Scores\n Choosing Financial Products and Services\n Protecting your Money\nStarting the Money Conversation\n Description\n",
+      "claim": "两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。",
+      "scope": "已有本人认可的实际收支记录，先分清已到账、未到账、必要支出与未知；兼职整体价值还要另核对时间、学习与其他义务。",
+      "limitations": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。",
+      "mechanisms": [
+        "投入和约束记录"
+      ],
+      "sourceHash": "05615c782997140bf39ac8c16169a8ae1c1ac4112010289ecca05711b9f832aa",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+        "canonicalKey": "income-ledger",
+        "aliases": [
+          "兼职价值",
+          "收入课程",
+          "投入收益",
+          "日常预算",
+          "记账",
+          "判断兼职价值",
+          "记录投入与收益",
+          "简单预算"
+        ],
+        "domains": [
+          "19",
+          "27"
+        ],
+        "task": "记录时间投入与可用经济预算",
+        "stage": "start/adjust/compare",
+        "mechanism": "投入和约束记录",
+        "prerequisites": [
+          "本人实际到账、必要支出与预计款项分别是多少？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。",
+          "只想倾听、拒绝、暂停、遗忘或不愿提供财务信息时停止。"
+        ],
+        "evidenceIds": [
+          "cfpb-income-pdf-20261011-e1",
+          "cfpb-spending-pdf-20261011-e1"
+        ],
+        "claims": [
+          {
+            "id": "income-ledger-scope",
+            "text": "两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "cfpb-income-pdf-20261011-e1",
+              "cfpb-spending-pdf-20261011-e1"
+            ],
+            "scope": "已有本人认可的实际收支记录，先分清已到账、未到账、必要支出与未知；兼职整体价值还要另核对时间、学习与其他义务。",
+            "limitations": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+          },
+          {
+            "id": "income-ledger-editorial",
+            "text": "记录已到账与未到账，金额缺失保持未知；不把报价记收入。；单列直接成本、必要开支和本人投入时间；退款或变动另作记录。；比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "cfpb-income-pdf-20261011-e1",
+              "cfpb-spending-pdf-20261011-e1"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "LifeOS小行动的编辑适配，不保证增加收入或减少支出；报价、承诺与交付不等于到账。"
+          }
+        ],
+        "sourceGroups": [
+          "gov-budget-tool"
+        ],
+        "principle": "两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。 以下具体校园动作是LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C19-1",
+            "candidateId": "C19-1",
+            "task": "判断兼职价值",
+            "stage": "compare",
+            "steps": [
+              {
+                "id": "C19-1-r2-1",
+                "text": "当前任务「判断兼职价值」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C19-1-r2-2",
+                "text": "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C19-1-r2-3",
+                "text": "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C19-3",
+            "candidateId": "C19-3",
+            "task": "记录投入与收益",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C19-3-r2-1",
+                "text": "当前任务「记录投入与收益」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C19-3-r2-2",
+                "text": "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C19-3-r2-3",
+                "text": "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C27-1",
+            "candidateId": "C27-1",
+            "task": "简单预算",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C27-1-r2-1",
+                "text": "当前任务「简单预算」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C27-1-r2-2",
+                "text": "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              },
+              {
+                "id": "C27-1-r2-3",
+                "text": "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "本人实际到账、必要支出与预计款项分别是多少？",
+        "smallestAction": "本人愿意时只记一笔已核对的实际到账或必要支出，未知金额留空；无需上传账单、姓名或账号。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "没有时间就保留未知并暂停；能做一步时，只核对一笔本人认可记录，不索取敏感账单。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
+          "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「记录时间投入与可用经济预算」时，先核对：本人实际到账、必要支出与预计款项分别是多少？只准备本人认可的一步，不写成执行。",
+          "blocked": "只核对原记账步骤与当前缺项：缺金额留空，缺日期不猜所属周，记录不一致请本人更正；不重发整套入门、不要求上传完整账本。",
+          "waiting_result": "同一笔款项尚未到账时保持未到账或未知；已交付、已采用与已付款分别记录，报价不进实际收入，未回复不推断原因或自动催款。",
+          "result": "只按本人新增合法反馈更正这笔实际到账、支出或退款；重新计算本人确认的可用余额，收入变化与兼职价值、学习效果分开。",
+          "declined": "停止「记录时间投入与可用经济预算」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "实际可用预算能否覆盖本人已知必要开支。",
+        "retrievalSummary": "记录时间投入与可用经济预算；income-ledger；本人实际到账、必要支出与预计款项分别是多少？；判断兼职价值；记录投入与收益；简单预算；记录已到账与未到账，金额缺失保持未知；不把报价记收入。；单列直接成本、必要开支和本人投入时间；退款或变动另作记录。；比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+        "referenceBody": "记录时间投入与可用经济预算\n原文范围：两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。\n什么时候用：本人实际到账、必要支出与预计款项分别是多少？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。；只想倾听、拒绝、暂停、遗忘或不愿提供财务信息时停止。\n先核对：本人实际到账、必要支出与预计款项分别是多少？\nLifeOS编辑步骤：\n任务：判断兼职价值\n当前任务「判断兼职价值」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n任务：记录投入与收益\n当前任务「记录投入与收益」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n任务：简单预算\n当前任务「简单预算」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n最小一步：本人愿意时只记一笔已核对的实际到账或必要支出，未知金额留空；无需上传账单、姓名或账号。\n资源不足：没有时间就保留未知并暂停；能做一步时，只核对一笔本人认可记录，不索取敏感账单。\n观察：实际可用预算能否覆盖本人已知必要开支。\nnot_started：尚未开始「记录时间投入与可用经济预算」时，先核对：本人实际到账、必要支出与预计款项分别是多少？只准备本人认可的一步，不写成执行。\nblocked：只核对原记账步骤与当前缺项：缺金额留空，缺日期不猜所属周，记录不一致请本人更正；不重发整套入门、不要求上传完整账本。\nwaiting_result：同一笔款项尚未到账时保持未到账或未知；已交付、已采用与已付款分别记录，报价不进实际收入，未回复不推断原因或自动催款。\nresult：只按本人新增合法反馈更正这笔实际到账、支出或退款；重新计算本人确认的可用余额，收入变化与兼职价值、学习效果分开。\ndeclined：停止「记录时间投入与可用经济预算」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "8efa273821512bbae8395440b9dc7dca63f1c2929decc37d4b837931c797b39d",
+        "indexSignature": "17465eff05f751c9c0133a93d82cdbae15a3b03f854cbcec20318221e048567c",
+        "legacyIds": [],
+        "replaces": []
+      }
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "yangtze-library-batch",
+      "source_revision": 1,
+      "canonical_url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+      "platform": "lib.yangtzeu.edu.cn",
+      "original_work_id": "/info/1045/5116.htm",
+      "title": "新生入馆教育，我们在行动-图书馆",
+      "publisher": "长江大学图书馆",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:30.803Z",
+      "source_group": "yangtze-library",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "617f3ea19ac37d4c289ce1376207ae28990d3f10cc825fc980e4349fa86c35e8",
+      "semantic_scope": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。",
+      "cannot_infer": "该校账号与权限不能迁移到其他学校。"
+    },
+    {
+      "source_id": "usst-mentor-email-batch",
+      "source_revision": 1,
+      "canonical_url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+      "platform": "iso.usst.edu.cn",
+      "original_work_id": "/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+      "title": "上海理工大学国际学生办公室",
+      "publisher": "上海理工大学国际学生办公室",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:34.498Z",
+      "source_group": "usst-mentor-email",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "514aca521c9721e7630ad36d22839d39e6b4d7bcae7fd69fff8fe971988168ef",
+      "semantic_scope": "导师自荐邮件的背景、兴趣与选择原因；不含申请资格规则。",
+      "cannot_infer": "原材料面向来华国际申请；国内一般邮件为编辑适配。推荐信请求、陌生社交、找付费用户退回独立分支补源。"
+    },
+    {
+      "source_id": "sdu-career-interview-batch",
+      "source_revision": 1,
+      "canonical_url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+      "platform": "www.epe.sdu.edu.cn",
+      "original_work_id": "/ndxydjpy/info/1083/5666.htm",
+      "title": "刘泱君 职业生涯人物访谈报告-山东大学能源与动力工程学院党建服务平台",
+      "publisher": "山东大学能源与动力工程学院",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:32.696Z",
+      "source_group": "sdu-career-interview",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "180576d9a64b2f1c7adf088f0405b3f679c42e6da212c2456e0b38ad2a83a7e9",
+      "semantic_scope": "职业访谈是间接职业体验；不代表全行业或保证适配。",
+      "cannot_infer": "学术、跨专业和海外适配仍缺各自直接方法来源；只支持职业访谈范围。"
+    },
+    {
+      "source_id": "yangtze-star-batch",
+      "source_revision": 1,
+      "canonical_url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+      "platform": "wlxy.yangtzeu.edu.cn",
+      "original_work_id": "/gsgl/info/1094/5348.htm",
+      "title": "【职引未来辅导员工作室】简历，面试指导培训-长江大学文理学院-管理学院",
+      "publisher": "长江大学文理学院管理学院",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:29.140Z",
+      "source_group": "yangtze-star",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "61129f1ac37e5ead5a5b84bae2e695693ba510617b0279da5cced52f2b08f708",
+      "semantic_scope": "指导讲座以岗位要求对照简历，并用背景、任务、行动和结果说明经历。",
+      "cannot_infer": "跨专业迁移的成效未被原讲座证明，小作品步骤为待审编辑适配。"
+    },
+    {
+      "source_id": "tsinghua-exam-batch",
+      "source_revision": 1,
+      "canonical_url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+      "platform": "learning.tsinghua.edu.cn",
+      "original_work_id": "/xxyfzzy/wdxkszzb.htm",
+      "title": "为大学考试做准备-学生学习与发展指导中心",
+      "publisher": "清华大学学生学习与发展指导中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:29.128Z",
+      "source_group": "tsinghua-exam",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "99c7e53f96d2db380d825386cf0664a1adc35c712353355ea27bfb086909baa3",
+      "semantic_scope": "该指南讨论主动学习、复习与理解检查；只保留方法，不继承固定复习间隔。",
+      "cannot_infer": "不承诺提分，不把学科概念结构当成职业能力。"
+    },
+    {
+      "source_id": "ies-learning-batch",
+      "source_revision": 1,
+      "canonical_url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "platform": "ies.ed.gov",
+      "original_work_id": "/ncee/wwc/PracticeGuide/1",
+      "title": "WWC | Organizing Instruction and Study to Improve Student Learning",
+      "publisher": "美国教育科学研究院 WWC",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:32.696Z",
+      "source_group": "ies-learning",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "248233af1a9254ce92e3b741e1652b789a784dd1a357cc837c4684860a3c8408",
+      "semantic_scope": "指南提出分散学习、测验和解释性问题；保留原教学范围。",
+      "cannot_infer": "不固定每天次数或声称所有学科同一收益。"
+    },
+    {
+      "source_id": "tsinghua-efficiency-batch",
+      "source_revision": 1,
+      "canonical_url": "https://learning.tsinghua.edu.cn/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+      "platform": "learning.tsinghua.edu.cn",
+      "original_work_id": "/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+      "title": "清华大学学生学习与发展指导中心",
+      "publisher": "清华大学学生学习与发展指导中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:29.138Z",
+      "source_group": "tsinghua-efficiency",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "2ac07f5ace04f8d356dab45289dc297d09a52f9ea7af7e3f789755e931a1cc57",
+      "semantic_scope": "效率手册介绍任务优先、计划执行检查调整及舍弃或委派任务。",
+      "cannot_infer": "不把示例分钟数、身份或任务数量当最优安排。"
+    },
+    {
+      "source_id": "tsinghua-delay-batch",
+      "source_revision": 1,
+      "canonical_url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+      "platform": "learning.tsinghua.edu.cn",
+      "original_work_id": "/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+      "title": "清华大学学生学习与发展指导中心",
+      "publisher": "清华大学学生学习与发展指导中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:34.499Z",
+      "source_group": "tsinghua-delay",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "ccfea0c847246819e7e90bd03ff8fc74e945683d1a7d22a275283dbb47232a68",
+      "semantic_scope": "拖延的任务起点与失败管理；不诊断疾病或保证启动成功。",
+      "cannot_infer": "倒推方法不证明环境调整或注意力疗效；中断恢复是编辑适配。"
+    },
+    {
+      "source_id": "ecnu-literature-batch",
+      "source_revision": 1,
+      "canonical_url": "https://soci.ecnu.edu.cn/af/61/c10712a438113/page.htm",
+      "platform": "soci.ecnu.edu.cn",
+      "original_work_id": "/af/61/c10712a438113/page.htm",
+      "title": "科研训练营第二期：文献阅读与撰写规范",
+      "publisher": "华东师范大学社会发展学院",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:30.799Z",
+      "source_group": "ecnu-literature",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "1bac1fc401bcb59079dd07b2025cf2d5c2882131f49deae7687aff4278602088",
+      "semantic_scope": "科研训练介绍查找、整理和评论文献，建议利用图书馆资源并关注论著关系。",
+      "cannot_infer": "一篇文献不证明研究适配，不替代实验或导师指导。"
+    },
+    {
+      "source_id": "nankai-team-batch",
+      "source_revision": 1,
+      "canonical_url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+      "platform": "news.nankai.edu.cn",
+      "original_work_id": "/dcxy/system/2020/04/12/030038707.shtml",
+      "title": "商青团干校举办“团队协作能力的养成与提升”主题课程讲座-多彩校园-南开大学",
+      "publisher": "南开大学新闻网",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:34.499Z",
+      "source_group": "nankai-team",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "0853b863d28a2d0725806bee91279e15db414df602779d748a50c2355e9e5f20",
+      "semantic_scope": "共同目标、工作、人、定位、权限、计划；不含科研验收标准。",
+      "cannot_infer": "社团团队材料不证明科研验收标准；技术分支明确退回负责人核对。"
+    },
+    {
+      "source_id": "shu-career-choice-batch",
+      "source_revision": 1,
+      "canonical_url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+      "platform": "auto.shu.edu.cn",
+      "original_work_id": "/info/1126/77312.htm",
+      "title": "【研工】拿到Offer怎么选？高级生涯规划师向东华教你如何做好人生决策-上海大学机电工程与自动化学院",
+      "publisher": "上海大学机电工程与自动化学院",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:34.498Z",
+      "source_group": "shu-career-choice",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "3df8d0853c7c50e0c5c4dcdfd9bb83b6396a53991c97f0ce77b9ed04b2bc8910",
+      "semantic_scope": "生涯决策中的个人价值与平衡；讲座实践建议不是效果研究。",
+      "cannot_infer": "讲座报道不能证明适配或最佳选择；升学/考公条件需当期官方资料，赛事收益另核对。"
+    },
+    {
+      "source_id": "mit-job-interview-batch",
+      "source_revision": 1,
+      "canonical_url": "https://capd.mit.edu/resources/interviewing/",
+      "platform": "capd.mit.edu",
+      "original_work_id": "/resources/interviewing/",
+      "title": "3 steps to be prepared for interviewing – Career Advising & Professional Development | MIT",
+      "publisher": "MIT CAPD",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:04:13.046Z",
+      "source_group": "mit-job-interview",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "e83b66bbae917c809f9ebea1f511d0ee8b0a1be5fbd8d20055d193eb14fba3bd",
+      "semantic_scope": "面试准备与反馈核对；不承诺录用或支持编造经历。",
+      "cannot_infer": "模拟练习不证明录用；投递沉默处理仍缺直接原文，定时追发不作统一规则。"
+    },
+    {
+      "source_id": "csu-interview-clarify-batch",
+      "source_revision": 1,
+      "canonical_url": "https://mpb.csu.edu.cn/info/1116/1271.htm",
+      "platform": "mpb.csu.edu.cn",
+      "original_work_id": "/info/1116/1271.htm",
+      "title": "大学生求职面试技巧-中南大学资源加工与生物工程学院门户网站",
+      "publisher": "中南大学资源加工与生物工程学院",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:04:13.047Z",
+      "source_group": "csu-interview-clarify",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "aa754cca96c8eb522fea7c27cde284ec41cca3d4b2543746090ee670333f2586",
+      "semantic_scope": "面试提问不清时复述核对；不是录用保证。",
+      "cannot_infer": "不支持表情识人、必录用或固定回答套路；承认未知另有个人经验佐证。"
+    },
+    {
+      "source_id": "sufe-product-case-batch",
+      "source_revision": 1,
+      "canonical_url": "https://qks.sufe.edu.cn/mv_html/j00002/202107/17097900-7129-41e1-8c5f-61cdfa17bf3e_WEB.htm",
+      "platform": "qks.sufe.edu.cn",
+      "original_work_id": "/mv_html/j00002/202107/17097900-7129-41e1-8c5f-61cdfa17bf3e_WEB.htm",
+      "title": "中国传统文创产品与用户匹配机制研究",
+      "publisher": "上海财经大学期刊社",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:37.900Z",
+      "source_group": "sufe-product-case",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "e9607b73d71d708ab3230716b8a7bff28aecbeed9e8a0bfdc7c3eb5b6e6ace3f",
+      "semantic_scope": "陶瓷企业个案的需求与原型反馈；个案不外推成功率或平台流量秘诀。",
+      "cannot_infer": "个案不是全行业验证，也不代表作者每句访谈提问有研究证明；提纲为编辑适配。"
+    },
+    {
+      "source_id": "gov-budget-tool-batch",
+      "source_revision": 1,
+      "canonical_url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+      "platform": "www.consumerfinance.gov",
+      "original_work_id": "/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+      "title": "Your Money, Your Goals toolkit | Consumer Financial Protection Bureau",
+      "publisher": "CFPB",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:38.958Z",
+      "source_group": "gov-budget-tool",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "887db8505d10c21c4f3c119f0b7861709914fc8a6a38ed3436a684ac0349a5f2",
+      "semantic_scope": "收入、支出、现金流记录的工具；非投资建议、不含中国权利规则。",
+      "cannot_infer": "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。"
+    },
+    {
+      "source_id": "htu-content-feedback-batch",
+      "source_revision": 1,
+      "canonical_url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+      "platform": "www.htu.edu.cn",
+      "original_work_id": "/stu/2026/0423/c9611a381156/page.htm",
+      "title": "文学院融媒体中心邀请夏冰老师做宣传工作专题培训",
+      "publisher": "河南师范大学学生处",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:04:14.907Z",
+      "source_group": "htu-content-feedback",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "0a68980923dd225d74369379b3c55a7b927af8e7b42b49ee6a691b71baa62adb",
+      "semantic_scope": "校园新闻实践重视受众反馈与真实性；不是全平台流量策略。",
+      "cannot_infer": "校园新闻经验不支持所有自媒体平台增长策略；不要继承热度数字。"
+    },
+    {
+      "source_id": "sdu-boundaries-batch",
+      "source_revision": 1,
+      "canonical_url": "https://www.xljk.sdu.edu.cn/info/1008/10852.htm",
+      "platform": "www.xljk.sdu.edu.cn",
+      "original_work_id": "/info/1008/10852.htm",
+      "title": "刻意疏远？NO！宿舍关系也需要“边界感”-山东大学学生心理健康教育与咨询中心",
+      "publisher": "山东大学学生心理健康教育与咨询中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:30.801Z",
+      "source_group": "sdu-boundaries",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "88e6ba36b9028648223a9ed7e6d116bb6e435fdd732266cc88ef51ff38e18e34",
+      "semantic_scope": "宿舍沟通材料提出表达诉求、协商共同生活边界。",
+      "cannot_infer": "宿舍沟通只支持日常边界；导师、客户验收、费用权利与创业访谈另行处理。"
+    },
+    {
+      "source_id": "situ-recovery-batch",
+      "source_revision": 1,
+      "canonical_url": "https://xlzx.situ.edu.cn/info/1079/2963.htm",
+      "platform": "xlzx.situ.edu.cn",
+      "original_work_id": "/info/1079/2963.htm",
+      "title": "新学期，新篇章，“心”动力 ——开学心理调适指南-大学生心理咨询与发展中心",
+      "publisher": "上海应用技术大学大学生心理咨询与发展中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:31.183Z",
+      "source_group": "situ-recovery",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "1137e5df51685fc1f07ba422cbe08144d430d0b5fee53b974f4ef838a53382de",
+      "semantic_scope": "开学调适指南建议平衡休息、社交和学习，并主动求助。",
+      "cannot_infer": "不诊断或宣称治疗，AI不是现实安全支持的替代。"
+    },
+    {
+      "source_id": "ncsc-phishing-batch",
+      "source_revision": 1,
+      "canonical_url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+      "platform": "www.ncsc.gov.uk",
+      "original_work_id": "/collection/phishing-scams",
+      "title": "Phishing scams: how to spot and report them | National Cyber Security Centreicons/chevron/16px/black",
+      "publisher": "UK NCSC",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:38.958Z",
+      "source_group": "ncsc-phishing",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "a62790ce6394b9a5a6178d8054c305fae7f1030b00eed2cd7d06760ebf8ead7c",
+      "semantic_scope": "可疑信息与敏感资料的安全核对；不推断中国合同权利。",
+      "cannot_infer": "安全指南不证明所有诈骗或合作风险判断；中国资格政策与法律权利不进入通用攻略。"
+    },
+    {
+      "source_id": "career-author-followup",
+      "source_revision": 1,
+      "canonical_url": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
+      "platform": "public_web",
+      "original_work_id": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
+      "title": "职涯漫谈丨生涯人物访谈怎么做？这次来点不一样的（一）_原创专栏_天行专栏_天行",
+      "publisher": "天行学院",
+      "author": "Savannah",
+      "published_at": null,
+      "retrieved_at": "2026-10-10T11:38:04.353847+00:00",
+      "source_group": "www.tianxingacademy.com",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FOR_REVIEW_NOT_FULL_BODY_OR_LICENSE_GRANT",
+      "original_fingerprint": "f75bcd6129cee5bf5da5280bc87b7692f39d4ad99351f25204b5b8c46f5f6ace",
+      "semantic_scope": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
+      "cannot_infer": "不推出职业必适合、访谈保证录用、学术成功或海外教育收益。"
+    },
+    {
+      "source_id": "pg-first-users-followup",
+      "source_revision": 1,
+      "canonical_url": "https://paulgraham.com/ds.html",
+      "platform": "public_web",
+      "original_work_id": "https://paulgraham.com/ds.html",
+      "title": "Do Things that Don't Scale",
+      "publisher": "Paul Graham个人网站",
+      "author": "Paul Graham",
+      "published_at": null,
+      "retrieved_at": "2026-10-10T11:38:05.078471+00:00",
+      "source_group": "paulgraham.com",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FOR_REVIEW_NOT_FULL_BODY_OR_LICENSE_GRANT",
+      "original_fingerprint": "7fab8cd721346fa0fa56e41564ccc6f7755668e626923bf94717f9251bd09d06",
+      "semantic_scope": "创业作者关于早期寻找使用者的经验性建议；只作人工接触线索，不套用增长数字。",
+      "cannot_infer": "不保证找到付费用户；不把创业用户招募当普通陌生社交或导师联系。"
+    },
+    {
+      "source_id": "pg-startup-ideas-followup",
+      "source_revision": 1,
+      "canonical_url": "https://paulgraham.com/startupideas.html",
+      "platform": "public_web",
+      "original_work_id": "https://paulgraham.com/startupideas.html",
+      "title": "How to Get Startup Ideas",
+      "publisher": "Paul Graham个人网站",
+      "author": "Paul Graham",
+      "published_at": null,
+      "retrieved_at": "2026-10-10T11:38:05.216614+00:00",
+      "source_group": "paulgraham.com",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FOR_REVIEW_NOT_FULL_BODY_OR_LICENSE_GRANT",
+      "original_fingerprint": "560b97c22ea60ff0220509095079b2d11fff5becc093bed163b24885b93a56c2",
+      "semantic_scope": "作者反省自己的画廊网站项目没有充分注意用户；是本人失败经验，非一般因果证明。",
+      "cannot_infer": "不推出所有想法都会失败、一次访谈证明需求或试用等于付费。"
+    },
+    {
+      "source_id": "atlassian-roles-followup",
+      "source_revision": 1,
+      "canonical_url": "https://www.atlassian.com/team-playbook/plays/roles-and-responsibilities",
+      "platform": "public_web",
+      "original_work_id": "https://www.atlassian.com/team-playbook/plays/roles-and-responsibilities",
+      "title": "How to Define Team Roles and Responsibilities | Atlassian",
+      "publisher": "Atlassian",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T11:38:06.841917+00:00",
+      "source_group": "www.atlassian.com",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FOR_REVIEW_NOT_FULL_BODY_OR_LICENSE_GRANT",
+      "original_fingerprint": "4e907a655146f651f9d8469831ce5112905808f9be5beb7e1283f4270536d1c4",
+      "semantic_scope": "团队工作中核对角色、自认职责、他人预期和未认领事项的原始操作指南。",
+      "cannot_infer": "不把角色协商当能力鉴定；科研实验正确性与技术验收仍由真实负责人确认。"
+    },
+    {
+      "source_id": "atlassian-retro-followup",
+      "source_revision": 1,
+      "canonical_url": "https://www.atlassian.com/team-playbook/plays/retrospective",
+      "platform": "public_web",
+      "original_work_id": "https://www.atlassian.com/team-playbook/plays/retrospective",
+      "title": "Sprint Retrospective: How to Hold an Effective Meeting | Atlassian",
+      "publisher": "Atlassian",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T11:38:06.921813+00:00",
+      "source_group": "www.atlassian.com",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FOR_REVIEW_NOT_FULL_BODY_OR_LICENSE_GRANT",
+      "original_fingerprint": "553fe1241bba28c5e270738bae310b4b701856a6d59ac5ce8080c512b0abdb20",
+      "semantic_scope": "团队迭代复盘中记录实际反馈并给改进行动确定责任与节点；校园协作为编辑迁移。",
+      "cannot_infer": "不证明必然提升成绩、促成复购、款项到账或任何软件产品效果。"
+    },
+    {
+      "source_id": "pku-recommendation-branch-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://math.pku.edu.cn/teachers/dayue/Homepage/recommendation.htm",
+      "platform": "math.pku.edu.cn",
+      "original_work_id": "/teachers/dayue/Homepage/recommendation.htm",
+      "title": "要我写推荐信",
+      "publisher": "北大数学学院教师个人主页",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T14:04:09.176Z",
+      "source_group": "pku-recommendation",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_AND_BOUNDED_SYNTHESIS_ONLY",
+      "original_fingerprint": "58af17f0f894cabbd940caa48079b429690ae66ee8d0054f7a2d5fa7614fc7a2",
+      "semantic_scope": "该教师个人说明要求推荐材料有事实依据；不是北大或所有推荐人的统一规定。",
+      "cannot_infer": "不采用该页分数、日期、数量、排名、网申或查阅权规则；不要求学生普遍代写推荐信；无录取或有效性保证。"
+    },
+    {
+      "source_id": "ustc-mentor-choice-branch-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://faculty.ustc.edu.cn/yqliang/files/teaching.htm",
+      "platform": "faculty.ustc.edu.cn",
+      "original_work_id": "/yqliang/files/teaching.htm",
+      "title": "Teaching and Graduate Guidance 教学与研究生指导",
+      "publisher": "中国科学技术大学教师个人主页",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T14:04:09.359Z",
+      "source_group": "ustc-mentor-choice",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_AND_BOUNDED_SYNTHESIS_ONLY",
+      "original_fingerprint": "6fd4ac9aab4a3fb06a56ddccbab708d81ad36d1a2da8f7dcc45866efb891d41b",
+      "semantic_scope": "作者明示为个人看法，选择导师时可向其曾经的学生了解指导方式。",
+      "cannot_infer": "仅作者经验；不保证科研或就业收益，不推招生资格或导师普遍规则。"
+    },
+    {
+      "source_id": "tsinghua-exam-reflection-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+      "platform": "learning.tsinghua.edu.cn",
+      "original_work_id": "/xxyfzzy/wdxkszzb.htm",
+      "title": "为大学考试做准备：限时练习与回顾困难",
+      "publisher": "清华大学学生学习与发展指导中心",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T14:28:22.748Z",
+      "source_group": "tsinghua-exam",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_AND_BOUNDED_SYNTHESIS_ONLY",
+      "original_fingerprint": "a27cff1e346bf8e1ef3c7ff2244d7f9ed224e84058f17fa2288ba92fc660d755",
+      "semantic_scope": "高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。",
+      "cannot_infer": "不采用固定记忆周期、收益保证、分数、资格或日期；不把此考试建议套到实验或创业。"
+    },
+    {
+      "source_id": "upwork-close-review-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+      "platform": "www.upwork.com",
+      "original_work_id": "/resources/what-to-do-before-contract-closes",
+      "title": "What To Do Before a Contract Closes on Upwork",
+      "publisher": "Upwork",
+      "author": "Cassie Moorhead",
+      "published_at": null,
+      "retrieved_at": "2026-10-10T14:52:36.010Z",
+      "source_group": "upwork-practice",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_AND_BOUNDED_SYNTHESIS_ONLY",
+      "original_fingerprint": "7051b05315dd562666f39190f57e3ef348d721655eb8856eb7a9e71583eaa239",
+      "fingerprint_scope": "LOCATED_SHORT_QUOTE_SNAPSHOT_NOT_FULL_HTML",
+      "semantic_scope": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
+      "cannot_infer": "不采用平台自动审批、付款保护、天数、价格或增长保证；不代表中国合同规则。不能据此声称已采用、付款、有效或复购。"
+    },
+    {
+      "source_id": "qau-career-decision-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://xlzx.qau.edu.cn/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+      "platform": "xlzx.qau.edu.cn",
+      "original_work_id": "/content/zmtx/e1d041f8626d401bb94fc88da7d901a2",
+      "title": "第四十六期 如何选择第一份工作",
+      "publisher": "青岛农业大学学生心理发展指导中心",
+      "author": "利萍",
+      "published_at": "2021-05-19",
+      "retrieved_at": "2026-10-10T15:36:45.099Z",
+      "source_group": "qau-career-decision",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_AND_BOUNDED_SYNTHESIS_ONLY",
+      "original_fingerprint": "c54e77daffc225980f3ba746bce559e08aadbe99593d539b50ae19f9e203d70f",
+      "semantic_scope": "高校心理指导原文的职业决策教学方法：列当前工作选项，先确定本人重视的考虑因素，再逐项比较。原文另列了解职业的一天与实际任务的问题。",
+      "cannot_infer": "不是效果研究；不采用努力必成功、测评诊断、行业固有稳定性或最高总分决定选择等推论。公共部门、科研、赛事与社团的实际规则及收益仍须各自原文核对。"
+    },
+    {
+      "source_id": "hzau-experiment-records-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://lst.hzau.edu.cn/lst/info/1181/17916.htm",
+      "platform": "lst.hzau.edu.cn",
+      "original_work_id": "/lst/info/1181/17916.htm",
+      "title": "生命科学技术学院举办本科生实验记录规范培训",
+      "publisher": "华中农业大学生命科学技术学院",
+      "author": "通讯员覃歆懿、蒋婧媛；培训主讲姚帆",
+      "published_at": "2025-12-15",
+      "retrieved_at": "2026-10-10T16:27:37.097Z",
+      "source_group": "hzau-experiment-records",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_AND_BOUNDED_SYNTHESIS_ONLY",
+      "original_fingerprint": "88ff7af4ef261ff4d77613898064187cdd4d3a29ac922defe27c95efb320ceaa",
+      "semantic_scope": "高校本科生实验记录培训的记录规范：区分课题、即时记录，标注实际异常与改进思路，整理复盘。",
+      "cannot_infer": "培训报道中的操作建议，不证明失败原因、最佳改进方案或科研结果提升；不支持代码调试、文献阅读和论文写作方法，不引入专利、署名或成果规则。"
+    },
+    {
+      "source_id": "ies-learning-located-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "platform": "ies.ed.gov",
+      "original_work_id": "/ncee/wwc/PracticeGuide/1",
+      "title": "Organizing Instruction and Study to Improve Student Learning — recommendations",
+      "publisher": "美国教育科学研究院 What Works Clearinghouse",
+      "author": null,
+      "published_at": "2007-09",
+      "retrieved_at": "2026-10-11T01:25:27.942Z",
+      "source_group": "ies-learning",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FULL_ORIGINAL_READ_LOCAL",
+      "original_fingerprint": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+      "semantic_scope": "公开教学实践指南的推荐1、2、5b、7；普适学习方法资料，不是中国考试资格、科目规则或个人效果证据。",
+      "cannot_infer": "不能据此推出固定天数、固定次数、各科同等收益或某人已经掌握。"
+    },
+    {
+      "source_id": "cfpb-income-pdf-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_income_benefits_tool_2018-11_ADA.pdf",
+      "platform": "files.consumerfinance.gov",
+      "original_work_id": "cfpb_your-money-your-goals_income_benefits_tool_2018-11_ADA.pdf",
+      "title": "Income and benefits tracker",
+      "publisher": "CFPB",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-11T01:42:50.905Z",
+      "source_group": "gov-budget-tool",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FULL_PUBLIC_PDF_READ_LOCAL",
+      "original_fingerprint": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62",
+      "fingerprint_scope": "FULL_ORIGINAL_PDF_BYTES",
+      "semantic_scope": "按实际收到的金额与所属周记录收入，再按周合计。",
+      "cannot_infer": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+    },
+    {
+      "source_id": "cfpb-spending-pdf-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+      "platform": "files.consumerfinance.gov",
+      "original_work_id": "cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+      "title": "Spending tracker",
+      "publisher": "CFPB",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-11T01:42:50.905Z",
+      "source_group": "gov-budget-tool",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FULL_PUBLIC_PDF_READ_LOCAL",
+      "original_fingerprint": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+      "fingerprint_scope": "FULL_ORIGINAL_PDF_BYTES",
+      "semantic_scope": "收集实际支出凭据并按类别与周记录；没有凭据时先核对金额与用途。",
+      "cannot_infer": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "yangtze-library-batch-campus-resource-e1",
+      "source_id": "yangtze-library-batch",
+      "source_revision": 1,
+      "quote": "使用、服务需求等方面的意见，为后续优化服务提供依据。此外，东校区还拍摄图书馆宣传视频，既展示图书阅览区、自习区等功能空间，又通过实操演示呈现馆藏查询、电子资源获取等操作，让新生直观了解图书馆使用方法。\n西校区分馆通过大学生阅读学社，以“线上学习一周 + 馆内现场体验”模式推进入馆教育。线上帮助新生初步了解资源，线下结合老师讲解与实地参观，介绍《中图法》分类、自助借还机操作、书籍排架及电子资源情况。活动历时28天，覆盖81个班级近3000名新生，32名志愿者全程参与服务，活动尾声发起“六个一”倡议（即借一本书、关注一下图书馆网站、关注一下图书馆微信公众号、至少访问一个中文数据库、至少访问一个外文数据库、",
+      "locator": {
+        "url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+        "start": 341,
+        "end": 645,
+        "line": 17,
+        "pdfPage": null
+      },
+      "context": "使用、服务需求等方面的意见，为后续优化服务提供依据。此外，东校区还拍摄图书馆宣传视频，既展示图书阅览区、自习区等功能空间，又通过实操演示呈现馆藏查询、电子资源获取等操作，让新生直观了解图书馆使用方法。\n西校区分馆通过大学生阅读学社，以“线上学习一周 + 馆内现场体验”模式推进入馆教育。线上帮助新生初步了解资源，线下结合老师讲解与实地参观，介绍《中图法》分类、自助借还机操作、书籍排架及电子资源情况。活动历时28天，覆盖81个班级近3000名新生，32名志愿者全程参与服务，活动尾声发起“六个一”倡议（即借一本书、关注一下图书馆网站、关注一下图书馆微信公众号、至少访问一个中文数据库、至少访问一个外文数据库、",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "4c8b7818a484ff01963451cd3bf7579fcbc1e3bd16d76feaa7944adf48ed4635"
+    },
+    {
+      "evidence_id": "usst-mentor-email-batch-first-contact-e1",
+      "source_id": "usst-mentor-email-batch",
+      "source_revision": 1,
+      "quote": "介绍你自己的学术背景、研究方向、研究计划\r\n等。你的研究方向和计划是导师了解你的重要途径重\r\n点，导师们通常更愿意接收那些研究方向契合自己的\r\n学生。\r\n02、介绍选择该导师的原因，着重突出你有能力在\r\n导师的研究领域进行深入学术研究，并表达对导师研\r\n究方向的兴趣并提出希望成为其学生的意愿。\r\n03、最后你可以对导师研究领域发表自己的观点，以\r\n便于导师更好地了解你的研究方向和学术背景。\r\n3 / 4\r\nMAIL \r\nCONTENT\r\n• 3.撰写邮件的内容：\r\n\r\nPAG",
+      "locator": {
+        "url": "https://iso.usst.edu.cn/_upload/article/files/68/6c/84fdceb9492f9af1c70e00d39c8a/b8031ad4-2fe0-4bc4-8bf6-7b667c45e030.pdf",
+        "start": 1251,
+        "end": 1491,
+        "line": 92,
+        "pdfPage": "PAGE 7"
+      },
+      "context": "介绍你自己的学术背景、研究方向、研究计划\r\n等。你的研究方向和计划是导师了解你的重要途径重\r\n点，导师们通常更愿意接收那些研究方向契合自己的\r\n学生。\r\n02、介绍选择该导师的原因，着重突出你有能力在\r\n导师的研究领域进行深入学术研究，并表达对导师研\r\n究方向的兴趣并提出希望成为其学生的意愿。\r\n03、最后你可以对导师研究领域发表自己的观点，以\r\n便于导师更好地了解你的研究方向和学术背景。\r\n3 / 4\r\nMAIL \r\nCONTENT\r\n• 3.撰写邮件的内容：\r\n\r\nPAG",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "626e9a1d101b3eb060f89db4e3b928f0604adebbabf7d9e5ada4f03e8c35835e"
+    },
+    {
+      "evidence_id": "sdu-career-interview-batch-fit-exploration-e1",
+      "source_id": "sdu-career-interview-batch",
+      "source_revision": 1,
+      "quote": "用下载 \n规划案例\n 您现在的位置是: \n 首页\n >>\n 学生工作\n >>\n 生涯导航\n >>\n 规划案例\n >>\n 正文\n 刘泱君 职业生涯人物访谈报告\n 发布时间：2014-09-19 23:43:12    编辑：<a href=\"space/?userid=3\" target=\"_blank\" class=\"username\">陈龙飞</a>    点击：[] \n前 言\n在明确了我的目标职业之后，我开始寻找目标职位对应的访谈人物，针对我的职业生涯规划的路径和计划，我分别选择了同专业学长，会计师以及企业财务总监进行了访谈，通过与他们的交流，我获取了我职业生涯各个阶段的最新信息，了解了在发展过程",
+      "locator": {
+        "url": "https://www.epe.sdu.edu.cn/ndxydjpy/info/1083/5666.htm",
+        "start": 99,
+        "end": 403,
+        "line": 18,
+        "pdfPage": null
+      },
+      "context": "用下载 \n规划案例\n 您现在的位置是: \n 首页\n >>\n 学生工作\n >>\n 生涯导航\n >>\n 规划案例\n >>\n 正文\n 刘泱君 职业生涯人物访谈报告\n 发布时间：2014-09-19 23:43:12    编辑：<a href=\"space/?userid=3\" target=\"_blank\" class=\"username\">陈龙飞</a>    点击：[] \n前 言\n在明确了我的目标职业之后，我开始寻找目标职位对应的访谈人物，针对我的职业生涯规划的路径和计划，我分别选择了同专业学长，会计师以及企业财务总监进行了访谈，通过与他们的交流，我获取了我职业生涯各个阶段的最新信息，了解了在发展过程",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "892457fd90e6412166695fdf322ddf6141ef986e16a1c71dcfe7b32034638872"
+    },
+    {
+      "evidence_id": "yangtze-star-batch-skill-gap-e1",
+      "source_id": "yangtze-star-batch",
+      "source_revision": 1,
+      "quote": "何准备问题上，老师向同学们讲解了一些面试技巧以及面试时哪些基本礼仪可以为自己加分。杨琪老师重点强调了“STAR”法则，在面试时可以利用法则从背景、任务、行动和结果四个方面来介绍自己，将自己的陈述引向深入，让面试官对你加深印象。\n培训结束后，参赛选手们纷纷表示收获颇丰。杨琪老师对真实求职面试中的具体问题都进行了针对性解答指导，在帮助同学们切实掌握了简历制作的实用知识和技巧的同时，拓宽了职业视野，让他们能更好地适应真实职场的需要，提高个人能力和素质，做好准备迎接即将到来的预决赛！\n（本网编辑：曾如意）\n 上一条：以排球之名，燃青春之火——管理学院积极参加学院排球比赛\n 下一条：管理学院开展“敞开心扉，以赛展彩”第一届心",
+      "locator": {
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "start": 592,
+        "end": 903,
+        "line": 56,
+        "pdfPage": null
+      },
+      "context": "何准备问题上，老师向同学们讲解了一些面试技巧以及面试时哪些基本礼仪可以为自己加分。杨琪老师重点强调了“STAR”法则，在面试时可以利用法则从背景、任务、行动和结果四个方面来介绍自己，将自己的陈述引向深入，让面试官对你加深印象。\n培训结束后，参赛选手们纷纷表示收获颇丰。杨琪老师对真实求职面试中的具体问题都进行了针对性解答指导，在帮助同学们切实掌握了简历制作的实用知识和技巧的同时，拓宽了职业视野，让他们能更好地适应真实职场的需要，提高个人能力和素质，做好准备迎接即将到来的预决赛！\n（本网编辑：曾如意）\n 上一条：以排球之名，燃青春之火——管理学院积极参加学院排球比赛\n 下一条：管理学院开展“敞开心扉，以赛展彩”第一届心",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "a647a6a6f44aaeb5aa5d398c3b24b3cf57fe371c5c586617c17492fc552bf63d"
+    },
+    {
+      "evidence_id": "tsinghua-exam-batch-course-frame-e1",
+      "source_id": "tsinghua-exam-batch",
+      "source_revision": 1,
+      "quote": "因是什么？有什么证据证明或者反驳吗？\n消除你的知识盲点\n复习不仅包括对你所学的知识进行回顾，同时能够系统地帮你发现需要填补的知识盲点：\nØ 积极阅读：写下你对某个问题已知的信息，同时列出你想要知道的其他东西（方法，理论等），在阅读中寻找答案。如果你对某个问题完全不了解，可以先搜索一些概括性的介绍知识（如查阅百科辞典）。\n结合考题进行阅读，以明确这些阅读是否解决了相关问题，是不是对某个疑惑点的解释证明。\nØ 勤于思考而非勤于笔记：读书时最好不要拿着笔，否则你就会有写下所有东西的欲望。尝试着看一部分内容，然后停下来想想它讲了什么， 简略的记下笔记，最后将所有笔记连贯起来进行理解。思考及回忆有助于理解，并且",
+      "locator": {
+        "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+        "start": 887,
+        "end": 1191,
+        "line": 37,
+        "pdfPage": null
+      },
+      "context": "因是什么？有什么证据证明或者反驳吗？\n消除你的知识盲点\n复习不仅包括对你所学的知识进行回顾，同时能够系统地帮你发现需要填补的知识盲点：\nØ 积极阅读：写下你对某个问题已知的信息，同时列出你想要知道的其他东西（方法，理论等），在阅读中寻找答案。如果你对某个问题完全不了解，可以先搜索一些概括性的介绍知识（如查阅百科辞典）。\n结合考题进行阅读，以明确这些阅读是否解决了相关问题，是不是对某个疑惑点的解释证明。\nØ 勤于思考而非勤于笔记：读书时最好不要拿着笔，否则你就会有写下所有东西的欲望。尝试着看一部分内容，然后停下来想想它讲了什么， 简略的记下笔记，最后将所有笔记连贯起来进行理解。思考及回忆有助于理解，并且",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "ee496701163367845209c061aab9f204d560ccc7993a746325d231e94f336880"
+    },
+    {
+      "evidence_id": "tsinghua-exam-batch-exam-diagnosis-e1",
+      "source_id": "tsinghua-exam-batch",
+      "source_revision": 1,
+      "quote": "仔细检查一下问题和答案，防止出现审题或拼写错误。\n与论文写作相比，简答题 要求你的答案简洁、全面而不是在某个话题上长篇大论。\nØ 根据每道简答题的分值将时间按比例分配。\nØ 如果有那种既有简答又有论述的题目，一定要仔细审题，不要漏掉任何一部分。\nØ 努力的回答好每道题目的每个部分，尽可能提高分数，也要注意不要浪费太多时间在分值很少的难题上。\nØ 利用答案中的定义或解释部分来辅助其他需要自己发表看法的部分， 切记不要重复写一遍，指代一下即可。\nØ 如果有个问题让你“简单谈谈”，",
+      "locator": {
+        "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+        "start": 5685,
+        "end": 5925,
+        "line": 136,
+        "pdfPage": null
+      },
+      "context": "仔细检查一下问题和答案，防止出现审题或拼写错误。\n与论文写作相比，简答题 要求你的答案简洁、全面而不是在某个话题上长篇大论。\nØ 根据每道简答题的分值将时间按比例分配。\nØ 如果有那种既有简答又有论述的题目，一定要仔细审题，不要漏掉任何一部分。\nØ 努力的回答好每道题目的每个部分，尽可能提高分数，也要注意不要浪费太多时间在分值很少的难题上。\nØ 利用答案中的定义或解释部分来辅助其他需要自己发表看法的部分， 切记不要重复写一遍，指代一下即可。\nØ 如果有个问题让你“简单谈谈”，",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "bf666bbc62fcabcf544e7d4e3048183d793c1388daef910985df89b6e0d9df28"
+    },
+    {
+      "evidence_id": "ies-learning-batch-retrieval-practice-e1",
+      "source_id": "ies-learning-batch",
+      "source_revision": 1,
+      "quote": "Use quizzing to promote learning. Use pre-questions to introduce a new topic.\n Show More\n Show Less\n 5b\nUse quizzing to promote learning. Use quizzes to re-expose students to key content.\n Show More\n Show Less\n 6a\nHelp students allocate stu",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "start": 860,
+        "end": 1100,
+        "line": 29,
+        "pdfPage": null
+      },
+      "context": "Use quizzing to promote learning. Use pre-questions to introduce a new topic.\n Show More\n Show Less\n 5b\nUse quizzing to promote learning. Use quizzes to re-expose students to key content.\n Show More\n Show Less\n 6a\nHelp students allocate stu",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "3d4645ddc0259c032f536acb72d9877d079e8b70ec27b69b360cee85e28ad1b4"
+    },
+    {
+      "evidence_id": "ies-learning-batch-spaced-review-e1",
+      "source_id": "ies-learning-batch",
+      "source_revision": 1,
+      "quote": "Space learning over time.\n Show More\n Show Less\n 2\n Interleave worked example solutions with problem-solving exercises.\n Show More\n Show Less\n 3\n Combine graphics with verbal descriptions.\n Show More\n Show Less\n 4\n Connect and integrate abs",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "start": 546,
+        "end": 786,
+        "line": 13,
+        "pdfPage": null
+      },
+      "context": "Space learning over time.\n Show More\n Show Less\n 2\n Interleave worked example solutions with problem-solving exercises.\n Show More\n Show Less\n 3\n Combine graphics with verbal descriptions.\n Show More\n Show Less\n 4\n Connect and integrate abs",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "dea97fe5b74b3c19a86eaaf85309f99c3873b0ec6a3be9c576e6aa831807df96"
+    },
+    {
+      "evidence_id": "ies-learning-batch-worked-example-e1",
+      "source_id": "ies-learning-batch",
+      "source_revision": 1,
+      "quote": "Interleave worked example solutions with problem-solving exercises.\n Show More\n Show Less\n 3\n Combine graphics with verbal descriptions.\n Show More\n Show Less\n 4\n Connect and integrate abstract and concrete representations of concepts.\n Sho",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "start": 598,
+        "end": 838,
+        "line": 17,
+        "pdfPage": null
+      },
+      "context": "Interleave worked example solutions with problem-solving exercises.\n Show More\n Show Less\n 3\n Combine graphics with verbal descriptions.\n Show More\n Show Less\n 4\n Connect and integrate abstract and concrete representations of concepts.\n Sho",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "3e79f7f4c53ed4068effc4378f92ef6723effbd69c6e39078559ab061d47de1d"
+    },
+    {
+      "evidence_id": "ies-learning-batch-explain-understanding-e1",
+      "source_id": "ies-learning-batch",
+      "source_revision": 1,
+      "quote": "Ask deep explanatory questions.\n Show More\n Show Less\n Arrange to review key elements of course content after a delay of several weeks to several months after initial presentation.\n Learn More About This Recommendation (995 KB)\n Have studen",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "start": 1390,
+        "end": 1630,
+        "line": 45,
+        "pdfPage": null
+      },
+      "context": "Ask deep explanatory questions.\n Show More\n Show Less\n Arrange to review key elements of course content after a delay of several weeks to several months after initial presentation.\n Learn More About This Recommendation (995 KB)\n Have studen",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "06e6478eb6218cb1ffa229c3ead7c2d0f155e9197d8471efc0093adc68cade05"
+    },
+    {
+      "evidence_id": "tsinghua-efficiency-batch-priority-budget-e1",
+      "source_id": "tsinghua-efficiency-batch",
+      "source_revision": 1,
+      "quote": "PDCA循环\r\n一种针对每天的事务进行管理的工作方法\r\n4D工作法\r\nDo\r\n就是做\r\nDO\r\n就是干\r\nDelete\r\n不要做\r\nDelay\r\n推迟做\r\nDelegate\r\n委派做\r\n短时间内可以完成的事\r\n马上做，不拖延\r\n舍弃一些没有价值的事情\r\n无法委派，短时间做不\r\n完的事情放到待办事项\r\nTo-Do List\r\n委派他人去办，做好跟踪\r\n记录，不要让事件丢失\r\n优先级\r\n1\r\n2\r\n3\r\n4\r\n5\r\n6\r\n今日事件\r\n上课\r\n微积分作业\r\n找老师答疑\r\n学业发展的",
+      "locator": {
+        "url": "https://learning.tsinghua.edu.cn/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+        "start": 5971,
+        "end": 6211,
+        "line": 718,
+        "pdfPage": "PAGE 12"
+      },
+      "context": "PDCA循环\r\n一种针对每天的事务进行管理的工作方法\r\n4D工作法\r\nDo\r\n就是做\r\nDO\r\n就是干\r\nDelete\r\n不要做\r\nDelay\r\n推迟做\r\nDelegate\r\n委派做\r\n短时间内可以完成的事\r\n马上做，不拖延\r\n舍弃一些没有价值的事情\r\n无法委派，短时间做不\r\n完的事情放到待办事项\r\nTo-Do List\r\n委派他人去办，做好跟踪\r\n记录，不要让事件丢失\r\n优先级\r\n1\r\n2\r\n3\r\n4\r\n5\r\n6\r\n今日事件\r\n上课\r\n微积分作业\r\n找老师答疑\r\n学业发展的",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "229ed62b64529eac808c4e7c09eda03d382607ef9686285f68c7f937aedc5ed7"
+    },
+    {
+      "evidence_id": "tsinghua-delay-batch-restart-task-e1",
+      "source_id": "tsinghua-delay-batch",
+      "source_revision": 1,
+      "quote": "逆向日程\r\n逆向日程从工作的最后期限开始，一步一步地往回推演，直到你现在能够集中精\r\n力开始工作的地方。当你感到不知所措的时候， 就要立即运用逆向日程，避免进入“无\r\n从下手——拖延——更加无从下手——继续拖延……的死循环。当你一路上完成多个\r\n次级目标时，除了对项目有着更强的掌控感之外，你还能从外在压力中获得解放，并\r\n拥有一种更为强烈的成就感。本期的最后一页列出了一个完成课程论文的逆向日程的\r\n实例，供读者参考。\r\n● 失败管理\r\n如果你因为害怕而不断拖延，那么请尝试“失",
+      "locator": {
+        "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+        "start": 4931,
+        "end": 5171,
+        "line": 243,
+        "pdfPage": "PAGE 8"
+      },
+      "context": "逆向日程\r\n逆向日程从工作的最后期限开始，一步一步地往回推演，直到你现在能够集中精\r\n力开始工作的地方。当你感到不知所措的时候， 就要立即运用逆向日程，避免进入“无\r\n从下手——拖延——更加无从下手——继续拖延……的死循环。当你一路上完成多个\r\n次级目标时，除了对项目有着更强的掌控感之外，你还能从外在压力中获得解放，并\r\n拥有一种更为强烈的成就感。本期的最后一页列出了一个完成课程论文的逆向日程的\r\n实例，供读者参考。\r\n● 失败管理\r\n如果你因为害怕而不断拖延，那么请尝试“失",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "0123918c8cfe90e56f493c48c11da182245dfffde6392a07373ff5c0edf30e0d"
+    },
+    {
+      "evidence_id": "tsinghua-delay-batch-start-small-e1",
+      "source_id": "tsinghua-delay-batch",
+      "source_revision": 1,
+      "quote": "逆向日程\r\n逆向日程从工作的最后期限开始，一步一步地往回推演，直到你现在能够集中精\r\n力开始工作的地方。当你感到不知所措的时候， 就要立即运用逆向日程，避免进入“无\r\n从下手——拖延——更加无从下手——继续拖延……的死循环。当你一路上完成多个\r\n次级目标时，除了对项目有着更强的掌控感之外，你还能从外在压力中获得解放，并\r\n拥有一种更为强烈的成就感。本期的最后一页列出了一个完成课程论文的逆向日程的\r\n实例，供读者参考。\r\n● 失败管理\r\n如果你因为害怕而不断拖延，那么请尝试“失",
+      "locator": {
+        "url": "https://learning.tsinghua.edu.cn/__local/E/06/1A/144F5F355805DC78E8BD394C2AD_32FE08A7_30B023.pdf",
+        "start": 4931,
+        "end": 5171,
+        "line": 243,
+        "pdfPage": "PAGE 8"
+      },
+      "context": "逆向日程\r\n逆向日程从工作的最后期限开始，一步一步地往回推演，直到你现在能够集中精\r\n力开始工作的地方。当你感到不知所措的时候， 就要立即运用逆向日程，避免进入“无\r\n从下手——拖延——更加无从下手——继续拖延……的死循环。当你一路上完成多个\r\n次级目标时，除了对项目有着更强的掌控感之外，你还能从外在压力中获得解放，并\r\n拥有一种更为强烈的成就感。本期的最后一页列出了一个完成课程论文的逆向日程的\r\n实例，供读者参考。\r\n● 失败管理\r\n如果你因为害怕而不断拖延，那么请尝试“失",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "0123918c8cfe90e56f493c48c11da182245dfffde6392a07373ff5c0edf30e0d"
+    },
+    {
+      "evidence_id": "tsinghua-efficiency-batch-plan-review-e1",
+      "source_id": "tsinghua-efficiency-batch",
+      "source_revision": 1,
+      "quote": "PDCA循环\r\n一种针对每天的事务进行管理的工作方法\r\n4D工作法\r\nDo\r\n就是做\r\nDO\r\n就是干\r\nDelete\r\n不要做\r\nDelay\r\n推迟做\r\nDelegate\r\n委派做\r\n短时间内可以完成的事\r\n马上做，不拖延\r\n舍弃一些没有价值的事情\r\n无法委派，短时间做不\r\n完的事情放到待办事项\r\nTo-Do List\r\n委派他人去办，做好跟踪\r\n记录，不要让事件丢失\r\n优先级\r\n1\r\n2\r\n3\r\n4\r\n5\r\n6\r\n今日事件\r\n上课\r\n微积分作业\r\n找老师答疑\r\n学业发展的",
+      "locator": {
+        "url": "https://learning.tsinghua.edu.cn/__local/5/04/73/3EBF58BFBF41DBBA7DC0E11CA02_E403BDE9_112E513.pdf",
+        "start": 5971,
+        "end": 6211,
+        "line": 718,
+        "pdfPage": "PAGE 12"
+      },
+      "context": "PDCA循环\r\n一种针对每天的事务进行管理的工作方法\r\n4D工作法\r\nDo\r\n就是做\r\nDO\r\n就是干\r\nDelete\r\n不要做\r\nDelay\r\n推迟做\r\nDelegate\r\n委派做\r\n短时间内可以完成的事\r\n马上做，不拖延\r\n舍弃一些没有价值的事情\r\n无法委派，短时间做不\r\n完的事情放到待办事项\r\nTo-Do List\r\n委派他人去办，做好跟踪\r\n记录，不要让事件丢失\r\n优先级\r\n1\r\n2\r\n3\r\n4\r\n5\r\n6\r\n今日事件\r\n上课\r\n微积分作业\r\n找老师答疑\r\n学业发展的",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "229ed62b64529eac808c4e7c09eda03d382607ef9686285f68c7f937aedc5ed7"
+    },
+    {
+      "evidence_id": "yangtze-star-batch-experience-evidence-e1",
+      "source_id": "yangtze-star-batch",
+      "source_revision": 1,
+      "quote": "何准备问题上，老师向同学们讲解了一些面试技巧以及面试时哪些基本礼仪可以为自己加分。杨琪老师重点强调了“STAR”法则，在面试时可以利用法则从背景、任务、行动和结果四个方面来介绍自己，将自己的陈述引向深入，让面试官对你加深印象。\n培训结束后，参赛选手们纷纷表示收获颇丰。杨琪老师对真实求职面试中的具体问题都进行了针对性解答指导，在帮助同学们切实掌握了简历制作的实用知识和技巧的同时，拓宽了职业视野，让他们能更好地适应真实职场的需要，提高个人能力和素质，做好准备迎接即将到来的预决赛！\n（本网编辑：曾如意）\n 上一条：以排球之名，燃青春之火——管理学院积极参加学院排球比赛\n 下一条：管理学院开展“敞开心扉，以赛展彩”第一届心",
+      "locator": {
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "start": 592,
+        "end": 903,
+        "line": 56,
+        "pdfPage": null
+      },
+      "context": "何准备问题上，老师向同学们讲解了一些面试技巧以及面试时哪些基本礼仪可以为自己加分。杨琪老师重点强调了“STAR”法则，在面试时可以利用法则从背景、任务、行动和结果四个方面来介绍自己，将自己的陈述引向深入，让面试官对你加深印象。\n培训结束后，参赛选手们纷纷表示收获颇丰。杨琪老师对真实求职面试中的具体问题都进行了针对性解答指导，在帮助同学们切实掌握了简历制作的实用知识和技巧的同时，拓宽了职业视野，让他们能更好地适应真实职场的需要，提高个人能力和素质，做好准备迎接即将到来的预决赛！\n（本网编辑：曾如意）\n 上一条：以排球之名，燃青春之火——管理学院积极参加学院排球比赛\n 下一条：管理学院开展“敞开心扉，以赛展彩”第一届心",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "a647a6a6f44aaeb5aa5d398c3b24b3cf57fe371c5c586617c17492fc552bf63d"
+    },
+    {
+      "evidence_id": "ecnu-literature-batch-research-reading-e1",
+      "source_id": "ecnu-literature-batch",
+      "source_revision": 1,
+      "quote": "三篇论文让大家按照自己的想法给三篇论文排个序，并帮助大家简单分析三篇论文的结构让大家直观感受文献综述的优劣。黄老师从“文献综述三问”---“如何查找文献”，“如何整理文献”，“如何评论”三部分展开讲解。如何查找文献？黄老师为同学们提供了文献资料来源的多种渠道，指出百度百科等非官方资料的不严谨，为大家推荐了常用的数据库资源，鼓励大家向图书馆学习查阅资料的方法，参与图书馆的培训与课程。在提高搜索和阅读效率的技巧方面，黄老师建议：寻找精准的关键词、限制期刊类型（C刊优先）、关注文献的时效性和权威性、关注他人的文献综述、关注参考文献，以及选择30-50篇核心文献阅读。黄老师还为大家推荐了网络学术搜索工具并提供一些",
+      "locator": {
+        "url": "https://soci.ecnu.edu.cn/af/61/c10712a438113/page.htm",
+        "start": 588,
+        "end": 894,
+        "line": 49,
+        "pdfPage": null
+      },
+      "context": "三篇论文让大家按照自己的想法给三篇论文排个序，并帮助大家简单分析三篇论文的结构让大家直观感受文献综述的优劣。黄老师从“文献综述三问”---“如何查找文献”，“如何整理文献”，“如何评论”三部分展开讲解。如何查找文献？黄老师为同学们提供了文献资料来源的多种渠道，指出百度百科等非官方资料的不严谨，为大家推荐了常用的数据库资源，鼓励大家向图书馆学习查阅资料的方法，参与图书馆的培训与课程。在提高搜索和阅读效率的技巧方面，黄老师建议：寻找精准的关键词、限制期刊类型（C刊优先）、关注文献的时效性和权威性、关注他人的文献综述、关注参考文献，以及选择30-50篇核心文献阅读。黄老师还为大家推荐了网络学术搜索工具并提供一些",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "bcad316f40985c97f7b43c0a2ff42f2322d83c8b960997bcf13cca44dc3c6b9f"
+    },
+    {
+      "evidence_id": "nankai-team-batch-research-task-e1",
+      "source_id": "nankai-team-batch",
+      "source_revision": 1,
+      "quote": "只有清楚团队的目标才能确定团队要完成的工作，进而根据工作进一步分工协作。基于此王老师还对团队中包含的其余4个要素——人、定位、权限、计划，以及团队中的角色——梦想家、批评家、实干家进行了详细解释，并展开说明其在团队中的位置和作用。\n　　与此同时，王老师通过左右手写字的现实例子，引入了“偏好”这一词汇，并通过简单通俗的语言，让同学们更加深入地理解了偏好的利用可能对团队协作产生的种种影响。为了进一步让同学们了解偏好在每个人自身的情况，进一步指导同学们进行相关的性格偏好测试，让同学",
+      "locator": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "start": 359,
+        "end": 599,
+        "line": 15,
+        "pdfPage": null
+      },
+      "context": "只有清楚团队的目标才能确定团队要完成的工作，进而根据工作进一步分工协作。基于此王老师还对团队中包含的其余4个要素——人、定位、权限、计划，以及团队中的角色——梦想家、批评家、实干家进行了详细解释，并展开说明其在团队中的位置和作用。\n　　与此同时，王老师通过左右手写字的现实例子，引入了“偏好”这一词汇，并通过简单通俗的语言，让同学们更加深入地理解了偏好的利用可能对团队协作产生的种种影响。为了进一步让同学们了解偏好在每个人自身的情况，进一步指导同学们进行相关的性格偏好测试，让同学",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "54e4226a1419680e87d6e91245fca1c87976a5415ea9640cb6974b295c0b9f37"
+    },
+    {
+      "evidence_id": "shu-career-choice-batch-direction-comparison-e1",
+      "source_id": "shu-career-choice-batch",
+      "source_revision": 1,
+      "quote": "决策平衡单的使用方法。研三同学运用自己手上的具体offer进行实操分析，均表示运用平衡单能更直观的看出每个选择的优缺点，从而对自己的就业选择做出最佳决策。向东华老师带来的这场分享为许多面临工作抉择和未来规划不清晰的同学提供了宝贵的建议和启示，在沙龙的最后，向老师也对同学们提出的问题一一答疑解惑。通过本次沙龙，同学们向内剖析清晰自己的价值取向，向外学会运用有效工具做出最佳抉择，充分领悟到了无论面临怎样的困难选择，坚持初心继续奋斗、保持积极人生态度的力量。\n 上一条：【学工】 自",
+      "locator": {
+        "url": "https://auto.shu.edu.cn/info/1126/77312.htm",
+        "start": 1130,
+        "end": 1370,
+        "line": 81,
+        "pdfPage": null
+      },
+      "context": "决策平衡单的使用方法。研三同学运用自己手上的具体offer进行实操分析，均表示运用平衡单能更直观的看出每个选择的优缺点，从而对自己的就业选择做出最佳决策。向东华老师带来的这场分享为许多面临工作抉择和未来规划不清晰的同学提供了宝贵的建议和启示，在沙龙的最后，向老师也对同学们提出的问题一一答疑解惑。通过本次沙龙，同学们向内剖析清晰自己的价值取向，向外学会运用有效工具做出最佳抉择，充分领悟到了无论面临怎样的困难选择，坚持初心继续奋斗、保持积极人生态度的力量。\n 上一条：【学工】 自",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "d2f14dfd9b11e3650f8720034f2e1dbeb828d14597441fb8195c4dd2dbc2f6cf"
+    },
+    {
+      "evidence_id": "yangtze-star-batch-application-match-e1",
+      "source_id": "yangtze-star-batch",
+      "source_revision": 1,
+      "quote": "何准备问题上，老师向同学们讲解了一些面试技巧以及面试时哪些基本礼仪可以为自己加分。杨琪老师重点强调了“STAR”法则，在面试时可以利用法则从背景、任务、行动和结果四个方面来介绍自己，将自己的陈述引向深入，让面试官对你加深印象。\n培训结束后，参赛选手们纷纷表示收获颇丰。杨琪老师对真实求职面试中的具体问题都进行了针对性解答指导，在帮助同学们切实掌握了简历制作的实用知识和技巧的同时，拓宽了职业视野，让他们能更好地适应真实职场的需要，提高个人能力和素质，做好准备迎接即将到来的预决赛！\n（本网编辑：曾如意）\n 上一条：以排球之名，燃青春之火——管理学院积极参加学院排球比赛\n 下一条：管理学院开展“敞开心扉，以赛展彩”第一届心",
+      "locator": {
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "start": 592,
+        "end": 903,
+        "line": 56,
+        "pdfPage": null
+      },
+      "context": "何准备问题上，老师向同学们讲解了一些面试技巧以及面试时哪些基本礼仪可以为自己加分。杨琪老师重点强调了“STAR”法则，在面试时可以利用法则从背景、任务、行动和结果四个方面来介绍自己，将自己的陈述引向深入，让面试官对你加深印象。\n培训结束后，参赛选手们纷纷表示收获颇丰。杨琪老师对真实求职面试中的具体问题都进行了针对性解答指导，在帮助同学们切实掌握了简历制作的实用知识和技巧的同时，拓宽了职业视野，让他们能更好地适应真实职场的需要，提高个人能力和素质，做好准备迎接即将到来的预决赛！\n（本网编辑：曾如意）\n 上一条：以排球之名，燃青春之火——管理学院积极参加学院排球比赛\n 下一条：管理学院开展“敞开心扉，以赛展彩”第一届心",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "a647a6a6f44aaeb5aa5d398c3b24b3cf57fe371c5c586617c17492fc552bf63d"
+    },
+    {
+      "evidence_id": "yangtze-star-batch-project-story-e1",
+      "source_id": "yangtze-star-batch",
+      "source_revision": 1,
+      "quote": "何准备问题上，老师向同学们讲解了一些面试技巧以及面试时哪些基本礼仪可以为自己加分。杨琪老师重点强调了“STAR”法则，在面试时可以利用法则从背景、任务、行动和结果四个方面来介绍自己，将自己的陈述引向深入，让面试官对你加深印象。\n培训结束后，参赛选手们纷纷表示收获颇丰。杨琪老师对真实求职面试中的具体问题都进行了针对性解答指导，在帮助同学们切实掌握了简历制作的实用知识和技巧的同时，拓宽了职业视野，让他们能更好地适应真实职场的需要，提高个人能力和素质，做好准备迎接即将到来的预决赛！\n（本网编辑：曾如意）\n 上一条：以排球之名，燃青春之火——管理学院积极参加学院排球比赛\n 下一条：管理学院开展“敞开心扉，以赛展彩”第一届心",
+      "locator": {
+        "url": "https://wlxy.yangtzeu.edu.cn/gsgl/info/1094/5348.htm",
+        "start": 592,
+        "end": 903,
+        "line": 56,
+        "pdfPage": null
+      },
+      "context": "何准备问题上，老师向同学们讲解了一些面试技巧以及面试时哪些基本礼仪可以为自己加分。杨琪老师重点强调了“STAR”法则，在面试时可以利用法则从背景、任务、行动和结果四个方面来介绍自己，将自己的陈述引向深入，让面试官对你加深印象。\n培训结束后，参赛选手们纷纷表示收获颇丰。杨琪老师对真实求职面试中的具体问题都进行了针对性解答指导，在帮助同学们切实掌握了简历制作的实用知识和技巧的同时，拓宽了职业视野，让他们能更好地适应真实职场的需要，提高个人能力和素质，做好准备迎接即将到来的预决赛！\n（本网编辑：曾如意）\n 上一条：以排球之名，燃青春之火——管理学院积极参加学院排球比赛\n 下一条：管理学院开展“敞开心扉，以赛展彩”第一届心",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "a647a6a6f44aaeb5aa5d398c3b24b3cf57fe371c5c586617c17492fc552bf63d"
+    },
+    {
+      "evidence_id": "mit-job-interview-batch-job-feedback-e1",
+      "source_id": "mit-job-interview-batch",
+      "source_revision": 1,
+      "quote": " 1. Know MIT’s Recruiting Policies and Expectations. \nWhether you are interviewing through On-Campus Recruiting or not, be sure to know your recruiting rights and responsibilities before you interview.\nYou should also be aware of the recruiting policies and procedures expected for employers.\nIf you have ques",
+      "locator": {
+        "url": "https://capd.mit.edu/resources/interviewing/",
+        "start": 1,
+        "end": 310,
+        "line": 2,
+        "pdfPage": null
+      },
+      "context": " 1. Know MIT’s Recruiting Policies and Expectations. \nWhether you are interviewing through On-Campus Recruiting or not, be sure to know your recruiting rights and responsibilities before you interview.\nYou should also be aware of the recruiting policies and procedures expected for employers.\nIf you have ques",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "80b41e405dc8251d9594652b9cabf0aeb52e780dc7b50d01a1a8374132f0c011"
+    },
+    {
+      "evidence_id": "csu-interview-clarify-batch-interview-unknown-e1",
+      "source_id": "csu-interview-clarify-batch",
+      "source_revision": 1,
+      "quote": "    (3) 确认提问内容，切忌答非所问。面试中，如果对用人单位提出的问题，一时摸不到边际，以致不知从何答起或难以理解对方问题的含义时，可将问题复述一遍，并先谈自己对这一问题的理解，请教对方以确认内容。对不太明确的问题，一定要搞清楚，这样才会有的放矢，不致答非所问。 \n    (4) 有个人见解，有个人特色。用人单位有时接待应试者若干名，相同的问题问若干遍，类似的回答也要听若干遍。因此，用人单位会有乏味、枯燥之感。只有具有独到的个人见解和个人特色的回答，才会引起对方的兴趣和注意。 \n    (5) 知之为知之，不知为不知。面试遇到自己不知、不懂、不会的问题时，回避闪烁，默不作声，牵强附会，不懂装懂的做",
+      "locator": {
+        "url": "https://mpb.csu.edu.cn/info/1116/1271.htm",
+        "start": 1467,
+        "end": 1772,
+        "line": 36,
+        "pdfPage": null
+      },
+      "context": "    (3) 确认提问内容，切忌答非所问。面试中，如果对用人单位提出的问题，一时摸不到边际，以致不知从何答起或难以理解对方问题的含义时，可将问题复述一遍，并先谈自己对这一问题的理解，请教对方以确认内容。对不太明确的问题，一定要搞清楚，这样才会有的放矢，不致答非所问。 \n    (4) 有个人见解，有个人特色。用人单位有时接待应试者若干名，相同的问题问若干遍，类似的回答也要听若干遍。因此，用人单位会有乏味、枯燥之感。只有具有独到的个人见解和个人特色的回答，才会引起对方的兴趣和注意。 \n    (5) 知之为知之，不知为不知。面试遇到自己不知、不懂、不会的问题时，回避闪烁，默不作声，牵强附会，不懂装懂的做",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "ddd1332216f64dcf9576df03cac4e6af9fdaf9848b38bd3b191f6348cb1d6a34"
+    },
+    {
+      "evidence_id": "sufe-product-case-batch-user-interview-e1",
+      "source_id": "sufe-product-case-batch",
+      "source_revision": 1,
+      "quote": "最小可行性产品，聚焦于最小级别的产品功能与早期天使用户（Ries，2011；龚焱，2015）；在最短时间内对其进行测量，以最小的成本验证产品是否符合用户需求；基于用户反馈的数据，开展验证性学习，从而做出坚持、转向或终止的决策。如需进行转向，基于验证性学习获得的认知再提出新的假说（Maurya，2012）。利用客户反馈迭代开发产品（Npdp Ma H，2011），可以消除由认知偏差造成的资源浪费。对于符合标准商品假设的产品而言，市场需求是明确的，产品与用户匹配围绕市场痛点、功能",
+      "locator": {
+        "url": "https://qks.sufe.edu.cn/mv_html/j00002/202107/17097900-7129-41e1-8c5f-61cdfa17bf3e_WEB.htm",
+        "start": 7063,
+        "end": 7303,
+        "line": 43,
+        "pdfPage": null
+      },
+      "context": "最小可行性产品，聚焦于最小级别的产品功能与早期天使用户（Ries，2011；龚焱，2015）；在最短时间内对其进行测量，以最小的成本验证产品是否符合用户需求；基于用户反馈的数据，开展验证性学习，从而做出坚持、转向或终止的决策。如需进行转向，基于验证性学习获得的认知再提出新的假说（Maurya，2012）。利用客户反馈迭代开发产品（Npdp Ma H，2011），可以消除由认知偏差造成的资源浪费。对于符合标准商品假设的产品而言，市场需求是明确的，产品与用户匹配围绕市场痛点、功能",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "2d75358613d847c85f22b43f47d327980b0d0e4139cee655b40e00bd84fde8ff"
+    },
+    {
+      "evidence_id": "sufe-product-case-batch-prototype-test-e1",
+      "source_id": "sufe-product-case-batch",
+      "source_revision": 1,
+      "quote": "最小可行性产品，聚焦于最小级别的产品功能与早期天使用户（Ries，2011；龚焱，2015）；在最短时间内对其进行测量，以最小的成本验证产品是否符合用户需求；基于用户反馈的数据，开展验证性学习，从而做出坚持、转向或终止的决策。如需进行转向，基于验证性学习获得的认知再提出新的假说（Maurya，2012）。利用客户反馈迭代开发产品（Npdp Ma H，2011），可以消除由认知偏差造成的资源浪费。对于符合标准商品假设的产品而言，市场需求是明确的，产品与用户匹配围绕市场痛点、功能",
+      "locator": {
+        "url": "https://qks.sufe.edu.cn/mv_html/j00002/202107/17097900-7129-41e1-8c5f-61cdfa17bf3e_WEB.htm",
+        "start": 7063,
+        "end": 7303,
+        "line": 43,
+        "pdfPage": null
+      },
+      "context": "最小可行性产品，聚焦于最小级别的产品功能与早期天使用户（Ries，2011；龚焱，2015）；在最短时间内对其进行测量，以最小的成本验证产品是否符合用户需求；基于用户反馈的数据，开展验证性学习，从而做出坚持、转向或终止的决策。如需进行转向，基于验证性学习获得的认知再提出新的假说（Maurya，2012）。利用客户反馈迭代开发产品（Npdp Ma H，2011），可以消除由认知偏差造成的资源浪费。对于符合标准商品假设的产品而言，市场需求是明确的，产品与用户匹配围绕市场痛点、功能",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "2d75358613d847c85f22b43f47d327980b0d0e4139cee655b40e00bd84fde8ff"
+    },
+    {
+      "evidence_id": "gov-budget-tool-batch-income-ledger-e1",
+      "source_id": "gov-budget-tool-batch",
+      "source_revision": 1,
+      "quote": "Tracking Income and Benefits\n Paying Bills\n Getting through the Month\n Dealing with Debt\n Understanding Credit Reports and Scores\n Choosing Financial Products and Services\n Protecting your Money\nStarting the Money Conversation\n Description\n",
+      "locator": {
+        "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+        "start": 1149,
+        "end": 1389,
+        "line": 18,
+        "pdfPage": null
+      },
+      "context": "Tracking Income and Benefits\n Paying Bills\n Getting through the Month\n Dealing with Debt\n Understanding Credit Reports and Scores\n Choosing Financial Products and Services\n Protecting your Money\nStarting the Money Conversation\n Description\n",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "05a1f64c30265211d6af5f1ba4dc1b51524048677680df0cbac0b20935ad6413"
+    },
+    {
+      "evidence_id": "htu-content-feedback-batch-content-experiment-e1",
+      "source_id": "htu-content-feedback-batch",
+      "source_revision": 1,
+      "quote": "重视传播效果与受众反馈，让新闻兼具信息价值与情绪价值。针对“好”新闻的标准，夏冰提出应满足真实、新颖、准确、语言精练、提供价值这五项基本要求。他表明，新闻真相并非孤立事件，而是结合事件背景、呈现完整全貌的整体真实。在新闻创作中，夏冰表示要杜绝道听途说与虚假摆拍，语言表达力求具象化与言之有物，善于运用数据与细节还原现场，始终恪守客观严谨的创作原则。本次专题培训紧扣校园新闻实践，以理论讲解搭配案例分析，为学院融媒体中心成员系统掌握新闻写作方法、提升专业实践能力提供了清晰而实用的指",
+      "locator": {
+        "url": "https://www.htu.edu.cn/stu/2026/0423/c9611a381156/page.htm",
+        "start": 575,
+        "end": 815,
+        "line": 26,
+        "pdfPage": null
+      },
+      "context": "重视传播效果与受众反馈，让新闻兼具信息价值与情绪价值。针对“好”新闻的标准，夏冰提出应满足真实、新颖、准确、语言精练、提供价值这五项基本要求。他表明，新闻真相并非孤立事件，而是结合事件背景、呈现完整全貌的整体真实。在新闻创作中，夏冰表示要杜绝道听途说与虚假摆拍，语言表达力求具象化与言之有物，善于运用数据与细节还原现场，始终恪守客观严谨的创作原则。本次专题培训紧扣校园新闻实践，以理论讲解搭配案例分析，为学院融媒体中心成员系统掌握新闻写作方法、提升专业实践能力提供了清晰而实用的指",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "c8e6e9816445ba9ad8bd2c2309c1d0d79b4e48816865e7cdc0c4bd9069bd28d9"
+    },
+    {
+      "evidence_id": "nankai-team-batch-team-contract-e1",
+      "source_id": "nankai-team-batch",
+      "source_revision": 1,
+      "quote": "只有清楚团队的目标才能确定团队要完成的工作，进而根据工作进一步分工协作。基于此王老师还对团队中包含的其余4个要素——人、定位、权限、计划，以及团队中的角色——梦想家、批评家、实干家进行了详细解释，并展开说明其在团队中的位置和作用。\n　　与此同时，王老师通过左右手写字的现实例子，引入了“偏好”这一词汇，并通过简单通俗的语言，让同学们更加深入地理解了偏好的利用可能对团队协作产生的种种影响。为了进一步让同学们了解偏好在每个人自身的情况，进一步指导同学们进行相关的性格偏好测试，让同学",
+      "locator": {
+        "url": "https://news.nankai.edu.cn/dcxy/system/2020/04/12/030038707.shtml",
+        "start": 359,
+        "end": 599,
+        "line": 15,
+        "pdfPage": null
+      },
+      "context": "只有清楚团队的目标才能确定团队要完成的工作，进而根据工作进一步分工协作。基于此王老师还对团队中包含的其余4个要素——人、定位、权限、计划，以及团队中的角色——梦想家、批评家、实干家进行了详细解释，并展开说明其在团队中的位置和作用。\n　　与此同时，王老师通过左右手写字的现实例子，引入了“偏好”这一词汇，并通过简单通俗的语言，让同学们更加深入地理解了偏好的利用可能对团队协作产生的种种影响。为了进一步让同学们了解偏好在每个人自身的情况，进一步指导同学们进行相关的性格偏好测试，让同学",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "54e4226a1419680e87d6e91245fca1c87976a5415ea9640cb6974b295c0b9f37"
+    },
+    {
+      "evidence_id": "sdu-boundaries-batch-boundary-request-e1",
+      "source_id": "sdu-boundaries-batch",
+      "source_revision": 1,
+      "quote": "地”不被侵扰。在两种观念的碰撞中，我们很难单一地指责某一方，也不能带着个人的揣测由此对舍友产生偏见，激化矛盾。\n 因此，这种情况下就需要我们明确表达自己的诉求，敞开心扉地与舍友交谈，主动与舍友进行协商，共同建立宿舍个人学习、生活的边界。有了明确的宿舍规则和边界划分，也会减少相互间的恶意揣测和无意义内耗。同时，对于让自己不舒服的行为，也可以通过幽默、反问等手段巧妙化解，无形中提醒对方注意边界和分寸。\n“有边界但没有隔阂”，每一段和谐关系的建立都是双向奔赴的，希望我们都能在宿舍关系中找到让自己舒适的相处模式，收获圆满而快乐的宿舍生活。\n参考资料：\n[1]王昕迪,胡鹏辉.边界感：现代社会青年社交需求及其建构[J].中",
+      "locator": {
+        "url": "https://www.xljk.sdu.edu.cn/info/1008/10852.htm",
+        "start": 1228,
+        "end": 1537,
+        "line": 49,
+        "pdfPage": null
+      },
+      "context": "地”不被侵扰。在两种观念的碰撞中，我们很难单一地指责某一方，也不能带着个人的揣测由此对舍友产生偏见，激化矛盾。\n 因此，这种情况下就需要我们明确表达自己的诉求，敞开心扉地与舍友交谈，主动与舍友进行协商，共同建立宿舍个人学习、生活的边界。有了明确的宿舍规则和边界划分，也会减少相互间的恶意揣测和无意义内耗。同时，对于让自己不舒服的行为，也可以通过幽默、反问等手段巧妙化解，无形中提醒对方注意边界和分寸。\n“有边界但没有隔阂”，每一段和谐关系的建立都是双向奔赴的，希望我们都能在宿舍关系中找到让自己舒适的相处模式，收获圆满而快乐的宿舍生活。\n参考资料：\n[1]王昕迪,胡鹏辉.边界感：现代社会青年社交需求及其建构[J].中",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "897c5165a2803d344f2f91b5f1361387669addfe0dd7445c944030b6ae6ecf24"
+    },
+    {
+      "evidence_id": "situ-recovery-batch-recovery-support-e1",
+      "source_id": "situ-recovery-batch",
+      "source_revision": 1,
+      "quote": "晰。同时，不断追求目标也会让你更加充实和满足。\n三、平衡生活，享受每一刻\n健康的生活方式是保持良好心态的基础。学会时间管理，确保自己有足够的休息、运动、社交、学习和娱乐时间，避免过度压抑和焦虑。开学前参加一些兴趣小组或志愿服务活动，丰富自己的生活内容，与他人分享快乐和成长。这样，你不仅能够更好地适应学校生活，还能结交到更多志同道合的朋友。\n四、自我调适，成为情绪的主人\n自我调适是大学生活中不可或缺的一项技能。当遇到挫折或困难时，尝试以积极的心态去面对它们。通过改变认知、深呼吸、冥想或运动等方式来放松自己，缓解负面情绪。同时，也要学会倾听自己的内心声音，了解自己的需求和渴望，从而更好地满足自己。\n五",
+      "locator": {
+        "url": "https://xlzx.situ.edu.cn/info/1079/2963.htm",
+        "start": 507,
+        "end": 809,
+        "line": 28,
+        "pdfPage": null
+      },
+      "context": "晰。同时，不断追求目标也会让你更加充实和满足。\n三、平衡生活，享受每一刻\n健康的生活方式是保持良好心态的基础。学会时间管理，确保自己有足够的休息、运动、社交、学习和娱乐时间，避免过度压抑和焦虑。开学前参加一些兴趣小组或志愿服务活动，丰富自己的生活内容，与他人分享快乐和成长。这样，你不仅能够更好地适应学校生活，还能结交到更多志同道合的朋友。\n四、自我调适，成为情绪的主人\n自我调适是大学生活中不可或缺的一项技能。当遇到挫折或困难时，尝试以积极的心态去面对它们。通过改变认知、深呼吸、冥想或运动等方式来放松自己，缓解负面情绪。同时，也要学会倾听自己的内心声音，了解自己的需求和渴望，从而更好地满足自己。\n五",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "780d57203e6959cdcde337e682ea156eab64bf5981d79b589f27b7e0a45959bf"
+    },
+    {
+      "evidence_id": "ncsc-phishing-batch-information-check-e1",
+      "source_id": "ncsc-phishing-batch",
+      "source_revision": 1,
+      "quote": "'Phishing' is when criminals use scam emails, text messages or phone calls to trick their victims. The aim is often to make you visit a website, which may download a virus onto your computer, or steal bank details or other personal informat",
+      "locator": {
+        "url": "https://www.ncsc.gov.uk/collection/phishing-scams",
+        "start": 275,
+        "end": 515,
+        "line": 1,
+        "pdfPage": null
+      },
+      "context": "'Phishing' is when criminals use scam emails, text messages or phone calls to trick their victims. The aim is often to make you visit a website, which may download a virus onto your computer, or steal bank details or other personal informat",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "c94faea06609dc82ff5e5e06e8f12def3cf2415d8198e59afbc666e7e4aadb0d"
+    },
+    {
+      "evidence_id": "career-author-followup-e1",
+      "source_id": "career-author-followup",
+      "source_revision": 1,
+      "quote": "同时思考，为什么选择这个人访谈，选择访谈对象的标准是什么？",
+      "locator": {
+        "url": "http://www.tianxingacademy.com/specialcolumn/details_15_351.html",
+        "normalizedBodySha256": "f75bcd6129cee5bf5da5280bc87b7692f39d4ad99351f25204b5b8c46f5f6ace",
+        "normalization": "EXTRACTED_HTML_BLOCK_LINES",
+        "start": 912,
+        "end": 941,
+        "line": 37,
+        "pdfPage": null
+      },
+      "context": "作者报告自己在清华生涯课共同设计访谈问题的教学经验；支持按本人疑问选择对象和问题，不是适配效果研究。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "86338d0d65f6814bc36edce138e0a6bb1f0ce6beec3fc39c72ac65c678279f10"
+    },
+    {
+      "evidence_id": "pg-first-users-followup-e1",
+      "source_id": "pg-first-users-followup",
+      "source_revision": 1,
+      "quote": "The most common unscalable thing founders have to do at the start is to recruit users manually.",
+      "locator": {
+        "url": "https://paulgraham.com/ds.html",
+        "normalizedBodySha256": "1bcd114fc4a6e2d179feb11403c78b89522f5d83c7282f39ba0bb83add9405dd",
+        "normalization": "EXTRACTED_LINES_JOINED_WITH_SPACE",
+        "start": 837,
+        "end": 932,
+        "line": 1,
+        "pdfPage": null
+      },
+      "context": "创业作者关于早期寻找使用者的经验性建议；只作人工接触线索，不套用增长数字。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "e824f4bbfb6bee11c03809ab9cf1b1f2412147ead52c2d62f4ea25c0678bf95a"
+    },
+    {
+      "evidence_id": "pg-startup-ideas-followup-e1",
+      "source_id": "pg-startup-ideas-followup",
+      "source_revision": 1,
+      "quote": "I invented a model of the world that didn't correspond to reality, and worked from that.",
+      "locator": {
+        "url": "https://paulgraham.com/startupideas.html",
+        "normalizedBodySha256": "7ed005206b817a5ea6c27e946f598e8db041af5dae3ca796c9d6fc3da6792232",
+        "normalization": "EXTRACTED_LINES_JOINED_WITH_SPACE",
+        "start": 1011,
+        "end": 1099,
+        "line": 1,
+        "pdfPage": null
+      },
+      "context": "作者反省自己的画廊网站项目没有充分注意用户；是本人失败经验，非一般因果证明。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "e73acceb458ef4735bec6c3e44a26bed72c76009d8e3eb984d58f3a773052b0c"
+    },
+    {
+      "evidence_id": "atlassian-roles-followup-e1",
+      "source_id": "atlassian-roles-followup",
+      "source_revision": 1,
+      "quote": "Any responsibilities that remain unclaimed or unaccepted are relocated to the unassigned section.",
+      "locator": {
+        "url": "https://www.atlassian.com/team-playbook/plays/roles-and-responsibilities",
+        "normalizedBodySha256": "4e907a655146f651f9d8469831ce5112905808f9be5beb7e1283f4270536d1c4",
+        "normalization": "EXTRACTED_HTML_BLOCK_LINES",
+        "start": 10166,
+        "end": 10263,
+        "line": 300,
+        "pdfPage": null
+      },
+      "context": "团队工作中核对角色、自认职责、他人预期和未认领事项的原始操作指南。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "cb29358586211d663544329bd4074817309fb639b7f3e802ac536586dfbc5c0a"
+    },
+    {
+      "evidence_id": "atlassian-retro-followup-e1",
+      "source_id": "atlassian-retro-followup",
+      "source_revision": 1,
+      "quote": "As you document changes and action items, be sure to assign owners and deadlines to kickstart progress.",
+      "locator": {
+        "url": "https://www.atlassian.com/team-playbook/plays/retrospective",
+        "normalizedBodySha256": "553fe1241bba28c5e270738bae310b4b701856a6d59ac5ce8080c512b0abdb20",
+        "normalization": "EXTRACTED_HTML_BLOCK_LINES",
+        "start": 14245,
+        "end": 14348,
+        "line": 327,
+        "pdfPage": null
+      },
+      "context": "团队迭代复盘中记录实际反馈并给改进行动确定责任与节点；校园协作为编辑迁移。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "82609bf4f9a5b96523eb860b1ca3533638c1d3bfd6b8856dc63d7ff03b25541a"
+    },
+    {
+      "evidence_id": "pku-recommendation-branch-20261011-e1",
+      "source_id": "pku-recommendation-branch-20261011",
+      "source_revision": 1,
+      "quote": "所说内容必须有根据",
+      "locator": {
+        "url": "https://math.pku.edu.cn/teachers/dayue/Homepage/recommendation.htm",
+        "normalization": "HTMLParser BLOCKS whitespace collapsed",
+        "normalizedBodySha256": "ff9c1bed86b081ba55a008d4969de5a72b67f6c497581d9ec06a87340865096d",
+        "start": 135,
+        "end": 144,
+        "line": 4
+      },
+      "context": "该教师个人说明要求推荐材料有事实依据；不是北大或所有推荐人的统一规定。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "bdd561f46e29dc95df4fc01b0f15a856a061db5138406068a2b5f4cfb5cdcab7"
+    },
+    {
+      "evidence_id": "ustc-mentor-choice-branch-20261011-e1",
+      "source_id": "ustc-mentor-choice-branch-20261011",
+      "source_revision": 1,
+      "quote": "咨询一下这位导师曾经的学生",
+      "locator": {
+        "url": "https://faculty.ustc.edu.cn/yqliang/files/teaching.htm",
+        "normalization": "HTMLParser BLOCKS whitespace collapsed",
+        "normalizedBodySha256": "123c5fb8d5ef5bc2e90bea773702790e304d941564a6f1cd2b7e232e6f9c2c4e",
+        "start": 4577,
+        "end": 4590,
+        "line": 98
+      },
+      "context": "作者明示为个人看法，选择导师时可向其曾经的学生了解指导方式。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "50c2d74c4a0e4a4f5c7cee25dbaee45e97b443da3c5a6ad3b2df6c9f0d990cd9"
+    },
+    {
+      "evidence_id": "tsinghua-exam-reflection-20261011-e1",
+      "source_id": "tsinghua-exam-reflection-20261011",
+      "source_revision": 1,
+      "quote": "不要参考笔记， 做完之后回想自己遇到的困难，思考应该如何去解决。",
+      "locator": {
+        "url": "https://learning.tsinghua.edu.cn/xxyfzzy/wdxkszzb.htm",
+        "line": 50,
+        "start": 1769,
+        "end": 1801,
+        "normalizedBodySha256": "176d0ed91a67c7eefc19d28b6898a633f066a45b30385cc5e653ade386ede019"
+      },
+      "context": "高校公开考试准备指导中限时练习后的回顾困难建议；不是因果诊断、分数提升效果或科研方法证据。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_BODY_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "76a7161bb7ad23050c570fc8c1218300f5e055a2cf629bbaa4ac3880de1fe128"
+    },
+    {
+      "evidence_id": "upwork-close-review-20261011-e1",
+      "source_id": "upwork-close-review-20261011",
+      "source_revision": 1,
+      "quote": "Review the client’s initial offer, project briefs or mockups, and message history",
+      "locator": {
+        "url": "https://www.upwork.com/resources/what-to-do-before-contract-closes",
+        "heading": "Make sure you fulfilled your work contract",
+        "line": 147,
+        "quoteMatch": "exact substring in original paragraph",
+        "normalization": "WEB_ORIGINAL_PARAGRAPH_SHORT_QUOTE_ONLY",
+        "fullBodyCaptured": false
+      },
+      "context": "作者的自由职业项目收尾实践建议：核对客户原始约定、任务说明或原型与沟通历史是否有遗漏任务或修改。",
+      "acquisition": "WEB_RUN_ORIGINAL_PAGE_LOCATED_PARAGRAPH_READ",
+      "content_hash": "af1ebc58759b7847b5916903af4bcb6fe765389e7e260be8b587830a6fdfe519"
+    },
+    {
+      "evidence_id": "qau-career-decision-20261011-e1",
+      "source_id": "qau-career-decision-20261011",
+      "source_revision": 1,
+      "quote": "第二步，找出你自己看重的考虑因素",
+      "locator": {
+        "section": "生涯决策平衡单",
+        "step": "第二步",
+        "exactText": "第二步，找出你自己看重的考虑因素",
+        "normalizedBodyStart": 2036,
+        "start": 2036,
+        "end": 2052,
+        "normalizedBodySha256": "9c46d044a8391e90b3a8f2af843cfd3b6967ee00bf7715f5dbaec96771b12b77"
+      },
+      "context": "高校心理指导原文的职业决策教学方法：列当前工作选项，先确定本人重视的考虑因素，再逐项比较。原文另列了解职业的一天与实际任务的问题。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_HTML_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "c26f9e9810487c9583184e280d2b14f20a79549610a0923ce8f5b0ed26816b31"
+    },
+    {
+      "evidence_id": "hzau-experiment-records-20261011-e1",
+      "source_id": "hzau-experiment-records-20261011",
+      "source_revision": 1,
+      "quote": "重点标注异常现象与改进思路",
+      "locator": {
+        "section": "实验记录规范培训：记录前、记录中与记录后",
+        "start": 793,
+        "end": 806,
+        "normalizedBodySha256": "6b0c7a3ba3dde1900a6115c557d0b4687d8119932486d5eac87a9df156febe58"
+      },
+      "context": "高校本科生实验记录培训的记录规范：区分课题、即时记录，标注实际异常与改进思路，整理复盘。",
+      "acquisition": "PUBLIC_ORIGINAL_GET_FULL_HTML_READ_LOCATED_SHORT_QUOTE",
+      "content_hash": "a3c7a396512802765a10396ae38ceabfe96351786c9f3a000ef1df4719914ecd"
+    },
+    {
+      "evidence_id": "ies-learning-located-20261011-retrieval-practice",
+      "source_id": "ies-learning-located-20261011",
+      "source_revision": 1,
+      "quote": "Use quizzes to re-expose students to key content.",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "section": "推荐5b",
+        "start": 1727,
+        "end": 1776,
+        "normalizedBodySha256": "34820db71d25403d4f89a3350c341a0a2a2fdff3bd01a91e23f1ea8b23a201fd",
+        "normalization": "cheerio body text; collapse all whitespace"
+      },
+      "context": "推荐原句；范围为课程学习，具体编辑小步骤未经个人效果验证。",
+      "acquisition": "ORIGINAL_HTTP_FULL_HTML_READ_SINGLE_QUOTE_LOCATED_JINA_401_RETAINED",
+      "content_hash": "2255e7b8b806dc93beb0a65a04c59d9f6df7c2dc00b12c661f7c81787ed988f3"
+    },
+    {
+      "evidence_id": "ies-learning-located-20261011-spaced-review",
+      "source_id": "ies-learning-located-20261011",
+      "source_revision": 1,
+      "quote": "Space learning over time.",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "section": "推荐1",
+        "start": 1293,
+        "end": 1318,
+        "normalizedBodySha256": "34820db71d25403d4f89a3350c341a0a2a2fdff3bd01a91e23f1ea8b23a201fd",
+        "normalization": "cheerio body text; collapse all whitespace"
+      },
+      "context": "推荐原句；范围为课程学习，具体编辑小步骤未经个人效果验证。",
+      "acquisition": "ORIGINAL_HTTP_FULL_HTML_READ_SINGLE_QUOTE_LOCATED_JINA_401_RETAINED",
+      "content_hash": "0b29abd52f37af45d3d40b1952433f52f078980677b47bdf0107c67083056246"
+    },
+    {
+      "evidence_id": "ies-learning-located-20261011-worked-example",
+      "source_id": "ies-learning-located-20261011",
+      "source_revision": 1,
+      "quote": "Interleave worked example solutions with problem-solving exercises.",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "section": "推荐2",
+        "start": 1341,
+        "end": 1408,
+        "normalizedBodySha256": "34820db71d25403d4f89a3350c341a0a2a2fdff3bd01a91e23f1ea8b23a201fd",
+        "normalization": "cheerio body text; collapse all whitespace"
+      },
+      "context": "推荐原句；范围为课程学习，具体编辑小步骤未经个人效果验证。",
+      "acquisition": "ORIGINAL_HTTP_FULL_HTML_READ_SINGLE_QUOTE_LOCATED_JINA_401_RETAINED",
+      "content_hash": "dceffcb8b92b786e3a1dc13906d3d9e3c415397f4867f8d9fc3430012f285d25"
+    },
+    {
+      "evidence_id": "ies-learning-located-20261011-explain-understanding",
+      "source_id": "ies-learning-located-20261011",
+      "source_revision": 1,
+      "quote": "Ask deep explanatory questions.",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "section": "推荐7",
+        "start": 2109,
+        "end": 2140,
+        "normalizedBodySha256": "34820db71d25403d4f89a3350c341a0a2a2fdff3bd01a91e23f1ea8b23a201fd",
+        "normalization": "cheerio body text; collapse all whitespace"
+      },
+      "context": "推荐原句；范围为课程学习，具体编辑小步骤未经个人效果验证。",
+      "acquisition": "ORIGINAL_HTTP_FULL_HTML_READ_SINGLE_QUOTE_LOCATED_JINA_401_RETAINED",
+      "content_hash": "b5a8eba92b777a3132d4d3b05f5b5e6a2e2936f4148f5d64cae5b4a9c874d659"
+    },
+    {
+      "evidence_id": "cfpb-income-pdf-20261011-e1",
+      "source_id": "cfpb-income-pdf-20261011",
+      "source_revision": 1,
+      "quote": "Fill in the net income amount you receive each week",
+      "locator": {
+        "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_income_benefits_tool_2018-11_ADA.pdf",
+        "pageIndex": 1,
+        "pageNumber": 2,
+        "start": 81,
+        "end": 132,
+        "normalizedPageSha256": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6",
+        "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+      },
+      "context": "教育性记账工具的操作句；不把工具目的改写成个人效果。",
+      "acquisition": "ORIGINAL_PDF_BYTES_DOWNLOAD_FULL_PAGES_READ_PYPDF_WEB_ORIGINAL",
+      "content_hash": "e7abde58e5945bcf862a12fafbe8965789336be911a93d8adf6a1f123df4fd44"
+    },
+    {
+      "evidence_id": "cfpb-spending-pdf-20261011-e1",
+      "source_id": "cfpb-spending-pdf-20261011",
+      "source_revision": 1,
+      "quote": "Get an envelope to collect your receipts.",
+      "locator": {
+        "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+        "pageIndex": 2,
+        "pageNumber": 3,
+        "start": 79,
+        "end": 120,
+        "normalizedPageSha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22",
+        "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+      },
+      "context": "教育性记账工具的操作句；不把工具目的改写成个人效果。",
+      "acquisition": "ORIGINAL_PDF_BYTES_DOWNLOAD_FULL_PAGES_READ_PYPDF_WEB_ORIGINAL",
+      "content_hash": "a09908376a7dbde89fe5ff6d920a48bccc42a5b03fd5ba6fd6199da5ee37b383"
+    }
+  ],
+  "previousReview": "KB_INDEPENDENT32_R2_RESULT.json",
+  "explicitHumanApproval": false
+}

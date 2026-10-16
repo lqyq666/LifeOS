@@ -1,0 +1,3640 @@
+{
+  "kind": "ACTUAL_SYNTHETIC_ADULT_FIRST_SMALL_BATCH_REVIEW_INPUT",
+  "generatorExecution": "current-main-codex",
+  "ordinary": {
+    "source": {
+      "status": "READY_FOR_AUTHORIZED_STAGES",
+      "scopeRestored": true,
+      "head": "4fae14d2ba3eef3175739854f1321323efe092b4",
+      "sourceDigest": "0fb82490dae2155acda62c104bc3185b577eb0cbd68909324866426edd99a20f",
+      "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+      "ledgerSha256": "82a81897e67adc8e0dc172554854f55ce08235ec3b34f2362a8b652961613646",
+      "modelSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "blocks": [],
+      "productDispatches": 0,
+      "cloudDispatches": 0,
+      "unknownCostsPreserved": true,
+      "newBudget": 0,
+      "stages": [
+        {
+          "stage": "small",
+          "status": "READY"
+        },
+        {
+          "stage": "four_chains",
+          "status": "READY"
+        },
+        {
+          "stage": "complex20_pairs",
+          "status": "READY"
+        },
+        {
+          "stage": "ordinary20",
+          "status": "READY"
+        },
+        {
+          "stage": "coze_two_projects",
+          "status": "READY",
+          "projectIds": [
+            "7693388932939300905",
+            "7693465311558795327"
+          ],
+          "authorizationRequired": "CURRENT_CLOUD_VERSION_AND_NATIVE_CREDIT_BINDING"
+        }
+      ],
+      "authorization": {
+        "kind": "OWNER_APPROVED_LIFEOS_REAL_BATCH",
+        "pauseLifted": true,
+        "smallOrdinaryOnly": true,
+        "head": "4fae14d2ba3eef3175739854f1321323efe092b4",
+        "sourceDigest": "0fb82490dae2155acda62c104bc3185b577eb0cbd68909324866426edd99a20f",
+        "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+        "ledgerSha256": "82a81897e67adc8e0dc172554854f55ce08235ec3b34f2362a8b652961613646",
+        "modelSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+        "ownerApprovalEvidence": ".planning/research/workflow-integration/LAUNCH_AUTHORIZATION.json",
+        "ownerApprovalSha256": "c5a950c7634c4f8916642824ef4668086af2a44cc90876793dc49f6e8176df71",
+        "expiresAt": "2026-10-10T17:36:23.313Z",
+        "maxSpendCny": 0.5,
+        "generatorIdentity": "current-main-codex",
+        "waitForIndependentReview": false,
+        "reviewReceipts": {}
+      }
+    },
+    "metrics": {
+      "allFirstAttempts": 3,
+      "ordinaryFirstAttempts": 0,
+      "firstContentObserved": 0,
+      "noFirstContent": 0,
+      "completeReplyObserved": 0,
+      "noCompleteReply": 0,
+      "failedOrCancelled": 0,
+      "firstContentP50Ms": null,
+      "firstContentP95Ms": null,
+      "wholeReplyP95Ms": null,
+      "observedCompleteReplyP95Ms": null,
+      "observedPercentilesAreConditionalOnContentExistence": true,
+      "businessQualifiedSamples": "WAITING_INDEPENDENT_REVIEW",
+      "performanceStatus": "NOT_ACCEPTED_INCOMPLETE_OR_FAILED",
+      "unknownCostSamples": 0,
+      "smallOrdinary": {
+        "firstAttempts": 3,
+        "firstContentObserved": 3,
+        "noFirstContent": 0,
+        "completeReplyObserved": 3,
+        "noCompleteReply": 0,
+        "firstContentP50Ms": 1992.6046999999999,
+        "firstContentP95Ms": 2137.752999999999,
+        "observedCompleteReplyP95Ms": 4146.447899999999,
+        "countedTowardOrdinary20": false,
+        "status": "PILOT_ONLY_NOT_ACCEPTED"
+      }
+    },
+    "cases": [
+      {
+        "stage": "small",
+        "caseId": "ORD01",
+        "requestId": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+        "input": "我还有两小时准备明天的课堂汇报，先做哪一步？",
+        "frames": [
+          {
+            "type": "started",
+            "requestId": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+            "sourceMessageId": "de919983-07a2-4444-9f8f-02147f3dcf70"
+          },
+          {
+            "type": "processing",
+            "requestId": "9e7bcd2d-4d95-4728-86be-3451207a0da2"
+          },
+          {
+            "type": "draft",
+            "text": "你现在已经有哪部分内容？",
+            "saved": false
+          },
+          {
+            "type": "delta",
+            "text": "先把这次要完成的核心内容写成一句话，再用已有材料补这句话。你现在已经有哪部分内容？",
+            "replace": true,
+            "saved": true
+          },
+          {
+            "type": "done",
+            "requestId": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+            "decisionVersion": 0,
+            "candidateIds": [],
+            "mergedExperienceIds": [],
+            "themeChangedIds": [],
+            "memoryIds": [],
+            "memorySavedCount": 0,
+            "growthIds": [
+              "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+            ],
+            "growthCreatedIds": [
+              "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+            ],
+            "growthChangedIds": [],
+            "growthRetainedIds": [],
+            "growthWrite": {
+              "ids": [
+                "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+              ],
+              "createdIds": [
+                "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+              ],
+              "changedIds": [],
+              "retainedIds": [],
+              "byInputIndex": {}
+            },
+            "stateChange": {
+              "growthDiff": [
+                {
+                  "schemaVersion": 2,
+                  "before": "此前还没有这条任务记录。",
+                  "evidenceRefs": [
+                    {
+                      "type": "growth",
+                      "id": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                      "revision": 1
+                    }
+                  ],
+                  "now": "新增的本人报告：我还有两小时准备明天的课堂汇报",
+                  "unknowns": [
+                    "这条信息对其他事情的影响仍待本人核对。"
+                  ],
+                  "needsConfirmation": false,
+                  "change": "added",
+                  "itemId": "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+                }
+              ],
+              "growthDiffStatus": "applied",
+              "workflow": null,
+              "growth": {
+                "status": "applied",
+                "createdIds": [
+                  "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+                ],
+                "changedIds": [],
+                "retainedIds": [],
+                "skipped": []
+              },
+              "controls": {
+                "changedScopes": [],
+                "effects": []
+              },
+              "memoryControl": null,
+              "material": null,
+              "plan": null,
+              "experiences": {
+                "createdIds": [],
+                "mergedIds": []
+              },
+              "themes": {
+                "changedIds": []
+              },
+              "guideUsage": {
+                "status": "not_requested",
+                "items": []
+              }
+            },
+            "dialoguePath": "direct",
+            "upstreamCalls": 1,
+            "usage": {
+              "source": "provider",
+              "provider": "bailian",
+              "model": "qwen3.8-flash",
+              "modelTier": "default",
+              "inputTokens": 2884,
+              "totalInputTokens": 2884,
+              "uncachedInputTokens": 2884,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 62,
+              "cachedInputTokens": 0,
+              "retrievedMemoryCount": 0,
+              "contextTokenEstimate": 6306,
+              "contextTokenEstimateKind": "heuristic",
+              "escalated": false,
+              "escalationReason": null,
+              "repairReason": null,
+              "repairCalls": 0,
+              "groundingReviewCalls": 0,
+              "zeroLlm": false,
+              "llmCallCount": 1,
+              "estimatedCostCny": 0.0024746,
+              "calls": [
+                {
+                  "callId": "9e7bcd2d-4d95-4728-86be-3451207a0da2:1",
+                  "requestId": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+                  "providerResponseId": "chatcmpl-d4c56441-2884-9df7-9bdf-7ae99e370733",
+                  "providerResponseModel": null,
+                  "purpose": "turn",
+                  "tier": "default",
+                  "provider": "bailian",
+                  "model": "qwen3.8-flash",
+                  "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                  "outcome": "completed",
+                  "errorCode": null,
+                  "startedAt": "2026-10-10T16:36:35.969Z",
+                  "finishedAt": "2026-10-10T16:36:38.751Z",
+                  "latencyMs": 2782,
+                  "firstRawDeltaMs": 1641,
+                  "firstQuestionDraftMs": 1981,
+                  "outputTokenLimit": 8192,
+                  "usageCompleteness": "complete",
+                  "uncachedInputTokens": 2884,
+                  "cacheWriteInputTokens": 0,
+                  "cachedInputTokens": 0,
+                  "totalInputTokens": 2884,
+                  "outputTokens": 62,
+                  "estimatedCostCny": 0.0024746
+                }
+              ]
+            },
+            "stageTimings": {
+              "queueWaitMs": 0,
+              "contextLoadMs": 5,
+              "engineTotalMs": 2967,
+              "finishRunMs": 44
+            }
+          }
+        ],
+        "done": {
+          "type": "done",
+          "requestId": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+          "decisionVersion": 0,
+          "candidateIds": [],
+          "mergedExperienceIds": [],
+          "themeChangedIds": [],
+          "memoryIds": [],
+          "memorySavedCount": 0,
+          "growthIds": [
+            "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+          ],
+          "growthCreatedIds": [
+            "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+          ],
+          "growthChangedIds": [],
+          "growthRetainedIds": [],
+          "growthWrite": {
+            "ids": [
+              "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+            ],
+            "createdIds": [
+              "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+            ],
+            "changedIds": [],
+            "retainedIds": [],
+            "byInputIndex": {}
+          },
+          "stateChange": {
+            "growthDiff": [
+              {
+                "schemaVersion": 2,
+                "before": "此前还没有这条任务记录。",
+                "evidenceRefs": [
+                  {
+                    "type": "growth",
+                    "id": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                    "revision": 1
+                  }
+                ],
+                "now": "新增的本人报告：我还有两小时准备明天的课堂汇报",
+                "unknowns": [
+                  "这条信息对其他事情的影响仍待本人核对。"
+                ],
+                "needsConfirmation": false,
+                "change": "added",
+                "itemId": "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+              }
+            ],
+            "growthDiffStatus": "applied",
+            "workflow": null,
+            "growth": {
+              "status": "applied",
+              "createdIds": [
+                "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+              ],
+              "changedIds": [],
+              "retainedIds": [],
+              "skipped": []
+            },
+            "controls": {
+              "changedScopes": [],
+              "effects": []
+            },
+            "memoryControl": null,
+            "material": null,
+            "plan": null,
+            "experiences": {
+              "createdIds": [],
+              "mergedIds": []
+            },
+            "themes": {
+              "changedIds": []
+            },
+            "guideUsage": {
+              "status": "not_requested",
+              "items": []
+            }
+          },
+          "dialoguePath": "direct",
+          "upstreamCalls": 1,
+          "usage": {
+            "source": "provider",
+            "provider": "bailian",
+            "model": "qwen3.8-flash",
+            "modelTier": "default",
+            "inputTokens": 2884,
+            "totalInputTokens": 2884,
+            "uncachedInputTokens": 2884,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 62,
+            "cachedInputTokens": 0,
+            "retrievedMemoryCount": 0,
+            "contextTokenEstimate": 6306,
+            "contextTokenEstimateKind": "heuristic",
+            "escalated": false,
+            "escalationReason": null,
+            "repairReason": null,
+            "repairCalls": 0,
+            "groundingReviewCalls": 0,
+            "zeroLlm": false,
+            "llmCallCount": 1,
+            "estimatedCostCny": 0.0024746,
+            "calls": [
+              {
+                "callId": "9e7bcd2d-4d95-4728-86be-3451207a0da2:1",
+                "requestId": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+                "providerResponseId": "chatcmpl-d4c56441-2884-9df7-9bdf-7ae99e370733",
+                "providerResponseModel": null,
+                "purpose": "turn",
+                "tier": "default",
+                "provider": "bailian",
+                "model": "qwen3.8-flash",
+                "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                "outcome": "completed",
+                "errorCode": null,
+                "startedAt": "2026-10-10T16:36:35.969Z",
+                "finishedAt": "2026-10-10T16:36:38.751Z",
+                "latencyMs": 2782,
+                "firstRawDeltaMs": 1641,
+                "firstQuestionDraftMs": 1981,
+                "outputTokenLimit": 8192,
+                "usageCompleteness": "complete",
+                "uncachedInputTokens": 2884,
+                "cacheWriteInputTokens": 0,
+                "cachedInputTokens": 0,
+                "totalInputTokens": 2884,
+                "outputTokens": 62,
+                "estimatedCostCny": 0.0024746
+              }
+            ]
+          },
+          "stageTimings": {
+            "queueWaitMs": 0,
+            "contextLoadMs": 5,
+            "engineTotalMs": 2967,
+            "finishRunMs": 44
+          }
+        },
+        "readback": {
+          "run": {
+            "request_id": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+            "status": "completed",
+            "error_code": null,
+            "usage": {
+              "calls": [
+                {
+                  "tier": "default",
+                  "model": "qwen3.8-flash",
+                  "callId": "9e7bcd2d-4d95-4728-86be-3451207a0da2:1",
+                  "outcome": "completed",
+                  "purpose": "turn",
+                  "provider": "bailian",
+                  "errorCode": null,
+                  "latencyMs": 2782,
+                  "requestId": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+                  "startedAt": "2026-10-10T16:36:35.969Z",
+                  "finishedAt": "2026-10-10T16:36:38.751Z",
+                  "outputTokens": 62,
+                  "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                  "firstRawDeltaMs": 1641,
+                  "estimatedCostCny": 0.0024746,
+                  "outputTokenLimit": 8192,
+                  "totalInputTokens": 2884,
+                  "cachedInputTokens": 0,
+                  "usageCompleteness": "complete",
+                  "providerResponseId": "chatcmpl-d4c56441-2884-9df7-9bdf-7ae99e370733",
+                  "uncachedInputTokens": 2884,
+                  "firstQuestionDraftMs": 1981,
+                  "cacheWriteInputTokens": 0,
+                  "providerResponseModel": null
+                }
+              ],
+              "model": "qwen3.8-flash",
+              "source": "provider",
+              "zeroLlm": false,
+              "provider": "bailian",
+              "escalated": false,
+              "modelTier": "default",
+              "inputTokens": 2884,
+              "repairCalls": 0,
+              "llmCallCount": 1,
+              "outputTokens": 62,
+              "repairReason": null,
+              "escalationReason": null,
+              "estimatedCostCny": 0.0024746,
+              "totalInputTokens": 2884,
+              "cachedInputTokens": 0,
+              "uncachedInputTokens": 2884,
+              "contextTokenEstimate": 6306,
+              "groundingReviewCalls": 0,
+              "retrievedMemoryCount": 0,
+              "cacheWriteInputTokens": 0,
+              "contextTokenEstimateKind": "heuristic"
+            },
+            "response": {
+              "usage": {
+                "calls": [
+                  {
+                    "tier": "default",
+                    "model": "qwen3.8-flash",
+                    "callId": "9e7bcd2d-4d95-4728-86be-3451207a0da2:1",
+                    "outcome": "completed",
+                    "purpose": "turn",
+                    "provider": "bailian",
+                    "errorCode": null,
+                    "latencyMs": 2782,
+                    "requestId": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+                    "startedAt": "2026-10-10T16:36:35.969Z",
+                    "finishedAt": "2026-10-10T16:36:38.751Z",
+                    "outputTokens": 62,
+                    "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                    "firstRawDeltaMs": 1641,
+                    "estimatedCostCny": 0.0024746,
+                    "outputTokenLimit": 8192,
+                    "totalInputTokens": 2884,
+                    "cachedInputTokens": 0,
+                    "usageCompleteness": "complete",
+                    "providerResponseId": "chatcmpl-d4c56441-2884-9df7-9bdf-7ae99e370733",
+                    "uncachedInputTokens": 2884,
+                    "firstQuestionDraftMs": 1981,
+                    "cacheWriteInputTokens": 0,
+                    "providerResponseModel": null
+                  }
+                ],
+                "model": "qwen3.8-flash",
+                "source": "provider",
+                "zeroLlm": false,
+                "provider": "bailian",
+                "escalated": false,
+                "modelTier": "default",
+                "inputTokens": 2884,
+                "repairCalls": 0,
+                "llmCallCount": 1,
+                "outputTokens": 62,
+                "repairReason": null,
+                "escalationReason": null,
+                "estimatedCostCny": 0.0024746,
+                "totalInputTokens": 2884,
+                "cachedInputTokens": 0,
+                "uncachedInputTokens": 2884,
+                "contextTokenEstimate": 6306,
+                "groundingReviewCalls": 0,
+                "retrievedMemoryCount": 0,
+                "cacheWriteInputTokens": 0,
+                "contextTokenEstimateKind": "heuristic"
+              },
+              "growthIds": [
+                "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+              ],
+              "memoryIds": [],
+              "requestId": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+              "growthWrite": {
+                "ids": [
+                  "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+                ],
+                "changedIds": [],
+                "createdIds": [
+                  "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+                ],
+                "retainedIds": [],
+                "byInputIndex": {}
+              },
+              "stateChange": {
+                "plan": null,
+                "growth": {
+                  "status": "applied",
+                  "skipped": [],
+                  "changedIds": [],
+                  "createdIds": [
+                    "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+                  ],
+                  "retainedIds": []
+                },
+                "themes": {
+                  "changedIds": []
+                },
+                "controls": {
+                  "effects": [],
+                  "changedScopes": []
+                },
+                "material": null,
+                "workflow": null,
+                "growthDiff": [
+                  {
+                    "now": "新增的本人报告：我还有两小时准备明天的课堂汇报",
+                    "before": "此前还没有这条任务记录。",
+                    "change": "added",
+                    "itemId": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                    "unknowns": [
+                      "这条信息对其他事情的影响仍待本人核对。"
+                    ],
+                    "evidenceRefs": [
+                      {
+                        "id": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                        "type": "growth",
+                        "revision": 1
+                      }
+                    ],
+                    "schemaVersion": 2,
+                    "needsConfirmation": false
+                  }
+                ],
+                "guideUsage": {
+                  "items": [],
+                  "status": "not_requested"
+                },
+                "experiences": {
+                  "mergedIds": [],
+                  "createdIds": []
+                },
+                "memoryControl": null,
+                "growthDiffStatus": "applied"
+              },
+              "candidateIds": [],
+              "dialoguePath": "direct",
+              "upstreamCalls": 1,
+              "decisionVersion": 0,
+              "themeChangedIds": [],
+              "growthChangedIds": [],
+              "growthCreatedIds": [
+                "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+              ],
+              "memorySavedCount": 0,
+              "growthRetainedIds": [],
+              "mergedExperienceIds": []
+            }
+          },
+          "growth": {
+            "memoryEnabled": true,
+            "items": [
+              {
+                "id": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                "conversationId": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+                "kind": "context",
+                "text": "我还有两小时准备明天的课堂汇报",
+                "assertion": "user_reported",
+                "status": "active",
+                "sources": [
+                  {
+                    "id": "de919983-07a2-4444-9f8f-02147f3dcf70",
+                    "type": "message",
+                    "quote": "我还有两小时准备明天的课堂汇报"
+                  }
+                ],
+                "dependencies": [],
+                "validUntil": null,
+                "validFrom": null,
+                "timeBasis": null,
+                "revision": 1,
+                "createdAt": "2026-10-10T16:36:38.825Z",
+                "updatedAt": "2026-10-10T16:36:38.825Z",
+                "unavailableReason": null,
+                "limitation": "",
+                "progressState": null,
+                "directionScopes": [],
+                "structuredPlan": null
+              }
+            ]
+          },
+          "starMap": {
+            "schemaVersion": "1.0.0",
+            "purpose": "当前登录用户的成长星图：主题来自本人陈述的目标与追求",
+            "notice": "主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。",
+            "rootId": "self-current",
+            "nodes": [
+              {
+                "id": "self-current",
+                "type": "self",
+                "title": "当前自我",
+                "description": "当前还没有本人确认的自我描述。",
+                "identityAccepted": [],
+                "identityObservations": [],
+                "skillTags": []
+              }
+            ],
+            "edges": [],
+            "viewConfig": {
+              "defaultMode": "overview",
+              "valueOrder": [],
+              "overviewExperienceOrder": [],
+              "overviewRailCandidates": [
+                "value-creation",
+                "value-autonomy",
+                "value-growth"
+              ],
+              "overviewRailMeaning": "沿轨道浏览三个价值观；外围经历随空间轨道同步运行，仍可直接点击经历。",
+              "valueRailMeaning": "仅沿轨道浏览与当前价值观关联的经历。",
+              "autoplayInitially": false,
+              "showAllNodesInOverview": true,
+              "showAllEdgesAtFullOpacity": false,
+              "visibilityRule": "演示模式展示全部候选节点；正式结论只可基于已确认且有来源的关联。",
+              "contentReviewBadge": "示例关联 · 待确认",
+              "experienceEndState": "readable_record_not_planet",
+              "motionDefaults": {
+                "dragThresholdCssPx": 7,
+                "snapDurationMs": 300,
+                "focusDurationMs": 700,
+                "dampingPerSecond": 8,
+                "maxInertiaSeconds": 0.8
+              },
+              "motionDefaultsNotice": "这些数值是交互调试起点，不是测试成绩或固定设计限制。"
+            },
+            "storage": "postgresql",
+            "interpretationsAutomaticallyConfirmed": false,
+            "starmapNextStep": "",
+            "changeEvents": []
+          },
+          "messages": [
+            {
+              "id": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+              "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+              "title": "SYNTHETIC ADULT REAL ACCEPTANCE",
+              "renamed": false,
+              "pinned": false,
+              "project_id": null,
+              "created_at": "2026-10-10T16:36:35.811Z",
+              "updated_at": "2026-10-10T16:36:38.825Z",
+              "messages": [
+                {
+                  "id": "de919983-07a2-4444-9f8f-02147f3dcf70",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+                  "role": "user",
+                  "content": "我还有两小时准备明天的课堂汇报，先做哪一步？",
+                  "run_request_id": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+                  "created_at": "2026-10-10T16:36:35.840Z"
+                },
+                {
+                  "id": "99118d70-3ee3-48fa-82e7-db307e9b59c9",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+                  "role": "assistant",
+                  "content": "先把这次要完成的核心内容写成一句话，再用已有材料补这句话。你现在已经有哪部分内容？",
+                  "run_request_id": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+                  "created_at": "2026-10-10T16:36:38.825Z",
+                  "stateChange": {
+                    "plan": null,
+                    "growth": {
+                      "status": "applied",
+                      "skipped": [],
+                      "changedIds": [],
+                      "createdIds": [
+                        "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+                      ],
+                      "retainedIds": []
+                    },
+                    "themes": {
+                      "changedIds": []
+                    },
+                    "controls": {
+                      "effects": [],
+                      "changedScopes": []
+                    },
+                    "material": null,
+                    "workflow": null,
+                    "growthDiff": [
+                      {
+                        "now": "新增的本人报告：我还有两小时准备明天的课堂汇报",
+                        "before": "此前还没有这条任务记录。",
+                        "change": "added",
+                        "itemId": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                        "unknowns": [
+                          "这条信息对其他事情的影响仍待本人核对。"
+                        ],
+                        "evidenceRefs": [
+                          {
+                            "id": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                            "type": "growth",
+                            "revision": 1
+                          }
+                        ],
+                        "schemaVersion": 2,
+                        "needsConfirmation": false
+                      }
+                    ],
+                    "guideUsage": {
+                      "items": [],
+                      "status": "not_requested"
+                    },
+                    "experiences": {
+                      "mergedIds": [],
+                      "createdIds": []
+                    },
+                    "memoryControl": null,
+                    "growthDiffStatus": "applied"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "firstUsefulMs": 2137.752999999999,
+        "replyCompleteMs": 3050.9075999999986,
+        "wholeTurnMs": 3190.272000000001,
+        "failure": null,
+        "checks": {
+          "technicalCompleted": true,
+          "semanticCorrect": "WAITING_INDEPENDENT_REVIEW",
+          "sourceSupported": "WAITING_INDEPENDENT_REVIEW",
+          "necessaryStateCommitted": "WAITING_API_READBACK_REVIEW",
+          "intentRespected": "WAITING_INDEPENDENT_REVIEW",
+          "crossSessionContinuity": "WAITING_INDEPENDENT_REVIEW"
+        },
+        "costCny": 0.0024746
+      },
+      {
+        "stage": "small",
+        "caseId": "ORD02",
+        "requestId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+        "input": "我发给学长的问题还没有回复，今天还要催吗？",
+        "frames": [
+          {
+            "type": "started",
+            "requestId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+            "sourceMessageId": "b9843270-593c-4270-96a6-9f1a097d0614"
+          },
+          {
+            "type": "processing",
+            "requestId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c"
+          },
+          {
+            "type": "draft",
+            "text": "你们原先是怎么约定的？",
+            "saved": false
+          },
+          {
+            "type": "delta",
+            "text": "先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？",
+            "replace": true,
+            "saved": true
+          },
+          {
+            "type": "done",
+            "requestId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+            "decisionVersion": 0,
+            "candidateIds": [],
+            "mergedExperienceIds": [],
+            "themeChangedIds": [],
+            "memoryIds": [],
+            "memorySavedCount": 0,
+            "growthIds": [
+              "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+            ],
+            "growthCreatedIds": [
+              "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+            ],
+            "growthChangedIds": [],
+            "growthRetainedIds": [],
+            "growthWrite": {
+              "ids": [
+                "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+              ],
+              "createdIds": [
+                "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+              ],
+              "changedIds": [],
+              "retainedIds": [],
+              "byInputIndex": {}
+            },
+            "stateChange": {
+              "growthDiff": [
+                {
+                  "schemaVersion": 2,
+                  "before": "此前还没有这条任务记录。",
+                  "evidenceRefs": [
+                    {
+                      "type": "growth",
+                      "id": "c13dc92a-a19c-4189-9972-fe7540cd52ae",
+                      "revision": 1
+                    }
+                  ],
+                  "now": "新增的本人报告：我发给学长的问题还没有回复",
+                  "unknowns": [
+                    "这条信息对其他事情的影响仍待本人核对。"
+                  ],
+                  "needsConfirmation": false,
+                  "change": "added",
+                  "itemId": "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+                }
+              ],
+              "growthDiffStatus": "applied",
+              "workflow": null,
+              "growth": {
+                "status": "applied",
+                "createdIds": [
+                  "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+                ],
+                "changedIds": [],
+                "retainedIds": [],
+                "skipped": []
+              },
+              "controls": {
+                "changedScopes": [],
+                "effects": []
+              },
+              "memoryControl": null,
+              "material": null,
+              "plan": null,
+              "experiences": {
+                "createdIds": [],
+                "mergedIds": []
+              },
+              "themes": {
+                "changedIds": []
+              },
+              "guideUsage": {
+                "status": "not_requested",
+                "items": []
+              }
+            },
+            "dialoguePath": "direct",
+            "upstreamCalls": 1,
+            "usage": {
+              "source": "provider",
+              "provider": "bailian",
+              "model": "qwen3.8-flash",
+              "modelTier": "default",
+              "inputTokens": 2947,
+              "totalInputTokens": 2947,
+              "uncachedInputTokens": 899,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 71,
+              "cachedInputTokens": 2048,
+              "retrievedMemoryCount": 0,
+              "contextTokenEstimate": 6363,
+              "contextTokenEstimateKind": "heuristic",
+              "escalated": false,
+              "escalationReason": null,
+              "repairReason": null,
+              "repairCalls": 0,
+              "groundingReviewCalls": 0,
+              "zeroLlm": false,
+              "llmCallCount": 1,
+              "estimatedCostCny": 0.0011157,
+              "calls": [
+                {
+                  "callId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c:1",
+                  "requestId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+                  "providerResponseId": "chatcmpl-c2c593dc-96df-9ec3-b53d-cadfaf4d16d2",
+                  "providerResponseModel": null,
+                  "purpose": "turn",
+                  "tier": "default",
+                  "provider": "bailian",
+                  "model": "qwen3.8-flash",
+                  "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                  "outcome": "completed",
+                  "errorCode": null,
+                  "startedAt": "2026-10-10T16:36:39.151Z",
+                  "finishedAt": "2026-10-10T16:36:40.961Z",
+                  "latencyMs": 1810,
+                  "firstRawDeltaMs": 697,
+                  "firstQuestionDraftMs": 964,
+                  "outputTokenLimit": 8192,
+                  "usageCompleteness": "complete",
+                  "uncachedInputTokens": 899,
+                  "cacheWriteInputTokens": 0,
+                  "cachedInputTokens": 2048,
+                  "totalInputTokens": 2947,
+                  "outputTokens": 71,
+                  "estimatedCostCny": 0.0011157
+                }
+              ]
+            },
+            "stageTimings": {
+              "queueWaitMs": 0,
+              "contextLoadMs": 4,
+              "engineTotalMs": 1964,
+              "finishRunMs": 48
+            }
+          }
+        ],
+        "done": {
+          "type": "done",
+          "requestId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+          "decisionVersion": 0,
+          "candidateIds": [],
+          "mergedExperienceIds": [],
+          "themeChangedIds": [],
+          "memoryIds": [],
+          "memorySavedCount": 0,
+          "growthIds": [
+            "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+          ],
+          "growthCreatedIds": [
+            "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+          ],
+          "growthChangedIds": [],
+          "growthRetainedIds": [],
+          "growthWrite": {
+            "ids": [
+              "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+            ],
+            "createdIds": [
+              "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+            ],
+            "changedIds": [],
+            "retainedIds": [],
+            "byInputIndex": {}
+          },
+          "stateChange": {
+            "growthDiff": [
+              {
+                "schemaVersion": 2,
+                "before": "此前还没有这条任务记录。",
+                "evidenceRefs": [
+                  {
+                    "type": "growth",
+                    "id": "c13dc92a-a19c-4189-9972-fe7540cd52ae",
+                    "revision": 1
+                  }
+                ],
+                "now": "新增的本人报告：我发给学长的问题还没有回复",
+                "unknowns": [
+                  "这条信息对其他事情的影响仍待本人核对。"
+                ],
+                "needsConfirmation": false,
+                "change": "added",
+                "itemId": "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+              }
+            ],
+            "growthDiffStatus": "applied",
+            "workflow": null,
+            "growth": {
+              "status": "applied",
+              "createdIds": [
+                "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+              ],
+              "changedIds": [],
+              "retainedIds": [],
+              "skipped": []
+            },
+            "controls": {
+              "changedScopes": [],
+              "effects": []
+            },
+            "memoryControl": null,
+            "material": null,
+            "plan": null,
+            "experiences": {
+              "createdIds": [],
+              "mergedIds": []
+            },
+            "themes": {
+              "changedIds": []
+            },
+            "guideUsage": {
+              "status": "not_requested",
+              "items": []
+            }
+          },
+          "dialoguePath": "direct",
+          "upstreamCalls": 1,
+          "usage": {
+            "source": "provider",
+            "provider": "bailian",
+            "model": "qwen3.8-flash",
+            "modelTier": "default",
+            "inputTokens": 2947,
+            "totalInputTokens": 2947,
+            "uncachedInputTokens": 899,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 71,
+            "cachedInputTokens": 2048,
+            "retrievedMemoryCount": 0,
+            "contextTokenEstimate": 6363,
+            "contextTokenEstimateKind": "heuristic",
+            "escalated": false,
+            "escalationReason": null,
+            "repairReason": null,
+            "repairCalls": 0,
+            "groundingReviewCalls": 0,
+            "zeroLlm": false,
+            "llmCallCount": 1,
+            "estimatedCostCny": 0.0011157,
+            "calls": [
+              {
+                "callId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c:1",
+                "requestId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+                "providerResponseId": "chatcmpl-c2c593dc-96df-9ec3-b53d-cadfaf4d16d2",
+                "providerResponseModel": null,
+                "purpose": "turn",
+                "tier": "default",
+                "provider": "bailian",
+                "model": "qwen3.8-flash",
+                "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                "outcome": "completed",
+                "errorCode": null,
+                "startedAt": "2026-10-10T16:36:39.151Z",
+                "finishedAt": "2026-10-10T16:36:40.961Z",
+                "latencyMs": 1810,
+                "firstRawDeltaMs": 697,
+                "firstQuestionDraftMs": 964,
+                "outputTokenLimit": 8192,
+                "usageCompleteness": "complete",
+                "uncachedInputTokens": 899,
+                "cacheWriteInputTokens": 0,
+                "cachedInputTokens": 2048,
+                "totalInputTokens": 2947,
+                "outputTokens": 71,
+                "estimatedCostCny": 0.0011157
+              }
+            ]
+          },
+          "stageTimings": {
+            "queueWaitMs": 0,
+            "contextLoadMs": 4,
+            "engineTotalMs": 1964,
+            "finishRunMs": 48
+          }
+        },
+        "readback": {
+          "run": {
+            "request_id": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+            "status": "completed",
+            "error_code": null,
+            "usage": {
+              "calls": [
+                {
+                  "tier": "default",
+                  "model": "qwen3.8-flash",
+                  "callId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c:1",
+                  "outcome": "completed",
+                  "purpose": "turn",
+                  "provider": "bailian",
+                  "errorCode": null,
+                  "latencyMs": 1810,
+                  "requestId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+                  "startedAt": "2026-10-10T16:36:39.151Z",
+                  "finishedAt": "2026-10-10T16:36:40.961Z",
+                  "outputTokens": 71,
+                  "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                  "firstRawDeltaMs": 697,
+                  "estimatedCostCny": 0.0011157,
+                  "outputTokenLimit": 8192,
+                  "totalInputTokens": 2947,
+                  "cachedInputTokens": 2048,
+                  "usageCompleteness": "complete",
+                  "providerResponseId": "chatcmpl-c2c593dc-96df-9ec3-b53d-cadfaf4d16d2",
+                  "uncachedInputTokens": 899,
+                  "firstQuestionDraftMs": 964,
+                  "cacheWriteInputTokens": 0,
+                  "providerResponseModel": null
+                }
+              ],
+              "model": "qwen3.8-flash",
+              "source": "provider",
+              "zeroLlm": false,
+              "provider": "bailian",
+              "escalated": false,
+              "modelTier": "default",
+              "inputTokens": 2947,
+              "repairCalls": 0,
+              "llmCallCount": 1,
+              "outputTokens": 71,
+              "repairReason": null,
+              "escalationReason": null,
+              "estimatedCostCny": 0.0011157,
+              "totalInputTokens": 2947,
+              "cachedInputTokens": 2048,
+              "uncachedInputTokens": 899,
+              "contextTokenEstimate": 6363,
+              "groundingReviewCalls": 0,
+              "retrievedMemoryCount": 0,
+              "cacheWriteInputTokens": 0,
+              "contextTokenEstimateKind": "heuristic"
+            },
+            "response": {
+              "usage": {
+                "calls": [
+                  {
+                    "tier": "default",
+                    "model": "qwen3.8-flash",
+                    "callId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c:1",
+                    "outcome": "completed",
+                    "purpose": "turn",
+                    "provider": "bailian",
+                    "errorCode": null,
+                    "latencyMs": 1810,
+                    "requestId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+                    "startedAt": "2026-10-10T16:36:39.151Z",
+                    "finishedAt": "2026-10-10T16:36:40.961Z",
+                    "outputTokens": 71,
+                    "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                    "firstRawDeltaMs": 697,
+                    "estimatedCostCny": 0.0011157,
+                    "outputTokenLimit": 8192,
+                    "totalInputTokens": 2947,
+                    "cachedInputTokens": 2048,
+                    "usageCompleteness": "complete",
+                    "providerResponseId": "chatcmpl-c2c593dc-96df-9ec3-b53d-cadfaf4d16d2",
+                    "uncachedInputTokens": 899,
+                    "firstQuestionDraftMs": 964,
+                    "cacheWriteInputTokens": 0,
+                    "providerResponseModel": null
+                  }
+                ],
+                "model": "qwen3.8-flash",
+                "source": "provider",
+                "zeroLlm": false,
+                "provider": "bailian",
+                "escalated": false,
+                "modelTier": "default",
+                "inputTokens": 2947,
+                "repairCalls": 0,
+                "llmCallCount": 1,
+                "outputTokens": 71,
+                "repairReason": null,
+                "escalationReason": null,
+                "estimatedCostCny": 0.0011157,
+                "totalInputTokens": 2947,
+                "cachedInputTokens": 2048,
+                "uncachedInputTokens": 899,
+                "contextTokenEstimate": 6363,
+                "groundingReviewCalls": 0,
+                "retrievedMemoryCount": 0,
+                "cacheWriteInputTokens": 0,
+                "contextTokenEstimateKind": "heuristic"
+              },
+              "growthIds": [
+                "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+              ],
+              "memoryIds": [],
+              "requestId": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+              "growthWrite": {
+                "ids": [
+                  "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+                ],
+                "changedIds": [],
+                "createdIds": [
+                  "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+                ],
+                "retainedIds": [],
+                "byInputIndex": {}
+              },
+              "stateChange": {
+                "plan": null,
+                "growth": {
+                  "status": "applied",
+                  "skipped": [],
+                  "changedIds": [],
+                  "createdIds": [
+                    "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+                  ],
+                  "retainedIds": []
+                },
+                "themes": {
+                  "changedIds": []
+                },
+                "controls": {
+                  "effects": [],
+                  "changedScopes": []
+                },
+                "material": null,
+                "workflow": null,
+                "growthDiff": [
+                  {
+                    "now": "新增的本人报告：我发给学长的问题还没有回复",
+                    "before": "此前还没有这条任务记录。",
+                    "change": "added",
+                    "itemId": "c13dc92a-a19c-4189-9972-fe7540cd52ae",
+                    "unknowns": [
+                      "这条信息对其他事情的影响仍待本人核对。"
+                    ],
+                    "evidenceRefs": [
+                      {
+                        "id": "c13dc92a-a19c-4189-9972-fe7540cd52ae",
+                        "type": "growth",
+                        "revision": 1
+                      }
+                    ],
+                    "schemaVersion": 2,
+                    "needsConfirmation": false
+                  }
+                ],
+                "guideUsage": {
+                  "items": [],
+                  "status": "not_requested"
+                },
+                "experiences": {
+                  "mergedIds": [],
+                  "createdIds": []
+                },
+                "memoryControl": null,
+                "growthDiffStatus": "applied"
+              },
+              "candidateIds": [],
+              "dialoguePath": "direct",
+              "upstreamCalls": 1,
+              "decisionVersion": 0,
+              "themeChangedIds": [],
+              "growthChangedIds": [],
+              "growthCreatedIds": [
+                "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+              ],
+              "memorySavedCount": 0,
+              "growthRetainedIds": [],
+              "mergedExperienceIds": []
+            }
+          },
+          "growth": {
+            "memoryEnabled": true,
+            "items": [
+              {
+                "id": "c13dc92a-a19c-4189-9972-fe7540cd52ae",
+                "conversationId": "af05fd1c-3ea0-4273-98f7-daf9da145518",
+                "kind": "feedback",
+                "text": "我发给学长的问题还没有回复",
+                "assertion": "user_reported",
+                "status": "active",
+                "sources": [
+                  {
+                    "id": "b9843270-593c-4270-96a6-9f1a097d0614",
+                    "type": "message",
+                    "quote": "我发给学长的问题还没有回复"
+                  }
+                ],
+                "dependencies": [],
+                "validUntil": null,
+                "validFrom": null,
+                "timeBasis": null,
+                "revision": 1,
+                "createdAt": "2026-10-10T16:36:41.023Z",
+                "updatedAt": "2026-10-10T16:36:41.023Z",
+                "unavailableReason": null,
+                "limitation": "",
+                "progressState": "unknown",
+                "directionScopes": [],
+                "structuredPlan": null
+              },
+              {
+                "id": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                "conversationId": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+                "kind": "context",
+                "text": "我还有两小时准备明天的课堂汇报",
+                "assertion": "user_reported",
+                "status": "active",
+                "sources": [
+                  {
+                    "id": "de919983-07a2-4444-9f8f-02147f3dcf70",
+                    "type": "message",
+                    "quote": "我还有两小时准备明天的课堂汇报"
+                  }
+                ],
+                "dependencies": [],
+                "validUntil": null,
+                "validFrom": null,
+                "timeBasis": null,
+                "revision": 1,
+                "createdAt": "2026-10-10T16:36:38.825Z",
+                "updatedAt": "2026-10-10T16:36:38.825Z",
+                "unavailableReason": null,
+                "limitation": "",
+                "progressState": null,
+                "directionScopes": [],
+                "structuredPlan": null
+              }
+            ]
+          },
+          "starMap": {
+            "schemaVersion": "1.0.0",
+            "purpose": "当前登录用户的成长星图：主题来自本人陈述的目标与追求",
+            "notice": "主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。",
+            "rootId": "self-current",
+            "nodes": [
+              {
+                "id": "self-current",
+                "type": "self",
+                "title": "当前自我",
+                "description": "当前还没有本人确认的自我描述。",
+                "identityAccepted": [],
+                "identityObservations": [],
+                "skillTags": []
+              }
+            ],
+            "edges": [],
+            "viewConfig": {
+              "defaultMode": "overview",
+              "valueOrder": [],
+              "overviewExperienceOrder": [],
+              "overviewRailCandidates": [
+                "value-creation",
+                "value-autonomy",
+                "value-growth"
+              ],
+              "overviewRailMeaning": "沿轨道浏览三个价值观；外围经历随空间轨道同步运行，仍可直接点击经历。",
+              "valueRailMeaning": "仅沿轨道浏览与当前价值观关联的经历。",
+              "autoplayInitially": false,
+              "showAllNodesInOverview": true,
+              "showAllEdgesAtFullOpacity": false,
+              "visibilityRule": "演示模式展示全部候选节点；正式结论只可基于已确认且有来源的关联。",
+              "contentReviewBadge": "示例关联 · 待确认",
+              "experienceEndState": "readable_record_not_planet",
+              "motionDefaults": {
+                "dragThresholdCssPx": 7,
+                "snapDurationMs": 300,
+                "focusDurationMs": 700,
+                "dampingPerSecond": 8,
+                "maxInertiaSeconds": 0.8
+              },
+              "motionDefaultsNotice": "这些数值是交互调试起点，不是测试成绩或固定设计限制。"
+            },
+            "storage": "postgresql",
+            "interpretationsAutomaticallyConfirmed": false,
+            "starmapNextStep": "",
+            "changeEvents": []
+          },
+          "messages": [
+            {
+              "id": "af05fd1c-3ea0-4273-98f7-daf9da145518",
+              "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+              "title": "SYNTHETIC ADULT REAL ACCEPTANCE",
+              "renamed": false,
+              "pinned": false,
+              "project_id": null,
+              "created_at": "2026-10-10T16:36:39.023Z",
+              "updated_at": "2026-10-10T16:36:41.023Z",
+              "messages": [
+                {
+                  "id": "b9843270-593c-4270-96a6-9f1a097d0614",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "af05fd1c-3ea0-4273-98f7-daf9da145518",
+                  "role": "user",
+                  "content": "我发给学长的问题还没有回复，今天还要催吗？",
+                  "run_request_id": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+                  "created_at": "2026-10-10T16:36:39.045Z"
+                },
+                {
+                  "id": "7ed25813-853b-4968-94e9-42ab35074894",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "af05fd1c-3ea0-4273-98f7-daf9da145518",
+                  "role": "assistant",
+                  "content": "先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？",
+                  "run_request_id": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+                  "created_at": "2026-10-10T16:36:41.023Z",
+                  "stateChange": {
+                    "plan": null,
+                    "growth": {
+                      "status": "applied",
+                      "skipped": [],
+                      "changedIds": [],
+                      "createdIds": [
+                        "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+                      ],
+                      "retainedIds": []
+                    },
+                    "themes": {
+                      "changedIds": []
+                    },
+                    "controls": {
+                      "effects": [],
+                      "changedScopes": []
+                    },
+                    "material": null,
+                    "workflow": null,
+                    "growthDiff": [
+                      {
+                        "now": "新增的本人报告：我发给学长的问题还没有回复",
+                        "before": "此前还没有这条任务记录。",
+                        "change": "added",
+                        "itemId": "c13dc92a-a19c-4189-9972-fe7540cd52ae",
+                        "unknowns": [
+                          "这条信息对其他事情的影响仍待本人核对。"
+                        ],
+                        "evidenceRefs": [
+                          {
+                            "id": "c13dc92a-a19c-4189-9972-fe7540cd52ae",
+                            "type": "growth",
+                            "revision": 1
+                          }
+                        ],
+                        "schemaVersion": 2,
+                        "needsConfirmation": false
+                      }
+                    ],
+                    "guideUsage": {
+                      "items": [],
+                      "status": "not_requested"
+                    },
+                    "experiences": {
+                      "mergedIds": [],
+                      "createdIds": []
+                    },
+                    "memoryControl": null,
+                    "growthDiffStatus": "applied"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+              "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+              "title": "SYNTHETIC ADULT REAL ACCEPTANCE",
+              "renamed": false,
+              "pinned": false,
+              "project_id": null,
+              "created_at": "2026-10-10T16:36:35.811Z",
+              "updated_at": "2026-10-10T16:36:38.825Z",
+              "messages": [
+                {
+                  "id": "de919983-07a2-4444-9f8f-02147f3dcf70",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+                  "role": "user",
+                  "content": "我还有两小时准备明天的课堂汇报，先做哪一步？",
+                  "run_request_id": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+                  "created_at": "2026-10-10T16:36:35.840Z"
+                },
+                {
+                  "id": "99118d70-3ee3-48fa-82e7-db307e9b59c9",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+                  "role": "assistant",
+                  "content": "先把这次要完成的核心内容写成一句话，再用已有材料补这句话。你现在已经有哪部分内容？",
+                  "run_request_id": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+                  "created_at": "2026-10-10T16:36:38.825Z",
+                  "stateChange": {
+                    "plan": null,
+                    "growth": {
+                      "status": "applied",
+                      "skipped": [],
+                      "changedIds": [],
+                      "createdIds": [
+                        "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+                      ],
+                      "retainedIds": []
+                    },
+                    "themes": {
+                      "changedIds": []
+                    },
+                    "controls": {
+                      "effects": [],
+                      "changedScopes": []
+                    },
+                    "material": null,
+                    "workflow": null,
+                    "growthDiff": [
+                      {
+                        "now": "新增的本人报告：我还有两小时准备明天的课堂汇报",
+                        "before": "此前还没有这条任务记录。",
+                        "change": "added",
+                        "itemId": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                        "unknowns": [
+                          "这条信息对其他事情的影响仍待本人核对。"
+                        ],
+                        "evidenceRefs": [
+                          {
+                            "id": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                            "type": "growth",
+                            "revision": 1
+                          }
+                        ],
+                        "schemaVersion": 2,
+                        "needsConfirmation": false
+                      }
+                    ],
+                    "guideUsage": {
+                      "items": [],
+                      "status": "not_requested"
+                    },
+                    "experiences": {
+                      "mergedIds": [],
+                      "createdIds": []
+                    },
+                    "memoryControl": null,
+                    "growthDiffStatus": "applied"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "firstUsefulMs": 1091.2825999999986,
+        "replyCompleteMs": 2043.2213999999985,
+        "wholeTurnMs": 2333.2214999999997,
+        "failure": null,
+        "checks": {
+          "technicalCompleted": true,
+          "semanticCorrect": "WAITING_INDEPENDENT_REVIEW",
+          "sourceSupported": "WAITING_INDEPENDENT_REVIEW",
+          "necessaryStateCommitted": "WAITING_API_READBACK_REVIEW",
+          "intentRespected": "WAITING_INDEPENDENT_REVIEW",
+          "crossSessionContinuity": "WAITING_INDEPENDENT_REVIEW"
+        },
+        "costCny": 0.0011157
+      },
+      {
+        "stage": "small",
+        "caseId": "ORD03",
+        "requestId": "c970cdc1-33b0-4c5d-a224-584627849630",
+        "input": "我今天没按原计划做完作业，想调整一个小步骤。",
+        "frames": [
+          {
+            "type": "started",
+            "requestId": "c970cdc1-33b0-4c5d-a224-584627849630",
+            "sourceMessageId": "db864b6c-cef1-49ac-a32e-b30232b3940a"
+          },
+          {
+            "type": "processing",
+            "requestId": "c970cdc1-33b0-4c5d-a224-584627849630"
+          },
+          {
+            "type": "draft",
+            "text": "是没开始、做到中途卡住，还是做完后结果不符合预期？",
+            "saved": false
+          },
+          {
+            "type": "delta",
+            "text": "先回看上次真正做过的那一步和实际反馈，不重新安排整套入门方法。是没开始、做到中途卡住，还是做完后结果不符合预期？",
+            "replace": true,
+            "saved": true
+          },
+          {
+            "type": "done",
+            "requestId": "c970cdc1-33b0-4c5d-a224-584627849630",
+            "decisionVersion": 0,
+            "candidateIds": [],
+            "mergedExperienceIds": [],
+            "themeChangedIds": [],
+            "memoryIds": [],
+            "memorySavedCount": 0,
+            "growthIds": [
+              "50de369a-dc37-49b9-a393-9114f87a9663"
+            ],
+            "growthCreatedIds": [
+              "50de369a-dc37-49b9-a393-9114f87a9663"
+            ],
+            "growthChangedIds": [],
+            "growthRetainedIds": [],
+            "growthWrite": {
+              "ids": [
+                "50de369a-dc37-49b9-a393-9114f87a9663"
+              ],
+              "createdIds": [
+                "50de369a-dc37-49b9-a393-9114f87a9663"
+              ],
+              "changedIds": [],
+              "retainedIds": [],
+              "byInputIndex": {}
+            },
+            "stateChange": {
+              "growthDiff": [
+                {
+                  "schemaVersion": 2,
+                  "before": "此前还没有这条任务记录。",
+                  "evidenceRefs": [
+                    {
+                      "type": "growth",
+                      "id": "50de369a-dc37-49b9-a393-9114f87a9663",
+                      "revision": 1
+                    }
+                  ],
+                  "now": "新增的本人报告：我今天没按原计划做完作业",
+                  "unknowns": [
+                    "这条信息对其他事情的影响仍待本人核对。"
+                  ],
+                  "needsConfirmation": false,
+                  "change": "added",
+                  "itemId": "50de369a-dc37-49b9-a393-9114f87a9663"
+                }
+              ],
+              "growthDiffStatus": "applied",
+              "workflow": null,
+              "growth": {
+                "status": "applied",
+                "createdIds": [
+                  "50de369a-dc37-49b9-a393-9114f87a9663"
+                ],
+                "changedIds": [],
+                "retainedIds": [],
+                "skipped": []
+              },
+              "controls": {
+                "changedScopes": [],
+                "effects": []
+              },
+              "memoryControl": null,
+              "material": null,
+              "plan": null,
+              "experiences": {
+                "createdIds": [],
+                "mergedIds": []
+              },
+              "themes": {
+                "changedIds": []
+              },
+              "guideUsage": {
+                "status": "not_requested",
+                "items": []
+              }
+            },
+            "dialoguePath": "direct",
+            "upstreamCalls": 1,
+            "usage": {
+              "source": "provider",
+              "provider": "bailian",
+              "model": "qwen3.8-flash",
+              "modelTier": "default",
+              "inputTokens": 3551,
+              "totalInputTokens": 3551,
+              "uncachedInputTokens": 1503,
+              "cacheWriteInputTokens": 0,
+              "outputTokens": 198,
+              "cachedInputTokens": 2048,
+              "retrievedMemoryCount": 0,
+              "contextTokenEstimate": 7467,
+              "contextTokenEstimateKind": "heuristic",
+              "escalated": false,
+              "escalationReason": null,
+              "repairReason": null,
+              "repairCalls": 0,
+              "groundingReviewCalls": 0,
+              "zeroLlm": false,
+              "llmCallCount": 1,
+              "estimatedCostCny": 0.0019418,
+              "calls": [
+                {
+                  "callId": "c970cdc1-33b0-4c5d-a224-584627849630:1",
+                  "requestId": "c970cdc1-33b0-4c5d-a224-584627849630",
+                  "providerResponseId": "chatcmpl-56b8f209-c64c-9d23-b982-5d979655312f",
+                  "providerResponseModel": null,
+                  "purpose": "turn",
+                  "tier": "default",
+                  "provider": "bailian",
+                  "model": "qwen3.8-flash",
+                  "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                  "outcome": "completed",
+                  "errorCode": null,
+                  "startedAt": "2026-10-10T16:36:41.507Z",
+                  "finishedAt": "2026-10-10T16:36:45.392Z",
+                  "latencyMs": 3885,
+                  "firstRawDeltaMs": 1346,
+                  "firstQuestionDraftMs": 1862,
+                  "outputTokenLimit": 8192,
+                  "usageCompleteness": "complete",
+                  "uncachedInputTokens": 1503,
+                  "cacheWriteInputTokens": 0,
+                  "cachedInputTokens": 2048,
+                  "totalInputTokens": 3551,
+                  "outputTokens": 198,
+                  "estimatedCostCny": 0.0019418
+                }
+              ]
+            },
+            "stageTimings": {
+              "queueWaitMs": 0,
+              "contextLoadMs": 2,
+              "engineTotalMs": 4068,
+              "finishRunMs": 55
+            }
+          }
+        ],
+        "done": {
+          "type": "done",
+          "requestId": "c970cdc1-33b0-4c5d-a224-584627849630",
+          "decisionVersion": 0,
+          "candidateIds": [],
+          "mergedExperienceIds": [],
+          "themeChangedIds": [],
+          "memoryIds": [],
+          "memorySavedCount": 0,
+          "growthIds": [
+            "50de369a-dc37-49b9-a393-9114f87a9663"
+          ],
+          "growthCreatedIds": [
+            "50de369a-dc37-49b9-a393-9114f87a9663"
+          ],
+          "growthChangedIds": [],
+          "growthRetainedIds": [],
+          "growthWrite": {
+            "ids": [
+              "50de369a-dc37-49b9-a393-9114f87a9663"
+            ],
+            "createdIds": [
+              "50de369a-dc37-49b9-a393-9114f87a9663"
+            ],
+            "changedIds": [],
+            "retainedIds": [],
+            "byInputIndex": {}
+          },
+          "stateChange": {
+            "growthDiff": [
+              {
+                "schemaVersion": 2,
+                "before": "此前还没有这条任务记录。",
+                "evidenceRefs": [
+                  {
+                    "type": "growth",
+                    "id": "50de369a-dc37-49b9-a393-9114f87a9663",
+                    "revision": 1
+                  }
+                ],
+                "now": "新增的本人报告：我今天没按原计划做完作业",
+                "unknowns": [
+                  "这条信息对其他事情的影响仍待本人核对。"
+                ],
+                "needsConfirmation": false,
+                "change": "added",
+                "itemId": "50de369a-dc37-49b9-a393-9114f87a9663"
+              }
+            ],
+            "growthDiffStatus": "applied",
+            "workflow": null,
+            "growth": {
+              "status": "applied",
+              "createdIds": [
+                "50de369a-dc37-49b9-a393-9114f87a9663"
+              ],
+              "changedIds": [],
+              "retainedIds": [],
+              "skipped": []
+            },
+            "controls": {
+              "changedScopes": [],
+              "effects": []
+            },
+            "memoryControl": null,
+            "material": null,
+            "plan": null,
+            "experiences": {
+              "createdIds": [],
+              "mergedIds": []
+            },
+            "themes": {
+              "changedIds": []
+            },
+            "guideUsage": {
+              "status": "not_requested",
+              "items": []
+            }
+          },
+          "dialoguePath": "direct",
+          "upstreamCalls": 1,
+          "usage": {
+            "source": "provider",
+            "provider": "bailian",
+            "model": "qwen3.8-flash",
+            "modelTier": "default",
+            "inputTokens": 3551,
+            "totalInputTokens": 3551,
+            "uncachedInputTokens": 1503,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 198,
+            "cachedInputTokens": 2048,
+            "retrievedMemoryCount": 0,
+            "contextTokenEstimate": 7467,
+            "contextTokenEstimateKind": "heuristic",
+            "escalated": false,
+            "escalationReason": null,
+            "repairReason": null,
+            "repairCalls": 0,
+            "groundingReviewCalls": 0,
+            "zeroLlm": false,
+            "llmCallCount": 1,
+            "estimatedCostCny": 0.0019418,
+            "calls": [
+              {
+                "callId": "c970cdc1-33b0-4c5d-a224-584627849630:1",
+                "requestId": "c970cdc1-33b0-4c5d-a224-584627849630",
+                "providerResponseId": "chatcmpl-56b8f209-c64c-9d23-b982-5d979655312f",
+                "providerResponseModel": null,
+                "purpose": "turn",
+                "tier": "default",
+                "provider": "bailian",
+                "model": "qwen3.8-flash",
+                "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                "outcome": "completed",
+                "errorCode": null,
+                "startedAt": "2026-10-10T16:36:41.507Z",
+                "finishedAt": "2026-10-10T16:36:45.392Z",
+                "latencyMs": 3885,
+                "firstRawDeltaMs": 1346,
+                "firstQuestionDraftMs": 1862,
+                "outputTokenLimit": 8192,
+                "usageCompleteness": "complete",
+                "uncachedInputTokens": 1503,
+                "cacheWriteInputTokens": 0,
+                "cachedInputTokens": 2048,
+                "totalInputTokens": 3551,
+                "outputTokens": 198,
+                "estimatedCostCny": 0.0019418
+              }
+            ]
+          },
+          "stageTimings": {
+            "queueWaitMs": 0,
+            "contextLoadMs": 2,
+            "engineTotalMs": 4068,
+            "finishRunMs": 55
+          }
+        },
+        "readback": {
+          "run": {
+            "request_id": "c970cdc1-33b0-4c5d-a224-584627849630",
+            "status": "completed",
+            "error_code": null,
+            "usage": {
+              "calls": [
+                {
+                  "tier": "default",
+                  "model": "qwen3.8-flash",
+                  "callId": "c970cdc1-33b0-4c5d-a224-584627849630:1",
+                  "outcome": "completed",
+                  "purpose": "turn",
+                  "provider": "bailian",
+                  "errorCode": null,
+                  "latencyMs": 3885,
+                  "requestId": "c970cdc1-33b0-4c5d-a224-584627849630",
+                  "startedAt": "2026-10-10T16:36:41.507Z",
+                  "finishedAt": "2026-10-10T16:36:45.392Z",
+                  "outputTokens": 198,
+                  "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                  "firstRawDeltaMs": 1346,
+                  "estimatedCostCny": 0.0019418,
+                  "outputTokenLimit": 8192,
+                  "totalInputTokens": 3551,
+                  "cachedInputTokens": 2048,
+                  "usageCompleteness": "complete",
+                  "providerResponseId": "chatcmpl-56b8f209-c64c-9d23-b982-5d979655312f",
+                  "uncachedInputTokens": 1503,
+                  "firstQuestionDraftMs": 1862,
+                  "cacheWriteInputTokens": 0,
+                  "providerResponseModel": null
+                }
+              ],
+              "model": "qwen3.8-flash",
+              "source": "provider",
+              "zeroLlm": false,
+              "provider": "bailian",
+              "escalated": false,
+              "modelTier": "default",
+              "inputTokens": 3551,
+              "repairCalls": 0,
+              "llmCallCount": 1,
+              "outputTokens": 198,
+              "repairReason": null,
+              "escalationReason": null,
+              "estimatedCostCny": 0.0019418,
+              "totalInputTokens": 3551,
+              "cachedInputTokens": 2048,
+              "uncachedInputTokens": 1503,
+              "contextTokenEstimate": 7467,
+              "groundingReviewCalls": 0,
+              "retrievedMemoryCount": 0,
+              "cacheWriteInputTokens": 0,
+              "contextTokenEstimateKind": "heuristic"
+            },
+            "response": {
+              "usage": {
+                "calls": [
+                  {
+                    "tier": "default",
+                    "model": "qwen3.8-flash",
+                    "callId": "c970cdc1-33b0-4c5d-a224-584627849630:1",
+                    "outcome": "completed",
+                    "purpose": "turn",
+                    "provider": "bailian",
+                    "errorCode": null,
+                    "latencyMs": 3885,
+                    "requestId": "c970cdc1-33b0-4c5d-a224-584627849630",
+                    "startedAt": "2026-10-10T16:36:41.507Z",
+                    "finishedAt": "2026-10-10T16:36:45.392Z",
+                    "outputTokens": 198,
+                    "configSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+                    "firstRawDeltaMs": 1346,
+                    "estimatedCostCny": 0.0019418,
+                    "outputTokenLimit": 8192,
+                    "totalInputTokens": 3551,
+                    "cachedInputTokens": 2048,
+                    "usageCompleteness": "complete",
+                    "providerResponseId": "chatcmpl-56b8f209-c64c-9d23-b982-5d979655312f",
+                    "uncachedInputTokens": 1503,
+                    "firstQuestionDraftMs": 1862,
+                    "cacheWriteInputTokens": 0,
+                    "providerResponseModel": null
+                  }
+                ],
+                "model": "qwen3.8-flash",
+                "source": "provider",
+                "zeroLlm": false,
+                "provider": "bailian",
+                "escalated": false,
+                "modelTier": "default",
+                "inputTokens": 3551,
+                "repairCalls": 0,
+                "llmCallCount": 1,
+                "outputTokens": 198,
+                "repairReason": null,
+                "escalationReason": null,
+                "estimatedCostCny": 0.0019418,
+                "totalInputTokens": 3551,
+                "cachedInputTokens": 2048,
+                "uncachedInputTokens": 1503,
+                "contextTokenEstimate": 7467,
+                "groundingReviewCalls": 0,
+                "retrievedMemoryCount": 0,
+                "cacheWriteInputTokens": 0,
+                "contextTokenEstimateKind": "heuristic"
+              },
+              "growthIds": [
+                "50de369a-dc37-49b9-a393-9114f87a9663"
+              ],
+              "memoryIds": [],
+              "requestId": "c970cdc1-33b0-4c5d-a224-584627849630",
+              "growthWrite": {
+                "ids": [
+                  "50de369a-dc37-49b9-a393-9114f87a9663"
+                ],
+                "changedIds": [],
+                "createdIds": [
+                  "50de369a-dc37-49b9-a393-9114f87a9663"
+                ],
+                "retainedIds": [],
+                "byInputIndex": {}
+              },
+              "stateChange": {
+                "plan": null,
+                "growth": {
+                  "status": "applied",
+                  "skipped": [],
+                  "changedIds": [],
+                  "createdIds": [
+                    "50de369a-dc37-49b9-a393-9114f87a9663"
+                  ],
+                  "retainedIds": []
+                },
+                "themes": {
+                  "changedIds": []
+                },
+                "controls": {
+                  "effects": [],
+                  "changedScopes": []
+                },
+                "material": null,
+                "workflow": null,
+                "growthDiff": [
+                  {
+                    "now": "新增的本人报告：我今天没按原计划做完作业",
+                    "before": "此前还没有这条任务记录。",
+                    "change": "added",
+                    "itemId": "50de369a-dc37-49b9-a393-9114f87a9663",
+                    "unknowns": [
+                      "这条信息对其他事情的影响仍待本人核对。"
+                    ],
+                    "evidenceRefs": [
+                      {
+                        "id": "50de369a-dc37-49b9-a393-9114f87a9663",
+                        "type": "growth",
+                        "revision": 1
+                      }
+                    ],
+                    "schemaVersion": 2,
+                    "needsConfirmation": false
+                  }
+                ],
+                "guideUsage": {
+                  "items": [],
+                  "status": "not_requested"
+                },
+                "experiences": {
+                  "mergedIds": [],
+                  "createdIds": []
+                },
+                "memoryControl": null,
+                "growthDiffStatus": "applied"
+              },
+              "candidateIds": [],
+              "dialoguePath": "direct",
+              "upstreamCalls": 1,
+              "decisionVersion": 0,
+              "themeChangedIds": [],
+              "growthChangedIds": [],
+              "growthCreatedIds": [
+                "50de369a-dc37-49b9-a393-9114f87a9663"
+              ],
+              "memorySavedCount": 0,
+              "growthRetainedIds": [],
+              "mergedExperienceIds": []
+            }
+          },
+          "growth": {
+            "memoryEnabled": true,
+            "items": [
+              {
+                "id": "50de369a-dc37-49b9-a393-9114f87a9663",
+                "conversationId": "4936b945-97c6-498d-aaf3-7c0d45dfcd9e",
+                "kind": "feedback",
+                "text": "我今天没按原计划做完作业",
+                "assertion": "user_reported",
+                "status": "active",
+                "sources": [
+                  {
+                    "id": "db864b6c-cef1-49ac-a32e-b30232b3940a",
+                    "type": "message",
+                    "quote": "我今天没按原计划做完作业"
+                  }
+                ],
+                "dependencies": [],
+                "validUntil": null,
+                "validFrom": null,
+                "timeBasis": null,
+                "revision": 1,
+                "createdAt": "2026-10-10T16:36:45.473Z",
+                "updatedAt": "2026-10-10T16:36:45.473Z",
+                "unavailableReason": null,
+                "limitation": "",
+                "progressState": "stuck",
+                "directionScopes": [],
+                "structuredPlan": null
+              },
+              {
+                "id": "c13dc92a-a19c-4189-9972-fe7540cd52ae",
+                "conversationId": "af05fd1c-3ea0-4273-98f7-daf9da145518",
+                "kind": "feedback",
+                "text": "我发给学长的问题还没有回复",
+                "assertion": "user_reported",
+                "status": "active",
+                "sources": [
+                  {
+                    "id": "b9843270-593c-4270-96a6-9f1a097d0614",
+                    "type": "message",
+                    "quote": "我发给学长的问题还没有回复"
+                  }
+                ],
+                "dependencies": [],
+                "validUntil": null,
+                "validFrom": null,
+                "timeBasis": null,
+                "revision": 1,
+                "createdAt": "2026-10-10T16:36:41.023Z",
+                "updatedAt": "2026-10-10T16:36:41.023Z",
+                "unavailableReason": null,
+                "limitation": "",
+                "progressState": "unknown",
+                "directionScopes": [],
+                "structuredPlan": null
+              },
+              {
+                "id": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                "conversationId": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+                "kind": "context",
+                "text": "我还有两小时准备明天的课堂汇报",
+                "assertion": "user_reported",
+                "status": "active",
+                "sources": [
+                  {
+                    "id": "de919983-07a2-4444-9f8f-02147f3dcf70",
+                    "type": "message",
+                    "quote": "我还有两小时准备明天的课堂汇报"
+                  }
+                ],
+                "dependencies": [],
+                "validUntil": null,
+                "validFrom": null,
+                "timeBasis": null,
+                "revision": 1,
+                "createdAt": "2026-10-10T16:36:38.825Z",
+                "updatedAt": "2026-10-10T16:36:38.825Z",
+                "unavailableReason": null,
+                "limitation": "",
+                "progressState": null,
+                "directionScopes": [],
+                "structuredPlan": null
+              }
+            ]
+          },
+          "starMap": {
+            "schemaVersion": "1.0.0",
+            "purpose": "当前登录用户的成长星图：主题来自本人陈述的目标与追求",
+            "notice": "主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。",
+            "rootId": "self-current",
+            "nodes": [
+              {
+                "id": "self-current",
+                "type": "self",
+                "title": "当前自我",
+                "description": "当前还没有本人确认的自我描述。",
+                "identityAccepted": [],
+                "identityObservations": [],
+                "skillTags": []
+              }
+            ],
+            "edges": [],
+            "viewConfig": {
+              "defaultMode": "overview",
+              "valueOrder": [],
+              "overviewExperienceOrder": [],
+              "overviewRailCandidates": [
+                "value-creation",
+                "value-autonomy",
+                "value-growth"
+              ],
+              "overviewRailMeaning": "沿轨道浏览三个价值观；外围经历随空间轨道同步运行，仍可直接点击经历。",
+              "valueRailMeaning": "仅沿轨道浏览与当前价值观关联的经历。",
+              "autoplayInitially": false,
+              "showAllNodesInOverview": true,
+              "showAllEdgesAtFullOpacity": false,
+              "visibilityRule": "演示模式展示全部候选节点；正式结论只可基于已确认且有来源的关联。",
+              "contentReviewBadge": "示例关联 · 待确认",
+              "experienceEndState": "readable_record_not_planet",
+              "motionDefaults": {
+                "dragThresholdCssPx": 7,
+                "snapDurationMs": 300,
+                "focusDurationMs": 700,
+                "dampingPerSecond": 8,
+                "maxInertiaSeconds": 0.8
+              },
+              "motionDefaultsNotice": "这些数值是交互调试起点，不是测试成绩或固定设计限制。"
+            },
+            "storage": "postgresql",
+            "interpretationsAutomaticallyConfirmed": false,
+            "starmapNextStep": "",
+            "changeEvents": []
+          },
+          "messages": [
+            {
+              "id": "4936b945-97c6-498d-aaf3-7c0d45dfcd9e",
+              "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+              "title": "SYNTHETIC ADULT REAL ACCEPTANCE",
+              "renamed": false,
+              "pinned": false,
+              "project_id": null,
+              "created_at": "2026-10-10T16:36:41.376Z",
+              "updated_at": "2026-10-10T16:36:45.473Z",
+              "messages": [
+                {
+                  "id": "db864b6c-cef1-49ac-a32e-b30232b3940a",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "4936b945-97c6-498d-aaf3-7c0d45dfcd9e",
+                  "role": "user",
+                  "content": "我今天没按原计划做完作业，想调整一个小步骤。",
+                  "run_request_id": "c970cdc1-33b0-4c5d-a224-584627849630",
+                  "created_at": "2026-10-10T16:36:41.394Z"
+                },
+                {
+                  "id": "f2eabf3a-465d-4083-901f-548715d938dc",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "4936b945-97c6-498d-aaf3-7c0d45dfcd9e",
+                  "role": "assistant",
+                  "content": "先回看上次真正做过的那一步和实际反馈，不重新安排整套入门方法。是没开始、做到中途卡住，还是做完后结果不符合预期？",
+                  "run_request_id": "c970cdc1-33b0-4c5d-a224-584627849630",
+                  "created_at": "2026-10-10T16:36:45.473Z",
+                  "stateChange": {
+                    "plan": null,
+                    "growth": {
+                      "status": "applied",
+                      "skipped": [],
+                      "changedIds": [],
+                      "createdIds": [
+                        "50de369a-dc37-49b9-a393-9114f87a9663"
+                      ],
+                      "retainedIds": []
+                    },
+                    "themes": {
+                      "changedIds": []
+                    },
+                    "controls": {
+                      "effects": [],
+                      "changedScopes": []
+                    },
+                    "material": null,
+                    "workflow": null,
+                    "growthDiff": [
+                      {
+                        "now": "新增的本人报告：我今天没按原计划做完作业",
+                        "before": "此前还没有这条任务记录。",
+                        "change": "added",
+                        "itemId": "50de369a-dc37-49b9-a393-9114f87a9663",
+                        "unknowns": [
+                          "这条信息对其他事情的影响仍待本人核对。"
+                        ],
+                        "evidenceRefs": [
+                          {
+                            "id": "50de369a-dc37-49b9-a393-9114f87a9663",
+                            "type": "growth",
+                            "revision": 1
+                          }
+                        ],
+                        "schemaVersion": 2,
+                        "needsConfirmation": false
+                      }
+                    ],
+                    "guideUsage": {
+                      "items": [],
+                      "status": "not_requested"
+                    },
+                    "experiences": {
+                      "mergedIds": [],
+                      "createdIds": []
+                    },
+                    "memoryControl": null,
+                    "growthDiffStatus": "applied"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "af05fd1c-3ea0-4273-98f7-daf9da145518",
+              "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+              "title": "SYNTHETIC ADULT REAL ACCEPTANCE",
+              "renamed": false,
+              "pinned": false,
+              "project_id": null,
+              "created_at": "2026-10-10T16:36:39.023Z",
+              "updated_at": "2026-10-10T16:36:41.023Z",
+              "messages": [
+                {
+                  "id": "b9843270-593c-4270-96a6-9f1a097d0614",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "af05fd1c-3ea0-4273-98f7-daf9da145518",
+                  "role": "user",
+                  "content": "我发给学长的问题还没有回复，今天还要催吗？",
+                  "run_request_id": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+                  "created_at": "2026-10-10T16:36:39.045Z"
+                },
+                {
+                  "id": "7ed25813-853b-4968-94e9-42ab35074894",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "af05fd1c-3ea0-4273-98f7-daf9da145518",
+                  "role": "assistant",
+                  "content": "先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？",
+                  "run_request_id": "ab907aac-6e5d-421f-aac0-c4b54a872f4c",
+                  "created_at": "2026-10-10T16:36:41.023Z",
+                  "stateChange": {
+                    "plan": null,
+                    "growth": {
+                      "status": "applied",
+                      "skipped": [],
+                      "changedIds": [],
+                      "createdIds": [
+                        "c13dc92a-a19c-4189-9972-fe7540cd52ae"
+                      ],
+                      "retainedIds": []
+                    },
+                    "themes": {
+                      "changedIds": []
+                    },
+                    "controls": {
+                      "effects": [],
+                      "changedScopes": []
+                    },
+                    "material": null,
+                    "workflow": null,
+                    "growthDiff": [
+                      {
+                        "now": "新增的本人报告：我发给学长的问题还没有回复",
+                        "before": "此前还没有这条任务记录。",
+                        "change": "added",
+                        "itemId": "c13dc92a-a19c-4189-9972-fe7540cd52ae",
+                        "unknowns": [
+                          "这条信息对其他事情的影响仍待本人核对。"
+                        ],
+                        "evidenceRefs": [
+                          {
+                            "id": "c13dc92a-a19c-4189-9972-fe7540cd52ae",
+                            "type": "growth",
+                            "revision": 1
+                          }
+                        ],
+                        "schemaVersion": 2,
+                        "needsConfirmation": false
+                      }
+                    ],
+                    "guideUsage": {
+                      "items": [],
+                      "status": "not_requested"
+                    },
+                    "experiences": {
+                      "mergedIds": [],
+                      "createdIds": []
+                    },
+                    "memoryControl": null,
+                    "growthDiffStatus": "applied"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+              "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+              "title": "SYNTHETIC ADULT REAL ACCEPTANCE",
+              "renamed": false,
+              "pinned": false,
+              "project_id": null,
+              "created_at": "2026-10-10T16:36:35.811Z",
+              "updated_at": "2026-10-10T16:36:38.825Z",
+              "messages": [
+                {
+                  "id": "de919983-07a2-4444-9f8f-02147f3dcf70",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+                  "role": "user",
+                  "content": "我还有两小时准备明天的课堂汇报，先做哪一步？",
+                  "run_request_id": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+                  "created_at": "2026-10-10T16:36:35.840Z"
+                },
+                {
+                  "id": "99118d70-3ee3-48fa-82e7-db307e9b59c9",
+                  "user_id": "bGnSLM7hNNGGF7s3r1tVqp97vuozdngN",
+                  "conversation_id": "629d8417-a6f4-4cf1-83ba-28ca3260ac13",
+                  "role": "assistant",
+                  "content": "先把这次要完成的核心内容写成一句话，再用已有材料补这句话。你现在已经有哪部分内容？",
+                  "run_request_id": "9e7bcd2d-4d95-4728-86be-3451207a0da2",
+                  "created_at": "2026-10-10T16:36:38.825Z",
+                  "stateChange": {
+                    "plan": null,
+                    "growth": {
+                      "status": "applied",
+                      "skipped": [],
+                      "changedIds": [],
+                      "createdIds": [
+                        "3c31cd44-e2c6-4827-b66f-c23537d8555b"
+                      ],
+                      "retainedIds": []
+                    },
+                    "themes": {
+                      "changedIds": []
+                    },
+                    "controls": {
+                      "effects": [],
+                      "changedScopes": []
+                    },
+                    "material": null,
+                    "workflow": null,
+                    "growthDiff": [
+                      {
+                        "now": "新增的本人报告：我还有两小时准备明天的课堂汇报",
+                        "before": "此前还没有这条任务记录。",
+                        "change": "added",
+                        "itemId": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                        "unknowns": [
+                          "这条信息对其他事情的影响仍待本人核对。"
+                        ],
+                        "evidenceRefs": [
+                          {
+                            "id": "3c31cd44-e2c6-4827-b66f-c23537d8555b",
+                            "type": "growth",
+                            "revision": 1
+                          }
+                        ],
+                        "schemaVersion": 2,
+                        "needsConfirmation": false
+                      }
+                    ],
+                    "guideUsage": {
+                      "items": [],
+                      "status": "not_requested"
+                    },
+                    "experiences": {
+                      "mergedIds": [],
+                      "createdIds": []
+                    },
+                    "memoryControl": null,
+                    "growthDiffStatus": "applied"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "firstUsefulMs": 1992.6046999999999,
+        "replyCompleteMs": 4146.447899999999,
+        "wholeTurnMs": 4306.8904,
+        "failure": null,
+        "checks": {
+          "technicalCompleted": true,
+          "semanticCorrect": "WAITING_INDEPENDENT_REVIEW",
+          "sourceSupported": "WAITING_INDEPENDENT_REVIEW",
+          "necessaryStateCommitted": "WAITING_API_READBACK_REVIEW",
+          "intentRespected": "WAITING_INDEPENDENT_REVIEW",
+          "crossSessionContinuity": "WAITING_INDEPENDENT_REVIEW"
+        },
+        "costCny": 0.0019418
+      }
+    ]
+  },
+  "complex": {
+    "source": {
+      "status": "READY_FOR_AUTHORIZED_STAGES",
+      "scopeRestored": true,
+      "head": "47c7098e3471a12f933d74e9594cd9d52cf46f38",
+      "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+      "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+      "ledgerSha256": "92053781fa83258f8abf5eb92c07c6562e632e72747df5388e2c6f82ede93141",
+      "modelSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "blocks": [],
+      "productDispatches": 0,
+      "cloudDispatches": 0,
+      "unknownCostsPreserved": true,
+      "newBudget": 0,
+      "stages": [
+        {
+          "stage": "small",
+          "status": "READY"
+        },
+        {
+          "stage": "four_chains",
+          "status": "READY"
+        },
+        {
+          "stage": "complex20_pairs",
+          "status": "READY"
+        },
+        {
+          "stage": "ordinary20",
+          "status": "READY"
+        },
+        {
+          "stage": "coze_two_projects",
+          "status": "READY",
+          "projectIds": [
+            "7693388932939300905",
+            "7693465311558795327"
+          ],
+          "authorizationRequired": "CURRENT_CLOUD_VERSION_AND_NATIVE_CREDIT_BINDING"
+        }
+      ],
+      "authorization": {
+        "kind": "OWNER_APPROVED_LIFEOS_REAL_BATCH",
+        "pauseLifted": true,
+        "smallComplexOnly": true,
+        "head": "47c7098e3471a12f933d74e9594cd9d52cf46f38",
+        "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+        "contentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+        "ledgerSha256": "92053781fa83258f8abf5eb92c07c6562e632e72747df5388e2c6f82ede93141",
+        "modelSignature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+        "ownerApprovalEvidence": ".planning/research/workflow-integration/LAUNCH_AUTHORIZATION.json",
+        "ownerApprovalSha256": "c5a950c7634c4f8916642824ef4668086af2a44cc90876793dc49f6e8176df71",
+        "expiresAt": "2026-10-11T02:01:10.382Z",
+        "maxSpendCny": 1,
+        "generatorIdentity": "current-main-codex",
+        "waitForIndependentReview": false,
+        "reviewReceipts": {}
+      }
+    },
+    "cases": [
+      {
+        "stage": "small",
+        "caseId": "VALUE01",
+        "requestId": "a2be00a5-959d-4ad2-97c7-a26b1d84f4fe",
+        "deepId": "36d9f71e-a67f-4046-ae11-b2ce19f2cf7c",
+        "input": "我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。",
+        "deepInput": true,
+        "inputHarness": "AUTHORIZED_SYNTHETIC_INPUT_COMMIT_ZERO_GENERATION",
+        "deep": {
+          "id": "36d9f71e-a67f-4046-ae11-b2ce19f2cf7c",
+          "traceId": "36d9f71e-a67f-4046-ae11-b2ce19f2cf7c",
+          "conversationId": "6c2c5ffb-2230-4987-9439-60c92eae5454",
+          "status": "proposed",
+          "question": "我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。",
+          "receipt": {
+            "skills": [
+              "lifeos-direction-analysis"
+            ],
+            "status": "proposed",
+            "costCny": 0.0098142,
+            "traceId": "36d9f71e-a67f-4046-ae11-b2ce19f2cf7c",
+            "fallback": "none",
+            "proposal": {
+              "traceId": "36d9f71e-a67f-4046-ae11-b2ce19f2cf7c",
+              "hypotheses": [],
+              "nextActions": [
+                {
+                  "description": "LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。",
+                  "directionId": "employment",
+                  "evidenceRefs": [
+                    {
+                      "id": "5e7c1649-6abc-4ed9-8b09-20b5e39c5bb5",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。；仍需核对：已有作品与目标岗位实际要求如何对应，仍需核对；反馈不能替代岗位要求。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限20分钟或发现必需材料缺失时停止；不自动对外联系。",
+                  "estimatedMinutes": 20
+                },
+                {
+                  "description": "LifeOS 编辑建议（未绑定公开攻略）：读一段实际工作内容，写下一个愿意尝试的任务和一个不确定项；先了解工作，再决定是否投递。",
+                  "directionId": "employment",
+                  "evidenceRefs": [
+                    {
+                      "id": "5e7c1649-6abc-4ed9-8b09-20b5e39c5bb5",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。；仍需核对：读研或工作的具体动机仍需核对。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限15分钟或发现必需材料缺失时停止；不自动对外联系。",
+                  "estimatedMinutes": 15
+                },
+                {
+                  "description": "LifeOS 编辑建议（未绑定公开攻略）：写下读研想解决的一个问题，区分研究兴趣、学历需求与暂时避开就业；不能确定时记为未知，不直接开始全面备考。",
+                  "directionId": "postgraduate_exam",
+                  "evidenceRefs": [
+                    {
+                      "id": "5e7c1649-6abc-4ed9-8b09-20b5e39c5bb5",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。；仍需核对：读研或工作的具体动机仍需核对。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限15分钟或发现必需材料缺失时停止；不自动对外联系。",
+                  "estimatedMinutes": 15
+                },
+                {
+                  "description": "LifeOS 编辑建议（未绑定公开攻略）：只记下考研当前最关键的一个未知与重新考虑条件，然后暂停这条探索。",
+                  "directionId": "postgraduate_exam",
+                  "evidenceRefs": [
+                    {
+                      "id": "5e7c1649-6abc-4ed9-8b09-20b5e39c5bb5",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。；仍需核对：单次经历不能证明稳定能力或长期适配。；尚未提供的条件保持未知，不据此否定路径。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限5分钟或发现必需材料缺失时停止；不自动对外联系。",
+                  "estimatedMinutes": 5
+                }
+              ],
+              "alternatives": [
+                {
+                  "pros": [
+                    "本人原话（保留条件）：我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。"
+                  ],
+                  "title": "就业与实习",
+                  "unknowns": [
+                    "读研或工作的具体动机仍需核对。",
+                    "已有作品与目标岗位实际要求如何对应，仍需核对；反馈不能替代岗位要求。"
+                  ],
+                  "tradeoffs": [
+                    "先核对这条路径想解决的实际问题；若动机尚未知，先了解具体工作或研究内容，再决定是否准备。",
+                    "就业与实习：先核对目标岗位和实际作品证据；在要求不清楚时，不承诺投递数量或就业结果。"
+                  ],
+                  "directionId": "employment",
+                  "evidenceRefs": [
+                    {
+                      "id": "5e7c1649-6abc-4ed9-8b09-20b5e39c5bb5",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "weeklyMinutes": null
+                },
+                {
+                  "pros": [
+                    "本人原话（保留条件）：我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。"
+                  ],
+                  "title": "考研",
+                  "unknowns": [
+                    "读研或工作的具体动机仍需核对。",
+                    "单次经历不能证明稳定能力或长期适配。",
+                    "尚未提供的条件保持未知，不据此否定路径。"
+                  ],
+                  "tradeoffs": [
+                    "先核对这条路径想解决的实际问题；若动机尚未知，先了解具体工作或研究内容，再决定是否准备。",
+                    "考研：先区分读研想解决的问题与备考投入；报考条件、准备量和学校要求未核实时，不据此宣布适合读研。",
+                    "可以暂缓这条路径，保留重开条件；本次比较不要求立即选定长期方向。"
+                  ],
+                  "directionId": "postgraduate_exam",
+                  "evidenceRefs": [
+                    {
+                      "id": "5e7c1649-6abc-4ed9-8b09-20b5e39c5bb5",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "weeklyMinutes": null
+                }
+              ],
+              "evidenceRefs": [
+                {
+                  "id": "5e7c1649-6abc-4ed9-8b09-20b5e39c5bb5",
+                  "type": "message",
+                  "quote": "我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。",
+                  "revision": 1
+                }
+              ],
+              "schemaVersion": 2,
+              "suggestedStateChanges": []
+            },
+            "reviewIssues": [],
+            "executionKind": "real_provider",
+            "providerCalls": 4,
+            "schemaVersion": 2,
+            "reservedCostCny": 0.4317184
+          },
+          "commit": null,
+          "nodes": [
+            {
+              "id": "path:postgraduate_exam",
+              "role": "path_analyst",
+              "status": "succeeded",
+              "callId": "4b775194-e75d-4c3a-bc53-10554559f919",
+              "providerCalls": 1,
+              "costCny": 0.002213,
+              "reservedCostCny": 0.1079296,
+              "startedAt": "2026-10-11T01:01:18.096Z",
+              "finishedAt": "2026-10-11T01:01:23.516Z",
+              "providerUsage": {
+                "usage": {
+                  "cost": {
+                    "input": 0,
+                    "total": 0,
+                    "output": 0,
+                    "cacheRead": 0,
+                    "cacheWrite": 0
+                  },
+                  "input": 1801,
+                  "output": 286,
+                  "cacheRead": 0,
+                  "cacheWrite": 0,
+                  "totalTokens": 2087
+                },
+                "callId": "4b775194-e75d-4c3a-bc53-10554559f919",
+                "nodeId": "path:postgraduate_exam",
+                "costCny": 0.002213,
+                "outcome": "stop",
+                "failureCode": null,
+                "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+                "modelSignature": "625d4ef84718d161f02c117b6d3d9e0c3b05bb1a49d7ec8937aa5dc9ca3aeca8",
+                "providerResponseId": "chatcmpl-1d1f7475-737d-9da7-801b-489db6f2eb35"
+              },
+              "inputRefDigest": "3c07b78daacd127b6797d19d4fad2887ff4e4a2b06b8fd1baa5c882651bc4512",
+              "outputRefDigest": "0addb73e9bac6e668036ec84228b660059bbac582633fd819aec3b6a615519b8",
+              "latencyMs": 5420
+            },
+            {
+              "id": "path:employment",
+              "role": "path_analyst",
+              "status": "succeeded",
+              "callId": "e0959217-453a-4c74-8838-30f1ec667184",
+              "providerCalls": 1,
+              "costCny": 0.0021451,
+              "reservedCostCny": 0.1079296,
+              "startedAt": "2026-10-11T01:01:18.096Z",
+              "finishedAt": "2026-10-11T01:01:22.833Z",
+              "providerUsage": {
+                "usage": {
+                  "cost": {
+                    "input": 0,
+                    "total": 0,
+                    "output": 0,
+                    "cacheRead": 0,
+                    "cacheWrite": 0
+                  },
+                  "input": 1787,
+                  "output": 265,
+                  "cacheRead": 0,
+                  "cacheWrite": 0,
+                  "totalTokens": 2052
+                },
+                "callId": "e0959217-453a-4c74-8838-30f1ec667184",
+                "nodeId": "path:employment",
+                "costCny": 0.0021451,
+                "outcome": "stop",
+                "failureCode": null,
+                "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+                "modelSignature": "625d4ef84718d161f02c117b6d3d9e0c3b05bb1a49d7ec8937aa5dc9ca3aeca8",
+                "providerResponseId": "chatcmpl-76631fc7-9b87-9030-9c99-46a87188d600"
+              },
+              "inputRefDigest": "710e5fc8f961ada167b4e0cbb7ecffca0309ab20732f160d36073de3b746ec7e",
+              "outputRefDigest": "7f533f602c979ae400177f93b1246e541f83f4e89eb2710825ff9ccec10381cc",
+              "latencyMs": 4737
+            },
+            {
+              "id": "constraints",
+              "role": "constraint_validator",
+              "status": "succeeded",
+              "callId": "f5d4b1fb-3813-43a3-a590-9d3a237301c4",
+              "providerCalls": 0,
+              "costCny": 0,
+              "reservedCostCny": 0,
+              "startedAt": "2026-10-11T01:01:23.520Z",
+              "finishedAt": "2026-10-11T01:01:23.546Z",
+              "providerUsage": null,
+              "inputRefDigest": "3d5e66610caa39e8200af6a9884c1bd54152208e10cc380a041806a5f8d013e0",
+              "outputRefDigest": "c078baddfa26b4dd05112f78d52a8cd68436a656bd3f0f83ccad9b1032d75a7f",
+              "latencyMs": 26
+            },
+            {
+              "id": "critic",
+              "role": "independent_critic",
+              "status": "succeeded",
+              "callId": "3aad8c1f-ea15-48f5-a3b1-8da00de50f31",
+              "providerCalls": 1,
+              "costCny": 0.0034272,
+              "reservedCostCny": 0.1079296,
+              "startedAt": "2026-10-11T01:01:23.548Z",
+              "finishedAt": "2026-10-11T01:01:24.497Z",
+              "providerUsage": {
+                "usage": {
+                  "cost": {
+                    "input": 0,
+                    "total": 0,
+                    "output": 0,
+                    "cacheRead": 0,
+                    "cacheWrite": 0
+                  },
+                  "input": 4230,
+                  "output": 16,
+                  "cacheRead": 0,
+                  "cacheWrite": 0,
+                  "totalTokens": 4246
+                },
+                "callId": "3aad8c1f-ea15-48f5-a3b1-8da00de50f31",
+                "nodeId": "critic",
+                "costCny": 0.0034272,
+                "outcome": "stop",
+                "failureCode": null,
+                "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+                "modelSignature": "625d4ef84718d161f02c117b6d3d9e0c3b05bb1a49d7ec8937aa5dc9ca3aeca8",
+                "providerResponseId": "chatcmpl-80e74839-088a-9acf-8e30-e1fda20c9770"
+              },
+              "inputRefDigest": "fe1811a8b13bf609d28ddf2d14e3dcca7e1d01dbc6b20304755bd019a6d4c831",
+              "outputRefDigest": "d6fadf44d9eab666d8a05a584e65c8e0b28435ea0f7976ef5bd4884a728fe3c6",
+              "latencyMs": 949
+            },
+            {
+              "id": "critic_check",
+              "role": "evidence_guardian",
+              "status": "succeeded",
+              "callId": "8dce9ec3-f609-4d56-a622-5de126122e57",
+              "providerCalls": 0,
+              "costCny": 0,
+              "reservedCostCny": 0,
+              "startedAt": "2026-10-11T01:01:24.499Z",
+              "finishedAt": "2026-10-11T01:01:24.511Z",
+              "providerUsage": null,
+              "inputRefDigest": "622971ab0a3f8ac3cf3812d2e14836c4977ece979887ae6c6279698d81288f71",
+              "outputRefDigest": "d457c6178f05020d5b42e68dea78d00216b673e6eefadf5875b2f418bcb389f4",
+              "latencyMs": 12
+            },
+            {
+              "id": "synthesis",
+              "role": "decision_synthesizer",
+              "status": "succeeded",
+              "callId": "24f5b0fe-3656-4dd1-9fbb-3725502831fc",
+              "providerCalls": 1,
+              "costCny": 0.0020289,
+              "reservedCostCny": 0.1079296,
+              "startedAt": "2026-10-11T01:01:24.513Z",
+              "finishedAt": "2026-10-11T01:01:26.121Z",
+              "providerUsage": {
+                "usage": {
+                  "cost": {
+                    "input": 0,
+                    "total": 0,
+                    "output": 0,
+                    "cacheRead": 0,
+                    "cacheWrite": 0
+                  },
+                  "input": 2337,
+                  "output": 59,
+                  "cacheRead": 0,
+                  "cacheWrite": 0,
+                  "totalTokens": 2396
+                },
+                "callId": "24f5b0fe-3656-4dd1-9fbb-3725502831fc",
+                "nodeId": "synthesis",
+                "costCny": 0.0020289,
+                "outcome": "stop",
+                "failureCode": null,
+                "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+                "modelSignature": "625d4ef84718d161f02c117b6d3d9e0c3b05bb1a49d7ec8937aa5dc9ca3aeca8",
+                "providerResponseId": "chatcmpl-d1772735-3486-9e54-a4a0-99870f099682"
+              },
+              "inputRefDigest": "edb80eed7934908f6b10ba8f44f1fd5b9d7460a7d22bdd66bc23478c310cf0c8",
+              "outputRefDigest": "9445f1e304391273485fdd78099b149cc07e211236959b102e00a9187b5dc066",
+              "latencyMs": 1608
+            }
+          ],
+          "version": "bcde0a219148bb83e05f29ca9da10a176dbf3fea06288c5c181bcebe3bf834a7",
+          "executionKind": "real_provider"
+        },
+        "readback": {
+          "run": {
+            "request_id": "a2be00a5-959d-4ad2-97c7-a26b1d84f4fe",
+            "status": "completed",
+            "error_code": null,
+            "usage": null,
+            "response": {
+              "usage": null,
+              "growthIds": [],
+              "memoryIds": [],
+              "requestId": "a2be00a5-959d-4ad2-97c7-a26b1d84f4fe",
+              "growthWrite": null,
+              "stateChange": {
+                "plan": null,
+                "growth": {
+                  "status": "not_requested",
+                  "skipped": [],
+                  "changedIds": [],
+                  "createdIds": [],
+                  "retainedIds": []
+                },
+                "themes": {
+                  "changedIds": []
+                },
+                "controls": {
+                  "effects": [],
+                  "changedScopes": []
+                },
+                "material": null,
+                "workflow": null,
+                "growthDiff": [],
+                "guideUsage": {
+                  "items": [],
+                  "status": "not_requested"
+                },
+                "experiences": {
+                  "mergedIds": [],
+                  "createdIds": []
+                },
+                "memoryControl": null,
+                "growthDiffStatus": "applied"
+              },
+              "candidateIds": [],
+              "dialoguePath": "direct",
+              "upstreamCalls": 0,
+              "decisionVersion": 0,
+              "themeChangedIds": [],
+              "growthChangedIds": [],
+              "growthCreatedIds": [],
+              "memorySavedCount": 0,
+              "growthRetainedIds": [],
+              "mergedExperienceIds": []
+            }
+          },
+          "growth": {
+            "memoryEnabled": true,
+            "items": []
+          },
+          "starMap": {
+            "schemaVersion": "1.0.0",
+            "purpose": "当前登录用户的成长星图：主题来自本人陈述的目标与追求",
+            "notice": "主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。",
+            "rootId": "self-current",
+            "nodes": [
+              {
+                "id": "self-current",
+                "type": "self",
+                "title": "当前自我",
+                "description": "当前还没有本人确认的自我描述。",
+                "identityAccepted": [],
+                "identityObservations": [],
+                "skillTags": []
+              }
+            ],
+            "edges": [],
+            "viewConfig": {
+              "defaultMode": "overview",
+              "valueOrder": [],
+              "overviewExperienceOrder": [],
+              "overviewRailCandidates": [
+                "value-creation",
+                "value-autonomy",
+                "value-growth"
+              ],
+              "overviewRailMeaning": "沿轨道浏览三个价值观；外围经历随空间轨道同步运行，仍可直接点击经历。",
+              "valueRailMeaning": "仅沿轨道浏览与当前价值观关联的经历。",
+              "autoplayInitially": false,
+              "showAllNodesInOverview": true,
+              "showAllEdgesAtFullOpacity": false,
+              "visibilityRule": "演示模式展示全部候选节点；正式结论只可基于已确认且有来源的关联。",
+              "contentReviewBadge": "示例关联 · 待确认",
+              "experienceEndState": "readable_record_not_planet",
+              "motionDefaults": {
+                "dragThresholdCssPx": 7,
+                "snapDurationMs": 300,
+                "focusDurationMs": 700,
+                "dampingPerSecond": 8,
+                "maxInertiaSeconds": 0.8
+              },
+              "motionDefaultsNotice": "这些数值是交互调试起点，不是测试成绩或固定设计限制。"
+            },
+            "storage": "postgresql",
+            "interpretationsAutomaticallyConfirmed": false,
+            "starmapNextStep": "",
+            "changeEvents": []
+          },
+          "messages": [
+            {
+              "id": "6c2c5ffb-2230-4987-9439-60c92eae5454",
+              "user_id": "QxezwJ9u49tf7M1HIVSO1IKwr1X56BrJ",
+              "title": "SYNTHETIC ADULT REAL ACCEPTANCE",
+              "renamed": false,
+              "pinned": false,
+              "project_id": null,
+              "created_at": "2026-10-11T01:01:17.859Z",
+              "updated_at": "2026-10-11T01:01:17.872Z",
+              "messages": [
+                {
+                  "id": "5e7c1649-6abc-4ed9-8b09-20b5e39c5bb5",
+                  "user_id": "QxezwJ9u49tf7M1HIVSO1IKwr1X56BrJ",
+                  "conversation_id": "6c2c5ffb-2230-4987-9439-60c92eae5454",
+                  "role": "user",
+                  "content": "我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。",
+                  "run_request_id": "a2be00a5-959d-4ad2-97c7-a26b1d84f4fe",
+                  "created_at": "2026-10-11T01:01:17.864Z"
+                },
+                {
+                  "id": "6499477c-743a-4c8c-9b20-85861e044626",
+                  "user_id": "QxezwJ9u49tf7M1HIVSO1IKwr1X56BrJ",
+                  "conversation_id": "6c2c5ffb-2230-4987-9439-60c92eae5454",
+                  "role": "assistant",
+                  "content": "验收输入已保存，尚未生成建议。",
+                  "run_request_id": "a2be00a5-959d-4ad2-97c7-a26b1d84f4fe",
+                  "created_at": "2026-10-11T01:01:17.872Z",
+                  "stateChange": {
+                    "plan": null,
+                    "growth": {
+                      "status": "not_requested",
+                      "skipped": [],
+                      "changedIds": [],
+                      "createdIds": [],
+                      "retainedIds": []
+                    },
+                    "themes": {
+                      "changedIds": []
+                    },
+                    "controls": {
+                      "effects": [],
+                      "changedScopes": []
+                    },
+                    "material": null,
+                    "workflow": null,
+                    "growthDiff": [],
+                    "guideUsage": {
+                      "items": [],
+                      "status": "not_requested"
+                    },
+                    "experiences": {
+                      "mergedIds": [],
+                      "createdIds": []
+                    },
+                    "memoryControl": null,
+                    "growthDiffStatus": "applied"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "firstUsefulMs": null,
+        "wholeTurnMs": 8535.490699999998,
+        "failure": null,
+        "checks": {
+          "technicalCompleted": true,
+          "semanticCorrect": "WAITING_INDEPENDENT_REVIEW",
+          "sourceSupported": "WAITING_INDEPENDENT_REVIEW",
+          "necessaryStateCommitted": "WAITING_API_READBACK_REVIEW",
+          "intentRespected": "WAITING_INDEPENDENT_REVIEW",
+          "crossSessionContinuity": "WAITING_INDEPENDENT_REVIEW"
+        },
+        "costCny": 0.0098142
+      },
+      {
+        "stage": "small",
+        "caseId": "VALUE19",
+        "requestId": "45b974f4-2f65-49d9-baf7-f8f2e0ec3509",
+        "deepId": "1b3b0adc-b85a-44da-93fb-22a96dfe7b7f",
+        "input": "我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。",
+        "deepInput": true,
+        "inputHarness": "AUTHORIZED_SYNTHETIC_INPUT_COMMIT_ZERO_GENERATION",
+        "deep": {
+          "id": "1b3b0adc-b85a-44da-93fb-22a96dfe7b7f",
+          "traceId": "1b3b0adc-b85a-44da-93fb-22a96dfe7b7f",
+          "conversationId": "7768961b-251f-42cb-92e8-d96868344d38",
+          "status": "proposed",
+          "question": "我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。",
+          "receipt": {
+            "skills": [
+              "lifeos-direction-analysis"
+            ],
+            "status": "proposed",
+            "costCny": 0.011741399999999999,
+            "traceId": "1b3b0adc-b85a-44da-93fb-22a96dfe7b7f",
+            "fallback": "none",
+            "proposal": {
+              "traceId": "1b3b0adc-b85a-44da-93fb-22a96dfe7b7f",
+              "hypotheses": [],
+              "nextActions": [
+                {
+                  "description": "LifeOS 编辑建议（未绑定公开攻略）：选一个想了解的岗位，打开其公开说明，摘出一项职责和一项要求；没有目标岗位时先列一个待查岗位，不填造要求。",
+                  "directionId": "employment",
+                  "evidenceRefs": [
+                    {
+                      "id": "cc184614-f1f7-492f-9d8b-8c8fe01aef91",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。；仍需核对：已有作品与目标岗位实际要求如何对应，仍需核对；反馈不能替代岗位要求。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限20分钟或发现必需材料缺失时停止；不自动对外联系。",
+                  "estimatedMinutes": 20
+                },
+                {
+                  "description": "LifeOS 编辑建议（未绑定公开攻略）：写下读研想解决的一个问题，区分研究兴趣、学历需求与暂时避开就业；不能确定时记为未知，不直接开始全面备考。",
+                  "directionId": "postgraduate_exam",
+                  "evidenceRefs": [
+                    {
+                      "id": "cc184614-f1f7-492f-9d8b-8c8fe01aef91",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。；仍需核对：读研或工作的具体动机仍需核对。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限15分钟或发现必需材料缺失时停止；不自动对外联系。",
+                  "estimatedMinutes": 15
+                },
+                {
+                  "description": "LifeOS 编辑建议（未绑定公开攻略）：选一个具体使用场景，写出用户任务与一个可停止的原型范围；先验证问题，不承诺商业化。",
+                  "directionId": "independent_development",
+                  "evidenceRefs": [
+                    {
+                      "id": "cc184614-f1f7-492f-9d8b-8c8fe01aef91",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "stopCondition": "个人依据（原话片段；完整条件见依据）：[支持] 我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。；仍需核对：实际交付是否被采用、反馈及效果分别缺哪项证据，仍需核对。；阶段适用性（分析候选，尚待核对）：方向仍不清楚时，先核实一项会影响取舍的信息；探索不要求立即承诺长期方向。；到可调整的建议投入上限20分钟或发现必需材料缺失时停止；不自动对外联系。",
+                  "estimatedMinutes": 20
+                }
+              ],
+              "alternatives": [
+                {
+                  "pros": [
+                    "本人原话（保留条件）：我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。"
+                  ],
+                  "title": "就业与实习",
+                  "unknowns": [
+                    "已有作品与目标岗位实际要求如何对应，仍需核对；反馈不能替代岗位要求。",
+                    "读研或工作的具体动机仍需核对。"
+                  ],
+                  "tradeoffs": [
+                    "多条路径同时投入会争用时间；本次仅选择一个可停止的小探索。",
+                    "把本周已明确的课程、休息和其他义务放在探索之前；先缩小范围，不要求同时全面投入。",
+                    "就业与实习：先核对目标岗位和实际作品证据；在要求不清楚时，不承诺投递数量或就业结果。"
+                  ],
+                  "directionId": "employment",
+                  "evidenceRefs": [
+                    {
+                      "id": "cc184614-f1f7-492f-9d8b-8c8fe01aef91",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "weeklyMinutes": null
+                },
+                {
+                  "pros": [
+                    "本人原话（保留条件）：我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。"
+                  ],
+                  "title": "考研",
+                  "unknowns": [
+                    "读研或工作的具体动机仍需核对。",
+                    "单次经历不能证明稳定能力或长期适配。",
+                    "尚未提供的条件保持未知，不据此否定路径。"
+                  ],
+                  "tradeoffs": [
+                    "多条路径同时投入会争用时间；本次仅选择一个可停止的小探索。",
+                    "把本周已明确的课程、休息和其他义务放在探索之前；先缩小范围，不要求同时全面投入。",
+                    "考研：先区分读研想解决的问题与备考投入；报考条件、准备量和学校要求未核实时，不据此宣布适合读研。"
+                  ],
+                  "directionId": "postgraduate_exam",
+                  "evidenceRefs": [
+                    {
+                      "id": "cc184614-f1f7-492f-9d8b-8c8fe01aef91",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "weeklyMinutes": null
+                },
+                {
+                  "pros": [
+                    "本人原话（保留条件）：我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。"
+                  ],
+                  "title": "独立开发",
+                  "unknowns": [
+                    "实际交付是否被采用、反馈及效果分别缺哪项证据，仍需核对。",
+                    "单次经历不能证明稳定能力或长期适配。"
+                  ],
+                  "tradeoffs": [
+                    "多条路径同时投入会争用时间；本次仅选择一个可停止的小探索。",
+                    "把本周已明确的课程、休息和其他义务放在探索之前；先缩小范围，不要求同时全面投入。",
+                    "独立开发：作品完成、有人使用与持续收益是不同阶段；先验证一个场景，避免直接承诺商业化。"
+                  ],
+                  "directionId": "independent_development",
+                  "evidenceRefs": [
+                    {
+                      "id": "cc184614-f1f7-492f-9d8b-8c8fe01aef91",
+                      "type": "message",
+                      "revision": 1
+                    }
+                  ],
+                  "weeklyMinutes": null
+                }
+              ],
+              "evidenceRefs": [
+                {
+                  "id": "cc184614-f1f7-492f-9d8b-8c8fe01aef91",
+                  "type": "message",
+                  "quote": "我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。",
+                  "revision": 1
+                }
+              ],
+              "schemaVersion": 2,
+              "suggestedStateChanges": []
+            },
+            "reviewIssues": [],
+            "executionKind": "real_provider",
+            "providerCalls": 5,
+            "schemaVersion": 2,
+            "reservedCostCny": 0.539648
+          },
+          "commit": null,
+          "nodes": [
+            {
+              "id": "path:employment",
+              "role": "path_analyst",
+              "status": "succeeded",
+              "callId": "2e748332-c170-4d90-b7e7-28cba300739f",
+              "providerCalls": 1,
+              "costCny": 0.001969,
+              "reservedCostCny": 0.1079296,
+              "startedAt": "2026-10-11T01:01:26.607Z",
+              "finishedAt": "2026-10-11T01:01:29.718Z",
+              "providerUsage": {
+                "usage": {
+                  "cost": {
+                    "input": 0,
+                    "total": 0,
+                    "output": 0,
+                    "cacheRead": 0,
+                    "cacheWrite": 0
+                  },
+                  "input": 1793,
+                  "output": 198,
+                  "cacheRead": 0,
+                  "cacheWrite": 0,
+                  "totalTokens": 1991
+                },
+                "callId": "2e748332-c170-4d90-b7e7-28cba300739f",
+                "nodeId": "path:employment",
+                "costCny": 0.001969,
+                "outcome": "stop",
+                "failureCode": null,
+                "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+                "modelSignature": "625d4ef84718d161f02c117b6d3d9e0c3b05bb1a49d7ec8937aa5dc9ca3aeca8",
+                "providerResponseId": "chatcmpl-0e4704b5-55e6-9a78-963f-c8dbf23a10e6"
+              },
+              "inputRefDigest": "893dea9a9e7555f15c93cce013205ad0fd2012f904c9e201d049c6e317468cee",
+              "outputRefDigest": "4291def846387b41f8120ef25f2c1f3186fa94d5a775d7dab6c80e3ca63b4ebb",
+              "latencyMs": 3111
+            },
+            {
+              "id": "path:postgraduate_exam",
+              "role": "path_analyst",
+              "status": "succeeded",
+              "callId": "7ee4d56b-d685-4805-befc-b5134b3fdfaf",
+              "providerCalls": 1,
+              "costCny": 0.0020018,
+              "reservedCostCny": 0.1079296,
+              "startedAt": "2026-10-11T01:01:26.607Z",
+              "finishedAt": "2026-10-11T01:01:29.518Z",
+              "providerUsage": {
+                "usage": {
+                  "cost": {
+                    "input": 0,
+                    "total": 0,
+                    "output": 0,
+                    "cacheRead": 0,
+                    "cacheWrite": 0
+                  },
+                  "input": 1807,
+                  "output": 206,
+                  "cacheRead": 0,
+                  "cacheWrite": 0,
+                  "totalTokens": 2013
+                },
+                "callId": "7ee4d56b-d685-4805-befc-b5134b3fdfaf",
+                "nodeId": "path:postgraduate_exam",
+                "costCny": 0.0020018,
+                "outcome": "stop",
+                "failureCode": null,
+                "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+                "modelSignature": "625d4ef84718d161f02c117b6d3d9e0c3b05bb1a49d7ec8937aa5dc9ca3aeca8",
+                "providerResponseId": "chatcmpl-554e1b1b-dffe-9ead-be4a-9d02ece5e10b"
+              },
+              "inputRefDigest": "1b0d198c4f52b40c19b181ce22f93875be9a533029a579cf66dd1e5810f272ad",
+              "outputRefDigest": "958b5695bc242d5efd69cb1b7e6adadbb9a6abec24b63c70f2b12244faeb2bc6",
+              "latencyMs": 2911
+            },
+            {
+              "id": "path:independent_development",
+              "role": "path_analyst",
+              "status": "succeeded",
+              "callId": "479ef543-8b98-4c96-b0c0-9a3fb936e19f",
+              "providerCalls": 1,
+              "costCny": 0.0019363,
+              "reservedCostCny": 0.1079296,
+              "startedAt": "2026-10-11T01:01:26.616Z",
+              "finishedAt": "2026-10-11T01:01:30.396Z",
+              "providerUsage": {
+                "usage": {
+                  "cost": {
+                    "input": 0,
+                    "total": 0,
+                    "output": 0,
+                    "cacheRead": 0,
+                    "cacheWrite": 0
+                  },
+                  "input": 1742,
+                  "output": 201,
+                  "cacheRead": 0,
+                  "cacheWrite": 0,
+                  "totalTokens": 1943
+                },
+                "callId": "479ef543-8b98-4c96-b0c0-9a3fb936e19f",
+                "nodeId": "path:independent_development",
+                "costCny": 0.0019363,
+                "outcome": "stop",
+                "failureCode": null,
+                "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+                "modelSignature": "625d4ef84718d161f02c117b6d3d9e0c3b05bb1a49d7ec8937aa5dc9ca3aeca8",
+                "providerResponseId": "chatcmpl-b80aa43c-1866-9172-9fe9-531643c7d157"
+              },
+              "inputRefDigest": "4cd79c1cbec1eb5b65e192c7619c70e8fef4e0cdf25c02cc39d4e7c2d0196f52",
+              "outputRefDigest": "01dc6abe7c1c5773f8eaeb9f39629442cb41581ca454d68013f8242762d0b329",
+              "latencyMs": 3780
+            },
+            {
+              "id": "constraints",
+              "role": "constraint_validator",
+              "status": "succeeded",
+              "callId": "840a63b9-d65a-4a71-9607-a11107e115f5",
+              "providerCalls": 0,
+              "costCny": 0,
+              "reservedCostCny": 0,
+              "startedAt": "2026-10-11T01:01:30.398Z",
+              "finishedAt": "2026-10-11T01:01:30.417Z",
+              "providerUsage": null,
+              "inputRefDigest": "eff93c8196f5be78468dcd69a43e0dea23b6a348dd842726a4fbf401fa280bdd",
+              "outputRefDigest": "a2124d2dc87bcee50e84b5e8888a06e1318ba5a689c7ba4145a7c8f13036d1fb",
+              "latencyMs": 19
+            },
+            {
+              "id": "critic",
+              "role": "independent_critic",
+              "status": "succeeded",
+              "callId": "2d073a4d-7e49-48ae-ab48-ce61cdf42fe4",
+              "providerCalls": 1,
+              "costCny": 0.0037632,
+              "reservedCostCny": 0.1079296,
+              "startedAt": "2026-10-11T01:01:30.419Z",
+              "finishedAt": "2026-10-11T01:01:31.296Z",
+              "providerUsage": {
+                "usage": {
+                  "cost": {
+                    "input": 0,
+                    "total": 0,
+                    "output": 0,
+                    "cacheRead": 0,
+                    "cacheWrite": 0
+                  },
+                  "input": 4650,
+                  "output": 16,
+                  "cacheRead": 0,
+                  "cacheWrite": 0,
+                  "totalTokens": 4666
+                },
+                "callId": "2d073a4d-7e49-48ae-ab48-ce61cdf42fe4",
+                "nodeId": "critic",
+                "costCny": 0.0037632,
+                "outcome": "stop",
+                "failureCode": null,
+                "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+                "modelSignature": "625d4ef84718d161f02c117b6d3d9e0c3b05bb1a49d7ec8937aa5dc9ca3aeca8",
+                "providerResponseId": "chatcmpl-3da84053-f7fb-979d-be21-2fc791340f34"
+              },
+              "inputRefDigest": "9d0b83b92cb9a0569aaaa4126946b739871bcf915067b126d07a5d6c7bddcb79",
+              "outputRefDigest": "b0becf85b98762a75531ed3e6e9245ebc2b157c1707ab338fc3df200e3686830",
+              "latencyMs": 877
+            },
+            {
+              "id": "critic_check",
+              "role": "evidence_guardian",
+              "status": "succeeded",
+              "callId": "b4ec4661-cd4d-436d-80bb-7ccd82168ced",
+              "providerCalls": 0,
+              "costCny": 0,
+              "reservedCostCny": 0,
+              "startedAt": "2026-10-11T01:01:31.298Z",
+              "finishedAt": "2026-10-11T01:01:31.308Z",
+              "providerUsage": null,
+              "inputRefDigest": "2bede7159b29a20ea557843106bda485e4fa11c4e14beafb639c063408d9a1f9",
+              "outputRefDigest": "cc7f47e890ca80a20f7a8c909f5a476e79dc430b5feaadf7f504c47e2946a356",
+              "latencyMs": 10
+            },
+            {
+              "id": "synthesis",
+              "role": "decision_synthesizer",
+              "status": "succeeded",
+              "callId": "91bf8dd0-f1f4-4868-9f0c-ebae09a69c76",
+              "providerCalls": 1,
+              "costCny": 0.0020711,
+              "reservedCostCny": 0.1079296,
+              "startedAt": "2026-10-11T01:01:31.310Z",
+              "finishedAt": "2026-10-11T01:01:32.915Z",
+              "providerUsage": {
+                "usage": {
+                  "cost": {
+                    "input": 0,
+                    "total": 0,
+                    "output": 0,
+                    "cacheRead": 0,
+                    "cacheWrite": 0
+                  },
+                  "input": 2383,
+                  "output": 61,
+                  "cacheRead": 0,
+                  "cacheWrite": 0,
+                  "totalTokens": 2444
+                },
+                "callId": "91bf8dd0-f1f4-4868-9f0c-ebae09a69c76",
+                "nodeId": "synthesis",
+                "costCny": 0.0020711,
+                "outcome": "stop",
+                "failureCode": null,
+                "sourceDigest": "e0e523a03d6052ae5e67aec640d81c1b1e3843e39baf4fa442c86322ff74bd18",
+                "modelSignature": "625d4ef84718d161f02c117b6d3d9e0c3b05bb1a49d7ec8937aa5dc9ca3aeca8",
+                "providerResponseId": "chatcmpl-00343278-93fa-9fd8-ae05-0de781fea65c"
+              },
+              "inputRefDigest": "01b63c349d5c3a6cd628890bfead1ae3cbc70f146e839e109a346c42db8d68c0",
+              "outputRefDigest": "792f732b9bac3ea3b86b3ee7ba50eecbffcd20eee1af91756f214e49c7f9a6a9",
+              "latencyMs": 1605
+            }
+          ],
+          "version": "bcde0a219148bb83e05f29ca9da10a176dbf3fea06288c5c181bcebe3bf834a7",
+          "executionKind": "real_provider"
+        },
+        "readback": {
+          "run": {
+            "request_id": "45b974f4-2f65-49d9-baf7-f8f2e0ec3509",
+            "status": "completed",
+            "error_code": null,
+            "usage": null,
+            "response": {
+              "usage": null,
+              "growthIds": [],
+              "memoryIds": [],
+              "requestId": "45b974f4-2f65-49d9-baf7-f8f2e0ec3509",
+              "growthWrite": null,
+              "stateChange": {
+                "plan": null,
+                "growth": {
+                  "status": "not_requested",
+                  "skipped": [],
+                  "changedIds": [],
+                  "createdIds": [],
+                  "retainedIds": []
+                },
+                "themes": {
+                  "changedIds": []
+                },
+                "controls": {
+                  "effects": [],
+                  "changedScopes": []
+                },
+                "material": null,
+                "workflow": null,
+                "growthDiff": [],
+                "guideUsage": {
+                  "items": [],
+                  "status": "not_requested"
+                },
+                "experiences": {
+                  "mergedIds": [],
+                  "createdIds": []
+                },
+                "memoryControl": null,
+                "growthDiffStatus": "applied"
+              },
+              "candidateIds": [],
+              "dialoguePath": "direct",
+              "upstreamCalls": 0,
+              "decisionVersion": 0,
+              "themeChangedIds": [],
+              "growthChangedIds": [],
+              "growthCreatedIds": [],
+              "memorySavedCount": 0,
+              "growthRetainedIds": [],
+              "mergedExperienceIds": []
+            }
+          },
+          "growth": {
+            "memoryEnabled": true,
+            "items": []
+          },
+          "starMap": {
+            "schemaVersion": "1.0.0",
+            "purpose": "当前登录用户的成长星图：主题来自本人陈述的目标与追求",
+            "notice": "主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。",
+            "rootId": "self-current",
+            "nodes": [
+              {
+                "id": "self-current",
+                "type": "self",
+                "title": "当前自我",
+                "description": "当前还没有本人确认的自我描述。",
+                "identityAccepted": [],
+                "identityObservations": [],
+                "skillTags": []
+              }
+            ],
+            "edges": [],
+            "viewConfig": {
+              "defaultMode": "overview",
+              "valueOrder": [],
+              "overviewExperienceOrder": [],
+              "overviewRailCandidates": [
+                "value-creation",
+                "value-autonomy",
+                "value-growth"
+              ],
+              "overviewRailMeaning": "沿轨道浏览三个价值观；外围经历随空间轨道同步运行，仍可直接点击经历。",
+              "valueRailMeaning": "仅沿轨道浏览与当前价值观关联的经历。",
+              "autoplayInitially": false,
+              "showAllNodesInOverview": true,
+              "showAllEdgesAtFullOpacity": false,
+              "visibilityRule": "演示模式展示全部候选节点；正式结论只可基于已确认且有来源的关联。",
+              "contentReviewBadge": "示例关联 · 待确认",
+              "experienceEndState": "readable_record_not_planet",
+              "motionDefaults": {
+                "dragThresholdCssPx": 7,
+                "snapDurationMs": 300,
+                "focusDurationMs": 700,
+                "dampingPerSecond": 8,
+                "maxInertiaSeconds": 0.8
+              },
+              "motionDefaultsNotice": "这些数值是交互调试起点，不是测试成绩或固定设计限制。"
+            },
+            "storage": "postgresql",
+            "interpretationsAutomaticallyConfirmed": false,
+            "starmapNextStep": "",
+            "changeEvents": []
+          },
+          "messages": [
+            {
+              "id": "7768961b-251f-42cb-92e8-d96868344d38",
+              "user_id": "QxezwJ9u49tf7M1HIVSO1IKwr1X56BrJ",
+              "title": "SYNTHETIC ADULT REAL ACCEPTANCE",
+              "renamed": false,
+              "pinned": false,
+              "project_id": null,
+              "created_at": "2026-10-11T01:01:26.411Z",
+              "updated_at": "2026-10-11T01:01:26.420Z",
+              "messages": [
+                {
+                  "id": "cc184614-f1f7-492f-9d8b-8c8fe01aef91",
+                  "user_id": "QxezwJ9u49tf7M1HIVSO1IKwr1X56BrJ",
+                  "conversation_id": "7768961b-251f-42cb-92e8-d96868344d38",
+                  "role": "user",
+                  "content": "我是成年大学生，我还想保留独立开发探索，但本周总时间不增加。本周可用6小时，请深入比较就业/考研/独立开发。",
+                  "run_request_id": "45b974f4-2f65-49d9-baf7-f8f2e0ec3509",
+                  "created_at": "2026-10-11T01:01:26.415Z"
+                },
+                {
+                  "id": "440c79e3-8a97-485e-9710-0a070c920c30",
+                  "user_id": "QxezwJ9u49tf7M1HIVSO1IKwr1X56BrJ",
+                  "conversation_id": "7768961b-251f-42cb-92e8-d96868344d38",
+                  "role": "assistant",
+                  "content": "验收输入已保存，尚未生成建议。",
+                  "run_request_id": "45b974f4-2f65-49d9-baf7-f8f2e0ec3509",
+                  "created_at": "2026-10-11T01:01:26.420Z",
+                  "stateChange": {
+                    "plan": null,
+                    "growth": {
+                      "status": "not_requested",
+                      "skipped": [],
+                      "changedIds": [],
+                      "createdIds": [],
+                      "retainedIds": []
+                    },
+                    "themes": {
+                      "changedIds": []
+                    },
+                    "controls": {
+                      "effects": [],
+                      "changedScopes": []
+                    },
+                    "material": null,
+                    "workflow": null,
+                    "growthDiff": [],
+                    "guideUsage": {
+                      "items": [],
+                      "status": "not_requested"
+                    },
+                    "experiences": {
+                      "mergedIds": [],
+                      "createdIds": []
+                    },
+                    "memoryControl": null,
+                    "growthDiffStatus": "applied"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "6c2c5ffb-2230-4987-9439-60c92eae5454",
+              "user_id": "QxezwJ9u49tf7M1HIVSO1IKwr1X56BrJ",
+              "title": "SYNTHETIC ADULT REAL ACCEPTANCE",
+              "renamed": false,
+              "pinned": false,
+              "project_id": null,
+              "created_at": "2026-10-11T01:01:17.859Z",
+              "updated_at": "2026-10-11T01:01:17.872Z",
+              "messages": [
+                {
+                  "id": "5e7c1649-6abc-4ed9-8b09-20b5e39c5bb5",
+                  "user_id": "QxezwJ9u49tf7M1HIVSO1IKwr1X56BrJ",
+                  "conversation_id": "6c2c5ffb-2230-4987-9439-60c92eae5454",
+                  "role": "user",
+                  "content": "我是成年大学生，我还不知道读研动机，准备过一份简历。本周可用6小时，请深入比较就业/考研。",
+                  "run_request_id": "a2be00a5-959d-4ad2-97c7-a26b1d84f4fe",
+                  "created_at": "2026-10-11T01:01:17.864Z"
+                },
+                {
+                  "id": "6499477c-743a-4c8c-9b20-85861e044626",
+                  "user_id": "QxezwJ9u49tf7M1HIVSO1IKwr1X56BrJ",
+                  "conversation_id": "6c2c5ffb-2230-4987-9439-60c92eae5454",
+                  "role": "assistant",
+                  "content": "验收输入已保存，尚未生成建议。",
+                  "run_request_id": "a2be00a5-959d-4ad2-97c7-a26b1d84f4fe",
+                  "created_at": "2026-10-11T01:01:17.872Z",
+                  "stateChange": {
+                    "plan": null,
+                    "growth": {
+                      "status": "not_requested",
+                      "skipped": [],
+                      "changedIds": [],
+                      "createdIds": [],
+                      "retainedIds": []
+                    },
+                    "themes": {
+                      "changedIds": []
+                    },
+                    "controls": {
+                      "effects": [],
+                      "changedScopes": []
+                    },
+                    "material": null,
+                    "workflow": null,
+                    "growthDiff": [],
+                    "guideUsage": {
+                      "items": [],
+                      "status": "not_requested"
+                    },
+                    "experiences": {
+                      "mergedIds": [],
+                      "createdIds": []
+                    },
+                    "memoryControl": null,
+                    "growthDiffStatus": "applied"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "firstUsefulMs": null,
+        "wholeTurnMs": 7093.583299999998,
+        "failure": null,
+        "checks": {
+          "technicalCompleted": true,
+          "semanticCorrect": "WAITING_INDEPENDENT_REVIEW",
+          "sourceSupported": "WAITING_INDEPENDENT_REVIEW",
+          "necessaryStateCommitted": "WAITING_API_READBACK_REVIEW",
+          "intentRespected": "WAITING_INDEPENDENT_REVIEW",
+          "crossSessionContinuity": "WAITING_INDEPENDENT_REVIEW"
+        },
+        "costCny": 0.011741399999999999
+      }
+    ]
+  },
+  "limits": "same provider; ordinary earlier frozen code, complex current different freeze. Do not count as same-version final20, realstudentbenefit or fullchain. All earlier failures remain separate."
+}

@@ -1,0 +1,1867 @@
+{
+  "schemaVersion": 1,
+  "author": "codex",
+  "independentBlindTest": false,
+  "role": "UNEXPOSED_ACCEPTANCE_UNTIL_FIRST_FINAL_EXECUTION",
+  "old235AndNatural232": "EXPOSED_REGRESSION_ONLY",
+  "frozenBeforeExecution": true,
+  "usedForTuning": false,
+  "cases": [
+    {
+      "id": "acceptance2-campus-resource-1",
+      "domain": "01",
+      "stage": "start",
+      "text": "宿舍报修和成绩复核的入口不一样，怎样找各自负责的官方窗口？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-campus-resource-2",
+      "domain": "01",
+      "stage": "start",
+      "text": "听说图书馆能借别的学校的书，怎么确认不是传言？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-campus-resource-3",
+      "domain": "01",
+      "stage": "adjust",
+      "text": "转专业的流程我不想听猜测，怎么定位学校自己公布的说明？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-campus-resource-4",
+      "domain": "01",
+      "stage": "compare",
+      "text": "选课页面一直报错，怎样区分操作说明和同学经验？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-first-contact-1",
+      "domain": "01",
+      "stage": "start",
+      "text": "第一次给实验室老师发信，怎样说清想请教的问题又不吹嘘能力？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-first-contact-2",
+      "domain": "01",
+      "stage": "start",
+      "text": "想认识做游戏开发的学长，第一句话怎么提出一个小请求？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-first-contact-3",
+      "domain": "01",
+      "stage": "adjust",
+      "text": "老师没有回我的邮件，怎样核对是否需要继续联系？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-first-contact-4",
+      "domain": "01",
+      "stage": "compare",
+      "text": "推荐人还不了解我，怎么先提供真实材料再提出请求？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-fit-exploration-1",
+      "domain": "02",
+      "stage": "start",
+      "text": "我对建筑感兴趣但没上过课，怎么做一次低风险接触？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-fit-exploration-2",
+      "domain": "02",
+      "stage": "start",
+      "text": "体验了一次市场岗位却没有结论，怎样判断还要不要探索？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-fit-exploration-3",
+      "domain": "02",
+      "stage": "adjust",
+      "text": "读研是自己的愿望还是受别人影响，怎么从小经历核对？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-fit-exploration-4",
+      "domain": "02",
+      "stage": "compare",
+      "text": "不确定在海外学习的日常合不合适，怎么先验证一个疑问？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-skill-gap-1",
+      "domain": "02",
+      "stage": "start",
+      "text": "想从物理转产品设计，怎么把现有能力与新要求对照？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-skill-gap-2",
+      "domain": "02",
+      "stage": "start",
+      "text": "招聘要求好多工具，怎样找出真正缺的能力而不是全学？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-skill-gap-3",
+      "domain": "02",
+      "stage": "adjust",
+      "text": "没有商业项目，怎么做小作品验证一项新技能？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-skill-gap-4",
+      "domain": "02",
+      "stage": "compare",
+      "text": "原专业的训练怎样迁移到另一种工作，有什么核对步骤？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-course-frame-1",
+      "domain": "03",
+      "stage": "start",
+      "text": "同一章节符号很多，我怎样画出概念和推导之间的关系？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-course-frame-2",
+      "domain": "03",
+      "stage": "start",
+      "text": "物理定律都会背但串不起来，怎么建立知识结构？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-course-frame-3",
+      "domain": "03",
+      "stage": "adjust",
+      "text": "一门新课程不知道重点在哪，怎样围绕具体问题整理？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-course-frame-4",
+      "domain": "03",
+      "stage": "compare",
+      "text": "上课听不明白从哪个前提跳到结论，怎么找断开的那一环？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-exam-diagnosis-1",
+      "domain": "03",
+      "stage": "start",
+      "text": "模拟卷总错在不同位置，怎么区分没理解和执行疏漏？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-exam-diagnosis-2",
+      "domain": "03",
+      "stage": "start",
+      "text": "做实验连续失败，怎样先复原过程再找待验证原因？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-exam-diagnosis-3",
+      "domain": "03",
+      "stage": "adjust",
+      "text": "考试没考好，怎么用原题和实际答案定位卡点？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-exam-diagnosis-4",
+      "domain": "03",
+      "stage": "compare",
+      "text": "刷了很多题仍没改善，怎么对照错误而不是再加量？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-retrieval-practice-1",
+      "domain": "04",
+      "stage": "start",
+      "text": "书一打开就觉得熟，怎么核对自己能不能凭记忆说出来？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-retrieval-practice-2",
+      "domain": "04",
+      "stage": "start",
+      "text": "术语已经理解，如何在不翻笔记的情况下检查掌握程度？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-retrieval-practice-3",
+      "domain": "04",
+      "stage": "adjust",
+      "text": "背完一段定义之后怎么自测，而不是继续盯着它看？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-retrieval-practice-4",
+      "domain": "04",
+      "stage": "compare",
+      "text": "我想用空白纸检查这一课记住什么，具体怎么做？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-spaced-review-1",
+      "domain": "04",
+      "stage": "start",
+      "text": "同样的知识要多次复习，怎样分开时间而不是挤在今晚？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-spaced-review-2",
+      "domain": "04",
+      "stage": "start",
+      "text": "月底要用一套概念，如何安排跨几天回看？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-spaced-review-3",
+      "domain": "04",
+      "stage": "adjust",
+      "text": "上周记住这周又忘了，怎么改复习间隔？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-spaced-review-4",
+      "domain": "04",
+      "stage": "compare",
+      "text": "这周每天都有一点空隙，怎样把重复练习分布开？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-worked-example-1",
+      "domain": "04",
+      "stage": "start",
+      "text": "答案能看懂但自己写第一行就断了，怎么逐步摆脱示范？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-worked-example-2",
+      "domain": "04",
+      "stage": "start",
+      "text": "照视频能做网页，拿掉视频就停住，怎样练独立完成？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-worked-example-3",
+      "domain": "04",
+      "stage": "adjust",
+      "text": "例题每一步都理解，新题仍写不出，有什么渐进练法？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-worked-example-4",
+      "domain": "04",
+      "stage": "compare",
+      "text": "我总是复制示例的解法，怎么检查其中哪一步能独立做？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-explain-understanding-1",
+      "domain": "04",
+      "stage": "start",
+      "text": "老师让我讲为什么成立，我只会复述定义，怎么检查理解？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-explain-understanding-2",
+      "domain": "04",
+      "stage": "start",
+      "text": "怎样给室友解释一个概念并找出自己说不清的部分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-explain-understanding-3",
+      "domain": "04",
+      "stage": "adjust",
+      "text": "公式能背但原因讲不明白，怎么用解释暴露知识空白？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-explain-understanding-4",
+      "domain": "04",
+      "stage": "compare",
+      "text": "我想把一个理论讲成自己的话，有什么核对办法？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-priority-budget-1",
+      "domain": "03",
+      "stage": "start",
+      "text": "备考、打工和课程都占时间，怎么按必须完成的节点排优先级？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-priority-budget-2",
+      "domain": "03",
+      "stage": "start",
+      "text": "这一周只剩两小时，论文阅读和项目体验怎样取舍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-priority-budget-3",
+      "domain": "03",
+      "stage": "adjust",
+      "text": "下周开始课程增加，如何重新分配考研与作业的预算？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-priority-budget-4",
+      "domain": "03",
+      "stage": "compare",
+      "text": "两个任务期限撞在一起，怎么先保住关键交付？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-restart-task-1",
+      "domain": "05",
+      "stage": "start",
+      "text": "任务被电话打断后回不去，怎么留下能重新接上的线索？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-restart-task-2",
+      "domain": "05",
+      "stage": "start",
+      "text": "环境里总有通知弹出，怎样调整开始任务的条件？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-restart-task-3",
+      "domain": "05",
+      "stage": "adjust",
+      "text": "中间停了几天，现在不记得做到了哪，怎么恢复？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-restart-task-4",
+      "domain": "05",
+      "stage": "compare",
+      "text": "我一打开材料就拿手机，有什么小范围环境调整办法？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-start-small-1",
+      "domain": "06",
+      "stage": "start",
+      "text": "目标太大一想到就停住，怎么找真正能开始的一步？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-start-small-2",
+      "domain": "06",
+      "stage": "start",
+      "text": "我不知道第一步要产出什么，如何把任务拆小？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-start-small-3",
+      "domain": "06",
+      "stage": "adjust",
+      "text": "任务有十几个环节，怎样只选一个能验证的起点？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-start-small-4",
+      "domain": "06",
+      "stage": "compare",
+      "text": "总说准备好了再开始，怎么把准备改成一个可执行动作？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-plan-review-1",
+      "domain": "05",
+      "stage": "start",
+      "text": "计划连续两周都没完成，怎么核对原来假设错在哪？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-plan-review-2",
+      "domain": "05",
+      "stage": "start",
+      "text": "我换了目标，旧清单还在催我，怎样修订计划？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-plan-review-3",
+      "domain": "05",
+      "stage": "adjust",
+      "text": "按原计划做总卡住，如何调整任务而不是责怪自己？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-plan-review-4",
+      "domain": "05",
+      "stage": "compare",
+      "text": "新的实习安排挤掉原来时间，怎么修改已有计划？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-experience-evidence-1",
+      "domain": "08",
+      "stage": "start",
+      "text": "团队得了奖但我只做测试，怎么把个人贡献和团队结果分开？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-experience-evidence-2",
+      "domain": "08",
+      "stage": "start",
+      "text": "别人夸我细心，怎样和我实际做过的事对照？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-experience-evidence-3",
+      "domain": "08",
+      "stage": "adjust",
+      "text": "我做过三次志愿服务，怎么整理事实再看有哪些局部规律？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-experience-evidence-4",
+      "domain": "08",
+      "stage": "compare",
+      "text": "没有实习经历，怎样从课程项目找真实证据而不编造能力？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-research-reading-1",
+      "domain": "09",
+      "stage": "start",
+      "text": "论文里的方法很多，怎么带着一个问题读陌生文献？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-research-reading-2",
+      "domain": "09",
+      "stage": "start",
+      "text": "综述引用几十篇文章，我怎样定位与当前疑问有关的原文？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-research-reading-3",
+      "domain": "09",
+      "stage": "adjust",
+      "text": "读到看不懂的实验步骤，怎么记录未知并回到问题？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-research-reading-4",
+      "domain": "09",
+      "stage": "compare",
+      "text": "准备复现一个方法，怎样区分背景阅读和复现所需信息？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-research-task-1",
+      "domain": "09",
+      "stage": "start",
+      "text": "刚进课题组不知道负责哪一块，怎样和负责人确认任务？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-research-task-2",
+      "domain": "09",
+      "stage": "start",
+      "text": "社团只说让我帮忙，怎么问清具体交付和验收对象？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-research-task-3",
+      "domain": "09",
+      "stage": "adjust",
+      "text": "老师布置的研究任务太抽象，怎样核对输入和完成标准？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-research-task-4",
+      "domain": "09",
+      "stage": "compare",
+      "text": "组织活动没人明确分派，怎么先确认一个实际承担的部分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-direction-comparison-1",
+      "domain": "02",
+      "stage": "start",
+      "text": "保研与找工作都想试，如何按真实日常和代价比较？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-direction-comparison-2",
+      "domain": "02",
+      "stage": "start",
+      "text": "稳定工作和自主做项目让我纠结，怎么核对取舍依据？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-direction-comparison-3",
+      "domain": "02",
+      "stage": "adjust",
+      "text": "公益社团与比赛都在招人，怎样比较而不只看名称？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-direction-comparison-4",
+      "domain": "02",
+      "stage": "compare",
+      "text": "考公和继续科研的日常差异，怎样找人核对再选择？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-application-match-1",
+      "domain": "13",
+      "stage": "start",
+      "text": "两份岗位要求不一样，怎么按我的真实材料判断值得投哪份？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-application-match-2",
+      "domain": "13",
+      "stage": "start",
+      "text": "海外课程项目名称很像，怎样对照内容再决定投入？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-application-match-3",
+      "domain": "13",
+      "stage": "adjust",
+      "text": "培训服务承诺很多，怎么核验它能提供什么再付费？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-application-match-4",
+      "domain": "13",
+      "stage": "compare",
+      "text": "我不想海投，怎么把要求与已有成果逐项对照？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-project-story-1",
+      "domain": "10",
+      "stage": "start",
+      "text": "面试时怎么讲清我在团队软件项目中实际负责的部分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-project-story-2",
+      "domain": "10",
+      "stage": "start",
+      "text": "有一段课程经历要做自我介绍，如何组织任务行动和结果？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-project-story-3",
+      "domain": "10",
+      "stage": "adjust",
+      "text": "我想介绍研究项目，怎么避免把组里成果说成自己的？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-project-story-4",
+      "domain": "10",
+      "stage": "compare",
+      "text": "转专业面试怎样把旧经历讲清楚而不夸大关联？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-job-feedback-1",
+      "domain": "14",
+      "stage": "start",
+      "text": "发过申请没消息，怎么整理可以改变的环节而不猜招聘者想法？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-job-feedback-2",
+      "domain": "14",
+      "stage": "start",
+      "text": "面试结束后只有等待，怎样保留事实再复盘？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-job-feedback-3",
+      "domain": "14",
+      "stage": "adjust",
+      "text": "投递十份都没回应，怎么核对材料匹配而不是断定自己没能力？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-job-feedback-4",
+      "domain": "14",
+      "stage": "compare",
+      "text": "招聘说等通知，怎样区分未回复与明确拒绝并安排下一步？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-interview-unknown-1",
+      "domain": "15",
+      "stage": "start",
+      "text": "面试问题没有做过，怎样承认边界又说明可以如何核实？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-interview-unknown-2",
+      "domain": "15",
+      "stage": "start",
+      "text": "老师追问一个我不懂的细节，怎么避免编答案？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-interview-unknown-3",
+      "domain": "15",
+      "stage": "adjust",
+      "text": "被问到超出经历的工具，怎么说明不知道的部分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-interview-unknown-4",
+      "domain": "15",
+      "stage": "compare",
+      "text": "面试时卡在知识空白，怎样把确定与不确定分开回答？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-user-interview-1",
+      "domain": "17",
+      "stage": "start",
+      "text": "大家都说我的点子好，怎么问出他们过去实际遇到的问题？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-user-interview-2",
+      "domain": "17",
+      "stage": "start",
+      "text": "想做校园工具，怎样访谈正在用旧办法解决问题的人？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-user-interview-3",
+      "domain": "17",
+      "stage": "adjust",
+      "text": "需求不能只听口头赞同，怎么对照对方实际做过的事？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-user-interview-4",
+      "domain": "17",
+      "stage": "compare",
+      "text": "独立开发之前，怎么先找一个具体问题和它的发生过程？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-prototype-test-1",
+      "domain": "16",
+      "stage": "start",
+      "text": "功能想法太多，怎么用最小版本核对一个假设？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-prototype-test-2",
+      "domain": "16",
+      "stage": "start",
+      "text": "工具已经有人试过却没留下来，怎样先检验最不确定的一环？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-prototype-test-3",
+      "domain": "16",
+      "stage": "adjust",
+      "text": "不想先造完整应用，怎么用可展示的原型观察真实使用？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-prototype-test-4",
+      "domain": "16",
+      "stage": "compare",
+      "text": "反馈同时要求三种改动，如何选一个小实验而不是全部重做？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-delivery-scope-1",
+      "domain": "18",
+      "stage": "start",
+      "text": "客户一会儿要海报一会儿要视频，怎样确认第一单的具体范围？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-delivery-scope-2",
+      "domain": "18",
+      "stage": "start",
+      "text": "新要求和最初文件不一样，怎么对照后再决定是否修改？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-delivery-scope-3",
+      "domain": "18",
+      "stage": "adjust",
+      "text": "接设计单之前怎样明确交付物和修改边界？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-delivery-scope-4",
+      "domain": "18",
+      "stage": "compare",
+      "text": "客户说再优化一下却不具体，怎么核对这是修订还是新增任务？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-delivery-review-1",
+      "domain": "18",
+      "stage": "start",
+      "text": "文件发出去了但不知道是否被用，怎么复盘交付状态？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-delivery-review-2",
+      "domain": "18",
+      "stage": "start",
+      "text": "客户付了钱却没有效果反馈，怎样区分不同结果？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-delivery-review-3",
+      "domain": "18",
+      "stage": "adjust",
+      "text": "作品被采用但没有付款，怎么记录而不说整单已经成功？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-delivery-review-4",
+      "domain": "18",
+      "stage": "compare",
+      "text": "客户愿意再来找我但还没下单，怎样核对真实复购线索？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-income-ledger-1",
+      "domain": "19",
+      "stage": "start",
+      "text": "兼职收入看着不少但交通耗时也多，怎样记实际投入？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-income-ledger-2",
+      "domain": "19",
+      "stage": "start",
+      "text": "生活费和接单收入混在一起，怎么列可用预算？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-income-ledger-3",
+      "domain": "19",
+      "stage": "adjust",
+      "text": "工作花的时间与到账金额怎么对照而不是只看报价？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-income-ledger-4",
+      "domain": "19",
+      "stage": "compare",
+      "text": "我想比较两份兼职的投入收益，有什么记录方法？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-content-experiment-1",
+      "domain": "21",
+      "stage": "start",
+      "text": "想写内容却不知道给谁看，怎么做一批小范围表达实验？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-content-experiment-2",
+      "domain": "21",
+      "stage": "start",
+      "text": "上一批帖子反馈少，怎样对照具体内容而不追流量秘诀？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-content-experiment-3",
+      "domain": "21",
+      "stage": "adjust",
+      "text": "两个选题都想讲，怎么通过小样了解读者是否看懂？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-content-experiment-4",
+      "domain": "21",
+      "stage": "compare",
+      "text": "大家说喜欢但没给具体反馈，如何核对表达是否解决了问题？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-team-contract-1",
+      "domain": "22",
+      "stage": "start",
+      "text": "队友都说愿意帮忙却没有交付，怎样对齐分工和共同目标？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-team-contract-2",
+      "domain": "22",
+      "stage": "start",
+      "text": "比赛任务相互依赖，怎么确认谁负责哪一步？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-team-contract-3",
+      "domain": "22",
+      "stage": "adjust",
+      "text": "一项工作延误了，怎样重新核对承诺与下一步？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-team-contract-4",
+      "domain": "22",
+      "stage": "compare",
+      "text": "队里对做什么有分歧，怎么明确决定与责任？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-boundary-request-1",
+      "domain": "19",
+      "stage": "start",
+      "text": "室友半夜通话影响睡眠，怎么表达事实和具体请求？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-boundary-request-2",
+      "domain": "19",
+      "stage": "start",
+      "text": "同学总让我代做作业，怎样清楚拒绝并说明边界？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-boundary-request-3",
+      "domain": "19",
+      "stage": "adjust",
+      "text": "合作对象突然把我不负责的事塞过来，怎么沟通范围？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-boundary-request-4",
+      "domain": "19",
+      "stage": "compare",
+      "text": "想借东西又担心说不清归还条件，怎样提出明确请求？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-recovery-support-1",
+      "domain": "01",
+      "stage": "start",
+      "text": "最近睡少又很累，怎样先安排恢复和现实支持？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-recovery-support-2",
+      "domain": "01",
+      "stage": "start",
+      "text": "离家上大学后有点撑不住，怎么找到身边可以求助的人？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-recovery-support-3",
+      "domain": "01",
+      "stage": "adjust",
+      "text": "我已经没有精力承接新任务，怎样按当前状态安排休息？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-recovery-support-4",
+      "domain": "01",
+      "stage": "compare",
+      "text": "课程压力让我很疲惫，怎么分开感受和可以解决的事情？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-information-check-1",
+      "domain": "14",
+      "stage": "start",
+      "text": "有人拿个案证明一种方法人人有效，怎么核对证据边界？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-information-check-2",
+      "domain": "14",
+      "stage": "start",
+      "text": "AI建议我参加项目却没有来源，怎样检查原始资料？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-information-check-3",
+      "domain": "14",
+      "stage": "adjust",
+      "text": "招聘消息要我先发身份证，怎么核对来源和资料风险？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-information-check-4",
+      "domain": "14",
+      "stage": "compare",
+      "text": "网上经验和官方要求矛盾，怎样分别定位原文再判断？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "labelBasis": "Codex authored applicability annotation before execution, not independent or human review"
+    },
+    {
+      "id": "acceptance2-control-1",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "今晚只想吐槽，不想听建议。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-2",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "不要再推荐攻略，我现在需要你听完。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-3",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "把上一段介绍缩短成两句。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-4",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "谢谢，收到。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-5",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "你还记得我上次说过什么吗？",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-6",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "忘掉我刚才那条兼职收入记录。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-7",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "更正，那个作品不是我做的。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-8",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "我不做创业这件事了，别催我。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-9",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "别再给我行动，我要暂停。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-10",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "你好。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-11",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "只想说说这周发生的事情。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-12",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "不要用我过去的考研目标推荐。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-13",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "把这封邮件润色得短一点。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-14",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "我按上次做了，还是不行。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-15",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "我完成了第一稿。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-16",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "我还没有开始。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-17",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "帮我推荐一只必涨股票。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-18",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "请诊断我是不是失眠疾病。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-19",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "这怎么办？",
+      "expectedRoute": "CLARIFY",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-20",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "那个怎么做？",
+      "expectedRoute": "CLARIFY",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-21",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "这如何？",
+      "expectedRoute": "CLARIFY",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-22",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "请预测我的录取概率。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-23",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "这事我不想继续了。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-control-24",
+      "domain": "boundary",
+      "stage": "control",
+      "text": "只想倾诉，不要复盘。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "Explicit user intent or absent object, annotated before execution"
+    },
+    {
+      "id": "acceptance2-unavailable-1",
+      "domain": "no_matching_card",
+      "stage": "specific",
+      "text": "校园无线网需要哪条命令配置IPv6，怎么操作？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "No card supports requested technical or current specific rule; general method is not an answer"
+    },
+    {
+      "id": "acceptance2-unavailable-2",
+      "domain": "no_matching_card",
+      "stage": "specific",
+      "text": "一个具体化学反应的产率该怎么计算？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "No card supports requested technical or current specific rule; general method is not an answer"
+    },
+    {
+      "id": "acceptance2-unavailable-3",
+      "domain": "no_matching_card",
+      "stage": "specific",
+      "text": "停车资格按学校哪条规则判断，具体怎样申请？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "No card supports requested technical or current specific rule; general method is not an answer"
+    },
+    {
+      "id": "acceptance2-unavailable-4",
+      "domain": "no_matching_card",
+      "stage": "specific",
+      "text": "签证材料要求怎么按今年政策确认？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "No card supports requested technical or current specific rule; general method is not an answer"
+    },
+    {
+      "id": "acceptance2-unavailable-5",
+      "domain": "no_matching_card",
+      "stage": "specific",
+      "text": "当前债务合同是否有效，应该怎么判断法律结论？",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "No card supports requested technical or current specific rule; general method is not an answer"
+    },
+    {
+      "id": "acceptance2-unavailable-6",
+      "domain": "no_matching_card",
+      "stage": "specific",
+      "text": "耳机故障如何拆开换零件？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "No card supports requested technical or current specific rule; general method is not an answer"
+    },
+    {
+      "id": "acceptance2-unavailable-7",
+      "domain": "no_matching_card",
+      "stage": "specific",
+      "text": "学校规定的毕业学分今年怎么认定？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "No card supports requested technical or current specific rule; general method is not an answer"
+    },
+    {
+      "id": "acceptance2-unavailable-8",
+      "domain": "no_matching_card",
+      "stage": "specific",
+      "text": "这个课程作业的具体算法怎么写？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {},
+      "labelBasis": "No card supports requested technical or current specific rule; general method is not an answer"
+    }
+  ]
+}

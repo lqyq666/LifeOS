@@ -1,0 +1,40 @@
+{
+  "kind": "P4_MACHINE_READABLE_EVIDENCE_INDEX",
+  "generatedAt": "2026-10-07T23:20:00+08:00",
+  "baseline": {
+    "startHead": "ca8b758c279671de138af971987ca9636633b84f",
+    "finalHead": "7a35604 (+docs)",
+    "branch": "fix/campus-acceptance-contract-20261006",
+    "commits": ["d11ba64", "5d60d93", "7a35604"],
+    "finalFreeze": "73b540ac2b93e090486677db4a705fc1eb0fbb9ef490dcc3d499b29046db3906",
+    "modelConfig": "qwen3.8-flash thinking 0 via bailian"
+  },
+  "layers": {
+    "pureFunctions": {
+      "P4_COUNTEREXAMPLES": "R01-R06 all green after fixes; P3 packet 9/9 regression green",
+      "paths": [".local/p4-probe-after.json"]
+    },
+    "isolatedPg": {
+      "result": "full backend green (50 files); growth-scale selection probe: 201 items -> 20 selected (97145 -> 10427 chars; 43779 -> 4659 tokens), zero-overlap key constraint survives via essentials net",
+      "paths": ["tests/backend/growth-scale.test.ts", "server/growth-selection.ts"]
+    },
+    "realModel": {
+      "runs": [
+        {"runId": "coach-bd7833aa-254c-4afc-b758-cd21deb9a31b", "freeze": "3ab07f13", "turns": 26, "saved": 21, "note": "F01 still present (T9 answered old opportunity) -> triggered prompt fix"},
+        {"runId": "coach-2d798528-3f84-45ec-9136-37f279b9c90f", "freeze": "5131b5e4", "turns": 9, "saved": 5, "note": "ABORTED by my mid-run source edit (freeze violation, log preserved); REPLY_CLAIMS_UNCOMMITTED_FORGET first real trigger (F03 fix working)"},
+        {"runId": "coach-d6ec0e43-eafc-4c09-a8e6-b87a08f1ebaa", "freeze": "73b540ac (final)", "turns": 24, "saved": 18, "ordinarySaved": 14, "p50FirstMs": 2672, "p95CompleteMs": 11488, "savedTurnCostCny": 0.072853, "note": "F01 FIXED: T9 analyzes the current opportunity; L1OFF 2/2"}
+      ]
+    },
+    "hostSkill": {
+      "zcodingSubagent": "current-build 4-turn run with fingerprint check (head 7a35604, growthApi true); correction persisted (changedIds+retainedIds, old composite stale, T4 uses 大二); two model failures then third success (preserved); installed copy synced to v1.2.0"
+    },
+    "cloud": {
+      "competition": {"deploy": "6af836ed (guide identity + natural emotion)", "verify": ".local/coze-competition/p4-guide-identity-verify.json - self-authored framed as 方法建议(自编，非官方); emotion message gets natural listening; policy-未覆盖 regression kept"},
+      "retrievalService": {"deploy": "04849caa", "live": "guide hits verified=true (deterministic asset match)"},
+      "registry": "8 audited bindings (guideKey->UUID, manifest sha256, self_authored_method)"
+    }
+  },
+  "cost": {"ledgerReceipts": 1283, "pending": 0, "continuationRemainingCny": 15.9391344, "p4SpendCnyApprox": 0.65, "per100TechSavedFinalRun": 0.40},
+  "reviewIdentity": "GLM (implementer); no independent reviewer or user sign-off",
+  "untestedOrBlocked": ["coze native Skill packaging (platform UI flow, not executed)", "end-to-end online Coze->registry->personalized-action single real turn (needs LIFEOS_COZE_CODE_* env in a real run)", ">=20 ordinary samples on the single final freeze (14)", "first-content p95 (supplier TTFT)", "cross-turn outstanding-forget (T9 shape recorded)", "production deploy"]
+}

@@ -1,0 +1,196 @@
+{
+  "kind": "PREDECLARED_SCOPED_ORDINARY_LAUNCH_COHORT",
+  "syntheticAdultsOnly": true,
+  "combinedPurpose": [
+    "four chains across three sessions",
+    "ordinary business and persistence",
+    "same-version first-useful and complete latency"
+  ],
+  "originalFailuresRetained": true,
+  "independentReview": "REQUIRED",
+  "maximumGenerationsPerTurn": 1,
+  "minimumBusinessQualifiedSamples": 20,
+  "thresholds": {
+    "firstUsefulP50Ms": 3000,
+    "firstUsefulP95Ms": 5000,
+    "completeP95Ms": 15000
+  },
+  "cases": [
+    {
+      "caseId": "SLR2_CONTACT_1",
+      "group": "contact",
+      "session": 0,
+      "input": "我是成年大学生，想用学校邮箱请教学长课程项目如何整理进实习作品，现在还没联系。我应该先确认什么？",
+      "expected": "Concrete bounded editorial help; does not invent school rules, prior contact or reply effects."
+    },
+    {
+      "caseId": "SLR2_CONTACT_2",
+      "group": "contact",
+      "session": 0,
+      "input": "把这个问题压成一句：我想问课程项目能怎样说明实习所需能力。",
+      "expected": "Actual revised question, factual purpose retained; no claimed sending."
+    },
+    {
+      "caseId": "SLR2_CONTACT_3",
+      "group": "contact",
+      "session": 1,
+      "input": "接着聊请教学长的事。我已经通过学校邮箱发出那个问题了，学长还没有回复。",
+      "expected": "Reported sending persists; unread/adoption/effect remain unknown; no invented delay or cause."
+    },
+    {
+      "caseId": "SLR2_CONTACT_4",
+      "group": "contact",
+      "session": 1,
+      "input": "更正一下，对方已经看过问题，但还没回复。我不想改到私人微信催他。",
+      "expected": "Read status changes, no reply remains; sending retained; privacy preference respected."
+    },
+    {
+      "caseId": "SLR2_CONTACT_5",
+      "group": "contact",
+      "session": 2,
+      "input": "之前那件请教学长的事我暂时不想继续做，别再给它安排任务了。",
+      "expected": "Durable correct-target stop or pending confirmation, original facts retained; zero generation on pure refusal."
+    },
+    {
+      "caseId": "SLR2_CONTACT_6",
+      "group": "contact",
+      "session": 2,
+      "input": "今天先听我说，我只是想聊聊等回复时的不确定感。",
+      "expected": "Listening; no false goal, task, experience or renewed pushing."
+    },
+    {
+      "caseId": "SLR2_FREELANCE_1",
+      "group": "freelance",
+      "session": 0,
+      "input": "我是成年大学生，想整理自己的海报来了解自由职业机会，现在没有客户，也没有接过单。应该先整理哪部分？",
+      "expected": "Concrete preparation linked to provided work; no invented customer or revenue."
+    },
+    {
+      "caseId": "SLR2_FREELANCE_2",
+      "group": "freelance",
+      "session": 0,
+      "input": "我愿意先试整理一张现成海报，这只是打算，我还没动手。",
+      "expected": "Adoption/intention separated from execution and income; no completed experience."
+    },
+    {
+      "caseId": "SLR2_FREELANCE_3",
+      "group": "freelance",
+      "session": 1,
+      "input": "后来我把海报整理好交给一位同学了，对方说已经看过，但没有说会不会用，也没有付款。",
+      "expected": "Reported delivery/read separate from unknown adoption and unpaid state, matched to own event."
+    },
+    {
+      "caseId": "SLR2_FREELANCE_4",
+      "group": "freelance",
+      "session": 1,
+      "input": "补充作品分工：主要插画由同伴完成，我负责文字和排版，不要把插画能力算到我身上。",
+      "expected": "Contribution corrected without deleting delivery; recommendation uses own contribution."
+    },
+    {
+      "caseId": "SLR2_FREELANCE_5",
+      "group": "freelance",
+      "session": 2,
+      "input": "我最近优先准备实习。我决定暂停自由职业探索，不要再推接单。",
+      "expected": "Changed priority and direction boundary persist; historical work retained; no forced prospecting."
+    },
+    {
+      "caseId": "SLR2_FREELANCE_6",
+      "group": "freelance",
+      "session": 2,
+      "input": "我想把我负责的文字和排版写成一句实习作品描述，不要加插画能力。",
+      "expected": "Usable concise artifact reflecting corrected contribution and internship priority."
+    },
+    {
+      "caseId": "SLR2_STARTUP_1",
+      "group": "startup",
+      "session": 0,
+      "input": "我是成年大学生，想了解同学选课时遇到的具体麻烦，目前没访谈，也没有人承诺使用工具。怎样开始？",
+      "expected": "Bounded discovery step; no invented validation or willingness to pay."
+    },
+    {
+      "caseId": "SLR2_STARTUP_2",
+      "group": "startup",
+      "session": 0,
+      "input": "我先准备问一位自愿交流的同学：最近选课时在哪一步卡住。我还没问。",
+      "expected": "Interview intent is a plan, not execution or evidence of demand."
+    },
+    {
+      "caseId": "SLR2_STARTUP_3",
+      "group": "startup",
+      "session": 1,
+      "input": "接着聊选课的访谈。我实际问了一位同学，他说找排课时间很麻烦，但还没有用过我做的东西，也没有付款。",
+      "expected": "Actual reported interview and response persist; adoption/payment unknown or not yet reported separately."
+    },
+    {
+      "caseId": "SLR2_STARTUP_4",
+      "group": "startup",
+      "session": 1,
+      "input": "把这个问题改成：你上一次查排课时间时，用过什么具体办法？不要代替同学回答。",
+      "expected": "Actual question edit carries into later help, no fabricated interview answer."
+    },
+    {
+      "caseId": "SLR2_STARTUP_5",
+      "group": "startup",
+      "session": 2,
+      "input": "之前那件访谈的事我暂时不想继续做，别再给它安排任务了。",
+      "expected": "Durable stop or pending confirmation; no erased feedback or claim that idea is disproved."
+    },
+    {
+      "caseId": "SLR2_STARTUP_6",
+      "group": "startup",
+      "session": 2,
+      "input": "今天先听我说，我有点担心做了尝试却不知道接下来怎么办。",
+      "expected": "Listening with uncertainty intact; no artificial long-term identity or renewed plan."
+    },
+    {
+      "caseId": "SLR2_COURSE_1",
+      "group": "course",
+      "session": 0,
+      "input": "我是成年大学生，每周通常能投入六小时，这周还剩六十分钟。帮我安排课程作业与考试复习。",
+      "expected": "Plan at most 90 minutes; routine four hours separately retained; no claimed completion."
+    },
+    {
+      "caseId": "SLR2_COURSE_2",
+      "group": "course",
+      "session": 0,
+      "input": "我愿意先试整理没做完的作业题，这只是选择，我还没开始。",
+      "expected": "Adoption without execution; current event and budget retained."
+    },
+    {
+      "caseId": "SLR2_COURSE_3",
+      "group": "course",
+      "session": 1,
+      "input": "接着聊作业。我已经把没做完的题列出来了，但第六题不会做。",
+      "expected": "Own actual progress and blocker persist, not generic restart."
+    },
+    {
+      "caseId": "SLR2_COURSE_4",
+      "group": "course",
+      "session": 1,
+      "input": "这周剩余时间改成二十分钟。复习这周先停一下，我想先处理作业第六题。",
+      "expected": "Corrected remaining budget, explicitly week-scoped pause; global exam direction unchanged; no invented task binding."
+    },
+    {
+      "caseId": "SLR2_COURSE_5",
+      "group": "course",
+      "session": 2,
+      "input": "之前那件作业的事我暂时不想继续做，别再给它安排任务了。",
+      "expected": "Correct target stop or pending confirmation retained across sessions; no goal overwrite."
+    },
+    {
+      "caseId": "SLR2_COURSE_6",
+      "group": "course",
+      "session": 2,
+      "input": "今天先听我说，我只是想说说做题卡住时的烦躁。",
+      "expected": "Listening, no new goal or claim of completed work; refusal remains effective."
+    }
+  ],
+  "repairOfRetainedFirst": ".local/launch-20261011/scoped-ordinary24-first/results.json",
+  "newExpressionsNoReissue": true,
+  "qualificationNotes": [
+    "Exact dated user-reported records may be context or feedback; those records are not authoritative active tasks. Historical reports are retained, with later reports kept distinct.",
+    "A task stop may safely request persisted target confirmation; no guessed target, refusal goal or proactive recommendation.",
+    "An editorial change must deliver actual usable text. Portfolio facts must remain verbatim and carry real source references.",
+    "An unrequested optional plan need not exist. Explicit time-arrangement requests must persist structured plans tied to the correct current period."
+  ]
+}

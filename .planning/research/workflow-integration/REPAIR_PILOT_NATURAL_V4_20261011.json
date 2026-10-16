@@ -1,0 +1,58 @@
+{
+  "kind": "PREDECLARED_NEW_NATURAL_REAL_REPAIR_PILOT",
+  "notReplacement": true,
+  "historicalFirstAttempts": [
+    "four-real-chains-aae0a82-first-readback.json"
+  ],
+  "independentReview": "REQUIRED_SEPARATE_EXECUTION",
+  "cases": [
+    {
+      "caseId": "NC4_CONTACT_REPORT",
+      "session": 0,
+      "input": "我请教学长的那封邮件发出去了。他已经看过，但还没回，也没采用我给的想法。我现在只想说说这件事。",
+      "expected": "Read, no reply and no adoption are three own reports. Listen only, no inferred failure/effect, no duplicate goals."
+    },
+    {
+      "caseId": "NC4_CONTACT_CORRECT",
+      "session": 0,
+      "input": "更正一下，是否采用我不知道；看过但没回这两点没变。",
+      "expected": "Only adoption becomes unknown; known read and no-reply retained; do not ask if read."
+    },
+    {
+      "caseId": "NC4_CONTACT_CONTINUE",
+      "session": 1,
+      "input": "那封信还是没回。先别给我建议，我挺沮丧的。",
+      "expected": "Same event across session; no reask known read or guidance, refusal not a goal."
+    },
+    {
+      "caseId": "NC4_FREELANCE_REPORT",
+      "session": 2,
+      "input": "换件事，我这次接单做完海报交给客户了。他说已经用了，但还没有付款。现在不要讲入门教程。",
+      "expected": "New event; delivery, actual adoption and unpaid separated verbatim; no paid/effective inference."
+    },
+    {
+      "caseId": "NC4_FREELANCE_PAUSE",
+      "session": 3,
+      "input": "我不再把接单作为主线，之后优先找实习。这个变化也请记住。",
+      "expected": "Existing freelance direction paused in goals/starmap/next help; internship current; old delivery not deleted."
+    },
+    {
+      "caseId": "NC4_STARTUP_FEEDBACK",
+      "session": 4,
+      "input": "创业这边我问了三个同学，他们觉得听起来有意思，但谁也还没用。我想把访谈问题改成“上次碰到这个问题，你具体怎么处理的？”",
+      "expected": "Interest not actual usage/demand/effect; single question edit, no stable goal or universal effectiveness claim."
+    },
+    {
+      "caseId": "NC4_WEEK_TWO",
+      "session": 5,
+      "input": "课程和备考怎么取舍？我这周只剩两小时，不想同时铺开。",
+      "expected": "Current two-hour remainder not regular/next-week time; narrow current choice, no invented allocation or rule."
+    },
+    {
+      "caseId": "NC4_WEEK_ZERO_NEXT",
+      "session": 6,
+      "input": "这周后来被排满了，能用的时间是零。下周大概能有六小时，先不要给我排具体任务。",
+      "expected": "This-week zero supersedes same-week two hours; next-week six independent future active; no plan/old allocation, no claimed lapse or task progress."
+    }
+  ]
+}

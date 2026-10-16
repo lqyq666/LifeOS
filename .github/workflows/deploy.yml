@@ -1,0 +1,17 @@
+name: Production deployment disabled pending acceptance
+
+# This entry must not bypass the reviewed, version-bound recovery path.
+# Routine Git synchronization never deploys production.
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  blocked:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refuse unverified deployment
+        run: |
+          echo "::error::Deployment disabled. Use the exact reviewed recovery binding and release acceptance gates documented in DEPLOYMENT_HANDOFF.md."
+          exit 1

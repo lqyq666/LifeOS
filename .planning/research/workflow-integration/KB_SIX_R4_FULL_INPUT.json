@@ -1,0 +1,1196 @@
+{
+  "generator": "current-main-codex",
+  "cards": [
+    {
+      "id": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "找到可核验的校园信息",
+      "url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+      "publisher": "长江大学图书馆",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.544Z",
+      "validUntil": null,
+      "excerpt": "使用、服务需求等方面的意见，为后续优化服务提供依据。此外，东校区还拍摄图书馆宣传视频，既展示图书阅览区、自习区等功能空间，又通过实操演示呈现馆藏查询、电子资源获取等操作，让新生直观了解图书馆使用方法。\n西校区分馆通过大学生阅读学社，以“线上学习一周 + 馆内现场体验”模式推进入馆教育。线上帮助新生初步了解资源，线下结合老师讲解与实地参观，介绍《中图法》分类、自助借还机操作、书籍排架及电子资源情况。活动历时28天，覆盖81个班级近3000名新生，32名志愿者全程参与服务，活动尾声发起“六个一”倡议（即借一本书、关注一下图书馆网站、关注一下图书馆微信公众号、至少访问一个中文数据库、至少访问一个外文数据库、",
+      "claim": "该馆公开介绍馆藏查询和电子资源获取。",
+      "scope": "写清要查的资料或手续，不先交个人敏感信息。；适用范围按每个分支核对。",
+      "limitations": "该校账号与权限不能迁移到其他学校。",
+      "mechanisms": [
+        "寻找官方入口"
+      ],
+      "sourceHash": "9ef997b3b94440c80247a70a788394a5512185685f3c82ca95b5ca18333dce9c",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+        "canonicalKey": "campus-resource",
+        "aliases": [
+          "新生",
+          "选课",
+          "教务",
+          "校园信息",
+          "运行方式",
+          "可靠信息",
+          "图书馆",
+          "了解大学运行方式",
+          "寻找可靠校园信息"
+        ],
+        "domains": [
+          "01"
+        ],
+        "task": "找到可核验的校园信息",
+        "stage": "start/adjust/compare",
+        "mechanism": "寻找官方入口",
+        "prerequisites": [
+          "问题属于哪项学校资源或办事流程？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "该校账号与权限不能迁移到其他学校。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "yangtze-library-batch-campus-resource-e1"
+        ],
+        "claims": [
+          {
+            "id": "campus-resource-scope",
+            "text": "该馆公开介绍馆藏查询和电子资源获取。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "yangtze-library-batch-campus-resource-e1"
+            ],
+            "scope": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。",
+            "limitations": "该校账号与权限不能迁移到其他学校。"
+          },
+          {
+            "id": "campus-resource-editorial",
+            "text": "写清要查的资料或手续，不先交个人敏感信息。；从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。；核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "yangtze-library-batch-campus-resource-e1"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "yangtze-library"
+        ],
+        "principle": "该馆公开介绍馆藏查询和电子资源获取。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C01-1",
+            "candidateId": "C01-1",
+            "task": "了解大学运行方式",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C01-1-r2-1",
+                "text": "当前任务「了解大学运行方式」：写清要查的资料或手续，不先交个人敏感信息。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-1-r2-2",
+                "text": "从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-1-r2-3",
+                "text": "核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C01-2",
+            "candidateId": "C01-2",
+            "task": "寻找可靠校园信息",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C01-2-r2-1",
+                "text": "当前任务「寻找可靠校园信息」：写清要查的资料或手续，不先交个人敏感信息。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-2-r2-2",
+                "text": "从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              },
+              {
+                "id": "C01-2-r2-3",
+                "text": "核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "yangtze-library-batch-campus-resource-e1"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "问题属于哪项学校资源或办事流程？",
+        "smallestAction": "写清要查的资料或手续，不先交个人敏感信息。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“问题属于哪项学校资源或办事流程？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "该校账号与权限不能迁移到其他学校。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「找到可核验的校园信息」时，先核对：问题属于哪项学校资源或办事流程？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。只调整卡住处，不重送入门全套。",
+          "waiting_result": "已尝试不等于有效。等待「是否找到本人能实际访问的入口；未访问不算获得资源。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。 部门尚未回应时只记录等待与未知；没有本人许可不反复联系。资料权限被拒绝时停止获取，不换账号或渠道绕过，改列可公开核验的替代资料。",
+          "result": "只用本人报告的新反馈检查：是否找到本人能实际访问的入口；未访问不算获得资源。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。",
+          "declined": "停止「找到可核验的校园信息」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。 明确拒绝获取权限、联系部门或继续查找时一并停止，不把拒绝当失败经历。"
+        },
+        "expectedObservation": "是否找到本人能实际访问的入口；未访问不算获得资源。",
+        "retrievalSummary": "找到可核验的校园信息；campus-resource；问题属于哪项学校资源或办事流程？；了解大学运行方式；寻找可靠校园信息；写清要查的资料或手续，不先交个人敏感信息。；从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。；核对适用对象；权限、开放时间未知时只向该部门提出一个问题。",
+        "referenceBody": "找到可核验的校园信息\n原文范围：该馆公开介绍馆藏查询和电子资源获取。\n什么时候用：问题属于哪项学校资源或办事流程？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：该校账号与权限不能迁移到其他学校。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：问题属于哪项学校资源或办事流程？\nLifeOS编辑步骤：\n写清要查的资料或手续，不先交个人敏感信息。\n从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。\n核对适用对象；权限、开放时间未知时只向该部门提出一个问题。\n资源不足：不必完成全套；只处理“问题属于哪项学校资源或办事流程？”中的一项已有材料，零时间保留未知并暂停。\n观察：是否找到本人能实际访问的入口；未访问不算获得资源。\nnot_started：尚未开始「找到可核验的校园信息」时，先核对：问题属于哪项学校资源或办事流程？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：从本人学校官网找到负责部门或图书馆入口，记录页面名称及位置。只调整卡住处，不重送入门全套。\nwaiting_result：已尝试不等于有效。等待「是否找到本人能实际访问的入口；未访问不算获得资源。」的真实反馈；未回复、采用、付款、效果各自未知，不猜原因或自动追发。 部门尚未回应时只记录等待与未知；没有本人许可不反复联系。资料权限被拒绝时停止获取，不换账号或渠道绕过，改列可公开核验的替代资料。\nresult：只用本人报告的新反馈检查：是否找到本人能实际访问的入口；未访问不算获得资源。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。\ndeclined：停止「找到可核验的校园信息」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。 明确拒绝获取权限、联系部门或继续查找时一并停止，不把拒绝当失败经历。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
+        "indexSignature": "02548ef20a2432975cd4351d4b8f33847c6ee84f6847a691645ce6a259463b81",
+        "legacyIds": [],
+        "replaces": []
+      }
+    },
+    {
+      "id": "e6ad610b-549e-4b09-89bc-34223577fb49",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "合上材料检查记忆",
+      "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "publisher": "美国教育科学研究院 WWC",
+      "publishedYear": "2007",
+      "verifiedAt": "2026-10-10T10:08:23.548Z",
+      "validUntil": null,
+      "excerpt": "Use quizzing to promote learning. Use pre-questions to introduce a new topic.\n Show More\n Show Less\n 5b\nUse quizzing to promote learning. Use quizzes to re-expose students to key content.\n Show More\n Show Less\n 6a\nHelp students allocate stu",
+      "claim": "该教学实践指南建议用测验再次接触关键课程内容；这是教学建议，不能证明某个学生已经掌握。",
+      "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+      "limitations": "不固定每天次数或声称所有学科同一收益。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+      "mechanisms": [
+        "提取练习"
+      ],
+      "sourceHash": "639c15b43645ca01d86d3453c61d54955ea6261f5707473ca143b664584aab4f",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+        "canonicalKey": "retrieval-practice",
+        "aliases": [
+          "主动回忆",
+          "提取练习",
+          "不看答案",
+          "自测",
+          "记不住",
+          "主动回忆"
+        ],
+        "domains": [
+          "04"
+        ],
+        "task": "合上材料检查记忆",
+        "stage": "start/adjust/compare",
+        "mechanism": "提取练习",
+        "prerequisites": [
+          "当前需要检验哪一小段知识的记忆？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "不固定每天次数或声称所有学科同一收益。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "ies-learning-located-20261011-retrieval-practice"
+        ],
+        "claims": [
+          {
+            "id": "retrieval-practice-scope",
+            "text": "该教学实践指南建议用测验再次接触关键课程内容；这是教学建议，不能证明某个学生已经掌握。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "ies-learning-located-20261011-retrieval-practice"
+            ],
+            "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+            "limitations": "不固定每天次数或声称所有学科同一收益。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。"
+          },
+          {
+            "id": "retrieval-practice-editorial",
+            "text": "看一小段已学材料，然后合上材料尝试写出要点。；与原文核对，标明漏项和误项；先核对再继续练。；后续只回到遗漏点再试，不能用一次答对推断长期掌握。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "ies-learning-located-20261011-retrieval-practice"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "ies-learning"
+        ],
+        "principle": "IES公开学习指南建议用测验促进学习。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C04-1",
+            "candidateId": "C04-1",
+            "task": "主动回忆",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C04-1-r2-1",
+                "text": "当前任务「主动回忆」：看一小段已学材料，然后合上材料尝试写出要点。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-retrieval-practice"
+                ]
+              },
+              {
+                "id": "C04-1-r2-2",
+                "text": "与原文核对，标明漏项和误项；先核对再继续练。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-retrieval-practice"
+                ]
+              },
+              {
+                "id": "C04-1-r2-3",
+                "text": "后续只回到遗漏点再试，不能用一次答对推断长期掌握。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-retrieval-practice"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "当前需要检验哪一小段知识的记忆？",
+        "smallestAction": "看一小段已学材料，然后合上材料尝试写出要点。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“当前需要检验哪一小段知识的记忆？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "不固定每天次数或声称所有学科同一收益。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「合上材料检查记忆」时，先核对：当前需要检验哪一小段知识的记忆？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：与原文核对，标明漏项和误项；先核对再继续练。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。",
+          "waiting_result": "只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。",
+          "result": "只用本人报告的新反馈检查：能否在不看材料时提取；自信与实际答案分开。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。",
+          "declined": "停止「合上材料检查记忆」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "能否在不看材料时提取；自信与实际答案分开。",
+        "retrievalSummary": "合上材料检查记忆；retrieval-practice；当前需要检验哪一小段知识的记忆？；主动回忆；看一小段已学材料，然后合上材料尝试写出要点。；与原文核对，标明漏项和误项；先核对再继续练。；后续只回到遗漏点再试，不能用一次答对推断长期掌握。",
+        "referenceBody": "合上材料检查记忆\n原文范围：该教学实践指南建议用测验再次接触关键课程内容；这是教学建议，不能证明某个学生已经掌握。\n什么时候用：当前需要检验哪一小段知识的记忆？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：不固定每天次数或声称所有学科同一收益。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：当前需要检验哪一小段知识的记忆？\nLifeOS编辑步骤：\n任务：主动回忆\n当前任务「主动回忆」：看一小段已学材料，然后合上材料尝试写出要点。\n与原文核对，标明漏项和误项；先核对再继续练。\n后续只回到遗漏点再试，不能用一次答对推断长期掌握。\n最小一步：看一小段已学材料，然后合上材料尝试写出要点。\n资源不足：不必完成全套；只处理“当前需要检验哪一小段知识的记忆？”中的一项已有材料，零时间保留未知并暂停。\n观察：能否在不看材料时提取；自信与实际答案分开。\nnot_started：尚未开始「合上材料检查记忆」时，先核对：当前需要检验哪一小段知识的记忆？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：与原文核对，标明漏项和误项；先核对再继续练。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。\nwaiting_result：只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。\nresult：只用本人报告的新反馈检查：能否在不看材料时提取；自信与实际答案分开。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。\ndeclined：停止「合上材料检查记忆」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：不固定每天次数或声称所有学科同一收益。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "c8680ef307df145857f2357938bd144945d61f0694b0f1e019ae8e473a5fef5b",
+        "indexSignature": "b85eb91bf1b4119b18da4c90ed9827f408e3e7bce8d59bac46e6a2c05523727e",
+        "legacyIds": [
+          "12000000-0000-4000-8000-000000000002"
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "id": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "把复习分散到不同时间",
+      "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "publisher": "美国教育科学研究院 WWC",
+      "publishedYear": "2007",
+      "verifiedAt": "2026-10-10T10:08:23.548Z",
+      "validUntil": null,
+      "excerpt": "Space learning over time.\n Show More\n Show Less\n 2\n Interleave worked example solutions with problem-solving exercises.\n Show More\n Show Less\n 3\n Combine graphics with verbal descriptions.\n Show More\n Show Less\n 4\n Connect and integrate abs",
+      "claim": "该教学实践指南建议把学习分散到不同时间；不提供适用于所有学生的固定最优间隔。",
+      "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+      "limitations": "不规定通用最优间隔或继承原文示例日期。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+      "mechanisms": [
+        "分散学习"
+      ],
+      "sourceHash": "6dcff419b6ecdbd65e3d9ac89fa4f752f90d158016aea9049b0ef13d543a90e2",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+        "canonicalKey": "spaced-review",
+        "aliases": [
+          "间隔复习",
+          "分散复习",
+          "反复忘记",
+          "复习节奏",
+          "间隔复习"
+        ],
+        "domains": [
+          "04"
+        ],
+        "task": "把复习分散到不同时间",
+        "stage": "start/adjust/compare",
+        "mechanism": "分散学习",
+        "prerequisites": [
+          "距离下一次需要使用知识还有哪些可用时段？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "不规定通用最优间隔或继承原文示例日期。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "ies-learning-located-20261011-spaced-review"
+        ],
+        "claims": [
+          {
+            "id": "spaced-review-scope",
+            "text": "该教学实践指南建议把学习分散到不同时间；不提供适用于所有学生的固定最优间隔。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "ies-learning-located-20261011-spaced-review"
+            ],
+            "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+            "limitations": "不规定通用最优间隔或继承原文示例日期。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。"
+          },
+          {
+            "id": "spaced-review-editorial",
+            "text": "把一小段复习分到本人实际能用的多个时段，不套固定天数。；每次先检查能记住什么，再只补漏项。；错过一次时重新选择下一可用窗口，不补齐惩罚性任务。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "ies-learning-located-20261011-spaced-review"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "ies-learning"
+        ],
+        "principle": "IES公开学习指南建议把学习分散在不同时间。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C04-2",
+            "candidateId": "C04-2",
+            "task": "间隔复习",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C04-2-r2-1",
+                "text": "当前任务「间隔复习」：把一小段复习分到本人实际能用的多个时段，不套固定天数。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-spaced-review"
+                ]
+              },
+              {
+                "id": "C04-2-r2-2",
+                "text": "每次先检查能记住什么，再只补漏项。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-spaced-review"
+                ]
+              },
+              {
+                "id": "C04-2-r2-3",
+                "text": "错过一次时重新选择下一可用窗口，不补齐惩罚性任务。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-spaced-review"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "距离下一次需要使用知识还有哪些可用时段？",
+        "smallestAction": "把一小段复习分到本人实际能用的多个时段，不套固定天数。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“距离下一次需要使用知识还有哪些可用时段？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "不规定通用最优间隔或继承原文示例日期。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「把复习分散到不同时间」时，先核对：距离下一次需要使用知识还有哪些可用时段？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：每次先检查能记住什么，再只补漏项。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。",
+          "waiting_result": "只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。",
+          "result": "只用本人报告的新反馈检查：不同时间的实际回忆情况；计划次数不是学习效果。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。",
+          "declined": "停止「把复习分散到不同时间」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "不同时间的实际回忆情况；计划次数不是学习效果。",
+        "retrievalSummary": "把复习分散到不同时间；spaced-review；距离下一次需要使用知识还有哪些可用时段？；间隔复习；把一小段复习分到本人实际能用的多个时段，不套固定天数。；每次先检查能记住什么，再只补漏项。；错过一次时重新选择下一可用窗口，不补齐惩罚性任务。",
+        "referenceBody": "把复习分散到不同时间\n原文范围：该教学实践指南建议把学习分散到不同时间；不提供适用于所有学生的固定最优间隔。\n什么时候用：距离下一次需要使用知识还有哪些可用时段？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：不规定通用最优间隔或继承原文示例日期。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：距离下一次需要使用知识还有哪些可用时段？\nLifeOS编辑步骤：\n任务：间隔复习\n当前任务「间隔复习」：把一小段复习分到本人实际能用的多个时段，不套固定天数。\n每次先检查能记住什么，再只补漏项。\n错过一次时重新选择下一可用窗口，不补齐惩罚性任务。\n最小一步：把一小段复习分到本人实际能用的多个时段，不套固定天数。\n资源不足：不必完成全套；只处理“距离下一次需要使用知识还有哪些可用时段？”中的一项已有材料，零时间保留未知并暂停。\n观察：不同时间的实际回忆情况；计划次数不是学习效果。\nnot_started：尚未开始「把复习分散到不同时间」时，先核对：距离下一次需要使用知识还有哪些可用时段？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：每次先检查能记住什么，再只补漏项。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。\nwaiting_result：只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。\nresult：只用本人报告的新反馈检查：不同时间的实际回忆情况；计划次数不是学习效果。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。\ndeclined：停止「把复习分散到不同时间」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：不规定通用最优间隔或继承原文示例日期。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "3d30bf07eecff9422a434c3b1033c724a6c886ac723f598ae01b7f831f076e42",
+        "indexSignature": "eef2bb03e0b64585269d1dd48e61a89bdf8c44b8b835f862c76f1c02f1891487",
+        "legacyIds": [
+          "12000000-0000-4000-8000-000000000001"
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "id": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "从示例走向独立完成",
+      "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "publisher": "美国教育科学研究院 WWC",
+      "publishedYear": "2007",
+      "verifiedAt": "2026-10-10T10:08:23.548Z",
+      "validUntil": null,
+      "excerpt": "Interleave worked example solutions with problem-solving exercises.\n Show More\n Show Less\n 3\n Combine graphics with verbal descriptions.\n Show More\n Show Less\n 4\n Connect and integrate abstract and concrete representations of concepts.\n Sho",
+      "claim": "该教学实践指南建议交替查看已解示例与独立解题练习；同一学生的具体卡点仍要从实际尝试核对。",
+      "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+      "limitations": "例题与当前问题结构不同就不强套。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+      "mechanisms": [
+        "主动学习与对照"
+      ],
+      "sourceHash": "fc7ea8aaf33af66f35e5785b10f59275751261069007e30377b92d0d65235b2f",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+        "canonicalKey": "worked-example",
+        "aliases": [
+          "模仿",
+          "独立完成",
+          "看答案",
+          "做不出",
+          "例题",
+          "从模仿到独立完成"
+        ],
+        "domains": [
+          "04"
+        ],
+        "task": "从示例走向独立完成",
+        "stage": "start/adjust/compare",
+        "mechanism": "主动学习与对照",
+        "prerequisites": [
+          "示例的哪一步是本人还无法独立完成的？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "例题与当前问题结构不同就不强套。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "ies-learning-located-20261011-worked-example"
+        ],
+        "claims": [
+          {
+            "id": "worked-example-scope",
+            "text": "该教学实践指南建议交替查看已解示例与独立解题练习；同一学生的具体卡点仍要从实际尝试核对。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "ies-learning-located-20261011-worked-example"
+            ],
+            "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+            "limitations": "例题与当前问题结构不同就不强套。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。"
+          },
+          {
+            "id": "worked-example-editorial",
+            "text": "先找与当前题相近的已解示例，解释每步在解决什么。；盖住后自己做一个相近问题，保留卡点。；只回看卡住的步骤，再独立试一次；照抄不算独立完成。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "ies-learning-located-20261011-worked-example"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "ies-learning"
+        ],
+        "principle": "IES公开学习指南建议交替查看已解示例和独立解题。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C04-3",
+            "candidateId": "C04-3",
+            "task": "从模仿到独立完成",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C04-3-r2-1",
+                "text": "当前任务「从模仿到独立完成」：先找与当前题相近的已解示例，解释每步在解决什么。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-worked-example"
+                ]
+              },
+              {
+                "id": "C04-3-r2-2",
+                "text": "盖住后自己做一个相近问题，保留卡点。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-worked-example"
+                ]
+              },
+              {
+                "id": "C04-3-r2-3",
+                "text": "只回看卡住的步骤，再独立试一次；照抄不算独立完成。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-worked-example"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "示例的哪一步是本人还无法独立完成的？",
+        "smallestAction": "先找与当前题相近的已解示例，解释每步在解决什么。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“示例的哪一步是本人还无法独立完成的？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "例题与当前问题结构不同就不强套。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「从示例走向独立完成」时，先核对：示例的哪一步是本人还无法独立完成的？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：盖住后自己做一个相近问题，保留卡点。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。",
+          "waiting_result": "只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。",
+          "result": "只用本人报告的新反馈检查：能否在不看示例时完成对应步骤。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。",
+          "declined": "停止「从示例走向独立完成」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "能否在不看示例时完成对应步骤。",
+        "retrievalSummary": "从示例走向独立完成；worked-example；示例的哪一步是本人还无法独立完成的？；从模仿到独立完成；先找与当前题相近的已解示例，解释每步在解决什么。；盖住后自己做一个相近问题，保留卡点。；只回看卡住的步骤，再独立试一次；照抄不算独立完成。",
+        "referenceBody": "从示例走向独立完成\n原文范围：该教学实践指南建议交替查看已解示例与独立解题练习；同一学生的具体卡点仍要从实际尝试核对。\n什么时候用：示例的哪一步是本人还无法独立完成的？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：例题与当前问题结构不同就不强套。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：示例的哪一步是本人还无法独立完成的？\nLifeOS编辑步骤：\n任务：从模仿到独立完成\n当前任务「从模仿到独立完成」：先找与当前题相近的已解示例，解释每步在解决什么。\n盖住后自己做一个相近问题，保留卡点。\n只回看卡住的步骤，再独立试一次；照抄不算独立完成。\n最小一步：先找与当前题相近的已解示例，解释每步在解决什么。\n资源不足：不必完成全套；只处理“示例的哪一步是本人还无法独立完成的？”中的一项已有材料，零时间保留未知并暂停。\n观察：能否在不看示例时完成对应步骤。\nnot_started：尚未开始「从示例走向独立完成」时，先核对：示例的哪一步是本人还无法独立完成的？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：盖住后自己做一个相近问题，保留卡点。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。\nwaiting_result：只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。\nresult：只用本人报告的新反馈检查：能否在不看示例时完成对应步骤。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。\ndeclined：停止「从示例走向独立完成」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：例题与当前问题结构不同就不强套。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "3fec0f47977375e8c688e1e58425fa129a93535d0d8e60261ec12ab273822028",
+        "indexSignature": "e523e41196d6630886158e21ecf6a573ce4e0545084308935e294096cc23cf4b",
+        "legacyIds": [],
+        "replaces": []
+      }
+    },
+    {
+      "id": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+      "revision": 3,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "用输出检查理解",
+      "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "publisher": "美国教育科学研究院 WWC",
+      "publishedYear": "2007",
+      "verifiedAt": "2026-10-10T10:08:23.548Z",
+      "validUntil": null,
+      "excerpt": "Ask deep explanatory questions.\n Show More\n Show Less\n Arrange to review key elements of course content after a delay of several weeks to several months after initial presentation.\n Learn More About This Recommendation (995 KB)\n Have studen",
+      "claim": "该教学实践指南建议提出深层解释性问题；解释表达流畅不能直接证明已经理解或能够独立使用。",
+      "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+      "limitations": "表达流畅不是掌握证明，不推断人格或教学天赋。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+      "mechanisms": [
+        "解释性问题"
+      ],
+      "sourceHash": "388bd714b6ac743b8cf5b8649e2956f190bc23598bd7fd684bea77ba82ddbd45",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+        "canonicalKey": "explain-understanding",
+        "aliases": [
+          "输出",
+          "检验理解",
+          "讲不清",
+          "费曼",
+          "原理",
+          "因果",
+          "通过输出检验理解"
+        ],
+        "domains": [
+          "04"
+        ],
+        "task": "用输出检查理解",
+        "stage": "start/adjust/compare",
+        "mechanism": "解释性问题",
+        "prerequisites": [
+          "哪一个概念可以说出来但解释不了？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "表达流畅不是掌握证明，不推断人格或教学天赋。",
+          "只想倾听、明确拒绝、已遗忘或暂停的事情。"
+        ],
+        "evidenceIds": [
+          "ies-learning-located-20261011-explain-understanding"
+        ],
+        "claims": [
+          {
+            "id": "explain-understanding-scope",
+            "text": "该教学实践指南建议提出深层解释性问题；解释表达流畅不能直接证明已经理解或能够独立使用。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "ies-learning-located-20261011-explain-understanding"
+            ],
+            "scope": "课程内容的学习与复习；先核对同一知识点、材料与本人上次实际尝试。",
+            "limitations": "表达流畅不是掌握证明，不推断人格或教学天赋。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。"
+          },
+          {
+            "id": "explain-understanding-editorial",
+            "text": "选择一个概念，回答“为什么”“如何与已知内容相连”。；用课程材料检查解释中的每一处关系，不编补未知。；解释卡住时转成一个具体问题向老师或材料核对。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "ies-learning-located-20261011-explain-understanding"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "具体小行动不是研究结论；不能用编辑标签绕过外部事实审核。"
+          }
+        ],
+        "sourceGroups": [
+          "ies-learning"
+        ],
+        "principle": "IES公开学习指南提出深层解释性问题帮助理解。 具体步骤为LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C04-4",
+            "candidateId": "C04-4",
+            "task": "通过输出检验理解",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C04-4-r2-1",
+                "text": "当前任务「通过输出检验理解」：选择一个概念，回答“为什么”“如何与已知内容相连”。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-explain-understanding"
+                ]
+              },
+              {
+                "id": "C04-4-r2-2",
+                "text": "用课程材料检查解释中的每一处关系，不编补未知。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-explain-understanding"
+                ]
+              },
+              {
+                "id": "C04-4-r2-3",
+                "text": "解释卡住时转成一个具体问题向老师或材料核对。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "ies-learning-located-20261011-explain-understanding"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "哪一个概念可以说出来但解释不了？",
+        "smallestAction": "选择一个概念，回答“为什么”“如何与已知内容相连”。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "不必完成全套；只处理“哪一个概念可以说出来但解释不了？”中的一项已有材料，零时间保留未知并暂停。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "表达流畅不是掌握证明，不推断人格或教学天赋。",
+          "缺少原文或适用条件时只列未知，不承诺效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「用输出检查理解」时，先核对：哪一个概念可以说出来但解释不了？只准备本人认可的一步，不写成执行。",
+          "blocked": "沿同一事件、原步骤及实际卡点核对：用课程材料检查解释中的每一处关系，不编补未知。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。",
+          "waiting_result": "只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。",
+          "result": "只用本人报告的新反馈检查：解释中的关系是否可被核查。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。",
+          "declined": "停止「用输出检查理解」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "解释中的关系是否可被核查。",
+        "retrievalSummary": "用输出检查理解；explain-understanding；哪一个概念可以说出来但解释不了？；通过输出检验理解；选择一个概念，回答“为什么”“如何与已知内容相连”。；用课程材料检查解释中的每一处关系，不编补未知。；解释卡住时转成一个具体问题向老师或材料核对。",
+        "referenceBody": "用输出检查理解\n原文范围：该教学实践指南建议提出深层解释性问题；解释表达流畅不能直接证明已经理解或能够独立使用。\n什么时候用：哪一个概念可以说出来但解释不了？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：表达流畅不是掌握证明，不推断人格或教学天赋。；只想倾听、明确拒绝、已遗忘或暂停的事情。\n先核对：哪一个概念可以说出来但解释不了？\nLifeOS编辑步骤：\n任务：通过输出检验理解\n当前任务「通过输出检验理解」：选择一个概念，回答“为什么”“如何与已知内容相连”。\n用课程材料检查解释中的每一处关系，不编补未知。\n解释卡住时转成一个具体问题向老师或材料核对。\n最小一步：选择一个概念，回答“为什么”“如何与已知内容相连”。\n资源不足：不必完成全套；只处理“哪一个概念可以说出来但解释不了？”中的一项已有材料，零时间保留未知并暂停。\n观察：解释中的关系是否可被核查。\nnot_started：尚未开始「用输出检查理解」时，先核对：哪一个概念可以说出来但解释不了？只准备本人认可的一步，不写成执行。\nblocked：沿同一事件、原步骤及实际卡点核对：用课程材料检查解释中的每一处关系，不编补未知。只调整卡住处，不重送入门全套。 只说“还是不行”时，先读回上次具体步骤，再核对遗漏、错误或材料缺口；没有可核对材料就暂停判断。\nwaiting_result：只等待同一知识点和上次步骤的实际回忆、独立解题或解释核对；本人还没反馈就保留未知。练过一次、自信或完成次数不能写成已经掌握，不混入联系、付款等其他事件。\nresult：只用本人报告的新反馈检查：解释中的关系是否可被核查。写清哪项认识改变、哪项仍未知；不新增本人未说的结果。 本次答对与后续独立使用分开；本人未认可的AI观察只作待核对候选。\ndeclined：停止「用输出检查理解」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：表达流畅不是掌握证明，不推断人格或教学天赋。 不是中国考试规则；本人理解、迁移及长期掌握分别未知。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "003e6a5077cbb8e7de2e10feefd9f30d65374168f620792443e2b7c9ebc92c43",
+        "indexSignature": "bd304869ae214ad475fc0a9c06397b9f70f3719348c253ef83f163aa47321f6e",
+        "legacyIds": [
+          "12000000-0000-4000-8000-000000000003"
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "id": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+      "revision": 4,
+      "kind": "method",
+      "status": "unverified",
+      "synthetic": false,
+      "title": "记录时间投入与可用经济预算",
+      "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+      "publisher": "CFPB",
+      "publishedYear": "未知（不以获取年份冒充发布时间）",
+      "verifiedAt": "2026-10-10T10:08:23.554Z",
+      "validUntil": null,
+      "excerpt": "Tracking Income and Benefits\n Paying Bills\n Getting through the Month\n Dealing with Debt\n Understanding Credit Reports and Scores\n Choosing Financial Products and Services\n Protecting your Money\nStarting the Money Conversation\n Description\n",
+      "claim": "两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。",
+      "scope": "已有本人认可的实际收支记录，先分清已到账、未到账、必要支出与未知；兼职整体价值还要另核对时间、学习与其他义务。",
+      "limitations": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。",
+      "mechanisms": [
+        "投入和约束记录"
+      ],
+      "sourceHash": "5e6b10083bce6f26a6d259c63402a973f32f26956f3f13b71f92f7f0a62d6d0f",
+      "guide": {
+        "schemaVersion": 1,
+        "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+        "canonicalKey": "income-ledger",
+        "aliases": [
+          "兼职价值",
+          "收入课程",
+          "投入收益",
+          "日常预算",
+          "记账",
+          "判断兼职价值",
+          "记录投入与收益",
+          "简单预算"
+        ],
+        "domains": [
+          "19",
+          "27"
+        ],
+        "task": "记录时间投入与可用经济预算",
+        "stage": "start/adjust/compare",
+        "mechanism": "投入和约束记录",
+        "prerequisites": [
+          "本人实际到账、必要支出与预计款项分别是多少？",
+          "本人主动请求方法或成品；当前事件可辨识且未拒绝继续。"
+        ],
+        "exclusions": [
+          "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。",
+          "只想倾听、拒绝、暂停、遗忘或不愿提供财务信息时停止。"
+        ],
+        "evidenceIds": [
+          "cfpb-income-pdf-20261011-e1",
+          "cfpb-spending-pdf-20261011-e1",
+          "cfpb-spending-pdf-20261011-e2"
+        ],
+        "claims": [
+          {
+            "id": "income-ledger-scope",
+            "text": "两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。",
+            "basis": "source_supported",
+            "evidenceIds": [
+              "cfpb-income-pdf-20261011-e1",
+              "cfpb-spending-pdf-20261011-e1",
+              "cfpb-spending-pdf-20261011-e2"
+            ],
+            "scope": "已有本人认可的实际收支记录，先分清已到账、未到账、必要支出与未知；兼职整体价值还要另核对时间、学习与其他义务。",
+            "limitations": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+          },
+          {
+            "id": "income-ledger-editorial",
+            "text": "记录已到账与未到账，金额缺失保持未知；不把报价记收入。；单列直接成本、必要开支和本人投入时间；退款或变动另作记录。；比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+            "basis": "editorial_adaptation",
+            "evidenceIds": [
+              "cfpb-income-pdf-20261011-e1",
+              "cfpb-spending-pdf-20261011-e1",
+              "cfpb-spending-pdf-20261011-e2"
+            ],
+            "scope": "LifeOS任务操作与反馈适配，未经效果验证",
+            "limitations": "LifeOS小行动的编辑适配，不保证增加收入或减少支出；报价、承诺与交付不等于到账。"
+          }
+        ],
+        "sourceGroups": [
+          "gov-budget-tool"
+        ],
+        "principle": "两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。 以下具体校园动作是LifeOS编辑适配。",
+        "branches": [
+          {
+            "id": "C19-1",
+            "candidateId": "C19-1",
+            "task": "判断兼职价值",
+            "stage": "compare",
+            "steps": [
+              {
+                "id": "C19-1-r2-1",
+                "text": "当前任务「判断兼职价值」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
+                ]
+              },
+              {
+                "id": "C19-1-r2-2",
+                "text": "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
+                ]
+              },
+              {
+                "id": "C19-1-r2-3",
+                "text": "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C19-3",
+            "candidateId": "C19-3",
+            "task": "记录投入与收益",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C19-3-r2-1",
+                "text": "当前任务「记录投入与收益」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
+                ]
+              },
+              {
+                "id": "C19-3-r2-2",
+                "text": "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
+                ]
+              },
+              {
+                "id": "C19-3-r2-3",
+                "text": "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "C27-1",
+            "candidateId": "C27-1",
+            "task": "简单预算",
+            "stage": "start",
+            "steps": [
+              {
+                "id": "C27-1-r2-1",
+                "text": "当前任务「简单预算」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
+                ]
+              },
+              {
+                "id": "C27-1-r2-2",
+                "text": "单列直接成本、必要开支和本人投入时间；退款或变动另作记录。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
+                ]
+              },
+              {
+                "id": "C27-1-r2-3",
+                "text": "比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+                "basis": "editorial_adaptation",
+                "evidenceIds": [
+                  "cfpb-income-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e1",
+                  "cfpb-spending-pdf-20261011-e2"
+                ]
+              }
+            ]
+          }
+        ],
+        "oneKeyQuestion": "本人实际到账、必要支出与预计款项分别是多少？",
+        "smallestAction": "本人愿意时只记一笔已核对的实际到账或必要支出，未知金额留空；无需上传账单、姓名或账号。",
+        "exampleBudgetOnly": true,
+        "lowEnergyAlternative": "没有时间就保留未知并暂停；能做一步时，只核对一笔本人认可记录，不索取敏感账单。",
+        "stopConditions": [
+          "本人拒绝、暂停或零资源时停止。",
+          "美国教育工具只借用记账方法，不输出中国税务、权利规则或投资结论。",
+          "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+        ],
+        "feedbackBranches": {
+          "not_started": "尚未开始「记录时间投入与可用经济预算」时，先核对：本人实际到账、必要支出与预计款项分别是多少？只准备本人认可的一步，不写成执行。",
+          "blocked": "只核对原记账步骤与当前缺项：缺金额留空，缺日期不猜所属周，记录不一致请本人更正；不重发整套入门、不要求上传完整账本。",
+          "waiting_result": "同一笔款项尚未到账时保持未到账或未知；已交付、已采用与已付款分别记录，报价不进实际收入，未回复不推断原因或自动催款。",
+          "result": "只按本人新增合法反馈更正这笔实际到账、支出或退款；重新计算本人确认的可用余额，收入变化与兼职价值、学习效果分开。",
+          "declined": "停止「记录时间投入与可用经济预算」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。"
+        },
+        "expectedObservation": "实际可用预算能否覆盖本人已知必要开支。",
+        "retrievalSummary": "记录时间投入与可用经济预算；income-ledger；本人实际到账、必要支出与预计款项分别是多少？；判断兼职价值；记录投入与收益；简单预算；记录已到账与未到账，金额缺失保持未知；不把报价记收入。；单列直接成本、必要开支和本人投入时间；退款或变动另作记录。；比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。",
+        "referenceBody": "记录时间投入与可用经济预算\n原文范围：两份CFPB原始教育工具分别建议按实际收到的金额与周记录收入、收集实际支出凭据并按类别与周记录。\n什么时候用：本人实际到账、必要支出与预计款项分别是多少？；本人主动请求方法或成品；当前事件可辨识且未拒绝继续。\n什么时候不用：只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。；只想倾听、拒绝、暂停、遗忘或不愿提供财务信息时停止。\n先核对：本人实际到账、必要支出与预计款项分别是多少？\nLifeOS编辑步骤：\n任务：判断兼职价值\n当前任务「判断兼职价值」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n任务：记录投入与收益\n当前任务「记录投入与收益」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n任务：简单预算\n当前任务「简单预算」：记录已到账与未到账，金额缺失保持未知；不把报价记收入。\n单列直接成本、必要开支和本人投入时间；退款或变动另作记录。\n比较可用余额与当前义务，资源不足就减少或暂停投入；不建议借贷投资。\n最小一步：本人愿意时只记一笔已核对的实际到账或必要支出，未知金额留空；无需上传账单、姓名或账号。\n资源不足：没有时间就保留未知并暂停；能做一步时，只核对一笔本人认可记录，不索取敏感账单。\n观察：实际可用预算能否覆盖本人已知必要开支。\nnot_started：尚未开始「记录时间投入与可用经济预算」时，先核对：本人实际到账、必要支出与预计款项分别是多少？只准备本人认可的一步，不写成执行。\nblocked：只核对原记账步骤与当前缺项：缺金额留空，缺日期不猜所属周，记录不一致请本人更正；不重发整套入门、不要求上传完整账本。\nwaiting_result：同一笔款项尚未到账时保持未到账或未知；已交付、已采用与已付款分别记录，报价不进实际收入，未回复不推断原因或自动催款。\nresult：只按本人新增合法反馈更正这笔实际到账、支出或退款；重新计算本人确认的可用余额，收入变化与兼职价值、学习效果分开。\ndeclined：停止「记录时间投入与可用经济预算」及被拒绝的建议，保留合法历史；不换名字或渠道继续推动。本人重提才恢复。\n限制：只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。\n原文定位补充：Spending tracker第1页Analyze your spending明确按类别与周记录；此前仅收集凭据的引文不足，本版补实际操作句，不宣称改善效果。",
+        "reviewStatus": "needs_review",
+        "reviewReason": "实际原文补源与实质编辑修订，等待独立执行审阅和有权人批准；不可正式检索。",
+        "review": null,
+        "contentHash": "0d7e7c7b8883d9163e65429a04e9c3e570443f3cdc5b20e37db93b446a264f4a",
+        "indexSignature": "17465eff05f751c9c0133a93d82cdbae15a3b03f854cbcec20318221e048567c",
+        "legacyIds": [],
+        "replaces": []
+      }
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "yangtze-library-batch",
+      "source_revision": 1,
+      "canonical_url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+      "platform": "lib.yangtzeu.edu.cn",
+      "original_work_id": "/info/1045/5116.htm",
+      "title": "新生入馆教育，我们在行动-图书馆",
+      "publisher": "长江大学图书馆",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-10T10:02:30.803Z",
+      "source_group": "yangtze-library",
+      "access_status": "body_accessible",
+      "save_scope": "short_excerpt_and_original_synthesis_only",
+      "original_fingerprint": "617f3ea19ac37d4c289ce1376207ae28990d3f10cc825fc980e4349fa86c35e8",
+      "semantic_scope": "图书馆开展指南与资源实操教育，展示馆藏查询和电子资源获取。",
+      "cannot_infer": "该校账号与权限不能迁移到其他学校。"
+    },
+    {
+      "source_id": "ies-learning-located-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+      "platform": "ies.ed.gov",
+      "original_work_id": "/ncee/wwc/PracticeGuide/1",
+      "title": "Organizing Instruction and Study to Improve Student Learning — recommendations",
+      "publisher": "美国教育科学研究院 What Works Clearinghouse",
+      "author": null,
+      "published_at": "2007-09",
+      "retrieved_at": "2026-10-11T01:25:27.942Z",
+      "source_group": "ies-learning",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FULL_ORIGINAL_READ_LOCAL",
+      "original_fingerprint": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab",
+      "semantic_scope": "公开教学实践指南的推荐1、2、5b、7；普适学习方法资料，不是中国考试资格、科目规则或个人效果证据。",
+      "cannot_infer": "不能据此推出固定天数、固定次数、各科同等收益或某人已经掌握。"
+    },
+    {
+      "source_id": "cfpb-income-pdf-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_income_benefits_tool_2018-11_ADA.pdf",
+      "platform": "files.consumerfinance.gov",
+      "original_work_id": "cfpb_your-money-your-goals_income_benefits_tool_2018-11_ADA.pdf",
+      "title": "Income and benefits tracker",
+      "publisher": "CFPB",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-11T01:42:50.905Z",
+      "source_group": "gov-budget-tool",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FULL_PUBLIC_PDF_READ_LOCAL",
+      "original_fingerprint": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62",
+      "fingerprint_scope": "FULL_ORIGINAL_PDF_BYTES",
+      "semantic_scope": "按实际收到的金额与所属周记录收入，再按周合计。",
+      "cannot_infer": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+    },
+    {
+      "source_id": "cfpb-spending-pdf-20261011",
+      "source_revision": 1,
+      "canonical_url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+      "platform": "files.consumerfinance.gov",
+      "original_work_id": "cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+      "title": "Spending tracker",
+      "publisher": "CFPB",
+      "author": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-11T01:42:50.905Z",
+      "source_group": "gov-budget-tool",
+      "access_status": "body_accessible",
+      "save_scope": "LOCATED_SHORT_QUOTE_ONLY_FULL_PUBLIC_PDF_READ_LOCAL",
+      "original_fingerprint": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31",
+      "fingerprint_scope": "FULL_ORIGINAL_PDF_BYTES",
+      "semantic_scope": "收集实际支出凭据并按类别与周记录；没有凭据时先核对金额与用途。",
+      "cannot_infer": "只借用美国公开教育工具的实际收支记录步骤；不迁入福利分类、税务、投资、借贷或中国具体规则。记账不能证明兼职值得、款项必然到账、结余或效果。"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "yangtze-library-batch-campus-resource-e1",
+      "source_id": "yangtze-library-batch",
+      "source_revision": 1,
+      "quote": "使用、服务需求等方面的意见，为后续优化服务提供依据。此外，东校区还拍摄图书馆宣传视频，既展示图书阅览区、自习区等功能空间，又通过实操演示呈现馆藏查询、电子资源获取等操作，让新生直观了解图书馆使用方法。\n西校区分馆通过大学生阅读学社，以“线上学习一周 + 馆内现场体验”模式推进入馆教育。线上帮助新生初步了解资源，线下结合老师讲解与实地参观，介绍《中图法》分类、自助借还机操作、书籍排架及电子资源情况。活动历时28天，覆盖81个班级近3000名新生，32名志愿者全程参与服务，活动尾声发起“六个一”倡议（即借一本书、关注一下图书馆网站、关注一下图书馆微信公众号、至少访问一个中文数据库、至少访问一个外文数据库、",
+      "locator": {
+        "url": "https://lib.yangtzeu.edu.cn/info/1045/5116.htm",
+        "start": 341,
+        "end": 645,
+        "line": 17,
+        "pdfPage": null
+      },
+      "context": "使用、服务需求等方面的意见，为后续优化服务提供依据。此外，东校区还拍摄图书馆宣传视频，既展示图书阅览区、自习区等功能空间，又通过实操演示呈现馆藏查询、电子资源获取等操作，让新生直观了解图书馆使用方法。\n西校区分馆通过大学生阅读学社，以“线上学习一周 + 馆内现场体验”模式推进入馆教育。线上帮助新生初步了解资源，线下结合老师讲解与实地参观，介绍《中图法》分类、自助借还机操作、书籍排架及电子资源情况。活动历时28天，覆盖81个班级近3000名新生，32名志愿者全程参与服务，活动尾声发起“六个一”倡议（即借一本书、关注一下图书馆网站、关注一下图书馆微信公众号、至少访问一个中文数据库、至少访问一个外文数据库、",
+      "acquisition": "PUBLIC_ORIGINAL_GET_LOCATED_SHORT_EXCERPT_FULL_BODY_NOT_REQUIRED_FOR_OFFLINE_TESTS",
+      "content_hash": "4c8b7818a484ff01963451cd3bf7579fcbc1e3bd16d76feaa7944adf48ed4635"
+    },
+    {
+      "evidence_id": "ies-learning-located-20261011-retrieval-practice",
+      "source_id": "ies-learning-located-20261011",
+      "source_revision": 1,
+      "quote": "Use quizzes to re-expose students to key content.",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "section": "推荐5b",
+        "start": 1727,
+        "end": 1776,
+        "normalizedBodySha256": "34820db71d25403d4f89a3350c341a0a2a2fdff3bd01a91e23f1ea8b23a201fd",
+        "normalization": "cheerio body text; collapse all whitespace"
+      },
+      "context": "推荐原句；范围为课程学习，具体编辑小步骤未经个人效果验证。",
+      "acquisition": "ORIGINAL_HTTP_FULL_HTML_READ_SINGLE_QUOTE_LOCATED_JINA_401_RETAINED",
+      "content_hash": "2255e7b8b806dc93beb0a65a04c59d9f6df7c2dc00b12c661f7c81787ed988f3"
+    },
+    {
+      "evidence_id": "ies-learning-located-20261011-spaced-review",
+      "source_id": "ies-learning-located-20261011",
+      "source_revision": 1,
+      "quote": "Space learning over time.",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "section": "推荐1",
+        "start": 1293,
+        "end": 1318,
+        "normalizedBodySha256": "34820db71d25403d4f89a3350c341a0a2a2fdff3bd01a91e23f1ea8b23a201fd",
+        "normalization": "cheerio body text; collapse all whitespace"
+      },
+      "context": "推荐原句；范围为课程学习，具体编辑小步骤未经个人效果验证。",
+      "acquisition": "ORIGINAL_HTTP_FULL_HTML_READ_SINGLE_QUOTE_LOCATED_JINA_401_RETAINED",
+      "content_hash": "0b29abd52f37af45d3d40b1952433f52f078980677b47bdf0107c67083056246"
+    },
+    {
+      "evidence_id": "ies-learning-located-20261011-worked-example",
+      "source_id": "ies-learning-located-20261011",
+      "source_revision": 1,
+      "quote": "Interleave worked example solutions with problem-solving exercises.",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "section": "推荐2",
+        "start": 1341,
+        "end": 1408,
+        "normalizedBodySha256": "34820db71d25403d4f89a3350c341a0a2a2fdff3bd01a91e23f1ea8b23a201fd",
+        "normalization": "cheerio body text; collapse all whitespace"
+      },
+      "context": "推荐原句；范围为课程学习，具体编辑小步骤未经个人效果验证。",
+      "acquisition": "ORIGINAL_HTTP_FULL_HTML_READ_SINGLE_QUOTE_LOCATED_JINA_401_RETAINED",
+      "content_hash": "dceffcb8b92b786e3a1dc13906d3d9e3c415397f4867f8d9fc3430012f285d25"
+    },
+    {
+      "evidence_id": "ies-learning-located-20261011-explain-understanding",
+      "source_id": "ies-learning-located-20261011",
+      "source_revision": 1,
+      "quote": "Ask deep explanatory questions.",
+      "locator": {
+        "url": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+        "section": "推荐7",
+        "start": 2109,
+        "end": 2140,
+        "normalizedBodySha256": "34820db71d25403d4f89a3350c341a0a2a2fdff3bd01a91e23f1ea8b23a201fd",
+        "normalization": "cheerio body text; collapse all whitespace"
+      },
+      "context": "推荐原句；范围为课程学习，具体编辑小步骤未经个人效果验证。",
+      "acquisition": "ORIGINAL_HTTP_FULL_HTML_READ_SINGLE_QUOTE_LOCATED_JINA_401_RETAINED",
+      "content_hash": "b5a8eba92b777a3132d4d3b05f5b5e6a2e2936f4148f5d64cae5b4a9c874d659"
+    },
+    {
+      "evidence_id": "cfpb-income-pdf-20261011-e1",
+      "source_id": "cfpb-income-pdf-20261011",
+      "source_revision": 1,
+      "quote": "Fill in the net income amount you receive each week",
+      "locator": {
+        "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_income_benefits_tool_2018-11_ADA.pdf",
+        "pageIndex": 1,
+        "pageNumber": 2,
+        "start": 81,
+        "end": 132,
+        "normalizedPageSha256": "ef7fde37351cae6524bc6cbaa435c01b9166e6a4486f8a4b5795f05d708ac9d6",
+        "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+      },
+      "context": "教育性记账工具的操作句；不把工具目的改写成个人效果。",
+      "acquisition": "ORIGINAL_PDF_BYTES_DOWNLOAD_FULL_PAGES_READ_PYPDF_WEB_ORIGINAL",
+      "content_hash": "e7abde58e5945bcf862a12fafbe8965789336be911a93d8adf6a1f123df4fd44"
+    },
+    {
+      "evidence_id": "cfpb-spending-pdf-20261011-e1",
+      "source_id": "cfpb-spending-pdf-20261011",
+      "source_revision": 1,
+      "quote": "Get an envelope to collect your receipts.",
+      "locator": {
+        "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+        "pageIndex": 2,
+        "pageNumber": 3,
+        "start": 79,
+        "end": 120,
+        "normalizedPageSha256": "138290e053bbbc4663a1b97310ca13c258d1ea34c70a9f4661b9e55f62fdfd22",
+        "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+      },
+      "context": "教育性记账工具的操作句；不把工具目的改写成个人效果。",
+      "acquisition": "ORIGINAL_PDF_BYTES_DOWNLOAD_FULL_PAGES_READ_PYPDF_WEB_ORIGINAL",
+      "content_hash": "a09908376a7dbde89fe5ff6d920a48bccc42a5b03fd5ba6fd6199da5ee37b383"
+    },
+    {
+      "evidence_id": "cfpb-spending-pdf-20261011-e2",
+      "source_id": "cfpb-spending-pdf-20261011",
+      "source_revision": 1,
+      "quote": "enter the total you spent in each category for each week.",
+      "content_hash": "52be87422ed80abddd2b8d6c4d7c385df1409c9bfcc62747b9d405ed5b7812ed",
+      "locator": {
+        "url": "https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_spending_tracker_2018-11_ADA.pdf",
+        "pageIndex": 0,
+        "pageNumber": 1,
+        "start": 1172,
+        "end": 1229,
+        "normalizedPageSha256": "83252e45b1e2f385054066710a97d62e87293db2299a7aee48d10a27642fd78d",
+        "normalization": "pypdf 6.19.0 extract_text, collapse whitespace"
+      },
+      "context": "Spending tracker第一页Analyze your spending段明确逐类别、逐周记录；不推出个人财务效果或美国福利规则。",
+      "acquisition": "EXISTING_HASH_VERIFIED_FULL_PRIMARY_PDF_PAGE_REREAD_FOR_INDEPENDENT_R3_ISSUE"
+    }
+  ],
+  "originals": [
+    {
+      "file": "campus-original-r4.html",
+      "sha256": "6795ce4b80462afd8e52c08a3ff8a32a20826c984380c68536219f9bb13ca868"
+    },
+    {
+      "file": "ies-primary-original-first.html",
+      "sha256": "475680c2dfd73b825338426aa68b635f212cc1c42cca915574565135f28a1cab"
+    },
+    {
+      "file": "cfpb-income-primary.pdf",
+      "sha256": "e4933368f83073573e507abafc657877b37e9472ae8f3b4faadff2aba081cb62"
+    },
+    {
+      "file": "cfpb-spending-primary.pdf",
+      "sha256": "da786ef97c84ee36c618c0a2a113649bdfcaf65554f568b543b9a70d2a32ec31"
+    }
+  ],
+  "previousReview": "KB_SIX_R3_RESULT.json",
+  "humanApproval": null,
+  "publication": false
+}

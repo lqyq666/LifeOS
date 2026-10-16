@@ -1,0 +1,951 @@
+{
+  "schemaVersion": 1,
+  "role": "PREDECLARED_NEXT_ACCEPTANCE_UNRUN_NOT_TUNING",
+  "author": "current-main-codex",
+  "independentBlindTest": false,
+  "createdAfterRankingFreezeCommit": "08933ab5c0a3193867b64ca1516673a95717749f",
+  "cases": [
+    {
+      "id": "next-unrun-01",
+      "domain": "01",
+      "stage": "start",
+      "text": "学校电子资料进不去，同学发的入口又不一样，教我怎样查到本校负责这个服务的地方。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "domainLabels": [
+        "01"
+      ]
+    },
+    {
+      "id": "next-unrun-02",
+      "domain": "01",
+      "stage": "start",
+      "text": "想问一个刚做完项目的学姐她遇到的具体困难，我怕一次问太多，第一封请教怎么写才合适？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "domainLabels": [
+        "01",
+        "07",
+        "09",
+        "13",
+        "20",
+        "25"
+      ]
+    },
+    {
+      "id": "next-unrun-03",
+      "domain": "02",
+      "stage": "start",
+      "text": "做研究和做产品都没亲自接触过，能不能先了解各自一天具体做什么，再决定要不要继续？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "domainLabels": [
+        "02",
+        "07",
+        "10",
+        "13"
+      ]
+    },
+    {
+      "id": "next-unrun-04",
+      "domain": "02",
+      "stage": "start",
+      "text": "我的旧课程作业和新专业的要求对不上，怎样区分能拿来证明的部分与还没学过的部分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "domainLabels": [
+        "02",
+        "16"
+      ]
+    },
+    {
+      "id": "next-unrun-05",
+      "domain": "03",
+      "stage": "start",
+      "text": "这门课笔记越记越乱，我需要先弄明白几个章节彼此是什么关系，再决定看哪里。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "domainLabels": [
+        "03"
+      ]
+    },
+    {
+      "id": "next-unrun-06",
+      "domain": "03",
+      "stage": "review",
+      "text": "卷子已经发回来了，错误有概念也有计算，我想先查清是哪一步出了问题，不是直接加刷题量。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "domainLabels": [
+        "03",
+        "09",
+        "11",
+        "12"
+      ]
+    },
+    {
+      "id": "next-unrun-07",
+      "domain": "04",
+      "stage": "start",
+      "text": "书一合上就说不出刚学的东西，怎样试一下自己到底记住了什么？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "domainLabels": [
+        "04"
+      ]
+    },
+    {
+      "id": "next-unrun-08",
+      "domain": "04",
+      "stage": "start",
+      "text": "同一部分已经学过，复习全堆在考试前太挤，怎样分开安排回看和检查？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "domainLabels": [
+        "04"
+      ]
+    },
+    {
+      "id": "next-unrun-09",
+      "domain": "04",
+      "stage": "start",
+      "text": "一道新题我连起点都找不到，想借一个完整例题看清每一步为什么能这样做。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "domainLabels": [
+        "04"
+      ]
+    },
+    {
+      "id": "next-unrun-10",
+      "domain": "04",
+      "stage": "start",
+      "text": "能照着写却讲不清原理，我想用自己的话解释一遍，怎么判断遗漏了哪些连接？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "domainLabels": [
+        "04"
+      ]
+    },
+    {
+      "id": "next-unrun-11",
+      "domain": "03",
+      "stage": "start",
+      "text": "社团收尾和课程作业撞在一起，本周可用时间很少，怎么先选必须做的，再决定推迟什么？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "domainLabels": [
+        "03",
+        "05",
+        "11",
+        "19",
+        "21",
+        "26"
+      ]
+    },
+    {
+      "id": "next-unrun-12",
+      "domain": "05",
+      "stage": "start",
+      "text": "计划搁了几天就越拖越不想碰，怎样重新找到能做的起点，不重开一套大计划？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "domainLabels": [
+        "05",
+        "06"
+      ]
+    },
+    {
+      "id": "next-unrun-13",
+      "domain": "06",
+      "stage": "start",
+      "text": "这份报告光想到全文就很抗拒，有没有办法先确定一块很小且可停止的工作？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "domainLabels": [
+        "06"
+      ]
+    },
+    {
+      "id": "next-unrun-14",
+      "domain": "05",
+      "stage": "review",
+      "text": "周计划只完成一部分，我想核对原来的假设和真实卡点，再决定下一周怎么改。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "domainLabels": [
+        "05",
+        "06",
+        "08"
+      ]
+    },
+    {
+      "id": "next-unrun-15",
+      "domain": "08",
+      "stage": "start",
+      "text": "我只负责小组实验的一小段，怎么把我真正做的、同伴做的和还不能证明的分别写清？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "domainLabels": [
+        "08",
+        "10",
+        "14",
+        "22",
+        "23"
+      ]
+    },
+    {
+      "id": "next-unrun-16",
+      "domain": "09",
+      "stage": "start",
+      "text": "第一次读这个领域的论文，怎么分别找出它问的问题、使用的办法以及结论的边界？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "domainLabels": [
+        "09"
+      ]
+    },
+    {
+      "id": "next-unrun-17",
+      "domain": "09",
+      "stage": "start",
+      "text": "进组后导师说先熟悉课题，我需要确认一个具体产物以及谁来核对，怎样提问？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "domainLabels": [
+        "09",
+        "23"
+      ]
+    },
+    {
+      "id": "next-unrun-18",
+      "domain": "02",
+      "stage": "start",
+      "text": "就业、读研和做项目都想留着，我想比较目前已有证据与代价，不想靠一句适合给终身定方向。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "domainLabels": [
+        "02",
+        "07",
+        "11",
+        "12",
+        "22",
+        "23"
+      ]
+    },
+    {
+      "id": "next-unrun-19",
+      "domain": "13",
+      "stage": "start",
+      "text": "岗位要求列得很长，我的作品只有一部分有关，如何逐项对照哪些有依据、哪些还未知？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "domainLabels": [
+        "13",
+        "14",
+        "27"
+      ]
+    },
+    {
+      "id": "next-unrun-20",
+      "domain": "10",
+      "stage": "start",
+      "text": "作品集里面是一张海报，我想说明需求、本人负责的部分与真实反馈，怎样整理这段介绍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "domainLabels": [
+        "10",
+        "13",
+        "15",
+        "16"
+      ]
+    },
+    {
+      "id": "next-unrun-21",
+      "domain": "14",
+      "stage": "review",
+      "text": "投递后只收到统一拒信，没有具体原因，怎样区分可核实的反馈和自己的猜想？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "domainLabels": [
+        "14",
+        "15"
+      ]
+    },
+    {
+      "id": "next-unrun-22",
+      "domain": "15",
+      "stage": "start",
+      "text": "面试问到我确实没做过的事，怎样诚实说清边界并确认问题，不编造经历？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "interview-unknown"
+      ],
+      "context": {},
+      "domainLabels": [
+        "15"
+      ]
+    },
+    {
+      "id": "next-unrun-23",
+      "domain": "17",
+      "stage": "start",
+      "text": "想做校园工具，得先问使用者最近一次真实困扰，怎么问才不会把我的想法塞进答案？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "domainLabels": [
+        "17",
+        "20"
+      ]
+    },
+    {
+      "id": "next-unrun-24",
+      "domain": "16",
+      "stage": "start",
+      "text": "访谈后还有一条假设没证据，怎样做一个范围有限的试验，并事先写明什么结果会让我停止？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "domainLabels": [
+        "16",
+        "17",
+        "20"
+      ]
+    },
+    {
+      "id": "next-unrun-25",
+      "domain": "18",
+      "stage": "start",
+      "text": "有人想请我设计封面，需求还没定，怎么先核对产物、修改范围和验收人，再决定接不接？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-scope"
+      ],
+      "context": {},
+      "domainLabels": [
+        "18"
+      ]
+    },
+    {
+      "id": "next-unrun-26",
+      "domain": "18",
+      "stage": "review",
+      "text": "文件已经交出，对方说收到了，但是否真的用上不清楚，下一轮应该分别核对什么？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "domainLabels": [
+        "18"
+      ]
+    },
+    {
+      "id": "next-unrun-27",
+      "domain": "19",
+      "stage": "start",
+      "text": "兼职的钱一部分到账一部分还没到，交通和材料也花了钱，怎么先把投入与收入分开记？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "income-ledger"
+      ],
+      "context": {},
+      "domainLabels": [
+        "19",
+        "27"
+      ]
+    },
+    {
+      "id": "next-unrun-28",
+      "domain": "21",
+      "stage": "start",
+      "text": "第一次试着讲一个课程知识点，怎样确定要表达什么、谁能判断是否看懂，而不是追平台流量？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "content-experiment"
+      ],
+      "context": {},
+      "domainLabels": [
+        "21"
+      ]
+    },
+    {
+      "id": "next-unrun-29",
+      "domain": "22",
+      "stage": "start",
+      "text": "小组每个人都以为别人负责提交，我想先把负责人、依赖和交付检查写清楚。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "team-contract"
+      ],
+      "context": {},
+      "domainLabels": [
+        "22",
+        "23",
+        "24"
+      ]
+    },
+    {
+      "id": "next-unrun-30",
+      "domain": "19",
+      "stage": "start",
+      "text": "同伴希望我帮忙一件事，但我只能承担一部分，怎么表达能做和不能做的范围，并允许对方拒绝？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "boundary-request"
+      ],
+      "context": {},
+      "domainLabels": [
+        "19",
+        "25",
+        "27"
+      ]
+    },
+    {
+      "id": "next-unrun-31",
+      "domain": "01",
+      "stage": "start",
+      "text": "这几天学习和兼职挤得很累，我想先减少一件事并休息，怎么检查是不是还能维持基本生活？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "recovery-support"
+      ],
+      "context": {},
+      "domainLabels": [
+        "01",
+        "26"
+      ]
+    },
+    {
+      "id": "next-unrun-32",
+      "domain": "14",
+      "stage": "start",
+      "text": "同学转来一段AI建议，里面有具体规则却没原出处，怎样找到依据并标出还没核实的部分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "information-check"
+      ],
+      "context": {},
+      "domainLabels": [
+        "14",
+        "27",
+        "28"
+      ]
+    },
+    {
+      "id": "next-unrun-33",
+      "domain": "01",
+      "stage": "adjust",
+      "text": "官方网页的帮助入口也打不开，现在该先核对服务是否有替代咨询渠道？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "campus-resource"
+      ],
+      "context": {},
+      "domainLabels": [
+        "01"
+      ]
+    },
+    {
+      "id": "next-unrun-34",
+      "domain": "01",
+      "stage": "adjust",
+      "text": "请教消息发出去后一直没答复，既没约时间也不知道是否看到了，怎么处理这个未知？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "first-contact"
+      ],
+      "context": {},
+      "domainLabels": [
+        "01",
+        "07",
+        "09",
+        "13",
+        "20",
+        "25"
+      ]
+    },
+    {
+      "id": "next-unrun-35",
+      "domain": "02",
+      "stage": "adjust",
+      "text": "我已经旁听了实验组的一次讨论，但只看到其中一天，下一步还需要了解什么才能改方向判断？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "fit-exploration"
+      ],
+      "context": {},
+      "domainLabels": [
+        "02",
+        "07",
+        "10",
+        "13"
+      ]
+    },
+    {
+      "id": "next-unrun-36",
+      "domain": "02",
+      "stage": "adjust",
+      "text": "对照后发现有三项要求没有作品证据，我不想重复学已经会的部分，怎样安排一个可检查的小验证？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "skill-gap"
+      ],
+      "context": {},
+      "domainLabels": [
+        "02",
+        "16"
+      ]
+    },
+    {
+      "id": "next-unrun-37",
+      "domain": "03",
+      "stage": "adjust",
+      "text": "框架画了，还是分不清两章怎么衔接，下一步怎样查出缺掉的那个概念？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "course-frame"
+      ],
+      "context": {},
+      "domainLabels": [
+        "03"
+      ]
+    },
+    {
+      "id": "next-unrun-38",
+      "domain": "03",
+      "stage": "adjust",
+      "text": "核对完错题发现准备方式和丢分原因不同，下一次先改变哪一项，怎样看反馈？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "exam-diagnosis"
+      ],
+      "context": {},
+      "domainLabels": [
+        "03",
+        "09",
+        "11",
+        "12"
+      ]
+    },
+    {
+      "id": "next-unrun-39",
+      "domain": "04",
+      "stage": "adjust",
+      "text": "我已经闭卷回忆过，漏了几条而不是全忘，接下来怎么用这个结果继续？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "retrieval-practice"
+      ],
+      "context": {},
+      "domainLabels": [
+        "04"
+      ]
+    },
+    {
+      "id": "next-unrun-40",
+      "domain": "04",
+      "stage": "adjust",
+      "text": "原先分散复习有一段没完成，怎样调整后面的检查，而不把整套安排再发一遍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "spaced-review"
+      ],
+      "context": {},
+      "domainLabels": [
+        "04"
+      ]
+    },
+    {
+      "id": "next-unrun-41",
+      "domain": "04",
+      "stage": "adjust",
+      "text": "例题能跟上，一换数字就不知道为何选这个步骤，应该检查哪个环节？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "worked-example"
+      ],
+      "context": {},
+      "domainLabels": [
+        "04"
+      ]
+    },
+    {
+      "id": "next-unrun-42",
+      "domain": "04",
+      "stage": "adjust",
+      "text": "给同学解释完，他在第二步就跟不上了，我想据此修改解释，而不是认定自己完全不会。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "explain-understanding"
+      ],
+      "context": {},
+      "domainLabels": [
+        "04"
+      ]
+    },
+    {
+      "id": "next-unrun-43",
+      "domain": "03",
+      "stage": "adjust",
+      "text": "常规每周有八小时，但这周前面已经用掉六小时，两个任务怎样按剩余来取舍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "priority-budget"
+      ],
+      "context": {},
+      "domainLabels": [
+        "03",
+        "05",
+        "11",
+        "19",
+        "21",
+        "26"
+      ]
+    },
+    {
+      "id": "next-unrun-44",
+      "domain": "05",
+      "stage": "adjust",
+      "text": "还是没开始，不过原因是必要材料拿不到，能不能从这个卡点继续调整？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "restart-task"
+      ],
+      "context": {},
+      "domainLabels": [
+        "05",
+        "06"
+      ]
+    },
+    {
+      "id": "next-unrun-45",
+      "domain": "06",
+      "stage": "adjust",
+      "text": "我做完了第一段，接下去发现范围比想象大，怎样选择继续的一小块或先暂停？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "start-small"
+      ],
+      "context": {},
+      "domainLabels": [
+        "06"
+      ]
+    },
+    {
+      "id": "next-unrun-46",
+      "domain": "05",
+      "stage": "adjust",
+      "text": "原计划花了很久却没交付，我想把真正做过的步骤和卡点分别核对后再改。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "plan-review"
+      ],
+      "context": {},
+      "domainLabels": [
+        "05",
+        "06",
+        "08"
+      ]
+    },
+    {
+      "id": "next-unrun-47",
+      "domain": "08",
+      "stage": "adjust",
+      "text": "小组作品获了奖，可我只做数据整理，怎么更正介绍里过度归到我名下的贡献？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "experience-evidence"
+      ],
+      "context": {},
+      "domainLabels": [
+        "08",
+        "10",
+        "14",
+        "22",
+        "23"
+      ]
+    },
+    {
+      "id": "next-unrun-48",
+      "domain": "09",
+      "stage": "adjust",
+      "text": "论文的方法段读了两次仍不清楚，我需要从已经标出的疑问继续找证据，怎么做？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-reading"
+      ],
+      "context": {},
+      "domainLabels": [
+        "09"
+      ]
+    },
+    {
+      "id": "next-unrun-49",
+      "domain": "09",
+      "stage": "adjust",
+      "text": "原任务依赖的数据没有到，截止还在，我应该先跟导师确认哪些条件和可替代产物？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "research-task"
+      ],
+      "context": {},
+      "domainLabels": [
+        "09",
+        "23"
+      ]
+    },
+    {
+      "id": "next-unrun-50",
+      "domain": "02",
+      "stage": "adjust",
+      "text": "已经决定这阶段先就业，接单只收尾，下一步怎样按这个变化重新比较投入？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "direction-comparison"
+      ],
+      "context": {},
+      "domainLabels": [
+        "02",
+        "07",
+        "11",
+        "12",
+        "22",
+        "23"
+      ]
+    },
+    {
+      "id": "next-unrun-51",
+      "domain": "13",
+      "stage": "adjust",
+      "text": "上次对照岗位时把课堂练习写成真实业务项目了，怎样更正材料而保留合法的学习证据？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "application-match"
+      ],
+      "context": {},
+      "domainLabels": [
+        "13",
+        "14",
+        "27"
+      ]
+    },
+    {
+      "id": "next-unrun-52",
+      "domain": "10",
+      "stage": "adjust",
+      "text": "面试官说没看懂我在项目里做了什么，怎样按这条反馈改已有介绍？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "project-story"
+      ],
+      "context": {},
+      "domainLabels": [
+        "10",
+        "13",
+        "15",
+        "16"
+      ]
+    },
+    {
+      "id": "next-unrun-53",
+      "domain": "14",
+      "stage": "adjust",
+      "text": "对方说需要有数据验证的作品，我已经拿到具体反馈，下一步怎样核对能补的那一部分？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "job-feedback"
+      ],
+      "context": {},
+      "domainLabels": [
+        "14",
+        "15"
+      ]
+    },
+    {
+      "id": "next-unrun-54",
+      "domain": "17",
+      "stage": "adjust",
+      "text": "访谈的人礼貌说不错，却没讲最近一次问题，我应该把哪些结论保留为未知，下一次核实什么？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "user-interview"
+      ],
+      "context": {},
+      "domainLabels": [
+        "17",
+        "20"
+      ]
+    },
+    {
+      "id": "next-unrun-55",
+      "domain": "16",
+      "stage": "adjust",
+      "text": "试验只得到一次有人点开，是否持续使用不清楚，我不想立刻扩大，怎样判断下一步？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "prototype-test"
+      ],
+      "context": {},
+      "domainLabels": [
+        "16",
+        "17",
+        "20"
+      ]
+    },
+    {
+      "id": "next-unrun-56",
+      "domain": "18",
+      "stage": "adjust",
+      "text": "作品采用了，付款还没确认，实际效果也没收到反馈，我想按这三个状态继续复盘。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [
+        "delivery-review"
+      ],
+      "context": {},
+      "domainLabels": [
+        "18"
+      ]
+    },
+    {
+      "id": "next-unrun-57",
+      "domain": "control_or_no_matching_method",
+      "stage": "control",
+      "text": "我今天只想有人听我说，别给办法，也别安排任务。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {}
+    },
+    {
+      "id": "next-unrun-58",
+      "domain": "control_or_no_matching_method",
+      "stage": "control",
+      "text": "不要再建议我时间管理了，这次只聊我刚才的感受。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {}
+    },
+    {
+      "id": "next-unrun-59",
+      "domain": "control_or_no_matching_method",
+      "stage": "control",
+      "text": "那段旧经历我已经要求遗忘，这次不许再用它解释我。",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {}
+    },
+    {
+      "id": "next-unrun-60",
+      "domain": "control_or_no_matching_method",
+      "stage": "unknown",
+      "text": "还是这样。",
+      "expectedRoute": "CLARIFY",
+      "acceptableKeys": [],
+      "context": {}
+    },
+    {
+      "id": "next-unrun-61",
+      "domain": "control_or_no_matching_method",
+      "stage": "unknown",
+      "text": "我说的是另一件事。",
+      "expectedRoute": "CLARIFY",
+      "acceptableKeys": [],
+      "context": {}
+    },
+    {
+      "id": "next-unrun-62",
+      "domain": "control_or_no_matching_method",
+      "stage": "control",
+      "text": "海里的鱼为什么会发光，有没有研究原理？",
+      "expectedRoute": "NONE",
+      "acceptableKeys": [],
+      "context": {}
+    },
+    {
+      "id": "next-unrun-63",
+      "domain": "control_or_no_matching_method",
+      "stage": "unknown",
+      "text": "我想了解一款尚未确定名字的设备该怎么维修。",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {}
+    },
+    {
+      "id": "next-unrun-64",
+      "domain": "control_or_no_matching_method",
+      "stage": "unknown",
+      "text": "能给我一套关于极地野外导航的具体方法吗？",
+      "expectedRoute": "METHOD",
+      "acceptableKeys": [],
+      "context": {}
+    }
+  ]
+}

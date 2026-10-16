@@ -1,0 +1,1552 @@
+{
+  "version": "workflow-v2-integration-1f6b4b7a393b",
+  "at": "2026-10-11T12:36:02.636Z",
+  "formalCorpusModified": false,
+  "formalGuideReviewCounts": {
+    "approved": 16,
+    "needs_review": 16
+  },
+  "coverageTotal": 112,
+  "covered": 53,
+  "awaitingSource": 59,
+  "longBatch": {
+    "revisedCards": 32,
+    "previousApprovedRechecked": 16,
+    "previousPendingRevised": 16,
+    "structuredEditorialDrafts": 32,
+    "newSourceRecords": 19,
+    "distinctNewSourceUrls": 11,
+    "locatedEvidenceFragments": 30,
+    "sourceAttempts": 39,
+    "failedSourceAttempts": 9,
+    "distinctBodiesRead": 29,
+    "newBodiesRead": 16,
+    "gapsResearched": 59,
+    "sourceOrScopeGapsRemaining": 59,
+    "formalApproved": 16,
+    "formalPending": 16,
+    "newIndependentReviews": 0,
+    "newHumanApprovals": 0,
+    "newPublished": 0,
+    "draftsServed": false,
+    "scope": "HISTORICAL_BASELINE_BEFORE_FOLLOWUP"
+  },
+  "files": {
+    ".planning/research/evergreen/DEVELOPMENT_SPEC.md": "6424d382c972e0e5afa11de105c1be7ee9bbcd890e39de07d169e68ebf0822cc",
+    ".planning/research/evergreen/HANDOFF.md": "831d1abadb7b585058a237b1db421e8983f46bb8a069223dfeadaa83cfe21724",
+    ".planning/research/evergreen/KB_ACCEPTANCE.md": "112a6d6e6dbc20a70286af6e2535f1698c055017c76aaa85a372cf761f5b6c0e",
+    ".planning/research/evergreen/KB_BACKEND_REPORT.json": "87c5244fd9bf21696644074337979ec3b5e6cbb00b3de67ef0f39dccb083e8d7",
+    ".planning/research/evergreen/KB_BASELINE_CHECKS.json": "dcffdbcba624725f983269158dc81126e3e6a4554312d96b931e37d18a608547",
+    ".planning/research/evergreen/KB_BATCH_SOURCE_READINGS.json": "e0e9e9d8c7b6901152839b9e04d4dc77cc92bdaacaa728f340093a557c04c8e9",
+    ".planning/research/evergreen/KB_BROWSER_REPORT.json": "68f5e928118e050c0b908b632bb3256c7a2961adc87728e49f9ab090c80e62e3",
+    ".planning/research/evergreen/KB_CARD_REGRESSIONS.json": "732850de84b366d6ea24eb764bf04f0ced63749b80dc80fc7adc2f9c38f3f708",
+    ".planning/research/evergreen/KB_CONTENT_REVISIONS.json": "c7b575c285d74caba25ddbf6dbec42e875b09fdba3e58f3bbfbaa268fc81322c",
+    ".planning/research/evergreen/KB_CONTEXT_DESIGN.md": "448b227f53fa2c8bda6e0f5b9012e97de294a99b30774b444bba555e2949ce3c",
+    ".planning/research/evergreen/KB_COVERAGE.json": "569aa40303b1b2b23c851c124a96c486a5720f4f0d9a4bfbd5451a52b6e0b827",
+    ".planning/research/evergreen/KB_DUPLICATES_REPORT.md": "e127c4815589b7acc366d69ba1a20ca023f63229781bbf1998e200c6b60cd07f",
+    ".planning/research/evergreen/KB_EVIDENCE.jsonl": "d8122194d970f0dfd90b232af8428dbd99bc6d44996f4bdfa115842ac37c4e1a",
+    ".planning/research/evergreen/KB_EVIDENCE_REOPEN.jsonl": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+    ".planning/research/evergreen/KB_FREEZE.json": "ea1bff4f950427b151e850f57cae7841736d72940d2d9c22536179bff3eed806",
+    ".planning/research/evergreen/KB_GAP_RESEARCH.json": "f3b4bfc9cafcfe773caf45207f1b58d75991c8afa352b90bedd22e48f804b42c",
+    ".planning/research/evergreen/KB_GAPS.md": "7489d4b5fb776c3a19d107004e9aba4edc167bf29aefc34c3f684a415c7c71fb",
+    ".planning/research/evergreen/KB_GUIDES.jsonl": "6b944620597fb1c9e466af9fb98b6528fdae5d0106d8bb2bed4aa9c7f8537600",
+    ".planning/research/evergreen/KB_IMPLEMENTATION_FREEZE.json": "648de33f8de5c3c36124c3fa750e091c22066eab1dab7f3a687d9e4b2322b0ad",
+    ".planning/research/evergreen/KB_INDEX_LOAD_REPORT.json": "50a589965504298c69966aed04193a53b4439cd211b90706ab85648f368725b7",
+    ".planning/research/evergreen/KB_LEGACY_MAP.json": "e236b232abd9c5c7de1f64a6dd688d0640d272841dcdccbe0a42c7172e43c2fd",
+    ".planning/research/evergreen/KB_NATURAL_FREEZE.json": "2032267b6ea6e03883abc34dea1cad82d2d1aa6d19b9490f3495f13c9dd08bf0",
+    ".planning/research/evergreen/KB_NATURAL_QUERIES.json": "96d55543c183f118048d42b3851a4ad125126fa3a806c793f7172ce799c4f332",
+    ".planning/research/evergreen/KB_PROVIDER_PREFLIGHT.json": "058a043c2b8446ba43fad6370e33e9cfe944ce1df89e3d1a86f49ec47c257871",
+    ".planning/research/evergreen/KB_QUERY_BENCHMARK.json": "51d0ed528443144a1f10640712b55222e5ca4e2cec3c2d304fa72ac473ae6d51",
+    ".planning/research/evergreen/KB_RETRIEVAL_ACCEPTANCE2.json": "34d21a7b0d1d071397ebb43f830e416b2d5794d45c90bd0990fa9c50b1394558",
+    ".planning/research/evergreen/KB_RETRIEVAL_ACCEPTANCE2_FREEZE.json": "b77a549d454de3c0b1a6258f6d5aa3fd756ee4f0d1a378e2c53e5d39fd0eb78d",
+    ".planning/research/evergreen/KB_RETRIEVAL_EVAL.json": "4df9349c0bd33351ab42bf52bf094433a7480dea00b5089c3aeb44f2e80f9a02",
+    ".planning/research/evergreen/KB_RETRIEVAL_EVAL.md": "73a7406a3b1cbf7fcc0e582bad527e6ef2c2839604a14e7b3d5bb9f3f3fd1289",
+    ".planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json": "74e3e267c57e880cb58dda697c75d4b4e4fd1d58953b0221be8f753ecc7ec3cb",
+    ".planning/research/evergreen/KB_RETRIEVAL_RESERVE.json": "51432d7d4389048a5370f8d7f46c800b1bbf61bc843f03831ed2d85bef602e2a",
+    ".planning/research/evergreen/KB_RETRIEVAL_RESERVE_FREEZE.json": "74df04cafd7d4de608a54222ef90aa5794443d509947b82d38f022e7ece4845a",
+    ".planning/research/evergreen/KB_SEMANTIC_REVIEW.json": "77d44f8af33a5530c3eb18992f5cacaaa38eb9e8af0ef937610c69970b61f3f3",
+    ".planning/research/evergreen/KB_SOURCE_FOLLOWUP.json": "b48a68483e5542f182e8289840f939115cfe9b2d3e6cf031a345fbad2f5e5807",
+    ".planning/research/evergreen/KB_SOURCE_REGISTRY.jsonl": "7a4395c15688b3e7f284ee128f0784d6512a757cd9241f1aec191d8fae3a21a9",
+    ".planning/research/evergreen/KB_SOURCE_REOPEN.jsonl": "4bb93c3397ae690400c16cba4a66c39d8e2db1d7c65677f375354cb6bd81f509",
+    ".planning/research/evergreen/KB_TAXONOMY.json": "63d6cf11f2b7633035b3044a2e233a2470b49d79abcd13c290a46699c6845e70",
+    ".planning/research/evergreen/sources.md": "d84655dafc02974ab2980a355ad14bc8bb633e8c3a0bee14d37859734ccd3155"
+  },
+  "draftRelease": "WAITING_ACTUAL_INDEPENDENT_EXECUTION_AND_HUMAN_APPROVAL",
+  "sourceBodyEvidence": "Short located excerpts/body hashes committed; full public authoring captures in TEMP are not required for tests. Actual reviewer must reopen original links.",
+  "oldRetrievalBenchmark": "235 previously exposed cases, regression only; never new blind evidence",
+  "newRetrievalBenchmark": {
+    "total": 232,
+    "authoredBeforeExecution": true,
+    "development": 116,
+    "sealedFirstFinal": 116,
+    "independentBlindTest": false,
+    "sealedUsedForTuning": false,
+    "report": "evidence/long-batch-20261010/NATURAL_sealed_final.json",
+    "quality": "FAIL_RECALL_AND_TOP1",
+    "metrics": {
+      "route": {
+        "numerator": 112,
+        "denominator": 116
+      },
+      "recall5": {
+        "numerator": 35,
+        "denominator": 48
+      },
+      "top1": {
+        "numerator": 31,
+        "denominator": 48
+      },
+      "missingTarget": {
+        "numerator": 48,
+        "denominator": 96
+      },
+      "noMatchingMethod": 1
+    },
+    "byDomain": {
+      "10": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "noMatchingMethod": 0
+      },
+      "12": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "13": {
+        "route": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "missingTarget": {
+          "numerator": 3,
+          "denominator": 5
+        },
+        "noMatchingMethod": 0
+      },
+      "14": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "15": {
+        "route": {
+          "numerator": 6,
+          "denominator": 6
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 6,
+          "denominator": 6
+        },
+        "noMatchingMethod": 0
+      },
+      "16": {
+        "route": {
+          "numerator": 6,
+          "denominator": 6
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "missingTarget": {
+          "numerator": 3,
+          "denominator": 5
+        },
+        "noMatchingMethod": 0
+      },
+      "17": {
+        "route": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "noMatchingMethod": 0
+      },
+      "18": {
+        "route": {
+          "numerator": 6,
+          "denominator": 7
+        },
+        "recall5": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "top1": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "missingTarget": {
+          "numerator": 3,
+          "denominator": 6
+        },
+        "noMatchingMethod": 0
+      },
+      "19": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "top1": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "20": {
+        "route": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "recall5": {
+          "numerator": 3,
+          "denominator": 4
+        },
+        "top1": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 4
+        },
+        "noMatchingMethod": 0
+      },
+      "21": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "noMatchingMethod": 0
+      },
+      "22": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "23": {
+        "route": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "noMatchingMethod": 0
+      },
+      "24": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "noMatchingMethod": 0
+      },
+      "25": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "26": {
+        "route": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "recall5": {
+          "numerator": 3,
+          "denominator": 4
+        },
+        "top1": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 4
+        },
+        "noMatchingMethod": 0
+      },
+      "27": {
+        "route": {
+          "numerator": 5,
+          "denominator": 6
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 5,
+          "denominator": 6
+        },
+        "noMatchingMethod": 0
+      },
+      "28": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "noMatchingMethod": 0
+      },
+      "01": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "top1": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 3
+        },
+        "noMatchingMethod": 0
+      },
+      "07": {
+        "route": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "noMatchingMethod": 0
+      },
+      "03": {
+        "route": {
+          "numerator": 2,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 2,
+          "denominator": 3
+        },
+        "top1": {
+          "numerator": 2,
+          "denominator": 3
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 3
+        },
+        "noMatchingMethod": 0
+      },
+      "09": {
+        "route": {
+          "numerator": 5,
+          "denominator": 5
+        },
+        "recall5": {
+          "numerator": 2,
+          "denominator": 3
+        },
+        "top1": {
+          "numerator": 2,
+          "denominator": 3
+        },
+        "missingTarget": {
+          "numerator": 2,
+          "denominator": 5
+        },
+        "noMatchingMethod": 0
+      },
+      "04": {
+        "route": {
+          "numerator": 12,
+          "denominator": 13
+        },
+        "recall5": {
+          "numerator": 8,
+          "denominator": 12
+        },
+        "top1": {
+          "numerator": 7,
+          "denominator": 12
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 12
+        },
+        "noMatchingMethod": 0
+      },
+      "05": {
+        "route": {
+          "numerator": 2,
+          "denominator": 2
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "06": {
+        "route": {
+          "numerator": 8,
+          "denominator": 8
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "missingTarget": {
+          "numerator": 6,
+          "denominator": 7
+        },
+        "noMatchingMethod": 0
+      },
+      "08": {
+        "route": {
+          "numerator": 3,
+          "denominator": 3
+        },
+        "recall5": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "top1": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 2
+        },
+        "noMatchingMethod": 0
+      },
+      "02": {
+        "route": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "noMatchingMethod": 0
+      },
+      "boundary": {
+        "route": {
+          "numerator": 6,
+          "denominator": 6
+        },
+        "recall5": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "top1": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "missingTarget": {
+          "numerator": 0,
+          "denominator": 0
+        },
+        "noMatchingMethod": 1
+      }
+    },
+    "byStage": {
+      "start": {
+        "route": {
+          "numerator": 48,
+          "denominator": 52
+        },
+        "recall5": {
+          "numerator": 11,
+          "denominator": 16
+        },
+        "top1": {
+          "numerator": 8,
+          "denominator": 16
+        },
+        "missingTarget": {
+          "numerator": 16,
+          "denominator": 32
+        },
+        "noMatchingMethod": 1
+      },
+      "adjust": {
+        "route": {
+          "numerator": 64,
+          "denominator": 64
+        },
+        "recall5": {
+          "numerator": 24,
+          "denominator": 32
+        },
+        "top1": {
+          "numerator": 23,
+          "denominator": 32
+        },
+        "missingTarget": {
+          "numerator": 32,
+          "denominator": 64
+        },
+        "noMatchingMethod": 0
+      }
+    }
+  },
+  "sourceFollowup": {
+    "newUsableSources": 5,
+    "newLocatedQuotes": 5,
+    "draftsSupplemented": 8,
+    "allReviewPreparations": 32,
+    "sourceScopedDraftReady": 15,
+    "partialImproved": 8,
+    "stillTaskSpecificSourceGap": 44,
+    "actualIndependentReviews": 0,
+    "actualHumanApprovals": 0,
+    "formalCoverageUnchangedUntilApproval": true,
+    "partialImprovedIncludedInRemaining": true
+  },
+  "reviewPreparation": {
+    "drafts": 32,
+    "claimChecks": 74,
+    "status": "PREPARED_NOT_INDEPENDENTLY_EXECUTED",
+    "independentExecution": 0,
+    "humanApproval": 0
+  },
+  "cumulativeEditorialPack": {
+    "sourceRecords": 24,
+    "locatedQuotes": 35,
+    "drafts": 32,
+    "actualIndependentReviews": 0,
+    "actualHumanApprovals": 0
+  },
+  "hashDomain": "COMMITTED_GIT_BLOB_BYTES_BEFORE_WORKTREE_EOL_CONVERSION",
+  "excludedUncommittedHistoricalFiles": {
+    "status": "NOT_INCLUDED_NOT_REPRODUCTION_EVIDENCE",
+    "files": {
+      ".planning/research/evergreen/evidence/corpus-and-browser.log": "1c45c79ced2c9fccf915d1c1813c7d16d80ac12e8efeafa4ee21a3ae43eab342",
+      ".planning/research/evergreen/evidence/desktop.png": "a8b7a2ea684114901983b10efeb3de6870be4636b528704b286c0af9d5cd15e5",
+      ".planning/research/evergreen/evidence/frontend-build.log": "10ec5c659830e6652407978312cefdc2318d3d86d2d11312e6da47e2aee7545f",
+      ".planning/research/evergreen/evidence/index-load.log": "573604ec4ca2f90da3a4988986dd15aaa7b25ef708b769975b06415bc5c5e85c",
+      ".planning/research/evergreen/evidence/legacy-knowledge.log": "09e78b035405dbad391c79562c8b9ab51d137dbae99bb182b410b5ec3302142c",
+      ".planning/research/evergreen/evidence/mobile.png": "fa744c8a2c809c10bf421f6179ee9de0b8fa963ad35978fb121fac737fa7f342",
+      ".planning/research/evergreen/evidence/root-tests.log": "ea8a03ecdb7c90fcdaf37c26198dcc0ed8c3d65734bb6b4876ccb9d0b72b1456",
+      ".planning/research/evergreen/evidence/server-typecheck.log": "497444754e1b862596b7d74c7931f44c6c0ed3225c53cc27e9cf6cedd721fe6a",
+      ".planning/research/evergreen/evidence/simulated-provider.log": "3122655f027a062e77389b9a88d8fa8eab4cc3605126205f5f9c60f3808cfc7c"
+    }
+  },
+  "contentRecordedFromHead": "4a9deffbfe5db77ec9bc8f040a76cb017b1c4a11",
+  "currentFollowup": {
+    "draftCards": 32,
+    "sourceRecords": 37,
+    "locatedEvidence": 54,
+    "researchRows": 59,
+    "newUsableSources": 14,
+    "newLocatedQuotes": 22,
+    "draftsSupplemented": 21,
+    "allReviewPreparations": 32,
+    "sourceScopedDraftReady": 21,
+    "partialImproved": 11,
+    "stillTaskSpecificSourceGap": 38,
+    "actualIndependentReviews": 0,
+    "actualHumanApprovals": 0,
+    "formalCoverageUnchangedUntilApproval": true,
+    "previous": {
+      "newUsableSources": 5,
+      "newLocatedQuotes": 5,
+      "draftsSupplemented": 8,
+      "allReviewPreparations": 32,
+      "sourceScopedDraftReady": 15,
+      "partialImproved": 8,
+      "stillTaskSpecificSourceGap": 44,
+      "actualIndependentReviews": 0,
+      "actualHumanApprovals": 0,
+      "formalCoverageUnchangedUntilApproval": true
+    },
+    "sourceScopedDraftReadyIsCandidateNotWholeCardApproval": true,
+    "reReadExistingOriginals": 1,
+    "draftsSupplementedCountsRevisionEvents": true,
+    "actualIndependentReviewExecutions": 32,
+    "currentExternalVersionBindings": 30,
+    "actualIndependentReviewsMeaning": "0 imported independent receipts in non-test maintenance DB; observed external executions and exact current card bindings are separate. No human approval or publication.",
+    "actualIndependentReviewExecutionRuns": 2,
+    "actualIndependentCardReviewEvents": 38,
+    "formalCovered": 53,
+    "formalSourceGaps": 59,
+    "newOwnerApprovals": 0,
+    "newPublished": 0,
+    "studentDraftRetrieval": false
+  },
+  "currentDraftReviewBindings": [
+    {
+      "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+      "canonicalKey": "campus-resource",
+      "revision": 3,
+      "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 0,
+          "revision": 2,
+          "contentHash": "456db6fb2f43926b305e223740d77fc0a22bf2b2e7810f54ce94e6e35654886f",
+          "decision": "ready_for_owner_approval",
+          "current": false
+        },
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json",
+          "reportSha256": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66",
+          "cardIndex": 0,
+          "revision": 3,
+          "contentHash": "c28caac2d2245d45370988b254fce56964143e4e22bd9b1369f527aecec4d235",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "257bea5b-e782-427a-82c0-39e84e086ad9",
+      "canonicalKey": "first-contact",
+      "revision": 6,
+      "contentHash": "1301b576252b943a86d6000a1002e5710b67d43b8b873ae9c04f1a5c5c5a7f62",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 1,
+          "revision": 3,
+          "contentHash": "1774f66c3b211cf61f0abcb26e61fe019167fd2b7fa95b18733bf0c1239eb7b0",
+          "decision": "ready_for_owner_approval",
+          "current": false
+        }
+      ],
+      "hasCurrentExternalBinding": false,
+      "gate": "STALE_EXTERNAL_RECORD_REQUIRES_NEW_INDEPENDENT_REVIEW",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "3c534028-eb02-48bd-8dd4-3dd9473a4a29",
+      "canonicalKey": "fit-exploration",
+      "revision": 2,
+      "contentHash": "3b827deda68944a3c21ae0d08dfdb7701e4979ecd1fa705c06666e258c17ef79",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 2,
+          "revision": 2,
+          "contentHash": "3b827deda68944a3c21ae0d08dfdb7701e4979ecd1fa705c06666e258c17ef79",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "cce58304-bb40-41bb-8ad3-b98f0c14c2bb",
+      "canonicalKey": "skill-gap",
+      "revision": 2,
+      "contentHash": "90b46b82bce9f2efc1b1f14daecc11d67e597681a8b29d5aa03202aa8570d5f1",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 3,
+          "revision": 2,
+          "contentHash": "90b46b82bce9f2efc1b1f14daecc11d67e597681a8b29d5aa03202aa8570d5f1",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "7ff3638d-87dc-4842-8908-352ea1ed308e",
+      "canonicalKey": "course-frame",
+      "revision": 2,
+      "contentHash": "9499a6406ae195077e637c645effa4fa6fdcd78f9bbbb5eae6616d441d29c18d",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 4,
+          "revision": 2,
+          "contentHash": "9499a6406ae195077e637c645effa4fa6fdcd78f9bbbb5eae6616d441d29c18d",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "d259a5aa-ec96-43f7-89ab-5f5c87031f1c",
+      "canonicalKey": "exam-diagnosis",
+      "revision": 5,
+      "contentHash": "1788b692546f8a720f928e5ae564adc119e49ca78501cf4a5246f2fc08b1e1b5",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 5,
+          "revision": 4,
+          "contentHash": "299b0a324888fe7ae2a671220aed4e5ad0fc5e79679ca8b48146c0c1653e5f54",
+          "decision": "ready_for_owner_approval",
+          "current": false
+        }
+      ],
+      "hasCurrentExternalBinding": false,
+      "gate": "STALE_EXTERNAL_RECORD_REQUIRES_NEW_INDEPENDENT_REVIEW",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "e6ad610b-549e-4b09-89bc-34223577fb49",
+      "canonicalKey": "retrieval-practice",
+      "revision": 3,
+      "contentHash": "c8680ef307df145857f2357938bd144945d61f0694b0f1e019ae8e473a5fef5b",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 6,
+          "revision": 2,
+          "contentHash": "1515e7f8beca791ad7b88e67d21d7b6e55aa0f34c689b812906d83d939685e09",
+          "decision": "needs_review",
+          "current": false
+        },
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json",
+          "reportSha256": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66",
+          "cardIndex": 1,
+          "revision": 3,
+          "contentHash": "c8680ef307df145857f2357938bd144945d61f0694b0f1e019ae8e473a5fef5b",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "fec4a7ce-91a7-4fa8-8278-ff6b61e1404a",
+      "canonicalKey": "spaced-review",
+      "revision": 3,
+      "contentHash": "3d30bf07eecff9422a434c3b1033c724a6c886ac723f598ae01b7f831f076e42",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 7,
+          "revision": 2,
+          "contentHash": "2a594e3ce3151d8a731ffd23925662b5559dd140385c1b2df5fdf95aa7fd51c3",
+          "decision": "needs_review",
+          "current": false
+        },
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json",
+          "reportSha256": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66",
+          "cardIndex": 2,
+          "revision": 3,
+          "contentHash": "3d30bf07eecff9422a434c3b1033c724a6c886ac723f598ae01b7f831f076e42",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "418188a9-dfd0-46d3-8f35-6fdff72de1c9",
+      "canonicalKey": "worked-example",
+      "revision": 3,
+      "contentHash": "3fec0f47977375e8c688e1e58425fa129a93535d0d8e60261ec12ab273822028",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 8,
+          "revision": 2,
+          "contentHash": "bff977dcc13ddaeb520a2c9dd40da7a5c039f9973153edf22e8b89d3056f5ee6",
+          "decision": "needs_review",
+          "current": false
+        },
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json",
+          "reportSha256": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66",
+          "cardIndex": 3,
+          "revision": 3,
+          "contentHash": "3fec0f47977375e8c688e1e58425fa129a93535d0d8e60261ec12ab273822028",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "d1cb5277-c602-4909-8a48-b4fc52f15d63",
+      "canonicalKey": "explain-understanding",
+      "revision": 3,
+      "contentHash": "003e6a5077cbb8e7de2e10feefd9f30d65374168f620792443e2b7c9ebc92c43",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 9,
+          "revision": 2,
+          "contentHash": "0706626699bab64a76bc181c79cb8fd2eb34b43b2aef0aad2916335bd46e02f6",
+          "decision": "needs_review",
+          "current": false
+        },
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json",
+          "reportSha256": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66",
+          "cardIndex": 4,
+          "revision": 3,
+          "contentHash": "003e6a5077cbb8e7de2e10feefd9f30d65374168f620792443e2b7c9ebc92c43",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "5fde19ca-e307-478c-8a96-5781df392991",
+      "canonicalKey": "priority-budget",
+      "revision": 2,
+      "contentHash": "6c95c10a963bb4f3176c363afd85b11ea77ec51219315d1583badd45641485f1",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 10,
+          "revision": 2,
+          "contentHash": "6c95c10a963bb4f3176c363afd85b11ea77ec51219315d1583badd45641485f1",
+          "decision": "needs_review",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "ac31c643-eece-4bb4-828e-50e444c71395",
+      "canonicalKey": "restart-task",
+      "revision": 2,
+      "contentHash": "4ad1779a8447a8d97b37bac885c080577f00a95e225fc0fa4016223048a793fd",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 11,
+          "revision": 2,
+          "contentHash": "4ad1779a8447a8d97b37bac885c080577f00a95e225fc0fa4016223048a793fd",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "33b6356e-3d80-4881-80da-1892555bea86",
+      "canonicalKey": "start-small",
+      "revision": 2,
+      "contentHash": "12f40679863c9ad574c8d9950fbedd316ada329986d86fec56292abdbcfa47cc",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 12,
+          "revision": 2,
+          "contentHash": "12f40679863c9ad574c8d9950fbedd316ada329986d86fec56292abdbcfa47cc",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "48e4e604-8fd8-4016-862c-f6d3219c776d",
+      "canonicalKey": "plan-review",
+      "revision": 2,
+      "contentHash": "663637cc609267ed5ead9ddb7b4e3ddf8a01c59cf9fa7bc5d81fcc4c0f75d809",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 13,
+          "revision": 2,
+          "contentHash": "663637cc609267ed5ead9ddb7b4e3ddf8a01c59cf9fa7bc5d81fcc4c0f75d809",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "6262d479-9403-4140-8910-48de23cd2600",
+      "canonicalKey": "experience-evidence",
+      "revision": 2,
+      "contentHash": "ced6ba9917b3bbde69144f547ab6eeb085a16ac8ff9d2f9927fe8ea5d1705a5f",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 14,
+          "revision": 2,
+          "contentHash": "ced6ba9917b3bbde69144f547ab6eeb085a16ac8ff9d2f9927fe8ea5d1705a5f",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "563bc621-e36d-416b-8176-c82bbe0469f3",
+      "canonicalKey": "research-reading",
+      "revision": 2,
+      "contentHash": "bab630cbab52c99c4d1c308891f7c200c3f354dffa6e193f52f5f1dca9d4aa37",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 15,
+          "revision": 2,
+          "contentHash": "bab630cbab52c99c4d1c308891f7c200c3f354dffa6e193f52f5f1dca9d4aa37",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "56cdf864-c703-4fed-8200-29e54c988800",
+      "canonicalKey": "research-task",
+      "revision": 2,
+      "contentHash": "9416614da447a0c1850797ec5e9c978283295db87120c23f22523ff18a9a2d0c",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 16,
+          "revision": 2,
+          "contentHash": "9416614da447a0c1850797ec5e9c978283295db87120c23f22523ff18a9a2d0c",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "f266e5be-14aa-4fc9-8239-30349eb10c2f",
+      "canonicalKey": "direction-comparison",
+      "revision": 3,
+      "contentHash": "98e0a24a01835f06ac903403447e7c3e6f8b6b043bb638bd09f03c9d54ebd46b",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 17,
+          "revision": 3,
+          "contentHash": "98e0a24a01835f06ac903403447e7c3e6f8b6b043bb638bd09f03c9d54ebd46b",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "d9c8179d-ccc5-4c09-8503-a17eeade5ae9",
+      "canonicalKey": "application-match",
+      "revision": 2,
+      "contentHash": "684d9e1bfebd7c6cdc8975d111e923015594f7edbe9d81247e2e1e4f8b6c37f1",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 18,
+          "revision": 2,
+          "contentHash": "684d9e1bfebd7c6cdc8975d111e923015594f7edbe9d81247e2e1e4f8b6c37f1",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "4795f7b2-f739-4ba5-8052-2d04f5894bbe",
+      "canonicalKey": "project-story",
+      "revision": 2,
+      "contentHash": "344208438d884cd214ef55f953f6925f4ccf42c54140fa1bf8371c4612b3e621",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 19,
+          "revision": 2,
+          "contentHash": "344208438d884cd214ef55f953f6925f4ccf42c54140fa1bf8371c4612b3e621",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "9937b7ed-f6bc-46a1-8fab-defd18b06e30",
+      "canonicalKey": "job-feedback",
+      "revision": 2,
+      "contentHash": "76e37e85555db159fc7724f1d0bad3e61e6f887220326e25b2e37eddb0414904",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 20,
+          "revision": 2,
+          "contentHash": "76e37e85555db159fc7724f1d0bad3e61e6f887220326e25b2e37eddb0414904",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "cf3647df-1e36-4645-8b90-f894a0348be3",
+      "canonicalKey": "interview-unknown",
+      "revision": 2,
+      "contentHash": "6504c4fdd00dadad4e66bc671ca13eee077c6c310fcbec06204cd541eaed7c96",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 21,
+          "revision": 2,
+          "contentHash": "6504c4fdd00dadad4e66bc671ca13eee077c6c310fcbec06204cd541eaed7c96",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "43e47ad6-3543-4c97-84f6-42bb0a1e6cb3",
+      "canonicalKey": "user-interview",
+      "revision": 2,
+      "contentHash": "94c8e5d4276d7a2c3b33ebc60b5f5fedccaf36f68f04629fdad3fe7623cbeda1",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 22,
+          "revision": 2,
+          "contentHash": "94c8e5d4276d7a2c3b33ebc60b5f5fedccaf36f68f04629fdad3fe7623cbeda1",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "061bf547-823f-492e-89c2-cf11daf153b5",
+      "canonicalKey": "prototype-test",
+      "revision": 2,
+      "contentHash": "83546d885447335cd91bd05572defd40e4b7c12dfbe9d67ec69a65dff228ffa1",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 23,
+          "revision": 2,
+          "contentHash": "83546d885447335cd91bd05572defd40e4b7c12dfbe9d67ec69a65dff228ffa1",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "ea53cc08-3420-442f-8e5c-98070be7909a",
+      "canonicalKey": "delivery-scope",
+      "revision": 2,
+      "contentHash": "01affd6db6564fd9fa98222c6071ddb0acb005739fe22e47e29560331a2fd7e5",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 24,
+          "revision": 2,
+          "contentHash": "01affd6db6564fd9fa98222c6071ddb0acb005739fe22e47e29560331a2fd7e5",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "ee6a3e12-bedb-4386-8fd1-03ae06fb19ab",
+      "canonicalKey": "delivery-review",
+      "revision": 3,
+      "contentHash": "d46c0109459337875f5d34b86c0a161366a0a58e184ce95ce91c775c71ac1211",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 25,
+          "revision": 3,
+          "contentHash": "d46c0109459337875f5d34b86c0a161366a0a58e184ce95ce91c775c71ac1211",
+          "decision": "needs_review",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "086ec2af-ef51-44c8-84c4-ca763aef4f1f",
+      "canonicalKey": "income-ledger",
+      "revision": 4,
+      "contentHash": "0d7e7c7b8883d9163e65429a04e9c3e570443f3cdc5b20e37db93b446a264f4a",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 26,
+          "revision": 2,
+          "contentHash": "72b7d6967fa4a5e1b9d01a042ce8c270f9d8e4dee97f1a33c3c65f6e580db0ab",
+          "decision": "needs_review",
+          "current": false
+        },
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_R8_CARDS_RAW.json",
+          "reportSha256": "d9ba6fcca34333c0144bec5532ad1642eb8d43bd58a3806ed4597fad10404f66",
+          "cardIndex": 5,
+          "revision": 4,
+          "contentHash": "0d7e7c7b8883d9163e65429a04e9c3e570443f3cdc5b20e37db93b446a264f4a",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "a59f8d87-9b86-4fb3-8dcd-c0e65a084e39",
+      "canonicalKey": "content-experiment",
+      "revision": 2,
+      "contentHash": "d537c4b79c51ba51f46ae9a17b48a9a774a3b025a296e034ac2d8aa3fee7f917",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 27,
+          "revision": 2,
+          "contentHash": "d537c4b79c51ba51f46ae9a17b48a9a774a3b025a296e034ac2d8aa3fee7f917",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "f691bcc0-526e-4588-8e42-3390fbabecbd",
+      "canonicalKey": "team-contract",
+      "revision": 2,
+      "contentHash": "e757f8dd1df6ce450307371db7475443f424678457efa1ac9635cede7da44355",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 28,
+          "revision": 2,
+          "contentHash": "e757f8dd1df6ce450307371db7475443f424678457efa1ac9635cede7da44355",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "349634c2-27c1-4a99-8f54-3f8e072d5ce0",
+      "canonicalKey": "boundary-request",
+      "revision": 2,
+      "contentHash": "54de26d9d993e6e706ce02f9aa2a49f175e29fe67d6dc05e1e8d33d6dd90d129",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 29,
+          "revision": 2,
+          "contentHash": "54de26d9d993e6e706ce02f9aa2a49f175e29fe67d6dc05e1e8d33d6dd90d129",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "1f3b9f4d-e4dd-4858-8bb2-2d4ab1ae475a",
+      "canonicalKey": "recovery-support",
+      "revision": 2,
+      "contentHash": "c96b40f517d075bfc198b9d8ff03aa1446aa55a8c33539c7316e075c06c05d56",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 30,
+          "revision": 2,
+          "contentHash": "c96b40f517d075bfc198b9d8ff03aa1446aa55a8c33539c7316e075c06c05d56",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    },
+    {
+      "guideId": "bec572cf-e158-4501-8062-3d62021eb952",
+      "canonicalKey": "information-check",
+      "revision": 2,
+      "contentHash": "cc2bbffd8da399eee2b0895be5ffbd05f787e1f7fcb7bd56df2bf510c543fd7a",
+      "observedExternalReports": [
+        {
+          "reportPath": "evidence/coze-core-launch-20261011/KB_INDEPENDENT32_R2_RESULT.json",
+          "reportSha256": "4c025f2d54d374d383fc6e103dfe56833251e8b560d0ed52f618d89c69168980",
+          "cardIndex": 31,
+          "revision": 2,
+          "contentHash": "cc2bbffd8da399eee2b0895be5ffbd05f787e1f7fcb7bd56df2bf510c543fd7a",
+          "decision": "ready_for_owner_approval",
+          "current": true
+        }
+      ],
+      "hasCurrentExternalBinding": true,
+      "gate": "EXTERNAL_RECORD_CURRENT_REQUIRES_AUTHENTICATED_MAINTENANCE_IMPORT",
+      "authenticatedNonTestReceipt": null,
+      "humanApproval": null,
+      "published": false
+    }
+  ],
+  "browserMaintenanceReceipt": {
+    "scope": "ACTUAL_NORMAL_BROWSER_IMPORT_ON_ISOLATED_SYNTHETIC_ACCOUNT",
+    "runtimeHead": "1d711d2bfda93dcbff59003e60fb893232900aaa",
+    "guideId": "4589ba1e-1aba-4f40-80a7-a55ce5e1ba0d",
+    "revision": 3,
+    "executionId": "coze-kb-r8-original-cards",
+    "receiptId": "5a7e6676-ac9f-4263-b4de-362bbb235729",
+    "status": "waiting_approval",
+    "actualExternalOriginal": true,
+    "humanApproval": false,
+    "published": false,
+    "evidence": "evidence/coze-core-launch-20261011/current-ui-1d711d2-api-readback.json",
+    "currentReadback": {
+      "runtimeHead": "f36b933924999eee108abdbec5a6c16d1f44fbd8",
+      "status": "waiting_approval",
+      "evidence": "evidence/coze-core-launch-20261011/current-ui-f36b933-api-readback.json",
+      "syntheticAccount": true,
+      "humanApproval": false,
+      "published": false
+    }
+  },
+  "currentAuthorization": {
+    "path": ".planning/research/workflow-integration/LAUNCH_AUTHORIZATION.json",
+    "sha256": "53193bdc983dedb7e2d396c8510b9d270aba51d9415d278864f714b72a35ea96",
+    "humanApprovalsAuthorized": true,
+    "meaning": "Authorization does not create missing independent source/version receipts; draft publication remains gated."
+  },
+  "historicalReviewCountsMeaning": "Earlier zero-approval/publication counts remain historical. NEXT_ACCEPTANCE records one actual campus card published through independent review and owner authorization; this is not approval of all 32 drafts."
+}

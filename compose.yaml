@@ -1,0 +1,126 @@
+name: lifeos
+services:
+  db:
+    image: postgres:17.11-bookworm@sha256:051f7b7b3abdd564d5d1bd1e8c4b9c1b6e77087d1dd22020ede611c096a272e0
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lifeos
+      POSTGRES_USER: lifeos
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a unique database password}
+    volumes:
+      - database:/var/lib/postgresql/data
+    shm_size: 128mb
+    mem_limit: 256m
+    cpus: 0.75
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U lifeos -d lifeos']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    logging: &logging
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+  app:
+    image: lifeos:v1.3-fast-launch-candidate
+    build:
+      context: .
+      args:
+        LIFEOS_BUILD_COMMIT: ${LIFEOS_BUILD_COMMIT:?Set the exact source commit before building}
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 40s
+    depends_on:
+      db: {condition: service_healthy}
+    environment:
+      NODE_ENV: production
+      LIFEOS_HOST: 0.0.0.0
+      LIFEOS_PORT: 8787
+      LIFEOS_ORIGIN: ${LIFEOS_ORIGIN:?Set the public HTTPS origin}
+      DATABASE_URL: postgresql://lifeos:${POSTGRES_PASSWORD}@db:5432/lifeos
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set a strong session secret}
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:-}
+      ZHIPU_API_KEY: ${ZHIPU_API_KEY:-}
+      LIFEOS_MODEL_DEFAULT_PROVIDER: ${LIFEOS_MODEL_DEFAULT_PROVIDER:-bailian}
+      LIFEOS_MODEL_DEFAULT_ID: ${LIFEOS_MODEL_DEFAULT_ID:-}
+      LIFEOS_DEFAULT_MODEL: ${LIFEOS_DEFAULT_MODEL:-${LIFEOS_MODEL_DEFAULT_ID:-qwen3.8-flash}}
+      LIFEOS_MODEL_DEFAULT_BASE_URL: ${LIFEOS_MODEL_DEFAULT_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+      LIFEOS_MODEL_DEFAULT_API_KEY: ${LIFEOS_MODEL_DEFAULT_API_KEY:-${DASHSCOPE_API_KEY:-${ZHIPU_API_KEY:-}}}
+      LIFEOS_MODEL_REASONING_PROVIDER: ${LIFEOS_MODEL_REASONING_PROVIDER:-bailian}
+      LIFEOS_MODEL_REASONING_ID: ${LIFEOS_MODEL_REASONING_ID:-}
+      LIFEOS_REASONING_MODEL: ${LIFEOS_REASONING_MODEL:-${LIFEOS_MODEL_REASONING_ID:-deepseek-v4.1-flash}}
+      LIFEOS_MODEL_REASONING_BASE_URL: ${LIFEOS_MODEL_REASONING_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+      LIFEOS_MODEL_REASONING_API_KEY: ${LIFEOS_MODEL_REASONING_API_KEY:-}
+      LIFEOS_MODEL_DEEP_PROVIDER: ${LIFEOS_MODEL_DEEP_PROVIDER:-}
+      LIFEOS_MODEL_DEEP_ID: ${LIFEOS_MODEL_DEEP_ID:-}
+      LIFEOS_MODEL_DEEP_BASE_URL: ${LIFEOS_MODEL_DEEP_BASE_URL:-}
+      LIFEOS_MODEL_DEEP_API_KEY: ${LIFEOS_MODEL_DEEP_API_KEY:-}
+      LIFEOS_MODEL_PRICING_JSON: ${LIFEOS_MODEL_PRICING_JSON:-'{"bailian:qwen3.8-flash":{"inputCnyPerMillion":0.8,"outputCnyPerMillion":2.7,"cachedInputCnyPerMillion":0.1},"bailian:deepseek-v4.1-flash":{"inputCnyPerMillion":2,"outputCnyPerMillion":8}}'}
+      LIFEOS_PROVIDER_BUDGET_ENABLED: true
+      LIFEOS_PROVIDER_BUDGET_ID: ${LIFEOS_PROVIDER_BUDGET_ID:-production}
+      LIFEOS_ENTITLEMENTS_ENABLED: true
+      LIFEOS_SIGNUP_ENABLED: ${LIFEOS_SIGNUP_ENABLED:-false}
+      LIFEOS_PASSWORD_RESET_ENABLED: ${LIFEOS_PASSWORD_RESET_ENABLED:-false}
+      LIFEOS_SMTP_HOST: ${LIFEOS_SMTP_HOST:-}
+      LIFEOS_SMTP_PORT: ${LIFEOS_SMTP_PORT:-465}
+      LIFEOS_SMTP_USER: ${LIFEOS_SMTP_USER:-}
+      LIFEOS_SMTP_PASSWORD: ${LIFEOS_SMTP_PASSWORD:-}
+      LIFEOS_MAIL_FROM: ${LIFEOS_MAIL_FROM:-}
+      LIFEOS_TRUSTED_PROXY: ${LIFEOS_TRUSTED_PROXY:-}
+      LIFEOS_MESSAGES_PER_MINUTE: ${LIFEOS_MESSAGES_PER_MINUTE:-3}
+      LIFEOS_MESSAGES_PER_DAY: ${LIFEOS_MESSAGES_PER_DAY:-50}
+      LIFEOS_GENERATION_CONCURRENCY: ${LIFEOS_GENERATION_CONCURRENCY:-2}
+      LIFEOS_GENERATION_QUEUE_LIMIT: ${LIFEOS_GENERATION_QUEUE_LIMIT:-8}
+      LIFEOS_WORKFLOW_V2: ${LIFEOS_WORKFLOW_V2:-false}
+      LIFEOS_ADVANCED_WORKFLOWS: ${LIFEOS_ADVANCED_WORKFLOWS:-false}
+      LIFEOS_REAL_WORKFLOWS: ${LIFEOS_REAL_WORKFLOWS:-false}
+      LIFEOS_COZE_GROWTH: ${LIFEOS_COZE_GROWTH:-false}
+      LIFEOS_COZE_GROWTH_CONFIG: /run/secrets/lifeos-coze-growth-config.json
+      LIFEOS_COZE_SYNTHETIC_USER_ID: ${LIFEOS_COZE_SYNTHETIC_USER_ID:-}
+      LIFEOS_WORKFLOW_FREEZE: /run/secrets/lifeos-workflow-freeze.json
+      LIFEOS_COZE_KNOWLEDGE: ${LIFEOS_COZE_KNOWLEDGE:-false}
+      LIFEOS_COZE_TRANSPORT: ${LIFEOS_COZE_TRANSPORT:-code_workflow}
+      LIFEOS_COZE_CODE_ENDPOINT: ${LIFEOS_COZE_CODE_ENDPOINT:-}
+      LIFEOS_COZE_CODE_PROJECT_ID: ${LIFEOS_COZE_CODE_PROJECT_ID:-}
+      LIFEOS_COZE_CODE_RELEASE: ${LIFEOS_COZE_CODE_RELEASE:-}
+      LIFEOS_COZE_CODE_TOKEN: ${LIFEOS_COZE_CODE_TOKEN:-}
+      LIFEOS_COZE_TIMEOUT_MS: ${LIFEOS_COZE_TIMEOUT_MS:-2000}
+    command: [sh, -c, 'node --import tsx scripts/migrate-db.ts && exec node --import tsx server/index.ts']
+    ports: ['127.0.0.1:${LIFEOS_HTTP_PORT:-8787}:8787']
+    read_only: true
+    volumes:
+      - type: bind
+        source: ${LIFEOS_COZE_GROWTH_CONFIG_FILE:-./deploy/coze-growth-config.unconfigured.json}
+        target: /run/secrets/lifeos-coze-growth-config.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${LIFEOS_COZE_GROWTH_STATE_DIR:-./deploy/coze-growth-runtime-unconfigured}
+        target: /app/.local/coze-launch
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${LIFEOS_COZE_MODEL_BUDGET_DIR:-./deploy/provider-budget-runtime-unconfigured}
+        target: /app/.local/v1.3-action-coach/paid
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${LIFEOS_WORKFLOW_FREEZE_FILE:-./deploy/workflow-freeze.unconfigured.json}
+        target: /run/secrets/lifeos-workflow-freeze.json
+        read_only: true
+        bind:
+          create_host_path: false
+    tmpfs: ['/tmp:size=64m,mode=1777']
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 1024m
+    cpus: 1
+    healthcheck:
+      test: [CMD, node, -e, 'fetch("http://127.0.0.1:8787/api/ready").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))']
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 45s
+    logging: *logging
+volumes:
+  database:

@@ -1,0 +1,34 @@
+{
+  "kind": "P6_MACHINE_READABLE_EVIDENCE_INDEX",
+  "generatedAt": "2026-10-08T04:10:00+08:00",
+  "baseline": {
+    "startHead": "902c1a09f3276e40070c4627c71f04c1c4ebbc46",
+    "finalHead": "339ec83 (+docs)",
+    "commits": ["339ec83"],
+    "freeze": "06dce92b8b3eb4a1cd81ff08a1419c4fea5ff3dc213fdc248b63c748028f39ce",
+    "modelConfig": "qwen3.8-flash thinking 0 via bailian"
+  },
+  "layers": {
+    "pureFunctions": {
+      "W1 clause intent": "negation/hypothetical/pause/mixed/positive all correctly classified (tests/backend/forget-intent.test.ts free replay)"
+    },
+    "isolatedPg": {
+      "forget-intent.test.ts": "6/6 — negation zero-writes, mixed correct target with newsletter preserved, failure-audit not success, A-create->B-amend->C-new-conversation corrected fact active with old fact not active (memory on)"
+    },
+    "fullBackend": "50 files green after W1+W2 (p6-backend-1.log)",
+    "realModel": {
+      "runId": "coach-15f9ab53-1d14-4b7a-9761-2ccb9a9eec59",
+      "freeze": "06dce92",
+      "turns": 11,
+      "saved": 7,
+      "failed": 4,
+      "keyResult": "T6 correction readback: corrected fact ACTIVE (not stale/source_revoked) — first real-chain proof of W2; T9 cites corrected contribution; T9 main subject still drifts to old opportunity (F01 variance, recorded)"
+    },
+    "engineKnowledge": {
+      "w3Traces": ".local/campus-growth/p6-w3-traces.json — portfolio+exam scenarios: growth applied, guide-informed personalized replies via local cards (hash-bound to same manifest as registry); code_workflow transport configured+enabled as the empty-local fallback (correct local-first policy; remote call not triggered this batch)"
+    }
+  },
+  "cost": {"ledgerReceipts": 1356, "pending": 0, "continuationRemainingCny": 15.1714027, "p6SpendCnyApprox": 0.18},
+  "reviewIdentity": "GLM (implementer); no independent reviewer or user sign-off",
+  "untestedOrBlocked": ["coze native Skill platform UI (account-owner scan-code session)", "first-content p95", ">=20 ordinary samples on single freeze", "in-engine remote Coze call (local-first policy held)", "T9 current-question variance", "production deploy"]
+}

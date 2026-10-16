@@ -1,0 +1,11 @@
+# LIFEOS_COZE_CORE_20261011_GROWTH_R11_RETAINED_LEDGER
+
+原成长项目7693388932939300905，预留15000既有开发积分，零产品模型/部署/新项目/新增预算。R10实际5fb88448三份源码字节与终端SHA匹配，但不能以13Mock绿替代实际原协议。附R10 AST局部读回（显式double，无真实云链路）与脚本，所有首失败保留。
+
+真实源码待修：
+1. run_analyzer只将request.budget.amountMinutes放进每个ctx的weeklyTimeBudgetMinutes，未回写flat。_build_proposal仍只取flat.weeklyTimeBudgetMinutes。因此正常contracts.ts flat budget={amountMinutes:30}时，合法employment:requirements20+freelance:delivery15合计35仍接受。直接在整方案与所有分析/分配处共用结构化budget验证，当前结构化值优先；0保留；bool/负数/越界非法零派发；明确null和字段不存在分开，无依据不得落10080。避免把测试-only旧weeklyTimeBudgetMinutes当生产协议。不要通过把每个候选weekly改成动作总和掩盖final nextActions真实总时长。
+2. R10 bool amountMinutes被转None，_weeklyExplicitUnknown=False；这样parse lenient可接受正时长。bool不是未知或1，必须在真实入口预检拒绝且0派发。局部unknown_cap首失败缺_weeklyExplicitUnknown（仅局部double），正式检查应分别按run_analyzer真正传入的flag核对，不为了让同一夹具绿去削弱合法未知处理。
+3. run_http_entry_sync在worker异常/CancelledError未产生回执时仍直接_zero_model_receipt，未读实际SqlDispatchStore原request的已启动slot。验证实际SQL已存在1 started且usage未知/预留>0后注入UnexpectedException，应返回已有计数/费用null/预留，并且不能重发。只有确实没有合法request或没有启动记录才能声明0。不得凭未经verify的wire跨request读账本；用已验证身份与request绑定读现有记录。
+4. hard+30秒后thread.is_alive仍返回零成本background thread，违反“回执前worker结束”。所有入口统一安全清理并等待实际结束；若需隔离执行，可复用原已有进程工具，确保取消后不再派发、子执行停止、费用回读完整再交回执；不能只是workerFinishedAtReturn=false再继续后台消费。保留清理耗时真实记录，不能伪装deadline满足。慢close>30首次也要测本地，不做收费重试。
+
+保持R10已修的零预算、唯一性、目录真实分钟、缺basis/目录不补、截止于verify前、取消所有模式finally settle。用真实本地HTTP slow server、真实本地SQL账本与至少两个进程验证正常/取消/异常账本重复读取（零产品模型）。测试有FIRST失败后继续修，原记录不覆盖。你自己的开发回执要实话区分执行过的测试、源码检查与NOT_TESTED；旧自测可回归，但不许复制本机/云成功文字代替当前真实执行。产出实际commit/3源码+报告SHA。零部署/真实模型/新预算/治理改动。

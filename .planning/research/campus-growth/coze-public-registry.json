@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "bindings": [
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-direction-lowtime",
+      "knowledgeCardId": "9defe55f-6687-4cae-b275-92cce03d6672",
+      "expectedRevision": 1,
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
+      "sourceType": "self_authored_method",
+      "contentHash": "64175b1a29e59ba18472136f345e102349ff900783f6e57cc442dfc4f34fdd61",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-research-review",
+      "knowledgeCardId": "fbf24484-5938-4d1b-88b8-283596853031",
+      "expectedRevision": 1,
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
+      "sourceType": "self_authored_method",
+      "contentHash": "7279c9c27d3c672aa0f81ada9be4fe0f2472f9a844ea4a5549c4be685d82bff6",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-portfolio-evidence",
+      "knowledgeCardId": "318d2980-16e7-4d4a-817c-37ca69cbee64",
+      "expectedRevision": 1,
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
+      "sourceType": "self_authored_method",
+      "contentHash": "7bfdb2b871204a74eba8818c7ee1e0363a10467823720b1b25a6c12ee4bf954a",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-intern-first-contact",
+      "knowledgeCardId": "6a367fb8-309e-42ed-a409-664d8ca215b7",
+      "expectedRevision": 1,
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
+      "sourceType": "self_authored_method",
+      "contentHash": "5fe09e42827e620328f175a41df79ba5078d1853eda0eb50fc23df8e4a16f529",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-exam-course-conflict",
+      "knowledgeCardId": "f05a8cb2-a295-4171-877a-618ff27a3040",
+      "expectedRevision": 1,
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
+      "sourceType": "self_authored_method",
+      "contentHash": "9e6532811f8dffac0112e188db570517affb30fdd237c5e39c14f536e6402eff",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-need-interview",
+      "knowledgeCardId": "e4aa18f7-f030-44d7-b03b-40f1749288a9",
+      "expectedRevision": 1,
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
+      "sourceType": "self_authored_method",
+      "contentHash": "e50cbc1b179f7818ed04fc152ce263f86a4b23912abcca5fba088fe650e9c16b",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-competition-review",
+      "knowledgeCardId": "3082d431-a19e-4fc1-97a8-e670481db895",
+      "expectedRevision": 1,
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
+      "sourceType": "self_authored_method",
+      "contentHash": "1e2ff6885686724a1e3e73bfb43f85b8e623f758cf3eccfd1c3aba2de7f42e4b",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
+    },
+    {
+      "workflowId": "7693465311558795327",
+      "datasetId": "lifeos_guide_knowledge",
+      "documentId": "guide-lowtime-weekly-plan",
+      "knowledgeCardId": "c40921d4-bb1f-4d8c-b254-4ef99c2a5de6",
+      "expectedRevision": 1,
+      "expectedSourceHash": "9db04d3de24d65eb72e3987f7ce043187902f24ecdbc3acb405bb977cc03c220",
+      "sourceType": "self_authored_method",
+      "contentHash": "27b6043b2571018734286923ecda5e5dfcb767b816771635e7d8db354e6a0cbe",
+      "enabled": true,
+      "auditedAt": "2026-10-07",
+      "note": "P6 closeout re-audit: expectedSourceHash binds the reconstructed verbatim guides manifest (.planning/research/campus-growth/guides-manifest.json); contentHash binds the live remote hit content fetched 2026-10-07"
+    }
+  ]
+}

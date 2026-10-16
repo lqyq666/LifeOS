@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "kind": "PUBLIC_HOST_BINDING_DOMAINS",
+  "hostCodeCommit": "6c5e5d8f6f377030fd7a41d0647077bc90a87aa4",
+  "hostSourceDigest": "680e4f08bbf826b4f20679d49e2b96afeb002431c37babb9d925914803c30427",
+  "hostRuntimeConfig": {
+    "domain": "CANONICAL_CONTAINER_BUILD_CONFIG",
+    "evidence": "evidence/coze-core-launch-20261011/FRESH_6c5_RUNTIME_READBACK.json"
+  },
+  "canonicalContentHash": "f496bc4c37babfb1232c46d8f46118af89c1ce4068ca6cd2a26729fbd7b2fe6d",
+  "canonicalSourceRegistryHash": "b53a1077ac58492bcaba5d780fdae58b8e8e4a4f6631d5023033597b88a677dd",
+  "canonicalEvidenceHash": "cb024a3b214c8a94f57724361872874835da85fe258ea90a98b88daaac5b40d1",
+  "cloudCommit": "MUST_COMPUTE_FROM_NEW_COMMITTED_CLOUD_SOURCE",
+  "cloudSourceDigest": "MUST_COMPUTE_CLOUD_DOMAIN_SEPARATELY",
+  "noPrivateStudentData": true,
+  "noCredentials": true
+}

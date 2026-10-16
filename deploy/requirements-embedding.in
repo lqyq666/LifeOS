@@ -1,0 +1,4 @@
+# CPU counterpart of the locally verified encoder stack. Resolve on Linux amd64.
+torch==2.11.0+cpu
+sentence-transformers==5.6.1
+numpy==2.5.0

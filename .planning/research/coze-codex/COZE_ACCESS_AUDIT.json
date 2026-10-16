@@ -1,0 +1,247 @@
+{
+  "checkedAtUtc": "2026-10-10T03:45:10.1007498Z",
+  "scope": "READ_ONLY_CLOUD_AND_LOCAL_PRESENCE",
+  "cliVersion": "0.3.11",
+  "head": "70914b1cbd55b75a4d0f74785163d33519f70f71",
+  "branch": "fix/campus-acceptance-contract-20261006",
+  "commands": [
+    {
+      "exit": 0,
+      "command": "coze auth status --format json",
+      "error": null
+    },
+    {
+      "exit": 0,
+      "command": "coze self skill status --format json",
+      "error": null
+    },
+    {
+      "exit": 0,
+      "command": "coze code project get 7693388932939300905 --format json",
+      "error": null
+    },
+    {
+      "exit": 0,
+      "command": "coze code deploy status 7693388932939300905 --format json",
+      "error": null
+    },
+    {
+      "exit": 0,
+      "command": "coze code env list -p 7693388932939300905 --env dev --format json",
+      "error": null
+    },
+    {
+      "exit": 0,
+      "command": "coze code env list -p 7693388932939300905 --env prod --format json",
+      "error": null
+    },
+    {
+      "exit": 0,
+      "command": "coze code project get 7693465311558795327 --format json",
+      "error": null
+    },
+    {
+      "exit": 0,
+      "command": "coze code deploy status 7693465311558795327 --format json",
+      "error": null
+    },
+    {
+      "exit": 0,
+      "command": "coze code env list -p 7693465311558795327 --env dev --format json",
+      "error": null
+    },
+    {
+      "exit": 0,
+      "command": "coze code env list -p 7693465311558795327 --env prod --format json",
+      "error": null
+    }
+  ],
+  "projects": [
+    {
+      "deploy": {
+        "projectId": "7693388932939300905",
+        "status": "Succeeded",
+        "commitHash": "4aa53641b7177604cfa96631b9584de991531324",
+        "deployHistoryId": "7693916256591740928"
+      },
+      "environments": [
+        {
+          "exit": 0,
+          "environment": "dev",
+          "variables": []
+        },
+        {
+          "exit": 0,
+          "environment": "prod",
+          "variables": []
+        }
+      ],
+      "project": {
+        "project_id": "7693388932939300905",
+        "name": "多智能体成长工作流",
+        "type": "workflow",
+        "space_id": "7651603600241836078",
+        "status": 0
+      }
+    },
+    {
+      "deploy": {
+        "projectId": "7693465311558795327",
+        "status": "Succeeded",
+        "commitHash": "04849caa93a33f4584ce5637acba864e97757a46",
+        "deployHistoryId": "7693833432106991651"
+      },
+      "environments": [
+        {
+          "exit": 0,
+          "environment": "dev",
+          "variables": []
+        },
+        {
+          "exit": 0,
+          "environment": "prod",
+          "variables": []
+        }
+      ],
+      "project": {
+        "project_id": "7693465311558795327",
+        "name": "公共资料检索工作流",
+        "type": "workflow",
+        "space_id": "7651603600241836078",
+        "status": 0
+      }
+    }
+  ],
+  "auth": {
+    "logged_in": true,
+    "validity": "Only successful cloud reads below establish current management access; runtime token not exercised.",
+    "error": null
+  },
+  "skillStatus": {
+    "cliVersion": "0.3.11",
+    "installedVersion": "0.3.11",
+    "versionMatch": true
+  },
+  "skillFiles": [
+    {
+      "sha256": "1a390cd693959bc37f7dbaf9ccc699c6ae867d1cbd0e9b274259769072d49c94",
+      "path": "C:\\Users\\LQY\\.agents\\skills\\coze-agent-collaboration\\SKILL.md",
+      "exists": true
+    },
+    {
+      "sha256": "3bfd1413130e6c95f0d2b9d22ae5713316ab6ae175eaaf928ddb790da17bd072",
+      "path": "C:\\Users\\LQY\\.agents\\skills\\using-coze-cli\\SKILL.md",
+      "exists": true
+    },
+    {
+      "sha256": "1cac7d491e14e92bc91b076c15cd9726af256114b47493be177c8c48eaa7061c",
+      "path": "C:\\Users\\LQY\\.agents\\skills\\using-coze-cli\\coze-claw\\MODULE.md",
+      "exists": true
+    },
+    {
+      "sha256": "fa9a2210d3bdec5ccc31dcaa0a413a4be35069ce33dc0645175051a2fa4d68c8",
+      "path": "C:\\Users\\LQY\\.agents\\skills\\using-coze-cli\\coze-code\\MODULE.md",
+      "exists": true
+    },
+    {
+      "sha256": "6ad5eed7bb2de3abe0009ddf4380474ccdc746d1a81d8c3cb206fe4e60125020",
+      "path": "C:\\Users\\LQY\\.agents\\skills\\using-coze-cli\\coze-file\\MODULE.md",
+      "exists": true
+    },
+    {
+      "sha256": "76eba462bb0986c0c40e3511251f5e976ecc928b7fb4ec0951aab553d233ea9e",
+      "path": "C:\\Users\\LQY\\.agents\\skills\\using-coze-cli\\coze-generate\\MODULE.md",
+      "exists": true
+    }
+  ],
+  "localEnvironment": [
+    {
+      "callerProcessNonempty": false,
+      "fileEntryPresent": false,
+      "name": "LIFEOS_COZE_KNOWLEDGE",
+      "fileNonempty": false
+    },
+    {
+      "callerProcessNonempty": false,
+      "fileEntryPresent": false,
+      "name": "LIFEOS_COZE_TRANSPORT",
+      "fileNonempty": false
+    },
+    {
+      "callerProcessNonempty": false,
+      "fileEntryPresent": false,
+      "name": "LIFEOS_COZE_CODE_ENDPOINT",
+      "fileNonempty": false
+    },
+    {
+      "callerProcessNonempty": false,
+      "fileEntryPresent": false,
+      "name": "LIFEOS_COZE_CODE_TOKEN",
+      "fileNonempty": false
+    },
+    {
+      "callerProcessNonempty": false,
+      "fileEntryPresent": false,
+      "name": "LIFEOS_COZE_CODE_PROJECT_ID",
+      "fileNonempty": false
+    },
+    {
+      "callerProcessNonempty": false,
+      "fileEntryPresent": false,
+      "name": "LIFEOS_COZE_CODE_RELEASE",
+      "fileNonempty": false
+    },
+    {
+      "callerProcessNonempty": false,
+      "fileEntryPresent": false,
+      "name": "LIFEOS_COZE_PAT",
+      "fileNonempty": false
+    },
+    {
+      "callerProcessNonempty": false,
+      "fileEntryPresent": false,
+      "name": "LIFEOS_COZE_WORKFLOW_ID",
+      "fileNonempty": false
+    },
+    {
+      "callerProcessNonempty": false,
+      "fileEntryPresent": false,
+      "name": "LIFEOS_COZE_WORKFLOW_VERSION",
+      "fileNonempty": false
+    }
+  ],
+  "runtimeCredentials": [
+    {
+      "nonempty": true,
+      "used": false,
+      "path": ".local/coze-competition/runtime-token.txt",
+      "exists": true
+    },
+    {
+      "nonempty": true,
+      "used": false,
+      "path": ".local/coze-automation/runtime-token.txt",
+      "exists": true
+    }
+  ],
+  "runningProcessEnvironment": "Other processes environment not read; caller environment is not evidence of a running service configuration.",
+  "localFingerprints": [
+    {
+      "port": 5173,
+      "reachable": false,
+      "error": "UNREACHABLE_OR_INVALID_JSON_RESPONSE"
+    },
+    {
+      "port": 8787,
+      "reachable": false,
+      "error": "UNREACHABLE_OR_INVALID_JSON_RESPONSE"
+    }
+  ],
+  "sideEffects": {
+    "cloudResourceWrite": false,
+    "runtimeInvocation": false,
+    "paidDevelopmentMessage": false,
+    "cloudDeployment": false,
+    "privateUpload": false
+  }
+}

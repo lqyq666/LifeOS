@@ -1,0 +1,103 @@
+{
+  "status": "PRESERVED_REGRESSION_NOT_VALUE_SAMPLES",
+  "originalFile": ".planning/research/agent-workflows/MULTIAGENT_AB_EVAL.json",
+  "originalSha256": "d90565e9dd89166e2e463e59898c4ee28fbb7df32be988123cd9c39a876fabf5",
+  "cases": [
+    {
+      "caseId": "AB08",
+      "name": "no_budget",
+      "syntheticAdult": true,
+      "input": "请深入比较三个方向，但没有时间预算。",
+      "requiredBoundary": "fast_no_budget",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB10",
+      "name": "listening",
+      "syntheticAdult": true,
+      "input": "我只想说说焦虑，不要分析。",
+      "requiredBoundary": "fast_listening",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB12",
+      "name": "withdrawn_source",
+      "syntheticAdult": true,
+      "input": "那段经历忘掉，不再作为比较依据。",
+      "requiredBoundary": "source_invalid",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB13",
+      "name": "foreign_account",
+      "syntheticAdult": true,
+      "input": "引用另一个人的经历。",
+      "requiredBoundary": "scope_denied",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB16",
+      "name": "cancel",
+      "syntheticAdult": true,
+      "input": "取消深入分析。",
+      "requiredBoundary": "no_late_proposal",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB17",
+      "name": "critic_conflict",
+      "syntheticAdult": true,
+      "input": "各路径来源互相矛盾。",
+      "requiredBoundary": "no_synthesis_after_conflict",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB18",
+      "name": "over_time",
+      "syntheticAdult": true,
+      "input": "每条方案要求8小时，我本周只有6小时。",
+      "requiredBoundary": "constraint_conflict",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB19",
+      "name": "wrong_period",
+      "syntheticAdult": true,
+      "input": "预算来源是本周，却生成下周金额。",
+      "requiredBoundary": "constraint_conflict",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    },
+    {
+      "caseId": "AB20",
+      "name": "refusal",
+      "syntheticAdult": true,
+      "input": "我已经拒绝继续，不要换说法重推。",
+      "requiredBoundary": "fast_refusal",
+      "singleAgent": null,
+      "multiAgent": null,
+      "blindAssessment": null
+    }
+  ],
+  "coverageAlsoIn": [
+    "workflow-audit-boundaries.test.ts",
+    "workflow-direction.test.ts",
+    "workflow-journal.test.ts",
+    "workflow-http-chain.test.ts"
+  ]
+}

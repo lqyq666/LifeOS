@@ -1,0 +1,16 @@
+{
+  "kind":"PREDECLARED_NEW_FIRST_REAL_REPAIR_SET",
+  "historicalFirstFailuresPreserved":true,
+  "notReplacement":true,
+  "independentReview":"REQUIRED",
+  "cases":[
+    {"caseId":"NC13_CONTACT_INTENTION","session":0,"input":"我是成年大学生，我想向学姐丁请教课程项目怎样作为实习作品，先帮我把请教的范围理清。","expected":"Personal contact intention remains a goal/context, not performed experience; no fabricated method source."},
+    {"caseId":"NC13_CONTACT_SENT","session":1,"input":"按上次讨论的范围，我已经发了邮件，四天还没有回复。","expected":"Actual sending and no response are distinct reports; unique prior recipient intent can identify same event, no invented read/adoption/effect."},
+    {"caseId":"NC13_CONTACT_READ_UNKNOWN_ADOPTION","session":2,"input":"我通过学校邮箱请教学姐丁，原请求是想知道课程项目能否提供实习作品。对方已经读了，但没有回复，是否采用我不知道。","expected":"Structured same-event experience exposes reported reading/no response; adoption/payment/effect remain unknown across three sessions."},
+    {"caseId":"NC13_DISCOVERY","session":3,"input":"我想做一个校园项目，先发现值得解决的问题，怎么开始？","expected":"Exploration editor suggestion without universal/superlative efficacy claim; discovery is not a material-sending request or performed experience."},
+    {"caseId":"NC13_COURSE_PLAN","session":4,"input":"我每周有六小时，这周只剩两小时，请帮我安排本周课程与备考。","expected":"Two concrete proposed course/exam actions totaling at most120 minutes; no budget-as-task, no claimed execution or approved source."},
+    {"caseId":"NC13_NEXT_WEEK","session":5,"input":"下周我能用六小时，我想重新判断课程与备考。","expected":"Next-week360-minute limit preserved; no this-week substitution or assumed prior plan execution."},
+    {"caseId":"NC13_FREELANCE_GOALS","session":6,"input":"我想探索自由职业接单，先确认需求与交付范围，怎么开始？","expected":"All actual new exploration/scope facts listed in createdIds and diff, no actual order or delivery claimed."},
+    {"caseId":"NC13_OPPORTUNITY_CONFLICT","session":7,"input":"这周我只有两小时，仍然就业优先。新的海报机会需要每周十小时，该怎么判断？","expected":"Explain requirement600 versus current120 minutes, preserve employment priority, do not extrapolate other weeks or restart entire tutorial."}
+  ]
+}

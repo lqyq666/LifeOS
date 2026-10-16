@@ -1,0 +1,16 @@
+{
+  "kind": "PREDECLARED_NEW_SELECTOR_BOUND_CANDIDATE_FIRST_ATTEMPTS",
+  "priorEvidence": "evidence/coze-core-launch-20261011/COMPLEX_SMALL_5d76c0d_FIRST_FAILURE.json",
+  "hypothesis": "Only server-provided evidence/action/tradeoff/unknown/stage/critic-issue/direction IDs are representable in each native contract; legitimate unknowns stay unknown and paid post-response validation failures preserve actual known ledger costs.",
+  "oldFailureAttribution": "Post-response critic/source validation failed. Exact prior rejected IDs were not saved; do not claim an observed exact unknown ID.",
+  "localEvidence": "COMPLEX_SELECTION_12_PASS.log and COMPLEX_SELECTION_TYPES_PASS.log; shared-alias and assertion first failures retained",
+  "scope": "Same predeclared two-direction/three-direction synthetic business cases, new frozen implementation and new first request IDs; retain all prior cohorts and do not resend prior requests",
+  "pilotReservationCeilingCny": 1,
+  "normalGenerationsMaximum": 9,
+  "automaticPaidRepairs": 0,
+  "ordinaryCalls": 0,
+  "budgetAddedCny": 0,
+  "independentReview": "PENDING_ACTUAL_EXECUTION",
+  "expansion": "NOT_TESTED_UNTIL_SMALL_GATES",
+  "release": "WIP_NOT_READY"
+}

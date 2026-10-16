@@ -1,0 +1,17 @@
+# LIFEOS_COZE_CORE_20261011_GROWTH_R3：第二轮阻塞修复
+
+R2任务终态done，UI实际版本9d669a8；主Codex已直接打开现存工程provider.py、host.py逐字读到源码。37项模拟/零模型检查保留，但源码下列HIGH/BLOCKER仍在，R2未批准部署或真实业务验收。本条为第二轮针对真实差异的新修复，不重发原请求。仅原账户额度，不部署、不产品模型自测、不新增工程、不创建密钥、不改治理权限、不自动收费重试。完成本轮仍有HIGH时停止此候选，保留失败。
+
+1. host.py的analyzer实际for串行，provider._invoke使用同步client.invoke，无法传播进行中取消。必须按现有平台真实SDK能力实现并行路径、异步取消及超时，取消后不再review/synthesize。查阅已安装SDK实际签名及重试配置；单次Python invoke不证明SDK无网络重试。若SDK不能可靠禁用重试/取消，应具体记录且该实时模式unavailable，不虚报支持。
+
+2. ledger.record_ok在provider返回后才执行，崩溃可能已有消费而无started记录；action_review和kb_maintenance各实际review+synthesize两次，却只记第一次。每次派发前必须DB持久预留/started，全图先核对上限，异常/取消保留已经开始的次数及费用unknown，不能except后用_reject回执清零。DB写入失败不得吞掉后仍返回可接受proposed。事后record_ok不是预留，不允许业务开始后才验证总费用。
+
+3. idem.acquire只hash mode/intent，忽略个人依据、预算、限制、方向与来源。对完整规范化HostRequest有效载荷计算摘要，requestId相同而这些任一改变必须request_conflict；先核对完整摘要再读取旧回执。两个同时请求/进程重建不能再次派发。保留R2原37检查；新增真实provider形状的无联网注入测试，验证实际调用计数、异常已开始计数、完整载荷变更及DB写失败拒绝。
+
+4. Provider收到个人依据大多只是ref ID；synthesize只见review.summary，不见完整已审方案/当前请求/本人预算与限制/合法攻略。Skill虽然6份都落盘，但没有把实际对应Skill内容用于能力执行：加载全列表不等于执行全列表。请用获准的显式evidenceRecords（逐条ref、角色/归属、精确本人原话、状态/版本）及规范方法片段形成分区上下文，校验refs对应本人有效来源；公开案例/工具/AI观察分别标记。分析、review、synthesis都使用当前请求、限制、关键未知和真实反馈；本轮Skill按模式选择并实际把加载版本用于获准能力，只报告真正使用的Skill及产物。
+
+5. analyze现在返回free summary没有可核验方案，synthesize重新自由生成，_parse_refs空/坏引用自动补全所有授权refs。这会让新臆造主张披上有效ID。参考随附当前本地provider-adapter.ts及direction-decision.ts的有界选择：路径生成结构化proposal，review读到实际全部方案，综合只能选择已审字段/动作，核对依据精确原话、当前阶段、预算及未知；不能生成新个人事实，坏引用拒绝、不自动补证据。两方向至多4次、三方向至多5次，正常未知保留并不一律失败。
+
+6. 必须给出实际构建身份与可核验源码。当前runtime commit=unknown、candidateRelease/sourceDigest不能由请求回显。读取现有版本控制真实commit、对公开运行源码和6Skill逐文件hash、受控内容/本地绑定配置读回，保留cloudSourceDigest与localSourceDigest不同的真实哈希域。宿主免模型拒绝必须在旧corpus_selfheal前分流，不允许前置旧模型/私人记忆写入绕过计数。提交已审公共源码/无密钥测试文件的受控下载材料，或逐文件完整内容及SHA；不导出.env、平台认证、私人账本/数据库/.venv。不自行公开Git仓库。
+
+7. 输出实际/run输入和零模型HTTP原始回执、实际GraphInput/Output schema、完整commit、变更代码/测试输出。四模式若有缺功能诚实列出，不以空proposal说成长变化有用，不用角色名/布尔值声称攻略已独立审阅或本人批准。部署及真实业务核查由LifeOS主执行端在这些门槛后进行。

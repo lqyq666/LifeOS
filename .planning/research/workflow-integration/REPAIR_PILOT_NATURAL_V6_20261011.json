@@ -1,0 +1,64 @@
+{
+  "kind": "PREDECLARED_NEW_FIRST_REAL_REPAIR_SET",
+  "historicalFirstFailuresPreserved": true,
+  "notReplacement": true,
+  "independentReview": "REQUIRED",
+  "cases": [
+    {
+      "caseId": "NC6_PRIORITY",
+      "session": 0,
+      "input": "现在以接单为主要探索，实习过阵子再看。只记录这个取舍。",
+      "expected": "Freelance priority distinct from deferred internship; no executed experience or task plan."
+    },
+    {
+      "caseId": "NC6_DELIVERY",
+      "session": 0,
+      "input": "我把这次活动海报交给客户了。客户已经用了，费用还没付，实际效果我不知道。",
+      "expected": "Own delivery, reported adoption, unpaid, effectiveness unknown independently grounded."
+    },
+    {
+      "caseId": "NC6_REPRIORITIZE",
+      "session": 1,
+      "input": "我调整一下，不再把自由职业作为主线，我现在优先找实习。那次海报交付不用删。",
+      "expected": "Old freelance pursuit paused, explicit internship priority active, delivery kept; no invented experience."
+    },
+    {
+      "caseId": "NC6_INTERVIEW_EDIT",
+      "session": 2,
+      "input": "创业那边我问过三位同学，他们觉得有意思，但没有人真的用过。我想把访谈问题改成“你上回遇到这件事时，是怎么处理的？”",
+      "expected": "Interest distinct from use and effect; exact proposed question edit durable as context, not execution."
+    },
+    {
+      "caseId": "NC6_INTERVIEW_STOP",
+      "session": 3,
+      "input": "这次访谈我先不继续，而且不要给我其他方法。聊过的事实还在，但使用结果仍未知。",
+      "expected": "Specific continuation paused/refusal respected; refusal not pursuit or unattempted prior interview."
+    },
+    {
+      "caseId": "NC6_REMAINING",
+      "session": 4,
+      "input": "我本周只剩九十分钟，课内作业和备考怎么选？先别两头铺开。",
+      "expected": "90 minutes this-week remaining; no invented requirement or grades/career effect."
+    },
+    {
+      "caseId": "NC6_ZERO_FUTURE",
+      "session": 5,
+      "input": "本周已经没有能用的时间了，可用时间是零。下周估计能拿出五小时，暂时不安排。",
+      "expected": "Current zero replaces prior week amount; next week 300 minutes separate future evidence; no stale plan."
+    },
+    {
+      "caseId": "NC6_CONTACT_LISTEN",
+      "session": 6,
+      "input": "另外一件事，我请教老师的邮件已经发出去了。对方读过但还没回应。我只想聊感受，先不用给我建议。",
+      "expected": "Listen only; own sent/read/no reply verbatim persisted, other outcomes unknown and event isolated."
+    }
+  ],
+  "reservedForLaterContinuity": [
+    {
+      "caseId": "NC6_CONTACT_RETURN",
+      "session": 7,
+      "input": "还是那封邮件，我现在只是心里很失落，先听我说。",
+      "expected": "New session known sent/read/no reply kept; no repeated fact questions, no reminder suggestion."
+    }
+  ]
+}
