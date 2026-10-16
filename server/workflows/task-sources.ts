@@ -14,7 +14,13 @@ export async function workflowControls(user:string,c:DB=pool){
  const memory=(await c.query('SELECT enabled,revision FROM user_memory_settings WHERE user_id=$1',[user])).rows[0]??{enabled:false,revision:0}
  const directions=await readDirectionControls(user,c),stopped=await readRecommendationControls(user,c)
  const pending=(await c.query("SELECT id,kind,candidates FROM growth_control_requests WHERE user_id=$1 AND status='pending' ORDER BY id",[user])).rows
- const boundaries=(await c.query("SELECT id,revision,status FROM growth_items WHERE user_id=$1 AND status IN ('paused','rejected','forgotten') ORDER BY id",[user])).rows
+ // A normal time clarification supersedes older time constraints by pausing
+ // them before the workflow resume request arrives. Those constraint rows are
+ // evidence lifecycle, not recommendation/privacy controls; including them in
+ // the control digest makes the advertised waiting_user -> supplement flow
+ // invalidate itself. Other paused/rejected/forgotten growth boundaries still
+ // invalidate the graph, as do memory, direction and recommendation controls.
+ const boundaries=(await c.query("SELECT id,revision,status FROM growth_items WHERE user_id=$1 AND kind<>'constraint' AND status IN ('paused','rejected','forgotten') ORDER BY id",[user])).rows
  return {memory,directions,stopped,pending,digest:createHash('sha256').update(JSON.stringify({memory,directions,stopped,pending,boundaries})).digest('hex'),directionKey:directionControlsSnapshotKey(directions)}
 }
 export function timeBudget(text:string,context?:BudgetContext):EvidenceRecord['budget']|undefined{
