@@ -262,7 +262,11 @@ export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:numbe
  if(!budget||!contract.capabilities.plan)return contract
  const schema=structuredClone(contract.schema) as any
  const plan=schema.properties.weeklyPlan
- schema.required=[...new Set([...(schema.required??[]),'weeklyPlan'])]
+ // Keep the required-field order aligned with the property order below.
+ // Structured providers may choose either list when deciding output order;
+ // weeklyPlan must close before reply so the existing validator can stream a
+ // complete bounded allocation without exposing unvalidated prose.
+ schema.required=['weeklyPlan',...(schema.required??[]).filter((key:string)=>key!=='weeklyPlan')]
  plan.properties.availableMinutes={type:'integer',enum:[budget.minutes]}
  plan.properties.period={type:'string',enum:[budget.period]}
  if(budget.minutes>0){

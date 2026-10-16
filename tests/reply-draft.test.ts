@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { openingQuestionDraft, safeEarlySentence, weeklyPlanDraft } from '../server/reply-draft.ts'
+import { bindPlanBudgetSchema, deriveTurnContract } from '../server/turn-contract.ts'
 
 test('slim real framing prefixes wait for substantive content rather than fake first content',()=>{
   for(const prefix of ['这是一句可直接复制的简短消息，发送前请自行核对老师姓名和课程名称：','围绕最近一次实际选课经历，可以这样问：']){
@@ -26,6 +27,14 @@ test('a streamed weekly plan becomes useful first content only after its bounded
   {period:'next_week',availableMinutes:120,items:[{action:'课程作业',minutes:40}]},
   {period:'this_week',availableMinutes:120,items:[{action:'课程作业',minutes:121}]},
  ])assert.equal(weeklyPlanDraft(value,expected),null)
+})
+
+test('bounded weekly plan is first in both schema properties and required order',()=>{
+ const text='这周还剩两小时，帮我安排课程作业和复习，不要全排满。'
+ const base=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:true,material:false})
+ const schema=bindPlanBudgetSchema(base,{minutes:120,period:'this_week'},text,[]).schema as {properties:Record<string,unknown>;required:string[]}
+ assert.equal(Object.keys(schema.properties)[0],'weeklyPlan')
+ assert.equal(schema.required[0],'weeklyPlan')
 })
 
 test('progressive JSON decoding waits for a complete question and handles split escapes',()=>{
