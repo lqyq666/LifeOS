@@ -45,10 +45,14 @@ test('invalid references and malformed catalogues are hard failures',()=>{
   assert.throws(()=>renderGroundedResume(['x'],[{catalogueId:'x',field:'skill',text:'很有天赋',sourceKind:'ai_observation',completeForField:true}]),/MATERIAL_REFERENCE_INVALID/)
 })
 
-test('byte-identical verified contribution sources remain one content decision',()=>{
+test('current-project or byte-identical contribution sources remain one content decision',()=>{
   const first={...fact('p1','project','我在课程小组里负责整理资料和排版'),sourceRef:{type:'growth' as const,id:'g-new',revision:1}}
   const repeated={...fact('p2','project','我在课程小组里负责整理资料和排版'),sourceRef:{type:'growth' as const,id:'g-old',revision:1}}
   assert.equal(singleUniqueContributionFact([first,repeated])?.catalogueId,'p1','the first authorized source is retained')
   const different={...fact('p3','project','我在社团活动里负责海报排版'),sourceRef:{type:'growth' as const,id:'g-other',revision:1}}
   assert.equal(singleUniqueContributionFact([first,different]),null,'different contribution wording still requires a real selection')
+  const current={...first,contextKey:'current-chat'}
+  const unrelated={...different,contextKey:'other-chat'}
+  assert.equal(singleUniqueContributionFact([current,unrelated],'current-chat')?.catalogueId,'p1','the current conversation contribution wins over an unrelated project')
+  assert.equal(singleUniqueContributionFact([current,unrelated],'other-chat')?.catalogueId,'p3','context selection follows the requested conversation')
 })

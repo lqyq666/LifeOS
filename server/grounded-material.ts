@@ -25,14 +25,15 @@ export type VerifiedMaterialFact = {
   contextKey?: string
 }
 
-// Repeated acceptance or a literal re-report can leave the same contribution
-// text backed by more than one valid source. For a contribution paragraph the
-// content decision is still unique: choose one checked source only when every
-// eligible contribution has the exact same user wording.
-export function singleUniqueContributionFact(catalogue:readonly VerifiedMaterialFact[]):VerifiedMaterialFact|null{
+// A generic contribution request first belongs to the current conversation's
+// project. Unrelated projects stay out of that deterministic lane. Repeated
+// sources are one content decision only when the relevant wording is exact.
+export function singleUniqueContributionFact(catalogue:readonly VerifiedMaterialFact[],conversationId?:string):VerifiedMaterialFact|null{
   const contributions=catalogue.filter(fact=>fact.field==='project'&&reportsOwnContribution(fact.text))
-  if(!contributions.length||new Set(contributions.map(fact=>fact.text)).size!==1)return null
-  return contributions[0]!
+  const contextual=conversationId?contributions.filter(fact=>fact.contextKey===conversationId||(fact.sourceRef.type==='message'&&fact.sourceRef.conversationId===conversationId)):[]
+  const eligible=contextual.length?contextual:contributions
+  if(!eligible.length||new Set(eligible.map(fact=>fact.text)).size!==1)return null
+  return eligible[0]!
 }
 export type MaterialResult = {
   content: string; readiness: 'template' | 'draft_for_user_review';

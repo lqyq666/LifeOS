@@ -149,10 +149,13 @@ test('verified material and streamed failures respect real HTTP/SDK/PG delivery 
   // contribution through the ordinary user-edit API before a later readback.
   assert.equal((await request('/api/growth',{requestId:randomUUID(),conversationId:chat,kind:'context',text:'我在课程小组里负责整理资料和排版'})).status,201)
   assert.equal((await request('/api/growth',{requestId:randomUUID(),conversationId:chat,kind:'context',text:'我在课程小组里负责整理资料和排版'})).status,201,'a repeated literal remains a separate stored source')
+  const unrelatedChat=randomUUID()
+  assert.equal((await request('/api/conversations',{id:unrelatedChat,title:'Unrelated project'})).status,201)
+  assert.equal((await request('/api/growth',{requestId:randomUUID(),conversationId:unrelatedChat,kind:'context',text:'我在社团活动里负责海报排版'})).status,201)
   const callsBeforeLiteral=requests.length
   const literal=await run('我想先了解实习岗位，别把小组成果都算成我的能力。帮我写一段只包含本人贡献的作品描述，不要替我发送。')
   assert.equal(literal.saved.status,'completed')
-  assert.equal(requests.length,callsBeforeLiteral,'one verified literal contribution needs no generated selection')
+  assert.equal(requests.length,callsBeforeLiteral,'one current-project contribution needs no generated selection even when another project exists')
   assert.equal(literal.frames.find(f=>f.type==='delta')?.text,'我在课程小组里负责整理资料和排版。')
   assert.equal((await request('/api/growth',{requestId:randomUUID(),conversationId:chat,kind:'context',text:'我负责封面排版'})).status,201)
   const pureCatalogue=await run('我想先了解实习岗位，别把小组成果都算成我的能力。帮我写一段只包含本人贡献的作品描述，不要替我发送。')

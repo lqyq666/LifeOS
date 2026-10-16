@@ -1244,7 +1244,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     }
   }
   if(!explicitMaterial&&materialOnly&&contributionParagraphMode&&!boundaryNeedsClarification){
-    const contribution=singleUniqueContributionFact(materialCatalogue)
+    const contribution=singleUniqueContributionFact(materialCatalogue,run.conversation_id)
     if(contribution){
       // This exact literal paragraph already has one authorized source and no
       // selection judgment. Duplicate identities with byte-identical wording
