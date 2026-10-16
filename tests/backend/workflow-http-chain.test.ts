@@ -113,6 +113,13 @@ test('WF02/03/05/04 host → native SDK engine → finishRun → authenticated G
   await pool.query('UPDATE lifeos_workflow_tasks SET request_payload=$3,receipt=$4 WHERE user_id=$1 AND request_id=$2',[user,body.requestId,JSON.stringify(historicalPayload),JSON.stringify(historicalReceipt)])
   const priorCalls=wire.length,history=await json('/api/workflows/'+body.requestId+'?conversationId='+second)
   assert.equal(history.status,'plan_saved');assert.equal(history.historicalVersion,true);assert.equal(history.version,'d'.repeat(64));assert.equal(wire.length,priorCalls,'history is read without new paid generation')
+  const memoryBefore=(await pool.query('SELECT enabled,revision FROM user_memory_settings WHERE user_id=$1',[user])).rows[0]
+  await pool.query("INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1) ON CONFLICT(user_id) DO UPDATE SET revision=user_memory_settings.revision+1",[user])
+  const afterControlChange=await json('/api/workflows/'+body.requestId+'?conversationId='+second)
+  assert.equal(afterControlChange.status,'plan_saved','later memory controls do not erase an already committed selection')
+  assert.equal(wire.length,priorCalls,'historical control changes do not regenerate a committed task')
+  if(memoryBefore)await pool.query('UPDATE user_memory_settings SET enabled=$2,revision=$3 WHERE user_id=$1',[user,memoryBefore.enabled,memoryBefore.revision])
+  else await pool.query('DELETE FROM user_memory_settings WHERE user_id=$1',[user])
   assert.equal((await request('/api/workflows/'+body.requestId,undefined,otherCookie)).status,404)
   assert.equal((await request('/api/workflows/'+body.requestId+'/actions',{requestId:randomUUID(),conversationId:second,kind:'direction',index:0})).status,409,'historical selection cannot be adopted again as a different choice')
   const source=(await pool.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2',[user,base.source_message_id])).rows[0].content

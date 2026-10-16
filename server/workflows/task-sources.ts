@@ -42,9 +42,12 @@ export function selectWorkflowBudget(r:WorkflowRequest,records:EvidenceRecord[])
  if(!chosen?.budget||!current.length&&new Set(strongest.map(x=>x.budget!.amountMinutes)).size>1)return null
  return {...chosen.budget,source:chosen.ref}
 }
-export async function readWorkflowEvidence(r:WorkflowRequest,c:DB=pool):Promise<EvidenceRecord[]>{
+export async function readWorkflowEvidence(r:WorkflowRequest,c:DB=pool,options:{historicalCommit?:boolean}={}):Promise<EvidenceRecord[]>{
  const controls=await workflowControls(r.internalActorKey,c)
- if(r.hostSnapshot&&controls.digest!==r.hostSnapshot.controlsDigest)throw new WorkflowError('stale_snapshot')
+ // A committed selection is an immutable historical fact. Later memory or
+ // recommendation settings must not erase it, while the source records below
+ // still have to remain owned, visible and unwithdrawn.
+ if(!options.historicalCommit&&r.hostSnapshot&&controls.digest!==r.hostSnapshot.controlsDigest)throw new WorkflowError('stale_snapshot')
  const growth=await growthView(r.internalActorKey,r.conversationId,c),records:EvidenceRecord[]=[]
  for(const ref of r.authorizedEvidenceRefs){
   if(ref.type==='growth'){
