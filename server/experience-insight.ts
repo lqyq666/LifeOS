@@ -9,6 +9,29 @@ export type ExperienceInsight = {
   skillNote: string      // 能力证据说明
 }
 
+export type ExperienceSummary = {
+  action: string
+  result: string
+  reflection: string
+  unknowns: string
+}
+
+// 阅读态摘要只整理已存的本人原话字段。空字段明确显示未知，不用一次经历
+// 推断稳定能力、成功、采用或效果；summary 只在行动字段为空时兜底。
+export function summarizeExperience(data: { summary?: string; action?: string; result?: string; reflection?: string; outcomes?: Record<string, { status?: string } | undefined> }): ExperienceSummary {
+  const outcomeLabels: Record<string,string> = { read:'是否读过', response:'是否回应', adoption:'是否采用', payment:'是否付款', effect:'实际效果' }
+  const unknown = [
+    ...(!data.result?.trim() ? ['结果'] : []),
+    ...Object.entries(outcomeLabels).filter(([key]) => !data.outcomes?.[key]?.status || data.outcomes[key]?.status === 'unknown').map(([,label]) => label),
+  ]
+  return {
+    action: data.action?.trim() || data.summary?.trim() || '尚未记录本人行动',
+    result: data.result?.trim() || '尚未记录结果',
+    reflection: data.reflection?.trim() || '尚未记录本人复盘',
+    unknowns: unknown.length ? `${unknown.join('、')}仍未知` : '未报告的其他影响仍未知',
+  }
+}
+
 export function generateInsight(data: {
   title: string
   summary: string

@@ -119,6 +119,15 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
               {(node as any).externalFeedback && <span className="record-badge is-external">含他人反馈</span>}
             </div>
           </section>}
+          {(node as any).experienceSummary && <section className="record-experience-summary" aria-label="经历摘要">
+            <h3>经历摘要</h3>
+            <dl>
+              <div><dt>我做了什么</dt><dd>{(node as any).experienceSummary.action}</dd></div>
+              <div><dt>已报告结果</dt><dd>{(node as any).experienceSummary.result}</dd></div>
+              <div><dt>本人复盘</dt><dd>{(node as any).experienceSummary.reflection}</dd></div>
+              <div><dt>仍未知</dt><dd>{(node as any).experienceSummary.unknowns}</dd></div>
+            </dl>
+          </section>}
           {(node as any).taskOutcomes && <section className="record-outcomes" aria-label="分别记录的结果">
             <h3>分别记录的结果</h3>
             <p>按本人报告保留，未报告的结果仍未知。</p>

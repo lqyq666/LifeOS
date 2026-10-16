@@ -42,6 +42,7 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
       </header>
       <main className="record-content">
         <h2 id="theme-title">{node.title}</h2>
+        {(node as any).primaryKeywordReason && <p className="theme-primary-reason">主要关键词依据：{(node as any).primaryKeywordReason}</p>}
         {error && <p className="storage-error" role="alert">{error}</p>}
         {renaming
           ? <form className="theme-rename" onSubmit={event => { event.preventDefault(); if (title.trim()) void act('rename', title.trim()) }}>

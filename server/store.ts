@@ -17,12 +17,12 @@ import { persistMemoryControl, persistPendingControlRequest, type MemoryControlR
 import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
 import { derivePatternProposals } from './experience-patterns.ts'
 import { findEpisode, mergeContent,timeContradiction } from './experience-episodes.ts'
-import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth, themeNextStep, themeHasPursuitSource } from './user-themes.ts'
+import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth, rankPrimaryThemes, themeNextStep, themeHasPursuitSource } from './user-themes.ts'
 import { matchPathTheme } from './path-lexicon.ts'
 import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction } from './identity.ts'
 import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
 import { buildExperienceRelations } from './starmap-enrichment.ts'
-import { generateInsight } from './experience-insight.ts'
+import { generateInsight, summarizeExperience } from './experience-insight.ts'
 import {taskOutcomeReadback} from './turn-contract.ts'
 import {commitWorkflowSelection,type WorkflowAdoption} from './workflows/task-commit.ts'
 import {committedGrowthDiff,committedSnapshot,validGrowthDiff} from './workflows/committed-growth-diff.ts'
@@ -482,18 +482,24 @@ export async function cognitionGraph(user:string) {
   // historical unstarted-status projections never become a current pursuit.
   const pausedThemeLabels=new Set((await readDirectionControls(user)).filter(control=>control.state==='paused').map(control=>{const label=directionScopeLabel(control.scope);return matchPathTheme(label)?.title??label}))
   const nodes=[self] as any[]
-  const storedThemes=(await pool.query("SELECT * FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC",[user])).rows
+  const storedThemes=(await pool.query(`SELECT t.*,
+    count(l.experience_id) FILTER (WHERE l.status='active')::int AS "linkedExperienceCount",
+    count(l.experience_id) FILTER (WHERE l.status='active' AND l.confirmed=true)::int AS "confirmedExperienceCount"
+    FROM user_themes t LEFT JOIN experience_theme_links l ON l.user_id=t.user_id AND l.theme_id=t.id
+    WHERE t.user_id=$1 AND t.status IN ('active','pending')
+    GROUP BY t.user_id,t.id`,[user])).rows
   const invalidThemeIds=new Set(storedThemes.filter(theme=>!themeHasPursuitSource(theme)).map(theme=>theme.id))
-  const themes=storedThemes.filter(theme=>!invalidThemeIds.has(theme.id))
+  const validThemes=storedThemes.filter(theme=>!invalidThemeIds.has(theme.id))
+  const themes=rankPrimaryThemes(validThemes)
   const pursuitFacts=(await growthView(user)).items.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped)
   const starmapNextStep=themeNextStep(themes,pausedThemeLabels,pursuitFacts)
   const edges:any[]=[]
   const THEME_KIND_LABEL:Record<string,string>={goal:'目标',pursuit:'阶段追求',valued_point:'重视点',interest:'兴趣探索'}
-  for(const theme of themes.slice(0,3)){
+  for(const theme of themes){
     const nodeId='theme-'+theme.id
     const effectiveThemeStatus=pausedThemeLabels.has(theme.title)?'paused':theme.status
     nodes.push({id:nodeId,type:'value',title:theme.title,description:`${THEME_KIND_LABEL[theme.kind]??theme.kind} · ${effectiveThemeStatus==='paused'?'已暂停推荐':effectiveThemeStatus==='pending'?'待核对':'进行中'}
-${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.kind,themeStatus:theme.status,recommendationBoundary:pausedThemeLabels.has(theme.title)?'direction_paused':null,themePinned:theme.pinned,themeRevision:theme.revision,themeUpdatedAt:theme.updated_at.toISOString(),media:[]} as any)
+${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.kind,themeStatus:theme.status,recommendationBoundary:pausedThemeLabels.has(theme.title)?'direction_paused':null,themePinned:theme.pinned,themeRevision:theme.revision,themeUpdatedAt:theme.updated_at.toISOString(),primaryKeywordReason:theme.primaryReason,media:[]} as any)
     // createGraph requires every value node to carry the self root link.
     edges.push({id:'has-'+theme.id,type:'HAS_VALUE',sourceId:self.id,targetId:nodeId,status:'confirmed_structure'} as any)
   }
@@ -522,7 +528,8 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
       relatedExperiences: expRelated.map(r => ({ title: String(r.title ?? ''), score: Number(r.score) })),
       identityLevel: 0, identityName: '', nextIdentity: '', identityNextHint: '',
     })
-    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,taskOutcomes,skillTags:expSkills,insight:expInsight} as any)
+    const experienceSummary=summarizeExperience({summary:expSummary,action:expAction,result:expResult,reflection:String(e.content?.reflection??''),outcomes:taskOutcomes})
+    nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,taskOutcomes,skillTags:expSkills,insight:expInsight,experienceSummary} as any)
   }
   const themeLinks=(await pool.query("SELECT * FROM experience_theme_links WHERE user_id=$1 AND status='active'",[user])).rows
   const expRelations=(await pool.query("SELECT * FROM experience_relations WHERE user_id=$1 AND NOT (relation='follows' AND reason='时间上先后发生') ORDER BY created_at DESC LIMIT 10",[user])).rows
@@ -538,10 +545,10 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
     const experience=experiences.find(e=>e.id===link.experience_id)
     edges.push({id:'rel-'+link.experience_id+'-'+link.theme_id,type:'RELATES_TO_VALUE',sourceId,targetId,reason:link.reason,status:link.relation,sourceEvidence:experience?[experience.source_quote]:[],confirmed:link.confirmed,confidence:null} as any)
   }
-  const valueOrder=themes.slice(0,3).map(theme=>'theme-'+theme.id)
+  const valueOrder=themes.map(theme=>'theme-'+theme.id)
   return {...seed,purpose:'当前登录用户的成长星图：主题来自本人陈述的目标与追求',notice:'主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。',nodes,edges,
     viewConfig:{...seed.viewConfig,valueOrder,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false,starmapNextStep,changeEvents:changeEvents.filter(event=>event.subject_type!=='theme'||!invalidThemeIds.has(event.subject_id)).map(event=>{
-      const current=event.subject_type==='theme'?themes.find(x=>x.id===event.subject_id)?.title:event.subject_type==='experience'?experiences.find(x=>x.id===event.subject_id)?.content?.title:event.subject_type==='identity_claim'?claims.find(x=>x.id===event.subject_id)?.text:undefined
+      const current=event.subject_type==='theme'?validThemes.find(x=>x.id===event.subject_id)?.title:event.subject_type==='experience'?experiences.find(x=>x.id===event.subject_id)?.content?.title:event.subject_type==='identity_claim'?claims.find(x=>x.id===event.subject_id)?.text:undefined
       return {subjectType:event.subject_type,transition:event.transition,reason:current?event.reason:'原记录已改变、结束或撤回，不再展示历史原话。',committedAt:event.committed_at,userConfirmation:event.user_confirmation,before:event.old_snapshot?'此前记录已被更新；历史原话不在此重新展示。':undefined,now:current?String(current):'这项记录当前不可用于建议。',unknowns:current?event.unknowns:''}
     })}
 }

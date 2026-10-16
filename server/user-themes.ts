@@ -63,6 +63,14 @@ export function themeTitle(text: string): string {
   const cleaned = stripped.replace(/(?:一个|一类|之类的|的话|比较|真的|就是)/g, '').trim()
   return (cleaned || text).slice(0, 14)
 }
+
+// 路径词用于合并宽泛表述；本人写出的可执行目标保留具体对象，避免把
+// “找到数据分析实习”压扁成只有“就业”的泛词。
+function projectedThemeTitle(text: string, assertion?: string): string {
+  const path = matchPathTheme(text)
+  const specific = themeTitle(text)
+  return path && !(assertion === 'user_edit' && /(?:找到|完成|申请|拿到|通过|提交|做出|交付)/.test(specific)) ? path.title : specific
+}
 // 以过去时间词开头的陈述是事件报告，不是追求——不投影为主题。
 const PAST_EVENT_OPEN = /^(?:上周|上个月|上月|昨天|前天|上次|之前|当时|上学期|上年)/
 // 第三方故事不是本人追求（纵深防御：分句归属已挡一道）。
@@ -90,7 +98,10 @@ const DECIDED_MARK = /(?:决定|确定|定了|一定要|铁了心|就选)/
 const endedMainPath=(quote:string):boolean=>/不再.{0,20}(?:作为|当作).{0,4}(?:主线|重点)|暂停(?:扩大)?接单/.test(quote)
 // A request for an unspecified next step remains useful context, not a pursuit.
 const immediateStep=(quote:string)=>/^(?:我)?(?:想|希望)(?:先)?(?:找|选|确定)(?:一件|一个|一条|一步)[^。！？]{0,50}(?:小事|小探索|下一步)$/.test(quote.trim())
-const explicitPriority=(quote:string)=>scanUserClauses(quote).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!assistantRequestClause(clause.text)&&/^(?:我(?:确认|决定|想)?(?:本阶段|当前|现在|目前|本周|这周)?(?:优先|更重视|先了解|先考虑|先探索)|(?:本阶段|当前|现在|目前|本周|这周)(?:我)?(?:优先|更重视|重点(?:是|在|放在)))/.test(clause.text))
+const explicitPriority=(quote:string)=>scanUserClauses(quote).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!assistantRequestClause(clause.text)&&(
+  /^(?:我(?:确认|决定|想)?(?:本阶段|当前|现在|目前|本周|这周)?(?:优先|更重视|先了解|先考虑|先探索)|(?:本阶段|当前|现在|目前|本周|这周)(?:我)?(?:优先|更重视|重点(?:是|在|放在)))/.test(clause.text)
+  || /^(?:我(?:确认|决定|想)?(?:本阶段|当前|现在|目前|本周|这周)?|(?:本阶段|当前|现在|目前|本周|这周)(?:我)?)[^，。；！？]{1,16}(?:优先|为主|放第一)/.test(clause.text)
+))
 export function pursuitLevel(quote: string): { kind: 'pursuit' | 'exploration'; status: 'active' | 'pending' } | null {
   if(immediateStep(quote))return null
   if(unstartedActivityOnlyClause(quote)||assistantRequestClause(quote))return null
@@ -134,8 +145,7 @@ export function deriveThemeCandidates(facts: readonly GrowthFact[]): ThemeCandid
     } else if (fact.kind === 'preference') { kind = 'valued_point'; status = 'pending' }
     else continue
     // 路径词库优先：命中时用标准化标题（"考研"而不是"认真准备考研"）
-    const pathMatch = matchPathTheme(quote)
-    const title = pathMatch ? pathMatch.title : themeTitle(quote)
+    const title = projectedThemeTitle(quote, fact.assertion)
     const dedupeKey = kind + '|' + normalize(title)
     if (seen.has(dedupeKey)) continue
     // 同义主题合并：同类且一方标题完整包含另一方（保研 ⊂ 保研成功）只留
@@ -159,6 +169,48 @@ export type ThemeRow = {
   source_refs: { growthItemId: string; quote: string }[]
   pinned: boolean
   revision: number
+}
+
+export type PrimaryTheme = ThemeRow & {
+  linkedExperienceCount?: number
+  confirmedExperienceCount?: number
+  updated_at?: string | Date
+  primaryReason?: string
+}
+
+// 更新时间只能用于打破平局，不能代表主题重要性。前三个主题先尊重本人
+// 置顶和明确优先，再看确认经历、候选连线与独立本人来源。
+export function rankPrimaryThemes<T extends PrimaryTheme>(themes: readonly T[]): (T & { primaryReason: string })[] {
+  const sourceCount = (theme: T) => new Set((theme.source_refs ?? []).map(ref => ref.growthItemId)).size
+  const explicit = (theme: T) => (theme.source_refs ?? []).some(ref => explicitPriority(ref.quote))
+  const timestamp = (theme: T) => {
+    const value = theme.updated_at
+    const parsed = value instanceof Date ? value.getTime() : Date.parse(value ?? '')
+    return Number.isFinite(parsed) ? parsed : 0
+  }
+  const sorted = [...themes].sort((left, right) =>
+    Number(Boolean(right.pinned)) - Number(Boolean(left.pinned))
+    || Number(explicit(right)) - Number(explicit(left))
+    || (right.confirmedExperienceCount ?? 0) - (left.confirmedExperienceCount ?? 0)
+    || (right.linkedExperienceCount ?? 0) - (left.linkedExperienceCount ?? 0)
+    || sourceCount(right) - sourceCount(left)
+    || Number(right.status === 'active') - Number(left.status === 'active')
+    || timestamp(right) - timestamp(left)
+    || left.title.localeCompare(right.title, 'zh-CN')
+  )
+  return sorted.slice(0, 3).map(theme => {
+    const confirmed = theme.confirmedExperienceCount ?? 0
+    const linked = theme.linkedExperienceCount ?? 0
+    const sources = sourceCount(theme)
+    const primaryReason = theme.pinned ? '本人置顶'
+      : explicit(theme) ? '本人明确优先'
+      : confirmed > 0 ? `${confirmed} 段已确认经历支持`
+      : linked > 0 ? `${linked} 段经历关联，待核对`
+      : sources > 1 ? `${sources} 次本人提及`
+      : theme.status === 'pending' ? '本人正在探索，尚待经历支持'
+      : '本人当前追求，尚待经历支持'
+    return { ...theme, primaryReason }
+  })
 }
 
 export function themeHasPursuitSource(theme: Pick<ThemeRow,'pinned'|'source_refs'>): boolean {
@@ -307,7 +359,7 @@ export async function reconcileThemesWithGrowth(c: PoolClient, user: string): Pr
   const themes = (await c.query("SELECT id, title, kind, status, summary, source_refs, title_locked FROM user_themes WHERE user_id=$1 AND status IN ('active','pending','paused')", [user])).rows as (ThemeRow & { title_locked: boolean })[]
   if (!themes.length) return
   const refIds = [...new Set(themes.flatMap(theme => theme.source_refs.map(ref => ref.growthItemId)))]
-  const facts = new Map((await c.query('SELECT id, kind, text, status FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])', [user, refIds])).rows.map((row: any) => [row.id as string, row]))
+  const facts = new Map((await c.query('SELECT id, kind, text, assertion, status FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])', [user, refIds])).rows.map((row: any) => [row.id as string, row]))
   for (const theme of themes) {
     const statuses = theme.source_refs.map(ref => facts.get(ref.growthItemId)?.status ?? 'missing')
     const live = theme.source_refs.filter((_, index) => statuses[index] === 'active')
@@ -335,7 +387,7 @@ export async function reconcileThemesWithGrowth(c: PoolClient, user: string): Pr
         await c.query("UPDATE experience_theme_links SET status='retired', revision=revision+1 WHERE user_id=$1 AND theme_id=$2 AND status='active'", [user, theme.id])
         continue
       }
-      const canonicalTitle=matchPathTheme(primary.text)?.title??themeTitle(primary.text)
+      const canonicalTitle=projectedThemeTitle(primary.text,primary.assertion)
       if (canonicalTitle !== theme.title || theme.kind !== level.kind) {
         await c.query("UPDATE user_themes SET title=$3, kind=$4, status=CASE WHEN $5='pending' AND status='active' THEN 'pending' ELSE status END, revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2", [user, theme.id, canonicalTitle, level.kind, level.status])
       }
