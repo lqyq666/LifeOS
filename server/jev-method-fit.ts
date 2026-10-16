@@ -14,10 +14,15 @@ export type JevMethodFitTrace={
 export type JevMethodFitResult={cards:KnowledgeCard[];trace:JevMethodFitTrace}
 export type JevMethodFitOptions={enabled?:boolean;apiKey?:string;timeoutMs?:number;transport?:JevTransport;signal?:AbortSignal}
 
+export const jevMethodFitTimeoutMs=(value:unknown)=>{
+ const parsed=typeof value==='number'?value:Number(value)
+ return Math.max(100,Math.min(10_000,Number.isFinite(parsed)?parsed:1200))
+}
+
 const configured=(options:JevMethodFitOptions)=>({
  enabled:options.enabled??process.env.LIFEOS_JEV_METHOD_FIT==='true',
  apiKey:options.apiKey??process.env.TYPESAFE_API_KEY?.trim()??'',
- timeoutMs:Math.max(100,Math.min(3000,options.timeoutMs??Number(process.env.LIFEOS_JEV_TIMEOUT_MS??1200))),
+ timeoutMs:jevMethodFitTimeoutMs(options.timeoutMs??process.env.LIFEOS_JEV_TIMEOUT_MS??1200),
  transport:options.transport??fetch,
  signal:options.signal,
 })

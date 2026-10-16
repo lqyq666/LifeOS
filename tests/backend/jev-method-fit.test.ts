@@ -3,11 +3,17 @@ import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
 import type {KnowledgeCard} from '../../server/campus-knowledge.ts'
 import {knowledgeIntent} from '../../server/evergreen-guide.ts'
-import {jevMethodFitContext,selectJevMethodCandidates,type JevTransport} from '../../server/jev-method-fit.ts'
+import {jevMethodFitContext,jevMethodFitTimeoutMs,selectJevMethodCandidates,type JevTransport} from '../../server/jev-method-fit.ts'
 
 const cards=readFileSync('.planning/research/evergreen/KB_GUIDES.jsonl','utf8').trim().split('\n').map(line=>JSON.parse(line) as KnowledgeCard).filter(card=>card.guide?.reviewStatus==='approved').slice(0,3)
 const intent=knowledgeIntent('校园项目需求一直变，我该用什么方法确认真正需求？')
 const response=(answers:Record<string,unknown>)=>({ok:true,status:200,json:async()=>({model:'jev-1.14.0',answers,usage:{input_tokens:123,output_tokens:6}})}) as Response
+
+test('Jev method fit accepts a bounded diagnostic timeout without silently forcing three seconds',()=>{
+ assert.equal(jevMethodFitTimeoutMs(8000),8000)
+ assert.equal(jevMethodFitTimeoutMs(60_000),10_000)
+ assert.equal(jevMethodFitTimeoutMs('invalid'),1200)
+})
 
 test('Jev method fit makes one pre-generation request and keeps only applicable existing candidates in original order',async()=>{
  let calls=0,payload:any
