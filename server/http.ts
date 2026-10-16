@@ -226,8 +226,7 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
                 // Only the engine's validated sentence lane can use this path;
                 // arbitrary draft events retain the stricter question guard.
                 const sentence=event.draftKind==='safe_sentence'&&safeEarlySentence(JSON.stringify({reply:event.text+'。'}))===event.text
-                const waiting=event.draftKind==='waiting_hint'
-                if(question||sentence||waiting)sse(res,{type:'draft',text:event.text,saved:false,...(typeof event.draftKind==='string'?{draftKind:event.draftKind}:{})})
+                if(question||sentence)sse(res,{type:'draft',text:event.text,saved:false})
               }
               if(event.type==='draft_discarded')sse(res,{type:'draft_discarded'})
               if(event.type==='tool'&&typeof event.name==='string'&&typeof event.status==='string')safeEvents.push(event)

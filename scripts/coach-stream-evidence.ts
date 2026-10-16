@@ -13,9 +13,10 @@ export async function collectCoachStream(response:Response,started:number,now=()
         const lines=pending.slice(0,boundary);pending=pending.slice(boundary+2)
         const line=lines.split('\n').find(value=>value.startsWith('data: '));if(!line)continue
         const value=JSON.parse(line.slice(6)),atMs=now()-started;events.push({atMs,value})
-        if(value.type==='draft'&&value.draftKind!=='waiting_hint'&&typeof value.text==='string'&&value.text.trim())draft??=atMs
-        // Loading and waiting hints, restatements and internal JSON are not
-        // valid first content; a discarded safe draft never counts as success.
+        if(value.type==='draft'&&typeof value.text==='string'&&value.text.trim())draft??=atMs
+    // Loading hints, restatements and internal JSON are not valid first
+    // content; a discarded safe draft resets it and never counts as success.
+    if(value.type==='draft_discarded')draft=null
         if(value.type==='draft_discarded')draft=null
         if(value.type==='delta'&&value.saved===true&&typeof value.text==='string'&&value.text.trim())committedFirst??=atMs
         if(value.type==='error')throw new Error(value.code??'STREAM_ERROR')

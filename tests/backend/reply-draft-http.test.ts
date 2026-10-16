@@ -9,12 +9,10 @@ test('authenticated HTTP preserves engine-validated first sentences and rejects 
  const oldOrigin=config.origin,oldAccess=config.entitlementsEnabled
  config.entitlementsEnabled=false
  const sentence='先围绕你这次请教的目标，选一个最需要对方确认的问题'
-  const waiting='下周180分钟，正在核对具体分配。'
  const app=createApp(async input=>{
   input.emit({type:'draft',text:sentence,saved:false})
   input.emit({type:'draft',text:'已为你发送消息',saved:false,draftKind:'safe_sentence'})
   input.emit({type:'draft',text:sentence,saved:true,draftKind:'safe_sentence'})
-  input.emit({type:'draft',text:waiting,saved:false,draftKind:'waiting_hint'})
   input.emit({type:'draft',text:sentence,saved:false,draftKind:'safe_sentence'})
   return {text:sentence+'。',usage:{source:'deterministic',zeroLlm:true,llmCallCount:0,estimatedCostCny:0}}
  })
@@ -30,7 +28,7 @@ test('authenticated HTTP preserves engine-validated first sentences and rejects 
   const sent=await fetch(origin+'/api/conversations/'+chat+'/messages',{method:'POST',headers,body:JSON.stringify({requestId:randomUUID(),text:'准备联系学姐，先怎么做？'})})
   assert.equal(sent.status,200)
   const frames=(await sent.text()).split('\n').filter(x=>x.startsWith('data: ')).map(x=>JSON.parse(x.slice(6)))
-  assert.deepEqual(frames.filter(x=>x.type==='draft'),[{type:'draft',text:waiting,saved:false,draftKind:'waiting_hint'},{type:'draft',text:sentence,saved:false,draftKind:'safe_sentence'}])
+  assert.deepEqual(frames.filter(x=>x.type==='draft'),[{type:'draft',text:sentence,saved:false}])
   assert.ok(frames.some(x=>x.type==='done'))
   assert.ok(frames.findIndex(x=>x.type==='draft')<frames.findIndex(x=>x.type==='done'))
  }finally{

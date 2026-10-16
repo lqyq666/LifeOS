@@ -247,7 +247,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.equal(planContract.mode,'planning')
       const lanes=Object.keys((requests.at(-1)!.response_format.json_schema.schema.properties)).sort()
       assert.deepEqual(lanes,['growthUpdates','reply','weeklyPlan'])
-      assert.ok(drafts.some(d=>d.type==='draft'&&d.draftKind==='waiting_hint'&&d.text.includes('下周')),'the budget confirmation stays visible as a non-substantive waiting hint')
+      assert.equal(drafts.filter(d=>d.type==='draft').length,1,'the budget acknowledgement does not occupy the substantive draft lane')
       assert.ok(drafts.some(d=>d.type==='draft'&&d.draftKind==='safe_sentence'&&d.text.includes('整理作品')&&d.text.includes('180分钟')),'the validated concrete allocation replaces the waiting hint as substantive content')
       assert.match(planResult.text,/下周建议安排.*180分钟/)
       assert.match(planResult.text,/整理作品（180分钟）/,'final content includes actual validated tasks, not just a budget acknowledgement')

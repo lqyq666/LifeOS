@@ -10,9 +10,6 @@ test('SIMULATED timing ignores loading/raw deltas and withdraws rejected drafts;
   clock=0
   const draft=await collectCoachStream(response([{type:'draft',text:'你想先说哪一步？'},{type:'done',text:'你想先说哪一步？'}]),0,now)
   assert.equal(draft.meaningfulFirstMs,100);assert.equal(draft.completionMs,200)
-  clock=0
-  const plan=await collectCoachStream(response([{type:'draft',draftKind:'waiting_hint',text:'下周180分钟，正在核对具体分配。'},{type:'draft',draftKind:'safe_sentence',text:'下周建议安排：整理作品（180分钟）。'},{type:'done',text:'下周建议安排：整理作品（180分钟）。'}]),0,now)
-  assert.equal(plan.meaningfulFirstMs,200);assert.equal(plan.firstSafeDraftMs,200);assert.equal(plan.completionMs,300)
   await assert.rejects(collectCoachStream(response([{type:'draft',text:'你想说什么？'},{type:'error',code:'SYNTHETIC_FAILURE'}]),0,now),(error:any)=>error.message==='SYNTHETIC_FAILURE'&&error.streamEvidence.events.length===2)
   await assert.rejects(collectCoachStream(response([{type:'loading'}]),0,now),/INCOMPLETE_STREAM/)
 })
