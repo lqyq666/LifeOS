@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {renderGroundedResume} from '../server/grounded-material.ts'
+import {renderGroundedResume,singleUniqueContributionFact} from '../server/grounded-material.ts'
 
 const fact=(catalogueId:string,field:'identity'|'target'|'project'|'skill'|'contact',text:string,complete=false)=>({catalogueId,field,text,sourceKind:'user_reported' as const,completeForField:complete})
 
@@ -43,4 +43,12 @@ test('invalid references and malformed catalogues are hard failures',()=>{
   // Only server-verified provenance may enter the renderer.
   // @ts-expect-error Deliberately malformed: an AI-observation source kind must never pass.
   assert.throws(()=>renderGroundedResume(['x'],[{catalogueId:'x',field:'skill',text:'很有天赋',sourceKind:'ai_observation',completeForField:true}]),/MATERIAL_REFERENCE_INVALID/)
+})
+
+test('byte-identical verified contribution sources remain one content decision',()=>{
+  const first={...fact('p1','project','我在课程小组里负责整理资料和排版'),sourceRef:{type:'growth' as const,id:'g-new',revision:1}}
+  const repeated={...fact('p2','project','我在课程小组里负责整理资料和排版'),sourceRef:{type:'growth' as const,id:'g-old',revision:1}}
+  assert.equal(singleUniqueContributionFact([first,repeated])?.catalogueId,'p1','the first authorized source is retained')
+  const different={...fact('p3','project','我在社团活动里负责海报排版'),sourceRef:{type:'growth' as const,id:'g-other',revision:1}}
+  assert.equal(singleUniqueContributionFact([first,different]),null,'different contribution wording still requires a real selection')
 })

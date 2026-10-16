@@ -27,7 +27,7 @@ import { redactGrowthHistory } from './growth-privacy.ts'
 import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCandidates, CozeRetrievalError } from './coze-knowledge.ts'
 import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKnowledge, CodeWorkflowError, type CodeWorkflowConfig } from './coze-code-workflow.ts'
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
-import { reportsOwnContribution, buildMaterialFactCatalogue, resolveSelectedMaterialFacts } from './grounded-material.ts'
+import { reportsOwnContribution, buildMaterialFactCatalogue, resolveSelectedMaterialFacts, singleUniqueContributionFact } from './grounded-material.ts'
 import { stageWeeklyPlan, renderProposedWeeklyPlan, requiresPlanSlack, normalizeWeeklyPlanTasks, normalizeWeeklyPlanReply } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
@@ -1244,14 +1244,15 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     }
   }
   if(!explicitMaterial&&materialOnly&&contributionParagraphMode&&!boundaryNeedsClarification){
-    const contributions=materialCatalogue.filter(fact=>fact.field==='project'&&reportsOwnContribution(fact.text))
-    if(contributions.length===1){
+    const contribution=singleUniqueContributionFact(materialCatalogue)
+    if(contribution){
       // This exact literal paragraph already has one authorized source and no
-      // selection judgment. Reuse the existing deterministic material lane;
+      // selection judgment. Duplicate identities with byte-identical wording
+      // add no content choice. Reuse the existing deterministic material lane;
       // resolution, source validation and atomic persistence still run below.
-      const selected=resolveSelectedMaterialFacts([contributions[0]!.catalogueId],materialCatalogue,run.user_id,run.user_id,'contribution_paragraph')
+      const selected=resolveSelectedMaterialFacts([contribution.catalogueId],materialCatalogue,run.user_id,run.user_id,'contribution_paragraph')
       if(selected.facts.length===1){
-        explicitMaterial={reply:'',event:{target:currentEvent?{operation:'continue',eventId:currentEvent.id,expectedRevision:currentEvent.revision}:{operation:'create',title:'本人贡献描述',source:{messageId:run.source_message_id,quote:current.content}},action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[contributions[0]!.catalogueId]}}}}
+        explicitMaterial={reply:'',event:{target:currentEvent?{operation:'continue',eventId:currentEvent.id,expectedRevision:currentEvent.revision}:{operation:'create',title:'本人贡献描述',source:{messageId:run.source_message_id,quote:current.content}},action:{operation:'create',draft:{kind:'resume_portfolio',selectedFactIds:[contribution.catalogueId]}}}}
         staged.audit.push({phase:'explicit_material_rendered_without_generation',basis:'single_verified_literal_contribution',providerCalls:0})
       }
     }
