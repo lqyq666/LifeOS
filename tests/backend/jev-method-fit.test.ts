@@ -35,3 +35,11 @@ test('disabled, continuation, clear candidate and transport failure preserve the
  const fallback=await selectJevMethodCandidates(cards,'校园项目需求一直变，我该用什么方法确认真正需求？',intent,{enabled:true,apiKey:'x'.repeat(24),transport:failing})
  assert.deepEqual(fallback.cards.map(card=>card.id),cards.slice(0,2).map(card=>card.id));assert.equal(calls,1);assert.equal(fallback.trace.status,'fallback')
 })
+
+test('changed prerequisites can check the continued method but never switch to another method',async()=>{
+ let calls=0
+ const transport:JevTransport=async()=>{calls++;return response({candidate_0:{type:'choice',choice:'missing_prerequisite',confidence:.9,probabilities:{applicable:.02,missing_prerequisite:.9,needs_clarification:.05,unsuitable:.03}},candidate_1:{type:'choice',choice:'applicable',confidence:.85,probabilities:{applicable:.85,missing_prerequisite:.05,needs_clarification:.05,unsuitable:.05}}})}
+ const changed={...intent,continuation:true,stage:'adjust' as const}
+ const result=await selectJevMethodCandidates(cards.slice(0,2),cards[0].title+'需要已解示例，但我没有示例，怎么继续？',changed,{enabled:true,apiKey:'x'.repeat(24),transport})
+ assert.equal(calls,1);assert.deepEqual(result.cards,[]);assert.equal(result.trace.reason,'no_applicable_candidate')
+})

@@ -45,11 +45,12 @@ export async function selectJevMethodCandidates(cards:KnowledgeCard[],text:strin
  const merge=(methods:KnowledgeCard[])=>deduplicateGuides(cards.filter(card=>!card.guide||methods.some(method=>method.id===card.id&&method.revision===card.revision)),2)
  if(!cfg.enabled)return skip('disabled')
  if(!/^[\x21-\x7e]{20,200}$/.test(cfg.apiKey))return skip('credential_missing')
- if(intent.continuation)return skip('continuation')
+ const changedPrerequisite=intent.continuation&&intent.stage==='adjust'&&/(?:没有|没找到|缺少|缺了|用不了|打不开|条件变|资源不足|前提|示例).{0,18}(?:了|怎么办|怎么做)?/.test(text)
+ if(intent.continuation&&!changedPrerequisite)return skip('continuation')
  if(['NONE','CLARIFY'].includes(intent.decision))return skip('intent_not_eligible')
- if(candidates.length<2)return skip(candidates.length?'single_candidate':'no_candidates')
+ if(candidates.length<2&&!changedPrerequisite)return skip(candidates.length?'single_candidate':'no_candidates')
  const clear=directMatch(candidates,text)
- if(clear){const selected=merge([clear]);return {cards:selected,trace:{status:'skipped',reason:'clear_candidate',model,candidateCount:candidates.length,latencyMs:0,candidates:candidates.map(ref),selected:selected.map(ref)}}}
+ if(clear&&intent.stage==='start'){const selected=merge([clear]);return {cards:selected,trace:{status:'skipped',reason:'clear_candidate',model,candidateCount:candidates.length,latencyMs:0,candidates:candidates.map(ref),selected:selected.map(ref)}}}
  const questions=Object.fromEntries(candidates.map((_,i)=>['candidate_'+i,{type:'choice',instructions:'判断该候选方法对当前请求是否可直接使用。未知条件不能推断为满足；只判断方法条件，不评价回答质量或人生适配。',criteria:{applicable:'已知条件满足，可直接采用候选中的相关步骤',missing_prerequisite:'候选明确要求的前提已知不满足',needs_clarification:'关键前提未知，需要先核对一个条件',unsuitable:'目标、阶段或排除条件与当前请求不匹配'}}]))
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort('timeout'),cfg.timeoutMs)
  const onAbort=()=>controller.abort(cfg.signal?.reason);cfg.signal?.addEventListener('abort',onAbort,{once:true})
@@ -60,9 +61,9 @@ export async function selectJevMethodCandidates(cards:KnowledgeCard[],text:strin
   const body=await response.json() as any
   if(body?.model!==model||!body.answers||typeof body.answers!=='object'||!Number.isInteger(body.usage?.input_tokens)||body.usage.input_tokens<0||!Number.isInteger(body.usage?.output_tokens)||body.usage.output_tokens<0)throw new Error('invalid_response')
   const decisions=candidates.map((card,i)=>{const answer=body.answers['candidate_'+i];if(!validAnswer(answer))throw new Error('invalid_answer');return {...ref(card),state:answer.choice}})
-  const applicable=candidates.filter((_,i)=>decisions[i].state==='applicable'),selected=merge(applicable)
+  const applicable=candidates.filter((_,i)=>decisions[i].state==='applicable'),effectiveApplicable=clear?applicable.filter(card=>card.id===clear.id):applicable,selected=merge(effectiveApplicable)
   const inputUsdPerMillion=.042
-  return {cards:selected,trace:{status:'selected',reason:applicable.length?'applicable_candidates':'no_applicable_candidate',model,latencyMs:Math.round(performance.now()-started),candidateCount:candidates.length,candidates:candidates.map(ref),selected:selected.map(ref),decisions,usage:{inputTokens:body.usage.input_tokens,outputTokens:body.usage.output_tokens},cost:{currency:'USD',amount:Number((body.usage.input_tokens*inputUsdPerMillion/1_000_000).toFixed(10)),basis:'published_input_rate',inputUsdPerMillion}}}
+  return {cards:selected,trace:{status:'selected',reason:effectiveApplicable.length?'applicable_candidates':'no_applicable_candidate',model,latencyMs:Math.round(performance.now()-started),candidateCount:candidates.length,candidates:candidates.map(ref),selected:selected.map(ref),decisions,usage:{inputTokens:body.usage.input_tokens,outputTokens:body.usage.output_tokens},cost:{currency:'USD',amount:Number((body.usage.input_tokens*inputUsdPerMillion/1_000_000).toFixed(10)),basis:'published_input_rate',inputUsdPerMillion}}}
  }catch(error){
   cfg.signal?.throwIfAborted()
   const kept=original
