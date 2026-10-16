@@ -60,12 +60,12 @@ export async function selectJevMethodCandidates(cards:KnowledgeCard[],text:strin
  if(candidates.length<2&&!changedPrerequisite)return skip(candidates.length?'single_candidate':'no_candidates')
  const clear=directMatch(candidates,text)
  if(clear&&intent.stage==='start'){const selected=merge([clear]);return {cards:selected,trace:{status:'skipped',reason:'clear_candidate',model,candidateCount:candidates.length,latencyMs:0,candidates:candidates.map(ref),selected:selected.map(ref)}}}
- const questions=Object.fromEntries(candidates.map((_,i)=>['candidate_'+i,{type:'choice',instructions:'判断该候选方法对当前请求是否可直接使用。未知条件不能推断为满足；只判断方法条件，不评价回答质量或人生适配。',criteria:{applicable:'已知条件满足，可直接采用候选中的相关步骤',missing_prerequisite:'候选明确要求的前提已知不满足',needs_clarification:'关键前提未知，需要先核对一个条件',unsuitable:'目标、阶段或排除条件与当前请求不匹配'}}]))
+ const questions=Object.fromEntries(candidates.map((_,i)=>['candidate_'+i,{type:'choice',instructions:'判断该候选方法对当前请求是否可直接使用。入口已确认本人正在求助且没有拒绝建议，不要为这两个通用条件再次澄清。方法用于核实未知本身不算缺前提；只有候选特有的硬前提未知且不核对就无法开始时才选needs_clarification。只判断方法条件，不评价回答质量或人生适配。',criteria:{applicable:'目标和阶段匹配、没有已知排除条件；候选步骤本身用于核实未知也属于可直接采用',missing_prerequisite:'候选特有的明确前提已知不满足',needs_clarification:'候选特有的硬前提未知，不先核对就无法执行第一步',unsuitable:'目标、阶段或排除条件与当前请求不匹配'}}]))
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort('timeout'),cfg.timeoutMs)
  const onAbort=()=>controller.abort(cfg.signal?.reason);cfg.signal?.addEventListener('abort',onAbort,{once:true})
  const started=performance.now()
  try{
-  const response=await cfg.transport(endpoint,{method:'POST',headers:{Authorization:'Bearer '+cfg.apiKey,'Content-Type':'application/json'},body:JSON.stringify({model,state:{request:text.slice(0,2400),candidates:candidates.map(candidateState)},questions}),signal:controller.signal})
+  const response=await cfg.transport(endpoint,{method:'POST',headers:{Authorization:'Bearer '+cfg.apiKey,'Content-Type':'application/json'},body:JSON.stringify({model,state:{request:text.slice(0,2400),eligibility:{userAskedForHelp:true,refusalAndListeningOnlyAlreadyBlocked:true},candidates:candidates.map(candidateState)},questions}),signal:controller.signal})
   if(!response.ok)throw new Error('http_'+response.status)
   const body=await response.json() as any
   if(body?.model!==model||!body.answers||typeof body.answers!=='object'||!Number.isInteger(body.usage?.input_tokens)||body.usage.input_tokens<0||!Number.isInteger(body.usage?.output_tokens)||body.usage.output_tokens<0)throw new Error('invalid_response')

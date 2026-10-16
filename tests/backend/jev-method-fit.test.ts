@@ -14,6 +14,9 @@ test('Jev method fit makes one pre-generation request and keeps only applicable 
  const transport:JevTransport=async(_url,init)=>{calls++;payload=JSON.parse(String(init.body));return response({candidate_0:{type:'choice',choice:'missing_prerequisite',confidence:.82,probabilities:{applicable:.08,missing_prerequisite:.82,needs_clarification:.05,unsuitable:.05}},candidate_1:{type:'choice',choice:'applicable',confidence:.78,probabilities:{applicable:.78,missing_prerequisite:.07,needs_clarification:.1,unsuitable:.05}},candidate_2:{type:'choice',choice:'unsuitable',confidence:.9,probabilities:{applicable:.02,missing_prerequisite:.03,needs_clarification:.05,unsuitable:.9}}})}
  const result=await selectJevMethodCandidates(cards,'校园项目需求一直变，我该用什么方法确认真正需求？',intent,{enabled:true,apiKey:'x'.repeat(24),transport})
  assert.equal(calls,1);assert.equal(payload.model,'jev-1.14.0');assert.equal(Object.keys(payload.questions).length,3)
+ assert.equal(payload.state.eligibility.userAskedForHelp,true)
+ assert.equal(payload.state.eligibility.refusalAndListeningOnlyAlreadyBlocked,true)
+ assert.match(payload.questions.candidate_0.instructions,/方法用于核实未知本身不算缺前提/)
  assert.deepEqual(result.cards.map(card=>card.id),[cards[1].id]);assert.equal(result.trace.status,'selected');assert.deepEqual(result.trace.selected.map(row=>row.id),[cards[1].id]);assert.deepEqual(result.trace.usage,{inputTokens:123,outputTokens:6});assert.deepEqual(result.trace.cost,{currency:'USD',amount:.000005166,basis:'published_input_rate',inputUsdPerMillion:.042})
  assert.ok(!JSON.stringify(result.trace).includes('校园项目'))
 })
