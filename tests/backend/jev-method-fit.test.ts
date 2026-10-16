@@ -54,3 +54,13 @@ test('changed prerequisites can check the continued method but never switch to a
  const result=await selectJevMethodCandidates(cards.slice(0,2),cards[0].title+'需要已解示例，但我没有示例，怎么继续？',changed,{enabled:true,apiKey:'x'.repeat(24),transport})
  assert.equal(calls,1);assert.deepEqual(result.cards,[]);assert.equal(result.trace.reason,'no_applicable_candidate')
 })
+
+test('HTTP failures are auditable and retain the original path without retrying',async()=>{
+ let calls=0
+ const transport:JevTransport=async()=>{calls++;return {ok:false,status:451,json:async()=>({})}}
+ const result=await selectJevMethodCandidates(cards,'校园项目需求一直变，我该用什么方法确认真正需求？',intent,{enabled:true,apiKey:'x'.repeat(24),transport})
+ assert.equal(calls,1)
+ assert.equal(result.trace.status,'fallback')
+ assert.equal(result.trace.reason,'request_http_451')
+ assert.deepEqual(result.cards.map(card=>card.id),cards.slice(0,2).map(card=>card.id))
+})

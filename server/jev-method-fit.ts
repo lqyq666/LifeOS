@@ -76,6 +76,11 @@ export async function selectJevMethodCandidates(cards:KnowledgeCard[],text:strin
  }catch(error){
   cfg.signal?.throwIfAborted()
   const kept=original
-  return {cards:kept,trace:{status:'fallback',reason:'request_failed',model,latencyMs:Math.round(performance.now()-started),candidateCount:candidates.length,candidates:candidates.map(ref),selected:kept.map(ref)}}
+  const message=error instanceof Error?error.message:''
+  const reason=/^http_\d{3}$/.test(message)?'request_'+message
+   :controller.signal.aborted?'request_timeout'
+   :['invalid_response','invalid_answer'].includes(message)?'response_invalid'
+   :'request_failed'
+  return {cards:kept,trace:{status:'fallback',reason,model,latencyMs:Math.round(performance.now()-started),candidateCount:candidates.length,candidates:candidates.map(ref),selected:kept.map(ref)}}
  }finally{clearTimeout(timer);cfg.signal?.removeEventListener('abort',onAbort)}
 }
