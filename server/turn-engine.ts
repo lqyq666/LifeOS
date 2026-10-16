@@ -477,7 +477,18 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const planBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
   const requestedGuide=clauseCatalogue.some(clause=>!clause.quoted&&!clause.conditional&&!clause.attributedToOther&&assistantRequestClause(clause.text)&&/(?:用|使用|按|参考|依据).{0,80}(?:攻略|指南|方法)/.test(clause.text))?knowledge.find(card=>card.guide&&methodIntent.query.includes(card.title)):undefined
   const allowedPlanScopes=mentionedDirectionScopes([current.content,...growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>item.text)].join('\n'))
-  const originalContract=bindPlanBudgetSchema(deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,knowledgeIds:requestedGuide?[requestedGuide.id]:knowledge.map(card=>card.id),requiredKnowledgeCitation:Boolean(requestedGuide),currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent,readOnly:readOnlyQuestion}),planBudget?.type==='weekly_plan'?planBudget:undefined,current.content,allowedPlanScopes)
+  const baseContract=deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,knowledgeIds:requestedGuide?[requestedGuide.id]:knowledge.map(card=>card.id),requiredKnowledgeCitation:Boolean(requestedGuide),currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent,readOnly:readOnlyQuestion})
+  if(!materialIntent){
+    // Unified ordinary generation stays composable, but a turn that did not
+    // request a deliverable cannot use event.action. Sending those large
+    // material branches only delays the first provider token; validation
+    // already treats unsolicited materials as unavailable on this path.
+    const event=(baseContract.schema.properties as Record<string,any>).event
+    if(event?.properties)delete event.properties.action
+    baseContract.capabilities.material=false
+    baseContract.schemaChars=JSON.stringify(baseContract.schema).length
+  }
+  const originalContract=bindPlanBudgetSchema(baseContract,planBudget?.type==='weekly_plan'?planBudget:undefined,current.content,allowedPlanScopes)
   const priorInterviewQuestions=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion)&&requestedQuestionEditClauses(item.text).length>0).map(item=>item.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/, '').replace(/^[“「『]|[”」』]$/g,'')).filter(q=>q.length>0&&q.length<=300)
   const priorInterviewQuestion=priorInterviewQuestions.length===1?priorInterviewQuestions[0]:undefined
   const boundedReply:BoundedReply|null=boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停的是当时的备考或复习，尚未确认和这次是否同一事项。先核对这次要继续的是哪件事；不把旧暂停套到另一个考试，也不先安排任务。']}:readOnlyQuestion?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):null
