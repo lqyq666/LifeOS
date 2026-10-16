@@ -8,10 +8,11 @@ import {readDirectionControls,directionControlsSnapshotKey} from '../growth-cont
 import {readRecommendationControls} from '../memory-controls.ts'
 import {applicableTimeBudget,type BudgetContext} from '../turn-obligations.ts'
 import {resolveTimeWindow} from '../growth-time.ts'
-import {WorkflowError,type WorkflowRequest,type EvidenceRecord} from './contracts.ts'
+import {WorkflowError,type WorkflowRequest,type EvidenceRecord,type EvidenceRef} from './contracts.ts'
 type DB=Pick<PoolClient,'query'>
 type HistoricalGrowthSnapshot={text?:unknown;assertion?:unknown;status?:unknown;conversationId?:unknown;sources?:unknown;dependencies?:unknown}
-async function committedGrowthEvidence(r:WorkflowRequest,ref:Extract<WorkflowRequest['authorizedEvidenceRefs'][number],{type:'growth'}>,memoryEnabled:boolean,c:DB):Promise<EvidenceRecord|undefined>{
+type GrowthEvidenceRef=EvidenceRef&{type:'growth'}
+async function committedGrowthEvidence(r:WorkflowRequest,ref:GrowthEvidenceRef,memoryEnabled:boolean,c:DB):Promise<EvidenceRecord|undefined>{
  const current=(await c.query('SELECT text,assertion,status FROM growth_items WHERE user_id=$1 AND id=$2',[r.internalActorKey,ref.id])).rows[0] as {text:string;assertion:string;status:string}|undefined
  const revision=(await c.query('SELECT snapshot FROM growth_revisions WHERE user_id=$1 AND item_id=$2 AND revision=$3',[r.internalActorKey,ref.id,ref.revision])).rows[0] as {snapshot:HistoricalGrowthSnapshot}|undefined
  const snapshot=revision?.snapshot
@@ -81,7 +82,7 @@ export async function readWorkflowEvidence(r:WorkflowRequest,c:DB=pool,options:{
   if(ref.type==='growth'){
    const found=growth.items.find(x=>x.id===ref.id)
    if(!found||found.revision!==ref.revision||found.unavailableReason||!['active','proposed'].includes(found.status)||found.recommendationStopped){
-    if(options.historicalCommit){const historical=await committedGrowthEvidence(r,ref,controls.memory.enabled,c);if(historical)records.push(historical)}
+    if(options.historicalCommit){const historical=await committedGrowthEvidence(r,ref as GrowthEvidenceRef,controls.memory.enabled,c);if(historical)records.push(historical)}
     continue
    }
    // AI observations remain candidates; never label them student facts.
