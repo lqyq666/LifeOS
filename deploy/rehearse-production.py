@@ -22,7 +22,7 @@ def main():
  release=root/'releases'/RELEASE_LABEL
  assert release.resolve()==release and pathlib.Path(args.binding).resolve()==release/'operation-binding.json','CANONICAL_BINDING_PATH_REQUIRED'
  assert json.loads((release/'manifest.json').read_text())['head']==EXPECTED_HEAD
- assert guards['require_staged_migrations'](release/'app/server/migrations',binding['expectedMigrations'])==len(binding['expectedMigrations'])
+ assert guards['require_staged_migrations'](release/'app/server/migrations',binding['stagedMigrations'])==len(binding['stagedMigrations'])
  old_head=binding['oldHead']
  old_image=binding['oldImageId']
  label=RELEASE_LABEL;names=['lifeos-serial-old-'+label,'lifeos-serial-new-'+label,'lifeos-serial-migrate-'+label]

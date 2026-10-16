@@ -173,6 +173,7 @@ def read_binding(path, operation, guards, verifier):
             len({row['name'] for row in migrations})!=len(migrations)):
         raise ValueError('ORIGINAL_MIGRATION_MANIFEST_REQUIRED')
     expected=value.get('expectedMigrations')
+    staged=value.get('stagedMigrations')
     additions={'034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql','038-independent-coach-materials.sql'}
     if (not isinstance(expected,list) or len(expected)!=len(migrations)+len(additions) or
             any(not isinstance(row,dict) or set(row)!={'name','sha256'} or
@@ -180,7 +181,14 @@ def read_binding(path, operation, guards, verifier):
                 not re.fullmatch(r'[a-f0-9]{64}',str(row['sha256'])) for row in expected) or
             len({row['name'] for row in expected})!=len(expected) or
             {row['name'] for row in expected}-{row['name'] for row in migrations}!=additions or
-            not {row['name'] for row in migrations}.issubset({row['name'] for row in expected}) or
+            any(row not in expected for row in migrations) or
+            not isinstance(staged,list) or len(staged)!=len(expected) or
+            any(not isinstance(row,dict) or set(row)!={'name','sha256'} or
+                not re.fullmatch(r'[0-9]+-[a-z0-9.-]+\.sql',str(row['name'])) or
+                not re.fullmatch(r'[a-f0-9]{64}',str(row['sha256'])) for row in staged) or
+            len({row['name'] for row in staged})!=len(staged) or
+            {row['name'] for row in staged}!={row['name'] for row in expected} or
+            any(row not in staged for row in expected if row['name'] in additions) or
             not re.fullmatch(r'[a-f0-9]{64}',str(value.get('expectedSchemaSha256',''))) or
             not re.fullmatch(r'sha256:[a-f0-9]{64}',str(value.get('databaseImageId','')))):
         raise ValueError('CANONICAL_POST_MIGRATION_BINDING_REQUIRED')

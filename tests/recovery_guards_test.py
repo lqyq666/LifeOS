@@ -165,11 +165,13 @@ class RecoveryGuardsTests(unittest.TestCase):
                    'oldMigrations':[{'name':'000-original.sql','sha256':'f'*64}],
                    'expectedSchemaSha256':'a'*64,'databaseImageId':'sha256:'+'b'*64}
             value['expectedMigrations']=value['oldMigrations']+[{'name':name,'sha256':'e'*64} for name in ['034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql','038-independent-coach-materials.sql']]
+            value['stagedMigrations']=[{'name':'000-original.sql','sha256':'a'*64},*value['expectedMigrations'][1:]]
             binding=root/'binding.json';binding.write_text(json.dumps(value))
             self.assertEqual(guards.read_binding(binding,*files),value)
             legacy={**value,
                     'oldMigrations':[{'name':'000-original.sql','sha256':'1'*64}],
-                    'expectedMigrations':[{'name':'000-original.sql','sha256':'2'*64},*value['expectedMigrations'][1:]]}
+                    'expectedMigrations':[{'name':'000-original.sql','sha256':'1'*64},*value['expectedMigrations'][1:]],
+                    'stagedMigrations':[{'name':'000-original.sql','sha256':'2'*64},*value['expectedMigrations'][1:]]}
             binding.write_text(json.dumps(legacy))
             self.assertEqual(guards.read_binding(binding,*files),legacy)
             binding.write_text(json.dumps({**legacy,'expectedMigrations':[{'name':'001-other.sql','sha256':'2'*64},*legacy['expectedMigrations'][1:]]}))
@@ -177,7 +179,7 @@ class RecoveryGuardsTests(unittest.TestCase):
                 guards.read_binding(binding,*files)
             with self.assertRaisesRegex(ValueError,'CANONICAL_POST_MIGRATION_BINDING_REQUIRED'):
                 binding.write_text(json.dumps({**value,'expectedMigrations':value['expectedMigrations'][:-1]}));guards.read_binding(binding,*files)
-            for key,wrong in [('operationSha256','f'*64),('originalContainerId','short'),('releaseLabel','../escape'),('publicOrigin','http://lqynb.xyz'),('publish',True),('providerCalls',1),('oldMigrations',[]),('expectedMigrations',value['oldMigrations']),('expectedSchemaSha256','short'),('databaseImageId','mutable-tag')]:
+            for key,wrong in [('operationSha256','f'*64),('originalContainerId','short'),('releaseLabel','../escape'),('publicOrigin','http://lqynb.xyz'),('publish',True),('providerCalls',1),('oldMigrations',[]),('expectedMigrations',value['oldMigrations']),('stagedMigrations',value['stagedMigrations'][:-1]),('expectedSchemaSha256','short'),('databaseImageId','mutable-tag')]:
                 with self.subTest(key=key),self.assertRaises(ValueError):
                     binding.write_text(json.dumps({**value,key:wrong}));guards.read_binding(binding,*files)
 
