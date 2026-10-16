@@ -4,7 +4,7 @@ import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from '.
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
 import { retrieveCoachKnowledge, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
-import { openingQuestionDraft, safeEarlySentence, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
+import { openingQuestionDraft, safeEarlySentence, weeklyPlanBoundaryDraft, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
@@ -110,6 +110,11 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     // other mode still waits for a complete safe question. Both draft paths
     // are display-only — the saved state comes exclusively from finishRun.
     let earlyDraftKind:'none'|'safe_sentence'|'safe_question'='none'
+    const boundedPlanBoundary=earlyDraftMode==='weekly_plan'&&earlyPlan?weeklyPlanBoundaryDraft(earlyPlan):null
+    if(emitDraft&&boundedPlanBoundary){
+      record.firstSafeSentenceMs=Math.max(0,Math.round(performance.now()-startedMonotonicMs))
+      emitDraft(boundedPlanBoundary,'safe_sentence');draftSent=true;earlyDraftKind='safe_sentence'
+    }
     for await(const event of source){
       signal.throwIfAborted()
       if(event.type==='text_delta')record.firstRawDeltaMs??=Math.max(0,Math.round(performance.now()-startedMonotonicMs))

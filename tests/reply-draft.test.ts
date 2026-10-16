@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { openingQuestionDraft, safeEarlySentence, weeklyPlanDraft } from '../server/reply-draft.ts'
+import { openingQuestionDraft, safeEarlySentence, weeklyPlanBoundaryDraft, weeklyPlanDraft } from '../server/reply-draft.ts'
 import { bindPlanBudgetSchema, deriveTurnContract } from '../server/turn-contract.ts'
 
 test('slim real framing prefixes wait for substantive content rather than fake first content',()=>{
@@ -20,13 +20,22 @@ test('slim real framing prefixes wait for substantive content rather than fake f
 
 test('a streamed weekly plan becomes useful first content only after its bounded allocation is complete',()=>{
  const expected={period:'this_week',availableMinutes:120,allowedActions:['课程作业','复习'],mustLeaveSlack:true}
- assert.equal(weeklyPlanDraft({period:'this_week',availableMinutes:120,items:[{action:'课程作业',minutes:40},{action:'复习',minutes:40}]},expected),'先安排课程作业40分钟、复习40分钟，保留40分钟未安排。')
+ assert.equal(weeklyPlanDraft({period:'this_week',availableMinutes:120,items:[{action:'课程作业',minutes:40},{action:'复习',minutes:40}]},expected),'先安排课程作业40分钟、复习40分钟，保留40分钟未安排')
  for(const value of [
   {period:'this_week',availableMinutes:120,items:[{action:'课程作业',minutes:60},{action:'复习',minutes:60}]},
   {period:'this_week',availableMinutes:120,items:[{action:'联系学长',minutes:40}]},
   {period:'next_week',availableMinutes:120,items:[{action:'课程作业',minutes:40}]},
   {period:'this_week',availableMinutes:120,items:[{action:'课程作业',minutes:121}]},
  ])assert.equal(weeklyPlanDraft(value,expected),null)
+})
+
+test('server-owned weekly plan boundaries can surface before provider allocation without inventing minutes',()=>{
+ const boundary=weeklyPlanBoundaryDraft({period:'this_week',availableMinutes:120,allowedActions:['课程作业','复习'],mustLeaveSlack:true})
+ assert.equal(boundary,'本周120分钟只安排课程作业和复习，并保留未安排时间')
+ assert.equal(safeEarlySentence(JSON.stringify({reply:boundary+'。'})),boundary,'HTTP draft guard accepts the normalized sentence')
+ assert.equal(weeklyPlanBoundaryDraft({period:'next_week',availableMinutes:90,allowedActions:['整理作品'],mustLeaveSlack:false}),'下周90分钟只安排整理作品')
+ assert.equal(weeklyPlanBoundaryDraft({period:'this_week',availableMinutes:120,mustLeaveSlack:true}),null,'an open task lane still waits for the validated provider allocation')
+ assert.equal(weeklyPlanBoundaryDraft({period:'this_week',availableMinutes:0,allowedActions:['课程作业'],mustLeaveSlack:false}),null)
 })
 
 test('bounded weekly plan is first in both schema properties and required order',()=>{

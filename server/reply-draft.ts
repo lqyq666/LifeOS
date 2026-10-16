@@ -64,6 +64,18 @@ export type WeeklyPlanDraftExpectation={
   mustLeaveSlack:boolean
 }
 
+// The server already owns these plan boundaries before provider dispatch.
+// Surface them as useful provisional content without guessing the allocation;
+// the complete validated weeklyPlan still owns every task minute.
+export function weeklyPlanBoundaryDraft(expected:WeeklyPlanDraftExpectation):string|null{
+  if(!Number.isInteger(expected.availableMinutes)||expected.availableMinutes<=0||!expected.allowedActions?.length)return null
+  const actions=[...new Set(expected.allowedActions.map(action=>action.trim()).filter(Boolean))]
+  if(!actions.length||actions.length>4||actions.some(action=>action.length>40))return null
+  const period=expected.period==='this_week'?'本周':expected.period==='next_week'?'下周':'当前时段'
+  const draft=`${period}${expected.availableMinutes}分钟只安排${actions.join('和')}${expected.mustLeaveSlack?'，并保留未安排时间':''}`
+  return draft.length<=160?draft:null
+}
+
 // A streamed plan can become visible only after its whole allocation has
 // closed in the structured payload. The caller proves that boundary by
 // waiting for the following top-level reply field; this helper validates the
@@ -88,7 +100,7 @@ export function weeklyPlanDraft(raw:unknown,expected:WeeklyPlanDraftExpectation)
   }
   const remaining=expected.availableMinutes-assigned
   if(expected.mustLeaveSlack&&remaining<=0)return null
-  const draft=`先安排${parts.join('、')}${remaining>0?`，保留${remaining}分钟未安排`:''}。`
+  const draft=`先安排${parts.join('、')}${remaining>0?`，保留${remaining}分钟未安排`:''}`
   return draft.length<=160?draft:null
 }
 
