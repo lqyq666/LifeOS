@@ -9,6 +9,7 @@ import {fixture as workflowFixture,proposal as workflowProposal} from '../workfl
 import {pool} from '../../server/db.ts'
 import {randomUUID} from 'node:crypto'
 import {createWorkflowHost} from '../../server/workflows/task-host.ts'
+import {config} from '../../server/config.ts'
 test.after(()=>pool.end())
 test('restored scope without a bound copy or its own runtime budget stays zero-dispatch and read-only',()=>{
  const path='.local/v1.3-action-coach/paid/provider-calls.json',hash=()=>existsSync(path)?createHash('sha256').update(readFileSync(path)).digest('hex'):'MISSING_NOT_COPIED',before=hash(),pre=cozePreflight()
@@ -47,20 +48,18 @@ test('Coze receipt rejects a reviewed-priority marker when the reviewed result c
  assert.equal(parsed.proposal?.actionSelection,'unranked_options')
 })
 
-test('configured Coze entry is limited to one exact 32-character synthetic account',async()=>{
- const previous=process.env.LIFEOS_ADVANCED_WORKFLOWS;process.env.LIFEOS_ADVANCED_WORKFLOWS='true'
+test('configured Coze entry keeps the synthetic marker exact without making it the professional access gate',async()=>{
+ const previous=process.env.LIFEOS_ADVANCED_WORKFLOWS,previousAccess=config.entitlementsEnabled;process.env.LIFEOS_ADVANCED_WORKFLOWS='true';config.entitlementsEnabled=false
  const allowed='AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPp',other='ZzYyXxWwVvUuTtSsRrQqPpOoNnMmLlKk',never=async()=>{throw Error('no model call in this test')}
  const adapter={executionKind:'real_provider',maxCostPerCallCny:0.02,analyze:never,critic:never,synthesize:never,runRemoteGraph:never} as any
  const host=createWorkflowHost({syntheticUserId:allowed,adapter}),unconfigured=createWorkflowHost({syntheticUserId:'',adapter}),local=createWorkflowHost({adapter:{executionKind:'simulated_provider',maxCostPerCallCny:0.01,analyze:never,critic:never,synthesize:never} as any})
  try{
-  assert.equal(host.capabilities(allowed).syntheticEligible,true)
-  assert.equal(host.capabilities(other).syntheticEligible,false)
-  assert.equal(host.capabilities(other).enabled,false)
-  assert.equal(host.capabilities(allowed.toLowerCase()).enabled,false)
-  await assert.rejects(host.create(other,{}),(error:any)=>error.code==='SYNTHETIC_WORKFLOW_ACCOUNT_REQUIRED')
-  await assert.rejects(host.resume(other,randomUUID(),{}),(error:any)=>error.code==='SYNTHETIC_WORKFLOW_ACCOUNT_REQUIRED')
-  assert.equal(unconfigured.capabilities(allowed).enabled,false)
-  await assert.rejects(unconfigured.create(allowed,{}),(error:any)=>error.code==='SYNTHETIC_WORKFLOW_ACCOUNT_REQUIRED')
-  assert.equal(local.capabilities(other).enabled,true)
- }finally{host.close();unconfigured.close();local.close();if(previous===undefined)delete process.env.LIFEOS_ADVANCED_WORKFLOWS;else process.env.LIFEOS_ADVANCED_WORKFLOWS=previous}
+  assert.equal((await host.capabilities(allowed)).syntheticEligible,true)
+  assert.equal((await host.capabilities(other)).syntheticEligible,false)
+  assert.equal((await host.capabilities(other)).enabled,true)
+  assert.equal((await host.capabilities(allowed.toLowerCase())).enabled,true)
+  assert.equal((await unconfigured.capabilities(allowed)).syntheticEligible,false)
+  assert.equal((await unconfigured.capabilities(allowed)).enabled,true)
+  assert.equal((await local.capabilities(other)).enabled,true)
+ }finally{host.close();unconfigured.close();local.close();config.entitlementsEnabled=previousAccess;if(previous===undefined)delete process.env.LIFEOS_ADVANCED_WORKFLOWS;else process.env.LIFEOS_ADVANCED_WORKFLOWS=previous}
 })

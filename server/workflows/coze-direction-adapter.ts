@@ -188,7 +188,7 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
     }finally{credits.finishUnknown(preflightId,preflight?'completed':'failed',preflight?.providerCalls===0?0:null,preflightId)}
     const remainingMs=end-Date.now()
     if(remainingMs<1)throw new WorkflowError('timeout')
-    const payload={...r,directions,modelBudget:{...r.modelBudget,deadlineMs:remainingMs},businessRole:'growth',syntheticAdult:true,evidenceRecords:records,canonicalMethods:methods,contentBinding}
+    const payload={...r,directions,modelBudget:{...r.modelBudget,deadlineMs:remainingMs},businessRole:'growth',syntheticAdult:r.synthetic,evidenceRecords:records,canonicalMethods:methods,contentBinding}
     mkdirSync(cfg.journalDirectory,{recursive:true})
     const permitNow=cozePermitClock(preflight[gatewayClock])
     writeFileSync(path+'.clock.json',JSON.stringify({type:'permit_clock_reference',localObservedAt:new Date().toISOString(),issuedAtReference:new Date(permitNow).toISOString(),ttlMs:300000})+'\n',{flag:'wx',mode:0o600})

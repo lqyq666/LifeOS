@@ -44,7 +44,12 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
  const wf=adapter?createDirectionWorkflow(readWorkflowEvidence,adapter,undefined,journal):null
  const cozeHosted=typeof adapter?.runRemoteGraph==='function',syntheticUserId=options.syntheticUserId??(config.cozeSyntheticUserId||undefined)
  const syntheticEligible=(user:string)=>cozeHosted&&!!syntheticUserId&&user===syntheticUserId
- const requireSyntheticAccount=(user:string)=>{if(cozeHosted&&!syntheticEligible(user))throw new HttpError(403,'SYNTHETIC_WORKFLOW_ACCOUNT_REQUIRED',undefined,{message:'深入比较仅对专用合成验收账号开放。'})}
+ const professionalAccess=async(user:string)=>{
+  const entitlement=await entitlementView(user)
+  const enabled=!entitlement.required||Boolean(entitlement.enabled&&(entitlement.remaining??0)>0)
+  return {enabled,entitlement}
+ }
+ const requireProfessionalAccount=async(user:string)=>{const access=await professionalAccess(user);if(cozeHosted&&!access.enabled)throw new HttpError(403,'PROFESSIONAL_WORKFLOW_ACCOUNT_REQUIRED',undefined,{message:'深入比较尚未为此账号开放，普通聊天仍可继续。'});return access.entitlement}
  const key=(user:string,id:string)=>user+':'+id
  async function read(user:string,id:string,conversation?:string){
   let task=requireRow((await pool.query('SELECT *,deadline_at<now() AS expired FROM lifeos_workflow_tasks WHERE user_id=$1 AND request_id=$2',[user,id])).rows[0])
@@ -66,11 +71,11 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
   return {id:r.requestId,traceId:r.traceId,conversationId:r.conversationId,status,historicalSelectionStatus,historicalVersion:Boolean(task.host_commit)&&runtimeChanged,question:valid?r.currentIntent:'所依据的信息已改变或撤回。',receipt,commit,nodes:nodes.map(n=>({id:n.node_id,role:n.role,status:n.status,callId:n.call_id,providerCalls:n.provider_calls,costCny:n.cost_cny===null?null:Number(n.cost_cny),reservedCostCny:Number(n.max_cost_cny),startedAt:n.started_at,finishedAt:n.finished_at,providerUsage:n.provider_usage,inputRefDigest:n.input_ref_digest,outputRefDigest:n.output_ref_digest,latencyMs:n.finished_at?new Date(n.finished_at).getTime()-new Date(n.started_at).getTime():null})),version:r.hostSnapshot?.runtimeDigest,executionKind:receipt?.executionKind??adapter?.executionKind??'local_deterministic'}
  }
  async function create(user:string,raw:unknown){
-  requireSyntheticAccount(user)
+  const entitlement=await requireProfessionalAccount(user)
   if(!wf||!adapter||!advancedWorkflowsEnabled())throw new HttpError(503,'WORKFLOW_UNAVAILABLE',undefined,{message:blocked})
   const body=validate(deepTaskSchema,raw),old=(await pool.query('SELECT request_payload FROM lifeos_workflow_tasks WHERE user_id=$1 AND request_id=$2',[user,body.requestId])).rows[0]
   if(old){const r=parseRequest(old.request_payload);if(r.conversationId!==body.conversationId||r.authorizedEvidenceRefs[0]?.id!==body.currentMessageId||JSON.stringify(r.directions.map(x=>x.id))!==JSON.stringify(body.directions))throw new HttpError(409,'IDEMPOTENCY_KEY_REUSED');return read(user,body.requestId,body.conversationId)}
-  const entitlement=await entitlementView(user);if(entitlement.required&&(!entitlement.enabled||(entitlement.remaining??0)<=0))throw new HttpError(403,'ACCESS_NOT_ENABLED')
+  if(entitlement.required&&(!entitlement.enabled||(entitlement.remaining??0)<=0))throw new HttpError(403,'ACCESS_NOT_ENABLED')
   const current=requireRow((await pool.query("SELECT content FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role='user'",[user,body.conversationId,body.currentMessageId])).rows[0])
   const controls=await workflowControls(user)
   if(controls.pending.length)throw new HttpError(409,'WORKFLOW_CONTROL_CONFIRMATION_REQUIRED',undefined,{message:'请先确认待处理的记录控制，再开始深入比较。普通聊天和已保存的记录仍可使用。'})
@@ -100,9 +105,9 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
   void (async()=>{let release:(()=>void)|undefined;try{release=await scheduler.acquire(user,controller.signal);await wf!.run(r,controller.signal,options.comparisonMode?.()??'multi')}catch(error){const nodes=(await pool.query("SELECT cost_cny,max_cost_cny FROM lifeos_workflow_nodes WHERE user_id=$1 AND request_id=$2 AND execution_kind<>'local_deterministic'",[user,r.requestId])).rows;const failure:WorkflowReceipt={schemaVersion:2,traceId:r.traceId,status:'unavailable',failure:controller.signal.aborted?'cancelled':error instanceof WorkflowError?error.code:'unavailable',providerCalls:nodes.length,costCny:nodes.some(n=>n.cost_cny===null)?null:nodes.reduce((sum,n)=>sum+Number(n.cost_cny),0),reservedCostCny:nodes.reduce((sum,n)=>sum+Number(n.max_cost_cny),0),executionKind:adapter!.executionKind,skills:[],fallback:'existing_single_agent'};await journal.finish(r,failure)}finally{release?.();active.delete(key(user,r.requestId))}})().catch(()=>{})
  }
  async function resume(user:string,taskId:string,raw:unknown){
-  requireSyntheticAccount(user)
+  const entitlement=await requireProfessionalAccount(user)
   if(!wf||!adapter||!advancedWorkflowsEnabled())throw new HttpError(503,'WORKFLOW_UNAVAILABLE',undefined,{message:blocked})
-  const body=validate(resumeTaskSchema,raw),entitlement=await entitlementView(user)
+  const body=validate(resumeTaskSchema,raw)
   if(entitlement.required&&(!entitlement.enabled||(entitlement.remaining??0)<=0))throw new HttpError(403,'ACCESS_NOT_ENABLED')
   const request=await transaction(async c=>{
    const task=requireRow((await c.query('SELECT * FROM lifeos_workflow_tasks WHERE user_id=$1 AND request_id=$2 FOR UPDATE',[user,taskId])).rows[0]),r=parseRequest(task.request_payload)
@@ -164,6 +169,6 @@ export function createWorkflowHost(options:{adapter?:DecisionAdapter;synthetic?:
    return await store.finishRun(started.run,staged,body.kind==='action'?'已保存你采纳的小探索计划，状态为尚未执行。完成或遇到卡点后，可以在这里继续反馈。':'已保存你明确确认的阶段方向。实际行动与结果仍需分别反馈。',{source:'deterministic',llmCallCount:0},new AbortController().signal,'direct',0)
   }catch(error){await store.terminateRun(user,body.requestId,'failed',error instanceof HttpError?error.code:'WORKFLOW_COMMIT_FAILED');throw error}
  }
- return {create,read,resume,cancel,act,capabilities:(user?:string)=>({enabled:Boolean(wf&&advancedWorkflowsEnabled()&&(!cozeHosted||syntheticEligible(user??''))),reason:cozeHosted&&!syntheticEligible(user??'')?'专用合成验收账号未授权':blocked,syntheticEligible:syntheticEligible(user??''),directions:directionLabels,executionKind:adapter?.executionKind??null,version:workflowRuntimeVersion.sourceDigest}),async list(user:string,conversation:string){if(!advancedWorkflowsEnabled())return [];requireRow((await pool.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2',[user,conversation])).rows[0]);const controls=await workflowControls(user),rows=(await pool.query("SELECT request_id FROM lifeos_workflow_tasks WHERE user_id=$1 AND ($3 OR conversation_id=$2) AND request_payload->>'mode'='direction_decision' ORDER BY created_at DESC LIMIT 10",[user,conversation,controls.memory.enabled])).rows;return Promise.all(rows.map(row=>read(user,row.request_id,conversation)))},close(){for(const controller of active.values())controller.abort('SERVER_SHUTTING_DOWN')}}
+ return {create,read,resume,cancel,act,capabilities:async(user?:string)=>{const access=user?await professionalAccess(user):{enabled:false};return {enabled:Boolean(wf&&advancedWorkflowsEnabled()&&(!cozeHosted||access.enabled)),reason:cozeHosted&&!access.enabled?'专业能力尚未为此账号开放':blocked,syntheticEligible:syntheticEligible(user??''),directions:directionLabels,executionKind:adapter?.executionKind??null,version:workflowRuntimeVersion.sourceDigest}},async list(user:string,conversation:string){if(!advancedWorkflowsEnabled())return [];requireRow((await pool.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2',[user,conversation])).rows[0]);const controls=await workflowControls(user),rows=(await pool.query("SELECT request_id FROM lifeos_workflow_tasks WHERE user_id=$1 AND ($3 OR conversation_id=$2) AND request_payload->>'mode'='direction_decision' ORDER BY created_at DESC LIMIT 10",[user,conversation,controls.memory.enabled])).rows;return Promise.all(rows.map(row=>read(user,row.request_id,conversation)))},close(){for(const controller of active.values())controller.abort('SERVER_SHUTTING_DOWN')}}
 }
 export type WorkflowHost=ReturnType<typeof createWorkflowHost>

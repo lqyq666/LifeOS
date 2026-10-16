@@ -84,7 +84,7 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHos
         const maintenance=path.match(/^\/api\/maintenance\/guides\/([0-9a-f-]{36})\/(\d+)(\/actions)?$/)
         if(maintenance){const id=validateId(maintenance[1]),revision=Number(maintenance[2]);if(method==='GET'&&!maintenance[3]){json(res,200,await readMaintenanceDraft(user,id,revision));return}if(method==='POST'&&maintenance[3]){json(res,200,await actOnMaintenanceDraft(user,id,revision,await body(req)));return}}
         if(path==='/api/access'&&method==='GET'){json(res,200,await entitlementView(user));return}
-        if(path==='/api/workflows/capabilities'&&method==='GET'){json(res,200,workflows.capabilities(user));return}
+        if(path==='/api/workflows/capabilities'&&method==='GET'){json(res,200,await workflows.capabilities(user));return}
         if(path==='/api/workflows'&&method==='POST'){json(res,201,await workflows.create(user,await body(req)));return}
         if(path==='/api/workflows'&&method==='GET'){json(res,200,await workflows.list(user,validateId(url.searchParams.get('conversationId')??'')));return}
         const workflowTask=/^\/api\/workflows\/([0-9a-fA-F-]{36})(?:\/(cancel|actions|resume))?$/.exec(path)

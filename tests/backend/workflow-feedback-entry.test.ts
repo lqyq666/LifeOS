@@ -19,7 +19,7 @@ test('explicit workflow feedback entry: real growth persistence, manual retry, n
  let owner='',task:any,modelAttempts=0,listedConversation=''
  // This fixture isolates the feedback UI from cloud generation/adoption. The
  // adopted priority and every feedback write/read use the real isolated PG API.
- host.capabilities=()=>({enabled:true,reason:'LOCAL_UI_FIXTURE',syntheticEligible:true,directions:directionLabels,executionKind:'simulated_provider',version:'local-ui-fixture'})
+ host.capabilities=async()=>({enabled:true,reason:'LOCAL_UI_FIXTURE',syntheticEligible:true,directions:directionLabels,executionKind:'simulated_provider',version:'local-ui-fixture'})
  host.list=async(user:string,conversation:string)=>{listedConversation=conversation;return user===owner?[task]:[]}
  const app=createApp(async()=>{modelAttempts++;throw new Error('No model allowed in this acceptance')},180000,host)
  await new Promise<void>(done=>app.listen(0,'127.0.0.1',done))
