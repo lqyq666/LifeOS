@@ -1,23 +1,37 @@
-# 2026-10-15 最终工单：当前 A—H 实际状态
+# 2026-10-16 最终工单：A—H 实际上线结果
 
-当前代码增量 f35f14b（前序15fc5c2、bb234da）；保留原伙伴、四工作流、六个Skill与统一状态，无新框架。状态 TESTED / BUILT / REAL_VERIFIED_IN_PART / WIP_NOT_READY；未统一发布LifeOS。
+状态：**RELEASE_ACCEPTED / DEPLOYED / ONLINE_VERIFIED**。本次签收限当前合成成年账号与真实供应商/扣子/公网技术链；未执行真人学生长期效果验收，不把合成验收写成学生收益。保留一个主伙伴、普通/专业两条路径、四工作流、六个 Skill 和统一状态系统，没有新增框架、路由模型、解析器或版本平台。
 
-| 项目 | 当前事实与剩余项 |
+实际版本：
+
+- 公网：`https://lqynb.xyz`
+- LifeOS 源码：`41093202193bc670058f15d6d866a37e4a66720a`
+- 镜像：`sha256:55a5c121ff262f73d8ca65f636672b68c6ddf68d5f40e0e7aa15bee8e5806198`
+- 公网源码摘要：`8f11afedf14aef8de23570c8327b18c896f8b294bc19eec53b901fdb09c9480e`
+- 本地发布/恢复操作 HEAD：`ec3cccbf4814b808a7ad8db29e72d1f4a985016d`
+- Gateway 平台部署：`b270ffe3badbeeffe638c22986931c6e8f38cb0c`
+- Gateway 实际执行源码：`4a2a0b2d058737a75f60a8cd6da12f2bff2170b7`
+- Gateway 云源码摘要：`da6a05fa240ff9d4d6bc9d226dc8db115e9a7a1d7e9829219d9d23a15d81818c`
+- Gateway Skill 摘要：`bd574e2b963c3a27a757655d2ad17b707e91b1754f341a9e0932a6ddc5ae824f`
+- 版本关系：平台部署提交、实际执行源码、LifeOS 宿主提交和协议兼容摘要分别报告；没有伪造为同一 Git 提交。
+
+| 项目 | 最终结果与证据边界 |
 |---|---|
-| A 精简 | 原单次生成、原生完整分支、统一事务和来源/权限/取消保留。真实供应商4项接口证明保留；普通代码变动不再触发无关Gateway同步。 |
-| B 理解与交付 | bbca634四主线20条技术完成，独立语义复核未通过。bb234da修复【标题】日程重复；f35f14b复用原问题提取器处理“只选一个问题”，在原提示补非事实耗时、故障归因、任职预设和小样本推断边界。修后真实验收待做，不以提示或检查通过冒充语义通过。 |
-| C 记忆与行动 | 原指令过滤保留；新观察c87a1f49因重复原事实被模型放进corrections而失败。15fc5c2只忽略授权历史中完全重复的事实片段，不改原历史正文或revision，底层严格事务不变。15回合HTTP/SDK/隔离PG检查通过。修后正常页面反馈2718ac21、新会话47fb04f0均完成；读回实际打开岗位、卡技术要求、0分钟、不采用，但新会话原因推断未签收。 |
-| D 星图 | 历史事实按时间保留，不因审阅认为前后状态不同而删除历史。复用本人/团队、愿望/执行/采用分离证据。拒绝错误弹出“已同步计划”已修，前端typecheck/build通过，修后页面检查待补。 |
-| E 扣子 | 449cb14实际部署Succeeded、一次零模型精确核对全部匹配。新任务9ab2cd61实际4模型调用、费用0.0159325元，receipt完整，0分钟下nextActions为空。正常页面拒绝已存rejected，无host_commit；原先采纳链仍保留。本次反馈→新会话已贯通，语义仍有无依据原因推断，不能整体签收。 |
-| F 攻略 | 保留真实方法及受阻承接证据；bbca原批次“课件打不开是外部资源问题”无依据，已补原提示，修后待验。不重审全库、不新增知识系统。 |
-| G 速度/成本 | bbca634：20条技术完成、19模型+1零模型；自动口径首内容P50=2.617秒、P95=3.997秒，完整P95=11.119秒。独立审阅认为部分draft是确认或交付不足，因此仅为初始计时，尚未最终签收；不拼样本、不替换慢样本。新冻结版本需必要真实验收。 |
-| H 上线/恢复 | 升级后实际内存原门槛通过；清理39本机旧测试容器、6远端旧演练容器，保留卷/镜像/回滚/其他服务。生产备份本地真实恢复、38迁移与68表检查通过。bbca精确镜像已构建，后续代码增量需新镜像；当前版本生产演练、统一发布、公网签收未完成。 |
+| **A 精简** | **PASS**。普通路径仍为一次主生成；明确控制、空白模板和版本回读为零模型。没有新增路由、总结、纠错调用。专业路径继续使用原扣子分析→评审→综合，最多5次；本次正常入口实际4次。 |
+| **B 理解与交付** | **PASS_WITH_LIMITATIONS**。当前版本四主线20条真实普通样本及独立语义审阅通过；公网重启后续接正确复述“已写项目介绍开头、尚未联系、90分钟”，并给一个下一步。真实回复和旧失败均保留，未把写作指令当经历、未补造采用/付款/效果。 |
+| **C 记忆与行动** | **PASS**。公网普通原任务和修后续接在两次容器重建后均可读；Memory 开启、成长记录10项。专业采纳保存为 `plan_saved` 且 `executed=false`，卡住反馈在新会话及重启后可读；旧失败任务未覆盖、未自动重试。 |
+| **D 星图** | **PASS**。公网 `/api/cognition` 重启后4个有来源节点可读；本人事实、行动、未完成和观察边界沿用现有守卫。当前验证为合成成年账号，不声明真人身份成长效果。 |
+| **E 扣子/Agent/Skill** | **PASS_SYNTHETIC_ADULT_REAL_PROVIDER**。正常 LifeOS 页面任务 `90bd72a2-6925-46d8-8af1-171c11c69489` 完成“两方向生成→采纳首项→卡住反馈→新会话”，真实4次模型调用，费用 `¥0.0151164`，未自动重试。实际加载四个相关 Skill；六个已部署 Skill 的完整摘要仍绑定，不要求每轮全部加载。学生验收为 `NOT_RUN_SYNTHETIC_ADULT`。 |
+| **F 攻略** | **PASS_WITH_LIMITATIONS**。复用已审方法、来源注册表和实际加载 Skill；目录、quote、actionId、时间、停止条件及来源检查未放宽。缺卡和未证实长期收益继续如实标记，不重审全库。 |
+| **G 速度/成本** | **PASS_CURRENT_VERSION**。当前同一版本20条真实普通样本：有效首内容 P50 `1866.616ms`、P95 `4610.3139ms`，完整回复 P95 `10216.3195ms`；达到3秒/5秒/15秒门槛。占位和零模型未混入；首次失败、取消、unknown 与深度耗时分列。唯一账本4030条，旧条目零变化，1条 reserved/unknown 保留。 |
+| **H 上线** | **PASS_TECHNICAL_PUBLIC**。公网 DNS 直连根页200、ready=true、签收 HEAD/摘要一致；登录、聊天、Memory、星图、专业任务、反馈和新会话均在重启后可用，匿名 Memory 返回401。38迁移；静态备份存在且 `pg_restore --list` 已验证；隔离恢复演练68表一致并恢复原服务。密码找回已挂入私有 Resend SMTP：认证通过、公网入口启用、一次请求200、投递账本新增且状态 `sent`，重启后仍启用；验收账号为不可投递 `.test` 地址，故真人邮箱收件未确认。 |
 
-本人最新授权：20元内自主分配、不再询问同类金额问题；阶段基线3671与unknown保留，不购买、不自动收费重试。原5000积分续批不重置。必要小范围Gateway修复/绑定发布可自主执行并保留回滚，不再逐候选询问；LifeOS正式服务仍在验收条件满足后统一发布。
+最终公网无模型复核：root 200、ready=true、`passwordResetEnabled=true`、登录成功、Memory 开启、星图4节点、专业计划与反馈持久、迁移38、备份存在且可列、重启未新增邮件或模型调用。生产回滚仍保留旧镜像和 rescue 路径；私有恢复演练状态 `PASS_PRIVATE_STARTUP_AND_SOURCE_RESTORE_FIDELITY`。
 
-本轮本地提交：bb234da重复日程与拒绝提示；15fc5c2重复事实反馈；f35f14b单问题数量和推断边界。3项相关纯函数检查、前后端typecheck、build及15回合隔离HTTP/SDK/PG检查通过。用户原脏测试SHA256仍6D834BDC20B462B285F97E8384BDA488A392B0FB7104B68F6A531BE005BF0C67，未修改或提交。旧失败与测试夹具的中间失败保留，不叠加历史套件。
+账本：本地最终 SHA256 `792ac8af6759f5c0ad090e0d65ca0f838d3ca317870e32b603d8ea1e5f5927d6`；4030项中4029 `finished`、1 `reserved`，unknown 未核销。密码投递使用独立 PG 持久账本，未自动重发。用户原脏测试 `tests/backend/action-coach-engine.test.ts` SHA256 仍为 `6D834BDC20B462B285F97E8384BDA488A392B0FB7104B68F6A531BE005BF0C67`，未修改、运行或提交。
 
-证据：.local/cloud-closeout-20261014/slim/ordinary-final-launch-bbca634-*、independent-bbca634-semantic-review.md、ordinary-repeated-feedback-http-check-verified.log、ordinary-one-question-http-check.log、ordinary-quantity-boundary-build.log、professional-449cb14-ui-result.json；.local/launch-recovery-20261015/zero-model-readback-449cb14-once.json。
+主要私有证据（不上传）：服务器 `/opt/lifeos/releases/launch-20261016-4109320-a1f84d/` 下的 `cutover-report.json`、`professional-cloud-rebind-4a2a0b2.json`、`public-professional-result-private-5.json`、`public-restart-persistence-private.json`、`password-reset-production-enable.json`；恢复报告 `/opt/lifeos/releases/recovery-4109320-aac9586b/isolated-rehearsal-report.json`。普通20条及语义审阅继续复用 `.local/cloud-closeout-20261014/slim/` 现有原件，不重刷历史样本。
+
 以下为历史增量索引，不是当前验收状态，不重复运行历史套件。
 
 本批已本地提交实际增量：3b9216d目录材料显示边界、7e317fa流式后错误归类、b9a2af4星图、35a27fa混合起草/拒绝重写复盘、e4e8f0b首内容占位、552353d纯缓冲、96db2f4收窄问候误拦。独立复核的两项问题：问候过宽已先红后绿修复；“独立非材料action误删”经原契约与低层守卫证据复核撤回。服务端typecheck、生产build、相关新增定向检查和隔离HTTP/SDK/PG检查通过；未运行旧套件，用户原脏测试哈希未变、未提交。
