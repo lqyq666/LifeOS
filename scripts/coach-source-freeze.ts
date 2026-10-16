@@ -44,7 +44,7 @@ export function workflowCompatibilityDigest(snapshot:ReturnType<typeof captureCo
   const executionScripts=new Set(['scripts/coach-source-freeze.ts','scripts/coach-provider-budget.ts','scripts/coze-credit-budget.ts','scripts/coze-host-permit.ts'])
   // Professional tasks/adoption use task-host, task-commit and store directly;
   // the ordinary generator and its provisional display parser are not invoked.
-  const ordinaryOnly=new Set(['server/turn-engine.ts','server/reply-draft.ts','server/turn-prompt.ts','server/model-payload.ts'])
+  const ordinaryOnly=new Set(['server/turn-engine.ts','server/reply-draft.ts','server/turn-prompt.ts','server/model-payload.ts','server/grounded-material.ts','server/jev-method-fit.ts'])
   const files=snapshot.files.filter(file=>file.path.startsWith('server/')&&!ordinaryOnly.has(file.path)||file.path.startsWith('skills/')||file.path.startsWith('evidence/v1.3-action-coach/research/')||executionScripts.has(file.path)||['package.json','package-lock.json','src/features/growth/types.ts','src/features/cognition/data/lifeos-graph.seed.json','.planning/research/evergreen/KB_RETRIEVAL_EXPRESSIONS.json','.planning/research/workflow-integration/INDEPENDENT_EXECUTION_BINDINGS.json'].includes(file.path))
   // Professional adapters use modelSignatureFor and their own 2048-token
   // schemas. Ordinary transport/contract capability signatures remain in the
