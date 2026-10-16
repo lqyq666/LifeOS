@@ -128,6 +128,18 @@ def recovery_memory_cap(available_bytes):
     return cap
 
 
+def require_staged_migrations(directory, expected):
+    root=Path(directory).resolve()
+    rows={row['name']:row['sha256'] for row in expected}
+    files={file.name:file for file in root.glob('*.sql') if file.is_file() and not file.is_symlink()}
+    if set(files)!=set(rows):
+        raise ValueError('STAGED_MIGRATION_SET_MISMATCH')
+    for name,file in files.items():
+        if hashlib.sha256(file.read_bytes()).hexdigest()!=rows[name]:
+            raise ValueError('STAGED_MIGRATION_HASH_MISMATCH')
+    return len(files)
+
+
 def read_binding(path, operation, guards, verifier):
     raw = Path(path).read_bytes()
     value = json.loads(raw.decode('utf-8-sig'))

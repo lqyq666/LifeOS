@@ -137,6 +137,19 @@ class RecoveryGuardsTests(unittest.TestCase):
         with self.assertRaisesRegex(TimeoutError, 'AGGREGATE_RECOVERY_DEADLINE'):
             guards.remaining_timeout(time.monotonic() - .1, 20)
 
+    def test_staged_migrations_require_exact_names_and_hashes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);source=b'SELECT 1;\n';digest=hashlib.sha256(source).hexdigest()
+            (root/'038-independent-coach-materials.sql').write_bytes(source)
+            expected=[{'name':'038-independent-coach-materials.sql','sha256':digest}]
+            self.assertEqual(guards.require_staged_migrations(root,expected),1)
+            (root/'038-independent-coach-materials.sql').write_bytes(b'SELECT 2;\n')
+            with self.assertRaisesRegex(ValueError,'STAGED_MIGRATION_HASH_MISMATCH'):
+                guards.require_staged_migrations(root,expected)
+            (root/'unexpected.sql').write_bytes(source)
+            with self.assertRaisesRegex(ValueError,'STAGED_MIGRATION_SET_MISMATCH'):
+                guards.require_staged_migrations(root,expected)
+
     def test_binding_rejects_changed_sources_identity_scope_and_manifest(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)

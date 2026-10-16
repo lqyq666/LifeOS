@@ -22,6 +22,7 @@ def main():
  release=root/'releases'/RELEASE_LABEL
  assert release.resolve()==release and pathlib.Path(args.binding).resolve()==release/'operation-binding.json','CANONICAL_BINDING_PATH_REQUIRED'
  assert json.loads((release/'manifest.json').read_text())['head']==EXPECTED_HEAD
+ assert guards['require_staged_migrations'](release/'app/server/migrations',binding['expectedMigrations'])==len(binding['expectedMigrations'])
  old_head=binding['oldHead']
  old_image=binding['oldImageId']
  label=RELEASE_LABEL;names=['lifeos-serial-old-'+label,'lifeos-serial-new-'+label,'lifeos-serial-migrate-'+label]
@@ -70,6 +71,8 @@ def main():
   assert not any(re.search(r'ollama|vllm|embedding|encoder|llama',line.split()[0],re.I) for line in units.splitlines() if line.split()),'HOST_MODEL_SERVICE_RUNNING'
  exclusive([original['Id']])
  assert run(['docker','image','inspect','--format','{{.Id}}',EXPECTED_IMAGE_ID])==EXPECTED_IMAGE_ID
+ image_preflight="const fs=require('fs');require.resolve('tsx');for(const file of ['scripts/migrate-db.ts','server/migration-checksum.ts'])if(!fs.statSync(file).isFile())process.exit(2);console.log('MIGRATION_RUNTIME_READY')"
+ assert run(['docker','run','--rm','--network','none','--read-only','--pids-limit','32','--memory','128m','--memory-swap','128m','--cpus','0.5','--cap-drop','ALL','--security-opt','no-new-privileges','--entrypoint','node',EXPECTED_IMAGE_ID,'-e',image_preflight],timeout=20)=='MIGRATION_RUNTIME_READY'
  assert json.loads(sql('lifeos',MIGRATION_QUERY))==binding['oldMigrations']
  for name in names:
   assert bounded_run(['docker','inspect',name],capture_output=True,timeout=8).returncode!=0,'EXISTING_PRIVATE_TARGET'
