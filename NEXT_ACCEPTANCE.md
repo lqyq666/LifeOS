@@ -11,6 +11,7 @@
 - 本地发布/恢复操作 HEAD：`ec3cccbf4814b808a7ad8db29e72d1f4a985016d`
 - Gateway 平台部署：`b270ffe3badbeeffe638c22986931c6e8f38cb0c`
 - Gateway 实际执行源码：`4a2a0b2d058737a75f60a8cd6da12f2bff2170b7`
+- GitHub 安全发布副本：私有仓库分支 `release/2026-10-16-4109320`，单根提交 `6f99074a96d6105bcaa4befeca28cef3f6cbd9db`；由签收 HEAD `a85136e2b0a7954ae879439cb7a9d425aba71c7d` 的已跟踪文件生成，未带 `.local`、供应商账本、密钥文件或用户未提交测试改动，未合并主分支。
 - Gateway 云源码摘要：`da6a05fa240ff9d4d6bc9d226dc8db115e9a7a1d7e9829219d9d23a15d81818c`
 - Gateway Skill 摘要：`bd574e2b963c3a27a757655d2ad17b707e91b1754f341a9e0932a6ddc5ae824f`
 - 版本关系：平台部署提交、实际执行源码、LifeOS 宿主提交和协议兼容摘要分别报告；没有伪造为同一 Git 提交。
