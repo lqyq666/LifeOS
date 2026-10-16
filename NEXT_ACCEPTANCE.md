@@ -1,6 +1,6 @@
 # 2026-10-16 Jev 方法适用性与 A—H 最终签收
 
-状态：**SCOPED_RELEASE_ACCEPTED / DEPLOYED / ONLINE_VERIFIED**；**FULL A—H = NOT_ACCEPTED_JEV_REGION**。LifeOS 工程上线范围已经完成，Jev 因生产服务器访问官方端点持续返回 HTTP 451 而保持关闭，未把本地评分变化冒充实际帮助。真人学生长期收益没有参与者证据，状态为 **待观察 / NOT_RUN**。保留一个校园个人伙伴、普通/专业两条路径、四工作流、六个业务 Skill 和统一记忆状态系统；没有新增 Agent、路由模型、知识库、提问 Agent、回答审核或自动改稿框架。
+状态：**CORE_SERVICE_ACCEPTED / DEPLOYED / ONLINE_VERIFIED**；**OPEN_ACCEPTANCE = PARTIAL**；**FULL A—H = NOT_ACCEPTED_F/G/H_OPEN**。核心服务和普通账号扣子链保持上线；开放收尾仍有三项明确边界：旧20条按实质首内容重算后 G 未达标，真实邮箱收件/重置尚无获准收件人闭环，Jev 生产访问与正向增益均未解决并保持关闭。真人学生长期收益没有参与者证据，状态为 **待观察 / NOT_RUN**。保留一个校园个人伙伴、普通/专业两条路径、四工作流、六个业务 Skill 和统一记忆状态系统；没有新增 Agent、路由模型、知识库、提问 Agent、回答审核或自动改稿框架。
 
 实际运行版本：
 
@@ -22,17 +22,19 @@
 | **C 记忆与行动** | **PASS**。历史已采纳任务 `900f1a04-3ad6-42cb-8fc4-f6e272808d03` 保持 `plan_saved`；其依赖变化后正确阻止把新反馈写入旧计划。新反馈绑定当前有效目标，并在新会话读回；新专业任务 `bfd9d6f3-0177-4de8-8246-99c5ee70deb9` 生成后被拒绝，拒绝没有被绕过。 |
 | **D 星图** | **PASS**。复用当前公网认知读回及来源守卫证据；本人事实、行动、未完成与观察边界保持分离。验证账号为获准的普通成年测试账号，不声明真人学生成长效果。 |
 | **E 扣子/Agent/Skill** | **PASS_NORMAL_ACCOUNT_REAL_PROVIDER**。普通获准账号当前能力为 `enabled=true`、`syntheticEligible=false`、`executionKind=real_provider`。正常入口完成专业生成→拒绝→当前目标反馈→新会话读回；4次真实 Provider 调用，费用 `¥0.0150209`，无自动重试。六个 Skill 的绑定摘要保持严格校验。 |
-| **F Jev 方法适用性** | **NOT_ACCEPTED_EXTERNAL_REGION**。已在现有检索候选与方法上下文间完成最小生成前筛选接入，默认关闭；本地官方端点探针与4次选择调用可用，合计 `$0.00095613`。成都生产服务器对官方区域端点均返回 HTTP 451，隔离真实主回复因此走原安全路径；没有证明 Jev 改善最终方法或帮助，未部署 Key、未强制启用。 |
-| **G 速度/成本** | **PASS_CURRENT_VERSION_EQUIVALENT**。复用同一兼容路径20条：有效首内容 P50 `1924.9204ms`、P95 `4610.3139ms`，完整 P95 `10216.3195ms`；新增公网自然追问为 `1653.333ms` / `5288.246ms`。Jev 失败回退隔离样本为 `2883.5ms` / `9194.1ms`，但不计 Jev 增益。生产本轮增量 `¥0.0229751`；账本4038项、4037 finished、1 reserved，123项 unknown 保留，已知累计 `¥13.27305`，既有余额约 `¥0.43403919`。 |
-| **H 上线/恢复** | **PASS_TECHNICAL_WITH_MAIL_RECEIPT_OPEN**。公网 ready、版本、注册和找回密码开关均通过；仅 app/db 两容器运行，关键服务 active，38项迁移，Jev 关闭且无 Key。旧 `0ceacb2` 镜像、配置和 `/opt/lifeos/releases/student-ready-20261016-12ffc22/rescue.sh` 可回滚。SMTP 认证、请求200与投递账本 `sent` 证据继续有效；原 `.test` 地址不能证明真人邮箱实际收件，因此真实邮箱收件闭环仍待真人确认。 |
+| **F Jev 方法适用性** | **NOT_ACCEPTED_EXTERNAL_REGION_AND_GAIN**。已在现有检索候选与方法上下文间完成最小生成前筛选接入，默认关闭；本地官方端点探针与4次选择调用可用，合计 `$0.00095613`。4例均为空选集：2例正确排除，2例原预期存在可用候选但全部被判为 `needs_clarification`，没有正向选择。当前请求主要传查询文本和候选条件，没有证明必要的既有时间、进度与拒绝上下文完整送达。成都生产服务器此前返回 HTTP 451，隔离主回复走原安全回退；没有证明 Jev 改善最终方法或帮助，未部署 Key、未重复试端点。 |
+| **G 速度/成本** | **NOT_ACCEPTED_LEGACY_EVIDENCE**。对旧 `4109320` 逐帧原件按统一口径只重算、不新增调用：20个真实模型样本，排除1个零模型；时间预算确认、标题与重复需求不算实质内容。两项争议样本分别改为最终具体安排 `6371.1488ms` 和任务相关追问 `3092.829ms`；nearest-rank 得 P50 `1989.6292ms`、P95 `6371.1488ms`、完整 P95 `10216.3188ms`，因此首内容 P95 未达到5秒。新增公网自然追问 `1653.333ms` / `5288.246ms` 只是单例，不能替代当前版本20条；没有为统计问题重刷付费全量。费用与 unknown 沿用原账本。 |
+| **H 上线/恢复** | **PARTIAL_TECHNICAL_PASS_REAL_MAIL_PENDING**。公网 ready、版本、注册和找回密码开关均通过；仅 app/db 两容器运行，关键服务 active，38项迁移，Jev 关闭且无 Key。旧 `0ceacb2` 镜像、配置和 `/opt/lifeos/releases/student-ready-20261016-12ffc22/rescue.sh` 可回滚。SMTP 认证、请求200与投递账本 `sent` 证据继续有效；原 `.test` 地址不能证明真人邮箱实际收件。当前没有获准且可收件的真实邮箱参与者，因此“收到邮件→链接可用→设置新密码→重新登录”保持待确认，不新增邮件平台。 |
 
 三会话闭环按真实边界签收：第一段保留历史采纳计划；第二段正常账号生成并拒绝新专业任务；第三段把当前目标反馈带入新会话，并生成有依据的普通后续帮助。拒绝、陈旧依赖和安全回退均未被绕过。`12ffc22` 相比已完成业务闭环的 `0ceacb2` 只包含类型收口与严格来源类型修复；定向16项、严格绑定/Jev 26项、server typecheck、全量 typecheck 与生产 build 已通过，因此没有再次消耗真实模型重刷同一业务图。
 
 最终公网无模型复核：HEAD/兼容摘要/冻结摘要与候选一致，`ready=true`、`signupEnabled=true`、`passwordResetEnabled=true`；普通账号专业能力仍为真实 Provider。Gateway 最终回读 `providerCalls=0`。生产仅 `lifeos-app-1`、`lifeos-db-1`，磁盘可用约 `8.3G`、内存可用约 `2.14GiB`，自动救援计时器在公网回读后关闭。
 
-工程验收与真人收益分别报告：当前工程上线范围已完成；Jev 生产增益因区域限制未通过，保持关闭；真人学生长期收益为待观察，不用模型或合成账号伪造反馈。用户原未提交测试 `tests/backend/action-coach-engine.test.ts` 保留，未修改、运行或提交。
+受控开放说明经现有产品核对，无需代码改动：邀请/注册与实际权益分离；普通账号登录后直接从自然聊天开始并显示剩余次数；出现至少两个可比较方向时才展示“深入分析这些方向”，页面明确其为尚未证实更有帮助的实验能力；资格未开通、到期或额度用完时停止新发送并说明已保存内容仍可查看。当前获准账号读回 `limit=100`、`used=12`、`reserved=0`、`remaining=88`，专业能力仍为 `enabled=true`、`syntheticEligible=false`、`executionKind=real_provider`。没有批量邀请、扩权益或购买额度。
 
-主要私有证据（不上传）：本地 `.local/production-release/professional-normal-entry-closure-0ceacb2.json`、`.local/production-release/gateway-zero-model-12ffc22.json`；服务器 `/opt/lifeos/releases/student-ready-20261016-12ffc22/candidate-binding-manifest.json`、`cutover-report.json`、`rollback-compose.json`、`rescue.sh`。普通20条、记忆、星图、密码找回与恢复证据继续复用原件，不重刷历史全量。
+工程验收、Jev增益与真人收益分别报告：核心服务工程范围已完成并在线；开放验收因 G 旧证据失败和真实邮箱收件缺参与者而部分完成；Jev 生产访问及增益未通过，保持关闭；自愿学生真实使用尚无参与者，状态为待观察，不用模型或普通测试账号伪造反馈。用户原未提交测试 `tests/backend/action-coach-engine.test.ts` 保留，未修改、运行或提交。
+
+主要私有证据（不上传）：本地 `.local/production-release/professional-normal-entry-closure-0ceacb2.json`、`.local/production-release/gateway-zero-model-12ffc22.json`、`.local/cloud-closeout-20261014/slim/ordinary-final-launch-4109320-effective-content-recalculation.json`、`.local/jev-method-fit-real-20261016-analysis.json`；服务器 `/opt/lifeos/releases/student-ready-20261016-12ffc22/candidate-binding-manifest.json`、`cutover-report.json`、`rollback-compose.json`、`rescue.sh`。普通20条、记忆、星图、密码找回与恢复证据继续复用原件，不重刷历史全量。
 
 以下为历史增量索引，不是当前验收状态，不重复运行历史套件。
 
