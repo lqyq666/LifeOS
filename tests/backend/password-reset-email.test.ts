@@ -28,7 +28,7 @@ test('emailed link resets exactly once, expires, and revokes old sessions withou
   await new Promise<void>(r=>app.listen(0,'127.0.0.1',r))
   const origin='http://127.0.0.1:'+(app.address() as {port:number}).port
   const post=(path:string,data:unknown)=>fetch(origin+'/api/auth/'+path,{method:'POST',headers:{Origin:config.origin,'Content-Type':'application/json'},body:JSON.stringify(data)})
-  const email='reset-'+randomUUID()+'@example.invalid',oldPassword='Synthetic-old-'+randomUUID(),newPassword='Synthetic-new-'+randomUUID()
+  const email='reset-'+randomUUID()+'@example.invalid',oldPassword='Old123',newPassword='New123'
   const clearRate=()=>pool.query('DELETE FROM "rateLimit"') // This file runs only in a disposable DB.
   try {
     const signup=await post('sign-up/email',{email,password:oldPassword,name:'Synthetic adult password recovery'})
@@ -54,7 +54,7 @@ test('emailed link resets exactly once, expires, and revokes old sessions withou
     const stored=(await pool.query('SELECT "expiresAt" FROM "verification" WHERE identifier=$1',['reset-password:'+token])).rows[0]
     const expiresIn=new Date(stored.expiresAt).getTime()-Date.now();assert.ok(expiresIn>14*60*1000&&expiresIn<=15*60*1000)
     assert.equal((await post('reset-password',{token,newPassword:'short'})).status,400)
-    const otherPassword='Synthetic-other-'+randomUUID()
+    const otherPassword='Alt456'
     const simultaneous=await Promise.all([post('reset-password',{token,newPassword}),post('reset-password',{token,newPassword:otherPassword})])
     assert.deepEqual(simultaneous.map(r=>r.status).sort(),[200,400])
     assert.equal((await fetch(origin+'/api/session',{headers:{Cookie:cookie}})).status,401)

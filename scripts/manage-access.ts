@@ -10,7 +10,7 @@ try{
   if(operation==='create'){
     let text='';for await(const chunk of process.stdin){text+=chunk;if(text.length>4096)throw new Error('INPUT_TOO_LARGE')}
     const input=JSON.parse(text)
-    if(typeof input.email!=='string'||typeof input.password!=='string'||input.password.length<12||!Number.isInteger(input.limit)||input.limit<1||input.limit>1000000||!Number.isFinite(Date.parse(input.expiresAt))||Date.parse(input.expiresAt)<=Date.now())throw new Error('INVALID_ACCOUNT_INPUT')
+    if(typeof input.email!=='string'||typeof input.password!=='string'||input.password.length<6||!Number.isInteger(input.limit)||input.limit<1||input.limit>1000000||!Number.isFinite(Date.parse(input.expiresAt))||Date.parse(input.expiresAt)<=Date.now())throw new Error('INVALID_ACCOUNT_INPUT')
     // This process alone may create a manual account; public signup stays closed.
     config.signupEnabled=true
     const {auth}=await import('../server/auth.ts')

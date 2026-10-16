@@ -40,7 +40,7 @@ async function clearPasswordResetTokens(userId:string){
 export const authOptions = {
   database: pool, secret: config.authSecret, baseURL: config.origin, trustedOrigins: [config.origin],
   emailAndPassword: {
-    enabled: true, minPasswordLength: 12, maxPasswordLength:128, disableSignUp: !config.signupEnabled,
+    enabled: true, minPasswordLength: 6, maxPasswordLength:128, disableSignUp: !config.signupEnabled,
     resetPasswordTokenExpiresIn:15*60,revokeSessionsOnPasswordReset:true,
     sendResetPassword:async({user,url,token})=>{
       try{await retainCurrentPasswordResetToken(user.id,token)}
