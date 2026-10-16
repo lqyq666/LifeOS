@@ -32,6 +32,15 @@ const candidateState=(card:KnowledgeCard)=>({
  prerequisites:card.guide?.prerequisites??[],exclusions:card.guide?.exclusions??[],
  branches:(card.guide?.branches??[]).map(branch=>({id:branch.id,task:branch.task,stage:branch.stage,steps:branch.steps.map(step=>({id:step.id,text:step.text}))})),
 })
+
+/** Gives the generator only approved source conditions for Jev's bounded decision. */
+export function jevMethodFitContext(cards:KnowledgeCard[],trace:JevMethodFitTrace){
+ if(trace.status!=='selected')return null
+ return {mode:'pre_generation_method_applicability',reason:trace.reason,decisions:trace.decisions?.map(decision=>{
+  const card=cards.find(candidate=>candidate.id===decision.id&&candidate.revision===decision.revision)
+  return {...decision,title:card?.title,prerequisites:card?.guide?.prerequisites??[],exclusions:card?.guide?.exclusions??[]}
+ }),rule:'This only filters approved existing methods. Use the listed approved prerequisites and exclusions to ask at most one necessary condition; unknown prerequisites stay unknown. Do not infer a reason from model scores.'}
+}
 const validAnswer=(value:unknown):value is {type:'choice';choice:FitState;confidence:number;probabilities:Record<FitState,number>}=>{
  if(!value||typeof value!=='object')return false
  const row=value as Record<string,unknown>,probabilities=row.probabilities

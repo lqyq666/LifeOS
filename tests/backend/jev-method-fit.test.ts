@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
 import type {KnowledgeCard} from '../../server/campus-knowledge.ts'
 import {knowledgeIntent} from '../../server/evergreen-guide.ts'
-import {selectJevMethodCandidates,type JevTransport} from '../../server/jev-method-fit.ts'
+import {jevMethodFitContext,selectJevMethodCandidates,type JevTransport} from '../../server/jev-method-fit.ts'
 
 const cards=readFileSync('.planning/research/evergreen/KB_GUIDES.jsonl','utf8').trim().split('\n').map(line=>JSON.parse(line) as KnowledgeCard).filter(card=>card.guide?.reviewStatus==='approved').slice(0,3)
 const intent=knowledgeIntent('校园项目需求一直变，我该用什么方法确认真正需求？')
@@ -22,6 +22,17 @@ test('Jev method fit allows all candidates to be unsuitable',async()=>{
  const transport:JevTransport=async()=>response(Object.fromEntries(cards.map((_,i)=>['candidate_'+i,{type:'choice',choice:'unsuitable',confidence:.9,probabilities:{applicable:.02,missing_prerequisite:.03,needs_clarification:.05,unsuitable:.9}}])))
  const result=await selectJevMethodCandidates(cards,'校园项目需求一直变，我该用什么方法确认真正需求？',intent,{enabled:true,apiKey:'x'.repeat(24),transport})
  assert.deepEqual(result.cards,[]);assert.equal(result.trace.status,'selected')
+})
+
+test('generation context exposes approved conditions but no Jev probabilities',async()=>{
+ const transport:JevTransport=async()=>response(Object.fromEntries(cards.map((_,i)=>['candidate_'+i,{type:'choice',choice:'needs_clarification',confidence:.7,probabilities:{applicable:.1,missing_prerequisite:.1,needs_clarification:.7,unsuitable:.1}}])))
+ const result=await selectJevMethodCandidates(cards,'校园项目的关键条件还不清楚，我下一步怎么办？',intent,{enabled:true,apiKey:'x'.repeat(24),transport})
+ const context=jevMethodFitContext(cards,result.trace) as any
+ assert.equal(context.decisions[0].state,'needs_clarification')
+ assert.deepEqual(context.decisions[0].prerequisites,cards[0].guide?.prerequisites)
+ assert.deepEqual(context.decisions[0].exclusions,cards[0].guide?.exclusions)
+ assert.ok(!JSON.stringify(context).includes('probabilities'))
+ assert.ok(!JSON.stringify(context).includes('confidence'))
 })
 
 test('disabled, continuation, clear candidate and transport failure preserve the original safe path without retries',async()=>{

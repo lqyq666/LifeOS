@@ -46,7 +46,7 @@ import { readRecommendationControls,listControlRequests } from './memory-control
 import {knowledgeIntent,deduplicateGuides,methodPromptContext} from './evergreen-guide.ts'
 import {readGuideUsage,readPriorGuideEvents,classifyGuideFeedback,feedbackMatchesCurrent} from './guide-usage.ts'
 import {boundedRecallReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts,type BoundedReply} from './bounded-reply.ts'
-import {selectJevMethodCandidates} from './jev-method-fit.ts'
+import {jevMethodFitContext,selectJevMethodCandidates} from './jev-method-fit.ts'
 export type FocusContext={type:'theme'|'experience';id:string;label:string}
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void;focusContext?:FocusContext|null}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
@@ -388,7 +388,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const methodFit=await selectJevMethodCandidates(methodCandidates,snapshot.settings.enabled?methodIntent.query:current.content,methodIntent,{signal})
   knowledge=methodFit.cards
   staged.audit.push({phase:'jev_method_fit',...methodFit.trace})
-  const methodFitContext=methodFit.trace.status==='selected'?{mode:'pre_generation_method_applicability',reason:methodFit.trace.reason,decisions:methodFit.trace.decisions?.map(decision=>({...decision,title:methodCandidates.find(card=>card.id===decision.id&&card.revision===decision.revision)?.title})),rule:'This only filters approved existing methods. Unknown prerequisites stay unknown; do not infer a reason from probabilities.'}:null
+  const methodFitContext=jevMethodFitContext(methodCandidates,methodFit.trace)
   const report=classifyGuideFeedback(current.content)
   const methodUsage=previousGuideUsage.map(row=>({...row,status:report&&canContinueGuideFeedback(row.status,report)?report:row.status}))
   const methodContext=methodPromptContext(knowledge,current.content,methodIntent,Number(process.env.LIFEOS_METHOD_TOKEN_BUDGET)||1800,methodUsage)
