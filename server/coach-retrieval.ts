@@ -5,9 +5,25 @@ import { localEmbedding, embeddingSignature } from './local-embedding.ts'
 export type EventSearch={query:string;eventId?:string;actionId?:string;object?:string;after?:string;before?:string}
 type Encode=(texts:string[],query?:boolean,signal?:AbortSignal)=>Promise<number[][]>
 
+export type ExperienceRankOptions={currentConversationId?:string;now?:number}
+
+// Confirmed experiences have already passed the user's importance/consent gate.
+// Retrieval therefore combines semantic relevance with a small, bounded boost
+// for recency and continuity of the matter currently being discussed. Relevance
+// stays dominant so a recent unrelated episode cannot hide a direct older match.
+export function rankExperienceCandidates<T extends {id:unknown;conversation_id?:unknown;updated_at?:unknown}>(rows:T[],semanticScores:number[],options:ExperienceRankOptions={}){
+  const now=options.now??Date.now(),halfLifeDays=90,day=86_400_000
+  return rows.map((row,index)=>{
+    const observed=typeof row.updated_at==='string'||row.updated_at instanceof Date?Date.parse(String(row.updated_at)):NaN
+    const recency=Number.isFinite(observed)?Math.exp(-Math.max(0,now-observed)/day*Math.LN2/halfLifeDays):0
+    const continuity=options.currentConversationId!==undefined&&row.conversation_id===options.currentConversationId?1:0
+    return {row,score:(semanticScores[index]??-Infinity)+0.08*recency+0.08*continuity}
+  }).sort((a,b)=>b.score-a.score||String(a.row.id).localeCompare(String(b.row.id))).map(item=>item.row)
+}
+
 // The caller supplies only owner/grant/source-validated confirmed records.
 // This shares the existing offline encoder and retains complete fields.
-export async function rankConfirmedCoachExperiences(rows:any[],query:string,limit=4){
+export async function rankConfirmedCoachExperiences(rows:any[],query:string,limit=4,options:ExperienceRankOptions={}){
   if(!rows.length)return []
   if(!query.trim())return rows.slice(0,limit)
   const vector=(await localEmbedding.encode([query],true))[0]
@@ -17,7 +33,7 @@ export async function rankConfirmedCoachExperiences(rows:any[],query:string,limi
     const batch=parts.slice(start,start+32),encoded=await localEmbedding.encode(batch.map(part=>part.text))
     batch.forEach((part,index)=>{const score=encoded[index].reduce((sum,value,dimension)=>sum+value*vector[dimension],0);scores.set(part.index,Math.max(scores.get(part.index)??-Infinity,score))})
   }
-  return rows.map((row,index)=>({row,score:scores.get(index)??-Infinity})).sort((a,b)=>b.score-a.score||String(a.row.id).localeCompare(String(b.row.id))).slice(0,limit).map(item=>item.row)
+  return rankExperienceCandidates(rows,rows.map((_,index)=>scores.get(index)??-Infinity),options).slice(0,limit)
 }
 
 // Jobs contain only identity/version. User text is read afresh and encoded locally.

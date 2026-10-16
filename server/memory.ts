@@ -60,7 +60,7 @@ export async function loadSnapshot(user:string,conversation:string,query:string)
     const usableExperiences=[]
     for(const row of experienceRows)if(!await growthQuoteSuppressed(pool,user,row.source_message_id,row.source_quote))usableExperiences.push(row)
     const includePatternSources=requestsCrossExperienceReview(query)
-    return {settings,profile,writeProfile,confirmedExperiences:(await rankConfirmedCoachExperiences(usableExperiences,includePatternSources?'':query,includePatternSources?6:4)).map(row=>({id:row.id,revision:row.revision,content:row.content,conversationId:row.conversation_id,conversationTitle:row.conversation_title,sourceMessageId:row.source_message_id,quote:row.content?.summary||row.source_quote})),suppressedMessageIds:[...new Set([...suppressions,...deletedSources].map(item=>String(item.source_message_id)))]}
+    return {settings,profile,writeProfile,confirmedExperiences:(await rankConfirmedCoachExperiences(usableExperiences,includePatternSources?'':query,includePatternSources?6:4,{currentConversationId:conversation})).map(row=>({id:row.id,revision:row.revision,content:row.content,conversationId:row.conversation_id,conversationTitle:row.conversation_title,sourceMessageId:row.source_message_id,quote:row.content?.summary||row.source_quote})),suppressedMessageIds:[...new Set([...suppressions,...deletedSources].map(item=>String(item.source_message_id)))]}
   }catch(error){if(error instanceof HttpError)throw error;throw new HttpError(503,'MEMORY_LOAD_FAILED',15)}
 }
 export async function getMemoryView(user:string,conversation?:string){
