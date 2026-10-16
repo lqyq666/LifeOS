@@ -102,7 +102,8 @@ export async function retrieveIndexedKnowledge(query:string,signal?:AbortSignal,
  const ranked=rankKnowledgeCandidates(index.cards.filter(applies),index.segments,query,vector,intent)
  // Query-phase revalidation in SQL after scoring, including synthetic scope.
  const ids=ranked.top5.map(card=>card.id),rows=ids.length?(await pool.query("SELECT id,revision FROM campus_knowledge WHERE id=ANY($1::uuid[]) AND status='verified' AND (valid_until IS NULL OR valid_until>now()) AND official_knowledge_current(payload) AND kb_knowledge_current(payload) AND (NOT synthetic OR current_database() ~ '^lifeos_dialogue_(test|live)_')",[ids])).rows:[]
- const selected=deduplicateGuides(ranked.top5.filter(card=>rows.some(row=>row.id===card.id&&row.revision===card.revision)))
- return {cards:selected,trace:{signature:knowledgeIndexSignature,epoch:index.epoch,candidates:ranked.candidates,selected:selected.map(c=>c.id),queryEncoded:Boolean(vector.length)} satisfies KnowledgeTrace}
+ const candidates=deduplicateGuides(ranked.top5.filter(card=>rows.some(row=>row.id===card.id&&row.revision===card.revision)),5)
+ const selected=deduplicateGuides(candidates)
+ return {cards:selected,candidates,trace:{signature:knowledgeIndexSignature,epoch:index.epoch,candidates:ranked.candidates,selected:selected.map(c=>c.id),queryEncoded:Boolean(vector.length)} satisfies KnowledgeTrace}
 }
 export function clearKnowledgeIndexMemory(){snapshot=undefined}

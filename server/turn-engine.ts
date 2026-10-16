@@ -3,7 +3,7 @@ import {mainCompanionPolicy} from './companion-policy.ts'
 import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from './provider-spend.ts'
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
-import { retrieveCoachKnowledge, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
+import { retrieveCoachKnowledgeCandidates, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
 import { openingQuestionDraft, safeEarlySentence, weeklyPlanBoundaryDraft, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
@@ -46,6 +46,7 @@ import { readRecommendationControls,listControlRequests } from './memory-control
 import {knowledgeIntent,deduplicateGuides,methodPromptContext} from './evergreen-guide.ts'
 import {readGuideUsage,readPriorGuideEvents,classifyGuideFeedback,feedbackMatchesCurrent} from './guide-usage.ts'
 import {boundedRecallReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts,type BoundedReply} from './bounded-reply.ts'
+import {selectJevMethodCandidates} from './jev-method-fit.ts'
 export type FocusContext={type:'theme'|'experience';id:string;label:string}
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void;focusContext?:FocusContext|null}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
@@ -304,7 +305,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     historicalEvents=historicalEvents.filter(event=>event.id!==currentEvent!.id)
   }
   const needsKnowledge=!['NONE','CLARIFY'].includes(methodIntent.decision)
-  let knowledge=needsKnowledge?await retrieveCoachKnowledge(methodIntent.query,signal,methodIntent):[]
+  const localKnowledge=needsKnowledge?await retrieveCoachKnowledgeCandidates(methodIntent.query,signal,methodIntent):null
+  let knowledge=localKnowledge?.cards??[],methodCandidates=localKnowledge?.candidates??[]
   staged.audit.push({phase:'knowledge_intent',decision:methodIntent.decision,reason:methodIntent.reason,stage:methodIntent.stage,providerCalls:0})
   knowledgeMs=Math.round(performance.now()-knowledgeStart)
   // C1 controlled-integration diagnostics ONLY: force the LOCAL candidates to
@@ -313,7 +315,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // natural user-traffic claim and never enabled by default.
   if(config.diagLocalKnowledgeMiss&&knowledge.length){
     staged.audit.push({phase:'local_knowledge_miss',reason:'diagnostic_injection',controlledIntegrationOnly:true,localCandidatesSuppressed:knowledge.length})
-    knowledge=[]
+    knowledge=[];methodCandidates=[]
   }
   if(needsKnowledge&&!knowledge.length){
     // N3: Coze fallback — only when local retrieval found nothing AND the
@@ -343,7 +345,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
           staged.audit.push({phase:'coze_knowledge_candidates',transport:'code_workflow',latencyMs:result.latencyMs,workflowVersion:result.release,query:rendered,hitDocumentIds:result.hits.map(hit=>hit.documentId),verifiedCardIds:mapped.verified.map(entry=>entry.card.id),unverifiedDocumentIds:mapped.unverifiedDocumentIds,hits:result.hits.length,verified:mapped.verified.length,unverified:mapped.unverifiedDocumentIds.length,costState:'separate_ledger_unknown_until_real'})
           if(mapped.verified.length){
             const existing=new Set(knowledge.map(card=>card.id))
-            for(const candidate of mapped.verified)if(!existing.has(candidate.card.id)){knowledge=[...knowledge,candidate.card.payload];existing.add(candidate.card.id)}
+            for(const candidate of mapped.verified)if(!existing.has(candidate.card.id)){knowledge=[...knowledge,candidate.card.payload];methodCandidates=[...methodCandidates,candidate.card.payload];existing.add(candidate.card.id)}
           }
         }catch(error){
           const code=error instanceof CodeWorkflowError?error.code:'CODE_REQUEST_FAILED'
@@ -358,7 +360,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
           staged.audit.push({phase:'coze_knowledge_candidates',transport:'resource_workflow',latencyMs:result.latencyMs,workflowVersion:result.version,query:rendered,hitDocumentIds:result.hits.map(hit=>hit.documentId),verifiedCardIds:mapped.verified.map(entry=>entry.card.id),unverifiedDocumentIds:mapped.unverifiedDocumentIds,hits:result.hits.length,verified:mapped.verified.length,unverified:mapped.unverifiedDocumentIds.length,costState:'separate_ledger_unknown_until_real'})
           if(mapped.verified.length){
             const existing=new Set(knowledge.map(card=>card.id))
-            for(const candidate of mapped.verified)if(!existing.has(candidate.card.id)){knowledge=[...knowledge,candidate.card.payload];existing.add(candidate.card.id)}
+            for(const candidate of mapped.verified)if(!existing.has(candidate.card.id)){knowledge=[...knowledge,candidate.card.payload];methodCandidates=[...methodCandidates,candidate.card.payload];existing.add(candidate.card.id)}
           }
         }catch(error){
           const code=error instanceof CozeRetrievalError?error.code:'COZE_REQUEST_FAILED'
@@ -378,11 +380,15 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       catch(error){if(!(error instanceof HttpError)||!['COACH_KNOWLEDGE_INVALIDATED','METHOD_UNAVAILABLE'].includes(error.code))throw error;staged.audit.push({phase:'guide_continuation_unavailable',guideId:row.guide_id,revision:row.revision,providerCalls:0})}
     }
     // Reuse the actual method, rather than introduce an unrelated tutorial while reviewing it.
-    if(continued.length)knowledge=deduplicateGuides(continued)
+    if(continued.length){knowledge=deduplicateGuides(continued);methodCandidates=knowledge}
   }
   const latestUsage=[...new Map(previousGuideUsage.slice().reverse().map(row=>[row.guide_id,row])).values()]
   const stopped=new Set(latestUsage.filter(row=>row.status==='declined').map(row=>row.guide_id))
-  if(!/(?:重新|再试|继续使用).{0,12}(?:方法|办法|攻略)|我想再/.test(current.content))knowledge=knowledge.filter(card=>!stopped.has(card.id))
+  if(!/(?:重新|再试|继续使用).{0,12}(?:方法|办法|攻略)|我想再/.test(current.content)){knowledge=knowledge.filter(card=>!stopped.has(card.id));methodCandidates=methodCandidates.filter(card=>!stopped.has(card.id))}
+  const methodFit=await selectJevMethodCandidates(methodCandidates,snapshot.settings.enabled?methodIntent.query:current.content,methodIntent,{signal})
+  knowledge=methodFit.cards
+  staged.audit.push({phase:'jev_method_fit',...methodFit.trace})
+  const methodFitContext=methodFit.trace.status==='selected'?{mode:'pre_generation_method_applicability',reason:methodFit.trace.reason,decisions:methodFit.trace.decisions?.map(decision=>({...decision,title:methodCandidates.find(card=>card.id===decision.id&&card.revision===decision.revision)?.title})),rule:'This only filters approved existing methods. Unknown prerequisites stay unknown; do not infer a reason from probabilities.'}:null
   const report=classifyGuideFeedback(current.content)
   const methodUsage=previousGuideUsage.map(row=>({...row,status:report&&canContinueGuideFeedback(row.status,report)?report:row.status}))
   const methodContext=methodPromptContext(knowledge,current.content,methodIntent,Number(process.env.LIFEOS_METHOD_TOKEN_BUDGET)||1800,methodUsage)
@@ -504,7 +510,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const messages=allContextMessages.filter(row=>row.id===run.source_message_id||selectedIds.has(row.id))
   staged.audit.push({phase:'history_selection',mode:contract.mode,historyTotalMessages:historySelection.totalMessages,historySelectedMessages:historySelection.selected.length,historyTotalChars:historySelection.totalChars,historySelectedChars:historySelection.selectedChars,providerCalls:0})
   const systemPrompt=turnSystemPrompt('default',runtime.model.id,contract,materialIntent)+(questionFirstMaterial?'\n本轮先输出event.action.draft.content里的唯一完整中性问题，再输出event其他字段和reply。reply先列最近本人报告的事实和时间，再列从未提供或此后未更新的结果，不重复问题；不使用fromReply。问题围绕已有具体线索追问可观察的环节；对新对象询问其如何核查该线索，不预设对方也经历了上次反馈的困难。':'')+(currentConversationOnly(current.content)?'\n本轮本人只想倾听或明确拒绝方法：回应当前表达，不给行动、方法、解决问题的追问或安排，不重发上轮建议。对本次聊天的偏好不存为个人目标、经历或长期事实；独立的新本人事实如有则保留原话与未知。':'')+(boundedReply?'\nboundedReply是本轮服务端授权的编辑动作与过程追问，不是获审公共攻略。reply必须完整选择choices中适合当前请求的一项，不增加事实、因果、效果、时间或情绪判断；其他合法状态更新仍按原契约锚定本人原话。':'')
-  const baseUserPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,methodContext:methodContext.knowledge,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,taskBoundaries:unresolvedTaskBoundaries.map(item=>item.taskBoundary!),directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
+  const baseUserPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,methodContext:methodContext.knowledge,methodFit:methodFitContext,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,taskBoundaries:unresolvedTaskBoundaries.map(item=>item.taskBoundary!),directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:clauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null})
   const workflowHints=await actionReviewHints({run,staged,text:current.content,memoryEnabled:snapshot.settings.enabled,currentEvent,historicalEvents,ambiguous:retrieval.ambiguous,listeningOnly:currentConversationOnly(current.content),signal})
   const promptContext=JSON.parse(baseUserPrompt)
   const pursuitTexts=new Set(reportedPursuitClauses(current.content).map(clause=>clause.text))

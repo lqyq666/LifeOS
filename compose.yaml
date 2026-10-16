@@ -55,6 +55,9 @@ services:
       LIFEOS_MODEL_DEEP_BASE_URL: ${LIFEOS_MODEL_DEEP_BASE_URL:-}
       LIFEOS_MODEL_DEEP_API_KEY: ${LIFEOS_MODEL_DEEP_API_KEY:-}
       LIFEOS_MODEL_PRICING_JSON: ${LIFEOS_MODEL_PRICING_JSON:-'{"bailian:qwen3.8-flash":{"inputCnyPerMillion":0.8,"outputCnyPerMillion":2.7,"cachedInputCnyPerMillion":0.1},"bailian:deepseek-v4.1-flash":{"inputCnyPerMillion":2,"outputCnyPerMillion":8}}'}
+      LIFEOS_JEV_METHOD_FIT: ${LIFEOS_JEV_METHOD_FIT:-false}
+      LIFEOS_JEV_TIMEOUT_MS: ${LIFEOS_JEV_TIMEOUT_MS:-1200}
+      TYPESAFE_API_KEY: ${TYPESAFE_API_KEY:-}
       LIFEOS_PROVIDER_BUDGET_ENABLED: true
       LIFEOS_PROVIDER_BUDGET_ID: ${LIFEOS_PROVIDER_BUDGET_ID:-production}
       LIFEOS_ENTITLEMENTS_ENABLED: true

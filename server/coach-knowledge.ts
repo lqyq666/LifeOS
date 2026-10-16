@@ -37,8 +37,11 @@ export function policyApplies(card:KnowledgeCard,text:string){
 }
 
 export async function retrieveCoachKnowledge(query:string,signal?:AbortSignal,intent?:KnowledgeIntent):Promise<KnowledgeCard[]>{
-  const result=await retrieveIndexedKnowledge(query,signal,intent,card=>policyApplies(card,query)&&!(card.mechanisms??[]).includes('coze_public_knowledge_retrieval'))
+  const result=await retrieveCoachKnowledgeCandidates(query,signal,intent)
   return result.cards
+}
+export async function retrieveCoachKnowledgeCandidates(query:string,signal?:AbortSignal,intent?:KnowledgeIntent){
+  return retrieveIndexedKnowledge(query,signal,intent,card=>policyApplies(card,query)&&!(card.mechanisms??[]).includes('coze_public_knowledge_retrieval'))
 }
 
 export async function assertCoachKnowledge(c:PoolClient,refs:CoachKnowledgeRef[]){
