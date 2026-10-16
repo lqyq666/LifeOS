@@ -198,7 +198,7 @@ def main():
    return guards['schema_sha256'](text)
   clone_schema= schema_digest(db)
   assert clone_schema==binding['expectedSchemaSha256'],'CANONICAL_POST_MIGRATION_SCHEMA_CHANGED'
-  migrations=['034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql']
+  migrations=['034-workflow-provider-spend.sql','035-password-reset-delivery.sql','036-workflow-dispatch-boundary.sql','037-research-exploration-control.sql','038-independent-coach-materials.sql']
   for kind,image in [('old',old_image),('new',EXPECTED_IMAGE_ID)]:
    exclusive()
    cap=guards['recovery_memory_cap'](available())
