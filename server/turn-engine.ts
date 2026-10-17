@@ -42,7 +42,7 @@ import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
 import { resolveGrowthDeltas } from './growth-authority.ts'
 import { findEpisode } from './experience-episodes.ts'
-import { detectForgetIntentClauses, scoreForgetTargets } from './forget-intent.ts'
+import { detectForgetIntentClauses, detectUnconfirmedLabelRejection, scoreForgetTargets } from './forget-intent.ts'
 import { readRecommendationControls,listControlRequests } from './memory-controls.ts'
 import {knowledgeIntent,deduplicateGuides,methodPromptContext} from './evergreen-guide.ts'
 import {readGuideUsage,readPriorGuideEvents,classifyGuideFeedback,feedbackMatchesCurrent} from './guide-usage.ts'
@@ -1010,6 +1010,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // normal UI reads in this conversation and in new sessions. Nothing
     // destructive executes during candidate validation.
     {
+      const unconfirmedLabelRejection=detectUnconfirmedLabelRejection(current.content)
+      let unconfirmedLabelBoundaryStaged=false
       const intentClauses=detectForgetIntentClauses(current.content)
       for(const clause of intentClauses){
         if(!clause.kind)continue
@@ -1029,6 +1031,17 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         }else if(scored.filter(entry=>entry.overlap>=2).length){
           if(!staged.pendingMemoryControl)staged.pendingMemoryControl={kind:clause.kind,clauseText:clause.clauseText,candidates:scored.filter(entry=>entry.overlap>=2).slice(0,3).map(entry=>({itemId:entry.item.id,revision:entry.item.revision,preview:entry.item.text.slice(0,80)}))}
           staged.audit.push({phase:'memory_control_pending',kind:clause.kind,candidates:scored.filter(entry=>entry.overlap>=2).slice(0,3).map(entry=>entry.item.id)})
+        }else if(clause.kind==='forget'&&unconfirmedLabelRejection){
+          if(snapshot.settings.enabled&&!growthAll.some(item=>item.status==='active'&&!item.unavailableReason&&item.text===unconfirmedLabelRejection.boundaryQuote)){
+            const boundary=await stageGrowthUpdates(run,[{target:{operation:'create'},assertion:'user_reported',kind:'context',source:{messageId:run.source_message_id,quote:unconfirmedLabelRejection.boundaryQuote}}],growthAll,{})
+            if(boundary.changes.length){
+              staged.growth={changes:[...(staged.growth?.changes??[]),...boundary.changes],prepared:[...(staged.growth?.prepared??[]),...boundary.prepared],inputIndexBindings:new Map(staged.growth?.inputIndexBindings??[]),skipped:[...(staged.growth?.skipped??[]),...(boundary.skipped??[])]}
+              unconfirmedLabelBoundaryStaged=true
+            }
+          }
+          const continuity=snapshot.settings.enabled?'已记录这条边界':'当前对话会尊重这条边界；长期记忆关闭时不会跨会话保存'
+          result.reply=`没有找到已保存的“${unconfirmedLabelRejection.label}”记录；它不会被当作本人确认的事实，${continuity}：${unconfirmedLabelRejection.boundaryQuote}。现在结束，不安排下一步。`
+          staged.audit.push({phase:'memory_control_no_target_rejection_recorded',kind:clause.kind,label:unconfirmedLabelRejection.label,boundaryStaged:unconfirmedLabelBoundaryStaged,reason:'unconfirmed_label_was_not_stored'})
         }else{
           // A control clause with NO matching record at all: nothing to bind.
           // No empty confirmation card; the claim guard below keeps the reply

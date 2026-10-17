@@ -26,6 +26,11 @@ export type ForgetIntentClause = {
   preserveRequested: boolean
 }
 
+export type UnconfirmedLabelRejection = {
+  label: string
+  boundaryQuote: string
+}
+
 // Erase commands. Matched positively; a negation directly in front of one of
 // these (不要删除 / 先别删掉) is a REFUSAL handled separately below.
 const forgetCommands = /(?:帮我(?:来)?|请|麻烦)?(?:忘掉|忘记(?!了)|忘了吧|忘记吧|删除|删掉|删了|清除|清掉|移除|去掉|抹掉)|(?:不要|不想|不用|无需|不必|不再)(?:再)?保留/
@@ -75,6 +80,22 @@ export function detectForgetIntentClauses(text: string): ForgetIntentClause[] {
     found.push({ kind, clauseText: body, preserveRequested })
   }
   return found
+}
+
+// A user may ask to remove a label that was never stored in the first place
+// and explicitly forbid recreating the same inference.  This is not a target
+// for the destructive forget transaction: there is no record to delete.  It
+// is a durable user boundary, however, so the turn engine can save the exact
+// instruction and answer truthfully instead of claiming a phantom deletion.
+export function detectUnconfirmedLabelRejection(text: string): UnconfirmedLabelRejection | null {
+  const labelMatch=text.match(/(?:忘掉|删除|删掉|清除|移除|去掉)[^“「『\"']{0,8}[“「『\"']([^”」』\"']{1,80})[”」』\"'](?:这个|这条)?(?:从未|未曾|没有)(?:由我|本人)?确认(?:过)?(?:的)?(?:错误|不准确|未经确认)?标签/)
+  const label=labelMatch?.[1]?.trim()
+  if(!label)return null
+  const boundary=scanUserClauses(text).find(clause=>
+    !clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative
+    &&/(?:不要|别|不再).{0,18}(?:从|根据|依据).{0,40}(?:重新)?(?:推出来|推出|推导|推断)/.test(clause.text)
+  )
+  return boundary?{label,boundaryQuote:boundary.text.trim()}:null
 }
 
 const genericChars = new Set([...'我你他她它们了的是一在和都也与及还就很不去要这那有没说会被把'])

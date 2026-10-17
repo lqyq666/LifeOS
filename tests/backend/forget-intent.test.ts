@@ -8,7 +8,7 @@ import { createTurnEngine } from '../../server/agent.ts'
 import { model } from '../../server/model.ts'
 import { config } from '../../server/config.ts'
 import { growthContext, growthBoundaryContext, createGrowthItem } from '../../server/growth.ts'
-import { detectForgetIntentClauses, scoreForgetTargets } from '../../server/forget-intent.ts'
+import { detectForgetIntentClauses, detectUnconfirmedLabelRejection, scoreForgetTargets } from '../../server/forget-intent.ts'
 import { listControlRequests, resolveControlRequest } from '../../server/memory-controls.ts'
 import { localEmbedding } from '../../server/local-embedding.ts'
 
@@ -70,6 +70,11 @@ test('A1 free replay: clause intent classification (N01-N08 + unseen variants)',
   assert.ok(pronounClause)
   const pronounScored = scoreForgetTargets([mkItem('newsletter', '学长反馈公众号主要是排班推送'), mkItem('poster', '我的海报经历记录')], pronounClause!.clauseText, '学长反馈公众号主要是排班推送，我已经确认了。忘掉它吧。')
   assert.equal(pronounScored[0]!.item.id, 'newsletter', 'pronoun resolves against the nearest antecedent clause')
+  assert.deepEqual(
+    detectUnconfirmedLabelRejection('忘掉“我喜欢销售”这个从未由我确认的错误标签；不要从这些经历重新推出来。现在结束，不安排下一步。'),
+    {label:'我喜欢销售',boundaryQuote:'不要从这些经历重新推出来'},
+  )
+  assert.equal(detectUnconfirmedLabelRejection('请忘掉我已经确认过的销售经历。'),null)
 })
 
 // Shared isolated-engine harness: a fake provider returning scripted outputs
@@ -354,4 +359,5 @@ withEngineScenario('A3 full path: intent → staging → finishRun commit → GE
     assert.equal(operationsAfter, operationsBefore, 'replay performed no second growth operation')
     void target
   }
+
 })
