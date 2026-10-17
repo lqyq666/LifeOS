@@ -63,6 +63,26 @@ test('normal LifeOS transaction sends and commits the current grilling policy an
     assert.equal(followStaged.coach,undefined,'an inherited byte-identical material action does not block an otherwise useful ordinary reply')
     assert.ok(followStaged.audit.some((row:any)=>row.phase==='unchanged_unrequested_material_dropped'))
     await store.finishRun(follow,followStaged,followResult.text,followResult.usage,new AbortController().signal)
+
+    const inquirySeed=(await store.startRun(user,conversation,randomUUID(),'整理课程资料让我觉得有秩序。')).run
+    const inquiryStaged=await stageCoachEvent(inquirySeed,{target:{operation:'create',title:'秩序感来源',source:{messageId:inquirySeed.source_message_id,quote:'整理课程资料让我觉得有秩序'}},nodes:[{kind:'unknown',question:'整理资料时具体是哪一步让你觉得有秩序？',affects:'判断值得继续观察的过程',reason:'答案会改变下一步'}]},'整理资料时，具体是哪一步让你觉得有秩序？')
+    const inquiryEvent=(await store.finishRun(inquirySeed,{candidates:[],audit:[],coach:inquiryStaged},inquiryStaged.reply,null,new AbortController().signal)).event!
+    const activeUnknown=inquiryEvent.nodes.find(node=>node.kind==='unknown')!
+    const answerText='我喜欢先把混乱材料按规则归类。现在长期记忆已开启。请只给一个动作，这个动作要说明验证什么、看到什么算有进展、何时停止。不要再让我复述经历。'
+    const answer=(await store.startRun(user,conversation,randomUUID(),answerText)).run,answerStaged:store.Staged={candidates:[],audit:[]}
+    outputs.push({reply:'已更新：你更投入规则归类。',event:{target:{operation:'continue',eventId:inquiryEvent.id,expectedRevision:inquiryEvent.revision},nodes:[
+      {kind:'fact',source:{messageId:answer.source_message_id,quote:'这个动作要说明验证什么'}},
+      {kind:'fact',source:{messageId:answer.source_message_id,quote:'看到什么算有进展'}},
+      {kind:'fact',source:{messageId:answer.source_message_id,quote:'何时停止'}},
+      {kind:'fact',source:{messageId:answer.source_message_id,quote:'现在长期记忆已开启'}},
+    ]}})
+    const answerResult=await createTurnEngine({capabilityVerified:()=>true})({run:answer,staged:answerStaged,context:await store.contextForRun(answer),decision:null,signal:new AbortController().signal,emit:()=>{}})
+    assert.deepEqual(answerStaged.coach?.delta.resolveUnknowns,[activeUnknown.id],'an immediate grounded answer closes the one active question even if the model omits the state transition')
+    assert.deepEqual(answerStaged.coach?.delta.nodes,[],'action-format instructions and product state never become event facts')
+    const answeredEvent=(await store.finishRun(answer,answerStaged,answerResult.text,answerResult.usage,new AbortController().signal)).event!
+    assert.equal(answeredEvent.nodes.find(node=>node.id===activeUnknown.id)?.status,'resolved')
+    for(const instruction of ['这个动作要说明验证什么','看到什么算有进展','何时停止'])assert.ok(!answeredEvent.nodes.some(node=>node.content===instruction))
+    assert.ok(!answeredEvent.nodes.some(node=>node.content==='现在长期记忆已开启'))
   }finally{
     model.baseUrl=previousURL
     config.apiKey=previousKey

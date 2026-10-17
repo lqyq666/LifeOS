@@ -9,6 +9,11 @@ test('actual UI action and interpretation instructions are not autobiographical 
  assert.equal(assistantRequestClause('我想先了解就业实习'),false)
  assert.equal(assistantRequestClause('那就用那个贡献核对方法吧'),true)
  assert.equal(assistantRequestClause('我不会把一次付款当作稳定收入'),false)
+ assert.equal(assistantRequestClause('请重新基于我已保存的具体依据给出可修改的暂定理解'),true)
+ assert.equal(assistantRequestClause('这个动作要说明验证什么'),true)
+ assert.equal(assistantRequestClause('看到什么算有进展'),true)
+ assert.equal(assistantRequestClause('何时停止'),true)
+ assert.equal(assistantRequestClause('不要再让我复述两段经历'),true)
 })
 
 // N1.1/N1.2 behavioral red→green suite: the audit cases from AUDIT_EVIDENCE §3

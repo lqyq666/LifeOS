@@ -419,6 +419,27 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const onlyReadback=clauseCatalogue.every(clause=>clause.interrogative||clause.conditional||clause.quoted||clause.code||clause.attributedToOther||assistantRequestClause(clause.text)||/^(?:请)?只(?:按|说|回答|回顾|说明)|^按我(?:提供|报告)|^上次[^我本人]{1,24}那件事$/.test(clause.text))
   const readOnlyQuestion=methodIntent.decision==='NONE'&&asksRecall&&onlyReadback&&obligations.requiredEffects.length===0&&!currentConversationOnly(current.content)&&!explicitMaterialRequest&&clauseCatalogue.some(clause=>clause.interrogative)
   const boundaryNeedsClarification=!readOnlyQuestion&&!currentConversationOnly(current.content)&&!newMatterExplicit&&(pendingRecommendationIds.size>0||unresolvedTaskBoundaries.some(item=>current.content.includes(item.taskBoundary!.targetText)))
+  // A direct answer to the immediately preceding single event question is a
+  // state transition, even when the provider remembers the personal fact but
+  // omits resolveUnknowns. Keep this deliberately narrow: same conversation,
+  // exactly one active unknown, the previous assistant turn asked that exact
+  // question, and the new non-command statement shares its concrete subject.
+  const immediateAnsweredUnknown=(()=>{
+    if(!currentEvent||currentEvent.conversationId!==run.conversation_id)return null
+    const active=currentEvent.nodes.filter(node=>node.kind==='unknown'&&node.status==='active')
+    if(active.length!==1)return null
+    const unknown=active[0]!,previous=[...allContextMessages].reverse().find(message=>message.id!==run.source_message_id)
+    const normalize=(text:string)=>text.replace(/[^\p{L}\p{N}]/gu,'')
+    if(previous?.role!=='assistant'||!normalize(previous.content).includes(normalize(unknown.content)))return null
+    if(/(?:不知道|不清楚|记不清|不想(?:说|回答)|拒绝回答|稍后再说|下次再说|先暂停)/.test(current.content))return null
+    const answer=clauseCatalogue.filter(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative&&!assistantRequestClause(clause.text)).map(clause=>clause.text).join('')
+    if(!answer.trim())return null
+    const generic=new Set([...'我你他她它们了的是一在和都也与及还就很不去要这那有没说会被把具体什么觉得'])
+    const questionChars=new Set([...normalize(unknown.content)].filter(char=>!generic.has(char)))
+    let overlap=0
+    for(const char of new Set([...normalize(answer)]))if(questionChars.has(char))overlap++
+    return overlap>=1?unknown:null
+  })()
   const growthSelection=selectRelevantGrowth(growthAll.filter(item=>!recommendationBlockedIds.has(item.id)&&!item.taskBoundary),current.content)
   const growth=growthSelection.selected
   if(growthSelection.dropped>0)staged.audit.push({phase:'growth_selection',totalActive:growthSelection.totalActive,selected:growthSelection.selected.length,dropped:growthSelection.dropped,budgetMax:growthSelection.budget.maxItems})
@@ -566,6 +587,15 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   async function validateOutputInner(raw:string):Promise<ActionCoachTurn>{
     let result:ActionCoachTurn
     try{result=parseActionCoachTurn(raw,{allowEmptyMaterialExplanation:resumePortfolioMode,allowEmptyReplyWithCompleteDraft:true})}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
+    if(immediateAnsweredUnknown){
+      const same=!result.event||result.event.target.operation==='continue'&&result.event.target.eventId===currentEvent!.id
+      const alreadyResolved=result.event?.resolveUnknowns?.includes(immediateAnsweredUnknown.id)||result.event?.declineUnknowns?.includes(immediateAnsweredUnknown.id)
+      if(same&&!alreadyResolved){
+        if(!result.event)result.event={target:{operation:'continue',eventId:currentEvent!.id,expectedRevision:currentEvent!.revision},resolveUnknowns:[immediateAnsweredUnknown.id]}
+        else result.event.resolveUnknowns=[...(result.event.resolveUnknowns??[]),immediateAnsweredUnknown.id]
+        if(!staged.audit.some(row=>(row as {phase?:string;nodeId?:string}).phase==='grilling_immediate_answer_resolved'&&(row as {nodeId?:string}).nodeId===immediateAnsweredUnknown.id))staged.audit.push({phase:'grilling_immediate_answer_resolved',nodeId:immediateAnsweredUnknown.id,providerCalls:0})
+      }
+    }
     if(requestedGuide&&!result.citations?.length)throw new HttpError(400,'COACH_CITATION_INVALID')
     if(/"(?:readiness|missingRequired|materialFactIds|materialEvidence)"\s*:/.test(raw))staged.audit.push({phase:'provider_material_metadata_ignored',providerCalls:0})
     if(explicitMaterial?.event?.action&&'draft'in explicitMaterial.event.action&&result.event?.action&&'draft'in result.event.action)result.event.action.draft=explicitMaterial.event.action.draft
@@ -590,12 +620,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(result.event){
       // Apply the same instruction boundary to corrections: a new request or
       // continuation cue cannot overwrite the history it refers to.
-      const commandSource=(quote:string)=>scanUserClauses(quote).every(clause=>!clause.quoted&&!clause.code&&(assistantRequestClause(clause.text)||/^(?:接着|继续|回到)(?:上次|之前|刚才)[^，。！？\n]*$/.test(clause.text)||/^只看[^，。！？\n]{1,40}(?:就好|即可)$/.test(clause.text)))
-      if(result.event.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind==='unknown'||!commandSource(node.source.quote))
+      const excludedEventSource=(quote:string)=>scanUserClauses(quote).every(clause=>!clause.quoted&&!clause.code&&(assistantRequestClause(clause.text)||/^(?:接着|继续|回到)(?:上次|之前|刚才)[^，。！？\n]*$/.test(clause.text)||/^只看[^，。！？\n]{1,40}(?:就好|即可)$/.test(clause.text)||/^(?:现在)?长期记忆(?:已经|已)?(?:开启|关闭)$/.test(clause.text.trim())))
+      if(result.event.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind==='unknown'||!excludedEventSource(node.source.quote))
       if(result.event.corrections){
         const target=result.event.target,event=target.operation==='continue'?[currentEvent,...historicalEvents].find(event=>event?.id===target.eventId):null
         result.event.corrections=result.event.corrections.filter(correction=>{
-          if(commandSource(correction.source.quote))return false
+          if(excludedEventSource(correction.source.quote))return false
           const node=event?.nodes.find(node=>node.id===correction.nodeId)
           // Repeating an existing grounded fragment is a no-op, not a rewrite
           // of the larger historical report. Changed facts still validate and

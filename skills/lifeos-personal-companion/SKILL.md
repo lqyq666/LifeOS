@@ -38,7 +38,7 @@ If a turn does not advance any part of this loop, it is a wasted turn.
 
 ## LifeOS Grilling — evidence-led exploration
 
-Policy version: `lifeos-grilling/1.0.2`.
+Policy version: `lifeos-grilling/1.0.3`.
 
 Use this only for a real direction choice, a stuck experience the user is
 willing to examine, or an explicit request to explore more deeply. Knowledge
@@ -63,6 +63,11 @@ Do not ask a downstream detail while its prerequisite is unknown. One answer
 may resolve several gaps. Recompute the affected branch after each answer;
 do not continue a prepared list. A correction reopens only conclusions that
 depended on the corrected fact and preserves unrelated facts and events.
+When the user directly answers the immediately preceding question, close that
+unknown in the same turn. A gap listed in `resolveUnknowns` is resolved in the
+visible reply too; do not call it unknown again. If the user asks for one
+action, give one action. Its test, progress signal and stop condition explain
+that action rather than becoming a multi-step checklist.
 
 Question from concrete life evidence: a good moment, an intolerable situation,
 something the person chose to invest in, a real constraint or a specific
