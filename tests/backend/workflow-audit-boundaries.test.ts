@@ -13,6 +13,10 @@ test('WF02 explicit unknown clears established use, while questions, hypotheses 
  assert.equal(next.used,null);assert.equal(next.effect,null);assert.equal(next.sent,true);assert.deepEqual(reported,['used'])
  for(const quote of ['如果我没有采用怎么办？','同学说他没有采用。','我想问：对方没有采用吗？','我引用他说的“没有采用”。'])assert.deepEqual(reconcileActionStages(known,quote),known,quote)
 })
+test('WF02 confirmed read-to wording advances only the read stage',()=>{
+ const before={sent:null,read:null,replied:null,used:null,effect:null}
+ assert.deepEqual(reconcileActionStages(before,'回来反馈：我发了PDF；导师确认已经读到；但还没有说是否采用其中建议；也没有给效果反馈'),{sent:true,read:true,replied:null,used:null,effect:null})
+})
 test('WF02 exact saved correction clears false reply/use and their dependent effect, preserving independent sent/read',()=>{
  const f=fixture();f.request.mode='action_review';f.request.consent.continueReview=true
  const current={type:'message' as const,id:randomUUID(),revision:1,quote:'更正一下，我之前说错了：对方没有回复，也没有使用我发的材料。'}
