@@ -244,6 +244,32 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       assert.ok(String(saved.event!.actions[0]!.draft!.content).includes('我负责排版'))
     })
+    await t.test('a later normal-entry draft reuses an exact contribution from conversation history without another model call',async()=>{
+      const actor='ordinary-history-'+randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+      await setMemorySettings(actor,{requestId:randomUUID(),enabled:false,expectedRevision:0})
+      const chat=randomUUID()
+      await store.createConversation(actor,{id:chat,title:'SYNTHETIC prior contribution material'})
+      const prepareHistory=async(text:string)=>{
+        const run=(await store.startRun(actor,chat,randomUUID(),text)).run
+        return {run,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:(_event:Record<string,unknown>)=>{}}
+      }
+      const first=await prepareHistory('我是成年大学生，想先了解就业和自由职业。我在课程小组里负责整理资料和排版，代码是队友做的。目前没有客户，每周能花两小时。先帮我选一个值得了解的问题。')
+      outputs.push({reply:'先核对一个实际岗位每天最常做的任务是什么。'})
+      const firstResult=await engine(first)
+      await store.finishRun(first.run,first.staged,firstResult.text,firstResult.usage,first.signal)
+
+      const draft=await prepareHistory('我想先了解实习岗位，别把小组成果都算成我的能力。帮我写一段只包含本人贡献的作品描述。')
+      const callsBefore=requests.length
+      const result=await engine(draft)
+      assert.equal(requests.length,callsBefore,'one exact current-conversation contribution is a server-rendered material decision')
+      assert.equal(result.text,'我在课程小组里负责整理资料和排版。')
+      assert.ok(draft.staged.audit.some((row:any)=>row.phase==='explicit_material_rendered_without_generation'&&row.basis==='single_verified_literal_contribution'))
+      const saved=await store.finishRun(draft.run,draft.staged,result.text,result.usage,draft.signal)
+      const savedEvent=saved.event as any
+      assert.equal(savedEvent?.actions[0]?.draft?.content,'我在课程小组里负责整理资料和排版。')
+      assert.equal(savedEvent?.actions[0]?.draft?.materialEvidence?.[0]?.sourceRef?.type,'message')
+    })
     await t.test('a recall question does not close an independent new goal in the same message',async()=>{
       const input=await prepare('你记得我之前说过什么吗？我现在决定先就业。')
       outputs.push({reply:'你报告过联系和课程分工；接下来先按就业这个新重点来。',growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:'c1'}}]})

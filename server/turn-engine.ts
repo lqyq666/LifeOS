@@ -456,7 +456,14 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // P4: resume/portfolio materials render from a server-built catalogue of the
   // user's own verified words only; the model selects ids and never authors
   // factual prose for this material class.
-  const materialCatalogue=resumePortfolioMode?buildMaterialFactCatalogue(growth,snapshot.confirmedExperiences,{id:run.source_message_id,conversationId:run.conversation_id,text:current.content}):[]
+  const materialCatalogue=resumePortfolioMode?buildMaterialFactCatalogue(
+    growth,
+    snapshot.confirmedExperiences,
+    {id:run.source_message_id,conversationId:run.conversation_id,text:current.content},
+    allContextMessages
+      .filter(message=>message.role==='user'&&message.id!==run.source_message_id)
+      .map(message=>({id:message.id,conversationId:run.conversation_id,text:message.content??''})),
+  ):[]
   // N1.4: allowed/blocked come from the EFFECTIVE overlay (including this
   // turn's pending pause/resume), not a re-read after generation.
   const blockedDirectionScopes=effectiveControls.filter(row=>row.state==='paused').map(row=>row.scope)

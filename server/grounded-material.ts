@@ -31,7 +31,11 @@ export type VerifiedMaterialFact = {
 export function singleUniqueContributionFact(catalogue:readonly VerifiedMaterialFact[],conversationId?:string):VerifiedMaterialFact|null{
   const contributions=catalogue.filter(fact=>fact.field==='project'&&reportsOwnContribution(fact.text))
   const contextual=conversationId?contributions.filter(fact=>fact.contextKey===conversationId||(fact.sourceRef.type==='message'&&fact.sourceRef.conversationId===conversationId)):[]
-  const eligible=contextual.length?contextual:contributions
+  // A durable, still-authorized record for this matter outranks raw dialogue
+  // history. History is the fallback when promotion was missed; it must not
+  // make an already resolved project ambiguous again.
+  const durableContextual=contextual.filter(fact=>fact.sourceRef.type!=='message')
+  const eligible=durableContextual.length?durableContextual:contextual.length?contextual:contributions
   if(!eligible.length||new Set(eligible.map(fact=>fact.text)).size!==1)return null
   return eligible[0]!
 }
@@ -130,7 +134,14 @@ const kindField:Partial<Record<GrowthItem['kind'],MaterialField>>={
   goal:'target',direction:'target',ability:'project',
 }
 
-export function buildMaterialFactCatalogue(growth:readonly GrowthItem[],confirmedExperiences:readonly ConfirmedExperienceLike[]=[],currentMessage?:{id:string;conversationId:string;text:string}):VerifiedMaterialFact[]{
+type VerifiedConversationMessage={id:string;conversationId:string;text:string}
+
+export function buildMaterialFactCatalogue(
+  growth:readonly GrowthItem[],
+  confirmedExperiences:readonly ConfirmedExperienceLike[]=[],
+  currentMessage?:VerifiedConversationMessage,
+  priorUserMessages:readonly VerifiedConversationMessage[]=[],
+):VerifiedMaterialFact[]{
   const catalogue:VerifiedMaterialFact[]=[]
   const push=(field:MaterialField,text:string,sourceKind:'user_reported'|'user_edit',completeForField:boolean,sourceRef:MaterialSourceRef)=>{
     if(!text.trim()||text.length>4000)return
@@ -161,13 +172,17 @@ export function buildMaterialFactCatalogue(growth:readonly GrowthItem[],confirme
     const text=(experience.content?.summary??experience.source_quote??'').trim()
     push('project',text,'user_reported',false,{type:'experience',id:experience.id,revision:experience.revision})
   }
-  if(currentMessage){
-    const labeled=extractExplicitMaterialFields(currentMessage.text)
+  // The normal chat can refer back to an exact contribution reported earlier
+  // in the same conversation even when the model did not promote that sentence
+  // to long-term growth. Callers supply only server-read user messages after
+  // suppression/redaction; assistant prose never enters this catalogue.
+  for(const message of [...priorUserMessages,currentMessage].filter((entry):entry is VerifiedConversationMessage=>Boolean(entry))){
+    const labeled=extractExplicitMaterialFields(message.text)
     if(labeled.length)labeledBySource.push(labeled)
-    for(const field of labeled)push(field.field,field.text,'user_reported',true,{type:'message',id:currentMessage.id,conversationId:currentMessage.conversationId,quote:field.quote})
-    for(const clause of scanUserClauses(currentMessage.text)){
+    for(const field of labeled)push(field.field,field.text,'user_reported',true,{type:'message',id:message.id,conversationId:message.conversationId,quote:field.quote})
+    for(const clause of scanUserClauses(message.text)){
       if(clause.interrogative||clause.conditional||clause.quoted||clause.code||clause.attributedToOther||clause.quoteSpans.length||!reportsOwnContribution(clause.text))continue
-      push('project',clause.text,'user_reported',false,{type:'message',id:currentMessage.id,conversationId:currentMessage.conversationId,quote:clause.text})
+      push('project',clause.text,'user_reported',false,{type:'message',id:message.id,conversationId:message.conversationId,quote:clause.text})
     }
   }
   // Project completeness is a GROUP property: a source whose labeled fields

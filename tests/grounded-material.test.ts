@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {renderGroundedResume,singleUniqueContributionFact} from '../server/grounded-material.ts'
+import {buildMaterialFactCatalogue,renderGroundedResume,singleUniqueContributionFact} from '../server/grounded-material.ts'
 
 const fact=(catalogueId:string,field:'identity'|'target'|'project'|'skill'|'contact',text:string,complete=false)=>({catalogueId,field,text,sourceKind:'user_reported' as const,completeForField:complete})
 
@@ -55,4 +55,21 @@ test('current-project or byte-identical contribution sources remain one content 
   const unrelated={...different,contextKey:'other-chat'}
   assert.equal(singleUniqueContributionFact([current,unrelated],'current-chat')?.catalogueId,'p1','the current conversation contribution wins over an unrelated project')
   assert.equal(singleUniqueContributionFact([current,unrelated],'other-chat')?.catalogueId,'p3','context selection follows the requested conversation')
+  const rawMessage={...different,sourceRef:{type:'message' as const,id:'m1',conversationId:'current-chat',quote:different.text}}
+  assert.equal(singleUniqueContributionFact([current,rawMessage],'current-chat')?.catalogueId,'p1','a durable current-matter fact outranks extra raw history')
+})
+
+test('an earlier user contribution in the same conversation can ground a later normal-entry draft',()=>{
+  const catalogue=buildMaterialFactCatalogue(
+    [],
+    [],
+    {id:'m2',conversationId:'chat-a',text:'我想先了解实习岗位，帮我写一段只包含本人贡献的作品描述。'},
+    [
+      {id:'m1',conversationId:'chat-a',text:'我在课程小组里负责整理资料和排版，代码是队友做的。'},
+    ],
+  )
+  const contribution=singleUniqueContributionFact(catalogue,'chat-a')
+  assert.equal(contribution?.text,'我在课程小组里负责整理资料和排版')
+  assert.deepEqual(contribution?.sourceRef,{type:'message',id:'m1',conversationId:'chat-a',quote:'我在课程小组里负责整理资料和排版'})
+  assert.ok(!catalogue.some(fact=>fact.text.includes('代码是队友做的')),'another person\'s work is never promoted as the student\'s contribution')
 })
