@@ -112,6 +112,10 @@ export function deriveExplicitDirectionControls(currentText:string):
     // N1.1: quoted/code spans, other people's speech, conditional clauses and
     // question clauses are never the user's own affirmative command.
     if(clause.quoted||clause.code||clause.attributedToOther||clause.conditional||clause.interrogative)continue
+    // “不要推出我适合X” rejects an inference; 推出/推断/推导 is not the
+    // product command “别推X”. Never turn an evidence boundary into a durable
+    // pause for the named direction.
+    if(/(?:不要|别|不应|不能).{0,8}(?:推出|推断|推导|推理).{0,24}(?:适合|结论|判断|方向)/.test(body))continue
     const pause=pauseVerbs.exec(body)??/(?:不再把|不再将).{1,16}作为主线/.exec(body)
     const resume=resumeVerbs.exec(body)
     if(!pause&&!resume)continue

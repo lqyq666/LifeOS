@@ -33,6 +33,8 @@ test('deriveExplicitDirectionControls recognizes only the user\'s own explicit c
     '朋友说先别推升学，但我想继续考研。',
     '你是不是以后都不推升学了？',
     '我不是让你停止升学建议。',
+    '不要推出我适合自由职业。',
+    '别从一次经历推断我适合创业。',
     '他之前说“先别推升学相关的安排”，我没同意。',
     '我对视觉设计比较有兴趣，每周能投入6小时。',
   ])assert.deepEqual(deriveExplicitDirectionControls(text),{status:'none'},text)

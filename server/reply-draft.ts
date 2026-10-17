@@ -58,6 +58,19 @@ export function limitGrillingQuestions(reply:string,userText:string,authorizedTe
   return bounded&&bounded!==reply.trim()?bounded:null
 }
 
+// Named contact channels are operational facts, not harmless prose. Remove a
+// sentence that invents one; the surrounding source-grounded action remains.
+// This never substitutes another channel and never changes persisted state.
+export function removeUnsupportedContactChannels(reply:string,authorizedText:string):string|null{
+  const channels=['私人微信','微信群','QQ群','班群','群里','公开渠道','朋友圈','邮件','短信','微信']
+  const unsupported=channels.filter(channel=>reply.includes(channel)&&!authorizedText.includes(channel))
+  if(!unsupported.length)return null
+  const escaped=unsupported.map(channel=>channel.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')
+  const pattern=new RegExp(`[^。！？!?\\n]*(?:${escaped})[^。！？!?\\n]*[。！？!?]?`,'g')
+  const grounded=reply.replace(pattern,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()
+  return grounded&&grounded!==reply.trim()?grounded:null
+}
+
 // Only a complete plain question can appear before provenance validation.
 // Facts, recommendations, materials and status claims wait for atomic commit.
 export function openingQuestionDraft(raw:string):string|null{
