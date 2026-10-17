@@ -5,7 +5,7 @@ import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from '.
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
 import { retrieveCoachKnowledgeCandidates, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
-import { openingQuestionDraft, safeEarlySentence, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
+import { openingQuestionDraft, openUnreportedChoiceQuestion, safeEarlySentence, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
@@ -587,6 +587,16 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   async function validateOutputInner(raw:string):Promise<ActionCoachTurn>{
     let result:ActionCoachTurn
     try{result=parseActionCoachTurn(raw,{allowEmptyMaterialExplanation:resumePortfolioMode,allowEmptyReplyWithCompleteDraft:true})}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
+    if(grillingMode==='explore'){
+      const original=result.reply,opened=openUnreportedChoiceQuestion(original,current.content)
+      if(opened){
+        result.reply=opened
+        const originalQuestion=original.match(/[^。！!；;\n]*[？?]\s*$/)?.[0]?.trim()
+        const openedQuestion=opened.match(/[^。！!；;\n]*[？?]\s*$/)?.[0]?.trim()
+        if(originalQuestion&&openedQuestion&&result.event?.nodes)for(const node of result.event.nodes)if(node.kind==='unknown'&&node.question.trim()===originalQuestion)node.question=openedQuestion
+        staged.audit.push({phase:'grilling_loaded_choices_opened',providerCalls:0})
+      }
+    }
     if(immediateAnsweredUnknown){
       const same=!result.event||result.event.target.operation==='continue'&&result.event.target.eventId===currentEvent!.id
       const alreadyResolved=result.event?.resolveUnknowns?.includes(immediateAnsweredUnknown.id)||result.event?.declineUnknowns?.includes(immediateAnsweredUnknown.id)

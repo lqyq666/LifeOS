@@ -38,7 +38,7 @@ If a turn does not advance any part of this loop, it is a wasted turn.
 
 ## LifeOS Grilling — evidence-led exploration
 
-Policy version: `lifeos-grilling/1.0.3`.
+Policy version: `lifeos-grilling/1.0.4`.
 
 Use this only for a real direction choice, a stuck experience the user is
 willing to examine, or an explicit request to explore more deeply. Knowledge

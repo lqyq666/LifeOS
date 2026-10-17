@@ -6,6 +6,28 @@ export function requestsOneQuestionReply(text:string):boolean{
   return scanUserClauses(text).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&/^(?:请|麻烦|那就|先)?(?:先)?(?:帮我|给我)(?:选|找|想|确定)(?:出)?一(?:个|条)[^。！？\n]{0,14}(?:问题|提问)[。！？\s]*$/.test(clause.text.trim()))
 }
 
+// A model may obey the one-question limit while still inventing two motives
+// for the student to choose between. Open that final question without another
+// model call when the user did not supply both alternatives. The retained
+// prefix carries the model's grounded topic; only the invented answer choices
+// are removed.
+export function openUnreportedChoiceQuestion(reply:string,userText:string):string|null{
+  const match=/(^|[。！!；;\n]\s*)([^。！!；;\n？?]{2,100}?的)(?:是|在于)[“「『"']?([^。！？?\n]{1,80}?)[”」』"']?[，,]?\s*还是[“「『"']?([^。！？?\n]{1,80}?)[”」』"']?[？?]\s*$/.exec(reply)
+  const clean=(value:string)=>value.trim().replace(/^[“「『"']|[”」』"']$/g,'')
+  if(match){
+    const left=clean(match[3]!),right=clean(match[4]!)
+    if(userText.includes(left)&&userText.includes(right))return null
+    const opened=`${match[2]}具体情况是什么？`
+    return reply.slice(0,match.index)+match[1]+opened
+  }
+  const motive=/(^|[。！!；;\n]\s*)([^。！!；;\n？?]{2,100}?)[，,]?(?:是)?为了([^。！？?\n]{1,80}?)[，,]?\s*还是为了([^。！？?\n]{1,80}?)[？?]\s*$/.exec(reply)
+  if(!motive)return null
+  const left=clean(motive[3]!),right=clean(motive[4]!)
+  if(userText.includes(left)&&userText.includes(right))return null
+  const subject=motive[2]!.replace(/[，,]\s*$/,'')
+  return reply.slice(0,motive.index)+motive[1]+`${subject}，你希望它具体改变什么？`
+}
+
 // Only a complete plain question can appear before provenance validation.
 // Facts, recommendations, materials and status claims wait for atomic commit.
 export function openingQuestionDraft(raw:string):string|null{

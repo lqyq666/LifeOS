@@ -14,7 +14,7 @@ import {stageCoachEvent} from '../../server/action-coach-events.ts'
 test('normal LifeOS transaction sends and commits the current grilling policy and mode',async()=>{
   const originalEncode=localEmbedding.encode.bind(localEmbedding)
   localEmbedding.encode=async(texts:string[])=>texts.map(()=>Array(512).fill(0))
-  const requests:any[]=[],outputs:any[]=[{reply:'你自己想读研，最想得到的结果是什么？'}]
+  const requests:any[]=[],outputs:any[]=[{reply:'你考虑考研时，最想获得的是“更多准备时间”，还是“一个具体方向”？'}]
   const fake=createServer((req,res)=>{
     const chunks:Buffer[]=[]
     req.on('data',chunk=>chunks.push(Buffer.from(chunk)))
@@ -38,7 +38,8 @@ test('normal LifeOS transaction sends and commits the current grilling policy an
     const staged:store.Staged={candidates:[],audit:[]}
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(new Error(`runtime timeout after ${requests.length} provider requests`)),15_000)
     const result=await createTurnEngine({capabilityVerified:()=>true})({run,staged,context:await store.contextForRun(run),decision:null,signal:controller.signal,emit:()=>{}}).finally(()=>clearTimeout(timer))
-    assert.equal(result.text,'你自己想读研，最想得到的结果是什么？')
+    assert.equal(result.text,'你考虑考研时，最想获得的具体情况是什么？')
+    assert.ok(staged.audit.some((row:any)=>row.phase==='grilling_loaded_choices_opened'))
     const system=String(requests[0].messages[0].content)
     assert.ok(system.includes(mainCompanionPolicy.grilling.instructions),'actual provider payload includes the current grilling policy text')
     const context=JSON.parse(requests[0].messages.find((message:any)=>message.role==='user').content)
