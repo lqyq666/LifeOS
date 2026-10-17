@@ -1,11 +1,33 @@
 import { pool, transaction, HttpError, requireRow } from './db.ts'
+import {createHash} from 'node:crypto'
 import { coachEventView, readCoachEvent, type CoachEvent } from './action-coach-events.ts'
 import { localEmbedding, embeddingSignature } from './local-embedding.ts'
 
 export type EventSearch={query:string;eventId?:string;actionId?:string;object?:string;after?:string;before?:string}
 type Encode=(texts:string[],query?:boolean,signal?:AbortSignal)=>Promise<number[][]>
 
-export type ExperienceRankOptions={currentConversationId?:string;now?:number}
+type ExperienceVectorCacheEntry={vectors:number[][]}
+const experienceVectorCache=new Map<string,ExperienceVectorCacheEntry>()
+const EXPERIENCE_VECTOR_CACHE_MAX=2048
+export type ExperienceRankOptions={currentConversationId?:string;now?:number;encode?:Encode}
+
+export function clearExperienceVectorCache(){experienceVectorCache.clear()}
+export function experienceVectorCacheStats(){return {entries:experienceVectorCache.size,limit:EXPERIENCE_VECTOR_CACHE_MAX,signature:embeddingSignature}}
+function experienceCacheKey(row:any){
+  if(typeof row?.id!=='string'||!Number.isInteger(row?.revision))return null
+  const sourceAndContent=createHash('sha256').update(JSON.stringify([row.source_message_id??null,row.source_quote??null,row.content??null])).digest('hex')
+  return `${embeddingSignature}:${row.id}:${row.revision}:${sourceAndContent}`
+}
+function cachedExperienceVectors(key:string){
+  const hit=experienceVectorCache.get(key)
+  if(!hit)return null
+  experienceVectorCache.delete(key);experienceVectorCache.set(key,hit)
+  return hit.vectors
+}
+function saveExperienceVectors(key:string,vectors:number[][]){
+  experienceVectorCache.delete(key);experienceVectorCache.set(key,{vectors})
+  while(experienceVectorCache.size>EXPERIENCE_VECTOR_CACHE_MAX)experienceVectorCache.delete(experienceVectorCache.keys().next().value!)
+}
 
 // Confirmed experiences have already passed the user's importance/consent gate.
 // Retrieval therefore combines semantic relevance with a small, bounded boost
@@ -26,13 +48,28 @@ export function rankExperienceCandidates<T extends {id:unknown;conversation_id?:
 export async function rankConfirmedCoachExperiences(rows:any[],query:string,limit=4,options:ExperienceRankOptions={}){
   if(!rows.length)return []
   if(!query.trim())return rows.slice(0,limit)
-  const vector=(await localEmbedding.encode([query],true))[0]
-  const parts=rows.flatMap((row,index)=>[...new Set([row.content?.summary,row.content?.action,row.content?.result,row.content?.reflection].filter(value=>typeof value==='string'&&value.trim()))].map(text=>({index,text:text as string})))
+  const encode=options.encode??localEmbedding.encode.bind(localEmbedding)
+  const vector=(await encode([query],true))[0]
+  const rowParts=rows.map(row=>[...new Set([row.content?.summary,row.content?.action,row.content?.result,row.content?.reflection].filter(value=>typeof value==='string'&&value.trim()))] as string[])
   const scores=new Map<number,number>()
-  for(let start=0;start<parts.length;start+=32){
-    const batch=parts.slice(start,start+32),encoded=await localEmbedding.encode(batch.map(part=>part.text))
-    batch.forEach((part,index)=>{const score=encoded[index].reduce((sum,value,dimension)=>sum+value*vector[dimension],0);scores.set(part.index,Math.max(scores.get(part.index)??-Infinity,score))})
+  const misses:{rowIndex:number;texts:string[];key:string|null}[]=[]
+  rows.forEach((row,rowIndex)=>{
+    const key=experienceCacheKey(row),cached=key?cachedExperienceVectors(key):null
+    if(cached&&cached.length===rowParts[rowIndex]!.length){
+      for(const embedding of cached){const score=embedding.reduce((sum,value,dimension)=>sum+value*vector[dimension],0);scores.set(rowIndex,Math.max(scores.get(rowIndex)??-Infinity,score))}
+    }else misses.push({rowIndex,texts:rowParts[rowIndex]!,key})
+  })
+  const flat=misses.flatMap(miss=>miss.texts.map((text,partIndex)=>({text,partIndex,...miss})))
+  const encodedByRow=new Map<number,number[][]>()
+  for(let start=0;start<flat.length;start+=32){
+    const batch=flat.slice(start,start+32),encoded=await encode(batch.map(part=>part.text))
+    batch.forEach((part,index)=>{
+      const embedding=encoded[index]!,score=embedding.reduce((sum,value,dimension)=>sum+value*vector[dimension],0)
+      scores.set(part.rowIndex,Math.max(scores.get(part.rowIndex)??-Infinity,score))
+      const vectors=encodedByRow.get(part.rowIndex)??[];vectors[part.partIndex]=embedding;encodedByRow.set(part.rowIndex,vectors)
+    })
   }
+  for(const miss of misses)if(miss.key&&encodedByRow.get(miss.rowIndex)?.length===miss.texts.length)saveExperienceVectors(miss.key,encodedByRow.get(miss.rowIndex)!)
   return rankExperienceCandidates(rows,rows.map((_,index)=>scores.get(index)??-Infinity),options).slice(0,limit)
 }
 

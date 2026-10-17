@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { pool, transaction, HttpError } from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import { stageCoachEvent, invalidateCoachSources, coachEventView } from '../../server/action-coach-events.ts'
-import { indexCoachEventOnce, searchCoachEvents, rankConfirmedCoachExperiences } from '../../server/coach-retrieval.ts'
+import { indexCoachEventOnce, searchCoachEvents, rankConfirmedCoachExperiences, clearExperienceVectorCache, experienceVectorCacheStats } from '../../server/coach-retrieval.ts'
 import { localEmbedding } from '../../server/local-embedding.ts'
 import { setMemorySettings } from '../../server/memory.ts'
 
@@ -136,4 +136,31 @@ test('frozen retrieval uses real offline embeddings and PostgreSQL ownership/ver
     mkdirSync('evidence/v1.3-action-coach',{recursive:true})
     writeFileSync('evidence/v1.3-action-coach/retrieval-db.json',JSON.stringify({evidence:'REAL_POSTGRESQL_REAL_OFFLINE_EMBEDDING_SYNTHETIC_FROZEN_EVENTS',hits:results.filter(result=>result.hit).length,total:results.length,results},null,2)+'\n')
   }finally{await localEmbedding.close();for(const owner of [user,foreign])await pool.query('DELETE FROM "user" WHERE id=$1',[owner]);await pool.end()}
+})
+
+test('confirmed experience vectors scale across 100 and 1000 histories without re-encoding unchanged rows',async()=>{
+  for(const size of [100,1000]){
+    clearExperienceVectorCache()
+    let encodedTexts=0
+    const encode=async(texts:string[],query=false)=>{
+      encodedTexts+=texts.length
+      return texts.map(text=>query||text.includes('旧关键事实')?[1,0]:[0,1])
+    }
+    const rows=Array.from({length:size},(_,index)=>({
+      id:`exp-${size}-${index}`,revision:1,conversation_id:index%2?'other':'current',updated_at:new Date(2026,0,1+index%20).toISOString(),
+      content:{summary:index===0?'三年前的旧关键事实':'普通经历 '+index,action:'做了事情 '+index,result:'结果 '+index,reflection:'复盘 '+index},
+    }))
+    const coldStart=performance.now(),cold=await rankConfirmedCoachExperiences(rows,'现在需要旧关键事实',4,{currentConversationId:'current',encode}),coldMs=performance.now()-coldStart
+    assert.equal(cold[0].id,rows[0].id,'semantic relevance keeps the old key fact retrievable')
+    const coldEncoded=encodedTexts
+    const warmStart=performance.now(),warm=await rankConfirmedCoachExperiences(rows,'现在需要旧关键事实',4,{currentConversationId:'current',encode}),warmMs=performance.now()-warmStart
+    assert.equal(warm[0].id,rows[0].id)
+    assert.equal(encodedTexts-coldEncoded,1,'warm retrieval encodes only the query')
+    const changed=rows.map(row=>row===rows[1]?{...row,revision:2,content:{...row.content,reflection:'更正后的复盘'}}:row)
+    const beforeChanged=encodedTexts
+    await rankConfirmedCoachExperiences(changed,'现在需要旧关键事实',4,{currentConversationId:'current',encode})
+    assert.equal(encodedTexts-beforeChanged,5,'one revision change re-encodes one query and that experience only')
+    assert.ok(experienceVectorCacheStats().entries<=experienceVectorCacheStats().limit)
+    assert.ok(coldMs>=0&&warmMs>=0)
+  }
 })
