@@ -23,7 +23,7 @@ test('explicit first-person crisis switches off growth, event and planning lanes
 test('normal prompt carries server-derived grilling mode and exact policy fingerprint',()=>{
   const id='00000000-0000-4000-8000-000000000001'
   const prompt=JSON.parse(buildTurnPrompt({currentMessageId:id,messages:[{id,role:'user',content:'我在就业和考研之间犹豫。'}]}))
-  assert.equal(prompt.grilling.policyVersion,'lifeos-grilling/1.0.0')
+  assert.equal(prompt.grilling.policyVersion,'lifeos-grilling/1.0.1')
   assert.equal(prompt.grilling.interactionMode,'explore')
   assert.match(prompt.grilling.policyDigest,/^[a-f0-9]{64}$/)
 })

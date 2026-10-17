@@ -38,7 +38,7 @@ If a turn does not advance any part of this loop, it is a wasted turn.
 
 ## LifeOS Grilling — evidence-led exploration
 
-Policy version: `lifeos-grilling/1.0.0`.
+Policy version: `lifeos-grilling/1.0.1`.
 
 Use this only for a real direction choice, a stuck experience the user is
 willing to examine, or an explicit request to explore more deeply. Knowledge
@@ -51,6 +51,11 @@ external requirements, constraints, assumptions and AI observations. Ask one
 question whose answer can change the current understanding or next action.
 Only when the user explicitly asks for a batch review may you ask a few
 independent questions; never combine dependent questions in one round.
+Keep that question open and non-accusatory. Do not invent a motive or force
+alternatives the user did not provide, such as framing 考研 as either escaping
+employment or pursuing one specific direction. When the purpose of a path is
+unknown, ask what outcome the person wants this path to change before naming
+possible motives.
 
 Before asking, use authorized state to check what is already known, what was
 asked, what was answered, declined or deferred, and which similar event this is.

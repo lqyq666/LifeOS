@@ -9,10 +9,12 @@ test('normal LifeOS requests consume the versioned grilling policy instead of a 
   const contract=deriveTurnContract({text:'我不知道毕业后想做什么，想从最近经历开始理清。',knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
   const prompt=turnSystemPrompt('default','qwen3.8-flash',contract,false)
   assert.equal(mainCompanionPolicy.version,'1.3.0-candidate')
-  assert.equal(mainCompanionPolicy.grilling.version,'lifeos-grilling/1.0.0')
+  assert.equal(mainCompanionPolicy.grilling.version,'lifeos-grilling/1.0.1')
   assert.ok(prompt.includes(mainCompanionPolicy.grilling.instructions))
   assert.match(prompt,/Ask one[\s\S]*change the current understanding or next action/)
   assert.match(prompt,/direct deliverables stay direct/)
+  assert.match(prompt,/Do not invent a motive or force[\s\S]{0,8}alternatives/)
+  assert.match(prompt,/what outcome the person wants this path to change/)
   assert.match(prompt,/Store no hidden chain of thought/)
 })
 
