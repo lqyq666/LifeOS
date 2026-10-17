@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {openUnreportedChoiceQuestion,limitGrillingQuestions,removeUnsupportedContactChannels} from '../server/reply-draft.ts'
+import {openUnreportedChoiceQuestion,limitGrillingQuestions,removeUnsupportedContactChannels,groundUnsupportedOperationalResources} from '../server/reply-draft.ts'
 
 test('unreported alternatives become one grounded open question without another model call',()=>{
   assert.equal(openUnreportedChoiceQuestion('你整理资料时，最让你有成就感的是“混乱变有序”，还是“别人能看懂”？','我喜欢把混乱内容按规则归类。'),'你整理资料时，最让你有成就感的具体情况是什么？')
@@ -19,4 +19,10 @@ test('a contact action cannot add an unreported channel',()=>{
   const reply='下一步只需提供一份手机能打开的格式。建议导出PDF，通过微信或邮件直接发给导师。这样先解决访问条件。'
   assert.equal(removeUnsupportedContactChannels(reply,'导师说手机打不开链接。'), '下一步只需提供一份手机能打开的格式。这样先解决访问条件。')
   assert.equal(removeUnsupportedContactChannels(reply,'导师说手机打不开链接，我之前用邮件发送。'), '下一步只需提供一份手机能打开的格式。这样先解决访问条件。')
+})
+
+test('a missing operational source becomes one prerequisite question',()=>{
+  const reply='去即刻、V2EX或小红书找几位接单者，再到校友群私信他们。'
+  assert.equal(groundUnsupportedOperationalResources(reply,'我没有客户，想低成本了解独立接项目。'),'这一步需要一个你确实能访问、也愿意使用的公开资料来源；你目前没有提供具体来源。你手上已有哪一个可用来源？')
+  assert.equal(groundUnsupportedOperationalResources('先查看你提到的小红书收藏。','我在小红书收藏了一篇公开经历。'),null)
 })

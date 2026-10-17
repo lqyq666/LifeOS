@@ -5,7 +5,7 @@ import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from '.
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
 import { retrieveCoachKnowledgeCandidates, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
-import { openingQuestionDraft, openUnreportedChoiceQuestion, limitGrillingQuestions, removeUnsupportedContactChannels, safeEarlySentence, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
+import { openingQuestionDraft, openUnreportedChoiceQuestion, limitGrillingQuestions, removeUnsupportedContactChannels, groundUnsupportedOperationalResources, safeEarlySentence, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
@@ -606,8 +606,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     }
     if((grillingMode==='ordinary'||grillingMode==='explore')&&!materialIntent&&!planIntent){
       const authorizedQuestionText=[current.content,...messages.filter(message=>message.role==='user').map(message=>message.content),...growthAll.filter(item=>item.status==='active'&&!item.unavailableReason).map(item=>item.text),JSON.stringify(snapshot.confirmedExperiences)].join('\n')
-      const grounded=removeUnsupportedContactChannels(result.reply,authorizedQuestionText)
-      if(grounded){result.reply=grounded;staged.audit.push({phase:'unsupported_contact_channel_removed',providerCalls:0})}
+      const resourceGrounded=groundUnsupportedOperationalResources(result.reply,authorizedQuestionText)
+      if(resourceGrounded){result.reply=resourceGrounded;staged.audit.push({phase:'unsupported_operational_resource_replaced',providerCalls:0})}
+      const channelGrounded=removeUnsupportedContactChannels(result.reply,authorizedQuestionText)
+      if(channelGrounded){result.reply=channelGrounded;staged.audit.push({phase:'unsupported_contact_channel_removed',providerCalls:0})}
       const bounded=limitGrillingQuestions(result.reply,current.content,authorizedQuestionText)
       if(bounded){
         result.reply=bounded

@@ -71,6 +71,16 @@ export function removeUnsupportedContactChannels(reply:string,authorizedText:str
   return grounded&&grounded!==reply.trim()?grounded:null
 }
 
+// A suggested experiment may require a real source, but the model cannot make
+// a platform, group or contact appear. When it does, surface the missing
+// prerequisite as one open question instead of leaving a fictitious route in
+// the action. This is a source boundary, not a catalogue of recommended sites.
+export function groundUnsupportedOperationalResources(reply:string,authorizedText:string):string|null{
+  const resources=['即刻','V2EX','小红书','知乎','B站','领英','LinkedIn','校友群','社群','论坛','公众号','贴吧','豆瓣','招聘网站','私信']
+  if(!resources.some(resource=>reply.includes(resource)&&!authorizedText.includes(resource)))return null
+  return '这一步需要一个你确实能访问、也愿意使用的公开资料来源；你目前没有提供具体来源。你手上已有哪一个可用来源？'
+}
+
 // Only a complete plain question can appear before provenance validation.
 // Facts, recommendations, materials and status claims wait for atomic commit.
 export function openingQuestionDraft(raw:string):string|null{
