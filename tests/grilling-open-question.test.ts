@@ -25,4 +25,5 @@ test('a missing operational source becomes one prerequisite question',()=>{
   const reply='去即刻、V2EX或小红书找几位接单者，再到校友群私信他们。'
   assert.equal(groundUnsupportedOperationalResources(reply,'我没有客户，想低成本了解独立接项目。'),'这一步需要一个你确实能访问、也愿意使用的公开资料来源；你目前没有提供具体来源。你手上已有哪一个可用来源？')
   assert.equal(groundUnsupportedOperationalResources('先查看你提到的小红书收藏。','我在小红书收藏了一篇公开经历。'),null)
+  assert.equal(groundUnsupportedOperationalResources('在 GitHub 搜索 solo developer 的公开记录。','我没有提供使用什么平台，也不要虚构渠道。'),'这一步需要一个你确实能访问、也愿意使用的公开资料来源；你目前没有提供具体来源。你手上已有哪一个可用来源？')
 })

@@ -76,8 +76,11 @@ export function removeUnsupportedContactChannels(reply:string,authorizedText:str
 // prerequisite as one open question instead of leaving a fictitious route in
 // the action. This is a source boundary, not a catalogue of recommended sites.
 export function groundUnsupportedOperationalResources(reply:string,authorizedText:string):string|null{
-  const resources=['即刻','V2EX','小红书','知乎','B站','领英','LinkedIn','校友群','社群','论坛','公众号','贴吧','豆瓣','招聘网站','私信']
-  if(!resources.some(resource=>reply.includes(resource)&&!authorizedText.includes(resource)))return null
+  const resources=['即刻','V2EX','小红书','知乎','B站','领英','LinkedIn','GitHub','Gitee','GitLab','Reddit','Twitter','Product Hunt','Indie Hackers','Hacker News','校友群','社群','论坛','公众号','贴吧','豆瓣','招聘网站','私信']
+  const unsupportedNamed=resources.some(resource=>reply.includes(resource)&&!authorizedText.includes(resource))
+  const sourceExplicitlyMissing=/(?:没(?:有)?说|没提|未提供|没有提供).{0,16}(?:平台|渠道|来源)|不虚构.{0,16}(?:联系人|渠道|平台)/.test(authorizedText)
+  const namedSearchRoute=/(?:在|去|通过|使用)\s*[“"']?[A-Za-z][A-Za-z0-9 ._+-]{1,30}[”"']?\s*(?:上|里|中)?(?:搜索|查找|查看|联系|私信)/i.test(reply)
+  if(!unsupportedNamed&&!(sourceExplicitlyMissing&&namedSearchRoute))return null
   return '这一步需要一个你确实能访问、也愿意使用的公开资料来源；你目前没有提供具体来源。你手上已有哪一个可用来源？'
 }
 
