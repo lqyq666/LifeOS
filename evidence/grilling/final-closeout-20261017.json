@@ -1,0 +1,134 @@
+{
+  "kind": "LIFEOS_GRILLING_FINAL_CLOSEOUT",
+  "recordedAt": "2026-10-17T14:30:00+08:00",
+  "source": {
+    "upstream": "mattpocock/skills:skills/productivity/grilling/SKILL.md",
+    "localSourceSha256": "FA5C1E5EE76B1C8F1AE56101F52C9E239DE75D5C578ADC61227B92D10B7E52EF",
+    "adaptedPolicyVersion": "lifeos-grilling/1.0.8",
+    "adaptedPolicyDigest": "70f4cee93c7492149e5a961072d91dc5f89283999ea9be3eea6be1c9e146e5e8"
+  },
+  "candidate": {
+    "head": "a6dcfa145152cbd0c6682ad6c39547a3ee6fd242",
+    "sourceDigest": "8fc4f533ab20932ff6f1340a9aa1418967bb38b217a8e152069f63edd28e5e38",
+    "sourceFreezeDigest": "68ddfe02af1b9485d5e80b5f7cd82013fc54ffd1b29bc654a4ddaa0461a83b2d",
+    "imageId": "sha256:d06a149ab7abe6809f662d3b54596831d66d930164e53e490f8a46192d3e25c2",
+    "imageTag": "lifeos:grilling-a6dcfa1-cap",
+    "publicVersionReadback": true,
+    "publicReady": true,
+    "normalUiObserved": true
+  },
+  "integration": {
+    "status": "PASS",
+    "policyConsumedByNormalTurnPrompt": true,
+    "behaviorSensitiveTests": true,
+    "ordinaryMainCalls": "0-1",
+    "newAgentOrFramework": false,
+    "jevEnabled": false
+  },
+  "realModelChains": {
+    "status": "PARTIAL",
+    "initialFrozenHead": "6cff01a847c06126c3fd9f0c0e086a4fe6275d48",
+    "mainLines": 6,
+    "sessions": 18,
+    "firstAttempts": 36,
+    "technicalCompletions": 36,
+    "automaticRetries": 0,
+    "preservedSemanticFailures": [
+      "external expectation was incorrectly assigned zero weight",
+      "refusing entrepreneurship incorrectly paused freelance exploration",
+      "access failure invented contact channels",
+      "two positive experiences were called stable"
+    ],
+    "finalAffectedHoldouts": {
+      "semanticallyPassed": [
+        "external expectation remains separate without being discarded",
+        "missing source is kept missing",
+        "small samples do not become stable preferences",
+        "open question does not invent motives",
+        "reported mobile access failure is handled before delivery channel",
+        "zero-time refusal ends without a task",
+        "normal public UI ends with result unknown and no arrangement"
+      ],
+      "automationFalseNegativesPreserved": [
+        "negated phrase 'not a stable preference' matched a naive stable-preference regex",
+        "negated phrase 'no arrangement' matched a naive task regex",
+        "a valid concrete work-type question did not match the narrow source-gap regex"
+      ],
+      "completeFinalVersionSixChainReplay": false
+    }
+  },
+  "pairedGain": {
+    "status": "FAIL_NO_COMPLETED_REVIEW",
+    "pairs": 12,
+    "reviewer": "independent_ai_not_human",
+    "blindLabels": true,
+    "completed": false,
+    "automaticRetries": 0,
+    "acceptedThresholdMet": false,
+    "limitations": [
+      "review call returned no completed reply",
+      "same-input historical pairs were exposed during implementation",
+      "final narrow postprocessors were not represented in the older candidate side"
+    ]
+  },
+  "performance": {
+    "status": "FAIL",
+    "firstAttempts": 20,
+    "realModelSamples": 19,
+    "zeroModelSamples": 1,
+    "businessFailures": 0,
+    "automaticRetries": 0,
+    "firstUsefulP50Ms": 3985.0861,
+    "firstUsefulP95Ms": 8392.4365,
+    "completeP95Ms": 15130.0781,
+    "realModelFirstUsefulP95Ms": 10156.0102,
+    "realModelCompleteP95Ms": 16163.3063,
+    "targetFirstUsefulP95Ms": 5000,
+    "targetCompleteP95Ms": 15000,
+    "estimatedCostCny": 0.0460052,
+    "versionSplicing": false
+  },
+  "memoryScale": {
+    "status": "PASS_REUSED_UNAFFECTED",
+    "evidenceHead": "56de1d4d5d74809468561721e95f09f7f2100665",
+    "hundred": {
+      "coldMs": 441.164,
+      "coldEncodedTexts": 401,
+      "warmMs": 7.871,
+      "warmEncodedTexts": 1,
+      "oldRelevantFactFound": true
+    },
+    "thousand": {
+      "coldMs": 4268.364,
+      "coldEncodedTexts": 4001,
+      "warmMs": 26.24,
+      "warmEncodedTexts": 1,
+      "oldRelevantFactFound": true
+    }
+  },
+  "runtimeAndRecovery": {
+    "serviceActive": true,
+    "containerRunning": true,
+    "rollbackScriptPresent": true,
+    "rollbackComposePresent": true,
+    "latestObservedDatabaseBackup": "/opt/lifeos/backups/grilling-20261017-56de1d4/lifeos-pre-grilling.dump",
+    "exactCurrentDatabaseBackupObserved": false,
+    "lifeosBackupTimerObserved": false,
+    "controlledReleaseConcurrencyEvidence": false,
+    "diskAvailableGiB": 6.8,
+    "diskUsedPercent": 82,
+    "memoryAvailableMiB": 2049
+  },
+  "cost": {
+    "knownUniqueProviderCallsAcrossRecordedGrillingEvidence": 128,
+    "knownEstimatedCostCny": 0.4583597,
+    "incompleteReviewerCharge": "UNKNOWN",
+    "priorLedgerUnknownsPreserved": true,
+    "automaticPaidRetry": false
+  },
+  "labels": {
+    "GRILLING_CORE_ACCEPTED": false,
+    "LIMITED_RELEASE_READY": false,
+    "LONG_TERM_VALUE": "PENDING"
+  }
+}
