@@ -66,6 +66,11 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
           if(activeUnknowns.length)eventProperties[key]={...eventProperties[key],items:{type:'string',enum:activeUnknowns}}
           else delete eventProperties[key]
         }
+        const unknownBranch=eventProperties.nodes?.items?.anyOf?.find((branch:any)=>branch.properties?.kind?.const==='unknown')
+        if(unknownBranch?.properties?.dependsOn){
+          if(activeUnknowns.length)unknownBranch.properties.dependsOn={...unknownBranch.properties.dependsOn,items:{...unknownBranch.properties.dependsOn.items,enum:activeUnknowns}}
+          else delete unknownBranch.properties.dependsOn
+        }
         if(eventProperties.corrections){
           if(knownNodes.length){
             const items={...eventProperties.corrections.items,properties:{...eventProperties.corrections.items.properties,nodeId:{...eventProperties.corrections.items.properties.nodeId,enum:knownNodes}}}

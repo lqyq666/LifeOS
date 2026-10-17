@@ -6,7 +6,12 @@ const text=(maxLength=16000)=>Type.String({minLength:1,maxLength})
 const id=Type.String({pattern:'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'})
 export const processSourceSchema=Type.Object({messageId:{...id,description:'只复制本轮currentUserMessage.id。不能把历史消息的原话重新标成本轮消息。'},quote:{...text(8000),description:'必须是本轮最后一条用户消息中的连续原文，不能引用更早消息、拼接或改写。历史事实已在事件/对话中，不重复生成到本轮新节点。'}},{additionalProperties:false})
 const reportedNode=Type.Object({kind:Type.Union([Type.Literal('fact'),Type.Literal('feeling'),Type.Literal('user_interpretation')]),source:processSourceSchema},{additionalProperties:false,description:'一项当前用户陈述及其连续原话。已知旧陈述不重新生成，补充新信息使用新节点。事实、感受与用户解释分别表达。'})
-const unknownNode=Type.Object({kind:Type.Literal('unknown'),question:text(2000)},{additionalProperties:false,description:'当前关键未知的具体问题；记不清的详情仍未知。只保留会改变理解或下一步的信息，不把已明确的经过重新记作未知。'})
+const unknownNode=Type.Object({
+  kind:Type.Literal('unknown'),question:text(2000),
+  affects:Type.Optional(text(500)),
+  reason:Type.Optional(text(500)),
+  dependsOn:Type.Optional(Type.Array(id,{maxItems:8,uniqueItems:true})),
+},{additionalProperties:false,description:'当前关键未知的具体问题；affects说明答案会改变哪项判断或行动，reason只写简短选问理由，dependsOn只引用同一事件仍active的上游unknown。不是隐藏思维过程。记不清的详情仍未知；不把已明确经过重新记作未知。'})
 const processNode=Type.Union([reportedNode,unknownNode])
 // The server creates identities and revisions. The model selects existing
 // records by ID/revision only; it cannot create an ID or mark a plan executed.

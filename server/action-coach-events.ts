@@ -26,7 +26,7 @@ function bindStagedMaterialSources(schema:unknown){
 bindStagedMaterialSources(stagedEventSchema)
 
 export type CoachSource={messageId:string;quote:string;conversationId:string}
-export type CoachNode={id:string;revision:number;kind:'fact'|'feeling'|'user_interpretation'|'unknown';status:'active'|'resolved'|'declined';content:string;source:CoachSource|null;supersededByActionCorrection?:boolean}
+export type CoachNode={id:string;revision:number;kind:'fact'|'feeling'|'user_interpretation'|'unknown';status:'active'|'resolved'|'declined';content:string;source:CoachSource|null;inquiryContext?:{affects:string;reason:string;dependsOn:string[]};supersededByActionCorrection?:boolean}
 export type CoachAction={id:string;revision:number;status:'proposed'|'closed'|'stale';draft:Record<string,unknown>|null;closedReason:string|null;knowledgeRefs?:CoachKnowledgeRef[];requestSources?:CoachSource[];unavailableReasons?:('knowledge_sources_changed_or_unavailable'|'user_sources_unavailable'|'material_withdrawn')[]}
 export type CoachProcessTurn={revision:number;sourceMessageId:string;nodeIds:string[];questionsAskedAfterInput:string[];inputSources?:CoachSource[];introducedUnknownNodeIds?:string[]}
 export type CoachEvent={id:string;conversationId:string;title:string;revision:number;generation:number;nodes:CoachNode[];actions:CoachAction[];asked:string[];processTurns?:CoachProcessTurn[];actionStages?:ActionCase['known'];actionStageEvidence?:Partial<Record<keyof ActionCase['known'],{sourceMessageId:string;eventRevision:number;evidenceQuotes:string[]}>>;createdAt:string;updatedAt:string}
@@ -206,6 +206,7 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
   if(delta.target.operation==='create'){
     await currentSource(c,run,delta.target.source)
     if(delta.corrections?.length||delta.resolveUnknowns?.length||delta.declineUnknowns?.length||delta.action&&delta.action.operation!=='create')throw new HttpError(400,'COACH_NEW_EVENT_TARGET_INVALID')
+    if((delta.nodes??[]).some(node=>node.kind==='unknown'&&node.dependsOn?.length))throw new HttpError(400,'COACH_UNKNOWN_DEPENDENCY_INVALID')
   }else{
     const event=await eventFor(c,run.user_id,run.conversation_id,delta.target.eventId)
     if(event.revision!==delta.target.expectedRevision)throw new HttpError(409,'COACH_EVENT_REVISION_CONFLICT')
@@ -220,6 +221,10 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
     }
     const resolved=new Set(delta.resolveUnknowns??[])
     if((delta.declineUnknowns??[]).some(id=>resolved.has(id)))throw new HttpError(400,'COACH_UNKNOWN_DISPOSITION_CONFLICT')
+    const activeUnknownIds=new Set((await c.query("SELECT id FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND kind='unknown' AND status='active'",[run.user_id,event.id])).rows.map(row=>String(row.id)))
+    for(const node of delta.nodes??[])if(node.kind==='unknown'&&(node.dependsOn??[]).some(id=>!activeUnknownIds.has(id)))throw new HttpError(400,'COACH_UNKNOWN_DEPENDENCY_INVALID')
+    const asked=new Set(visibleCoachQuestions(reply))
+    for(const node of delta.nodes??[])if(node.kind==='unknown'&&asked.has(node.question)&&(node.dependsOn??[]).some(id=>activeUnknownIds.has(id)&&!resolved.has(id)))throw new HttpError(400,'COACH_UNKNOWN_PREREQUISITE_OPEN')
     for(const id of delta.resolveUnknowns??[]){
       if(!(await c.query("SELECT 1 FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND id=$3 AND kind='unknown' AND status='active'",[run.user_id,event.id,id])).rowCount)throw new HttpError(400,'COACH_UNKNOWN_NOT_FOUND')
     }
@@ -292,10 +297,13 @@ export async function persistCoachEvent(c:PoolClient,run:Run,staged:CoachStaged)
     if(node.kind!=='unknown'&&source===null)continue
     const content=node.kind==='unknown'?node.question:node.source.quote
     const duplicate=(await c.query("SELECT 1 FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status='active' AND kind=$3 AND content=$4 AND source IS NOT DISTINCT FROM $5::jsonb",[run.user_id,staged.eventId,node.kind,content,source?JSON.stringify(source):null])).rowCount
-    if(!duplicate)await c.query('INSERT INTO coach_nodes(id,user_id,event_id,kind,content,source) VALUES($1,$2,$3,$4,$5,$6)',[randomUUID(),run.user_id,staged.eventId,node.kind,content,source])
+    if(!duplicate){
+      const inquiryContext=node.kind==='unknown'?{affects:node.affects?.trim()||'当前事项的理解或下一步',reason:node.reason?.trim()||'这个答案会改变当前判断或行动',dependsOn:node.dependsOn??[]}:{ }
+      await c.query('INSERT INTO coach_nodes(id,user_id,event_id,kind,content,source,inquiry_context) VALUES($1,$2,$3,$4,$5,$6,$7)',[randomUUID(),run.user_id,staged.eventId,node.kind,content,source,inquiryContext])
+    }
   }
   for(const correction of delta.corrections??[]){
-    await c.query("UPDATE coach_nodes SET source=$4,content=$5,kind=CASE WHEN kind='unknown' THEN 'fact' ELSE kind END,status='active',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND id=$3",[run.user_id,staged.eventId,correction.nodeId,await currentSource(c,run,correction.source),correction.source.quote])
+    await c.query("UPDATE coach_nodes SET source=$4,content=$5,kind=CASE WHEN kind='unknown' THEN 'fact' ELSE kind END,inquiry_context=CASE WHEN kind='unknown' THEN '{}'::jsonb ELSE inquiry_context END,status='active',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND id=$3",[run.user_id,staged.eventId,correction.nodeId,await currentSource(c,run,correction.source),correction.source.quote])
   }
   for(const id of delta.resolveUnknowns??[])await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND id=$3",[run.user_id,staged.eventId,id])
   for(const id of delta.declineUnknowns??[])await c.query("UPDATE coach_nodes SET status='declined',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND id=$3",[run.user_id,staged.eventId,id])
@@ -363,7 +371,7 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
   const sources=new Map(available.map(message=>[message.id,message]))
   const valid=(source:CoachSource)=>{const message=sources.get(source.messageId);return Boolean(message&&message.conversation_id===source.conversationId&&source.quote.trim()&&message.content.includes(source.quote))}
   if(!valid(row.title_source))throw new HttpError(409,'COACH_SOURCE_REVOKED')
-  const nodes:CoachNode[]=rows.filter(node=>!node.source||valid(node.source)).map(node=>({id:node.id,revision:node.revision,kind:node.kind,status:node.status,content:node.content,source:node.source}))
+  const nodes:CoachNode[]=rows.filter(node=>!node.source||valid(node.source)).map(node=>({id:node.id,revision:node.revision,kind:node.kind,status:node.status,content:node.content,source:node.source,...(node.kind==='unknown'?{inquiryContext:{affects:String(node.inquiry_context?.affects??'当前事项的理解或下一步'),reason:String(node.inquiry_context?.reason??'这个答案会改变当前判断或行动'),dependsOn:Array.isArray(node.inquiry_context?.dependsOn)?node.inquiry_context.dependsOn.map(String):[]}}:{})}))
   const nodeQuotes=new Map<string,string[]>()
   for(const node of [...nodes,...history.flatMap(turn=>Array.isArray(turn.nodes)?turn.nodes:[])]){
     if(node.source)nodeQuotes.set(node.source.messageId,[...nodeQuotes.get(node.source.messageId)??[],node.source.quote])
