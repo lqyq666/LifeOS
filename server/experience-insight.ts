@@ -16,19 +16,40 @@ export type ExperienceSummary = {
   unknowns: string
 }
 
+export type ExperienceOutcomeKey='read'|'response'|'adoption'|'payment'|'effect'
+
+// Outcome stages belong only to experiences that actually involve another
+// party, a deliverable or a commercial exchange. Everyday life, sport,
+// friendship, interests and private study feelings must not inherit a sales
+// funnel merely because the storage shape can represent one.
+export function applicableExperienceOutcomes(data:{summary?:string;action?:string;result?:string;sourceQuote?:string}):ExperienceOutcomeKey[]{
+  const text=[data.summary,data.action,data.result,data.sourceQuote].filter(Boolean).join(' ')
+  const interaction=/(?:发给|发送|联系|私信|邮件|消息|询问|请教|提交|交付|分享给|给.{0,12}(?:老师|同学|学长|学姐|客户|负责人|部长|室友)|(?:老师|同学|学长|学姐|客户|负责人|部长|室友).{0,6}(?:说|回复|回应|反馈))/.test(text)
+  const deliverable=/(?:材料|文档|简历|作品|海报|推文|方案|产品|原型|链接|文件|报告|代码|视频|问卷)/.test(text)
+  const commercial=/(?:客户|订单|报价|收费|付费|付款|收入|薪酬|报酬|成交|接单|¥|元)/.test(text)
+  const effectRelevant=deliverable||/(?:试用|测试|实验|干预|训练|采用|使用|效果)/.test(text)
+  return [
+    ...(interaction?['read','response'] as const:[]),
+    ...(deliverable||/(?:采用|使用|用了|没用)/.test(text)?['adoption'] as const:[]),
+    ...(commercial?['payment'] as const:[]),
+    ...(effectRelevant?['effect'] as const:[]),
+  ]
+}
+
 // 阅读态摘要只整理已存的本人原话字段。空字段明确显示未知，不用一次经历
 // 推断稳定能力、成功、采用或效果；summary 只在行动字段为空时兜底。
-export function summarizeExperience(data: { summary?: string; action?: string; result?: string; reflection?: string; outcomes?: Record<string, { status?: string } | undefined> }): ExperienceSummary {
+export function summarizeExperience(data: { summary?: string; action?: string; result?: string; reflection?: string; outcomes?: Record<string, { status?: string } | undefined>; applicableOutcomes?: readonly ExperienceOutcomeKey[] }): ExperienceSummary {
   const outcomeLabels: Record<string,string> = { read:'是否读过', response:'是否回应', adoption:'是否采用', payment:'是否付款', effect:'实际效果' }
+  const applicable=new Set(data.applicableOutcomes??applicableExperienceOutcomes(data))
   const unknown = [
     ...(!data.result?.trim() ? ['结果'] : []),
-    ...Object.entries(outcomeLabels).filter(([key]) => !data.outcomes?.[key]?.status || data.outcomes[key]?.status === 'unknown').map(([,label]) => label),
+    ...Object.entries(outcomeLabels).filter(([key]) => applicable.has(key as ExperienceOutcomeKey)&&(!data.outcomes?.[key]?.status || data.outcomes[key]?.status === 'unknown')).map(([,label]) => label),
   ]
   return {
     action: data.action?.trim() || data.summary?.trim() || '尚未记录本人行动',
     result: data.result?.trim() || '尚未记录结果',
     reflection: data.reflection?.trim() || '尚未记录本人复盘',
-    unknowns: unknown.length ? `${unknown.join('、')}仍未知` : '未报告的其他影响仍未知',
+    unknowns: unknown.length ? `${unknown.join('、')}仍未知` : '',
   }
 }
 

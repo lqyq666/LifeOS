@@ -125,13 +125,13 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
               <div><dt>我做了什么</dt><dd>{(node as any).experienceSummary.action}</dd></div>
               <div><dt>已报告结果</dt><dd>{(node as any).experienceSummary.result}</dd></div>
               <div><dt>本人复盘</dt><dd>{(node as any).experienceSummary.reflection}</dd></div>
-              <div><dt>仍未知</dt><dd>{(node as any).experienceSummary.unknowns}</dd></div>
+              {(node as any).experienceSummary.unknowns && <div><dt>仍未知</dt><dd>{(node as any).experienceSummary.unknowns}</dd></div>}
             </dl>
           </section>}
-          {(node as any).taskOutcomes && <section className="record-outcomes" aria-label="分别记录的结果">
+          {Array.isArray((node as any).outcomeKeys) && (node as any).outcomeKeys.length > 0 && <section className="record-outcomes" aria-label="分别记录的结果">
             <h3>分别记录的结果</h3>
             <p>按本人报告保留，未报告的结果仍未知。</p>
-            <dl>{Object.entries({read:'是否读过',response:'是否回应',adoption:'是否采用',payment:'是否付款',effect:'实际效果'}).map(([key,label])=>{
+            <dl>{Object.entries({read:'是否读过',response:'是否回应',adoption:'是否采用',payment:'是否付款',effect:'实际效果'}).filter(([key])=>(node as any).outcomeKeys.includes(key)).map(([key,label])=>{
               const outcome=(node as any).taskOutcomes[key]
               const labels:Record<string,string>={reported_read:'已读',reported_no_response:'尚未回复',reported_not_used:'尚未使用',reported_used:'已经使用',reported_unpaid:'尚未付款',reported_paid:'已经付款',unknown:'未知'}
               return <div key={key}><dt>{label}</dt><dd>{labels[outcome?.status]??'未知'}{outcome?.quote && <span> · 原话：{outcome.quote}</span>}</dd></div>

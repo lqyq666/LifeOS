@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { rankPrimaryThemes } from '../server/user-themes.ts'
-import { summarizeExperience } from '../server/experience-insight.ts'
+import { applicableExperienceOutcomes, summarizeExperience } from '../server/experience-insight.ts'
 
 const theme = (title:string, over:Record<string,unknown>={}) => ({
   id:title, title, status:'active', pinned:false,
@@ -30,9 +30,17 @@ test('experience summary keeps action, reported result and unknowns separate',()
     action:'上周我完成了招新海报',
     result:'部长说整体效果还不错',
     reflection:'尚未记录本人复盘',
-    unknowns:'是否读过、是否回应、是否采用、是否付款、实际效果仍未知',
+    unknowns:'是否读过、是否回应、是否采用、实际效果仍未知',
   })
   assert.deepEqual(summarizeExperience({summary:'我整理了访谈记录。',action:'我整理了访谈记录',result:'',reflection:'下次先区分原话和判断'}),{
-    action:'我整理了访谈记录',result:'尚未记录结果',reflection:'下次先区分原话和判断',unknowns:'结果、是否读过、是否回应、是否采用、是否付款、实际效果仍未知',
+    action:'我整理了访谈记录',result:'尚未记录结果',reflection:'下次先区分原话和判断',unknowns:'结果仍未知',
   })
+})
+
+test('experience outcomes are applicable to the experience instead of a universal delivery funnel',()=>{
+  const everyday={summary:'和室友打羽毛球后觉得轻松',action:'我和室友打了羽毛球',result:'我觉得轻松',sourceQuote:'昨天我和室友打羽毛球后觉得轻松'}
+  assert.deepEqual(applicableExperienceOutcomes(everyday),[])
+  assert.equal(summarizeExperience(everyday).unknowns,'')
+  assert.deepEqual(applicableExperienceOutcomes({action:'我把海报发给了部长',result:'还没回复'}),['read','response','adoption','effect'])
+  assert.deepEqual(applicableExperienceOutcomes({action:'我给客户交付了海报',result:'客户还没付款'}),['read','response','adoption','payment','effect'])
 })
