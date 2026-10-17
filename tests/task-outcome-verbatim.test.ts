@@ -21,6 +21,15 @@ test('actual task observations retain separate read, response and adoption state
  assert.deepEqual(reportedTaskOutcomeClauses(text).map(c=>c.text),['对方已经读了','但没有回复','也没有采用'])
  for(const other of ['案例里学生联系学长，对方已经读了。','如果我联系学长，对方已经读了也可能不回复。','我联系学长了吗？对方已经读了？','学长说：“我交付了，对方已经采用。”'])assert.deepEqual(reportedTaskOutcomeClauses(other),[],other)
 })
+
+test('confirmed read-to wording keeps read separate from adoption and effect',()=>{
+ const text='回来反馈：我发了PDF，导师确认已经读到，但还没有说是否采用其中建议，也没有给效果反馈。'
+ assert.deepEqual(reportedTaskOutcomeClauses(text).map(c=>c.text),['导师确认已经读到','但还没有说是否采用其中建议'])
+ const outcomes=taskOutcomeReadback(text)
+ assert.deepEqual(outcomes.read,{status:'reported_read',quote:'导师确认已经读到'})
+ assert.equal(outcomes.adoption.status,'unknown')
+ assert.equal(outcomes.effect.status,'unknown')
+})
 test('listening retains completed actions and direct reading reports; deferred choices and refusal are not pursuits',()=>{
  const text='我请教导师的邮件已经发出去了，对方看过但没有回应。我现在只想聊聊感受，别建议我催。'
  assert.deepEqual(reportedPerformedTaskClauses(text).map(c=>c.text),['我请教导师的邮件已经发出去了'])

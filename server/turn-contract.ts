@@ -82,7 +82,7 @@ export function reportedTaskOutcomeClauses(text:string,continuingOwnedTask=false
   // An actual task of the speaker must precede any participant observation.
   // Reported speech by that participant stays a report, never a verified effect.
   if(!continuingOwnedTask&&!clauses.some(c=>!c.attributedToOther&&/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|交给|提交|访谈|聊过|问了|问过)/.test(c.text)))return []
-  return clauses.filter(c=>/^(?:对方|客户|学长(?:[\u4e00-\u9fa5A-Z]{1,3})?|学姐(?:[\u4e00-\u9fa5A-Z]{1,3})?|导师(?:[\u4e00-\u9fa5A-Z]{1,3})?|他们|她们|他|她)(?:说|回答|回复)[^，。！？]{1,200}$/.test(c.text)||(/^(?:对方|客户|学长(?:[\u4e00-\u9fa5A-Z]{1,3})?|学姐(?:[\u4e00-\u9fa5A-Z]{1,3})?|导师(?:[\u4e00-\u9fa5A-Z]{1,3})?|他们|她们|他|她|费用)?(?:说|觉得)?(?:[一二三四五六七八九十两\d]+(?:天|周|小时|分钟))?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来|看过|读过|已读|有兴趣)/.test(c.text)&&/(?:读了|读过|看过|已读|回复|回应|没回|采用|使用|用了|用过|会不会用|没用|付款|付费|付钱|没付|感兴趣|有兴趣|有意思)/.test(c.text)))
+  return clauses.filter(c=>/^(?:对方|客户|学长(?:[\u4e00-\u9fa5A-Z]{1,3})?|学姐(?:[\u4e00-\u9fa5A-Z]{1,3})?|导师(?:[\u4e00-\u9fa5A-Z]{1,3})?|他们|她们|他|她)(?:说|回答|回复|确认)[^，。！？]{1,200}$/.test(c.text)||(/^(?:对方|客户|学长(?:[\u4e00-\u9fa5A-Z]{1,3})?|学姐(?:[\u4e00-\u9fa5A-Z]{1,3})?|导师(?:[\u4e00-\u9fa5A-Z]{1,3})?|他们|她们|他|她|费用)?(?:说|觉得)?(?:[一二三四五六七八九十两\d]+(?:天|周|小时|分钟))?(?:已经|还|仍|也|但|并|是否|没有|尚未|未|没|觉得|听起来|看过|读过|读到|已读|有兴趣)/.test(c.text)&&/(?:读了|读过|读到|看过|已读|回复|回应|没回|采用|使用|用了|用过|会不会用|没用|付款|付费|付钱|没付|感兴趣|有兴趣|有意思)/.test(c.text)))
 }
 export function reportedPerformedTaskClauses(text:string){
  return anchorablePersonalClauses(text).filter(c=>!embeddedOtherActorAction(c.text)&&/(?:我|本人)/.test(c.text)&&/(?:发出去了|发出了|发出(?:那个|这个)?(?:问题|消息|邮件|资料|材料)了|发了|交给.{0,10}了|交付了|提交了|问了|问过|聊过|访谈了|已经尝试|尝试了|试做了|开始尝试)/.test(c.text)&&!/(?:想|打算|准备|计划|希望|考虑|愿意|决定|如果|还没|没有|尚未|未曾|没)(?:.{0,40})(?:发出|发了|交给|交付|提交|问|聊|访谈|尝试|试做)/.test(c.text))
@@ -110,7 +110,7 @@ export function taskOutcomeReadback(text:string,authorizedQuotes?:ReadonlySet<st
  for(const c of clauses){
   const q=c.text
   const negativeRead=/(?:没(?:有)?|尚未|还未|未).{0,6}(?:读|看)(?:了|过)?/g,negativeResponse=/(?:没(?:有)?|尚未|还未|未)(?:回复|回应)|没回/g
-  const readNo=q.match(negativeRead)!==null,readYes=/读了|读过|看过|已读/.test(q.replace(negativeRead,''))
+  const readNo=q.match(negativeRead)!==null,readYes=/读了|读过|读到|看过|已读/.test(q.replace(negativeRead,''))
   const responseNo=q.match(negativeResponse)!==null,responseYes=/^(?:对方|客户|学长|导师|他们|她们|他|她)(?:说|觉得)/.test(q)||/(?:已经|已)(?:回复|回应)|回复了|回应了/.test(q.replace(negativeResponse,''))
   if(readNo&&readYes)result.read={status:'unknown',quote:null,conflicting:true}
   else if(readNo)result.read={status:'reported_not_read',quote:q}
