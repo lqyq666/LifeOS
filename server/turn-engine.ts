@@ -1088,9 +1088,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // Nothing-to-correct tolerance: the user NAMED an old value (说成/说错了…)
       // that no active record carries — clause-granularity items may legitimately
       // not contain it. A correction naming no old value at all stays strict.
-      const namesOldValue=/(?:说成|说错|搞错|记错|写错|看错|不对|之前说|以前说|原本是)/.test(oldValueRemainder)
+      const namesOldValue=/(?:说成|说错|搞错|记错|写错|看错|不对|之前说|以前说|原本是)/.test(oldValueRemainder)||/(?:不代表我|并不代表|不是因为)/.test(claimSource)
       const claimDishonest=relatedActiveItem||!namesOldValue
-      if(!amendedNow&&claimDishonest&&/(?:已更正|更正为|更正已记录|已把.{0,24}(?:改|撤|移除|删除)|已经?改成|已经?.{0,12}撤掉|更新为|已更新|已修改)/.test(result.reply))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
+      const groundedInferenceDenial=/(?:不代表我|并不代表|不是因为)/.test(claimSource)&&staged.audit.some(entry=>(entry as {phase?:string;mode?:string}).phase==='correction_server_staged'&&(entry as {mode?:string}).mode==='verbatim_create')
+      if(!amendedNow&&!groundedInferenceDenial&&claimDishonest&&/(?:已更正|更正为|更正已记录|已把.{0,24}(?:改|撤|移除|删除)|已经?改成|已经?.{0,12}撤掉|更新为|已更新|已修改)/.test(result.reply))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
 
     }
     // P4 (F03): the forget-claim guard runs INDEPENDENTLY of any correction

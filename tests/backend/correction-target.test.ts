@@ -126,6 +126,17 @@ test('B1 correction target: converted create (T6 replay), wrong item never overw
     const later = await growthContext(user, chatLater)
     assert.ok(later.some(item => item.text === '我是大二'), 'new conversation: corrected major readable')
     assert.ok(!later.some(item => item.text === '我是大三' && !item.unavailableReason), 'new conversation: superseded major not active')
+
+    // A correction may reject an assistant inference that was never persisted
+    // as a growth item. The grounded denial is a new user-reported fact, and a
+    // reply may truthfully say the understanding was updated without claiming
+    // an unrelated stored item was replaced.
+    const inferenceCorrection = await turn('更正：同学少问一次只是结果，不代表我因此有成就感；我真正轻松的是自己不用反复找。', {
+      reply: '已更新：少问一次只作为结果，轻松感来自自己不用反复找。',
+      growthUpdates: [],
+    })
+    assert.ok(inferenceCorrection.staged.audit.some((a:any)=>a?.phase==='correction_server_staged'))
+    assert.ok((inferenceCorrection.response.stateChange.growth.createdIds as string[]).length>0,'the grounded denial is committed as a new user-reported fact')
   } finally {
     model.baseUrl = prevURL; config.apiKey = prevKey
     await new Promise<void>(d => fake.close(() => d()))
