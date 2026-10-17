@@ -84,6 +84,18 @@ export function groundUnsupportedOperationalResources(reply:string,authorizedTex
   return '这一步需要一个你确实能访问、也愿意使用的公开资料来源；你目前没有提供具体来源。你手上已有哪一个可用来源？'
 }
 
+// A reported mobile-access failure is already the next observable blocker.
+// If the user explicitly withholds the original delivery channel, do not let
+// the model turn that channel into a prerequisite. Keep the investigation on
+// the access condition the user actually reported.
+export function prioritizeReportedAccessFailure(reply:string,userText:string):string|null{
+  const accessReported=/(?:手机|移动端).{0,12}(?:打不开|无法打开|访问不了|不能访问)|(?:打不开|无法打开|访问不了|不能访问).{0,12}(?:手机|移动端)/.test(userText)
+  const channelWithheld=/(?:没有|没|未)(?:提供|说明|说|提).{0,12}(?:发送|原发送)?(?:渠道|方式|平台)|不要.{0,12}(?:追问|选择|替我选).{0,12}(?:渠道|方式|平台)/.test(userText)
+  const channelMadePrerequisite=/(?:关键|真正|下一步).{0,16}(?:缺口|前提).{0,10}(?:发送渠道|发送方式|渠道|方式)|(?:发送渠道|发送方式|原发送渠道).{0,16}[？?]/.test(reply)
+  if(!accessReported||!channelWithheld||!channelMadePrerequisite)return null
+  return '先核对手机端的访问条件：用手机浏览器打开同一链接，记录是空白、报错、需要登录还是加载失败。'
+}
+
 // Only a complete plain question can appear before provenance validation.
 // Facts, recommendations, materials and status claims wait for atomic commit.
 export function openingQuestionDraft(raw:string):string|null{

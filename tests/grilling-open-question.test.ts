@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {openUnreportedChoiceQuestion,limitGrillingQuestions,removeUnsupportedContactChannels,groundUnsupportedOperationalResources} from '../server/reply-draft.ts'
+import {openUnreportedChoiceQuestion,limitGrillingQuestions,removeUnsupportedContactChannels,groundUnsupportedOperationalResources,prioritizeReportedAccessFailure} from '../server/reply-draft.ts'
 
 test('unreported alternatives become one grounded open question without another model call',()=>{
   assert.equal(openUnreportedChoiceQuestion('你整理资料时，最让你有成就感的是“混乱变有序”，还是“别人能看懂”？','我喜欢把混乱内容按规则归类。'),'你整理资料时，最让你有成就感的具体情况是什么？')
@@ -26,4 +26,11 @@ test('a missing operational source becomes one prerequisite question',()=>{
   assert.equal(groundUnsupportedOperationalResources(reply,'我没有客户，想低成本了解独立接项目。'),'这一步需要一个你确实能访问、也愿意使用的公开资料来源；你目前没有提供具体来源。你手上已有哪一个可用来源？')
   assert.equal(groundUnsupportedOperationalResources('先查看你提到的小红书收藏。','我在小红书收藏了一篇公开经历。'),null)
   assert.equal(groundUnsupportedOperationalResources('在 GitHub 搜索 solo developer 的公开记录。','我没有提供使用什么平台，也不要虚构渠道。'),'这一步需要一个你确实能访问、也愿意使用的公开资料来源；你目前没有提供具体来源。你手上已有哪一个可用来源？')
+})
+
+test('a reported access failure outranks a withheld delivery channel',()=>{
+  const reply='真正影响下一步的缺口是原发送渠道。你当时是通过什么方式把作品集发给导师的？'
+  const user='导师说手机打不开我发的作品集。我没有提供原发送渠道，也不要你替我选平台或写消息。现在只处理真正影响下一步的缺口。'
+  assert.equal(prioritizeReportedAccessFailure(reply,user),'先核对手机端的访问条件：用手机浏览器打开同一链接，记录是空白、报错、需要登录还是加载失败。')
+  assert.equal(prioritizeReportedAccessFailure(reply,'导师说手机打不开，我之前用邮件发送。'),null)
 })
