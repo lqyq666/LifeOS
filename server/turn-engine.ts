@@ -11,7 +11,7 @@ import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner
 import { HttpError, pool } from './db.ts'
 import { providerError } from './provider-errors.ts'
 import { parseActionCoachTurn, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
-import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation,requestedBlankJobWorksheet,effectiveMaterialRequest, type CoachEvent } from './action-coach-events.ts'
+import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation,requestedBlankJobWorksheet,effectiveMaterialRequest,unchangedProposedAction, type CoachEvent } from './action-coach-events.ts'
 import { estimateTokens } from './context.ts'
 import { loadSnapshot, stageCoachBackground } from './memory.ts'
 import { readKnownMajor } from './model-router.ts'
@@ -579,10 +579,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     staged.coach=undefined;staged.candidates=[];staged.memoryChanges=[];staged.growth=undefined
     if(result.event?.action&&result.event.action.operation!=='close'&&!materialIntent){
       const target=result.event.target,event=target.operation==='continue'?[currentEvent,...historicalEvents].find(event=>event?.id===target.eventId)??null:null
+      const unchanged=unchangedProposedAction(event,result.event)
       const effective=effectiveMaterialRequest(current.content,result.event.action.operation==='modify'?'modify':'create',event)
-      if(effective.disposition==='declined'||'draft'in result.event.action&&!effective.inheritedCreateRequest){
+      if(unchanged||effective.disposition==='declined'||'draft'in result.event.action&&!effective.inheritedCreateRequest){
         delete result.event.action
-        staged.audit.push({phase:'unsolicited_material_dropped',providerCalls:0})
+        staged.audit.push({phase:unchanged?'unchanged_unrequested_material_dropped':'unsolicited_material_dropped',providerCalls:0})
         if(!result.event.nodes?.length&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
       }
     }

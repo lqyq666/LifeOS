@@ -9,11 +9,12 @@ import {model} from '../../server/model.ts'
 import {config} from '../../server/config.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
 import {mainCompanionPolicy} from '../../server/companion-policy.ts'
+import {stageCoachEvent} from '../../server/action-coach-events.ts'
 
 test('normal LifeOS transaction sends and commits the current grilling policy and mode',async()=>{
   const originalEncode=localEmbedding.encode.bind(localEmbedding)
   localEmbedding.encode=async(texts:string[])=>texts.map(()=>Array(512).fill(0))
-  const requests:any[]=[]
+  const requests:any[]=[],outputs:any[]=[{reply:'你自己想读研，最想得到的结果是什么？'}]
   const fake=createServer((req,res)=>{
     const chunks:Buffer[]=[]
     req.on('data',chunk=>chunks.push(Buffer.from(chunk)))
@@ -21,7 +22,7 @@ test('normal LifeOS transaction sends and commits the current grilling policy an
       requests.push(JSON.parse(Buffer.concat(chunks).toString('utf8')))
       const base={id:'grilling-runtime',object:'chat.completion.chunk',created:1,model:model.id}
       res.writeHead(200,{'Content-Type':'text/event-stream'})
-      res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify({reply:'你自己想读研，最想得到的结果是什么？'})},finish_reason:null}]})+'\n\n')
+      res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(outputs.shift())},finish_reason:null}]})+'\n\n')
       res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:120,completion_tokens:20,total_tokens:140,prompt_tokens_details:{cached_tokens:0}}})+'\n\ndata: [DONE]\n\n')
     })
   })
@@ -49,6 +50,19 @@ test('normal LifeOS transaction sends and commits the current grilling policy an
     const committed=(await pool.query('SELECT tool_audit FROM runs WHERE user_id=$1 AND request_id=$2',[user,run.request_id])).rows[0].tool_audit as any[]
     assert.ok(committed.some(row=>row.phase==='grilling_policy_payload'&&row.policyDigest===mainCompanionPolicy.grilling.policyDigest&&row.callId===payload.callId))
     assert.ok(committed.some(row=>row.phase==='grilling_interaction_mode'&&row.mode==='explore'&&row.policyDigest===mainCompanionPolicy.grilling.policyDigest))
+
+    const seedText='我之前想先写一份求职材料。',seed=(await store.startRun(user,conversation,randomUUID(),seedText)).run
+    const source={messageId:seed.source_message_id,quote:seedText}
+    const seeded=await stageCoachEvent(seed,{target:{operation:'create',title:'求职材料',source},nodes:[{kind:'fact',source}],action:{operation:'create',draft:{content:'原材料'}}},'原材料')
+    const savedSeed=await store.finishRun(seed,{candidates:[],audit:[],coach:seeded},seeded.reply,null,new AbortController().signal)
+    const event=savedSeed.event!,action=event.actions[0]!
+    const follow=(await store.startRun(user,conversation,randomUUID(),'我还没想清楚这份材料对应什么方向，先理清选择。')).run,followStaged:store.Staged={candidates:[],audit:[]}
+    outputs.push({reply:'你希望这份材料最终帮你获得什么机会？',event:{target:{operation:'continue',eventId:event.id,expectedRevision:event.revision},action:{operation:'modify',actionId:action.id,expectedRevision:action.revision,draft:action.draft}}})
+    const followResult=await createTurnEngine({capabilityVerified:()=>true})({run:follow,staged:followStaged,context:await store.contextForRun(follow),decision:null,signal:new AbortController().signal,emit:()=>{}})
+    assert.equal(followResult.text,'你希望这份材料最终帮你获得什么机会？')
+    assert.equal(followStaged.coach,undefined,'an inherited byte-identical material action does not block an otherwise useful ordinary reply')
+    assert.ok(followStaged.audit.some((row:any)=>row.phase==='unchanged_unrequested_material_dropped'))
+    await store.finishRun(follow,followStaged,followResult.text,followResult.usage,new AbortController().signal)
   }finally{
     model.baseUrl=previousURL
     config.apiKey=previousKey

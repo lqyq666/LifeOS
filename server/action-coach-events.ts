@@ -32,6 +32,12 @@ export type CoachProcessTurn={revision:number;sourceMessageId:string;nodeIds:str
 export type CoachEvent={id:string;conversationId:string;title:string;revision:number;generation:number;nodes:CoachNode[];actions:CoachAction[];asked:string[];processTurns?:CoachProcessTurn[];actionStages?:ActionCase['known'];actionStageEvidence?:Partial<Record<keyof ActionCase['known'],{sourceMessageId:string;eventRevision:number;evidenceQuotes:string[]}>>;createdAt:string;updatedAt:string}
 export type CoachStaged={delta:EventDelta;reply:string;eventId:string;actionId?:string;knowledgeRefs?:CoachKnowledgeRef[]}
 
+export function unchangedProposedAction(event:CoachEvent|null|undefined,delta:EventDelta):boolean{
+  if(!event||delta.target.operation!=='continue'||delta.target.eventId!==event.id||delta.action?.operation!=='modify')return false
+  const change=delta.action,current=event.actions.find(action=>action.id===change.actionId)
+  return Boolean(current&&current.status==='proposed'&&current.revision===change.expectedRevision&&current.draft!==null&&JSON.stringify(current.draft)===JSON.stringify(change.draft))
+}
+
 // Retain only contiguous original input outside node-backed quotes. Union all
 // matching ranges first, so overlapping/nested quotes cannot leak old text.
 function unquotedRequestParts(content:string,quotes:readonly string[]):string[]{
