@@ -21,11 +21,17 @@ export function openUnreportedChoiceQuestion(reply:string,userText:string):strin
     return reply.slice(0,match.index)+match[1]+opened
   }
   const motive=/(^|[。！!；;\n]\s*)([^。！!；;\n？?]{2,100}?)[，,]?(?:是)?为了([^。！？?\n]{1,80}?)[，,]?\s*还是为了([^。！？?\n]{1,80}?)[？?]\s*$/.exec(reply)
-  if(!motive)return null
-  const left=clean(motive[3]!),right=clean(motive[4]!)
-  if(userText.includes(left)&&userText.includes(right))return null
-  const subject=motive[2]!.replace(/[，,]\s*$/,'')
-  return reply.slice(0,motive.index)+motive[1]+`${subject}，你希望它具体改变什么？`
+  if(motive){
+    const left=clean(motive[3]!),right=clean(motive[4]!)
+    if(userText.includes(left)&&userText.includes(right))return null
+    const subject=motive[2]!.replace(/[，,]\s*$/,'')
+    return reply.slice(0,motive.index)+motive[1]+`${subject}，你希望它具体改变什么？`
+  }
+  const broad=/(^|[。！!；;\n]\s*)([^。！!；;\n？?]{2,160}?)[，,]\s*还是[^。！？?\n]{1,100}[？?]\s*$/.exec(reply)
+  if(!broad||userText.includes('还是'))return null
+  const scope=/^(.{2,50}?(?:时|中|后))[，,]/.exec(broad[2]!)?.[1]
+  const opened=scope?`${scope}，具体哪一部分最影响你的感受？`:'这件事里，什么具体情况最影响你的判断？'
+  return reply.slice(0,broad.index)+broad[1]+opened
 }
 
 // Only a complete plain question can appear before provenance validation.
