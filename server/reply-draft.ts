@@ -34,6 +34,30 @@ export function openUnreportedChoiceQuestion(reply:string,userText:string):strin
   return reply.slice(0,broad.index)+broad[1]+opened
 }
 
+// Grilling defaults to one decision-relevant question. This post-validation
+// bound is deliberately narrow: it does not author substantive advice, and it
+// runs only on ordinary/exploration turns after the provider response parses.
+// It also prevents an invented contact channel from becoming the chosen next
+// step when that channel is absent from the authorized text.
+export function limitGrillingQuestions(reply:string,userText:string,authorizedText=userText):string|null{
+  if(/(?:一起|同时|分别|批量|一组|多个|几个|三到五个|列出).{0,10}(?:问题|提问)|(?:问题|提问).{0,8}(?:一起|分别|多个|几个)/.test(userText))return null
+  const questionPattern=/[^。！？?!；;\n]*[？?]/g
+  const questions=[...reply.matchAll(questionPattern)]
+  if(questions.length<=1)return null
+  const preferred=questions.find(match=>/(?:复盘问题|下一次访谈问题|关键问题|先问这一点)[:：]?/.test(match[0]))??questions[0]!
+  let selected=preferred[0].trim()
+  const channels=['私人微信','微信群','QQ群','班群','群里','公开渠道','朋友圈','邮件','短信','微信']
+  if(channels.some(channel=>selected.includes(channel)&&!authorizedText.includes(channel))){
+    selected=authorizedText.includes('学长')?'你上次向学长具体问了什么内容？':'你上次具体向对方问了什么内容？'
+  }
+  let kept=false
+  const bounded=reply.replace(questionPattern,question=>{
+    if(!kept&&question===preferred[0]){kept=true;return selected}
+    return ''
+  }).replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').replace(/([。！!；;])\1+/g,'$1').trim()
+  return bounded&&bounded!==reply.trim()?bounded:null
+}
+
 // Only a complete plain question can appear before provenance validation.
 // Facts, recommendations, materials and status claims wait for atomic commit.
 export function openingQuestionDraft(raw:string):string|null{

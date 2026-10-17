@@ -5,7 +5,7 @@ import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from '.
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
 import { retrieveCoachKnowledgeCandidates, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
-import { openingQuestionDraft, openUnreportedChoiceQuestion, safeEarlySentence, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
+import { openingQuestionDraft, openUnreportedChoiceQuestion, limitGrillingQuestions, safeEarlySentence, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
@@ -523,7 +523,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const originalContract=bindPlanBudgetSchema(baseContract,planBudget?.type==='weekly_plan'?planBudget:undefined,current.content,allowedPlanScopes)
   const priorInterviewQuestions=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion)&&requestedQuestionEditClauses(item.text).length>0).map(item=>item.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/, '').replace(/^[“「『]|[”」』]$/g,'')).filter(q=>q.length>0&&q.length<=300)
   const priorInterviewQuestion=priorInterviewQuestions.length===1?priorInterviewQuestions[0]:undefined
-  const boundedReply:BoundedReply|null=boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停的是当时的备考或复习，尚未确认和这次是否同一事项。先核对这次要继续的是哪件事；不把旧暂停套到另一个考试，也不先安排任务。']}:readOnlyQuestion?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):null
+  const boundedReply:BoundedReply|null=boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停的是当时的备考或复习，尚未确认和这次是否同一事项。先核对这次要继续的是哪件事；不把旧暂停套到另一个考试，也不先安排任务。']}:readOnlyQuestion?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):methodIntent.reason==='method_reference_missing'?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'本人所指的既有方法名称或原步骤',choices:['我目前无法确认你说的“上次那个方法”具体是哪一个，因此不换方法。请把方法名或上次那一步贴过来；已解示例缺失、课件链接打不开先按你的原话保留。']}:null
   const hasSeparateQuestion=clauseCatalogue.some(clause=>clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!assistantRequestClause(clause.text))
   const replyMaterial=materialIntent&&!resumePortfolioMode&&!asksRecall&&!hasSeparateQuestion&&!planIntent&&requiresImmediateMaterial(current.content)
   const singleQuestionMaterial=requestsSingleQuestionMaterial(current.content)
@@ -602,6 +602,15 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         const openedQuestion=opened.match(/[^。！!；;\n]*[？?]\s*$/)?.[0]?.trim()
         if(originalQuestion&&openedQuestion&&result.event?.nodes)for(const node of result.event.nodes)if(node.kind==='unknown'&&node.question.trim()===originalQuestion)node.question=openedQuestion
         staged.audit.push({phase:'grilling_loaded_choices_opened',providerCalls:0})
+      }
+    }
+    if((grillingMode==='ordinary'||grillingMode==='explore')&&!materialIntent&&!planIntent){
+      const authorizedQuestionText=[current.content,...messages.filter(message=>message.role==='user').map(message=>message.content),...growthAll.filter(item=>item.status==='active'&&!item.unavailableReason).map(item=>item.text),JSON.stringify(snapshot.confirmedExperiences)].join('\n')
+      const bounded=limitGrillingQuestions(result.reply,current.content,authorizedQuestionText)
+      if(bounded){
+        result.reply=bounded
+        if(result.event?.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind!=='unknown'||bounded.includes(node.question.trim()))
+        staged.audit.push({phase:'grilling_single_question_bounded',providerCalls:0})
       }
     }
     if(immediateAnsweredUnknown){
