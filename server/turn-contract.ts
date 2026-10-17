@@ -3,6 +3,7 @@
 // legacy mode names are retained only for callers reading old contracts.
 
 import { actionCoachTurnSchema } from './action-coach-contracts.ts'
+import {crisisSupportIntent} from './grilling-policy.ts'
 import { scanUserClauses,currentConversationOnly,refusalPreferenceClause,scopedTaskPauseClause,assistantRequestClause } from './user-command-spans.ts'
 import {requiresImmediateMaterial,deliverableIntent} from './action-coach-events.ts'
 import {requiresPlanSlack} from './weekly-plans.ts'
@@ -138,9 +139,9 @@ export function deriveTurnContract(input:{
   // Ordinary generation offers composable outputs. Only explicit user controls,
   // requested planning and available sources narrow the contract; legacy modes
   // never classify a sentence and close another legitimate output lane.
-  const supportOnly=currentConversationOnly(input.text)
+  const crisis=crisisSupportIntent(input.text),supportOnly=currentConversationOnly(input.text)||crisis
   const capabilities:TurnContractCapabilities={
-    growth:!input.readOnly,
+    growth:!input.readOnly&&!crisis,
     // Experience extraction and star-map updates are program-owned. The main
     // model need not generate a second copy of the same autobiographical span.
     candidate:false,
