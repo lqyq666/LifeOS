@@ -5,7 +5,7 @@ import {reportedTaskOutcomeClauses,reportedPerformedTaskClauses,reportedTaskBoun
 import {conversationPreferenceClause,deferredPursuitClause,currentConversationOnly} from '../server/user-command-spans.ts'
 import {pursuitLevel} from '../server/user-themes.ts'
 import {isBlockedExperience} from '../server/starmap-enrichment.ts'
-import {clauseReportsCompleted} from '../server/experience-content.ts'
+import {clauseExpressesFuturePlan,clauseReportsCompleted} from '../server/experience-content.ts'
 import {buildClauseCatalogue} from '../server/clause-catalogue.ts'
 test('persisted V19 natural refusal, listening and exam pause use the shared boundary grammar',()=>{
  const refusal='上次那件作业的事我现在不想接着做，先别再给它排任务了。'
@@ -42,6 +42,13 @@ test('natural delivery and interviews keep reported adoption, payment and intere
  assert.deepEqual(reportedTaskOutcomeClauses('我这次接单做完海报交给客户了，他说已经用了，但还没有付款。').map(c=>c.text),['他说已经用了','但还没有付款'])
  assert.deepEqual(reportedTaskOutcomeClauses('创业这边我问了三个同学，他们觉得听起来有意思，但谁也还没用。').map(c=>c.text),['他们觉得听起来有意思','但谁也还没用'])
  assert.deepEqual(reportedTaskOutcomeClauses('案例中客户说已经用了，但还没有付款。'),[])
+})
+
+test('task outcome nouns do not become future plans',()=>{
+ assert.equal(clauseExpressesFuturePlan('我发了PDF，导师确认已经读到，但还没有说是否采用其中建议，也没有给效果反馈'),false)
+ assert.equal(clauseExpressesFuturePlan('培养计划里有我不喜欢的纯理论必修'),false)
+ assert.equal(clauseExpressesFuturePlan('我计划先核对一个岗位要求'),true)
+ assert.equal(clauseExpressesFuturePlan('我建议先确认导师是否读到'),true)
 })
 
  test("negative non-action never becomes an experience and paid outcomes stay separate",()=>{

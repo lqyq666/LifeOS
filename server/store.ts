@@ -3,7 +3,7 @@ import { randomUUID, createHash } from 'node:crypto'
 import type { PoolClient } from 'pg'
 import { pool, transaction, HttpError, requireRow } from './db.ts'
 import { validate, candidateSchema, retrievalSchema, type Candidate, type ExperienceAction } from './contracts.ts'
-import {clauseExpressesWishToAct,clauseReportsCompleted} from './experience-content.ts'
+import {clauseExpressesFuturePlan,clauseReportsCompleted} from './experience-content.ts'
 import {scanUserClauses} from './user-command-spans.ts'
 import { assertMemoryEvidence, assertSnapshotStillValid, invalidatePatternsForExperience, persistChanges, type MemorySnapshot, type MemoryChange } from './memory.ts'
 import type { DialoguePath } from './dialogue.ts'
@@ -109,7 +109,7 @@ export async function stageCandidate(run:Run,staged:Staged,input:unknown,signal?
   // Bound the check to the quoted sentence, so an unrelated unfinished event cannot revoke a real action.
   const quotedSentence=source.content.slice(source.content.indexOf(candidate.quote),source.content.indexOf(candidate.quote)+candidate.quote.length+80).split(/[。！？\n]/,1)[0]
   if(!completedPast&&/(?:考虑|想过|设想|构想|想象)/.test(candidate.quote)&&/(?:没有|还没|并未|尚未|未).{0,8}(?:开始|动手|行动|执行|实施)/.test(quotedSentence))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
-  if(/打算|希望|将要|下次|明天|以后/.test(candidate.quote)||(!completedPast&&(/计划|准备|建议/.test(candidate.quote)||clauseExpressesWishToAct(candidate.quote))))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
+  if(!completedPast&&clauseExpressesFuturePlan(candidate.quote))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
   if(new Set(candidate.links.map(l=>l.valueId)).size!==candidate.links.length)throw new HttpError(400,'DUPLICATE_VALUE_LINK')
   if(!staged.candidates.some(c=>c.sourceMessageId===candidate.sourceMessageId&&c.quote===candidate.quote))staged.candidates.push(candidate)
   return {staged:true,status:'confirmed',autoConfirmed:true}

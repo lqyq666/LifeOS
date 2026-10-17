@@ -19,6 +19,14 @@ const NOT_YET = /打算|准备|计划|希望|想要|将要|下次|明天|后天|
 // “交付范围” names an action but “想先确认” has not performed it.
 // Shared by the structural fallback and the actual candidate persistence gate.
 export const clauseExpressesWishToAct=(text:string):boolean=>/(?:想|要)(?:先|去|尝试|试试|交付|提交|上线|发布|确认|核对|了解)|^(?:先|请|帮我)(?:确认|核对|交付|提交|上线|发布|了解)|(?:只想|就想)(?:聊|说|倾诉|吐槽)/.test(text)
+// Keep future-action words scoped to an actual plan statement. Bare keyword
+// matching made nouns such as `培养计划` and `采用其中建议` look like an
+// unperformed action, which could reject an otherwise completed experience.
+export const clauseExpressesFuturePlan=(text:string):boolean=>
+  /(?:打算|希望|将要|下次|明天|后天|以后)/.test(text)
+  ||/(?:^|[，。；！？\n])(?:我|我们)?(?:计划|准备)(?:先|去|在|于|把|做|联系|确认|核对|提交|交付|尝试|试试|开始)/.test(text)
+  ||/(?:^|[，。；！？\n])(?:我|我们)?建议(?:先|去|做|把|联系|确认|核对|提交|交付|尝试|试试)/.test(text)
+  ||clauseExpressesWishToAct(text)
 // First person scopes the whole sentence: the action clause itself often
 // drops the pronoun (「迟了一天补交上去」) while a sibling clause carries it.
 export const sentenceIsFirstPersonPublic = (catalogue: readonly ClauseHandle[], handle: ClauseHandle): boolean =>
