@@ -100,7 +100,10 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
       const configured=configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,[...authorized.growth??[],...authorized.growthBackground??[]].map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(authorized.currentUserMessage.text),resumePortfolioCatalogueIds,slimUpdateTimeMode,clauseIds,requireCandidate,{clauses:buildClauseCatalogue(authorized.currentUserMessage.text),requestTimeUtc:authorized.requestTimeUtc})
       // Actual outgoing instructions, tied to the existing call/completion and
       // final commit receipt. Never log user context or assert model compliance.
-      if(JSON.stringify(configured).includes(JSON.stringify(mainCompanionPolicy.instructions).slice(1,-1)))staged.audit.push({phase:'main_skill_payload',callId,requestId,skill:mainCompanionPolicy.name,skillVersion:mainCompanionPolicy.version,skillDigest:mainCompanionPolicy.sourceDigest,policyDigest:mainCompanionPolicy.policyDigest,scope:mainCompanionPolicy.scope,status:'included_in_provider_payload'})
+      if(JSON.stringify(configured).includes(JSON.stringify(mainCompanionPolicy.instructions).slice(1,-1))){
+        staged.audit.push({phase:'main_skill_payload',callId,requestId,skill:mainCompanionPolicy.name,skillVersion:mainCompanionPolicy.version,skillDigest:mainCompanionPolicy.sourceDigest,policyDigest:mainCompanionPolicy.policyDigest,scope:mainCompanionPolicy.scope,status:'included_in_provider_payload'})
+        staged.audit.push({phase:'grilling_policy_payload',callId,requestId,skill:mainCompanionPolicy.grilling.name,skillVersion:mainCompanionPolicy.grilling.version,policyDigest:mainCompanionPolicy.grilling.policyDigest,status:'included_in_provider_payload',providerCalls:0})
+      }
       // Explicit isolated instrumentation only. The observer cannot mutate the
       // actual outgoing body, and the production engine has no payload logger.
       if(observer?.payload)observer.payload(Object.freeze({...record}),structuredClone(configured))
