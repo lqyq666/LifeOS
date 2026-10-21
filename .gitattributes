@@ -35,3 +35,7 @@ evidence/coze-core-launch-20261011/campus-contact-originals/** -text -whitespace
 evidence/coze-core-launch-20261011/*.ax.txt -text -whitespace
 evidence/coze-core-launch-20261011/mentor-originals/** -text -whitespace
 evidence/coze-core-launch-20261011/student16-b31aaed-first/*.json -text
+
+# Existing databases recorded these mixed-ending migration bytes verbatim.
+server/migrations/026-identity-layer.sql -text -whitespace
+server/migrations/027-identity-change-fields.sql -text -whitespace
