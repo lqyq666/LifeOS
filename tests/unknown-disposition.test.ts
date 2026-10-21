@@ -59,6 +59,12 @@ test('a named refusal cannot use the single-item fallback for a different topic'
   assert.deepEqual(result.delta.declineUnknowns,[])
 })
 
+test('a generic result word cannot bind the wrong named refusal',()=>{
+  const result=normalizeUnknownDispositionConflict({resolveUnknowns:['interview'],declineUnknowns:['interview']},'考试结果我不想说，面试结果我记不清。',{interview:'你面试结果如何？'})
+  assert.deepEqual(result.delta.resolveUnknowns,[])
+  assert.deepEqual(result.delta.declineUnknowns,[])
+})
+
 test('a refusal explicitly about the conflicted item remains a decline',()=>{
   const result=normalizeUnknownDispositionConflict({resolveUnknowns:['income'],declineUnknowns:['income']},'实习收入我不想说。',{income:'你实习收入是多少？'})
   assert.deepEqual(result.delta.resolveUnknowns,[])
