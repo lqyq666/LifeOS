@@ -23,7 +23,7 @@ import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, iden
 import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
 import { buildExperienceRelations } from './starmap-enrichment.ts'
 import { applicableExperienceOutcomes, generateInsight, summarizeExperience } from './experience-insight.ts'
-import {taskOutcomeReadback} from './turn-contract.ts'
+import {reportedEvidenceFromText,taskOutcomeReadback} from './turn-contract.ts'
 import {commitWorkflowSelection,type WorkflowAdoption} from './workflows/task-commit.ts'
 import {committedGrowthDiff,committedSnapshot,validGrowthDiff} from './workflows/committed-growth-diff.ts'
 import {advancedWorkflowsEnabled} from './workflows/router.ts'
@@ -332,7 +332,8 @@ export async function experienceAction(user:string,id:string,input:ExperienceAct
     if(input.action!=='correct'&&input.content)throw new HttpError(400,'UNEXPECTED_CONTENT')
     if(input.action==='delete'&&input.link)throw new HttpError(400,'UNEXPECTED_LINK')
     const status=input.action==='delete'?'deleted':input.action==='confirm'?'confirmed':e.status
-    const content=input.content?{...e.content,...input.content,title:input.content.summary.slice(0,36)}:e.content
+    const changedFields=input.content?Object.keys(input.content).filter(key=>JSON.stringify(input.content![key as keyof typeof input.content])!==JSON.stringify(e.content[key])):[]
+    const content=input.content?{...e.content,...input.content,...(changedFields.includes('summary')?{title:input.content.summary.slice(0,36)}:{})}:e.content
     if(input.action==='correct')await c.query('UPDATE experience_links SET disposition=\'proposed\' WHERE user_id=$1 AND experience_id=$2',[user,id])
     if(input.link){
       const link=input.link
@@ -344,7 +345,7 @@ export async function experienceAction(user:string,id:string,input:ExperienceAct
       await invalidatePatternsForExperience(c,user,id)
       await invalidateCoachSources(c,user,[e.source_message_id],input.action==='delete')
     }
-    await c.query('INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,$4,$5)',[user,id,updated.revision,input.action,{content,status,link:input.link??null}])
+    await c.query('INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,$4,$5)',[user,id,updated.revision,input.action,{content,status,link:input.link??null,...(input.action==='correct'?{correction:{version:1,changedFields}}:{})}])
     await c.query('INSERT INTO user_operations(user_id,request_id,fingerprint,response) VALUES($1,$2,$3,$4)',[user,input.requestId,fingerprint,updated])
     return updated
   })
@@ -444,6 +445,12 @@ export async function claimAction(user:string,id:string,input:{requestId:string;
 
 export async function cognitionGraph(user:string) {
   const experiences=(await listExperiences(user)).filter(e=>e.status==='confirmed')
+  // Only a versioned, direct user correction authorizes result-field readback.
+  // Model-extracted and legacy result strings are not promoted to testimony.
+  const resultCorrections=new Map((await pool.query(`SELECT DISTINCT ON (experience_id) experience_id,revision,snapshot FROM experience_revisions
+    WHERE user_id=$1 AND experience_id=ANY($2::uuid[]) AND action='correct'
+    AND snapshot->'correction'->>'version'='1' AND snapshot->'correction'->'changedFields' ? 'result'
+    ORDER BY experience_id,revision DESC`,[user,experiences.map(e=>e.id)])).rows.map(row=>[row.experience_id,row]))
   const outcomeSources=(await pool.query("SELECT sources FROM growth_items WHERE user_id=$1 AND status='active'",[user])).rows
   const outcomeMessageIds=[...new Set<string>(outcomeSources.flatMap(row=>(row.sources??[]).filter((s:any)=>s.type==='message').map((s:any)=>String(s.id))))]
   const outcomeMessages=(await pool.query("SELECT m.id,m.content FROM messages m WHERE m.user_id=$1 AND m.id=ANY($2::uuid[]) AND m.role='user' AND NOT EXISTS(SELECT 1 FROM memory_suppressions s WHERE s.user_id=m.user_id AND s.source_message_id=m.id) ORDER BY m.created_at,m.id",[user,outcomeMessageIds])).rows
@@ -511,7 +518,22 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
       const matches=identityEpisodes.filter(episode=>!timeContradiction(episode.identityOriginalQuote??episode.source_quote,message.content)&&findEpisode([episode],message.content,taskIdentity,''))
       if(message.id!==e.source_message_id&&(matches.length!==1||matches[0].id!==e.id))continue
       const authorizedQuotes=new Set<string>(outcomeSources.flatMap(row=>(row.sources??[]).filter((s:any)=>s.type==='message'&&s.id===message.id).map((s:any)=>String(s.quote))))
-      for(const [key,outcome] of Object.entries(taskOutcomeReadback(message.content,authorizedQuotes)))if(outcome.status!=='unknown')taskOutcomes[key]={...outcome,sourceMessageId:message.id}
+      // These messages are selected from active, source-authorized growth
+      // facts. Permit their direct third-party status reports (for example,
+      // "老师后来回复") to update the matching episode without requiring the
+      // same message to restate the student's original action.
+      for(const [key,outcome] of Object.entries(taskOutcomeReadback(message.content,authorizedQuotes,false,true)))if(outcome.status!=='unknown')taskOutcomes[key]={...outcome,sourceMessageId:message.id}
+    }
+    const correction=resultCorrections.get(e.id)
+    if(correction?.snapshot?.correction?.version===1&&correction.snapshot.content?.result===e.content?.result){
+      // A clear, uncertain or multi-participant correction must not resurrect
+      // historical message labels. Reuse the shared guarded participant parser.
+      Object.assign(taskOutcomes,taskOutcomeReadback(''))
+      const reports=reportedEvidenceFromText(String(e.content.result??'')).participants
+      if(reports.length===1)for(const key of Object.keys(taskOutcomes)){
+        const outcome=reports[0].states[key as keyof typeof reports[0]['states']]
+        if(outcome&&outcome.status!=='unknown')taskOutcomes[key]={...outcome,sourceExperienceRevision:correction.revision,sourceField:'result'}
+      }
     }
     const expAction = String(e.content?.action ?? ''), expResult = String(e.content?.result ?? ''), expSummary = String(e.content?.summary ?? '')
     const expBlocked = isBlockedExperience(expAction, expResult, e.source_quote ?? '')

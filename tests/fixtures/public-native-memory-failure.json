@@ -1,0 +1,258 @@
+{
+  "firstText": "我是成年大学生，大三，软件工程专业，会一点Python，做过CSV整理练习。我每周最多两小时探索，想比较就业和考研，还没选定。今天只愿意花15分钟，请依据这些给一个能开始的小行动，不替我选方向。",
+  "correctionText": "更正：我这周剩余时间是一小时，不是两小时。先暂停考研方向，不删除看过岗位的事实。今天没精力继续，不安排任务；只给一句阶段理解和仍未知之处，等我主动回来。",
+  "beforeCorrection": [
+    {
+      "id": "442b8c80-727a-45fc-a934-96e733587d02",
+      "conversationId": "8f84d4c7-cb17-4067-8b2a-e7f5b61a50d9",
+      "kind": "context",
+      "text": "这只是一条个例，不代表我已经满足岗位要求",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "a90c50f9-4baf-4cf4-8961-277e6b5da0d3",
+          "type": "message",
+          "quote": "这只是一条个例，不代表我已经满足岗位要求"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T03:02:55.278Z",
+      "updatedAt": "2026-10-20T03:02:55.278Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "864cf8d1-140e-4dd1-afc7-1ca1472583c7",
+      "conversationId": "8f84d4c7-cb17-4067-8b2a-e7f5b61a50d9",
+      "kind": "context",
+      "text": "回来反馈：我今天花了15分钟查看一个本地初级岗位，发现要求两项技能，其中一项做过课程练习，另一项还没核实",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "a90c50f9-4baf-4cf4-8961-277e6b5da0d3",
+          "type": "message",
+          "quote": "回来反馈：我今天花了15分钟查看一个本地初级岗位，发现要求两项技能，其中一项做过课程练习，另一项还没核实"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T03:02:55.278Z",
+      "updatedAt": "2026-10-20T03:02:55.278Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "7073a294-a7f8-4b5d-903a-cf50ec667477",
+      "conversationId": "940ddcea-ad12-4994-ba04-fa7b10c37ca9",
+      "kind": "context",
+      "text": "我每周最多两小时探索",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "4666cd1a-0395-46d0-931e-1a432a32a7a3",
+          "type": "message",
+          "quote": "我每周最多两小时探索"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T02:41:43.660Z",
+      "updatedAt": "2026-10-20T02:41:43.660Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    }
+  ],
+  "afterCorrection": [
+    {
+      "id": "207a4b5e-e754-4d7b-878d-df8b8a001b6c",
+      "conversationId": "8f84d4c7-cb17-4067-8b2a-e7f5b61a50d9",
+      "kind": "context",
+      "text": "发现要求两项技能，其中一项做过课程练习，另一项还没核实",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "a90c50f9-4baf-4cf4-8961-277e6b5da0d3",
+          "type": "message",
+          "quote": "发现要求两项技能，其中一项做过课程练习，另一项还没核实"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T03:03:07.667Z",
+      "updatedAt": "2026-10-20T03:03:07.667Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "3087ee6b-be64-4791-a0e9-8428ca54dd65",
+      "conversationId": "8879ab19-a6c3-47f9-ae56-81695dcedbd0",
+      "kind": "constraint",
+      "text": "我这周剩余时间是一小时",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "eede6bcb-e428-4806-9897-9419bac1d120",
+          "type": "message",
+          "quote": "我这周剩余时间是一小时"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": "2026-10-25T16:00:00.000Z",
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T03:03:07.667Z",
+      "updatedAt": "2026-10-20T03:03:07.667Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "7ebbb220-abb9-4db8-ab75-a12d31484bab",
+      "conversationId": "8879ab19-a6c3-47f9-ae56-81695dcedbd0",
+      "kind": "constraint",
+      "text": "更正：我这周剩余时间是一小时",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "eede6bcb-e428-4806-9897-9419bac1d120",
+          "type": "message",
+          "quote": "更正：我这周剩余时间是一小时"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": "2026-10-25T16:00:00.000Z",
+      "validFrom": "2026-10-20T03:03:03.117Z",
+      "timeBasis": {
+        "kind": "calendar_week",
+        "zone": "Asia/Shanghai",
+        "quote": "这周",
+        "which": "this",
+        "anchor": "2026-10-20T03:03:03.117Z",
+        "endExclusive": true
+      },
+      "revision": 1,
+      "createdAt": "2026-10-20T03:03:07.667Z",
+      "updatedAt": "2026-10-20T03:03:07.667Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "864cf8d1-140e-4dd1-afc7-1ca1472583c7",
+      "conversationId": "8f84d4c7-cb17-4067-8b2a-e7f5b61a50d9",
+      "kind": "context",
+      "text": "回来反馈：我今天花了15分钟查看一个本地初级岗位，发现要求两项技能，其中一项做过课程练习，另一项还没核实",
+      "assertion": "user_reported",
+      "status": "stale",
+      "sources": [
+        {
+          "id": "a90c50f9-4baf-4cf4-8961-277e6b5da0d3",
+          "type": "message",
+          "quote": "回来反馈：我今天花了15分钟查看一个本地初级岗位，发现要求两项技能，其中一项做过课程练习，另一项还没核实"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 2,
+      "createdAt": "2026-10-20T03:02:55.278Z",
+      "updatedAt": "2026-10-20T03:03:07.667Z",
+      "unavailableReason": "changed",
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "442b8c80-727a-45fc-a934-96e733587d02",
+      "conversationId": "8f84d4c7-cb17-4067-8b2a-e7f5b61a50d9",
+      "kind": "context",
+      "text": "这只是一条个例，不代表我已经满足岗位要求",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "a90c50f9-4baf-4cf4-8961-277e6b5da0d3",
+          "type": "message",
+          "quote": "这只是一条个例，不代表我已经满足岗位要求"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T03:02:55.278Z",
+      "updatedAt": "2026-10-20T03:02:55.278Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "7073a294-a7f8-4b5d-903a-cf50ec667477",
+      "conversationId": "940ddcea-ad12-4994-ba04-fa7b10c37ca9",
+      "kind": "context",
+      "text": "我每周最多两小时探索",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "4666cd1a-0395-46d0-931e-1a432a32a7a3",
+          "type": "message",
+          "quote": "我每周最多两小时探索"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T02:41:43.660Z",
+      "updatedAt": "2026-10-20T02:41:43.660Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    }
+  ]
+}

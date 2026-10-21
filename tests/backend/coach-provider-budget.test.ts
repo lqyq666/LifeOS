@@ -5,6 +5,69 @@ import {readFileSync,writeFileSync,unlinkSync,rmdirSync,existsSync} from 'node:f
 import {dirname} from 'node:path'
 import {CoachProviderBudget} from '../../scripts/coach-provider-budget.ts'
 
+test('SIMULATED 20 CNY acceptance top-up versions the continuation without resetting receipts or unknown spend',()=>{
+  const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()}),directory=dirname(budget.path)
+  const grantPath=directory+'/development-test-grant-20261005.json',continuationPath=directory+'/campus-acceptance-continuation-20261005.json',topupPath=directory+'/acceptance-topup-20261018.json'
+  const delegationPath=directory+'/runtime-spend-delegation-20261018.json'
+  const input={runId:'synthetic',purpose:'turn' as const,tier:'default',provider:'synthetic',model:'synthetic',signature:'synthetic'}
+  try{
+    budget.snapshot()
+    writeFileSync(grantPath,JSON.stringify({kind:'SIMULATED_DEVELOPMENT_TEST_GRANT',amountCny:30,startingCall:0,priorReceiptsSha256:createHash('sha256').update('[]').digest('hex')}))
+    const grant=budget.activateCurrentGrant(),oldCall=budget.reserve({...input,reservedCostCny:.1})
+    budget.finish(oldCall.callId,{outcome:'completed',usage:{},estimatedCostCny:.1,providerResponseId:null})
+    const beforeContinuation=budget.snapshot()
+    writeFileSync(continuationPath,JSON.stringify({kind:'SIMULATED_ACCEPTANCE_CONTINUATION',amountCny:27.62,noCallLimit:true,startingCall:beforeContinuation.calls.length,grantSha256:grant.authorizationSha256,priorReceiptsSha256:createHash('sha256').update(JSON.stringify(beforeContinuation.calls)).digest('hex'),previousComparisonSha256:null}))
+    budget.activateContinuation()
+    const pending=budget.reserve({...input,reservedCostCny:2})
+    const pendingSnapshot=budget.snapshot()
+    writeFileSync(topupPath,JSON.stringify({kind:'SIMULATED_ACCEPTANCE_TOPUP',amountCny:20,noCallLimit:true,startingCall:pendingSnapshot.calls.length,priorReceiptsSha256:createHash('sha256').update(JSON.stringify(pendingSnapshot.calls)).digest('hex'),previousContinuationSha256:pendingSnapshot.continuation.authorizationSha256}))
+    assert.throws(()=>budget.activateAcceptanceTopup(),/TERMINAL_CALLS_REQUIRED_FOR_PLAN_CHANGE/)
+    budget.finish(pending.callId,{outcome:'process_ended_without_provider_receipt',usage:'unknown',estimatedCostCny:'unknown',providerResponseId:null})
+    const beforeTopup=budget.snapshot(),oldContinuation=structuredClone(beforeTopup.continuation)
+    writeFileSync(topupPath,JSON.stringify({kind:'SIMULATED_ACCEPTANCE_TOPUP',amountCny:20,noCallLimit:true,startingCall:beforeTopup.calls.length,priorReceiptsSha256:createHash('sha256').update(JSON.stringify(beforeTopup.calls)).digest('hex'),previousContinuationSha256:oldContinuation.authorizationSha256}))
+    const activation=budget.activateAcceptanceTopup()
+    assert.equal(activation.limitCny,20)
+    assert.deepEqual(budget.snapshot().continuationHistory,[oldContinuation])
+    const unknown=budget.reserve({...input,reservedCostCny:3});budget.finish(unknown.callId,{outcome:'aborted',usage:'unknown',estimatedCostCny:'unknown',providerResponseId:null})
+    const known=budget.reserve({...input,reservedCostCny:2});budget.finish(known.callId,{outcome:'completed',usage:{},estimatedCostCny:1,providerResponseId:null})
+    const snapshot=budget.snapshot()
+    assert.equal(snapshot.continuation.accountedCny,4);assert.equal(snapshot.continuation.remainingCny,16)
+    assert.deepEqual(snapshot.calls.slice(0,beforeTopup.calls.length),beforeTopup.calls)
+    assert.deepEqual(snapshot.continuationHistory,[oldContinuation])
+    assert.throws(()=>budget.reserve({...input,reservedCostCny:16.001}),/CONTINUATION_BUDGET/)
+    assert.equal(budget.activateAcceptanceTopup().activatedAt,activation.activatedAt,'reactivation cannot reset the top-up')
+    const bytes=readFileSync(topupPath);writeFileSync(topupPath,bytes.toString().replace('"amountCny":20','"amountCny":21'))
+    assert.throws(()=>budget.snapshot(),/CONTINUATION_AUTHORIZATION_CHANGED/)
+    writeFileSync(topupPath,bytes)
+    assert.equal(budget.snapshot().continuation.remainingCny,16)
+    const receiptHash=()=>createHash('sha256').update(JSON.stringify(budget.snapshot().calls)).digest('hex')
+    const proof={kind:'SIMULATED_RUNTIME_SPEND_AUTHORITY_DELEGATION',authorizationSha256:activation.authorizationSha256,runtimeBudgetId:'acceptance_topup_20261018',allocatedCny:16.01,receiptsSha256:receiptHash(),receiptCount:budget.snapshot().calls.length}
+    writeFileSync(delegationPath,JSON.stringify(proof))
+    assert.throws(()=>budget.delegateAcceptanceTopupToRuntime(),/DELEGATION_PROOF_INVALID/)
+    proof.allocatedCny=15.9
+    const pendingDelegation=budget.reserve({...input,reservedCostCny:.1})
+    assert.throws(()=>budget.delegateAcceptanceTopupToRuntime(),/TERMINAL_CALLS_REQUIRED/)
+    budget.finish(pendingDelegation.callId,{outcome:'completed',usage:{},estimatedCostCny:0,providerResponseId:null})
+    proof.receiptsSha256=receiptHash();proof.receiptCount=budget.snapshot().calls.length
+    writeFileSync(delegationPath,JSON.stringify({...proof,authorizationSha256:'0'.repeat(64)}))
+    assert.throws(()=>budget.delegateAcceptanceTopupToRuntime(),/DELEGATION_PROOF_INVALID/)
+    writeFileSync(delegationPath,JSON.stringify(proof))
+    const oldReceipts=budget.snapshot().calls,delegation=budget.delegateAcceptanceTopupToRuntime()
+    assert.equal(delegation.budgetId,'acceptance_topup_20261018')
+    assert.deepEqual(budget.snapshot().calls,oldReceipts)
+    assert.equal(budget.snapshot().continuation.accountedCny,4,'unknown charge remains occupied')
+    assert.equal(budget.snapshot().continuation.paused,true)
+    assert.deepEqual(budget.delegateAcceptanceTopupToRuntime(),delegation)
+    assert.equal(budget.activateAcceptanceTopup().paused,true,'activation cannot reopen the old authority')
+    assert.throws(()=>budget.reserve({...input,reservedCostCny:.01}),/RUNTIME_AUTHORITY_ACTIVE/)
+    writeFileSync(delegationPath,JSON.stringify({...proof,allocatedCny:15.8}))
+    assert.throws(()=>budget.delegateAcceptanceTopupToRuntime(),/DELEGATION_ALREADY_BOUND/)
+  }finally{
+    for(const path of [delegationPath,topupPath,continuationPath,grantPath,budget.path,budget.path+'.lock'])if(existsSync(path))unlinkSync(path)
+    if(existsSync(directory))rmdirSync(directory)
+  }
+})
+
 test('SIMULATED continuation keeps old receipts, removes call-count ceilings and caps exact new spend including unknowns',()=>{
   const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()}),directory=dirname(budget.path)
   const grantPath=directory+'/development-test-grant-20261005.json',notePath=directory+'/campus-acceptance-continuation-20261005.json'

@@ -11,7 +11,7 @@ import {resolveSelectedMaterialFacts,reportsOwnContribution} from '../server/gro
 test('production compound recall cannot become a new pursuit',()=>{
  const text='你记得我想用什么渠道联系学长，目前是否已经联系吗？只按我之前报告的内容回答。'
  assert.equal(buildClauseCatalogue(text)[0]!.interrogative,true)
- assert.equal(deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}).mode,'reply_only')
+ assert.equal(deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}).mode,'ordinary')
  const catalogue=buildClauseCatalogue(text)
  const r=resolveGrowthDeltas({deltas:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId:catalogue[0]!.clauseId}}],currentMessageId:'m',currentText:text,catalogue,authorized:[],correctionPlan:null,controlClauseTexts:[]})
  assert.equal(r.deltas.length,0)

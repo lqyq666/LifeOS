@@ -50,7 +50,7 @@ export type PreparedDirectionControls = {
 }
 
 const clauseSplit=/[，,；;。！？!?\n]/
-const pauseVerbs=/(?:先别分析|不要再分析|先别推|别再给我推|不要再给我推|别给我推|别推|不要推|先不推|别再推|不要再推|停止推|暂停推|停止推荐|暂停|先别提|别提)/
+const pauseVerbs=/(?:先别分析|不要再分析|先别推|别再给我推|不要再给我推|别给我推|别推|不要推|先不推|别再推|不要再推|停止推|暂停推|停止推荐|暂停|先别提|别提|(?:不要|别)(?:再|自动)?重开)/
 const resumeVerbs=/(?:恢复|继续推|重新开始推|可以推|恢复推荐)/
 // Direction wording → scopes. Longest phrases first so 专升本 wins over 本.
 const directionPatterns:{pattern:RegExp;scopes:()=>DirectionScope[]}[]=[
@@ -106,7 +106,7 @@ export function deriveExplicitDirectionControls(currentText:string):
   {status:'needs_confirmation'; reason:string}{
   const clauses=scanUserClauses(currentText)
   const changes:RawDirectionControl[]=[]
-  for(const clause of clauses){
+  for(const [clauseIndex,clause] of clauses.entries()){
     const body=clause.text.trim()
     if(!body)continue
     // N1.1: quoted/code spans, other people's speech, conditional clauses and
@@ -116,7 +116,12 @@ export function deriveExplicitDirectionControls(currentText:string):
     // product command “别推X”. Never turn an evidence boundary into a durable
     // pause for the named direction.
     if(/(?:不要|别|不应|不能).{0,8}(?:推出|推断|推导|推理).{0,24}(?:适合|结论|判断|方向)/.test(body))continue
-    const pause=pauseVerbs.exec(body)??/(?:不再把|不再将).{1,16}作为主线/.exec(body)
+    const refusal=/^(?:但|但是|不过|也|而)?(?:我|本人)?(?:现在|目前|这次)?(?:仍然|仍|还是|明确)?(?:拒绝|不考虑|不想)(.+)$/.exec(body)
+      ??/^(.+?)(?:仍然|仍|还是|明确)?(?:拒绝|不考虑)$/.exec(body)
+      ??/^(?:不要|别)(?:再|换词|换个说法)?劝(?:我)?(.+)$/.exec(body)
+    const refusalTarget=refusal?.[1]?.replace(/(?:这个)?方向$/,'').trim()
+    const namedRefusal=refusal&&refusalTarget&&directionPatterns.some(({pattern})=>{const match=pattern.exec(refusalTarget);return match?.index===0&&match[0]===refusalTarget})?refusal:null
+    const pause=pauseVerbs.exec(body)??/(?:不再把|不再将).{1,16}作为主线/.exec(body)??namedRefusal
     const resume=resumeVerbs.exec(body)
     if(!pause&&!resume)continue
     const verbIndex=pause?pause.index:resume!.index
@@ -131,6 +136,10 @@ export function deriveExplicitDirectionControls(currentText:string):
       if(pattern.test(body))for(const scope of resolve())scopes.add(scope)
     }
     if(!scopes.size){
+      const previous=clauses[clauseIndex-1],last=changes.at(-1)
+      // “创业仍然拒绝，不要自动重开” repeats the immediately preceding
+      // same-sentence pause. It does not authorize guessing a new direction.
+      if(pause&&/^(?:不要|别)(?:再|自动)?重开(?:了)?$/.test(body)&&previous?.sentenceStart===clause.sentenceStart&&last?.operation==='pause'&&last.quote===previous.text.trim())continue
       // A pause/resume command with no recognizable direction: broad
       // dissatisfaction needs one explicit confirmation, never a guess.
       return {status:'needs_confirmation',reason:'PAUSE_DIRECTION_SCOPE_UNKNOWN'}

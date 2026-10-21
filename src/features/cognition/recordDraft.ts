@@ -5,6 +5,20 @@ export const recordFields = ['summary', 'occurredAt', 'action', 'result', 'refle
 export type RecordDraft = Partial<Record<typeof recordFields[number], string>> & { tags?: string[] }
 export type RecordDrafts = Record<string, RecordDraft>
 
+export function recordEditingDraft(record: Partial<Record<typeof recordFields[number], string | null>> & { tags?: string[] }, draft: RecordDraft): RecordDraft {
+  return { ...Object.fromEntries(recordFields.map(key => [key, draft[key] ?? record[key] ?? ''])), tags: [...(draft.tags ?? record.tags ?? [])] }
+}
+
+export function recordCorrectionContent(initial: RecordDraft, next: RecordDraft): RecordDraft {
+  // The API requires summary; other fields are patches, not a blank snapshot.
+  // Hidden metadata and derived display text must never become new testimony.
+  return { summary: next.summary===initial.summary?next.summary??'':(next.summary??'').trim(), ...Object.fromEntries((['occurredAt', 'action', 'result', 'reflection'] as const).filter(key => next[key] !== initial[key]).map(key => [key, (next[key] ?? '').trim()])) }
+}
+
+export function recordLocalCorrection(previous: RecordDraft, initial: RecordDraft, next: RecordDraft): RecordDraft {
+  return { ...previous, ...recordCorrectionContent(initial, next) }
+}
+
 // User additions stay separate from the seed and relationship reviews.
 export function parseRecordDrafts(raw: string | null): RecordDrafts {
   if (!raw) return {}

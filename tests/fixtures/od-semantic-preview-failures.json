@@ -1,0 +1,155 @@
+{
+  "kind": "ACTUAL_OD_SYNTHETIC_SOURCE_FAILURES",
+  "sourceResultSha256": "0d4de683137b76e5bc043a8c6500f0455d31083bd0a0ab671cb77da209179f85",
+  "turns": [
+    {
+      "chain": "study-work-choice",
+      "index": 2,
+      "user": "接着升学和就业的取舍。家里希望我走稳定路线，但这是外部期待；我自己更在意留在目前城市，而且每周最多四小时探索。请更新判断，不要替我选。",
+      "raw": {
+        "reply": "本人报告在意留在这座城市、想要有清晰产出的工作，不享受考试；家里期待稳定路线属外部因素。仍未知的是升学或本地就业哪条路径实际能同时满足留城与产出要求。"
+      },
+      "rawSha256": "8abae9a527d59f67561d3201e6579d7cc6041b083ea15be89e5554b5d7f344fb",
+      "visibleFrames": [
+        {
+          "type": "draft",
+          "text": "家里期待稳定路线属外部因素",
+          "ms": 1934,
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "delta",
+          "text": "本人报告在意留在这座城市、想要有清晰产出的工作，不享受考试；家里期待稳定路线属外部因素。仍未知的是升学或本地就业哪条路径实际能同时满足留城与产出要求。",
+          "ms": 2559,
+          "replace": true,
+          "draftKind": null
+        }
+      ]
+    },
+    {
+      "chain": "study-work-choice",
+      "index": 3,
+      "user": "更正：家里没有要求我必须本校读研，只是希望稳定。请只重开受这条更正影响的判断，并给一个四小时内的小验证。",
+      "raw": {
+        "lead": "更正收到：家里只希望稳定，没要求必须本校读研。",
+        "reply": "更正收到：家里只希望稳定，没要求必须本校读研。这解除了「只能考本校」的限制，重开后需重新判断：其他城市或院校里，哪些既能满足稳定期待、又不违背你留在目前城市的偏好。\n\n小验证（投入上限4小时）：在研招网或招聘平台各找2个位于目前城市、通常被视为稳定的岗位或对应硕士方向，记录它们对学历和产出的实际要求。做完即停；若发现某条路径能同时满足留城与稳定，再决定下一步。"
+      },
+      "rawSha256": "9ee2d255773ff2360465828e7322fce0a33d9e787553526e075d1c87492b2d05",
+      "visibleFrames": [
+        {
+          "type": "draft",
+          "text": "更正收到：家里只希望稳定，没要求必须本校读研",
+          "ms": 2006,
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "delta",
+          "text": "更正收到：家里只希望稳定，没要求必须本校读研。这解除了「只能考本校」的限制，重开后需重新判断：其他城市或院校里，哪些既能满足稳定期待、又不违背你留在目前城市的偏好。\n\n小验证（投入上限4小时）：在研招网或招聘平台各找2个位于目前城市、通常被视为稳定的岗位或对应硕士方向，记录它们对学历和产出的实际要求。做完即停；若发现某条路径能同时满足留城与稳定，再决定下一步。",
+          "ms": 4986,
+          "replace": true,
+          "draftKind": null
+        }
+      ]
+    },
+    {
+      "chain": "no-direction",
+      "index": 1,
+      "user": "不是因为老师要求；我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间。我还不知道这是否只是一次偶然。",
+      "raw": {
+        "lead": "你实际分了哪几类，比如按主题、时间还是用途？",
+        "reply": "你实际分了哪几类，比如按主题、时间还是用途？知道具体分法才能判断它是否真能帮你更快找到关键信息，而不只是一次偶然。",
+        "event": {
+          "target": {
+            "operation": "create",
+            "title": "整理一门课资料",
+            "source": {
+              "messageId": "e5b8c8df-f628-4255-9523-3f1bf42ea83b",
+              "quote": "我会主动继续整理"
+            }
+          },
+          "nodes": [
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "e5b8c8df-f628-4255-9523-3f1bf42ea83b",
+                "quote": "不是因为老师要求"
+              }
+            },
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "e5b8c8df-f628-4255-9523-3f1bf42ea83b",
+                "quote": "我会主动继续整理"
+              }
+            },
+            {
+              "kind": "feeling",
+              "source": {
+                "messageId": "e5b8c8df-f628-4255-9523-3f1bf42ea83b",
+                "quote": "主要想更快看出哪些信息关键"
+              }
+            },
+            {
+              "kind": "feeling",
+              "source": {
+                "messageId": "e5b8c8df-f628-4255-9523-3f1bf42ea83b",
+                "quote": "减少自己反复找东西的时间"
+              }
+            },
+            {
+              "kind": "user_interpretation",
+              "source": {
+                "messageId": "e5b8c8df-f628-4255-9523-3f1bf42ea83b",
+                "quote": "我还不知道这是否只是一次偶然"
+              }
+            }
+          ]
+        }
+      },
+      "rawSha256": "8b2c15efd1eb5e0f1b398a54dfcfaba4caf137b7efe663d483a6ab1a6b44324c",
+      "visibleFrames": [
+        {
+          "type": "delta",
+          "text": "你实际分了哪几类，比如按主题、时间还是用途？知道具体分法才能判断它是否真能帮你更快找到关键信息，而不只是一次偶然。",
+          "ms": 12792,
+          "replace": true,
+          "draftKind": null
+        }
+      ]
+    },
+    {
+      "chain": "no-direction",
+      "index": 2,
+      "user": "接着整理资料的探索。最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次。请根据新信息更新判断，不要重复问已经回答的内容。",
+      "raw": {
+        "reply": "这次先定三条规则后同学少问一次，支持提前分类能减少沟通。仍未知的是这是否偶然，以及你本人找东西的时间是否因此缩短。"
+      },
+      "rawSha256": "30f925395262cc92dea703f4b7f1c0146884b0cf5c296632c72f298b5ae0a0bf",
+      "visibleFrames": [
+        {
+          "type": "draft",
+          "text": "这次先定三条规则后同学少问一次，支持提前分类能减少沟通",
+          "ms": 2039,
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "draft_discarded",
+          "text": null,
+          "ms": 2546,
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "delta",
+          "text": "这次先定三条规则后同学少问一次，支持提前分类能是否减少沟通仍不能确认。仍未知的是这是否偶然，以及你本人找东西的时间是否因此缩短。",
+          "ms": 2628,
+          "replace": true,
+          "draftKind": null
+        }
+      ]
+    }
+  ]
+}

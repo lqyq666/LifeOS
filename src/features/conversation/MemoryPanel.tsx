@@ -15,11 +15,11 @@ export function MemoryPanel({conversationId,messageCount,onClose}:{conversationI
   const [editValue,setEditValue]=useState('')
   const epoch=useRef(0)
 
-  async function reload(){
+  async function reload(preservedNotice=''){
     const current=++epoch.current
     setLoading(true);setView(null)
-    try{const next=await api<MemoryView>('/api/memory'+(conversationId?'?conversation='+encodeURIComponent(conversationId):''));if(current===epoch.current){setView(next);setNotice('')}}
-    catch(error){if(current===epoch.current)setNotice(explainError(error))}
+    try{const next=await api<MemoryView>('/api/memory'+(conversationId?'?conversation='+encodeURIComponent(conversationId):''));if(current===epoch.current){setView(next);setNotice(preservedNotice)}}
+    catch(error){if(current===epoch.current)setNotice([preservedNotice,explainError(error)].filter(Boolean).join(' '))}
     finally{if(current===epoch.current){setLoading(false);setSaving(false)}}
   }
   useEffect(()=>{
@@ -36,7 +36,7 @@ export function MemoryPanel({conversationId,messageCount,onClose}:{conversationI
     try{
       const settings=await api<MemoryView['settings']>('/api/memory/settings',{requestId:crypto.randomUUID(),enabled,expectedRevision:view.settings.revision})
       if(current===epoch.current){setView({...view,settings});dataChanged()}
-    }catch(error){if(current===epoch.current){setNotice(explainError(error));await reload()}}
+    }catch(error){if(current===epoch.current)await reload(explainError(error))}
     finally{if(current===epoch.current)setSaving(false)}
   }
   async function act(item:MemoryItem,action:'correct'|'forget'|'accept'|'reject',value?:string){
@@ -51,10 +51,10 @@ export function MemoryPanel({conversationId,messageCount,onClose}:{conversationI
   }
   const facts=view?.items.filter(item=>item.kind==='fact')??[]
   const patterns=view?.items.filter(item=>item.kind==='pattern_candidate')??[]
-  return <aside id="qa-memory-panel" className="qa-memory-panel" aria-label="长期记忆">
+  return <aside id="qa-memory-panel" className="qa-memory-panel" aria-label="长期记忆" aria-busy={saving}>
     <header className="qa-memory-header"><div><p>LifeOS</p><h2>长期记忆</h2></div><button type="button" autoFocus aria-label="关闭记忆面板" onClick={onClose}>×</button></header>
     <div className="qa-memory-content">
-      {notice&&<p className="qa-memory-notice" role="status">{notice}</p>}
+      {(saving||notice)&&<p className="qa-memory-notice" role="status">{saving?'正在保存记忆更改…':notice}</p>}
       {loading&&!view?<p className="qa-memory-empty">正在读取账户记忆…</p>:view&&<>
         <section className="qa-memory-section" aria-labelledby="qa-memory-switch-title">
           <div className="qa-memory-switch-heading"><div><h3 id="qa-memory-switch-title">长期记忆</h3><p>{view.settings.enabled?'已开启：可跨对话复用你允许保存的背景。':'已关闭：不会跨对话复用长期记忆。'}</p><p>关闭不会删除已保存的对话。你可以核对、更正或忘记下面的记录。</p></div>

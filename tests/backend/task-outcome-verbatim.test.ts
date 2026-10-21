@@ -124,7 +124,8 @@ test('omitted read/response/adoption reports persist independently and remain in
   assert.equal(email.insight.nextStep,'')
   assert.equal(email.taskOutcomes.read.status,'reported_read')
   assert.equal(email.taskOutcomes.response.status,'reported_no_response')
-  for(const key of ['adoption','payment','effect'])assert.equal(email.taskOutcomes[key].status,'unknown')
+  assert.deepEqual(email.outcomeKeys,['read','response'],'a personal email interaction has reading and response states only')
+  for(const key of ['adoption','payment','effect'])assert.equal(key in email.taskOutcomes,false,'irrelevant outcome dimensions are omitted rather than presented as unknown')
   const editText='我想把访谈问题改成“你最近一次遇到这件事，最后怎么处理的？”',edit=(await store.startRun(user,next,randomUUID(),editText)).run,editStaged:store.Staged={candidates:[],audit:[]}
   outputs.push({reply:boundedOrdinaryReply({text:editText,intent:knowledgeIntent(editText),contract:deriveTurnContract({text:editText,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]})
   const edited=await engine({run:edit,staged:editStaged,context:await store.contextForRun(edit),decision:null,signal:new AbortController().signal,emit:()=>{}})
@@ -212,7 +213,8 @@ test('omitted read/response/adoption reports persist independently and remain in
   const genericExperience=(await store.cognitionGraph(contactUser)).nodes.find((n:any)=>n.type==='experience') as any
   assert.equal(genericExperience.taskOutcomes.read.status,'reported_read')
   assert.equal(genericExperience.taskOutcomes.response.status,'reported_no_response')
-  for(const outcome of ['adoption','payment','effect'])assert.equal(genericExperience.taskOutcomes[outcome].status,'unknown')
+  assert.deepEqual(genericExperience.outcomeKeys,['read','response'],'a contact without a deliverable has only reading and response states')
+  for(const outcome of ['adoption','payment','effect'])assert.equal(outcome in genericExperience.taskOutcomes,false)
   const interviewUser='interview-'+randomUUID(),interviewChat=randomUUID()
   await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[interviewUser,interviewUser+'@example.invalid'])
   await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1)',[interviewUser])

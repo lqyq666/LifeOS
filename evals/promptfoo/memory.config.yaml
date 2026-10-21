@@ -1,0 +1,13 @@
+prompts:
+  - '{{block}}'
+providers:
+  - id: file://./providers/precomputed-block.mjs
+    label: precomputed-block
+defaultTest:
+  options:
+    provider:
+      id: alibaba:qwen3.8-max
+      config:
+        apiBaseUrl: https://dashscope.aliyuncs.com/compatible-mode/v1
+        temperature: 0
+tests: file://../../.local/promptfoo/tests-memory.yaml

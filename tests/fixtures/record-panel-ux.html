@@ -1,0 +1,27 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LifeOS isolated record editor fixture</title></head><body><div id="root"></div><script type="module">
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import {RecordPanel} from '/src/features/cognition/RecordPanel.tsx';
+import {graph,replaceGraph} from '/src/features/cognition/graph.ts';
+import {CognitionController} from '/src/features/cognition/state.ts';
+import {summarizeExperience} from '/server/experience-insight.ts';
+import '/src/features/cognition/cognition.css';
+const query=new URL(location.href).searchParams,data=structuredClone(graph.data),record=data.nodes.filter(n=>n.type==='experience')[query.has('minimal')?1:0];
+Object.assign(record,{title:'合成经历：资料交付',summary:'我整理了一份课程资料',occurredAt:'2026-10-18',action:'我发送了PDF',result:'同学还没回复',reflection:'还不知道是否看过'});
+if(query.has('minimal'))for(const key of ['action','result','reflection'])delete record[key];
+if(query.has('structured'))record.experienceSummary=summarizeExperience(record);
+if(query.has('live')){
+  record.serverId='00000000-0000-4000-8000-000000000031';record.serverRevision=2;
+  record.insight={headline:'旧解释：这次整理顺利完成',evidence:record.summary,nextStep:'继续发送同一份资料'};
+  let revision=2,content={summary:record.summary,action:record.action,result:record.result,reflection:record.reflection,occurredAt:record.occurredAt};
+  window.fetch=async(url,options)=>{
+    if(String(url)!=='/api/experiences/'+record.serverId+'/actions')throw Error('FIXTURE_UNEXPECTED_FETCH');
+    const input=JSON.parse(options.body);if(input.expectedRevision!==revision)return new Response(JSON.stringify({error:{code:'EXPERIENCE_REVISION_CONFLICT'}}),{status:409});
+    content={...content,...input.content};revision++;
+    return new Response(JSON.stringify({revision,content}),{headers:{'content-type':'application/json'}});
+  };
+}
+replaceGraph(data);
+const controller=new CognitionController();controller.update({mode:'EXPERIENCE_DETAIL',activeRecordId:record.id});
+createRoot(document.getElementById('root')).render(React.createElement(RecordPanel,{controller,onBack:()=>{}}));
+</script></body></html>

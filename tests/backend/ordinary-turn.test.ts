@@ -10,17 +10,19 @@ import {pool} from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
 import {setMemorySettings} from '../../server/memory.ts'
+import {growthContext,createGrowthItem} from '../../server/growth.ts'
 import {deriveTurnContract,bindPlanBudgetSchema,bindMaterialDeliverySchema,taskOutcomeReadback,requestsSingleQuestionMaterial} from '../../server/turn-contract.ts'
 import {requiresImmediateMaterial,deliverableIntent} from '../../server/action-coach-events.ts'
 import {mentionedDirectionScopes} from '../../server/growth-controls.ts'
 import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
 import {selectStructuralCandidate,clauseReportsCompleted} from '../../server/experience-content.ts'
-import {parseActionCoachTurn} from '../../server/action-coach-contracts.ts'
+import {parseActionCoachTurn,completeCoachJsonFrame} from '../../server/action-coach-contracts.ts'
 import {boundedRecallReply} from '../../server/bounded-reply.ts'
 import {importEvergreenCorpus} from '../../server/evergreen-maintenance.ts'
 import {readGuideUsage,readPriorGuideEvents} from '../../server/guide-usage.ts'
 import {safeEarlySentence,openingQuestionDraft} from '../../server/reply-draft.ts'
 import {buildTurnPrompt,providerTurnMessages,turnSystemPrompt} from '../../server/turn-prompt.ts'
+import {boundedDistinctionReply} from '../../server/review-repairs.ts'
 import {configureProviderPayload} from '../../server/model-payload.ts'
 import {normalizeWeeklyPlanTasks,validateWeeklyPlanShape,renderProposedWeeklyPlan} from '../../server/weekly-plans.ts'
 
@@ -136,9 +138,20 @@ test('ordinary contract composes review, material and facts without competing mo
   assert.throws(()=>validateWeeklyPlanShape({target:{operation:'create'},availableMinutes:120,period:'this_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'create',minutes:60,directionScopes:[]}]}),{code:'WEEKLY_PLAN_INVALID'})
 })
 
+test('structured frame completion uses native JSON and never promotes an incomplete prefix',()=>{
+  const frame=JSON.stringify({reply:'原文里有 } 和转义引号 "，仍保留完整。',growthUpdates:[]})
+  assert.equal(completeCoachJsonFrame(frame+'\n```\n'+frame.repeat(3)),frame)
+  assert.equal(completeCoachJsonFrame(frame.slice(0,-1)),null)
+  assert.equal(completeCoachJsonFrame('解释文字'+frame),null)
+  assert.equal(completeCoachJsonFrame('[{"reply":"不能把数组当响应"}]'),null)
+  assert.equal(completeCoachJsonFrame('{"nested":{"reply":"还没结束"}'),null)
+  assert.equal(completeCoachJsonFrame('{}\n{}'),'{}','invalid contract is framed then rejected by the existing validator')
+})
+
 test('single ordinary generation preserves mixed delivery and real transaction boundaries (simulated provider)',async t=>{
   await localEmbedding.start()
   const previous={url:model.baseUrl,key:config.apiKey},requests:any[]=[],outputs:unknown[]=[]
+  let afterSyntheticFrame:(()=>void)|undefined
   const fake=createServer((req,res)=>{
     const chunks:Buffer[]=[]
     req.on('data',chunk=>chunks.push(Buffer.from(chunk)))
@@ -149,6 +162,15 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       if(output===undefined){res.writeHead(500);res.end();return}
       res.writeHead(200,{'Content-Type':'text/event-stream'})
       const base={id:'ordinary-synthetic-'+requests.length,object:'chat.completion.chunk',created:1,model:model.id}
+      if(output&&typeof output==='object'&&('syntheticRepeatedFrame'in output||'syntheticHeldFrame'in output)){
+        const repeated='syntheticRepeatedFrame'in output
+        const frame=JSON.stringify((output as any)[repeated?'syntheticRepeatedFrame':'syntheticHeldFrame'])
+        res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:frame+(repeated?'\n```\n'+frame.repeat(3):'')},finish_reason:null}]})+'\n\n')
+        afterSyntheticFrame?.()
+        const timer=setTimeout(()=>res.end((repeated?'data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\n':'')+'data: [DONE]\n\n'),repeated?250:5000)
+        res.on('close',()=>clearTimeout(timer))
+        return
+      }
       res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{content:JSON.stringify(output)},finish_reason:null}]})+'\n\n')
       res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:100,total_tokens:300}})+'\n\ndata: [DONE]\n\n')
     })
@@ -170,6 +192,303 @@ test('single ordinary generation preserves mixed delivery and real transaction b
   }
   let event:any
   try{
+    await t.test('mixed judgment correction and action retains a useful lead before commit',async()=>{
+      const text='更正：同学少问一次只是结果，不代表我因此有成就感；我当时真正轻松的是自己不用反复找。只更新受影响的判断，给一个本周能开始的小动作。'
+      const input=await prepare(text),frames:Record<string,unknown>[]=[]
+      const lead='挑一份最近常翻的资料，先写三条分类规则。'
+      const reply=lead+'只按这三条归档，到时可停；下次实际查找后记录是否少翻几轮。轻松来自自己不用反复找，同学少问一次不代表你的成就感，分类能否持续减少反复找仍未知。'
+      outputs.push({lead,reply})
+      const before=requests.length
+      const result=await engine({...input,emit:frame=>{frames.push(frame)}})
+      assert.equal(requests.length-before,1)
+      const native=input.staged.audit.find((entry:any)=>entry.phase==='provider_native_contract') as any
+      assert.ok(native.properties.includes('lead'),'the actual correction/action wire contract must allow the existing safe lead')
+      assert.ok(frames.some(frame=>frame.type==='draft'&&frame.text===lead.slice(0,-1)&&frame.saved===false&&frame.draftKind==='safe_sentence'))
+      assert.equal(result.text,reply)
+      assert.equal((await pool.query("SELECT count(*)::int AS n FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[user,input.run.request_id])).rows[0].n,0,'draft does not commit an assistant message')
+      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+    })
+    await t.test('OH prerequisite inquiry commits once without hardening a soft objective',async()=>{
+      const actor='oh-prerequisite-'+randomUUID(),chat=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+      try{
+        await setMemorySettings(actor,{requestId:randomUUID(),enabled:true,expectedRevision:0})
+        await store.createConversation(actor,{id:chat,title:'SYNTHETIC source-bound prerequisite inquiry'})
+        const text='我自己更在意留在目前城市。请给一个最多四小时核对岗位学历门槛的小验证。'
+        const run=(await store.startRun(actor,chat,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]},signal=new AbortController().signal
+        const reply='用最多四小时查看一条本地岗位信息，核对研究生学历是否为该留城岗位的必要条件；只记录该岗位要求，不推整座城市的门槛，到时停止。'
+        const before=requests.length;outputs.push({reply})
+        const result=await engine({run,staged,context:await store.contextForRun(run),decision:null,signal,emit:()=>{}})
+        assert.equal(requests.length-before,1);assert.equal(result.text,reply)
+        await store.finishRun(run,staged,result.text,result.usage,signal)
+        const count=(await pool.query("SELECT count(*)::int AS n FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[actor,run.request_id])).rows[0].n
+        assert.equal(count,1)
+        const next=randomUUID();await store.createConversation(actor,{id:next,title:'SYNTHETIC unchanged soft preference'})
+        assert.ok((await growthContext(actor,next)).some(g=>g.kind==='preference'&&g.text==='我自己更在意留在目前城市'))
+      }finally{await pool.query('DELETE FROM experiences WHERE user_id=$1',[actor]);await pool.query('DELETE FROM "user" WHERE id=$1',[actor])}
+    })
+    await t.test('current status-only reports commit without a provider, keep prior trial evidence and respect Memory OFF',async()=>{
+      const actor='source-status-'+randomUUID(),firstChat=randomUUID(),secondChat=randomUUID(),offChat=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+      try{
+        await setMemorySettings(actor,{requestId:randomUUID(),enabled:true,expectedRevision:0})
+        await store.createConversation(actor,{id:firstChat,title:'SYNTHETIC prior participant report'})
+        const prior=(await store.startRun(actor,firstChat,randomUUID(),'老师还没有回复那封邮件；另一位同学试过我做的表格后明确说不适合他。')).run
+        const priorStaged:store.Staged={candidates:[],audit:[]},signal=new AbortController().signal
+        outputs.push({reply:'老师未回复邮件；另一位同学试过表格后说不适合。各次原报告保留，未说明的其他状态不补写。'})
+        const priorResult=await engine({run:prior,staged:priorStaged,context:await store.contextForRun(prior),decision:null,signal,emit:()=>{}})
+        const wire=requests.at(-1),system=wire.messages.find((message:any)=>message.role==='system').content
+        const evidenceRule='participantReports每项是一条来源报告，不是一个独立人物或新增反馈样本'
+        assert.equal(system.split(evidenceRule).length-1,1,'the actual engine system prompt carries stable evidence rules once')
+        const metadata=JSON.parse(wire.messages.find((message:any)=>message.role==='user').content)
+        assert.ok(!metadata.currentTask.responseScope.rules.some((rule:string)=>rule.startsWith(evidenceRule)),'the wire metadata keeps the same deduplication')
+        await store.finishRun(prior,priorStaged,priorResult.text,priorResult.usage,signal)
+        const sourceEngine=createTurnEngine({capabilityVerified:()=>false,providerCallObserver:{before(){throw new Error('SOURCE_STATUS_MUST_NOT_DISPATCH')},after(){}}})
+        const facts='回来反馈：老师后来回复说这周忙，下周再看；同学表格仍是明确不适合他。'
+        async function update(chat:string){
+          await store.createConversation(actor,{id:chat,title:'SYNTHETIC source status update'})
+          const run=(await store.startRun(actor,chat,randomUUID(),facts+'请只更新各自相关状态。')).run
+          const staged:store.Staged={candidates:[],audit:[]},before=requests.length
+          const result=await sourceEngine({run,staged,context:await store.contextForRun(run),decision:null,signal,emit:()=>{}})
+          assert.equal(requests.length,before,'source-only updates must not ask a model to invent an actor link')
+          assert.equal(result.text,facts)
+          assert.equal((result.usage as any).llmCallCount,0)
+          await store.finishRun(run,staged,result.text,result.usage,signal)
+          return run
+        }
+        const latest=await update(secondChat),memory=await growthContext(actor,secondChat)
+        assert.ok(memory.some(item=>item.text.includes('试过我做的表格')),'a later partial report cannot erase prior trial evidence')
+        const current=memory.filter(item=>item.sources.some(source=>source.type==='message'&&source.id===latest.source_message_id))
+        assert.ok(current.some(item=>item.text.includes('后来回复')))
+        assert.ok(current.every(item=>facts.includes(item.text)),'new memories are exact current reports, never inferred people or sample counts')
+        await setMemorySettings(actor,{requestId:randomUUID(),enabled:false,expectedRevision:1})
+        await update(offChat)
+        assert.equal((await pool.query('SELECT count(*)::int AS n FROM growth_items WHERE user_id=$1 AND conversation_id=$2',[actor,offChat])).rows[0].n,0)
+      }finally{
+        await pool.query('DELETE FROM experiences WHERE user_id=$1',[actor])
+        await pool.query('DELETE FROM "user" WHERE id=$1',[actor])
+      }
+    })
+    await t.test('an omitted positive self-explanation is committed verbatim and follows Memory ON across sessions',async()=>{
+      const actor='explanation-'+randomUUID(),chat=randomUUID(),next=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+      try{
+        await setMemorySettings(actor,{requestId:randomUUID(),enabled:true,expectedRevision:0})
+        await store.createConversation(actor,{id:chat,title:'SYNTHETIC owned explanation'})
+        const quote='我当时真正轻松的是自己不用反复找'
+        const run=(await store.startRun(actor,chat,randomUUID(),'更正：同学少问一次只是结果，不代表我因此有成就感；'+quote+'。只更新受影响的理解，不安排动作。')).run
+        const staged:store.Staged={candidates:[],audit:[]},signal=new AbortController().signal
+        outputs.push({reply:'你明确说轻松来自自己不用反复找，不能把同学少问一次等同于成就感；是否能在下一次重现仍未知。'})
+        const result=await engine({run,staged,context:await store.contextForRun(run),decision:null,signal,emit:()=>{}})
+        await store.finishRun(run,staged,result.text,result.usage,signal)
+        await store.createConversation(actor,{id:next,title:'SYNTHETIC cross-session explanation'})
+        const memory=await growthContext(actor,next),saved=memory.find(item=>item.text===quote)
+        assert.ok(saved,'the positive explanation must not disappear when the model returns reply only')
+        assert.equal(saved.assertion,'user_reported');assert.equal(saved.kind,'context')
+        assert.ok(saved.sources.some(source=>source.type==='message'&&source.id===run.source_message_id))
+        for(const value of ['我发现同学轻松是因为不用反复找。','我觉得他感到轻松是因为不用反复找。','我希望你能帮我分析我为什么感到轻松。','我希望你可以帮我分析我为什么感到轻松。','我想麻烦你帮我分析我为什么感到轻松。']){
+          const negativeChat=randomUUID();await store.createConversation(actor,{id:negativeChat,title:'SYNTHETIC source ownership negative'})
+          const negativeRun=(await store.startRun(actor,negativeChat,randomUUID(),value)).run
+          outputs.push({reply:'目前只能依据你明确报告的内容，不能补充尚未确认的解释。'})
+          const negativeStage:store.Staged={candidates:[],audit:[]},negativeSignal=new AbortController().signal
+          const negative=await engine({run:negativeRun,staged:negativeStage,context:await store.contextForRun(negativeRun),decision:null,signal:negativeSignal,emit:()=>{}})
+          await store.finishRun(negativeRun,negativeStage,negative.text,negative.usage,negativeSignal)
+          assert.ok(!(await growthContext(actor,negativeChat)).some(item=>item.kind==='context'&&item.text===value.replace(/。$/,'')),value)
+        }
+        await setMemorySettings(actor,{requestId:randomUUID(),enabled:false,expectedRevision:1})
+        assert.ok(!(await growthContext(actor,next)).some(item=>item.text===quote),'Memory OFF hides the prior-session source')
+      }finally{await pool.query('DELETE FROM "user" WHERE id=$1',[actor])}
+    })
+    await t.test('actual OG sources persist across sessions; failed mock prose is retained for mandatory real generation acceptance',async()=>{
+      const turns=JSON.parse(readFileSync(new URL('../fixtures/og-known-goals-and-fit.json',import.meta.url),'utf8')).turns
+      for(const prefix of ['C3','C6']){
+        const actor='og-'+randomUUID(),chat=randomUUID(),next=randomUUID()
+        await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+        try{
+          await setMemorySettings(actor,{requestId:randomUUID(),enabled:true,expectedRevision:0})
+          await store.createConversation(actor,{id:chat,title:'SYNTHETIC OG source reports'})
+          await store.createConversation(actor,{id:next,title:'SYNTHETIC OG cross-session readback'})
+          const sequence=turns.filter((x:any)=>x.id.startsWith(prefix+'-')).slice(0,prefix==='C3'?5:6)
+          for(let i=0;i<sequence.length;i++){
+            const x=sequence[i],run=(await store.startRun(actor,i===sequence.length-1?next:chat,randomUUID(),x.user)).run
+            const staged:store.Staged={candidates:[],audit:[]},signal=new AbortController().signal,frames:Record<string,unknown>[]=[]
+            const before=requests.length;outputs.push({reply:x.assistant})
+            const result=await engine({run,staged,context:await store.contextForRun(run),decision:null,signal,emit:f=>{frames.push(f)}})
+            assert.equal(requests.length-before,1)
+            await store.finishRun(run,staged,result.text,result.usage,signal)
+            const saved=(await pool.query("SELECT content FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[actor,run.request_id])).rows
+            assert.equal(saved.length,1);assert.equal(saved[0].content,result.text)
+            if(i!==sequence.length-1)continue
+            const visible=frames.filter(f=>f.type==='draft').map(f=>String(f.text)).join('\n')+'\n'+result.text
+            if(prefix==='C3'){
+              assert.match(result.text,/如果这个节奏你能接受，它仍符合/,'conditional relationships are not repaired by the lexical guard; the retained semantic failure must be rejected by real acceptance if generated again')
+            }else{
+              assert.match(result.text,/你真正想.*还是/,'retained failed mock prose is not semantic acceptance; no new lexical deletion');assert.match(result.text,/20秒/);assert.match(result.text,/是否稳定复现/)
+              const known=(await growthContext(actor,next)).filter(x=>x.kind==='goal'&&x.status==='active').map(x=>x.text)
+              assert.ok(known.some(x=>x.includes('更快看出哪些信息关键')))
+              assert.ok(known.some(x=>x.includes('减少自己反复找东西的时间')))
+            }
+          }
+          if(prefix==='C6'){
+            const questionChat=randomUUID();await store.createConversation(actor,{id:questionChat,title:'SYNTHETIC explicit goal reconsideration'})
+            const questionRun=(await store.startRun(actor,questionChat,randomUUID(),'只问一个问题，帮我重新想清楚这两个目标。')).run
+            const questionStage:store.Staged={candidates:[],audit:[]},questionSignal=new AbortController().signal
+            const question='你现在想先弄清这两个目标的哪个环节？'
+            outputs.push({reply:question})
+            const result=await engine({run:questionRun,staged:questionStage,context:await store.contextForRun(questionRun),decision:null,signal:questionSignal,emit:()=>{}})
+            assert.equal(result.text,question,'stage readback correction must preserve an explicitly requested exploration question')
+            await store.finishRun(questionRun,questionStage,result.text,result.usage,questionSignal)
+            const ordinaryChat=randomUUID();await store.createConversation(actor,{id:ordinaryChat,title:'SYNTHETIC known goals without reconsideration permission'})
+            assert.ok((await growthContext(actor,ordinaryChat)).filter(g=>g.kind==='goal'&&g.status==='active').length>=2)
+            const ordinaryRun=(await store.startRun(actor,ordinaryChat,randomUUID(),'只问一个问题，看看最近的进展。')).run
+            const ordinaryStage:store.Staged={candidates:[],audit:[]},unsupportedChoice='你真正想要的是减少自己反复找东西的时间还是更快看出哪些信息关键？';outputs.push({reply:unsupportedChoice})
+            const ordinaryResult=await engine({run:ordinaryRun,staged:ordinaryStage,context:await store.contextForRun(ordinaryRun),decision:null,signal:questionSignal,emit:()=>{}})
+            assert.notEqual(ordinaryResult.text,unsupportedChoice,'Memory ON existing goals must not authorize a new exclusive question without a current reconsideration request')
+            await store.finishRun(ordinaryRun,ordinaryStage,ordinaryResult.text,ordinaryResult.usage,questionSignal)
+          }
+          if(prefix==='C6'){
+            const declaredChat=randomUUID();await store.createConversation(actor,{id:declaredChat,title:'SYNTHETIC explicit current goal'})
+            const text='我现在的目标是考研。只给一句阶段理解，不排计划。',run=(await store.startRun(actor,declaredChat,randomUUID(),text)).run
+            const staged:store.Staged={candidates:[],audit:[]},signal=new AbortController().signal
+            outputs.push({reply:'你当前明确把目标放在考研，专业、学校和备考时间尚未说明。'})
+            const result=await engine({run,staged,context:await store.contextForRun(run),decision:null,signal,emit:()=>{}})
+            await store.finishRun(run,staged,result.text,result.usage,signal)
+            const saved=(await growthContext(actor,declaredChat)).find(g=>g.kind==='goal'&&g.text==='我现在的目标是考研')
+            assert.ok(saved);assert.equal(saved.assertion,'user_reported')
+            assert.ok(saved.sources.some(s=>s.type==='message'&&s.id===run.source_message_id))
+            const verifyChat=randomUUID();await store.createConversation(actor,{id:verifyChat,title:'SYNTHETIC current goal continuity'})
+            assert.ok((await growthContext(actor,verifyChat)).some(g=>g.id===saved.id))
+          }
+          await createGrowthItem(actor,{requestId:randomUUID(),conversationId:chat,kind:'context',text:'我确认它符合我的偏好。'})
+          await setMemorySettings(actor,{requestId:randomUUID(),enabled:false,expectedRevision:1})
+          const offChat=randomUUID();await store.createConversation(actor,{id:offChat,title:'SYNTHETIC OG memory off'})
+          assert.equal((await growthContext(actor,offChat)).length,0)
+          const offRun=(await store.startRun(actor,offChat,randomUUID(),'先说明这个候选的适配是否有依据，不安排动作。')).run
+          const offStage:store.Staged={candidates:[],audit:[]},offSignal=new AbortController().signal
+          const offReply='这个候选是否具备你需要的属性仍未说明，暂不能判断整体适配。'
+          outputs.push({reply:offReply})
+          const offResult=await engine({run:offRun,staged:offStage,context:await store.contextForRun(offRun),decision:null,signal:offSignal,emit:()=>{}})
+          assert.equal(offResult.text,offReply)
+          assert.ok(!JSON.stringify(requests.at(-1).messages).includes('我确认它符合我的偏好'))
+          await store.finishRun(offRun,offStage,offResult.text,offResult.usage,offSignal)
+          if(prefix==='C6'){
+            const offQuestionChat=randomUUID();await store.createConversation(actor,{id:offQuestionChat,title:'SYNTHETIC OFF question source'})
+            const offQuestionRun=(await store.startRun(actor,offQuestionChat,randomUUID(),'只问一个问题，帮我重新想清楚这两个目标。')).run
+            const offQuestionStage:store.Staged={candidates:[],audit:[]}
+            const question='你真正想要的是减少自己反复找东西的时间还是更快看出哪些信息关键？'
+            outputs.push({reply:question})
+            const offQuestion=await engine({run:offQuestionRun,staged:offQuestionStage,context:await store.contextForRun(offQuestionRun),decision:null,signal:offSignal,emit:()=>{}})
+            assert.notEqual(offQuestion.text,question,'disabled cross-session goals cannot authorize the binary question')
+            assert.ok(!JSON.stringify(requests.at(-1).messages).includes('减少自己反复找东西的时间'))
+            await store.finishRun(offQuestionRun,offQuestionStage,offQuestion.text,offQuestion.usage,offSignal)
+          }
+        }finally{
+          await pool.query('DELETE FROM experiences WHERE user_id=$1',[actor])
+          await pool.query('DELETE FROM "user" WHERE id=$1',[actor])
+        }
+      }
+    })
+    await t.test('actual OE open type question keeps its topic through engine and one commit',async()=>{
+      const actual=JSON.parse(readFileSync(new URL('../fixtures/oe-open-question-failure.json',import.meta.url),'utf8'))
+      const chat=randomUUID();await store.createConversation(user,{id:chat,title:'SYNTHETIC actual OE open question'})
+      const input=await prepare(actual.user,chat),before=requests.length
+      outputs.push(actual.raw)
+      const result=await engine(input),expected=actual.raw.reply.split('——')[0]+'？'
+      assert.equal(requests.length-before,1)
+      assert.equal(result.text,expected)
+      assert.doesNotMatch(result.text,/影响你的判断|课表|经济上/)
+      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      const saved=(await pool.query("SELECT content FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[user,input.run.request_id])).rows
+      assert.equal(saved.length,1);assert.equal(saved[0].content,expected)
+    })
+    await t.test('actual OD causal inference stays out of drafts and the calibrated inference commits once',async()=>{
+      const capture=JSON.parse(readFileSync(new URL('../fixtures/od-semantic-preview-failures.json',import.meta.url),'utf8'))
+      const actual=capture.turns.find((x:any)=>x.chain==='no-direction'&&x.index===2)
+      const chat=randomUUID();await store.createConversation(user,{id:chat,title:'SYNTHETIC actual OD inference preview'})
+      const input=await prepare(actual.user,chat),before=requests.length,frames:Record<string,unknown>[]=[]
+      input.emit=event=>{frames.push(event)}
+      outputs.push(actual.raw)
+      const result=await engine(input)
+      assert.equal(requests.length-before,1)
+      assert.ok(frames.filter(f=>f.type==='draft').every(f=>!String(f.text).includes('支持提前分类能减少沟通')),'discarding later cannot make a visible unsupported cause safe')
+      assert.match(result.text,/待验证的假设：提前分类能减少沟通/)
+      assert.doesNotMatch(result.text,/能是否/)
+      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      const saved=(await pool.query("SELECT content FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[user,input.run.request_id])).rows
+      assert.equal(saved.length,1);assert.equal(saved[0].content,result.text)
+      const items=await growthContext(user,chat)
+      assert.ok(items.some(item=>item.sources.some(source=>source.type==='message'&&source.id===input.run.source_message_id&&actual.user.includes(source.quote??''))),'source-reported observation remains available')
+    })
+    await t.test('an internal draft without a delivered answer is rejected once instead of saved as an invented unknown',async()=>{
+      const chat=randomUUID();await store.createConversation(user,{id:chat,title:'SYNTHETIC empty draft guard'})
+      const input=await prepare('我现在更在意专注时段。依据这条反馈更新自由的理解；现在不继续行动。',chat),before=requests.length
+      outputs.push({reply:'【待补】你的目标尚不明确。'})
+      await assert.rejects(engine(input),{code:'REPLY_INCOMPLETE_OR_INTERNAL'})
+      assert.equal(requests.length-before,1,'no paid replacement generation')
+      assert.equal((await pool.query('SELECT count(*)::int AS n FROM messages WHERE user_id=$1 AND conversation_id=$2 AND role=$3',[user,chat,'assistant'])).rows[0].n,0)
+      assert.equal((await pool.query('SELECT count(*)::int AS n FROM growth_items WHERE user_id=$1 AND conversation_id=$2',[user,chat])).rows[0].n,0)
+      assert.equal(input.staged.growth,undefined)
+      await store.terminateRun(user,input.run.request_id,'failed','REPLY_INCOMPLETE_OR_INTERNAL')
+    })
+    await t.test('withheld control preview is absent from generation and mixed control still commits atomically',async()=>{
+      const chat=randomUUID();await store.createConversation(user,{id:chat,title:'SYNTHETIC control without preview'})
+      const input=await prepare('先暂停考研方向，这周不安排任务。我自己更在意留在目前城市。请说明当前理解，不删除事实。',chat)
+      outputs.push({reply:'你更在意留在目前城市；考研建议已暂停，本周不安排任务，是否适合继续读研仍未知。'})
+      const before=requests.length,result=await engine(input)
+      assert.equal(requests.length-before,1)
+      assert.equal(requests.at(-1).response_format.json_schema.schema.properties.lead,undefined)
+      assert.ok(!requests.at(-1).response_format.json_schema.schema.required.includes('lead'))
+      assert.ok(requests.at(-1).messages[0].content.includes('本轮schema未开放lead'))
+      const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      assert.ok(saved.directionControls?.changedScopes.includes('postgraduate_exam'))
+    })
+    await t.test('already canonical two-factor reply is selected before generation without a duplicate lead',async()=>{
+      const chat=randomUUID();await store.createConversation(user,{id:chat,title:'SYNTHETIC distinction without duplicate'})
+      const text='接着羽毛球那次体验。我想保留这种不被评价的陪伴，但不确定是运动本身还是这个室友带来的。请给暂定理解和一个很小的区分办法。'
+      const input=await prepare(text,chat),expected=boundedDistinctionReply(text)
+      assert.ok(expected)
+      outputs.push((request:any)=>({reply:request.response_format.json_schema.schema.properties.reply.enum[0]}))
+      const result=await engine(input),schema=requests.at(-1).response_format.json_schema.schema
+      assert.equal(schema.properties.lead,undefined)
+      assert.deepEqual(schema.properties.reply.enum,[expected])
+      assert.equal(result.text,expected)
+      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+    })
+    await t.test('repeated JSON tail is ignored while provider EOS usage and normal commit guards are retained',async()=>{
+      const chat=randomUUID();await store.createConversation(user,{id:chat,title:'SYNTHETIC repeated transport'})
+      const input=await prepare('我今天想聊一下课程。',chat),before=requests.length
+      let expectedReply=''
+      outputs.push((request:any)=>{expectedReply=request.response_format.json_schema.schema.properties.reply.enum?.[0]??'你想先聊课程里的哪件事？';return {syntheticRepeatedFrame:{reply:expectedReply}}})
+      const result=await engine(input)
+      assert.equal(requests.length-before,1)
+      assert.equal(result.text,expectedReply)
+      assert.equal((result.usage as any).calls[0].usageCompleteness,'complete')
+      assert.equal((result.usage as any).calls[0].outputTokens,100)
+      assert.ok(!input.staged.audit.some((row:any)=>row.phase==='host_structured_frame_terminated'))
+      assert.ok(input.staged.audit.some((row:any)=>row.phase==='provider_stream_assembly'&&row.streamMatchesResult===false))
+      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      const saved=(await pool.query("SELECT content FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[user,input.run.request_id])).rows
+      assert.equal(saved[0].content,expectedReply)
+    })
+    await t.test('a complete frame with missing provider EOS finishes after grace with unknown usage',async()=>{
+      const chat=randomUUID();await store.createConversation(user,{id:chat,title:'SYNTHETIC held frame'})
+      const input=await prepare('我今天想聊一下课程。',chat),before=requests.length
+      outputs.push((request:any)=>({syntheticHeldFrame:{reply:request.response_format.json_schema.schema.properties.reply.enum[0]}}))
+      const result=await engine(input)
+      assert.equal(requests.length-before,1)
+      assert.equal((result.usage as any).calls[0].usageCompleteness,'unavailable')
+      assert.ok(input.staged.audit.some((row:any)=>row.phase==='host_structured_frame_terminated'))
+      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+    })
+    await t.test('user cancellation wins even after a complete frame and creates no assistant commit',async()=>{
+      const chat=randomUUID();await store.createConversation(user,{id:chat,title:'SYNTHETIC cancelled frame'})
+      const input=await prepare('我今天想聊一下课程。',chat),cancel=new AbortController()
+      input.signal=cancel.signal
+      outputs.push((request:any)=>({syntheticHeldFrame:{reply:request.response_format.json_schema.schema.properties.reply.enum[0]}}))
+      afterSyntheticFrame=()=>setTimeout(()=>cancel.abort(),20)
+      try{await assert.rejects(engine(input))}finally{afterSyntheticFrame=undefined;await store.terminateRun(user,input.run.request_id,'cancelled','SYNTHETIC_USER_CANCEL')}
+      assert.equal((await pool.query("SELECT count(*)::int AS n FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[user,input.run.request_id])).rows[0].n,0)
+    })
     await t.test('feedback and shorter material share one call and persist together',async()=>{
       const input=await prepare('我给学长发了请教消息，他还没回复，把消息改短。')
       const material='学长，方便说说你最初怎么选实习方向的吗？'
@@ -179,7 +498,9 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       assert.match(result.text,/不能判断原因/)
       assert.ok(result.text.includes(material))
       assert.equal((requests.at(-1).response_format.json_schema.schema.properties.reply as any).enum,undefined)
-      assert.ok(requests.at(-1).response_format.json_schema.schema.properties.event.properties.target.anyOf[0].properties.source.properties.quote.enum.includes('我给学长发了请教消息'))
+      const outgoingEvent=requests.at(-1).response_format.json_schema.schema.properties.event
+      const createEvent=outgoingEvent.anyOf.find((branch:any)=>branch.properties.target.properties.operation.const==='create')
+      assert.ok(createEvent.properties.target.properties.source.properties.quote.enum.includes('我给学长发了请教消息'))
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       event=saved.event
       assert.equal(event.actions[0].draft.content,material)
@@ -337,14 +658,43 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       await setMemorySettings(actor,{requestId:randomUUID(),enabled:false,expectedRevision:1})
       assert.deepEqual(await readPriorGuideEvents(actor,followup),[],'index-independent lookup must respect Memory OFF')
     })
-    await t.test('listening is naturally generated with no unsolicited material',async()=>{
+    await t.test('unrequested method context cannot advertise a citation lane hidden from the user',async()=>{
+      const actor='citation-policy-'+randomUUID(),chat=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+      try{
+        await setMemorySettings(actor,{requestId:randomUUID(),enabled:true,expectedRevision:0})
+        await store.createConversation(actor,{id:chat,title:'SYNTHETIC citation visibility'})
+        const run=(await store.startRun(actor,chat,randomUUID(),'我主要在意能自己安排专注时间，还没有客户，也没有自由职业经历，每周最多两小时。请比较一个更低成本的探索方式，不要推出我适合自由职业。')).run
+        const input={run,staged:{candidates:[],audit:[]} as store.Staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}}
+        outputs.push({reply:'方式一：记录一次自己的专注时段，依据是你在意自主安排时间，投入几分钟，局限是一次记录不证明长期状态。\n方式二：在两小时上限内试做一项已有课程练习，依据是你没有客户且时间有限，局限是仅作探索，不代表适合自由职业。'})
+        const before=requests.length,result=await engine(input)
+        assert.equal(requests.length-before,1)
+        assert.ok(input.staged.audit.some((a:any)=>a.phase==='method_context'&&a.cardIds?.length),'the comparison really received a method context')
+        assert.equal(requests.at(-1).response_format.json_schema.schema.properties.citations,undefined,'the provider cannot select citations that the host will suppress')
+        const contractAudit=input.staged.audit.find((a:any)=>a.phase==='turn_contract') as {capabilities:{citations:boolean}}|undefined
+        assert.equal(contractAudit?.capabilities.citations,false)
+        const saved=await store.finishRun(run,input.staged,result.text,result.usage,input.signal)
+        assert.equal((saved.stateChange as {guideUsage?:{status?:unknown}}|undefined)?.guideUsage?.status,'not_requested')
+      }finally{await pool.query('DELETE FROM "user" WHERE id=$1',[actor])}
+    })
+    await t.test('time-prefixed listening uses the authorized no-action catalogue with no unsolicited material',async()=>{
       const input=await prepare('今天只想聊聊，不要给我安排任务。')
-      const reply='可以，今天就聊聊。你想从哪件事说起都行。'
-      outputs.push({reply})
+      let reply=''
+      outputs.push((request:any)=>{
+        const schema=request.response_format.json_schema.schema
+        assert.ok(schema.properties.reply.enum.length>0)
+        assert.equal(schema.properties.event,undefined)
+        reply=schema.properties.reply.enum[0]
+        assert.doesNotMatch(reply,/安排任务|[？?]/)
+        return {reply}
+      })
       const before=requests.length,result=await engine(input)
       assert.equal(requests.length-before,1)
       assert.equal(result.text,reply)
-      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      assert.deepEqual(input.staged.growth?.changes??[],[])
+      const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      assert.deepEqual(saved.growthCreatedIds,[])
+      assert.deepEqual(saved.candidateIds,[])
     })
     await t.test('invalid source fails once even when legacy repair is requested',async()=>{
       const input=await prepare('我想聊聊另一个项目。')
@@ -394,6 +744,15 @@ test('wire context transmits each method and identical current event once withou
   const conflicting={...event,nodes:[{...event.nodes[0],status:'declined'}]}
   const distinct=JSON.parse(buildTurnPrompt({currentMessageId:id,messages:[current],currentEvent:event,events:[conflicting]}))
   assert.equal(distinct.events.length,1,'do not discard a nonidentical authorization snapshot')
+})
+
+test('bounded dialogue history is a contiguous suffix, not older isolated messages',()=>{
+ const current={id:randomUUID(),role:'user',content:'甲'.repeat(19500)} as any
+ const old={id:randomUUID(),role:'user',content:'旧'.repeat(300)} as any
+ const previous={id:randomUUID(),role:'assistant',content:'乙'.repeat(1000)} as any
+ const context=JSON.parse(buildTurnPrompt({currentMessageId:current.id,messages:[old,previous,current]}))
+ assert.deepEqual(context.messages,[])
+ assert.equal(context.currentUserMessage.text,current.content)
 })
 
 

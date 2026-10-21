@@ -26,7 +26,7 @@ export function readCoachAuthorization(root=process.cwd()){
   if(unknown!==ledger.unknownUsageCalls||known!==ledger.knownEstimatedSubtotalCny)throw new Error('HISTORICAL_USAGE_SUBTOTAL_INVALID')
   return {sha256:digest(bytes),maximum:ledger.batchMaximumCalls,used:calls.length,remaining,unknownUsageCalls:ledger.unknownUsageCalls}
 }
-export type CoachCallReceipt={callId:string;runId:string;purpose:'capability'|'turn'|'repair'|'diagnostic';tier:string;provider:string;model:string;signature:string;sourceDigest?:string;logicalCallId?:string;startedAt:string;finishedAt?:string;status:'reserved'|'finished';outcome?:string;usage?:unknown;estimatedCostCny?:number|'unknown';providerResponseId?:string|null;funding?:'additional_cny'|'current_grant';reservedCostCny?:number}
+export type CoachCallReceipt={callId:string;runId:string;purpose:'capability'|'turn'|'repair'|'diagnostic';tier:string;provider:string;model:string;signature:string;sourceDigest?:string;logicalCallId?:string;startedAt:string;finishedAt?:string;status:'reserved'|'finished';outcome?:string;usage?:unknown;estimatedCostCny?:number|'unknown';providerResponseId?:string|null;funding?:'additional_cny'|'current_grant'|'acceptance_topup';reservedCostCny?:number}
 export type ComparisonRestriction={startingCall:number;priorReceiptsSha256:string;grantSha256:string;limitCny:27.92;maximumCalls:8}
 export function comparisonAllowance(ledger:any,restriction:ComparisonRestriction){
   if(restriction.limitCny!==27.92||restriction.maximumCalls!==8||!Number.isInteger(restriction.startingCall)||restriction.startingCall<0||restriction.startingCall>ledger.calls.length||restriction.grantSha256!==ledger.currentGrant?.authorizationSha256||digest(JSON.stringify(ledger.calls.slice(0,restriction.startingCall)))!==restriction.priorReceiptsSha256)throw new Error('COMPARISON_RESTRICTION_CHANGED')
@@ -57,7 +57,7 @@ export class CoachProviderBudget {
     const note=JSON.parse(bytes.toString())
     if(digest(bytes)!==ledger.additional.authorizationSha256||note.amountCny!==15||ledger.additional.limitCny!==note.amountCny||ledger.additional.startingCall!==note.priorLedgerCalls||!Number.isInteger(ledger.additional.startingCall)||ledger.additional.startingCall<0||ledger.additional.startingCall>ledger.calls.length)throw new Error('ADDITIONAL_AUTHORIZATION_CHANGED')
     if(digest(JSON.stringify(ledger.calls.slice(0,ledger.additional.activatedCallCount)))!==ledger.additional.priorReceiptsSha256)throw new Error('PREVIOUS_RECEIPTS_CHANGED')
-    const calls=ledger.calls.slice(ledger.additional.startingCall).filter((call:CoachCallReceipt)=>call.funding!=='current_grant')
+    const calls=ledger.calls.slice(ledger.additional.startingCall).filter((call:CoachCallReceipt)=>call.funding!=='current_grant'&&call.funding!=='acceptance_topup')
     let accounted=0
     for(const call of calls){
       const known=call.status==='finished'&&typeof call.estimatedCostCny==='number'&&Number.isFinite(call.estimatedCostCny)&&call.estimatedCostCny>=0
@@ -74,7 +74,9 @@ export class CoachProviderBudget {
     const bytes=readFileSync(resolve(dirname(this.path),'development-test-grant-20261005.json')),note=JSON.parse(bytes.toString())
     if(digest(bytes)!==grant.authorizationSha256||note.amountCny!==30||grant.limitCny!==note.amountCny||grant.startingCall!==note.startingCall||!Number.isInteger(grant.startingCall)||grant.startingCall<0||grant.startingCall>ledger.calls.length||digest(JSON.stringify(ledger.calls.slice(0,grant.startingCall)))!==note.priorReceiptsSha256)throw new Error('CURRENT_GRANT_CHANGED')
     let accounted=0
-    for(const call of ledger.calls.slice(grant.startingCall) as CoachCallReceipt[]){
+    for(const [offset,call] of (ledger.calls.slice(grant.startingCall) as CoachCallReceipt[]).entries()){
+      const index=grant.startingCall+offset
+      if(call.funding==='acceptance_topup'&&ledger.continuation?.authorizationFile==='acceptance-topup-20261018.json'&&index>=ledger.continuation.startingCall)continue
       if(call.funding!=='current_grant')throw new Error('CURRENT_GRANT_FUNDING_INVALID')
       if(call.status==='finished'&&typeof call.estimatedCostCny==='number'&&Number.isFinite(call.estimatedCostCny)&&call.estimatedCostCny>=0)accounted+=call.estimatedCostCny
       else if(typeof call.reservedCostCny==='number'&&Number.isFinite(call.reservedCostCny)&&call.reservedCostCny>0)accounted+=call.reservedCostCny
@@ -87,8 +89,13 @@ export class CoachProviderBudget {
   private refreshContinuation(ledger:any){
     const funding=ledger.continuation
     if(!funding)return
-    const bytes=readFileSync(resolve(dirname(this.path),'campus-acceptance-continuation-20261005.json')),note=JSON.parse(bytes.toString())
-    if(digest(bytes)!==funding.authorizationSha256||note.amountCny!==27.62||funding.limitCny!==27.62||note.noCallLimit!==true||funding.startingCall!==note.startingCall||funding.grantSha256!==ledger.currentGrant?.authorizationSha256||note.grantSha256!==funding.grantSha256||!Number.isInteger(funding.startingCall)||funding.startingCall<0||funding.startingCall>ledger.calls.length||digest(JSON.stringify(ledger.calls.slice(0,funding.startingCall)))!==note.priorReceiptsSha256||note.previousComparisonSha256!==(ledger.comparisonRestriction?.authorizationSha256??null))throw new Error('CONTINUATION_AUTHORIZATION_CHANGED')
+    const authorizationFile=funding.authorizationFile??'campus-acceptance-continuation-20261005.json'
+    const bytes=readFileSync(resolve(dirname(this.path),authorizationFile)),note=JSON.parse(bytes.toString())
+    const baselineInvalid=!Number.isInteger(funding.startingCall)||funding.startingCall<0||funding.startingCall>ledger.calls.length||digest(JSON.stringify(ledger.calls.slice(0,funding.startingCall)))!==note.priorReceiptsSha256
+    const authorizationInvalid=authorizationFile==='acceptance-topup-20261018.json'
+      ? note.kind!==(this.options.simulation?'SIMULATED_ACCEPTANCE_TOPUP':'USER_AUTHORIZED_ACCEPTANCE_TOPUP')||note.amountCny!==20||funding.limitCny!==20||note.noCallLimit!==true||funding.startingCall!==note.startingCall||funding.previousContinuationSha256!==note.previousContinuationSha256||ledger.continuationHistory?.at(-1)?.authorizationSha256!==note.previousContinuationSha256
+      : note.amountCny!==27.62||funding.limitCny!==27.62||note.noCallLimit!==true||funding.startingCall!==note.startingCall||funding.grantSha256!==ledger.currentGrant?.authorizationSha256||note.grantSha256!==funding.grantSha256||note.previousComparisonSha256!==(ledger.comparisonRestriction?.authorizationSha256??null)
+    if(digest(bytes)!==funding.authorizationSha256||baselineInvalid||authorizationInvalid)throw new Error('CONTINUATION_AUTHORIZATION_CHANGED')
     let accounted=0
     for(const call of ledger.calls.slice(funding.startingCall) as CoachCallReceipt[]){
       const cost=call.status==='finished'&&typeof call.estimatedCostCny==='number'?call.estimatedCostCny:call.reservedCostCny
@@ -110,6 +117,20 @@ export class CoachProviderBudget {
       return structuredClone(ledger.continuation)
     })
   }
+  activateAcceptanceTopup(){
+    return this.change(ledger=>{
+      if(ledger.continuation?.authorizationFile==='acceptance-topup-20261018.json')return structuredClone(ledger.continuation)
+      if(ledger.calls.some((call:CoachCallReceipt)=>call.status!=='finished'))throw new Error('TERMINAL_CALLS_REQUIRED_FOR_PLAN_CHANGE')
+      const previous=ledger.continuation
+      const bytes=readFileSync(resolve(dirname(this.path),'acceptance-topup-20261018.json')),note=JSON.parse(bytes.toString())
+      if(!previous||note.kind!==(this.options.simulation?'SIMULATED_ACCEPTANCE_TOPUP':'USER_AUTHORIZED_ACCEPTANCE_TOPUP')||note.amountCny!==20||note.noCallLimit!==true||note.startingCall!==ledger.calls.length||note.priorReceiptsSha256!==digest(JSON.stringify(ledger.calls))||note.previousContinuationSha256!==previous.authorizationSha256)throw new Error('ACCEPTANCE_TOPUP_AUTHORIZATION_INVALID')
+      ledger.continuationHistory??=[]
+      ledger.continuationHistory.push(structuredClone(previous))
+      ledger.continuation={authorizationSha256:digest(bytes),authorizationFile:'acceptance-topup-20261018.json',previousContinuationSha256:note.previousContinuationSha256,limitCny:20,startingCall:note.startingCall,activatedAt:new Date().toISOString(),noCallLimit:true,paused:false}
+      this.refreshContinuation(ledger)
+      return structuredClone(ledger.continuation)
+    })
+  }
   activateCurrentGrant(){
     return this.change(ledger=>{
       if(ledger.currentGrant)return structuredClone(ledger.currentGrant)
@@ -120,6 +141,26 @@ export class CoachProviderBudget {
       this.refreshCurrentGrant(ledger)
       this.refreshContinuation(ledger)
       return structuredClone(ledger.currentGrant)
+    })
+  }
+  // A grant has one active reservation authority. The ordinary runtime already
+  // reserves in PostgreSQL; disable this legacy file entry without inventing
+  // provider receipts, refunding unknowns, or creating another spend allowance.
+  delegateAcceptanceTopupToRuntime(){
+    return this.change(ledger=>{
+      if(ledger.calls.some((call:CoachCallReceipt)=>call.status!=='finished'))throw new Error('TERMINAL_CALLS_REQUIRED_FOR_PLAN_CHANGE')
+      const funding=ledger.continuation
+      if(funding?.authorizationFile!=='acceptance-topup-20261018.json')throw new Error('EXACT_ACCEPTANCE_TOPUP_REQUIRED')
+      const bytes=readFileSync(resolve(dirname(this.path),'runtime-spend-delegation-20261018.json'))
+      const proof=JSON.parse(bytes.toString()),proofSha256=digest(bytes)
+      if(funding.runtimeDelegation){
+        if(funding.runtimeDelegation.proofSha256!==proofSha256)throw new Error('DELEGATION_ALREADY_BOUND')
+        return structuredClone(funding.runtimeDelegation)
+      }
+      if(funding.paused||proof.kind!==(this.options.simulation?'SIMULATED_RUNTIME_SPEND_AUTHORITY_DELEGATION':'RUNTIME_SPEND_AUTHORITY_DELEGATION')||proof.authorizationSha256!==funding.authorizationSha256||proof.runtimeBudgetId!=='acceptance_topup_20261018'||typeof proof.allocatedCny!=='number'||!Number.isFinite(proof.allocatedCny)||proof.allocatedCny<=0||proof.allocatedCny>funding.remainingCny||proof.receiptCount!==ledger.calls.length||proof.receiptsSha256!==digest(JSON.stringify(ledger.calls)))throw new Error('DELEGATION_PROOF_INVALID')
+      funding.runtimeDelegation={kind:'EXCLUSIVE_RUNTIME_RESERVATION_AUTHORITY',budgetId:proof.runtimeBudgetId,allocatedCny:proof.allocatedCny,proofSha256,at:new Date().toISOString()}
+      funding.paused=true
+      return structuredClone(funding.runtimeDelegation)
     })
   }
   activateAdditionalAuthorization(){
@@ -224,13 +265,15 @@ export class CoachProviderBudget {
     }))
   }
   private reserveWithin(ledger:any,input:Omit<CoachCallReceipt,'callId'|'startedAt'|'status'>,restriction?:ComparisonRestriction){
+      if(ledger.continuation?.runtimeDelegation)throw new Error('ACCEPTANCE_TOPUP_RUNTIME_AUTHORITY_ACTIVE')
       restriction=ledger.continuation?undefined:ledger.comparisonRestriction??restriction
       if(restriction){
         const allowance=comparisonAllowance(ledger,restriction)
         if(input.purpose!=='diagnostic'||input.tier!=='default'||!['qwen3.8-flash','qwen3.8-max','qwen3.7-plus'].includes(input.model)||allowance.remainingCalls<1||typeof input.reservedCostCny!=='number'||input.reservedCostCny>allowance.remainingCny)throw new Error('COMPARISON_BUDGET_OR_SCOPE_EXHAUSTED')
       }
       const limits=ledger.purposeLimits??{overhead:64,generation:70,repair:22}
-      const additional=ledger.currentGrant??ledger.additional
+      const topup=ledger.continuation?.authorizationFile==='acceptance-topup-20261018.json'
+      const additional=topup?ledger.continuation:ledger.currentGrant??ledger.additional
       if(ledger.continuation&&(ledger.continuation.paused||typeof input.reservedCostCny!=='number'||!Number.isFinite(input.reservedCostCny)||input.reservedCostCny<=0||input.reservedCostCny>ledger.continuation.remainingCny))throw new Error('CONTINUATION_BUDGET_EXHAUSTED_OR_PRICE_REQUIRED')
       if(additional){
         if(additional.paused||typeof input.reservedCostCny!=='number'||!Number.isFinite(input.reservedCostCny)||input.reservedCostCny<=0||input.reservedCostCny>additional.remainingCny)throw new Error('ADDITIONAL_BUDGET_EXHAUSTED_OR_PRICE_REQUIRED')
@@ -245,7 +288,7 @@ export class CoachProviderBudget {
       }
       const userRequests=new Set(ledger.calls.filter((call:CoachCallReceipt)=>['turn','repair'].includes(call.purpose)&&call.logicalCallId).map((call:CoachCallReceipt)=>call.logicalCallId!.replace(/:[12]$/,'')))
       if(!additional&&requestId&&['turn','repair'].includes(input.purpose)&&!userRequests.has(requestId)&&userRequests.size>=limits.generation)throw new Error('USER_TURN_RESERVATION_EXHAUSTED')
-      const receipt:CoachCallReceipt={...input,funding:ledger.currentGrant?'current_grant':additional?'additional_cny':undefined,callId:randomUUID(),startedAt:new Date().toISOString(),status:'reserved'}
+      const receipt:CoachCallReceipt={...input,funding:topup?'acceptance_topup':ledger.currentGrant?'current_grant':additional?'additional_cny':undefined,callId:randomUUID(),startedAt:new Date().toISOString(),status:'reserved'}
       ledger.calls.push(receipt);return receipt
   }
   finish(callId:string,details:{outcome:string;usage:unknown;estimatedCostCny:number|'unknown';providerResponseId:string|null}){

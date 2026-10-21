@@ -1,0 +1,78 @@
+{
+  "kind": "ACTUAL_NT_REAL_SEMANTIC_FAILURES_NOT_REPAIRED_OUTPUTS",
+  "sourceSha256": "a2a5f8f49a146754665ccc7aa0bd0297b94e5113308074f4efa7940b07a6ee11",
+  "turns": [
+    {
+      "user": "接着作品集的事：导师回复说手机打不开链接，但没有评价内容。不要重写作品集，先处理访问条件。",
+      "requestId": "50192bd4-0602-491a-981e-c6b0a4222dde",
+      "rawSha256": "bcb59534a3a4ae70712730fd6102443536fe7f35768fe9242d6c1370f43c7958",
+      "raw": {
+        "lead": "你原来发的是哪种链接？",
+        "reply": "你原来发的是哪种链接？导师说手机打不开，说明格式或平台在移动端不兼容。内容评价目前未知，先确认原链接类型（网盘、在线文档还是网页），再决定换成PDF直发还是换一个手机能直接打开的渠道。"
+      },
+      "memoryAfter": [
+        {
+          "kind": "context",
+          "text": "接着作品集的事：导师回复说手机打不开链接，但没有评价内容",
+          "assertion": "user_reported"
+        },
+        {
+          "kind": "context",
+          "text": "我是成年大学生，方向暂定找产品实习",
+          "assertion": "user_reported"
+        },
+        {
+          "kind": "context",
+          "text": "我把作品集链接发给导师了",
+          "assertion": "user_reported"
+        },
+        {
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported"
+        },
+        {
+          "kind": "context",
+          "text": "对方还没回复",
+          "assertion": "user_reported"
+        },
+        {
+          "kind": "goal",
+          "text": "方向暂定找产品实习",
+          "assertion": "user_reported"
+        }
+      ]
+    },
+    {
+      "user": "不是因为老师要求；我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间。我还不知道这是否只是一次偶然。",
+      "requestId": "69175903-92e7-49dc-90af-fe0a77a6469e",
+      "rawSha256": "2c89c134aa96050353140fc8f67d827a4448a8d423654a1a29ad99b8cd811a28",
+      "raw": {
+        "lead": "你最近一次反复找东西是在哪门课、找什么？",
+        "reply": "你最近一次反复找东西是在哪门课、找什么？主动整理和想省时间是你自己报告的偏好，不是偶然。但这次分类是否真减少了查找时间还没验证——知道具体场景后，才能判断这个动作能不能复用。"
+      },
+      "memoryAfter": [
+        {
+          "kind": "context",
+          "text": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间",
+          "assertion": "user_reported"
+        },
+        {
+          "kind": "goal",
+          "text": "减少自己反复找东西的时间",
+          "assertion": "user_reported"
+        },
+        {
+          "kind": "goal",
+          "text": "主要想更快看出哪些信息关键",
+          "assertion": "user_reported"
+        },
+        {
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported"
+        }
+      ]
+    }
+  ]
+}

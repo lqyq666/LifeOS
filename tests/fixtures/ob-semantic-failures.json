@@ -1,0 +1,1731 @@
+{
+  "kind": "ACTUAL_OB_DELIVERY_RESOURCE_AND_RELATIONSHIP_FAILURES",
+  "turns": [
+    {
+      "chain": "study-work-choice",
+      "index": 2,
+      "user": "接着升学和就业的取舍。家里希望我走稳定路线，但这是外部期待；我自己更在意留在目前城市，而且每周最多四小时探索。请更新判断，不要替我选。",
+      "raw": {
+        "reply": "目前依据：你更在意留在目前城市，想要有清晰产出的工作，不享受考试本身；家里希望稳定属外部期待，每周最多四小时探索。仍未知的是，升学或本地就业哪条路径实际更能同时满足留城与清晰产出这两项偏好。"
+      },
+      "requestId": "ff269d75-0966-4f69-8609-d29dd89e8345",
+      "rawSha256": "4c524f7f3e71a1f10a2fdce9b1f17a5cade5a2531d9d645c1dc5f9cd88088157",
+      "memoryAfter": [
+        {
+          "id": "24546692-cbb9-4639-bfc6-477cf46c29c0",
+          "conversationId": "f703535f-f4f5-424c-9de4-af0dab2b21d1",
+          "kind": "preference",
+          "text": "我自己更在意留在目前城市",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "3e552537-b270-44d8-a357-8e1bbe66523b",
+              "type": "message",
+              "quote": "我自己更在意留在目前城市"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:39.091Z",
+          "updatedAt": "2026-10-20T11:25:39.091Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "619faf06-2dd7-41f5-bcf0-534d866f9821",
+          "conversationId": "f703535f-f4f5-424c-9de4-af0dab2b21d1",
+          "kind": "context",
+          "text": "家里希望我走稳定路线",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "3e552537-b270-44d8-a357-8e1bbe66523b",
+              "type": "message",
+              "quote": "家里希望我走稳定路线"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:39.091Z",
+          "updatedAt": "2026-10-20T11:25:39.091Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "bb88a618-3b14-4a14-9d70-982f8d8c6639",
+          "conversationId": "f703535f-f4f5-424c-9de4-af0dab2b21d1",
+          "kind": "context",
+          "text": "而且每周最多四小时探索",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "3e552537-b270-44d8-a357-8e1bbe66523b",
+              "type": "message",
+              "quote": "而且每周最多四小时探索"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:39.091Z",
+          "updatedAt": "2026-10-20T11:25:39.091Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "070ab271-b74a-40e1-941a-1e53980d3c25",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "preference",
+          "text": "我并不享受考试本身",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "f7735f7c-3db0-448e-ac23-968fc230a890",
+              "type": "message",
+              "quote": "我并不享受考试本身"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:35.035Z",
+          "updatedAt": "2026-10-20T11:25:35.035Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "52f066f1-864c-4f90-b700-21c3bb322703",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "context",
+          "text": "我真正想要的是毕业后做有清晰产出的工作，也担心直接就业准备不足",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "f7735f7c-3db0-448e-ac23-968fc230a890",
+              "type": "message",
+              "quote": "我真正想要的是毕业后做有清晰产出的工作，也担心直接就业准备不足"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:35.035Z",
+          "updatedAt": "2026-10-20T11:25:35.035Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "cf7dd40b-f9fd-4a09-90db-6f3f2ea98cae",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "goal",
+          "text": "我真正想要的是毕业后做有清晰产出的工作",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "f7735f7c-3db0-448e-ac23-968fc230a890",
+              "type": "message",
+              "quote": "我真正想要的是毕业后做有清晰产出的工作"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:35.035Z",
+          "updatedAt": "2026-10-20T11:25:35.035Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "3fc44e3f-5495-4524-9207-ca24ab094ce7",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "ed8953bd-2648-4d67-8e1a-763e7e77a9ba",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:24.628Z",
+          "updatedAt": "2026-10-20T11:25:24.628Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "998f8b91-ec61-42be-8fd8-e5a1ba64ceaf",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "goal",
+          "text": "我也跟着想报",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "ed8953bd-2648-4d67-8e1a-763e7e77a9ba",
+              "type": "message",
+              "quote": "我也跟着想报"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:24.628Z",
+          "updatedAt": "2026-10-20T11:25:24.628Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "c03ba79e-6722-4dc3-a68d-99869e556a1a",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "context",
+          "text": "我是成年大学生，身边同学都在准备考研，我也跟着想报，但我还说不清自己要什么",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "ed8953bd-2648-4d67-8e1a-763e7e77a9ba",
+              "type": "message",
+              "quote": "我是成年大学生，身边同学都在准备考研，我也跟着想报，但我还说不清自己要什么"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:24.628Z",
+          "updatedAt": "2026-10-20T11:25:24.628Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        }
+      ]
+    },
+    {
+      "chain": "study-work-choice",
+      "index": 3,
+      "user": "更正：家里没有要求我必须本校读研，只是希望稳定。请只重开受这条更正影响的判断，并给一个四小时内的小验证。",
+      "raw": {
+        "lead": "更正收到：家里只希望稳定，没要求必须本校读研。",
+        "reply": "更正收到：家里只希望稳定，没要求必须本校读研。此前若将“本校读研”当作硬约束的判断解除；你仍可在其他城市或院校升学，只要符合你对留城和清晰产出的偏好。\n\n四小时内的小验证：用1–2小时查目前所在城市3个目标岗位的真实招聘要求（学历、专业、经验），记录哪些接受本科、哪些硬性要求硕士。这测的是“本地就业是否必须靠读研才能入门”。查到3个就停，把结果带回来再决定下一步。"
+      },
+      "requestId": "d2184440-73d3-4aa4-b812-8b5aba7155e4",
+      "rawSha256": "a08aa3767d98d6f713dc22edcc994c1972e2752b5e7b1dd47cebcac9f2ae8cea",
+      "memoryAfter": [
+        {
+          "id": "619faf06-2dd7-41f5-bcf0-534d866f9821",
+          "conversationId": "f703535f-f4f5-424c-9de4-af0dab2b21d1",
+          "kind": "context",
+          "text": "家里没有要求我必须本校读研",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "8c6d380e-84aa-4953-9877-b186e13e3a6d",
+              "type": "message",
+              "quote": "家里没有要求我必须本校读研"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 2,
+          "createdAt": "2026-10-20T11:25:39.091Z",
+          "updatedAt": "2026-10-20T11:25:45.521Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "e517cdae-830f-4a05-8140-a1746ce6f115",
+          "conversationId": "f703535f-f4f5-424c-9de4-af0dab2b21d1",
+          "kind": "context",
+          "text": "更正：家里没有要求我必须本校读研，只是希望稳定",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "8c6d380e-84aa-4953-9877-b186e13e3a6d",
+              "type": "message",
+              "quote": "更正：家里没有要求我必须本校读研，只是希望稳定"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:45.521Z",
+          "updatedAt": "2026-10-20T11:25:45.521Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "24546692-cbb9-4639-bfc6-477cf46c29c0",
+          "conversationId": "f703535f-f4f5-424c-9de4-af0dab2b21d1",
+          "kind": "preference",
+          "text": "我自己更在意留在目前城市",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "3e552537-b270-44d8-a357-8e1bbe66523b",
+              "type": "message",
+              "quote": "我自己更在意留在目前城市"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:39.091Z",
+          "updatedAt": "2026-10-20T11:25:39.091Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "bb88a618-3b14-4a14-9d70-982f8d8c6639",
+          "conversationId": "f703535f-f4f5-424c-9de4-af0dab2b21d1",
+          "kind": "context",
+          "text": "而且每周最多四小时探索",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "3e552537-b270-44d8-a357-8e1bbe66523b",
+              "type": "message",
+              "quote": "而且每周最多四小时探索"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:39.091Z",
+          "updatedAt": "2026-10-20T11:25:39.091Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "070ab271-b74a-40e1-941a-1e53980d3c25",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "preference",
+          "text": "我并不享受考试本身",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "f7735f7c-3db0-448e-ac23-968fc230a890",
+              "type": "message",
+              "quote": "我并不享受考试本身"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:35.035Z",
+          "updatedAt": "2026-10-20T11:25:35.035Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "52f066f1-864c-4f90-b700-21c3bb322703",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "context",
+          "text": "我真正想要的是毕业后做有清晰产出的工作，也担心直接就业准备不足",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "f7735f7c-3db0-448e-ac23-968fc230a890",
+              "type": "message",
+              "quote": "我真正想要的是毕业后做有清晰产出的工作，也担心直接就业准备不足"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:35.035Z",
+          "updatedAt": "2026-10-20T11:25:35.035Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "cf7dd40b-f9fd-4a09-90db-6f3f2ea98cae",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "goal",
+          "text": "我真正想要的是毕业后做有清晰产出的工作",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "f7735f7c-3db0-448e-ac23-968fc230a890",
+              "type": "message",
+              "quote": "我真正想要的是毕业后做有清晰产出的工作"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:35.035Z",
+          "updatedAt": "2026-10-20T11:25:35.035Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "3fc44e3f-5495-4524-9207-ca24ab094ce7",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "ed8953bd-2648-4d67-8e1a-763e7e77a9ba",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:24.628Z",
+          "updatedAt": "2026-10-20T11:25:24.628Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "998f8b91-ec61-42be-8fd8-e5a1ba64ceaf",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "goal",
+          "text": "我也跟着想报",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "ed8953bd-2648-4d67-8e1a-763e7e77a9ba",
+              "type": "message",
+              "quote": "我也跟着想报"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:24.628Z",
+          "updatedAt": "2026-10-20T11:25:24.628Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "c03ba79e-6722-4dc3-a68d-99869e556a1a",
+          "conversationId": "4e3751f3-35a7-4adc-932c-9c50ef928272",
+          "kind": "context",
+          "text": "我是成年大学生，身边同学都在准备考研，我也跟着想报，但我还说不清自己要什么",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "ed8953bd-2648-4d67-8e1a-763e7e77a9ba",
+              "type": "message",
+              "quote": "我是成年大学生，身边同学都在准备考研，我也跟着想报，但我还说不清自己要什么"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:25:24.628Z",
+          "updatedAt": "2026-10-20T11:25:24.628Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        }
+      ]
+    },
+    {
+      "chain": "action-review",
+      "index": 0,
+      "user": "我是成年大学生，方向暂定找产品实习。我把作品集链接发给导师了，对方还没回复。请复盘真正影响下一步的缺口，不要把未回复说成不采用。",
+      "raw": {
+        "lead": "你们原先是怎么约定的？",
+        "reply": "还没收到回复，原因和结果都先保留未知。有没有约定回复时间，或者这件事必须确认的截止时间？",
+        "event": {
+          "target": {
+            "operation": "create",
+            "title": "发作品集链接给导师等回复",
+            "source": {
+              "messageId": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+              "quote": "我把作品集链接发给导师了"
+            }
+          },
+          "nodes": [
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+                "quote": "我把作品集链接发给导师了"
+              }
+            },
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+                "quote": "对方还没回复"
+              }
+            }
+          ]
+        },
+        "growthUpdates": [
+          {
+            "target": {
+              "operation": "create"
+            },
+            "assertion": "user_reported",
+            "kind": "context",
+            "source": {
+              "clauseId": "c0"
+            }
+          },
+          {
+            "target": {
+              "operation": "create"
+            },
+            "assertion": "user_reported",
+            "kind": "preference",
+            "source": {
+              "clauseId": "c1"
+            }
+          }
+        ]
+      },
+      "requestId": "c8d5770d-40c3-46b6-9a60-c4d318317308",
+      "rawSha256": "64c864d898a715cad88b39d943d9f87023727add0d40884d5173c89004e769f8",
+      "memoryAfter": [
+        {
+          "id": "1959d660-952b-4afd-91be-5df3a4c9862f",
+          "conversationId": "ee94a8b9-c4be-4f4f-9131-368b38ef7a86",
+          "kind": "context",
+          "text": "我把作品集链接发给导师了",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+              "type": "message",
+              "quote": "我把作品集链接发给导师了"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:03.269Z",
+          "updatedAt": "2026-10-20T11:26:03.269Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "23019114-cec0-4847-a8c5-ec191d61bcc0",
+          "conversationId": "ee94a8b9-c4be-4f4f-9131-368b38ef7a86",
+          "kind": "preference",
+          "text": "方向暂定找产品实习",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+              "type": "message",
+              "quote": "方向暂定找产品实习"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:03.269Z",
+          "updatedAt": "2026-10-20T11:26:03.269Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "440d6f2c-7c32-43b5-9645-91adeac9e2e6",
+          "conversationId": "ee94a8b9-c4be-4f4f-9131-368b38ef7a86",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:03.269Z",
+          "updatedAt": "2026-10-20T11:26:03.269Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "feedbackEvidence": {
+            "reportedAt": "2026-10-20T11:26:03.269Z",
+            "taskBinding": "unknown",
+            "outcomes": {
+              "read": {
+                "status": "unknown",
+                "quote": null
+              },
+              "response": {
+                "status": "reported_no_response",
+                "quote": "对方还没回复"
+              },
+              "adoption": {
+                "status": "unknown",
+                "quote": null
+              },
+              "payment": {
+                "status": "unknown",
+                "quote": null
+              },
+              "effect": {
+                "status": "unknown",
+                "quote": null
+              }
+            }
+          },
+          "id": "847c8c50-3424-48e8-9fac-9d68a9584c8e",
+          "conversationId": "ee94a8b9-c4be-4f4f-9131-368b38ef7a86",
+          "kind": "context",
+          "text": "对方还没回复",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+              "type": "message",
+              "quote": "对方还没回复"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:03.269Z",
+          "updatedAt": "2026-10-20T11:26:03.269Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        }
+      ]
+    },
+    {
+      "chain": "action-review",
+      "index": 1,
+      "user": "链接在电脑能打开，我不知道导师是否读过；发送时只说了请看看，没有约定回复时间。",
+      "raw": {
+        "lead": "你发链接时，具体希望导师看完后做什么？",
+        "reply": "你发链接时，具体希望导师看完后做什么？已确认：链接电脑可打开、只说了「请看看」、没约定时间、是否读过未知。未回复原因保持未知，不推为拒绝或不采用。当前缺口是原始期待——想让他给修改意见、内推还是只知会一声，决定现在该补一句说明还是继续等。"
+      },
+      "requestId": "27990571-96d7-447c-8005-3ba1c8f73fbe",
+      "rawSha256": "f3fd16c05e820c17e9e4efe7789ed65bb8c181c40c93174a087dd38376e0689e",
+      "memoryAfter": [
+        {
+          "id": "1959d660-952b-4afd-91be-5df3a4c9862f",
+          "conversationId": "ee94a8b9-c4be-4f4f-9131-368b38ef7a86",
+          "kind": "context",
+          "text": "我把作品集链接发给导师了",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+              "type": "message",
+              "quote": "我把作品集链接发给导师了"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:03.269Z",
+          "updatedAt": "2026-10-20T11:26:03.269Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "23019114-cec0-4847-a8c5-ec191d61bcc0",
+          "conversationId": "ee94a8b9-c4be-4f4f-9131-368b38ef7a86",
+          "kind": "preference",
+          "text": "方向暂定找产品实习",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+              "type": "message",
+              "quote": "方向暂定找产品实习"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:03.269Z",
+          "updatedAt": "2026-10-20T11:26:03.269Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "440d6f2c-7c32-43b5-9645-91adeac9e2e6",
+          "conversationId": "ee94a8b9-c4be-4f4f-9131-368b38ef7a86",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:03.269Z",
+          "updatedAt": "2026-10-20T11:26:03.269Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "feedbackEvidence": {
+            "reportedAt": "2026-10-20T11:26:03.269Z",
+            "taskBinding": "unknown",
+            "outcomes": {
+              "read": {
+                "status": "unknown",
+                "quote": null
+              },
+              "response": {
+                "status": "reported_no_response",
+                "quote": "对方还没回复"
+              },
+              "adoption": {
+                "status": "unknown",
+                "quote": null
+              },
+              "payment": {
+                "status": "unknown",
+                "quote": null
+              },
+              "effect": {
+                "status": "unknown",
+                "quote": null
+              }
+            }
+          },
+          "id": "847c8c50-3424-48e8-9fac-9d68a9584c8e",
+          "conversationId": "ee94a8b9-c4be-4f4f-9131-368b38ef7a86",
+          "kind": "context",
+          "text": "对方还没回复",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "088d61d8-ffb1-4e57-b164-d7afbf225d46",
+              "type": "message",
+              "quote": "对方还没回复"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:03.269Z",
+          "updatedAt": "2026-10-20T11:26:03.269Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        }
+      ]
+    },
+    {
+      "chain": "freedom-explore",
+      "index": 3,
+      "user": "我愿意只了解一个远程岗位的真实工作节奏，但不联系陌生人、不提供私人资料。给一个边界清楚的小行动。",
+      "raw": {
+        "lead": "选一个你已关注的远程招聘帖，只读它的公开文字。",
+        "reply": "选一个你已关注的远程招聘帖，只读它的公开文字。用最多30分钟，把里面关于工作时间、会议频率和交付节奏的句子摘出来，不填表、不发私信、不留任何个人信息。做完就停，带回来的是这个岗位实际写出的节奏要求，不是你对整类机会的判断。"
+      },
+      "requestId": "2b9d6f5e-47d8-4713-b97c-38943a68e876",
+      "rawSha256": "dd71816e541b2d1a55f3334def3d60db7893b70a007ea4bfde1d338588721ea8",
+      "memoryAfter": [
+        {
+          "id": "14ad75fa-c869-46f0-95f7-c10c63c72afc",
+          "conversationId": "da884f76-7c4c-47ba-8d85-a5a472f93144",
+          "kind": "context",
+          "text": "每周最多两小时",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "1d01b7ba-620f-46df-8756-288a57fbfb05",
+              "type": "message",
+              "quote": "每周最多两小时"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:38.278Z",
+          "updatedAt": "2026-10-20T11:26:38.278Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "15b9bb8e-450f-4982-9b13-64e06280d851",
+          "conversationId": "da884f76-7c4c-47ba-8d85-a5a472f93144",
+          "kind": "context",
+          "text": "我还没有客户",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "1d01b7ba-620f-46df-8756-288a57fbfb05",
+              "type": "message",
+              "quote": "我还没有客户"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:38.278Z",
+          "updatedAt": "2026-10-20T11:26:38.278Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "300561c5-9e21-4e1d-9396-c45818f70155",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "preference",
+          "text": "不在意当老板",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a574803d-146a-4ea4-ad28-4582a1563312",
+              "type": "message",
+              "quote": "不在意当老板"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:30.607Z",
+          "updatedAt": "2026-10-20T11:26:30.607Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "6ba2f48a-a281-48e9-afd1-19d6c7dbc548",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "preference",
+          "text": "也不想承担找客户和收款",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a574803d-146a-4ea4-ad28-4582a1563312",
+              "type": "message",
+              "quote": "也不想承担找客户和收款"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:30.607Z",
+          "updatedAt": "2026-10-20T11:26:30.607Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "70e3aa4f-936c-426c-9709-b2b040246259",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "preference",
+          "text": "我主要在意能自己安排一天中专注工作的时间",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a574803d-146a-4ea4-ad28-4582a1563312",
+              "type": "message",
+              "quote": "我主要在意能自己安排一天中专注工作的时间"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:30.607Z",
+          "updatedAt": "2026-10-20T11:26:30.607Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "3d7036e7-699f-43d8-890a-1ddab55fc2e7",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a4018414-5ac4-43f5-8321-3c6da8bddd0b",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:25.055Z",
+          "updatedAt": "2026-10-20T11:26:25.055Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "9af94c03-1fad-4faf-a792-e753d54c272b",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "context",
+          "text": "我是成年大学生，我想要更自由的生活",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a4018414-5ac4-43f5-8321-3c6da8bddd0b",
+              "type": "message",
+              "quote": "我是成年大学生，我想要更自由的生活"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:25.055Z",
+          "updatedAt": "2026-10-20T11:26:25.055Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "bd25910d-7a00-4ad4-a3df-6ef297b67efe",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "goal",
+          "text": "我想要更自由的生活",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a4018414-5ac4-43f5-8321-3c6da8bddd0b",
+              "type": "message",
+              "quote": "我想要更自由的生活"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:25.055Z",
+          "updatedAt": "2026-10-20T11:26:25.055Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        }
+      ]
+    },
+    {
+      "chain": "freedom-explore",
+      "index": 4,
+      "user": "回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例。",
+      "raw": {
+        "lead": "这两次固定会议，会打断你期待的专注时段吗？",
+        "reply": "这两次固定会议，会打断你期待的专注时段吗？这位校友的个例说明远程岗位地点自由，但节奏仍受团队约束。结合你在意能自己安排专注时间、不想找客户和收款，接下来可以留意：其他远程岗位的会议频率或是否允许异步沟通。"
+      },
+      "requestId": "4a138acd-cf08-4c82-b76a-ce1f1c5d10be",
+      "rawSha256": "bc828cf10b463c2342c91e6e6afb4da0c67043ada773e4d782c344293ff71888",
+      "memoryAfter": [
+        {
+          "feedbackEvidence": {
+            "reportedAt": "2026-10-20T11:26:47.306Z",
+            "taskBinding": "unknown",
+            "outcomes": {
+              "read": {
+                "status": "unknown",
+                "quote": null
+              },
+              "response": {
+                "status": "reported_response",
+                "quote": "他说地点自由"
+              },
+              "adoption": {
+                "status": "unknown",
+                "quote": null
+              },
+              "payment": {
+                "status": "unknown",
+                "quote": null
+              },
+              "effect": {
+                "status": "unknown",
+                "quote": null
+              }
+            }
+          },
+          "id": "4db143b5-d33f-4673-a25c-3a41e9d0f892",
+          "conversationId": "591bdb5c-4bf1-4e02-9d01-83e7e8dbf486",
+          "kind": "context",
+          "text": "回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "b8af0f31-b700-4372-9516-18d87e023cf8",
+              "type": "message",
+              "quote": "回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:47.306Z",
+          "updatedAt": "2026-10-20T11:26:47.306Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "88cb7bc1-ceed-44ae-975a-530949ee232c",
+          "conversationId": "591bdb5c-4bf1-4e02-9d01-83e7e8dbf486",
+          "kind": "context",
+          "text": "回来反馈：我只查看了一位校友公开分享的远程岗位经历",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "b8af0f31-b700-4372-9516-18d87e023cf8",
+              "type": "message",
+              "quote": "回来反馈：我只查看了一位校友公开分享的远程岗位经历"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:47.306Z",
+          "updatedAt": "2026-10-20T11:26:47.306Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "14ad75fa-c869-46f0-95f7-c10c63c72afc",
+          "conversationId": "da884f76-7c4c-47ba-8d85-a5a472f93144",
+          "kind": "context",
+          "text": "每周最多两小时",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "1d01b7ba-620f-46df-8756-288a57fbfb05",
+              "type": "message",
+              "quote": "每周最多两小时"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:38.278Z",
+          "updatedAt": "2026-10-20T11:26:38.278Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "15b9bb8e-450f-4982-9b13-64e06280d851",
+          "conversationId": "da884f76-7c4c-47ba-8d85-a5a472f93144",
+          "kind": "context",
+          "text": "我还没有客户",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "1d01b7ba-620f-46df-8756-288a57fbfb05",
+              "type": "message",
+              "quote": "我还没有客户"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:38.278Z",
+          "updatedAt": "2026-10-20T11:26:38.278Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "300561c5-9e21-4e1d-9396-c45818f70155",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "preference",
+          "text": "不在意当老板",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a574803d-146a-4ea4-ad28-4582a1563312",
+              "type": "message",
+              "quote": "不在意当老板"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:30.607Z",
+          "updatedAt": "2026-10-20T11:26:30.607Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "6ba2f48a-a281-48e9-afd1-19d6c7dbc548",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "preference",
+          "text": "也不想承担找客户和收款",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a574803d-146a-4ea4-ad28-4582a1563312",
+              "type": "message",
+              "quote": "也不想承担找客户和收款"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:30.607Z",
+          "updatedAt": "2026-10-20T11:26:30.607Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "70e3aa4f-936c-426c-9709-b2b040246259",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "preference",
+          "text": "我主要在意能自己安排一天中专注工作的时间",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a574803d-146a-4ea4-ad28-4582a1563312",
+              "type": "message",
+              "quote": "我主要在意能自己安排一天中专注工作的时间"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:30.607Z",
+          "updatedAt": "2026-10-20T11:26:30.607Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "3d7036e7-699f-43d8-890a-1ddab55fc2e7",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a4018414-5ac4-43f5-8321-3c6da8bddd0b",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:25.055Z",
+          "updatedAt": "2026-10-20T11:26:25.055Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "9af94c03-1fad-4faf-a792-e753d54c272b",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "context",
+          "text": "我是成年大学生，我想要更自由的生活",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a4018414-5ac4-43f5-8321-3c6da8bddd0b",
+              "type": "message",
+              "quote": "我是成年大学生，我想要更自由的生活"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:25.055Z",
+          "updatedAt": "2026-10-20T11:26:25.055Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "bd25910d-7a00-4ad4-a3df-6ef297b67efe",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "goal",
+          "text": "我想要更自由的生活",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a4018414-5ac4-43f5-8321-3c6da8bddd0b",
+              "type": "message",
+              "quote": "我想要更自由的生活"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:25.055Z",
+          "updatedAt": "2026-10-20T11:26:25.055Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        }
+      ]
+    },
+    {
+      "chain": "freedom-explore",
+      "index": 5,
+      "user": "依据这条反馈更新“自由”的理解；创业仍然拒绝，不要自动重开。现在不继续行动。",
+      "raw": {
+        "reply": "校友个例显示地点自由不等于时间自主，固定会议仍会打断专注。结合你主要在意自己安排专注时间，“自由”目前更指向对每日节奏的掌控而非仅换地点。创业保持拒绝不重开，暂不安排行动。"
+      },
+      "requestId": "ec4c5a46-ad11-410e-bcf4-a307c25b7b87",
+      "rawSha256": "c231bc0181788c2441166e2ac617cf55119f3f1feb72a19eb14cfd90fa31343a",
+      "memoryAfter": [
+        {
+          "feedbackEvidence": {
+            "reportedAt": "2026-10-20T11:26:47.306Z",
+            "taskBinding": "unknown",
+            "outcomes": {
+              "read": {
+                "status": "unknown",
+                "quote": null
+              },
+              "response": {
+                "status": "reported_response",
+                "quote": "他说地点自由"
+              },
+              "adoption": {
+                "status": "unknown",
+                "quote": null
+              },
+              "payment": {
+                "status": "unknown",
+                "quote": null
+              },
+              "effect": {
+                "status": "unknown",
+                "quote": null
+              }
+            }
+          },
+          "id": "4db143b5-d33f-4673-a25c-3a41e9d0f892",
+          "conversationId": "591bdb5c-4bf1-4e02-9d01-83e7e8dbf486",
+          "kind": "context",
+          "text": "回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "b8af0f31-b700-4372-9516-18d87e023cf8",
+              "type": "message",
+              "quote": "回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:47.306Z",
+          "updatedAt": "2026-10-20T11:26:47.306Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "88cb7bc1-ceed-44ae-975a-530949ee232c",
+          "conversationId": "591bdb5c-4bf1-4e02-9d01-83e7e8dbf486",
+          "kind": "context",
+          "text": "回来反馈：我只查看了一位校友公开分享的远程岗位经历",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "b8af0f31-b700-4372-9516-18d87e023cf8",
+              "type": "message",
+              "quote": "回来反馈：我只查看了一位校友公开分享的远程岗位经历"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:47.306Z",
+          "updatedAt": "2026-10-20T11:26:47.306Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "14ad75fa-c869-46f0-95f7-c10c63c72afc",
+          "conversationId": "da884f76-7c4c-47ba-8d85-a5a472f93144",
+          "kind": "context",
+          "text": "每周最多两小时",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "1d01b7ba-620f-46df-8756-288a57fbfb05",
+              "type": "message",
+              "quote": "每周最多两小时"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:38.278Z",
+          "updatedAt": "2026-10-20T11:26:38.278Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "15b9bb8e-450f-4982-9b13-64e06280d851",
+          "conversationId": "da884f76-7c4c-47ba-8d85-a5a472f93144",
+          "kind": "context",
+          "text": "我还没有客户",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "1d01b7ba-620f-46df-8756-288a57fbfb05",
+              "type": "message",
+              "quote": "我还没有客户"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:38.278Z",
+          "updatedAt": "2026-10-20T11:26:38.278Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "300561c5-9e21-4e1d-9396-c45818f70155",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "preference",
+          "text": "不在意当老板",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a574803d-146a-4ea4-ad28-4582a1563312",
+              "type": "message",
+              "quote": "不在意当老板"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:30.607Z",
+          "updatedAt": "2026-10-20T11:26:30.607Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "6ba2f48a-a281-48e9-afd1-19d6c7dbc548",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "preference",
+          "text": "也不想承担找客户和收款",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a574803d-146a-4ea4-ad28-4582a1563312",
+              "type": "message",
+              "quote": "也不想承担找客户和收款"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:30.607Z",
+          "updatedAt": "2026-10-20T11:26:30.607Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "70e3aa4f-936c-426c-9709-b2b040246259",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "preference",
+          "text": "我主要在意能自己安排一天中专注工作的时间",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a574803d-146a-4ea4-ad28-4582a1563312",
+              "type": "message",
+              "quote": "我主要在意能自己安排一天中专注工作的时间"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:30.607Z",
+          "updatedAt": "2026-10-20T11:26:30.607Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "3d7036e7-699f-43d8-890a-1ddab55fc2e7",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a4018414-5ac4-43f5-8321-3c6da8bddd0b",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:25.055Z",
+          "updatedAt": "2026-10-20T11:26:25.055Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "9af94c03-1fad-4faf-a792-e753d54c272b",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "context",
+          "text": "我是成年大学生，我想要更自由的生活",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a4018414-5ac4-43f5-8321-3c6da8bddd0b",
+              "type": "message",
+              "quote": "我是成年大学生，我想要更自由的生活"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:25.055Z",
+          "updatedAt": "2026-10-20T11:26:25.055Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "bd25910d-7a00-4ad4-a3df-6ef297b67efe",
+          "conversationId": "0fb6435b-1332-4572-bb7e-21c4933ba204",
+          "kind": "goal",
+          "text": "我想要更自由的生活",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "a4018414-5ac4-43f5-8321-3c6da8bddd0b",
+              "type": "message",
+              "quote": "我想要更自由的生活"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T11:26:25.055Z",
+          "updatedAt": "2026-10-20T11:26:25.055Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        }
+      ]
+    }
+  ]
+}

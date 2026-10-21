@@ -1,0 +1,7 @@
+{
+  "kind": "SAVED_REAL_PROVIDER_ERROR_TEXT_NO_CREDENTIALS_OR_ACCOUNT_METADATA",
+  "source": "evidence/grilling/release-window-rw-provider-correlated-error-20261019.json",
+  "statusCode": 400,
+  "errorCode": "InvalidParameter",
+  "errorMessage": "<400> InternalError.Algo.InvalidParameter: Model output became abnormal while generating a JSON response for response_format. The generation was aborted because the partial output may be incomplete or invalid JSON. Please retry the request or adjust your prompt or JSON schema."
+}

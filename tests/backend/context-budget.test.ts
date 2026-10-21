@@ -32,7 +32,10 @@ test('provider receives complete dialogue in original roles and one natural curr
   assert.deepEqual(metadata.currentUserMessage,{id:current.id,role:'user'})
   assert.equal(messages[1].content,old.content);assert.deepEqual(messages[2].content,[{type:'text',text:assistant.content}])
   assert.equal(messages[3].content,current.content);assert.equal(messages[3].timestamp,Date.parse(current.created_at))
-  for(const text of [old.content,assistant.content,current.content])assert.equal(JSON.stringify(messages).split(text).length,2)
+  // Source metadata may retain the last question to prevent asking it again;
+  // each original dialogue text still appears once in its actual role payload.
+  for(const text of [old.content,assistant.content,current.content])assert.equal(JSON.stringify(messages.slice(1)).split(text).length,2)
+  assert.deepEqual(metadata.currentTask.responseScope.previousQuestions,[assistant.content])
   assert.equal(JSON.parse(serialized).currentUserMessage.text,current.content,'input envelope is not mutated')
 })
 

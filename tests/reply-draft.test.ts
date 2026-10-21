@@ -1,7 +1,123 @@
 import test from 'node:test'
+import {openUnreportedChoiceQuestion} from '../server/reply-draft.ts'
 import assert from 'node:assert/strict'
-import { openingQuestionDraft, safeEarlySentence, weeklyPlanBoundaryDraft, weeklyPlanDraft } from '../server/reply-draft.ts'
+import { openingQuestionDraft, safeEarlySentence, weeklyPlanBoundaryDraft, weeklyPlanDraft, groundedStateReadback, groundedFeedbackPreview, requestsOnlyStateReadback, retainsDraftText } from '../server/reply-draft.ts'
+
+test('draft retention requires actual final content, not a distinct preview or empty heading',()=>{
+ assert.equal(retainsDraftText('两次均报告放松。来源仍未知。','两次均报告放松'),true)
+ assert.equal(retainsDraftText('两次均报告“放松”。','两次均报告放松。'),true)
+ assert.equal(retainsDraftText('没有找到已保存的标签。','已移除错误标签'),false)
+ assert.equal(retainsDraftText('来源仍未知。','来源是运动'),false)
+ assert.equal(retainsDraftText('来源仍未知。','。'),false)
+})
+
+test('question previews use the same unverified external-status boundary as sentence previews',()=>{
+ for(const claim of ['你最近一次被导师拒绝是什么时候？','你被同学否定后，准备怎么做？','导师已读后，你想怎么做？']){
+  const raw=JSON.stringify({lead:claim,reply:claim})
+  assert.equal(openingQuestionDraft(raw,'lead'),null)
+  assert.equal(openingQuestionDraft(raw),null)
+  assert.equal(safeEarlySentence(raw),null)
+ }
+ assert.equal(openingQuestionDraft(JSON.stringify({reply:'你希望这次交流改变什么？'})),'你希望这次交流改变什么？')
+})
+
+test('an explicitly unknown stability is not an affirmative stability claim',()=>{
+ for(const sentence of ['这种放松是否稳定仍未知','稳定性尚未确认','稳定效果仍未知','稳定对你的重要性尚不明确']){
+  assert.equal(safeEarlySentence(JSON.stringify({reply:sentence+'。'})),sentence,sentence)
+ }
+ for(const sentence of ['这是稳定的放松感，原因仍未知','稳定效果已验证，但原因未知','你的稳定偏好持续存在，来源未知']){
+  assert.equal(safeEarlySentence(JSON.stringify({reply:sentence+'。'})),null,sentence)
+ }
+})
+
+test('announcing the number of options is framing, not effective first content',()=>{
+ const heading='在每周最多两小时、不找客户不收款的前提下，可比较的更低成本探索方式主要有两类。'
+ assert.equal(safeEarlySentence(JSON.stringify({reply:heading})),null)
+ assert.equal(safeEarlySentence(JSON.stringify({reply:heading+'方式一：有现成学习记录时先整理其中已做过的事情。'})),'方式一：有现成学习记录时先整理其中已做过的事情')
+})
+
+test('early questions cannot expose unreported alternatives through either preview lane',()=>{
+ const choice='你想确认的是网盘还是网页？'
+ for(const user of ['朋友问：‘你要网盘还是网页？’','我读到‘网盘还是网页’。','如果选择网盘还是网页，会怎样？'])assert.notEqual(openUnreportedChoiceQuestion(choice,user),null,user)
+ assert.notEqual(openUnreportedChoiceQuestion('你想确认的是考研还是就业？','我想比较‘考研’，还是我读到‘就业’。'),null)
+ const question='你考虑考研时，最想获得的是“更多准备时间”，还是“一个具体方向”？'
+ const raw=JSON.stringify({lead:question,reply:question})
+ const user='我不确定为什么要考研。'
+ assert.equal(openingQuestionDraft(raw,'lead',user),null)
+ assert.equal(openingQuestionDraft(raw,'reply',user),null)
+ assert.equal(safeEarlySentence(raw,120,'lead',user),null)
+ assert.equal(safeEarlySentence(raw,120,'reply',user),null)
+ assert.equal(openingQuestionDraft(raw,'reply','我想比较更多准备时间和一个具体方向'),question)
+})
+
+test('category questions drop parenthetical answer choices but preserve the actual unknown and final explanation',()=>{
+ const question='你发的是哪种链接（网盘、在线文档还是网页），对方有没有提到具体提示？'
+ const opened='你发的是哪种链接，对方有没有提到具体提示？'
+ const explanation='先辨认访问条件，不推断内容好坏。'
+ assert.equal(openUnreportedChoiceQuestion(question+explanation,'先处理访问条件。'),opened+explanation)
+ const raw=JSON.stringify({lead:question,reply:question+explanation})
+ assert.equal(openingQuestionDraft(raw,'lead','先处理访问条件。'),opened)
+ assert.equal(openingQuestionDraft(raw,'reply','先处理访问条件。'),opened)
+ assert.equal(safeEarlySentence(raw,120,'reply','先处理访问条件。'),opened.slice(0,-1))
+ assert.equal(openUnreportedChoiceQuestion('对方问：“你要哪种链接（网盘还是网页）？”','先处理访问条件。'),null)
+ const owned='哪种链接（网盘还是网页）？'
+ assert.equal(openUnreportedChoiceQuestion(owned,'我的链接可能是网盘还是网页。'),null)
+ assert.equal(openingQuestionDraft(JSON.stringify({reply:owned}),'reply','我的链接可能是网盘还是网页。'),owned)
+})
+
+test('zero-generation state recall cannot absorb new reports, mixed requests or hypotheticals',()=>{
+ const request='请把已发、已读、已回复、是否采用、实际效果分开说，只更新相关理解，不安排催促。'
+ assert.equal(requestsOnlyStateReadback(request),true)
+ for(const text of ['我发了PDF。'+request,'导师确认读到。'+request,request+'请给一个行动。',request+'如果没回复怎么办？','如果有空，'+request,'“'+request+'”','已发、已读、已回复、是否采用、实际效果分别都是肯定。',request+'请解释老师为何没有回复。'])assert.equal(requestsOnlyStateReadback(text),false,text)
+})
 import { bindPlanBudgetSchema, deriveTurnContract } from '../server/turn-contract.ts'
+
+test('verified five-state recall never upgrades uncertain or explicitly negative reading',()=>{
+ const ask='请把已发、已读、已回复、是否采用、实际效果分开说。'
+ for(const report of ['不知道导师有没有读到，也没回复。','导师还没有读到，也没有回复。']){
+  const reply=groundedStateReadback(report+ask,['我把PDF发给导师了'])
+  assert.ok(reply)
+  assert.doesNotMatch(reply,/导师确认读到/)
+  assert.match(reply,report.startsWith('不知道')?/已读：未知/:/已读：.*未读/)
+ }
+})
+
+test('state request labels with an actor are instructions, and uncertain participant reports remain uncertain',()=>{
+ const ask='请把已发、已读、已回复、是否采用、实际效果分开说。'
+ const prior=['我把PDF发给导师了']
+ for(const text of ['导师说可能已经读过。'+ask,'导师确认可能读到。'+ask,'导师似乎已读。'+ask,'请把已发、导师已读、已回复、是否采用、实际效果分别列出。']){
+  const result=groundedStateReadback(text,prior)
+  assert.ok(result)
+  assert.match(result,/已读：未知/)
+  assert.doesNotMatch(result,/导师确认读到/)
+ }
+})
+
+test('canonical five-state readback uses the shared outcome projection for every reported dimension',()=>{
+ const ask='请把已发、已读、已回复、是否采用、实际效果分开说。'
+ const prior=['我把PDF发给导师了']
+ for(const text of ['导师没有确认读到。','导师没有说他读过。','我不知道导师是否确认收到。']){
+  const out=groundedStateReadback(text+ask,prior)!
+  assert.match(out,/已读：未知/)
+  assert.doesNotMatch(out,/确认收到|报告未读/)
+ }
+ const reply=groundedStateReadback('导师回复说还没读。'+ask,prior)!
+ assert.match(reply,/已读：.*未读/)
+ assert.doesNotMatch(reply,/已回复：未知/)
+ const adopted=groundedStateReadback('导师已经采用其中两条建议。'+ask,prior)!
+ assert.doesNotMatch(adopted,/是否采用：未知/)
+ assert.match(adopted,/两条建议/)
+ const effect=groundedStateReadback('导师说用了但没有效果。'+ask,prior)!
+ assert.doesNotMatch(effect,/实际效果：未反馈|实际效果：未知/)
+ assert.match(effect,/没有效果/)
+})
+
+test('explicit multiple recipients including pronouns never share a canonical five-state result',()=>{
+ const ask='请把已发、已读、已回复、是否采用、实际效果分开说。'
+ for(const prior of ['我把PDF发给导师和对方了。','我给导师和他发了PDF。']){
+  assert.equal(groundedStateReadback('导师说读过，对方说还没读。'+ask,[prior]),null)
+ }
+})
 
 test('slim real framing prefixes wait for substantive content rather than fake first content',()=>{
   for(const prefix of ['这是一句可直接复制的简短消息，发送前请自行核对老师姓名和课程名称：','围绕最近一次实际选课经历，可以这样问：']){
@@ -76,6 +192,105 @@ test('claims, reasoning, nested JSON, cited content and material do not become p
     '{"reply":"你这次是怎么已发送材料的？"}',
     '{"reply":"你当时已经发了资料，所以他拒绝了你？"}',
   ])assert.equal(openingQuestionDraft(raw),null,raw)
+})
+
+test('a heading is not substantive first content',()=>{
+  assert.equal(safeEarlySentence('{"reply":"先比较两种低成本探索方式。方式A是观察记录。"}'),'方式A是观察记录')
+  assert.equal(safeEarlySentence('{"reply":"先按四小时排一个探索动作。方式A是观察记录。"}'),'方式A是观察记录')
+  assert.equal(safeEarlySentence('{"reply":"先确认导师是否已读。链接能打开只说明技术可用。"}'),'链接能打开只说明技术可用')
+})
+
+test('a five-state readback is rendered only from user-reported values',()=>{
+  const user='请把已发、已读、已回复、是否采用、实际效果分开说，只更新相关理解，不安排催促。'
+  const prior=['我发了PDF，导师确认已经读到，但还没有说是否采用其中建议，也没有给效果反馈。']
+  assert.equal(groundedStateReadback(user,prior),'已发：PDF已发送。已读：导师确认读到。已回复：导师确认读到。是否采用：未说明。实际效果：未反馈。')
+  assert.equal(groundedStateReadback(user,['导师已经读到并采用了建议，效果很好。']),null)
+  assert.equal(groundedStateReadback('请把状态分开说。',prior),null)
+  const feedback='回来反馈：我发了PDF，导师确认已经读到，但还没有说是否采用其中建议，也没有给效果反馈。'
+  const feedbackOut=groundedStateReadback(feedback,[])
+  assert.match(feedbackOut??'',/已发：PDF已发送/)
+  assert.match(feedbackOut??'',/是否采用：未说明/)
+  assert.match(feedbackOut??'',/当前缺口/)
+  assert.doesNotMatch(feedbackOut??'',/但未评价内容/)
+  assert.match(feedbackOut??'',/是否评价内容未报告/)
+  assert.equal(groundedStateReadback('我是成年大学生，方向暂定找产品实习。我把作品集链接发给导师了，对方还没回复。请复盘真正影响下一步的缺口，不要把未回复说成不采用。',[]),null)
+  const link='链接在电脑能打开，我不知道导师是否读过；发送时只说了请看看，没有约定回复时间。'
+  const linkOut=groundedStateReadback(link,['我把作品集链接发给导师了，对方还没回复。'])
+  assert.match(linkOut??'',/已发：作品集链接已发送/)
+  assert.match(linkOut??'',/已回复：未回复（截至报告）/)
+  assert.match(linkOut??'',/没有约定回复时间/)
+})
+
+test('a stability value is not an assertion of stable effects, while outcome stability remains gated',()=>{
+ const sentence='家里希望稳定，这是外部期待，不等同于你的价值排序'
+ assert.equal(safeEarlySentence(JSON.stringify({reply:sentence+'。'})),sentence)
+ for(const claim of ['两次经历说明这种体验是稳定的。','放松感稳定存在。','这种状态是持续的。','这说明你有稳定的倾向。','这是稳定的规律。','你们的关系已经稳定。'])assert.equal(safeEarlySentence(JSON.stringify({reply:claim})),null,claim)
+})
+
+test('abstract distinction and time-prefixed observation headings are not first content',()=>{
+ for(const title of ['先区分运动与室友两个变量。','两小时先观察时间自主感。'])assert.equal(safeEarlySentence(JSON.stringify({reply:title})),null,title)
+ assert.equal(safeEarlySentence(JSON.stringify({reply:'先把作品集导出PDF并发给导师。'})),'先把作品集导出PDF并发给导师')
+})
+
+test('verified readback never promotes exporting, hypothetical sending or another recipient to a sent report',()=>{
+ const ask='请把已发、已读、已回复、是否采用、实际效果分开说。'
+ for(const prior of ['我可以导出PDF。','我导出了PDF，还没有发。','如果我发了PDF，导师可能就能读到。','“我发了PDF”是示例，不是我的实际报告。'])assert.equal(groundedStateReadback(ask,[prior]),null,prior)
+ assert.equal(groundedStateReadback('回来反馈：我发了PDF，导师确认读到；另一位同学还没读邮件。',[]),null)
+ for(const prior of ['我发了PDF。如果导师确认读到，再记录。','我发了PDF。“导师确认读到”只是示例。','我发了PDF。更正：还没有发PDF。'])assert.equal(groundedStateReadback(ask,[prior]),null,prior)
+})
+
+test('five-state canonical readback cannot overwrite an independent evaluation report with unknown',()=>{
+ for(const text of [
+  '回来反馈：我发了PDF，导师确认已经读到，但明确没有评价内容，也没有说是否采用。',
+  '回来反馈：我发了PDF，导师确认已经读到，导师已经评价了内容，采用和效果还未知。',
+ ])assert.equal(groundedStateReadback(text,[]),null,'unsupported evaluation facts retain ordinary source-aware generation')
+ const prior='我发了PDF，导师确认已经读到，但没有评价内容。'
+ assert.equal(groundedStateReadback('请把已发、已读、已回复、是否采用、实际效果分开说。',[prior]),null)
+ assert.ok(groundedStateReadback('回来反馈：我发了PDF，导师确认已经读到，还没有说是否采用。',[]),'ordinary five-state-only reports remain eligible')
+})
+
+test('two-option feedback gets a grounded first summary',()=>{
+  const user='回来反馈：我分别看了一个本地初级岗位和一个硕士培养方案。岗位要求的两项技能我做过课程练习；培养方案里有我不喜欢的纯理论必修。这个小样本只代表这两个选项。'
+  const out=groundedFeedbackPreview(user)
+  assert.match(out??'',/两项技能你做过课程练习/)
+  assert.match(out??'',/纯理论必修/)
+  assert.match(out??'',/不能证明岗位适合/)
+  assert.equal(groundedFeedbackPreview('回来反馈：今天下雨了。'),null)
+})
+
+test('feedback preview cannot promote quoted, hypothetical, negated or other-person practice into mine',()=>{
+  for(const report of [
+    '回来反馈：如果我看了岗位和硕士培养方案，岗位要求的两项技能我做过课程练习，培养方案有我不喜欢的纯理论必修。',
+    '回来反馈：同学说：“我看了岗位和硕士培养方案，岗位要求的两项技能我做过课程练习，培养方案有我不喜欢的纯理论必修。”',
+    '回来反馈：我看了一个岗位和硕士培养方案。岗位要求的两项技能我没有做过课程练习。',
+    '回来反馈：我看了一个岗位和硕士培养方案。岗位要求的两项技能室友做过课程练习。',
+    '回来反馈：我看了岗位和硕士培养方案。培养方案没有纯理论必修。',
+    '回来反馈：我看了岗位和硕士培养方案。培养方案有纯理论必修，我喜欢这些课程。',
+  ])assert.equal(groundedFeedbackPreview(report),null,report)
+})
+
+test('an unverified state summary is not surfaced as a preview',()=>{
+  assert.equal(safeEarlySentence('{"reply":"已发：PDF已发送。已读：导师确认读到。"}'),null)
+})
+
+test('a structured lead streams before reply',()=>{
+  assert.equal(safeEarlySentence('{"lead":"课程先修要求是第一条要核对的线索。","reply":"状态已更新。先核对课程先修要求。"}',120,'lead'),'课程先修要求是第一条要核对的线索')
+  assert.equal(openingQuestionDraft('{"lead":"你具体想先做哪一步？","reply":"先核对要求。"}','lead'),'你具体想先做哪一步？')
+  assert.equal(safeEarlySentence('{"thinking":"先看哪一步？","lead":"先核对要求。","reply":"..."}',120,'lead'),null)
+})
+
+test('a pure self-state update may be skipped for the next safe sentence',()=>{
+  assert.equal(safeEarlySentence('{"reply":"局部理解已更新，未知保留。两次打羽毛球都感到放松。"}'),'两次打羽毛球都感到放松')
+  assert.equal(safeEarlySentence('{"reply":"方案已完成。接下来先核对课程先修要求。"}'),null)
+})
+
+test('an unsafe status update gates the display draft',()=>{
+  for(const claim of ['已移除错误标签，不再推导。','考研方向已暂停，事实保留。','分类规则让同学少问一次，是有效线索。','一次整理有效，方向暂停。'])assert.equal(safeEarlySentence(JSON.stringify({lead:claim}),120,'lead'),null,claim)
+  for(const title of ['更新判断：城市偏好与时间预算已纳入，不替选。','重开稳定期待，给四小时验证。','比较两种低成本探索方式。'])assert.equal(safeEarlySentence(JSON.stringify({lead:title}),120,'lead'),null,title)
+  // The safety contract wins over first-content latency: an unsafe prefix
+  // cannot be followed by a later sentence as if the prefix did not exist.
+  assert.equal(safeEarlySentence('{"reply":"状态已更新：PDF已送达且导师确认读到。这属于“动作完成，结果未定”。"}'),null)
+  assert.equal(safeEarlySentence('{"reply":"状态已更新：PDF已送达。你想先处理哪一步？"}'),null)
 })
 
 test('neutral retrospective interrogatives can stream without making factual claims',()=>{

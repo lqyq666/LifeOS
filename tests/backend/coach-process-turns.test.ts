@@ -117,7 +117,10 @@ test('an explicit refusal remains an unknown with its own disposition and is not
     const followup=(await store.startRun(user,chat,randomUUID(),'我们继续聊愿意说的部分。')).run
     const target={operation:'continue' as const,eventId:saved.id,expectedRevision:saved.revision}
     await assert.rejects(stageCoachEvent(followup,{target,resolveUnknowns:[question.id]},'已回答。'),(error:any)=>error.code==='COACH_UNKNOWN_NOT_FOUND')
-    await assert.rejects(stageCoachEvent(followup,{target,resolveUnknowns:[question.id],declineUnknowns:[question.id]},'继续。'),(error:any)=>error.code==='COACH_UNKNOWN_DISPOSITION_CONFLICT')
+    const ambiguous=await stageCoachEvent(followup,{target,resolveUnknowns:[question.id],declineUnknowns:[question.id]},'继续。')
+    assert.deepEqual(ambiguous.delta.resolveUnknowns,[],'an unsupported pair of opposing dispositions is a no-op')
+    assert.deepEqual(ambiguous.delta.declineUnknowns,[])
+    assert.equal((await coachEventView(user,chat))!.nodes.find(node=>node.id===question.id)!.status,'declined','normalizing ambiguity never answers or reopens the declined question')
     await store.terminateRun(user,followup.request_id,'cancelled','SYNTHETIC_DONE')
     const correction=(await store.startRun(user,chat,randomUUID(),'更正一下，当时我想尽快帮小林复习。')).run
     const corrected=await stageCoachEvent(correction,{target:{operation:'continue',eventId:saved.id,expectedRevision:saved.revision},corrections:[{nodeId:question.id,source:{messageId:correction.source_message_id,quote:'当时我想尽快帮小林复习'}}]},'已把你愿意补充的原因接回这件事。')

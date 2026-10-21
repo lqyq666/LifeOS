@@ -1,0 +1,400 @@
+{
+  "kind": "ACTUAL_REJECTED_NZ_UNESCAPED_REPLY_LITERAL",
+  "turns": [
+    {
+      "chain": "refusal-correction",
+      "index": 0,
+      "user": "我是成年大学生，今天只想说说：老师没回复邮件让我有点失落。不要建议、不要追问，也不要把它和职业选择连起来。",
+      "raw": {
+        "lead": "我在听。你接着说，按你想说的节奏来。",
+        "reply": "我在听。你接着说，按你想说的节奏来。"
+      },
+      "rawSha256": "afbbdb6fae59024017cbdf259225a032c81ac26bbb1dc3169c7529be7a312889",
+      "requestId": "b7f23d23-29b3-4750-9398-62e890538a53",
+      "currentSourceIds": [
+        "4e1976c9-1932-47f1-8a91-e942ae081459"
+      ],
+      "memoryAfter": [
+        {
+          "id": "df35743a-cc60-423c-a81c-35f40569ba24",
+          "conversationId": "ab293654-c22c-4bc0-b045-96447243a8e6",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "4e1976c9-1932-47f1-8a91-e942ae081459",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:24.681Z",
+          "updatedAt": "2026-10-20T10:53:24.681Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        }
+      ]
+    },
+    {
+      "chain": "refusal-correction",
+      "index": 1,
+      "user": "现在我愿意厘清一点，但本周可用时间是零。老师没回复只是结果未知，不等于拒绝我。",
+      "raw": {
+        "lead": "你愿意厘清这一点，同时本周可用时间是零。",
+        "reply": "先核对是否约定过回复时间，以及这件事有没有必须确认的截止时间。你们原先是怎么约定的？"
+      },
+      "rawSha256": "f5564d5f8332675f4e0b18134e492392bc8a8571460efa0084e0dd82a7ee2641",
+      "requestId": "5c243d44-1a9d-4a62-8da2-1e1099df5fc4",
+      "currentSourceIds": [
+        "26b16050-9b47-4d9e-8d99-3e14f65d7a9c"
+      ],
+      "memoryAfter": [
+        {
+          "id": "036b3054-eba9-4145-96c2-911de53e0b63",
+          "conversationId": "ab293654-c22c-4bc0-b045-96447243a8e6",
+          "kind": "constraint",
+          "text": "但本周可用时间是零",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "26b16050-9b47-4d9e-8d99-3e14f65d7a9c",
+              "type": "message",
+              "quote": "但本周可用时间是零"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": "2026-10-25T16:00:00.000Z",
+          "validFrom": "2026-10-20T10:53:25.821Z",
+          "timeBasis": {
+            "kind": "calendar_week",
+            "zone": "Asia/Shanghai",
+            "quote": "本周",
+            "which": "this",
+            "anchor": "2026-10-20T10:53:25.821Z",
+            "endExclusive": true
+          },
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:29.349Z",
+          "updatedAt": "2026-10-20T10:53:29.349Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "76162304-c563-4982-8b64-2e6fec0ee1fd",
+          "conversationId": "ab293654-c22c-4bc0-b045-96447243a8e6",
+          "kind": "context",
+          "text": "老师没回复只是结果未知",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "26b16050-9b47-4d9e-8d99-3e14f65d7a9c",
+              "type": "message",
+              "quote": "老师没回复只是结果未知"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:29.349Z",
+          "updatedAt": "2026-10-20T10:53:29.349Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "8738c7ac-5fe6-475c-83c3-7c975a9bcb95",
+          "conversationId": "ab293654-c22c-4bc0-b045-96447243a8e6",
+          "kind": "context",
+          "text": "老师没回复只是结果未知，不等于拒绝我",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "26b16050-9b47-4d9e-8d99-3e14f65d7a9c",
+              "type": "message",
+              "quote": "老师没回复只是结果未知，不等于拒绝我"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:29.349Z",
+          "updatedAt": "2026-10-20T10:53:29.349Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "df35743a-cc60-423c-a81c-35f40569ba24",
+          "conversationId": "ab293654-c22c-4bc0-b045-96447243a8e6",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "4e1976c9-1932-47f1-8a91-e942ae081459",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:24.681Z",
+          "updatedAt": "2026-10-20T10:53:24.681Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        }
+      ]
+    },
+    {
+      "chain": "refusal-correction",
+      "index": 2,
+      "user": "更正并区分两件事：老师那封邮件是未回复；另一位同学试过我做的表格后明确说不适合他。不要把两件事合并。",
+      "raw": {
+        "lead": "已区分：老师邮件未回复，另一位同学试用表格后说不适合。",
+        "reply": "已区分：老师邮件未回复，另一位同学试用表格后说不适合。两件事各自保留原状态，不合并。"
+      },
+      "rawSha256": "361e1c477860d93f4c3aa0a72cd884875ff433a6c0b1afe701762970977f0142",
+      "requestId": "18978cc5-e0ca-40bd-9763-c159089658c7",
+      "currentSourceIds": [
+        "eb387fe2-56f1-4bb4-9975-af44a33467d8"
+      ],
+      "memoryAfter": [
+        {
+          "feedbackEvidence": {
+            "reportedAt": "2026-10-20T10:53:34.175Z",
+            "taskBinding": "unknown",
+            "outcomes": {
+              "read": {
+                "status": "unknown",
+                "quote": null
+              },
+              "response": {
+                "status": "reported_no_response",
+                "quote": "更正并区分两件事：老师那封邮件是未回复"
+              },
+              "adoption": {
+                "status": "unknown",
+                "quote": null
+              },
+              "payment": {
+                "status": "unknown",
+                "quote": null
+              },
+              "effect": {
+                "status": "unknown",
+                "quote": null
+              }
+            }
+          },
+          "id": "8df2e8c7-a304-4cf7-b429-2a8b4ef4e4cf",
+          "conversationId": "28b8d48c-0700-4a2a-b256-3dc7c5dc5135",
+          "kind": "context",
+          "text": "更正并区分两件事：老师那封邮件是未回复",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "eb387fe2-56f1-4bb4-9975-af44a33467d8",
+              "type": "message",
+              "quote": "更正并区分两件事：老师那封邮件是未回复"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:34.175Z",
+          "updatedAt": "2026-10-20T10:53:34.175Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "9dca6e12-3ca6-4f6d-a8b5-ccf4627a9c15",
+          "conversationId": "28b8d48c-0700-4a2a-b256-3dc7c5dc5135",
+          "kind": "context",
+          "text": "另一位同学试过我做的表格后明确说不适合他",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "eb387fe2-56f1-4bb4-9975-af44a33467d8",
+              "type": "message",
+              "quote": "另一位同学试过我做的表格后明确说不适合他"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:34.175Z",
+          "updatedAt": "2026-10-20T10:53:34.175Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "036b3054-eba9-4145-96c2-911de53e0b63",
+          "conversationId": "ab293654-c22c-4bc0-b045-96447243a8e6",
+          "kind": "constraint",
+          "text": "但本周可用时间是零",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "26b16050-9b47-4d9e-8d99-3e14f65d7a9c",
+              "type": "message",
+              "quote": "但本周可用时间是零"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": "2026-10-25T16:00:00.000Z",
+          "validFrom": "2026-10-20T10:53:25.821Z",
+          "timeBasis": {
+            "kind": "calendar_week",
+            "zone": "Asia/Shanghai",
+            "quote": "本周",
+            "which": "this",
+            "anchor": "2026-10-20T10:53:25.821Z",
+            "endExclusive": true
+          },
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:29.349Z",
+          "updatedAt": "2026-10-20T10:53:29.349Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "76162304-c563-4982-8b64-2e6fec0ee1fd",
+          "conversationId": "ab293654-c22c-4bc0-b045-96447243a8e6",
+          "kind": "context",
+          "text": "老师没回复只是结果未知",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "26b16050-9b47-4d9e-8d99-3e14f65d7a9c",
+              "type": "message",
+              "quote": "老师没回复只是结果未知"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:29.349Z",
+          "updatedAt": "2026-10-20T10:53:29.349Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "8738c7ac-5fe6-475c-83c3-7c975a9bcb95",
+          "conversationId": "ab293654-c22c-4bc0-b045-96447243a8e6",
+          "kind": "context",
+          "text": "老师没回复只是结果未知，不等于拒绝我",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "26b16050-9b47-4d9e-8d99-3e14f65d7a9c",
+              "type": "message",
+              "quote": "老师没回复只是结果未知，不等于拒绝我"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:29.349Z",
+          "updatedAt": "2026-10-20T10:53:29.349Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        },
+        {
+          "id": "df35743a-cc60-423c-a81c-35f40569ba24",
+          "conversationId": "ab293654-c22c-4bc0-b045-96447243a8e6",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "assertion": "user_reported",
+          "status": "active",
+          "sources": [
+            {
+              "id": "4e1976c9-1932-47f1-8a91-e942ae081459",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ],
+          "dependencies": [],
+          "validUntil": null,
+          "validFrom": null,
+          "timeBasis": null,
+          "revision": 1,
+          "createdAt": "2026-10-20T10:53:24.681Z",
+          "updatedAt": "2026-10-20T10:53:24.681Z",
+          "unavailableReason": null,
+          "limitation": "",
+          "progressState": null,
+          "directionScopes": [],
+          "structuredPlan": null
+        }
+      ]
+    },
+    {
+      "chain": "refusal-correction",
+      "index": 3,
+      "user": "只谈老师邮件：如果不增加任务，你目前能形成什么暂定理解？同学表格那件事先暂停。",
+      "raw": "{\"reply\":\"老师邮件已发未回复，结果未知；你明确这不等于拒绝。不增加任务时，暂定理解停在\"等待结果\"。仍未知的是邮件内容、发送时间及你的原需求。\"}",
+      "rawSha256": "d95d4df1c5d8e3ac7c415d971bacc49ca1a1edf33d8576c9e63efae8ebbada03",
+      "requestId": "5ff32bbd-9e44-41fb-a1ec-fb565d18741c",
+      "currentSourceIds": [],
+      "memoryAfter": []
+    }
+  ]
+}

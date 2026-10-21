@@ -4,6 +4,7 @@ import {reportedPerformedTaskClauses,reportedCompletedContactClauses,reportedTas
 import {hoursIn} from './turn-obligations.ts'
 import type {KnowledgeIntent} from './evergreen-guide.ts'
 import type {TurnContract} from './turn-contract.ts'
+import {groundedStateReadback,hasUnprojectedEvaluationReport} from './reply-draft.ts'
 
 export type BoundedReply={basis:'editorial_adaptation';sourceStatus:'NO_PUBLIC_METHOD'|'PUBLIC_METHOD_NOT_USED';stage:'start'|'blocked'|'waiting_result'|'adopted'|'reported_result';choices:string[];nextUnknown:string}
 
@@ -70,12 +71,17 @@ export function boundedRecallReply(text:string,facts:{text:string;createdAt:stri
 // effect claim, deadline, number or personal fact to the selected reply.
 // Material delivery, scheduling, listening and personal decisions keep their
 // existing contracts. This is not a second guide corpus.
-export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;contract:TurnContract;knowledgeCount:number;tier:string;priorInterviewQuestion?:string;verifiedBudget?:{minutes:number;period:'current'|'this_week'|'next_week';quote:string}}):BoundedReply|null{
+export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;contract:TurnContract;knowledgeCount:number;tier:string;material?:boolean;priorInterviewQuestion?:string;priorUserTexts?:readonly string[];verifiedBudget?:{minutes:number;period:'current'|'this_week'|'next_week';quote:string}}):BoundedReply|null{
  const contactQuestion=/(?:联系|请教|联络)/.test(input.text)&&/(?:怎么|如何|怎样)/.test(input.text)
- if(input.tier!=='default'||input.contract.capabilities.material||input.contract.capabilities.plan)return null
+ if(input.tier!=='default'||input.contract.capabilities.plan||input.material)return null
  const clauses=scanUserClauses(input.text)
  const own=clauses.filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
  const make=(stage:BoundedReply['stage'],nextUnknown:string,choices:string[]):BoundedReply=>({basis:'editorial_adaptation',sourceStatus:input.knowledgeCount?'PUBLIC_METHOD_NOT_USED':'NO_PUBLIC_METHOD',stage,nextUnknown,choices})
+ // Use the same verified renderer before native enum generation and after
+ // generation. A generic report catalogue must not conflict with the final
+ // readback of separately reported send/read/reply/adoption/effect states.
+ const stateReadback=groundedStateReadback(input.text,[...(input.priorUserTexts??[])])
+ if(stateReadback)return make('reported_result','仅按已报告的状态回读，其他维度保持未知',[stateReadback])
  if(currentConversationOnly(input.text)&&clauses.some(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&refusalPreferenceClause(c.text)))return make('reported_result','核对停止推荐的原事项；保留事实',[
   '这件事先不再主动安排。若出现确认卡，请选择你指的原事项；确认前也不主动推荐这些候选事项，已报告的事实保留。',
  ])
@@ -86,6 +92,10 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '我在听。你接着说，按你想说的节奏来。',
   '嗯，我在这儿听着。你想先说什么都可以。',
  ])
+ // A single-contact catalogue cannot represent separately reported outcomes
+ // for several people. Keep the ordinary source-anchored event contract.
+ if(hasUnprojectedEvaluationReport(input.text))return null
+ if(new Set(own.match(/导师|老师|同学|室友|学长|学姐|客户/g)??[]).size>1)return null
  if(/第[一二三四五六七八九十\d]+(?:道|个)?题(?:不会做|不会|不懂|没思路)/.test(own))return make('blocked','本人所报受阻题目的题干、实际做到的位置',[
   '先只看你说不会做的这一题。把题干、关键条件和已经做到的位置发来，我们从卡住处继续；原因与结果仍待核对，不重发整套入门方法。',
  ])

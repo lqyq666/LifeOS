@@ -63,7 +63,8 @@ export const coachCitationSchema=Type.Union([
 ])
 export type CoachCitation=Static<typeof coachCitationSchema>
 export const actionCoachTurnSchema=Type.Object({
-  reply:Type.String({minLength:1,maxLength:16000,description:'自然简洁地回应本轮诉求。复盘先问关键未知问题，已知事实用于理解，不逐句复述。交付材料时这里只写确有必要的提醒或未知边界，不引用或复写成品，不额外解释材料的作用；完整可复制文本只放event.action.draft.content，由服务器展示同一材料。'}),
+  lead:Type.Optional(Type.String({minLength:0,maxLength:240,description:'首句预览：必须逐字等于reply第一句，不另写标题或另一种表述；不超过24个汉字，只给实际判断、具体起点或必要问题。禁止状态宣告、完成/发送/保存声明、承诺、材料正文或诊断。'})),
+  reply:Type.String({minLength:1,maxLength:16000,description:'先回应本轮新增内容与实际诉求，不重复上一轮回复或已经回答的问题，不强行转问感受。只更新理解或明确不行动时不给新任务；有关键未知才问。除非本人要求展开，通常一至四句，说完即停。交付材料时这里只写必要提醒或未知边界，不引用或复写成品，不额外解释材料的作用；完整可复制文本只放event.action.draft.content，由服务器展示同一材料。'}),
   citations:Type.Optional(Type.Array(coachCitationSchema,{maxItems:6,description:'仅对确实使用的有效知识条目逐命题引用；普通追问、个人起草和倾听通常省略。不得编造来源。'})),
   event:Type.Optional(eventDeltaSchema),
   growthUpdates:Type.Optional(Type.Array(growthDeltaSchema,{maxItems:8,description:'只有当前个人情况、方向/近期判断或实际反馈新增/变化才给小粒度增量。普通知识/倾听无需建档。明确陈述与带局限的待核对AI观察分开，每条一项；不要求每轮补齐档案。'})),
@@ -111,8 +112,44 @@ export type EventDelta=Static<typeof eventDeltaSchema>
 export type ActionDraft=Static<typeof legacyDraftSchema>
 export type ResumePortfolioDraft=Static<typeof resumePortfolioDraftSchema>
 
-export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExplanation?:boolean;allowEmptyReplyWithCompleteDraft?:boolean}={}):ActionCoachTurn {
-  const output=JSON.parse(raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')) as unknown
+// Transport framing only. Native JSON.parse decides completeness; the existing
+// turn parser and source/transaction validators still decide admissibility.
+export function completeCoachJsonFrame(raw:string):string|null {
+  const text=raw.trimStart()
+  if(!text.startsWith('{'))return null
+  for(let end=text.indexOf('}');end>=0;end=text.indexOf('}',end+1)){
+    try{const frame=text.slice(0,end+1),value=JSON.parse(frame);if(value&&typeof value==='object'&&!Array.isArray(value))return frame}catch{}
+  }
+  return null
+}
+
+export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExplanation?:boolean;allowEmptyReplyWithCompleteDraft?:boolean;onNormalization?:(kind:string)=>void}={}):ActionCoachTurn {
+  const text=raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')
+  let output:unknown
+  try{output=JSON.parse(text)}catch(error){
+    // A captured complete reply-only frame omitted escaping around a short
+    // literal phrase. Normalize only that serialization defect, verbatim.
+    // Never infer fields, finish partial JSON, or reconstruct state operations.
+    const match=/^\{\s*"reply"\s*:\s*"([^{}\[\]\\:,\x00-\x1f]*)"\s*\}$/.exec(text)
+    const body=match?.[1],literal=/"[\p{L}\p{N} _、，。！？（）().!?;\-]{1,80}"/gu
+    const pairs=body?.match(literal)
+    if(!body||!pairs?.length||pairs.length>2||pairs.some(pair=>!/[\p{L}\p{N}]/u.test(pair))||body.replace(literal,'').includes('"'))throw error
+    output=JSON.parse('{"reply":'+JSON.stringify(body)+'}')
+    options.onNormalization?.('quoted_reply_literal')
+  }
+  // A captured provider response used an explicitly named create envelope
+  // instead of the advertised array. Decode that unambiguous operation here,
+  // in the sole parser, before ordinary schema/source/transaction validation.
+  // Never infer an edit target or accept model prose as a reported fact.
+  const updates=(output as any)?.growthUpdates
+  const reportedKeys=new Set(['assertion','kind','source','text','validUntil','timeEvidence','progressState'])
+  if(updates&&typeof updates==='object'&&!Array.isArray(updates)&&Object.keys(updates).length===1&&Object.hasOwn(updates,'create')
+    &&Array.isArray(updates.create)&&updates.create.length>0&&updates.create.length<=8
+    &&updates.create.every((entry:any)=>entry&&typeof entry==='object'&&!Array.isArray(entry)&&entry.assertion==='user_reported'
+      &&Object.keys(entry).every(key=>reportedKeys.has(key))&&(!Object.hasOwn(entry,'text')||typeof entry.text==='string'))){
+    ;(output as any).growthUpdates=updates.create.map(({text,...entry}:any)=>({...entry,target:{operation:'create'}}))
+    options.onNormalization?.('explicit_reported_create_envelope')
+  }
   // Provider-authored metadata has no authority. Provenance and readiness are
   // rebuilt from the host catalogue after this parser, never accepted from a
   // model's invented field/type or claim that the material was verified.

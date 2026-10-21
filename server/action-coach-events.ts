@@ -9,6 +9,7 @@ import type { CoachKnowledgeRef } from './coach-knowledge.ts'
 import { growthQuoteSuppressed } from './growth-privacy.ts'
 import {reconcileActionStages,type ActionCase} from './workflows/action-review.ts'
 import {scanUserClauses} from './user-command-spans.ts'
+import {reportedEvidenceFromText} from './turn-contract.ts'
 
 // Provider selections are rendered before staging. Keep the provider contract
 // unchanged while checking the complete server-created provenance here.
@@ -207,6 +208,23 @@ async function coachNodeSource(c:PoolClient,run:Run,eventId:string|undefined,nod
   }
 }
 
+// A provider may put the same unknown in both dispositions when the current
+// message neither answers nor declines it. Do not fail the whole turn and do
+// not invent a resolution: keep the unknown active unless the user explicitly
+// declined it. A concrete decline keeps the decline and drops the resolution.
+export function normalizeUnknownDispositionConflict<T extends {resolveUnknowns?:string[];declineUnknowns?:string[]}>(delta:T,userText:string):{delta:T;conflictIds:string[]}{
+ const resolved=new Set(delta.resolveUnknowns??[]),declined=new Set(delta.declineUnknowns??[])
+ const conflictIds=[...resolved].filter(id=>declined.has(id))
+ if(!conflictIds.length)return {delta,conflictIds}
+ // "不知道/记不清" is unknown, not refusal. Only an explicit refusal keeps
+ // the decline disposition; otherwise the unknown stays active.
+ const keepDecline=/(?:不想说|不愿意说|跳过|拒绝回答|先不说|不方便说)/.test(userText)
+ const drop=new Set(conflictIds),next={...delta}
+ if(delta.resolveUnknowns)next.resolveUnknowns=delta.resolveUnknowns.filter(id=>!drop.has(id))
+ if(delta.declineUnknowns)next.declineUnknowns=keepDecline?delta.declineUnknowns:delta.declineUnknowns.filter(id=>!drop.has(id))
+ return {delta:next,conflictIds}
+}
+
 async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
   if(!Value.Check(stagedEventSchema,delta))throw new HttpError(400,'COACH_DELTA_INVALID')
   if(delta.target.operation==='create'){
@@ -226,7 +244,10 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
       if(node.kind!=='unknown'&&node.content.includes(correction.source.quote))throw new HttpError(400,'COACH_CORRECTION_UNCHANGED')
     }
     const resolved=new Set(delta.resolveUnknowns??[])
-    if((delta.declineUnknowns??[]).some(id=>resolved.has(id)))throw new HttpError(400,'COACH_UNKNOWN_DISPOSITION_CONFLICT')
+    if((delta.declineUnknowns??[]).some(id=>resolved.has(id))){
+      const userText=String((await c.query("SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role='user'",[run.user_id,run.source_message_id])).rows[0]?.content??'')
+      Object.assign(delta,normalizeUnknownDispositionConflict(delta,userText).delta)
+    }
     const activeUnknownIds=new Set((await c.query("SELECT id FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND kind='unknown' AND status='active'",[run.user_id,event.id])).rows.map(row=>String(row.id)))
     for(const node of delta.nodes??[])if(node.kind==='unknown'&&(node.dependsOn??[]).some(id=>!activeUnknownIds.has(id)))throw new HttpError(400,'COACH_UNKNOWN_DEPENDENCY_INVALID')
     const asked=new Set(visibleCoachQuestions(reply))
@@ -363,7 +384,7 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
   const row=await eventFor(c,user,conversation,id)
   const rows=(await c.query("SELECT * FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn' ORDER BY created_at,id",[user,id])).rows
   const actionRows=(await c.query('SELECT *,coach_knowledge_refs_valid(knowledge_refs) AS knowledge_valid FROM coach_actions WHERE user_id=$1 AND event_id=$2 ORDER BY created_at,id',[user,id])).rows
-  const history=(await c.query("SELECT r.revision,r.snapshot->'askedThisTurn' AS asked,r.snapshot#>'{event,nodes}' AS nodes,r.snapshot->>'actionChange' AS action_change,CASE WHEN r.snapshot ? 'actionId' THEN ARRAY[r.snapshot->>'actionId'] ELSE ARRAY(SELECT a->>'id' FROM jsonb_array_elements(COALESCE(r.snapshot#>'{event,actions}','[]'::jsonb)) a WHERE a->>'status'='proposed') END AS action_ids,t.source_message_id FROM coach_event_revisions r JOIN runs t ON t.user_id=r.user_id AND t.request_id=r.request_id WHERE r.user_id=$1 AND r.event_id=$2 ORDER BY r.revision",[user,id])).rows
+  const history=(await c.query("SELECT r.revision,r.snapshot->'askedThisTurn' AS asked,r.snapshot#>'{event,nodes}' AS nodes,r.snapshot->>'actionChange' AS action_change,CASE WHEN r.snapshot ? 'actionId' THEN ARRAY[r.snapshot->>'actionId'] ELSE ARRAY(SELECT a->>'id' FROM jsonb_array_elements(COALESCE(r.snapshot#>'{event,actions}','[]'::jsonb)) a WHERE a->>'status'='proposed') END AS action_ids,t.source_message_id FROM coach_event_revisions r JOIN runs t ON t.user_id=r.user_id AND t.request_id=r.request_id WHERE r.user_id=$1 AND r.event_id=$2 AND jsonb_typeof(r.snapshot#>'{event,nodes}')='array' ORDER BY r.revision",[user,id])).rows
   const recent=history.slice(-8)
   // Older snapshots may contain a citation truncated at its query marker.
   // Reuse the display extractor on read; retain the original audit snapshots.
@@ -415,6 +436,7 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
   // same event commits. Explicit negative/unknown reports replace stale stages.
   let actionStages:ActionCase['known']={sent:null,read:null,replied:null,used:null,effect:null}
   const actionStageEvidence:NonNullable<CoachEvent['actionStageEvidence']>={}
+  const participantActors=new Set<string>()
   for(const turn of history){
     const source=sources.get(turn.source_message_id)
     if(!source)continue
@@ -423,6 +445,25 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
     for(const quote of [...new Set(fragments)].sort((a,b)=>source.content.indexOf(a)-source.content.indexOf(b)))if(!await growthQuoteSuppressed(c,user,source.id,quote))allowed.push(quote)
     const prior=actionStages
     actionStages=reconcileActionStages(actionStages,allowed.join('；'),(field,quotes)=>{actionStageEvidence[field]={sourceMessageId:source.id,eventRevision:turn.revision,evidenceQuotes:quotes.filter(quote=>source.content.includes(quote))}})
+    // Use the same guarded participant reports as the dialogue contract. A
+    // direct reply need not contain “我”; it never establishes reading/use.
+    // A flat event-stage vector cannot merge reports about different actors.
+    const reports=allowed.flatMap(quote=>reportedEvidenceFromText(quote).participants)
+    for(const report of reports)participantActors.add(report.actor)
+    if(participantActors.size>1){
+      actionStages={sent:null,read:null,replied:null,used:null,effect:null}
+      for(const field of Object.keys(actionStageEvidence))delete actionStageEvidence[field as keyof typeof actionStageEvidence]
+      continue
+    }
+    if(participantActors.size===1){
+      for(const report of reports)for(const [dimension,field,yes,no] of [['read','read','reported_read','reported_not_read'],['response','replied','reported_response','reported_no_response'],['adoption','used','reported_used','reported_not_used']] as const){
+        const state=report.states[dimension]
+        if(!state.quote||!source.content.includes(state.quote)||![yes,no,'unknown'].includes(state.status))continue
+        actionStages[field]=state.status===yes?true:state.status===no?false:null
+        actionStageEvidence[field]={sourceMessageId:source.id,eventRevision:turn.revision,evidenceQuotes:[state.quote].filter(quote=>source.content.includes(quote))}
+      }
+      if(actionStages.used!==true||actionStages.sent===false)actionStages.effect=null
+    }
     if(prior.effect!==null&&actionStages.effect===null)delete actionStageEvidence.effect
   }
   const projectedNodes=nodes.map(node=>{if(node.kind!=='fact'||!node.source)return node;const stated=reconcileActionStages({sent:null,read:null,replied:null,used:null,effect:null},node.source.quote);return (['sent','read','replied','used'] as const).some(key=>stated[key]!==null&&actionStageEvidence[key]&&stated[key]!==actionStages[key])?{...node,supersededByActionCorrection:true}:node})
@@ -452,9 +493,13 @@ export async function assertCoachEvidence(c:PoolClient,user:string,conversation:
 // Tombstones and source withdrawal survive subsequent retrieval and rebuilds.
 export async function invalidateCoachSources(c:PoolClient,user:string,messageIds:string[],forget:boolean){
   if(!messageIds.length)return
-  await c.query(`INSERT INTO coach_source_withdrawals(user_id,message_id,conversation_id,reason)
+  const changed=(await c.query(`INSERT INTO coach_source_withdrawals(user_id,message_id,conversation_id,reason)
     SELECT user_id,id,conversation_id,$3 FROM messages WHERE user_id=$1 AND id=ANY($2::uuid[])
-    ON CONFLICT(user_id,message_id) DO UPDATE SET reason=CASE WHEN coach_source_withdrawals.reason='forgotten' THEN 'forgotten' ELSE EXCLUDED.reason END`,[user,messageIds,forget?'forgotten':'corrected'])
+    ON CONFLICT(user_id,message_id) DO UPDATE SET reason=EXCLUDED.reason
+      WHERE coach_source_withdrawals.reason='corrected' AND EXCLUDED.reason='forgotten'
+    RETURNING message_id`,[user,messageIds,forget?'forgotten':'corrected'])).rows
+  messageIds=changed.map(row=>row.message_id as string)
+  if(!messageIds.length)return
   const affected=(await c.query(`SELECT DISTINCT event_id FROM coach_nodes WHERE user_id=$1 AND source->>'messageId'=ANY($2::text[]) AND status<>'withdrawn'
     UNION SELECT id FROM coach_events WHERE user_id=$1 AND title_source->>'messageId'=ANY($2::text[]) AND status='active'
     UNION SELECT event_id FROM coach_actions WHERE user_id=$1 AND source_message_ids && $2::uuid[]
@@ -464,16 +509,28 @@ export async function invalidateCoachSources(c:PoolClient,user:string,messageIds
     await c.query('SELECT id FROM coach_events WHERE user_id=$1 AND id=$2 FOR UPDATE',[user,id])
     await c.query("UPDATE coach_nodes SET status='withdrawn',content=NULL,source=NULL,revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND source->>'messageId'=ANY($3::text[])",[user,id,messageIds])
     await c.query("UPDATE coach_nodes SET status='withdrawn',content=NULL,source=NULL,revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND kind='unknown' AND status<>'withdrawn'",[user,id])
-    await c.query("UPDATE coach_actions SET status='stale',draft=CASE WHEN $4 THEN NULL ELSE draft END,closed_reason=NULL,revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND source_message_ids && $3::uuid[]",[user,id,messageIds,forget])
+    await c.query("UPDATE coach_actions SET status='stale',draft=NULL,closed_reason=NULL,revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND source_message_ids && $3::uuid[]",[user,id,messageIds])
     await c.query("UPDATE coach_events SET revision=revision+1,generation=generation+1,status=CASE WHEN title_source->>'messageId'=ANY($3::text[]) THEN 'forgotten' ELSE status END,title=CASE WHEN title_source->>'messageId'=ANY($3::text[]) THEN '' ELSE title END,title_source=CASE WHEN title_source->>'messageId'=ANY($3::text[]) THEN '{}'::jsonb ELSE title_source END,updated_at=now() WHERE user_id=$1 AND id=$2",[user,id,messageIds])
     const withdrawn=(await c.query("SELECT 1 FROM coach_events WHERE user_id=$1 AND id=$2 AND status='forgotten'",[user,id])).rowCount
     if(withdrawn){
       await c.query("UPDATE coach_nodes SET status='withdrawn',content=NULL,source=NULL,revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2 AND status<>'withdrawn'",[user,id])
       await c.query("UPDATE coach_actions SET status='stale',draft=NULL,closed_reason=NULL,revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id=$2",[user,id])
     }
-    // Historical event snapshots can contain derived quotes/materials. Keep a
-    // content-free revision marker instead of making them a resurrection path.
-    await c.query("UPDATE coach_event_revisions SET snapshot=jsonb_build_object('withdrawn',true) WHERE user_id=$1 AND event_id=$2",[user,id])
+    // Erase derived prose and materials, but retain independently authorized
+    // citation/action lineage. Dropping all node ranges would turn corrected
+    // facts back into unquoted requests on the next read or modification.
+    if(withdrawn)await c.query("UPDATE coach_event_revisions SET snapshot=jsonb_build_object('withdrawn',true) WHERE user_id=$1 AND event_id=$2",[user,id])
+    else await c.query(`UPDATE coach_event_revisions r SET snapshot=
+      jsonb_build_object('event',jsonb_build_object(
+        'nodes',COALESCE((SELECT jsonb_agg(jsonb_build_object('id',n->'id','kind',n->'kind','source',n->'source'))
+          FROM jsonb_array_elements(COALESCE(r.snapshot#>'{event,nodes}','[]'::jsonb)) n
+          WHERE n->>'source' IS NULL OR NOT EXISTS(SELECT 1 FROM coach_source_withdrawals w
+            WHERE w.user_id=r.user_id AND w.message_id::text=n#>>'{source,messageId}')),'[]'::jsonb),
+        'actions',COALESCE((SELECT jsonb_agg(jsonb_build_object('id',a->'id','status',a->'status'))
+          FROM jsonb_array_elements(COALESCE(r.snapshot#>'{event,actions}','[]'::jsonb)) a),'[]'::jsonb)),
+        'askedThisTurn','[]'::jsonb,'actionChange',r.snapshot->'actionChange')
+      || CASE WHEN r.snapshot ? 'actionId' THEN jsonb_build_object('actionId',r.snapshot->'actionId') ELSE '{}'::jsonb END
+      WHERE r.user_id=$1 AND r.event_id=$2 AND r.snapshot ? 'event'`,[user,id])
     await c.query("DELETE FROM coach_current p USING coach_events e WHERE p.user_id=$1 AND p.event_id=e.id AND e.user_id=p.user_id AND e.status='forgotten'",[user])
   }
 }

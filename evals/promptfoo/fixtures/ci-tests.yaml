@@ -1,0 +1,290 @@
+[
+  {
+    "vars": {
+      "id": "access-good",
+      "category": "access",
+      "expectPass": true,
+      "output": "不用重做，直接导出 PDF 发给对方。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "access-bad",
+      "category": "access",
+      "expectPass": false,
+      "output": "先确认是否收到，再重新制作简历。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "access-audio-good",
+      "category": "access",
+      "expectPass": true,
+      "userText": "导师说音频在手机上放不出来。",
+      "output": "先转码成 MP3 发给对方。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "access-form-good",
+      "category": "access",
+      "expectPass": true,
+      "userText": "我把报名表的链接发给老师，老师说手机上打不开。",
+      "output": "用电脑打开填写，或发一个可编辑的 Word。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "access-form-bad",
+      "category": "access",
+      "expectPass": false,
+      "userText": "我把报名表的链接发给老师，老师说手机上打不开。",
+      "output": "导出 PDF 或截图发过去。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "zero-time-good",
+      "category": "zero-time",
+      "expectPass": true,
+      "output": "这周先不安排动作，等你有时间再继续。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "zero-time-bad",
+      "category": "zero-time",
+      "expectPass": false,
+      "output": "这周先不安排任务。你希望先做什么？"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "receipt-good",
+      "category": "status",
+      "expectPass": true,
+      "userText": "老师回复说收到了，但没评价内容。",
+      "output": "目前状态：已确认收到；是否已读仍未知。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "receipt-bad",
+      "category": "status",
+      "expectPass": false,
+      "userText": "老师回复说收到了，但没评价内容。",
+      "output": "目前算已送达且已读，但内容未评价。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "receipt-read-claim-bad",
+      "category": "status",
+      "expectPass": false,
+      "userText": "老师回复说收到了，但没评价内容。",
+      "output": "导师确认读到，但内容评价仍未知。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "receipt-reading-claim-bad",
+      "category": "status",
+      "expectPass": false,
+      "userText": "我把PDF发给导师，他回复说收到了，但没说有没有看。",
+      "output": "PDF已送达并确认阅读，但采纳仍未知。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "clickable-good",
+      "category": "clickable",
+      "expectPass": true,
+      "output": "先定假设：更清晰的信息能让同学更快选择。做一个可点击的 3 页流程（入口→列表→详情），找 3 位同学完成一个任务，记录卡点；3 位里 2 位完成即可，否则改流程。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "clickable-bad",
+      "category": "clickable",
+      "expectPass": false,
+      "output": "先画一张只含关键步骤的草图。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "clickable-malformed-bad",
+      "category": "clickable",
+      "expectPass": false,
+      "output": "建议按以下三步设计：\n去掉登录。2. 设定观察指标。\n假设：信息更清晰。停止标准：3 位里 2 位完成。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "zero-time-task-bad",
+      "category": "zero-time",
+      "expectPass": false,
+      "output": "这周只完成这个对照标记。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "zero-time-self-check-good",
+      "category": "zero-time",
+      "expectPass": true,
+      "output": "这周不安排任务。下次打开简历时问自己：我具体做了什么？"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "two-factor-disclaimer-bad",
+      "category": "two-factor",
+      "expectPass": false,
+      "output": "说明早睡是主因。一次结果只是线索。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "two-factor-good",
+      "category": "two-factor",
+      "expectPass": true,
+      "output": "若状态仍好，作息更可能是主因；一次结果只是线索。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "two-factor-bad",
+      "category": "two-factor",
+      "expectPass": false,
+      "output": "若状态仍好，说明作息是主因。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "single-lead-good",
+      "category": "single-lead",
+      "expectPass": true,
+      "output": "先回溯这一条反馈的完整经过，不扩大样本。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "single-lead-bad",
+      "category": "single-lead",
+      "expectPass": false,
+      "output": "再找两三个同学问问。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "one-question-good",
+      "category": "one-question",
+      "expectPass": true,
+      "output": "那次海报里，你具体改了哪个细节？"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "one-question-bad",
+      "category": "one-question",
+      "expectPass": false,
+      "output": "好的，请说。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "refusal-good",
+      "category": "refusal",
+      "expectPass": true,
+      "output": "好，不聊考公，也不给建议。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "refusal-bad",
+      "category": "refusal",
+      "expectPass": false,
+      "output": "最近很累，我听着。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "unsupported-preference-good",
+      "category": "unsupported-preference",
+      "expectPass": true,
+      "output": "你目前还没有客户，也没有接单经历。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "unsupported-preference-bad",
+      "category": "unsupported-preference",
+      "expectPass": false,
+      "output": "你明确不想找客户，也不想接单。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "unsupported-zero-time-good",
+      "category": "unsupported-zero-time",
+      "expectPass": true,
+      "output": "老师邮件目前只确认未回复。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "unsupported-zero-time-bad",
+      "category": "unsupported-zero-time",
+      "expectPass": false,
+      "output": "老师邮件未回复，且本周无可用时间。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "quantity-good",
+      "category": "quantity",
+      "expectPass": true,
+      "userText": "我只想看一个兼职岗位的真实要求。",
+      "output": "先看一个兼职岗位的真实要求。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  },
+  {
+    "vars": {
+      "id": "quantity-bad",
+      "category": "quantity",
+      "expectPass": false,
+      "userText": "我只想看一个兼职岗位的真实要求。",
+      "output": "找3个兼职岗位对比一下。"
+    },
+    "assert": [{"type": "javascript", "value": "file://./asserts/gate-self-check.mjs"}]
+  }
+]

@@ -2,6 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { rankPrimaryThemes } from '../server/user-themes.ts'
 import { applicableExperienceOutcomes, summarizeExperience } from '../server/experience-insight.ts'
+import { reportedTaskOutcomeClauses, taskOutcomeReadback } from '../server/turn-contract.ts'
+import { completeUserReply } from '../server/turn-contract.ts'
 
 const theme = (title:string, over:Record<string,unknown>={}) => ({
   id:title, title, status:'active', pinned:false,
@@ -42,5 +44,17 @@ test('experience outcomes are applicable to the experience instead of a universa
   assert.deepEqual(applicableExperienceOutcomes(everyday),[])
   assert.equal(summarizeExperience(everyday).unknowns,'')
   assert.deepEqual(applicableExperienceOutcomes({action:'我把海报发给了部长',result:'还没回复'}),['read','response','adoption','effect'])
+  assert.deepEqual(applicableExperienceOutcomes({sourceQuote:'我已经通过学校邮箱向学长甲发了项目课能否提供实习作品的问题，发出已经三天，没有回复。'}),['read','response','adoption','effect'])
   assert.deepEqual(applicableExperienceOutcomes({action:'我给客户交付了海报',result:'客户还没付款'}),['read','response','adoption','payment','effect'])
+})
+
+test('an authorized standalone status report persists its direct response state',()=>{
+  const report='回来反馈：老师后来回复说这周忙，下周再看。请只更新状态。'
+  const quotes=new Set(reportedTaskOutcomeClauses(report,false,true).map(clause=>clause.text))
+  assert.equal(taskOutcomeReadback(report,quotes,false,true).response.status,'reported_response')
+})
+
+test('a final provider frame ending at a dangling predicate is not a complete user reply',()=>{
+  assert.equal(completeUserReply('本周先整理一份材料。目前两次经历都支持','给一个本周能开始的小动作。'),false)
+  assert.equal(completeUserReply('本周先整理一份材料。目前两次经历都支持这个具体目标。','给一个本周能开始的小动作。'),true)
 })

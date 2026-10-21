@@ -1,0 +1,10 @@
+{
+  "kind": "ACTUAL_OE_SYNTHETIC_OPEN_QUESTION_FAILURE",
+  "sourceResultSha256": "5e4679557f4878459662a03ca5b55833bbe22ee86fc04058dad1cfd0637f5099",
+  "user": "我是成年大学生，我想要更自由的生活，但明确不想创业。不要换词劝我创业，先问一个问题厘清我说的自由。",
+  "raw": {
+    "reply": "你提到想要更自由的生活，现在作为大学生，具体是哪种不自由让你最想改变——是时间被课表或安排占满、经济上必须依赖别人，还是别的什么？"
+  },
+  "rawSha256": "96525976d7ce14bfd89ce7949e4c1b93491560bc9020c6e3ddc9b5b26285d97a",
+  "actualDisplayedReply": "这件事里，什么具体情况最影响你的判断？"
+}

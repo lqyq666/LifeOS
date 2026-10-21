@@ -1,0 +1,6 @@
+prompts:
+  - '{{userText}}'
+providers:
+  - id: file://./providers/precomputed.mjs
+    label: precomputed
+tests: file://../../.local/promptfoo/tests-defect.yaml

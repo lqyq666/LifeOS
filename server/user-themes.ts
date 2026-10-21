@@ -98,7 +98,8 @@ const DECIDED_MARK = /(?:决定|确定|定了|一定要|铁了心|就选)/
 const endedMainPath=(quote:string):boolean=>/不再.{0,20}(?:作为|当作).{0,4}(?:主线|重点)|暂停(?:扩大)?接单/.test(quote)
 // A request for an unspecified next step remains useful context, not a pursuit.
 const immediateStep=(quote:string)=>/^(?:我)?(?:想|希望)(?:先)?(?:找|选|确定)(?:一件|一个|一条|一步)[^。！？]{0,50}(?:小事|小探索|下一步)$/.test(quote.trim())
-const explicitPriority=(quote:string)=>scanUserClauses(quote).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!assistantRequestClause(clause.text)&&(
+const uncertainPriority=/(?:不知道|不确定|是否|还没|尚未|说不清|没想好|犹豫|纠结)/
+const explicitPriority=(quote:string)=>scanUserClauses(quote).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!assistantRequestClause(clause.text)&&!uncertainPriority.test(clause.text)&&!HEDGING.test(clause.text)&&(
   /^(?:我(?:确认|决定|想)?(?:本阶段|当前|现在|目前|本周|这周)?(?:优先|更重视|先了解|先考虑|先探索)|(?:本阶段|当前|现在|目前|本周|这周)(?:我)?(?:优先|更重视|重点(?:是|在|放在)))/.test(clause.text)
   || /^(?:我(?:确认|决定|想)?(?:本阶段|当前|现在|目前|本周|这周)?|(?:本阶段|当前|现在|目前|本周|这周)(?:我)?)[^，。；！？]{1,16}(?:优先|为主|放第一)/.test(clause.text)
 ))

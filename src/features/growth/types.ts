@@ -16,7 +16,8 @@ export type GrowthItem = {
   limitation?: string; progressState?: 'unattempted' | 'attempted' | 'stuck' | 'completed' | 'unknown' | null;
   directionScopes?: string[]; structuredPlan?: Record<string, unknown> | null;
   recommendationStopped?: boolean;
+  inferenceBoundary?: {kind:'do_not_infer_label';label:string;active:boolean;sourceMessageId:string;instructionQuotes:string[]};
   feedbackEvidence?: {reportedAt:string;taskBinding:'unknown';outcomes:Record<'read'|'response'|'adoption'|'payment'|'effect',{status:string;quote:string|null}>};
-  taskBoundary?: {kind:'pause';scope:'current_matter';targetText:'备考'|'复习';sourceConversationId:string;sourceMessageId:string|null;matterBinding:'needs_same_matter_confirmation';expiresAt:string|null;quote:string};
+  taskBoundary?: {kind:'pause';scope:'current_matter';targetText:string;sourceConversationId:string;sourceMessageId:string|null;matterBinding:'needs_same_matter_confirmation';expiresAt:string|null;quote:string};
 }
 export type GrowthView = { memoryEnabled: boolean; items: GrowthItem[] }

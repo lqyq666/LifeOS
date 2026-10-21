@@ -16,6 +16,8 @@ export type ResolvedCandidateContent = { action: string; result: string; occurre
 // lane is the only path from a conversation to the star map.
 const COMPLETED_ACTION = /(?:做完|完成|交付|交了|交完|交上去|交过去|交到|交给|补交|补齐|补完|提交了|通过了|发了|发过|发出去|发过去|发到|发给|送到|写完了|写了|写过|赶完|弄完|搞定了|拿到了|参加过|参加了|办了|签了|录了|考了|考过|剪了|排了|整理了|整理过|整理好|准备好|办好|写好|做好|改好|弄好|搞定|送到|寄到|买好|订好|排好|上线了|发布了|发布过|上线|发布|上线|投了|投过|帮过|当过|带过|做过|做了|访谈了|调研了|采访了|拒绝了|拒绝了?|回绝了|申报了|答辩完|办完)/
 const NOT_YET = /打算|准备|计划|希望|想要|将要|下次|明天|后天|以后|考虑|如果|假设|还没|尚未|没来得及|没写完|没做完|没完成|没交/
+const DEFINED_ARTIFACT=/(?<!决)定了(?:[^。！？，,；;]{1,12}的)?[一二两三四五六七八九十百\d]+(?:条|项|个|套|份)[^。！？，,；;]{0,6}(?:规则|标准|流程|结构|格式|清单|问题)$/
+const OWNED_CONTACT_FORM=/^(?:我|本人)(?:已经|实际|今天|昨天|刚刚|之前)?(?:问了|问过|聊过|填过|填了)/
 // “交付范围” names an action but “想先确认” has not performed it.
 // Shared by the structural fallback and the actual candidate persistence gate.
 export const clauseExpressesWishToAct=(text:string):boolean=>/(?:想|要)(?:先|去|尝试|试试|交付|提交|上线|发布|确认|核对|了解)|^(?:先|请|帮我)(?:确认|核对|交付|提交|上线|发布|了解)|(?:只想|就想)(?:聊|说|倾诉|吐槽)/.test(text)
@@ -57,9 +59,25 @@ export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]):
 export function clauseReportsCompleted(text: string): boolean {
   if(assistantRequestClause(text)||conversationPreferenceClause(text)||refusalPreferenceClause(text))return false
   if(/(?:没(?:有)?|尚未|还未|未曾).{0,6}(?:开始|完成|做|复习|尝试|交付|发|提交)/.test(text))return false
+  // Instructions about classification are not autobiographical completion
+  // reports (for example, "不要把这个模板记为已经完成的行动").
+  if(/(?:不(?:要)?(?:把)?|不代表).{0,24}(?:记为|当作|视为|算作|表示).{0,16}(?:已(?:经)?完成|完成的行动|经历)/.test(text))return false
   if(/(?:记录|经历).{0,6}(?:保留|留着|不(?:用|要)?删)|(?:保留|留着).{0,6}(?:记录|经历)/.test(text))return false
-  const ownedContactOrForm=/^(?:我|本人)(?:已经|实际|今天|昨天|刚刚|之前)?(?:问了|问过|聊过|填过|填了)/.test(text)
-  return (COMPLETED_ACTION.test(text)||ownedContactOrForm||clauseReportsAttempted(text)) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
+  // “定了方向/明年去读研” commits to a pursuit. Only a concrete authored
+  // artifact makes the bare 定了 form an already performed action.
+  return (COMPLETED_ACTION.test(text)||DEFINED_ARTIFACT.test(text)||OWNED_CONTACT_FORM.test(text)||clauseReportsAttempted(text)) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
+}
+
+// Past aspect is required here: a goal may name “完成” without reporting it
+// happened. Both model persistence and deterministic goal capture use this gate.
+export function clauseReportsPastAction(text:string):boolean{
+  if(!clauseReportsCompleted(text)||clauseExpressesFuturePlan(text)||/(?:^(?:我(?:的)?|本人(?:的)?)?目标(?:是|为)|争取|想要)/.test(text))return false
+  if(clauseReportsAttempted(text))return true
+  const primary=[COMPLETED_ACTION.exec(text),DEFINED_ARTIFACT.exec(text),OWNED_CONTACT_FORM.exec(text)].filter((match):match is RegExpExecArray=>match!==null).sort((a,b)=>a.index-b.index)[0]
+  if(!primary)return false
+  const following=text.slice(primary.index+primary[0].length,primary.index+primary[0].length+1)
+  if(following==='的')return false
+  return /(?:了|过|完|好)$/.test(primary[0])||/^[了过]$/.test(following)||DEFINED_ARTIFACT.test(primary[0])
 }
 
 // An attempt is an actual contribution, not successful completion of its task.
@@ -83,7 +101,7 @@ export function deriveStructuralLinks(quote: string): { valueId: string; reason:
 // full sentence containing a detected completed-action clause. The quote stays
 // a server-owned verbatim span; action/result split conservatively by clause
 // shape and may legitimately stay empty.
-const RESULT_SHAPE = /说|反馈|评价|效果|结果|还不错|很好|不错|挺好|通过了|被采纳|被表扬|被批评|有问题|有欠缺|按时|晚了|迟了|提前|没回|没用|用了|用上了|采纳|认可|不满意|效果一般|扣分|没扣分|来问|追问|上线|催了|续了|回应了|看过|读过|没有回复|没有回应/
+const RESULT_SHAPE = /说|反馈|评价|效果|结果|还不错|很好|不错|挺好|通过了|被采纳|被表扬|被批评|有问题|有欠缺|按时|晚了|迟了|提前|没回|没用|用了|用上了|采纳|认可|不满意|效果一般|扣分|没扣分|来问|追问|上线|催了|续了|回应了|看过|读过|没有回复|没有回应|找到|查到|取到|打开|少.{0,8}(?:问|询问|提问)/
 export function selectStructuralCandidate(sourceText: string, catalogue: readonly ClauseHandle[], anchorIso: string): { quote: string; start: number; end: number; content: ResolvedCandidateContent } | null {
   const matched = catalogue.find(handle =>
     !handle.interrogative && !handle.conditional && !handle.quoted && !handle.code && !handle.attributedToOther
@@ -106,12 +124,14 @@ export function selectStructuralCandidate(sourceText: string, catalogue: readonl
   const quote = sourceText.slice(start, end)
   const action = inSentence.find(handle => !handle.interrogative&&!handle.conditional&&!handle.attributedToOther&&clauseReportsCompleted(unprotectedClauseText(handle)))
   const resultCandidates = inSentence.filter(handle => RESULT_SHAPE.test(unprotectedClauseText(handle)) && handle !== action)
-  const result = resultCandidates.at(-1)
+  const laterOutcome=resultCandidates.find(candidate=>/^(?:后来|结果|第二天|随后|最终)/.test(unprotectedClauseText(candidate)))
+  const resultStart=laterOutcome??resultCandidates.at(-1)
+  const result = resultStart?sourceText.slice(resultStart.start,resultCandidates.at(-1)!.end):''
   return {
     quote, start, end,
     content: {
       action: action?.text ?? '',
-      result: result?.text ?? '',
+      result,
       occurredAt: resolveOccurredDate(quote, anchorIso, 'Asia/Shanghai') ?? '',
     },
   }

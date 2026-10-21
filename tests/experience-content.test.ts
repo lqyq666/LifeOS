@@ -17,6 +17,8 @@ test('mixed quoted/code words and protected first-person siblings cannot manufac
 
 test('the saved campus wish to clarify delivery scope is not a completed experience',()=>{
  assert.equal(clauseReportsCompleted('先确认需求与交付范围'),false,'instruction fragment is not performed delivery')
+ assert.equal(clauseReportsCompleted('不要把这个模板记为已经完成的行动'),false,'classification instruction is not a completion report')
+ assert.equal(requiresExperienceCandidate(buildClauseCatalogue('我仍未开始查岗位。不要把这个模板记为已经完成的行动。')),false,'negated template state cannot enter the star map')
  const listening='还是上次那件请教的事，我先只想说说近况。'
  assert.equal(requiresExperienceCandidate(buildClauseCatalogue(listening)),false,'conversational preference does not become a back-reference result')
  assert.equal(clauseReportsCompleted('我先只想说说近况'),false)
@@ -43,6 +45,17 @@ test('the structural candidate keeps the whole comma chain with verbatim fields'
   assert.equal(candidate.content.action,'上周五我把社团招新的推文和海报整套都交了')
   assert.equal(candidate.content.result,'部长说整体效果还不错')
   assert.equal(candidate.content.occurredAt,'2026年10月2日（周五）')
+})
+
+test('reported lookup and reduced-question outcomes are retained as verbatim experience results',()=>{
+  const examples=[
+    {text:'最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次。',result:'后来同学能直接找到两份材料，少问了我一次'},
+    {text:'回来反馈：我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知，但目前只发生过一次。',result:'第二天大约20秒找到通知'},
+  ]
+  for(const example of examples){
+    const candidate=selectStructuralCandidate(example.text,buildClauseCatalogue(example.text),ANCHOR)!
+    assert.equal(candidate.content.result,example.result,example.text)
+  }
 })
 
 test('model-named handles outside the selected span drop the field, never the candidate',()=>{

@@ -48,6 +48,8 @@ export const config = {
   modelPricingJson:process.env.LIFEOS_MODEL_PRICING_JSON??env.LIFEOS_MODEL_PRICING_JSON??'{}',
   providerBudgetEnabled: env.LIFEOS_PROVIDER_BUDGET_ENABLED==='true'||(production&&env.LIFEOS_PROVIDER_BUDGET_ENABLED!=='false'),
   providerBudgetId: env.LIFEOS_PROVIDER_BUDGET_ID??'production',
+  syntheticModelDiagnosticsEnabled: !production&&['127.0.0.1','localhost','::1'].includes(env.LIFEOS_HOST??'127.0.0.1')&&env.LIFEOS_SYNTHETIC_MODEL_DIAGNOSTICS==='true',
+  syntheticDiagnosticUserIds: (env.LIFEOS_SYNTHETIC_DIAGNOSTIC_USERS??'').split(',').filter(Boolean),
   entitlementsEnabled: env.LIFEOS_ENTITLEMENTS_ENABLED==='true'||(production&&env.LIFEOS_ENTITLEMENTS_ENABLED!=='false'),
   signupEnabled: env.LIFEOS_SIGNUP_ENABLED === 'true' || (!production&&env.LIFEOS_SIGNUP_ENABLED!=='false'),
   mail: {
@@ -79,6 +81,7 @@ export function validateConfig(){
   if(!config.databaseUrl||config.authSecret.length<32||/^(.{1,8})\1+$/.test(config.authSecret))throw new Error('Database URL and a strong unique auth secret are required')
   for(const count of [config.messagesPerMinute,config.messagesPerDay])if(!Number.isInteger(count)||count<1||count>10000)throw new Error('Invalid message request limit')
   if(!/^[a-zA-Z0-9_-]{1,80}$/.test(config.providerBudgetId))throw new Error('Invalid provider budget ID')
+  if(config.syntheticDiagnosticUserIds.some(id=>!/^[A-Za-z0-9]{32}$/.test(id)))throw new Error('Invalid synthetic diagnostics user ID')
   if(config.cozeSyntheticUserId&&!/^[A-Za-z0-9]{32}$/.test(config.cozeSyntheticUserId))throw new Error('LIFEOS_COZE_SYNTHETIC_USER_ID must be a 32-character Better Auth user ID')
   if(config.production&&!config.providerBudgetEnabled)throw new Error('Production requires provider spend reservations')
   if(config.production&&!config.entitlementsEnabled)throw new Error('Production requires account entitlements')

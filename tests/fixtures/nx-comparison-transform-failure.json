@@ -1,0 +1,66 @@
+{
+  "kind": "ACTUAL_NX_TWO_OPTION_COMPARISON_REJECTED_AFTER_PROCESSING",
+  "sourceResultSha256": "fec9bd5ee908c53f816a3060591e825e0c3da8bdd13d04c94e46a392736e40f1",
+  "turns": [
+    {
+      "user": "我是成年大学生，我想要更自由的生活，但明确不想创业。不要换词劝我创业，先问一个问题厘清我说的自由。",
+      "requestId": "293d87a6-b9ed-404b-9a76-ad042cbb03a8",
+      "raw": {
+        "reply": "你现在的日常里，最让你觉得‘不自由’的具体限制是什么——是时间被课表或安排占满、地点必须固定在某处、还是得按别人的要求做事？"
+      },
+      "rawSha256": "c5a93e6b8d89f974cab844e7d718e561ff83ccaaa95f589f9177fc2e4a6fa318",
+      "failure": null
+    },
+    {
+      "user": "我主要在意能自己安排一天中专注工作的时间，不在意当老板，也不想承担找客户和收款。",
+      "requestId": "d6093fdb-7b6b-4971-bbe6-d241ca48f05d",
+      "raw": {
+        "lead": "你希望专注做的工作内容是什么？",
+        "reply": "你希望专注做的工作内容是什么？你明确了想自己安排专注时间、不找客户不收款，这排除了创业和独立接单。但不同工作（写代码、设计、研究等）对应的岗位形态差异很大，知道具体内容才能判断哪种雇佣或合作方式能给你这种时间安排。",
+        "growthUpdates": [
+          {
+            "target": {
+              "operation": "create"
+            },
+            "assertion": "user_reported",
+            "kind": "preference",
+            "source": {
+              "clauseId": "c0"
+            }
+          },
+          {
+            "target": {
+              "operation": "create"
+            },
+            "assertion": "user_reported",
+            "kind": "preference",
+            "source": {
+              "clauseId": "c1"
+            }
+          },
+          {
+            "target": {
+              "operation": "create"
+            },
+            "assertion": "user_reported",
+            "kind": "preference",
+            "source": {
+              "clauseId": "c2"
+            }
+          }
+        ]
+      },
+      "rawSha256": "c3d91dfcc52df7c4deb8c1d52753639d64e57347f6987029bad76c4b3102a97f",
+      "failure": null
+    },
+    {
+      "user": "接着自由这件事。我还没有客户，也没有自由职业经历，每周最多两小时。请比较一个更低成本的探索方式，不要推出我适合自由职业。",
+      "requestId": "30bffe44-e466-4929-bb27-5bcab46db78b",
+      "raw": {
+        "reply": "方式一：用每周两小时做一份可交付的小练习（如帮同学整理一次笔记、写一段文案），不找客户、不收钱。依据是你报告没有自由职业经历且不想承担找客户和收款；投入上限为每周两小时，局限是只测你能否在自定时间完成一件有明确产出的事，不证明适合自由职业。\n\n方式二：用每周两小时记录当前一周里哪些时段你能自主安排专注工作、哪些不能，连续记两周。依据是你在意能自己安排一天中专注工作的时间；投入是每天一两分钟记录，局限是只呈现你现有日程的弹性分布，不改变实际自由度，也不代表某种职业路径可行。\n\n以上只是本轮有限示例，不代表只有这两种，也不替你选择。"
+      },
+      "rawSha256": "165ea20d483c2ec2e70a4d80496ea2142e8be320282fd56c7d470e8d618d1712",
+      "failure": "REPLY_COMPARISON_MISSING"
+    }
+  ]
+}

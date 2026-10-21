@@ -1,5 +1,5 @@
 import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
-import {growthContext,stageGrowthUpdates} from '../../server/growth.ts'
+import {growthContext,stageGrowthUpdates,applyGrowthAction} from '../../server/growth.ts'
 import {mainCompanionPolicy} from '../../server/companion-policy.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -17,7 +17,8 @@ import { configureProviderPayload } from '../../server/model-payload.ts'
 import { importKnowledge, type KnowledgeCard } from '../../server/campus-knowledge.ts'
 import { localEmbedding } from '../../server/local-embedding.ts'
 import { Value } from 'typebox/value'
-import {readFileSync} from 'node:fs'
+import {readFileSync,unlinkSync,existsSync} from 'node:fs'
+import {fileURLToPath} from 'node:url'
 import {boundedOrdinaryReply,boundedPlanningReply,boundedRecallReply} from '../../server/bounded-reply.ts'
 import {knowledgeIntent} from '../../server/evergreen-guide.ts'
 
@@ -51,7 +52,7 @@ test('retained actual knowledge probe candidate is unrepresentable in the ordina
   const output=retained.checks.freeOutput.output
   assert.ok(output.experienceCandidate,'actual first failure retained')
   const contract=deriveTurnContract({text:'请简短解释递归是什么，只回答知识，不需要个人记录或计划。',knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
-  assert.equal(contract.mode,'reply_only')
+  assert.equal(contract.mode,'ordinary')
   assert.equal(Value.Check(contract.schema as any,output),false,'public explanation must not create a personal experience')
   assert.equal(Value.Check(contract.schema as any,{reply:output.reply}),true)
 })
@@ -59,54 +60,42 @@ test('retained actual knowledge probe candidate is unrepresentable in the ordina
 test('material subset retains event identity and current-source rules from the event lane',()=>{
   const contract=deriveTurnContract({text:'现在我只想问他还需要哪一部分，请直接起草一段可以发送的消息。',knowledgeCount:0,currentEventExists:true,planIntent:false,material:true})
   const prompt=turnSystemPrompt('default','qwen3.8-flash',contract)
-  assert.equal(contract.mode,'material')
-  assert.match(prompt,/event\.target用continue/)
-  assert.match(prompt,/授权eventId\/revision/)
-  assert.match(prompt,/source\.messageId和quote取当轮原话/)
-  assert.match(prompt,/首次报告的新事情才create/)
+  assert.equal(contract.mode,'ordinary')
+  assert.match(prompt,/同一事情补充、复盘或材料用continue及授权eventId\/revision/)
+  assert.match(prompt,/新事情create并用本轮原话source/)
+  assert.match(prompt,/只用真实node\/action身份/)
 })
 
-test('turn contract modes derive deterministically from turn facts',()=>{
+test('ordinary turn contract keeps composable lanes and explicit controls narrow them',()=>{
   const derive=(text:string,extra:Partial<Parameters<typeof deriveTurnContract>[0]>={})=>deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false,...extra})
-  // A. reply_only shapes
-  assert.equal(derive('你记得我之前说过什么吗？').mode,'reply_only','memory meta query')
-  assert.equal(derive('好的，先这样。').mode,'reply_only','acknowledgement')
-  assert.equal(derive('那我保研的把握，你现在怎么看？').mode,'reply_only','all-interrogative follow-up')
-  assert.equal(derive('我今天只想说说心情。').mode,'reply_only','listening-only opener')
-  // Plan intent wins over an interrogative shape.
-  assert.equal(derive('这周只剩两小时，帮我安排一下。',{planIntent:true}).mode,'planning')
-  // B. default growth lane
+  for(const text of ['你记得我之前说过什么吗？','好的，先这样。','那我保研的把握，你现在怎么看？','我今天只想说说心情。'])assert.equal(derive(text).mode,'ordinary',text)
   const growth=derive('我是大三学生，专业是市场营销。')
-  assert.equal(growth.mode,'reply_growth');assert.equal(growth.capabilities.growth,true);assert.equal(growth.capabilities.candidate,false,'identity-only facts do not describe a performed experience')
-  assert.equal(growth.capabilities.plan,false);assert.equal(growth.capabilities.event,false)
-  // C. planning
+  assert.equal(growth.mode,'ordinary');assert.equal(growth.capabilities.growth,true);assert.equal(growth.capabilities.candidate,false)
+  assert.equal(growth.capabilities.plan,false);assert.equal(growth.capabilities.event,true)
   const plan=derive('我每周只有三小时，帮我安排一下这周。',{planIntent:true})
-  assert.equal(plan.mode,'planning');assert.equal(plan.capabilities.plan,true);assert.equal(plan.capabilities.candidate,false)
-  // D. knowledge
+  assert.equal(plan.mode,'ordinary');assert.equal(plan.capabilities.plan,true);assert.equal(plan.capabilities.candidate,false)
   const knowledge=derive('我想试试校园二手书项目，帮我看看怎么开始。',{knowledgeCount:2})
-  assert.equal(knowledge.mode,'knowledge');assert.equal(knowledge.capabilities.citations,true)
+  assert.equal(knowledge.mode,'ordinary');assert.equal(knowledge.capabilities.citations,true)
   assert.equal(derive('帮我看看怎么开始。',{knowledgeCount:0}).capabilities.citations,false,'no knowledge → no citations lane')
-  // E. material
   const material=derive('请直接帮我写一句给同学的确认消息。',{material:true})
-  assert.equal(material.mode,'material');assert.equal(material.capabilities.material,true);assert.equal(material.capabilities.event,true)
-  // event/review lane
-  const event=derive('上周我给社团交了海报，他们没用上。')
-  assert.equal(event.capabilities.event,true);assert.equal(event.capabilities.material,false)
-  const continued=derive('当时他具体希望整理什么内容？',{currentEventExists:true})
-  assert.equal(continued.capabilities.event,false,'a read-only event question cannot mutate the existing event')
+  assert.equal(material.mode,'ordinary');assert.equal(material.capabilities.material,true);assert.equal(material.capabilities.event,true)
+  const readOnly=derive('当时他具体希望整理什么内容？',{currentEventExists:true,readOnly:true})
+  assert.deepEqual(readOnly.capabilities,{growth:false,candidate:false,plan:false,citations:false,event:false,material:false})
+  const supportOnly=derive('我今天只想说说心情。',{knowledgeCount:2,currentEventExists:true,planIntent:true,material:true})
+  assert.equal(supportOnly.capabilities.event,false);assert.equal(supportOnly.capabilities.material,false);assert.equal(supportOnly.capabilities.citations,false)
 })
 
 test('slimmed schemas make closed lanes unrepresentable while kept lanes stay byte-identical',()=>{
   const lanes=(schema:Record<string,unknown>)=>Object.keys((schema as {properties:Record<string,unknown>}).properties).sort()
-  // reply_only: only reply exists.
+  // A read-only runtime schema keeps the structured preview and final reply.
   const replyOnly=slimActionCoachSchema({growth:false,candidate:false,plan:false,citations:false,event:false,material:false})
-  assert.deepEqual(lanes(replyOnly),['reply'])
+  assert.deepEqual(lanes(replyOnly),['lead','reply'])
   assert.deepEqual((replyOnly as {required:string[]}).required,['reply'])
   // reply_growth default: reply + growth + candidate + event-without-action.
   const growth=slimActionCoachSchema({growth:true,candidate:true,plan:false,citations:false,event:false,material:false})
-  assert.deepEqual(lanes(growth),['experienceCandidate','growthUpdates','reply'],'no event lane without an event signal')
+  assert.deepEqual(lanes(growth),['experienceCandidate','growthUpdates','lead','reply'],'no event lane without an event signal')
   const eventNoMaterial=slimActionCoachSchema({growth:true,candidate:true,plan:false,citations:false,event:true,material:false})
-  assert.deepEqual(lanes(eventNoMaterial),['event','experienceCandidate','growthUpdates','reply'])
+  assert.deepEqual(lanes(eventNoMaterial),['event','experienceCandidate','growthUpdates','lead','reply'])
   assert.equal((eventNoMaterial.properties as Record<string,{properties:Record<string,unknown>}>).event.properties.action,undefined,'material branch removed')
   // planning adds weeklyPlan; knowledge adds citations; material restores action.
   const plan=slimActionCoachSchema({growth:true,candidate:false,plan:true,citations:false,event:false,material:false})
@@ -118,19 +107,19 @@ test('slimmed schemas make closed lanes unrepresentable while kept lanes stay by
   // background is never offered under the native protocol.
   for(const caps of [{growth:true,candidate:true,plan:true,citations:true,event:true,material:true},{growth:false,candidate:false,plan:false,citations:false,event:false,material:false}])
     assert.equal(lanes(slimActionCoachSchema(caps)).includes('background'),false)
-  // Every kept lane is byte-identical to the full contract's lane.
+  // Top-level kept lanes remain identical except event.action drafts, where
+  // server-rendered evidence/readiness fields are unavailable to model output.
   const full=(actionCoachTurnSchema as unknown as {properties:Record<string,unknown>}).properties
-  for(const lane of lanes(material))assert.deepEqual((material.properties as Record<string,unknown>)[lane],full[lane],lane+' differs from the full contract')
-  // Slimming shrinks materially vs the full schema.
-  assert.ok(JSON.stringify(replyOnly).length<JSON.stringify(actionCoachTurnSchema).length/10,'reply_only schema is an order smaller')
+  for(const lane of lanes(material).filter(lane=>lane!=='event'))assert.deepEqual((material.properties as Record<string,unknown>)[lane],full[lane],lane+' differs from the full contract')
+  assert.ok(JSON.stringify(replyOnly).length<JSON.stringify(actionCoachTurnSchema).length/5,'read-only schema is materially smaller')
 })
 test('negative personal statements keep the fact lane without inventing a completed event',()=>{
  const derive=(text:string)=>deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
  for(const text of ['先聊课程，课件链接无法打开，我还没开始复习，怎么继续？','我没有作品，怎么继续？','我暂时不想接单，怎么办？']){
-  const contract=derive(text);assert.equal(contract.capabilities.growth,true,text);assert.equal(contract.capabilities.event,false,text)
+  const contract=derive(text);assert.equal(contract.capabilities.growth,true,text);assert.equal(contract.capabilities.event,true,text)
  }
  for(const text of ['如果我还没开始复习，该怎么办？','同学说他还没开始复习，这是什么意思？','“我还没开始复习”这句话是什么意思？','我还没开始复习吗？']){
-   assert.equal(derive(text).mode,'reply_only',text);assert.deepEqual(negativePersonalFactClauses(text),[],text)
+   assert.equal(derive(text).mode,'ordinary',text);assert.deepEqual(negativePersonalFactClauses(text),[],text)
  }
 })
 
@@ -140,7 +129,7 @@ test('slimmed payloads keep identity bindings and skip absent lanes',()=>{
   const growth=slimActionCoachSchema({growth:true,candidate:true,plan:false,citations:false,event:true,material:false})
   const payload=configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',growth,undefined,8192,current,[],[item],0,false,undefined,false,['c0','c1']) as any
   const schema=payload.response_format.json_schema.schema
-  assert.equal(schema.properties.event.properties.action,undefined)
+  assert.ok(schema.properties.event.anyOf.every((branch:any)=>branch.properties.action===undefined))
   const updates=schema.properties.growthUpdates
   assert.ok(updates.items.anyOf.some((branch:any)=>branch.properties?.target?.anyOf?.some((entry:any)=>entry.properties?.operation?.const==='correct'&&entry.properties?.itemId?.enum?.[0]===item.id)),'correct branch still enum-bound to authorized items')
   assert.ok(updates.items.anyOf.every((branch:any)=>branch.properties?.source?.properties?.clauseId?.enum?.length===2),'clause handles stay enum-bound')
@@ -154,20 +143,18 @@ test('slimmed payloads keep identity bindings and skip absent lanes',()=>{
   assert.equal(parsed.reply,'先说说你的情况。')
 })
 
-test('contract prompts are smaller per mode and the probe prompt stays byte-identical',()=>{
+test('contract prompts omit closed lanes while the probe prompt stays byte-identical',()=>{
   const full=turnSystemPrompt('default','qwen3.8-flash')
-  const contract=deriveTurnContract({text:'你记得我之前说过什么吗？',knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
+  const contract=deriveTurnContract({text:'你记得我之前说过什么吗？',knowledgeCount:0,currentEventExists:false,planIntent:false,material:false,readOnly:true})
   const slim=turnSystemPrompt('default','qwen3.8-flash',contract)
-  assert.ok(slim.length<full.length*0.6,'reply_only prompt is materially smaller')
-  for(const section of ['GROWTH','时间预算分类'] as const){
-    assert.equal(slim.includes('时间预算分类'),false,'growth rules absent in reply_only')
-  }
+  assert.notEqual(slim,full,'runtime prompt remains separate from the frozen capability probe')
+  assert.equal(slim.includes('时间：每周N小时'),false,'growth rules absent in read-only turns')
   const planning=turnSystemPrompt('default','qwen3.8-flash',deriveTurnContract({text:'帮我安排一下这周。',knowledgeCount:0,currentEventExists:false,planIntent:true,material:false}))
   assert.ok(planning.includes('weeklyPlan'),'planning rules present in planning mode')
-  assert.ok(!planning.includes('复盘时先定位'),'review rules absent in planning mode')
+  assert.ok(planning.includes('event承接本人具体事项'),'ordinary planning can also carry event feedback')
 })
 
-test('engine applies the contract end-to-end: reply_only and planning turns validate and persist',async t=>{
+test('engine applies the ordinary contract end-to-end and persists narrowed turn effects',async t=>{
   await localEmbedding.start()
   const outputs:unknown[]=[],requests:any[]=[]
   const engine=createTurnEngine({capabilityVerified:()=>true})
@@ -181,8 +168,19 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       if(output===undefined){res.writeHead(500);res.end();return}
       res.writeHead(200,{'Content-Type':'text/event-stream'})
       const base={id:'contract-'+requests.length,object:'chat.completion.chunk',created:1,model:model.id}
-      res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(output)},finish_reason:null}]})+'\n\n')
-      res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:200,completion_tokens:80,total_tokens:280,prompt_tokens_details:{cached_tokens:20}}})+'\n\ndata: [DONE]\n\n')
+      if('__syntheticProviderError'in output){
+        res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:'{"reply":"partial synthetic output'},finish_reason:null}]})+'\n\n')
+        res.end('data: '+JSON.stringify({error:{code:'InvalidParameter',message:String(output.__syntheticProviderError)}})+'\n\n')
+        return
+      }
+      if('__syntheticPartial'in output){
+        res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:String(output.__syntheticPartial)},finish_reason:null}]})+'\n\n')
+        setTimeout(()=>res.destroy(),25)
+        return
+      }
+      const {__syntheticFinishReason='stop',...businessOutput}=output as Record<string,unknown>
+      res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(businessOutput)},finish_reason:null}]})+'\n\n')
+      res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:__syntheticFinishReason}],usage:{prompt_tokens:200,completion_tokens:80,total_tokens:280,prompt_tokens_details:{cached_tokens:20}}})+'\n\ndata: [DONE]\n\n')
     })
   })
   await new Promise<void>(resolve=>fake.listen(0,'127.0.0.1',resolve))
@@ -192,13 +190,512 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
   const user='turn-contract-'+randomUUID(),chat=randomUUID()
   await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
   await store.createConversation(user,{id:chat,title:'SYNTHETIC turn contract'})
-  const prepare=async(text:string,conversationId=chat)=>{
-    await pool.query("UPDATE runs SET status='failed',error_code='SYNTHETIC_TEST_CLEANUP',finished_at=now() WHERE user_id=$1 AND status='running'",[user])
-    const run=(await store.startRun(user,conversationId,randomUUID(),text)).run
+  const prepare=async(text:string,conversationId=chat,owner=user)=>{
+    await pool.query("UPDATE runs SET status='failed',error_code='SYNTHETIC_TEST_CLEANUP',finished_at=now() WHERE user_id=$1 AND status='running'",[owner])
+    const run=(await store.startRun(owner,conversationId,randomUUID(),text)).run
     const staged:store.Staged={candidates:[],audit:[]}
     return {run,staged,input:{run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:(_event:any)=>{}}}
   }
   try{
+    await t.test('local rejected-output diagnostics are opt-in, synthetic-account-only and secret-redacted',async()=>{
+      const enabled=config.syntheticModelDiagnosticsEnabled
+      const diagnosticUsers=(config as any).syntheticDiagnosticUserIds
+      try{
+        config.syntheticModelDiagnosticsEnabled=true
+        ;(config as any).syntheticDiagnosticUserIds=[]
+        const ordinary=await prepare('请简短解释递归。')
+        outputs.push({reply:'这是格式失败测试。',unexpected:'sk-synthetic-credential-placeholder'})
+        await assert.rejects(engine(ordinary.input),{code:'COACH_OUTPUT_INVALID'})
+        assert.ok(!ordinary.staged.audit.some((row:any)=>row.phase==='rejected_synthetic_business_output_captured'))
+        await store.terminateRun(user,ordinary.run.request_id,'failed','COACH_OUTPUT_INVALID')
+        await pool.query('UPDATE "user" SET name=$2,email=$3 WHERE id=$1',[user,'SYNTHETIC GRILLING diagnostics',`six-diagnostics-${randomUUID()}@example.invalid`])
+        const notAuthorized=await prepare('请简短解释递归。')
+        outputs.push({reply:'这是格式失败测试。',unexpected:'sk-synthetic-credential-placeholder'})
+        await assert.rejects(engine(notAuthorized.input),{code:'COACH_OUTPUT_INVALID'})
+        const unauthorizedCapture=notAuthorized.staged.audit.some((row:any)=>row.phase==='rejected_synthetic_business_output_captured')
+        const unauthorizedFile=fileURLToPath(new URL(`../../.local/synthetic-model-diagnostics/${notAuthorized.run.request_id}.txt`,import.meta.url))
+        assert.equal(existsSync(unauthorizedFile),false,'markers alone must not create a diagnostic file')
+        assert.equal(unauthorizedCapture,false,'markers alone are not permission to capture private output')
+        await store.terminateRun(user,notAuthorized.run.request_id,'failed','COACH_OUTPUT_INVALID')
+        ;(config as any).syntheticDiagnosticUserIds=[user]
+        const synthetic=await prepare('请简短解释递归。')
+        outputs.push({reply:'这是格式失败测试。',unexpected:'sk-synthetic-credential-placeholder'})
+        await assert.rejects(engine(synthetic.input),{code:'COACH_OUTPUT_INVALID'})
+        const capture=synthetic.staged.audit.find((row:any)=>row.phase==='rejected_synthetic_business_output_captured') as any
+        assert.ok(capture)
+        const expected=fileURLToPath(new URL(`../../.local/synthetic-model-diagnostics/${synthetic.run.request_id}.txt`,import.meta.url))
+        assert.equal(capture.file,expected)
+        const body=readFileSync(expected,'utf8')
+        assert.match(body,/<REDACTED>/)
+        assert.doesNotMatch(body,/sk-synthetic/)
+        unlinkSync(expected)
+        await store.terminateRun(user,synthetic.run.request_id,'failed','COACH_OUTPUT_INVALID')
+        const accepted=await prepare('请简短解释递归。')
+        outputs.push({reply:'递归就是让同一个过程处理更小的同类问题，并在边界条件停止。'})
+        await engine(accepted.input)
+        const acceptedCapture=accepted.staged.audit.find((row:any)=>row.phase==='synthetic_business_output_captured') as any
+        assert.ok(acceptedCapture,'the same explicit synthetic scope retains pre-repair business text for latency diagnosis')
+        const acceptedFile=fileURLToPath(new URL(`../../.local/synthetic-model-diagnostics/${accepted.run.request_id}.txt`,import.meta.url))
+        assert.equal(acceptedCapture.file,acceptedFile)
+        assert.equal(JSON.parse(readFileSync(acceptedFile,'utf8')).reply,'递归就是让同一个过程处理更小的同类问题，并在边界条件停止。')
+        unlinkSync(acceptedFile)
+        await store.terminateRun(user,accepted.run.request_id,'failed','SYNTHETIC_DIAGNOSTIC_COMPLETE')
+        const interrupted=await prepare('请简短解释递归。')
+        const requestCount=requests.length
+        const partialText='{"reply":"尚未完成 sk-synthetic-credential-placeholder'
+        outputs.push({__syntheticPartial:partialText})
+        await assert.rejects(engine(interrupted.input),{code:'MODEL_REQUEST_FAILED'})
+        assert.equal(requests.length-requestCount,1,'stream interruption must not trigger a replacement generation')
+        const failureAudit=interrupted.staged.audit.find((row:any)=>row.phase==='model_call_failed') as any
+        assert.equal(failureAudit?.failureCategory,'NETWORK','the retained audit must distinguish a stream transport failure from schema or semantic rejection')
+        const failureUsage=(interrupted.staged.modelUsage as any).calls[0]
+        assert.equal(failureUsage.failureCategory,'NETWORK','durable usage must retain the same bounded category')
+        for(const retained of [failureAudit,failureUsage]){
+          assert.equal('providerErrorMessage' in retained,false,'provider text must not enter durable diagnostics')
+          assert.equal(JSON.stringify(retained).includes(partialText),false)
+          assert.doesNotMatch(JSON.stringify(retained),/尚未完成|sk-synthetic-credential-placeholder|synthetic-turn-contract-key|terminated|premature(?:ly)? closed|socket hang up/i)
+        }
+        const partialCapture=interrupted.staged.audit.find((row:any)=>row.phase==='partial_synthetic_business_output_captured') as any
+        assert.ok(partialCapture?.partial)
+        const partialFile=fileURLToPath(new URL(`../../.local/synthetic-model-diagnostics/${interrupted.run.request_id}.txt`,import.meta.url))
+        assert.equal(partialCapture.file,partialFile)
+        assert.match(readFileSync(partialFile,'utf8'),/<REDACTED>/)
+        assert.doesNotMatch(readFileSync(partialFile,'utf8'),/sk-synthetic/)
+        unlinkSync(partialFile)
+        assert.equal(interrupted.staged.coach,undefined)
+        await store.terminateRun(user,interrupted.run.request_id,'failed','MODEL_REQUEST_FAILED')
+      }finally{
+        config.syntheticModelDiagnosticsEnabled=enabled
+        ;(config as any).syntheticDiagnosticUserIds=diagnosticUsers
+        await pool.query('UPDATE "user" SET name=$1,email=$2 WHERE id=$1',[user,user+'@example.invalid'])
+      }
+    })
+    await t.test('saved provider JSON generation abort fails once with bounded durable diagnostics',async()=>{
+      const saved=JSON.parse(readFileSync(new URL('../fixtures/bailian-json-generation-abort.json',import.meta.url),'utf8'))
+      const turn=await prepare('请简短解释递归。'),before=requests.length
+      outputs.push({__syntheticProviderError:saved.errorMessage})
+      await assert.rejects(engine(turn.input),{code:'MODEL_REQUEST_FAILED'})
+      assert.equal(requests.length-before,1)
+      for(const retained of [(turn.staged.modelUsage as any).calls[0],turn.staged.audit.find((row:any)=>row.phase==='model_call_failed') as any]){
+        assert.equal(retained.failureCategory,'SCHEMA_OR_FORMAT')
+        assert.equal(JSON.stringify(retained).includes(saved.errorMessage),false)
+        assert.doesNotMatch(JSON.stringify(retained),/partial synthetic output|synthetic-turn-contract-key/)
+      }
+      const diagnosticFile=fileURLToPath(new URL(`../../.local/synthetic-model-diagnostics/${turn.run.request_id}.txt`,import.meta.url))
+      assert.equal(existsSync(diagnosticFile),false,'provider abort must not persist a partial payload outside explicit synthetic diagnostics')
+      assert.equal(turn.staged.coach,undefined)
+      await store.terminateRun(user,turn.run.request_id,'failed','MODEL_REQUEST_FAILED')
+    })
+    await t.test('provider output truncation retains its known stop category without a replacement generation',async()=>{
+      const turn=await prepare('请简短解释递归。'),before=requests.length
+      outputs.push({reply:'递归处理更小的同类问题。',__syntheticFinishReason:'length'})
+      await assert.rejects(engine(turn.input),{code:'MODEL_OUTPUT_TRUNCATED'})
+      assert.equal(requests.length-before,1)
+      assert.equal((turn.staged.modelUsage as any).calls[0].failureCategory,'PROVIDER_STOP_REASON')
+      assert.equal((turn.staged.audit.find((row:any)=>row.phase==='model_call_failed') as any).failureCategory,'PROVIDER_STOP_REASON')
+      assert.equal(turn.staged.coach,undefined)
+      await store.terminateRun(user,turn.run.request_id,'failed','MODEL_OUTPUT_TRUNCATED')
+    })
+    await t.test('an explicit comparison cannot commit a question-only replacement for requested options',async()=>{
+      const text='请比较两个低成本的自我观察办法，只比较，不安排任务。'
+      const turn=await prepare(text)
+      const before=requests.length
+      outputs.push({reply:'你想探索什么具体方向？'})
+      await assert.rejects(engine(turn.input),{code:'REPLY_COMPARISON_MISSING'})
+      assert.equal(requests.length-before,1)
+      const payload=requests.at(-1)
+      assert.equal(payload.response_format.json_schema.schema.properties.reply.allOf.length,2)
+      assert.equal(payload.response_format.json_schema.schema.properties.lead,undefined)
+      assert.match(payload.messages.find((message:any)=>message.role==='system').content,/reply第一个字符直接从“方式一：”开始，不写前言，不给标签加Markdown粗体/)
+      const prompt=JSON.parse(payload.messages.find((message:any)=>message.role==='user').content)
+      const authorized=prompt.authorizedContext??prompt
+      assert.equal(authorized.currentTask.responseScope.comparisonRequested,true)
+      assert.equal(turn.staged.coach,undefined)
+      const valid=await prepare(text)
+      const comparison='方式一：若有现成学习记录，回看其中已做过的事情，不补猜能力。方式二：若之后愿意观察，只选一次已有日程中的活动，不增加安排。前者无需新行动，后者仅提供局部线索，均不证明职业适合。'
+      outputs.push({reply:comparison})
+      const result=await engine(valid.input)
+      assert.equal(result.text,comparison)
+      assert.equal(valid.staged.coach,undefined)
+    })
+    await t.test('requested understanding does not commit a repeated question followed by status acknowledgements',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC understanding delivery'})
+      const text='我现在更在意专注时段。依据这条反馈更新自由的理解；现在不继续行动。'
+      const turn=await prepare(text,conversation),before=requests.length
+      outputs.push({reply:'地点自由但每天两次会，这和你在意的自主安排专注时间冲突吗？目前没有对照，创业不重开，现在不继续行动。'})
+      await assert.rejects(engine(turn.input),{code:'REPLY_SUMMARY_MISSING'})
+      assert.equal(requests.length-before,1,'no replacement generation')
+      assert.equal(turn.staged.coach,undefined)
+      const schema=requests.at(-1).response_format.json_schema.schema
+      assert.equal(schema.properties.lead,undefined,'judgment updates generate their integrated reply without a duplicate lead')
+      assert.ok(!schema.required.includes('lead'))
+      assert.equal(schema.properties.reply.maxLength,100)
+      assert.equal(schema.properties.reply.pattern,'^[^？?]*$')
+      assert.equal(requests.at(-1).messages.find((message:any)=>message.role==='system').content.includes('本轮交付阶段理解：直接给有依据的暂定理解'),true,'the actual runtime instruction must match the no-question summary schema')
+      assert.match(requests.at(-1).messages.find((message:any)=>message.role==='system').content,/reply任何位置都不能出现问号或疑问句；把未知写成“仍未知的是…”陈述句/,'the summary wire must override the generic exploration-question default with an executable declarative form')
+      assert.match(requests.at(-1).messages.find((message:any)=>message.role==='system').content,/结论只限于实际查看或经历的这些对象，不能外推到整座城市、整类机会或整条路径/)
+      assert.match(requests.at(-1).messages.find((message:any)=>message.role==='system').content,/本人明确尚不能区分两个因素时，暂定理解不得先归因于其中一个；本轮未请求行动，不安排区分动作/)
+      assert.match(requests.at(-1).messages.find((message:any)=>message.role==='system').content,/任一已授权来源报告过的试用、收到、阅读、回复、采用或效果，只对该来源明确指向的同一人物、同一事项保留/)
+      assert.ok(schema.properties.growthUpdates,'summary presentation does not close real fact updates')
+      await store.terminateRun(user,turn.run.request_id,'failed','REPLY_SUMMARY_MISSING')
+    })
+    await t.test('a source-bound result survives both summary repair passes without legacy downgrade',async()=>{
+      const text='接着整理资料的探索。最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次。请根据新信息更新判断，不要重复问已经回答的内容。'
+      const reply='最近一次我先定了三条分类规则。后来同学能直接找到两份材料，少问了我一次。这仍不能证明稳定效果。仍未知的是这三条规则的具体内容、同学是否实际阅读了材料、以及少问一次是否由规则直接导致。'
+      const turn=await prepare(text)
+      outputs.push({lead:'最近一次我先定了三条分类规则。',reply})
+      const result=await engine(turn.input)
+      assert.equal(result.text,reply,'the reported result must remain unchanged through both summary repair passes')
+      assert.ok(!turn.staged.serverGoals?.some(goal=>goal.quote==='最近一次我先定了三条分类规则'),'deterministic capture cannot turn a past action into a goal')
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.ok(!(await growthContext(user,chat)).some(item=>item.kind==='goal'&&item.text==='最近一次我先定了三条分类规则'),'the committed memory keeps the event out of active goals')
+    })
+    await t.test('the actual final C6 causal assertion is bounded by the existing shared repair with no second generation',async()=>{
+      const turn=await prepare('接着整理资料的探索。最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次。请根据新信息更新判断，不要重复问已经回答的内容。'),before=requests.length
+      const lead='这次你定三条分类规则后，同学直接找到两份材料并少问一次，说明提前给结构能减少沟通往返。'
+      outputs.push({lead,reply:lead+'这些只记录本次经历，不推为稳定方法。'})
+      const result=await engine(turn.input)
+      assert.doesNotMatch(result.text,/说明提前给结构能减少沟通往返/)
+      assert.match(result.text,/不能确认因果关系或普遍效果/)
+      assert.match(result.text,/找到两份材料并少问一次/)
+      assert.equal(requests.length-before,1)
+    })
+    await t.test('a faithful summary paraphrase is preserved without forcing source quotation',async()=>{
+      const text='我整理过表格，后来同学直接找到了材料，少问了我一次。请根据新信息更新判断。'
+      const reply='这次整理后同学找到了材料，也少问了一次。仍不能确认这是分类方法造成的，长期效果也未知。'
+      const turn=await prepare(text),before=requests.length
+      outputs.push({lead:'这次整理后同学找到了材料，也少问了一次。',reply})
+      const result=await engine(turn.input)
+      assert.equal(result.text,reply)
+      assert.equal(requests.length-before,1,'preserving source meaning does not trigger a replacement generation')
+    })
+    await t.test('a partial-state summary retains authorized prior evidence without mandatory history replay',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC prior reported result'})
+      for(let index=0;index<5;index++){
+        const prior=await prepare(`最近一次我整理了第${index+1}份表格，后来同学直接找到了材料，少问了我一次。`,conversation)
+        outputs.push({reply:'这是一次具体反馈，原因和长期效果仍未知。',...(index===0?{event:{target:{operation:'create',title:'整理表格',source:{messageId:prior.run.source_message_id,quote:'最近一次我整理了第1份表格'}},nodes:[{kind:'fact',source:{messageId:prior.run.source_message_id,quote:'少问了我一次'}}]}}:{})})
+        const seeded=await engine(prior.input)
+        await store.finishRun(prior.run,prior.staged,seeded.text,seeded.usage,new AbortController().signal)
+      }
+      const turn=await prepare('这周只剩二十分钟。请根据新信息更新判断。',conversation),before=requests.length
+      const reply='表格已有实际查找反馈。这周只剩二十分钟；此前找到了材料且少问一次的结果保留，原因与长期效果仍未知。'
+      outputs.push({lead:'表格已有实际查找反馈。',reply})
+      const result=await engine(turn.input)
+      assert.equal(result.text,reply)
+      assert.equal(requests.length-before,1)
+      assert.ok(JSON.stringify(requests.at(-1).messages).includes('少问了我一次'),'authorized historical evidence remains in the actual role-separated model context')
+    })
+    await t.test('an explicitly requested distinction action gets the one-factor evidence boundary on the actual wire',async()=>{
+      const text='接着羽毛球那次体验。我想保留这种不被评价的陪伴，但不确定是运动本身还是这个室友带来的。请给暂定理解和一个很小的区分办法。'
+      const turn=await prepare(text)
+      outputs.push({lead:'目前还不能区分运动和室友各自的作用。',reply:'目前还不能区分运动和室友各自的作用。只做一次区分：仍和这位室友，把羽毛球换成一次散步，结束后记录是否仍有不用表现的感觉。'})
+      const result=await engine(turn.input),wire=requests.at(-1)
+      assert.match(wire.messages.find((message:any)=>message.role==='system').content,/若本人请求区分办法，一次只改变一个因素/)
+      assert.match(result.text,/还不能区分/)
+    })
+    await t.test('equivalent unresolved two-factor wording gets the same one-factor boundary',async()=>{
+      const text='我还不清楚究竟是运动本身还是室友带来的，请给一个很小的区分办法。'
+      const turn=await prepare(text)
+      outputs.push({lead:'目前还不能区分运动和室友各自的作用。',reply:'目前还不能区分运动和室友各自的作用。只做一次区分：保持同一位室友，把运动换成散步，只记录结果。'})
+      await engine(turn.input)
+      assert.match(requests.at(-1).messages.find((message:any)=>message.role==='system').content,/若本人请求区分办法，一次只改变一个因素/)
+    })
+    await t.test('comma before the two-factor conjunction keeps the bounded action lane valid',async()=>{
+      const text='我还不清楚到底是运动本身，还是室友带来的，请给一个很小的区分办法。'
+      const turn=await prepare(text)
+      outputs.push({lead:'目前还不能区分。',reply:'先换一项再观察。'})
+      const result=await engine(turn.input)
+      assert.match(result.text,/只有“运动本身”不同的经历/)
+    })
+    await t.test('a distinction reply that changes both factors is replaced by the one-factor server contract',async()=>{
+      const text='我还不清楚究竟是运动本身还是室友带来的，请给一个很小的区分办法。'
+      const turn=await prepare(text),before=requests.length
+      outputs.push({lead:'目前还不能区分运动和室友各自的作用。',reply:'目前还不能区分运动和室友各自的作用。下次换成散步、换一个室友，并记录结果。'})
+      const result=await engine(turn.input)
+      assert.equal(requests.length-before,1,'deterministic distinction repair must not retry')
+      assert.match(result.text,/只有“运动本身”不同的经历/)
+      assert.doesNotMatch(result.text,/换成散步|换一个室友|延长/)
+    })
+    await t.test('an ordinary action request does not receive the distinction-only prompt',async()=>{
+      const text='请给我一个低成本的下一步行动。'
+      const turn=await prepare(text)
+      outputs.push({lead:'先用10分钟写下你当前要处理的问题。',reply:'先用10分钟写下你当前要处理的问题，写完就停。'})
+      await assert.rejects(engine(turn.input),{code:'BOUNDED_REPLY_INVALID'})
+      const system=requests.at(-1).messages.find((message:any)=>message.role==='system').content
+      assert.doesNotMatch(system,/若本人请求区分办法/)
+      assert.match(system,/少量样本不设置为整个方向的筛选阈值/)
+    })
+    await t.test('two requested distinction methods are not replaced by the single-action contract',async()=>{
+      const text='我还不清楚究竟是运动本身还是室友带来的，请给两个很小的区分办法。'
+      const turn=await prepare(text)
+      const reply='可以先从已有经历寻找线索。办法一：若有同伴相同而活动不同的记录，只回看这组差异。办法二：若有活动相同而同伴不同的记录，只回看这组差异。找不到可比记录就停，差异也不能确认因果。'
+      outputs.push({lead:'可以先从已有经历寻找线索。',reply})
+      const result=await engine(turn.input)
+      assert.equal(result.text,reply)
+      assert.doesNotMatch(requests.at(-1).messages.find((message:any)=>message.role==='system').content,/若本人请求区分办法/)
+    })
+    await t.test('material plan comparison and one-sentence contracts exclude the distinction prompt',async()=>{
+      for(const text of [
+        '请给我一份只改变一个因素的实验记录模板。',
+        '我这周有两小时，请安排只改变一个因素的实验计划。',
+        '请比较两个只改变一个因素的区分办法。',
+        '只用一句话给我一个只改变一个因素的区分办法。',
+      ]){
+        const turn=await prepare(text)
+        outputs.push({reply:'这是故意无效的契约测试输出。',unexpected:true})
+        await assert.rejects(engine(turn.input),{code:'COACH_OUTPUT_INVALID'})
+        const system=requests.at(-1).messages.find((message:any)=>message.role==='system').content
+        assert.doesNotMatch(system,/若本人请求区分办法/,text)
+        await store.terminateRun(user,turn.run.request_id,'failed','COACH_OUTPUT_INVALID')
+      }
+    })
+    await t.test('a summary keeps an attributed trial on its reported person and leaves the user state independent',async()=>{
+      const text='室友说她试用过那个表格；我没有说自己试过。请更新当前理解。'
+      const reply='室友报告她试用过那个表格；你本人是否试用仍未报告，这两个状态分开保留。'
+      const turn=await prepare(text)
+      outputs.push({lead:'室友报告她试用过那个表格；你本人是否试用仍未报告，这两个状态分开保留。',reply})
+      const result=await engine(turn.input),wire=requests.at(-1)
+      assert.match(wire.messages.find((message:any)=>message.role==='system').content,/只对该来源明确指向的同一人物、同一事项保留/)
+      assert.match(wire.messages.find((message:any)=>message.role==='system').content,/引用、假设或他人状态不能变成本人状态/)
+      assert.match(result.text,/室友报告她试用过/)
+      assert.match(result.text,/你本人是否试用仍未报告/)
+    })
+    await t.test('saved real summary cannot promote a personal preference into a required path constraint',async()=>{
+      const saved=JSON.parse(readFileSync(new URL('../fixtures/real-rx-summary-modality.json',import.meta.url),'utf8'))
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC preference modality'})
+      const turn=await prepare(saved.userMessage,conversation),before=requests.length
+      outputs.push(saved.response)
+      await assert.rejects(engine(turn.input),{code:'REPLY_PREFERENCE_HARDENED'})
+      assert.equal(requests.length-before,1,'unsupported modality must not cause a replacement generation')
+      assert.equal(turn.staged.coach,undefined)
+      await store.terminateRun(user,turn.run.request_id,'failed','REPLY_PREFERENCE_HARDENED')
+    })
+    await t.test('source-modality rejection also suppresses a model preview while an owned hard requirement remains usable',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC modality preview'})
+      const turn=await prepare('我更在意留在目前城市，而且每周最多四小时探索。请更新理解，不要替我选。',conversation)
+      const frames:any[]=[];turn.input.emit=(frame:any)=>{frames.push(frame)}
+      const unsupported='你当前表达的城市偏好是一项必须满足的条件。'
+      outputs.push({lead:unsupported,reply:unsupported+'时间仍以每周四小时为上限。'})
+      await assert.rejects(engine(turn.input),{code:'REPLY_PREFERENCE_HARDENED'})
+      assert.equal(frames.some(frame=>frame.type==='draft'&&frame.text?.includes('必须满足')),false,'rejected modality must not become provisional user-facing help')
+      await store.terminateRun(user,turn.run.request_id,'failed','REPLY_PREFERENCE_HARDENED')
+      const leadOnly=await prepare('我更在意留在目前城市，而且每周最多四小时探索。请更新理解，不要替我选。',conversation)
+      outputs.push({lead:'留在目前城市是必须满足的硬条件。',reply:'留在目前城市是本轮报告的偏好；每周四小时仍是时间上限。'})
+      await assert.rejects(engine(leadOnly.input),{code:'REPLY_PREFERENCE_HARDENED'})
+      await store.terminateRun(user,leadOnly.run.request_id,'failed','REPLY_PREFERENCE_HARDENED')
+      const owned=await prepare('我更在意留在目前城市。我必须留在目前城市。每周最多四小时探索。请更新理解，不要提问。',conversation)
+      const reply='留在目前城市的偏好已由你明确设为硬要求。每周四小时仍是时间上限；具体选项是否兼容还需核实。'
+      outputs.push({reply})
+      assert.equal((await engine(owned.input)).text,reply)
+      await store.terminateRun(user,owned.run.request_id,'failed','SYNTHETIC_MODALITY_COMPLETE')
+    })
+    await t.test('a reported reply cannot commit an unsupported read claim after legacy prose repair',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC unsupported reading'})
+      const turn=await prepare('回来反馈：老师后来回复说这周忙，下周再看；同学表格仍是明确不适合他。请更新当前理解，保留各自未知。',conversation)
+      const before=requests.length
+      outputs.push({lead:'老师回复已读、同学反馈明确不适合，两条状态按你要求记录。',reply:'老师回复已读、同学反馈明确不适合，两条状态按你要求记录。当前无授权事件可写入，若需建事件追踪请提供对应事项名称；未回复原因保持未知，不列举猜测。'})
+      await assert.rejects(engine(turn.input),{code:'REPLY_STATE_NOT_SUPPORTED'})
+      assert.equal(requests.length-before,1,'reject once, never a paid correction retry')
+      const prompt=JSON.parse(requests.at(-1).messages.find((message:any)=>message.role==='user').content)
+      const teacher=(prompt.authorizedContext??prompt).currentTask.responseScope.reportedEvidence.participantReports.find((item:any)=>item.actor==='老师')
+      assert.equal(teacher.states['回复'].status,'本人报告已回复')
+      assert.equal(teacher.states['原材料阅读'],undefined,'absence is not a new unknown-state assertion')
+      await store.terminateRun(user,turn.run.request_id,'failed','REPLY_STATE_NOT_SUPPORTED')
+    })
+    await t.test('finite comparison and one-action boundaries reject captured unsupported expansion without retry',async()=>{
+      for(const item of [
+        {text:'我还没有客户，每周最多两小时。请比较一个更低成本的探索方式。',reply:'能比较的方式只有两类。\n方式一：在既有安排中观察一次专注时段，结果未知。\n方式二：若有现成材料只回看一次，不安排两项任务。',code:'REPLY_COMPARISON_UNBOUNDED'},
+        {text:'我想保留这种陪伴，但不确定是运动本身还是这个室友带来的。请给暂定理解和一个很小的区分办法。',reply:'先找一次不运动的相处机会；如果感受不同，再试一次运动。做完这两次对照就停。',code:'REPLY_ACTION_LIMIT'},
+      ]){
+        const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC expansion guard'})
+        const turn=await prepare(item.text,conversation),before=requests.length;outputs.push({reply:item.reply})
+        await assert.rejects(engine(turn.input),{code:item.code})
+        assert.equal(requests.length-before,1)
+        assert.equal(turn.staged.growth,undefined)
+        await store.terminateRun(user,turn.run.request_id,'failed',item.code)
+      }
+    })
+    await t.test('actual NS comparison disclaimer survives the full engine with its reported personal context',async()=>{
+      const actual=JSON.parse(readFileSync(new URL('../fixtures/ns-negated-comparison-failure.json',import.meta.url),'utf8'))
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC NS negated exclusivity'})
+      const turn=await prepare([...actual.historyUserTexts,actual.user].join('\n'),conversation),before=requests.length
+      outputs.push(actual.raw)
+      const result=await engine(turn.input)
+      assert.equal(result.text,actual.raw.reply,'the helpful comparison is delivered intact rather than rewritten')
+      assert.equal(requests.length-before,1,'no second semantic repair request')
+      await store.terminateRun(user,turn.run.request_id,'failed','SYNTHETIC_GUARD_ONLY_REPLAY')
+    })
+    await t.test('a valid JSON string with a dangling internal-state reply is rejected before legacy punctuation repair',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC incomplete prose'})
+      const turn=await prepare('回来反馈：老师后来回复说这周忙，下周再看。请更新当前理解。',conversation),before=requests.length
+      outputs.push({reply:'老师：response 由 reported_no_response 更新为 reported_response（原话'})
+      await assert.rejects(engine(turn.input),{code:'REPLY_INCOMPLETE_OR_INTERNAL'})
+      assert.equal(requests.length-before,1)
+      assert.equal(turn.staged.growth,undefined)
+      await store.terminateRun(user,turn.run.request_id,'failed','REPLY_INCOMPLETE_OR_INTERNAL')
+    })
+    await t.test('source context survives sessions with objects intact but never bypasses Memory OFF or precise forgetting',async()=>{
+      const owner='source-context-'+randomUUID(),chats=Array.from({length:5},()=>randomUUID())
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[owner,owner+'@example.invalid'])
+      await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1)',[owner])
+      for(const id of chats)await store.createConversation(owner,{id,title:'SYNTHETIC referent context'})
+      const text='我是成年大学生，身边同学都在准备考研，我也跟着想报，但我还说不清自己要什么。'
+      const fragment='我也跟着想报',clauseId=buildClauseCatalogue(text).find(clause=>clause.text===fragment)!.clauseId
+      const execute=async(content:string,chat:ReturnType<typeof randomUUID>,output:any={reply:'只保留本人报告的具体线索，不把未知补成结论。'})=>{
+        const turn=await prepare(content,chat,owner);outputs.push(output)
+        const result=await engine(turn.input);await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      }
+      await execute(text,chats[0]!,{reply:'先厘清你希望这条路径改变什么。',growthUpdates:[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{clauseId}}]})
+      const feeling='我是成年大学生，昨晚和室友打羽毛球后觉得轻松。'
+      await execute(feeling,chats[1]!)
+      const uncertainGoal='我想保留这种不被评价的陪伴，但不确定是运动本身还是这个室友带来的。'
+      await execute(uncertainGoal,chats[1]!,{reply:'运动和这位室友同时出现，仍不能区分原因。'})
+      const facts=(await pool.query('SELECT id,revision,text,kind FROM growth_items WHERE user_id=$1',[owner])).rows
+      assert.ok(facts.some((item:any)=>item.kind==='context'&&item.text===text.slice(0,-1)))
+      assert.ok(facts.some((item:any)=>item.kind==='context'&&item.text===feeling.slice(0,-1)))
+      assert.ok(facts.some((item:any)=>item.kind==='context'&&item.text===uncertainGoal.slice(0,-1)),'server-captured goal anchors its adjacent unresolved question even when model omitted the goal lane')
+      await execute('请保留仍相关的本人报告。',chats[2]!)
+      assert.ok(JSON.stringify(requests.at(-1)).includes('身边同学都在准备考研'))
+      assert.ok(JSON.stringify(requests.at(-1)).includes('昨晚和室友打羽毛球后觉得轻松'))
+      assert.ok(JSON.stringify(requests.at(-1)).includes('但不确定是运动本身还是这个室友带来的'))
+      await pool.query('UPDATE user_memory_settings SET enabled=false,revision=revision+1 WHERE user_id=$1',[owner])
+      await execute('只用本轮报告。',chats[3]!)
+      assert.ok(!JSON.stringify(requests.at(-1)).includes(fragment))
+      assert.ok(!JSON.stringify(requests.at(-1)).includes('羽毛球'))
+      await pool.query('UPDATE user_memory_settings SET enabled=true,revision=revision+1 WHERE user_id=$1',[owner])
+      const target=facts.find((item:any)=>item.text===fragment)!,client=await pool.connect()
+      try{await client.query('BEGIN');await applyGrowthAction(client,owner,target.id,{action:'forget',expectedRevision:target.revision,requestId:randomUUID()});await client.query('COMMIT')}catch(error){await client.query('ROLLBACK');throw error}finally{client.release()}
+      await execute('只沿用仍可使用的报告。',chats[4]!)
+      assert.ok(!JSON.stringify(requests.at(-1)).includes(fragment),'overlapping wider context cannot resurrect the forgotten fragment')
+      assert.ok(JSON.stringify(requests.at(-1)).includes('羽毛球'),'unrelated retained context remains available')
+    })
+    await t.test('captured real numbered comparison survives the normal engine unchanged (simulated replay, not a paid retry)',async()=>{
+      const text='我是成年大学生。我还没有客户，也没有自由职业经历，每周最多两小时。我希望有能自主安排的专注时间，但不想找客户或收款。请比较一个更低成本的探索方式，不要推出我适合自由职业。'
+      const replayUser='comparison-replay-'+randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[replayUser,replayUser+'@example.invalid'])
+      const conversation=randomUUID();await store.createConversation(replayUser,{id:conversation,title:'SYNTHETIC captured comparison replay'})
+      const turn=await prepare(text,conversation,replayUser)
+      const raw=JSON.parse(readFileSync(new URL('../fixtures/real-comparison-cy.txt',import.meta.url),'utf8'))
+      const before=requests.length
+      outputs.push(raw)
+      const result=await engine(turn.input)
+      assert.equal(result.text,raw.reply,'do not relabel, prefix-parse or rewrite the real comparison into a different answer')
+      assert.equal(requests.length-before,1)
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.equal((await store.runStatus(replayUser,turn.run.request_id)).status,'completed')
+    })
+    await t.test('a long optional preview cannot fail or truncate an otherwise valid ordinary reply',async()=>{
+      const turn=await prepare('请简短解释为什么科学实验要控制其他条件，只回答知识。')
+      const longLead='控制其他条件是为了把不同条件带来的影响分开辨认，避免同时改变多个条件后直接判断某个条件造成了全部结果。'
+      assert.ok([...longLead].length>48)
+      outputs.push({lead:longLead,reply:longLead})
+      const before=requests.length
+      const result=await engine(turn.input)
+      assert.equal(result.text,longLead)
+      assert.equal(requests.length-before,1,'presentation repair never regenerates')
+      const schema=requests.at(-1).response_format.json_schema.schema
+      assert.equal(schema.properties.lead.maxLength,240,'optional preview keeps its canonical contract rather than a conflicting wire hint')
+      assert.equal(schema.properties.reply.maxLength,16000,'compact lead does not truncate the delivered reply')
+      assert.equal(turn.staged.coach,undefined)
+    })
+    await t.test('a one-sentence readiness summary keeps personal facts but closes unrelated event mutation',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC retained C6 summary contract'})
+      const text='我今天没精力继续验证，先暂停这个方向，不要再安排动作。只给一句阶段理解，等我以后主动回来再继续。'
+      const turn=await prepare(text,conversation),quote='我今天没精力继续验证'
+      outputs.push({reply:'目前只有一次检索线索，稳定效果与方向适配仍未知；现在暂停，等你主动回来。',growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:buildClauseCatalogue(text).find(c=>c.text===quote)!.clauseId}}]})
+      const result=await engine(turn.input),properties=requests.at(-1).response_format.json_schema.schema.properties
+      assert.ok(properties.growthUpdates,'a real current personal fact remains representable')
+      assert.equal(properties.event,undefined,'a requested understanding is not an event mutation')
+      assert.ok(turn.staged.audit.some((row:any)=>row.phase==='provider_native_contract'&&row.type==='json_schema'&&row.strict===true&&!row.properties.includes('event')))
+      assert.ok(turn.staged.audit.some((row:any)=>row.phase==='provider_stream_assembly'&&row.streamMatchesResult===true))
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.ok((await growthContext(user,conversation)).some(item=>item.text===quote))
+      const feedback=await prepare('我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知。只给一句阶段理解。',conversation)
+      outputs.push({reply:'这次整理后约20秒找到通知仍只是单次结果，不证明职业适合或稳定效果。'})
+      const updated=await engine(feedback.input)
+      assert.ok(requests.at(-1).response_format.json_schema.schema.properties.event,'actual performed feedback retains event mutation')
+      await store.finishRun(feedback.run,feedback.staged,updated.text,updated.usage,new AbortController().signal)
+      await pool.query('DELETE FROM growth_items WHERE user_id=$1 AND conversation_id=$2',[user,conversation])
+    })
+    await t.test('a repaired displayed question and its stored unknown stay identical',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC question repair identity'})
+      const text='昨晚我和室友打球后很放松。先问一个问题。'
+      const turn=await prepare(text,conversation)
+      const question='我想问的具体情况是什么？'
+      outputs.push({reply:question,event:{target:{operation:'create',title:'打球体验',source:{messageId:turn.run.source_message_id,quote:'昨晚我和室友打球后很放松'}},nodes:[{kind:'unknown',question}]}})
+      const result=await engine(turn.input)
+      assert.doesNotMatch(result.text,/我想问的具体情况是什么/)
+      assert.ok(turn.staged.coach)
+      const unknown=turn.staged.coach!.delta.nodes!.find((node:any)=>node.kind==='unknown') as any
+      assert.ok(unknown)
+      assert.equal(unknown.question,result.text)
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+    })
+    await t.test('a category question streams and commits the same open question before its explanation',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC category preview identity'})
+      const text='昨晚我把资料链接发给导师。导师回复说手机打不开链接。先处理访问条件。'
+      const turn=await prepare(text,conversation),frames:any[]=[]
+      turn.input.emit=event=>frames.push(event)
+      const question='你发的是哪种链接（网盘、在线文档还是网页），对方有没有提到具体提示？'
+      const opened='你发的是哪种链接，对方有没有提到具体提示？'
+      outputs.push({lead:question,reply:question+'先辨认访问条件，不推断内容好坏。',event:{target:{operation:'create',title:'资料访问',source:{messageId:turn.run.source_message_id,quote:'昨晚我把资料链接发给导师'}},nodes:[{kind:'unknown',question}]}})
+      const result=await engine(turn.input)
+      assert.ok(frames.some(frame=>frame.type==='draft'&&frame.text===opened))
+      assert.ok(result.text.includes(opened))
+      assert.doesNotMatch(result.text,/网盘、在线文档还是网页/)
+      assert.ok(!frames.some(frame=>frame.type==='draft_discarded'))
+      const unknown=turn.staged.coach!.delta.nodes!.find((node:any)=>node.kind==='unknown') as any
+      assert.equal(unknown.question,opened)
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+    })
+    await t.test('uncertain read status stays unknown through bounded generation and a later pure readback',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC unknown read source'})
+      const turn=await prepare('回来反馈：我发了PDF，不知道导师有没有读到，也没回复。请把已发、已读、已回复、是否采用、实际效果分开说。',conversation)
+      outputs.push({reply:'我在听。'})
+      const result=await engine(turn.input)
+      assert.match(result.text,/已读：未知/)
+      assert.doesNotMatch(result.text,/导师确认读到/)
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      const recall=await prepare('请把已发、已读、已回复、是否采用、实际效果分开说。',conversation)
+      const before=requests.length,recalled=await engine(recall.input)
+      assert.equal(requests.length,before)
+      assert.match(recalled.text,/已读：未知/)
+      await store.finishRun(recall.run,recall.staged,recalled.text,recalled.usage,new AbortController().signal)
+    })
+    await t.test('bounded listening reply remains in its authorized catalogue through final rendering',async()=>{
+      const conversation=randomUUID()
+      await store.createConversation(user,{id:conversation,title:'SYNTHETIC bounded listening regression'})
+      const turn=await prepare('我是成年大学生，今天只想说说：老师没回复邮件让我有点失落。不要建议、不要追问，也不要把它和职业选择连起来。',conversation)
+      outputs.push({reply:'我在听。'})
+      const result=await engine(turn.input)
+      const schema=requests.at(-1).response_format.json_schema.schema
+      assert.ok(schema.properties.reply.enum.includes(result.text))
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.ok(!/[？?]/.test(result.text))
+    })
+    await t.test('real PDF feedback survives final bounded validation and commits verified states',async()=>{
+      const conversation=randomUUID()
+      await store.createConversation(user,{id:conversation,title:'SYNTHETIC PDF feedback regression'})
+      const text='回来反馈：我发了PDF，导师确认已经读到，但还没有说是否采用其中建议，也没有给效果反馈。'
+      const turn=await prepare(text,conversation)
+      outputs.push({reply:'我在听。'})
+      const result=await engine(turn.input)
+      assert.match(result.text,/已发：PDF已发送/)
+      assert.match(result.text,/已读：导师确认读到/)
+      assert.match(result.text,/是否采用：未说明/)
+      assert.match(result.text,/实际效果：未反馈/)
+      const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.ok(saved)
+      assert.equal((await pool.query('SELECT status FROM runs WHERE user_id=$1 AND request_id=$2',[user,turn.run.request_id])).rows[0].status,'completed')
+      const recall=await prepare('请把已发、已读、已回复、是否采用、实际效果分开说，只更新相关理解，不安排催促。',conversation)
+      const before=requests.length
+      const recalled=await engine(recall.input)
+      assert.equal(requests.length,before,'an exact authorized readback has no provider dependency')
+      assert.equal((recalled.usage as any).llmCallCount,0)
+      assert.match(recalled.text,/已发：PDF已发送/)
+      assert.match(recalled.text,/是否采用：未说明/)
+      await store.finishRun(recall.run,recall.staged,recalled.text,recalled.usage,new AbortController().signal)
+    })
     await t.test('saved real timeout case delivers and commits a blank worksheet with zero provider calls',async()=>{
       const text='刚才只有前缀，没有核对表。我仍未开始查岗位，这周只剩二十分钟。先帮我写一个可以直接复制填写的岗位职责和要求核对表，未知处留空；不要替我发送消息，不要把这个模板记为已经完成的行动。'
       const worksheetUser='worksheet-'+randomUUID(),worksheetChat=randomUUID()
@@ -207,7 +704,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       const run=(await store.startRun(worksheetUser,worksheetChat,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
       const prepared={run,staged,input:{run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:(_event:any)=>{}}}
       const before=requests.length,result=await engine(prepared.input)
-      assert.equal(requests.length,before)
+      if(requests.length!==before)throw new Error('UNEXPECTED_PROVIDER_REQUEST '+JSON.stringify({audit:prepared.staged.audit,request:requests.at(-1)?.messages?.at(-1)?.content}))
       assert.match(result.text,/岗位职责与要求核对表（待填写）/)
       assert.match(result.text,/一项职责.*________/)
       assert.match(result.text,/一项要求.*________/)
@@ -221,17 +718,17 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
     outputs.push({reply:boundedRecallReply('你记得我之前说过什么吗？',[]).choices[0]})
     const metaResult=await engine(meta.input)
     const metaContract=(meta.staged.audit.find((a:any)=>a.phase==='turn_contract')) as any
-    assert.equal(metaContract.mode,'reply_only')
+    assert.equal(metaContract.mode,'ordinary')
     assert.ok(requests.at(-1).messages[0].content.includes(mainCompanionPolicy.instructions),'actual SDK wire consumes the main Skill business policy')
     assert.ok(!requests.at(-1).messages[0].content.includes('Ensure the local server is up'),'external host setup is not a model capability')
     const activation=meta.staged.audit.find((row:any)=>row.phase==='main_skill_payload') as Record<string,unknown>|undefined
     assert.equal(activation?.policyDigest,mainCompanionPolicy.policyDigest)
     assert.ok(meta.staged.audit.some((row:any)=>row.phase==='model_call_completed'&&row.callId===activation?.callId),'activation links to the completed call whose reply is saved')
 
-    assert.deepEqual(Object.keys((requests.at(-1)!.response_format.json_schema.schema.properties)),['reply'],'native schema offers only reply')
+    assert.deepEqual(Object.keys((requests.at(-1)!.response_format.json_schema.schema.properties)),['lead','reply'],'read-only schema offers preview plus final reply')
     const metaContext=JSON.parse(requests.at(-1)!.messages.find((m:any)=>m.role==='user').content)
     assert.equal(metaContext.methodSourceAvailability.status,'NOT_REQUESTED')
-    assert.ok(metaContract.schemaChars<JSON.stringify(actionCoachTurnSchema).length/10)
+    assert.ok(metaContract.schemaChars<JSON.stringify(actionCoachTurnSchema).length/5)
     const metaSaved=await store.finishRun(meta.run,meta.staged,metaResult.text,metaResult.usage,new AbortController().signal)
     const committedAudit=(await pool.query('SELECT tool_audit FROM runs WHERE user_id=$1 AND request_id=$2',[user,meta.run.request_id])).rows[0].tool_audit as Record<string,unknown>[]
     assert.ok(committedAudit.some(row=>row.phase==='main_skill_payload'&&row.callId===activation?.callId&&row.policyDigest===mainCompanionPolicy.policyDigest),'Skill payload evidence survives the actual turn transaction')
@@ -241,12 +738,12 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       await pool.query('SELECT 1')
       const plan=await prepare('我每周有三小时，帮我安排一下下周。')
       const drafts:any[]=[];plan.input.emit=event=>drafts.push(event)
-      outputs.push({reply:boundedPlanningReply({minutes:180,period:'next_week'}).choices[0],growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:180,period:'next_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品',minutes:180,directionScopes:['employment']}]}})
+      outputs.push({reply:boundedPlanningReply({minutes:180,period:'next_week'}).choices[0],growthUpdates:[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{clauseId:'c0'}}],weeklyPlan:{target:{operation:'create'},availableMinutes:180,period:'next_week',budgetRef:{updateIndex:0},basis:[{updateIndex:0}],items:[{action:'整理作品',minutes:180,directionScopes:[]}]}})
       const planResult=await engine(plan.input)
       const planContract=(plan.staged.audit.find((a:any)=>a.phase==='turn_contract')) as any
-      assert.equal(planContract.mode,'planning')
+      assert.equal(planContract.mode,'ordinary')
       const lanes=Object.keys((requests.at(-1)!.response_format.json_schema.schema.properties)).sort()
-      assert.deepEqual(lanes,['growthUpdates','reply','weeklyPlan'])
+      assert.deepEqual(lanes,['event','growthUpdates','lead','reply','weeklyPlan'])
       assert.equal(drafts.filter(d=>d.type==='draft').length,1,'the budget acknowledgement does not occupy the substantive draft lane')
       assert.ok(drafts.some(d=>d.type==='draft'&&d.draftKind==='safe_sentence'&&d.text.includes('整理作品')&&d.text.includes('180分钟')),'the validated concrete allocation replaces the waiting hint as substantive content')
       assert.match(planResult.text,/下周建议安排.*180分钟/)
@@ -399,7 +896,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       assert.equal((saved.stateChange.growth as any).status,'applied')
       assert.equal((result.usage as any).llmCallCount,1)
     })
-    await t.test('missing matching methods are explicit in the actual SDK request without opening citations',async()=>{
+    await t.test('method availability is explicit in the actual SDK request without opening citations',async()=>{
       const newChat=randomUUID()
       await store.createConversation(user,{id:newChat,title:'SYNTHETIC separate contact matter'})
       await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1) ON CONFLICT (user_id) DO UPDATE SET enabled=true',[user])
@@ -408,14 +905,14 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       outputs.push({reply:choice})
       const result=await engine(turn.input),request=requests.at(-1)!
       const context=JSON.parse(request.messages.find((m:any)=>m.role==='user').content)
-      assert.equal(context.methodSourceAvailability.status,'NO_MATCHING_PUBLIC_METHOD')
-      assert.equal(context.methodSourceAvailability.suppliedMethodCount,0)
-      assert.deepEqual(context.knowledge,[])
+      const supplied=context.methodSourceAvailability.suppliedMethodCount
+      assert.equal(context.methodSourceAvailability.status,supplied?'MATCHED_PUBLIC_METHODS':'NO_MATCHING_PUBLIC_METHOD')
+      assert.equal((context.methodContext??context.knowledge??[]).length,supplied)
       assert.ok(context.deferredGrowthRefs.some((ref:any)=>ref.reason==='UNSCOPED_TEMPORARY_TIME_FOR_OTHER_MATTER'))
       assert.ok(!JSON.stringify(context.growthBackground).includes('我还有两小时准备明天的课堂汇报'),'actual SDK context cannot use the other task budget')
       assert.equal((await pool.query("SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2",[user,'我还有两小时准备明天的课堂汇报'])).rows[0].n,1,'original saved fact remains available in storage')
       assert.equal(request.response_format.json_schema.schema.properties.citations,undefined)
-      assert.equal(context.boundedReply.sourceStatus,'NO_PUBLIC_METHOD')
+      assert.ok(['NO_PUBLIC_METHOD','PUBLIC_METHOD_NOT_USED'].includes(context.boundedReply.sourceStatus),'bounded reply declares whether matched context was used')
       assert.ok(request.response_format.json_schema.schema.properties.reply.enum.includes(choice))
       assert.equal((result.usage as any).llmCallCount,1)
     })
@@ -426,7 +923,7 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       const choice=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default'})!.choices[0]!
       outputs.push({reply:choice})
       const result=await engine(turn.input),request=requests.at(-1)!,schema=request.response_format.json_schema.schema
-      assert.ok(schema.properties.reply.enum.includes(choice));assert.equal(schema.properties.event?.properties.action,undefined)
+      assert.ok(schema.properties.reply.enum.includes(choice));assert.ok(!schema.properties.event||schema.properties.event.anyOf.every((branch:any)=>branch.properties.action===undefined))
       assert.equal(result.text,choice);assert.equal(drafts.filter(e=>e.type==='draft').length,1,JSON.stringify({drafts,audit:turn.staged.audit.filter((a:any)=>a.phase==='model_call_completed')}))
       const draft=drafts.find(e=>e.type==='draft');assert.ok(choice.startsWith(draft.text)||choice.endsWith(draft.text));assert.equal(draft.saved,false)
       assert.equal((await pool.query('SELECT count(*)::int n FROM coach_events WHERE user_id=$1 AND conversation_id=$2',[user,conversation])).rows[0].n,0,'provisional editorial content does not commit an event')
@@ -461,6 +958,208 @@ test('engine applies the contract end-to-end: reply_only and planning turns vali
       const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
       assert.ok(saved.stateChange.material,'the deliverable is persisted, not just a preamble')
       assert.equal((await pool.query('SELECT count(*)::int n FROM growth_items WHERE user_id=$1 AND text=$2',[user,'也别写采用和商业成绩'])).rows[0].n,0,'writing instructions do not become memories')
+    })
+    await t.test('an omitted explicit preference survives a new conversation only with Memory ON',async()=>{
+      const preferenceUser='preference-'+randomUUID(),firstChat=randomUUID(),nextChat=randomUUID(),offChat=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[preferenceUser,preferenceUser+'@example.invalid'])
+      await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1)',[preferenceUser])
+      for(const id of [firstChat,nextChat,offChat])await store.createConversation(preferenceUser,{id,title:'SYNTHETIC explicit preference'})
+      const execute=async(text:string,conversationId:string)=>{
+        const run=(await store.startRun(preferenceUser,conversationId,randomUUID(),text)).run,staged:store.Staged={candidates:[],audit:[]}
+        outputs.push({reply:'先围绕你报告的时间自主需求理解，不推断职业适配。'})
+        const result=await engine({run,staged,context:await store.contextForRun(run),decision:null,signal:new AbortController().signal,emit:()=>{}})
+        const saved=await store.finishRun(run,staged,result.text,result.usage,new AbortController().signal)
+        return {saved,reply:result.text}
+      }
+      const quote='我主要在意能自己安排一天中专注工作的时间'
+      const boundaries=['不在意当老板','也不想承担找客户和收款']
+      await execute(quote+'，'+boundaries.join('，')+'。',firstChat)
+      const facts=(await pool.query('SELECT id,text,kind FROM growth_items WHERE user_id=$1',[preferenceUser])).rows
+      assert.deepEqual(facts.map(({text,kind}:any)=>({text,kind})).sort((a:any,b:any)=>a.text.localeCompare(b.text)),[quote,...boundaries].map(text=>({text,kind:'preference'})).sort((a,b)=>a.text.localeCompare(b.text)))
+      await execute('接着时间自主这件事，只更新理解。',nextChat)
+      assert.ok(requests.at(-1).messages.find((m:any)=>m.role==='user').content.includes(quote))
+      for(const boundary of boundaries)assert.ok(requests.at(-1).messages.find((m:any)=>m.role==='user').content.includes(boundary),'negative boundary must cross conversations too')
+      await pool.query('UPDATE user_memory_settings SET enabled=false,revision=revision+1 WHERE user_id=$1',[preferenceUser])
+      const off=await execute('接着时间自主这件事，只更新理解。',offChat)
+      const payload=requests.at(-1),allPayload=JSON.stringify(payload)
+      assert.ok(!allPayload.includes(quote),'the unique personal quote cannot appear in any outgoing role')
+      for(const fact of facts)assert.ok(!allPayload.includes(fact.id),'no personal source identity in any outgoing role')
+      // Generic policy examples may contain a common phrase such as 不在意当老板.
+      // Actual per-user envelopes and the final answer must not carry old facts.
+      const envelopes=JSON.stringify(payload.messages.filter((message:any)=>message.role==='user'))
+      for(const fact of [quote,...boundaries]){
+        assert.ok(!envelopes.includes(fact),'all outgoing user messages respect Memory OFF')
+        assert.ok(!off.reply.includes(fact),'the committed answer respects Memory OFF')
+      }
+    })
+    await t.test('omitted participant feedback is retained as separate verbatim context and crosses sessions only with Memory ON',async()=>{
+      const owner='participant-context-'+randomUUID(),first=randomUUID(),second=randomUUID(),third=randomUUID(),offChat=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[owner,owner+'@example.invalid'])
+      await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1)',[owner])
+      for(const id of [first,second,third,offChat])await store.createConversation(owner,{id,title:'SYNTHETIC separate participant reports'})
+      const execute=async(text:string,conversation:ReturnType<typeof randomUUID>)=>{
+        const turn=await prepare(text,conversation,owner)
+        const before=requests.length,queued=outputs.length
+        outputs.push({reply:'仅按本人报告保留不同事项，不推断未报告的阅读、采用或效果。'})
+        const result=await engine(turn.input)
+        if(requests.length===before)outputs.splice(queued,1)
+        await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      }
+      const initial='更正并区分两件事：老师那封邮件是未回复；另一位同学试过我做的表格后明确说不适合他。不要把两件事合并。'
+      await execute(initial,first)
+      const teacher='回来反馈：老师后来回复说这周忙，下周再看',classmate='同学表格仍是明确不适合他'
+      await execute(teacher+'；'+classmate+'。请只更新各自相关状态。',second)
+      const facts=(await pool.query('SELECT text FROM growth_items WHERE user_id=$1 AND kind=$2',[owner,'context'])).rows.map((row:any)=>row.text)
+      assert.ok(facts.includes(teacher),'future viewing commitment stays attached to the teacher, not a student plan')
+      assert.ok(facts.includes(classmate),'the other matter is an independent report')
+      assert.ok(!facts.includes('下周再看'),'no detached future intent')
+      await execute('接着老师邮件和同学表格，只更新各自相关状态。',third)
+      assert.ok(JSON.stringify(requests.at(-1)).includes(teacher))
+      assert.ok(JSON.stringify(requests.at(-1)).includes(classmate))
+      const supplied=JSON.parse(requests.at(-1).messages.find((message:any)=>message.role==='user').content)
+      const participants=(supplied.authorizedContext??supplied).currentTask.responseScope.reportedEvidence.participantReports
+      assert.ok(participants.some((item:any)=>item.actor==='老师'&&item.quote===teacher&&item.states['原材料阅读']===undefined))
+      assert.ok(participants.some((item:any)=>item.actor==='同学'&&item.quote===classmate))
+      assert.ok(participants.some((item:any)=>item.actor==='另一位同学'&&item.states['试用'].status==='本人报告已试用'),'a later non-adoption status does not erase the prior reported trial')
+      await pool.query('UPDATE user_memory_settings SET enabled=false,revision=revision+1 WHERE user_id=$1',[owner])
+      await execute('只更新当前相关状态。',offChat)
+      assert.ok(!JSON.stringify(requests.at(-1)).includes(teacher))
+      assert.ok(!JSON.stringify(requests.at(-1)).includes(classmate))
+    })
+    await t.test('the current user message cannot disable the previous-reply guard',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC repeated reply'})
+      const reply='目前只知道你在整理课程笔记，具体分类与使用情形还没有报告，不能推断整理已经提高效率，也不能由此给你的职业方向下结论。'
+      const first=await prepare('我在整理课程笔记，暂时先理清这件事。',conversation)
+      outputs.push({reply});const result=await engine(first.input)
+      await store.finishRun(first.run,first.staged,result.text,result.usage,new AbortController().signal)
+      const next=await prepare('请只更新这份笔记的局部理解，不生成任务。',conversation)
+      const before=requests.length;outputs.push({reply})
+      await assert.rejects(engine(next.input),(error:any)=>error.code==='REPLY_REPEATED_VERBATIM')
+      assert.equal(requests.length,before+1,'no hidden paid retry')
+    })
+    await t.test('actual DE single-job stream retains the bounded first fragment through final validation and commit',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC bounded JD preview'})
+      const text='我愿意只了解一个远程岗位的真实工作节奏，但不联系陌生人、不提供私人资料。给一个边界清楚的小行动。'
+      const turn=await prepare(text,conversation),frames:any[]=[],before=requests.length
+      turn.input.emit=event=>frames.push(event)
+      const lead='选一个你感兴趣的远程岗位，在招聘平台读3份该岗位的JD，只记录其中关于工作时间、会议频率和响应要求的具体描述。'
+      outputs.push({lead,reply:lead+'这个动作测的是公开信息里能看到的节奏线索，不联系任何人也不提供资料；投入上限30分钟，读完3份就停。'})
+      const result=await engine(turn.input)
+      assert.equal(requests.length,before+1,'one simulated provider dispatch, no repair call')
+      const draft=frames.find(frame=>frame.type==='draft')
+      assert.ok(draft?.text.includes('读这个岗位的JD'))
+      assert.ok(!draft.text.includes('3份'))
+      assert.ok(result.text.includes(draft.text),'same bounded content remains in final body')
+      assert.ok(!frames.some(frame=>frame.type==='draft_discarded'))
+      assert.ok(!turn.staged.audit.some((row:any)=>row.phase==='model_preview_not_retained'))
+      assert.match(result.text,/读完这份就停/)
+      const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.ok(saved)
+      assert.equal((await pool.query('SELECT status FROM runs WHERE request_id=$1',[turn.run.request_id])).rows[0].status,'completed')
+    })
+    await t.test('a preview changed by final generation is explicitly discarded before commit',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC preview replacement'})
+      const turn=await prepare('我在比较两个课程选项，暂时只保留信息。',conversation),frames:any[]=[]
+      turn.input.emit=event=>frames.push(event)
+      outputs.push({lead:'你想比较哪个具体选项？',reply:'先保留这次报告的信息，不新增任务或推断选择。'})
+      const result=await engine(turn.input)
+      assert.ok(frames.some(frame=>frame.type==='draft'))
+      assert.ok(frames.some(frame=>frame.type==='draft_discarded'))
+      assert.ok(turn.staged.audit.some((event:any)=>event.phase==='model_preview_not_retained'))
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+    })
+    await t.test('instruction-only understanding uses reply-only generation without dropping real control commits or new facts',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC instruction-only understanding'})
+      const quote='我更在意留在目前城市',seed=await prepare(quote+'。',conversation)
+      const growth=await stageGrowthUpdates(seed.run,[{target:{operation:'create'},kind:'preference',assertion:'user_reported',source:{messageId:seed.run.source_message_id,quote}}],await growthContext(user,conversation))
+      await store.finishRun(seed.run,{candidates:[],audit:[],growth},'这条原话保留。',null,new AbortController().signal)
+      const turn=await prepare('先暂停考研方向，不删除刚才查过的事实。说明当前暂定理解和仍未知的地方，这周不再安排任务。',conversation)
+      outputs.push({reply:'你更在意留在目前城市，路径匹配仍未知。考研按你的要求暂停，已查事实保留，这周不再安排任务。'})
+      const result=await engine(turn.input),wire=requests.at(-1)
+      assert.deepEqual(Object.keys(wire.response_format.json_schema.schema.properties),['reply'],'withheld control preview is not generated')
+      assert.ok(wire.messages.find((message:any)=>message.role==='user').content.includes(quote),'authorized understanding context is still present')
+      const saved=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.equal((await pool.query("SELECT state FROM growth_direction_controls WHERE user_id=$1 AND scope='postgraduate_exam'",[user])).rows[0].state,'paused')
+      assert.deepEqual(saved.growthIds,[],'instructions are not personal facts')
+      assert.ok((await growthContext(user,conversation)).some(item=>item.text===quote))
+      const mixed=await prepare('我主要在意能自主安排专注工作的时间。请更新当前理解。',conversation)
+      outputs.push({reply:'这条专注时间偏好是你这次的新报告，其他路径条件仍未知。'})
+      const mixedResult=await engine(mixed.input)
+      assert.ok(requests.at(-1).response_format.json_schema.schema.properties.growthUpdates,'new personal reports retain the existing fact lane')
+      const mixedSaved=await store.finishRun(mixed.run,mixed.staged,mixedResult.text,mixedResult.usage,new AbortController().signal)
+      assert.ok(mixedSaved.growthIds.length)
+    })
+    await t.test('requested one-sentence summary binds the actual wire and survives final rendering',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC sentence quantity'})
+      const turn=await prepare('我按三条规则整理过一次资料。只给一句当前总结。',conversation)
+      const reply='你报告一次整理经历，其他结果仍未知。'
+      outputs.push({reply})
+      const result=await engine(turn.input),wire=requests.at(-1)
+      const schema=wire.response_format.json_schema.schema
+      assert.equal(schema.properties.reply.maxLength,240)
+      assert.equal(Value.Check(schema.properties.reply,reply),true)
+      assert.equal(Value.Check(schema.properties.reply,'一次经历。其他未知。'),false)
+      const supplied=JSON.parse(wire.messages.find((message:any)=>message.role==='user').content)
+      assert.equal(supplied.currentTask.responseScope.sentenceLimit,1)
+      assert.equal(result.text,reply)
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+    })
+    await t.test('a provider ignoring summary quantity fails once without committing a repeated paragraph',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC quantity refusal'})
+      const turn=await prepare('只给一句当前判断。',conversation)
+      outputs.push({reply:'目前只有一次经历。稳定效果仍未知。'})
+      const before=requests.length
+      await assert.rejects(engine(turn.input),{code:'REPLY_SENTENCE_LIMIT'})
+      assert.equal(requests.length-before,1)
+      assert.equal((await pool.query("SELECT count(*)::int n FROM messages WHERE user_id=$1 AND conversation_id=$2 AND role='assistant'",[user,conversation])).rows[0].n,0)
+      await store.terminateRun(user,turn.run.request_id,'failed','REPLY_SENTENCE_LIMIT')
+    })
+    await t.test('a remaining-time correction does not collide with a recurring weekly limit',async()=>{
+      const owner='turn-contract-budget-'+randomUUID(),conversation=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[owner,owner+'@example.invalid'])
+      await store.createConversation(owner,{id:conversation,title:'SYNTHETIC distinct time budgets'})
+      await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1)',[owner])
+      try{
+        const correction='更正：我这周剩余时间是一小时，不是两小时。先暂停考研方向，不删除看过岗位的事实。今天没精力继续，不安排任务；只给一句阶段理解和仍未知之处，等我主动回来。'
+        const turn=await prepare(correction,conversation,owner)
+        const weekEnd=(await pool.query("SELECT (date_trunc('week',now() AT TIME ZONE 'Asia/Shanghai')+interval '1 week') AT TIME ZONE 'Asia/Shanghai' AS value")).rows[0].value
+        await pool.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,valid_until,time_basis) VALUES($1,$2,$3,'constraint',$4,'user_reported','active',$5,$6)",[randomUUID(),owner,conversation,'我每周最多两小时探索',weekEnd,JSON.stringify({kind:'calendar_week',which:'this',quote:'这周',anchor:'synthetic-test'})])
+        outputs.push({reply:'已更正本周剩余时间为一小时并按你的要求今天不安排任务，同时你是否仍要探索还未知，等你主动回来再继续。'})
+        const result=await engine(turn.input)
+        assert.doesNotMatch(result.text,/(?:已更正|更正为|更正已记录|已更新|已修改)/)
+        assert.match(result.text,/这周剩余时间是一小时/)
+        assert.match(result.text,/每周最多两小时探索/)
+        assert.match(result.text,/暂停/)
+        assert.match(result.text,/今天不安排任务/)
+        assert.match(result.text,/是否仍要探索还未知/)
+        assert.equal(turn.staged.weeklyPlan,undefined,'a summary-only turn must not stage a plan')
+        const final=await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+        assert.equal((await pool.query("SELECT state FROM growth_direction_controls WHERE user_id=$1 AND scope='postgraduate_exam'",[owner])).rows[0].state,'paused')
+        const active=(await pool.query("SELECT kind,text,assertion,status,time_basis FROM growth_items WHERE user_id=$1 AND status='active' ORDER BY created_at",[owner])).rows
+        assert.ok(active.some((item:any)=>item.kind==='constraint'&&item.assertion==='user_reported'&&item.text.includes('每周最多两小时探索')&&item.time_basis?.kind==='calendar_week'),JSON.stringify(active))
+        assert.ok(active.some((item:any)=>item.kind==='constraint'&&item.assertion==='user_reported'&&item.text.includes('这周剩余时间是一小时')&&item.time_basis?.kind==='calendar_week'),'the current-week correction is committed as a distinct constraint')
+        assert.equal((await pool.query('SELECT count(*)::int n FROM coach_events WHERE user_id=$1 AND conversation_id=$2',[owner,conversation])).rows[0].n,0,'no task event is committed for a no-task summary')
+      }finally{
+        await pool.query('DELETE FROM growth_items WHERE user_id=$1',[owner]).catch(()=>{})
+        await pool.query('DELETE FROM runs WHERE user_id=$1',[owner]).catch(()=>{})
+        await pool.query('DELETE FROM messages WHERE user_id=$1',[owner]).catch(()=>{})
+        await pool.query('DELETE FROM conversations WHERE user_id=$1',[owner]).catch(()=>{})
+        await pool.query('DELETE FROM user_memory_settings WHERE user_id=$1',[owner]).catch(()=>{})
+        await pool.query('DELETE FROM growth_direction_controls WHERE user_id=$1',[owner]).catch(()=>{})
+        await pool.query('DELETE FROM "user" WHERE id=$1',[owner]).catch(()=>{})
+      }
+    })
+    await t.test('an explicit evaluation report stays source-aware instead of being replaced with unknown',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC evaluation source boundary'})
+      const turn=await prepare('回来反馈：我发了PDF，导师确认已经读到，但明确没有评价内容，也没有说是否采用。',conversation)
+      const reply='你报告导师已读到PDF，但明确没有评价内容；是否采用仍未知。'
+      outputs.push({reply})
+      const before=requests.length,result=await engine(turn.input)
+      assert.equal(requests.length-before,1,'an unsupported canonical dimension retains ordinary generation')
+      assert.equal((requests.at(-1).response_format.json_schema.schema.properties.reply as any).enum,undefined)
+      assert.match(result.text,/没有评价内容/)
+      assert.doesNotMatch(result.text,/是否评价内容未报告/)
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
     })
   }finally{
     model.baseUrl=previousURL;config.apiKey=previousKey

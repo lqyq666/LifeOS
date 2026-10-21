@@ -13,11 +13,13 @@ import type { CorrectionPlan } from './turn-obligations.ts'
 import {applicableTimeBudget} from './turn-obligations.ts'
 import {assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,unstartedActivityOnlyClause} from './user-command-spans.ts'
 import {reportedPursuitClauses} from './turn-contract.ts'
+import {violatesLabelInferenceBoundary} from './forget-intent.ts'
 
-export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null;status?:string}
+export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null;status?:string;inferenceBoundary?:{label:string;active:boolean}}
 
 export type GrowthAuthorityAudit=
   |{phase:'growth_observation_unverified_dependency_dropped';inputIndex:number}
+  |{phase:'growth_rejected_label_inference_dropped';inputIndex:number}
   |{phase:'growth_authority_entry';deltas:number;planTarget:boolean;controlClauses:number}
   |{phase:'growth_clause_unresolved';inputIndex:number;clauseId:string}
   |{phase:'growth_clause_not_anchorable';inputIndex:number;clauseId:string;reason:'interrogative'|'conditional'|'quoted'|'code'|'fragment'|'chat_request'}
@@ -47,6 +49,7 @@ export function resolveGrowthDeltas(input:{
   authorized:readonly AuthorityItemView[]
   correctionPlan:CorrectionPlan|null
   controlClauseTexts:readonly string[]
+  inferenceBoundaries?:readonly {label:string;active:boolean}[]
   suppressObservations?:boolean
 }):{deltas:ResolvedGrowthDelta[];audit:GrowthAuthorityAudit[];indexMap:ReadonlyMap<number,number>}{
   const audit:GrowthAuthorityAudit[]=[]
@@ -56,6 +59,9 @@ export function resolveGrowthDeltas(input:{
   const mutatedItems=new Set<string>()
   const emittedClauses=new Set<string>()
   for(const [inputIndex,delta] of input.deltas.entries()){
+    if(delta.assertion==='ai_observation'&&violatesLabelInferenceBoundary(delta.text,input.inferenceBoundaries??input.authorized.flatMap(item=>item.status==='active'&&!item.unavailableReason&&item.inferenceBoundary?.active?[item.inferenceBoundary]:[]),input.currentText)){
+      audit.push({phase:'growth_rejected_label_inference_dropped',inputIndex});continue
+    }
     if(input.suppressObservations&&delta.assertion==='ai_observation'){audit.push({phase:'growth_observation_unverified_dependency_dropped',inputIndex});continue}
     const clause=resolveClause(input.catalogue,delta.source.clauseId)
     if(!clause){audit.push({phase:'growth_clause_unresolved',inputIndex,clauseId:String(delta.source.clauseId)});continue}
@@ -97,12 +103,13 @@ export function resolveGrowthDeltas(input:{
     const legacyValidUntil=typeof expiry==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(expiry)?expiry:undefined
     if('validUntil'in deltaWithoutExpiry)delete deltaWithoutExpiry.validUntil
     const next:ResolvedGrowthDelta={...deltaWithoutExpiry,...(legacyValidUntil?{validUntil:legacyValidUntil}:{}),source:{messageId:input.currentMessageId,quote:clause.text},target:{operation:'create'},...(timeEvidence?{timeEvidence}:{})} as unknown as ResolvedGrowthDelta
-    if(next.assertion==='user_reported'&&next.kind==='context'&&!currentConversationOnly(input.currentText)&&reportedPursuitClauses(input.currentText).some(pursuit=>pursuit.text===clause.text))next.kind='goal'
+    const reportedPursuit=!currentConversationOnly(input.currentText)&&reportedPursuitClauses(input.currentText).some(pursuit=>pursuit.text===clause.text)
+    if(next.assertion==='user_reported'&&next.kind==='context'&&reportedPursuit)next.kind='goal'
     // A provider kind is not evidence of an affirmative pursuit. Reports,
     // negative preferences and current feelings retain their words as context.
     if(next.assertion==='user_reported'&&['goal','direction'].includes(next.kind)&&
       ((currentConversationOnly(input.currentText)&&!/我.{0,20}优先/.test(clause.text))||clause.attributedToOther||/^(?:但|也|还|仍)?(?:没|没有|未|尚未)|(?:不想|不要|别)(?:改|到|再)|(?:我)?(?:有点|很)?(?:担心|烦躁|难过)/.test(clause.text)||
-       !/(?:想|打算|希望|准备|计划|优先|决定|目标|我(?:要|将)|先(?:就业|考研|考公|探索|处理))|^(?:就业|考研|保研|考公|创业|留学|专升本)$/.test(clause.text)))next.kind='context'
+       (!reportedPursuit&&!/(?:想|打算|希望|准备|计划|优先|决定|目标|我(?:要|将)|先(?:就业|考研|考公|探索|处理))|^(?:就业|考研|保研|考公|创业|留学|专升本)$/.test(clause.text))))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&/^我想把(?:验证问题|访谈问题|提问|这个问题)/.test(clause.text))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&deferredPursuitClause(clause.text))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&unstartedActivityOnlyClause(clause.text))next.kind='context'

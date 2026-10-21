@@ -1,0 +1,49 @@
+{
+  "kind": "REAL_NQ_CAPTURED_PROVIDER_OUTPUT_REPLAY_NOT_NEW_PROVIDER_ACCEPTANCE",
+  "sourceResultSha256": "5fbcbab3c87e78949780570fe5311cdfaa65377703222f03eabeb9a885cc390e",
+  "turns": [
+    {
+      "chain": "action-review",
+      "index": 0,
+      "requestId": "36b87094-4f99-4ea0-a1fd-913e12e0ffc4",
+      "text": "我是成年大学生，方向暂定找产品实习。我把作品集链接发给导师了，对方还没回复。请复盘真正影响下一步的缺口，不要把未回复说成不采用。",
+      "capturedRawSha256": "fcf02dd938422604389eb7dd89daefe74960fe1de651e67fad1bca851cf3b466",
+      "raw": {
+        "lead": "还没收到回复，原因和结果都先保留未知。你们原先是怎么约定的，或者这件事有没有必须确认的截止时间？",
+        "reply": "还没收到回复，原因和结果都先保留未知。有没有约定回复时间，或者这件事必须确认的截止时间？"
+      }
+    },
+    {
+      "chain": "action-review",
+      "index": 1,
+      "requestId": "0ed2253f-0cbe-4214-ac85-fd7ca0f2170f",
+      "text": "链接在电脑能打开，我不知道导师是否读过；发送时只说了请看看，没有约定回复时间。",
+      "capturedRawSha256": "e7e88b09d9f9f1bb71204b279853381e3c6de58ba728d5f7f203fdde2fa27750",
+      "raw": {
+        "lead": "你希望导师看完后具体做什么，比如给修改意见、推荐实习还是只确认收到？",
+        "reply": "已发：作品集链接已发送。已读：未知。已回复：未回复（截至报告）。是否采用：未知。实际效果：未知。\n\n当前缺口：发送时只说了“请看看”，没有约定回复时间；导师是否读过和是否采用仍未知。"
+      }
+    },
+    {
+      "chain": "action-review",
+      "index": 2,
+      "requestId": "448153f6-a31f-42a3-a52f-ec694651cf55",
+      "text": "接着作品集的事：导师回复说手机打不开链接，但没有评价内容。不要重写作品集，先处理访问条件。",
+      "capturedRawSha256": "ba4bc944859800f5f1fa0fb764d2498e7d3cab7d719083fe8d7fefd5d6567397",
+      "raw": {
+        "lead": "你当时发给导师的链接是什么格式（比如在线文档、网盘还是网页）？",
+        "reply": "你当时发给导师的链接是什么格式（比如在线文档、网盘还是网页）？知道原链接类型才能判断是换电脑端能打开的格式，还是直接导出PDF发文件更省事。"
+      }
+    },
+    {
+      "chain": "refusal-correction",
+      "index": 5,
+      "requestId": "9543179b-a046-4729-a744-5aa9fa649a4e",
+      "text": "忘掉“我喜欢销售”这个从未由我确认的错误标签；不要从这些经历重新推出来。现在结束，不安排下一步。",
+      "capturedRawSha256": "6902378dce70914cb52c6ffd65e4595c12d57b86af85ab468a49b824e3da3abc",
+      "raw": {
+        "reply": "已撤除“我喜欢销售”这一未经你确认的标签，不会从这些经历重新推导。本轮结束，不安排下一步。"
+      }
+    }
+  ]
+}

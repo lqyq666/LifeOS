@@ -15,7 +15,7 @@
 .qa-memory-disclosure { margin: 10px 0 0; color: #97929d !important; font-size: .6875rem !important; }
 .qa-memory-switch { position: relative; display: inline-flex; flex-shrink: 0; align-items: center; width: 48px; height: 28px; margin-top: 1px; cursor: pointer; }
 .qa-memory-switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-.qa-memory-switch > span { width: 48px; height: 28px; border: 1px solid #69646e; border-radius: 999px; background: #3a393b; transition: background .15s,border-color .15s; }
+.qa-memory-switch > span { width: 48px; height: 28px; border: 1px solid #69646e; border-radius: 999px; background: #3a393b; transition: background .15s,border-color .15s; pointer-events: none; }
 .qa-memory-switch > span::after { content: ''; display: block; width: 20px; height: 20px; margin: 3px; border-radius: 50%; background: #c3bdc8; transition: transform .15s,background .15s; }
 .qa-memory-switch input:checked + span { border-color: #c5b5ee; background: #65537f; }
 .qa-memory-switch input:checked + span::after { transform: translateX(20px); background: #fff; }

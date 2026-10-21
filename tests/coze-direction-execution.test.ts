@@ -24,7 +24,18 @@ function setup(fetchImpl:typeof fetch){
  const creditPath=join(root,'credits.jsonl'),credits=CozeCreditBudget.initialize(creditPath,100,sha('synthetic authorization NOT real funding')),freezePath=join(root,'freeze.json');writeFileSync(freezePath,JSON.stringify(frozen))
  const config:CozeDirectionConfig={projectId:'7693388932939300905',endpoint:'https://synthetic-test.coze.site/run',token:'synthetic-existing-token-only-not-real',binding:{hostSourceDigest:workflowRuntimeVersion.sourceDigest,cloudCommit:'a'.repeat(40),cloudSourceDigest:'b'.repeat(64),contentHash:workflowRuntimeVersion.contentHash,skillsDigest:'c'.repeat(64)},approval:{kind:'OWNER_APPROVED_LIFEOS_COZE_CORE_LAUNCH',approvalSource:'CURRENT_CHAT_DIRECT_HUMAN_REPLY',cozePauseLifted:true,productModelPauseLifted:true,directHttpRouteApproval:{source:'CURRENT_CHAT_DIRECT_HUMAN_REPLY',exactAnswer:'批准新的实现路线，仍只用已有额度',newBudget:0,automaticPaidRetry:false,publishBeforeCoreGates:false}},creditsLedgerPath:creditPath,maxCreditsPerGraph:10,journalDirectory:join(root,'journal')}
  const f=fixture(),journal={...simulationJournal(),durable:true},finished:any[]=[];journal.finishNode=async(_r,id,_result,cost,calls,error)=>{finished.push({id,cost,calls,error})}
- const adapter=createCozeDirectionAdapter({config,freezePath,readEvidence:async()=>f.records,readMethods:async()=>[],budget,credits,fetchImpl,syntheticTransport:true})
+ // The adapter first performs an unsigned zero-model runtime readback. Keep it
+ // separate from the test's graph transport and its post counter: the caller's
+ // synthetic fetch is only for the paid graph/cancel/readback calls under test.
+ const preflightFetch=async (url:any,init:any)=>{
+  const body=JSON.parse(String(init?.body??'{}')),host=body.host_request??{}
+  if(host.claimsB64===''&&host.payloadB64===''&&host.signature===''){
+   const receipt={schemaVersion:2,requestId:body.session_id,traceId:body.session_id,status:'unavailable',failure:'unavailable',providerCalls:0,costCny:0,reservedCostCny:0,executionKind:'real_provider',trace:[],suggestedStateChanges:[],receiptIncomplete:false,workerFinishedAtReturn:true,runtime:{projectId:config.projectId,businessRole:'growth',hostSourceDigest:config.binding.hostSourceDigest,cloudCommit:config.binding.cloudCommit,cloudSourceDigest:config.binding.cloudSourceDigest,canonicalContentHash:config.binding.contentHash,skillsDigest:config.binding.skillsDigest}}
+   return new Response(JSON.stringify({host_receipt:receipt}),{status:200,headers:{'content-type':'application/json',date:new Date().toUTCString()}})
+  }
+  return fetchImpl(url,init)
+ }
+ const adapter=createCozeDirectionAdapter({config,freezePath,readEvidence:async()=>f.records,readMethods:async()=>[],budget,credits,fetchImpl:preflightFetch,syntheticTransport:true})
  f.request.modelBudget.maxCostCny=adapter.maxCostPerCallCny*(f.request.directions.length+2)
  return {...f,budget,credits,journal,adapter,finished,root,config}
 }

@@ -37,7 +37,10 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
     delete body.thinking_budget
     if(thinkingBudget>0)body.thinking_budget=thinkingBudget
     body.temperature=0
-    body.presence_penalty=0
+    // Qwen3.8 nonthinking defaults to 1.5. Forcing Flash to zero produced
+    // repeated fragments in the captured runtime failure; preserve the
+    // documented default and require fresh capability evidence for this wire.
+    body.presence_penalty=['qwen3.8-max','qwen3.8-flash'].includes(profile.id)&&thinkingBudget===0?1.5:0
     const compiled=providerSchema(schema,currentMessageId) as any
     if(eventTargets&&compiled.properties?.event){
       const target=compiled.properties?.event?.properties?.target
@@ -225,9 +228,11 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
         }
         return branch
       })
-      // This provider decodes a partial anyOf branch without the shared fields.
-      // Each native branch must retain the complete original required shape.
-      event.anyOf=bounded
+      // Every branch retains the complete source/transaction contract. Flash
+      // failed on the redundant shared-object conjunction in real diagnostics;
+      // send that same bounded language once per branch, not a weaker schema.
+      if(profile.id==='qwen3.8-flash')compiled.properties.event={description:event.description,anyOf:bounded}
+      else event.anyOf=bounded
     }
     body.response_format={type:'json_schema',json_schema:{name:schemaName,strict:true,schema:compiled}}
     if(maxOutputTokens)body.max_completion_tokens=maxOutputTokens

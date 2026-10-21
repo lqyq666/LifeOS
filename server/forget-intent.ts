@@ -18,6 +18,15 @@ import type { GrowthItem } from '../src/features/growth/types.ts'
 
 export type ForgetIntentKind = 'forget' | 'pause_use' | 'stop_recommend' | null
 
+// The final transaction guard and provisional display share the same success
+// vocabulary. Model text is never a receipt for one of these operations.
+export function memoryControlSuccessClaims(text:string):{forget:boolean;pause:boolean}{
+  return {
+    forget:/已(?:经)?(?:为你|帮你|替你)?(?:清掉|清除|删掉|删除|忘掉|忘记|移除|撤下|撤除)/.test(text),
+    pause:/不再作为.{0,14}依据|不再.{0,6}(?:判断|建议|使用|推荐|主动提)|不会再?(?:推荐|主动提)|已(?:经)?(?:为你|帮你|替你)?(?:停止推荐|停止使用|停用)/.test(text),
+  }
+}
+
 export type ForgetIntentClause = {
   kind: ForgetIntentKind
   clauseText: string
@@ -28,7 +37,37 @@ export type ForgetIntentClause = {
 
 export type UnconfirmedLabelRejection = {
   label: string
-  boundaryQuote: string
+  boundaryQuotes: string[]
+}
+
+// Label controls name a proposition, not an opposite preference. Matching
+// its literal predicate never turns an unconfirmed label into a personal fact.
+function personalLabelKey(text:string){
+  return text.trim().replace(/[。！？.!?]+$/,'').replace(/^(?:我|你|本人)(?:现在|目前|其实|确实|真的|的确|明确|确认自己|确认我|确认|自己)*/,'')
+}
+export function samePersonalLabel(left:string,right:string){return personalLabelKey(left)===personalLabelKey(right)}
+export function explicitlyConfirmsLabel(text:string,label:string){
+  return scanUserClauses(text).some(c=>!c.quoted&&!c.code&&!c.conditional&&!c.interrogative&&!c.attributedToOther&&!c.quoteSpans.length&&!c.codeSpans.length&&/^(?:我|本人)/.test(c.text.trim())&&samePersonalLabel(c.text,label))
+}
+const labelNonAssertion=/(?:不能|无法|没有证据|不代表|不等于|并非|不是|不要|不会|不再|是否|能否|不确定|未知|未确认|未经确认|否认|拒绝|撤回|不认同|不承认)/
+export function violatesLabelInferenceBoundary(text:string,boundaries:readonly {label:string;active:boolean}[],currentUserText=''){
+  const blocked=boundaries.filter(boundary=>boundary.active&&!explicitlyConfirmsLabel(currentUserText,boundary.label)).map(boundary=>personalLabelKey(boundary.label)).filter(Boolean)
+  const clauses=scanUserClauses(text)
+  return clauses.some(c=>!c.quoted&&!c.code&&!c.conditional&&!c.interrogative&&!c.attributedToOther&&!c.quoteSpans.length&&!c.codeSpans.length
+    &&!labelNonAssertion.test(c.text)
+    &&blocked.some(label=>{
+      const escaped=label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')
+      const predicate=new RegExp('(?:你(?!们)|我(?!们)|本人)(?:其实|确实|似乎|可能|已经|现在|目前|很|比较|显然|大概|也|还|仍然|非常|真的|原来|应该|是个|是|挺)*'+escaped)
+      // A named proposition can be the topic before its personal owner:
+      // “喜欢销售，是你从这些经历里表现出的倾向”. Comma splitting
+      // must not hide that ownership; keep it inside the same sentence.
+      const topicOwned=c.text.trim().startsWith(label)&&clauses.some(other=>other.sentenceStart===c.sentenceStart&&other.start>=c.start
+        &&!other.quoted&&!other.code&&!other.conditional&&!other.interrogative&&!other.attributedToOther&&!other.quoteSpans.length&&!other.codeSpans.length
+        &&!labelNonAssertion.test(other.text)
+        &&/(?:你(?!们)|本人)/.test(other.text))
+      const standalone=c.text.trim()===label&&!clauses.some(other=>other.sentenceStart===c.sentenceStart&&other.start!==c.start)
+      return standalone||predicate.test(c.text)||topicOwned
+    }))
 }
 
 // Erase commands. Matched positively; a negation directly in front of one of
@@ -95,7 +134,10 @@ export function detectUnconfirmedLabelRejection(text: string): UnconfirmedLabelR
     !clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative
     &&/(?:不要|别|不再).{0,18}(?:从|根据|依据).{0,40}(?:重新)?(?:推出来|推出|推导|推断)/.test(clause.text)
   )
-  return boundary?{label,boundaryQuote:boundary.text.trim()}:null
+  // Retain the original control and its quoted object together. Saving only
+  // “不要重新推出来” loses the referent in the next conversation.
+  const command=scanUserClauses(text).find(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative&&clause.text.includes(labelMatch![0]))
+  return command?{label,boundaryQuotes:[...new Set((boundary?[command,boundary]:[command]).sort((a,b)=>a.start-b.start).map(clause=>clause.text.trim()))]}:null
 }
 
 const genericChars = new Set([...'我你他她它们了的是一在和都也与及还就很不去要这那有没说会被把'])
@@ -109,6 +151,10 @@ export function scoreForgetTargets(
   controlClauseText: string,
   currentMessage: string,
 ): { item: GrowthItem; overlap: number }[] {
+  const rejection=detectUnconfirmedLabelRejection(currentMessage)
+  if(rejection&&controlClauseText.includes(rejection.label)&&detectForgetIntentClauses(controlClauseText).some(clause=>clause.kind==='forget')){
+    items=items.filter(item=>samePersonalLabel(item.text,rejection.label))
+  }
   const clauseChars = new Set(controlClauseText.replace(/[^\p{L}\p{N}]/gu, ''))
   // The clause names its own object ("忘掉这条海报经历记录"): the anaphora
   // boost would let an unrelated long feedback clause outscore it (N08), so

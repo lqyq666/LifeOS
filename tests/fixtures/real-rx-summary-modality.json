@@ -1,0 +1,9 @@
+{
+  "source": "evidence/grilling/repair-topup-10-rx-summary-guard-20261019.json",
+  "scope": "Saved real-provider synthetic-adult output; no credentials, account identifiers or private data.",
+  "userMessage": "接着升学和就业的取舍。家里希望我走稳定路线，但这是外部期待；我自己更在意留在目前城市，而且每周最多四小时探索。请更新判断，不要替我选。",
+  "response": {
+    "lead": "目前城市偏好和四小时上限是本轮新增的本人约束，家里期待保持为外部信息。",
+    "reply": "目前城市偏好和四小时上限是本轮新增的本人约束，家里期待保持为外部信息。结合此前“不享受考试”“想要清晰产出”及“担心就业准备不足”，当前判断更新为：升学与就业的取舍需同时满足留城意愿与每周≤4h探索预算；“稳定路线”未转化为本人硬约束或偏好，仅作为家庭侧期待记录。关键未知仍是：直接就业准备不足的具体方面（技能、经验或资源），该缺口影响对两条路径可行性的评估，但本轮不替选也不新增行动。"
+  }
+}

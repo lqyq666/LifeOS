@@ -178,19 +178,28 @@ export function createCozeDirectionAdapter(input:{readEvidence:EvidenceReader;re
     if(signal?.aborted||await journal.cancelled(r))throw new WorkflowError('cancelled')
     const records=await input.readEvidence(r);validateEvidence(r,r.authorizedEvidenceRefs,records)
     const funding=activeCoachFunding(budget.snapshot())
+    // The caller's per-request ceiling must cover the whole graph before the
+    // zero-model preflight. Otherwise a smaller legacy envelope would fund an
+    // enlarged input/slot graph and dispatch a readback it did not authorize.
+    if(r.modelBudget.maxCostCny<nodeIds.length*maxCost)throw new WorkflowError('budget_exceeded')
     if(!funding||funding.paused||funding.remainingCny<nodeIds.length*maxCost||credits.balance().availableCredits<cfg.maxCreditsPerGraph)throw new WorkflowError('budget_exceeded')
     const methods=await input.readMethods(r);if(methods.length>2)throw new WorkflowError('invalid_contract')
     // An unsigned, empty readback reaches the cloud's zero-model rejection
     // path. Check deployed bytes/version before reserving any model slots.
-    // Coze HTTP accounting is separate; retain its original credit reserve.
+    // The readback gets its own credit reservation; its verified zero calls
+    // release that reservation instead of holding it through the graph.
     const preflightId=randomUUID();let preflight:any
+    // Synthetic transport has no prepareCozeJournalDirectory() call, but the
+    // preflight receipt is written before the paid graph. Create the journal
+    // directory before that first write so both transports share the path.
+    mkdirSync(cfg.journalDirectory,{recursive:true})
     credits.reserve({requestId:preflightId,projectId:cfg.projectId,purpose:'business',reservedCredits:cfg.maxCreditsPerGraph,payloadDigest:hash({kind:'ZERO_MODEL_RUNTIME_READBACK',requestId:r.requestId}),sourceDigest:cfg.binding.hostSourceDigest})
     try{
      preflight=await post({payloadB64:'',claimsB64:'',signature:''},preflightId,'readback',AbortSignal.any([networkSignal(),AbortSignal.timeout(10000),...(signal?[signal]:[])]))
      writeFileSync(path+'.preflight.json',JSON.stringify({requestId:r.requestId,preflightId,receipt:preflight})+'\n',{flag:'wx',mode:0o600})
      const runtime=preflight.runtime
      if(preflight.status!=='unavailable'||preflight.providerCalls!==0||preflight.reservedCostCny!==0||!Array.isArray(preflight.trace)||preflight.trace.length||preflight.suggestedStateChanges?.length||runtime?.projectId!==cfg.projectId||runtime.businessRole!=='growth'||runtime.hostSourceDigest!==cfg.binding.hostSourceDigest||runtime.cloudCommit!==cfg.binding.cloudCommit||runtime.cloudSourceDigest!==cfg.binding.cloudSourceDigest||runtime.canonicalContentHash!==cfg.binding.contentHash||runtime.skillsDigest!==cfg.binding.skillsDigest)throw new WorkflowError('unavailable')
-    }finally{credits.finishUnknown(preflightId,preflight?'completed':'failed',preflight?.providerCalls===0?0:null,preflightId)}
+    }finally{credits.finishUnknown(preflightId,preflight?'completed':'failed',preflight?.providerCalls===0?0:null,preflightId,true)}
     const remainingMs=end-Date.now()
     if(remainingMs<1)throw new WorkflowError('timeout')
     const payload={...r,directions,modelBudget:{...r.modelBudget,deadlineMs:remainingMs},businessRole:'growth',syntheticAdult:r.synthetic,evidenceRecords:records,canonicalMethods:methods,contentBinding}

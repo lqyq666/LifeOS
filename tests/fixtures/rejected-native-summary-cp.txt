@@ -1,0 +1,1 @@
+{"reply":"目前只支持一次整理后20秒找到通知，且你明确不把这次成功当作职业适合，方向暂停。","eventUpdates":[{"eventId":"d4b52b55-7d85-4b02-9048-96d12a1c7e57","revision":2,"actionStages":{"sent":null,"read":null,"replied":null,"used":null,"effect":null},"actionStageEvidence":{},"nodes":[],"asked":[],"corrections":[],"resolveUnknowns":[],"declineUnknowns":[]}]}"}

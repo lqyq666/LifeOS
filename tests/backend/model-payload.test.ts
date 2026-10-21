@@ -7,6 +7,19 @@ import { actionCoachTurnSchema } from '../../server/action-coach-contracts.ts'
 import { configureProviderPayload, outputTokenLimit } from '../../server/model-payload.ts'
 import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
 
+test('Qwen3.8 nonthinking uses the documented presence penalty while bounded thinking controls stay unchanged',()=>{
+ const make=(model:string,thinking=0)=>configureProviderPayload({},{provider:'bailian',id:model},'default',undefined,undefined,8192,undefined,undefined,undefined,thinking) as any
+ const max=make('qwen3.8-max')
+ assert.equal(max.presence_penalty,1.5)
+ assert.equal(max.temperature,0)
+ assert.equal(max.enable_thinking,false)
+ assert.equal(max.response_format.json_schema.strict,true)
+ assert.equal(max.max_completion_tokens,8192)
+ assert.equal(make('qwen3.8-flash').presence_penalty,1.5)
+ assert.equal(make('qwen3.8-max',2048).presence_penalty,0)
+ assert.equal(make('qwen3.8-flash',2048).presence_penalty,0)
+})
+
 test('Bailian wire omits unsupported uniqueItems while the authoritative schema still rejects duplicate selections',()=>{
  const schema={type:'object',properties:{actionIds:{type:'array',items:{type:'string'},uniqueItems:true,maxItems:12}},required:['actionIds'],additionalProperties:false}
  const before=JSON.stringify(schema),wire=(configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',schema,'workflow',2048) as any).response_format.json_schema.schema
@@ -14,6 +27,24 @@ test('Bailian wire omits unsupported uniqueItems while the authoritative schema 
  assert.equal(Value.Check(schema,{actionIds:['a','a']}),false)
  assert.equal(Value.Check(schema,{actionIds:['a']}),true)
  assert.equal(JSON.stringify(schema),before)
+})
+
+test('Flash sends each bounded event shape once without permitting cross-event transactions',()=>{
+ const current='00000000-0000-4000-8000-000000000011'
+ const target={id:'00000000-0000-4000-8000-000000000021',revision:3,nodeIds:['00000000-0000-4000-8000-000000000031'],activeUnknownIds:[],actionIds:[]}
+ const original=JSON.stringify(actionCoachTurnSchema)
+ const native=(configureProviderPayload({max_tokens:4096},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,current,[target],[]) as any).response_format.json_schema.schema
+ assert.equal(Object.hasOwn(native.properties.event,'properties'),false,'do not conjoin a duplicate shared event object with its complete bounded branches')
+ assert.ok(native.properties.event.anyOf.every((branch:any)=>branch.type==='object'&&branch.required.includes('target')&&branch.additionalProperties===false))
+ const source={messageId:current,quote:'我更重视留在目前城市'}
+ const output=(event:unknown)=>({reply:'依据仍待核实。',event})
+ assert.equal(Value.Check(native,output({target:{operation:'continue',eventId:target.id,expectedRevision:3},nodes:[{kind:'fact',source}]})),true)
+ assert.equal(Value.Check(native,output({target:{operation:'continue',eventId:target.id,expectedRevision:4}})),false)
+ assert.equal(Value.Check(native,output({target:{operation:'continue',eventId:'00000000-0000-4000-8000-000000000099',expectedRevision:3}})),false)
+ assert.equal(Value.Check(native,output({target:{operation:'create',title:'新事项',source},corrections:[{nodeId:target.nodeIds[0],source}]})),false)
+ assert.equal(Value.Check(native,output({eventId:target.id,revision:3})),false,'saved failed legacy target shape remains invalid')
+ assert.ok(native.properties.growthUpdates&&native.properties.citations,'full ordinary capabilities stay representable')
+ assert.equal(JSON.stringify(actionCoachTurnSchema),original)
 })
 
 test('saved two-hour failure cannot select an unverifiable constraint; explicit windows stay paired to their own facts',()=>{
@@ -150,14 +181,14 @@ test('Qwen receives the natural reply contract without required planning or anal
   const payload=configureProviderPayload({model:'qwen3.8-flash',messages:[],stream:true,max_tokens:4096},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192) as any
   assert.equal(payload.enable_thinking,false)
   assert.equal(payload.temperature,0)
-  assert.equal(payload.presence_penalty,0)
+  assert.equal(payload.presence_penalty,1.5)
   assert.equal(payload.max_tokens,undefined);assert.equal(payload.max_completion_tokens,8192)
   assert.equal(payload.response_format.type,'json_schema');assert.equal(payload.response_format.json_schema.name,'lifeos_action_coach')
   const schema=payload.response_format.json_schema.schema
   assert.equal(payload.response_format.json_schema.strict,true)
   assert.deepEqual(schema.required,['reply']);assert.equal(schema.additionalProperties,false)
   for(const old of ['analysis','decision','escalation','campus'])assert.equal(schema.properties[old],undefined)
-  assert.equal(schema.properties.event.properties.action.anyOf[0].properties.draft.anyOf[0].properties.content.maxLength,12000,'the legacy free-text draft keeps its bounds inside the draft union')
+  assert.equal(schema.properties.event.anyOf[0].properties.action.anyOf[0].properties.draft.anyOf[0].properties.content.maxLength,12000,'the legacy free-text draft keeps its bounds inside the complete create-event branch')
   assert.equal(schema.properties.reply.maxLength,16000)
   assert.equal(schema.properties.citations.items.anyOf[0].properties.claimId.type,'string')
   assert.equal(schema.properties.citations.items.anyOf[1].properties.sourceId.type,'string')

@@ -1,0 +1,178 @@
+{
+  "kind": "ACTUAL_NW_PREFERENCE_SCOPE_REJECTION_NOT_REWRITTEN",
+  "sourceResultSha256": "fe38c7eaba9cb79bbbd4deaad1cfc818468e7affdf29b197a0989921eebad5a6",
+  "requestId": "ee57ab53-2074-4f8e-bef1-a66e42aa90af",
+  "user": "接着自由这件事。我还没有客户，也没有自由职业经历，每周最多两小时。请比较一个更低成本的探索方式，不要推出我适合自由职业。",
+  "raw": {
+    "reply": "方式一：信息访谈。找一位已有自由职业经历的人聊20-30分钟，只问对方如何安排专注时间、是否必须自己找客户和收款。投入是一次联系加半小时对话；局限是听到的只是对方的个人情况，不代表你去做也会一样，且目前你没有已报告的联系对象，需先确认能接触到谁。\n\n方式二：在校内或现有环境中试一次自主安排专注时段。选一天中原本被切碎的时间，尝试把一段完整时段留给自己决定做什么，记录实际能否执行及感受。投入不超过两小时；局限是这只能测试你对“自己安排专注时间”的偏好强度，不涉及客户或收入，不能据此判断自由职业的可行性。\n\n以上两项都不要求你有客户或自由职业经历，也不推出你适合自由职业。比较仅基于你报告的每周最多两小时上限和不想找客户收款的偏好；所列只是本轮有限示例，不声称只有这两种。"
+  },
+  "rawSha256": "98710e6f7f55cda1db07fa1036adfce8a4e652672a327f6925c6e25878e8fbb1",
+  "priorMessages": [
+    "我是成年大学生，我想要更自由的生活，但明确不想创业。不要换词劝我创业，先问一个问题厘清我说的自由。",
+    "我主要在意能自己安排一天中专注工作的时间，不在意当老板，也不想承担找客户和收款。"
+  ],
+  "priorMemory": [
+    {
+      "id": "03362909-2b2f-4c56-875e-990e9bd350b3",
+      "conversationId": "00a6004e-92a0-458f-be7d-00538d95fc97",
+      "kind": "preference",
+      "text": "不在意当老板",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "e1d4e09e-8a30-4722-bcce-1144683f22b2",
+          "type": "message",
+          "quote": "不在意当老板"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T10:00:36.782Z",
+      "updatedAt": "2026-10-20T10:00:36.782Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "0de25f4e-d061-4a85-aa4c-39a53b61e81a",
+      "conversationId": "00a6004e-92a0-458f-be7d-00538d95fc97",
+      "kind": "preference",
+      "text": "也不想承担找客户和收款",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "e1d4e09e-8a30-4722-bcce-1144683f22b2",
+          "type": "message",
+          "quote": "也不想承担找客户和收款"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T10:00:36.782Z",
+      "updatedAt": "2026-10-20T10:00:36.782Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "35fa5b89-a3f2-40aa-a096-6c0dbca5d063",
+      "conversationId": "00a6004e-92a0-458f-be7d-00538d95fc97",
+      "kind": "preference",
+      "text": "我主要在意能自己安排一天中专注工作的时间",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "e1d4e09e-8a30-4722-bcce-1144683f22b2",
+          "type": "message",
+          "quote": "我主要在意能自己安排一天中专注工作的时间"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T10:00:36.782Z",
+      "updatedAt": "2026-10-20T10:00:36.782Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "538ced64-7029-472a-bea5-09d10d663231",
+      "conversationId": "00a6004e-92a0-458f-be7d-00538d95fc97",
+      "kind": "context",
+      "text": "我是成年大学生，我想要更自由的生活",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "535804d7-849c-4550-8efe-f7e38c071d3a",
+          "type": "message",
+          "quote": "我是成年大学生，我想要更自由的生活"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T10:00:32.568Z",
+      "updatedAt": "2026-10-20T10:00:32.568Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "53e1681d-7604-4aee-9f62-241e3d2a8e00",
+      "conversationId": "00a6004e-92a0-458f-be7d-00538d95fc97",
+      "kind": "goal",
+      "text": "我想要更自由的生活",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "535804d7-849c-4550-8efe-f7e38c071d3a",
+          "type": "message",
+          "quote": "我想要更自由的生活"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T10:00:32.568Z",
+      "updatedAt": "2026-10-20T10:00:32.568Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    },
+    {
+      "id": "5c697ffa-6801-46d0-9afe-8ed35747a1fe",
+      "conversationId": "00a6004e-92a0-458f-be7d-00538d95fc97",
+      "kind": "context",
+      "text": "我是成年大学生",
+      "assertion": "user_reported",
+      "status": "active",
+      "sources": [
+        {
+          "id": "535804d7-849c-4550-8efe-f7e38c071d3a",
+          "type": "message",
+          "quote": "我是成年大学生"
+        }
+      ],
+      "dependencies": [],
+      "validUntil": null,
+      "validFrom": null,
+      "timeBasis": null,
+      "revision": 1,
+      "createdAt": "2026-10-20T10:00:32.568Z",
+      "updatedAt": "2026-10-20T10:00:32.568Z",
+      "unavailableReason": null,
+      "limitation": "",
+      "progressState": null,
+      "directionScopes": [],
+      "structuredPlan": null
+    }
+  ]
+}

@@ -24,7 +24,7 @@ export type ExperienceOutcomeKey='read'|'response'|'adoption'|'payment'|'effect'
 // funnel merely because the storage shape can represent one.
 export function applicableExperienceOutcomes(data:{summary?:string;action?:string;result?:string;sourceQuote?:string}):ExperienceOutcomeKey[]{
   const text=[data.summary,data.action,data.result,data.sourceQuote].filter(Boolean).join(' ')
-  const interaction=/(?:发给|发送|联系|私信|邮件|消息|询问|请教|提交|交付|分享给|给.{0,12}(?:老师|同学|学长|学姐|客户|负责人|部长|室友)|(?:老师|同学|学长|学姐|客户|负责人|部长|室友).{0,6}(?:说|回复|回应|反馈))/.test(text)
+  const interaction=/(?:发给|发送|联系|私信|邮件|消息|询问|请教|提交|交付|分享给|给.{0,12}(?:老师|同学|学长|学姐|客户|负责人|部长|室友)|(?:向|给).{0,16}(?:老师|同学|学长|学姐|客户|负责人|部长|室友).{0,12}(?:发|发送|交付|提交|请教|询问|联系|说)|(?:老师|同学|学长|学姐|客户|负责人|部长|室友).{0,6}(?:说|回复|回应|反馈))/.test(text)
   const deliverable=/(?:材料|文档|简历|作品|海报|推文|方案|产品|原型|链接|文件|报告|代码|视频|问卷)/.test(text)
   const commercial=/(?:客户|订单|报价|收费|付费|付款|收入|薪酬|报酬|成交|接单|¥|元)/.test(text)
   const effectRelevant=deliverable||/(?:试用|测试|实验|干预|训练|采用|使用|效果)/.test(text)

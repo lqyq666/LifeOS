@@ -9,6 +9,39 @@ test('real course V18: natural planning question uses remaining time, questions 
  for(const no of ['老师怎么安排课程？','室友怎么安排备考？','上次课程怎么安排的？','如果课程怎么安排会比较好？'])assert.equal(requestsTimeArrangement(no),false,no)
 })
 
+test('a wrong week-hour restatement is repaired to the verified budget',()=>{
+  const obligations=deriveTurnObligations('我每周最多两小时。')
+  assert.equal(repairReplyBudget(obligations,'可以每周三小时试一下。'),'可以每周2小时试一下。')
+  assert.equal(repairReplyBudget(obligations,'可以每周最多两小时试一下。'),'可以每周最多两小时试一下。')
+})
+
+test('a proposed repeated time block cannot multiply past the owned weekly budget',()=>{
+ const obligations=deriveTurnObligations('我每周最多两小时。')
+ for(const reply of ['在未来两周内，每周挑出两个“两小时”时段。','每周安排3个45分钟时段。']){
+  assert.throws(()=>verifyReplyAgainstObligations(obligations,reply),{code:'REPLY_CONTRADICTS_CURRENT_EFFECT'},reply)
+ }
+ for(const reply of ['每周安排两个30分钟时段。','每周安排1个两小时时段。','如果每周安排三个两小时时段，就会超过预算，不这样做。','室友每周安排三个两小时时段。']){
+  assert.doesNotThrow(()=>verifyReplyAgainstObligations(obligations,reply),reply)
+ }
+})
+
+test('budget repair and verification share multiplicity without rewriting a per-block duration',()=>{
+ const obligations=deriveTurnObligations('我每周最多两小时。')
+ for(const reply of ['每周安排两个各1小时。','每周安排两个1小时学习块。','每周安排两个、每个1小时学习块。']){
+  assert.equal(repairReplyBudget(obligations,reply),reply)
+  assert.doesNotThrow(()=>verifyReplyAgainstObligations(obligations,reply))
+ }
+ for(const reply of ['每周安排三个各1小时。','每周安排三个1小时学习块。','每周安排三个45分钟来复习。','每周安排三个、每个1小时学习块。'])assert.throws(()=>verifyReplyAgainstObligations(obligations,reply),{code:'REPLY_CONTRADICTS_CURRENT_EFFECT'})
+ for(const reply of ['每周安排2个1小时时间块。','每周安排两个30分钟时段。','室友每周安排三个1小时时间块。','如果每周安排三个1小时时间块，就超了，不这样做。']){
+  const repaired=repairReplyBudget(obligations,reply)
+  assert.equal(repaired,reply,'an allocation is not a restatement of total available time')
+  assert.doesNotThrow(()=>verifyReplyAgainstObligations(obligations,repaired))
+ }
+ const over='每周安排3个1小时时间块。'
+ assert.equal(repairReplyBudget(obligations,over),over)
+ assert.throws(()=>verifyReplyAgainstObligations(obligations,over),{code:'REPLY_CONTRADICTS_CURRENT_EFFECT'})
+})
+
 test('listening preserves explicit zero time without authorizing a plan',()=>{
  const effects=deriveTurnObligations('我这周零分钟可用，先别分析创业了，只想说说最近的压力。').requiredEffects
  assert.ok(effects.some(e=>e.type==='weekly_time'&&e.minutes===0&&e.period==='this_week'))
@@ -20,7 +53,7 @@ test('natural candidate schedule request is mandatory and keeps its requested we
  assert.ok(deriveTurnObligations(text).requiredEffects.some(e=>e.type==='weekly_plan'&&e.period==='next_week'&&e.minutes===60))
  for(const no of ['室友说请给课程和备考安排下周的候选任务。','如果请给课程和备考安排下周的候选任务会怎么样？','请给课程和备考不要安排下周的任务。'])assert.ok(!deriveTurnObligations(no).requiredEffects.some(e=>e.type==='weekly_plan'),no)
 })
-import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,isPureZeroPlanRequest,verifyTurnObligations,verifyReplyAgainstObligations,supplementMissingBudgetDeltas,planExplicitCorrection,hoursIn} from '../server/turn-obligations.ts'
+import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,isPureZeroPlanRequest,verifyTurnObligations,verifyReplyAgainstObligations,repairReplyBudget,supplementMissingBudgetDeltas,planExplicitCorrection,hoursIn} from '../server/turn-obligations.ts'
 test('V19 remaining-week replacement identifies only the matching owned budget, never recurring time',()=>{
  const old=[{id:'remaining',revision:2,kind:'constraint' as const,assertion:'user_reported',text:'这周还剩两小时'},{id:'routine',revision:1,kind:'context' as const,assertion:'user_reported',text:'平时每周能拿出六小时'}]
  assert.equal(planExplicitCorrection('这周剩余时间要改成三十分钟。',old)?.target?.itemId,'remaining')
@@ -104,6 +137,10 @@ test('missing required updates and contradicting replies are hard failures',()=>
   verifyReplyAgainstObligations(obligations,'按每周3小时安排。')
   // The opportunity's own demanded hours in the reply never contradict the user's budget.
   verifyReplyAgainstObligations(obligations,'这个实习本身要求每周15小时，而你每周只有3小时，缺口很大。')
+  // Alternative allocations are not a restatement of the user's weekly total.
+  verifyReplyAgainstObligations(obligations,'方式A每周30分钟，方式B每周1.5小时。')
+  verifyReplyAgainstObligations(obligations,'方案A每周30分钟，方案B每周1.5小时。')
+  verifyReplyAgainstObligations(obligations,'第一种每周30分钟，第二种每周1.5小时。')
   // P2 (B13): affirming a DIFFERENT amount of the user's own just-stated
   // budget is a hard failure again — with escapes for opportunity-attributed
   // amounts and change framings (the classes P1's removal was for).
@@ -249,6 +286,15 @@ test('P2-1: explicit corrections carry a required, deterministic state change',(
   // to verbatim create, never a guessed amend.
   const unrelated=planExplicitCorrection('更正一下：我是大二，刚才说成大三了。',[{id:'g-other',revision:1,kind:'context' as const,assertion:'user_reported',text:'我喜欢视觉设计，每周能投入六小时。'}])
   assert.equal(unrelated?.target,undefined)
+  const event={id:'event',revision:1,kind:'context' as const,assertion:'user_reported',text:'最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次'}
+  const qualify='更正：同学少问一次只是结果，不代表我因此有成就感；我当时真正轻松的是自己不用反复找。只更新受影响的判断。'
+  assert.equal(planExplicitCorrection(qualify,[event])?.target,undefined,'denying an inference cannot replace its supporting event')
+  const alreadyNegative={id:'negative',revision:1,kind:'context' as const,assertion:'user_reported',text:'同学少问一次时我没有成就感'}
+  assert.equal(planExplicitCorrection(qualify,[alreadyNegative])?.target,undefined,'an already negative feeling is not refuted by denial of a positive inference')
+  assert.equal(planExplicitCorrection('更正：不代表我有成就感。',[alreadyNegative])?.target,undefined,'negation immediately before the matching predicate must not be lost')
+  for(const text of ['我谈不上因此有成就感','我并非因此有成就感','我从未因此有成就感','我不算因此有成就感','我未必因此有成就感'])assert.equal(planExplicitCorrection('更正：不代表我因此有成就感。',[{...alreadyNegative,text}])?.target,undefined,text)
+  assert.equal(planExplicitCorrection('更正：不代表我因此有成就感。',[{...alreadyNegative,text:'我可能因此有成就感'}])?.target,undefined,'a hedged prior explanation remains a separate dated source')
+  assert.equal(planExplicitCorrection(qualify,[event,{id:'feeling',revision:1,kind:'context',assertion:'user_reported',text:'我因此有成就感'}])?.target?.itemId,'feeling','an actually refuted feeling remains correctable')
 })
 
 test('new real first failures: one-and-a-half remainder is not thirty minutes and scoped zero can persist from its amount clause',()=>{

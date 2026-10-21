@@ -14,11 +14,12 @@ import type { Run } from './store.ts'
 import { reconcileThemesWithGrowth, projectUserThemes } from './user-themes.ts'
 import {reconcileIdentityClaims,projectIdentityClaims} from './identity.ts'
 import {hoursIn,applicableTimeBudget} from './turn-obligations.ts'
-import {deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause} from './user-command-spans.ts'
+import {deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause,scopedTaskPauseTarget} from './user-command-spans.ts'
 import {matchPathTheme} from './path-lexicon.ts'
 import {persistMemoryControl} from './memory-controls.ts'
-import {clauseReportsAttempted} from './experience-content.ts'
+import {clauseReportsAttempted,clauseReportsPastAction} from './experience-content.ts'
 import {taskOutcomeReadback} from './turn-contract.ts'
+import {detectUnconfirmedLabelRejection,explicitlyConfirmsLabel,samePersonalLabel} from './forget-intent.ts'
 
 type DB = Pick<PoolClient, 'query'>
 type Row = { id: string; user_id: string; conversation_id: string; kind: GrowthItem['kind']; text: string; assertion: GrowthItem['assertion']; status: GrowthItem['status']; sources: GrowthItem['sources']; dependencies: GrowthRef[]; valid_until: Date | null; valid_from: Date | null; time_basis: Record<string, unknown> | null; direction_scopes: string[] | null; structured_plan: Record<string, unknown> | null; revision: number; created_at: Date; updated_at: Date; limitation?:string;progress_state?:GrowthItem['progressState'] }
@@ -34,7 +35,8 @@ function expiry(value: string | null | undefined): Date | null {
 }
 function item(row: Row, reason: string | null = null): GrowthItem {
   const hidden = row.status === 'forgotten' || reason === 'source_revoked'
-  const taskBoundary=!hidden&&row.assertion==='user_reported'&&scopedTaskPauseClause(row.text)?{kind:'pause' as const,scope:'current_matter' as const,targetText:(row.text.includes('备考')?'备考':'复习') as '备考'|'复习',sourceConversationId:row.conversation_id,sourceMessageId:row.sources.find(source=>source.type==='message')?.id??null,matterBinding:'needs_same_matter_confirmation' as const,expiresAt:row.valid_until?.toISOString()??null,quote:row.text}:undefined
+  const pauseTarget=!hidden&&row.assertion==='user_reported'?scopedTaskPauseTarget(row.text):null
+  const taskBoundary=pauseTarget?{kind:'pause' as const,scope:'current_matter' as const,targetText:pauseTarget,sourceConversationId:row.conversation_id,sourceMessageId:row.sources.find(source=>source.type==='message')?.id??null,matterBinding:'needs_same_matter_confirmation' as const,expiresAt:row.valid_until?.toISOString()??null,quote:row.text}:undefined
   const outcomes=taskOutcomeReadback(row.text,undefined,true)
   const feedbackEvidence=!hidden&&row.assertion==='user_reported'&&(row.kind==='feedback'||Object.values(outcomes).some(value=>value.status!=='unknown'))?{reportedAt:row.created_at.toISOString(),taskBinding:'unknown' as const,outcomes}:undefined
   const kind=['goal','direction'].includes(row.kind)&&row.assertion==='user_reported'&&unstartedActivityOnlyClause(row.text)?'context':row.kind
@@ -81,6 +83,22 @@ export async function growthView(user: string, conversation?: string, c: DB = po
   // from "active fact that must not be proactively recommended".
   const stopped = new Set(((await c.query("SELECT item_id FROM growth_recommendation_controls WHERE user_id=$1 AND state='stopped'", [user])).rows as { item_id: string }[]).map(row => row.item_id))
   for (const entry of items) if (stopped.has(entry.id)) entry.recommendationStopped = true
+  // Control clauses remain exact source-backed context rows. Associate only
+  // instructions from the SAME source message, never nearby conversations.
+  const controlsByMessage=new Map<string,GrowthItem[]>()
+  for(const entry of items.filter(item=>!item.unavailableReason&&item.assertion==='user_reported'))for(const source of entry.sources){
+    if(source.type!=='message'||source.quote!==entry.text)continue
+    controlsByMessage.set(source.id,[...(controlsByMessage.get(source.id)??[]),entry])
+  }
+  for(const [messageId,group] of controlsByMessage){
+    const rejection=detectUnconfirmedLabelRejection(group.map(entry=>entry.text).join('；'))
+    if(!rejection||rejection.boundaryQuotes.length<2)continue
+    const carrier=group.find(entry=>entry.text.includes(rejection.label))
+    if(!carrier)continue
+    const confirmedLater=items.some(entry=>entry.status==='active'&&!entry.unavailableReason&&Date.parse(entry.createdAt)>Date.parse(carrier.createdAt)
+      &&((entry.assertion==='user_reported'&&explicitlyConfirmsLabel(entry.text,rejection.label))||(entry.assertion==='user_edit'&&entry.kind==='preference'&&samePersonalLabel(entry.text,rejection.label))))
+    carrier.inferenceBoundary={kind:'do_not_infer_label',label:rejection.label,active:!confirmedLater,sourceMessageId:messageId,instructionQuotes:rejection.boundaryQuotes}
+  }
   return { memoryEnabled, items }
 }
 export async function growthContext(user: string, conversation: string) {
@@ -88,14 +106,15 @@ export async function growthContext(user: string, conversation: string) {
   return view.items.filter(row => !row.unavailableReason && ['active','proposed'].includes(row.status))
 }
 export async function growthBoundaryContext(user:string,conversation:string){
-  return (await growthView(user,conversation)).items.filter(row=>!row.unavailableReason&&['rejected','paused'].includes(row.status))
+  return (await growthView(user,conversation)).items.filter(isGrowthBoundary)
 }
+const isGrowthBoundary=(row:GrowthItem)=>!row.unavailableReason&&(['rejected','paused'].includes(row.status)||row.inferenceBoundary?.active===true)
 export const growthSnapshotKey = (items: GrowthItem[]) => fingerprint(items.map(row => [row.id,row.revision,row.status]).sort((a,b) => String(a[0]).localeCompare(String(b[0]))))
 export async function assertGrowthSnapshot(c: DB, user: string, conversation: string, refs: GrowthRef[], expectedKey?: string, boundaryKey?:string) {
   if (!refs.length && expectedKey === undefined && boundaryKey===undefined) return
   await lockGrowth(c, user)
   const view = await growthView(user, conversation, c)
-  if(boundaryKey!==undefined&&growthSnapshotKey(view.items.filter(row=>!row.unavailableReason&&['rejected','paused'].includes(row.status)))!==boundaryKey)throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')
+  if(boundaryKey!==undefined&&growthSnapshotKey(view.items.filter(isGrowthBoundary))!==boundaryKey)throw new HttpError(409,'GROWTH_SNAPSHOT_INVALIDATED')
   if (expectedKey !== undefined && growthSnapshotKey(view.items.filter(row => !row.unavailableReason && ['active','proposed'].includes(row.status))) !== expectedKey) throw new HttpError(409, 'GROWTH_SNAPSHOT_INVALIDATED')
   for (const ref of refs) {
     const found = view.items.find(row => row.id === ref.id && row.revision === ref.revision)
@@ -384,6 +403,12 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
     const {validUntil:legacyExpiry, ...withoutLegacyExpiry}=change as {validUntil?:unknown}
     void legacyExpiry
     const delta:GrowthDelta={...withoutLegacyExpiry,text:selectedText,...(resolvedTime?{validUntil:resolvedTime.validUntil}:{})} as GrowthDelta
+    // A model-selected goal kind cannot turn an autobiographical event into an
+    // ongoing pursuit. Preserve existing explicit action-feedback handling below.
+    if(delta.assertion==='user_reported'&&delta.kind==='goal'
+      &&clauseReportsPastAction(delta.source.quote)){
+      ;(delta as {kind:string}).kind='context'
+    }
     if(delta.assertion==='user_reported'&&['context','goal','feedback'].includes(delta.kind)){
       const quote=delta.source.quote
       const notStarted=/^(?:我(?:目前|现在|还|仍)?|(?:但|也)?(?:还|仍)?)?(?:没(?:有)?|尚未|还未|未)(?:开始|动手|问|访谈|联系|复习|准备|完成)/.test(quote)
@@ -609,8 +634,21 @@ export async function persistGrowthUpdates(c:PoolClient,run:Run,staged:GrowthSta
     // course/project allowances and other weeks remain independent.
     if(row.kind==='constraint'&&row.assertion==='user_reported'&&mutation.time?.basis.kind==='calendar_week'&&
       hoursIn(row.text)!==null&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(row.text)){
+      // A compact zero-time quote such as "可用时间是零" may omit the week
+      // token because the immediately adjacent user clause supplies it. The
+      // committed calendar-week evidence already binds the row to that week;
+      // reuse that scope when comparing its budget field to prior rows.
+      const budgetContext={period:mutation.time.basis.which==='next'?'next_week' as const:'this_week' as const,question:'本人可用时间',anchor:mutation.time.basis.quote}
+      const currentBudget=applicableTimeBudget(row.text,budgetContext,undefined,{retainReportedBudget:true})
       const older=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND id<>$2 AND kind='constraint' AND assertion='user_reported' AND status='active' AND valid_until=$3 AND time_basis->>'kind'='calendar_week' ORDER BY id FOR UPDATE",[run.user_id,row.id,row.valid_until])).rows
       for(const prior of older)if(hoursIn(prior.text)!==null&&hoursIn(prior.text)!==hoursIn(row.text)&&!/(?:课程|备考|考研|创业|项目|实习|兼职|工作|接单|自由职业|科研|社团)/.test(prior.text)){
+        const priorBudget=applicableTimeBudget(prior.text,undefined,undefined,{retainReportedBudget:true})
+        // Only supersede a prior amount when both facts resolve to the same
+        // budget field. A newly reported zero available-time limit is the
+        // exception: it closes the whole week's remaining capacity, including
+        // a prior value phrased as "剩余时间". An unparsed scope remains unknown.
+        const zeroClosesWeek=currentBudget?.amountMinutes===0&&['available','remaining'].includes(currentBudget.scope)&&['available','remaining'].includes(priorBudget?.scope??'')
+        if(!currentBudget||!priorBudget||currentBudget.period!==priorBudget.period||currentBudget.scope!==priorBudget.scope&&!zeroClosesWeek)continue
         await applyGrowthAction(c,run.user_id,prior.id,{requestId:randomUUID(),expectedRevision:prior.revision,action:'pause'});changedIds.push(prior.id)
       }
     }

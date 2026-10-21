@@ -20,3 +20,17 @@ test('structured probe redaction preserves authorization metadata and valid JSON
   assert.equal(parsed.nested[0].reply,value.nested[0]!.reply)
   assert.doesNotMatch(serialized,/synthetic-only-credential|another-private-value|hidden-value/)
 })
+
+test('probe diagnostics classify SDK connection failures without inventing a provider rejection',()=>{
+  for(const message of ['Connection error.','APIConnectionError: Connection error.','getaddrinfo EAI_AGAIN','UND_ERR_SOCKET'])assert.equal(probeErrorCategory(message),'NETWORK',message)
+  assert.equal(probeErrorCategory('Connection timeout'),'TIMEOUT')
+  assert.equal(probeErrorCategory('401 invalid key'),'AUTHENTICATION')
+  assert.equal(probeErrorCategory('unexpected response'),'UNCLASSIFIED_ERROR')
+})
+
+test('workspace-shaped synthetic keys are redacted even when the configured-key list is unavailable',()=>{
+  const key='sk-ws-SYNTHETIC.PART_TWO_FOR_TESTS.signature_NOT_A_REAL_CREDENTIAL'
+  assert.equal(redactProbeText(key,[]),'[REDACTED]')
+  const value=redactProbeValue({error:'request failed: '+key,nested:['ordinary reply',key]},[]) as any
+  assert.deepEqual(value,{error:'request failed: [REDACTED]',nested:['ordinary reply','[REDACTED]']})
+})

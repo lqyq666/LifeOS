@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
@@ -14,6 +15,41 @@ test('research exploration control is distinct from recommendation admission',()
  const admission=deriveExplicitDirectionControls('先别推保研。')
  if(admission.status==='explicit')assert.deepEqual(admission.changes[0]!.scopes,['postgraduate_recommendation'])
  assert.notEqual(deriveExplicitDirectionControls('朋友说“先别推科研探索”，我还想了解。').status,'explicit')
+})
+
+test('an explicit named-direction refusal is a durable pause, not a negated or attributed request',()=>{
+ const result=deriveExplicitDirectionControls('创业仍然拒绝，不要自动重开。')
+ assert.equal(result.status,'explicit')
+ if(result.status==='explicit')assert.deepEqual(result.changes,[{scopes:['entrepreneurship'],operation:'pause',quote:'创业仍然拒绝'}])
+ for(const text of ['我不是拒绝创业','创业不再拒绝','如果创业仍然拒绝','朋友说创业仍然拒绝','“创业仍然拒绝”','创业仍然拒绝吗？'])assert.equal(deriveExplicitDirectionControls(text).status,'none',text)
+ assert.equal(deriveExplicitDirectionControls('不要自动重开创业').status,'explicit')
+ assert.equal(deriveExplicitDirectionControls('不要自动重开').status,'needs_confirmation','an unbound control is never guessed')
+})
+
+test('actual NU initial refusal is explicit before a later repeat and neutral priority is not refusal',()=>{
+ const capture=JSON.parse(readFileSync(new URL('../fixtures/nu-modal-control-failures.json',import.meta.url),'utf8'))
+ const first=deriveExplicitDirectionControls(capture.turns[0].user)
+ assert.equal(first.status,'explicit');if(first.status!=='explicit')throw Error('FIRST_REFUSAL_REQUIRED')
+ assert.ok(first.changes.every(change=>change.operation==='pause'&&JSON.stringify(change.scopes)===JSON.stringify(['entrepreneurship'])))
+ for(const text of ['但明确不想创业。','不要劝我创业。','不要换个说法劝我考研。'])assert.equal(deriveExplicitDirectionControls(text).status,'explicit',text)
+ for(const text of ['我不想了解创业。','我不在意创业。','如果我不想创业，怎么办？','朋友说不想创业。','我不是明确不想创业。','“明确不想创业”不是我的决定。','不要劝我创业而是帮我找就业。'])assert.equal(deriveExplicitDirectionControls(text).status,'none',text)
+})
+
+test('the real refusal-and-no-reopen phrase commits and survives a new conversation',async()=>{
+ const user='refusal-nb-'+randomUUID(),chat=randomUUID(),next=randomUUID()
+ try{
+  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
+  await store.createConversation(user,{id:chat,title:'SYNTHETIC explicit direction refusal'})
+  const run=(await store.startRun(user,chat,randomUUID(),'创业仍然拒绝，不要自动重开。现在不继续行动。')).run
+  const derived=deriveExplicitDirectionControls('创业仍然拒绝，不要自动重开。现在不继续行动。')
+  assert.equal(derived.status,'explicit');if(derived.status!=='explicit')throw Error('EXPLICIT_REFUSAL_REQUIRED')
+  const controls=await stageDirectionControls(run,derived.changes)
+  const response=await store.finishRun(run,{candidates:[],audit:[],directionControls:controls,directionControlSnapshotKey:controls.expectedSnapshotKey},'创业建议暂停。',null,new AbortController().signal)
+  assert.deepEqual(response.stateChange.controls.changedScopes,['entrepreneurship'])
+  await store.createConversation(user,{id:next,title:'SYNTHETIC refusal readback'})
+  assert.equal((await readDirectionControls(user)).find(row=>row.scope==='entrepreneurship')?.state,'paused')
+  assert.ok(!(await readDirectionControls(user)).some(row=>row.scope==='freelance'),'the named refusal does not close an unrelated direction')
+ }finally{await pool.query('DELETE FROM "user" WHERE id=$1',[user])}
 })
 
 test('deriveExplicitDirectionControls recognizes only the user\'s own explicit commands',()=>{
@@ -48,6 +84,7 @@ test('deriveExplicitDirectionControls recognizes only the user\'s own explicit c
 test('direction controls persist per account, expand 升学 atomically, resume one scope, conflict on stale snapshots, and survive forgetting (CTR-01..05)',async t=>{
   const user='growth-controls-'+randomUUID(),chat=randomUUID()
   await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[user,user+'@example.invalid'])
+  await pool.query('INSERT INTO user_memory_settings(user_id,enabled,revision) VALUES($1,true,1)',[user])
   await store.createConversation(user,{id:chat,title:'SYNTHETIC direction controls'})
   const prepare=async(text:string)=>{
     await pool.query("UPDATE runs SET status='failed',error_code='SYNTHETIC_TEST_CLEANUP',finished_at=now() WHERE user_id=$1 AND conversation_id=$2 AND status='running'",[user,chat])
@@ -61,8 +98,8 @@ test('direction controls persist per account, expand 升学 atomically, resume o
   }
   try{
     await t.test('CTR-01 pausing 升学 keeps personal facts and blocks the four scopes across sessions',async()=>{
-      const first=await prepare('我有三个数字媒体作品，对视觉设计有兴趣。')
-      const growthStage=await stageGrowthUpdates(first,[{target:{operation:'create'},kind:'ability',assertion:'user_reported',source:{messageId:first.source_message_id,quote:'我有三个数字媒体作品'}}],[])
+      const first=await prepare('我有三个数字媒体作品，对视觉设计有兴趣。我的目标是考研。')
+      const growthStage=await stageGrowthUpdates(first,[{target:{operation:'create'},kind:'ability',assertion:'user_reported',source:{messageId:first.source_message_id,quote:'我有三个数字媒体作品'}},{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{messageId:first.source_message_id,quote:'我的目标是考研'}}],[])
       await store.finishRun(first,{candidates:[],audit:[],growth:growthStage},'已记录。',null,new AbortController().signal)
       const pauseRun=await prepare('我撤回成绩单信息，也先别推升学相关的安排。')
       const saved=await commitControls(pauseRun)
@@ -74,6 +111,10 @@ test('direction controls persist per account, expand 升学 atomically, resume o
       // the prompt carries the blocked set for any later turn.
       const facts=await growthContext(user,chat)
       assert.ok(facts.some(row=>row.text==='我有三个数字媒体作品'),'works fact is untouched')
+      assert.ok(facts.some(row=>row.kind==='goal'&&row.text==='我的目标是考研'&&row.status==='active'),'direction settings do not retract a still-valid personal goal report')
+      const otherChat=randomUUID();await store.createConversation(user,{id:otherChat,title:'SYNTHETIC paused direction fact readback'})
+      assert.ok((await growthContext(user,otherChat)).some(row=>row.kind==='goal'&&row.text==='我的目标是考研'))
+      assert.equal((await readDirectionControls(user)).find(row=>row.scope==='postgraduate_exam')?.state,'paused','the recommendation pause survives a new conversation independently of report validity')
       const prompt=buildTurnPrompt({currentMessageId:'x',messages:[{id:'x',role:'user',content:'接下来做什么',created_at:new Date().toISOString()}],directionControls:controls,allowedDirectionScopes:['employment','entrepreneurship','public_service'],blockedDirectionScopes:controls.map(row=>row.scope)})
       assert.ok(prompt.includes('"blockedDirectionScopes":["overseas_study'),'paused scopes reach the model prompt as blocked')
       assert.ok(prompt.includes('"allowedDirectionScopes":["employment"'),'remaining scopes stay allowed')

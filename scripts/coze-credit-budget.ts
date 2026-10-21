@@ -42,7 +42,15 @@ export class CozeCreditBudget{
    }else if(row.type==='owner_acceptance_window_increased'){
     if(!acceptanceWindow||row.newBudget!==0||row.previousApprovalDigest!==acceptanceWindow.approvalDigest||!positive(row.maximumCredits)||Number(row.maximumCredits)<=Number(acceptanceWindow.maximumCredits)||Number(row.maximumCredits)>Number(acceptanceWindow.observedRemainingCredits)||!digest(row.approvalDigest))throw Error('COZE_ACCEPTANCE_WINDOW_INVALID')
     acceptanceWindow=Object.assign({},acceptanceWindow,{maximumCredits:row.maximumCredits,approvalDigest:row.approvalDigest})
-   }else if(row.type!=='existing_credit_balance'&&row.type!=='credits_attempt_finished')throw Error('COZE_LEDGER_ROW_INVALID')
+   }else if(row.type==='credits_attempt_finished'){
+    // A provider-reported zero-call attempt releases its reservation. An
+    // unknown or partial attempt keeps the full reserve until an observed bill.
+    if(row.reservationRetained===false&&row.providerCalls===0){
+     const requestId=String(row.requestId)
+     if(!reserved.has(requestId)||settled.has(requestId))throw Error('COZE_LEDGER_ATTEMPT_INVALID')
+     settled.add(requestId);charges.set(requestId,0)
+    }
+   }else if(row.type!=='existing_credit_balance')throw Error('COZE_LEDGER_ROW_INVALID')
   }
   for(const [id,row] of reserved)if(!settled.has(id))held+=Number(row.reservedCredits)
   const legacyAccounted=acceptanceWindow?[...windowPrior].reduce((sum,id)=>sum+(settled.has(id)?charges.get(id)!:Number(reserved.get(id)!.reservedCredits)),0):charged+held
@@ -86,12 +94,16 @@ export class CozeCreditBudget{
    return {type:'account_allowance_bound',budgetUnit:'coze_credits',newBudget:0,percentage:0.2,maximumAdditionalCredits:Math.floor(input.observedRemainingCredits*0.2),...input}
   })
  }
- finishUnknown(requestId:string,outcome:'completed'|'failed'|'cancelled',providerCalls:number|null,receiptId:string|null){
+ finishUnknown(requestId:string,outcome:'completed'|'failed'|'cancelled',providerCalls:number|null,receiptId:string|null,creditCostKnownZero=false){
   if(!['completed','failed','cancelled'].includes(outcome)||!(providerCalls===null||Number.isSafeInteger(providerCalls)&&providerCalls>=0&&providerCalls<=5))throw Error('COZE_ATTEMPT_RESULT_INVALID')
   this.append(rows=>{
    const view=this.view(rows)
    if(!view.reservations.has(requestId)||rows.some(row=>row.type==='credits_attempt_finished'&&row.requestId===requestId))throw Error('COZE_ATTEMPT_NOT_RESERVED_OR_ALREADY_FINISHED')
-   return {type:'credits_attempt_finished',requestId,outcome,providerCalls,receiptId,costCredits:'unknown',costCny:'unknown_not_converted',reservationRetained:true}
+   // A readback with provider-reported zero model calls has a known zero credit
+   // cost and may release. A graph attempt may still have unknown Coze cost even
+   // with zero provider calls, so it keeps its reservation by default.
+   const release=creditCostKnownZero&&providerCalls===0
+   return {type:'credits_attempt_finished',requestId,outcome,providerCalls,receiptId,costCredits:release?'0':'unknown',costCny:release?'known_zero':'unknown_not_converted',reservationRetained:!release}
   })
  }
  authorizeAcceptanceWindow(input:{observedRemainingCredits:number;maximumCredits:number;observedAt:string;approvalDigest:string;balanceEvidenceDigest:string}){

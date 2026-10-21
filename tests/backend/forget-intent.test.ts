@@ -72,9 +72,10 @@ test('A1 free replay: clause intent classification (N01-N08 + unseen variants)',
   assert.equal(pronounScored[0]!.item.id, 'newsletter', 'pronoun resolves against the nearest antecedent clause')
   assert.deepEqual(
     detectUnconfirmedLabelRejection('忘掉“我喜欢销售”这个从未由我确认的错误标签；不要从这些经历重新推出来。现在结束，不安排下一步。'),
-    {label:'我喜欢销售',boundaryQuote:'不要从这些经历重新推出来'},
+    {label:'我喜欢销售',boundaryQuotes:['忘掉“我喜欢销售”这个从未由我确认的错误标签','不要从这些经历重新推出来']},
   )
   assert.equal(detectUnconfirmedLabelRejection('请忘掉我已经确认过的销售经历。'),null)
+  assert.deepEqual(detectUnconfirmedLabelRejection('忘掉“我喜欢销售”这个从未确认的错误标签；我今天填了报名表；不要从这些经历重新推出来。')?.boundaryQuotes,['忘掉“我喜欢销售”这个从未确认的错误标签','不要从这些经历重新推出来'],'an intervening independent fact is not part of the control')
 })
 
 // Shared isolated-engine harness: a fake provider returning scripted outputs
@@ -139,6 +140,80 @@ function withEngineScenario(name: string, run: (helpers: {
     }
   })
 }
+
+withEngineScenario('an unconfirmed label rejection preserves independently reported related experiences',async({user,chat,chat2,prepare,outputs,engine})=>{
+  const sale=await createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind:'context',text:'我参与过销售活动'})
+  const p=await prepare('忘掉“我喜欢销售”这个从未由我确认的错误标签；不要从这些经历重新推出来。现在结束，不安排下一步。')
+  outputs.push({reply:'已撤除这个未经确认的标签。'})
+  const result=await engine(p.input)
+  const response=await store.finishRun(p.run,p.staged,result.text,result.usage,p.input.signal)
+  assert.equal(response.stateChange.memoryControl,null,'a related experience is not the rejected label')
+  const retained=await growthContext(user,chat2)
+  assert.ok(retained.some(item=>item.id===sale.id&&item.status==='active'))
+  assert.ok(retained.some(item=>item.text==='忘掉“我喜欢销售”这个从未由我确认的错误标签'))
+  assert.ok(retained.some(item=>item.text==='不要从这些经历重新推出来'))
+  assert.match(result.text,/没有找到已保存/)
+})
+
+withEngineScenario('a pure rejected-label command preserves the related fact and refusal with zero generation',async({user,chat,chat2,prepare,engine})=>{
+  const sale=await createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind:'context',text:'我参与过销售活动'})
+  const p=await prepare('忘掉“我喜欢销售”这个从未由我确认的错误标签。')
+  const result=await engine(p.input)
+  assert.equal(p.staged.upstreamCalls,0)
+  const response=await store.finishRun(p.run,p.staged,result.text,result.usage,p.input.signal)
+  assert.equal(response.stateChange.memoryControl,null)
+  const retained=await growthContext(user,chat2)
+  assert.ok(retained.some(item=>item.id===sale.id&&item.status==='active'))
+  assert.ok(retained.some(item=>item.text==='忘掉“我喜欢销售”这个从未由我确认的错误标签'))
+})
+
+withEngineScenario('successful rejected-label deletion atomically retains both durable refusal clauses',async({user,chat,chat2,prepare,outputs,engine})=>{
+  const label=await createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind:'preference',text:'我喜欢销售'})
+  const sale=await createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind:'context',text:'我参与过销售活动'})
+  const p=await prepare('忘掉“我喜欢销售”这个从未由我确认的错误标签；不要从这些经历重新推出来。现在结束，不安排下一步。')
+  outputs.push({reply:'已移除错误标签，不再推导。'})
+  const result=await engine(p.input)
+  const response=await store.finishRun(p.run,p.staged,result.text,result.usage,p.input.signal)
+  assert.equal((response.stateChange.memoryControl as any)?.itemId,label.id)
+  const retained=await growthContext(user,chat2)
+  assert.ok(!retained.some(item=>item.id===label.id))
+  assert.ok(retained.some(item=>item.id===sale.id&&item.status==='active'))
+  assert.ok(retained.some(item=>item.text==='忘掉“我喜欢销售”这个从未由我确认的错误标签'))
+  assert.ok(retained.some(item=>item.text==='不要从这些经历重新推出来'))
+})
+
+withEngineScenario('a rejected provisional label does not suppress a later safe preview',async({user,chat,chat2,prepare,outputs,engine})=>{
+  await createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind:'preference',text:'我喜欢销售'})
+  await createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind:'context',text:'我参与过销售活动'})
+  const forget=await prepare('忘掉“我喜欢销售”这个从未由我确认的错误标签；不要从这些经历重新推出来。现在结束，不安排下一步。')
+  outputs.push({reply:'已移除错误标签，不再推导。'})
+  const forgotten=await engine(forget.input)
+  await store.finishRun(forget.run,forget.staged,forgotten.text,forgotten.usage,forget.input.signal)
+
+  const next=await prepare('继续聊聊我现在对销售工作的兴趣。',chat2 as `${string}-${string}-${string}-${string}-${string}`),frames:Record<string,unknown>[]=[]
+  next.input.emit=frame=>{frames.push(frame)}
+  const reply='你之前明确要求不要从销售经历推回“喜欢销售”，所以目前兴趣仍未知。要不要先了解销售岗位的日常工作？'
+  outputs.push({lead:'你喜欢销售，对吗？',reply})
+  const result=await engine(next.input)
+  const previews=frames.filter(frame=>frame.type==='draft')
+  assert.ok(previews.some(frame=>String(frame.text).includes('销售岗位的日常工作')),'the safe reply question should be offered after the rejected lead is withheld')
+  assert.ok(previews.every(frame=>!String(frame.text).includes('你喜欢销售')),'the rejected label must never appear as a user-facing preview')
+  assert.equal(result.text,reply)
+  await store.finishRun(next.run,next.staged,result.text,result.usage,next.input.signal)
+})
+
+withEngineScenario('a mixed stop-recommendation turn exposes no model draft before its atomic receipt',async({user,chat,prepare,outputs,engine})=>{
+  const target=await createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind:'context',text:'公众号那件事'})
+  const p=await prepare('请不要再推荐公众号那件事。我最近对就业的兴趣还不确定，只更新理解，不给动作。')
+  const frames:any[]=[];p.input.emit=event=>{frames.push(event)}
+  const lead='这条记录会保留，但不再主动推荐相关事项。'
+  outputs.push({lead,reply:lead+'就业兴趣仍未知。'})
+  const result=await engine(p.input)
+  assert.equal(frames.filter(frame=>frame.type==='draft'&&!frame.verifiedState&&!frame.verifiedFeedback).length,0,'model prose waits for control commit even when its wording varies')
+  const response=await store.finishRun(p.run,p.staged,result.text,result.usage,p.input.signal)
+  assert.equal((response.stateChange.memoryControl as any)?.itemId,target.id)
+  assert.equal((response.stateChange.memoryControl as any)?.boundary,'recommendation_stopped')
+})
 
 withEngineScenario('A3 full path: intent → staging → finishRun commit → GET → refresh → new conversation', async ({ user, chat, chat2, prepare, outputs, engine }) => {
   const poster = await createGrowthItem(user, { requestId: randomUUID(), conversationId: chat, kind: 'context', text: '我的海报经历记录' })

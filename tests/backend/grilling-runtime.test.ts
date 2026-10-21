@@ -71,19 +71,30 @@ test('normal LifeOS transaction sends and commits the current grilling policy an
     const activeUnknown=inquiryEvent.nodes.find(node=>node.kind==='unknown')!
     const answerText='我喜欢先把混乱材料按规则归类。现在长期记忆已开启。请只给一个动作，这个动作要说明验证什么、看到什么算有进展、何时停止。不要再让我复述经历。'
     const answer=(await store.startRun(user,conversation,randomUUID(),answerText)).run,answerStaged:store.Staged={candidates:[],audit:[]}
-    outputs.push({reply:'已更新：你更投入规则归类。',event:{target:{operation:'continue',eventId:inquiryEvent.id,expectedRevision:inquiryEvent.revision},nodes:[
+    outputs.push({reply:'已更新：你更投入规则归类。',event:{target:{operation:'continue',eventId:inquiryEvent.id,expectedRevision:inquiryEvent.revision},resolveUnknowns:[activeUnknown.id],nodes:[
       {kind:'fact',source:{messageId:answer.source_message_id,quote:'这个动作要说明验证什么'}},
       {kind:'fact',source:{messageId:answer.source_message_id,quote:'看到什么算有进展'}},
       {kind:'fact',source:{messageId:answer.source_message_id,quote:'何时停止'}},
       {kind:'fact',source:{messageId:answer.source_message_id,quote:'现在长期记忆已开启'}},
     ]}})
     const answerResult=await createTurnEngine({capabilityVerified:()=>true})({run:answer,staged:answerStaged,context:await store.contextForRun(answer),decision:null,signal:new AbortController().signal,emit:()=>{}})
-    assert.deepEqual(answerStaged.coach?.delta.resolveUnknowns,[activeUnknown.id],'an immediate grounded answer closes the one active question even if the model omits the state transition')
+    assert.deepEqual(answerStaged.coach?.delta.resolveUnknowns,[activeUnknown.id],'an explicit disposition closes the answered question')
     assert.deepEqual(answerStaged.coach?.delta.nodes,[],'action-format instructions and product state never become event facts')
     const answeredEvent=(await store.finishRun(answer,answerStaged,answerResult.text,answerResult.usage,new AbortController().signal)).event!
     assert.equal(answeredEvent.nodes.find(node=>node.id===activeUnknown.id)?.status,'resolved')
     for(const instruction of ['这个动作要说明验证什么','看到什么算有进展','何时停止'])assert.ok(!answeredEvent.nodes.some(node=>node.content===instruction))
     assert.ok(!answeredEvent.nodes.some(node=>node.content==='现在长期记忆已开启'))
+
+    const unrelatedConversation=randomUUID()
+    await store.createConversation(user,{id:unrelatedConversation,title:'SYNTHETIC unrelated answer boundary'})
+    const unrelatedSeed=(await store.startRun(user,unrelatedConversation,randomUUID(),'我在整理课程资料。')).run
+    const unknownSeed=await stageCoachEvent(unrelatedSeed,{target:{operation:'create',title:'整理过程',source:{messageId:unrelatedSeed.source_message_id,quote:'我在整理课程资料'}},nodes:[{kind:'unknown',question:'整理资料时具体是哪一步让你觉得有秩序？'}]},'整理资料时具体是哪一步让你觉得有秩序？')
+    await store.finishRun(unrelatedSeed,{candidates:[],audit:[],coach:unknownSeed},unknownSeed.reply,null,new AbortController().signal)
+    const unrelated=(await store.startRun(user,unrelatedConversation,randomUUID(),'食堂今天换了新菜单。')).run
+    const unrelatedStaged:store.Staged={candidates:[],audit:[]}
+    outputs.push({reply:'你想聊聊今天的菜单吗？'})
+    await createTurnEngine({capabilityVerified:()=>true})({run:unrelated,staged:unrelatedStaged,context:await store.contextForRun(unrelated),decision:null,signal:new AbortController().signal,emit:()=>{}})
+    assert.equal(unrelatedStaged.coach,undefined,'an unrelated statement must not silently resolve the last question')
   }finally{
     model.baseUrl=previousURL
     config.apiKey=previousKey

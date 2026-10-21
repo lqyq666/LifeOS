@@ -6,6 +6,17 @@ test('actual UI request for a grounded minimal action is not a generic past-fail
  assert.equal(make(text),null)
 })
 
+test('single-contact catalogue cannot drop a second independent result in the current report',()=>{
+ assert.equal(make('更正并区分两件事：老师那封邮件是未回复；另一位同学试过我做的表格后明确说不适合他。不要把两件事合并。'),null)
+})
+
+test('a time-prefixed listening request has the same no-action catalogue as an unprefixed request',()=>{
+ const text='今天只想聊聊，不做实验，也不要继续追问。我有点累，但这不代表我不喜欢羽毛球。'
+ const reply=make(text)
+ assert.ok(reply)
+ assert.ok(reply.choices.every(choice=>!/[？?]/.test(choice)&&!choice.includes('我有点累')&&!choice.includes('试试')))
+})
+
 test('real course V18: reported blocker and a narrow budget correction never promise marks or sufficient time',()=>{
  const blocked=make('上次排的课程作业，我已经列好题目了，但第三题不会做。')!
  assert.equal(blocked?.stage,'blocked')
@@ -28,9 +39,10 @@ test('new real chain failures: discovery is not sending and next-week judgment s
  assert.ok(mismatch.choices.every(s=>s.includes('600分钟')&&s.includes('120分钟')&&s.includes('不足')))
  const contract=deriveTurnContract({text:'请帮我安排本周课程与备考。',knowledgeCount:0,currentEventExists:false,planIntent:true,material:false})
  const schema=bindPlanBudgetSchema(contract,{minutes:120,period:'this_week'},'请帮我安排本周课程与备考。').schema as any
- const candidate=schema.properties.weeklyPlan.properties.items.enum[0]
- assert.equal(candidate.length,2);assert.equal(candidate.reduce((n:number,x:any)=>n+x.minutes,0),120)
- assert.ok(candidate[0].action.includes('课程')&&candidate[1].action.includes('备考'))
+ const plan=schema.properties.weeklyPlan.properties
+ assert.deepEqual(plan.items.items.properties.action.enum,['课程','备考'])
+ assert.equal(plan.items.minItems,2);assert.equal(plan.items.maxItems,2)
+ assert.equal(plan.availableMinutes.enum[0],120);assert.equal(plan.period.enum[0],'this_week')
 })
 import {boundedOrdinaryReply,boundedPlanningReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts} from '../server/bounded-reply.ts'
 import {boundedRecallReply} from '../server/bounded-reply.ts'
@@ -192,7 +204,7 @@ test('controls, delivery, planning, comparison and sourced methods retain their 
  for(const text of ['更正，那个不是我做的。','你好','你记得我之前说过什么吗？','请比较就业和创业，哪个更适合？'])assert.equal(make(text),null,text)
  const text='怎么开始？',contract=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:true,material:false})
  assert.equal(make(text,{contract}),null)
- assert.equal(make(text,{contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})}),null)
+ assert.equal(make(text,{contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true}),material:true}),null)
  assert.equal(make(text,{knowledgeCount:1}),null)
  assert.equal(make(text,{tier:'reasoning'}),null)
 })

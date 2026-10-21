@@ -1,0 +1,2110 @@
+{
+  "source": ".local/launch-og-revalidation-20261020/blind-input.json",
+  "sourceSha256": "5907b905f24c10624d4c3a6b272d4dc306bd2aab7081468f7dbc030e250dd362",
+  "turns": [
+    {
+      "id": "C3-T1",
+      "session": 1,
+      "user": "我是成年大学生，我想要更自由的生活，但明确不想创业。不要换词劝我创业，先问一个问题厘清我说的自由。",
+      "assistant": "当你说想要更自由的生活时，你最先想到的是哪一件现在做不了、但希望以后能自己决定的事？",
+      "visibleFrames": [
+        {
+          "type": "delta",
+          "text": "当你说想要更自由的生活时，你最先想到的是哪一件现在做不了、但希望以后能自己决定的事？",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "applied",
+          "createdIds": [
+            "02a3f345-0a95-4e31-b32e-e3241b0f15da",
+            "55c28287-cbdb-4459-8acf-1e7e1b9863c6",
+            "a6356f5c-5d7b-4099-a7d8-c30999fa1daf"
+          ],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [
+            "entrepreneurship"
+          ],
+          "effects": [
+            {
+              "scope": "entrepreneurship",
+              "before": "enabled",
+              "after": "paused",
+              "revision": 1
+            }
+          ]
+        },
+        "memoryControl": null,
+        "directionControls": {
+          "changedScopes": [
+            "entrepreneurship"
+          ],
+          "effects": [
+            {
+              "scope": "entrepreneurship",
+              "before": "enabled",
+              "after": "paused",
+              "revision": 1
+            }
+          ]
+        },
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "02a3f345-0a95-4e31-b32e-e3241b0f15da",
+          "kind": "goal",
+          "text": "我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "55c28287-cbdb-4459-8acf-1e7e1b9863c6",
+          "kind": "context",
+          "text": "我是成年大学生，我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生，我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "a6356f5c-5d7b-4099-a7d8-c30999fa1daf",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C3-T2",
+      "session": 1,
+      "user": "我主要在意能自己安排一天中专注工作的时间，不在意当老板，也不想承担找客户和收款。",
+      "assistant": "你现在有没有一段能自己决定何时专注做事、不用等别人安排的经历？比如某次作业或项目里你挑了时段一口气做完。这能帮我判断你想要的自由是换一种工作形式，还是现在课表或任务节奏本身卡住了你。",
+      "visibleFrames": [
+        {
+          "type": "draft",
+          "text": "你现在有没有一段能自己决定何时专注做事、不用等别人安排的经历？",
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "delta",
+          "text": "你现在有没有一段能自己决定何时专注做事、不用等别人安排的经历？比如某次作业或项目里你挑了时段一口气做完。这能帮我判断你想要的自由是换一种工作形式，还是现在课表或任务节奏本身卡住了你。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "applied",
+          "createdIds": [
+            "d9c3c883-6100-4bf1-a0d4-cbe6aa2d4f0d",
+            "61d6fa6d-9ecc-4f7d-a1a2-ae3b32965ce4",
+            "5928b2c4-7754-4a5f-9789-65c4ce82a6b4"
+          ],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": null,
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "5928b2c4-7754-4a5f-9789-65c4ce82a6b4",
+          "kind": "preference",
+          "text": "也不想承担找客户和收款",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "也不想承担找客户和收款"
+            }
+          ]
+        },
+        {
+          "id": "61d6fa6d-9ecc-4f7d-a1a2-ae3b32965ce4",
+          "kind": "preference",
+          "text": "不在意当老板",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "不在意当老板"
+            }
+          ]
+        },
+        {
+          "id": "d9c3c883-6100-4bf1-a0d4-cbe6aa2d4f0d",
+          "kind": "preference",
+          "text": "我主要在意能自己安排一天中专注工作的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "我主要在意能自己安排一天中专注工作的时间"
+            }
+          ]
+        },
+        {
+          "id": "02a3f345-0a95-4e31-b32e-e3241b0f15da",
+          "kind": "goal",
+          "text": "我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "55c28287-cbdb-4459-8acf-1e7e1b9863c6",
+          "kind": "context",
+          "text": "我是成年大学生，我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生，我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "a6356f5c-5d7b-4099-a7d8-c30999fa1daf",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C3-T3",
+      "session": 2,
+      "user": "接着自由这件事。我还没有客户，也没有自由职业经历，每周最多两小时。请比较一个更低成本的探索方式，不要推出我适合自由职业。",
+      "assistant": "方式一：用每周两小时记录当前一周里哪些时段你能自己决定做什么、哪些不能，只记事实不改变安排。依据是你主要在意能自己安排专注时间；投入是每次一两分钟，局限是它只呈现现状，不产生收入或客户，也不证明你适合自由职业。\n\n方式二：用这两小时找一位已毕业且日常可自排时间的在职者，问对方实际一天怎么分配、哪些环节仍由别人定。依据是你想更自由但无客户和经历；投入是一次联系加简短交流，局限是他人经验不等于你的结果，且未核实对方是否真能自排时间。\n\n以上只是本轮有限示例，不代表只有这两种，也不代表你已选择或执行。",
+      "visibleFrames": [
+        {
+          "type": "draft",
+          "text": "方式一：用每周两小时记录当前一周里哪些时段你能自己决定做什么、哪些不能，只记事实不改变安排",
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "delta",
+          "text": "方式一：用每周两小时记录当前一周里哪些时段你能自己决定做什么、哪些不能，只记事实不改变安排。依据是你主要在意能自己安排专注时间；投入是每次一两分钟，局限是它只呈现现状，不产生收入或客户，也不证明你适合自由职业。\n\n方式二：用这两小时找一位已毕业且日常可自排时间的在职者，问对方实际一天怎么分配、哪些环节仍由别人定。依据是你想更自由但无客户和经历；投入是一次联系加简短交流，局限是他人经验不等于你的结果，且未核实对方是否真能自排时间。\n\n以上只是本轮有限示例，不代表只有这两种，也不代表你已选择或执行。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "applied",
+          "createdIds": [
+            "137dedba-8047-4fc7-85d9-2c94c92f42b9",
+            "9794fe59-25ff-41ff-bedf-4a3761e28602"
+          ],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": null,
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "137dedba-8047-4fc7-85d9-2c94c92f42b9",
+          "kind": "context",
+          "text": "每周最多两小时",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:42.340Z",
+          "updatedAt": "2026-10-20T13:11:42.340Z",
+          "sources": [
+            {
+              "id": "fca70343-66ab-4ab1-8590-318a929ddc59",
+              "type": "message",
+              "quote": "每周最多两小时"
+            }
+          ]
+        },
+        {
+          "id": "9794fe59-25ff-41ff-bedf-4a3761e28602",
+          "kind": "context",
+          "text": "我还没有客户",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:42.340Z",
+          "updatedAt": "2026-10-20T13:11:42.340Z",
+          "sources": [
+            {
+              "id": "fca70343-66ab-4ab1-8590-318a929ddc59",
+              "type": "message",
+              "quote": "我还没有客户"
+            }
+          ]
+        },
+        {
+          "id": "5928b2c4-7754-4a5f-9789-65c4ce82a6b4",
+          "kind": "preference",
+          "text": "也不想承担找客户和收款",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "也不想承担找客户和收款"
+            }
+          ]
+        },
+        {
+          "id": "61d6fa6d-9ecc-4f7d-a1a2-ae3b32965ce4",
+          "kind": "preference",
+          "text": "不在意当老板",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "不在意当老板"
+            }
+          ]
+        },
+        {
+          "id": "d9c3c883-6100-4bf1-a0d4-cbe6aa2d4f0d",
+          "kind": "preference",
+          "text": "我主要在意能自己安排一天中专注工作的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "我主要在意能自己安排一天中专注工作的时间"
+            }
+          ]
+        },
+        {
+          "id": "02a3f345-0a95-4e31-b32e-e3241b0f15da",
+          "kind": "goal",
+          "text": "我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "55c28287-cbdb-4459-8acf-1e7e1b9863c6",
+          "kind": "context",
+          "text": "我是成年大学生，我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生，我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "a6356f5c-5d7b-4099-a7d8-c30999fa1daf",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C3-T4",
+      "session": 2,
+      "user": "我愿意只了解一个远程岗位的真实工作节奏，但不联系陌生人、不提供私人资料。给一个边界清楚的小行动。",
+      "assistant": "挑一个你已知的远程岗位，用两小时内读3篇在职者写的日常记录。只读公开文章或帖子，不留言、不私信、不留任何个人信息。观察点：他们一天中哪些时段必须在线响应、哪些可自排；读完记下这两项。读完3篇就停，把记下的内容带回来，再决定下一步。",
+      "visibleFrames": [
+        {
+          "type": "draft",
+          "text": "挑一个你已知的远程岗位，用两小时内读3篇在职者写的日常记录",
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "delta",
+          "text": "挑一个你已知的远程岗位，用两小时内读3篇在职者写的日常记录。只读公开文章或帖子，不留言、不私信、不留任何个人信息。观察点：他们一天中哪些时段必须在线响应、哪些可自排；读完记下这两项。读完3篇就停，把记下的内容带回来，再决定下一步。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "not_requested",
+          "createdIds": [],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": null,
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "137dedba-8047-4fc7-85d9-2c94c92f42b9",
+          "kind": "context",
+          "text": "每周最多两小时",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:42.340Z",
+          "updatedAt": "2026-10-20T13:11:42.340Z",
+          "sources": [
+            {
+              "id": "fca70343-66ab-4ab1-8590-318a929ddc59",
+              "type": "message",
+              "quote": "每周最多两小时"
+            }
+          ]
+        },
+        {
+          "id": "9794fe59-25ff-41ff-bedf-4a3761e28602",
+          "kind": "context",
+          "text": "我还没有客户",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:42.340Z",
+          "updatedAt": "2026-10-20T13:11:42.340Z",
+          "sources": [
+            {
+              "id": "fca70343-66ab-4ab1-8590-318a929ddc59",
+              "type": "message",
+              "quote": "我还没有客户"
+            }
+          ]
+        },
+        {
+          "id": "5928b2c4-7754-4a5f-9789-65c4ce82a6b4",
+          "kind": "preference",
+          "text": "也不想承担找客户和收款",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "也不想承担找客户和收款"
+            }
+          ]
+        },
+        {
+          "id": "61d6fa6d-9ecc-4f7d-a1a2-ae3b32965ce4",
+          "kind": "preference",
+          "text": "不在意当老板",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "不在意当老板"
+            }
+          ]
+        },
+        {
+          "id": "d9c3c883-6100-4bf1-a0d4-cbe6aa2d4f0d",
+          "kind": "preference",
+          "text": "我主要在意能自己安排一天中专注工作的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "我主要在意能自己安排一天中专注工作的时间"
+            }
+          ]
+        },
+        {
+          "id": "02a3f345-0a95-4e31-b32e-e3241b0f15da",
+          "kind": "goal",
+          "text": "我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "55c28287-cbdb-4459-8acf-1e7e1b9863c6",
+          "kind": "context",
+          "text": "我是成年大学生，我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生，我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "a6356f5c-5d7b-4099-a7d8-c30999fa1daf",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C3-T5",
+      "session": 3,
+      "user": "回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例。",
+      "assistant": "这两次固定会议，会打断你主要在意的那段专注时间吗？这是那位校友的个例，不代表所有远程岗位都这样。如果这个节奏你能接受，它仍符合你不想找客户、能自己安排专注时间的偏好；若觉得会被打断，我们可以再看其他会议更少的例子。",
+      "visibleFrames": [
+        {
+          "type": "delta",
+          "text": "这两次固定会议，会打断你主要在意的那段专注时间吗？这是那位校友的个例，不代表所有远程岗位都这样。如果这个节奏你能接受，它仍符合你不想找客户、能自己安排专注时间的偏好；若觉得会被打断，我们可以再看其他会议更少的例子。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "applied",
+          "createdIds": [
+            "937029b8-f86e-452c-b579-54537db44da8",
+            "ee87b240-5cbf-4844-8e63-cf47762ab50a"
+          ],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": null,
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "937029b8-f86e-452c-b579-54537db44da8",
+          "kind": "context",
+          "text": "回来反馈：我只查看了一位校友公开分享的远程岗位经历",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:52.425Z",
+          "updatedAt": "2026-10-20T13:11:52.425Z",
+          "sources": [
+            {
+              "id": "7b9966f7-1a5c-450e-a354-ec7bb835c535",
+              "type": "message",
+              "quote": "回来反馈：我只查看了一位校友公开分享的远程岗位经历"
+            }
+          ]
+        },
+        {
+          "id": "ee87b240-5cbf-4844-8e63-cf47762ab50a",
+          "kind": "context",
+          "text": "回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:52.425Z",
+          "updatedAt": "2026-10-20T13:11:52.425Z",
+          "sources": [
+            {
+              "id": "7b9966f7-1a5c-450e-a354-ec7bb835c535",
+              "type": "message",
+              "quote": "回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例"
+            }
+          ]
+        },
+        {
+          "id": "137dedba-8047-4fc7-85d9-2c94c92f42b9",
+          "kind": "context",
+          "text": "每周最多两小时",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:42.340Z",
+          "updatedAt": "2026-10-20T13:11:42.340Z",
+          "sources": [
+            {
+              "id": "fca70343-66ab-4ab1-8590-318a929ddc59",
+              "type": "message",
+              "quote": "每周最多两小时"
+            }
+          ]
+        },
+        {
+          "id": "9794fe59-25ff-41ff-bedf-4a3761e28602",
+          "kind": "context",
+          "text": "我还没有客户",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:42.340Z",
+          "updatedAt": "2026-10-20T13:11:42.340Z",
+          "sources": [
+            {
+              "id": "fca70343-66ab-4ab1-8590-318a929ddc59",
+              "type": "message",
+              "quote": "我还没有客户"
+            }
+          ]
+        },
+        {
+          "id": "5928b2c4-7754-4a5f-9789-65c4ce82a6b4",
+          "kind": "preference",
+          "text": "也不想承担找客户和收款",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "也不想承担找客户和收款"
+            }
+          ]
+        },
+        {
+          "id": "61d6fa6d-9ecc-4f7d-a1a2-ae3b32965ce4",
+          "kind": "preference",
+          "text": "不在意当老板",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "不在意当老板"
+            }
+          ]
+        },
+        {
+          "id": "d9c3c883-6100-4bf1-a0d4-cbe6aa2d4f0d",
+          "kind": "preference",
+          "text": "我主要在意能自己安排一天中专注工作的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "我主要在意能自己安排一天中专注工作的时间"
+            }
+          ]
+        },
+        {
+          "id": "02a3f345-0a95-4e31-b32e-e3241b0f15da",
+          "kind": "goal",
+          "text": "我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "55c28287-cbdb-4459-8acf-1e7e1b9863c6",
+          "kind": "context",
+          "text": "我是成年大学生，我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生，我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "a6356f5c-5d7b-4099-a7d8-c30999fa1daf",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C3-T6",
+      "session": 3,
+      "user": "依据这条反馈更新“自由”的理解；创业仍然拒绝，不要自动重开。现在不继续行动。",
+      "assistant": "校友个例显示地点自由但每天固定两次会。结合你主要在意自己安排专注时间，当前“自由”暂理解为可自主安排专注时段，不等于无固定会议。创业仍拒绝且不重开，不新增行动。该个例会否打断你的专注时段仍未知。",
+      "visibleFrames": [
+        {
+          "type": "delta",
+          "text": "校友个例显示地点自由但每天固定两次会。结合你主要在意自己安排专注时间，当前“自由”暂理解为可自主安排专注时段，不等于无固定会议。创业仍拒绝且不重开，不新增行动。该个例会否打断你的专注时段仍未知。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "not_requested",
+          "createdIds": [],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "937029b8-f86e-452c-b579-54537db44da8",
+          "kind": "context",
+          "text": "回来反馈：我只查看了一位校友公开分享的远程岗位经历",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:52.425Z",
+          "updatedAt": "2026-10-20T13:11:52.425Z",
+          "sources": [
+            {
+              "id": "7b9966f7-1a5c-450e-a354-ec7bb835c535",
+              "type": "message",
+              "quote": "回来反馈：我只查看了一位校友公开分享的远程岗位经历"
+            }
+          ]
+        },
+        {
+          "id": "ee87b240-5cbf-4844-8e63-cf47762ab50a",
+          "kind": "context",
+          "text": "回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:52.425Z",
+          "updatedAt": "2026-10-20T13:11:52.425Z",
+          "sources": [
+            {
+              "id": "7b9966f7-1a5c-450e-a354-ec7bb835c535",
+              "type": "message",
+              "quote": "回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例"
+            }
+          ]
+        },
+        {
+          "id": "137dedba-8047-4fc7-85d9-2c94c92f42b9",
+          "kind": "context",
+          "text": "每周最多两小时",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:42.340Z",
+          "updatedAt": "2026-10-20T13:11:42.340Z",
+          "sources": [
+            {
+              "id": "fca70343-66ab-4ab1-8590-318a929ddc59",
+              "type": "message",
+              "quote": "每周最多两小时"
+            }
+          ]
+        },
+        {
+          "id": "9794fe59-25ff-41ff-bedf-4a3761e28602",
+          "kind": "context",
+          "text": "我还没有客户",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:42.340Z",
+          "updatedAt": "2026-10-20T13:11:42.340Z",
+          "sources": [
+            {
+              "id": "fca70343-66ab-4ab1-8590-318a929ddc59",
+              "type": "message",
+              "quote": "我还没有客户"
+            }
+          ]
+        },
+        {
+          "id": "5928b2c4-7754-4a5f-9789-65c4ce82a6b4",
+          "kind": "preference",
+          "text": "也不想承担找客户和收款",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "也不想承担找客户和收款"
+            }
+          ]
+        },
+        {
+          "id": "61d6fa6d-9ecc-4f7d-a1a2-ae3b32965ce4",
+          "kind": "preference",
+          "text": "不在意当老板",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "不在意当老板"
+            }
+          ]
+        },
+        {
+          "id": "d9c3c883-6100-4bf1-a0d4-cbe6aa2d4f0d",
+          "kind": "preference",
+          "text": "我主要在意能自己安排一天中专注工作的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:35.850Z",
+          "updatedAt": "2026-10-20T13:11:35.850Z",
+          "sources": [
+            {
+              "id": "8e9cb2c7-f915-4355-8159-1a585f8ce41a",
+              "type": "message",
+              "quote": "我主要在意能自己安排一天中专注工作的时间"
+            }
+          ]
+        },
+        {
+          "id": "02a3f345-0a95-4e31-b32e-e3241b0f15da",
+          "kind": "goal",
+          "text": "我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "55c28287-cbdb-4459-8acf-1e7e1b9863c6",
+          "kind": "context",
+          "text": "我是成年大学生，我想要更自由的生活",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生，我想要更自由的生活"
+            }
+          ]
+        },
+        {
+          "id": "a6356f5c-5d7b-4099-a7d8-c30999fa1daf",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:11:31.157Z",
+          "updatedAt": "2026-10-20T13:11:31.157Z",
+          "sources": [
+            {
+              "id": "d51bf940-33c7-4638-9a5a-052126c8f85a",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C6-T1",
+      "session": 1,
+      "user": "我是成年大学生，还没想好毕业后往哪走，经历也不多。最近整理一门课的资料时，我发现自己愿意把零散内容分成几类。先从一个具体切口问，不要让我先填完整档案。",
+      "assistant": "那次分类时，你是按什么标准把零散内容归到一类的？这个切口能看出你整理信息时的自然倾向。",
+      "visibleFrames": [
+        {
+          "type": "draft",
+          "text": "那次分类时，你是按什么标准把零散内容归到一类的？",
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "delta",
+          "text": "那次分类时，你是按什么标准把零散内容归到一类的？这个切口能看出你整理信息时的自然倾向。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "applied",
+          "createdIds": [
+            "ea7536b2-11e5-42aa-9901-6f1c69295341"
+          ],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": null,
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "ea7536b2-11e5-42aa-9901-6f1c69295341",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:44.371Z",
+          "updatedAt": "2026-10-20T13:12:44.371Z",
+          "sources": [
+            {
+              "id": "341decd1-845a-4d06-89bf-b8d74d524852",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C6-T2",
+      "session": 1,
+      "user": "不是因为老师要求；我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间。我还不知道这是否只是一次偶然。",
+      "assistant": "你提到不确定是否偶然，那这次整理具体是哪门课、大概什么时候做的？知道具体场景才能判断它是一次性的还是你在类似情况下都会自然这么做。",
+      "visibleFrames": [
+        {
+          "type": "draft",
+          "text": "你提到不确定是否偶然，那这次整理具体是哪门课、大概什么时候做的？",
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "delta",
+          "text": "你提到不确定是否偶然，那这次整理具体是哪门课、大概什么时候做的？知道具体场景才能判断它是一次性的还是你在类似情况下都会自然这么做。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "applied",
+          "createdIds": [
+            "5da63ed5-6e98-4a08-b604-7a0346bca77c",
+            "235d7a6f-88c1-4a67-8a93-2dcd2e701a5d",
+            "632ff278-c55d-41fd-b9e5-37189839bcd9",
+            "e4e785cf-7dcc-4bc4-aae9-616c41aa0eea"
+          ],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": null,
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "235d7a6f-88c1-4a67-8a93-2dcd2e701a5d",
+          "kind": "goal",
+          "text": "减少自己反复找东西的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "减少自己反复找东西的时间"
+            }
+          ]
+        },
+        {
+          "id": "5da63ed5-6e98-4a08-b604-7a0346bca77c",
+          "kind": "goal",
+          "text": "主要想更快看出哪些信息关键",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "主要想更快看出哪些信息关键"
+            }
+          ]
+        },
+        {
+          "id": "632ff278-c55d-41fd-b9e5-37189839bcd9",
+          "kind": "context",
+          "text": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间"
+            }
+          ]
+        },
+        {
+          "id": "e4e785cf-7dcc-4bc4-aae9-616c41aa0eea",
+          "kind": "context",
+          "text": "我还不知道这是否只是一次偶然",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "我还不知道这是否只是一次偶然"
+            }
+          ]
+        },
+        {
+          "id": "ea7536b2-11e5-42aa-9901-6f1c69295341",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:44.371Z",
+          "updatedAt": "2026-10-20T13:12:44.371Z",
+          "sources": [
+            {
+              "id": "341decd1-845a-4d06-89bf-b8d74d524852",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C6-T3",
+      "session": 2,
+      "user": "接着整理资料的探索。最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次。请根据新信息更新判断，不要重复问已经回答的内容。",
+      "assistant": "这次先定三条规则后同学少问一次，与你更快看出关键信息的目标一致。但仅凭单次差异无法确认是规则起了作用还是偶然，你此前保留的疑问仍成立。",
+      "visibleFrames": [
+        {
+          "type": "draft",
+          "text": "这次先定三条规则后同学少问一次，与你更快看出关键信息的目标一致",
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "delta",
+          "text": "这次先定三条规则后同学少问一次，与你更快看出关键信息的目标一致。但仅凭单次差异无法确认是规则起了作用还是偶然，你此前保留的疑问仍成立。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "applied",
+          "createdIds": [
+            "fd2be08f-f0e3-46b7-b291-2b08be8d3c4b",
+            "df7738f3-9c1f-4054-9b77-9c497a4636f5"
+          ],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": null,
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "df7738f3-9c1f-4054-9b77-9c497a4636f5",
+          "kind": "context",
+          "text": "最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:51.357Z",
+          "updatedAt": "2026-10-20T13:12:51.357Z",
+          "sources": [
+            {
+              "id": "54a11809-0091-4531-bcde-785c5eb9e032",
+              "type": "message",
+              "quote": "最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次"
+            }
+          ]
+        },
+        {
+          "id": "fd2be08f-f0e3-46b7-b291-2b08be8d3c4b",
+          "kind": "context",
+          "text": "少问了我一次",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:51.357Z",
+          "updatedAt": "2026-10-20T13:12:51.357Z",
+          "sources": [
+            {
+              "id": "54a11809-0091-4531-bcde-785c5eb9e032",
+              "type": "message",
+              "quote": "少问了我一次"
+            }
+          ]
+        },
+        {
+          "id": "235d7a6f-88c1-4a67-8a93-2dcd2e701a5d",
+          "kind": "goal",
+          "text": "减少自己反复找东西的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "减少自己反复找东西的时间"
+            }
+          ]
+        },
+        {
+          "id": "5da63ed5-6e98-4a08-b604-7a0346bca77c",
+          "kind": "goal",
+          "text": "主要想更快看出哪些信息关键",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "主要想更快看出哪些信息关键"
+            }
+          ]
+        },
+        {
+          "id": "632ff278-c55d-41fd-b9e5-37189839bcd9",
+          "kind": "context",
+          "text": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间"
+            }
+          ]
+        },
+        {
+          "id": "e4e785cf-7dcc-4bc4-aae9-616c41aa0eea",
+          "kind": "context",
+          "text": "我还不知道这是否只是一次偶然",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "我还不知道这是否只是一次偶然"
+            }
+          ]
+        },
+        {
+          "id": "ea7536b2-11e5-42aa-9901-6f1c69295341",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:44.371Z",
+          "updatedAt": "2026-10-20T13:12:44.371Z",
+          "sources": [
+            {
+              "id": "341decd1-845a-4d06-89bf-b8d74d524852",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C6-T4",
+      "session": 2,
+      "user": "更正：同学少问一次只是结果，不代表我因此有成就感；我当时真正轻松的是自己不用反复找。只更新受影响的判断，给一个本周能开始的小动作。",
+      "assistant": "受影响的判断已更新：同学少问一次只是那次整理后的一个结果，不推为你因此有成就感；你报告的轻松感来自自己不用反复找。目前支持的是这次先定三条规则后你自己查找更顺了，但尚不能确认是规则本身还是材料恰好简单造成的。\n\n本周小动作：挑另一批需要整理的资料，同样先写三条分类规则再动手，记录这次你自己翻找的次数或用时。做完这一次就停，把数字带回来对照上次的感受，用来收集新证据而非验证策略。",
+      "visibleFrames": [
+        {
+          "type": "delta",
+          "text": "受影响的判断已更新：同学少问一次只是那次整理后的一个结果，不推为你因此有成就感；你报告的轻松感来自自己不用反复找。目前支持的是这次先定三条规则后你自己查找更顺了，但尚不能确认是规则本身还是材料恰好简单造成的。\n\n本周小动作：挑另一批需要整理的资料，同样先写三条分类规则再动手，记录这次你自己翻找的次数或用时。做完这一次就停，把数字带回来对照上次的感受，用来收集新证据而非验证策略。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "applied",
+          "createdIds": [
+            "abfdf441-2ec5-4721-85ae-5c0a0fb27c5f",
+            "c4530c6e-868a-479a-a43a-40b84d5372ca",
+            "03032b46-bc8b-47d7-b847-7bf15394f672"
+          ],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": null,
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "03032b46-bc8b-47d7-b847-7bf15394f672",
+          "kind": "context",
+          "text": "我当时真正轻松的是自己不用反复找",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:56.847Z",
+          "updatedAt": "2026-10-20T13:12:56.847Z",
+          "sources": [
+            {
+              "id": "ec906e5f-d516-474e-81bc-f34d436ec79c",
+              "type": "message",
+              "quote": "我当时真正轻松的是自己不用反复找"
+            }
+          ]
+        },
+        {
+          "id": "abfdf441-2ec5-4721-85ae-5c0a0fb27c5f",
+          "kind": "context",
+          "text": "不代表我因此有成就感",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:56.847Z",
+          "updatedAt": "2026-10-20T13:12:56.847Z",
+          "sources": [
+            {
+              "id": "ec906e5f-d516-474e-81bc-f34d436ec79c",
+              "type": "message",
+              "quote": "不代表我因此有成就感"
+            }
+          ]
+        },
+        {
+          "id": "c4530c6e-868a-479a-a43a-40b84d5372ca",
+          "kind": "context",
+          "text": "更正：同学少问一次只是结果，不代表我因此有成就感",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:56.847Z",
+          "updatedAt": "2026-10-20T13:12:56.847Z",
+          "sources": [
+            {
+              "id": "ec906e5f-d516-474e-81bc-f34d436ec79c",
+              "type": "message",
+              "quote": "更正：同学少问一次只是结果，不代表我因此有成就感"
+            }
+          ]
+        },
+        {
+          "id": "df7738f3-9c1f-4054-9b77-9c497a4636f5",
+          "kind": "context",
+          "text": "最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:51.357Z",
+          "updatedAt": "2026-10-20T13:12:51.357Z",
+          "sources": [
+            {
+              "id": "54a11809-0091-4531-bcde-785c5eb9e032",
+              "type": "message",
+              "quote": "最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次"
+            }
+          ]
+        },
+        {
+          "id": "fd2be08f-f0e3-46b7-b291-2b08be8d3c4b",
+          "kind": "context",
+          "text": "少问了我一次",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:51.357Z",
+          "updatedAt": "2026-10-20T13:12:51.357Z",
+          "sources": [
+            {
+              "id": "54a11809-0091-4531-bcde-785c5eb9e032",
+              "type": "message",
+              "quote": "少问了我一次"
+            }
+          ]
+        },
+        {
+          "id": "235d7a6f-88c1-4a67-8a93-2dcd2e701a5d",
+          "kind": "goal",
+          "text": "减少自己反复找东西的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "减少自己反复找东西的时间"
+            }
+          ]
+        },
+        {
+          "id": "5da63ed5-6e98-4a08-b604-7a0346bca77c",
+          "kind": "goal",
+          "text": "主要想更快看出哪些信息关键",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "主要想更快看出哪些信息关键"
+            }
+          ]
+        },
+        {
+          "id": "632ff278-c55d-41fd-b9e5-37189839bcd9",
+          "kind": "context",
+          "text": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间"
+            }
+          ]
+        },
+        {
+          "id": "e4e785cf-7dcc-4bc4-aae9-616c41aa0eea",
+          "kind": "context",
+          "text": "我还不知道这是否只是一次偶然",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "我还不知道这是否只是一次偶然"
+            }
+          ]
+        },
+        {
+          "id": "ea7536b2-11e5-42aa-9901-6f1c69295341",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:44.371Z",
+          "updatedAt": "2026-10-20T13:12:44.371Z",
+          "sources": [
+            {
+              "id": "341decd1-845a-4d06-89bf-b8d74d524852",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C6-T5",
+      "session": 3,
+      "user": "回来反馈：我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知，但目前只发生过一次。不要把一次成功当成职业适合。",
+      "assistant": "这次20秒找到通知，和你之前说的‘不用反复找’的轻松感一致吗？按你的限定，这只是一次个例，不推导职业适合。",
+      "visibleFrames": [
+        {
+          "type": "draft",
+          "text": "这次20秒找到通知，和你之前说的‘不用反复找’的轻松感一致吗？",
+          "replace": false,
+          "draftKind": null
+        },
+        {
+          "type": "delta",
+          "text": "这次20秒找到通知，和你之前说的‘不用反复找’的轻松感一致吗？按你的限定，这只是一次个例，不推导职业适合。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "applied",
+          "createdIds": [
+            "150188ba-8f1b-4ded-af93-b6d4066a564f",
+            "fdba9587-62c6-478d-a8a4-f82a0a805171"
+          ],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": null,
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "150188ba-8f1b-4ded-af93-b6d4066a564f",
+          "kind": "context",
+          "text": "回来反馈：我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知，但目前只发生过一次",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:13:01.324Z",
+          "updatedAt": "2026-10-20T13:13:01.324Z",
+          "sources": [
+            {
+              "id": "67be6e80-0922-45b2-89d1-3512c24c70b2",
+              "type": "message",
+              "quote": "回来反馈：我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知，但目前只发生过一次"
+            }
+          ]
+        },
+        {
+          "id": "fdba9587-62c6-478d-a8a4-f82a0a805171",
+          "kind": "context",
+          "text": "回来反馈：我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知，但目前只发生过一次。不要把一次成功当成职业适合",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:13:01.324Z",
+          "updatedAt": "2026-10-20T13:13:01.324Z",
+          "sources": [
+            {
+              "id": "67be6e80-0922-45b2-89d1-3512c24c70b2",
+              "type": "message",
+              "quote": "回来反馈：我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知，但目前只发生过一次。不要把一次成功当成职业适合"
+            }
+          ]
+        },
+        {
+          "id": "03032b46-bc8b-47d7-b847-7bf15394f672",
+          "kind": "context",
+          "text": "我当时真正轻松的是自己不用反复找",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:56.847Z",
+          "updatedAt": "2026-10-20T13:12:56.847Z",
+          "sources": [
+            {
+              "id": "ec906e5f-d516-474e-81bc-f34d436ec79c",
+              "type": "message",
+              "quote": "我当时真正轻松的是自己不用反复找"
+            }
+          ]
+        },
+        {
+          "id": "abfdf441-2ec5-4721-85ae-5c0a0fb27c5f",
+          "kind": "context",
+          "text": "不代表我因此有成就感",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:56.847Z",
+          "updatedAt": "2026-10-20T13:12:56.847Z",
+          "sources": [
+            {
+              "id": "ec906e5f-d516-474e-81bc-f34d436ec79c",
+              "type": "message",
+              "quote": "不代表我因此有成就感"
+            }
+          ]
+        },
+        {
+          "id": "c4530c6e-868a-479a-a43a-40b84d5372ca",
+          "kind": "context",
+          "text": "更正：同学少问一次只是结果，不代表我因此有成就感",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:56.847Z",
+          "updatedAt": "2026-10-20T13:12:56.847Z",
+          "sources": [
+            {
+              "id": "ec906e5f-d516-474e-81bc-f34d436ec79c",
+              "type": "message",
+              "quote": "更正：同学少问一次只是结果，不代表我因此有成就感"
+            }
+          ]
+        },
+        {
+          "id": "df7738f3-9c1f-4054-9b77-9c497a4636f5",
+          "kind": "context",
+          "text": "最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:51.357Z",
+          "updatedAt": "2026-10-20T13:12:51.357Z",
+          "sources": [
+            {
+              "id": "54a11809-0091-4531-bcde-785c5eb9e032",
+              "type": "message",
+              "quote": "最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次"
+            }
+          ]
+        },
+        {
+          "id": "fd2be08f-f0e3-46b7-b291-2b08be8d3c4b",
+          "kind": "context",
+          "text": "少问了我一次",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:51.357Z",
+          "updatedAt": "2026-10-20T13:12:51.357Z",
+          "sources": [
+            {
+              "id": "54a11809-0091-4531-bcde-785c5eb9e032",
+              "type": "message",
+              "quote": "少问了我一次"
+            }
+          ]
+        },
+        {
+          "id": "235d7a6f-88c1-4a67-8a93-2dcd2e701a5d",
+          "kind": "goal",
+          "text": "减少自己反复找东西的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "减少自己反复找东西的时间"
+            }
+          ]
+        },
+        {
+          "id": "5da63ed5-6e98-4a08-b604-7a0346bca77c",
+          "kind": "goal",
+          "text": "主要想更快看出哪些信息关键",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "主要想更快看出哪些信息关键"
+            }
+          ]
+        },
+        {
+          "id": "632ff278-c55d-41fd-b9e5-37189839bcd9",
+          "kind": "context",
+          "text": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间"
+            }
+          ]
+        },
+        {
+          "id": "e4e785cf-7dcc-4bc4-aae9-616c41aa0eea",
+          "kind": "context",
+          "text": "我还不知道这是否只是一次偶然",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "我还不知道这是否只是一次偶然"
+            }
+          ]
+        },
+        {
+          "id": "ea7536b2-11e5-42aa-9901-6f1c69295341",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:44.371Z",
+          "updatedAt": "2026-10-20T13:12:44.371Z",
+          "sources": [
+            {
+              "id": "341decd1-845a-4d06-89bf-b8d74d524852",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C6-T6",
+      "session": 3,
+      "user": "我今天没精力继续验证，先暂停这个方向，不要再安排动作。只给一句阶段理解，等我以后主动回来再继续。",
+      "assistant": "目前只确认过一次20秒找到通知的个例，它是否稳定复现、以及你真正想减少的是自己反复找的时间还是更快看出关键信息，都等你有精力时再核对。",
+      "visibleFrames": [
+        {
+          "type": "delta",
+          "text": "目前只确认过一次20秒找到通知的个例，它是否稳定复现、以及你真正想减少的是自己反复找的时间还是更快看出关键信息，都等你有精力时再核对。",
+          "replace": true,
+          "draftKind": null
+        }
+      ],
+      "commitReceipt": {
+        "growth": {
+          "status": "applied",
+          "createdIds": [
+            "883c7d1f-00a8-424e-81b6-ef5a9200b77a",
+            "f9d0244a-5904-49de-8d2d-fa97f98e5a5d"
+          ],
+          "changedIds": [],
+          "retainedIds": [],
+          "skipped": []
+        },
+        "controls": {
+          "changedScopes": [],
+          "effects": []
+        },
+        "memoryControl": null,
+        "directionControls": null,
+        "persistedCurrentEvent": null
+      },
+      "memoryEnabled": true,
+      "memoryAfter": [
+        {
+          "id": "883c7d1f-00a8-424e-81b6-ef5a9200b77a",
+          "kind": "context",
+          "text": "先暂停这个方向",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:13:05.339Z",
+          "updatedAt": "2026-10-20T13:13:05.339Z",
+          "sources": [
+            {
+              "id": "a5404d43-41df-4107-924b-7288ec122fc5",
+              "type": "message",
+              "quote": "先暂停这个方向"
+            }
+          ],
+          "taskBoundary": {
+            "kind": "pause",
+            "scope": "current_matter",
+            "targetText": "这个方向",
+            "sourceConversationId": "6bbd39d6-9d6d-4982-930d-31ffa3b5b75d",
+            "sourceMessageId": "a5404d43-41df-4107-924b-7288ec122fc5",
+            "matterBinding": "needs_same_matter_confirmation",
+            "expiresAt": null,
+            "quote": "先暂停这个方向"
+          }
+        },
+        {
+          "id": "f9d0244a-5904-49de-8d2d-fa97f98e5a5d",
+          "kind": "context",
+          "text": "我今天没精力继续验证，先暂停这个方向",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:13:05.339Z",
+          "updatedAt": "2026-10-20T13:13:05.339Z",
+          "sources": [
+            {
+              "id": "a5404d43-41df-4107-924b-7288ec122fc5",
+              "type": "message",
+              "quote": "我今天没精力继续验证，先暂停这个方向"
+            }
+          ]
+        },
+        {
+          "id": "150188ba-8f1b-4ded-af93-b6d4066a564f",
+          "kind": "context",
+          "text": "回来反馈：我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知，但目前只发生过一次",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:13:01.324Z",
+          "updatedAt": "2026-10-20T13:13:01.324Z",
+          "sources": [
+            {
+              "id": "67be6e80-0922-45b2-89d1-3512c24c70b2",
+              "type": "message",
+              "quote": "回来反馈：我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知，但目前只发生过一次"
+            }
+          ]
+        },
+        {
+          "id": "fdba9587-62c6-478d-a8a4-f82a0a805171",
+          "kind": "context",
+          "text": "回来反馈：我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知，但目前只发生过一次。不要把一次成功当成职业适合",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:13:01.324Z",
+          "updatedAt": "2026-10-20T13:13:01.324Z",
+          "sources": [
+            {
+              "id": "67be6e80-0922-45b2-89d1-3512c24c70b2",
+              "type": "message",
+              "quote": "回来反馈：我把奖学金材料按三条规则整理了一次，第二天大约20秒找到通知，但目前只发生过一次。不要把一次成功当成职业适合"
+            }
+          ]
+        },
+        {
+          "id": "03032b46-bc8b-47d7-b847-7bf15394f672",
+          "kind": "context",
+          "text": "我当时真正轻松的是自己不用反复找",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:56.847Z",
+          "updatedAt": "2026-10-20T13:12:56.847Z",
+          "sources": [
+            {
+              "id": "ec906e5f-d516-474e-81bc-f34d436ec79c",
+              "type": "message",
+              "quote": "我当时真正轻松的是自己不用反复找"
+            }
+          ]
+        },
+        {
+          "id": "abfdf441-2ec5-4721-85ae-5c0a0fb27c5f",
+          "kind": "context",
+          "text": "不代表我因此有成就感",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:56.847Z",
+          "updatedAt": "2026-10-20T13:12:56.847Z",
+          "sources": [
+            {
+              "id": "ec906e5f-d516-474e-81bc-f34d436ec79c",
+              "type": "message",
+              "quote": "不代表我因此有成就感"
+            }
+          ]
+        },
+        {
+          "id": "c4530c6e-868a-479a-a43a-40b84d5372ca",
+          "kind": "context",
+          "text": "更正：同学少问一次只是结果，不代表我因此有成就感",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:56.847Z",
+          "updatedAt": "2026-10-20T13:12:56.847Z",
+          "sources": [
+            {
+              "id": "ec906e5f-d516-474e-81bc-f34d436ec79c",
+              "type": "message",
+              "quote": "更正：同学少问一次只是结果，不代表我因此有成就感"
+            }
+          ]
+        },
+        {
+          "id": "df7738f3-9c1f-4054-9b77-9c497a4636f5",
+          "kind": "context",
+          "text": "最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:51.357Z",
+          "updatedAt": "2026-10-20T13:12:51.357Z",
+          "sources": [
+            {
+              "id": "54a11809-0091-4531-bcde-785c5eb9e032",
+              "type": "message",
+              "quote": "最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次"
+            }
+          ]
+        },
+        {
+          "id": "fd2be08f-f0e3-46b7-b291-2b08be8d3c4b",
+          "kind": "context",
+          "text": "少问了我一次",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:51.357Z",
+          "updatedAt": "2026-10-20T13:12:51.357Z",
+          "sources": [
+            {
+              "id": "54a11809-0091-4531-bcde-785c5eb9e032",
+              "type": "message",
+              "quote": "少问了我一次"
+            }
+          ]
+        },
+        {
+          "id": "235d7a6f-88c1-4a67-8a93-2dcd2e701a5d",
+          "kind": "goal",
+          "text": "减少自己反复找东西的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "减少自己反复找东西的时间"
+            }
+          ]
+        },
+        {
+          "id": "5da63ed5-6e98-4a08-b604-7a0346bca77c",
+          "kind": "goal",
+          "text": "主要想更快看出哪些信息关键",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "主要想更快看出哪些信息关键"
+            }
+          ]
+        },
+        {
+          "id": "632ff278-c55d-41fd-b9e5-37189839bcd9",
+          "kind": "context",
+          "text": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间"
+            }
+          ]
+        },
+        {
+          "id": "e4e785cf-7dcc-4bc4-aae9-616c41aa0eea",
+          "kind": "context",
+          "text": "我还不知道这是否只是一次偶然",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:47.975Z",
+          "updatedAt": "2026-10-20T13:12:47.975Z",
+          "sources": [
+            {
+              "id": "0b1d13b7-6ac8-4dfb-bd2b-ec52d6046884",
+              "type": "message",
+              "quote": "我还不知道这是否只是一次偶然"
+            }
+          ]
+        },
+        {
+          "id": "ea7536b2-11e5-42aa-9901-6f1c69295341",
+          "kind": "context",
+          "text": "我是成年大学生",
+          "status": "active",
+          "assertion": "user_reported",
+          "revision": 1,
+          "createdAt": "2026-10-20T13:12:44.371Z",
+          "updatedAt": "2026-10-20T13:12:44.371Z",
+          "sources": [
+            {
+              "id": "341decd1-845a-4d06-89bf-b8d74d524852",
+              "type": "message",
+              "quote": "我是成年大学生"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -84,6 +84,7 @@ export function weeklyTimeIntent(text:string):{quote:string;minutes:number;perio
       // An explicit negation of the amount is not a budget statement.
       if(/(?:不是|并没有|没说|并非|没)/.test(body))continue
       if(inexactBudget.test(body))continue
+      if(/(?:用|花了?|经过|历时|持续).{0,4}一周|一周.{0,8}(?:每天|每日)/.test(body))continue
       // 这周剩N小时 is a remaining budget, not a weekly one; refused this batch.
       if(/剩/.test(body)&&!weeklyBudget.test(body))continue
       const match=weeklyBudget.exec(body)
@@ -106,7 +107,7 @@ export function weeklyTimeIntent(text:string):{quote:string;minutes:number;perio
 // sit in an earlier clause of the same sentence (这周，只剩两小时). Next-week
 // clauses and marker-less statements stay out rather than being guessed into
 // this week. Spent time (花了/用了) and attached nouns (两小时课) never count.
-const remainingBudget=/(剩余(?:可投入|可用)?时间(?:要)?(?:更正为|改成|改为)|(?:只)?还?剩(?:下|着)?|(?:只|就)?有|(?:只|就)|可用)[^，,。；;！？!?\n]{0,4}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头|分钟))(?![课班])/
+const remainingBudget=/(剩余[\p{L}]{0,12}?时间(?:要)?(?:更正为|改成|改为)?|(?:只)?还?剩(?:下|着)?|(?:只|就)?有|(?:只|就)|可用)[^，,。；;！？!?\n]{0,4}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头|分钟))(?![课班])/u
 // 半小时=30, 一个半小时=90 resolve through parseExactHours on the whole token
 // first; bare amounts (两小时) strip the unit. Ambiguous forms (两个半小时) refuse.
 const remainingMinutes=(token:string):number|null=>{
@@ -173,7 +174,10 @@ export function applicableTimeBudget(text:string,context?:BudgetContext,target?:
   if(mentionsOpportunity&&/每周|每星期/.test(body)&&(!ownAvailability.test(body)||opportunityDemand.test(body)))continue
   const qualification=/大概|大约|左右/.test(body)?'estimate':/最多|不超过|上限/.test(body)?'upper_bound':'exact'
   const exact=body.replace(/大概|大约|左右|最多|不超过|上限/g,'')
-  const recurring=weeklyTimeIntent(exact)
+  // Only an explicit availability upper-bound/permission phrase licenses the
+  // 一周 alias; duration reports such as 用一周/上一周/做了一周 do not.
+  const weeklyAlias=/^(?:(?:我|本人)(?:平时|通常)?|(?:平时|通常)(?:我|本人)?)?一周(?=最多|不超过|上限|只有|可用|能拿出|能投入|可投入)/.test(body)
+  const recurring=weeklyTimeIntent(weeklyAlias?exact.replace('一周','每周'):exact)
   const remainder=remainingWeeklyTimeIntent((period==='this_week'&&!/这周|本周/.test(exact)?'这周':'')+exact)
   let candidate:ApplicableBudget|undefined
   if(recurring)candidate={period:/每周|每星期/.test(exact)&&!/下周|这周|本周/.test(exact)?'current':recurring.period,amountMinutes:recurring.minutes,scope:'recurring',qualification,quote:original,reason:'本人常规周投入'}
@@ -262,6 +266,9 @@ export function requestsTimeArrangement(text:string):boolean{
     const body=clause.text.trim()
     if(!body)continue
     if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||thirdPersonSubject.test(body))continue
+    // "这周不再安排任务" is the opposite of a plan request. Skip a negated
+    // arrangement clause instead of treating the words 安排/任务 as a request.
+    if(/(?:不|别|无需|不用|暂不|先不|不要|不想)(?:再|去|做|进行|安排|排|规划|加|增加)?\s{0,3}(?:安排|排|规划|任务|计划)/.test(body))continue
     if(arrangementRequest.test(body)){
       if(/怎么(?:安排|排|规划)的[？?]?$/.test(body))continue
       return true
@@ -363,16 +370,52 @@ export function verifyTurnObligations(obligations:TurnObligations,staged:Obligat
 // own voice may contradict. The structural checks (required growth update
 // carries the new amount; a staged plan's availableMinutes equals the binding
 // budget) remain the primary guard and stay exact.
-const otherActivityAttribution=/(?:实习|岗位|项目|机会|兼职|课题|标注|课程|硬课|学业|功课|这份|该|对方|它|他们|要求|需要|要占|占|吃掉|花|用掉|留给|排给|最多|至少|超过|多于|不到|低于|如果|若|假设|大概|可能)/
+const otherActivityAttribution=/(?:实习|岗位|项目|机会|兼职|课题|标注|课程|硬课|学业|功课|这份|该|对方|它|他们|要求|需要|要占|占|吃掉|花|用掉|留给|排给|最多|至少|超过|多于|不到|低于|如果|若|假设|大概|可能|方式|方案|选项|做法|一种|另一种|第[一二三]种)/
 const userBudgetVoice=/(?:你|您)/
 const changeFraming=/(?:从|降到|改为|变为|变成|减到|减少到|换成|改到|降为|调整到)/
 // The allocation signal lives in the text BEFORE the amount (排/留/备份…),
 // never in the amount span itself.
 const allocationFraming=/(?:排|留|给|用|花|占|备份|另一|第二|其中|之一|里|中|内|后|做完|发完|完成后)/
+function quantifiedWeeklyTimeBlocks(reply:string){
+  const clauses=scanUserClauses(reply)
+  const blocks=/每(?:周|星期)(?:先|只|可以|建议|要)?(?:安排|挑出|抽出|腾出|留出|分配)\s*([\d一二两三四五六七八九十百]+)\s*个\s*(?:[、，,]\s*)?(?:各|每个)?\s*[“"「]?\s*((?:\d+(?:\.\d+)?|[一二两三四五六七八九十百]+|半)\s*(?:小时|分钟))/g
+  return [...reply.matchAll(blocks)].flatMap(match=>{
+    const clause=clauses.find(clause=>match.index>=clause.start&&match.index<clause.end)
+    if(!clause)return []
+    const asserted=!clause.conditional&&!clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!thirdPersonSubject.test(clause.text)
+    const count=chineseInteger(match[1]!),minutes=remainingMinutes(match[2]!)
+    return count===null||minutes===null?[]:[{start:match.index,end:match.index+match[0].length,minutes:count*minutes,asserted}]
+  })
+}
+export function repairReplyBudget(obligations:TurnObligations,reply:string):string{
+  const blocks=quantifiedWeeklyTimeBlocks(reply)
+  let fixed=reply
+  for(const effect of obligations.requiredEffects){
+    if(effect.type!=='weekly_time')continue
+    fixed=fixed.replace(/每(?:周|星期)([^，,。；;！？!\n]{0,8}?)((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头))/g,(whole:string,_prefix:string,amount:string,offset:number)=>{
+      if(blocks.some(block=>offset>=block.start&&offset<block.end))return whole
+      const before=fixed.slice(Math.max(0,offset-14),offset)
+      if(otherActivityAttribution.test(before)||otherActivityAttribution.test(whole))return whole
+      if(changeFraming.test(before)||changeFraming.test(whole))return whole
+      const stated=remainingMinutes(amount)
+      if(stated===null||stated===effect.minutes)return whole
+      const hours=effect.minutes%60===0?`${effect.minutes/60}小时`:`${Math.floor(effect.minutes/60)}小时${effect.minutes%60}分钟`
+      return `每周${_prefix}${hours}`
+    })
+  }
+  return fixed
+}
+
 export function verifyReplyAgainstObligations(obligations:TurnObligations,reply:string):void{
+  const blocks=quantifiedWeeklyTimeBlocks(reply)
   for(const effect of obligations.requiredEffects){
     if(effect.type==='weekly_time'){
+      // Multiplicity belongs to the allocation, not to a second statement of
+      // the available budget. Reuse the same numeric/time parser and source
+      // boundaries; reject an over-allocation rather than silently shortening it.
+      if(blocks.some(block=>block.asserted&&block.minutes>effect.minutes))throw new ObligationError('REPLY_CONTRADICTS_CURRENT_EFFECT')
       for(const match of reply.matchAll(/每(?:周|星期)[^，,。；;！？!\n]{0,8}?((?:[0-9]+(?:\.[0-9]{1,2})?|[零一二两三四五六七八九十百]+|半)(?:个半|个)?\s*(?:小时|钟头))/g)){
+        if(blocks.some(block=>match.index>=block.start&&match.index<block.end))continue
         const stated=remainingMinutes(match[1]!)
         if(stated===null||stated===effect.minutes)continue
         const before=reply.slice(Math.max(0,match.index-14),match.index)
@@ -496,6 +539,12 @@ const sharedChars=(a:string,b:string)=>{
   return count
 }
 export type CorrectionCandidate={id:string;revision:number;kind:NonNullable<CorrectionPlan['target']>['kind'];assertion:string;text:string}
+// Conservative field identity for a quantified-time correction. Mask only the
+// amount and budget grammar; keep activity words, calendar labels
+// and the rest of the source intact. Different wording may safely create a new
+// sourced fact, but matching quantities never grants cross-field mutation.
+const timeQuantity=/[0-9零一二两三四五六七八九十百半.]+(?:个半|个)?\s*(?:小时|钟头|分钟)/g
+const timeFieldTemplate=(text:string)=>text.replace(timeQuantity,'#').replace(/(?:我|本人)/g,'').replace(/本周/g,'这周').replace(/(?:剩余(?:可投入|可用)?时间(?:要)?(?:更正为|改成|改为)?|剩余|(?:只)?还?剩(?:下|着)?|更正为|改成|改为|可用|时间|时长|只有|最多|不超过|上限)/g,'').replace(/(?:是|为)(?=#)/g,'').replace(/[\s，,：:]/g,'')
 export function planExplicitCorrection(text:string,authorized:readonly CorrectionCandidate[]):CorrectionPlan|null{
   const clauses=scanUserClauses(text)
   for(const clause of clauses){
@@ -505,7 +554,7 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
     if(!budget||budget.scope!=='remaining')continue
     const matching=authorized.filter(item=>['user_reported','user_edit'].includes(item.assertion)&&['context','constraint'].includes(item.kind)).filter(item=>{
       const prior=applicableTimeBudget(item.text,undefined,undefined,{retainReportedBudget:true})
-      return prior?.scope==='remaining'&&prior.period===budget.period
+      return prior?.scope==='remaining'&&prior.period===budget.period&&timeFieldTemplate(item.text)===timeFieldTemplate(clause.text)
     })
     const item=matching.length===1?matching[0]:undefined
     return {newQuote:clause.text,target:item?{itemId:item.id,expectedRevision:item.revision,beforeQuote:item.text,kind:item.kind}:undefined}
@@ -565,6 +614,22 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
     if(numsOf(item.text)!==numsOf(newQuote))continue
     if(oldChars.size>=3&&added.every(char=>fillerChars.has(char))&&oldHedged===newHedged)return null
   }
+  // Time corrections target the same typed budget, never an execution report
+  // that happens to share characters such as 我/小时/一. A remainder is not a
+  // correction to a recurring allowance; retain both and let the scoped budget
+  // selector choose the applicable one.
+  const correctedBudget=applicableTimeBudget(newQuote,undefined,undefined,{retainReportedBudget:true})
+  if(correctedBudget){
+    const matching=authorized.filter(item=>['user_reported','user_edit'].includes(item.assertion)&&['context','constraint'].includes(item.kind)).flatMap(item=>
+      scanUserClauses(item.text).filter(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative).flatMap(clause=>{
+        const prior=applicableTimeBudget(clause.text,undefined,undefined,{retainReportedBudget:true})
+        const sameScope=prior?.scope===correctedBudget.scope&&prior.period===correctedBudget.period
+        return sameScope&&timeFieldTemplate(clause.text)===timeFieldTemplate(newQuote)?[{item,quote:clause.text}]:[]
+      })
+    )
+    const chosen=matching.length===1?matching[0]:undefined
+    return {newQuote,target:chosen?{itemId:chosen.item.id,expectedRevision:chosen.item.revision,beforeQuote:chosen.quote,kind:chosen.item.kind}:undefined}
+  }
   // Deterministic amend target: the old item whose clauses overlap BOTH the
   // new value and the rest of the correction message (the part that usually
   // names the old value: 刚才说成大三了 / 策划主要是队长做的). Requires a clear
@@ -583,12 +648,24 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
   const restOfMessage=clauses.map(clause=>clause.text).join('').replace(newQuote,'')
   const scored:Scored[]=[]
   const readStatusCorrection=/看过|读过|已读/.test(newQuote)
+  // Qualifying an inference does not retract its underlying event. Require
+  // the denied proposition itself in an old clause before replacing it;
+  // character overlap with the surrounding event is not correction authority.
+  const deniedInference=/(?:不代表|不等于|不能说明|不能证明)(.+)$/.exec(newQuote)?.[1]
+    ?.replace(/^(?:(?:我|本人|这)\s*)+/,'').trim()
   for(const item of authorized){
     if(item.assertion!=='user_reported'&&item.assertion!=='user_edit')continue
     if(item.text.includes(newQuote)||newQuote===item.text)continue
     if(readStatusCorrection&&!/看过|读过|已读/.test(item.text))continue
     const clausesOfItem=scanUserClauses(item.text).map(clause=>clause.text.trim()).filter(carriesText)
     for(const clause of clausesOfItem){
+      if(deniedInference){
+        // Only the same affirmative proposition is a safe retractable target.
+        // Extra negation, uncertainty or event context keeps the old source
+        // intact and stores this new qualifier instead of guessing polarity.
+        const proposition=clause.replace(/^(?:(?:我|本人|这)\s*)+/,'').trim()
+        if(proposition!==deniedInference)continue
+      }
       const score=scoreChars(newQuote,clause)+scoreChars(restOfMessage,clause)
       scored.push({item,clause,score})
     }

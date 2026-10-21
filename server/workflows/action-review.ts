@@ -1,25 +1,26 @@
 import {scanUserClauses} from '../user-command-spans.ts'
+import {reportedCompletedContactClauses} from '../turn-contract.ts'
 import {WorkflowError,emptyProposal,type EvidenceRef,type WorkflowRequest,type WorkflowProposal,type ActionUsageStatus} from './contracts.ts'
 
 export type ActionCase={eventId:string;revision:number;object:string;request:string;known:{sent:boolean|null;read:boolean|null;replied:boolean|null;used:boolean|null;effect:string|null};usage:{status:ActionUsageStatus;source:EvidenceRef}[];answeredQuestions:string[]}
 export type ActionReview={proposal:WorkflowProposal;feedback:ActionUsageStatus|null;stages:ActionCase['known'];reply:string;feedbackSource:EvidenceRef|null;needsClarification:boolean}
 // Shared by stage reconciliation and feedback classification; plans are not delivery.
-const reportedDelivery=/(?:我|按上次)[^；]{0,40}(?:发了|发出|发送了|联系了|提交了)|我(?:已经|已)(?:把[^；]{1,30})?(?:交给[^；]{1,20}了|交付了|提交了)/
+const reportedDelivery={test:(quote:string)=>reportedCompletedContactClauses(quote).length>0}
 // False is an explicit negative report; null means the student has not established it.
 // Apply authorized messages chronologically. Corrections replace, rather than OR with, old facts.
 export function reconcileActionStages(before:ActionCase['known'],quote:string,reported?:(field:keyof ActionCase['known'],evidenceQuotes:string[])=>void):ActionCase['known']{
  const clauses=scanUserClauses(quote).filter(x=>!x.interrogative&&!x.conditional&&!x.attributedToOther&&!x.quoted&&!x.code&&!x.quoteSpans.length)
  const text=clauses.map(x=>x.text).join('；'),stages={...before}
  if(!clauses.some(x=>/我|本人|按上次/.test(x.text)))return stages
- const facts:Record<'sent'|'read'|'replied'|'used',[RegExp,RegExp,RegExp]>={
-  sent:[/还没发|没(?:有)?发(?:出|送)|没有联系|没联系|没提交/,reportedDelivery,/不(?:知道|确定)[^；]{0,12}(?:是否|有没有)?(?:发出|发送|提交)/],
+ const facts:Record<'sent'|'read'|'replied'|'used',[RegExp,Pick<RegExp,'test'>,RegExp]>={
+  sent:[/还没发|没(?:有)?发(?:出|送|给)|未(?:发出|发送|发给|提交|联系)|没有联系|没联系|没提交/,reportedDelivery,/(?:不(?:知道|确定|清楚)|无法确认|未确认)(?:自己|我|本人|(?:这|那)?(?:个|份|封|条)?(?:链接|PDF|作品集|材料|资料|邮件|消息))?(?:是否|有没有)?(?:已经|已|成功|实际)?(?:把(?:这|那)?(?:个|份|封|条)?(?:链接|PDF|作品集|材料|资料|邮件|消息))?(?:发出|发送|发给|发了|提交|交付|联系)/],
   read:[/没(?:有)?(?:看|读)|未读/,/已读|已经(?:看|读)(?:了|过|到)/,/不(?:知道|确定)[^；]{0,12}(?:看|读)/],
   replied:[/没(?:有)?回复|未回复|还没回|没人回/,/回复了|收到了回复|已经回复/,/不(?:知道|确定)[^；]{0,12}(?:回|回复)/],
   used:[/没(?:有)?(?:用|使用|采用)|未(?:使用|采用)/,/(?:已经)?(?:用上了|使用了)|已经采用|采用了/,/不(?:知道|确定)[^；]{0,12}(?:用|使用|采用)|(?:是否|有没有)(?:使用|采用)[^；]{0,8}(?:我|本人)?(?:还|仍|尚)?不(?:知道|确定)/]
  }
  for(const key of ['sent','read','replied','used'] as const){
   const [no,yes,unknown]=facts[key]
-  const matching=(pattern:RegExp)=>clauses.filter(x=>pattern.test(x.text)).map(x=>x.text)
+  const matching=(pattern:Pick<RegExp,'test'>)=>clauses.filter(x=>pattern.test(x.text)).map(x=>x.text)
   if(unknown.test(text)){stages[key]=null;reported?.(key,matching(unknown))}
   else if(no.test(text)){stages[key]=false;reported?.(key,matching(no))}
   else if(yes.test(text)){stages[key]=true;reported?.(key,matching(yes))}

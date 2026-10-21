@@ -92,7 +92,7 @@ test('event workspace and one authoritative action commit with real PostgreSQL s
       assert.equal((await coachEventView(user,conversation))?.nodes.find(node=>node.id===nodeId)?.source?.messageId,run.source_message_id)
     })
     await t.test('one explicit modification becomes the displayed and saved material; stale reuse is rejected',async()=>{
-      const run=(await store.startRun(user,conversation,randomUUID(),'先问还需不需要，不要显得在催反馈。')).run
+      const run=(await store.startRun(user,conversation,randomUUID(),'请改写要发给对方的话：先问还需不需要，不要显得在催反馈。')).run
       const target:EventDelta['target']={operation:'continue',eventId,expectedRevision:eventRevision}
       await assert.rejects(stageCoachEvent(run,{target,action:{operation:'reuse',actionId,expectedRevision:actionRevision}},'沿用。'),(error:any)=>error.code==='COACH_ACTION_REVIEW_REQUIRED')
       const oldDraft=(await pool.query('SELECT draft FROM coach_actions WHERE user_id=$1 AND id=$2',[user,actionId])).rows[0].draft

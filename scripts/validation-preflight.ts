@@ -67,7 +67,7 @@ try{
   const budget=new CoachProviderBudget()
   const snapshot=budget.snapshot()
   const funding=activeCoachFunding(snapshot)
-  ledger={parsed:true,pending:snapshot.calls.filter((call:unknown&{status?:string})=>call&&typeof call==='object'&&(call as {status?:string}).status!=='finished').length,fundingRemainingCny:funding&&typeof funding.remainingCny==='number'?funding.remainingCny:null,fundingSource:funding?(snapshot.continuation?'continuation':snapshot.currentGrant?'currentGrant':'additional'):'none'}
+  ledger={parsed:true,pending:snapshot.calls.filter((call:unknown&{status?:string})=>call&&typeof call==='object'&&(call as {status?:string}).status!=='finished').length,fundingRemainingCny:funding&&!funding.paused&&!funding.runtimeDelegation&&typeof funding.remainingCny==='number'?funding.remainingCny:null,fundingSource:funding?.runtimeDelegation?'runtime_delegated':funding?(snapshot.continuation?'continuation':snapshot.currentGrant?'currentGrant':'additional'):'none'}
 }catch{ledger={parsed:false,pending:-1,fundingRemainingCny:null,fundingSource:null}}
 
 const local=(isolatedRunner&&(chromeDriver as boolean)&&postgresConfig&&sourceFreezeEntry&&missing.length===0)?'READY':'BLOCKED'
@@ -76,7 +76,7 @@ if(!(chromeDriver as boolean))missing.push('playwright-driver')
 if(!postgresConfig)missing.push('server-config-database')
 if(!sourceFreezeEntry)missing.push('source-freeze-entry')
 
-const bailian=(!bailianKey)?'BLOCKED_CREDENTIALS':ledger.pending>0?'BLOCKED_BUDGET':ledger.fundingRemainingCny===null?'BLOCKED_BUDGET':'READY_FOR_AUTHORIZED_PROBE'
+const bailian=(!bailianKey)?'BLOCKED_CREDENTIALS':ledger.pending!==0?'BLOCKED_BUDGET':ledger.fundingRemainingCny===null||ledger.fundingRemainingCny<=0?'BLOCKED_BUDGET':'READY_FOR_AUTHORIZED_PROBE'
 const coze=(!cozeEnabled)?'OFF':!cozePat||!cozeWorkflow?'BLOCKED_CONFIG':!cozeTransferApproved?'BLOCKED_TRANSFER_APPROVAL':'READY_FOR_AUTHORIZED_PROBE'
 
 const preflight:ValidationPreflight={baseline:{head,dirty},local,bailian,coze,missing,node:process.version,checks:{isolatedRunner,chromeDriver:Boolean(chromeDriver),postgresConfig,sourceFreezeEntry,ledger},...(freezeOutput?{freezeOutput}:{}),...(requireBailian?{requireBailian:true}:{})}

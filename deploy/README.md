@@ -5,11 +5,21 @@
 镜像从已提交、clean源码构建；默认标签与Compose服务引用一致：`lifeos:v1.3-fast-launch-candidate`。Windows 使用 `pwsh -NoProfile -File deploy/build-image.ps1`，Linux 服务器按根目录交接步骤从捕获的提交SHA导出构建上下文。
 构建上下文由`git -c core.autocrlf=false -c core.eol=lf archive "$sourceCommit"`导出脚本启动时捕获的精确提交字节；两个命令级设置避免Windows全局autocrlf改变归档内的换行，不修改机器Git配置。临时上下文保留在忽略的`.local/image-build-contexts/`。
 依赖已锁定的公开离线BGE资产与Linux wheels；缺失时脚本明确失败，不依赖私人数据库或历史账本。
+
+公开离线依赖必须是工作区内的普通实体目录/文件。构建脚本在创建上下文及复制前核对源路径的全部祖先，并逐层检查资产树，拒绝 junction、symlink 等 reparse point，不跟随嵌套链接。上下文根路径也必须没有重解析祖先；Git 归档中已有的 `.local` 路径（包括链接）一律拒绝，之后才插入这两类声明的公开资产。缺失与无权访问分开处理，访问错误不按“可新建路径”放行。这防止静态链接输入越界，不声称能防御同权限进程在检查与复制之间恶意替换文件。
 Windows工作树的CRLF摘要不能直接当作规范Linux镜像的Skill或source摘要。启用工作流前必须从精确镜像读取当前指纹，在该镜像环境产生受审冻结与云绑定；旧摘要不匹配时保持关闭，不用改写摘要绕过校验。
 Dockerfile 将精确提交写入 OCI revision 标签和 `deploy/build-version.json`。启动前运行 `bash deploy/verify-image.sh <现有安全配置路径> "$LIFEOS_BUILD_COMMIT"`；只有Compose引用、构建参数和本机镜像标签三者一致才会返回镜像不可变 ID。把 ID 写入临时 Compose override 的 `services.app.image`，并设 `pull_policy: never`；启动、检查容器和读版本都使用同一个 override，再核对容器 `.Image` 与预检 ID 一致，以免可变标签在预检后被替换。不要把示例或合成探测凭据用于公网。
 `GET /api/run/version`读回实际加载的提交、来源（Git或镜像构建清单）、主Skill及五专业Skill摘要、攻略/来源/证据摘要。
 `/api/ready`只核查应用、数据库及离线编码器，不证明真实模型、扣子业务或生产验收。
 核心真实验收、目标归属、备份与回滚完成前不得覆盖现有生产服务。
+
+Max 候选的模型、能力证据目录和显式计价示例见 `deploy/max-candidate.env.example`。镜像仅额外收录该候选的 `coach-capabilities-default.json`，不复制原始诊断、私有账本或密钥；原 Flash 证据及默认设置仍保留。Compose 通过 `LIFEOS_EVIDENCE` 显式选择报告目录，默认仍为历史 `qwen-current`。Max 的模型、报告和计价必须一起选择；报告仍由运行时检查模型及接口签名，不能把目录存在当能力通过。
+
+该示例不含生产认证、数据库连接或预算授权，不创建新账本，也不授权发布。使用既有受保护配置时核对环境覆盖顺序，尤其旧 `LIFEOS_DEFAULT_MODEL` / `LIFEOS_MODEL_DEFAULT_ID`，不要打印展开后的完整配置或把示例凭据用于公网。当前候选缺完整同版真实验收，不得仅因 `docker compose config` 或 Dockerfile 检查通过就启动生产；clean Git/精确提交构建保护仍然有效。
+
+当前服务端以 `LIFEOS_MODEL_DEFAULT_ID` 为模型选择依据；Compose 的旧 `LIFEOS_DEFAULT_MODEL` 显示别名也只从这一 ID 派生，不再让继承的旧别名与所选 ID 相互矛盾。只设置旧别名不能切换当前服务端模型。候选示例中的金额为已有测试估算计价，不是供应商账单或新增预算。
+
+能力证据放在独立 `capability-evidence` 资产阶段，再由最终应用阶段复制；单独构建该阶段仅证明文件可打包，不是完整应用镜像。该候选公开 JSON 必须随未来受审提交进入 Git 归档；不能从私有目录补文件来冒充已提交源码。2026-10-19 的零调用主机接口检查确认 Max 报告匹配当前接口、错配 Flash 报告被拒绝；旧 Flash 报告本身不匹配当前 Flash 接口签名，故保留默认配置不表示默认能力已验证。没有新的合法证据前维持能力门禁，不改写旧报告签名或用目录重命名冒充通过。完整应用镜像内的运行时签名仍须独立核验。
 
 恢复后运行 `verify-restoration.py` 作为只读门禁，不能只用 `docker start` 的退出码宣布恢复。调用方提供恢复前保存的完整迁移清单（JSON数组，每项只有`name`与`sha256`）、原镜像不可变ID和原完整commit：
 

@@ -54,6 +54,9 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHos
   let shuttingDown=false
   const authHandler=toNodeHandler(auth)
   const server=createServer(async(req,res)=>{
+    // P7: the user wait starts when the request arrives, not when `started`
+    // is emitted. Keep this clock separate from the post-start stage clock.
+    const receivedAt=performance.now()
     res.setHeader('X-Content-Type-Options','nosniff')
     res.setHeader('X-Frame-Options','DENY')
     res.setHeader('Referrer-Policy','no-referrer')
@@ -76,6 +79,7 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHos
         if(path==='/api/run/version'&&method==='GET'){
           json(res,200,workflowRuntimeVersion);return}
         const session=await auth.api.getSession({headers:fromNodeHeaders(req.headers)})
+        const authDoneAt=performance.now()
         if(!session)throw new HttpError(401,'LOGIN_REQUIRED')
         // Effective identity is always derived here. No body, URL or model field can override it.
         const user=session.user.id
@@ -175,6 +179,7 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
             }
           }
           const started=await store.startRun(user,conversation,input.requestId,input.text)
+          const startRunDoneAt=performance.now()
           const run=started.run
           if(started.replay){
             if(run.status==='running')throw new HttpError(409,'RUN_IN_PROGRESS')
@@ -187,6 +192,7 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
           const timer=setTimeout(()=>controller.abort('MODEL_TIMEOUT'),runTimeoutMs)
           res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache, no-store','Connection':'keep-alive','X-Accel-Buffering':'no'});res.flushHeaders()
           sse(res,{type:'started',requestId:run.request_id,sourceMessageId:run.source_message_id})
+          const startedEventAt=performance.now()
           const heartbeat=setInterval(()=>{if(!res.destroyed)res.write(': heartbeat\n\n')},10000)
           const closed=()=>{if(!res.writableEnded){controller.abort();void store.terminateRun(user,run.request_id,'cancelled','CLIENT_DISCONNECTED').catch(()=>{})}}
           res.on('close',closed)
@@ -226,20 +232,25 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
                 // Only the engine's validated sentence lane can use this path;
                 // arbitrary draft events retain the stricter question guard.
                 const sentence=event.draftKind==='safe_sentence'&&safeEarlySentence(JSON.stringify({reply:event.text+'。'}))===event.text
-                if(question||sentence)sse(res,{type:'draft',text:event.text,saved:false})
+                // The five-state preview is rendered by the server from the
+                // user's own reports; it is not an unvalidated model sentence.
+                const verifiedState=event.verifiedState===true
+                const verifiedFeedback=event.verifiedFeedback===true
+                if(question||sentence||verifiedState||verifiedFeedback)sse(res,{type:'draft',text:event.text,saved:false})
               }
               if(event.type==='draft_discarded')sse(res,{type:'draft_discarded'})
               if(event.type==='tool'&&typeof event.name==='string'&&typeof event.status==='string')safeEvents.push(event)
             }})
             engineTotalMs=mark()-contextMark
-            staged.audit.push({phase:'http_stage_timings',queueWaitMs,contextLoadMs,engineTotalMs})
+            const preStartTimings={receivedToStartedMs:Math.round(startedEventAt-receivedAt),authMs:Math.round(authDoneAt-receivedAt),authToStartRunMs:Math.round(startRunDoneAt-authDoneAt),startRunToStartedMs:Math.round(startedEventAt-startRunDoneAt)}
+            staged.audit.push({phase:'http_stage_timings',...preStartTimings,queueWaitMs,contextLoadMs,engineTotalMs})
             const finishStart=performance.now()
             const response=await store.finishRun(run,staged,result.text,result.usage,controller.signal,staged.dialoguePath,staged.upstreamCalls)
             finishRunMs=Math.round(performance.now()-finishStart)
             if(modelManaged&&staged.upstreamCalls)await recordModelSuccess().catch(()=>{})
             for(const event of safeEvents)sse(res,event)
             sse(res,{type:'delta',text:result.text,replace:true,saved:true})
-            sse(res,{type:'done',...response,stageTimings:{queueWaitMs,contextLoadMs,engineTotalMs,finishRunMs}})
+            sse(res,{type:'done',...response,stageTimings:{...preStartTimings,queueWaitMs,contextLoadMs,engineTotalMs,finishRunMs}})
           }catch(error){
             if(process.env.LIFEOS_DEBUG_FINISH)console.error('FINISH_ERR',error)
             const timedOut=controller.signal.reason==='MODEL_TIMEOUT',cancelled=controller.signal.aborted&&!timedOut
