@@ -51,6 +51,7 @@ test('captured render-only tail cannot add authority or replace canonical busine
 })
 
 test('captured unauthorized source and conversation trailer remain rejected without prefix recovery',()=>{
+ assert.throws(()=>parseActionCoachTurn(readFileSync(new URL('./fixtures/coach-invalid-assertion-response.txt',import.meta.url),'utf8')),'complete supplier output with invalid assertion and suffix remains rejected')
  const raw=readFileSync(new URL('./fixtures/coach-invalid-write-scope-trailer.txt',import.meta.url),'utf8'),frame=completeCoachJsonFrame(raw)!
  assert.ok(frame)
  assert.throws(()=>parseActionCoachTurn(raw))

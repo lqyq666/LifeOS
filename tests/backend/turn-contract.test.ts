@@ -21,6 +21,7 @@ import {readFileSync,unlinkSync,existsSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
 import {boundedOrdinaryReply,boundedPlanningReply,boundedRecallReply} from '../../server/bounded-reply.ts'
 import {knowledgeIntent} from '../../server/evergreen-guide.ts'
+import {estimateTokens} from '../../server/context.ts'
 
 test('method citation selectors cannot name another or withdrawn card during generation',()=>{
  const allowed='6262d479-9403-4140-8910-48de23cd2600'
@@ -668,6 +669,43 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
       await store.finishRun(feedback.run,feedback.staged,updated.text,updated.usage,new AbortController().signal)
       await pool.query('DELETE FROM growth_items WHERE user_id=$1 AND conversation_id=$2',[user,conversation])
     })
+    await t.test('compiled format overhead is checked before any provider reservation or dispatch',async()=>{
+      const previous=model.contextWindow,conversation=randomUUID()
+      await store.createConversation(user,{id:conversation,title:'SYNTHETIC schema context boundary'})
+      const turn=await prepare('请解释一下递归。',conversation)
+      try{
+        outputs.push({reply:'递归是一个过程调用自身，并在达到终止条件时停止。'})
+        await engine(turn.input)
+        const system=requests.at(-1).messages.find((m:any)=>m.role==='system').content as string
+        const added=estimateTokens(system.slice(system.indexOf('\n本轮输出格式定义')))
+        const estimate=(turn.staged.audit.find((a:any)=>a.phase==='model_call_started') as any).contextTokenEstimate
+        const oldEstimate=estimate-added,before=requests.length
+        model.contextWindow=oldEstimate+8192+Math.floor(added/2)
+        assert.ok(oldEstimate+8192<model.contextWindow)
+        assert.ok(estimate+8192>model.contextWindow)
+        const reservations=(await pool.query('SELECT count(*)::int AS count FROM lifeos_provider_spend WHERE request_id=$1',[turn.run.request_id])).rows[0].count
+        await assert.rejects(engine(turn.input),{code:'MODEL_CONTEXT_LIMIT'})
+        assert.equal(requests.length,before)
+        assert.equal((await pool.query('SELECT count(*)::int AS count FROM lifeos_provider_spend WHERE request_id=$1',[turn.run.request_id])).rows[0].count,reservations)
+      }finally{model.contextWindow=previous;await store.terminateRun(user,turn.run.request_id,'failed','SYNTHETIC_CONTEXT_LIMIT')}
+    })
+    await t.test('native schema cannot appear or disappear between generation projection and SDK dispatch',async()=>{
+      const original=model.provider
+      try{
+        for(const [initial,next] of [[original,'synthetic-no-native'],['synthetic-no-native',original]]){
+          model.provider=initial
+          const turn=await prepare('请解释一下递归。'),before=requests.length
+          const changed=createTurnEngine({capabilityVerified:()=>true,providerCallObserver:{before(){model.provider=next},after(){}}})
+          await assert.rejects(changed(turn.input))
+          assert.equal(requests.length,before,'mismatched schema must not reach even the fake HTTP server')
+          const receipt=turn.staged.audit.find((a:any)=>a.phase==='provider_generation_contract_mismatch') as any
+          assert.ok(receipt)
+          assert.notEqual(receipt.generationHasSchema,receipt.outgoingHasSchema)
+          model.provider=original
+          await store.terminateRun(user,turn.run.request_id,'failed','SYNTHETIC_SCHEMA_CHANGED')
+        }
+      }finally{model.provider=original}
+    })
     await t.test('context-only judgment updates retain memory without opening an unrelated process workspace',async()=>{
       const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC context-only judgment'})
       const text='接着升学和就业的取舍。家里希望我走稳定路线，但这是外部期待；我自己更在意留在目前城市，而且每周最多四小时探索。请更新判断，不要替我选。'
@@ -681,6 +719,8 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
       assert.equal(requests.at(-1).response_format.json_schema.schema.properties.event,undefined)
       assert.ok(requests.at(-1).response_format.json_schema.schema.properties.growthUpdates)
       const native=requests.at(-1).response_format.json_schema.schema
+      assert.ok(requests.at(-1).messages.find((m:any)=>m.role==='system').content.includes(JSON.stringify(native)),'generation sees the exact same compiled contract as the native formatter, not an unbound legacy schema')
+      assert.ok(turn.staged.audit.some((a:any)=>a.phase==='provider_native_contract'&&a.generationSchemaIncluded===true))
       const supplied=JSON.parse(requests.at(-1).messages.find((m:any)=>m.role==='user').content)
       const context=supplied.authorizedContext??supplied
       assert.ok(!context.currentUserMessage.clauses.some((c:any)=>c.text==='而且每周最多四小时探索'),'the existing program-owned recurring budget is not a duplicate model-write source')
