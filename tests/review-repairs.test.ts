@@ -45,6 +45,8 @@ test('repeating the same report does not prove a second experience or resolve it
  const current='今天又打了一次，感受还没想清楚。'
  const reply='各次经历的感受是否一致仍未知。'
  assert.equal(repairReviewedDefects(reply,current,[earlier,duplicate]),null)
+ const sameOrdinal='我再次说明，第二次打球之后很放松。'
+ assert.equal(repairReviewedDefects(reply,'第三次打完，感受还没想清楚。',['第二次打球后很放松。',sameOrdinal]),null)
 })
 
 test('negated feeling reports are not promoted into repeated positive feelings',()=>{

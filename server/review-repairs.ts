@@ -141,18 +141,28 @@ function repairReportedRepeatFeeling(reply:string,userText:string,priorUserTexts
     return found
   }
   const reports=sources.map(text=>({text,feelings:reported(text)}))
-  const reportsAnotherEpisode=(source:string,pattern:RegExp)=>{
+  const episodeKeysFor=(source:string,pattern:RegExp)=>{
     const clauses=scanUserClauses(source).filter(clause=>ownedObservationClause(clause)&&!unassertedObservation.test(clause.text))
-    return clauses.some(feelingClause=>pattern.test(feelingClause.text)&&!negatesFeeling(feelingClause.text,pattern.exec(feelingClause.text)?.index??0)
-      &&clauses.some(eventClause=>{
-        if(eventClause.sentenceStart!==feelingClause.sentenceStart)return false
+    const keys=new Set<string>()
+    for(const feelingClause of clauses){
+      const feelingIndex=pattern.exec(feelingClause.text)?.index
+      if(feelingIndex===undefined||negatesFeeling(feelingClause.text,feelingIndex))continue
+      for(const eventClause of clauses){
+        if(eventClause.sentenceStart!==feelingClause.sentenceStart)continue
         const event=eventClause.text.trim().replace(/^(?:我|本人)?(?:再次|再)?(?:说明|提到|重申)[，,、]*/,'')
-        const explicitRepeat=/(?:第二次|一周后|两周后|隔天|第二天|(?:又|再).{0,16}(?:一次|一遍|一场|一回|一轮))/.test(event)
+        const marker=/(?:第[一二三四五六七八九十\d]+次|一周后|两周后|隔天|第二天|第三天|昨晚|昨天|前天|今天|明天|上周|本周|\d{1,2}月\d{1,2}日)/.exec(event)?.[0]
         const action=/(?:打|练|做|参加|尝试|联系|沟通|完成|申请|提交|面试|投递|复习|学习|问|聊|见|合作|体验)/.test(event)
-        return explicitRepeat&&action
-      }))
+        if(marker&&action)keys.add(marker)
+      }
+    }
+    return keys
   }
-  const repeated=feelings.find(([label,pattern])=>reports.filter(item=>item.feelings.has(label)).length>=2&&reports.some(item=>item.feelings.has(label)&&reportsAnotherEpisode(item.text,pattern)))
+  const repeated=feelings.find(([label,pattern])=>{
+    const matching=reports.filter(item=>item.feelings.has(label))
+    if(matching.length<2)return false
+    const episodeSets=matching.map(item=>episodeKeysFor(item.text,pattern))
+    return episodeSets.some((episodes,index)=>episodeSets.slice(index+1).some(other=>[...episodes].some(key=>!other.has(key))))
+  })
   if(!repeated)return null
   const [label]=repeated
   const unsupportedUnknown=/(?:各次|两次|这两次|每次|两段经历|不同经历)(?:的)?(?:经历)?(?:的)?(?:感受|心情|状态)是否(?:一致|相同|一样|相似)(?:(?:仍|尚)?(?:未知|不清楚|待确认|未确认))?/g
