@@ -1,0 +1,238 @@
+{
+  "at": "2026-10-19T02:52:47.497Z",
+  "runId": "coach-probe-session-1792378367497-57948783",
+  "status": "PASS",
+  "evidence": "REAL_PROVIDER_API",
+  "contract": "action-coach-v1.3",
+  "probeContractMode": "actual_runtime_subsets",
+  "sourceFreeze": {
+    "path": "D:\\aaaLife\\LifeOS\\evidence\\v1.3-action-coach\\freeze\\source-1792378338720.json",
+    "digest": "193f773ffaebcdd5f5f71c9532d8a35996f7ab30cb056a04989bed4a32ef694e"
+  },
+  "contractSignature": "98cfadd7c548f1ec7fbf9e147dcca59fd864ebf713694e99f452583ab03497f8",
+  "interfaceSignature": "500f8d75d88c3a4e036301d49ff1274a342daa339948890cc3e46a15683677bc",
+  "signature": "bailian:qwen3.8-max:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+  "tier": "default",
+  "provider": "bailian",
+  "model": "qwen3.8-max",
+  "thinkingBudget": 0,
+  "generationControls": {
+    "temperature": 0,
+    "presencePenalty": 1.5,
+    "thinkingEnabled": false
+  },
+  "maxRetries": 0,
+  "authorization": {
+    "kind": "EXISTING_RUNTIME_BUDGET_NO_NEW_ALLOWANCE",
+    "budgetId": "acceptance_topup_20261018"
+  },
+  "checks": {
+    "streaming": {
+      "passed": true,
+      "stopReason": "stop",
+      "elapsedMs": 5069,
+      "firstRawDeltaMs": 4521,
+      "deltas": 8,
+      "usage": {
+        "uncachedInputTokens": 1659,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3072,
+        "outputTokens": 19
+      },
+      "estimatedCostCny": 0.0252,
+      "callId": "809e61da-4778-4443-b8ac-4706a09f8b8f",
+      "cancelledAfterDelta": false,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "148a8a121770ec2ba397827846d47118672524f443ae3e69c34c7d864cca7b61",
+      "errorCategory": null,
+      "reply": "在，你想聊什么？"
+    },
+    "freeOutput": {
+      "passed": true,
+      "stopReason": "stop",
+      "elapsedMs": 3270,
+      "firstRawDeltaMs": 1776,
+      "deltas": 22,
+      "usage": {
+        "uncachedInputTokens": 1653,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3072,
+        "outputTokens": 60
+      },
+      "estimatedCostCny": 0.026604,
+      "callId": "5948e706-4d97-4766-a9ba-946c8bd93ff7",
+      "cancelledAfterDelta": false,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "5262e7766bc0678b53789a7b375250c1edd1a62f6e5a6b1f49cebe70959a430c",
+      "errorCategory": null,
+      "reply": "递归就是函数在执行过程中调用自身。它把一个大问题拆成结构相同的小问题，每次处理更小的部分，直到满足一个可以直接返回结果的终止条件（base case），再逐层把结果拼回去。"
+    },
+    "actionOutput": {
+      "passed": true,
+      "stopReason": "stop",
+      "elapsedMs": 7593,
+      "firstRawDeltaMs": 2241,
+      "deltas": 87,
+      "usage": {
+        "uncachedInputTokens": 1696,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3200,
+        "outputTokens": 286
+      },
+      "estimatedCostCny": 0.035448,
+      "callId": "1a751a58-1cda-429d-ad37-1bc9ae7a7259",
+      "cancelledAfterDelta": false,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "f34e6fa00ccd82031fc729eaf86c58ded3147844c340b0d524fe299236d565a9",
+      "errorCategory": null,
+      "output": {
+        "lead": "资料手机打不开，你具体需要哪一部分？",
+        "reply": "资料手机打不开，你具体需要哪一部分？",
+        "event": {
+          "target": {
+            "operation": "continue",
+            "eventId": "00000000-0000-4000-8000-000000000021",
+            "expectedRevision": 3
+          },
+          "nodes": [
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "00000000-0000-4000-8000-000000000011",
+                "quote": "我给同学发了资料"
+              }
+            },
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "00000000-0000-4000-8000-000000000011",
+                "quote": "他明确说手机打不开"
+              }
+            },
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "00000000-0000-4000-8000-000000000011",
+                "quote": "所以没有看"
+              }
+            }
+          ],
+          "action": {
+            "operation": "create",
+            "draft": {
+              "content": "资料手机打不开，你具体需要哪一部分？",
+              "materials": [],
+              "stopWhen": "发送后等待对方回复。"
+            }
+          }
+        }
+      },
+      "renderedReply": "资料手机打不开，你具体需要哪一部分？"
+    },
+    "cancel": {
+      "passed": true,
+      "stopReason": "aborted",
+      "elapsedMs": 1739,
+      "firstRawDeltaMs": 1643,
+      "deltas": 1,
+      "usage": "unknown",
+      "estimatedCostCny": "unknown",
+      "callId": "e9cc853c-3e4a-433b-a408-e5ffc47c68d7",
+      "cancelledAfterDelta": true,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "97e19b0a2053dff0b0c25e5995d041d09c17e44db533f4165c5313ef9387d4cc",
+      "errorCategory": null
+    }
+  },
+  "calls": [
+    {
+      "callId": "809e61da-4778-4443-b8ac-4706a09f8b8f",
+      "runId": "coach-probe-session-1792378367497-57948783",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-max",
+      "signature": "bailian:qwen3.8-max:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "startedAt": "2026-10-19T02:52:47.596Z",
+      "status": "finished",
+      "finishedAt": "2026-10-19T02:52:52.577Z",
+      "outcome": "stop",
+      "usage": {
+        "uncachedInputTokens": 1659,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3072,
+        "outputTokens": 19
+      },
+      "estimatedCostCny": 0.0252,
+      "providerResponseId": "chatcmpl-d78c6ccb-6b9c-9c23-80dc-9329fe36198c",
+      "firstRawDeltaMs": 4521,
+      "latencyMs": 4988
+    },
+    {
+      "callId": "5948e706-4d97-4766-a9ba-946c8bd93ff7",
+      "runId": "coach-probe-session-1792378367497-57948783",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-max",
+      "signature": "bailian:qwen3.8-max:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "startedAt": "2026-10-19T02:52:52.743Z",
+      "status": "finished",
+      "finishedAt": "2026-10-19T02:52:55.926Z",
+      "outcome": "stop",
+      "usage": {
+        "uncachedInputTokens": 1653,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3072,
+        "outputTokens": 60
+      },
+      "estimatedCostCny": 0.026604,
+      "providerResponseId": "chatcmpl-ba62c9f6-8ea2-984b-8bb2-f1bf21cc18fc",
+      "firstRawDeltaMs": 1776,
+      "latencyMs": 3188
+    },
+    {
+      "callId": "1a751a58-1cda-429d-ad37-1bc9ae7a7259",
+      "runId": "coach-probe-session-1792378367497-57948783",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-max",
+      "signature": "bailian:qwen3.8-max:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "startedAt": "2026-10-19T02:52:56.096Z",
+      "status": "finished",
+      "finishedAt": "2026-10-19T02:53:03.603Z",
+      "outcome": "stop",
+      "usage": {
+        "uncachedInputTokens": 1696,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3200,
+        "outputTokens": 286
+      },
+      "estimatedCostCny": 0.035448,
+      "providerResponseId": "chatcmpl-907a790e-4897-9830-b642-2b0395df4a1a",
+      "firstRawDeltaMs": 2241,
+      "latencyMs": 7517
+    },
+    {
+      "callId": "e9cc853c-3e4a-433b-a408-e5ffc47c68d7",
+      "runId": "coach-probe-session-1792378367497-57948783",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-max",
+      "signature": "bailian:qwen3.8-max:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "startedAt": "2026-10-19T02:53:03.773Z",
+      "status": "finished",
+      "finishedAt": "2026-10-19T02:53:05.418Z",
+      "outcome": "aborted",
+      "usage": "unknown",
+      "estimatedCostCny": "unknown",
+      "providerResponseId": "chatcmpl-10d13b99-fd9f-9eb6-a334-215307235f3c",
+      "firstRawDeltaMs": 1643,
+      "latencyMs": 1657
+    }
+  ],
+  "note": "Capability/transport evidence only, not semantic or speed acceptance. PostgreSQL sole authority; no legacy ledger activation and no automatic retry.",
+  "sessionCostCny": 0.087252
+}

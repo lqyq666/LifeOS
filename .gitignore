@@ -8,6 +8,17 @@ dist/
 
 # Acceptance evidence and exported handoffs are delivered separately from source.
 /evidence/
+# The image includes only these reviewed public capability summaries.
+!/evidence/
+!/evidence/v1.3-action-coach/
+!/evidence/v1.3-action-coach/provider/
+/evidence/v1.3-action-coach/provider/*
+!/evidence/v1.3-action-coach/provider/qwen-max-penalty-candidate-20261019/
+!/evidence/v1.3-action-coach/provider/qwen-max-penalty-candidate-20261019/coach-capabilities-default.json
+!/evidence/v1.3-action-coach/provider/qwen-max-current-20261019/
+!/evidence/v1.3-action-coach/provider/qwen-max-current-20261019/coach-capabilities-default.json
+!/evidence/v1.3-action-coach/provider/qwen-flash-nq-current-20261020/
+!/evidence/v1.3-action-coach/provider/qwen-flash-nq-current-20261020/coach-capabilities-default.json
 /LifeOS-V1.1.1-HARD-GATE-STOP-20261002.zip
 /LifeOS-V1.1-Phase2-Recovery-20261002.zip
 /V1_1_NOT_ACCEPTED.md

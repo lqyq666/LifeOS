@@ -1,0 +1,270 @@
+{
+  "at": "2026-10-20T07:10:37.127Z",
+  "runId": "coach-probe-default-1792480237127-cfba3fd9",
+  "status": "PASS",
+  "evidence": "REAL_PROVIDER_API",
+  "contract": "action-coach-v1.3",
+  "probeContractMode": "actual_runtime_subsets",
+  "sourceFreeze": {
+    "path": "D:\\aaaLife\\LifeOS\\.local\\launch-nq-flash-interface-20261020\\source-freeze.json",
+    "digest": "f2ac95f22f045328d92c30a9b668ade5cb668451cc9ee86b374687bcbcc72296"
+  },
+  "contractSignature": "7c07532cea1ba223dce56a8b333a4f49d8bf5e628162b6e2280004ef616a7878",
+  "interfaceSignature": "a6f6c3fa9d0898398d6f05272668b7b34fca19d3025e0d069c5831be32f7b166",
+  "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+  "tier": "default",
+  "provider": "bailian",
+  "model": "qwen3.8-flash",
+  "thinkingBudget": 0,
+  "maxRetries": 0,
+  "authorization": {
+    "kind": "EXPLICIT_LOCAL_NATIVE_INTERFACE_CHECK",
+    "userInstruction": "我已经批准真实验收了，把预算阻塞删掉，继续修到正式上线，不要再反复停在这里。",
+    "purpose": "NQ Max latency failure: validate existing Flash native current interface before any final candidate promotion",
+    "model": "qwen3.8-flash",
+    "maximumCalls": 4,
+    "automaticRetries": 0,
+    "productionWrites": false,
+    "noPurchases": true,
+    "historyAndUnknownReservationsRetained": true,
+    "at": "2026-10-20T07:05:09.302664+00:00",
+    "sha256": "dbcf312708090ac3e65802b6b16edd12de166741285b9dae4f718b1dcf5e991b"
+  },
+  "checks": {
+    "streaming": {
+      "passed": true,
+      "stopReason": "stop",
+      "elapsedMs": 2965,
+      "firstRawDeltaMs": 2475,
+      "deltas": 8,
+      "usage": {
+        "uncachedInputTokens": 6165,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 0,
+        "outputTokens": 21
+      },
+      "estimatedCostCny": 0.0049887,
+      "callId": "dfb562e4-7501-4b3d-8792-6bfaf2752667",
+      "cancelledAfterDelta": false,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "148a8a121770ec2ba397827846d47118672524f443ae3e69c34c7d864cca7b61",
+      "errorCategory": null,
+      "reply": "好的，我在听。你想聊什么？",
+      "note": "Raw delta timing is transport evidence, not meaningful first content."
+    },
+    "freeOutput": {
+      "passed": true,
+      "stopReason": "stop",
+      "elapsedMs": 8240,
+      "firstRawDeltaMs": 6514,
+      "deltas": 34,
+      "usage": {
+        "uncachedInputTokens": 2063,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 4096,
+        "outputTokens": 107
+      },
+      "estimatedCostCny": 0.0052161,
+      "callId": "81c91953-21ee-427d-b2df-10131b5d16f6",
+      "cancelledAfterDelta": false,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "5262e7766bc0678b53789a7b375250c1edd1a62f6e5a6b1f49cebe70959a430c",
+      "errorCategory": null,
+      "reply": "递归是函数直接或间接调用自身来解决问题的方法。它通常包含两个部分：基准情形（Base Case，停止递归的条件）和递归步骤（Recursive Step，将问题分解为更小的子问题并再次调用）。例如，计算阶乘 n! 时，若 n=1 则返回 1（基准），否则返回 n * (n-1)!（递归步骤）。",
+      "output": {
+        "lead": "递归是函数直接或间接调用自身来解决问题的方法。",
+        "reply": "递归是函数直接或间接调用自身来解决问题的方法。它通常包含两个部分：基准情形（Base Case，停止递归的条件）和递归步骤（Recursive Step，将问题分解为更小的子问题并再次调用）。例如，计算阶乘 n! 时，若 n=1 则返回 1（基准），否则返回 n * (n-1)!（递归步骤）。"
+      }
+    },
+    "actionOutput": {
+      "passed": true,
+      "stopReason": "stop",
+      "elapsedMs": 5628,
+      "firstRawDeltaMs": 2245,
+      "deltas": 83,
+      "usage": {
+        "uncachedInputTokens": 2383,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 4096,
+        "outputTokens": 287
+      },
+      "estimatedCostCny": 0.0059581,
+      "callId": "44c63750-2ad9-4456-aebb-f86c47c7c01b",
+      "cancelledAfterDelta": false,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "f34e6fa00ccd82031fc729eaf86c58ded3147844c340b0d524fe299236d565a9",
+      "errorCategory": null,
+      "fixture": {
+        "evidence": "SYNTHETIC_API_CONTRACT_STATE_NOT_PERSISTED_TRAJECTORY",
+        "eventId": "00000000-0000-4000-8000-000000000021",
+        "revision": 3
+      },
+      "output": {
+        "lead": "你还需要哪一部分？",
+        "reply": "你还需要哪一部分？之前发的资料手机打不开，先不重新制作。如果方便，直接说具体是哪块内容就行。",
+        "event": {
+          "target": {
+            "operation": "continue",
+            "eventId": "00000000-0000-4000-8000-000000000021",
+            "expectedRevision": 3
+          },
+          "nodes": [
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "00000000-0000-4000-8000-000000000011",
+                "quote": "他明确说手机打不开"
+              }
+            }
+          ],
+          "action": {
+            "operation": "create",
+            "draft": {
+              "content": "你还需要哪一部分？之前发的资料手机打不开，先不重新制作。如果方便，直接说具体是哪块内容就行。",
+              "materials": []
+            }
+          }
+        }
+      },
+      "renderedReply": "你还需要哪一部分？之前发的资料手机打不开，先不重新制作。如果方便，直接说具体是哪块内容就行。",
+      "note": "Existing event identity/revision, exact new source and one authoritative material. Optional candidate remains unconfirmed. Final quality still needs trajectory review."
+    },
+    "cancel": {
+      "passed": true,
+      "stopReason": "aborted",
+      "elapsedMs": 2576,
+      "firstRawDeltaMs": 2452,
+      "deltas": 1,
+      "usage": "unknown",
+      "estimatedCostCny": "unknown",
+      "callId": "d51274c1-9976-421f-9479-76856f319ddf",
+      "cancelledAfterDelta": true,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "97e19b0a2053dff0b0c25e5995d041d09c17e44db533f4165c5313ef9387d4cc",
+      "errorCategory": null,
+      "note": "Provider final billing is unknown unless nonempty usage is actually reported."
+    }
+  },
+  "calls": [
+    {
+      "runId": "coach-probe-default-1792480237127-cfba3fd9",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-flash",
+      "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "sourceDigest": "f2ac95f22f045328d92c30a9b668ade5cb668451cc9ee86b374687bcbcc72296",
+      "callId": "dfb562e4-7501-4b3d-8792-6bfaf2752667",
+      "authorizationSha256": "dbcf312708090ac3e65802b6b16edd12de166741285b9dae4f718b1dcf5e991b",
+      "startedAt": "2026-10-20T07:10:37.241Z",
+      "status": "finished",
+      "outcome": "stop",
+      "usage": {
+        "uncachedInputTokens": 6165,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 0,
+        "outputTokens": 21
+      },
+      "estimatedCostCny": 0.0049887,
+      "providerResponseId": "chatcmpl-a6b7785a-faab-95ae-bae2-06bbab9f4790",
+      "finishedAt": "2026-10-20T07:10:40.000Z"
+    },
+    {
+      "runId": "coach-probe-default-1792480237127-cfba3fd9",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-flash",
+      "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "sourceDigest": "f2ac95f22f045328d92c30a9b668ade5cb668451cc9ee86b374687bcbcc72296",
+      "callId": "81c91953-21ee-427d-b2df-10131b5d16f6",
+      "authorizationSha256": "dbcf312708090ac3e65802b6b16edd12de166741285b9dae4f718b1dcf5e991b",
+      "startedAt": "2026-10-20T07:10:40.196Z",
+      "status": "finished",
+      "outcome": "stop",
+      "usage": {
+        "uncachedInputTokens": 2063,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 4096,
+        "outputTokens": 107
+      },
+      "estimatedCostCny": 0.0052161,
+      "providerResponseId": "chatcmpl-ed42ff08-cad9-9f23-8d68-9ed8cd6e9cf5",
+      "finishedAt": "2026-10-20T07:10:48.245Z"
+    },
+    {
+      "runId": "coach-probe-default-1792480237127-cfba3fd9",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-flash",
+      "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "sourceDigest": "f2ac95f22f045328d92c30a9b668ade5cb668451cc9ee86b374687bcbcc72296",
+      "callId": "44c63750-2ad9-4456-aebb-f86c47c7c01b",
+      "authorizationSha256": "dbcf312708090ac3e65802b6b16edd12de166741285b9dae4f718b1dcf5e991b",
+      "startedAt": "2026-10-20T07:10:48.434Z",
+      "status": "finished",
+      "outcome": "stop",
+      "usage": {
+        "uncachedInputTokens": 2383,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 4096,
+        "outputTokens": 287
+      },
+      "estimatedCostCny": 0.0059581,
+      "providerResponseId": "chatcmpl-0cbce9c4-c0d1-9eeb-bfdf-06a11a853c23",
+      "finishedAt": "2026-10-20T07:10:53.874Z"
+    },
+    {
+      "runId": "coach-probe-default-1792480237127-cfba3fd9",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-flash",
+      "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "sourceDigest": "f2ac95f22f045328d92c30a9b668ade5cb668451cc9ee86b374687bcbcc72296",
+      "callId": "d51274c1-9976-421f-9479-76856f319ddf",
+      "authorizationSha256": "dbcf312708090ac3e65802b6b16edd12de166741285b9dae4f718b1dcf5e991b",
+      "startedAt": "2026-10-20T07:10:54.062Z",
+      "status": "finished",
+      "outcome": "aborted",
+      "usage": "unknown",
+      "estimatedCostCny": "unknown",
+      "providerResponseId": "chatcmpl-65899af3-bc49-9616-a567-712aa0e83218",
+      "finishedAt": "2026-10-20T07:10:56.445Z"
+    }
+  ],
+  "note": "Capability/transport evidence only; not A01–A08 quality or the 20-sample speed acceptance.",
+  "rawOutputs": [
+    {
+      "check": "R1",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1792480237127-cfba3fd9/R1.txt",
+      "chars": 42,
+      "sha256": "baba3d131b055c9b81a52ec5c546c159f76a6ec825c4d8c8beb48b94a4606c88",
+      "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
+    },
+    {
+      "check": "R2",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1792480237127-cfba3fd9/R2.txt",
+      "chars": 201,
+      "sha256": "2ffab49f4c9592e27f4eea18866f0e0d799acb074e03856f5d903f53ec85f212",
+      "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
+    },
+    {
+      "check": "R3",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1792480237127-cfba3fd9/R3.txt",
+      "chars": 617,
+      "sha256": "56cbf4a4cb8ef6f145185cf5e395b63931858b8a71dc43b6c11319daea5eb54e",
+      "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
+    },
+    {
+      "check": "R4",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1792480237127-cfba3fd9/R4.txt",
+      "chars": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+      "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
+    }
+  ],
+  "authorizationAfter": 0,
+  "activeFundingAfter": null
+}

@@ -1,9 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtempSync,mkdirSync,writeFileSync,copyFileSync,symlinkSync,rmSync,realpathSync} from 'node:fs'
+import {mkdtempSync,mkdirSync,writeFileSync,copyFileSync,symlinkSync,rmSync,realpathSync,readFileSync,existsSync} from 'node:fs'
 import {join,resolve,sep,basename} from 'node:path'
 import {tmpdir} from 'node:os'
-import {execFileSync} from 'node:child_process'
+import {execFileSync,spawnSync} from 'node:child_process'
 
 function runFixture(mode:string){
  const parent=realpathSync(tmpdir()),temp=mkdtempSync(join(parent,'lifeos-asset-tree-'))
@@ -74,4 +74,27 @@ for(const mode of ['nested-link','source-ancestor','archive-local-link','context
  assert.equal(result.dockerCalled,false,JSON.stringify(result))
  assert.equal(result.outsideDestinationWritten,false,JSON.stringify(result))
  assert.match(result.error,/reparse|symlink|private|escapes/i)
+})
+
+test('Docker capability evidence is present and narrowly allowlisted in Git',()=>{
+ const root=process.cwd(),dockerfile=readFileSync(join(root,'Dockerfile'),'utf8')
+ const copied=[...dockerfile.matchAll(/^COPY (evidence\/[^\s]+\.json) \./gm)].map(match=>match[1]!)
+ const expected=[
+  'evidence/v1.3-action-coach/provider/qwen-current/coach-capabilities-default.json',
+  'evidence/v1.3-action-coach/provider/qwen-max-penalty-candidate-20261019/coach-capabilities-default.json',
+  'evidence/v1.3-action-coach/provider/qwen-max-current-20261019/coach-capabilities-default.json',
+  'evidence/v1.3-action-coach/provider/qwen-flash-nq-current-20261020/coach-capabilities-default.json',
+ ]
+ assert.deepEqual(copied.sort(),expected.sort())
+ for(const path of expected){
+  assert.ok(existsSync(join(root,path)),`missing Docker asset: ${path}`)
+  const tracked=spawnSync('git',['ls-files','--error-unmatch','--',path],{cwd:root,windowsHide:true})
+  if(tracked.status===0)continue
+  const ignored=spawnSync('git',['check-ignore','--quiet','--no-index',path],{cwd:root,windowsHide:true})
+  assert.equal(ignored.error,undefined,`git ignore check failed for ${path}`)
+  assert.equal(ignored.status,1,`required Docker asset is ignored: ${path}`)
+ }
+ const historical='evidence/v1.3-action-coach/provider/coach-probe-default-1791130921452-a455ae57.json'
+ const oldRecord=spawnSync('git',['check-ignore','--quiet','--no-index',historical],{cwd:root,windowsHide:true})
+ assert.equal(oldRecord.status,0,'historical raw provider records must remain ignored')
 })

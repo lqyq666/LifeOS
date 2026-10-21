@@ -1,0 +1,302 @@
+{
+  "at": "2026-10-19T14:33:41.055Z",
+  "runId": "coach-probe-session-1792420421053-9b9bee83",
+  "status": "PASS",
+  "evidence": "REAL_PROVIDER_API",
+  "contract": "action-coach-v1.3",
+  "probeContractMode": "actual_runtime_subsets",
+  "sourceFreeze": {
+    "path": "D:\\aaaLife\\LifeOS\\evidence\\v1.3-action-coach\\freeze\\source-1792420409622.json",
+    "digest": "8f7cc54b50ca86bacfde547455d43957f378e2bc9d0bdd740a342cb579f6cd67"
+  },
+  "contractSignature": "f3ecfc70fffb4a3aaea8f1e06522fdb20cdff6f5a67c64544d39e570777d1f0e",
+  "interfaceSignature": "d7d8b04e082eff50f6d7b50e475177811b07811d2cd10e7b3486aa1318f93f08",
+  "signature": "bailian:qwen3.8-max:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+  "tier": "default",
+  "provider": "bailian",
+  "model": "qwen3.8-max",
+  "thinkingBudget": 0,
+  "generationControls": {
+    "temperature": 0,
+    "presencePenalty": 1.5,
+    "thinkingEnabled": false
+  },
+  "maxRetries": 0,
+  "authorization": {
+    "kind": "EXPLICIT_NEW_10_CNY_REPAIR_GRANT",
+    "budgetId": "repair_topup_10_20261019",
+    "path": ".local/v1.3-action-coach/paid/repair-topup-10-20261019.json",
+    "sha256": "5a96ef3771d00a01f996fcc49dbc208145ef6a823b67ec689f2dacd90d3f38f8"
+  },
+  "checks": {
+    "streaming": {
+      "passed": true,
+      "stopReason": "stop",
+      "elapsedMs": 2153,
+      "firstRawDeltaMs": 1709,
+      "deltas": 9,
+      "usage": {
+        "uncachedInputTokens": 1899,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3072,
+        "outputTokens": 19
+      },
+      "estimatedCostCny": 0.02808,
+      "callId": "2a3e6a83-a7d4-43af-a7a7-0e1e38ddcd35",
+      "cancelledAfterDelta": false,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "148a8a121770ec2ba397827846d47118672524f443ae3e69c34c7d864cca7b61",
+      "errorCategory": null,
+      "errorMessage": null,
+      "reply": "在，你想聊什么？"
+    },
+    "freeOutput": {
+      "passed": true,
+      "stopReason": "stop",
+      "elapsedMs": 3096,
+      "firstRawDeltaMs": 1189,
+      "deltas": 34,
+      "usage": {
+        "uncachedInputTokens": 1893,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3072,
+        "outputTokens": 102
+      },
+      "estimatedCostCny": 0.030996,
+      "callId": "57c21faa-488b-4654-9eab-397045c0db56",
+      "cancelledAfterDelta": false,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "5262e7766bc0678b53789a7b375250c1edd1a62f6e5a6b1f49cebe70959a430c",
+      "errorCategory": null,
+      "errorMessage": null,
+      "reply": "递归就是函数在执行过程中调用自身。它把一个大问题拆成结构相同但规模更小的子问题，直到遇到可以直接求解的“基线条件”（base case）就停止调用并逐层返回结果。比如计算阶乘：5! = 5 × 4!，4! = 4 × 3!……一直拆到 1! = 1 这个基线条件为止。"
+    },
+    "actionOutput": {
+      "passed": true,
+      "stopReason": "stop",
+      "elapsedMs": 6288,
+      "firstRawDeltaMs": 1109,
+      "deltas": 96,
+      "usage": {
+        "uncachedInputTokens": 2096,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3200,
+        "outputTokens": 314
+      },
+      "estimatedCostCny": 0.041256,
+      "callId": "e6c73cf9-479a-4d57-9a2b-b947eef2adc9",
+      "cancelledAfterDelta": false,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "f34e6fa00ccd82031fc729eaf86c58ded3147844c340b0d524fe299236d565a9",
+      "errorCategory": null,
+      "errorMessage": null,
+      "output": {
+        "lead": "资料发过去了，听说手机上打不开没看成。你现在主要需要哪一部分？",
+        "reply": "资料发过去了，听说手机上打不开没看成。你现在主要需要哪一部分？",
+        "event": {
+          "target": {
+            "operation": "continue",
+            "eventId": "00000000-0000-4000-8000-000000000021",
+            "expectedRevision": 3
+          },
+          "nodes": [
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "00000000-0000-4000-8000-000000000011",
+                "quote": "他明确说手机打不开"
+              }
+            },
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "00000000-0000-4000-8000-000000000011",
+                "quote": "所以没有看"
+              }
+            },
+            {
+              "kind": "fact",
+              "source": {
+                "messageId": "00000000-0000-4000-8000-000000000011",
+                "quote": "现在我只想问他还需要哪一部分"
+              }
+            }
+          ],
+          "action": {
+            "operation": "create",
+            "draft": {
+              "content": "资料发过去了，听说手机上打不开没看成。你现在主要需要哪一部分？",
+              "materials": [],
+              "stopWhen": "发送后等待对方回复具体需要的部分，不重新制作资料。"
+            }
+          }
+        }
+      },
+      "renderedReply": "资料发过去了，听说手机上打不开没看成。你现在主要需要哪一部分？"
+    },
+    "cancel": {
+      "passed": true,
+      "stopReason": "aborted",
+      "elapsedMs": 1199,
+      "firstRawDeltaMs": 1112,
+      "deltas": 1,
+      "usage": "unknown",
+      "estimatedCostCny": "unknown",
+      "callId": "7308dc3f-7d81-44d8-ad97-c541e4b25508",
+      "cancelledAfterDelta": true,
+      "actualContractMode": "ordinary",
+      "schemaSha256": "97e19b0a2053dff0b0c25e5995d041d09c17e44db533f4165c5313ef9387d4cc",
+      "errorCategory": null,
+      "errorMessage": null
+    }
+  },
+  "calls": [
+    {
+      "callId": "2a3e6a83-a7d4-43af-a7a7-0e1e38ddcd35",
+      "runId": "coach-probe-session-1792420421053-9b9bee83",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-max",
+      "signature": "bailian:qwen3.8-max:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "startedAt": "2026-10-19T14:33:41.138Z",
+      "status": "finished",
+      "finishedAt": "2026-10-19T14:33:43.204Z",
+      "outcome": "stop",
+      "usage": {
+        "uncachedInputTokens": 1899,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3072,
+        "outputTokens": 19
+      },
+      "estimatedCostCny": 0.02808,
+      "providerResponseId": "chatcmpl-cbbcbd60-debd-9cf5-8984-e5979b6b5d8c",
+      "firstRawDeltaMs": 1709,
+      "latencyMs": 2073
+    },
+    {
+      "callId": "57c21faa-488b-4654-9eab-397045c0db56",
+      "runId": "coach-probe-session-1792420421053-9b9bee83",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-max",
+      "signature": "bailian:qwen3.8-max:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "startedAt": "2026-10-19T14:33:43.366Z",
+      "status": "finished",
+      "finishedAt": "2026-10-19T14:33:46.380Z",
+      "outcome": "stop",
+      "usage": {
+        "uncachedInputTokens": 1893,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3072,
+        "outputTokens": 102
+      },
+      "estimatedCostCny": 0.030996,
+      "providerResponseId": "chatcmpl-0185d980-ca59-9906-9026-dc1d30c9e481",
+      "firstRawDeltaMs": 1189,
+      "latencyMs": 3020
+    },
+    {
+      "callId": "e6c73cf9-479a-4d57-9a2b-b947eef2adc9",
+      "runId": "coach-probe-session-1792420421053-9b9bee83",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-max",
+      "signature": "bailian:qwen3.8-max:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "startedAt": "2026-10-19T14:33:46.536Z",
+      "status": "finished",
+      "finishedAt": "2026-10-19T14:33:52.735Z",
+      "outcome": "stop",
+      "usage": {
+        "uncachedInputTokens": 2096,
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 3200,
+        "outputTokens": 314
+      },
+      "estimatedCostCny": 0.041256,
+      "providerResponseId": "chatcmpl-5b99b469-593c-9738-a897-ff3e9dd0a4fb",
+      "firstRawDeltaMs": 1109,
+      "latencyMs": 6212
+    },
+    {
+      "callId": "7308dc3f-7d81-44d8-ad97-c541e4b25508",
+      "runId": "coach-probe-session-1792420421053-9b9bee83",
+      "purpose": "capability",
+      "tier": "default",
+      "provider": "bailian",
+      "model": "qwen3.8-max",
+      "signature": "bailian:qwen3.8-max:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
+      "startedAt": "2026-10-19T14:33:52.891Z",
+      "status": "finished",
+      "finishedAt": "2026-10-19T14:33:54.010Z",
+      "outcome": "aborted",
+      "usage": "unknown",
+      "estimatedCostCny": "unknown",
+      "providerResponseId": "chatcmpl-a58f3ee0-d893-9b45-8eda-dc19d1590db2",
+      "firstRawDeltaMs": 1112,
+      "latencyMs": 1125
+    }
+  ],
+  "transportObservations": [
+    {
+      "origin": "https://dashscope.aliyuncs.com",
+      "path": "/compatible-mode/v1/chat/completions",
+      "method": "POST",
+      "startedAt": "2026-10-19T14:33:41.211Z",
+      "httpResponseReceived": true,
+      "httpStatus": 200,
+      "responseHeaders": {
+        "x-request-id": "cbbcbd60-debd-9cf5-8984-e5979b6b5d8c",
+        "content-type": "text/event-stream;charset=utf-8",
+        "date": "Mon, 19 Oct 2026 14:33:42 GMT"
+      },
+      "elapsedMs": 1628
+    },
+    {
+      "origin": "https://dashscope.aliyuncs.com",
+      "path": "/compatible-mode/v1/chat/completions",
+      "method": "POST",
+      "startedAt": "2026-10-19T14:33:43.368Z",
+      "httpResponseReceived": true,
+      "httpStatus": 200,
+      "responseHeaders": {
+        "x-request-id": "0185d980-ca59-9906-9026-dc1d30c9e481",
+        "content-type": "text/event-stream;charset=utf-8",
+        "date": "Mon, 19 Oct 2026 14:33:44 GMT"
+      },
+      "elapsedMs": 1180
+    },
+    {
+      "origin": "https://dashscope.aliyuncs.com",
+      "path": "/compatible-mode/v1/chat/completions",
+      "method": "POST",
+      "startedAt": "2026-10-19T14:33:46.541Z",
+      "httpResponseReceived": true,
+      "httpStatus": 200,
+      "responseHeaders": {
+        "x-request-id": "5b99b469-593c-9738-a897-ff3e9dd0a4fb",
+        "content-type": "text/event-stream;charset=utf-8",
+        "date": "Mon, 19 Oct 2026 14:33:47 GMT"
+      },
+      "elapsedMs": 1090
+    },
+    {
+      "origin": "https://dashscope.aliyuncs.com",
+      "path": "/compatible-mode/v1/chat/completions",
+      "method": "POST",
+      "startedAt": "2026-10-19T14:33:52.893Z",
+      "httpResponseReceived": true,
+      "httpStatus": 200,
+      "responseHeaders": {
+        "x-request-id": "a58f3ee0-d893-9b45-8eda-dc19d1590db2",
+        "content-type": "text/event-stream;charset=utf-8",
+        "date": "Mon, 19 Oct 2026 14:33:53 GMT"
+      },
+      "elapsedMs": 1103
+    }
+  ],
+  "note": "Capability/transport evidence only, not semantic or speed acceptance. PostgreSQL sole authority; no legacy ledger activation and no automatic retry.",
+  "sessionCostCny": 0.100332
+}
