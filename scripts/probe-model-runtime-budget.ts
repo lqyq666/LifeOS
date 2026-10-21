@@ -32,6 +32,11 @@ const authorization={kind:'SINGLE_RUNTIME_DATABASE_BUDGET',budgetId:config.provi
 if(!config.providerBudgetEnabled||!budgetBefore?.enabled||typeof maximum!=='number')throw new Error('RUNTIME_PROVIDER_BUDGET_NOT_READY')
 const directory=resolve(process.env.LIFEOS_EVIDENCE??'evidence/v1.3-action-coach/provider'),runId='coach-probe-'+tier+'-'+Date.now()+'-'+randomUUID().slice(0,8)
 mkdirSync(directory,{recursive:true})
+// Fail before reserving or dispatching if the private capture location cannot
+// be created by the actual runtime user. Keep this immutable preflight proof.
+const privateDirectory=resolve('.local/v1.3-action-coach',runId)
+mkdirSync(privateDirectory,{recursive:true,mode:0o700})
+writeFileSync(resolve(privateDirectory,'capture-ready.json'),JSON.stringify({runId,providerCalls:0}),{flag:'wx',mode:0o600})
 const path=resolve(directory,runId+'.json'),signature=modelSignatureFor(tier)
 const redact=(value:unknown)=>redactProbeText(value,[resolveModel('default').apiKey,resolveModel('reasoning').apiKey])
 const serialize=(value:unknown)=>JSON.stringify(redactProbeValue(value,[resolveModel('default').apiKey,resolveModel('reasoning').apiKey]),null,2)+'\n'
@@ -66,17 +71,16 @@ async function call(id:keyof typeof inputs){
   const text=answer?.content.filter(part=>part.type==='text').map(part=>(part as {text:string}).text).join('')??''
   // Preserve invalid synthetic outputs as well as valid ones. Only text parts
   // are captured; provider reasoning and credentials are never stored here.
-  const privateDirectory=resolve('.local/v1.3-action-coach',runId)
-  mkdirSync(privateDirectory,{recursive:true})
-  writeFileSync(resolve(privateDirectory,id+'.txt'),text,{flag:'wx',mode:0o600})
-  report.rawOutputs??=[]
-  report.rawOutputs.push({check:id,path:'.local/v1.3-action-coach/'+runId+'/'+id+'.txt',chars:text.length,sha256:createHash('sha256').update(text).digest('hex'),evidence:'ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING'})
   const stop=answer?.stopReason??'error',usage=answer?.usage as any
   const complete=usage&&[usage.input,usage.output,usage.cacheRead,usage.cacheWrite].every(value=>typeof value==='number'&&Number.isFinite(value)&&value>=0)&&typeof usage.totalTokens==='number'&&Number.isFinite(usage.totalTokens)&&usage.totalTokens>0
   const recordedUsage=complete?{uncachedInputTokens:usage.input,cacheWriteInputTokens:usage.cacheWrite,cachedInputTokens:usage.cacheRead,outputTokens:usage.output}:null
   const cost=complete&&runtime.pricing?estimateProviderCallCostCny(usage.input+usage.cacheWrite,usage.cacheRead,usage.output,runtime.pricing):'unknown'
   await settleProviderSpend(runtimeReceipt,typeof cost==='number'?cost:'unknown')
   report.calls[report.calls.length-1]={...receipt,status:'finished',outcome:stop,usage:recordedUsage??'unknown',estimatedCostCny:typeof cost==='number'?cost:'unknown',providerResponseId:answer?.responseId??null,finishedAt:new Date().toISOString()};save()
+  writeFileSync(resolve(privateDirectory,id+'.txt'),text,{flag:'wx',mode:0o600})
+  report.rawOutputs??=[]
+  report.rawOutputs.push({check:id,path:'.local/v1.3-action-coach/'+runId+'/'+id+'.txt',chars:text.length,sha256:createHash('sha256').update(text).digest('hex'),evidence:'ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING'})
+  save()
   assertCoachSourceFreeze(freezePath!)
   let result:ReturnType<typeof parseActionCoachTurn>|undefined
   try{result=parseActionCoachTurn(text,{allowEmptyReplyWithCompleteDraft:runtimeContracts})}catch{}
@@ -97,7 +101,7 @@ async function call(id:keyof typeof inputs){
   save();console.log(JSON.stringify({check:id,tier,passed:Object.values(report.checks).at(-1)&& (Object.values(report.checks).at(-1) as any).passed,elapsedMs:diagnostics.elapsedMs}))
   // A failed business contract also stops the remaining paid fixtures. Keep
   // this first report/receipt; a later candidate must never replace it.
-  if(stop==='error'||thrown||(Object.values(report.checks).at(-1) as {passed:boolean}).passed!==true)throw new Error('PROVIDER_PROBE_STOPPED_AFTER_FAILED_REQUEST')
+  if((!complete&&id!=='R4')||stop==='error'||thrown||(Object.values(report.checks).at(-1) as {passed:boolean}).passed!==true)throw new Error('PROVIDER_PROBE_STOPPED_AFTER_FAILED_REQUEST')
 }
 try{for(const id of selected)await call(id as keyof typeof inputs)}catch(error){report.errorCategory=probeErrorCategory(redact(error));report.status='FAIL';save();throw error}
 report.status=Object.values(report.checks).every((value:any)=>value.passed===true)?check?'CHECK_PASS':'PASS':'FAIL'
