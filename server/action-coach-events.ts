@@ -218,7 +218,19 @@ export function normalizeUnknownDispositionConflict<T extends {resolveUnknowns?:
  if(!conflictIds.length)return {delta,conflictIds}
  // "不知道/记不清" is unknown, not refusal. Only an explicit refusal keeps
  // the decline disposition; otherwise the unknown stays active.
- const keepDecline=/(?:不想说|不愿意说|跳过|拒绝回答|先不说|不方便说)/.test(userText)
+  const refusal=/(?:不想说|不愿意说|跳过|拒绝回答|先不说|不方便说)/g
+  const keepDecline=conflictIds.length===1&&scanUserClauses(userText).some(clause=>{
+    if(clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)return false
+    refusal.lastIndex=0
+    for(const match of clause.text.matchAll(refusal)){
+      const start=clause.start+match.index!,end=start+match[0].length
+      if(clause.quoteSpans.some(span=>start<span.end&&end>span.start)||clause.codeSpans.some(span=>start<span.end&&end>span.start))continue
+      const before=clause.text.slice(0,match.index)
+      if(/(?:不是|并非|并不是|并没有|不是真的)\s*$/.test(before))continue
+      return true
+    }
+    return false
+  })
  const drop=new Set(conflictIds),next={...delta}
  if(delta.resolveUnknowns)next.resolveUnknowns=delta.resolveUnknowns.filter(id=>!drop.has(id))
  if(delta.declineUnknowns)next.declineUnknowns=keepDecline?delta.declineUnknowns:delta.declineUnknowns.filter(id=>!drop.has(id))
@@ -243,11 +255,11 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
       // Unknown answers and genuinely changed quotes keep their existing path.
       if(node.kind!=='unknown'&&node.content.includes(correction.source.quote))throw new HttpError(400,'COACH_CORRECTION_UNCHANGED')
     }
-    const resolved=new Set(delta.resolveUnknowns??[])
-    if((delta.declineUnknowns??[]).some(id=>resolved.has(id))){
+    if((delta.declineUnknowns??[]).some(id=>(delta.resolveUnknowns??[]).includes(id))){
       const userText=String((await c.query("SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role='user'",[run.user_id,run.source_message_id])).rows[0]?.content??'')
       Object.assign(delta,normalizeUnknownDispositionConflict(delta,userText).delta)
     }
+    const resolved=new Set(delta.resolveUnknowns??[])
     const activeUnknownIds=new Set((await c.query("SELECT id FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND kind='unknown' AND status='active'",[run.user_id,event.id])).rows.map(row=>String(row.id)))
     for(const node of delta.nodes??[])if(node.kind==='unknown'&&(node.dependsOn??[]).some(id=>!activeUnknownIds.has(id)))throw new HttpError(400,'COACH_UNKNOWN_DEPENDENCY_INVALID')
     const asked=new Set(visibleCoachQuestions(reply))

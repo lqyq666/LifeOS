@@ -78,6 +78,7 @@ for(const mode of ['nested-link','source-ancestor','archive-local-link','context
 
 test('Docker capability evidence is present and narrowly allowlisted in Git',()=>{
  const root=process.cwd(),dockerfile=readFileSync(join(root,'Dockerfile'),'utf8')
+ const dockerignore=readFileSync(join(root,'.dockerignore'),'utf8')
  const copied=[...dockerfile.matchAll(/^COPY (evidence\/[^\s]+\.json) \./gm)].map(match=>match[1]!)
  const expected=[
   'evidence/v1.3-action-coach/provider/qwen-current/coach-capabilities-default.json',
@@ -88,6 +89,7 @@ test('Docker capability evidence is present and narrowly allowlisted in Git',()=
  assert.deepEqual(copied.sort(),expected.sort())
  for(const path of expected){
   assert.ok(existsSync(join(root,path)),`missing Docker asset: ${path}`)
+  assert.ok(dockerignore.split(/\r?\n/).includes('!'+path),`required Docker asset is excluded: ${path}`)
   const tracked=spawnSync('git',['ls-files','--error-unmatch','--',path],{cwd:root,windowsHide:true})
   if(tracked.status===0)continue
   const ignored=spawnSync('git',['check-ignore','--quiet','--no-index',path],{cwd:root,windowsHide:true})

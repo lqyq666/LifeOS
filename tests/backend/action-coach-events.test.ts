@@ -20,7 +20,7 @@ test('event workspace and one authoritative action commit with real PostgreSQL s
     const revision=(await pool.query('SELECT revision FROM user_memory_settings WHERE user_id=$1',[user])).rows[0]?.revision??0
     return setMemorySettings(user,{requestId:randomUUID(),expectedRevision:revision,enabled})
   }
-  let eventId='',nodeId='',actionId='',eventRevision=0,actionRevision=0
+  let eventId='',nodeId='',unknownNodeId='',actionId='',eventRevision=0,actionRevision=0
   try{
     await t.test('current process is saved with memory off; plans remain proposals, not executed facts',async()=>{
       const text='我花了三小时整理四十页，对方说手机打不开。我有点失望。'
@@ -34,6 +34,7 @@ test('event workspace and one authoritative action commit with real PostgreSQL s
       const event=saved.event!
       eventId=event.id;eventRevision=event.revision
       nodeId=event.nodes.find(node=>node.kind==='fact')!.id
+      unknownNodeId=event.nodes.find(node=>node.kind==='unknown')!.id
       actionId=event.actions[0]!.id;actionRevision=event.actions[0]!.revision
       assert.equal(event.nodes.length,3)
       assert.equal(event.nodes.find(node=>node.id===nodeId)?.content,'对方说手机打不开','the canonical fact is the exact quote, not a generated causal summary')
@@ -42,6 +43,16 @@ test('event workspace and one authoritative action commit with real PostgreSQL s
       assert.equal((await store.decisionVersions(user,conversation)).length,0,'no duplicate Decision projection')
       assert.equal((await store.listExperiences(user,conversation)).length,0,'process saving does not bypass graph confirmation')
       assert.equal((await pool.query('SELECT count(*)::int AS n FROM memory_items WHERE user_id=$1',[user])).rows[0].n,0,'session process does not enable long-term memory')
+    })
+    await t.test('a normalized unresolved unknown still blocks its dependent question',async()=>{
+      const run=(await store.startRun(user,conversation,randomUUID(),'我只问了一个学长。')).run
+      const target:EventDelta['target']={operation:'continue',eventId,expectedRevision:eventRevision}
+      const delta:EventDelta={target,resolveUnknowns:[unknownNodeId],declineUnknowns:[unknownNodeId],nodes:[{kind:'unknown',question:'对方现在是否需要另一种资料？',dependsOn:[unknownNodeId]}]}
+      try{
+        await assert.rejects(stageCoachEvent(run,delta,'对方现在是否需要另一种资料？'),(error:any)=>error.code==='COACH_UNKNOWN_PREREQUISITE_OPEN')
+      }finally{
+        await store.terminateRun(user,run.request_id,'cancelled','TEST_CLEANUP')
+      }
     })
     await t.test('unchanged proposed material cannot be submitted as a new revision',async()=>{
       const run=(await store.startRun(user,conversation,randomUUID(),'这个细节我记不清了。')).run

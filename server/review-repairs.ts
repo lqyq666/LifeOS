@@ -140,8 +140,16 @@ function repairReportedRepeatFeeling(reply:string,userText:string,priorUserTexts
     }
     return found
   }
-  const reports=sources.map(text=>({text,feelings:reported(text)}))
-  const repeated=feelings.find(([label])=>reports.filter(item=>item.feelings.has(label)).length>=2&&reports.some(item=>item.feelings.has(label)&&/(?:又|再次|仍然|依然|一周后|第二次)/.test(item.text)))
+  const episodeKey=(source:string)=>scanUserClauses(source)
+    .filter(clause=>ownedObservationClause(clause)&&!unassertedObservation.test(clause.text))
+    .filter(clause=>!/^(?:我|本人)?(?:再次|又)?(?:说明|提到|重申)/.test(clause.text.trim()))
+    .map(clause=>clause.text.replace(/轻松|放松|开心|高兴|紧张|焦虑|失落|难过|舒服|自在/g,'').replace(/[\s\p{P}\p{S}]/gu,'').trim())
+    .filter(Boolean).join('|')
+  const reports=sources.map(text=>({text,feelings:reported(text),episode:episodeKey(text)}))
+  const repeated=feelings.find(([label])=>{
+    const uniqueEpisodes=new Set(reports.filter(item=>item.feelings.has(label)).map(item=>item.episode).filter(Boolean))
+    return uniqueEpisodes.size>=2&&reports.some(item=>item.feelings.has(label)&&/(?:又|再次|仍然|依然|一周后|第二次)/.test(item.text))
+  })
   if(!repeated)return null
   const [label]=repeated
   const unsupportedUnknown=/(?:各次|两次|这两次|每次|两段经历|不同经历)(?:的)?(?:经历)?(?:的)?(?:感受|心情|状态)是否(?:一致|相同|一样|相似)(?:(?:仍|尚)?(?:未知|不清楚|待确认|未确认))?/g

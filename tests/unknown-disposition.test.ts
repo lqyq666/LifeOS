@@ -23,3 +23,18 @@ test('a conflicting unknown disposition keeps the state conservative',()=>{
   assert.deepEqual(none.delta.resolveUnknowns,['a'])
   assert.deepEqual(none.delta.declineUnknowns,['b'])
 })
+
+test('a negated or attributed refusal does not turn an unknown into a decline',()=>{
+  const conflict={resolveUnknowns:['a'],declineUnknowns:['a']}
+  for(const text of ['我不是不想说，只是记不清了。','同学说“不想说”，我记不清。']){
+    const result=normalizeUnknownDispositionConflict(conflict,text)
+    assert.deepEqual(result.delta.resolveUnknowns,[])
+    assert.deepEqual(result.delta.declineUnknowns,[])
+  }
+})
+
+test('one refusal cannot be applied to several unrelated unknown items',()=>{
+  const result=normalizeUnknownDispositionConflict({resolveUnknowns:['a','b'],declineUnknowns:['a','b']},'我不想说家庭情况，另一个细节也记不清了。')
+  assert.deepEqual(result.delta.resolveUnknowns,[])
+  assert.deepEqual(result.delta.declineUnknowns,[])
+})

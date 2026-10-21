@@ -39,6 +39,14 @@ test('a reported repeat feeling is not mislabeled unknown while its cause stays 
  assert.match(otherPerson,/各次经历的感受是否一致/,'another person’s quoted report cannot establish the user’s feeling')
 })
 
+test('repeating the same report does not prove a second experience or resolve its feeling',()=>{
+ const earlier='昨晚打球后很放松。'
+ const duplicate='我再次说明，昨晚打球后很放松。'
+ const current='今天又打了一次，感受还没想清楚。'
+ const reply='各次经历的感受是否一致仍未知。'
+ assert.equal(repairReviewedDefects(reply,current,[earlier,duplicate]),null)
+})
+
 test('negated feeling reports are not promoted into repeated positive feelings',()=>{
  const update='请更新这段经历的局部理解，保留未知；不生成任务。'
  const reply='仍未知的是：各次经历的感受是否一致。'
