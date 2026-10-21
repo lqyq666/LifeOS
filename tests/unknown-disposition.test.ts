@@ -65,6 +65,12 @@ test('a generic result word cannot bind the wrong named refusal',()=>{
   assert.deepEqual(result.delta.declineUnknowns,[])
 })
 
+test('an umbrella topic match cannot bind a refusal to a different field',()=>{
+  const result=normalizeUnknownDispositionConflict({resolveUnknowns:['income'],declineUnknowns:['income']},'实习单位我不想说，实习收入我记不清。',{income:'你实习收入是多少？'})
+  assert.deepEqual(result.delta.resolveUnknowns,[])
+  assert.deepEqual(result.delta.declineUnknowns,[])
+})
+
 test('a refusal explicitly about the conflicted item remains a decline',()=>{
   const result=normalizeUnknownDispositionConflict({resolveUnknowns:['income'],declineUnknowns:['income']},'实习收入我不想说。',{income:'你实习收入是多少？'})
   assert.deepEqual(result.delta.resolveUnknowns,[])

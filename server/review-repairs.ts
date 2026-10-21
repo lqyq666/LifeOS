@@ -151,10 +151,10 @@ function repairReportedRepeatFeeling(reply:string,userText:string,priorUserTexts
       for(const eventClause of clauses){
         if(eventClause.sentenceStart!==feelingClause.sentenceStart)continue
         const event=eventClause.text.trim().replace(/^(?:我|本人)?(?:再次|再)?(?:说明|提到|重申)[，,、]*/,'')
-        const marker=/(?:第[一二三四五六七八九十\d]+次|一周后|两周后|隔天|第二天|第三天|昨晚|昨天|前天|今天|明天|上周|本周|\d{1,2}月\d{1,2}日)/.exec(event)?.[0]
+        const markers=[...event.matchAll(/第[一二三四五六七八九十\d]+次|一周后|两周后|隔天|第二天|第三天|昨晚|昨天|前天|今天|明天|上周|本周|\d{1,2}月\d{1,2}日/g)].map(match=>match[0])
         const action=/(?:打|练|做|参加|尝试|联系|沟通|完成|申请|提交|面试|投递|复习|学习|问|聊|见|合作|体验)/.test(event)
         const countedRepeat=/(?:又|再).{0,16}(?:一次|一遍|一场|一回|一轮)|第二次.{0,12}(?:打|练|做|参加|尝试|联系|沟通|完成|申请|提交|面试|投递|复习|学习|问|聊|见|合作|体验)/.test(event)
-        if(marker&&action)keys.add(marker)
+        if(action)markers.forEach(marker=>keys.add(marker))
         if(countedRepeat&&action)explicitRepeatAction=true
       }
     }
@@ -164,7 +164,7 @@ function repairReportedRepeatFeeling(reply:string,userText:string,priorUserTexts
     const matching=reports.filter(item=>item.feelings.has(label))
     if(matching.length<2)return false
     const episodeEvidence=matching.map(item=>episodeEvidenceFor(item.text,pattern))
-    const distinctReports=episodeEvidence.some((episode,index)=>episode.keys.size>0&&episodeEvidence.slice(index+1).some(other=>other.keys.size>0&&[...episode.keys].some(key=>!other.keys.has(key))))
+    const distinctReports=episodeEvidence.some((episode,index)=>episode.keys.size>0&&episodeEvidence.slice(index+1).some(other=>other.keys.size>0&&![...episode.keys].some(key=>other.keys.has(key))))
     return distinctReports&&episodeEvidence.some(episode=>episode.explicitRepeatAction)
   })
   if(!repeated)return null
