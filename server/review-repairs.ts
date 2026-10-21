@@ -148,7 +148,7 @@ function repairReportedRepeatFeeling(reply:string,userText:string,priorUserTexts
     if(/^\d+$/.test(ordinal))return `第${Number(ordinal)}次`
     const digits:Record<string,number>={一:1,二:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9}
     const ten=ordinal.indexOf('十')
-    const value=ten<0?(digits[ordinal]??0):(ten===0?10:(digits[ordinal.slice(0,ten)]??1)*10+(digits[ordinal.slice(ten+1)]??0))
+    const value=ten<0?(digits[ordinal]??0):(ten===0?1:(digits[ordinal.slice(0,ten)]??1))*10+(digits[ordinal.slice(ten+1)]??0)
     return value?`第${value}次`:marker
   }
   const episodeEvidenceFor=(source:string,pattern:RegExp)=>{

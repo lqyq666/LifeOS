@@ -48,6 +48,7 @@ test('repeating the same report does not prove a second experience or resolve it
  const sameOrdinal='我再次说明，第二次打球之后很放松。'
  assert.equal(repairReviewedDefects(reply,'第三次打完，感受还没想清楚。',['第二次打球后很放松。',sameOrdinal]),null)
  assert.equal(repairReviewedDefects(reply,'第三次打完，感受还没想清楚。',['第二次打球后很放松。','我再次说明，第2次打球之后很放松。']),null,'Arabic and Chinese spellings of the same ordinal describe the same event')
+ assert.equal(repairReviewedDefects(reply,'第十二次打完，感受还没想清楚。',['第十一次打球后很放松。','我再次说明，第11次我又打了一次，仍然放松。']),null,'teen ordinals normalize to their Arabic form')
  assert.equal(repairReviewedDefects(reply,'第三次打完，感受还没想清楚。',['昨晚第二次打球后很放松。',sameOrdinal]),null,'an extra date label cannot split reports that share the same ordinal')
  assert.equal(repairReviewedDefects(reply,'请保留未知。',['昨晚打球后很放松。','今天打球后仍然放松。']),null,'different dates alone do not establish that two event reports refer to separate plays')
 })
