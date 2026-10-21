@@ -66,7 +66,7 @@ const assistantText=(message:AssistantMessage)=>message.content.filter((part):pa
 const tokenValue=(value:unknown)=>typeof value==='number'&&Number.isFinite(value)&&value>=0?value:null
 const callCost=(uncached:number,cached:number,output:number,pricing:ModelPricing|null):number|'unknown'=>{if(!pricing)return 'unknown';const cost=estimateProviderCallCostCny(uncached,cached,output,pricing);return typeof cost==='number'?Number(cost.toFixed(8)):'unknown'}
 
-async function captureSyntheticOutput(userId:string,requestId:string,raw:string,staged:Staged,phase:'rejected_synthetic_business_output_captured'|'synthetic_business_output_captured'|'partial_synthetic_business_output_captured'){
+async function captureSyntheticOutput(userId:string,requestId:string,raw:string,staged:Staged,phase:'rejected_synthetic_business_output_captured'|'synthetic_business_output_captured'|'partial_synthetic_business_output_captured'|'synthetic_transport_output_captured'){
   if(!config.syntheticModelDiagnosticsEnabled||!raw)return
   try{
     const eligible=config.syntheticDiagnosticUserIds.includes(userId)&&(await pool.query('SELECT 1 FROM "user" WHERE id=$1 AND ((email LIKE $2 AND name LIKE $3) OR (email LIKE $4 AND name LIKE $5))',[userId,'six-%@example.invalid','SYNTHETIC GRILLING %','lifeos-%@example.invalid','LifeOS synthetic adult %'])).rowCount===1
@@ -79,7 +79,7 @@ async function captureSyntheticOutput(userId:string,requestId:string,raw:string,
       .replace(/([?&](?:access_token|token|key|api_key|auth|signature|password)=)[^&#\s"']+/gi,'$1<REDACTED>')
     const directory=new URL('../.local/synthetic-model-diagnostics/',import.meta.url)
     mkdirSync(directory,{recursive:true,mode:0o700})
-    const file=new URL(`${requestId}.txt`,directory)
+    const file=new URL(`${requestId}${phase==='synthetic_transport_output_captured'?'.transport':''}.txt`,directory)
     writeFileSync(file,body,{flag:'wx',mode:0o600})
     staged.audit.push({phase,file:fileURLToPath(file),sha256:createHash('sha256').update(body).digest('hex'),redacted:body!==raw,partial:phase==='partial_synthetic_business_output_captured',providerCalls:0})
   }catch{staged.audit.push({phase:'synthetic_output_capture_failed',providerCalls:0})}
@@ -221,6 +221,7 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     const raw=completeFrame??assistantText(message)
     if(hostFrameTerminated)staged.audit.push({phase:'host_structured_frame_terminated',callId,requestId,frameChars:raw.length,transportChars:streamedText.length,providerStreamCompleted:false,usageCompleteness:'unavailable',automaticRetries:0,validation:'existing_turn_source_and_transaction_guards_still_required'})
     staged.audit.push({phase:'provider_stream_assembly',callId,requestId,streamChars:streamedText.trim().length,resultChars:raw.length,streamMatchesResult:streamedText.trim()===raw,streamSha256:createHash('sha256').update(streamedText.trim()).digest('hex'),resultSha256:createHash('sha256').update(raw).digest('hex'),providerCalls:0})
+    await captureSyntheticOutput(userId,requestId,streamedText,staged,'synthetic_transport_output_captured')
     // Explicit local acceptance instrumentation only. The default production
     // engine has no observer and never writes raw model output to its audit.
     await observer?.output?.(Object.freeze({...record}),raw)

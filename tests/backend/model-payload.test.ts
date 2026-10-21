@@ -47,6 +47,22 @@ test('Flash sends each bounded event shape once without permitting cross-event t
  assert.equal(JSON.stringify(actionCoachTurnSchema),original)
 })
 
+test('a single new-event branch exposes its required target directly without changing accepted operations',()=>{
+ const current='00000000-0000-4000-8000-000000000011'
+ const native=(configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',undefined,undefined,8192,current,[],[]) as any).response_format.json_schema.schema
+ const event=native.properties.event
+ assert.equal(event.type,'object')
+ assert.equal(event.anyOf,undefined)
+ assert.deepEqual(event.required,['target'])
+ const source={messageId:current,quote:'我想核对本地岗位'}
+ const valid={target:{operation:'create',title:'岗位核对',source},nodes:[{kind:'fact',source}]}
+ assert.equal(Value.Check(native,{reply:'先核对本人依据。',event:valid}),true)
+ for(const invalid of [{title:'岗位核对',nodes:valid.nodes},{...valid,target:undefined},{...valid,actions:[]},{...valid,nodes:[{kind:'fact',text:'改写内容'}]},{...valid,target:{operation:'continue',eventId:current,expectedRevision:1}}]){
+  assert.equal(Value.Check(native,{reply:'当前理解。',event:invalid}),false)
+ }
+ assert.equal(Value.Check(native,{reply:'当前理解。'}),true,'optional event stays optional')
+})
+
 test('saved two-hour failure cannot select an unverifiable constraint; explicit windows stay paired to their own facts',()=>{
   const current='00000000-0000-4000-8000-000000000011',anchor='2026-10-10T12:00:00.000Z'
   const make=(text:string)=>{

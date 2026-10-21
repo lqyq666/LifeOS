@@ -231,7 +231,9 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
       // Every branch retains the complete source/transaction contract. Flash
       // failed on the redundant shared-object conjunction in real diagnostics;
       // send that same bounded language once per branch, not a weaker schema.
-      if(profile.id==='qwen3.8-flash')compiled.properties.event={description:event.description,anyOf:bounded}
+      // A single authorized create branch needs no union wrapper. Preserve
+      // its complete required/source/action constraints directly on the wire.
+      if(profile.id==='qwen3.8-flash')compiled.properties.event=bounded.length===1?bounded[0]:{description:event.description,anyOf:bounded}
       else event.anyOf=bounded
     }
     body.response_format={type:'json_schema',json_schema:{name:schemaName,strict:true,schema:compiled}}

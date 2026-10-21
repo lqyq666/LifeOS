@@ -129,7 +129,7 @@ test('slimmed payloads keep identity bindings and skip absent lanes',()=>{
   const growth=slimActionCoachSchema({growth:true,candidate:true,plan:false,citations:false,event:true,material:false})
   const payload=configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',growth,undefined,8192,current,[],[item],0,false,undefined,false,['c0','c1']) as any
   const schema=payload.response_format.json_schema.schema
-  assert.ok(schema.properties.event.anyOf.every((branch:any)=>branch.properties.action===undefined))
+  assert.equal(schema.properties.event.properties.action,undefined)
   const updates=schema.properties.growthUpdates
   assert.ok(updates.items.anyOf.some((branch:any)=>branch.properties?.target?.anyOf?.some((entry:any)=>entry.properties?.operation?.const==='correct'&&entry.properties?.itemId?.enum?.[0]===item.id)),'correct branch still enum-bound to authorized items')
   assert.ok(updates.items.anyOf.every((branch:any)=>branch.properties?.source?.properties?.clauseId?.enum?.length===2),'clause handles stay enum-bound')
@@ -260,6 +260,11 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
         const acceptedFile=fileURLToPath(new URL(`../../.local/synthetic-model-diagnostics/${accepted.run.request_id}.txt`,import.meta.url))
         assert.equal(acceptedCapture.file,acceptedFile)
         assert.equal(JSON.parse(readFileSync(acceptedFile,'utf8')).reply,'递归就是让同一个过程处理更小的同类问题，并在边界条件停止。')
+        const transportCapture=accepted.staged.audit.find((row:any)=>row.phase==='synthetic_transport_output_captured') as any
+        assert.ok(transportCapture,'diagnostics retain the transport independently of the parser input')
+        assert.equal(transportCapture.file,acceptedFile.replace(/\.txt$/,'.transport.txt'))
+        assert.equal(JSON.parse(readFileSync(transportCapture.file,'utf8')).reply,'递归就是让同一个过程处理更小的同类问题，并在边界条件停止。')
+        unlinkSync(transportCapture.file)
         unlinkSync(acceptedFile)
         await store.terminateRun(user,accepted.run.request_id,'failed','SYNTHETIC_DIAGNOSTIC_COMPLETE')
         const interrupted=await prepare('请简短解释递归。')
