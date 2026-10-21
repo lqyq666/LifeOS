@@ -13,3 +13,8 @@ test('default checks still exclude live/provider/private evidence and browser-on
   assert.deepEqual(selectBackendTests(available,['--browser-only']),['action-coach-browser.test.ts'])
   assert.throws(()=>selectBackendTests(available,['--engine-workload']))
 })
+test('malformed target syntax never falls back to a broad batch and protected historical engine never runs',()=>{
+  const files=[...available,'action-coach-engine.test.ts']
+  for(const args of [['--file','growth-model.test.ts'],['growth-model.test.ts'],['--file=action-coach-engine.test.ts']])assert.throws(()=>selectBackendTests(files,args))
+  assert.ok(!selectBackendTests(files,[]).includes('action-coach-engine.test.ts'))
+})

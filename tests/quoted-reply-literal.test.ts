@@ -49,3 +49,12 @@ test('captured render-only tail cannot add authority or replace canonical busine
  assert.throws(()=>parseActionCoachTurn(raw.slice(0,-1)))
  assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:JSON.parse(frame).reply,event:{untrusted:true}})+raw.slice(frame.length)))
 })
+
+test('captured unauthorized source and conversation trailer remain rejected without prefix recovery',()=>{
+ const raw=readFileSync(new URL('./fixtures/coach-invalid-write-scope-trailer.txt',import.meta.url),'utf8'),frame=completeCoachJsonFrame(raw)!
+ assert.ok(frame)
+ assert.throws(()=>parseActionCoachTurn(raw))
+ assert.throws(()=>parseActionCoachTurn(frame),'invented time field and source are not canonical business data')
+ assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:'有效回复。'})+raw.slice(frame.length)),'even valid business data cannot authorize a conversation trailer')
+ assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:'有效回复。',growthUpdates:[{target:{operation:'create'},assertion:'user_reported',kind:'context',source:{clauseId:'server_owned_memory_clauses'}}]})))
+})

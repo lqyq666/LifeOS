@@ -685,8 +685,14 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
       const context=supplied.authorizedContext??supplied
       assert.ok(!context.currentUserMessage.clauses.some((c:any)=>c.text==='而且每周最多四小时探索'),'the existing program-owned recurring budget is not a duplicate model-write source')
       assert.equal(Value.Check(native.properties.growthUpdates,[{target:{operation:'create'},assertion:'user_reported',kind:'context',source:{clauseId:'c4'}}]),false)
-      assert.ok(context.serverOwnedMemoryClauses.quotes.includes('而且每周最多四小时探索'))
-      assert.equal(context.serverOwnedMemoryClauses.state,'pending_commit')
+      assert.equal(context.serverOwnedMemoryClauses,undefined,'staging metadata is not a selectable model source')
+      assert.deepEqual(context.growthWriteScope.sourceClauseIds,context.currentUserMessage.clauses.map((c:any)=>c.id))
+      assert.deepEqual(context.growthWriteScope.programOwnedClauseIds,['c4'])
+      assert.match(requests.at(-1).messages.find((m:any)=>m.role==='system').content,/growthWriteScope\.sourceClauseIds/)
+      for(const clauseId of [...context.growthWriteScope.sourceClauseIds,'c4','server_owned_memory_clauses']){
+        const delta={target:{operation:'create'},assertion:'user_reported',kind:'context',source:{clauseId}}
+        assert.equal(Value.Check(native.properties.growthUpdates,[delta]),context.growthWriteScope.sourceClauseIds.includes(clauseId),'prompt and native source authority agree for '+clauseId)
+      }
       assert.equal(turn.staged.coach,undefined)
       await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
       assert.ok((await growthContext(user,conversation)).some(item=>item.text==='我自己更在意留在目前城市'))
