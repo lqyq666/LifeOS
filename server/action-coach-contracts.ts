@@ -143,6 +143,18 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   // in the sole parser, before ordinary schema/source/transaction validation.
   // Never infer an edit target or accept model prose as a reported fact.
   const updates=(output as any)?.growthUpdates
+  // Captured native output echoed the read-only external-expectation label
+  // as a fact kind. It carries no authority beyond a current-clause context
+  // create: keep its source selector, never infer a personal preference/goal,
+  // accept free prose or turn it into an edit of an existing memory.
+  if(Array.isArray(updates))for(const update of updates){
+    if(update&&typeof update==='object'&&update.kind==='externalExpectation'
+      &&update.assertion==='user_reported'&&update.target?.operation==='create'
+      &&Object.keys(update).length===4&&Object.keys(update).every(key=>['target','assertion','kind','source'].includes(key))){
+      update.kind='context'
+      options.onNormalization?.('reported_external_expectation_context')
+    }
+  }
   const reportedKeys=new Set(['assertion','kind','source','text','validUntil','timeEvidence','progressState'])
   if(updates&&typeof updates==='object'&&!Array.isArray(updates)&&Object.keys(updates).length===1&&Object.hasOwn(updates,'create')
     &&Array.isArray(updates.create)&&updates.create.length>0&&updates.create.length<=8

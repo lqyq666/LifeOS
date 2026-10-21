@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Value } from 'typebox/value'
@@ -53,4 +54,19 @@ test('modification, reuse and closure name one exact versioned action; missing f
   assert.equal(Value.Check(actionCoachTurnSchema,{...base,event:{...base.event,action:{operation:'reuse',actionId:id}}}),false)
   assert.equal(Value.Check(actionCoachTurnSchema,{...base,event:{...base.event,nodes:[{kind:'fact',text:'我认为已经收到了。'}]}}),false)
   assert.equal(Value.Check(actionCoachTurnSchema,{...base,event:{...base.event,action:{operation:'modify',actionId:id,expectedRevision:3}}}),false)
+})
+
+test('captured external expectation is a context alias with no new memory authority',()=>{
+ const raw=JSON.parse(readFileSync('tests/fixtures/coach-external-expectation-kind.json','utf8'))
+ assert.equal(Value.Check(actionCoachTurnSchema,raw),false,'canonical schema continues rejecting invented kinds')
+ const normalized:string[]=[]
+ const parsed=parseActionCoachTurn(JSON.stringify(raw),{onNormalization:kind=>normalized.push(kind)})
+ assert.equal(parsed.growthUpdates?.[2]?.kind,'context')
+ assert.deepEqual(normalized,['reported_external_expectation_context'])
+ assert.equal(parsed.reply,raw.reply)
+ assert.deepEqual(parsed.growthUpdates?.[2]?.source,raw.growthUpdates[2].source)
+ for(const change of [{kind:'inventedKind'},{assertion:'ai_observation'},{text:'用户已采纳稳定路线'},{target:{operation:'correct',itemId:id}},{source:{clauseId:'fabricated'}}]){
+  const bad=structuredClone(raw);Object.assign(bad.growthUpdates[2],change)
+  assert.throws(()=>parseActionCoachTurn(JSON.stringify(bad)))
+ }
 })
