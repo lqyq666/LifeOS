@@ -126,19 +126,34 @@ export function completeCoachJsonFrame(raw:string):string|null {
 // Some captured text streams contain a JSON draft, an explicit deliberation
 // terminator, then the final JSON. Only that complete final object is business
 // output. Do not merge draft fields, scan arbitrary prose, or finish a prefix.
-export function finalCoachJsonText(raw:string):string {
+// A render-only tail is inert only when its exact text projection agrees with
+// the business reply; it cannot supply state or replace missing business data.
+export function finalCoachJsonText(raw:string,onNormalization?:(kind:string)=>void):string {
   const text=raw.trim(),first=completeCoachJsonFrame(text)
   const rest=first?text.slice(first.length).trimStart():''
+  if(first&&rest.startsWith('<|render|>')){
+    const tail=rest.slice('<|render|>'.length).trim()
+    if(completeCoachJsonFrame(tail)===tail){
+      const display=JSON.parse(tail),business=JSON.parse(first)
+      if(Object.keys(display).length===2&&typeof display.lead==='string'&&typeof display.body==='string'&&typeof business.reply==='string'
+        &&business.reply===display.lead+display.body){
+        onNormalization?.('verified_render_metadata_ignored')
+        return first
+      }
+    }
+    return text
+  }
   if(!rest.startsWith('</thinking>'))return text
   const final=rest.slice('</thinking>'.length).trim()
-  return completeCoachJsonFrame(final)===final?final:text
+  if(completeCoachJsonFrame(final)!==final)return text
+  onNormalization?.('explicit_final_json_frame')
+  return final
 }
 
 export type CoachOutputRejection={stage:'json'|'draft_reference'|'schema';issues?:{keyword:string;schemaPath:string}[]}
 export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExplanation?:boolean;allowEmptyReplyWithCompleteDraft?:boolean;onNormalization?:(kind:string)=>void;onRejection?:(diagnostic:CoachOutputRejection)=>void}={}):ActionCoachTurn {
   const unframed=raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')
-  const text=finalCoachJsonText(unframed)
-  if(text!==unframed)options.onNormalization?.('explicit_final_json_frame')
+  const text=finalCoachJsonText(unframed,options.onNormalization)
   let output:unknown
   try{output=JSON.parse(text)}catch(error){
     // A captured complete reply-only frame omitted escaping around a short

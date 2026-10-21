@@ -675,8 +675,9 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
       const fixture=JSON.parse(readFileSync('tests/fixtures/coach-spurious-judgment-event.json','utf8'))
       const {event:invalidEvent,...valid}=fixture
       assert.throws(()=>parseActionCoachTurn(JSON.stringify(fixture)),'saved fabricated nodes remain invalid')
-      outputs.push(valid)
+      outputs.push({__syntheticRaw:readFileSync('tests/fixtures/coach-render-metadata-response.txt','utf8')})
       const result=await engine(turn.input)
+      assert.ok(turn.staged.audit.some((a:any)=>a.phase==='coach_output_normalized'&&a.kind==='verified_render_metadata_ignored'))
       assert.equal(requests.at(-1).response_format.json_schema.schema.properties.event,undefined)
       assert.ok(requests.at(-1).response_format.json_schema.schema.properties.growthUpdates)
       const native=requests.at(-1).response_format.json_schema.schema

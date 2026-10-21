@@ -210,8 +210,7 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
       throw providerError(providerMessage,record.firstRawDeltaMs!==null)
     }
     const totalInput=uncached!==null&&cacheWrite!==null&&record.cachedInputTokens!==null?uncached+cacheWrite+record.cachedInputTokens:null
-    const received=assistantText(message),raw=finalCoachJsonText(received)
-    if(raw!==received)staged.audit.push({phase:'coach_output_normalized',kind:'explicit_final_json_frame',providerCalls:0})
+    const received=assistantText(message),raw=finalCoachJsonText(received,kind=>staged.audit.push({phase:'coach_output_normalized',kind,providerCalls:0}))
     staged.audit.push({phase:'provider_stream_assembly',callId,requestId,streamChars:streamedText.trim().length,resultChars:raw.length,streamMatchesResult:streamedText.trim()===raw,streamSha256:createHash('sha256').update(streamedText.trim()).digest('hex'),resultSha256:createHash('sha256').update(raw).digest('hex'),providerCalls:0})
     await captureSyntheticOutput(userId,requestId,streamedText,staged,'synthetic_transport_output_captured')
     // Explicit local acceptance instrumentation only. The default production

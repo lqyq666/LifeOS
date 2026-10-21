@@ -38,3 +38,14 @@ test('captured interrupted final frame remains rejected instead of committing it
  assert.ok(completeCoachJsonFrame(raw),'the old host had seen a complete prefix')
  assert.throws(()=>parseActionCoachTurn(raw),'the interrupted final object cannot be reconstructed or replaced by the prefix')
 })
+
+test('captured render-only tail cannot add authority or replace canonical business text',()=>{
+ const raw=readFileSync(new URL('./fixtures/coach-render-metadata-response.txt',import.meta.url),'utf8'),frame=completeCoachJsonFrame(raw)!
+ const notices:string[]=[]
+ assert.deepEqual(parseActionCoachTurn(raw,{onNormalization:n=>notices.push(n)}),JSON.parse(frame))
+ assert.deepEqual(notices,['verified_render_metadata_ignored'])
+ for(const tail of [{lead:'不同内容',body:'另一个答案'},{lead:'',body:JSON.parse(frame).reply,event:{target:{operation:'create'}}},{lead:'',body:JSON.parse(frame).reply,growthUpdates:[]}])assert.throws(()=>parseActionCoachTurn(frame+'\n<|render|>'+JSON.stringify(tail)))
+ for(const separator of ['\n','\n\n'])assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:'首句'+separator+'正文'})+'\n<|render|>'+JSON.stringify({lead:'首句',body:'正文'})))
+ assert.throws(()=>parseActionCoachTurn(raw.slice(0,-1)))
+ assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:JSON.parse(frame).reply,event:{untrusted:true}})+raw.slice(frame.length)))
+})
