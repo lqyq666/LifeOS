@@ -1,3 +1,4 @@
+import {configureProviderTransport,warmProviderConnection} from '../server/provider-connection.ts'
 import {mkdirSync,writeFileSync,existsSync,copyFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {randomUUID,createHash} from 'node:crypto'
@@ -103,7 +104,16 @@ async function call(id:keyof typeof inputs){
   // this first report/receipt; a later candidate must never replace it.
   if((!complete&&id!=='R4')||stop==='error'||thrown||(Object.values(report.checks).at(-1) as {passed:boolean}).passed!==true)throw new Error('PROVIDER_PROBE_STOPPED_AFTER_FAILED_REQUEST')
 }
-try{for(const id of selected)await call(id as keyof typeof inputs)}catch(error){report.errorCategory=probeErrorCategory(redact(error));report.status='FAIL';save();throw error}
+// Match the actual app's scoped pool and credential-free TLS warmup. This
+// remains a transport hint; only the paid fixtures establish capabilities.
+const providerTransport=configureProviderTransport(runtime.model)
+try{
+  const warmup=await warmProviderConnection(runtime.model)
+  report.transportPreflight=warmup;save()
+  if(providerTransport.configured&&(!warmup.attempted||!warmup.completed))throw new Error('PROVIDER_TRANSPORT_PREFLIGHT_FAILED')
+  for(const id of selected)await call(id as keyof typeof inputs)
+}catch(error){report.errorCategory=probeErrorCategory(redact(error));report.status='FAIL';save();throw error}
+finally{await providerTransport.close?.()}
 report.status=Object.values(report.checks).every((value:any)=>value.passed===true)?check?'CHECK_PASS':'PASS':'FAIL'
 const budgetAfter=await providerBudgetView(config.providerBudgetId)
 report.runtimeBudgetAfter={enabled:budgetAfter?.enabled===true,budgetId:budgetAfter?.id??null,revision:budgetAfter?.revision??null,unknownOrActiveCalls:budgetAfter?.unknown_or_active_calls??null};save()
