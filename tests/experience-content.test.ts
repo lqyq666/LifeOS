@@ -58,6 +58,22 @@ test('reported lookup and reduced-question outcomes are retained as verbatim exp
   }
 })
 
+test('saved real36 daily and repeated activities retain felt results without inventing their cause',()=>{
+ const first='我是成年大学生，昨晚和室友打羽毛球后觉得轻松。请从生活体验聊起，不要加付款、采用、效率评分或职业标签。先问一个值得问的问题。'
+ const repeat='回来反馈：一周后我又和同一个室友打了一次，仍然放松，但当天身体累所以提前结束。不要用一次疲惫推翻之前的感受。'
+ for(const text of [first,repeat,'昨晚我打了球觉得轻松，后来身体累所以提前结束。']){
+  const clauses=buildClauseCatalogue(text)
+  assert.ok(requiresExperienceCandidate(clauses))
+  const actual=selectStructuralCandidate(text,clauses,ANCHOR)!
+  assert.ok(actual)
+  assert.match(actual.content.result,/觉得轻松|仍然放松/)
+  if(text.includes('后来身体累'))assert.match(actual.content.result,/后来身体累所以提前结束/)
+  assert.ok(text.includes(actual.content.result),'stored result is a verbatim reported observation')
+  assert.doesNotMatch(actual.content.result,/不要|原因|证明/)
+ }
+ for(const text of ['下周我想再和室友打一次球，可能会放松。','如果我和室友打了一次会怎样？','室友说他昨天打了一次球，仍然放松。'])assert.equal(requiresExperienceCandidate(buildClauseCatalogue(text)),false,text)
+})
+
 test('model-named handles outside the selected span drop the field, never the candidate',()=>{
   const text='我负责做了一整套推文和海报，约好周五交、我周日才交过去'
   const catalogue=buildClauseCatalogue(text)

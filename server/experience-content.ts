@@ -18,6 +18,8 @@ const COMPLETED_ACTION = /(?:做完|完成|交付|交了|交完|交上去|交过
 const NOT_YET = /打算|准备|计划|希望|想要|将要|下次|明天|后天|以后|考虑|如果|假设|还没|尚未|没来得及|没写完|没做完|没完成|没交/
 const DEFINED_ARTIFACT=/(?<!决)定了(?:[^。！？，,；;]{1,12}的)?[一二两三四五六七八九十百\d]+(?:条|项|个|套|份)[^。！？，,；;]{0,6}(?:规则|标准|流程|结构|格式|清单|问题)$/
 const OWNED_CONTACT_FORM=/^(?:我|本人)(?:已经|实际|今天|昨天|刚刚|之前)?(?:问了|问过|聊过|填过|填了)/
+const PERFORMED_ACTIVITY=/(?:打|练|跑|游|骑|踢|逛|聊)(?:了|过)/
+const FELT_RESULT=/(?:觉得|感到|仍然|依然|还是|仍是)(?:很|更|比较|有点|不再|并不|不)?(?:轻松|放松|开心|舒服|自在|紧张|难过|失落|疲惫|累)/
 // “交付范围” names an action but “想先确认” has not performed it.
 // Shared by the structural fallback and the actual candidate persistence gate.
 export const clauseExpressesWishToAct=(text:string):boolean=>/(?:想|要)(?:先|去|尝试|试试|交付|提交|上线|发布|确认|核对|了解)|^(?:先|请|帮我)(?:确认|核对|交付|提交|上线|发布|了解)|(?:只想|就想)(?:聊|说|倾诉|吐槽)/.test(text)
@@ -70,7 +72,7 @@ export function clauseReportsCompleted(text: string): boolean {
   if(/(?:记录|经历).{0,6}(?:保留|留着|不(?:用|要)?删)|(?:保留|留着).{0,6}(?:记录|经历)/.test(text))return false
   // “定了方向/明年去读研” commits to a pursuit. Only a concrete authored
   // artifact makes the bare 定了 form an already performed action.
-  return (reportsPastFeeling(text)||COMPLETED_ACTION.test(text)||DEFINED_ARTIFACT.test(text)||OWNED_CONTACT_FORM.test(text)||clauseReportsAttempted(text)) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
+  return (reportsPastFeeling(text)||COMPLETED_ACTION.test(text)||DEFINED_ARTIFACT.test(text)||OWNED_CONTACT_FORM.test(text)||PERFORMED_ACTIVITY.test(text)||clauseReportsAttempted(text)) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
 }
 
 // Past aspect is required here: a goal may name “完成” without reporting it
@@ -78,7 +80,7 @@ export function clauseReportsCompleted(text: string): boolean {
 export function clauseReportsPastAction(text:string):boolean{
   if(!clauseReportsCompleted(text)||clauseExpressesFuturePlan(text)||/(?:^(?:我(?:的)?|本人(?:的)?)?目标(?:是|为)|争取|想要)/.test(text))return false
   if(clauseReportsAttempted(text)||reportsPastFeeling(text))return true
-  const primary=[COMPLETED_ACTION.exec(text),DEFINED_ARTIFACT.exec(text),OWNED_CONTACT_FORM.exec(text)].filter((match):match is RegExpExecArray=>match!==null).sort((a,b)=>a.index-b.index)[0]
+  const primary=[COMPLETED_ACTION.exec(text),DEFINED_ARTIFACT.exec(text),OWNED_CONTACT_FORM.exec(text),PERFORMED_ACTIVITY.exec(text)].filter((match):match is RegExpExecArray=>match!==null).sort((a,b)=>a.index-b.index)[0]
   if(!primary)return false
   const following=text.slice(primary.index+primary[0].length,primary.index+primary[0].length+1)
   if(following==='的')return false
@@ -128,9 +130,12 @@ export function selectStructuralCandidate(sourceText: string, catalogue: readonl
   const start=inSentence[0]!.start
   const quote = sourceText.slice(start, end)
   const action = inSentence.find(handle => !handle.interrogative&&!handle.conditional&&!handle.attributedToOther&&clauseReportsCompleted(unprotectedClauseText(handle)))
-  const resultCandidates = inSentence.filter(handle => RESULT_SHAPE.test(unprotectedClauseText(handle)) && handle !== action)
+  // A felt outcome may share the action clause. Keep subsequent observations
+  // as well: later fatigue does not erase an independently reported relaxation.
+  const felt=inSentence.filter(handle=>FELT_RESULT.test(unprotectedClauseText(handle)))
+  const resultCandidates = inSentence.filter(handle => (RESULT_SHAPE.test(unprotectedClauseText(handle)) && handle !== action)||felt.includes(handle))
   const laterOutcome=resultCandidates.find(candidate=>/^(?:后来|结果|第二天|随后|最终)/.test(unprotectedClauseText(candidate)))
-  const resultStart=laterOutcome??resultCandidates.at(-1)
+  const resultStart=felt.length?resultCandidates[0]:laterOutcome??resultCandidates.at(-1)
   const result = resultStart?sourceText.slice(resultStart.start,resultCandidates.at(-1)!.end):''
   return {
     quote, start, end,

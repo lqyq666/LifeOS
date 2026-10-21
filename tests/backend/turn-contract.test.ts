@@ -669,6 +669,31 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
       await store.finishRun(feedback.run,feedback.staged,updated.text,updated.usage,new AbortController().signal)
       await pool.query('DELETE FROM growth_items WHERE user_id=$1 AND conversation_id=$2',[user,conversation])
     })
+    await t.test('saved real36 repeated living experiences keep observed feelings in committed star-map records',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC daily repeated feeling'})
+      const reports=[
+        '我是成年大学生，昨晚和室友打羽毛球后觉得轻松。请从生活体验聊起，不要加付款、采用、效率评分或职业标签。先问一个值得问的问题。',
+        '回来反馈：一周后我又和同一个室友打了一次，仍然放松，但当天身体累所以提前结束。不要用一次疲惫推翻之前的感受。',
+      ]
+      const messageIds:string[]=[]
+      for(const [index,text] of reports.entries()){
+        const turn=await prepare(text,conversation);messageIds.push(turn.run.source_message_id)
+        const catalogue=buildClauseCatalogue(text),action=catalogue.find(c=>/打羽毛球|打了一次/.test(c.text))!,end=index===0?action:catalogue.find(c=>c.text.includes('提前结束'))!
+        outputs.push({reply:index===0?'这次轻松，具体是什么感觉？':'这次仍然放松，同时身体累而提前结束；原因还不能据此确定。',experienceCandidate:{source:{clauseIds:catalogue.filter(c=>c.start>=action.start&&c.end<=end.end).map(c=>c.clauseId)},action:{clauseId:action.clauseId},...(index===1?{result:{clauseId:end.clauseId}}:{})}})
+        const result=await engine(turn.input)
+        await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      }
+      const rows=(await pool.query('SELECT source_message_id,content FROM experiences WHERE user_id=$1 AND conversation_id=$2 ORDER BY created_at',[user,conversation])).rows
+      assert.equal(rows.length,2,'an explicit later occurrence must not overwrite the first episode')
+      assert.deepEqual(rows.map(r=>r.source_message_id),messageIds)
+      assert.match(rows[0].content.result,/觉得轻松/)
+      assert.match(rows[1].content.result,/仍然放松/)
+      assert.match(rows[1].content.result,/身体累/)
+      const view=await store.cognitionGraph(user)
+      const nodes=view.nodes.filter((n:any)=>n.type==='experience'&&messageIds.includes(n.sourceMessageId)) as any[]
+      assert.equal(nodes.length,2)
+      for(const node of nodes){assert.doesNotMatch(node.experienceSummary.result,/尚未记录/);assert.ok(!node.outcomeKeys.includes('adoption'));assert.ok(!node.outcomeKeys.includes('payment'))}
+    })
     await t.test('compiled format overhead is checked before any provider reservation or dispatch',async()=>{
       const previous=model.contextWindow,conversation=randomUUID()
       await store.createConversation(user,{id:conversation,title:'SYNTHETIC schema context boundary'})

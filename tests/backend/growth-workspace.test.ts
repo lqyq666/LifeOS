@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto'
 import { pool, transaction } from '../../server/db.ts'
 import * as store from '../../server/store.ts'
 import { setMemorySettings } from '../../server/memory.ts'
-import { createGrowthItem, actOnGrowthItem, growthView, growthContext, growthSnapshotKey, assertGrowthSnapshot } from '../../server/growth.ts'
+import { createGrowthItem, actOnGrowthItem, growthView, growthContext, growthSnapshotKey, assertGrowthSnapshot,stageGrowthUpdates } from '../../server/growth.ts'
 import type { GrowthItem } from '../../src/features/growth/types.ts'
 import { buildTurnPrompt } from '../../server/turn-prompt.ts'
 import { invalidateCoachSources } from '../../server/action-coach-events.ts'
@@ -17,6 +17,19 @@ test('growth workspace preserves source/version/privacy and prevents outdated de
   const create=(text:string,kind:'goal'|'priority'|'direction'|'ability'|'unknown'='goal',dependencies:{id:string;revision:number}[]=[])=>createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind,text,dependencies})
   const act=(item:GrowthItem,action:'correct'|'pause'|'complete'|'reject'|'forget',text?:string)=>actOnGrowthItem(user,item.id,{requestId:randomUUID(),expectedRevision:item.revision,action,...(text?{text}:{})})
   try{
+    await t.test('public third-party speech is context, while an explicit later reply remains response evidence',async()=>{
+      for(const [text,quote,expected] of [
+        ['回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例。','他说地点自由',undefined],
+        ['回来反馈：老师后来回复说这周忙，下周再看。','回来反馈：老师后来回复说这周忙，下周再看','reported_response'],
+      ] as const){
+        const run=(await store.startRun(user,chat,randomUUID(),text)).run
+        const growth=await stageGrowthUpdates(run,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:run.source_message_id,quote}}],[])
+        await store.finishRun(run,{candidates:[],audit:[],growth},'保留该来源的原话与适用范围。',null,new AbortController().signal)
+        const item=(await growthView(user,chat)).items.find(i=>i.text===quote)!
+        assert.ok(item)
+        assert.equal(item.feedbackEvidence?.outcomes.response.status,expected)
+      }
+    })
     let goal!:GrowthItem, constraint!:GrowthItem, direction!:GrowthItem, priority!:GrowthItem
     await t.test('manual facts are explicit user evidence; unknown stays unknown; short constraints retained',async()=>{
       goal=await create('先探索就业')

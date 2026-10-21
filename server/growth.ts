@@ -37,7 +37,9 @@ function item(row: Row, reason: string | null = null): GrowthItem {
   const hidden = row.status === 'forgotten' || reason === 'source_revoked'
   const pauseTarget=!hidden&&row.assertion==='user_reported'?scopedTaskPauseTarget(row.text):null
   const taskBoundary=pauseTarget?{kind:'pause' as const,scope:'current_matter' as const,targetText:pauseTarget,sourceConversationId:row.conversation_id,sourceMessageId:row.sources.find(source=>source.type==='message')?.id??null,matterBinding:'needs_same_matter_confirmation' as const,expiresAt:row.valid_until?.toISOString()??null,quote:row.text}:undefined
-  const outcomes=taskOutcomeReadback(row.text,undefined,true)
+  // A context source is not proof of a conversation with a task recipient.
+  // Explicit reply/read/use reports remain readable without inventing that link.
+  const outcomes=taskOutcomeReadback(row.text,undefined,row.kind==='feedback',true)
   const feedbackEvidence=!hidden&&row.assertion==='user_reported'&&(row.kind==='feedback'||Object.values(outcomes).some(value=>value.status!=='unknown'))?{reportedAt:row.created_at.toISOString(),taskBinding:'unknown' as const,outcomes}:undefined
   const kind=['goal','direction'].includes(row.kind)&&row.assertion==='user_reported'&&unstartedActivityOnlyClause(row.text)?'context':row.kind
   return { ...(feedbackEvidence?{feedbackEvidence}:{}),id: row.id, conversationId: row.conversation_id, kind, text: hidden ? '' : row.text, assertion: row.assertion,

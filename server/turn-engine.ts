@@ -1623,7 +1623,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
           if(!clauseReportsCompleted(extracted.content.action))extracted.content.action=structural!.content.action
           // 结果若是回指词本身（模型把“上次那个…访谈”当成了结果），换用
           // 结构句挑出的真实结果分句。
-          if(!extracted.content.result||/上次那|上次说|那件事|刚才说/.test(extracted.content.result))extracted.content.result=structural!.content.result
+          if(!extracted.content.result||structural!.content.result.includes(extracted.content.result)||/上次那|上次说|那件事|刚才说/.test(extracted.content.result))extracted.content.result=structural!.content.result
         }
         for(const field of extracted.dropped)staged.audit.push({phase:'coach_candidate_field_dropped',code:'CANDIDATE_FIELD_CLAUSE_UNRESOLVED',field,committed:false})
         try{
