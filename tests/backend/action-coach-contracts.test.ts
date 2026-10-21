@@ -6,6 +6,26 @@ import { actionCoachTurnSchema, parseActionCoachTurn } from '../../server/action
 const id='00000000-0000-4000-8000-000000000001'
 const source={messageId:id,quote:'对方说手机打不开。'}
 
+test('rejection diagnostics identify the failed contract without recording model data',()=>{
+  const diagnostics:unknown[]=[]
+  const options={onRejection:(diagnostic:unknown)=>diagnostics.push(diagnostic)}
+  const secret='PRIVATE_MODEL_TEXT_123'
+  assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:42,[secret]:secret}),options))
+  const schemaDiagnostic=diagnostics.pop() as {stage:string;issues:{keyword:string;schemaPath:string}[]}
+  assert.equal(schemaDiagnostic.stage,'schema')
+  assert.ok(schemaDiagnostic.issues.some(issue=>issue.keyword==='type'&&issue.schemaPath==='#/properties/reply'))
+  assert.equal(JSON.stringify(schemaDiagnostic).includes(secret),false)
+  assert.ok(schemaDiagnostic.issues.every(issue=>Object.keys(issue).sort().join(',')==='keyword,schemaPath'))
+  assert.throws(()=>parseActionCoachTurn('{"reply":"'+secret,options))
+  assert.deepEqual(diagnostics.pop(),{stage:'json'})
+  assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:secret,event:{action:{draft:{fromReply:false}}}}),options))
+  assert.deepEqual(diagnostics.pop(),{stage:'draft_reference'})
+  assert.deepEqual(parseActionCoachTurn(JSON.stringify({reply:secret}),options),{reply:secret})
+  assert.equal(diagnostics.length,0)
+  assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:secret,...Object.fromEntries(Array.from({length:30},(_,i)=>['unknown'+i,secret]))}),options))
+  assert.ok((diagnostics.pop() as {issues:unknown[]}).issues.length<=8)
+})
+
 test('listening and knowledge replies require no plan, background, hypothesis or event',()=>{
   assert.deepEqual(parseActionCoachTurn(JSON.stringify({reply:'可以，今天先不复盘。你想说什么，我在听。'})),{reply:'可以，今天先不复盘。你想说什么，我在听。'})
 })

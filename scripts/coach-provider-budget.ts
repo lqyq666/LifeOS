@@ -2,6 +2,7 @@ import {readFileSync,writeFileSync,mkdirSync,openSync,closeSync,unlinkSync,renam
 import {resolve,dirname,sep} from 'node:path'
 import {createHash,randomUUID} from 'node:crypto'
 const digest=(bytes:string|Buffer)=>createHash('sha256').update(bytes).digest('hex')
+const supplementalRuntimeBaseline=(ledger:any)=>digest(JSON.stringify({authorization:ledger.authorization,continuation:ledger.continuation,calls:ledger.calls,supplementalRuntimeGrants:ledger.supplementalRuntimeGrants??[]}))
 // Preflight and reservation must use the same active grant. Historical funds
 // remain auditable but never supplement or replace an activated current grant.
 export const activeCoachFunding=(snapshot:any)=>snapshot.continuation??snapshot.currentGrant??snapshot.additional??null
@@ -161,6 +162,39 @@ export class CoachProviderBudget {
       funding.runtimeDelegation={kind:'EXCLUSIVE_RUNTIME_RESERVATION_AUTHORITY',budgetId:proof.runtimeBudgetId,allocatedCny:proof.allocatedCny,proofSha256,at:new Date().toISOString()}
       funding.paused=true
       return structuredClone(funding.runtimeDelegation)
+    })
+  }
+  registerAcceptanceCapSupplementalRuntimeGrant(){
+    return this.change(ledger=>{
+      const relativePath=this.options.simulation
+        ?`.local/v1.3-action-coach/${this.options.testDirectory}/acceptance-supplemental-20261021.json`
+        :'.local/v1.3-action-coach/paid/acceptance-supplemental-20261021.json'
+      const bytes=readFileSync(resolve(this.options.root??process.cwd(),relativePath)),note=JSON.parse(bytes.toString()),authorizationSha256=digest(bytes)
+      ledger.supplementalRuntimeGrants??=[]
+      const existing=ledger.supplementalRuntimeGrants.find((grant:any)=>grant.authorizationPath===relativePath)
+      if(existing){
+        if(existing.authorizationSha256!==authorizationSha256||existing.amountCny!==5||existing.totalLimitCny!==25||existing.budgetId!=='acceptance_topup_20261018')throw new Error('SUPPLEMENTAL_RUNTIME_AUTHORIZATION_ALREADY_BOUND')
+        return structuredClone(existing)
+      }
+      const funding=ledger.continuation,proof=note.runtimeBudgetProof
+      const runtimeAllocated=funding?.runtimeDelegation?.allocatedCny
+      if(ledger.calls.some((call:CoachCallReceipt)=>call.status!=='finished'))throw new Error('TERMINAL_CALLS_REQUIRED_FOR_PLAN_CHANGE')
+      if(!funding?.runtimeDelegation||funding.authorizationFile!=='acceptance-topup-20261018.json'||funding.limitCny!==20||!funding.paused)throw new Error('SUPPLEMENTAL_RUNTIME_BASE_AUTHORITY_INVALID')
+      if(note.kind!==(this.options.simulation?'SIMULATED_USER_AUTHORIZED_ACCEPTANCE_CAP_SUPPLEMENT':'USER_AUTHORIZED_ACCEPTANCE_CAP_SUPPLEMENT')||note.amountCny!==5||note.baseLimitCny!==20||note.totalLimitCny!==25||note.baseLimitCny+note.amountCny!==note.totalLimitCny)throw new Error('SUPPLEMENTAL_RUNTIME_LIMIT_INVALID')
+      if(note.runtimeBudgetId!==funding.runtimeDelegation.budgetId||typeof runtimeAllocated!=='number'||runtimeAllocated<=0||runtimeAllocated+note.amountCny>note.totalLimitCny)throw new Error('SUPPLEMENTAL_RUNTIME_ALLOCATION_INVALID')
+      if(note.startingCall!==ledger.calls.length)throw new Error('SUPPLEMENTAL_RUNTIME_CALL_BASELINE_INVALID')
+      if(note.priorReceiptsSha256!==digest(JSON.stringify(ledger.calls)))throw new Error('SUPPLEMENTAL_RUNTIME_RECEIPTS_BASELINE_INVALID')
+      if(note.previousContinuationSha256!==funding.authorizationSha256)throw new Error('SUPPLEMENTAL_RUNTIME_CONTINUATION_BASELINE_INVALID')
+      if(note.priorRuntimeAuthoritySha256!==supplementalRuntimeBaseline(ledger))throw new Error('SUPPLEMENTAL_RUNTIME_LEDGER_BASELINE_INVALID')
+      if(!note.userAuthorization?.includes('25')||note.unknownReservationsPreserved!==true)throw new Error('SUPPLEMENTAL_RUNTIME_USER_SCOPE_INVALID')
+      if(proof?.before?.id!==note.runtimeBudgetId||proof?.after?.id!==note.runtimeBudgetId)throw new Error('SUPPLEMENTAL_RUNTIME_BUDGET_ID_INVALID')
+      if(proof.before.enabled!==true||proof.after.enabled!==true||Number(proof.after.limitCny)!==25||!Number.isInteger(proof.before.revision)||proof.after.revision!==proof.before.revision+1)throw new Error('SUPPLEMENTAL_RUNTIME_BUDGET_CAP_INVALID')
+      if(Number(proof.before.accountedCny)!==Number(proof.after.accountedCny)||Number(proof.after.accountedCny)>25)throw new Error('SUPPLEMENTAL_RUNTIME_SPEND_BASELINE_INVALID')
+      if(proof.before.unknownOrActive!==proof.after.unknownOrActive||proof.after.r4cStatus!=='unknown')throw new Error('SUPPLEMENTAL_RUNTIME_UNKNOWN_RESERVATION_CHANGED')
+      if(ledger.supplementalRuntimeGrants.some((grant:any)=>grant.budgetId===note.runtimeBudgetId))throw new Error('SUPPLEMENTAL_RUNTIME_BUDGET_ALREADY_BOUND')
+      const grant={budgetId:note.runtimeBudgetId,amountCny:note.amountCny,totalLimitCny:note.totalLimitCny,authorizationPath:relativePath,authorizationSha256,exclusiveReservationAuthority:'PostgreSQL',startingCall:note.startingCall,priorReceiptsSha256:note.priorReceiptsSha256,previousContinuationSha256:note.previousContinuationSha256,activatedAt:new Date().toISOString()}
+      ledger.supplementalRuntimeGrants.push(grant)
+      return structuredClone(grant)
     })
   }
   activateAdditionalAuthorization(){

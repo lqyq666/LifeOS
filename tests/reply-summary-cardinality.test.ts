@@ -14,7 +14,29 @@ test('actual DE correction plus a small action request stays a mixed delivery',(
  assert.equal(scope.actionRequested,true)
  assert.equal(scope.actionLimit,1)
  const base=deriveTurnContract({text,knowledgeCount:0,currentEventExists:true,planIntent:false,material:false})
- assert.equal(bindRequestedSummarySchema(base,text),base)
+ const bound=bindRequestedSummarySchema(base,text)
+ assert.deepEqual(bound.capabilities,base.capabilities)
+ assert.equal(bound.requiredReplyKind,'summary')
+ assert.ok(Value.Check((bound.schema.properties as any).reply,'轻松来自自己不用反复找，是否普遍适用仍未知。'.repeat(6)+'本周只记录一次自己检索所需的时间。'))
+ assert.equal(Value.Check((bound.schema.properties as any).reply,'你当时为何轻松？\n未知项：你是否有成就感？'),false)
+})
+
+test('assessment plus a small action binds declarative unknowns before question pruning',()=>{
+ const text='请基于这些信息更新暂定判断，说清还不知道什么，并给一个本周能开始的小验证，不要替我选定方向。'
+ const base=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
+ const bound=bindRequestedSummarySchema(base,text),reply=(bound.schema.properties as any).reply
+ assert.equal(bound.requiredReplyKind,'summary')
+ assert.equal(Value.Check(reply,'你更想先验证哪条路径？\n2. **未知项**：\n- 你对稳定的个人定义是什么？'),false)
+ assert.ok(Value.Check(reply,'应用型方向值得探索；稳定的具体含义、课程成果的可展示程度和本地岗位要求仍未知。本周先看一个本地岗位，记录课程项目可对应的要求。'))
+})
+
+test('one sentence mixed assessment still requests the action within that sentence',()=>{
+ const text='请用一句话总结判断，并给一个本周能开始的小行动。'
+ const base=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
+ const reply=(bindRequestedSummarySchema(base,text).schema.properties as any).reply
+ assert.match(reply.description,/同一句中还须交付/)
+ assert.ok(Value.Check(reply,'课程项目只能提供初步线索，本周先对照一个本地岗位标出已有和缺少的证据。'))
+ assert.equal(Value.Check(reply,'课程项目只提供初步线索。先看一个岗位。'),false)
 })
 
 test('the real malformed summary remains rejected, never prefix-parsed or stripped into acceptance',()=>{

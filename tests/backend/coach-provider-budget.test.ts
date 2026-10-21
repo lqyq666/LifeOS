@@ -8,7 +8,7 @@ import {CoachProviderBudget} from '../../scripts/coach-provider-budget.ts'
 test('SIMULATED 20 CNY acceptance top-up versions the continuation without resetting receipts or unknown spend',()=>{
   const budget=new CoachProviderBudget({simulation:true,testDirectory:'simulation-'+randomUUID()}),directory=dirname(budget.path)
   const grantPath=directory+'/development-test-grant-20261005.json',continuationPath=directory+'/campus-acceptance-continuation-20261005.json',topupPath=directory+'/acceptance-topup-20261018.json'
-  const delegationPath=directory+'/runtime-spend-delegation-20261018.json'
+  const delegationPath=directory+'/runtime-spend-delegation-20261018.json',supplementalPath=directory+'/acceptance-supplemental-20261021.json'
   const input={runId:'synthetic',purpose:'turn' as const,tier:'default',provider:'synthetic',model:'synthetic',signature:'synthetic'}
   try{
     budget.snapshot()
@@ -60,10 +60,27 @@ test('SIMULATED 20 CNY acceptance top-up versions the continuation without reset
     assert.deepEqual(budget.delegateAcceptanceTopupToRuntime(),delegation)
     assert.equal(budget.activateAcceptanceTopup().paused,true,'activation cannot reopen the old authority')
     assert.throws(()=>budget.reserve({...input,reservedCostCny:.01}),/RUNTIME_AUTHORITY_ACTIVE/)
+    const beforeSupplement=budget.snapshot(),runtimeBudgetProof={
+      before:{id:delegation.budgetId,enabled:true,limitCny:'20.00000000',revision:1,accountedCny:'4.00000000',unknownOrActive:1},
+      after:{id:delegation.budgetId,enabled:true,limitCny:'25.00000000',revision:2,accountedCny:'4.00000000',unknownOrActive:1,r4cStatus:'unknown'},
+    }
+    const unknownReceiptsBefore=beforeSupplement.calls.filter((call:any)=>call.usage==='unknown').length
+    const priorRuntimeAuthoritySha256=createHash('sha256').update(JSON.stringify({authorization:beforeSupplement.authorization,continuation:beforeSupplement.continuation,calls:beforeSupplement.calls,supplementalRuntimeGrants:beforeSupplement.supplementalRuntimeGrants??[]})).digest('hex')
+    writeFileSync(supplementalPath,JSON.stringify({kind:'SIMULATED_USER_AUTHORIZED_ACCEPTANCE_CAP_SUPPLEMENT',amountCny:5,baseLimitCny:20,totalLimitCny:25,runtimeBudgetId:delegation.budgetId,startingCall:beforeSupplement.calls.length,priorReceiptsSha256:createHash('sha256').update(JSON.stringify(beforeSupplement.calls)).digest('hex'),previousContinuationSha256:beforeSupplement.continuation.authorizationSha256,priorRuntimeAuthoritySha256,userAuthorization:'25元',unknownReservationsPreserved:true,runtimeBudgetProof}))
+    const supplemental=budget.registerAcceptanceCapSupplementalRuntimeGrant()
+    assert.equal(supplemental.amountCny,5);assert.equal(supplemental.totalLimitCny,25)
+    assert.deepEqual(budget.snapshot().calls,beforeSupplement.calls,'the supplemental cap does not reset or duplicate receipts')
+    assert.equal(budget.snapshot().calls.filter((call:any)=>call.usage==='unknown').length,unknownReceiptsBefore,'every existing unknown receipt remains present')
+    assert.throws(()=>budget.reserve({...input,reservedCostCny:.01}),/RUNTIME_AUTHORITY_ACTIVE/,'PostgreSQL remains the sole reservation authority')
+    const supplementalBytes=readFileSync(supplementalPath)
+    writeFileSync(supplementalPath,supplementalBytes.toString().replace('"amountCny":5','"amountCny":6'))
+    assert.throws(()=>budget.registerAcceptanceCapSupplementalRuntimeGrant(),/ALREADY_BOUND/)
+    writeFileSync(supplementalPath,supplementalBytes)
+    assert.deepEqual(budget.registerAcceptanceCapSupplementalRuntimeGrant(),supplemental,'the exact registered authorization is idempotent')
     writeFileSync(delegationPath,JSON.stringify({...proof,allocatedCny:15.8}))
     assert.throws(()=>budget.delegateAcceptanceTopupToRuntime(),/DELEGATION_ALREADY_BOUND/)
   }finally{
-    for(const path of [delegationPath,topupPath,continuationPath,grantPath,budget.path,budget.path+'.lock'])if(existsSync(path))unlinkSync(path)
+    for(const path of [supplementalPath,delegationPath,topupPath,continuationPath,grantPath,budget.path,budget.path+'.lock'])if(existsSync(path))unlinkSync(path)
     if(existsSync(directory))rmdirSync(directory)
   }
 })

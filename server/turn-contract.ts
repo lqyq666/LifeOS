@@ -98,14 +98,14 @@ export function summaryReplyAccepts(reply:string):boolean{
 }
 export function bindRequestedSummarySchema(contract:TurnContract,text:string,questionRequested=false):TurnContract{
  const scope=responseRequestScope(text)
- if(!scope.summaryRequested||scope.actionRequested||questionRequested||requiresImmediateMaterial(text)||contract.capabilities.plan)return contract
+ if(!scope.summaryRequested||questionRequested||requiresImmediateMaterial(text)||contract.capabilities.plan)return contract
  const schema=structuredClone(contract.schema) as any
  const expanded=scope.instructions.some(clause=>/详细|详尽|展开|完整|逐项|逐条|长文|全面|深入|细说|细讲/.test(clause.commandText))
  if(scope.sentenceLimit===1)delete schema.properties.lead
  else if(schema.properties.lead)schema.properties.lead={...schema.properties.lead,pattern:'^[^？?]*$',description:'本轮交付当前理解的第一句预览；给基于本人报告的实际判断，不追问、不以状态确认替代理解，须在reply逐字保留。'}
  schema.properties.reply=scope.sentenceLimit===1
-  ?{...schema.properties.reply,maxLength:240,pattern:'^[^。！？!?\\r\\n]+[。！!]?$' ,description:'只给一句当前阶段理解，以已报告的具体线索及局限为内容；不复制上一轮整段，不加标题、状态确认、分段、第二句或追问。'}
-  :{...schema.properties.reply,...(!expanded?{maxLength:100}:{}),pattern:'^[^？?]*$',description:'本轮要求更新或说明当前理解：简洁综合本人具体报告、暂定理解及真正仍未知的地方，不以重问上一问或只确认状态替代交付；没有要求提问，不加入问句，不新增行动。'}
+  ?{...schema.properties.reply,maxLength:240,pattern:'^[^。！？!?\\r\\n]+[。！!]?$' ,description:'只给一句当前阶段理解，以已报告的具体线索及局限为内容；'+(scope.actionRequested?'同一句中还须交付用户明确要求的小行动，遵守数量、时间与资源限制；':'')+'不复制上一轮整段，不加标题、状态确认、分段、第二句或追问。'}
+  :{...schema.properties.reply,...(!expanded&&!scope.actionRequested?{maxLength:100}:{}),pattern:'^[^？?]*$',description:'本轮要求更新或说明当前理解：综合本人具体报告、暂定理解及真正仍未知的地方。未知用尚未确认的陈述表达，不变成要求用户逐项回答的问题；不以重问上一问或只确认状态替代交付。'+(scope.actionRequested?'同时交付本轮明确要求的小行动，遵守其数量、时间与资源限制。':'没有要求提问，不加入问句，不新增行动。')}
  return {...contract,schema,schemaChars:JSON.stringify(schema).length,requiredReplyKind:'summary'}
 }
 

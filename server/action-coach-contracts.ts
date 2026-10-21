@@ -123,7 +123,8 @@ export function completeCoachJsonFrame(raw:string):string|null {
   return null
 }
 
-export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExplanation?:boolean;allowEmptyReplyWithCompleteDraft?:boolean;onNormalization?:(kind:string)=>void}={}):ActionCoachTurn {
+export type CoachOutputRejection={stage:'json'|'draft_reference'|'schema';issues?:{keyword:string;schemaPath:string}[]}
+export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExplanation?:boolean;allowEmptyReplyWithCompleteDraft?:boolean;onNormalization?:(kind:string)=>void;onRejection?:(diagnostic:CoachOutputRejection)=>void}={}):ActionCoachTurn {
   const text=raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')
   let output:unknown
   try{output=JSON.parse(text)}catch(error){
@@ -133,7 +134,7 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
     const match=/^\{\s*"reply"\s*:\s*"([^{}\[\]\\:,\x00-\x1f]*)"\s*\}$/.exec(text)
     const body=match?.[1],literal=/"[\p{L}\p{N} _、，。！？（）().!?;\-]{1,80}"/gu
     const pairs=body?.match(literal)
-    if(!body||!pairs?.length||pairs.length>2||pairs.some(pair=>!/[\p{L}\p{N}]/u.test(pair))||body.replace(literal,'').includes('"'))throw error
+    if(!body||!pairs?.length||pairs.length>2||pairs.some(pair=>!/[\p{L}\p{N}]/u.test(pair))||body.replace(literal,'').includes('"')){options.onRejection?.({stage:'json'});throw error}
     output=JSON.parse('{"reply":'+JSON.stringify(body)+'}')
     options.onNormalization?.('quoted_reply_literal')
   }
@@ -158,7 +159,7 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   // The native body reference has one authority: the actual generated reply.
   // Expand it here into the existing canonical draft, before all validation.
   if(draft&&typeof draft==='object'&&!Array.isArray(draft)&&'fromReply'in draft){
-    if(draft.fromReply!==true||Object.keys(draft).length!==1||typeof(output as any).reply!=='string'||!(output as any).reply.trim())throw new Error('ACTION_COACH_OUTPUT_INVALID')
+    if(draft.fromReply!==true||Object.keys(draft).length!==1||typeof(output as any).reply!=='string'||!(output as any).reply.trim()){options.onRejection?.({stage:'draft_reference'});throw new Error('ACTION_COACH_OUTPUT_INVALID')}
     draft={content:(output as any).reply}
     ;(output as any).event.action.draft=draft
   }
@@ -176,7 +177,19 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   const schema=mayOmitReply
     ?{...actionCoachTurnSchema,properties:{...actionCoachTurnSchema.properties,reply:{...actionCoachTurnSchema.properties.reply,minLength:0}}}
     :actionCoachTurnSchema
-  if(!Value.Check(schema,output))throw new Error('ACTION_COACH_OUTPUT_INVALID')
+  if(!Value.Check(schema,output)){
+    // Only schema-owned locations are retained. instancePath, params and
+    // messages can contain arbitrary model text or user data.
+    if(options.onRejection){
+      const issues:{keyword:string;schemaPath:string}[]=[]
+      for(const issue of Value.Errors(schema,output)){
+        issues.push({keyword:issue.keyword,schemaPath:issue.schemaPath})
+        if(issues.length===8)break
+      }
+      options.onRejection({stage:'schema',issues})
+    }
+    throw new Error('ACTION_COACH_OUTPUT_INVALID')
+  }
   return output as ActionCoachTurn
 }
 

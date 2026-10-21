@@ -68,7 +68,7 @@ const callCost=(uncached:number,cached:number,output:number,pricing:ModelPricing
 async function captureSyntheticOutput(userId:string,requestId:string,raw:string,staged:Staged,phase:'rejected_synthetic_business_output_captured'|'synthetic_business_output_captured'|'partial_synthetic_business_output_captured'){
   if(!config.syntheticModelDiagnosticsEnabled||!raw)return
   try{
-    const eligible=config.syntheticDiagnosticUserIds.includes(userId)&&(await pool.query('SELECT 1 FROM "user" WHERE id=$1 AND email LIKE $2 AND name LIKE $3',[userId,'six-%@example.invalid','SYNTHETIC GRILLING %'])).rowCount===1
+    const eligible=config.syntheticDiagnosticUserIds.includes(userId)&&(await pool.query('SELECT 1 FROM "user" WHERE id=$1 AND ((email LIKE $2 AND name LIKE $3) OR (email LIKE $4 AND name LIKE $5))',[userId,'six-%@example.invalid','SYNTHETIC GRILLING %','lifeos-%@example.invalid','LifeOS synthetic adult %'])).rowCount===1
     if(!eligible||!/^[0-9a-f-]{36}$/.test(requestId))return
     const body=raw.replace(/sk-[A-Za-z0-9_.-]+|Bearer\s+[^\s"']+/g,'<REDACTED>')
       .replace(/(["'](?:[A-Za-z0-9_]*?(?:api[_-]?key|token|password|secret|authorization|cookie))["']\s*:\s*["'])[^"']*(["'])/gi,'$1<REDACTED>$2')
@@ -743,7 +743,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   async function validateOutputInner(raw:string):Promise<ActionCoachTurn>{
     let result:ActionCoachTurn
-    try{result=parseActionCoachTurn(raw,{allowEmptyMaterialExplanation:resumePortfolioMode,allowEmptyReplyWithCompleteDraft:true,onNormalization:kind=>staged.audit.push({phase:'coach_output_normalized',kind,providerCalls:0})})}catch{
+    try{result=parseActionCoachTurn(raw,{allowEmptyMaterialExplanation:resumePortfolioMode,allowEmptyReplyWithCompleteDraft:true,onNormalization:kind=>staged.audit.push({phase:'coach_output_normalized',kind,providerCalls:0}),onRejection:diagnostic=>staged.audit.push({phase:'coach_output_rejected',...diagnostic,providerCalls:0})})}catch{
       await captureSyntheticOutput(run.user_id,run.request_id,raw,staged,'rejected_synthetic_business_output_captured')
       throw new HttpError(502,'COACH_OUTPUT_INVALID')
     }
@@ -862,8 +862,14 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(requestedGuide&&!result.citations?.length)throw new HttpError(400,'COACH_CITATION_INVALID')
     if(/"(?:readiness|missingRequired|materialFactIds|materialEvidence)"\s*:/.test(raw))staged.audit.push({phase:'provider_material_metadata_ignored',providerCalls:0})
     if(explicitMaterial?.event?.action&&'draft'in explicitMaterial.event.action&&result.event?.action&&'draft'in result.event.action)result.event.action.draft=explicitMaterial.event.action.draft
-    if((readOnlyQuestion||instructionOnlySummary)&&(result.event||result.experienceCandidate||result.weeklyPlan||result.growthUpdates?.length))throw new HttpError(502,'COACH_OUTPUT_INVALID')
-    if((currentConversationOnly(current.content)||boundaryNeedsClarification)&&(result.experienceCandidate||result.event||result.weeklyPlan||result.citations?.length))throw new HttpError(502,'COACH_OUTPUT_INVALID')
+    if((readOnlyQuestion||instructionOnlySummary)&&(result.event||result.experienceCandidate||result.weeklyPlan||result.growthUpdates?.length)){
+      staged.audit.push({phase:'coach_output_rejected',stage:'read_only_scope',providerCalls:0})
+      throw new HttpError(502,'COACH_OUTPUT_INVALID')
+    }
+    if((currentConversationOnly(current.content)||boundaryNeedsClarification)&&(result.experienceCandidate||result.event||result.weeklyPlan||result.citations?.length)){
+      staged.audit.push({phase:'coach_output_rejected',stage:'conversation_scope',providerCalls:0})
+      throw new HttpError(502,'COACH_OUTPUT_INVALID')
+    }
     if(!boundedReplyAccepts(result.reply,boundedReply))throw new HttpError(502,'BOUNDED_REPLY_INVALID')
     if(singleQuestionReply){
       const question=openingQuestionDraft(JSON.stringify({reply:result.reply}))
@@ -1002,7 +1008,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(!boundaryNeedsClarification&&!hasMaterial&&requestedMaterial&&(directDraft||coachMaterialPresentation(result.reply)||result.reply.trim()==='按你提供的内容，整理如下：'))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
     staged.usedKnowledgeRefs=undefined
     const narrativeChars=result.reply.length
-    try{result.reply=renderCoachReply(result)}catch{throw new HttpError(502,'COACH_OUTPUT_INVALID')}
+    try{result.reply=renderCoachReply(result)}catch{
+      staged.audit.push({phase:'coach_output_rejected',stage:'material_render',providerCalls:0})
+      throw new HttpError(502,'COACH_OUTPUT_INVALID')
+    }
     if(result.weeklyPlan&&[result.weeklyPlan.budgetRef,...result.weeklyPlan.basis].some(ref=>'id'in ref&&recommendationBlockedIds.has(ref.id)))throw new HttpError(400,'RECOMMENDATION_CONTROL_NOT_APPLIED')
     if(result.weeklyPlan){
       // P6 closeout C2/D: a plan the user did NOT ask for is a spurious model

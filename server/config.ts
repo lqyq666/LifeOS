@@ -20,6 +20,8 @@ const thinkingBudgetRaw=process.env.LIFEOS_QWEN_THINKING_BUDGET??file.LIFEOS_QWE
 if(!/^\d+$/.test(thinkingBudgetRaw)||Number(thinkingBudgetRaw)>4096)throw new Error('LIFEOS_QWEN_THINKING_BUDGET must be an integer from 0 to 4096')
 const qwenThinkingBudget=Number(thinkingBudgetRaw)
 if(qwenThinkingBudget&&!['qwen3.8-flash','qwen3.8-max','qwen3.7-plus'].includes(defaultModelId))throw new Error('Bounded Qwen thinking requires a reviewed Qwen model')
+const syntheticDiagnosticUserIds=(env.LIFEOS_SYNTHETIC_DIAGNOSTIC_USERS??'').split(',').filter(Boolean)
+const syntheticModelDiagnosticsEnabled=!production&&['127.0.0.1','localhost','::1'].includes(env.LIFEOS_HOST??'127.0.0.1')&&env.LIFEOS_SYNTHETIC_MODEL_DIAGNOSTICS==='true'&&syntheticDiagnosticUserIds.length>0
 const reasoningProvider='bailian'
 const reasoningId='deepseek-v4.1-flash'
 const tierConfig=(tier:'REASONING'|'DEEP')=>{
@@ -48,8 +50,8 @@ export const config = {
   modelPricingJson:process.env.LIFEOS_MODEL_PRICING_JSON??env.LIFEOS_MODEL_PRICING_JSON??'{}',
   providerBudgetEnabled: env.LIFEOS_PROVIDER_BUDGET_ENABLED==='true'||(production&&env.LIFEOS_PROVIDER_BUDGET_ENABLED!=='false'),
   providerBudgetId: env.LIFEOS_PROVIDER_BUDGET_ID??'production',
-  syntheticModelDiagnosticsEnabled: !production&&['127.0.0.1','localhost','::1'].includes(env.LIFEOS_HOST??'127.0.0.1')&&env.LIFEOS_SYNTHETIC_MODEL_DIAGNOSTICS==='true',
-  syntheticDiagnosticUserIds: (env.LIFEOS_SYNTHETIC_DIAGNOSTIC_USERS??'').split(',').filter(Boolean),
+  syntheticModelDiagnosticsEnabled,
+  syntheticDiagnosticUserIds,
   entitlementsEnabled: env.LIFEOS_ENTITLEMENTS_ENABLED==='true'||(production&&env.LIFEOS_ENTITLEMENTS_ENABLED!=='false'),
   signupEnabled: env.LIFEOS_SIGNUP_ENABLED === 'true' || (!production&&env.LIFEOS_SIGNUP_ENABLED!=='false'),
   mail: {
