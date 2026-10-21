@@ -644,6 +644,43 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
       await store.finishRun(feedback.run,feedback.staged,updated.text,updated.usage,new AbortController().signal)
       await pool.query('DELETE FROM growth_items WHERE user_id=$1 AND conversation_id=$2',[user,conversation])
     })
+    await t.test('context-only judgment updates retain memory without opening an unrelated process workspace',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC context-only judgment'})
+      const text='接着升学和就业的取舍。家里希望我走稳定路线，但这是外部期待；我自己更在意留在目前城市，而且每周最多四小时探索。请更新判断，不要替我选。'
+      const turn=await prepare(text,conversation)
+      const fixture=JSON.parse(readFileSync('tests/fixtures/coach-spurious-judgment-event.json','utf8'))
+      const {event:invalidEvent,...valid}=fixture
+      assert.throws(()=>parseActionCoachTurn(JSON.stringify(fixture)),'saved fabricated nodes remain invalid')
+      outputs.push(valid)
+      const result=await engine(turn.input)
+      assert.equal(requests.at(-1).response_format.json_schema.schema.properties.event,undefined)
+      assert.ok(requests.at(-1).response_format.json_schema.schema.properties.growthUpdates)
+      assert.equal(turn.staged.coach,undefined)
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      assert.ok((await growthContext(user,conversation)).some(item=>item.text==='我自己更在意留在目前城市'))
+      const injected=await prepare(text,conversation)
+      outputs.push({...valid,event:{target:{operation:'create',title:'凭空过程',source:{messageId:injected.run.source_message_id,quote:'家里希望我走稳定路线'}}}})
+      await assert.rejects(engine(injected.input),{code:'COACH_OUTPUT_INVALID'})
+      await store.terminateRun(user,injected.run.request_id,'failed','COACH_OUTPUT_INVALID')
+      const performed=await prepare('接着作品集的事：导师回复说手机打不开链接，但没有评价内容。请更新判断。',conversation)
+      outputs.push({reply:'导师已回复手机打不开链接，内容评价仍未知，不能推断已阅读或不采用。'})
+      await engine(performed.input)
+      assert.ok(requests.at(-1).response_format.json_schema.schema.properties.event,'real participant feedback keeps process updates')
+      await store.terminateRun(user,performed.run.request_id,'cancelled','SYNTHETIC_COMPLETE')
+      const reviewed=await prepare('导师说作品集结构太散、案例证据不足。请更新判断，不要替我选。',conversation)
+      const quote='导师说作品集结构太散、案例证据不足',source={messageId:reviewed.run.source_message_id,quote}
+      const event={target:{operation:'create',title:'导师作品集评价',source},nodes:[{kind:'fact',source}]}
+      assert.throws(()=>parseActionCoachTurn(JSON.stringify({reply:'保留具体评价。',event:{...event,nodes:[{kind:'fact',text:quote}]}})))
+      outputs.push({reply:'导师指出结构太散、案例证据不足，这是一条具体评价，尚不能据此判断方向适配。',event})
+      const evaluated=await engine(reviewed.input)
+      assert.ok(requests.at(-1).response_format.json_schema.schema.properties.event,'ordinary substantive evaluation retains event mutation')
+      await store.finishRun(reviewed.run,reviewed.staged,evaluated.text,evaluated.usage,new AbortController().signal)
+      const {coachEventView}=await import('../../server/action-coach-events.ts')
+      const persisted=await coachEventView(user,conversation)
+      assert.ok(persisted?.nodes.some(node=>node.kind==='fact'&&node.source?.messageId===reviewed.run.source_message_id&&node.source.quote===quote))
+
+      await pool.query('DELETE FROM growth_items WHERE user_id=$1 AND conversation_id=$2',[user,conversation])
+    })
     await t.test('a repaired displayed question and its stored unknown stay identical',async()=>{
       const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC question repair identity'})
       const text='昨晚我和室友打球后很放松。先问一个问题。'

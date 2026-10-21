@@ -609,11 +609,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const planBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
   const requestedGuide=clauseCatalogue.some(clause=>!clause.quoted&&!clause.conditional&&!clause.attributedToOther&&assistantRequestClause(clause.text)&&/(?:用|使用|按|参考|依据).{0,80}(?:攻略|指南|方法)/.test(clause.text))?knowledge.find(card=>card.guide&&methodIntent.query.includes(card.title)):undefined
   const allowedPlanScopes=mentionedDirectionScopes([current.content,...growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>item.text)].join('\n'))
-  // A requested one-sentence understanding can include a new personal context
+  // A requested understanding can include a new personal context
   // (e.g. today's energy) without mutating the event workspace. Keep the fact
   // lane; actual behaviour, feedback, corrections and answered unknowns retain
   // event mutation through the existing source predicates.
-  const summaryEventReadOnly=requestedScope.sentenceLimit===1&&methodIntent.decision==='NONE'&&!materialIntent&&!planIntent&&!immediateAnsweredUnknown
+  const summaryEventReadOnly=((requestedScope.sentenceLimit===1&&methodIntent.decision==='NONE')||(requestedScope.judgmentUpdate&&!requestedScope.actionRequested))&&!materialIntent&&!planIntent&&!immediateAnsweredUnknown
     &&!/(?:更正|改口|说错|刚才不对)/.test(current.content)
     &&!reportedTaskOutcomeClauses(current.content,true).length&&!negativePersonalFactClauses(current.content).length&&!resourceBlockedPersonalFactClauses(current.content).length
     &&!selectStructuralCandidate(current.content,clauseCatalogue,new Date(current.created_at).toISOString())
@@ -866,6 +866,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(explicitMaterial?.event?.action&&'draft'in explicitMaterial.event.action&&result.event?.action&&'draft'in result.event.action)result.event.action.draft=explicitMaterial.event.action.draft
     if((readOnlyQuestion||instructionOnlySummary)&&(result.event||result.experienceCandidate||result.weeklyPlan||result.growthUpdates?.length)){
       staged.audit.push({phase:'coach_output_rejected',stage:'read_only_scope',providerCalls:0})
+      throw new HttpError(502,'COACH_OUTPUT_INVALID')
+    }
+    if(summaryEventReadOnly&&result.event){
+      staged.audit.push({phase:'coach_output_rejected',stage:'summary_event_scope',providerCalls:0})
       throw new HttpError(502,'COACH_OUTPUT_INVALID')
     }
     if((currentConversationOnly(current.content)||boundaryNeedsClarification)&&(result.experienceCandidate||result.event||result.weeklyPlan||result.citations?.length)){

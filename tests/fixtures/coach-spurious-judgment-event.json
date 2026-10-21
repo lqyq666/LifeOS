@@ -1,0 +1,69 @@
+{
+  "reply": "暂定理解：你更在意留在目前城市，且每周最多四小时探索；家里希望走稳定路线是外部期待。关键未知：升学与就业各自如何影响“留在目前城市”这一偏好，以及四小时是否足以支撑该方向的验证。",
+  "growthUpdates": [
+    {
+      "target": {
+        "operation": "create"
+      },
+      "assertion": "user_reported",
+      "kind": "preference",
+      "source": {
+        "clauseId": "c3"
+      }
+    },
+    {
+      "target": {
+        "operation": "create"
+      },
+      "assertion": "user_reported",
+      "kind": "constraint",
+      "source": {
+        "clauseId": "c4"
+      }
+    }
+  ],
+  "event": {
+    "target": {
+      "operation": "create"
+    },
+    "matter": "升学和就业的取舍",
+    "nodes": [
+      {
+        "nodeId": "n1",
+        "action": "add",
+        "kind": "fact",
+        "text": "家里希望我走稳定路线",
+        "source": {
+          "clauseId": "c1"
+        }
+      },
+      {
+        "nodeId": "n2",
+        "action": "add",
+        "kind": "user_interpretation",
+        "text": "但这是外部期待",
+        "source": {
+          "clauseId": "c2"
+        }
+      },
+      {
+        "nodeId": "n3",
+        "action": "add",
+        "kind": "preference",
+        "text": "我自己更在意留在目前城市",
+        "source": {
+          "clauseId": "c3"
+        }
+      },
+      {
+        "nodeId": "n4",
+        "action": "add",
+        "kind": "constraint",
+        "text": "而且每周最多四小时探索",
+        "source": {
+          "clauseId": "c4"
+        }
+      }
+    ]
+  }
+}

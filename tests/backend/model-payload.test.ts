@@ -268,7 +268,7 @@ test('the existing DeepSeek default candidate carries the same full schema witho
 
 test('Flash stops only raw protocol runoff after JSON, never a quoted material literal',()=>{
  const wire=configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default') as any
- assert.deepEqual(wire.stop,['\n</result>','\n<tool_call>'])
+ assert.deepEqual(wire.stop,['\n<'])
  const transport=readFileSync('tests/fixtures/coach-protocol-tail.txt','utf8')
  const boundary=Math.min(...wire.stop.map((stop:string)=>transport.indexOf(stop)).filter((at:number)=>at>=0))
  const frame=transport.slice(0,boundary)
