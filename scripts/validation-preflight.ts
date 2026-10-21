@@ -45,7 +45,8 @@ const chromeDriver=Boolean(process.env.PLAYWRIGHT_MODULE&&existsSync(process.env
   }catch{return existsSync('C:/Users/LQY/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright')}
 })()
 let postgresConfig=false
-try{postgresConfig=Boolean((await import('../server/config.ts')).config.databaseUrl)}catch{postgresConfig=false}
+let serverConfig:Awaited<typeof import('../server/config.ts')>['config']|null=null
+try{serverConfig=(await import('../server/config.ts')).config;postgresConfig=Boolean(serverConfig.databaseUrl)}catch{serverConfig=null;postgresConfig=false}
 const sourceFreezeEntry=existsSync(resolve(root,'scripts/coach-source-freeze.ts'))&&existsSync(resolve(root,'evidence/v1.3-action-coach/freeze'))
 
 // Work-order companion files (names only).
@@ -54,7 +55,7 @@ for(const name of ['GLM_NEXT_EXECUTION_ORDER.md','AUDIT_EVIDENCE.md'])if(!exists
 // Credential PRESENCE only (no values). Approved process-env injection works
 // naturally; absence is a config gap, not a platform permission denial.
 const credentialPresent=(name:string)=>Boolean(process.env[name]&&String(process.env[name]).trim())
-const bailianKey=credentialPresent('DASHSCOPE_API_KEY')
+const bailianKey=credentialPresent('DASHSCOPE_API_KEY')||Boolean(serverConfig?.modelTiers.default.provider==='bailian'&&serverConfig.modelTiers.default.apiKey.trim())
 const cozePat=credentialPresent('LIFEOS_COZE_PAT')
 const cozeWorkflow=credentialPresent('LIFEOS_COZE_WORKFLOW_ID')
 const cozeEnabled=process.env.LIFEOS_COZE_KNOWLEDGE==='true'
