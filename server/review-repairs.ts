@@ -141,6 +141,16 @@ function repairReportedRepeatFeeling(reply:string,userText:string,priorUserTexts
     return found
   }
   const reports=sources.map(text=>({text,feelings:reported(text)}))
+  const canonicalEpisodeMarker=(marker:string)=>{
+    if(marker==='昨晚')return '昨天'
+    const ordinal=/^第([一二三四五六七八九十\d]+)次$/.exec(marker)?.[1]
+    if(!ordinal)return marker
+    if(/^\d+$/.test(ordinal))return `第${Number(ordinal)}次`
+    const digits:Record<string,number>={一:1,二:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9}
+    const ten=ordinal.indexOf('十')
+    const value=ten<0?(digits[ordinal]??0):(ten===0?10:(digits[ordinal.slice(0,ten)]??1)*10+(digits[ordinal.slice(ten+1)]??0))
+    return value?`第${value}次`:marker
+  }
   const episodeEvidenceFor=(source:string,pattern:RegExp)=>{
     const clauses=scanUserClauses(source).filter(clause=>ownedObservationClause(clause)&&!unassertedObservation.test(clause.text))
     const keys=new Set<string>()
@@ -154,7 +164,7 @@ function repairReportedRepeatFeeling(reply:string,userText:string,priorUserTexts
         const markers=[...event.matchAll(/第[一二三四五六七八九十\d]+次|一周后|两周后|隔天|第二天|第三天|昨晚|昨天|前天|今天|明天|上周|本周|\d{1,2}月\d{1,2}日/g)].map(match=>match[0])
         const action=/(?:打|练|做|参加|尝试|联系|沟通|完成|申请|提交|面试|投递|复习|学习|问|聊|见|合作|体验)/.test(event)
         const countedRepeat=/(?:又|再).{0,16}(?:一次|一遍|一场|一回|一轮)|第二次.{0,12}(?:打|练|做|参加|尝试|联系|沟通|完成|申请|提交|面试|投递|复习|学习|问|聊|见|合作|体验)/.test(event)
-        if(action)markers.forEach(marker=>keys.add(marker))
+        if(action)markers.forEach(marker=>keys.add(canonicalEpisodeMarker(marker)))
         if(countedRepeat&&action)explicitRepeatAction=true
       }
     }
