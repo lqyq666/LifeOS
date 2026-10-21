@@ -47,6 +47,12 @@ test('a refusal about another topic cannot resolve the conflicted unknown',()=>{
   assert.deepEqual(result.delta.declineUnknowns,[])
 })
 
+test('a generic shared word does not bind a refusal to another unknown item',()=>{
+  const result=normalizeUnknownDispositionConflict({resolveUnknowns:['life'],declineUnknowns:['life']},'家庭情况我不想说。',{life:'你最近的生活情况如何？'})
+  assert.deepEqual(result.delta.resolveUnknowns,[])
+  assert.deepEqual(result.delta.declineUnknowns,[])
+})
+
 test('a refusal explicitly about the conflicted item remains a decline',()=>{
   const result=normalizeUnknownDispositionConflict({resolveUnknowns:['income'],declineUnknowns:['income']},'实习收入我不想说。',{income:'你实习收入是多少？'})
   assert.deepEqual(result.delta.resolveUnknowns,[])
