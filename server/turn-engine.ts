@@ -14,7 +14,7 @@ import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
 import {classifyProviderFailure,providerError,type ProviderFailureCategory} from './provider-errors.ts'
-import { parseActionCoachTurn, completeCoachJsonFrame, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
+import { parseActionCoachTurn, finalCoachJsonText, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
 import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation,requestedBlankJobWorksheet,effectiveMaterialRequest,unchangedProposedAction, type CoachEvent } from './action-coach-events.ts'
 import { estimateTokens } from './context.ts'
 import { loadSnapshot, stageCoachBackground } from './memory.ts'
@@ -126,7 +126,6 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
   const frameAbort=new AbortController()
   const deadlineSignal=AbortSignal.timeout(60000)
   const providerSignal=AbortSignal.any([signal,frameAbort.signal,deadlineSignal])
-  let completeFrame:string|null=null,hostFrameTerminated=false,frameTimer:ReturnType<typeof setTimeout>|undefined
   try{
     const messages=providerTurnMessages(userPrompt,runtime.model,systemPrompt)
     const envelope=JSON.parse(userPrompt),authorized=envelope.authorizedContext??envelope,currentMessageId=authorized.currentUserMessage.id
@@ -158,13 +157,6 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
       signal.throwIfAborted()
       if(event.type==='text_delta'){
         record.firstRawDeltaMs??=Math.max(0,Math.round(performance.now()-startedMonotonicMs));streamedText+=event.delta
-        completeFrame??=completeCoachJsonFrame(streamedText)
-        if(completeFrame){
-          // The first complete structured frame is the business payload. Keep
-          // consuming transport tail through EOS when available so usage stays
-          // authoritative; the grace timer still bounds streams that stall.
-          if(!frameTimer)frameTimer=setTimeout(()=>{if(!providerSignal.aborted){hostFrameTerminated=true;frameAbort.abort()}},1500)
-        }
       }
       // Catalogue-backed material is rendered by the host after validation;
       // model prose cannot be its first delivered content or a completion receipt.
@@ -195,10 +187,9 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     }
     ;(record as {earlyDraftKind?:string}).earlyDraftKind=earlyDraftKind
     const message=await source.result()
-    if(frameTimer)clearTimeout(frameTimer)
     signal.throwIfAborted()
     if(deadlineSignal.aborted)throw new HttpError(504,'MODEL_DEADLINE_EXCEEDED')
-    if(providerSignal.aborted&&!hostFrameTerminated)throw new HttpError(504,'MODEL_DEADLINE_EXCEEDED')
+    if(providerSignal.aborted)throw new HttpError(504,'MODEL_DEADLINE_EXCEEDED')
     record.providerResponseId=typeof message.responseId==='string'&&message.responseId?message.responseId:null
     // pi-ai exposes a provider responseModel only when it differs from the requested
     // alias. Null is unknown, not proof that a concrete served model matched.
@@ -206,20 +197,20 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     const usage=message.usage as any
     const uncached=tokenValue(usage?.input),cacheWrite=tokenValue(usage?.cacheWrite)
     const emptyUsage=[usage?.input,usage?.cacheWrite,usage?.output,usage?.cacheRead].every(value=>!value)
-    if(!hostFrameTerminated&&!emptyUsage){record.uncachedInputTokens=uncached;record.cacheWriteInputTokens=cacheWrite;record.outputTokens=tokenValue(usage?.output);record.cachedInputTokens=tokenValue(usage?.cacheRead)}
+    if(!emptyUsage){record.uncachedInputTokens=uncached;record.cacheWriteInputTokens=cacheWrite;record.outputTokens=tokenValue(usage?.output);record.cachedInputTokens=tokenValue(usage?.cacheRead)}
     const usageValues=[record.uncachedInputTokens,record.cacheWriteInputTokens,record.outputTokens,record.cachedInputTokens]
     record.usageCompleteness=usageValues.every(value=>value!==null)?'complete':usageValues.some(value=>value!==null)?'partial':'unavailable'
     finishCall('completed')
     staged.modelUsage=usageSummary(calls,totalContextEstimate,retrievedMemoryCount,escalated,escalationReason,false,purpose==='repair'?'coach_contract_repair':null)
     signal.throwIfAborted()
-    if(!hostFrameTerminated&&(message.stopReason==='error'||message.stopReason==='aborted')){
+    if(message.stopReason==='error'||message.stopReason==='aborted'){
       const providerMessage=message.errorMessage||`Provider finish_reason ${message.stopReason}`
       record.failureCategory=classifyProviderFailure(providerMessage)
       throw providerError(providerMessage,record.firstRawDeltaMs!==null)
     }
     const totalInput=uncached!==null&&cacheWrite!==null&&record.cachedInputTokens!==null?uncached+cacheWrite+record.cachedInputTokens:null
-    const raw=completeFrame??assistantText(message)
-    if(hostFrameTerminated)staged.audit.push({phase:'host_structured_frame_terminated',callId,requestId,frameChars:raw.length,transportChars:streamedText.length,providerStreamCompleted:false,usageCompleteness:'unavailable',automaticRetries:0,validation:'existing_turn_source_and_transaction_guards_still_required'})
+    const received=assistantText(message),raw=finalCoachJsonText(received)
+    if(raw!==received)staged.audit.push({phase:'coach_output_normalized',kind:'explicit_final_json_frame',providerCalls:0})
     staged.audit.push({phase:'provider_stream_assembly',callId,requestId,streamChars:streamedText.trim().length,resultChars:raw.length,streamMatchesResult:streamedText.trim()===raw,streamSha256:createHash('sha256').update(streamedText.trim()).digest('hex'),resultSha256:createHash('sha256').update(raw).digest('hex'),providerCalls:0})
     await captureSyntheticOutput(userId,requestId,streamedText,staged,'synthetic_transport_output_captured')
     // Explicit local acceptance instrumentation only. The default production
@@ -245,7 +236,6 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     staged.audit.push({phase:'model_call_failed',call:callIndex+1,callId,requestId,providerResponseId:record.providerResponseId,providerResponseModel:record.providerResponseModel,configSignature,startedAt:record.startedAt,finishedAt:record.finishedAt,latencyMs:record.latencyMs,firstRawDeltaMs:record.firstRawDeltaMs,firstQuestionDraftMs:record.firstQuestionDraftMs,usageCompleteness:record.usageCompleteness,purpose,tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,outputTokenLimit:maxOutputTokens,outputPath,schemaName:schemaName??null,uncachedInputTokens:record.uncachedInputTokens??'unknown',uncachedInputIncludesCacheWrite:false,cacheWriteInputTokens:record.cacheWriteInputTokens??'unknown',cachedInputTokens:record.cachedInputTokens??'unknown',outputTokens:record.outputTokens??'unknown',estimatedCostCny:record.usageCompleteness==='complete'?callCost(record.uncachedInputTokens!+record.cacheWriteInputTokens!,record.cachedInputTokens!,record.outputTokens!,record.pricing):'unknown',code,failureCategory:record.failureCategory})
     throw error instanceof HttpError?error:providerError(error instanceof Error?error.message:'Provider request failed')
   }finally{
-    if(frameTimer)clearTimeout(frameTimer)
     frameAbort.abort()
     const cost=record.usageCompleteness==='complete'?callCost(record.uncachedInputTokens!+record.cacheWriteInputTokens!,record.cachedInputTokens!,record.outputTokens!,record.pricing):'unknown'
     // Preserve both independent receipts even if either settlement fails.

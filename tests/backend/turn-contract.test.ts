@@ -178,9 +178,10 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
         setTimeout(()=>res.destroy(),25)
         return
       }
-      const {__syntheticFinishReason='stop',...businessOutput}=output as Record<string,unknown>
-      res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:JSON.stringify(businessOutput)},finish_reason:null}]})+'\n\n')
-      res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:__syntheticFinishReason}],usage:{prompt_tokens:200,completion_tokens:80,total_tokens:280,prompt_tokens_details:{cached_tokens:20}}})+'\n\ndata: [DONE]\n\n')
+      const {__syntheticFinishReason='stop',__syntheticTailDelayMs=0,__syntheticRaw,...businessOutput}=output as Record<string,unknown>
+      res.write('data: '+JSON.stringify({...base,choices:[{index:0,delta:{role:'assistant',content:typeof __syntheticRaw==='string'?__syntheticRaw:JSON.stringify(businessOutput)},finish_reason:null}]})+'\n\n')
+      const finish=()=>{if(!res.destroyed)res.end('data: '+JSON.stringify({...base,choices:[{index:0,delta:{},finish_reason:__syntheticFinishReason}],usage:{prompt_tokens:200,completion_tokens:80,total_tokens:280,prompt_tokens_details:{cached_tokens:20}}})+'\n\ndata: [DONE]\n\n')}
+      if(Number(__syntheticTailDelayMs)>0)setTimeout(finish,Number(__syntheticTailDelayMs));else finish()
     })
   })
   await new Promise<void>(resolve=>fake.listen(0,'127.0.0.1',resolve))
@@ -322,6 +323,29 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
       assert.equal((turn.staged.audit.find((row:any)=>row.phase==='model_call_failed') as any).failureCategory,'PROVIDER_STOP_REASON')
       assert.equal(turn.staged.coach,undefined)
       await store.terminateRun(user,turn.run.request_id,'failed','MODEL_OUTPUT_TRUNCATED')
+    })
+    await t.test('a complete JSON prefix never cuts off a delayed authoritative usage receipt',async()=>{
+      const turn=await prepare('请简短解释递归。'),before=requests.length
+      outputs.push({reply:'递归处理更小的同类问题，并在边界条件停止。',__syntheticTailDelayMs:2100})
+      const result=await engine(turn.input)
+      assert.equal(requests.length-before,1)
+      assert.equal((result.usage as any).calls[0].usageCompleteness,'complete')
+      assert.equal((result.usage as any).calls[0].outputTokens,80)
+      assert.ok(!turn.staged.audit.some((a:any)=>a.phase==='host_structured_frame_terminated'))
+      await store.terminateRun(user,turn.run.request_id,'cancelled','SYNTHETIC_COMPLETE')
+    })
+    await t.test('only the explicit final JSON after a delimited draft can drive the committed turn',async()=>{
+      const turn=await prepare('请简短解释递归。'),before=requests.length,frames:any[]=[]
+      turn.input.emit=event=>frames.push(event)
+      outputs.push({__syntheticRaw:JSON.stringify({reply:'中间草稿不可保存。',event:{invented:true}})+'\n</thinking>\n'+JSON.stringify({reply:'递归处理更小的同类问题，并在边界条件停止。'}),__syntheticTailDelayMs:2100})
+      const result=await engine(turn.input)
+      assert.equal(requests.length-before,1)
+      assert.equal(result.text,'递归处理更小的同类问题，并在边界条件停止。')
+      assert.equal((result.usage as any).calls[0].usageCompleteness,'complete')
+      assert.equal(turn.staged.coach,undefined)
+      assert.ok(turn.staged.audit.some((a:any)=>a.phase==='coach_output_normalized'&&a.kind==='explicit_final_json_frame'))
+      if(frames.some(f=>f.type==='draft'&&f.text==='中间草稿不可保存。'))assert.ok(frames.some(f=>f.type==='draft_discarded'))
+      await store.terminateRun(user,turn.run.request_id,'cancelled','SYNTHETIC_COMPLETE')
     })
     await t.test('an explicit comparison cannot commit a question-only replacement for requested options',async()=>{
       const text='请比较两个低成本的自我观察办法，只比较，不安排任务。'

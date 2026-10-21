@@ -123,9 +123,22 @@ export function completeCoachJsonFrame(raw:string):string|null {
   return null
 }
 
+// Some captured text streams contain a JSON draft, an explicit deliberation
+// terminator, then the final JSON. Only that complete final object is business
+// output. Do not merge draft fields, scan arbitrary prose, or finish a prefix.
+export function finalCoachJsonText(raw:string):string {
+  const text=raw.trim(),first=completeCoachJsonFrame(text)
+  const rest=first?text.slice(first.length).trimStart():''
+  if(!rest.startsWith('</thinking>'))return text
+  const final=rest.slice('</thinking>'.length).trim()
+  return completeCoachJsonFrame(final)===final?final:text
+}
+
 export type CoachOutputRejection={stage:'json'|'draft_reference'|'schema';issues?:{keyword:string;schemaPath:string}[]}
 export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExplanation?:boolean;allowEmptyReplyWithCompleteDraft?:boolean;onNormalization?:(kind:string)=>void;onRejection?:(diagnostic:CoachOutputRejection)=>void}={}):ActionCoachTurn {
-  const text=raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')
+  const unframed=raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')
+  const text=finalCoachJsonText(unframed)
+  if(text!==unframed)options.onNormalization?.('explicit_final_json_frame')
   let output:unknown
   try{output=JSON.parse(text)}catch(error){
     // A captured complete reply-only frame omitted escaping around a short

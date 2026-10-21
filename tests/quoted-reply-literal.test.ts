@@ -23,3 +23,18 @@ test('quote normalization never reconstructs partial objects, extra fields, oper
  const valid={reply:'原样保留“中文引号”、"转义引号"与路径。'}
  assert.deepEqual(parseActionCoachTurn(JSON.stringify(valid)),valid)
 })
+
+test('explicit final frame never merges an intermediate draft or chooses an ambiguous trailing object',()=>{
+ const draft=JSON.stringify({reply:'内部草稿',event:{untrusted:true}}),final=JSON.stringify({reply:'最终回复'})
+ const notices:string[]=[]
+ assert.deepEqual(parseActionCoachTurn(draft+'\n</thinking>\n'+final,{onNormalization:n=>notices.push(n)}),{reply:'最终回复'})
+ assert.deepEqual(notices,['explicit_final_json_frame'])
+ assert.deepEqual(parseActionCoachTurn(JSON.stringify({reply:'字面值 </thinking> 不改变来源。'})),{reply:'字面值 </thinking> 不改变来源。'})
+ for(const raw of [draft+'\n'+final,draft+'\n</thinking>\n'+final+'\n'+final,draft+'\n</thinking>\n'+final.slice(0,-1),'任意前言\n</thinking>\n'+final,draft+'\n</thinking>\n[]',draft+'\n</thinking>\n'+JSON.stringify({reply:'坏状态',event:{untrusted:true}})])assert.throws(()=>parseActionCoachTurn(raw))
+})
+
+test('captured interrupted final frame remains rejected instead of committing its complete draft',()=>{
+ const raw=readFileSync(new URL('./fixtures/coach-truncated-final-frame.txt',import.meta.url),'utf8')
+ assert.ok(completeCoachJsonFrame(raw),'the old host had seen a complete prefix')
+ assert.throws(()=>parseActionCoachTurn(raw),'the interrupted final object cannot be reconstructed or replaced by the prefix')
+})
