@@ -26,7 +26,7 @@ test('a conflicting unknown disposition keeps the state conservative',()=>{
 
 test('a negated or attributed refusal does not turn an unknown into a decline',()=>{
   const conflict={resolveUnknowns:['a'],declineUnknowns:['a']}
-  for(const text of ['我不是不想说，只是记不清了。','同学说“不想说”，我记不清。']){
+  for(const text of ['我不是不想说，只是记不清了。','我没有不想说，只是记不清了。','同学说“不想说”，我记不清。']){
     const result=normalizeUnknownDispositionConflict(conflict,text)
     assert.deepEqual(result.delta.resolveUnknowns,[])
     assert.deepEqual(result.delta.declineUnknowns,[])
@@ -37,4 +37,24 @@ test('one refusal cannot be applied to several unrelated unknown items',()=>{
   const result=normalizeUnknownDispositionConflict({resolveUnknowns:['a','b'],declineUnknowns:['a','b']},'我不想说家庭情况，另一个细节也记不清了。')
   assert.deepEqual(result.delta.resolveUnknowns,[])
   assert.deepEqual(result.delta.declineUnknowns,[])
+})
+
+test('a refusal about another topic cannot resolve the conflicted unknown',()=>{
+  const delta={resolveUnknowns:['income'],declineUnknowns:['income']}
+  const questions={income:'你实习收入是多少？'}
+  const result=normalizeUnknownDispositionConflict(delta,'家庭情况我不想说，实习收入我记不清。',questions)
+  assert.deepEqual(result.delta.resolveUnknowns,[])
+  assert.deepEqual(result.delta.declineUnknowns,[])
+})
+
+test('a refusal explicitly about the conflicted item remains a decline',()=>{
+  const result=normalizeUnknownDispositionConflict({resolveUnknowns:['income'],declineUnknowns:['income']},'实习收入我不想说。',{income:'你实习收入是多少？'})
+  assert.deepEqual(result.delta.resolveUnknowns,[])
+  assert.deepEqual(result.delta.declineUnknowns,['income'])
+})
+
+test('a refusal for one item does not spread to a different conflicting unknown',()=>{
+  const result=normalizeUnknownDispositionConflict({resolveUnknowns:['income'],declineUnknowns:['income','family']},'家庭情况我不想说，实习收入记不清。',{income:'你实习收入是多少？',family:'你家庭情况如何？'})
+  assert.deepEqual(result.delta.resolveUnknowns,[])
+  assert.deepEqual(result.delta.declineUnknowns,['family'])
 })

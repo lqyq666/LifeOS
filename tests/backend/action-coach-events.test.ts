@@ -54,6 +54,25 @@ test('event workspace and one authoritative action commit with real PostgreSQL s
         await store.terminateRun(user,run.request_id,'cancelled','TEST_CLEANUP')
       }
     })
+    await t.test('a refusal is matched to the unknown item rather than a different topic',async()=>{
+      const run=(await store.startRun(user,conversation,randomUUID(),'家庭情况我不想说，实习收入记不清。')).run
+      const target:EventDelta['target']={operation:'continue',eventId,expectedRevision:eventRevision}
+      const delta:EventDelta={target,resolveUnknowns:[unknownNodeId],declineUnknowns:[unknownNodeId],nodes:[{kind:'unknown',question:'还需要哪部分资料？',dependsOn:[unknownNodeId]}]}
+      try{
+        await assert.rejects(stageCoachEvent(run,delta,'还需要哪部分资料？'),(error:any)=>error.code==='COACH_UNKNOWN_PREREQUISITE_OPEN')
+      }finally{
+        await store.terminateRun(user,run.request_id,'cancelled','TEST_CLEANUP')
+      }
+
+      const refusal=(await store.startRun(user,conversation,randomUUID(),'对方现在需要资料这件事，我不想说。')).run
+      try{
+        const refused=await stageCoachEvent(refusal,{target,resolveUnknowns:[unknownNodeId],declineUnknowns:[unknownNodeId]},'明白，我不会继续追问这点。')
+        assert.deepEqual(refused.delta.resolveUnknowns,[])
+        assert.deepEqual(refused.delta.declineUnknowns,[unknownNodeId])
+      }finally{
+        await store.terminateRun(user,refusal.request_id,'cancelled','TEST_CLEANUP')
+      }
+    })
     await t.test('unchanged proposed material cannot be submitted as a new revision',async()=>{
       const run=(await store.startRun(user,conversation,randomUUID(),'这个细节我记不清了。')).run
       const event=(await coachEventView(user,conversation))!,draft=event.actions[0]!.draft!

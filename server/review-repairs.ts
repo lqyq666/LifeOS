@@ -140,16 +140,19 @@ function repairReportedRepeatFeeling(reply:string,userText:string,priorUserTexts
     }
     return found
   }
-  const episodeKey=(source:string)=>scanUserClauses(source)
-    .filter(clause=>ownedObservationClause(clause)&&!unassertedObservation.test(clause.text))
-    .filter(clause=>!/^(?:我|本人)?(?:再次|又)?(?:说明|提到|重申)/.test(clause.text.trim()))
-    .map(clause=>clause.text.replace(/轻松|放松|开心|高兴|紧张|焦虑|失落|难过|舒服|自在/g,'').replace(/[\s\p{P}\p{S}]/gu,'').trim())
-    .filter(Boolean).join('|')
-  const reports=sources.map(text=>({text,feelings:reported(text),episode:episodeKey(text)}))
-  const repeated=feelings.find(([label])=>{
-    const uniqueEpisodes=new Set(reports.filter(item=>item.feelings.has(label)).map(item=>item.episode).filter(Boolean))
-    return uniqueEpisodes.size>=2&&reports.some(item=>item.feelings.has(label)&&/(?:又|再次|仍然|依然|一周后|第二次)/.test(item.text))
-  })
+  const reports=sources.map(text=>({text,feelings:reported(text)}))
+  const reportsAnotherEpisode=(source:string,pattern:RegExp)=>{
+    const clauses=scanUserClauses(source).filter(clause=>ownedObservationClause(clause)&&!unassertedObservation.test(clause.text))
+    return clauses.some(feelingClause=>pattern.test(feelingClause.text)&&!negatesFeeling(feelingClause.text,pattern.exec(feelingClause.text)?.index??0)
+      &&clauses.some(eventClause=>{
+        if(eventClause.sentenceStart!==feelingClause.sentenceStart)return false
+        const event=eventClause.text.trim().replace(/^(?:我|本人)?(?:再次|再)?(?:说明|提到|重申)[，,、]*/,'')
+        const explicitRepeat=/(?:第二次|一周后|两周后|隔天|第二天|(?:又|再).{0,16}(?:一次|一遍|一场|一回|一轮))/.test(event)
+        const action=/(?:打|练|做|参加|尝试|联系|沟通|完成|申请|提交|面试|投递|复习|学习|问|聊|见|合作|体验)/.test(event)
+        return explicitRepeat&&action
+      }))
+  }
+  const repeated=feelings.find(([label,pattern])=>reports.filter(item=>item.feelings.has(label)).length>=2&&reports.some(item=>item.feelings.has(label)&&reportsAnotherEpisode(item.text,pattern)))
   if(!repeated)return null
   const [label]=repeated
   const unsupportedUnknown=/(?:各次|两次|这两次|每次|两段经历|不同经历)(?:的)?(?:经历)?(?:的)?(?:感受|心情|状态)是否(?:一致|相同|一样|相似)(?:(?:仍|尚)?(?:未知|不清楚|待确认|未确认))?/g

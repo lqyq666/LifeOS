@@ -41,7 +41,7 @@ test('a reported repeat feeling is not mislabeled unknown while its cause stays 
 
 test('repeating the same report does not prove a second experience or resolve its feeling',()=>{
  const earlier='昨晚打球后很放松。'
- const duplicate='我再次说明，昨晚打球后很放松。'
+ const duplicate='我再次说明，昨晚打球之后很放松。'
  const current='今天又打了一次，感受还没想清楚。'
  const reply='各次经历的感受是否一致仍未知。'
  assert.equal(repairReviewedDefects(reply,current,[earlier,duplicate]),null)

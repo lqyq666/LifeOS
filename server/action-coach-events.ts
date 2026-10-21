@@ -212,28 +212,53 @@ async function coachNodeSource(c:PoolClient,run:Run,eventId:string|undefined,nod
 // message neither answers nor declines it. Do not fail the whole turn and do
 // not invent a resolution: keep the unknown active unless the user explicitly
 // declined it. A concrete decline keeps the decline and drops the resolution.
-export function normalizeUnknownDispositionConflict<T extends {resolveUnknowns?:string[];declineUnknowns?:string[]}>(delta:T,userText:string):{delta:T;conflictIds:string[]}{
+export function normalizeUnknownDispositionConflict<T extends {resolveUnknowns?:string[];declineUnknowns?:string[]}>(delta:T,userText:string,questions:Readonly<Record<string,string>>={}):{delta:T;conflictIds:string[]}{
  const resolved=new Set(delta.resolveUnknowns??[]),declined=new Set(delta.declineUnknowns??[])
  const conflictIds=[...resolved].filter(id=>declined.has(id))
  if(!conflictIds.length)return {delta,conflictIds}
  // "不知道/记不清" is unknown, not refusal. Only an explicit refusal keeps
  // the decline disposition; otherwise the unknown stays active.
   const refusal=/(?:不想说|不愿意说|跳过|拒绝回答|先不说|不方便说)/g
-  const keepDecline=conflictIds.length===1&&scanUserClauses(userText).some(clause=>{
+  const clauses=scanUserClauses(userText)
+  const refusalClauses=clauses.filter(clause=>{
     if(clause.code||clause.conditional||clause.attributedToOther||clause.interrogative)return false
     refusal.lastIndex=0
     for(const match of clause.text.matchAll(refusal)){
       const start=clause.start+match.index!,end=start+match[0].length
       if(clause.quoteSpans.some(span=>start<span.end&&end>span.start)||clause.codeSpans.some(span=>start<span.end&&end>span.start))continue
       const before=clause.text.slice(0,match.index)
-      if(/(?:不是|并非|并不是|并没有|不是真的)\s*$/.test(before))continue
+      if(/(?:不是|并非|并不是|并没有|没有|不是真的)\s*$/.test(before))continue
       return true
     }
     return false
   })
- const drop=new Set(conflictIds),next={...delta}
- if(delta.resolveUnknowns)next.resolveUnknowns=delta.resolveUnknowns.filter(id=>!drop.has(id))
- if(delta.declineUnknowns)next.declineUnknowns=keepDecline?delta.declineUnknowns:delta.declineUnknowns.filter(id=>!drop.has(id))
+  const courtesy=/^(?:谢谢|请理解|先这样|就这样|麻烦了|嗯|好|好的)[。！!\s]*$/
+  const wholeTurnRefusal=refusalClauses.length>0&&clauses.every(clause=>refusalClauses.includes(clause)||courtesy.test(clause.text.trim()))
+  const ignoredTopicTerms=new Set(['当时','现在','什么','为什么','是否','有没有','能否','具体','细节','问题','事情','这个','这件','那件','告诉','回答','说明','解释','本人','用户','对方'])
+  const questionMatches=(clause:string,question:string)=>{
+    const userText=clause.replace(/\s/g,'')
+    const terms=question.match(/[\p{Script=Han}]{2,}|[a-z0-9]{3,}/giu)??[]
+    return terms.some(term=>{
+      const compact=term.toLowerCase()
+      if(ignoredTopicTerms.has(compact))return false
+      if(userText.includes(term))return true
+      for(let i=0;i<term.length-1;i++){
+        const pair=term.slice(i,i+2)
+        if(!ignoredTopicTerms.has(pair)&&userText.includes(pair))return true
+      }
+      return false
+    })
+  }
+  const refused=new Set(conflictIds.filter(id=>refusalClauses.some(clause=>{
+    const question=questions[id]??''
+    if(questionMatches(clause.text,question))return true
+    const prior=clauses.find(item=>item.end<=clause.start&&item.sentenceStart===clause.sentenceStart&&item.text.trim())
+    return Boolean(prior&&/(?:这件事|这个问题|这部分|这方面|这项|这个细节|这点)$/.test(prior.text.trim())&&questionMatches(prior.text,question))
+  })
+    ||(conflictIds.length===1&&wholeTurnRefusal)))
+  const drop=new Set(conflictIds),next={...delta}
+  if(delta.resolveUnknowns)next.resolveUnknowns=delta.resolveUnknowns.filter(id=>!drop.has(id))
+  if(delta.declineUnknowns)next.declineUnknowns=delta.declineUnknowns.filter(id=>!drop.has(id)||refused.has(id))
  return {delta:next,conflictIds}
 }
 
@@ -257,7 +282,10 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
     }
     if((delta.declineUnknowns??[]).some(id=>(delta.resolveUnknowns??[]).includes(id))){
       const userText=String((await c.query("SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role='user'",[run.user_id,run.source_message_id])).rows[0]?.content??'')
-      Object.assign(delta,normalizeUnknownDispositionConflict(delta,userText).delta)
+      const conflictIds=(delta.resolveUnknowns??[]).filter(id=>(delta.declineUnknowns??[]).includes(id))
+      const questions=(await c.query("SELECT id,content FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND kind='unknown' AND status='active' AND id=ANY($3::uuid[])",[run.user_id,event.id,conflictIds])).rows
+      const questionById=Object.fromEntries(questions.map(row=>[String(row.id),String(row.content)]))
+      Object.assign(delta,normalizeUnknownDispositionConflict(delta,userText,questionById).delta)
     }
     const resolved=new Set(delta.resolveUnknowns??[])
     const activeUnknownIds=new Set((await c.query("SELECT id FROM coach_nodes WHERE user_id=$1 AND event_id=$2 AND kind='unknown' AND status='active'",[run.user_id,event.id])).rows.map(row=>String(row.id)))
