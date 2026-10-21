@@ -553,7 +553,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
       relatedExperiences: expRelated.map(r => ({ title: String(r.title ?? ''), score: Number(r.score) })),
       identityLevel: 0, identityName: '', nextIdentity: '', identityNextHint: '',
     })
-    const outcomeKeys=applicableExperienceOutcomes({summary:expSummary,action:expAction,result:expResult,sourceQuote:String(e.source_quote??'')})
+    const outcomeKeys=applicableExperienceOutcomes({summary:expSummary,action:expAction,result:expResult,sourceQuote:String(e.source_quote??''),outcomes:taskOutcomes})
     const applicableTaskOutcomes=Object.fromEntries(outcomeKeys.map(key=>[key,taskOutcomes[key]]))
     const experienceSummary=summarizeExperience({summary:expSummary,action:expAction,result:expResult,reflection:String(e.content?.reflection??''),outcomes:applicableTaskOutcomes,applicableOutcomes:outcomeKeys})
     nodes.push({id,type:'experience',...e.content,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,taskOutcomes:applicableTaskOutcomes,outcomeKeys,skillTags:expSkills,insight:expInsight,experienceSummary} as any)

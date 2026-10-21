@@ -1,3 +1,4 @@
+import {taskOutcomeReadback} from '../server/turn-contract.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {deriveThemeCandidates,themeHasPursuitSource} from '../server/user-themes.ts'
@@ -26,7 +27,7 @@ test('observed effect hypothesis retains its grammatical subject',()=>{
  assert.equal(observationEffectHypothesis('这次结果支持了规则对减少他人询问有潜在作用'),'规则对减少他人询问有潜在作用')
 })
 test('explicit acknowledged reading makes read and response applicable to the PDF experience',()=>{
- assert.deepEqual(applicableExperienceOutcomes({sourceQuote:'回来反馈：我发了PDF，导师确认已经读到，但还没有说是否采用其中建议，也没有给效果反馈'}),['read','response','adoption','effect'])
+ assert.deepEqual(applicableExperienceOutcomes({sourceQuote:'回来反馈：我发了PDF，导师确认已经读到，但还没有说是否采用其中建议，也没有给效果反馈',outcomes:taskOutcomeReadback('导师确认已经读到',undefined,false,true)}),['read','response','adoption','effect'])
 })
 import {findEpisode} from '../server/experience-episodes.ts'
 test('explicit named-matter continuation binds a unique existing episode without fuzzy merging',()=>{
