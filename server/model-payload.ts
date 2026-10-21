@@ -41,11 +41,6 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
     // repeated fragments in the captured runtime failure; preserve the
     // documented default and require fresh capability evidence for this wire.
     body.presence_penalty=['qwen3.8-max','qwen3.8-flash'].includes(profile.id)&&thinkingBudget===0?1.5:0
-    // Captured Flash transport continued a complete JSON object with protocol
-    // tags until the host aborted without a usage receipt. A line starting
-    // with '<' cannot occur in valid JSON outside a string; raw newlines inside
-    // strings are escaped. Stop this runoff without enumerating tag names.
-    if(profile.id==='qwen3.8-flash'&&thinkingBudget===0)body.stop=['\n<']
     const compiled=providerSchema(schema,currentMessageId) as any
     if(eventTargets&&compiled.properties?.event){
       const target=compiled.properties?.event?.properties?.target

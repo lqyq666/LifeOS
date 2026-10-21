@@ -266,14 +266,7 @@ test('the existing DeepSeek default candidate carries the same full schema witho
   assert.equal(payload.max_completion_tokens,8192)
 })
 
-test('Flash stops only raw protocol runoff after JSON, never a quoted material literal',()=>{
+test('Flash keeps the previously verified native transport without the failed stop experiment',()=>{
  const wire=configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default') as any
- assert.deepEqual(wire.stop,['\n<'])
- const transport=readFileSync('tests/fixtures/coach-protocol-tail.txt','utf8')
- const boundary=Math.min(...wire.stop.map((stop:string)=>transport.indexOf(stop)).filter((at:number)=>at>=0))
- const frame=transport.slice(0,boundary)
- assert.deepEqual(JSON.parse(frame),JSON.parse(readFileSync('tests/fixtures/coach-external-expectation-kind.json','utf8')))
- const legitimate=JSON.stringify({reply:'正文可含换行与协议示例：\n</result>\n<tool_call>'})
- assert.ok(wire.stop.every((stop:string)=>!legitimate.includes(stop)),'newlines inside valid JSON strings are escaped')
- assert.equal((configureProviderPayload({},{provider:'bailian',id:'qwen3.8-max'},'default') as any).stop,undefined)
+ assert.equal(wire.stop,undefined)
 })
