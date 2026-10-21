@@ -140,7 +140,7 @@ function repairReportedRepeatFeeling(reply:string,userText:string,priorUserTexts
     }
     return found
   }
-  const reports=sources.map(text=>({text,feelings:reported(text)}))
+  const reports=sources.map((text,index)=>({text,index,feelings:reported(text)}))
   const canonicalEpisodeMarker=(marker:string)=>{
     if(marker==='昨晚')return '昨天'
     const ordinal=/^第([一二三四五六七八九十\d]+)次$/.exec(marker)?.[1]
@@ -154,26 +154,62 @@ function repairReportedRepeatFeeling(reply:string,userText:string,priorUserTexts
   const episodeEvidenceFor=(source:string,pattern:RegExp)=>{
     const clauses=scanUserClauses(source).filter(clause=>ownedObservationClause(clause)&&!unassertedObservation.test(clause.text))
     const keys=new Set<string>()
-    let explicitRepeatAction=false
+    const markerPositions:{key:string;offset:number}[]=[]
+    const repeatPositions:{key:string;offset:number}[]=[]
     for(const feelingClause of clauses){
       const feelingIndex=pattern.exec(feelingClause.text)?.index
       if(feelingIndex===undefined||negatesFeeling(feelingClause.text,feelingIndex))continue
+      const feelingOffset=feelingClause.start+feelingIndex
       for(const eventClause of clauses){
         if(eventClause.sentenceStart!==feelingClause.sentenceStart)continue
         const event=eventClause.text.trim().replace(/^(?:我|本人)?(?:再次|再)?(?:说明|提到|重申)[，,、]*/,'')
-        const markers=[...event.matchAll(/第[一二三四五六七八九十\d]+次|一周后|两周后|隔天|第二天|第三天|昨晚|昨天|前天|今天|明天|上周|本周|\d{1,2}月\d{1,2}日/g)].map(match=>match[0])
+        // Relative dates need the source message timestamp to identify a
+        // calendar day. This repair only receives text, so they cannot prove
+        // that two reports describe separate episodes.
+        const markers=[...event.matchAll(/第[一二三四五六七八九十\d]+次|\d{1,2}月\d{1,2}日/g)].filter(match=>eventClause.start+match.index!<=feelingOffset)
         const action=/(?:打|练|做|参加|尝试|联系|沟通|完成|申请|提交|面试|投递|复习|学习|问|聊|见|合作|体验)/.test(event)
         const countedRepeat=/(?:又|再).{0,16}(?:一次|一遍|一场|一回|一轮)|第二次.{0,12}(?:打|练|做|参加|尝试|联系|沟通|完成|申请|提交|面试|投递|复习|学习|问|聊|见|合作|体验)/.test(event)
-        if(action)markers.forEach(marker=>keys.add(canonicalEpisodeMarker(marker)))
-        if(countedRepeat&&action)explicitRepeatAction=true
+        if(action)markers.forEach(marker=>{
+          const key=canonicalEpisodeMarker(marker[0])
+          keys.add(key)
+          const position={key,offset:eventClause.start+marker.index!}
+          markerPositions.push(position)
+          if(countedRepeat)repeatPositions.push(position)
+        })
       }
     }
-    return {keys,explicitRepeatAction}
+    return {keys,markerPositions,repeatPositions}
+  }
+  const correctedAt=new Map<string,{sourceIndex:number;offset:number}>()
+  const uncertainty=/记不清|想不起来|不确定|说不准|未知|回忆不起来/g
+  const feelingWord=/感受|心情|感觉|放松|轻松|开心|快乐|紧张|舒服|难受|安心|烦躁/
+  for(const [sourceIndex,source] of sources.entries()){
+    for(const clause of scanUserClauses(source).filter(item=>ownedObservationClause(item))){
+      if(!feelingWord.test(clause.text))continue
+      const uncertaintyOffsets=[...clause.text.matchAll(uncertainty)].map(match=>match.index??0)
+      const negativeFeelingOffsets=[...clause.text.matchAll(/轻松|放松|开心|高兴|紧张|焦虑|失落|难过|舒服|自在/g)].filter(match=>negatesFeeling(clause.text,match.index??0)).map(match=>match.index??0)
+      const stateOffsets=[...uncertaintyOffsets,...negativeFeelingOffsets]
+      if(!stateOffsets.length)continue
+      const markers=[...clause.text.matchAll(/第[一二三四五六七八九十\d]+次|\d{1,2}月\d{1,2}日/g)]
+      for(const marker of markers){
+        const relatedStates=stateOffsets.filter(offset=>Math.abs(offset-(marker.index??0))<=36)
+        if(relatedStates.length)correctedAt.set(canonicalEpisodeMarker(marker[0]),{sourceIndex,offset:clause.start+Math.max(...relatedStates)})
+      }
+    }
   }
   const repeated=feelings.find(([label,pattern])=>{
     const matching=reports.filter(item=>item.feelings.has(label))
     if(matching.length<2)return false
-    const episodeEvidence=matching.map(item=>episodeEvidenceFor(item.text,pattern))
+    const episodeEvidence=matching.map(item=>({item,evidence:episodeEvidenceFor(item.text,pattern)})).map(({item,evidence})=>{
+      const markerPositions=evidence.markerPositions.filter(marker=>{
+      const correction=correctedAt.get(marker.key)
+        return correction===undefined||correction.sourceIndex<item.index||correction.sourceIndex===item.index&&correction.offset<=marker.offset
+      })
+      const activePositions=new Set(markerPositions.map(marker=>`${marker.key}:${marker.offset}`))
+      const keys=new Set(markerPositions.map(marker=>marker.key))
+      const explicitRepeatAction=evidence.repeatPositions.some(marker=>activePositions.has(`${marker.key}:${marker.offset}`))
+      return {keys,explicitRepeatAction}
+    })
     const distinctReports=episodeEvidence.some((episode,index)=>episode.keys.size>0&&episodeEvidence.slice(index+1).some(other=>other.keys.size>0&&![...episode.keys].some(key=>other.keys.has(key))))
     return distinctReports&&episodeEvidence.some(episode=>episode.explicitRepeatAction)
   })

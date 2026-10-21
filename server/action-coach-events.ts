@@ -235,7 +235,7 @@ export function normalizeUnknownDispositionConflict<T extends {resolveUnknowns?:
   const courtesy=/^(?:谢谢|请理解|先这样|就这样|麻烦了|嗯|好|好的)[。！!\s]*$/
   const bareRefusal=/^(?:(?:我|本人)(?:现在|暂时|先)?|(?:这个|这件事|这部分|这方面|这个问题|这项|这点)(?:我|本人)?)?(?:不想说|不愿意说|跳过|拒绝回答|先不说|不方便说)(?:了)?[。！？!！\s]*$/
   const wholeTurnRefusal=refusalClauses.length>0&&clauses.every(clause=>bareRefusal.test(clause.text.trim())||courtesy.test(clause.text.trim()))
-  const ignoredTopicTerms=new Set(['当时','现在','什么','为什么','是否','有没有','能否','具体','细节','问题','事情','情况','结果','时间','内容','原因','地点','这个','这件','那件','告诉','回答','说明','解释','本人','用户','对方','需要','仍然','如何','多少'])
+  const ignoredTopicTerms=new Set(['当时','现在','什么','为什么','是否','有没有','能否','具体','细节','问题','事情','选择','这个','这件','那件','告诉','回答','说明','解释','本人','用户','对方','需要','仍然','如何','多少'])
   const segmenter=new Intl.Segmenter('zh',{granularity:'word'})
   const topicTerms=(text:string)=>new Set([...segmenter.segment(text)].filter(item=>item.isWordLike).map(item=>item.segment).filter(term=>term.length>=2&&!ignoredTopicTerms.has(term)))
   const questionMatches=(clause:string,question:string)=>{

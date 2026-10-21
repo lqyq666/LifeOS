@@ -9,8 +9,8 @@ test('NN visible first action keeps its duration rather than mistaking it for a 
 })
 
 test('repeated feelings do not transfer an earlier reported cause to the new episode',()=>{
- const earlier='让我轻松的主要是一起活动时不用表现，也能自然说话；不是因为我打得好。'
- const latest='回来反馈：一周后我又和同一个室友打了一次，仍然放松，但当天身体累所以提前结束。不要用一次疲惫推翻之前的感受。'
+ const earlier='第一次和同一个室友打球后很放松，让我轻松的主要是一起活动时不用表现，也能自然说话；不是因为我打得好。'
+ const latest='回来反馈：第二次我又和同一个室友打了一次，仍然放松，但当天身体累所以提前结束。不要用一次疲惫推翻之前的感受。'
  const reply='两次同一个人、同一项活动都让你不用表现就能自然说话，这个条件目前没变。'
  for(const claim of [reply,'两次都由此轻松。','这两次都是因此放松，至于是室友还是运动仍未知。','每次都源于不用表现。']){
   const out=repairReviewedDefects(claim,latest,[earlier])?.reply??claim
@@ -23,8 +23,8 @@ test('repeated feelings do not transfer an earlier reported cause to the new epi
 })
 
 test('a reported repeat feeling is not mislabeled unknown while its cause stays unknown',()=>{
- const earlier='昨晚和室友打羽毛球后觉得轻松。'
- const latest='回来反馈：一周后我又和同一个室友打了一次，仍然放松，但当天身体累所以提前结束。不要用一次疲惫推翻之前的感受。'
+ const earlier='第一次和室友打羽毛球后觉得轻松。'
+ const latest='回来反馈：第二次我又和同一个室友打了一次，仍然放松，但当天身体累所以提前结束。不要用一次疲惫推翻之前的感受。'
  const update='请更新这段经历的局部理解，保留未知；不生成任务。'
  const reply='两次和同一室友打球都报告放松，本人解释主要因不用表现。提前结束仅因身体累，不推翻该感受。仍未知的是：放松源于运动本身还是这位室友；各次经历的感受是否一致。'
  const out=repairReviewedDefects(reply,update,[earlier,latest])?.reply??reply
@@ -51,6 +51,21 @@ test('repeating the same report does not prove a second experience or resolve it
  assert.equal(repairReviewedDefects(reply,'第十二次打完，感受还没想清楚。',['第十一次打球后很放松。','我再次说明，第11次我又打了一次，仍然放松。']),null,'teen ordinals normalize to their Arabic form')
  assert.equal(repairReviewedDefects(reply,'第三次打完，感受还没想清楚。',['昨晚第二次打球后很放松。',sameOrdinal]),null,'an extra date label cannot split reports that share the same ordinal')
  assert.equal(repairReviewedDefects(reply,'请保留未知。',['昨晚打球后很放松。','今天打球后仍然放松。']),null,'different dates alone do not establish that two event reports refer to separate plays')
+ assert.equal(repairReviewedDefects(reply,'回来反馈：前天打球后很放松。',['昨天我又打了一次，很放松。']),null,'relative dates without message timestamps cannot establish separate experiences')
+ const first='第一次打球后很放松。'
+ const second='第二次我又打球后仍然很放松。'
+ const correction='更正：第二次打球后我记不清当时的感受。'
+ assert.equal(repairReviewedDefects(reply,correction,[first,second]),null,'a later correction supersedes the prior positive report for that episode')
+ assert.equal(repairReviewedDefects(reply,'请总结两次经历，保留未知。',[first,second,correction]),null,'the correction remains authoritative in later turns')
+ const negative='更正：第二次打球后其实并不放松。'
+ assert.equal(repairReviewedDefects(reply,negative,[first,second]),null,'an explicit negative feeling supersedes the prior positive report')
+ assert.equal(repairReviewedDefects(reply,'请总结两次经历，保留未知。',[first,second,negative]),null,'the explicit negative remains authoritative in later turns')
+ assert.equal(repairReviewedDefects(reply,'后来确认：第二次打球后又觉得放松。',[first,second,negative])?.reply,'本人已分别报告两次放松。','a later positive report can update the corrected episode')
+ const sameTurn='回来反馈：第二次我又打球后很放松，但更正：第二次的感受其实并不放松。'
+ assert.equal(repairReviewedDefects(reply,sameTurn,[first]),null,'a later same-turn correction supersedes an earlier clause')
+ assert.equal(repairReviewedDefects(reply,'请总结两次经历，保留未知。',[first,sameTurn]),null,'the same-turn correction persists into later turns')
+ const sameTurnRecovery='第二次我又打球后很放松。更正：第二次的感受记不清。后来确认：第二次打球后确实放松。'
+ assert.equal(repairReviewedDefects(reply,sameTurnRecovery,[first])?.reply,'本人已分别报告两次放松。','a later same-turn confirmation after a correction becomes authoritative')
 })
 
 test('negated feeling reports are not promoted into repeated positive feelings',()=>{
@@ -73,8 +88,8 @@ test('negated feeling reports are not promoted into repeated positive feelings',
   assert.doesNotMatch(out,new RegExp(`本人已分别报告两次${label}`),feeling)
   assert.match(out,/感受是否一致/,feeling)
  }
- const earlier='昨晚我不擅长打球，但之后觉得轻松。'
- const latest='回来反馈：一周后我又和同一个室友打了一次，仍然轻松。'
+ const earlier='第一次我不擅长打球，但之后觉得轻松。'
+ const latest='回来反馈：第二次我又和同一个室友打了一次，仍然轻松。'
  const positiveOut=repairReviewedDefects(reply,update,[earlier,latest])?.reply??reply
  assert.doesNotMatch(positiveOut,/感受是否一致/,'a negation in a prior contrast clause does not suppress the positive report')
 })

@@ -71,6 +71,28 @@ test('an umbrella topic match cannot bind a refusal to a different field',()=>{
   assert.deepEqual(result.delta.declineUnknowns,[])
 })
 
+test('field names remain part of refusal matching',()=>{
+  for(const [field,question,wrongRefusal] of [
+    ['时间','你实习时间是什么？','实习单位我不想说，实习时间记不清。'],
+    ['地点','你实习地点在哪里？','实习岗位我不想说，实习地点记不清。'],
+    ['原因','你选择实习的原因是什么？','实习内容我不想说，实习原因记不清。'],
+    ['结果','你实习结果如何？','实习原因我不想说，实习结果记不清。'],
+    ['内容','你实习内容是什么？','实习时间我不想说，实习内容记不清。'],
+  ]){
+    const result=normalizeUnknownDispositionConflict({resolveUnknowns:['x'],declineUnknowns:['x']},wrongRefusal,{x:question})
+    assert.deepEqual(result.delta.resolveUnknowns,[])
+    assert.deepEqual(result.delta.declineUnknowns??[],[],field)
+  }
+  for(const [field,question,matchingRefusal] of [
+    ['原因','你选择实习的原因是什么？','实习原因我不想说。'],
+    ['结果','你实习结果如何？','实习结果我不想说。'],
+    ['内容','你实习内容是什么？','实习内容我不想说。'],
+  ]){
+    const result=normalizeUnknownDispositionConflict({resolveUnknowns:['x'],declineUnknowns:['x']},matchingRefusal,{x:question})
+    assert.deepEqual(result.delta.declineUnknowns,['x'],field)
+  }
+})
+
 test('a refusal explicitly about the conflicted item remains a decline',()=>{
   const result=normalizeUnknownDispositionConflict({resolveUnknowns:['income'],declineUnknowns:['income']},'实习收入我不想说。',{income:'你实习收入是多少？'})
   assert.deepEqual(result.delta.resolveUnknowns,[])
