@@ -36,6 +36,11 @@ export function scopedTaskPauseTarget(text:string):string|null{
  if(!target||/(?:如果|假如|别人|同学说|不是|不要|别|是否|吗|呢|没|未|非|不(?:曾|要求|让|说|同意|决定))/.test(target))return null
  return target==='考试复习'?'复习':target
 }
+// An unresolved pronoun is not a license to reactivate the previous matter.
+// Explicit new-matter / read-only requests are excluded by the caller.
+export function taskPauseNeedsClarification(targetText:string,currentText:string):boolean{
+ return /^(?:这|那)(?:个|件)(?:方向|事|事情|任务|探索)$/.test(targetText)||currentText.includes(targetText)
+}
 export function scopedTaskPauseClause(text:string):boolean{
  return scopedTaskPauseTarget(text)!==null
 }
@@ -66,10 +71,21 @@ function comparisonRequestClause(text:string):boolean{
 function comparisonStopClause(text:string):boolean{
  return /^(?:现在|今天|这次)?(?:请|麻烦)?(?:先|暂时)?(?:不要|不用|别|不)(?:再|自动)?(?:给我|帮我)?(?:比较|对比|权衡)/.test(text.trim())
 }
+// A list item's instruction ownership comes from its actual list head.
+export function assistantInstructionClause(sourceText:string,clause:Pick<UserClause,'start'|'end'|'text'>,clauses:readonly Pick<UserClause,'start'|'end'|'text'>[]):boolean{
+ let index=clauses.findIndex(row=>row.start===clause.start&&row.end===clause.end)
+ if(index<0)return assistantRequestClause(clause.text)
+ while(index>0&&/^[、\s]*$/.test(sourceText.slice(clauses[index-1]!.end,clauses[index]!.start)))index--
+ return assistantRequestClause(clause.text)||assistantRequestClause(clauses[index]!.text)
+}
 export function assistantRequestClause(text:string):boolean{
  // Explicitly addressed help requests are conversation instructions, even
  // when phrased as a wish. They are not reports of an already felt outcome.
  if(/^(?:我|本人)(?:现在|今天|这次)?(?:想|希望)(?:让|请|麻烦)?你(?:能|可以)?(?:先|再|继续)?(?:帮(?:助)?|给|替|为)我/.test(text.trim()))return true
+ // Imperative discourse framing and output-format instructions are not life goals.
+ if(/^(?:请|麻烦)(?:从|围绕)[^。！？]{1,40}(?:聊起|聊|谈起|说起)$/.test(text.trim())
+  ||/^(?:请|麻烦)?(?:先|只|再)?问(?:我)?(?:一|一个|一条)/.test(text.trim())
+  ||/^(?:请|麻烦)?(?:先|只)?(?:不要|别|不用)(?:再)?(?:加|添加|加入|评价|贴标签)/.test(text.trim()))return true
  if(comparisonRequestClause(text)||comparisonStopClause(text))return true
  const clause=text.trim().replace(/^(?:也|并且|而且|但|不过|可是)/,'').replace(/^我(?:现在)?请你/,'请')
  return conversationPreferenceClause(clause)||summaryReplyRequest.test(clause)||summaryReplyQuestion.test(clause)

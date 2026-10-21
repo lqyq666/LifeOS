@@ -56,6 +56,11 @@ export function requiresExperienceCandidate(catalogue: readonly ClauseHandle[]):
   return false
 }
 
+// A past first-person/shared activity followed by a felt result is also an
+// experience. It needs neither a deliverable nor an external evaluator.
+const reportsPastFeeling=(text:string):boolean=>/^(?:(?:我|本人)(?:昨晚|昨天|前天|上周|上次)|(?:昨晚|昨天|前天|上周|上次)(?:我|本人|和|跟))[^。！？]{1,60}(?:后|结束时)(?:我)?(?:觉得|感到)/.test(text)
+  &&!clauseExpressesFuturePlan(text)&&!/(?:如果|假如|没|未|不)/.test(text.split(/后|结束时/)[0]!)
+
 export function clauseReportsCompleted(text: string): boolean {
   if(assistantRequestClause(text)||conversationPreferenceClause(text)||refusalPreferenceClause(text))return false
   if(/(?:没(?:有)?|尚未|还未|未曾).{0,6}(?:开始|完成|做|复习|尝试|交付|发|提交)/.test(text))return false
@@ -65,14 +70,14 @@ export function clauseReportsCompleted(text: string): boolean {
   if(/(?:记录|经历).{0,6}(?:保留|留着|不(?:用|要)?删)|(?:保留|留着).{0,6}(?:记录|经历)/.test(text))return false
   // “定了方向/明年去读研” commits to a pursuit. Only a concrete authored
   // artifact makes the bare 定了 form an already performed action.
-  return (COMPLETED_ACTION.test(text)||DEFINED_ARTIFACT.test(text)||OWNED_CONTACT_FORM.test(text)||clauseReportsAttempted(text)) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
+  return (reportsPastFeeling(text)||COMPLETED_ACTION.test(text)||DEFINED_ARTIFACT.test(text)||OWNED_CONTACT_FORM.test(text)||clauseReportsAttempted(text)) && !NOT_YET.test(text) && !clauseExpressesWishToAct(text)
 }
 
 // Past aspect is required here: a goal may name “完成” without reporting it
 // happened. Both model persistence and deterministic goal capture use this gate.
 export function clauseReportsPastAction(text:string):boolean{
   if(!clauseReportsCompleted(text)||clauseExpressesFuturePlan(text)||/(?:^(?:我(?:的)?|本人(?:的)?)?目标(?:是|为)|争取|想要)/.test(text))return false
-  if(clauseReportsAttempted(text))return true
+  if(clauseReportsAttempted(text)||reportsPastFeeling(text))return true
   const primary=[COMPLETED_ACTION.exec(text),DEFINED_ARTIFACT.exec(text),OWNED_CONTACT_FORM.exec(text)].filter((match):match is RegExpExecArray=>match!==null).sort((a,b)=>a.index-b.index)[0]
   if(!primary)return false
   const following=text.slice(primary.index+primary[0].length,primary.index+primary[0].length+1)

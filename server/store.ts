@@ -17,7 +17,7 @@ import { persistMemoryControl, persistPendingControlRequest, type MemoryControlR
 import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
 import { derivePatternProposals } from './experience-patterns.ts'
 import { findEpisode, mergeContent,timeContradiction } from './experience-episodes.ts'
-import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth, rankPrimaryThemes, themeNextStep, themeHasPursuitSource } from './user-themes.ts'
+import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth, rankPrimaryThemes, themeNextStep, currentThemeProjection } from './user-themes.ts'
 import { matchPathTheme } from './path-lexicon.ts'
 import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction } from './identity.ts'
 import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
@@ -495,10 +495,13 @@ export async function cognitionGraph(user:string) {
     FROM user_themes t LEFT JOIN experience_theme_links l ON l.user_id=t.user_id AND l.theme_id=t.id
     WHERE t.user_id=$1 AND t.status IN ('active','pending')
     GROUP BY t.user_id,t.id`,[user])).rows
-  const invalidThemeIds=new Set(storedThemes.filter(theme=>!themeHasPursuitSource(theme)).map(theme=>theme.id))
-  const validThemes=storedThemes.filter(theme=>!invalidThemeIds.has(theme.id))
+  const currentFacts=(await growthView(user)).items.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped)
+  const projectedThemes=storedThemes.map(theme=>currentThemeProjection(theme,currentFacts))
+  const invalidThemeIds=new Set(storedThemes.filter((_,index)=>!projectedThemes[index]).map(theme=>theme.id))
+  const validThemes=projectedThemes.filter((theme):theme is NonNullable<typeof theme>=>theme!==null)
   const themes=rankPrimaryThemes(validThemes)
-  const pursuitFacts=(await growthView(user)).items.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped)
+  const unchangedThemeIdentities=new Set(validThemes.filter(theme=>storedThemes.some(raw=>raw.id===theme.id&&raw.title===theme.title&&raw.kind===theme.kind)).map(theme=>theme.id))
+  const pursuitFacts=currentFacts
   const starmapNextStep=themeNextStep(themes,pausedThemeLabels,pursuitFacts)
   const edges:any[]=[]
   const THEME_KIND_LABEL:Record<string,string>={goal:'目标',pursuit:'阶段追求',valued_point:'重视点',interest:'兴趣探索'}
@@ -564,6 +567,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
     edges.push({id:'exp-rel-'+rel.from_experience+'-'+rel.to_experience,type:'RELATES_TO_EXPERIENCE',sourceId,targetId,reason:rel.reason||rel.relation,status:rel.relation,sourceEvidence:[],confidence:rel.score,sourceEvidenceType:'experience_relation'} as any)
   }
   for(const link of themeLinks){
+    if(!unchangedThemeIdentities.has(link.theme_id))continue
     const sourceId='exp-'+link.experience_id,targetId='theme-'+link.theme_id
     if(!nodeIds.has(sourceId)||!nodeIds.has(targetId))continue
     const experience=experiences.find(e=>e.id===link.experience_id)

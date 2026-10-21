@@ -75,3 +75,21 @@ test('workspace-created goals project through the same rules', async () => {
   const view = await getMemoryView(user, conversation)
   assert.ok(!JSON.stringify(view).includes('"kind":"pursuit"') || true)
 })
+
+test('six-chain preference keeps its kind and meaning through projection and reconciliation',async()=>{
+ const user=await seedUser('six-chain-preference'),conversation=randomUUID()
+ await store.createConversation(user,{id:conversation,title:'Synthetic preference reconciliation'})
+ const text='我主要在意能自己安排一天中专注工作的时间'
+ const facts=(await pool.query("INSERT INTO growth_items(id,user_id,conversation_id,kind,text,assertion,status,sources,revision) VALUES(gen_random_uuid(),$1,$2,'preference',$3,'user_reported','active','[]'::jsonb,1) RETURNING id,kind,text,assertion,status",[user,conversation,text])).rows
+ const {projectUserThemes,reconcileThemesWithGrowth}=await import('../../server/user-themes.ts')
+ await projectUserThemes(pool as any,user,facts)
+ await reconcileThemesWithGrowth(pool as any,user)
+ const theme=(await pool.query('SELECT title,kind,status FROM user_themes WHERE user_id=$1',[user])).rows[0]
+ assert.equal(theme.kind,'valued_point')
+ assert.notEqual(theme.title,'就业')
+ assert.equal(theme.status,'pending')
+ await pool.query('UPDATE growth_items SET text=$3 WHERE user_id=$1 AND id=$2',[user,facts[0].id,'我并不享受考试本身'])
+ await reconcileThemesWithGrowth(pool as any,user)
+ assert.equal((await pool.query('SELECT status FROM user_themes WHERE user_id=$1',[user])).rows[0].status,'retired')
+ assert.equal((await pool.query('SELECT text FROM growth_items WHERE user_id=$1',[user])).rows[0].text,'我并不享受考试本身','negative preference remains available as a boundary')
+})

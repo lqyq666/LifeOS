@@ -14,7 +14,7 @@ import type { Run } from './store.ts'
 import { reconcileThemesWithGrowth, projectUserThemes } from './user-themes.ts'
 import {reconcileIdentityClaims,projectIdentityClaims} from './identity.ts'
 import {hoursIn,applicableTimeBudget} from './turn-obligations.ts'
-import {deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause,scopedTaskPauseTarget} from './user-command-spans.ts'
+import {assistantInstructionClause,deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause,scopedTaskPauseTarget} from './user-command-spans.ts'
 import {matchPathTheme} from './path-lexicon.ts'
 import {persistMemoryControl} from './memory-controls.ts'
 import {clauseReportsAttempted,clauseReportsPastAction} from './experience-content.ts'
@@ -44,8 +44,19 @@ function item(row: Row, reason: string | null = null): GrowthItem {
     status: reason && reason!=='not_yet_active' && ['active','proposed'].includes(row.status) ? 'stale' : row.status, sources: hidden ? [] : row.sources, dependencies: hidden ? [] : row.dependencies,
     validUntil: row.valid_until?.toISOString() ?? null, validFrom: row.valid_from?.toISOString() ?? null, timeBasis: row.time_basis ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null,directionScopes:row.direction_scopes??[],structuredPlan:hidden?null:row.structured_plan??null,...(taskBoundary?{taskBoundary}:{}) }
 }
-async function availability(c: DB, user: string, row: Row, rows: Map<string, Row>, memoryEnabled: boolean, conversation?: string, seen = new Set<string>()): Promise<string | null> {
+async function availability(c: DB, user: string, row: Row, rows: Map<string, Row>, memoryEnabled: boolean, sourceMessages:ReadonlyMap<string,string>, conversation?: string, seen = new Set<string>()): Promise<string | null> {
   if (['forgotten', 'stale'].includes(row.status)) return row.status === 'forgotten' ? 'source_revoked' : 'changed'
+  if(row.assertion==='user_reported'&&!refusalPreferenceClause(row.text)&&!scopedTaskPauseClause(row.text))for(const source of row.sources){
+    if(source.type!=='message')continue
+    const message=sourceMessages.get(source.id)
+    if(!message||!source.quote||!message.includes(source.quote))return 'source_revoked'
+    const clauses=scanUserClauses(message)
+    const start=message.indexOf(source.quote),end=start+source.quote.length
+    if(message.indexOf(source.quote,start+1)!==-1)return 'ambiguous_source_span'
+    const matching=clauses.filter(clause=>clause.start<end&&clause.end>start)
+    if(matching.length&&matching.every(clause=>assistantInstructionClause(message,clause,clauses)))return 'conversation_instruction'
+  }
+
   if (seen.has(row.id)) return 'dependency_cycle'
   if (row.valid_until && row.valid_until.getTime() <= Date.now()) return 'expired'
   // A future window (下周…) is not yet a current fact: today's state keeps the
@@ -61,7 +72,7 @@ async function availability(c: DB, user: string, row: Row, rows: Map<string, Row
   for (const ref of row.dependencies) {
     const dependency = rows.get(ref.id)
     if (!dependency) return 'dependency_changed'
-    const reason = await availability(c, user, dependency, rows, memoryEnabled, conversation, next)
+    const reason = await availability(c, user, dependency, rows, memoryEnabled, sourceMessages, conversation, next)
     if (reason === 'source_revoked') return reason
     if (dependency.revision !== ref.revision || reason || !['active','proposed'].includes(dependency.status)) return 'dependency_changed'
   }
@@ -72,11 +83,14 @@ export async function growthView(user: string, conversation?: string, c: DB = po
   const memoryEnabled = await enabled(c, user)
   const rows = (await c.query('SELECT * FROM growth_items WHERE user_id=$1 ORDER BY updated_at DESC,id', [user])).rows as Row[]
   const byId = new Map(rows.map(row => [row.id, row]))
+  const messageIds=[...new Set(rows.filter(row=>row.status!=='forgotten'&&(!conversation||memoryEnabled||row.conversation_id===conversation)).flatMap(row=>row.sources.filter(source=>source.type==='message').map(source=>source.id)))]
+  const sourceMessages=new Map<string,string>(messageIds.length?(await c.query("SELECT id,content FROM messages WHERE user_id=$1 AND id=ANY($2::uuid[]) AND role='user'",[user,messageIds])).rows.map(row=>[row.id,row.content]):[])
+
   const items: GrowthItem[] = []
   for (const row of rows) {
     if (conversation && row.conversation_id !== conversation && !memoryEnabled) continue
     if (row.status === 'forgotten') continue
-    items.push(item(row, await availability(c, user, row, byId, memoryEnabled, conversation)))
+    items.push(item(row, await availability(c, user, row, byId, memoryEnabled, sourceMessages, conversation)))
   }
   // Fix 2: user-scoped recommendation boundaries ride along on the items so
   // every session (and the workspace UI) can distinguish "paused evidence"

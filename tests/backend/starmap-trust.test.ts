@@ -77,3 +77,16 @@ test('star map context obeys the memory switch, active links, source validity an
   await pool.query('UPDATE user_themes SET revision=revision+1 WHERE id=$1', [theme.id]) // 模拟他端并发修改
   await assert.rejects(() => transaction(async c => assertStarMapSnapshot(c, fresh, { themes: [{ id: theme.id, revision: theme.revision }], links: [] })), (error: any) => error.code === 'STARMAP_SNAPSHOT_INVALIDATED')
 })
+
+test('changing a theme meaning does not carry old experience links into readback or reconciliation',async()=>{
+ const user=await seedUser('changed-theme'),{goal}=await giveGoalAndExperience(user)
+ await setMemorySettings(user,{enabled:true,expectedRevision:0,requestId:randomUUID()})
+ await pool.query("UPDATE growth_items SET text='我决定考研',revision=revision+1 WHERE user_id=$1 AND id=$2",[user,goal])
+ const before=await readStarMapContext(pool,user)
+ assert.equal(before?.themes[0]?.title,'考研')
+ assert.deepEqual(before?.linkedExperiences,[])
+ assert.ok(!(await store.cognitionGraph(user)).edges.some(edge=>edge.type==='RELATES_TO_VALUE'))
+ await (await import('../../server/user-themes.ts')).reconcileThemesWithGrowth(pool as any,user)
+ assert.equal((await pool.query("SELECT count(*)::int AS n FROM experience_theme_links WHERE user_id=$1 AND status='active'",[user])).rows[0].n,0)
+ assert.deepEqual((await readStarMapContext(pool,user))?.linkedExperiences,[])
+})

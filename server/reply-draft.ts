@@ -859,7 +859,7 @@ export function weeklyPlanExplanation(reply:string):string{
 export function observationEffectHypothesis(text:string):string|null{
   for(const clause of scanUserClauses(text)){
     if(clause.quoted||clause.code||clause.conditional||clause.interrogative||clause.quoteSpans.length||clause.codeSpans.length)continue
-    const match=/^(?:(?:这(?:次)?(?:结果|反馈)?|上述结果|该结果)(?:也)?)?(?:初步)?(?:支持|提示)([^。！？\n]{1,100})$/.exec(clause.text.trim())
+    const match=/^(?:(?:这(?:次)?(?:结果|反馈)?|上述结果|该结果)(?:也)?)?(?:初步)?(?:支持|提示)(?:了)?([^。！？\n]{1,100})$/.exec(clause.text.trim())
     if(!match)continue
     const proposition=match[1]!,effect=/(?:减少|降低|改善|提高|提升|缩短|增强|省时|有效|起作用)/.exec(proposition)
     if(!effect||/(?:减少|降低|改善)[^。！？]{1,24}的(?:偏好|意愿|愿望|动机|目标)/.test(proposition))continue

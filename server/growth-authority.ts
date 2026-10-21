@@ -11,7 +11,7 @@ import { resolveClause } from './clause-catalogue.ts'
 import type { GrowthInputDelta, ResolvedGrowthDelta, ResolvedGrowthTarget } from './growth-model-contracts.ts'
 import type { CorrectionPlan } from './turn-obligations.ts'
 import {applicableTimeBudget} from './turn-obligations.ts'
-import {assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,unstartedActivityOnlyClause} from './user-command-spans.ts'
+import {assistantInstructionClause,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,unstartedActivityOnlyClause} from './user-command-spans.ts'
 import {reportedPursuitClauses} from './turn-contract.ts'
 import {violatesLabelInferenceBoundary} from './forget-intent.ts'
 
@@ -72,7 +72,7 @@ export function resolveGrowthDeltas(input:{
     // fact the user asserted — the meta-query shape (你记得我之前说过什么吗)
     // can no longer ground a user_reported create (L1OFF).
     if(delta.assertion==='user_reported'){
-      if(assistantRequestClause(clause.text)){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue}
+      if(assistantInstructionClause(input.currentText,clause,input.catalogue)){audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue}
       // A pure connective/adverbial fragment (顺便/然后/另外…) is not a fact.
       if(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成/.test(clause.text)){
         audit.push({phase:'growth_clause_not_anchorable',inputIndex,clauseId:clause.clauseId,reason:'chat_request'});continue

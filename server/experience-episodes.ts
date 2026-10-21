@@ -1,3 +1,5 @@
+import {matchPathTheme} from './path-lexicon.ts'
+import {scanUserClauses} from './user-command-spans.ts'
 // 同一事件多轮讲述：新候选与既有经历的引用做字符二元组（bigram）相似度，
 // 阈值以上合并进原经历（身份不变、修订+1），不另立新行。合并只补空字段或
 // 追加反思，绝不覆盖用户已确认的内容。
@@ -76,6 +78,16 @@ function explicitParticipantConflict(a:string,b:string){
   return [...left].some(([role,name])=>right.has(role)&&right.get(role)!==name)
 }
 export function findEpisode(existing: readonly EpisodeExisting[], quote: string, action: string, result: string): EpisodeExisting | null {
+  // A directly named continuation supplies identity, not just similarity.
+  // Ambiguous repeated objects remain unresolved; never pick by recency.
+  const first=scanUserClauses(quote)[0]
+  const named=first&&!first.conditional&&!first.interrogative&&!first.quoted&&!first.code&&!first.attributedToOther
+    ? /^(?:接着|继续谈)([^，。！？：:]{2,24})的事[：:]/.exec(first.text.trim())?.[1]:undefined
+  if(named){
+    if(named.length<3||GENERIC_WORDS.has(named)||matchPathTheme(named))return null
+    const matches=existing.filter(row=>row.source_quote.includes(named)&&!explicitParticipantConflict(row.source_quote,quote)&&!timeContradiction(row.source_quote,quote))
+    return matches.length===1?matches[0]!:null
+  }
   let best: { row: EpisodeExisting; score: number } | null = null
   for (const row of existing) {
     if(explicitParticipantConflict(row.source_quote,quote))continue

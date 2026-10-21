@@ -34,7 +34,11 @@ test('stable evidence instructions are cacheable without losing user context or 
 
 test('only a fully covered status-only request projects current participant reports without identity guesses',()=>{
  const facts='回来反馈：老师后来回复说这周忙，下周再看；同学表格仍是明确不适合他。'
- assert.equal(currentParticipantStatusReadback(facts+'请只更新各自相关状态。'),facts)
+ const readback=currentParticipantStatusReadback(facts+'请只更新各自相关状态。')!
+ assert.match(readback,/老师：已回复/)
+ assert.match(readback,/同学：本次报告：同学表格仍是明确不适合他/)
+ assert.match(readback,/下周再看/)
+ assert.doesNotMatch(readback,/已读|已采用/)
  for(const text of [facts+'请解释我是否适合产品工作。',facts+'请只更新各自相关状态，并给一个动作。',facts+'我自己今天很累。请只更新相关状态。','“请只更新各自相关状态”。','如果老师回复了，请只更新相关状态。','朋友说：老师已经读过。请只更新相关状态。'])assert.equal(currentParticipantStatusReadback(text),null,text)
 })
 

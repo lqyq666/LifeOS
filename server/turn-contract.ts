@@ -401,7 +401,7 @@ export function reportedAdoptionClauses(text:string){
 // Readback of guarded participant reports. Missing dimensions stay unknown;
 // these defaults are not newly asserted personal facts or questions to ask.
 export function taskOutcomeReadback(text:string,authorizedQuotes?:ReadonlySet<string>,continuingOwnedTask=false,allowReportedContext=false){
- const clauses=reportedTaskOutcomeClauses(text,continuingOwnedTask,allowReportedContext).filter(c=>!authorizedQuotes||authorizedQuotes.has(c.text)),dimensions=['read','response','adoption','payment','effect'] as const
+ const clauses=reportedTaskOutcomeClauses(text,continuingOwnedTask,allowReportedContext).filter(c=>!authorizedQuotes||[...authorizedQuotes].some(quote=>quote.includes(c.text))),dimensions=['read','response','adoption','payment','effect'] as const
  const result=Object.fromEntries(dimensions.map(k=>[k,{status:'unknown',quote:null as string|null}])) as Record<typeof dimensions[number],{status:string;quote:string|null;conflicting?:boolean;unreported?:boolean}>
  for(const c of clauses){
   const q=c.text
@@ -542,7 +542,11 @@ export function currentParticipantStatusReadback(text:string):string|null{
  const quotes=[...new Set(reports.map(report=>report.quote))]
  const facts=scanUserClauses(text).filter(c=>!assistantRequestClause(c.text)&&/[\p{L}\p{N}]/u.test(c.text))
  if(!facts.length||facts.some(c=>c.quoted||c.code||c.conditional||c.interrogative||!quotes.some(quote=>quote.includes(c.text))))return null
- const reply=quotes.join('；')+'。'
+ const statusLabels:Record<string,string>={reported_response:'已回复',reported_no_response:'未回复',reported_read:'已读',reported_not_read:'未读',reported_used:'已采用',reported_not_used:'未采用',reported_paid:'已付款',reported_unpaid:'未付款',reported_tried:'已试用',reported_not_tried:'未试用'}
+ const reply=reports.map(report=>{
+  const labels=[...new Set(Object.values(report.states).map(state=>statusLabels[state.status]).filter(Boolean))]
+  return `- ${report.actor}：${labels.length?labels.join('、')+'。':''}本次报告：${report.quote}。`
+ }).join('\n')
  return completeUserReply(reply,text)?reply:null
 }
 
