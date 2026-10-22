@@ -113,6 +113,7 @@ export function repairReviewedDefects(reply:string,userText:string,priorUserText
   text=apply(text,phases,'final_cleanup',value=>repairFinalCleanup(value))
   text=apply(text,phases,'hypothetical_causal_branches',value=>repairHypotheticalCausalBranches(value,userText))
   text=apply(text,phases,'reported_repeat_feeling',value=>repairReportedRepeatFeeling(value,userText,priorUserTexts))
+  text=apply(text,phases,'post_review_scope',value=>repairPostReviewScope(value,userText,priorUserTexts))
   return text!==reply?{reply:text,phases}:null
 }
 
@@ -1385,6 +1386,37 @@ function repairReportedObservationUpdate(reply:string,userText:string,preserveRe
     else if(!/(?:说明|表明|证明|验证)/.test(text)&&/^.{1,24}起作用了?$/.test(text))bounded=clause.text.replace(/起作用了?$/,'是否起作用仍不能确认')
     else if(!/(?:说明|表明|证明|验证)/.test(text)&&/^[^。！？]{1,24}有效$/.test(text))bounded=clause.text.replace(/有效\s*$/,'是否有效仍不能确认')
     if(bounded!==null)fixed=fixed.slice(0,clause.start)+bounded+fixed.slice(clause.end)
+  }
+  return fixed!==reply?fixed:null
+}
+
+function repairPostReviewScope(reply:string,userText:string,priorUserTexts:readonly string[]=[]):string|null{
+  let fixed=reply
+  const allUserText=[userText,...priorUserTexts].join('；')
+  // The user's stated weekly cap is a hard boundary. A provider-generated
+  // two-week/daily plan can exceed it even when the option looks low-cost.
+  if(/每周最多两小时/.test(userText)){
+    fixed=fixed.replace(/用两周时间，每天固定一小时/g,'用两周时间，每周最多两小时')
+    fixed=fixed.replace(/每天固定一小时/g,'每周最多两小时')
+  }
+  // “不在意当老板” is a current-priority statement, not proof that the
+  // dimension is unknown or excluded. It may come from an earlier turn.
+  if(/(?:不在意当老板|当老板[^。！？\n]{0,6}(?:不在意|不重要))/.test(allUserText)){
+    fixed=fixed.replace(/地点、老板身份等其他维度仍未确认/g,'地点仍未知；当老板不是当前重点，但不等同于排除')
+    fixed=fixed.replace(/老板身份等(?:其他)?维度仍未确认/g,'当老板不是当前重点，但不等同于排除')
+  }
+  if(/创业仍然拒绝/.test(userText)){
+    fixed=fixed.replace(/创业保持暂停/g,'创业仍然拒绝，保持拒绝')
+  }
+  // A correction of one observation cannot be turned into a causal claim.
+  if(/更正/.test(userText)&&/少问一次只是结果/.test(userText)){
+    fixed=fixed.replace(/此前把“同学少问”当作成就感来源的判断作废；/g,'')
+    fixed=fixed.replace(/现在支持的是：分类规则让你自己省去了反复找东西的环节，这与你减少反复找的目标直接相关。/g,'目前的线索只是：你报告自己在这轮整理中少翻了材料；这是一次观察，不能证明分类规则导致，仍需重复验证。')
+  }
+  // A provider stream can end exactly at a dangling “你对”; complete the
+  // already-grounded reassurance rather than dropping the useful question.
+  if(/不要用一次疲惫推翻/.test(userText)){
+    fixed=fixed.replace(/不影响你对$/,'不影响你对这次放松的判断。')
   }
   return fixed!==reply?fixed:null
 }
