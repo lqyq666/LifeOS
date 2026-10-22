@@ -175,6 +175,11 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
         ;(configured as {temperature?:number}).temperature=Number(diagnosticTemperature)
         staged.audit.push({phase:'diagnostic_temperature_override',temperature:Number(diagnosticTemperature),providerCalls:0})
       }
+      const diagnosticPresence=process.env.LIFEOS_DIAGNOSTIC_PRESENCE_PENALTY
+      if(process.env.LIFEOS_SYNTHETIC_MODEL_DIAGNOSTICS==='true'&&diagnosticPresence&&selected.id==='qwen3.8-flash'&&/^(?:0(?:\.\d+)?|1(?:\.\d+)?|2(?:\.0+)?)$/.test(diagnosticPresence)){
+        ;(configured as {presence_penalty?:number}).presence_penalty=Number(diagnosticPresence)
+        staged.audit.push({phase:'diagnostic_presence_penalty_override',presencePenalty:Number(diagnosticPresence),providerCalls:0})
+      }
       // Actual outgoing instructions, tied to the existing call/completion and
       // final commit receipt. Never log user context or assert model compliance.
       if(JSON.stringify(configured).includes(JSON.stringify(mainCompanionPolicy.instructions).slice(1,-1))){
