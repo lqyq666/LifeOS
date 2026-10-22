@@ -8,7 +8,7 @@ import type { Run } from './store.ts'
 import type { CoachKnowledgeRef } from './coach-knowledge.ts'
 import { growthQuoteSuppressed } from './growth-privacy.ts'
 import {reconcileActionStages,type ActionCase} from './workflows/action-review.ts'
-import {scanUserClauses} from './user-command-spans.ts'
+import {scanUserClauses,assistantRequestClause} from './user-command-spans.ts'
 import {reportedEvidenceFromText,reportedOutcomeSourceClauses} from './turn-contract.ts'
 import {explicitMaterialForms} from './experience-episodes.ts'
 
@@ -197,6 +197,11 @@ export function requiresImmediateMaterial(text:string){
 // chatter and short constraints may instead be retained by process inputSources.
 async function coachNodeSource(c:PoolClient,run:Run,eventId:string|undefined,node:NonNullable<EventDelta['nodes']>[number],newQuotes:string[]):Promise<CoachSource|null>{
   if(node.kind==='unknown')return null
+  // The exact quote must be a reported fact, not a request, question or
+  // hypothetical clause. Existing turn-contract extraction applies the same
+  // boundary; enforce it here before an event node can persist.
+  const clauses=scanUserClauses(node.source.quote)
+  if(clauses.length&&clauses.some(clause=>clause.conditional||assistantRequestClause(clause.text)))throw new HttpError(400,'COACH_SOURCE_INVALID',undefined,{quote:node.source.quote.slice(0,400)})
   try{return await currentSource(c,run,node.source)}
   catch(error){
     if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&eventId){

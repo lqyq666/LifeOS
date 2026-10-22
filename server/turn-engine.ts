@@ -252,8 +252,11 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
       throw providerError(providerMessage,record.firstRawDeltaMs!==null)
     }
     const totalInput=uncached!==null&&cacheWrite!==null&&record.cachedInputTokens!==null?uncached+cacheWrite+record.cachedInputTokens:null
-    const received=assistantText(message),raw=finalCoachJsonText(received,kind=>staged.audit.push({phase:'coach_output_normalized',kind,providerCalls:0}))
-    staged.audit.push({phase:'provider_stream_assembly',callId,requestId,streamChars:streamedText.trim().length,resultChars:raw.length,streamMatchesResult:streamedText.trim()===raw,streamSha256:createHash('sha256').update(streamedText.trim()).digest('hex'),resultSha256:createHash('sha256').update(raw).digest('hex'),providerCalls:0})
+    const sdkStreamText=streamedText,sdkResultText=assistantText(message)
+    const raw=finalCoachJsonText(sdkResultText,kind=>staged.audit.push({phase:'coach_output_normalized',kind,providerCalls:0}))
+    const textSha=(text:string)=>createHash('sha256').update(text).digest('hex')
+    staged.audit.push({phase:'provider_output_stages',callId,requestId,streamChars:sdkStreamText.length,resultChars:sdkResultText.length,normalizedChars:raw.length,streamEqualsResult:sdkStreamText===sdkResultText,resultEqualsNormalized:sdkResultText===raw,streamSha256:textSha(sdkStreamText),resultSha256:textSha(sdkResultText),normalizedSha256:textSha(raw),stopReason:message.stopReason??'unknown',normalizationApplied:sdkResultText!==raw,providerCalls:0})
+    staged.audit.push({phase:'provider_stream_assembly',callId,requestId,streamChars:sdkStreamText.trim().length,resultChars:raw.length,streamMatchesResult:sdkStreamText.trim()===raw,streamSha256:textSha(sdkStreamText.trim()),resultSha256:textSha(raw),providerCalls:0})
     if(record.usageCompleteness==='unavailable'&&completeCoachJsonFrame(streamedText.trim())===streamedText.trim())staged.audit.push({phase:'host_structured_frame_terminated',callId,requestId,reason:'provider_eos_missing_after_complete_frame',providerCalls:0})
     await captureSyntheticOutput(userId,requestId,streamedText,staged,'synthetic_transport_output_captured')
     // Explicit local acceptance instrumentation only. The default production
@@ -274,6 +277,8 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     await captureSyntheticOutput(userId,requestId,streamedText,staged,'partial_synthetic_business_output_captured')
     if(!record.failureCategory&&!(error instanceof HttpError))record.failureCategory=classifyProviderFailure(error instanceof Error?error.message:String(error))
     const code=error instanceof HttpError?error.code:'MODEL_REQUEST_FAILED'
+    const failedStreamSha=createHash('sha256').update(streamedText).digest('hex')
+    staged.audit.push({phase:'provider_output_stages',callId,requestId,streamChars:streamedText.length,resultChars:'unknown',normalizedChars:'unknown',streamEqualsResult:'unknown',resultEqualsNormalized:'unknown',streamSha256:failedStreamSha,resultSha256:'unknown',normalizedSha256:'unknown',stopReason:'unavailable_before_sdk_result',normalizationApplied:'unknown',providerCalls:0})
     finishCall('failed',code)
     staged.modelUsage=usageSummary(calls,totalContextEstimate,retrievedMemoryCount,escalated,escalationReason,false,purpose==='repair'?'coach_contract_repair':null)
     staged.audit.push({phase:'model_call_failed',call:callIndex+1,callId,requestId,providerResponseId:record.providerResponseId,providerResponseModel:record.providerResponseModel,configSignature,startedAt:record.startedAt,finishedAt:record.finishedAt,latencyMs:record.latencyMs,firstRawDeltaMs:record.firstRawDeltaMs,firstQuestionDraftMs:record.firstQuestionDraftMs,usageCompleteness:record.usageCompleteness,purpose,tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,outputTokenLimit:maxOutputTokens,outputPath,schemaName:schemaName??null,uncachedInputTokens:record.uncachedInputTokens??'unknown',uncachedInputIncludesCacheWrite:false,cacheWriteInputTokens:record.cacheWriteInputTokens??'unknown',cachedInputTokens:record.cachedInputTokens??'unknown',outputTokens:record.outputTokens??'unknown',estimatedCostCny:record.usageCompleteness==='complete'?callCost(record.uncachedInputTokens!+record.cacheWriteInputTokens!,record.cachedInputTokens!,record.outputTokens!,record.pricing):'unknown',code,failureCategory:record.failureCategory})
