@@ -180,6 +180,11 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
         ;(configured as {presence_penalty?:number}).presence_penalty=Number(diagnosticPresence)
         staged.audit.push({phase:'diagnostic_presence_penalty_override',presencePenalty:Number(diagnosticPresence),providerCalls:0})
       }
+      if(process.env.LIFEOS_SYNTHETIC_MODEL_DIAGNOSTICS==='true'&&process.env.LIFEOS_DIAGNOSTIC_STOP_TAIL==='true'&&selected.id==='qwen3.8-flash'){
+        const stop=['</parameter>','</function>','</tool_call>','<|tool_']
+        ;(configured as {stop?:string[]}).stop=stop
+        staged.audit.push({phase:'diagnostic_stop_tail_applied',stops:stop,providerCalls:0})
+      }
       // Actual outgoing instructions, tied to the existing call/completion and
       // final commit receipt. Never log user context or assert model compliance.
       if(JSON.stringify(configured).includes(JSON.stringify(mainCompanionPolicy.instructions).slice(1,-1))){
