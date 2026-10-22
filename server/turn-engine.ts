@@ -1710,7 +1710,19 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // may be continued. Database/permission failures remain non-repairable.
       const target=result.event.target
       if(target.operation==='continue'&&!staged.usedEventRefs?.some(ref=>ref.eventId===target.eventId))throw new HttpError(400,'COACH_EVENT_TARGET_INVALID')
-      staged.coach=await stageCoachEvent(run,result.event,result.reply);staged.coach.knowledgeRefs=staged.usedKnowledgeRefs
+      if(result.event){
+      try{
+        staged.coach=await stageCoachEvent(run,result.event,result.reply);staged.coach.knowledgeRefs=staged.usedKnowledgeRefs
+      }catch(error){
+        // The event workspace is optional; a model-supplied request/conditional
+        // source must never be persisted. If it carries no material/action,
+        // drop the event instead of discarding an otherwise valid answer.
+        if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&!result.event.action){
+          staged.audit.push({phase:'coach_event_source_dropped',providerCalls:0})
+          result.event=undefined
+        }else throw error
+      }
+    }
     }
     const refusalEvent=refusalOnly&&!retrieval.ambiguous&&historicalEvents.length===1&&matchingGuideEvent?.id===historicalEvents[0].id?matchingGuideEvent:null
     const usageEventId=staged.coach?.eventId??currentEvent?.id??refusalEvent?.id??(needsKnowledge?matchingGuideEvent?.id:undefined)
