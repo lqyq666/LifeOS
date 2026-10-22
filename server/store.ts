@@ -302,6 +302,19 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
           guideUsage:{status:staged.guideUsage?.length?'applied':'not_requested',items:(staged.guideUsage??[]).map(({guideId,revision,branch,stepId,status,eventId})=>({guideId,revision,branch,stepId,status,eventId}))},
         }
     const memoryIds=staged.snapshot&&staged.memoryChanges?.length?await persistChanges(c,run.user_id,run.conversation_id,staged.memoryChanges,new Date()):[]
+    // A report that the other person replied is a state correction, not a new
+    // duplicate fact. Close historical “not replied / no response” records in
+    // the same transaction so a later readback cannot show both states.
+    const sourceText=String((await c.query("SELECT content FROM messages WHERE user_id=$1 AND id=$2",[run.user_id,run.source_message_id])).rows[0]?.content??'')
+    const reportsResponse=/回复|确认读到|这周忙/.test(sourceText)&&!/(?:还没|还没有|没有|未)回复/.test(sourceText)
+    if(reportsResponse){
+      await c.query("UPDATE growth_items SET status='stale',revision=revision+1,updated_at=now() WHERE user_id=$1 AND conversation_id=$2 AND status='active' AND (text LIKE '%对方还没回复%' OR text LIKE '%老师没回复%' OR text LIKE '%未回复%')",[run.user_id,run.conversation_id])
+      await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) AND status='active' AND (content LIKE '%对方还没回复%' OR content LIKE '%老师没回复%')",[run.user_id,run.conversation_id])
+      await c.query("UPDATE experiences SET content=jsonb_set(content,'{result}','\"后续已收到对方回复\"'::jsonb,true),revision=revision+1,updated_at=now() WHERE user_id=$1 AND conversation_id=$2 AND status='confirmed' AND content->>'result' IN ('对方还没回复','老师没回复')",[run.user_id,run.conversation_id])
+    }
+    if(/没有约定回复时间/.test(sourceText)){
+      await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) AND status='active' AND content LIKE '%是否约定过回复时间%'",[run.user_id,run.conversation_id])
+    }
     await consumeEntitlement(c,run.user_id,current.entitlement_reserved)
     await c.query('INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,\'assistant\',$4,$5)',[randomUUID(),run.user_id,run.conversation_id,text,run.request_id])
     const response={requestId:run.request_id,decisionVersion:version,candidateIds,mergedExperienceIds,themeChangedIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthCreatedIds:growth?growth.createdIds:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],growthWrite:growth??null,stateChange,...(memoryControl?{memoryControl}:{}),...(directionControls?{directionControls:{changedScopes,effects:controlEffects}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}

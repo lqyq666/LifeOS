@@ -12,7 +12,7 @@ import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
 import { retrieveCoachKnowledgeCandidates, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
 import { openingQuestionDraft, openUnreportedChoiceQuestion, openPresupposedProblemQuestion, removePrematureDemoStep, removePrematureProductization, groundSingleLeadWithoutProduct, removeQuestionOnZeroTime, limitGrillingQuestions, removeUnsupportedContactChannels, groundUnsupportedOperationalResources, prioritizeReportedAccessFailure, groundReportedAccessAlternative, fixReportedReceiptState, acknowledgeRefusalBoundary, repairUnsupportedPreferenceClaim, repairUnsupportedZeroTimeClaim, enforceReportedQuantity, ensureZeroTimeFocus, removeZeroTimeTasks, ensureLowCostSelfStart, ensureTwoFactorPresenceChange, guardHealthTwoFactor, groundClickablePrototype, ensureClickableValidation, fixClickableCountConsistency, softenSingleObservationCausality, ensureRequestedQuestion, safeEarlySentence, groundedStateReadback, requestsOnlyStateReadback, retainsDraftText, groundedFeedbackPreview, provisionalStatePreview, provisionalQuestionPreview, provisionalCorrectionPreview, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
-import { boundedDistinctionReply,unresolvedTwoFactors,distinctionActionAccepts,repairReviewedDefects } from './review-repairs.ts'
+import { boundedDistinctionReply,unresolvedTwoFactors,distinctionActionAccepts,repairReviewedDefects,repairStatusUpdate } from './review-repairs.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
@@ -1013,7 +1013,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // Do not downgrade a reported observation while applying the independent
     // source/safety repairs (run-mz C6-T3). Native guards still apply.
     const preserveSummary=contract.requiredReplyKind==='summary'
-    const reviewed=boundedReply||sourceStatusReadback?null:repairReviewedDefects(result.reply,current.content,priorUserTexts,{preserveReportedObservation:preserveSummary})
+    const reviewed=boundedReply?null:sourceStatusReadback?repairStatusUpdate(result.reply,current.content):repairReviewedDefects(result.reply,current.content,priorUserTexts,{preserveReportedObservation:preserveSummary})
     if(reviewed){
       result.reply=reviewed.reply
       // An originally empty explanation with a validated material remains on

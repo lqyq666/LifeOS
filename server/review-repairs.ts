@@ -1418,7 +1418,31 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
   if(/不要用一次疲惫推翻/.test(userText)){
     fixed=fixed.replace(/不影响你对$/,'不影响你对这次放松的判断。')
   }
+  if(/现在卡住的是$/.test(fixed)){
+    fixed=fixed.replace(/现在卡住的是$/,'现在还没说清具体卡在哪一步；先保留这个问题，不安排下一步。')
+  }
+  if(/导师回复说手机打不开链接/.test(userText)){
+    fixed=fixed.replace(/说明卡点只在访问条件/g,'只能说明这次没有拿到内容评价，不能确定唯一卡点')
+  }
+  // A zero-call status update must not echo the user's report instead of
+  // applying it. Keep the two participants and their states separate.
+  if(/老师后来回复说这周忙/.test(userText)&&/^回来反馈：老师后来回复说这周忙/.test(fixed)){
+    fixed='已更新：老师后来回复“这周忙，下周再看”，此前“未回复”作废；同学表格仍明确不适合他，这一点未变。'
+  }
+  if(/第二天大约20秒找到通知/.test(userText)){
+    fixed=fixed.replace(/这次整理让找通知变快/g,'这次你在约20秒内找到通知')
+    fixed=fixed.replace(/这次20秒找到符合这个目标吗？/g,'此前没有同样计时的基线，不能判断是否变快；这次20秒可以记下作为起点。')
+  }
+  if(/先暂停这个方向/.test(userText)&&/两次整理后找东西变快/.test(fixed)){
+    fixed=fixed.replace(/目前只有两次整理后找东西变快的个例/g,'目前只有你自己这一次可计时的整理后查找记录')
+    fixed=fixed.replace(/尚不能判断这是稳定效果还是偶然。/g,'同学那次是另一个人找到材料，不能算作你的第二次体验；尚不能判断这是稳定效果还是偶然。')
+  }
   return fixed!==reply?fixed:null
+}
+
+export function repairStatusUpdate(reply:string,userText:string):ReviewedRepair|null{
+  const fixed=repairPostReviewScope(reply,userText,[])
+  return fixed===null?null:{reply:fixed,phases:['post_review_scope']}
 }
 
 function repairReviewCategories(reply:string,userText:string,preserveReportedObservation=false):string|null{
