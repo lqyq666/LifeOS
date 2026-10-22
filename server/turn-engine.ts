@@ -1282,7 +1282,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     const statusReadbackReply=sourceStatusReadback?repairStatusUpdate(sourceStatusReadback,current.content)?.reply??sourceStatusReadback:null
     if(statusReadbackReply){
       result.reply=statusReadbackReply
-      staged.audit.push({phase:'participant_status_projected_from_current_source',sourceMessageId:run.source_message_id,providerCalls:0})
+      staged.audit.push({phase:'participant_status_projected_from_current_source',sourceMessageId:run.source_message_id,synthesized:statusReadbackReply!==sourceStatusReadback,providerCalls:0})
     }
     if(!boundedReplyAccepts(result.reply,boundedReply)){
       // A paused-target boundary can still answer an explicit one-question recall with its safe clarification choice; never accept the model's unsupported alternative.
