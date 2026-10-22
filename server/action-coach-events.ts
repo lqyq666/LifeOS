@@ -205,7 +205,10 @@ async function coachNodeSource(c:PoolClient,run:Run,eventId:string|undefined,nod
     // Optional interpretations cannot make a request/conditional clause into
     // a stored fact. Drop that node and keep the valid reply and other nodes;
     // a factual node still fails closed.
-    if(node.kind==='user_interpretation')return null
+    // A request/conditional clause cannot become a stored fact. On an existing
+    // event, drop only this optional/misclassified node; a new event still
+    // fails closed because its title/source may itself be request text.
+    if(node.kind==='user_interpretation'||eventId)return null
     throw new HttpError(400,'COACH_SOURCE_INVALID',undefined,{quote:node.source.quote.slice(0,400)})
   }
   try{return await currentSource(c,run,node.source)}
