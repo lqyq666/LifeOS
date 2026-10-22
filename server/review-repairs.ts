@@ -1465,7 +1465,9 @@ export function closeDanglingReply(reply:string):string|null{
   for(const mark of ['。','！','？','!','?','…','；',';'])last=Math.max(last,trimmed.lastIndexOf(mark))
   if(last<0)return null
   const tail=trimmed.slice(last+1).trim()
-  if(!/^(?:我想确认的是|目前已知|现在卡住的是|也就是|或者说|以及|或者|和|与)/.test(tail))return null
+  const count=(text:string,mark:string)=>text.split(mark).length-1
+  const unclosed=(count(tail,'（')>count(tail,'）'))||(count(tail,'(')>count(tail,')'))||(count(tail,'“')>count(tail,'”'))
+  if(!unclosed&&!/^(?:我想确认的是|目前已知|现在卡住的是|也就是|或者说|以及|或者|和|与|[（(“"：:、，,]|如|例如|比如)/.test(tail))return null
   const closed=trimmed.slice(0,last+1).trim()
   return closed||null
 }

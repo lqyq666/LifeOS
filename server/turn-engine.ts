@@ -1022,6 +1022,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
       staged.audit.push({phase:'reviewed_defects_repaired',rules:reviewed.phases,providerCalls:0})
     }
+    const closedEarly=closeDanglingReply(result.reply)
+    if(closedEarly){
+      result.reply=closedEarly
+      staged.audit.push({phase:'dangling_reply_closed_before_validation',providerCalls:0})
+    }
+    if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
     if(distinctionActionRequested){
       const boundedDistinction=boundedDistinctionReply(current.content)
       if(boundedDistinction===null)throw new HttpError(502,'REPLY_DISTINCTION_ACTION_INVALID')
@@ -1220,6 +1226,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       result.reply=finalReviewed.reply
       if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
       staged.audit.push({phase:'reviewed_defects_repaired_final',rules:finalReviewed.phases,providerCalls:0})
+    }
+    const closedFinalReview=closeDanglingReply(result.reply)
+    if(closedFinalReview){
+      result.reply=closedFinalReview
+      staged.audit.push({phase:'dangling_reply_closed_after_final_review',providerCalls:0})
     }
     if(!boundedReply&&!sourceStatusReadback&&(grillingMode==='ordinary'||grillingMode==='explore')&&!materialIntent&&!planIntent){
       const preference=repairUnsupportedPreferenceClaim(result.reply,current.content,promptContext.currentTask.responseScope.reportedEvidence.preferences)
