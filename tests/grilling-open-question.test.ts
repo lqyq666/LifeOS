@@ -52,6 +52,17 @@ test('a local file check cannot claim to test a different recipients device',()=
 import assert from 'node:assert/strict'
 import {openUnreportedChoiceQuestion,openPresupposedProblemQuestion,removePrematureDemoStep,removePrematureProductization,groundSingleLeadWithoutProduct,removeQuestionOnZeroTime,reportedLeadCount,limitGrillingQuestions,removeUnsupportedContactChannels,groundUnsupportedOperationalResources,prioritizeReportedAccessFailure,groundReportedAccessAlternative,fixReportedReceiptState,openingQuestionDraft,safeEarlySentence,acknowledgeRefusalBoundary,repairUnsupportedPreferenceClaim,repairUnsupportedZeroTimeClaim,enforceReportedQuantity,ensureZeroTimeFocus,removeZeroTimeTasks,ensureLowCostSelfStart,ensureTwoFactorPresenceChange,guardHealthTwoFactor,groundClickablePrototype,ensureClickableValidation,fixClickableCountConsistency,softenSingleObservationCausality,ensureRequestedQuestion,requestsOneQuestionReply} from '../server/reply-draft.ts'
 
+test('real36 definition choice removal retains the person-reported question topic',()=>{
+ const user='我是成年大学生，我想要更自由的生活，但明确不想创业。不要换词劝我创业，先问一个问题厘清我说的自由。'
+ const question='你说的“自由”具体是指时间上的自主安排，还是经济上不被固定工作绑定？'
+ assert.equal(openUnreportedChoiceQuestion(question,user),'你说的“自由”具体指什么？')
+ const other='你说的“稳定”具体是指高收入，还是有编制？'
+ assert.equal(openUnreportedChoiceQuestion(other,'我更在意稳定。'),'你说的“稳定”具体指什么？')
+ assert.doesNotMatch(openUnreportedChoiceQuestion(other,'我想聊自由。')??'',/你说的“稳定”/,'an invented topic is not promoted into a personal premise')
+ assert.doesNotMatch(openUnreportedChoiceQuestion(question,'我并不想要自由，只想稳定。')??'',/你说的“自由”/,'a rejected concept is not promoted as a positively owned topic')
+ for(const source of ['我不要自由，只想稳定。','我不追求自由。','我对自由没兴趣。','自由是别人想要的，不是我想要的。','我想要的不是自由。'])assert.doesNotMatch(openUnreportedChoiceQuestion(question,source)??'',/你说的“自由”/,source)
+})
+
 test('unreported alternatives become one grounded open question without another model call',()=>{
   assert.equal(openUnreportedChoiceQuestion('你整理资料时，最让你有成就感的是“混乱变有序”，还是“别人能看懂”？','我喜欢把混乱内容按规则归类。'),'你整理资料时，最让你有成就感的具体情况是什么？')
   assert.equal(openUnreportedChoiceQuestion('你自己想读研，是为了逃避就业，还是为了获得认可？','身边同学都在考研，我还没想清楚。'),'你自己想读研，你希望它具体改变什么？')

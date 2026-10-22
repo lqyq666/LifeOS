@@ -1,5 +1,5 @@
 import {scanUserClauses,assistantRequestClause,responseRequestScope} from './user-command-spans.ts'
-import {reportedCompletedContactClauses,taskOutcomeReadback,comparisonUniverseAccepts,comparisonOptionBody,reportedEvidenceFromText} from './turn-contract.ts'
+import {reportedCompletedContactClauses,taskOutcomeReadback,comparisonUniverseAccepts,comparisonOptionBody,reportedEvidenceFromText,reportedPursuitClauses} from './turn-contract.ts'
 import {memoryControlSuccessClaims} from './forget-intent.ts'
 
 // Shared by provisional display and the final repair. The request scope is
@@ -133,6 +133,15 @@ export function openUnreportedChoiceQuestion(reply:string,userText:string):strin
   const option=(text:string)=>norm(text.replace(/^(?:你|我)?(?:是|更|比较|现在|先|想|愿意|打算|准备|希望|喜欢|倾向|考虑|觉得|要|会|能|可以|选择|探索|做|去|获得|在意|享受)+/,'').replace(/[，,]\s*$/,''))
   const left=option(topic),right=option(broad[3]!)
   if(left.length>=2&&right.length>=2&&own.includes(left)&&own.includes(right))return null
+  // Removing authored alternatives must not erase a concept the person actually
+  // named. Preserve that quoted subject while opening the definition question.
+  const definition=/^(你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"])(?:具体)?(?:是指|指的是).+$/.exec(topic)
+  const positiveDefinition=definition&&[...reportedPursuitClauses(userText).map(clause=>clause.text),...reportedEvidenceFromText(userText).preferences.filter(preference=>['priority','like'].includes(preference.modality)).map(preference=>preference.quote)].some(source=>{
+    const at=source.indexOf(definition[2]!)
+    const prefix=source.slice(0,at).split(/但是|而是|不过|但/).at(-1)??''
+    return at>=0&&!/[不没无未非别莫][^，。；！？]{0,12}$/.test(prefix)
+  })
+  if(definition&&positiveDefinition&&own.includes(norm(definition[2]!)))return reply.slice(0,broad.index)+broad[1]+definition[1]+'具体指什么？'
   // Keep an already authored open question before its unsupported example
   // alternatives. Removing those examples need not invent another question.
   const openStem=topic.split(/——|—/)[0]!.trim()

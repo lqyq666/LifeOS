@@ -212,6 +212,16 @@ async function coachNodeSource(c:PoolClient,run:Run,eventId:string|undefined,nod
 // message neither answers nor declines it. Do not fail the whole turn and do
 // not invent a resolution: keep the unknown active unless the user explicitly
 // declined it. A concrete decline keeps the decline and drops the resolution.
+const ignoredUnknownTopicTerms=new Set(['当时','现在','什么','为什么','是否','有没有','能否','具体','细节','问题','事情','选择','这个','这件','那件','告诉','回答','说明','解释','本人','用户','对方','需要','仍然','如何','多少'])
+const unknownSegmenter=new Intl.Segmenter('zh',{granularity:'word'})
+const unknownTopicTerms=(text:string)=>new Set([...unknownSegmenter.segment(text)].filter(item=>item.isWordLike).map(item=>item.segment).filter(term=>term.length>=2&&!ignoredUnknownTopicTerms.has(term)))
+export function unknownQuestionTopicMatches(question:string,statement:string,engagement=false):boolean{
+  const userTerms=unknownTopicTerms(statement),questionTerms=unknownTopicTerms(question)
+  if(engagement)for(const term of ['愿意','投入','时间','内容','环节','步骤','部分','感到','喜欢','哪一类','哪个','哪类','一类','继续'])questionTerms.delete(term)
+  // A generic field label alone has no subject identity. Keep it unresolved
+  // rather than use an unrelated preference as its answer.
+  return questionTerms.size>0&&[...questionTerms].every(term=>userTerms.has(term))
+}
 export function normalizeUnknownDispositionConflict<T extends {resolveUnknowns?:string[];declineUnknowns?:string[]}>(delta:T,userText:string,questions:Readonly<Record<string,string>>={}):{delta:T;conflictIds:string[]}{
  const resolved=new Set(delta.resolveUnknowns??[]),declined=new Set(delta.declineUnknowns??[])
  const conflictIds=[...resolved].filter(id=>declined.has(id))
@@ -235,14 +245,7 @@ export function normalizeUnknownDispositionConflict<T extends {resolveUnknowns?:
   const courtesy=/^(?:谢谢|请理解|先这样|就这样|麻烦了|嗯|好|好的)[。！!\s]*$/
   const bareRefusal=/^(?:(?:我|本人)(?:现在|暂时|先)?|(?:这个|这件事|这部分|这方面|这个问题|这项|这点)(?:我|本人)?)?(?:不想说|不愿意说|跳过|拒绝回答|先不说|不方便说)(?:了)?[。！？!！\s]*$/
   const wholeTurnRefusal=refusalClauses.length>0&&clauses.every(clause=>bareRefusal.test(clause.text.trim())||courtesy.test(clause.text.trim()))
-  const ignoredTopicTerms=new Set(['当时','现在','什么','为什么','是否','有没有','能否','具体','细节','问题','事情','选择','这个','这件','那件','告诉','回答','说明','解释','本人','用户','对方','需要','仍然','如何','多少'])
-  const segmenter=new Intl.Segmenter('zh',{granularity:'word'})
-  const topicTerms=(text:string)=>new Set([...segmenter.segment(text)].filter(item=>item.isWordLike).map(item=>item.segment).filter(term=>term.length>=2&&!ignoredTopicTerms.has(term)))
-  const questionMatches=(clause:string,question:string)=>{
-    const userTerms=topicTerms(clause)
-    const questionTerms=topicTerms(question)
-    return questionTerms.size>0&&[...questionTerms].every(term=>userTerms.has(term))
-  }
+  const questionMatches=(clause:string,question:string)=>unknownQuestionTopicMatches(question,clause)
   const refused=new Set(conflictIds.filter(id=>refusalClauses.some(clause=>{
     const question=questions[id]??''
     if(questionMatches(clause.text,question))return true

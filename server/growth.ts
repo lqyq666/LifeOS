@@ -11,7 +11,7 @@ import { redactDirectionControlsForMessages } from './growth-controls.ts'
 import type { GrowthItem, GrowthRef, GrowthView } from '../src/features/growth/types.ts'
 import type { GrowthDelta,ResolvedGrowthDelta } from './growth-model-contracts.ts'
 import type { Run } from './store.ts'
-import { reconcileThemesWithGrowth, projectUserThemes } from './user-themes.ts'
+import { reconcileThemesWithGrowth, projectUserThemes,pursuitLevel } from './user-themes.ts'
 import {reconcileIdentityClaims,projectIdentityClaims} from './identity.ts'
 import {hoursIn,applicableTimeBudget} from './turn-obligations.ts'
 import {assistantInstructionClause,deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause,scopedTaskPauseTarget} from './user-command-spans.ts'
@@ -41,7 +41,7 @@ function item(row: Row, reason: string | null = null): GrowthItem {
   // Explicit reply/read/use reports remain readable without inventing that link.
   const outcomes=taskOutcomeReadback(row.text,undefined,row.kind==='feedback',true)
   const feedbackEvidence=!hidden&&row.assertion==='user_reported'&&(row.kind==='feedback'||Object.values(outcomes).some(value=>value.status!=='unknown'))?{reportedAt:row.created_at.toISOString(),taskBinding:'unknown' as const,outcomes}:undefined
-  const kind=['goal','direction'].includes(row.kind)&&row.assertion==='user_reported'&&unstartedActivityOnlyClause(row.text)?'context':row.kind
+  const kind=['goal','direction'].includes(row.kind)&&row.assertion==='user_reported'&&(unstartedActivityOnlyClause(row.text)||pursuitLevel(row.text)===null)?'context':row.kind
   return { ...(feedbackEvidence?{feedbackEvidence}:{}),id: row.id, conversationId: row.conversation_id, kind, text: hidden ? '' : row.text, assertion: row.assertion,
     status: reason && reason!=='not_yet_active' && ['active','proposed'].includes(row.status) ? 'stale' : row.status, sources: hidden ? [] : row.sources, dependencies: hidden ? [] : row.dependencies,
     validUntil: row.valid_until?.toISOString() ?? null, validFrom: row.valid_from?.toISOString() ?? null, timeBasis: row.time_basis ?? null, revision: row.revision, createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(), unavailableReason: reason,limitation:hidden?'':row.limitation??'',progressState:hidden?null:row.progress_state??null,directionScopes:row.direction_scopes??[],structuredPlan:hidden?null:row.structured_plan??null,...(taskBoundary?{taskBoundary}:{}) }
@@ -419,10 +419,10 @@ export async function stageGrowthUpdates(run:Run,changes:ResolvedGrowthDelta[],a
     const {validUntil:legacyExpiry, ...withoutLegacyExpiry}=change as {validUntil?:unknown}
     void legacyExpiry
     const delta:GrowthDelta={...withoutLegacyExpiry,text:selectedText,...(resolvedTime?{validUntil:resolvedTime.validUntil}:{})} as GrowthDelta
-    // A model-selected goal kind cannot turn an autobiographical event into an
-    // ongoing pursuit. Preserve existing explicit action-feedback handling below.
-    if(delta.assertion==='user_reported'&&delta.kind==='goal'
-      &&clauseReportsPastAction(delta.source.quote)){
+    // Use the same pursuit eligibility as the star map. An autobiographical
+    // event or incomplete tentative intent remains sourced context.
+    if(delta.assertion==='user_reported'&&['goal','direction'].includes(delta.kind)
+      &&(clauseReportsPastAction(delta.source.quote)||pursuitLevel(delta.source.quote)===null)){
       ;(delta as {kind:string}).kind='context'
     }
     if(delta.assertion==='user_reported'&&['context','goal','feedback'].includes(delta.kind)){

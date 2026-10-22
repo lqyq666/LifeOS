@@ -694,6 +694,49 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
       assert.equal(nodes.length,2)
       for(const node of nodes){assert.doesNotMatch(node.experienceSummary.result,/尚未记录/);assert.ok(!node.outcomeKeys.includes('adoption'));assert.ok(!node.outcomeKeys.includes('payment'))}
     })
+    await t.test('real36 definition answers close the asked unknown while adjacent outcome evidence cannot close a preference gap',async()=>{
+      const owner='unknown-fields-'+randomUUID(),conversation=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[owner,owner+'@example.invalid'])
+      await store.createConversation(owner,{id:conversation,title:'SYNTHETIC sourced freedom definition'})
+      const first=await prepare('我是成年大学生，我想要更自由的生活，但明确不想创业。不要换词劝我创业，先问一个问题厘清我说的自由。',conversation,owner)
+      outputs.push({reply:'你说的“自由”具体是指时间上的自主安排，还是经济上不被固定工作绑定？',event:{target:{operation:'create',title:'更自由的生活',source:{messageId:first.run.source_message_id,quote:'我想要更自由的生活'}},nodes:[{kind:'unknown',question:'你所说的“自由”具体指什么维度（如时间、地点、经济来源或决策权）？'}]}})
+      const asked=await engine(first.input);await store.finishRun(first.run,first.staged,asked.text,asked.usage,new AbortController().signal)
+      const {coachEventView}=await import('../../server/action-coach-events.ts')
+      const event=(await coachEventView(owner,conversation))!,unknown=event.nodes.find(n=>n.kind==='unknown')!
+      assert.equal(unknown.content,asked.text,'the saved question is the one actually shown, without invented alternatives')
+      const next=await prepare('我主要在意能自己安排一天中专注工作的时间，不在意当老板，也不想承担找客户和收款。',conversation,owner)
+      const reply='你更在意能自己安排一天中专注工作的时间，这澄清了你说的自由；是否适合某类工作仍未知。'
+      // Two independent simulated outputs test the protocol boundary; this
+      // never retries a production/paid request or changes the run's source.
+      outputs.push({reply})
+      await assert.rejects(engine({...next.input,staged:{candidates:[],audit:[]}}),{code:'COACH_UNKNOWN_DISPOSITION_MISSING'})
+      assert.equal((await coachEventView(owner,conversation,event.id))!.nodes.find(n=>n.id===unknown.id)!.status,'active')
+      outputs.push({reply,event:{target:{operation:'continue',eventId:event.id,expectedRevision:event.revision},resolveUnknowns:[unknown.id]}})
+      const answered=await engine(next.input);await store.finishRun(next.run,next.staged,answered.text,answered.usage,new AbortController().signal)
+      assert.ok(requests.at(-1).response_format.json_schema.schema.required.includes('event'))
+      assert.equal((await coachEventView(owner,conversation,event.id))!.nodes.find(n=>n.id===unknown.id)!.status,'resolved')
+
+      const other=randomUUID();await store.createConversation(owner,{id:other,title:'SYNTHETIC outcome does not answer preference'})
+      const opening=await prepare('最近整理一门课的资料时，我发现自己愿意把零散内容分成几类。先问一个问题。',other,owner)
+      const question='具体是哪一类内容或哪个环节让你感到愿意投入时间？'
+      outputs.push({reply:question,event:{target:{operation:'create',title:'整理资料探索',source:{messageId:opening.run.source_message_id,quote:'我发现自己愿意把零散内容分成几类'}},nodes:[{kind:'unknown',question}]}})
+      const opened=await engine(opening.input);await store.finishRun(opening.run,opening.staged,opened.text,opened.usage,new AbortController().signal)
+      const workspace=(await coachEventView(owner,other))!,gap=workspace.nodes.find(n=>n.kind==='unknown')!
+      const feedback=await prepare('接着整理资料的探索。最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次。请根据新信息更新判断，不要重复问已经回答的内容。',other,owner)
+      outputs.push({reply:'这次出现了少问一次的结果，仍是一条观察，不能说明具体愿意投入的是哪类内容或环节。',event:{target:{operation:'continue',eventId:workspace.id,expectedRevision:workspace.revision},resolveUnknowns:[gap.id]}})
+      const updated=await engine(feedback.input);await store.finishRun(feedback.run,feedback.staged,updated.text,updated.usage,new AbortController().signal)
+      assert.equal((await coachEventView(owner,other,workspace.id))!.nodes.find(n=>n.id===gap.id)!.status,'active','an observed outcome does not answer the original preference field')
+      const latest=(await coachEventView(owner,other,workspace.id))!
+      const unrelated=await prepare('补充：我更在意留在目前城市。仍然只报告同学少问一次，没有说我愿意投入的具体内容或环节。',other,owner)
+      outputs.push({reply:'留城是新增的偏好，愿意投入的具体内容或环节仍未知。',event:{target:{operation:'continue',eventId:latest.id,expectedRevision:latest.revision},resolveUnknowns:[gap.id]}})
+      const retained=await engine(unrelated.input);await store.finishRun(unrelated.run,unrelated.staged,retained.text,retained.usage,new AbortController().signal)
+      assert.equal((await coachEventView(owner,other,workspace.id))!.nodes.find(n=>n.id===gap.id)!.status,'active','an unrelated new preference is not an answer to this field')
+      const current=(await coachEventView(owner,other,workspace.id))!
+      const novel=await prepare('接着刚才的整理探索。另有一个无关偏好：我喜欢这本小说的内容。那不代表我愿意投入资料整理的哪个步骤。',other,owner)
+      outputs.push({reply:'小说内容是另一项偏好，不能回答资料整理的投入环节。',event:{target:{operation:'continue',eventId:current.id,expectedRevision:current.revision},resolveUnknowns:[gap.id]}})
+      const separate=await engine(novel.input);await store.finishRun(novel.run,novel.staged,separate.text,separate.usage,new AbortController().signal)
+      assert.equal((await coachEventView(owner,other,workspace.id))!.nodes.find(n=>n.id===gap.id)!.status,'active','liking unrelated content never supplies the missing subject')
+    })
     await t.test('compiled format overhead is checked before any provider reservation or dispatch',async()=>{
       const previous=model.contextWindow,conversation=randomUUID()
       await store.createConversation(user,{id:conversation,title:'SYNTHETIC schema context boundary'})

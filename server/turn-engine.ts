@@ -16,7 +16,7 @@ import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner
 import { HttpError, pool } from './db.ts'
 import {classifyProviderFailure,providerError,type ProviderFailureCategory} from './provider-errors.ts'
 import { parseActionCoachTurn, finalCoachJsonText, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
-import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation,requestedBlankJobWorksheet,effectiveMaterialRequest,unchangedProposedAction, type CoachEvent } from './action-coach-events.ts'
+import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation,requestedBlankJobWorksheet,effectiveMaterialRequest,unchangedProposedAction,unknownQuestionTopicMatches, type CoachEvent } from './action-coach-events.ts'
 import { estimateTokens } from './context.ts'
 import { loadSnapshot, stageCoachBackground } from './memory.ts'
 import { readKnownMajor } from './model-router.ts'
@@ -45,7 +45,7 @@ import { clauseExpressesWishToAct, clauseReportsCompleted, clauseReportsPastActi
 import { readStarMapContext } from './user-themes.ts'
 import { deriveTurnContract, bindPlanBudgetSchema, bindMaterialDeliverySchema,bindRequestedSummarySchema,bindRequestedComparisonSchema,comparisonReplyAccepts,summaryReplyAccepts,isSingleSentenceReply, requestsSingleQuestionMaterial,reportedPursuitClauses,reportedPreferenceClauses,negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses, reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
 import {unsupportedParticipantReadingClaims,unsupportedPreferenceConstraintClaims} from './turn-contract.ts'
-import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback} from './turn-contract.ts'
+import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback,reportedEvidenceFromText} from './turn-contract.ts'
 import {comparisonUniverseAccepts,requestedActionLimitAccepts} from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
@@ -668,6 +668,13 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const questionFirstMaterial=materialIntent&&!resumePortfolioMode&&!planIntent&&singleQuestionMaterial&&(asksRecall||hasSeparateQuestion)&&requiresImmediateMaterial(current.content)
   const deliveryContract=bindMaterialDeliverySchema(bindBoundedReplySchema(originalContract,boundedReply),current.content,resumePortfolioMode,questionFirstMaterial?'question_first':replyMaterial)
   const contract=!boundedReply&&!materialIntent&&!planIntent?bindRequestedComparisonSchema(bindRequestedSummarySchema(deliveryContract,current.content,singleQuestionReply||hasSeparateQuestion),current.content):deliveryContract
+  const answerDispositionRequired=Boolean(immediateAnsweredUnknown&&currentEvent&&contract.capabilities.event&&!boundedReply)
+  if(answerDispositionRequired){
+    const schema=structuredClone(contract.schema) as any
+    schema.required=[...new Set([...schema.required??[],'event'])]
+    schema.properties.event.required=[...new Set([...schema.properties.event.required??[],'resolveUnknowns'])]
+    contract.schema=schema;contract.schemaChars=JSON.stringify(schema).length
+  }
   const reportsUnresolvedTwoFactor=unresolvedTwoFactors(current.content)!==null
   const distinctionActionRequested=requestedScope.actionRequested&&!materialIntent&&!planIntent&&!requiresImmediateMaterial(current.content)
     &&!requestedScope.comparisonRequested&&requestedScope.sentenceLimit===undefined
@@ -720,6 +727,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const baseUserPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,methodContext:methodContext.knowledge,methodFit:methodFitContext,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,taskBoundaries:unresolvedTaskBoundaries.map(item=>item.taskBoundary!),directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:modelClauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null,grillingMode})
   const workflowHints=await actionReviewHints({run,staged,text:current.content,memoryEnabled:snapshot.settings.enabled,currentEvent,historicalEvents,ambiguous:retrieval.ambiguous,listeningOnly:currentConversationOnly(current.content),signal})
   const promptContext=JSON.parse(baseUserPrompt)
+  if(answerDispositionRequired)promptContext.currentTask.pendingAskedUnknown={id:immediateAnsweredUnknown!.id,question:immediateAnsweredUnknown!.content,dispositionRule:'显式评估本轮是否回答了这一个实际已问问题；event.resolveUnknowns必须出现，未回答则为空数组。其他事项的新事实不作为它的答案，不靠回复中自行补出的关系关闭未知。'}
   // Project the same source authority used by native generation and the
   // canonical resolver. Internal staging objects are not model-write sources.
   promptContext.growthWriteScope={sourceClauseIds:contract.capabilities.growth?modelClauseCatalogue.map(clause=>clause.clauseId):[],programOwnedClauseIds:clauseCatalogue.filter(clause=>programOwnedBudgetQuotes.includes(clause.text)).map(clause=>clause.clauseId)}
@@ -772,6 +780,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       await captureSyntheticOutput(run.user_id,run.request_id,raw,staged,'rejected_synthetic_business_output_captured')
       throw new HttpError(502,'COACH_OUTPUT_INVALID')
     }
+    if(answerDispositionRequired&&(!result.event||!Object.hasOwn(result.event,'resolveUnknowns'))){
+      await captureSyntheticOutput(run.user_id,run.request_id,raw,staged,'rejected_synthetic_business_output_captured')
+      staged.audit.push({phase:'coach_output_rejected',stage:'missing_unknown_disposition',providerCalls:0})
+      throw new HttpError(502,'COACH_UNKNOWN_DISPOSITION_MISSING')
+    }
     if(calls.length)await captureSyntheticOutput(run.user_id,run.request_id,raw,staged,'synthetic_business_output_captured')
     if(!completeUserReply(result.reply,current.content))throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
     const preferenceSurfaces=[result.reply,...(result.lead?[result.lead]:[])]
@@ -790,9 +803,13 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       const original=result.reply,opened=openUnreportedChoiceQuestion(original,current.content)
       if(opened){
         result.reply=opened
+        const pendingQuestions=result.event?.nodes?.filter(node=>node.kind==='unknown')??[]
+        const definedTopic=/^你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"]具体指什么[？?]$/.exec(opened)?.[1]
         if(result.event?.nodes)for(const node of result.event.nodes)if(node.kind==='unknown'){
           const question=openUnreportedChoiceQuestion(node.question,current.content)
+          const nodeTopic=/^你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"]具体(?:是)?指/.exec(node.question)?.[1]
           if(question&&opened.includes(question.trim()))node.question=question
+          else if(definedTopic&&pendingQuestions.length===1&&nodeTopic===definedTopic)node.question=opened
         }
         staged.audit.push({phase:'grilling_loaded_choices_opened',providerCalls:0})
       }
@@ -935,6 +952,19 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         staged.audit.push({phase:unchanged?'unchanged_unrequested_material_dropped':'unsolicited_material_dropped',providerCalls:0})
         if(!result.event.nodes?.length&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
       }
+    }
+    if(result.event?.target.operation==='continue'&&result.event.resolveUnknowns?.length){
+      const targetId=result.event.target.eventId
+      const event=[currentEvent,...historicalEvents].find(event=>event?.id===targetId)
+      const engagementSources=[...reportedEvidenceFromText(current.content).preferences.filter(preference=>preference.modality==='like').map(preference=>preference.quote),
+        ...reportedPursuitClauses(current.content).filter(clause=>/^(?:我|本人)(?:最|更|确实|现在)?愿意/.test(clause.text)).map(clause=>clause.text)]
+      result.event.resolveUnknowns=result.event.resolveUnknowns.filter(id=>{
+        const question=event?.nodes.find(node=>node.id===id&&node.kind==='unknown')?.content??''
+        if(/愿意/.test(question)&&/(?:投入|花.{0,6}时间|继续)/.test(question)&&!engagementSources.some(source=>unknownQuestionTopicMatches(question,source,true))){
+          staged.audit.push({phase:'unanswered_preference_gap_retained',nodeId:id,sourceMessageId:run.source_message_id,providerCalls:0});return false
+        }
+        return true
+      })
     }
     if(result.event){
       // Apply the same instruction boundary to corrections: a new request or

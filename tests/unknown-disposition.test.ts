@@ -1,6 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {normalizeUnknownDispositionConflict} from '../server/action-coach-events.ts'
+import {normalizeUnknownDispositionConflict,unknownQuestionTopicMatches} from '../server/action-coach-events.ts'
+
+test('an engagement answer binds its concrete subject, never a generic field or an unrelated preference',()=>{
+ const question='你愿意投入申请材料的哪个步骤？'
+ assert.equal(unknownQuestionTopicMatches(question,'我喜欢这本小说的内容。',true),false)
+ for(const variant of ['你愿意在申请材料的哪个步骤投入时间？','申请材料中，哪一步是你愿意投入的？','哪项申请工作会让你愿意花时间？'])assert.equal(unknownQuestionTopicMatches(variant,'我喜欢这本小说的内容。',true),false)
+ assert.equal(unknownQuestionTopicMatches(question,'我愿意投入申请材料的格式检查步骤。',true),true)
+ assert.equal(unknownQuestionTopicMatches('具体是哪一类内容或哪个环节让你感到愿意投入时间？','我喜欢这本小说的内容。',true),false)
+})
 
 test('a conflicting unknown disposition keeps the state conservative',()=>{
   const base={resolveUnknowns:['a','b'],declineUnknowns:['a']}

@@ -17,6 +17,46 @@ test('growth workspace preserves source/version/privacy and prevents outdated de
   const create=(text:string,kind:'goal'|'priority'|'direction'|'ability'|'unknown'='goal',dependencies:{id:string;revision:number}[]=[])=>createGrowthItem(user,{requestId:randomUUID(),conversationId:chat,kind,text,dependencies})
   const act=(item:GrowthItem,action:'correct'|'pause'|'complete'|'reject'|'forget',text?:string)=>actOnGrowthItem(user,item.id,{requestId:randomUUID(),expectedRevision:item.revision,action,...(text?{text}:{})})
   try{
+    await t.test('a deictic matter pause suspends the star-map next prompt without inventing a global direction',async()=>{
+      const person='pause-view-'+randomUUID(),conversation=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[person,person+'@example.invalid'])
+      await store.createConversation(person,{id:conversation,title:'SYNTHETIC paused exploration'})
+      const goal=await createGrowthItem(person,{requestId:randomUUID(),conversationId:conversation,kind:'goal',text:'我想整理学习资料'})
+      assert.match((await store.cognitionGraph(person)).starmapNextStep,/正在探索/)
+      const text='我今天没精力继续验证，先暂停这个方向，不要再安排动作。只给一句阶段理解，等我以后主动回来再继续。',quote='先暂停这个方向'
+      const run=(await store.startRun(person,conversation,randomUUID(),text)).run
+      const growth=await stageGrowthUpdates(run,[{target:{operation:'create'},kind:'context',assertion:'user_reported',source:{messageId:run.source_message_id,quote}}],[])
+      await store.finishRun(run,{candidates:[],audit:[],growth},'先暂停这段探索，已有事实保留。',null,new AbortController().signal)
+      const after=await store.cognitionGraph(person)
+      assert.match(after.starmapNextStep,/暂停/)
+      assert.doesNotMatch(after.starmapNextStep,/正在探索|当前重点|当前最优先/)
+      assert.equal((await growthView(person)).items.find(i=>i.id===goal.id)!.status,'active','a scoped pause does not delete the original pursuit source')
+      const {readDirectionControls}=await import('../../server/growth-controls.ts')
+      assert.equal((await readDirectionControls(person)).length,0,'the unnamed matter is not guessed as a career direction')
+    })
+    await t.test('an explicit direction pause has the same effective state in the theme data and its displayed label',async()=>{
+      const person='named-pause-'+randomUUID(),conversation=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[person,person+'@example.invalid'])
+      await store.createConversation(person,{id:conversation,title:'SYNTHETIC named pause'})
+      await createGrowthItem(person,{requestId:randomUUID(),conversationId:conversation,kind:'goal',text:'我想要准备考研'})
+      const control=await import('../../server/growth-controls.ts'),run=(await store.startRun(person,conversation,randomUUID(),'先暂停考研。')).run
+      const derived=control.deriveExplicitDirectionControls('先暂停考研。');assert.equal(derived.status,'explicit')
+      if(derived.status!=='explicit')throw Error('EXPECTED_EXPLICIT_CONTROL')
+      const key=control.directionControlsSnapshotKey(await control.readDirectionControls(person)),directionControls=await control.stageDirectionControls(run,derived.changes,key)
+      await store.finishRun(run,{candidates:[],audit:[],directionControls,directionControlSnapshotKey:key},'考研方向已暂停。',null,new AbortController().signal)
+      const theme=(await store.cognitionGraph(person)).nodes.find((n:any)=>n.type==='value'&&n.title==='考研') as any
+      assert.ok(theme);assert.equal(theme.themeStatus,'paused');assert.match(theme.description,/已暂停/)
+    })
+    await t.test('unscoped tentative intent keeps its source as context instead of becoming a current goal',async()=>{
+      for(const [quote,kind] of [['我也跟着想报','context'],['我决定考研','goal']] as const){
+        const run=(await store.startRun(user,chat,randomUUID(),quote)).run
+        const growth=await stageGrowthUpdates(run,[{target:{operation:'create'},kind:'goal',assertion:'user_reported',source:{messageId:run.source_message_id,quote}}],[])
+        await store.finishRun(run,{candidates:[],audit:[],growth},'保留你表达的意向及其确定程度。',null,new AbortController().signal)
+        const saved=(await growthView(user,chat)).items.find(i=>i.text===quote)!
+        assert.equal(saved.kind,kind)
+        assert.equal(saved.sources[0]?.quote,quote)
+      }
+    })
     await t.test('public third-party speech is context, while an explicit later reply remains response evidence',async()=>{
       for(const [text,quote,expected] of [
         ['回来反馈：我只查看了一位校友公开分享的远程岗位经历。他说地点自由，但每天固定开两次会。这是一条个例。','他说地点自由',undefined],

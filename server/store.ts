@@ -502,14 +502,15 @@ export async function cognitionGraph(user:string) {
   const themes=rankPrimaryThemes(validThemes)
   const unchangedThemeIdentities=new Set(validThemes.filter(theme=>storedThemes.some(raw=>raw.id===theme.id&&raw.title===theme.title&&raw.kind===theme.kind)).map(theme=>theme.id))
   const pursuitFacts=currentFacts
-  const starmapNextStep=themeNextStep(themes,pausedThemeLabels,pursuitFacts)
+  const pausedMatter=currentFacts.find(item=>item.taskBoundary?.matterBinding==='needs_same_matter_confirmation')?.taskBoundary
+  const starmapNextStep=pausedMatter?`已暂停「${pausedMatter.targetText}」相关事项；原始事实保留，等待你主动继续。`:themeNextStep(themes,pausedThemeLabels,pursuitFacts)
   const edges:any[]=[]
   const THEME_KIND_LABEL:Record<string,string>={goal:'目标',pursuit:'阶段追求',valued_point:'重视点',interest:'兴趣探索'}
   for(const theme of themes){
     const nodeId='theme-'+theme.id
     const effectiveThemeStatus=pausedThemeLabels.has(theme.title)?'paused':theme.status
     nodes.push({id:nodeId,type:'value',title:theme.title,description:`${THEME_KIND_LABEL[theme.kind]??theme.kind} · ${effectiveThemeStatus==='paused'?'已暂停推荐':effectiveThemeStatus==='pending'?'待核对':'进行中'}
-${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.kind,themeStatus:theme.status,recommendationBoundary:pausedThemeLabels.has(theme.title)?'direction_paused':null,themePinned:theme.pinned,themeRevision:theme.revision,themeUpdatedAt:theme.updated_at.toISOString(),primaryKeywordReason:theme.primaryReason,media:[]} as any)
+${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.kind,themeStatus:effectiveThemeStatus,recommendationBoundary:pausedThemeLabels.has(theme.title)?'direction_paused':null,themePinned:theme.pinned,themeRevision:theme.revision,themeUpdatedAt:theme.updated_at.toISOString(),primaryKeywordReason:theme.primaryReason,media:[]} as any)
     // createGraph requires every value node to carry the self root link.
     edges.push({id:'has-'+theme.id,type:'HAS_VALUE',sourceId:self.id,targetId:nodeId,status:'confirmed_structure'} as any)
   }
