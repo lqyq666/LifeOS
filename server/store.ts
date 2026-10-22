@@ -306,7 +306,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     // duplicate fact. Close historical “not replied / no response” records in
     // the same transaction so a later readback cannot show both states.
     const sourceText=String((await c.query("SELECT content FROM messages WHERE user_id=$1 AND id=$2",[run.user_id,run.source_message_id])).rows[0]?.content??'')
-    const reportsResponse=/回复|确认读到|这周忙/.test(sourceText)&&!/(?:还没|还没有|没有|未)回复/.test(sourceText)
+    const reportsResponse=/(?:回复说|回复了|已回复|后来回复|刚刚回复|确认读到|回复[：:，,])/.test(sourceText)&&!/(?:未回复|没回复|没有回复|还没回复|没有约定回复时间|是否读过|是否回复|不回复)/.test(sourceText)
     if(reportsResponse){
       await c.query("UPDATE growth_items SET status='stale',revision=revision+1,updated_at=now() WHERE user_id=$1 AND status='active' AND (text LIKE '%对方还没回复%' OR text LIKE '%老师没回复%' OR text LIKE '%未回复%')",[run.user_id])
       await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) AND status='active' AND (content LIKE '%对方还没回复%' OR content LIKE '%老师没回复%')",[run.user_id,run.conversation_id])
