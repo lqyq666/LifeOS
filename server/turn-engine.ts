@@ -1228,6 +1228,17 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       if(effect!==null){result.reply=effect;staged.audit.push({phase:'final_time_effect_scope_grounded',providerCalls:0})}
       if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
     }
+    // Later semantic repairs may append a second question after the earlier
+    // grilling bound. Re-apply the one-question boundary to the final visible
+    // reply, without changing persisted state.
+    if(!boundedReply&&!sourceStatusReadback&&requestsOneQuestionReply(current.content)){
+      const finalQuestion=limitGrillingQuestions(result.reply,current.content,authorizedQuestionText)
+      if(finalQuestion){
+        result.reply=finalQuestion
+        if(result.event?.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind!=='unknown'||finalQuestion.includes(node.question.trim()))
+        staged.audit.push({phase:'final_single_question_bounded',providerCalls:0})
+      }
+    }
     if(violatesLabelInferenceBoundary(result.reply,inferenceBoundaries,current.content))throw new HttpError(502,'REPLY_RECREATES_REJECTED_LABEL')
     if(distinctionActionRequested&&!distinctionActionAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_DISTINCTION_ACTION_INVALID')
     // P5.3 step 8: the final reply must not contradict the verified effects.
