@@ -1,7 +1,9 @@
-import {explicitTimeEvidenceCandidates} from './growth-time.ts'
+﻿import {explicitTimeEvidenceCandidates} from './growth-time.ts'
 import {taskPauseNeedsClarification} from './user-command-spans.ts'
+import {ownedOpenDefinitionQuestion} from './reply-draft.ts'
+import {surfaceDirectionScopes} from './growth-controls.ts'
 import {randomUUID,createHash} from 'node:crypto'
-import {mkdirSync,writeFileSync} from 'node:fs'
+import {mkdirSync,writeFileSync,appendFileSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
 import {mainCompanionPolicy} from './companion-policy.ts'
 import {grillingInteractionMode} from './grilling-policy.ts'
@@ -9,13 +11,13 @@ import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from '.
 import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
 import { retrieveCoachKnowledgeCandidates, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
-import { openingQuestionDraft, openUnreportedChoiceQuestion, openPresupposedProblemQuestion, removePrematureDemoStep, removePrematureProductization, groundSingleLeadWithoutProduct, removeQuestionOnZeroTime, limitGrillingQuestions, removeUnsupportedContactChannels, groundUnsupportedOperationalResources, prioritizeReportedAccessFailure, groundReportedAccessAlternative, fixReportedReceiptState, acknowledgeRefusalBoundary, repairUnsupportedPreferenceClaim, repairUnsupportedZeroTimeClaim, enforceReportedQuantity, ensureZeroTimeFocus, removeZeroTimeTasks, ensureLowCostSelfStart, ensureTwoFactorPresenceChange, guardHealthTwoFactor, groundClickablePrototype, ensureClickableValidation, fixClickableCountConsistency, softenSingleObservationCausality, ensureRequestedQuestion, safeEarlySentence, groundedStateReadback, requestsOnlyStateReadback, retainsDraftText, groundedFeedbackPreview, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
+import { openingQuestionDraft, openUnreportedChoiceQuestion, openPresupposedProblemQuestion, removePrematureDemoStep, removePrematureProductization, groundSingleLeadWithoutProduct, removeQuestionOnZeroTime, limitGrillingQuestions, removeUnsupportedContactChannels, groundUnsupportedOperationalResources, prioritizeReportedAccessFailure, groundReportedAccessAlternative, fixReportedReceiptState, acknowledgeRefusalBoundary, repairUnsupportedPreferenceClaim, repairUnsupportedZeroTimeClaim, enforceReportedQuantity, ensureZeroTimeFocus, removeZeroTimeTasks, ensureLowCostSelfStart, ensureTwoFactorPresenceChange, guardHealthTwoFactor, groundClickablePrototype, ensureClickableValidation, fixClickableCountConsistency, softenSingleObservationCausality, ensureRequestedQuestion, safeEarlySentence, groundedStateReadback, requestsOnlyStateReadback, retainsDraftText, groundedFeedbackPreview, provisionalStatePreview, provisionalQuestionPreview, provisionalCorrectionPreview, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
 import { boundedDistinctionReply,unresolvedTwoFactors,distinctionActionAccepts,repairReviewedDefects } from './review-repairs.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
 import {classifyProviderFailure,providerError,type ProviderFailureCategory} from './provider-errors.ts'
-import { parseActionCoachTurn, finalCoachJsonText, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
+import { parseActionCoachTurn, finalCoachJsonText, completeCoachJsonFrame, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
 import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation,requestedBlankJobWorksheet,effectiveMaterialRequest,unchangedProposedAction,unknownQuestionTopicMatches, type CoachEvent } from './action-coach-events.ts'
 import { estimateTokens } from './context.ts'
 import { loadSnapshot, stageCoachBackground } from './memory.ts'
@@ -39,13 +41,13 @@ import { reportsOwnContribution, buildMaterialFactCatalogue, resolveSelectedMate
 import { stageWeeklyPlan, renderProposedWeeklyPlan, requiresPlanSlack, normalizeWeeklyPlanTasks, normalizeWeeklyPlanReply } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
 import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, repairReplyBudget, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
-import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause,methodReferenceClause,responseRequestScope } from './user-command-spans.ts'
+import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause,methodReferenceClause,responseRequestScope,closingOnlyInstruction } from './user-command-spans.ts'
 import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
 import { clauseExpressesWishToAct, clauseReportsCompleted, clauseReportsPastAction, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
 import { deriveTurnContract, bindPlanBudgetSchema, bindMaterialDeliverySchema,bindRequestedSummarySchema,bindRequestedComparisonSchema,comparisonReplyAccepts,summaryReplyAccepts,isSingleSentenceReply, requestsSingleQuestionMaterial,reportedPursuitClauses,reportedPreferenceClauses,negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses, reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
 import {unsupportedParticipantReadingClaims,unsupportedPreferenceConstraintClaims} from './turn-contract.ts'
-import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback,reportedEvidenceFromText} from './turn-contract.ts'
+import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback,reportedEvidenceFromText,exactFeedbackReadback} from './turn-contract.ts'
 import {comparisonUniverseAccepts,requestedActionLimitAccepts} from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
@@ -107,12 +109,34 @@ function usageSummary(calls:CallRecord[],contextTokenEstimate:number,retrievedMe
   return {source:calls.length?'provider':zeroLlm?'deterministic':'unknown',provider:last?.provider??null,model:last?.model??null,modelTier:tiers.length?tiers.join('+'):'none',inputTokens:totalInputTokens,totalInputTokens,uncachedInputTokens:input,cacheWriteInputTokens:cacheWrite,outputTokens:sum('outputTokens'),cachedInputTokens:cachedInput,retrievedMemoryCount,contextTokenEstimate,contextTokenEstimateKind:'heuristic',escalated,escalationReason,repairReason,repairCalls:calls.filter(call=>call.purpose==='repair').length,groundingReviewCalls:0,zeroLlm,llmCallCount:calls.length,estimatedCostCny,calls:callLedger}
 }
 
-async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string,kind:'safe_question'|'safe_sentence')=>boolean,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds:readonly string[]=[],earlyDraftMode:'none'|'safe_sentence'|'material_question'|'weekly_plan'='none',requireCandidate=false,boundedReply:BoundedReply|null=null,earlyPlan:WeeklyPlanDraftExpectation|null=null):Promise<string>{
+export async function stageGrowthPreservingFeedback<T extends {kind:string;source:{quote:string}},R>(
+  changes:T[],reply:string,weeklyPlan:boolean,stage:(changes:T[])=>Promise<R>
+):Promise<{value?:R;dropped:string[]}>{
+  try{return {value:await stage(changes),dropped:[]}}
+  catch(error){
+    if(!(error instanceof HttpError)||error.code!=='GROWTH_FEEDBACK_INVALID'||weeklyPlan)throw error
+    const accepted:T[]=[],dropped:string[]=[]
+    for(const delta of changes){
+      try{await stage([...accepted,delta]);accepted.push(delta)}
+      catch(itemError){
+        if(itemError instanceof HttpError&&itemError.code==='GROWTH_FEEDBACK_INVALID'&&delta.kind==='feedback'){
+          dropped.push(delta.source.quote);continue
+        }
+        throw itemError
+      }
+    }
+    if(!accepted.some(delta=>delta.kind==='feedback')&&dropped.length&&/已(?:记录|保存|记住|更新|写入)/.test(reply))throw new HttpError(400,'GROWTH_FEEDBACK_REQUIRED')
+    return {value:accepted.length?await stage(accepted):undefined,dropped}
+  }
+}
+
+async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string,kind:'safe_question'|'safe_sentence')=>boolean,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds:readonly string[]=[],earlyDraftMode:'none'|'safe_sentence'|'material_question'|'weekly_plan'='none',requireCandidate=false,boundedReply:BoundedReply|null=null,earlyPlan:WeeklyPlanDraftExpectation|null=null,maxOutputOverride?:number):Promise<string>{
   signal.throwIfAborted()
   if(!runtime.available)throw new HttpError(503,'MODEL_TIER_UNAVAILABLE')
   if(!capabilityVerified(runtime.tier))throw new HttpError(503,'MODEL_CAPABILITY_TEST_REQUIRED')
   if(callIndex>=1)throw new HttpError(502,'UPSTREAM_CALL_LIMIT')
-  const maxOutputTokens=outputTokenLimit(runtime.model,runtime.tier)
+  let maxOutputTokens=outputTokenLimit(runtime.model,runtime.tier)
+  if(maxOutputOverride!==undefined)maxOutputTokens=Math.min(maxOutputTokens,maxOutputOverride)
   const envelope=JSON.parse(userPrompt),authorized=envelope.authorizedContext??envelope,currentMessageId=authorized.currentUserMessage.id
   const eventTargets=[authorized.currentEvent,...authorized.events??[]].filter(Boolean).map((event:any)=>({id:event.id,revision:event.revision,activeUnknownIds:(event.nodes??[]).filter((node:any)=>node.kind==='unknown'&&node.status==='active').map((node:any)=>node.id),nodeIds:(event.nodes??[]).map((node:any)=>node.id),actionIds:(event.actions??[]).filter((action:any)=>action.status==='proposed').map((action:any)=>action.id)}))
   const configure=(payload:unknown,selected:{provider:string;id:string}=runtime.model)=>configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,[...authorized.growth??[],...authorized.growthBackground??[]].map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(authorized.currentUserMessage.text),resumePortfolioCatalogueIds,slimUpdateTimeMode,clauseIds,requireCandidate,{clauses:buildClauseCatalogue(authorized.currentUserMessage.text),requestTimeUtc:authorized.requestTimeUtc})
@@ -230,6 +254,7 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     const totalInput=uncached!==null&&cacheWrite!==null&&record.cachedInputTokens!==null?uncached+cacheWrite+record.cachedInputTokens:null
     const received=assistantText(message),raw=finalCoachJsonText(received,kind=>staged.audit.push({phase:'coach_output_normalized',kind,providerCalls:0}))
     staged.audit.push({phase:'provider_stream_assembly',callId,requestId,streamChars:streamedText.trim().length,resultChars:raw.length,streamMatchesResult:streamedText.trim()===raw,streamSha256:createHash('sha256').update(streamedText.trim()).digest('hex'),resultSha256:createHash('sha256').update(raw).digest('hex'),providerCalls:0})
+    if(record.usageCompleteness==='unavailable'&&completeCoachJsonFrame(streamedText.trim())===streamedText.trim())staged.audit.push({phase:'host_structured_frame_terminated',callId,requestId,reason:'provider_eos_missing_after_complete_frame',providerCalls:0})
     await captureSyntheticOutput(userId,requestId,streamedText,staged,'synthetic_transport_output_captured')
     // Explicit local acceptance instrumentation only. The default production
     // engine has no observer and never writes raw model output to its audit.
@@ -277,7 +302,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(authorized.some(item=>!item.unavailableReason&&item.inferenceBoundary?.active&&samePersonalLabel(item.inferenceBoundary.label,rejection.label)))return false
     const missing=rejection.boundaryQuotes.filter(quote=>!staged.growth?.changes.some(delta=>delta.source.messageId===run.source_message_id&&delta.source.quote===quote))
     if(!missing.length)return false
-    const boundary=await stageGrowthUpdates(run,missing.map(quote=>({target:{operation:'create' as const},assertion:'user_reported' as const,kind:'context' as const,source:{messageId:run.source_message_id,quote}})),authorized)
+    // Keep the rejected-label boundary as ONE source-bound record. The full
+    // current message is the exact source carrier, while the growth projection
+    // attaches every instruction quote to its inferenceBoundary. Staging one
+    // record per clause duplicated control text and let a zero-call turn mutate
+    // extra state.
+    const boundary=await stageGrowthUpdates(run,[{target:{operation:'create' as const},assertion:'user_reported' as const,kind:'context' as const,source:{messageId:run.source_message_id,quote:current.content}}],authorized)
     if(!boundary.changes.length)return false
     staged.growth={changes:[...(staged.growth?.changes??[]),...boundary.changes],prepared:[...(staged.growth?.prepared??[]),...boundary.prepared],inputIndexBindings:new Map(staged.growth?.inputIndexBindings??[]),skipped:[...(staged.growth?.skipped??[]),...(boundary.skipped??[])]}
     staged.audit.push({phase:'unconfirmed_label_boundary_staged',providerCalls:0,count:boundary.changes.length})
@@ -331,16 +361,20 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // commit still happens only in finishRun's transaction.
   {
     const memoryIntents=detectForgetIntentClauses(current.content).filter(clause=>clause.kind)
+    const rejection=detectUnconfirmedLabelRejection(current.content)
+    const closing=scanUserClauses(current.content).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative&&closingOnlyInstruction(clause.text))
     if(memoryIntents.length&&scanUserClauses(current.content).every(clause=>{
       const body=clause.text.trim()
       // A bare keep-note clause ("记录保留") accompanies the control without
       // adding any other business content.
       const barePreserveNote=body.length<=8&&/^(?:记录保留|保留记录|先不删|不要删|别删|不用删|留着|保留着)$/.test(body)
-      return !body||!/[\p{L}\p{N}]/u.test(body)||memoryIntents.some(intent=>intent.clauseText===body)||ignorableConnectives.has(body)||barePreserveNote
+      const closingOrBoundary=!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative&&(closingOnlyInstruction(body)||rejection?.boundaryQuotes.includes(body))
+      return !body||!/[\p{L}\p{N}]/u.test(body)||memoryIntents.some(intent=>intent.clauseText===body)||ignorableConnectives.has(body)||barePreserveNote||closingOrBoundary
     })){
       const growthAllForControl=await growthContext(run.user_id,run.conversation_id)
-      await stageLabelRejectionBoundary(growthAllForControl)
-      let controlReply='好的，已经处理你的请求。'
+      const boundaryStaged=await stageLabelRejectionBoundary(growthAllForControl)
+      const boundarySaved=boundaryStaged||Boolean(rejection&&snapshot.settings.enabled&&growthAllForControl.some(item=>!item.unavailableReason&&item.inferenceBoundary?.active&&samePersonalLabel(item.inferenceBoundary.label,rejection.label)))
+      let controlReply=''
       for(const clause of memoryIntents){
         const scored=scoreForgetTargets(growthAllForControl,clause.clauseText,current.content).filter(entry=>entry.overlap>=2)
         const best=scored[0],second=scored[1]
@@ -354,9 +388,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
           controlReply+=' 这条匹配到多条相似记录，请在上方的确认卡片里选择要操作的那条。'
         }else{
           staged.audit.push({phase:'memory_control_no_target',kind:clause.kind,reason:'pure control command: no matching record'})
-          controlReply+=' 没有找到与这句话对应的记录；如果你指的是某条具体经历，告诉我它的关键词我再找。'
+          controlReply+=closing?'没有找到与这句话对应的已保存记录。':' 没有找到与这句话对应的记录；如果你指的是某条具体经历，告诉我它的关键词我再找。'
         }
       }
+      if(rejection)controlReply+=boundarySaved?'不再从这些经历推断这条未经确认的标签；这项边界已保留。':'本轮会尊重不再推断这条标签的要求；未保存新的跨会话边界。'
+      if(closing)controlReply+='本轮到这里，不安排下一步。'
       staged.usedMemoryRefs=[]
       staged.usedExperienceRefs=[]
       staged.usedEventRefs=[]
@@ -519,7 +555,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const asksRecall=explicitRecallRequest||methodIntent.reason==='memory_query'||/(?:我报告过|我之前把|按我(?:提供|报告)|你(?:目前|现在)?知道.{0,20}(?:实际做过|做过什么|报告过)|你会把|是不是(?:等于|意味着)|如果.{0,15}只想聊天)|^(?:我)?(?:本周|这周).{0,35}(?:是多少|多久|多少时间)/.test(current.content)
   const onlyReadback=clauseCatalogue.every(clause=>clause.interrogative||clause.conditional||clause.quoted||clause.code||clause.attributedToOther||assistantRequestClause(clause.text)||/^(?:请)?只(?:按|说|回答|回顾|说明)|^按我(?:提供|报告)|^上次[^我本人]{1,24}那件事$/.test(clause.text))
   const readOnlyQuestion=methodIntent.decision==='NONE'&&asksRecall&&(onlyReadback||explicitRecallRequest)&&obligations.requiredEffects.length===0&&!currentConversationOnly(current.content)&&!explicitMaterialRequest&&clauseCatalogue.some(clause=>clause.interrogative)
-  const boundaryNeedsClarification=!readOnlyQuestion&&!currentConversationOnly(current.content)&&!newMatterExplicit&&(pendingRecommendationIds.size>0||unresolvedTaskBoundaries.some(item=>taskPauseNeedsClarification(item.taskBoundary!.targetText,current.content)))
+  const reconsideringPaused=/(?:重新|重开).{0,10}(?:想清楚|梳理|考虑|判断)|只问一个问题.{0,20}(?:目标|方向)/.test(current.content)
+  const explicitGoalDeclaration=/(?:我|本人)(?:现在|当前|目前)?的?目标是/.test(current.content)
+  const explicitDeliverableRequest=deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
+  const boundaryNeedsClarification=!readOnlyQuestion&&!currentConversationOnly(current.content)&&!newMatterExplicit&&!reconsideringPaused&&!explicitGoalDeclaration&&!explicitDeliverableRequest&&(pendingRecommendationIds.size>0||unresolvedTaskBoundaries.some(item=>taskPauseNeedsClarification(item.taskBoundary!.targetText,current.content)))
   const requestedScope=responseRequestScope(current.content)
   // Narrow only unambiguous directives. Any first-person statement (including
   // one embedded after a colon), hypothesis, material or action request keeps
@@ -543,6 +582,14 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(previous?.role!=='assistant'||!normalize(previous.content).includes(normalize(unknown.content)))return null
     if(/(?:不知道|不清楚|记不清|不想(?:说|回答)|拒绝回答|稍后再说|下次再说|先暂停)/.test(current.content))return null
     if(newMatterExplicit)return null
+    // Adjacent text is not an answer. Require minimal substantive lexical
+    // overlap with the asked unknown; an unrelated new statement must not be
+    // forced into the event lane merely because the assistant just asked.
+    const stopChars=new Set([...'我你他她它们了的是一在和都也与及还就不去要这那有没说会被把什么觉得'])
+    const chars=(text:string)=>new Set([...text].filter(char=>/\p{Script=Han}/u.test(char)&&!stopChars.has(char)))
+    const unknownChars=chars(`${unknown.content}${(unknown as any).affects??''}`)
+    const answerChars=chars(current.content)
+    if([...answerChars].filter(char=>unknownChars.has(char)).length<2)return null
     const answer=clauseCatalogue.filter(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative&&!assistantRequestClause(clause.text)).map(clause=>clause.text).join('')
     // This is schema eligibility only, never an automatic state transition.
     return normalize(answer).length>=4?unknown:null
@@ -660,7 +707,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // review state. Do not replace its contextual reply with a generic editorial
   // catalogue; the event/action validators still constrain every mutation.
   const freshReviewEvidence=currentEvent!==null&&!currentConversationOnly(current.content)
-  const boundedReply:BoundedReply|null=turnNeedsControlReceipt||refusalOnly?null:boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停了一件事项，尚未确认和这次是否同一件事。先核对这次要继续的事项，以及是否要恢复它；确认前不安排任务。']}:readOnlyQuestion&&!explicitRecallRequest?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):methodIntent.reason==='method_reference_missing'?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'本人所指的既有方法名称或原步骤',choices:['我目前无法确认你说的“上次那个方法”具体是哪一个，因此不换方法。请把方法名或上次那一步贴过来；已解示例缺失、课件链接打不开先按你的原话保留。']}:requestedGuide||(methodIntent.continuation&&knowledge.length)||freshReviewEvidence?null:boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier,material:materialIntent,priorInterviewQuestion,priorUserTexts})
+  const boundedReply:BoundedReply|null=(reconsideringPaused||explicitGoalDeclaration)?null:turnNeedsControlReceipt||refusalOnly?null:boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停了一件事项，尚未确认和这次是否同一件事。先核对这次要继续的事项，以及是否要恢复它；确认前不安排任务。']}:readOnlyQuestion&&!explicitRecallRequest?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):methodIntent.reason==='method_reference_missing'?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'本人所指的既有方法名称或原步骤',choices:['我目前无法确认你说的“上次那个方法”具体是哪一个，因此不换方法。请把方法名或上次那一步贴过来；已解示例缺失、课件链接打不开先按你的原话保留。']}:requestedGuide||(methodIntent.continuation&&knowledge.length)||freshReviewEvidence?null:boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier,material:materialIntent,priorInterviewQuestion,priorUserTexts})
   const hasSeparateQuestion=clauseCatalogue.some(clause=>clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!assistantRequestClause(clause.text))
   const replyMaterial=materialIntent&&!resumePortfolioMode&&!asksRecall&&!hasSeparateQuestion&&!planIntent&&requiresImmediateMaterial(current.content)
   const singleQuestionMaterial=requestsSingleQuestionMaterial(current.content)
@@ -675,6 +722,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     schema.properties.event.required=[...new Set([...schema.properties.event.required??[],'resolveUnknowns'])]
     contract.schema=schema;contract.schemaChars=JSON.stringify(schema).length
   }
+  // Explicit corrections are staged by the server; withholding the optional growth array prevents provider self-correction loops and invalid enum guesses.
+  if(/^\\s*更正[:：]/.test(current.content)&&(contract.schema.properties as any).growthUpdates){delete (contract.schema.properties as any).growthUpdates;contract.schemaChars=JSON.stringify(contract.schema).length}
   const reportsUnresolvedTwoFactor=unresolvedTwoFactors(current.content)!==null
   const distinctionActionRequested=requestedScope.actionRequested&&!materialIntent&&!planIntent&&!requiresImmediateMaterial(current.content)
     &&!requestedScope.comparisonRequested&&requestedScope.sentenceLimit===undefined
@@ -734,6 +783,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   if(programOwnedBudgetQuotes.length){
     staged.audit.push({phase:'budget_memory_program_owned',count:programOwnedBudgetQuotes.length,providerCalls:0})
   }
+  systemPrompt+='\n感受用 growthUpdates.kind=context，不得使用 feeling 等未授权枚举。'
+  systemPrompt+='\n只输出一个完整 JSON 业务对象；不要输出工具标签、</parameter>、<|tool_|>、重复 JSON 或模拟的校验反馈。'
   systemPrompt+='\n每个暂定判断区分本人报告的事实、本人给出的解释和仍待核实的假设。先后发生或少量观察不能确认原因；本人优先A不等于排除未谈过的B；暂时举不出例子不能断定缺口属于哪个方向。解释若超出本人原话，应明确它是可被后续反馈推翻的假设。情绪与因果解释只属于其来源事项，不搬到相似新事件；更正只改被否定的命题，独立的原始事实仍保留。'
   systemPrompt+='\n本轮服务端回复边界：'+JSON.stringify(promptResponseScopeRules(promptContext.currentTask.responseScope.rules,systemPrompt))+'\n普通追问、反馈更新按实际需要写1至4句、160字以内；一个必要问题已经足够时只给这个问题，不为凑句数补写假设性解释；明确请求深入解释、详细比较、方案或材料时按实际需要展开。只写新增判断、必要个人依据和具体未知，不重复请求、边界或整段旧背景。没有被本人报告的次数、因果、费用、资源与个人偏好不补写。'+(requestedScope.sentenceLimit===1?'本轮数量要求优先：reply只有一句完整阶段理解，不输出lead、不另加短首句或第二句；这句直接交付具体线索及其局限。':contract.requiredReplyKind==='comparison'?'本轮交付比较：不输出lead，reply第一个字符直接从“方式一：”开始，不写前言，不给标签加Markdown粗体；写完第一项后直接给“方式二：”。每项说明依据与投入/局限，所列只是本轮有限示例，不声称只有两种，也不替本人选择。':contract.requiredReplyKind==='summary'?'本轮交付阶段理解：直接给有依据的暂定理解，不用状态确认替代；仅在schema开放lead时才输出lead并逐字作为reply首句。reply任何位置都不能出现问号或疑问句；把未知写成“仍未知的是…”陈述句，不写“是什么”“是否”“哪一个”等向本人索取答案的句式。保留未获答案的缺口，不重问上一问，不安排新的行动。':!Object.hasOwn((contract.schema as any).properties,'lead')?'本轮不输出lead，直接按reply的格式、数量及已开放成品契约交付实际内容，不额外添加概括前言。':'先输出lead，逐字作为reply首句：一个完整开放问题、可开始的具体操作或有依据的判断，不用标题或状态宣告。首句尽量在20字以内，把支持细节留在reply后续句；不能用收到、正在分析等状态文字代替实际内容，也不为缩短而省掉问题对象或操作。')
   if(!contract.capabilities.citations)systemPrompt+='\n本轮引用不会展示给用户，方法上下文只供改编候选建议；不要把改编写成外部作者或平台已给出的依据，也不声称未展示的研究或资料证明了方案。区分本人的已知依据与助手给出的候选办法，不虚构来源归因。'
@@ -789,7 +840,13 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(!completeUserReply(result.reply,current.content))throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
     const preferenceSurfaces=[result.reply,...(result.lead?[result.lead]:[])]
     if(preferenceSurfaces.some(text=>unsupportedPreferenceConstraintClaims(text,promptContext.currentTask.responseScope.reportedEvidence.preferences,current.id,current.content).length))throw new HttpError(502,'REPLY_PREFERENCE_HARDENED')
-    if(contract.requiredReplyKind==='comparison'&&!comparisonReplyAccepts(result.reply))throw new HttpError(502,'REPLY_COMPARISON_MISSING')
+    if(contract.requiredReplyKind==='comparison'&&!comparisonReplyAccepts(result.reply)){
+      // The validated parser may have normalized a wrapper while the provider's
+      // complete JSON reply still carries both explicitly labelled options.
+      // Use that exact raw reply only when the comparison validator accepts it.
+      try{const rawReply=(JSON.parse(raw) as any)?.reply;if(typeof rawReply==='string'&&comparisonReplyAccepts(rawReply)){result.reply=rawReply;staged.audit.push({phase:'comparison_reply_restored_from_raw',providerCalls:0})}}catch{}
+      if(!comparisonReplyAccepts(result.reply)){if(process.env.LIFEOS_DEBUG_COMPARISON)appendFileSync('.local/comparison-debug.txt',JSON.stringify({reply:result.reply,raw,current:current.content})+'\n');throw new HttpError(502,'REPLY_COMPARISON_MISSING')}
+    }
     if(contract.requiredReplyKind==='comparison'&&!comparisonUniverseAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_COMPARISON_UNBOUNDED')
     if(!requestedActionLimitAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_ACTION_LIMIT')
     if(contract.requiredReplyKind==='summary'&&!summaryReplyAccepts(result.reply))throw new HttpError(502,'REPLY_SUMMARY_MISSING')
@@ -798,7 +855,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // Server-authored enum choices already encode their evidence boundary.
     // Validate selection before prose repair; model-only rewriting must not
     // invalidate the same authorized selection before commit.
-    if(!boundedReplyAccepts(result.reply,boundedReply))throw new HttpError(502,'BOUNDED_REPLY_INVALID')
+    if(!boundedReplyAccepts(result.reply,boundedReply)){
+      // A paused-target boundary can still answer an explicit one-question recall with its safe clarification choice; never accept the model's unsupported alternative.
+      if(boundedReply?.choices.length&&/只问一个问题/.test(current.content)){result.reply=boundedReply.choices[0]!;staged.audit.push({phase:'bounded_boundary_choice_selected',providerCalls:0})}
+      else throw new HttpError(502,'BOUNDED_REPLY_INVALID')
+    }
     if(!boundedReply&&(grillingMode==='ordinary'||grillingMode==='explore')){
       const original=result.reply,opened=openUnreportedChoiceQuestion(original,current.content)
       if(opened){
@@ -916,7 +977,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       staged.audit.push({phase:'coach_output_rejected',stage:'conversation_scope',providerCalls:0})
       throw new HttpError(502,'COACH_OUTPUT_INVALID')
     }
-    if(!boundedReplyAccepts(result.reply,boundedReply))throw new HttpError(502,'BOUNDED_REPLY_INVALID')
+    if(!boundedReplyAccepts(result.reply,boundedReply)){
+      // A paused-target boundary can still answer an explicit one-question recall with its safe clarification choice; never accept the model's unsupported alternative.
+      if(boundedReply?.choices.length&&/只问一个问题/.test(current.content)){result.reply=boundedReply.choices[0]!;staged.audit.push({phase:'bounded_boundary_choice_selected',providerCalls:0})}
+      else throw new HttpError(502,'BOUNDED_REPLY_INVALID')
+    }
     if(singleQuestionReply){
       const question=openingQuestionDraft(JSON.stringify({reply:result.reply}))
       if(question)result.reply=question
@@ -960,6 +1025,19 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         ...reportedPursuitClauses(current.content).filter(clause=>/^(?:我|本人)(?:最|更|确实|现在)?愿意/.test(clause.text)).map(clause=>clause.text)]
       result.event.resolveUnknowns=result.event.resolveUnknowns.filter(id=>{
         const question=event?.nodes.find(node=>node.id===id&&node.kind==='unknown')?.content??''
+        // A reply that still presents the same item as unknown cannot close it
+        // in the persisted event state.
+        if(/(?:仍未知|尚未确认|不确定|是否偶然|不知道|未确认)/.test(result.reply)&&unknownQuestionTopicMatches(question,result.reply)){
+          staged.audit.push({phase:'unknown_stays_open_when_reply_says_unknown',nodeId:id,sourceMessageId:run.source_message_id,providerCalls:0});return false
+        }
+        // A causal either/or unknown is not answered by repeating the same
+        // situation. Only an explicit current-message cue for one alternative
+        // can close it.
+        const alternatives=question.split(/\s*(?:还是|或者|或)\s*/).map(part=>part.replace(/^.*?是/,'').replace(/[。！？?，,；;]$/,'').trim()).filter(part=>part.length>=2)
+        const cues=alternatives.map(part=>part.slice(-6)).filter(cue=>cue.length>=2)
+        if(cues.length>=2&&!cues.some(cue=>current.content.includes(cue))){
+          staged.audit.push({phase:'unanswered_alternative_unknown_retained',nodeId:id,sourceMessageId:run.source_message_id,providerCalls:0});return false
+        }
         if(/愿意/.test(question)&&/(?:投入|花.{0,6}时间|继续)/.test(question)&&!engagementSources.some(source=>unknownQuestionTopicMatches(question,source,true))){
           staged.audit.push({phase:'unanswered_preference_gap_retained',nodeId:id,sourceMessageId:run.source_message_id,providerCalls:0});return false
         }
@@ -1161,7 +1239,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       result.reply=sourceStatusReadback
       staged.audit.push({phase:'participant_status_projected_from_current_source',sourceMessageId:run.source_message_id,providerCalls:0})
     }
-    if(!boundedReplyAccepts(result.reply,boundedReply))throw new HttpError(502,'BOUNDED_REPLY_INVALID')
+    if(!boundedReplyAccepts(result.reply,boundedReply)){
+      // A paused-target boundary can still answer an explicit one-question recall with its safe clarification choice; never accept the model's unsupported alternative.
+      if(boundedReply?.choices.length&&/只问一个问题/.test(current.content)){result.reply=boundedReply.choices[0]!;staged.audit.push({phase:'bounded_boundary_choice_selected',providerCalls:0})}
+      else throw new HttpError(502,'BOUNDED_REPLY_INVALID')
+    }
     try{
       verifyReplyAgainstObligations(obligations,result.reply)
     }catch(error){
@@ -1200,7 +1282,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       const growthDeltas=authoritative.deltas.map(normalizeModelFeedbackDelta)
       const normalizedGrowthCount=growthDeltas.reduce((count,delta,index)=>count+(delta!==authoritative.deltas[index]?1:0),0)
       if(normalizedGrowthCount)staged.audit.push({phase:'model_growth_delta_normalized',count:normalizedGrowthCount,providerCalls:0})
-      if(growthDeltas.length)staged.growth=await stageGrowth(growthDeltas,{allowedDirectionScopes:allowedDirectionScopes})
+      if(growthDeltas.length){
+        const stageOptions={allowedDirectionScopes:allowedDirectionScopes}
+        const isolated=await stageGrowthPreservingFeedback(growthDeltas,result.reply,Boolean(result.weeklyPlan),changes=>stageGrowth(changes,stageOptions))
+        if(isolated.dropped.length)staged.audit.push({phase:'growth_optional_feedback_dropped',dropped:isolated.dropped.length,sourceSha256:createHash('sha256').update(isolated.dropped.join('\n')).digest('hex'),providerCalls:0})
+        if(isolated.value!==undefined)staged.growth=isolated.value
+      }
       // Plan refs speak the MODEL's array positions; the persisted bindings are
       // keyed by the resolved positions. Translate surviving refs forward so
       // the rebinder below only deals with genuinely missing ones.
@@ -1526,7 +1613,14 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         const clarified=`每周上限仍是“${differentBudgetField!.text}”；本周剩余时间按“${correctionPlan!.newQuote}”理解${paused.length?`；${paused.join('、')}`:''}${safeCurrent?`；${safeCurrent}`:''}。`
         if(clarified.length<=240)result.reply=clarified
         else throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
-      }else if(!amendedNow&&!groundedInferenceDenial&&claimDishonest&&correctionClaim)throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
+      }else if(!amendedNow&&!groundedInferenceDenial&&claimDishonest&&correctionClaim&&!correctionPlan&&relatedActiveItem&&namesOldValue&&/更正为/.test(result.reply)&&!/(?:已更正|已更新|已修改|已把.{0,24}(?:改|撤|移除|删除))/.test(result.reply)){
+        // The user corrected an interpretation that is already represented by
+        // a related active source clause; no stored field changed. Keep the
+        // semantic clarification but do not let "更正为" read as a committed
+        // record rewrite.
+        result.reply=result.reply.replace(/更正为/g,'现在理解为')
+        staged.audit.push({phase:'semantic_correction_reworded_without_record_claim',providerCalls:0})
+      }else if(!amendedNow&&!groundedInferenceDenial&&claimDishonest&&correctionClaim&&!staged.audit.some(entry=>(entry as {phase?:string}).phase==='correction_server_staged'))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
 
     }
     // P4 (F03): the forget-claim guard runs INDEPENDENTLY of any correction
@@ -1723,9 +1817,19 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       result.reply=sourceStatusReadback
       staged.audit.push({phase:'source_status_readback_preserved_after_rendering',providerCalls:0})
     }
-    if(!boundedReplyAccepts(result.reply,boundedReply))throw new HttpError(502,'BOUNDED_REPLY_INVALID')
+    if(!boundedReplyAccepts(result.reply,boundedReply)){
+      // A paused-target boundary can still answer an explicit one-question recall with its safe clarification choice; never accept the model's unsupported alternative.
+      if(boundedReply?.choices.length&&/只问一个问题/.test(current.content)){result.reply=boundedReply.choices[0]!;staged.audit.push({phase:'bounded_boundary_choice_selected',providerCalls:0})}
+      else throw new HttpError(502,'BOUNDED_REPLY_INVALID')
+    }
     try{verifyReplyAgainstObligations(obligations,result.reply)}catch(error){if(isObligationError(error))throw new HttpError(400,error.code);throw error}
-    if(contract.requiredReplyKind==='comparison'&&!comparisonReplyAccepts(result.reply))throw new HttpError(502,'REPLY_COMPARISON_MISSING')
+    if(contract.requiredReplyKind==='comparison'&&!comparisonReplyAccepts(result.reply)){
+      // The validated parser may have normalized a wrapper while the provider's
+      // complete JSON reply still carries both explicitly labelled options.
+      // Use that exact raw reply only when the comparison validator accepts it.
+      try{const rawReply=(JSON.parse(raw) as any)?.reply;if(typeof rawReply==='string'&&comparisonReplyAccepts(rawReply)){result.reply=rawReply;staged.audit.push({phase:'comparison_reply_restored_from_raw',providerCalls:0})}}catch{}
+      if(!comparisonReplyAccepts(result.reply)){if(process.env.LIFEOS_DEBUG_COMPARISON)appendFileSync('.local/comparison-debug.txt',JSON.stringify({reply:result.reply,raw,current:current.content})+'\n');throw new HttpError(502,'REPLY_COMPARISON_MISSING')}
+    }
     if(contract.requiredReplyKind==='summary'&&!summaryReplyAccepts(result.reply))throw new HttpError(502,'REPLY_SUMMARY_MISSING')
     if(requestedScope.sentenceLimit===1&&!boundedReply&&!materialIntent&&!planIntent&&(!isSingleSentenceReply(result.reply)||result.reply.length>240))throw new HttpError(502,'REPLY_SENTENCE_LIMIT')
     if(contract.requiredReplyKind==='comparison'&&!comparisonUniverseAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_COMPARISON_UNBOUNDED')
@@ -1777,15 +1881,31 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   // A pure five-state recall needs no new generation. Feedback with new facts
   // still uses the ordinary turn; both lanes validate and commit normally.
+  const exactFeedback=!currentEvent&&!materialIntent&&!planIntent&&!turnNeedsControlReceipt&&!boundedReply&&!explicitMaterial&&!refusalOnly?exactFeedbackReadback(current.content):null
   const sourceStatusCandidate=!currentEvent&&!materialIntent&&!planIntent&&!turnNeedsControlReceipt&&!boundedReply&&!explicitMaterial&&!refusalOnly?currentParticipantStatusReadback(current.content):null
-  const sourceStatusReadback=sourceStatusCandidate&&sourceStatusCandidate.length<=((contract.schema.properties as any).reply?.maxLength??16000)?sourceStatusCandidate:null
+  const sourceStatusReadback=exactFeedback??(sourceStatusCandidate&&sourceStatusCandidate.length<=((contract.schema.properties as any).reply?.maxLength??16000)?sourceStatusCandidate:null)
   const verifiedStatePreview=!sourceStatusReadback&&!explicitMaterial&&!refusalOnly?groundedStateReadback(current.content,priorUserTexts):null
   const deterministicStateReadback=sourceStatusReadback??(verifiedStatePreview&&requestsOnlyStateReadback(current.content)?verifiedStatePreview:null)
   if(verifiedStatePreview){
     emit({type:'draft',text:verifiedStatePreview,saved:false,draftKind:'safe_sentence',verifiedState:true})
     staged.audit.push({phase:'verified_state_preview',providerCalls:0,labels:['已发','已读','已回复','是否采用','实际效果']})
   }
-  const verifiedFeedbackPreview=!sourceStatusReadback&&!verifiedStatePreview&&!explicitMaterial&&!refusalOnly?groundedFeedbackPreview(current.content):null
+  const provisionalState=!sourceStatusReadback&&!deterministicStateReadback&&!verifiedStatePreview&&!explicitMaterial&&!refusalOnly?provisionalStatePreview(current.content,priorUserTexts):null
+  if(provisionalState){
+    emit({type:'draft',text:provisionalState,saved:false,draftKind:'safe_sentence',verifiedState:true})
+    staged.audit.push({phase:'verified_provisional_state_preview',providerCalls:0,basis:'explicit_current_source_readback'})
+  }
+  const provisionalCorrection=!sourceStatusReadback&&!deterministicStateReadback&&!verifiedStatePreview&&!provisionalState&&!explicitMaterial&&!refusalOnly?provisionalCorrectionPreview(current.content):null
+  if(provisionalCorrection){
+    emit({type:'draft',text:provisionalCorrection,saved:false,draftKind:'safe_sentence',verifiedState:true})
+    staged.audit.push({phase:'verified_correction_preview',providerCalls:0})
+  }
+  const provisionalQuestion=!sourceStatusReadback&&!deterministicStateReadback&&!verifiedStatePreview&&!provisionalState&&!provisionalCorrection&&!explicitMaterial&&!refusalOnly?provisionalQuestionPreview(current.content):null
+  if(provisionalQuestion){
+    emit({type:'draft',text:provisionalQuestion,saved:false,draftKind:'safe_question'})
+    staged.audit.push({phase:'verified_provisional_question_preview',providerCalls:0,basis:'explicit_requested_clarifying_question'})
+  }
+  const verifiedFeedbackPreview=!sourceStatusReadback&&!verifiedStatePreview&&!provisionalState&&!provisionalQuestion&&!explicitMaterial&&!refusalOnly?groundedFeedbackPreview(current.content):null
   if(verifiedFeedbackPreview){
     emit({type:'draft',text:verifiedFeedbackPreview,saved:false,draftKind:'safe_sentence',verifiedFeedback:true})
     staged.audit.push({phase:'verified_feedback_preview',providerCalls:0})
@@ -1794,7 +1914,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // Control turns wait for their atomic receipt. Do not try to enumerate all
   // natural-language ways a model could prematurely claim the write succeeded.
   const modelDraft=(text:string,draftKind:'safe_question'|'safe_sentence')=>{
-    if(turnNeedsControlReceipt)return false
+    if(surfaceDirectionScopes(text).some(scope=>blockedDirectionScopes.includes(scope)))return false
+    if(turnNeedsControlReceipt){
+      // A positively sourced, open definition question makes no write receipt
+      // or recommendation. All statements and other control drafts still wait.
+      if(draftKind!=='safe_question'||!requestsOneQuestionReply(current.content)||!ownedOpenDefinitionQuestion(text,current.content))return false
+    }
     if(violatesLabelInferenceBoundary(text,inferenceBoundaries,current.content))return false
     if(unsupportedPreferenceConstraintClaims(text,promptContext.currentTask.responseScope.reportedEvidence.preferences,current.id,current.content).length)return false
     provisionalModelText=text;emit({type:'draft',text,saved:false,draftKind});return true
@@ -1805,7 +1930,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(deterministicStateReadback)staged.audit.push({phase:'explicit_state_readback_without_generation',providerCalls:0,basis:'authorized_user_reports_only'})
     const planSchema=(contract.schema as any).properties?.weeklyPlan
     const planDraftExpectation:WeeklyPlanDraftExpectation|null=planBudget?.type==='weekly_plan'&&planBudget.minutes>0?{period:planBudget.period,availableMinutes:planBudget.minutes,allowedActions:planSchema?.properties?.items?.items?.properties?.action?.enum,mustLeaveSlack:requiresPlanSlack(current.content)}:null
-    firstText=explicitMaterial?JSON.stringify(explicitMaterial):refusalOnly?JSON.stringify({reply:'好的，先不继续建议或安排这件事。'}):deterministicStateReadback?JSON.stringify({reply:deterministicStateReadback}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',verifiedStatePreview||verifiedFeedbackPreview?undefined:modelDraft,observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,modelClauseCatalogue.map(handle=>handle.clauseId),questionFirstMaterial?'material_question':singleQuestionReply?'none':planDraftExpectation?'weekly_plan':'safe_sentence',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue),boundedReply,planDraftExpectation)
+    firstText=explicitMaterial?JSON.stringify(explicitMaterial):refusalOnly?JSON.stringify({reply:'好的，先不继续建议或安排这件事。'}):deterministicStateReadback?JSON.stringify({reply:deterministicStateReadback}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',verifiedStatePreview||verifiedFeedbackPreview?undefined:modelDraft,observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,modelClauseCatalogue.map(handle=>handle.clauseId),questionFirstMaterial?'material_question':singleQuestionReply?'none':planDraftExpectation?'weekly_plan':'safe_sentence',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue) ,boundedReply,planDraftExpectation)
     result=await validateOutput(firstText)
     if(provisionalModelText&&!retainsDraftText(result.reply,provisionalModelText)){
       emit({type:'draft_discarded'})
@@ -1834,3 +1959,22 @@ export function createTurnEngine(dependencies:{capabilityVerified?:(tier:ModelTi
   return engine
 }
 export const runTurn:Engine=createTurnEngine()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

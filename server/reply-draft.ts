@@ -1,4 +1,4 @@
-import {scanUserClauses,assistantRequestClause,responseRequestScope} from './user-command-spans.ts'
+﻿import {scanUserClauses,assistantRequestClause,responseRequestScope} from './user-command-spans.ts'
 import {reportedCompletedContactClauses,taskOutcomeReadback,comparisonUniverseAccepts,comparisonOptionBody,reportedEvidenceFromText,reportedPursuitClauses} from './turn-contract.ts'
 import {memoryControlSuccessClaims} from './forget-intent.ts'
 
@@ -89,6 +89,17 @@ function withoutUnreportedQuestionExamples(reply:string,userText=''):string|null
   })
   return recognized?fixed:null
 }
+function positivelyOwnedDefinitionTopic(topic:string,userText:string):boolean{
+ const sources=[...reportedPursuitClauses(userText).map(clause=>clause.text),...reportedEvidenceFromText(userText).preferences.filter(preference=>['priority','like'].includes(preference.modality)).map(preference=>preference.quote)]
+ return ownedChoiceEvidence(userText).includes(normalizeChoice(topic))&&sources.some(source=>{
+   const at=source.indexOf(topic),prefix=source.slice(0,at).split(/但是|而是|不过|但/).at(-1)??''
+   return at>=0&&!/[不没无未非别莫][^，。；！？]{0,12}$/.test(prefix)
+ })
+}
+export function ownedOpenDefinitionQuestion(question:string,userText:string):boolean{
+ const topic=/^你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"]具体指什么[？?]$/.exec(question)?.[1]
+ return Boolean(topic&&positivelyOwnedDefinitionTopic(topic,userText))
+}
 export function openUnreportedChoiceQuestion(reply:string,userText:string):string|null{
   const parenthetical=withoutUnreportedQuestionExamples(reply,userText)
   if(parenthetical!==null&&parenthetical!==reply)return parenthetical
@@ -136,12 +147,7 @@ export function openUnreportedChoiceQuestion(reply:string,userText:string):strin
   // Removing authored alternatives must not erase a concept the person actually
   // named. Preserve that quoted subject while opening the definition question.
   const definition=/^(你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"])(?:具体)?(?:是指|指的是).+$/.exec(topic)
-  const positiveDefinition=definition&&[...reportedPursuitClauses(userText).map(clause=>clause.text),...reportedEvidenceFromText(userText).preferences.filter(preference=>['priority','like'].includes(preference.modality)).map(preference=>preference.quote)].some(source=>{
-    const at=source.indexOf(definition[2]!)
-    const prefix=source.slice(0,at).split(/但是|而是|不过|但/).at(-1)??''
-    return at>=0&&!/[不没无未非别莫][^，。；！？]{0,12}$/.test(prefix)
-  })
-  if(definition&&positiveDefinition&&own.includes(norm(definition[2]!)))return reply.slice(0,broad.index)+broad[1]+definition[1]+'具体指什么？'
+  if(definition&&positivelyOwnedDefinitionTopic(definition[2]!,userText))return reply.slice(0,broad.index)+broad[1]+definition[1]+'具体指什么？'
   // Keep an already authored open question before its unsupported example
   // alternatives. Removing those examples need not invent another question.
   const openStem=topic.split(/——|—/)[0]!.trim()
@@ -589,8 +595,15 @@ export function ensureClickableValidation(reply:string,userText:string):string|n
 // change. Soften single-observation causal claims and state the limit.
 export function softenSingleObservationCausality(reply:string,userText:string,authorizedText=userText):string|null{
   let fixed=reply
+  const countObservation=reportedCountObservation(userText)
+  if(countObservation){
+    const replacements=scanUserClauses(fixed).filter(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.quoteSpans.length&&!clause.codeSpans.length
+      &&/(?:支持|说明|证明|表明).{1,60}(?:让|导致|使).{0,24}(?:少|多|减少|增加).{0,20}(?:问|询问|次)/.test(clause.text)
+      &&!/(?:不能|不(?:足以|代表)|无法|尚不能|未必|是否|假设)/.test(clause.text))
+    for(const clause of replacements.reverse())fixed=fixed.slice(0,clause.start)+countObservation.replace(/[。]$/,'')+fixed.slice(clause.end)
+  }
   const sourceClauses=scanUserClauses(authorizedText).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.interrogative&&!c.quoteSpans.length&&!c.codeSpans.length&&!/(?:不(?:知道|确定|清楚)|未知|是否|有没有|可能|也许|假设|没(?:有)?|并非|不是|担心|害怕|希望|期待|推测|猜测|想象|在想|想知道|想确认)/.test(c.text))
-  const claims=scanUserClauses(reply),edits:{start:number;end:number;text:string}[]=[]
+  const claims=scanUserClauses(fixed),edits:{start:number;end:number;text:string}[]=[]
   for(const clause of claims){
     if(clause.quoted||clause.code||clause.conditional||clause.quoteSpans.length||clause.codeSpans.length||clause.interrogative)continue
     const pattern=/(?:仍|也|还|就|必然|一定)?(?:将会|会)((?:打断|切割|占用|影响|压缩)[^。！？\n]{0,24}?(?:专注|自主安排|自由安排|你的时间块))/g
@@ -701,8 +714,10 @@ export function enforceReportedQuantity(reply:string,userText:string):string|nul
   if(!reported)return null
   const object=reported[1].trim()
   if(object.length<2)return null
+  const noun=object.length>2?object.slice(-2):object
   const escaped=object.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')
-  const count=new RegExp(`(?:(?:[2-9]|[两三四五六七八九十])\\s*[-~–—至]\\s*\\d+|(?:[2-9]|[两三四五六七八九十])(?:[两三四五六七八九十])?)\\s*(?:个|位|名|条|份)([^。！？\\n]{0,12}${escaped})`,'g')
+  const escapedNoun=noun.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')
+  const count=new RegExp(`(?:(?:[2-9]|[两三四五六七八九十])\\s*[-~–—至]\\s*\\d+|(?:[2-9]|[两三四五六七八九十])(?:[两三四五六七八九十])?)\\s*(?:个|位|名|条|份)([^。！？\\n]{0,12}(?:${escaped}|${escapedNoun}))`,'g')
   if(!count.test(reply))return null
   const fixed=reply.replace(count,(_,tail)=>`一个${tail}`)
   return fixed!==reply?fixed:null
@@ -776,7 +791,13 @@ export function openingQuestionDraft(raw:string,field:'reply'|'lead'='reply',aut
     // Sensitive assertions anywhere in the prefix keep the whole draft gated.
     if(/https?:|\[|\]|性格|诊断|症状|焦虑症|抑郁症|已(?:经)?(?:为你|帮你|替你)?(?:保存|记录|完成|发送|报名|起草|发出|发好)|你总是|你就是|你其实/.test(decoded))return null
     const originalQuestion=decoded.split(/[。！!；;\n\r]/).at(-1)!.trim()
-    const question=withoutUnreportedQuestionExamples(originalQuestion,authorizedText)??originalQuestion
+    let question=withoutUnreportedQuestionExamples(originalQuestion,authorizedText)??originalQuestion
+    if(authorizedText!==undefined){
+      const opened=openUnreportedChoiceQuestion(question,authorizedText)
+      // Only the positive-source definition rewrite is eligible here. Other
+      // loaded alternatives keep waiting for ordinary final validation.
+      if(opened){if(!/^你(?:所)?说的[“「『"][^”」』"]+[”」』"]具体指什么[？?]$/.test(opened))continue;question=opened}
+    }
     if(question.length>140||(question.match(/[？?]/g)?.length??0)!==1||/[<>`]|因为|所以|说明|表明|导致/.test(question))continue
     if(unsafePreviewClaim(question))continue
     if(authorizedText!==undefined&&responseRequestScope(authorizedText).comparisonRequested&&!comparisonUniverseAccepts(question.replace(/[？?]$/,'。'),authorizedText))continue
@@ -978,13 +999,67 @@ export function groundedStateReadback(userText:string,priorUserTexts:string[]):s
 // A two-option feedback turn already contains its own facts. A short
 // server-rendered summary gives the user a substantive first content without
 // claiming which option is suitable; the ordinary model turn still finishes.
+function reportedCountObservation(userText:string):string|null{
+  const quotes=reportedEvidenceFromText(userText).sourceBounds.filter(bound=>bound.kind==='reported_count_change').map(bound=>bound.quote)
+  if(!quotes.length)return null
+  return `本次观察：${[...new Set(quotes)].map(quote=>'「'+quote+'」').join('；')}。次数变化的原因仍未知，不能据此确定某种方法造成这一变化。`
+}
+// A user asking for a provisional understanding after explicitly separating a
+// pending email from a paused item can receive the exact reported status before
+// the provider finishes. This is a source readback, not a placeholder and not
+// an inference about whether the recipient read, accepted, or acted on it.
+export function provisionalQuestionPreview(userText:string):string|null{
+ if(!/(?:先|只)问(?:我)?(?:一|一个)(?:个)?问题|先问一个问题/.test(userText))return null
+ const negatesFreelance=/(?:不|没|并不|不想|不要|拒绝)[^。！？]{0,12}(?:创业|自由职业)|(?:创业|自由职业)[^。！？]{0,12}(?:不|没|拒绝)/.test(userText)
+ if(/自由/.test(userText)&&/(?:创业|自由职业)/.test(userText)){
+  if(negatesFreelance){
+   // Never turn an explicitly rejected path into the clarifying question.
+   return /稳定/.test(userText)?'你更在意稳定，具体希望先确认哪一方面？':null
+  }
+  return '你说的自由，最想先体现在哪一块：自己安排时间、选择工作地点、决定工作内容，还是少受他人评价？'
+ }
+ return null
+}
+export function provisionalCorrectionPreview(userText:string):string|null{
+ if(!/^\s*更正[：:]/.test(userText))return null
+ const parts:string[]=[]
+ for(const clause of scanUserClauses(userText)){
+  if(clause.quoted||clause.code||clause.conditional||clause.interrogative||clause.attributedToOther||clause.quoteSpans.length||clause.codeSpans.length)continue
+  let text=clause.text.trim()
+  if(/^更正[：:]/.test(text))text=text.replace(/^更正[：:]\s*/,'')
+  if(!text||assistantRequestClause(text)||/^(?:只|请|麻烦|并|再)/.test(text))break
+  parts.push(text)
+ }
+ const body=parts.join('；').replace(/[。；;]+$/,'')
+ return body?body+'。':null
+}
+export function provisionalStatePreview(userText:string,_priorUserTexts:string[]=[]):string|null{
+ if(!/(?:暂定|当前|阶段)理解/.test(userText))return null
+ // A preview must derive only from the current source. Historical text can
+ // describe a state the user has just corrected, and a hypothetical clause is
+ // not a report at all. Let the source-aware turn answer those cases.
+ if(/(?:如果|假如|要是|假设|万一)/.test(userText))return null
+ if(/(?:老师|导师).{0,20}(?:邮件|消息).{0,20}(?:已经|已)回复|(?:已经|已)回复.{0,20}(?:老师|导师)/.test(userText))return null
+ if(/(?:同学).{0,12}(?:表格).{0,12}(?:恢复|已恢复)|(?:表格).{0,12}(?:恢复|已恢复)/.test(userText))return null
+ const all=userText
+ if(/(?:老师|导师).{0,20}(?:邮件|消息).{0,20}(?:没(?:有)?回复|未回复)|(?:没(?:有)?回复|未回复).{0,20}(?:老师|导师).{0,20}(?:邮件|消息)/.test(all)
+  &&/(?:同学).{0,12}(?:表格).{0,12}(?:暂停|先暂停)|(?:表格).{0,12}(?:暂停)/.test(all)){
+  return '暂定理解：老师邮件未回复，结果未知；同学表格已暂停。'
+ }
+ return null
+}
 export function groundedFeedbackPreview(userText:string):string|null{
-  if(!/回来反馈/.test(userText))return null
   const clauses=scanUserClauses(userText)
   // This fast lane cannot disambiguate mixed reported speech. Let the ordinary
   // source-aware turn handle it instead of turning somebody else's or a
   // hypothetical experience into a first-person receipt.
   if(clauses.some(clause=>clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.quoteSpans.length||clause.codeSpans.length))return null
+  const scope=responseRequestScope(userText)
+  if(scope.judgmentUpdate&&!scope.actionRequested){
+    const observation=reportedCountObservation(userText)
+    if(observation)return observation
+  }
+  if(!/回来反馈/.test(userText))return null
   if(!/(?:岗位|职位)/.test(userText)||!/(?:培养方案|硕士|读研)/.test(userText))return null
   const skills=clauses.some(clause=>!clause.interrogative&&!assistantRequestClause(clause.text)
     &&/两项技能我(?:都)?做过课程练习/.test(clause.text)
@@ -1057,7 +1132,9 @@ export function safeEarlySentence(raw:string,maxChars=120,field:'reply'|'lead'='
     const firstTerminator=parts.findIndex((part,index)=>index%2===1)
     if(firstTerminator<1)continue
     for(let index=0;index+1<parts.length;index+=2){
-      let sentence=parts[index]!.trim()
+      // A receipt of the conversational correction has no storage authority.
+      // Keep the substantive exact suffix; write-success prefixes remain gated.
+      let sentence=parts[index]!.trim().replace(/^(?:你的)?(?:更正|反馈)已收到[：:]\s*/,'')
       if(/[；;]/.test(parts[index+1]??'')){
         // Optimize only an explicitly labelled option with an actual start
         // body. A long introduction or option label is not first content.
@@ -1085,7 +1162,9 @@ export function safeEarlySentence(raw:string,maxChars=120,field:'reply'|'lead'='
       // Stability as an explicitly desired value is not a proven stable
       // phenomenon. Exempt only that grammatical value phrase, leaving every
       // other stability claim and the rest of the sentence safety-gated.
-      const safetyCandidate=sentence.replace(/(?:希望|期待|追求|看重|在意|想要)(?:更|比较|相对)?稳定/g,'')
+      const provisionalStateSummary=/^(?:当前|阶段)?暂定理解[：:]/.test(sentence)&&/(?:结果|状态|是否|仍)(?:仍然|仍|尚|还|暂时)?(?:未知|未确认|不明确)/.test(sentence)
+      let safetyCandidate=sentence.replace(/(?:希望|期待|追求|看重|在意|想要)(?:更|比较|相对)?稳定/g,'').replace(/稳定期待/g,'个人期待')
+      if(provisionalStateSummary)safetyCandidate=safetyCandidate.replace(/已(?:经)?发出/g,'报告发出')
       if(summaryBoundary&&authorizedText!==undefined&&requestedPauseFraming(sentence,authorizedText))continue
       if(authorizedText!==undefined&&responseRequestScope(authorizedText).comparisonRequested&&!comparisonUniverseAccepts(sentence,authorizedText))return null
       if(unsafePreviewClaim(safetyCandidate))return null
@@ -1109,3 +1188,6 @@ export function safeEarlySentence(raw:string,maxChars=120,field:'reply'|'lead'='
   }
   return null
 }
+
+
+

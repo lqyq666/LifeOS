@@ -1,4 +1,4 @@
-import { Type, type Static } from 'typebox'
+﻿import { Type, type Static } from 'typebox'
 
 const id=Type.String({pattern:'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'})
 const text=(maxLength=4000)=>Type.String({minLength:1,maxLength})
@@ -75,3 +75,5 @@ export type ResolvedGrowthDelta=DistributiveOmit<GrowthInputDelta,'source'|'targ
   timeEvidence?:ResolvedTimeEvidence
 }
 export type GrowthDelta=ResolvedGrowthDelta&{text:string}
+
+

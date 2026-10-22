@@ -53,7 +53,8 @@ if($global:FixtureContextPath){$marker=Test-Path -LiteralPath (Join-Path $global
 $result=@{rejected=($null -ne $failure);error=$failure;dockerCalled=$global:FixtureDockerCalled;outsideMarkerInContext=$marker;outsideDestinationWritten=($env:LIFEOS_FIXTURE_MODE -eq 'archive-local-link' -and (Test-Path -LiteralPath (Join-Path $env:LIFEOS_FIXTURE_OUTSIDE 'models/bge-small-zh-v1.5/config.json')))}
 Write-Output ('RESULT_JSON='+($result | ConvertTo-Json -Compress))
 `
-  const stdout=execFileSync('pwsh',['-NoProfile','-Command',ps],{env,encoding:'utf8',timeout:20000,stdio:['ignore','pipe','pipe']})
+  const shell=process.platform==='win32'?'powershell.exe':'pwsh'
+  const stdout=execFileSync(shell,['-NoProfile','-Command',ps],{env,encoding:'utf8',timeout:20000,stdio:['ignore','pipe','pipe']})
   const line=stdout.split(/\r?\n/).find(line=>line.startsWith('RESULT_JSON='))
   assert.ok(line,'fixture must report the actual script result')
   return JSON.parse(line.slice('RESULT_JSON='.length))

@@ -136,13 +136,15 @@ function readableReportedEvidence(evidence:any){
 // Keep every stored source and chronology, but expose a different wire shape
 // so the model cannot confuse process journals with its event.target update.
 function readOnlyEventWorkspace(event:any){
- const {id,revision,title,nodes,actions,asked,processTurns,actionStages,actionStageEvidence,...recordMetadata}=event
+ const {id,revision,title,nodes,actions,asked,processTurns,actionStages,actionStageEvidence,actionStageScope,actionProgressReports,...recordMetadata}=event
+ const allReports=actionProgressReports??[]
+ const reports=allReports.length>8?[allReports[0],...allReports.slice(-7)]:allReports
  return {eventRef:{id,revision},workspaceLabel:title,recordMetadata,
   reportedNodes:nodes??[],actionRecords:actions??[],
   previouslyAskedQuestions:[...new Set([...(asked??[]),...(processTurns??[]).flatMap((turn:any)=>turn.questionsAskedAfterInput??[])])],
   sourceHistory:(processTurns??[]).map(({revision,sourceMessageId,nodeIds,questionsAskedAfterInput,inputSources,...metadata}:any)=>({
    sourceEventRevision:revision,sourceMessageId,affectedNodeIds:nodeIds??[],questionsAfterReport:questionsAskedAfterInput??[],sourceReports:inputSources??[],metadata,
-  })),reportedActionProgress:actionStages??{},actionProgressEvidence:actionStageEvidence??{}}
+  })),reportedActionProgress:actionStages??{},actionProgressEvidence:actionStageEvidence??{},actionProgressScope:actionStageScope??null,actionProgressReports:reports,actionReportContext:{totalReports:allReports.length,omittedReports:allReports.length-reports.length,complete:allReports.length===reports.length,scope:'MODEL_CONTEXT_ONLY_API_RETAINS_FULL_HISTORY'},actionProgressRule:'进度仅属于所标注的单条来源报告，事件标题不是交付物身份。按sourceQuotes区分链接、PDF等不同材料；不得把某条报告的已读或回复沿用到别的材料。较早报告保留当时时点，后续状态只用于同一明确对象。跨报告对象不明时保持未知，不合并。若上下文省略了历史报告，不把未展示当成从未报告。'}
 }
 export function providerTurnMessages(serialized:string,profile:{provider:string;id:string},systemPrompt?:string):Message[]{
   const supplied=JSON.parse(serialized),context=supplied.authorizedContext??supplied,current=context.currentUserMessage

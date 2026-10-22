@@ -9,7 +9,8 @@ import type { CoachKnowledgeRef } from './coach-knowledge.ts'
 import { growthQuoteSuppressed } from './growth-privacy.ts'
 import {reconcileActionStages,type ActionCase} from './workflows/action-review.ts'
 import {scanUserClauses} from './user-command-spans.ts'
-import {reportedEvidenceFromText} from './turn-contract.ts'
+import {reportedEvidenceFromText,reportedOutcomeSourceClauses} from './turn-contract.ts'
+import {explicitMaterialForms} from './experience-episodes.ts'
 
 // Provider selections are rendered before staging. Keep the provider contract
 // unchanged while checking the complete server-created provenance here.
@@ -30,7 +31,8 @@ export type CoachSource={messageId:string;quote:string;conversationId:string}
 export type CoachNode={id:string;revision:number;kind:'fact'|'feeling'|'user_interpretation'|'unknown';status:'active'|'resolved'|'declined';content:string;source:CoachSource|null;inquiryContext?:{affects:string;reason:string;dependsOn:string[]};supersededByActionCorrection?:boolean}
 export type CoachAction={id:string;revision:number;status:'proposed'|'closed'|'stale';draft:Record<string,unknown>|null;closedReason:string|null;knowledgeRefs?:CoachKnowledgeRef[];requestSources?:CoachSource[];unavailableReasons?:('knowledge_sources_changed_or_unavailable'|'user_sources_unavailable'|'material_withdrawn')[]}
 export type CoachProcessTurn={revision:number;sourceMessageId:string;nodeIds:string[];questionsAskedAfterInput:string[];inputSources?:CoachSource[];introducedUnknownNodeIds?:string[]}
-export type CoachEvent={id:string;conversationId:string;title:string;revision:number;generation:number;nodes:CoachNode[];actions:CoachAction[];asked:string[];processTurns?:CoachProcessTurn[];actionStages?:ActionCase['known'];actionStageEvidence?:Partial<Record<keyof ActionCase['known'],{sourceMessageId:string;eventRevision:number;evidenceQuotes:string[]}>>;createdAt:string;updatedAt:string}
+export type CoachActionReport={sourceMessageId:string;eventRevision:number;reportedAt:string;sourceQuotes:string[];stages:ActionCase['known'];evidence:Partial<Record<keyof ActionCase['known'],{sourceMessageId:string;eventRevision:number;evidenceQuotes:string[]}>>;scopeAmbiguities?:('multiple_actors'|'multiple_material_forms')[]}
+export type CoachEvent={id:string;conversationId:string;title:string;revision:number;generation:number;nodes:CoachNode[];actions:CoachAction[];asked:string[];processTurns?:CoachProcessTurn[];actionStages?:ActionCase['known'];actionStageEvidence?:CoachActionReport['evidence'];actionStageScope?:{basis:'latest_source_report_only';sourceMessageId:string;eventRevision:number};actionProgressReports?:CoachActionReport[];createdAt:string;updatedAt:string}
 export type CoachStaged={delta:EventDelta;reply:string;eventId:string;actionId?:string;knowledgeRefs?:CoachKnowledgeRef[]}
 
 export function unchangedProposedAction(event:CoachEvent|null|undefined,delta:EventDelta):boolean{
@@ -411,7 +413,7 @@ export async function persistCoachEvent(c:PoolClient,run:Run,staged:CoachStaged)
   event.asked=[...new Set([...event.asked,...askedThisTurn])]
   // Process chronology is reconstructed from owned runs/messages, not copied
   // recursively into each revision snapshot or classified as answered/refused.
-  const {processTurns,...snapshotEvent}=event
+  const {processTurns,actionProgressReports,...snapshotEvent}=event
   snapshotEvent.actions=event.actions.map(({requestSources,...action})=>action)
   await c.query('INSERT INTO coach_event_revisions(user_id,event_id,revision,generation,request_id,snapshot) VALUES($1,$2,$3,$4,$5,$6)',[run.user_id,event.id,event.revision,event.generation,run.request_id,{event:snapshotEvent,askedThisTurn,actionChange:change?.operation??null,actionId:staged.actionId??(change&&'actionId'in change?change.actionId:null)}])
   return readCoachEvent(c,run.user_id,run.conversation_id,event.id)
@@ -426,8 +428,8 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
   // Older snapshots may contain a citation truncated at its query marker.
   // Reuse the display extractor on read; retain the original audit snapshots.
   for(const turn of history)turn.asked=(turn.asked??[]).flatMap((question:string)=>visibleCoachQuestions(question))
-  const ids=[...new Set([row.title_source.messageId,...rows.flatMap(node=>node.source?[node.source.messageId]:[]),...actionRows.flatMap(action=>action.source_message_ids),...recent.map(turn=>turn.source_message_id)])]
-  const available=(await c.query(`SELECT m.id,m.content,m.conversation_id FROM messages m
+  const ids=[...new Set([row.title_source.messageId,...rows.flatMap(node=>node.source?[node.source.messageId]:[]),...actionRows.flatMap(action=>action.source_message_ids),...history.map(turn=>turn.source_message_id)])]
+  const available=(await c.query(`SELECT m.id,m.content,m.conversation_id,m.created_at FROM messages m
     WHERE m.user_id=$1 AND m.id=ANY($2::uuid[]) AND m.role='user'
     AND NOT EXISTS(SELECT 1 FROM memory_suppressions s WHERE s.user_id=m.user_id AND s.source_message_id=m.id)
     AND NOT EXISTS(SELECT 1 FROM coach_source_withdrawals w WHERE w.user_id=m.user_id AND w.message_id=m.id)
@@ -472,27 +474,35 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
   // order. No second fact database: GET, refresh and another session read the
   // same event commits. Explicit negative/unknown reports replace stale stages.
   let actionStages:ActionCase['known']={sent:null,read:null,replied:null,used:null,effect:null}
-  const actionStageEvidence:NonNullable<CoachEvent['actionStageEvidence']>={}
-  const participantActors=new Set<string>()
+  let actionStageEvidence:NonNullable<CoachEvent['actionStageEvidence']>={}
+  let actionStageScope:CoachEvent['actionStageScope']
+  const actionProgressReports:CoachActionReport[]=[]
   for(const turn of history){
     const source=sources.get(turn.source_message_id)
     if(!source)continue
     const fragments=[...nodes.filter(n=>n.kind==='fact'&&n.status==='active'&&n.source?.messageId===source.id).map(n=>n.source!.quote),...unquotedRequestParts(source.content,nodeQuotes.get(source.id)??[])]
     const allowed:string[]=[]
     for(const quote of [...new Set(fragments)].sort((a,b)=>source.content.indexOf(a)-source.content.indexOf(b)))if(!await growthQuoteSuppressed(c,user,source.id,quote))allowed.push(quote)
-    const prior=actionStages
+    const previousStages=actionStages,previousEvidence=actionStageEvidence
+    // A continuation is not proof that two deliveries are the same artifact.
+    // Keep each report independent; never carry a PDF's read flag into a link.
+    actionStages={sent:null,read:null,replied:null,used:null,effect:null}
+    actionStageEvidence={}
     actionStages=reconcileActionStages(actionStages,allowed.join('；'),(field,quotes)=>{actionStageEvidence[field]={sourceMessageId:source.id,eventRevision:turn.revision,evidenceQuotes:quotes.filter(quote=>source.content.includes(quote))}})
     // Use the same guarded participant reports as the dialogue contract. A
     // direct reply need not contain “我”; it never establishes reading/use.
     // A flat event-stage vector cannot merge reports about different actors.
     const reports=allowed.flatMap(quote=>reportedEvidenceFromText(quote).participants)
-    for(const report of reports)participantActors.add(report.actor)
-    if(participantActors.size>1){
+    const reportActors=new Set(reports.map(report=>report.actor))
+    const materialAmbiguous=explicitMaterialForms(reportedOutcomeSourceClauses(allowed.join('；')).map(clause=>clause.text).join('；')).length>1
+    if(reportActors.size>1||materialAmbiguous){
       actionStages={sent:null,read:null,replied:null,used:null,effect:null}
       for(const field of Object.keys(actionStageEvidence))delete actionStageEvidence[field as keyof typeof actionStageEvidence]
+      actionStageScope={basis:'latest_source_report_only',sourceMessageId:source.id,eventRevision:turn.revision}
+      actionProgressReports.push({sourceMessageId:source.id,eventRevision:turn.revision,reportedAt:new Date(source.created_at).toISOString(),sourceQuotes:allowed,stages:actionStages,evidence:actionStageEvidence,scopeAmbiguities:[...(reportActors.size>1?['multiple_actors' as const]:[]),...(materialAmbiguous?['multiple_material_forms' as const]:[])]})
       continue
     }
-    if(participantActors.size===1){
+    if(reportActors.size===1){
       for(const report of reports)for(const [dimension,field,yes,no] of [['read','read','reported_read','reported_not_read'],['response','replied','reported_response','reported_no_response'],['adoption','used','reported_used','reported_not_used']] as const){
         const state=report.states[dimension]
         if(!state.quote||!source.content.includes(state.quote)||![yes,no,'unknown'].includes(state.status))continue
@@ -501,10 +511,14 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
       }
       if(actionStages.used!==true||actionStages.sent===false)actionStages.effect=null
     }
-    if(prior.effect!==null&&actionStages.effect===null)delete actionStageEvidence.effect
+    if(actionStages.effect===null)delete actionStageEvidence.effect
+    if(Object.keys(actionStageEvidence).length){
+      actionStageScope={basis:'latest_source_report_only',sourceMessageId:source.id,eventRevision:turn.revision}
+      actionProgressReports.push({sourceMessageId:source.id,eventRevision:turn.revision,reportedAt:new Date(source.created_at).toISOString(),sourceQuotes:allowed,stages:actionStages,evidence:actionStageEvidence})
+    }else{actionStages=previousStages;actionStageEvidence=previousEvidence}
   }
-  const projectedNodes=nodes.map(node=>{if(node.kind!=='fact'||!node.source)return node;const stated=reconcileActionStages({sent:null,read:null,replied:null,used:null,effect:null},node.source.quote);return (['sent','read','replied','used'] as const).some(key=>stated[key]!==null&&actionStageEvidence[key]&&stated[key]!==actionStages[key])?{...node,supersededByActionCorrection:true}:node})
-  return {id:row.id,conversationId:row.conversation_id,title:row.title,revision:row.revision,generation:row.generation,nodes:projectedNodes,actions,asked:[...new Set(history.flatMap(entry=>entry.asked??[]))],processTurns,actionStages,actionStageEvidence,createdAt:new Date(row.created_at).toISOString(),updatedAt:new Date(row.updated_at).toISOString()}
+  const projectedNodes=nodes.map(node=>{if(node.kind!=='fact'||!node.source||node.source.messageId!==actionStageScope?.sourceMessageId)return node;const stated=reconcileActionStages({sent:null,read:null,replied:null,used:null,effect:null},node.source.quote);return (['sent','read','replied','used'] as const).some(key=>stated[key]!==null&&actionStageEvidence[key]&&stated[key]!==actionStages[key])?{...node,supersededByActionCorrection:true}:node})
+  return {id:row.id,conversationId:row.conversation_id,title:row.title,revision:row.revision,generation:row.generation,nodes:projectedNodes,actions,asked:[...new Set(history.flatMap(entry=>entry.asked??[]))],processTurns,actionStages,actionStageEvidence,actionStageScope,actionProgressReports,createdAt:new Date(row.created_at).toISOString(),updatedAt:new Date(row.updated_at).toISOString()}
 }
 
 export async function coachEventView(user:string,conversation:string,id?:string){

@@ -669,6 +669,60 @@ test('engine applies the ordinary contract end-to-end and persists narrowed turn
       await store.finishRun(feedback.run,feedback.staged,updated.text,updated.usage,new AbortController().signal)
       await pool.query('DELETE FROM growth_items WHERE user_id=$1 AND conversation_id=$2',[user,conversation])
     })
+    await t.test('ending after an unconfirmed label rejection commits only the actual boundary without a model call',async()=>{
+      const owner='closing-control-'+randomUUID(),conversation=randomUUID()
+      await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[owner,owner+'@example.invalid'])
+      const {setMemorySettings}=await import('../../server/memory.ts')
+      await setMemorySettings(owner,{enabled:true,expectedRevision:0,requestId:randomUUID()})
+      await store.createConversation(owner,{id:conversation,title:'SYNTHETIC closing control'})
+      const text='忘掉“我喜欢销售”这个从未由我确认的错误标签；不要从这些经历重新推出来。现在结束，不安排下一步。'
+      const turn=await prepare(text,conversation,owner),before=requests.length
+      const result=await engine(turn.input)
+      assert.equal(requests.length,before,'a pure control plus closing has no provider dispatch')
+      assert.equal((result.usage as any).llmCallCount,0)
+      assert.doesNotMatch(result.text,/告诉我|关键词|已遗忘|已删除/)
+      assert.match(result.text,/未保存记录|已保存记录/)
+      assert.match(result.text,/边界已保留/)
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+      const memory=await growthContext(owner,conversation)
+      assert.ok(memory.some(item=>item.inferenceBoundary?.active))
+      assert.ok(!memory.some(item=>/现在结束|不安排下一步/.test(item.text)))
+      await setMemorySettings(owner,{enabled:false,expectedRevision:1,requestId:randomUUID()})
+      const off=await prepare(text,conversation,owner),offResult=await engine(off.input)
+      assert.equal(requests.length,before)
+      assert.doesNotMatch(offResult.text,/边界已保留/)
+      assert.match(offResult.text,/未保存新的跨会话边界/)
+      await store.finishRun(off.run,off.staged,offResult.text,offResult.usage,new AbortController().signal)
+    })
+    await t.test('current and persisted pauses gate aliases in drafts while a sourced unrelated question can stream',async()=>{
+      for(const topic of ['保研','接单']){
+        const owner='alias-preview-'+randomUUID(),conversation=randomUUID()
+        await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[owner,owner+'@example.invalid'])
+        await store.createConversation(owner,{id:conversation,title:'SYNTHETIC alias preview boundary'})
+        for(const currentPause of [true,false]){
+          const turn=await prepare(`我想要${topic}。我想要自由。${currentPause?'先暂停'+topic+'。':''}先问我一个问题。`,conversation,owner),frames:any[]=[]
+          turn.input.emit=(frame:any)=>{frames.push(frame)}
+          outputs.push({lead:`你说的“${topic}”具体指什么？`,reply:'你说的“自由”具体指什么？'})
+          const result=await engine(turn.input)
+          assert.ok(!frames.some(frame=>frame.type==='draft'&&frame.text.includes(topic)),topic+(currentPause?' current':' persisted'))
+          assert.ok(frames.some(frame=>frame.type==='draft'&&frame.text==='你说的“自由”具体指什么？'))
+          await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+        }
+      }
+    })
+    await t.test('a real36 count observation cannot retain an unsupported cause in its judgment',async()=>{
+      const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC count cause guard'})
+      const turn=await prepare('接着整理资料的探索。最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次。请根据新信息更新判断，不要重复问已经回答的内容。',conversation)
+      const frames:any[]=[];turn.input.emit=(frame:any)=>{frames.push(frame)}
+      outputs.push({reply:'新信息支持分类规则让同学少问一次，但这是单次观察。是否偶然仍未知；本人目的与偏好不变。'})
+      const before=requests.length,result=await engine(turn.input)
+      assert.equal(requests.length-before,1)
+      assert.match(result.text,/少问了我一次/)
+      assert.match(result.text,/原因仍未知/)
+      assert.doesNotMatch(result.text,/支持分类规则让/)
+      assert.ok(frames.some(frame=>frame.type==='draft'&&frame.verifiedFeedback&&/原因仍未知/.test(frame.text)))
+      await store.finishRun(turn.run,turn.staged,result.text,result.usage,new AbortController().signal)
+    })
     await t.test('saved real36 repeated living experiences keep observed feelings in committed star-map records',async()=>{
       const conversation=randomUUID();await store.createConversation(user,{id:conversation,title:'SYNTHETIC daily repeated feeling'})
       const reports=[

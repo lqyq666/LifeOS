@@ -31,7 +31,7 @@ test('four continuous trajectories, three sessions each, normal authenticated HT
    if(round.kinds)output.growthUpdates=round.kinds.map((kind:string,i:number)=>({target:{operation:'create'},assertion:'user_reported',kind,source:{clauseId:clauses[i]?.id},...(kind==='constraint'?{timeEvidence:{kind:'calendar_week',which:round.week,clauseId:clauses.find((c:any)=>/这周|本周|下周/.test(c.text))?.id}}:{}),...(kind==='feedback'?{progressState:round.progress}:{})}))
    if(round.experience)output.experienceCandidate={source:{clauseIds:clauses.filter((c:any)=>!c.text.includes('我更正')).map((c:any)=>c.id)}}
    if(round.plan)output.weeklyPlan={target:{operation:'create'},availableMinutes:round.plan.minutes,period:round.plan.period,budgetRef:{updateIndex:round.plan.budgetIndex},basis:[{updateIndex:round.plan.budgetIndex}],items:round.plan.actionMinutes?[{action:'用可访问的材料尝试一段课程练习，到时或遇阻就停。',minutes:round.plan.actionMinutes,directionScopes:[]}]:[]}
-   const method=ctx.knowledge.find((k:any)=>k.id===card.id)
+   const method=(ctx.methodContext??ctx.knowledge??[]).find((k:any)=>k.id===card.id)
    if(!event&&method)output.citations=[{claimId:method.id}]
   }
   res.writeHead(200,{'Content-Type':'text/event-stream'});const base={id:'SCRIPTED_LOCAL_'+wire.length,object:'chat.completion.chunk',created:1,model:model.id}
@@ -76,8 +76,8 @@ test('four continuous trajectories, three sessions each, normal authenticated HT
     const facts=(await pool.query("SELECT id,text,kind,revision,status,valid_until FROM growth_items WHERE user_id=$1 ORDER BY created_at,id",[user])).rows
     const used=await json('/api/conversations/'+chat+'/guide-usage?event='+event.id)
     const state={technicalSaved:run.status==='completed',currentTaskCorrect:wire.at(-1).text===round.text,sourceSupported:/只想说说/.test(round.text)||view.nodes.some((n:any)=>n.source?.messageId===wire.at(-1).context.currentUserMessage.id&&round.text.includes(n.source.quote)),stateCorrect:true,userIntentRespected:round.text.includes('不想继续')?used.items[0]?.status==='declined':true,nextSessionContinuity:index===0||JSON.stringify(wire.at(-1).context).includes(event.id)}
-    if(chain.id==='contact'&&index===3){assert.equal(view.actionStages.sent,true);assert.equal(view.actionStages.read,true);assert.equal(view.actionStages.replied,false);assert.equal(view.actionStages.used,false)}
-    if(chain.id==='contact'&&index===4){assert.equal(view.actionStages.used,null);assert.equal(view.actionStages.replied,false)}
+    if(chain.id==='contact'&&index===3){assert.equal(view.actionStages.sent,null);assert.equal(view.actionStages.read,null);assert.equal(view.actionStages.replied,false);assert.equal(view.actionStages.used,false);assert.ok(view.actionProgressReports.some((r:any)=>r.stages.sent===true&&r.stages.read===true));assert.equal(view.actionStageScope.basis,'latest_source_report_only')}
+    if(chain.id==='contact'&&index===4){assert.equal(view.actionStages.used,null);assert.equal(view.actionStages.replied,null);assert.equal(view.actionProgressReports.filter((r:any)=>r.evidence.replied).at(-1).stages.replied,false)}
     if(chain.id==='startup'&&index===2){assert.equal(view.actionStages.used,false);assert.ok(view.nodes.some((n:any)=>n.content.includes('没有付费'))) }
     if(round.plan){const plans=(await pool.query('SELECT structured_plan AS payload FROM growth_items WHERE user_id=$1 AND structured_plan IS NOT NULL ORDER BY created_at DESC LIMIT 1',[user])).rows;assert.equal(plans.length,1);assert.equal(plans[0].payload.availableMinutes,round.plan.minutes);if(round.plan.minutes===0)assert.deepEqual(plans[0].payload.items,[])}
     if(chain.id==='course'&&index===1){assert.ok(facts.some((f:any)=>f.kind==='context'&&f.text.includes('每周能拿出六小时')));assert.ok(facts.some((f:any)=>f.kind==='constraint'&&f.text.includes('这周只剩两小时')))}

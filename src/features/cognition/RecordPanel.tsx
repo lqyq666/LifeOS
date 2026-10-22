@@ -139,19 +139,20 @@ export function RecordPanel({ controller, onBack }: { controller: CognitionContr
           </section>}
           {experienceSummary && <section className="record-experience-summary" aria-label="经历摘要">
             <h3>经历摘要</h3>
+            {!graphPending && (node as any).asReported?.reportedAt && <p>报告时间：{new Date((node as any).asReported.reportedAt).toLocaleString('zh-CN')}</p>}
             <dl>
               <div><dt>我做了什么</dt><dd>{experienceSummary.action}</dd></div>
-              <div><dt>已报告结果</dt><dd>{experienceSummary.result}</dd></div>
+              <div><dt>{(node as any).resultBasis==='record_correction'?'本人更正后的结果':(node as any).resultBasis==='source_report'?'当时报告的结果':'记录中的结果（待核对）'}</dt><dd>{experienceSummary.result}</dd></div>
               <div><dt>本人复盘</dt><dd>{experienceSummary.reflection}</dd></div>
               {experienceSummary.unknowns && <div><dt>仍未知</dt><dd>{experienceSummary.unknowns}</dd></div>}
             </dl>
           </section>}
           {!graphPending && Array.isArray((node as any).outcomeKeys) && (node as any).outcomeKeys.length > 0 && <section className="record-outcomes" aria-label="分别记录的结果">
             <h3>分别记录的结果</h3>
-            <p>按本人报告保留，未报告的结果仍未知。</p>
+            <p>以下为这段经历各项最近适用的报告。上方摘要保留当时结果；不同材料的状态分别记录，未报告的结果仍未知。</p>
             <dl>{Object.entries({read:'是否读过',response:'是否回应',adoption:'是否采用',payment:'是否付款',effect:'实际效果'}).filter(([key])=>(node as any).outcomeKeys.includes(key)).map(([key,label])=>{
               const outcome=(node as any).taskOutcomes[key]
-              return <div key={key}><dt>{label}</dt><dd>{outcomeStatusLabel(outcome?.status)}{outcome?.quote && <span> · 原话：{outcome.quote}</span>}</dd></div>
+              return <div key={key}><dt>{label}</dt><dd>{outcomeStatusLabel(outcome?.status)}{outcome?.reportedAt && <span> · {new Date(outcome.reportedAt).toLocaleString('zh-CN')}</span>}{outcome?.quote && <span> · 原话：{outcome.quote}</span>}</dd></div>
             })}</dl>
           </section>}
           {!graphPending && originalValues.length > 0 && <section className="interpretation" aria-label="关联解释"><h3>关联的主题</h3>

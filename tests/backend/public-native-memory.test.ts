@@ -183,10 +183,9 @@ test('actual NQ reply-only outputs cannot omit send/feedback memory or an execut
  const capture=JSON.parse(readFileSync(new URL('../fixtures/nq-persistence-failures.json',import.meta.url),'utf8'))
  const encode=localEmbedding.encode.bind(localEmbedding),base=model.baseUrl,key=config.apiKey
  localEmbedding.encode=async(texts:string[])=>texts.map(()=>Array(512).fill(0))
- const requests:any[]=[],outputs:any[]=capture.turns.map((turn:any)=>turn.raw)
+ const requests:any[]=[],outputs:any[]=capture.turns.slice(0,3).map((turn:any)=>turn.raw)
  outputs.push({lead:'你确实喜欢销售。',reply:'你确实喜欢销售。这是根据这些经历形成的判断。'})
  outputs.push({reply:'这是你刚刚直接确认的偏好，保留独立经历。'})
- outputs.push({reply:'这条标签按你的请求处理，不从旧经历重新推断。'})
  const fake=createServer((req,res)=>{const chunks:Buffer[]=[];req.on('data',c=>chunks.push(Buffer.from(c)));req.on('end',()=>{
   requests.push(JSON.parse(Buffer.concat(chunks).toString()));const output=outputs.shift();assert.ok(output,'no extra provider call')
   const envelope={id:'synthetic-nq-persistence-replay',object:'chat.completion.chunk',created:1,model:model.id};res.writeHead(200,{'Content-Type':'text/event-stream'})
@@ -211,7 +210,9 @@ test('actual NQ reply-only outputs cannot omit send/feedback memory or an execut
   const afterFeedback=(await growthView(actor,chats[0])).items.filter(i=>!i.unavailableReason)
   assert.ok(afterFeedback.some(i=>i.text.includes('导师回复说手机打不开链接')&&i.text.includes('没有评价内容')&&i.sources.some(source=>source.type==='message'&&source.id===feedback.run.source_message_id)))
   const action=afterFeedback.find(i=>i.text==='我把作品集链接发给导师了')!;assert.ok(action)
-  await turn(chats[1]!,capture.turns[3].text)
+  const controlResult=await turn(chats[1]!,capture.turns[3].text)
+  assert.equal((controlResult.result.usage as any).llmCallCount,0)
+  assert.equal(requests.length,3,'the pure label control commits without provider generation')
   const afterControl=(await growthView(actor,chats[1])).items,control=afterControl.find(i=>i.inferenceBoundary?.active)
   assert.ok(control,'the exact source instructions must decode into an executable inference boundary')
   assert.equal(control.inferenceBoundary!.label,'我喜欢销售');assert.equal(control.inferenceBoundary!.instructionQuotes.length,2)
@@ -220,11 +221,11 @@ test('actual NQ reply-only outputs cannot omit send/feedback memory or an execut
   assert.ok((await growthView(actor,chats[1])).items.find(i=>i.id===control.id)?.inferenceBoundary?.active,'pausing ordinary use of a control record does not authorize recreating its rejected label')
   const beforeBad=frames.length
   await assert.rejects(()=>turn(chats[2]!,'接着刚才的边界，只更新理解，不新增标签。'),/REPLY_RECREATES_REJECTED_LABEL/)
-  const actualContext=JSON.stringify(requests[4].messages)
+  const actualContext=JSON.stringify(requests[3].messages)
   assert.ok(actualContext.includes('inferenceBoundary')&&actualContext.includes('do_not_infer_label'),'new-session actual provider payload includes the typed control')
   for(const quote of ['方向暂定找产品实习','我把作品集链接发给导师了','导师回复说手机打不开链接'])assert.ok(actualContext.includes(quote),'cross-session actual provider payload retains '+quote)
   assert.ok(!frames.slice(beforeBad).some(f=>f.type==='draft'&&f.text?.includes('你确实喜欢销售')),'unsafe label is not exposed in a provisional frame')
-  assert.equal(requests.length,5,'single attempt; no automatic repair generation')
+  assert.equal(requests.length,4,'single attempt; pure controls do not generate; no automatic repair generation')
   assert.ok(failedRequest);assert.equal((await pool.query("SELECT count(*)::int AS n FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[actor,failedRequest])).rows[0].n,0,'a blocked label cannot commit an assistant message')
   await turn(chats[2]!,'我现在确实喜欢销售。')
   const confirmed=(await growthView(actor,chats[2])).items
@@ -234,7 +235,7 @@ test('actual NQ reply-only outputs cannot omit send/feedback memory or an execut
   const rejectedAgain=(await growthView(actor,chats[2])).items
   assert.ok(rejectedAgain.some(i=>i.inferenceBoundary?.active),'a renewed explicit rejection overrides the later confirmation without a stale-source dedup skip')
   assert.ok(rejectedAgain.some(i=>i.id===action.id&&i.revision===action.revision))
-  assert.equal(requests.length,7);assert.equal(outputs.length,0)
+  assert.equal(requests.length,5);assert.equal(outputs.length,0)
  }finally{model.baseUrl=base;config.apiKey=key;localEmbedding.encode=encode;await new Promise<void>(ok=>fake.close(()=>ok()))}
 })
 
@@ -392,7 +393,7 @@ test('actual NY/NZ native reports retain source continuity and normalize only a 
  }finally{model.baseUrl=base;config.apiKey=key;localEmbedding.encode=encode;await new Promise<void>(ok=>fake.close(()=>ok()))}
 })
 
-test('event stage projection never combines two participant identities across committed revisions',async()=>{
+test('event stage projection keeps two participant reports scoped without merging their stages',async()=>{
  const {stageCoachEvent,coachEventView}=await import('../../server/action-coach-events.ts')
  const actor='native-ny-actors-'+randomUUID(),chat=randomUUID(),other=randomUUID(),signal=new AbortController().signal
  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
@@ -407,8 +408,10 @@ test('event stage projection never combines two participant identities across co
   if(text.startsWith('接着'))assert.equal(event.actionStages.replied,true)
  }
  const readback=await coachEventView(actor,other,event.id)
- assert.deepEqual(readback?.actionStages,{sent:null,read:null,replied:null,used:null,effect:null},'the flat vector stays unknown when reports belong to different people')
- assert.deepEqual(readback?.actionStageEvidence,{})
+ assert.deepEqual(readback?.actionStages,{sent:null,read:null,replied:false,used:null,effect:null},'the latest vector describes only the latest report, with no earlier actor stages')
+ assert.equal(readback?.actionStageScope?.basis,'latest_source_report_only')
+ assert.ok(readback?.actionStageEvidence?.replied?.evidenceQuotes.includes('另一位同学没有回复'))
+ assert.equal(readback?.actionProgressReports?.length,2,'both independent reports retain their own stages and sources')
  assert.equal(readback?.nodes.filter(node=>node.kind==='fact').length,2,'the separate source reports themselves remain available')
 })
 
@@ -431,4 +434,58 @@ test('actual OB sending delta is source-verified in GET, refresh and another ses
   assert.equal(event?.actionStageEvidence?.sent?.sourceMessageId,run.source_message_id)
   assert.ok(event?.actionStageEvidence?.sent?.evidenceQuotes.includes('我把作品集链接发给导师了'))
  }
+})
+
+test('source-scoped progress never carries an old link or later PDF stage between reports',async()=>{
+ const {stageCoachEvent,coachEventView}=await import('../../server/action-coach-events.ts')
+ const actor='artifact-report-'+randomUUID(),chat=randomUUID(),second=randomUUID(),signal=new AbortController().signal
+ await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+ await setMemorySettings(actor,{enabled:true,expectedRevision:0,requestId:randomUUID()})
+ for(const id of [chat,second])await store.createConversation(actor,{id,title:'SYNTHETIC separate delivery reports'})
+ let event:any
+ const ids:string[]=[]
+ for(const text of ['我把作品集链接发给导师了，对方还没回复。','导师回复说手机打不开链接。','我发了PDF，导师确认已经读到。']){
+  const run=(await store.startRun(actor,chat,randomUUID(),text)).run,source={messageId:run.source_message_id,quote:text};ids.push(run.source_message_id)
+  const target=event?{operation:'continue' as const,eventId:event.id,expectedRevision:event.revision}:{operation:'create' as const,title:'作品集原链接',source}
+  const coach=await stageCoachEvent(run,{target,nodes:[{kind:'fact',source}]},'分别保留当时报告。')
+  event=(await store.finishRun(run,{candidates:[],audit:[],coach},'分别保留当时报告。',null,signal)).event
+ }
+ const view=await coachEventView(actor,second,event.id)
+ assert.equal(view?.title,'作品集原链接')
+ assert.equal(view?.actionStageScope?.basis,'latest_source_report_only')
+ assert.equal(view?.actionStageScope?.sourceMessageId,ids[2])
+ const reports=view!.actionProgressReports!
+ assert.equal(reports.find(r=>r.sourceMessageId===ids[0])!.stages.read,null)
+ assert.equal(reports.find(r=>r.sourceMessageId===ids[0])!.stages.replied,false)
+ assert.equal(reports.find(r=>r.sourceMessageId===ids[1])!.stages.read,null)
+ assert.equal(reports.find(r=>r.sourceMessageId===ids[1])!.stages.sent,null,'no send stage inherited from the previous source')
+ assert.equal(reports.find(r=>r.sourceMessageId===ids[2])!.stages.read,true)
+ assert.ok(reports.find(r=>r.sourceMessageId===ids[2])!.sourceQuotes.some(q=>q.includes('PDF')))
+ assert.ok(!view!.nodes.some(n=>n.source?.messageId===ids[0]&&n.supersededByActionCorrection),'a later distinct delivery cannot invalidate the old report')
+ assert.deepEqual((await coachEventView(actor,chat,event.id))?.actionProgressReports,reports)
+ const ambiguous=(await store.startRun(actor,chat,randomUUID(),'导师已经读到，同学还没有读到。')).run,source={messageId:ambiguous.source_message_id,quote:'导师已经读到，同学还没有读到。'}
+ const coach=await stageCoachEvent(ambiguous,{target:{operation:'continue',eventId:event.id,expectedRevision:event.revision},nodes:[{kind:'fact',source}]},'这条报告对象不同，分别核对。')
+ const committed=await store.finishRun(ambiguous,{candidates:[],audit:[],coach},'这条报告对象不同，分别核对。',null,signal)
+ assert.deepEqual(committed.event!.actionStages,{sent:null,read:null,replied:null,used:null,effect:null})
+ assert.equal(committed.event!.actionStageScope!.sourceMessageId,ambiguous.source_message_id)
+ assert.ok(committed.event!.actionProgressReports!.some(r=>r.sourceMessageId===ambiguous.source_message_id&&r.sourceQuotes.includes(source.quote)))
+ event=committed.event
+ for(let index=0;index<8;index++){
+  const run=(await store.startRun(actor,chat,randomUUID(),'按上次，我已经发了消息，对方已经读了。第'+index+'次补充报告。')).run
+  // A process-only revision must remain in the API after falling outside the
+  // short prompt history; no fact node supplies an alternate source pointer.
+  const coach=await stageCoachEvent(run,{target:{operation:'continue',eventId:event.id,expectedRevision:event.revision}},'分别保留这次报告。')
+  event=(await store.finishRun(run,{candidates:[],audit:[],coach},'分别保留这次报告。',null,signal)).event
+ }
+ const complete=await coachEventView(actor,second,event.id)
+ assert.equal(complete!.actionProgressReports!.length,12)
+ assert.equal(complete!.actionProgressReports![0].sourceMessageId,ids[0])
+ assert.equal(complete!.actionProgressReports![3].sourceMessageId,ambiguous.source_message_id)
+ assert.deepEqual((await coachEventView(actor,chat,event.id))!.actionProgressReports,complete!.actionProgressReports)
+ const mixedText='导师没有回复作品集链接；后来导师已经读了PDF。',mixed=(await store.startRun(actor,chat,randomUUID(),mixedText)).run
+ const mixedCoach=await stageCoachEvent(mixed,{target:{operation:'continue',eventId:event.id,expectedRevision:event.revision},nodes:[{kind:'fact',source:{messageId:mixed.source_message_id,quote:mixedText}}]},'这条来源含不同材料，分别保留原话。')
+ const mixedResult=await store.finishRun(mixed,{candidates:[],audit:[],coach:mixedCoach},'这条来源含不同材料，分别保留原话。',null,signal)
+ assert.deepEqual(mixedResult.event!.actionStages,{sent:null,read:null,replied:null,used:null,effect:null})
+ assert.ok(mixedResult.event!.actionProgressReports!.at(-1)!.scopeAmbiguities!.includes('multiple_material_forms'))
+ assert.ok(mixedResult.event!.actionProgressReports!.at(-1)!.sourceQuotes.includes(mixedText),'ambiguous fields never delete the original report')
 })

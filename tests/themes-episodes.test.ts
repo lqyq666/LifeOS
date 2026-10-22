@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { deriveThemeCandidates, mergeThemeCandidates, relationForExperience, themeTitle, themeNextStep, type GrowthFact, type ThemeRow } from '../server/user-themes.ts'
-import { findEpisode, episodeSimilarity, mergeContent } from '../server/experience-episodes.ts'
+import { findEpisode, episodeSimilarity, mergeContent, explicitMaterialForms } from '../server/experience-episodes.ts'
 import { derivePatternProposals, type PatternExperience } from '../server/experience-patterns.ts'
 import { requiresExperienceCandidate } from '../server/experience-content.ts'
 import { buildClauseCatalogue } from '../server/clause-catalogue.ts'
@@ -65,6 +65,22 @@ test('the same episode retold merges instead of duplicating', () => {
   const merged = mergeContent(existing[0].content, { action: '', result: '后来部长又表扬了一次', occurredAt: '' })
   assert.equal(merged.result, '后来部长又表扬了一次', 'latest non-empty result wins')
   assert.equal(merged.action, existing[0].content.action, 'the original action is kept')
+})
+
+test('explicit incompatible delivery forms veto episode similarity even with the same named portfolio',()=>{
+ const link={id:'original-link',source_quote:'我把作品集链接发给导师了，导师还没回复',content:{action:'我把作品集链接发给导师了'}}
+ assert.equal(findEpisode([link],'我把作品集PDF发给导师了，导师确认已经读到','我把作品集PDF发给导师了','导师确认已经读到'),null)
+ assert.equal(findEpisode([link],'接着作品集的事：我发了PDF，导师确认已经读到','我发了PDF','导师确认已经读到'),null)
+ assert.equal(findEpisode([link],'接着作品集的事：导师后来回复说手机打不开作品集链接','','导师后来回复说手机打不开作品集链接')?.id,link.id)
+})
+
+test('Word documents, attachments and files are distinct material forms from links',()=>{
+  assert.deepEqual(explicitMaterialForms('作品集 Word 文档'),['word'])
+  assert.deepEqual(explicitMaterialForms('作品集附件'),['attachment'])
+  assert.deepEqual(explicitMaterialForms('作品集压缩包'),['attachment'])
+  const link={id:'original-link',source_quote:'我把作品集链接发给导师了，导师还没回复',content:{action:'我把作品集链接发给导师了'}}
+  assert.equal(findEpisode([link],'我把作品集Word文档发给导师了','我把作品集Word文档发给导师了',''),null)
+  assert.equal(findEpisode([link],'我把作品集附件发给导师了','我把作品集附件发给导师了',''),null)
 })
 
 test('patterns demand both anchors in the same experience', () => {

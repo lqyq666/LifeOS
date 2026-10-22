@@ -30,7 +30,7 @@ export type TurnContract={
   requiredReplyKind?:'comparison'|'summary'
 }
 
-const comparisonLabelTokens=['(?:(?:选项|方式|方案|路径|对象)(?:一|1|A|甲)[:：]|[1Aa][.)、:：]|一[、.])','(?:(?:选项|方式|方案|路径|对象)(?:二|2|B|乙)[:：]|[2Bb][.)、:：]|二[、.])']
+const comparisonLabelTokens=['(?:(?:选项|方式|方案|路径|对象|方向)(?:一|1|A|甲)[:：]|[1Aa][.)、:：]|一[、.])','(?:(?:选项|方式|方案|路径|对象|方向)(?:二|2|B|乙)[:：]|[2Bb][.)、:：]|二[、.])']
 const comparisonLabels=comparisonLabelTokens.map(label=>'(?:^|\\n|[。；;：:])[ \\t]*'+label)
 const comparisonOpeningPattern='^[ \\t\\r\\n]*'+comparisonLabelTokens[0]
 export function comparisonOptionBody(text:string):string|null{
@@ -40,9 +40,10 @@ export function comparisonOptionBody(text:string):string|null{
 // This checks only the requested presentation exists. It does not certify the
 // options' factual support, utility, resource feasibility or causal reasoning.
 export const comparisonReplyAccepts=(reply:string)=>{
- const first=new RegExp(comparisonLabels[0]!).exec(reply)
+ const normalized=reply.replace(/\*\*/g,'')
+ const first=new RegExp(comparisonLabels[0]!).exec(normalized)
  if(!first)return false
- const tail=reply.slice(first.index+first[0].length),second=new RegExp(comparisonLabels[1]!).exec(tail)
+ const tail=normalized.slice(first.index+first[0].length),second=new RegExp(comparisonLabels[1]!).exec(tail)
  if(!second)return false
  const bodies=[tail.slice(0,second.index).trim(),tail.slice(second.index+second[0].length).trim()]
  return bodies.every(body=>body.length>0&&scanUserClauses(body).some(clause=>!clause.interrogative&&/[\p{L}\p{N}]/u.test(clause.text)))
@@ -348,14 +349,16 @@ function participantReport(text:string){
  const indirect=new RegExp('(?:说|听说|提到)[^。！？]*'+participantActor+'[^。！？]*(?:回复|回应|读|看过|采用|付款|试过|试用)').test(rest)
  return {body,actor:match[1]!,rest,indirect}
 }
-export function reportedTaskOutcomeClauses(text:string,continuingOwnedTask=false,allowReportedContext=false){
-  const scanned=scanUserClauses(text)
+export function reportedOutcomeSourceClauses(text:string,scanned=scanUserClauses(text)){
   // A comma-separated status list belongs to the request from “把/将” through
   // its enumeration terminator. Actor-prefixed labels are not new reports.
-  const requestRanges=scanned.filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&/^(?:请|麻烦)?(?:把|将).{0,12}(?:已发|已读|已回复|是否采用|实际效果)/.test(c.text)).map(start=>({start:start.start,end:scanned.find(c=>c.start>=start.start&&c.sentenceStart===start.sentenceStart&&/(?:分开|分别|逐项)(?:说|说明|列出|展示|呈现)/.test(c.text))?.end??start.sentenceEnd}))
-  const clauses=scanned.filter(c=>!requestRanges.some(range=>c.start>=range.start&&c.start<range.end)
+  const requestRanges=scanned.filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&(/^(?:请|麻烦)?(?:把|将).{0,12}(?:已发|已读|已回复|是否采用|实际效果)/.test(c.text)||/^(?:请|麻烦)?(?:按|依据|根据)[^。！？\n]{0,40}(?:状态|已发|已读|已回复|是否采用|实际效果)/.test(c.text))).map(start=>({start:start.start,end:scanned.find(c=>c.start>=start.start&&c.sentenceStart===start.sentenceStart&&/(?:分开|分别|逐项)(?:说|说明|列出|展示|呈现)/.test(c.text))?.end??start.sentenceEnd}))
+  return scanned.filter(c=>!requestRanges.some(range=>c.start>=range.start&&c.start<range.end)
     &&!c.interrogative&&!c.conditional&&!c.quoted&&!c.code&&!c.quoteSpans.length
     &&!assistantRequestClause(c.text)&&!/^(?:已发|已读|已回复|是否采用|实际效果)$/.test(c.text.trim()))
+}
+export function reportedTaskOutcomeClauses(text:string,continuingOwnedTask=false,allowReportedContext=false){
+  const scanned=scanUserClauses(text),clauses=reportedOutcomeSourceClauses(text,scanned)
   // Context-only retention preserves an explicitly reported participant state;
   // it does not assert the student sent anything or completed an action.
   const taskKnown=continuingOwnedTask||reportedCompletedContactClauses(text).length>0||clauses.some(c=>!c.attributedToOther&&/(?:我|本人).{0,30}(?:请教|联系|发送|发了|交付|交给|提交|访谈|聊过|问了|问过)/.test(c.text))
@@ -548,6 +551,20 @@ export function currentParticipantStatusReadback(text:string):string|null{
   return `- ${report.actor}：${labels.length?labels.join('、')+'。':''}本次报告：${report.quote}。`
  }).join('\n')
  return completeUserReply(reply,text)?reply:null
+}
+
+// A feedback report with new details is not a pure status catalogue. The
+// engine can mirror the exact current source clauses while the status-only
+// projector remains available for genuine recall requests.
+export function exactFeedbackReadback(text:string):string|null{
+ if(!/(?:回来反馈|状态更新|反馈[:：])/.test(text))return null
+ const reports=reportedEvidenceFromText(text).participants
+ if(!reports.length)return null
+ const facts=scanUserClauses(text).filter(c=>!assistantRequestClause(c.text)&&/[\p{L}\p{N}]/u.test(c.text))
+ if(!facts.length)return null
+ const end=facts.at(-1)!.end,terminator=text[end]&&/[。！？!?；;]/.test(text[end]!)?text[end]:''
+ const exact=(text.slice(facts[0]!.start,end)+terminator).trim()
+ return exact&&completeUserReply(exact,text)?exact:null
 }
 
 // A rejection guard for explicit modality promotions, not a semantic oracle.

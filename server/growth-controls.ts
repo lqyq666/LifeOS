@@ -75,6 +75,11 @@ const quoted=(clause:string,index:number):boolean=>{
 }
 // Restrict proposed plan labels to directions present in authorized personal
 // text. This is not a pause/resume command or a new direction judgment.
+// Display text has no command authority. Match the same alias table even in a
+// quoted topic or a question, solely to screen provisional recommendations.
+export function surfaceDirectionScopes(text:string):DirectionScope[]{
+ return [...new Set(directionPatterns.filter(({pattern})=>pattern.test(text)).flatMap(({scopes})=>scopes()))]
+}
 export function mentionedDirectionScopes(text:string):DirectionScope[]{
   const scopes=new Set<DirectionScope>()
   for(const clause of scanUserClauses(text)){

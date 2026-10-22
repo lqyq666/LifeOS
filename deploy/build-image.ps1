@@ -1,10 +1,23 @@
 $ErrorActionPreference = 'Stop'
 $Image = 'lifeos:v1.3-fast-launch-candidate'
+function Get-RelativeAssetPath {
+    param([string]$Root, [string]$Path)
+    if ([IO.Path].GetMethod('GetRelativePath', [type[]]@([string], [string]))) {
+        return [IO.Path]::GetRelativePath($Root, $Path)
+    }
+    # Windows PowerShell 5.1 has no Path.GetRelativePath. Resolve through URI
+    # so the same containment check remains usable on the project's Windows host.
+    $base = [Uri](([IO.Path]::GetFullPath($Root).TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar))
+    $target = [Uri]([IO.Path]::GetFullPath($Path))
+    $relative = [Uri]::UnescapeDataString($base.MakeRelativeUri($target).ToString()).Replace('/', '\')
+    if (!$relative) { return '.' }
+    return $relative
+}
 function Assert-NoReparsePath {
     param([string]$Root, [string]$Path, [switch]$AllowMissing)
     $checkedRoot = [IO.Path]::GetFullPath($Root)
     $checkedPath = [IO.Path]::GetFullPath($Path)
-    $relative = [IO.Path]::GetRelativePath($checkedRoot, $checkedPath)
+    $relative = Get-RelativeAssetPath $checkedRoot $checkedPath
     if ([IO.Path]::IsPathRooted($relative) -or $relative -eq '..' -or $relative -match '^\.\.[\\/]') { throw 'Asset path escapes the intended workspace.' }
     $ancestor = $checkedRoot
     while ($ancestor) {

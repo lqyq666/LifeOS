@@ -1,4 +1,4 @@
-import { Type, type Static } from 'typebox'
+﻿import { Type, type Static } from 'typebox'
 import { Value } from 'typebox/value'
 import { growthDeltaSchema } from './growth-model-contracts.ts'
 
@@ -123,6 +123,7 @@ export function completeCoachJsonFrame(raw:string):string|null {
   return null
 }
 
+
 // Some captured text streams contain a JSON draft, an explicit deliberation
 // terminator, then the final JSON. Only that complete final object is business
 // output. Do not merge draft fields, scan arbitrary prose, or finish a prefix.
@@ -130,7 +131,44 @@ export function completeCoachJsonFrame(raw:string):string|null {
 // the business reply; it cannot supply state or replace missing business data.
 export function finalCoachJsonText(raw:string,onNormalization?:(kind:string)=>void):string {
   const text=raw.trim(),first=completeCoachJsonFrame(text)
-  const rest=first?text.slice(first.length).trimStart():''
+  let rest=first?text.slice(first.length).trimStart():''
+  // A captured provider emitted a redundant root closing brace before its
+  // explicit deliberation terminator. The complete frame is already parsed;
+  // surplus transport braces carry no fields and cannot replace it.
+  if(/^[}\s]*<\/thinking>/.test(rest))rest=rest.replace(/^[}\s]*/,'')
+  const canonical=(value:string)=>{try{return JSON.stringify(JSON.parse(value))}catch{return value}}
+  const transportMarker=/^(?:<\/?(?:br|parameter|result|invoke|tool|function)\s*\/?>|<\|(?:tool_call(?:_end)?|tool_name|json_output)\|>)/i
+  const stripTransportMarkers=(value:string)=>{let out=value.trimStart();while(true){const marker=transportMarker.exec(out);if(!marker)return out;out=out.slice(marker[0].length).trimStart()}}
+  const onlyTransportMarkers=(value:string)=>stripTransportMarkers(value)===''
+  const sameCompleteTail=(value:string):boolean=>{
+    const tail=stripTransportMarkers(value)
+    if(!tail)return true
+    const frame=completeCoachJsonFrame(tail)
+    if(!frame||canonical(frame)!==canonical(first!))return false
+    return onlyTransportMarkers(tail.slice(frame.length))
+  }
+  // HTML break tags are transport separators. They may repeat an identical
+  // business frame, but they cannot authorize a different or incomplete one.
+  if(first&&/^(?:<\/?br\s*\/?>\s*)+/i.test(rest)){
+    if(sameCompleteTail(rest)){onNormalization?.('html_break_identical_tail');return first}
+    return text
+  }
+  // The acceptance transport test repeats the complete frame inside a fenced
+  // block without a deliberation terminator. Only identical duplicate frames
+  // are inert transport noise; a different trailing object remains ambiguous.
+  if(first&&/^```/.test(rest)){
+    const body=rest.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim()
+    const canonical=(value:string)=>{try{return JSON.stringify(JSON.parse(value))}catch{return value}}
+    let cursor=0,frames=0
+    while(cursor<body.length){
+      const at=body.indexOf('{',cursor)
+      if(at<0)break
+      const frame=completeCoachJsonFrame(body.slice(at))
+      if(!frame||canonical(frame)!==canonical(first))return text
+      frames++;cursor=at+frame.length
+    }
+    if(frames){onNormalization?.('repeated_identical_transport_frame');return first}
+  }
   if(first&&rest.startsWith('<|render|>')){
     const tail=rest.slice('<|render|>'.length).trim()
     if(completeCoachJsonFrame(tail)===tail){
@@ -143,11 +181,46 @@ export function finalCoachJsonText(raw:string,onNormalization?:(kind:string)=>vo
     }
     return text
   }
-  if(!rest.startsWith('</thinking>'))return text
-  const final=rest.slice('</thinking>'.length).trim()
-  if(completeCoachJsonFrame(final)!==final)return text
-  onNormalization?.('explicit_final_json_frame')
-  return final
+  // Tool-parameter/result wrappers are transport. They may be followed by an
+  // identical duplicate or by no business object, never by a conflicting one.
+  if(first&&/^<\/(?:parameter|result|invoke|tool|function)>/.test(rest)){
+    if(sameCompleteTail(rest)){onNormalization?.('wrapper_without_conflicting_frame');return first}
+    return text
+  }
+  // One explicit final frame is authoritative. Repeated identical frames are
+  // provider transport duplication; different, incomplete or ambiguous
+  // trailing objects are rejected rather than guessed.
+  const terminator=/^<\/(?:thinking|analysis)>/.exec(rest)
+  if(!terminator)return text
+  const displayEcho=/^\s*<reply>\s*([\s\S]*?)\s*<\/reply>/.exec(rest.slice(terminator[0].length))
+  if(first&&displayEcho){
+    let tail=rest.slice(terminator[0].length+displayEcho[0].length),identical=true
+    try{if(displayEcho[1]!.trim()!==(JSON.parse(first) as {reply?:unknown}).reply)identical=false}catch{identical=false}
+    while(identical&&tail.trim()){
+      tail=tail.trimStart().replace(/^(?:<\|(?:tool_call_end|tool_|json_output)\|>|<\/?function_results>)\s*/i,'')
+      if(!tail.trim())break
+      if(!tail.startsWith('{')){identical=false;break}
+      const frame=completeCoachJsonFrame(tail)
+      if(!frame||canonical(frame)!==canonical(first)){identical=false;break}
+      tail=tail.slice(frame.length)
+    }
+    if(identical){onNormalization?.('identical_display_and_transport_tail');return first}
+    return text
+  }
+  const frames=rest.split(terminator[0]).map(part=>part.trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim()).filter(Boolean)
+  const complete:string[]=[]
+  for(const part of frames){
+    const frame=completeCoachJsonFrame(part)
+    if(!frame||part.slice(frame.length).trim())return text
+    complete.push(frame)
+  }
+  if(!complete.length)return text
+  if(complete.length===1){onNormalization?.('explicit_final_json_frame');return complete[0]!}
+  if(first&&complete.every(frame=>canonical(frame)===canonical(first))){
+    onNormalization?.('repeated_identical_final_frame')
+    return first
+  }
+  return text
 }
 
 export type CoachOutputRejection={stage:'json'|'draft_reference'|'schema';issues?:{keyword:string;schemaPath:string}[]}
@@ -176,11 +249,31 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   // create: keep its source selector, never infer a personal preference/goal,
   // accept free prose or turn it into an edit of an existing memory.
   if(Array.isArray(updates))for(const update of updates){
+
     if(update&&typeof update==='object'&&update.kind==='externalExpectation'
       &&update.assertion==='user_reported'&&update.target?.operation==='create'
       &&Object.keys(update).length===4&&Object.keys(update).every(key=>['target','assertion','kind','source'].includes(key))){
       update.kind='context'
       options.onNormalization?.('reported_external_expectation_context')
+    }
+  }
+  // A provider may attach a deadline-shaped field to a weekly-hours budget.
+  // Weekly hours are not a calendar deadline; keep the reported fact as
+  // context instead of rejecting an otherwise valid answer or inventing an
+  // expiry. Valid deadline evidence is untouched.
+  if(Array.isArray(updates))for(const update of updates){
+    const evidence=update?.timeEvidence
+    if(!evidence||typeof evidence!=='object'||Array.isArray(evidence))continue
+    if(typeof evidence.kind!=='string'&&typeof evidence.type==='string')evidence.kind=evidence.type
+    if(evidence.kind==='duration'&&typeof evidence.count!=='number'&&typeof evidence.value==='number')evidence.count=evidence.value
+    if(evidence.kind==='duration'&&typeof evidence.unit==='string'&&!['day','week'].includes(evidence.unit)){
+      delete update.timeEvidence
+      if(update.kind==='constraint')update.kind='context'
+      options.onNormalization?.('weekly_budget_time_evidence_as_context')
+    }else if(!['date_inclusive','duration','calendar_week'].includes(evidence.kind)){
+      delete update.timeEvidence
+      if(update.kind==='constraint')update.kind='context'
+      options.onNormalization?.('unsupported_time_evidence_as_context')
     }
   }
   const reportedKeys=new Set(['assertion','kind','source','text','validUntil','timeEvidence','progressState'])
@@ -234,3 +327,5 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
 }
 
 export const eventSearchSchema=Type.Object({query:Type.String({maxLength:16000}),eventId:Type.Optional(id),actionId:Type.Optional(id),object:Type.Optional(text(200)),after:Type.Optional(text(100)),before:Type.Optional(text(100))},{additionalProperties:false})
+
+

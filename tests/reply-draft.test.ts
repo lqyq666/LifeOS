@@ -1,7 +1,40 @@
 import test from 'node:test'
 import {openUnreportedChoiceQuestion} from '../server/reply-draft.ts'
+import {softenSingleObservationCausality,ownedOpenDefinitionQuestion} from '../server/reply-draft.ts'
 import assert from 'node:assert/strict'
 import { openingQuestionDraft, safeEarlySentence, weeklyPlanBoundaryDraft, weeklyPlanDraft, groundedStateReadback, groundedFeedbackPreview, requestsOnlyStateReadback, retainsDraftText } from '../server/reply-draft.ts'
+
+test('a positively owned definition question opens the same topic in streamed and final text',()=>{
+ const user='我想要自由，但不知道自由具体意味着什么。先暂停创业，只问我一个问题。'
+ const question='你说的“自由”具体是指时间上的自主安排，还是经济上不被固定工作绑定？'
+ const expected='你说的“自由”具体指什么？'
+ assert.equal(openingQuestionDraft(JSON.stringify({lead:question}),'lead',user),expected)
+ assert.equal(openUnreportedChoiceQuestion(question,user),expected)
+ for(const denied of ['我不要自由','朋友追求自由','我不追求自由','我想要的不是自由'])assert.notEqual(openingQuestionDraft(JSON.stringify({lead:question}),'lead',denied),expected)
+ assert.equal(openingQuestionDraft(JSON.stringify({reply:'你是想就业还是想考研？'}),'reply','我不知道做什么。'),null)
+})
+
+test('a chat acknowledgement prefix cannot hide a substantive sourced correction or a write receipt',()=>{
+ const user='更正：少问一次只是结果，真正让我轻松的是不用反复找。请根据更正更新判断。'
+ assert.equal(safeEarlySentence(JSON.stringify({lead:'更正已收到：少问一次只是结果，你当时真正轻松的是自己不用反复找。'}),120,'lead',user),'少问一次只是结果，你当时真正轻松的是自己不用反复找')
+ for(const receipt of ['已保存：少问一次只是结果','已更正记忆：少问一次只是结果'])assert.equal(safeEarlySentence(JSON.stringify({lead:receipt+'。'}),120,'lead',user),null)
+})
+
+test('a count-change judgment preview preserves the observation and its causal limit',()=>{
+ const text='接着整理资料的探索。最近一次我先定了三条分类规则，后来同学能直接找到两份材料，少问了我一次。请根据新信息更新判断，不要重复问已经回答的内容。'
+ const preview=groundedFeedbackPreview(text)
+ assert.match(preview!,/少问了我一次/)
+ assert.match(preview!,/原因仍未知/)
+ for(const prefix of ['朋友说：','如果','“'])assert.equal(groundedFeedbackPreview(prefix+text+(prefix==='“'?'”':'')),null,prefix)
+ assert.equal(groundedFeedbackPreview('请根据新信息更新判断。是否少问了我一次？'),null)
+ assert.equal(groundedFeedbackPreview('第二天20秒找到通知。请根据新信息更新判断。'),null,'elapsed time alone does not imply a decrease')
+ const repaired=softenSingleObservationCausality('新信息支持分类规则让同学少问一次。固定会议仍会打断专注。',text)!
+ assert.match(repaired,/「少问了我一次」/)
+ assert.match(repaired,/固定会议可能会打断专注/)
+ assert.doesNotMatch(repaired,/支持分类规则让/)
+ assert.equal(ownedOpenDefinitionQuestion('你说的“自由”具体指什么？','我想要自由。'),true)
+ for(const source of ['我想要的不是自由','朋友说我想要自由','我对自由没兴趣'])assert.equal(ownedOpenDefinitionQuestion('你说的“自由”具体指什么？',source),false,source)
+})
 
 test('draft retention requires actual final content, not a distinct preview or empty heading',()=>{
  assert.equal(retainsDraftText('两次均报告放松。来源仍未知。','两次均报告放松'),true)

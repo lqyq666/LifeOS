@@ -66,6 +66,26 @@ export function timeContradiction(a: string, b: string): boolean {
   return true
 }
 
+// Like explicit dates/participant names, incompatible named delivery forms
+// veto a similarity match. A shared form never proves artifact identity.
+export function explicitMaterialForms(text:string):string[]{
+ const forms=(text.match(/\b(?:PDF|DOCX?|XLSX?|PPTX?|ZIP|RAR)\b|Word\s*文档|Word|附件|压缩包|文件|链接|网页|纸质|图片|照片|音频|视频/gi)??[])
+ return [...new Set(forms.map(form=>{
+  const value=form.toLowerCase().replace(/\s+/g,'')
+  if(value==='word'||value==='word文档')return 'word'
+  if(value==='doc'||value==='docx')return 'word'
+  if(value==='xls'||value==='xlsx')return 'sheet'
+  if(value==='ppt'||value==='pptx')return 'slides'
+  if(['附件','压缩包','zip','rar','文件'].includes(value))return 'attachment'
+  if(['链接','网页'].includes(value))return 'link'
+  return value
+ }))]
+}
+export function explicitMaterialFormConflict(a:string,b:string):boolean{
+ const left=new Set(explicitMaterialForms(a)),right=new Set(explicitMaterialForms(b))
+ return left.size>0&&right.size>0&&(left.size!==right.size||[...left].some(form=>!right.has(form)))
+}
+
 // 0.40 重叠系数 + 至少 6 个共享片段：同一件事的复述共享核心词对，不同事情
 // （哪怕同一领域）远低于此。宁可漏合并（多一条经历、用户可删），不可错合并。
 // 显式追述（"上次那套海报后来…"）放宽到 0.30：说话人已表明在说同一件事，
@@ -85,12 +105,12 @@ export function findEpisode(existing: readonly EpisodeExisting[], quote: string,
     ? /^(?:接着|继续谈)([^，。！？：:]{2,24})的事[：:]/.exec(first.text.trim())?.[1]:undefined
   if(named){
     if(named.length<3||GENERIC_WORDS.has(named)||matchPathTheme(named))return null
-    const matches=existing.filter(row=>row.source_quote.includes(named)&&!explicitParticipantConflict(row.source_quote,quote)&&!timeContradiction(row.source_quote,quote))
+    const matches=existing.filter(row=>row.source_quote.includes(named)&&!explicitParticipantConflict(row.source_quote,quote)&&!timeContradiction(row.source_quote,quote)&&!explicitMaterialFormConflict(row.source_quote,quote))
     return matches.length===1?matches[0]!:null
   }
   let best: { row: EpisodeExisting; score: number } | null = null
   for (const row of existing) {
-    if(explicitParticipantConflict(row.source_quote,quote))continue
+    if(explicitParticipantConflict(row.source_quote,quote)||explicitMaterialFormConflict(row.source_quote,quote))continue
     const score = Math.max(
       episodeSimilarity(row.source_quote, quote),
       action ? episodeSimilarity(row.source_quote, action) : 0,

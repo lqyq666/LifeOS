@@ -1,5 +1,5 @@
 import {scanUserClauses} from '../user-command-spans.ts'
-import {reportedCompletedContactClauses} from '../turn-contract.ts'
+import {reportedCompletedContactClauses,reportedOutcomeSourceClauses} from '../turn-contract.ts'
 import {WorkflowError,emptyProposal,type EvidenceRef,type WorkflowRequest,type WorkflowProposal,type ActionUsageStatus} from './contracts.ts'
 
 export type ActionCase={eventId:string;revision:number;object:string;request:string;known:{sent:boolean|null;read:boolean|null;replied:boolean|null;used:boolean|null;effect:string|null};usage:{status:ActionUsageStatus;source:EvidenceRef}[];answeredQuestions:string[]}
@@ -9,9 +9,9 @@ const reportedDelivery={test:(quote:string)=>reportedCompletedContactClauses(quo
 // False is an explicit negative report; null means the student has not established it.
 // Apply authorized messages chronologically. Corrections replace, rather than OR with, old facts.
 export function reconcileActionStages(before:ActionCase['known'],quote:string,reported?:(field:keyof ActionCase['known'],evidenceQuotes:string[])=>void):ActionCase['known']{
- const clauses=scanUserClauses(quote).filter(x=>!x.interrogative&&!x.conditional&&!x.attributedToOther&&!x.quoted&&!x.code&&!x.quoteSpans.length)
+ const clauses=reportedOutcomeSourceClauses(quote).filter(x=>!x.attributedToOther&&!x.codeSpans.length)
  const text=clauses.map(x=>x.text).join('；'),stages={...before}
- if(!clauses.some(x=>/我|本人|按上次/.test(x.text)))return stages
+ if(!clauses.some(x=>/我|本人/.test(x.text)))return stages
  const facts:Record<'sent'|'read'|'replied'|'used',[RegExp,Pick<RegExp,'test'>,RegExp]>={
   sent:[/还没发|没(?:有)?发(?:出|送|给)|未(?:发出|发送|发给|提交|联系)|没有联系|没联系|没提交/,reportedDelivery,/(?:不(?:知道|确定|清楚)|无法确认|未确认)(?:自己|我|本人|(?:这|那)?(?:个|份|封|条)?(?:链接|PDF|作品集|材料|资料|邮件|消息))?(?:是否|有没有)?(?:已经|已|成功|实际)?(?:把(?:这|那)?(?:个|份|封|条)?(?:链接|PDF|作品集|材料|资料|邮件|消息))?(?:发出|发送|发给|发了|提交|交付|联系)/],
   read:[/没(?:有)?(?:看|读)|未读/,/已读|已经(?:看|读)(?:了|过|到)/,/不(?:知道|确定)[^；]{0,12}(?:看|读)/],

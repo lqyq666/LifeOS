@@ -44,6 +44,9 @@ export function taskPauseNeedsClarification(targetText:string,currentText:string
 export function scopedTaskPauseClause(text:string):boolean{
  return scopedTaskPauseTarget(text)!==null
 }
+export function closingOnlyInstruction(text:string):boolean{
+ return /^(?:请|麻烦)?(?:(?:现在|今天|这次|本轮|先|就)?(?:到这里|结束(?:对话|聊天|本轮)?|不(?:再)?安排(?:任何)?(?:下一步|动作|任务)))[。！!\s]*$/.test(text.trim())
+}
 export function conversationPreferenceClause(text:string):boolean{
  if(/^(?:今天|现在)?(?:请|麻烦)?(?:先)?听我(?:说|聊聊)/.test(text.trim()))return true
  text=text.trim().replace(/^(?:也|并且|而且|但|不过|可是)/,'')
@@ -79,6 +82,10 @@ export function assistantInstructionClause(sourceText:string,clause:Pick<UserCla
  return assistantRequestClause(clause.text)||assistantRequestClause(clauses[index]!.text)
 }
 export function assistantRequestClause(text:string):boolean{
+ if(closingOnlyInstruction(text))return true
+ if(/^(?:请|麻烦)(?:帮我)?(?:记录|记下|保存|写入|更新)[^。！？\n]{0,80}$/.test(text.trim()))return true
+ if(/^(?:请|麻烦|我(?:想|希望)(?:让)?你)?(?:按|依据|根据)[^。！？\n]{0,40}(?:状态|已发|已读|已回复|是否采用|实际效果)(?:[，,]\s*)?$/.test(text.trim()))return true
+ if(/^(?:请|麻烦|我(?:想|希望)(?:让)?你)?(?:按|依据|根据)[^。！？\n]{0,40}(?:状态|已发|已读|已回复|是否采用|实际效果)[^。！？\n]{0,16}(?:说明|列出|展示|呈现|回读)$/.test(text.trim()))return true
  // Explicitly addressed help requests are conversation instructions, even
  // when phrased as a wish. They are not reports of an already felt outcome.
  if(/^(?:我|本人)(?:现在|今天|这次)?(?:想|希望)(?:让|请|麻烦)?你(?:能|可以)?(?:先|再|继续)?(?:帮(?:助)?|给|替|为)我/.test(text.trim()))return true
@@ -124,7 +131,7 @@ export function responseRequestScope(text:string){
  let comparisonIndex=-1,comparisonStop=-1
  own.forEach((clause,index)=>{if(comparisonRequestClause(clause.commandText))comparisonIndex=index;if(comparisonStopClause(clause.commandText))comparisonStop=index})
  const comparisonRequested=comparisonIndex>comparisonStop&&!currentConversationOnly(text)
- const judgmentUpdate=instructions.some(clause=>/(?:更新|调整).{0,8}(?:判断|理解)/.test(clause.commandText))
+ const judgmentUpdate=instructions.some(clause=>/(?:更新|调整|重开).{0,16}(?:判断|理解)/.test(clause.commandText))
  const actionInstructions=instructions.filter(clause=>!/^(?:请|麻烦)?(?:这周|本周|今天|现在)?(?:先|暂时)?(?:不要|不用|不|别)/.test(clause.commandText.trim())&&/(?:给|安排|提供|设计).{0,24}(?:行动|验证|下一步|动作|任务|区分办法|实验|试验|(?:能|可)开始的一步)/.test(clause.commandText))
  const actionRequested=actionInstructions.length>0
  const multipleTrialRequest=new RegExp('^(?:请|麻烦)?(?:同时|并|再|先)?(?:安排|进行|做)[两二三四五六七八九十2-9](?:次|轮)'+independentTrialNouns)

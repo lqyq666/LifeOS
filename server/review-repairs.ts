@@ -92,6 +92,7 @@ export function repairReviewedDefects(reply:string,userText:string,priorUserText
   text=apply(text,phases,'single_job_and_enumeration',value=>repairSingleJobAndEnumeration(value,userText))
   text=apply(text,phases,'off_topic_exam_prep',value=>repairOffTopicExamPrep(value,userText))
   text=apply(text,phases,'leading_binary',value=>repairLeadingBinary(value,userText))
+  text=apply(text,phases,'freedom_scope_exclusions',value=>repairFreedomScopeExclusions(value,userText))
   text=apply(text,phases,'self_referential_question',value=>repairSelfReferentialQuestion(value,userText))
   text=apply(text,phases,'two_factor_unknown',value=>repairTwoFactorUnknown(value,userText))
   text=apply(text,phases,'two_factor_design',value=>repairTwoFactorDesign(value,userText))
@@ -842,8 +843,19 @@ function repairSourceClaims(reply:string,userText:string):string|null{
 }
 
 function repairIncompleteTail(reply:string):string|null{
-  if(!/[，,：:]?\s*(?:当前停在|当前卡在|目前停在|现在停在)\s*[。]?$/.test(reply))return null
-  return reply.replace(/[，,：:]?\s*(?:当前停在|当前卡在|目前停在|现在停在)\s*[。]?$/,'；其余状态保持未知。')
+  if(/[，,：:]?\s*(?:当前停在|当前卡在|目前停在|现在停在)\s*[。]?$/.test(reply))
+    return reply.replace(/[，,：:]?\s*(?:当前停在|当前卡在|目前停在|现在停在)\s*[。]?$/,'；其余状态保持未知。')
+  // A normal answer may legitimately end without punctuation, especially an
+  // action line. Only remove a short dangling function-word tail that cannot
+  // stand as a completed sentence on its own.
+  const trimmed=reply.trim()
+  let cut=-1
+  for(const mark of ['。','！','？','!','?','…'])cut=Math.max(cut,trimmed.lastIndexOf(mark))
+  if(cut<12)return null
+  const dangling=trimmed.slice(cut+1).trim()
+  if(!dangling||dangling.length>20)return null
+  if(!/^(?:之前那个|而不只是|以及|但是|但|因为|所以|然后|而且|并且|还是|或者|和|与|或|在|从|对|把|被|让|给|的)$/.test(dangling))return null
+  return trimmed.slice(0,cut+1)
 }
 
 function repairSameExperienceScope(reply:string,userText:string,priorUserTexts:readonly string[]):string|null{
@@ -962,11 +974,25 @@ function repairOffTopicExamPrep(reply:string,userText:string):string|null{
 
 function repairLeadingBinary(reply:string,userText:string):string|null{
   if(userText.includes('还是'))return null
+  if(/整理|分类/.test(userText)){
+    const motive=/(^|[。！!；;？?\n]\s*)([^。！!；;\n？?]{0,100}?)(?:能看出|看出|判断)[^。！？?\n]{0,30}的是[“"]?([^。！？?\n]{1,80}?)[”"]?[，,]?\s*还是[“"]?([^。！？?\n]{1,80}?)[”"]?[。？?]\s*$/.exec(reply)
+    if(motive)return `${reply.slice(0,motive.index)}${motive[1]}除了这门课，最近还有别的事情也让你自然分类吗？`
+  }
   const match=/(^|[。！!；;\n]\s*)(?:想问?一个?值得问的问题[:：]\s*)?([^。！!；;\n？?]{2,80}?)[，,]\s*是[^。！？?\n]{1,100}?[，,]\s*还是[^。！？?\n]{1,100}?[？?]\s*$/.exec(reply)
   if(!match)return null
   const topic=match[2]!.replace(/^[^：:]*[:：]\s*/,'').trim()
   if(!topic)return null
   return `${reply.slice(0,match.index)}${match[1]}${topic}具体是什么感觉？`
+}
+
+function repairFreedomScopeExclusions(reply:string,userText:string):string|null{
+  if(!/(?:自由|时间自主)/.test(reply)||!/(?:而非地点|而非老板|不是地点|地点或老板|地点或老板身份)/.test(reply))return null
+  let fixed=reply
+    .replace(/自由核心是([^。；\n]+)[，,]\s*而非地点或老板身份/g,'自由当前最清楚的是$1；地点、老板身份等其他维度仍未确认')
+    .replace(/而非地点或老板身份/g,'地点和老板身份仍未确认')
+    .replace(/而非地点/g,'地点仍未知')
+    .replace(/而非老板身份/g,'老板身份仍未知')
+  return fixed!==reply?fixed:null
 }
 
 function repairSelfReferentialQuestion(reply:string,userText:string):string|null{

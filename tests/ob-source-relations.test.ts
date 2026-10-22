@@ -15,6 +15,7 @@ test('actual OB delivery uses the existing source parser rather than a narrower 
  assert.equal(reconcileActionStages({...before,sent:true},'我不确定是否发给导师了。').sent,null)
  assert.equal(reconcileActionStages({...before,sent:true},'我不知道导师是否读了我发给他的PDF。').sent,true,'reading uncertainty does not retract a known sending')
  assert.equal(reconcileActionStages(before,'我把作品集链接发给导师了但是否读过仍未知。').sent,true)
+ for(const command of ['请按上次已读状态分别说明。','按上次已读状态分别说明。','依据上次已读状态逐项列出。','我希望你按上次已读状态分别说明。','请把我已读、已回复分别列出。','如果我已读再说。','“我已读”。'])assert.deepEqual(reconcileActionStages(before,command),before,command)
 })
 
 test('actual OB public lookup loses only an unsupported prior-possession modifier, not the requested action',()=>{

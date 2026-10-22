@@ -16,7 +16,8 @@ test('direct sentence-scoped understanding requests share the existing summary a
  for(const text of ['朋友说：“用一句话说明当前理解。”','如果我说“用一句话说明当前理解”，你会怎么回应？','我会用一句话说明自己当前的理解。','```\n用一句话说明当前理解\n```'])assert.equal(responseRequestScope(text).summaryRequested,false,text)
  assert.equal(responseRequestScope('用一段话说明当前理解。').sentenceLimit,undefined)
 })
-import {reportedPreferenceClauses,reportedPursuitClauses} from '../server/turn-contract.ts'
+import {reportedPreferenceClauses,reportedPursuitClauses,reportedOutcomeSourceClauses} from '../server/turn-contract.ts'
+import {reconcileActionStages} from '../server/workflows/action-review.ts'
 
 test('embedded content questions in an owned intention retain the stated goal and outcome',()=>{
  const text='不是因为老师要求；我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间。我还不知道这是否只是一次偶然。'
@@ -32,6 +33,15 @@ test('direct enjoyment and dislike remain owned preferences across source extrac
  for(const text of ['室友说他不享受考试。','如果我不享受考试，该怎么办？','我读到“我不享受考试”。','我不享受什么你来猜。'])assert.deepEqual(reportedPreferenceClauses(text),[],text)
 })
 
+test('a comma-split status command is not a personal delivery report',()=>{
+  const command='按上次已读状态，分别说明。'
+  assert.deepEqual(scanUserClauses(command).map(c=>c.text),['按上次已读状态','分别说明'])
+  assert.equal(scanUserClauses(command)[0]!.text,'按上次已读状态')
+  assert.equal(assistantRequestClause(scanUserClauses(command)[0]!.text),true)
+  assert.deepEqual(reportedOutcomeSourceClauses(command),[])
+  assert.deepEqual(reconcileActionStages({sent:true,read:true,replied:false,used:null,effect:null},command),{sent:true,read:true,replied:false,used:null,effect:null})
+})
+
 test('a requested startable step is an action request rather than a status-only reply',()=>{
  const scope=responseRequestScope('我可以导出PDF，今天只愿意做一个动作。请给能开始的一步，并说明何时停止。')
  assert.equal(scope.actionRequested,true);assert.equal(scope.actionLimit,1)
@@ -44,6 +54,10 @@ test('a direct request to update judgment from new information is summary intent
  assert.equal(responseRequestScope(request).summaryRequested,true)
  assert.equal(responseRequestScope(request).actionRequested,false)
  for(const text of ['同学说：“'+request+'”','如果我说“'+request+'”，你会怎样回应？','```\n'+request+'\n```'])assert.equal(responseRequestScope(text).summaryRequested,false,text)
+ const reopen='请只重开受这条更正影响的判断'
+ assert.equal(responseRequestScope(reopen).judgmentUpdate,true)
+ assert.equal(responseRequestScope(reopen+'，并给一个四小时内的小验证。').actionRequested,true)
+ for(const text of ['朋友说：'+reopen,'如果'+reopen,'“'+reopen+'”'])assert.equal(responseRequestScope(text).judgmentUpdate,false,text)
 })
 
 test('a trailing advice attribution is not the users own instruction',()=>{

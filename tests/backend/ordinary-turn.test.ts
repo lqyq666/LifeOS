@@ -1,4 +1,4 @@
-import test from 'node:test'
+﻿import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createServer} from 'node:http'
 import {randomUUID} from 'node:crypto'
@@ -499,8 +499,9 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       assert.ok(result.text.includes(material))
       assert.equal((requests.at(-1).response_format.json_schema.schema.properties.reply as any).enum,undefined)
       const outgoingEvent=requests.at(-1).response_format.json_schema.schema.properties.event
-      const createEvent=outgoingEvent.anyOf.find((branch:any)=>branch.properties.target.properties.operation.const==='create')
-      assert.ok(createEvent.properties.target.properties.source.properties.quote.enum.includes('我给学长发了请教消息'))
+      const createTarget=outgoingEvent.properties.target
+      assert.equal(createTarget.properties.operation.const,'create')
+      assert.ok(createTarget.properties.source.properties.quote.enum.includes('我给学长发了请教消息'))
       const saved=await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       event=saved.event
       assert.equal(event.actions[0].draft.content,material)
@@ -793,3 +794,6 @@ test('real reported native plan keeps its actual tasks and leaves explicit buffe
  const over=normalizeWeeklyPlanTasks({...input,items:[{action:'完成作业',minutes:121,directionScopes:[]}]})
  assert.throws(()=>validateWeeklyPlanShape(over),'actual overbudget tasks remain invalid')
 })
+
+
+
