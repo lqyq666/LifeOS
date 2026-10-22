@@ -12,7 +12,7 @@ import {config} from './config.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
 import { retrieveCoachKnowledgeCandidates, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
 import { openingQuestionDraft, openUnreportedChoiceQuestion, openPresupposedProblemQuestion, removePrematureDemoStep, removePrematureProductization, groundSingleLeadWithoutProduct, removeQuestionOnZeroTime, limitGrillingQuestions, removeUnsupportedContactChannels, groundUnsupportedOperationalResources, prioritizeReportedAccessFailure, groundReportedAccessAlternative, fixReportedReceiptState, acknowledgeRefusalBoundary, repairUnsupportedPreferenceClaim, repairUnsupportedZeroTimeClaim, enforceReportedQuantity, ensureZeroTimeFocus, removeZeroTimeTasks, ensureLowCostSelfStart, ensureTwoFactorPresenceChange, guardHealthTwoFactor, groundClickablePrototype, ensureClickableValidation, fixClickableCountConsistency, softenSingleObservationCausality, ensureRequestedQuestion, safeEarlySentence, groundedStateReadback, requestsOnlyStateReadback, retainsDraftText, groundedFeedbackPreview, provisionalStatePreview, provisionalQuestionPreview, provisionalCorrectionPreview, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
-import { boundedDistinctionReply,unresolvedTwoFactors,distinctionActionAccepts,repairReviewedDefects,repairStatusUpdate } from './review-repairs.ts'
+import { boundedDistinctionReply,unresolvedTwoFactors,distinctionActionAccepts,repairReviewedDefects,repairStatusUpdate,closeDanglingReply } from './review-repairs.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
@@ -1268,8 +1268,9 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // Every deterministic post-processor runs after the provider enum check.
     // Re-assert the same bounded catalogue here so a later repair can never
     // turn an authorized editorial reply into uncatalogued free prose.
-    if(sourceStatusReadback){
-      result.reply=sourceStatusReadback
+    const statusReadbackReply=sourceStatusReadback?repairStatusUpdate(sourceStatusReadback,current.content)?.reply??sourceStatusReadback:null
+    if(statusReadbackReply){
+      result.reply=statusReadbackReply
       staged.audit.push({phase:'participant_status_projected_from_current_source',sourceMessageId:run.source_message_id,providerCalls:0})
     }
     if(!boundedReplyAccepts(result.reply,boundedReply)){
@@ -1858,8 +1859,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       if(staged.coach)staged.coach.knowledgeRefs=staged.usedKnowledgeRefs
       staged.audit.push({phase:'late_control_reply_revalidated',providerCalls:0})
     }
-    if(sourceStatusReadback&&result.reply!==sourceStatusReadback){
-      result.reply=sourceStatusReadback
+    if(statusReadbackReply&&result.reply!==statusReadbackReply){
+      result.reply=statusReadbackReply
       staged.audit.push({phase:'source_status_readback_preserved_after_rendering',providerCalls:0})
     }
     if(!boundedReplyAccepts(result.reply,boundedReply)){
@@ -1991,6 +1992,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   staged.dialoguePath='direct';staged.upstreamCalls=calls.length
   staged.audit.push({phase:'engine_stage_timings',preRetrievalMs,knowledgeMs,validationMs,modelCallsMs:calls.map(call=>call.latencyMs),firstRawDeltaMs:calls.map(call=>call.firstRawDeltaMs),firstQuestionDraftMs:calls.map(call=>call.firstQuestionDraftMs),userPromptChars:userPrompt.length})
+  const closedReply=closeDanglingReply(result.reply)
+  if(closedReply){
+    result.reply=closedReply
+    staged.audit.push({phase:'final_dangling_reply_closed',providerCalls:0})
+  }
+  if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
   const usage=usageSummary(calls,contextTokenEstimate,retrieved,route.escalated,route.reason,refusalOnly||Boolean(explicitMaterial)||Boolean(deterministicStateReadback))
   staged.modelUsage=usage
   return {text:result.reply,usage}

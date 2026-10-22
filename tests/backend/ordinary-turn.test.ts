@@ -251,7 +251,7 @@ test('single ordinary generation preserves mixed delivery and real transaction b
           const staged:store.Staged={candidates:[],audit:[]},before=requests.length
           const result=await sourceEngine({run,staged,context:await store.contextForRun(run),decision:null,signal,emit:()=>{}})
           assert.equal(requests.length,before,'source-only updates must not ask a model to invent an actor link')
-          assert.equal(result.text,facts)
+          assert.match(result.text,/已更新：老师后来回复.*此前“未回复”作废.*同学表格仍明确不适合他/,'source-only updates synthesize the two updated participant states')
           assert.equal((result.usage as any).llmCallCount,0)
           await store.finishRun(run,staged,result.text,result.usage,signal)
           return run

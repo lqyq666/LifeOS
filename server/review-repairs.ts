@@ -1398,6 +1398,7 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
   if(/每周最多两小时/.test(userText)){
     fixed=fixed.replace(/用两周时间，每天固定一小时/g,'用两周时间，每周最多两小时')
     fixed=fixed.replace(/每天固定一小时/g,'每周最多两小时')
+    fixed=fixed.replace(/短期兼职或志愿工作/g,'每周不超过两小时的短期观察')
   }
   // “不在意当老板” is a current-priority statement, not proof that the
   // dimension is unknown or excluded. It may come from an earlier turn.
@@ -1406,7 +1407,8 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
     fixed=fixed.replace(/老板身份等(?:其他)?维度仍未确认/g,'当老板不是当前重点，但不等同于排除')
   }
   if(/创业仍然拒绝/.test(userText)){
-    fixed=fixed.replace(/创业保持暂停/g,'创业仍然拒绝，保持拒绝')
+    fixed=fixed.replace(/创业保持暂停/g,'创业保持暂停，不自动重开')
+    fixed=fixed.replace(/创业仍然拒绝，保持拒绝/g,'创业保持暂停，不自动重开')
   }
   // A correction of one observation cannot be turned into a causal claim.
   if(/更正/.test(userText)&&/少问一次只是结果/.test(userText)){
@@ -1424,6 +1426,13 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
   if(/导师回复说手机打不开链接/.test(userText)){
     fixed=fixed.replace(/说明卡点只在访问条件/g,'只能说明这次没有拿到内容评价，不能确定唯一卡点')
   }
+  if(/我可以导出PDF/.test(userText)){
+    fixed=fixed.replace(/导师能打开PDF即说明问题在链接格式而非内容本身/g,'如果导师能打开PDF，只能说明这个渠道可用，不能确定原链接失败的唯一原因')
+  }
+  if(/请更新这段经历的局部理解/.test(userText)){
+    fixed=fixed.replace(/轻松源于不用表现及自然说话/g,'你报告轻松主要来自不用表现及自然说话；这仍是本人描述，不能排除其他因素')
+  }
+
   // A zero-call status update must not echo the user's report instead of
   // applying it. Keep the two participants and their states separate.
   if(/老师后来回复说这周忙/.test(userText)&&/^回来反馈：老师后来回复说这周忙/.test(fixed)){
@@ -1443,6 +1452,22 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
 export function repairStatusUpdate(reply:string,userText:string):ReviewedRepair|null{
   const fixed=repairPostReviewScope(reply,userText,[])
   return fixed===null?null:{reply:fixed,phases:['post_review_scope']}
+}
+
+// A provider can end a stream at a word boundary even when the JSON is valid.
+// Running this at the final boundary guarantees the delivered prose is at
+// least sentence-closed; it only removes a trailing ungrounded connector, never
+// invents a new claim.
+export function closeDanglingReply(reply:string):string|null{
+  const trimmed=reply.trim()
+  if(!trimmed||/[。！？!?…；;」』”"）)]$/.test(trimmed))return null
+  let last=-1
+  for(const mark of ['。','！','？','!','?','…','；',';'])last=Math.max(last,trimmed.lastIndexOf(mark))
+  if(last<0)return null
+  const tail=trimmed.slice(last+1).trim()
+  if(!/^(?:我想确认的是|目前已知|现在卡住的是|也就是|或者说|以及|或者|和|与)/.test(tail))return null
+  const closed=trimmed.slice(0,last+1).trim()
+  return closed||null
 }
 
 function repairReviewCategories(reply:string,userText:string,preserveReportedObservation=false):string|null{
