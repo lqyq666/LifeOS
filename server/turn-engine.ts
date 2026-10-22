@@ -168,6 +168,13 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     const messages=providerTurnMessages(userPrompt,runtime.model,systemPrompt)
     const source=stream(runtime.model,{systemPrompt,messages},{apiKey:runtime.apiKey,maxTokens:maxOutputTokens,timeoutMs:60000,maxRetries:0,signal:providerSignal,onPayload:(payload,selected)=>{
       const configured=configure(payload,selected)
+      // One-variable acceptance diagnostic only. The default remains untouched;
+      // the override is explicit, recorded, and limited to the Qwen default tier.
+      const diagnosticTemperature=process.env.LIFEOS_DIAGNOSTIC_TEMPERATURE
+      if(process.env.LIFEOS_SYNTHETIC_MODEL_DIAGNOSTICS==='true'&&diagnosticTemperature&&selected.id==='qwen3.8-flash'&&/^(?:0(?:\.\d+)?|1(?:\.0+)?)$/.test(diagnosticTemperature)){
+        ;(configured as {temperature?:number}).temperature=Number(diagnosticTemperature)
+        staged.audit.push({phase:'diagnostic_temperature_override',temperature:Number(diagnosticTemperature),providerCalls:0})
+      }
       // Actual outgoing instructions, tied to the existing call/completion and
       // final commit receipt. Never log user context or assert model compliance.
       if(JSON.stringify(configured).includes(JSON.stringify(mainCompanionPolicy.instructions).slice(1,-1))){

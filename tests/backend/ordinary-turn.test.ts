@@ -466,6 +466,8 @@ test('single ordinary generation preserves mixed delivery and real transaction b
       assert.equal((result.usage as any).calls[0].outputTokens,100)
       assert.ok(!input.staged.audit.some((row:any)=>row.phase==='host_structured_frame_terminated'))
       assert.ok(input.staged.audit.some((row:any)=>row.phase==='provider_stream_assembly'&&row.streamMatchesResult===false))
+      const stages:any=input.staged.audit.find((row:any)=>row.phase==='provider_output_stages')
+      assert.ok(stages&&stages.streamChars>0&&typeof stages.resultChars==='number'&&typeof stages.resultEqualsNormalized==='boolean')
       await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
       const saved=(await pool.query("SELECT content FROM messages WHERE user_id=$1 AND run_request_id=$2 AND role='assistant'",[user,input.run.request_id])).rows
       assert.equal(saved[0].content,expectedReply)
