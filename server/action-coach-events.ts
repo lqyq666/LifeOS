@@ -201,7 +201,13 @@ async function coachNodeSource(c:PoolClient,run:Run,eventId:string|undefined,nod
   // hypothetical clause. Existing turn-contract extraction applies the same
   // boundary; enforce it here before an event node can persist.
   const clauses=scanUserClauses(node.source.quote)
-  if(clauses.length&&clauses.some(clause=>clause.conditional||assistantRequestClause(clause.text)))throw new HttpError(400,'COACH_SOURCE_INVALID',undefined,{quote:node.source.quote.slice(0,400)})
+  if(clauses.length&&clauses.some(clause=>clause.conditional||assistantRequestClause(clause.text))){
+    // Optional interpretations cannot make a request/conditional clause into
+    // a stored fact. Drop that node and keep the valid reply and other nodes;
+    // a factual node still fails closed.
+    if(node.kind==='user_interpretation')return null
+    throw new HttpError(400,'COACH_SOURCE_INVALID',undefined,{quote:node.source.quote.slice(0,400)})
+  }
   try{return await currentSource(c,run,node.source)}
   catch(error){
     if(error instanceof HttpError&&error.code==='COACH_SOURCE_INVALID'&&eventId){
