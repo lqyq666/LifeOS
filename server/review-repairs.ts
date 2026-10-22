@@ -1429,6 +1429,10 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
   if(/我可以导出PDF/.test(userText)){
     fixed=fixed.replace(/导师能打开PDF即说明问题在链接格式而非内容本身/g,'如果导师能打开PDF，只能说明这个渠道可用，不能确定原链接失败的唯一原因')
   }
+  if(/只了解一个远程岗位/.test(userText)){
+    fixed=fixed.replace(/从你已浏览过的平台选一个岗位即可/g,'从一个公开招聘页面选一个岗位即可')
+    fixed=fixed.replace(/这能帮你判断[^。！？\n]*是否常见[^。！？\n]*[。]?/g,'这只能帮你了解这一个岗位的描述，不能判断是否常见，也不证明你适合该岗位。')
+  }
   if(/请更新这段经历的局部理解/.test(userText)){
     fixed=fixed.replace(/轻松源于不用表现及自然说话/g,'你报告轻松主要来自不用表现及自然说话；这仍是本人描述，不能排除其他因素')
   }

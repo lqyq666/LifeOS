@@ -1022,12 +1022,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
       staged.audit.push({phase:'reviewed_defects_repaired',rules:reviewed.phases,providerCalls:0})
     }
-    const closedEarly=closeDanglingReply(result.reply)
+    const closedEarly=result.reply.trim()?closeDanglingReply(result.reply):null
     if(closedEarly){
       result.reply=closedEarly
       staged.audit.push({phase:'dangling_reply_closed_before_validation',providerCalls:0})
     }
-    if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
     if(distinctionActionRequested){
       const boundedDistinction=boundedDistinctionReply(current.content)
       if(boundedDistinction===null)throw new HttpError(502,'REPLY_DISTINCTION_ACTION_INVALID')
