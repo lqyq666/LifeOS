@@ -181,7 +181,7 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
         staged.audit.push({phase:'diagnostic_presence_penalty_override',presencePenalty:Number(diagnosticPresence),providerCalls:0})
       }
       if(process.env.LIFEOS_SYNTHETIC_MODEL_DIAGNOSTICS==='true'&&process.env.LIFEOS_DIAGNOSTIC_STOP_TAIL==='true'&&selected.id==='qwen3.8-flash'){
-        const stop=['</parameter>','</function>','</tool_call>','<|tool_','[Follow-up interjection]']
+        const stop=['<tool_call>','<tool_','</parameter>','</function>','</tool_call>','<|tool_','[Follow-up interjection]']
         ;(configured as {stop?:string[]}).stop=stop
         staged.audit.push({phase:'diagnostic_stop_tail_applied',stops:stop,providerCalls:0})
       }
