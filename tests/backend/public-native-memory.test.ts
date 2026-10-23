@@ -49,12 +49,26 @@ test('a same-matter experience response has its new source in the canonical revi
  const update='老师后来回复说课程作业邮件已收到。',run=(await store.startRun(actor,chat,randomUUID(),update)).run
  await store.finishRun(run,{candidates:[],audit:[]},'课程作业邮件已收到回复。',null,signal)
  const experience=(await pool.query('SELECT id,content,revision FROM experiences WHERE user_id=$1',[actor])).rows[0]
- assert.equal(experience.content.result,'后续已收到对方回复')
+ assert.equal(experience.content.result,'老师后来回复说课程作业邮件已收到')
  const revision=(await pool.query('SELECT snapshot FROM experience_revisions WHERE user_id=$1 AND experience_id=$2 AND revision=$3',[actor,experience.id,experience.revision])).rows[0]
  assert.ok(revision,'the current experience revision must have a persisted snapshot')
  assert.equal(revision.snapshot.fromMessageId,run.source_message_id)
- assert.equal(revision.snapshot.quote,update)
+ assert.equal(revision.snapshot.quote,experience.content.result)
+ assert.ok(update.includes(revision.snapshot.quote))
  assert.equal(revision.snapshot.content.result,experience.content.result)
+ const graph=await store.cognitionGraph(actor),node=graph.nodes.find((node:any)=>node.serverId===experience.id) as any
+ assert.equal(node.resultBasis,'record_correction')
+ assert.equal(node.taskOutcomes.response.status,'reported_response')
+ assert.equal(node.taskOutcomes.response.sourceMessageId,run.source_message_id)
+ assert.equal(node.asReported.sourceMessageId,run.source_message_id)
+ await pool.query("INSERT INTO memory_suppressions(user_id,source_conversation_id,source_message_id,key) VALUES($1,$2,$3,'test-withdraw-response')",[actor,chat,run.source_message_id])
+ const forgotten=(await store.listExperiences(actor)).find(row=>row.id===experience.id)!
+ assert.equal(forgotten.content.result,'','withdrawing the new source does not restore its result or an older result')
+ assert.equal(forgotten.source_quote,text,'the independent original report is preserved')
+ assert.equal((await store.retrieveExperiences(actor,{query:'',limit:10},signal)).records.find(row=>row.id===experience.id)?.content.result,'')
+ assert.equal((await store.retrieveExperiences(actor,{query:experience.content.result,limit:10},signal)).records.length,0)
+ const {loadSnapshot}=await import('../../server/memory.ts')
+ assert.equal((await loadSnapshot(actor,chat,'课程作业')).confirmedExperiences.find(row=>row.id===experience.id)?.content.result,'')
 })
 
 test('response cleanup preserves distinct matters for the same actor and an unidentified PDF recipient',async()=>{

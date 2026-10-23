@@ -6,7 +6,7 @@ import type {ActionCoachTurn} from './action-coach-contracts.ts'
 import { requestsCrossExperienceReview, type DialogueTask, type ProfileFact } from './dialogue.ts'
 import {rankConfirmedCoachExperiences} from './coach-retrieval.ts'
 import { invalidateCoachSources } from './action-coach-events.ts'
-import { growthQuoteSuppressed } from './growth-privacy.ts'
+import { growthQuoteSuppressed,redactExperienceResultSources } from './growth-privacy.ts'
 
 const hash=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const advisory=(c:PoolClient,key:string)=>c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
@@ -58,7 +58,7 @@ export async function loadSnapshot(user:string,conversation:string,query:string)
     const deletedSources=(await pool.query("SELECT source_message_id FROM experiences WHERE user_id=$1 AND conversation_id=$2 AND status='deleted' UNION SELECT message_id AS source_message_id FROM coach_source_withdrawals WHERE user_id=$1 AND conversation_id=$2",[user,conversation])).rows
     const experienceRows=(await pool.query("SELECT e.id,e.revision,e.content,e.conversation_id,e.source_message_id,e.source_quote,e.updated_at,c.title AS conversation_title FROM experiences e JOIN conversations c ON c.user_id=e.user_id AND c.id=e.conversation_id JOIN messages m ON m.user_id=e.user_id AND m.conversation_id=e.conversation_id AND m.id=e.source_message_id WHERE e.user_id=$1 AND ($2 OR e.conversation_id=$3) AND e.status='confirmed' AND m.role='user' AND btrim(e.source_quote)<>'' AND strpos(m.content,e.source_quote)>0 ORDER BY e.updated_at DESC,e.id",[user,settings.enabled,conversation])).rows
     const usableExperiences=[]
-    for(const row of experienceRows)if(!await growthQuoteSuppressed(pool,user,row.source_message_id,row.source_quote))usableExperiences.push(row)
+    for(const row of await redactExperienceResultSources(pool,user,experienceRows))if(!await growthQuoteSuppressed(pool,user,row.source_message_id,row.source_quote))usableExperiences.push(row)
     const includePatternSources=requestsCrossExperienceReview(query)
     return {settings,profile,writeProfile,confirmedExperiences:(await rankConfirmedCoachExperiences(usableExperiences,includePatternSources?'':query,includePatternSources?6:4,{currentConversationId:conversation})).map(row=>({id:row.id,revision:row.revision,content:row.content,conversationId:row.conversation_id,conversationTitle:row.conversation_title,sourceMessageId:row.source_message_id,quote:row.content?.summary||row.source_quote})),suppressedMessageIds:[...new Set([...suppressions,...deletedSources].map(item=>String(item.source_message_id)))]}
   }catch(error){if(error instanceof HttpError)throw error;throw new HttpError(503,'MEMORY_LOAD_FAILED',15)}

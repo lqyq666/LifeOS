@@ -24,6 +24,7 @@ import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTag
 import { buildExperienceRelations } from './starmap-enrichment.ts'
 import { applicableExperienceOutcomes, generateInsight, summarizeExperience } from './experience-insight.ts'
 import {reportedEvidenceFromText,taskOutcomeReadback,reportedOutcomeSourceClauses,sameReportedResponseSubject} from './turn-contract.ts'
+import {redactExperienceResultSources} from './growth-privacy.ts'
 import {commitWorkflowSelection,type WorkflowAdoption} from './workflows/task-commit.ts'
 import {committedGrowthDiff,committedSnapshot,validGrowthDiff} from './workflows/committed-growth-diff.ts'
 import {advancedWorkflowsEnabled} from './workflows/router.ts'
@@ -65,7 +66,7 @@ export async function listExperiences(user:string,conversation?:string) {
   const rows = (await pool.query('SELECT e.*, m.content AS source_text, m.created_at AS source_reported_at, c.title AS conversation_title FROM experiences e JOIN messages m ON m.user_id=e.user_id AND m.id=e.source_message_id JOIN conversations c ON c.user_id=e.user_id AND c.id=e.conversation_id WHERE e.user_id=$1 AND e.status<>\'deleted\' AND ($2::uuid IS NULL OR e.conversation_id=$2) ORDER BY e.updated_at DESC,e.id',[user,conversation??null])).rows
   const links = (await pool.query('SELECT * FROM experience_links WHERE user_id=$1',[user])).rows
   const suppression=await experienceSuppressionIndex(user)
-  return rows.filter(e=>!suppression.suppressedMessage(e.source_message_id)
+  return (await redactExperienceResultSources(pool,user,rows)).filter(e=>!suppression.suppressedMessage(e.source_message_id)
     &&!suppression.suppressedText(String(e.source_quote??''))
     &&!suppression.suppressedText([e.content?.action,e.content?.result,e.content?.summary].filter(Boolean).join('；'))).map(e=>({ ...e, links: links.filter(link=>link.experience_id===e.id) }))
 }
@@ -75,7 +76,7 @@ export async function retrieveExperiences(user:string,input:unknown,signal?:Abor
   const rows=(await pool.query('SELECT e.id,e.content,e.source_quote,e.source_message_id,e.revision,e.confirmed_at FROM experiences e JOIN messages m ON m.user_id=e.user_id AND m.conversation_id=e.conversation_id AND m.id=e.source_message_id WHERE e.user_id=$1 AND e.status=\'confirmed\' AND m.role=\'user\' AND btrim(e.source_quote)<>\'\' AND strpos(m.content,e.source_quote)>0 AND ($2=\'\' OR strpos(lower(e.content::text),lower($2))>0) ORDER BY e.updated_at DESC,e.id LIMIT $3',[user,query,limit])).rows
   const suppression=await experienceSuppressionIndex(user)
   signal?.throwIfAborted()
-  return { records: rows.filter(e=>!suppression.suppressedMessage(e.source_message_id)&&!suppression.suppressedText(String(e.source_quote??''))&&!suppression.suppressedText([e.content?.action,e.content?.result,e.content?.summary].filter(Boolean).join('；'))), method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
+  return { records: (await redactExperienceResultSources(pool,user,rows)).filter(e=>(!query||JSON.stringify(e.content).toLowerCase().includes(query.toLowerCase()))&&!suppression.suppressedMessage(e.source_message_id)&&!suppression.suppressedText(String(e.source_quote??''))&&!suppression.suppressedText([e.content?.action,e.content?.result,e.content?.summary].filter(Boolean).join('；'))), method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
 }
 export type Run = { user_id:string; request_id:string; conversation_id:string; source_message_id:string; expected_version:number; status:string; response:any }
 export type Staged = { workflowAdoption?:WorkflowAdoption; guideUsage?:GuideUsage[]; candidates:Candidate[]; audit:unknown[]; backReferenceMerge?:{experienceId:string;quote:string;result:string;occurredAt:string}; serverGoals?:{text:string;quote:string;messageId:string}[];serverBudgets?:{text:string;quote:string;messageId:string}[];starMapSnapshot?:{themes:{id:string;revision:number}[];links:{experienceId:string;themeId:string;revision:number}[]}; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations;weeklyPlan?:import('./weekly-plans.ts').PreparedWeeklyPlan;memoryControl?:StagedMemoryControl;pendingMemoryControl?:PendingMemoryControl }
@@ -320,13 +321,13 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       // Only correct the experience for the same reported material. A reply
       // about a PDF must not rewrite an earlier unreplied link.
       const oldExperiences=(await c.query("SELECT id,source_quote FROM experiences WHERE user_id=$1 AND conversation_id=$2 AND status='confirmed' AND (content->>'result' IN ('对方还没回复','老师没回复') OR content->>'title' LIKE '%对方还没回复%' OR content->>'summary' LIKE '%对方还没回复%')",[run.user_id,run.conversation_id])).rows
-      const responseExperienceIds=oldExperiences.filter(row=>sameReportedResponseSubject(row.source_quote,sourceText)).map(row=>row.id)
-      if(responseExperienceIds.length){
-        const changed=(await c.query("UPDATE experiences SET content=jsonb_set(jsonb_set(jsonb_set(content,'{result}','\"后续已收到对方回复\"'::jsonb,true),'{title}',to_jsonb(replace(COALESCE(content->>'title',''),'对方还没回复','对方已回复')),true),'{summary}',to_jsonb(replace(COALESCE(content->>'summary',''),'对方还没回复','对方已回复')),true),revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=ANY($2::uuid[]) RETURNING id,revision,content",[run.user_id,responseExperienceIds])).rows
-        for(const row of changed){
-          await c.query("INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,'correct',$4)",[run.user_id,row.id,row.revision,{merged:true,fromMessageId:run.source_message_id,quote:sourceText,requestId:run.request_id,content:row.content}])
-          await invalidatePatternsForExperience(c,run.user_id,row.id)
-        }
+      const responseReports=reportedEvidenceFromText(sourceText).participants.filter(report=>report.states.response.status==='reported_response')
+      for(const previous of oldExperiences){
+        const report=responseReports.find(report=>sameReportedResponseSubject(previous.source_quote,report.quote))
+        if(!report)continue
+        const row=(await c.query("UPDATE experiences SET content=jsonb_set(content,'{result}',to_jsonb($3::text),true),revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING id,revision,content",[run.user_id,previous.id,report.quote])).rows[0]
+        await c.query("INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,'correct',$4)",[run.user_id,row.id,row.revision,{merged:true,fromMessageId:run.source_message_id,quote:report.quote,requestId:run.request_id,content:row.content,correction:{version:1,changedFields:['result']}}])
+        await invalidatePatternsForExperience(c,run.user_id,row.id)
       }
     }
     if(/没有约定回复时间/.test(sourceText)){
@@ -586,7 +587,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
       const reports=reportedEvidenceFromText(String(e.content.result??'')).participants
       if(reports.length===1)for(const key of Object.keys(taskOutcomes)){
         const outcome=reports[0].states[key as keyof typeof reports[0]['states']]
-        if(outcome&&(outcome.status!=='unknown'||outcome.quote)&&!suppression.suppressedText(outcome.quote??String(e.content?.result??'')))taskOutcomes[key]={...outcome,sourceExperienceRevision:correction.revision,sourceField:'result',reportedAt:new Date(correction.created_at).toISOString()}
+        if(outcome&&(outcome.status!=='unknown'||outcome.quote)&&!suppression.suppressedText(outcome.quote??String(e.content?.result??'')))taskOutcomes[key]={...outcome,sourceExperienceRevision:correction.revision,sourceField:'result',...(e.result_source_message_id?{sourceMessageId:e.result_source_message_id}:{}),reportedAt:new Date(correction.created_at).toISOString()}
       }
     }
     const expAction = String(e.content?.action ?? ''), expResult = String(e.content?.result ?? ''), expSummary = String(e.content?.summary ?? '')
@@ -620,7 +621,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
     }
     const resultSuppressed=[expAction,expResult,expSummary].some(text=>text&&suppression.suppressedText(text))
     const resultBasis=resultSuppressed?'unverified_record':explicitResultCorrection?'record_correction':originalResult?'source_report':'unverified_record'
-    const asReported=resultBasis==='unverified_record'?undefined:{basis:resultBasis,result:expResult,recordedAt:new Date(e.updated_at).toISOString(),sourceExperienceRevision:e.revision,...(explicitResultCorrection?{reportedAt:new Date(correction.created_at).toISOString()}:originalResult?{reportedAt:new Date(e.source_reported_at).toISOString(),sourceMessageId:e.source_message_id}:{})}
+    const asReported=resultBasis==='unverified_record'?undefined:{basis:resultBasis,result:expResult,recordedAt:new Date(e.updated_at).toISOString(),sourceExperienceRevision:e.revision,...(explicitResultCorrection?{reportedAt:new Date(correction.created_at).toISOString(),...(e.result_source_message_id?{sourceMessageId:e.result_source_message_id}:{})}:originalResult?{reportedAt:new Date(e.source_reported_at).toISOString(),sourceMessageId:e.source_message_id}:{})}
     const safeContent=resultSuppressed?{...e.content,action:'',result:'',summary:''}:e.content
     const safeSummary=resultSuppressed?{...experienceSummary,result:'',reflection:''}:experienceSummary
     const safeInsight=resultSuppressed?undefined:expInsight

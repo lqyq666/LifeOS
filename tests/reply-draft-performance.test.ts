@@ -10,6 +10,8 @@ test('a comma before an owned definition does not block its safe open question',
  assert.equal(requestsOneQuestionReply(user),true)
  assert.equal(openUnreportedChoiceQuestion(reply,user),expected)
  assert.equal(openingQuestionDraft(JSON.stringify({reply}),'reply',user),expected)
+ const unquoted='你说的自由，更接近哪种日常状态：时间上能自己安排节奏，还是不被某个固定身份或关系绑住？'
+ assert.equal(openingQuestionDraft(JSON.stringify({reply:unquoted}),'reply',user),'你说的“自由”具体指什么？')
  for(const other of ['我不想要更自由的生活。','同学说：“我想要更自由的生活”。','如果我说想要更自由的生活呢？'])assert.equal(openingQuestionDraft(JSON.stringify({reply}),'reply',other),null)
  for(const other of ['不要问一个问题厘清我说的自由。','同学说：“先问一个问题厘清我说的自由”。','如果我让你先问一个问题厘清我说的自由呢？'])assert.equal(requestsOneQuestionReply(other),false)
 })
@@ -20,6 +22,7 @@ test('a sourced family expectation is not blocked as a claim of a stable outcome
  assert.equal(safeEarlySentence(JSON.stringify({reply:sentence+'。'}),120,'reply',user),sentence)
  for(const other of ['我没说家里希望走稳定路线。','同学说：“家里希望我走稳定路线”。','如果家里希望我走稳定路线会怎样？'])assert.equal(safeEarlySentence(JSON.stringify({reply:sentence+'。'}),120,'reply',other),null)
  for(const extra of ['，这保证你能录取','，这条路线能带来稳定收入'])assert.equal(safeEarlySentence(JSON.stringify({reply:sentence+extra+'。'}),120,'reply',user),null)
+ for(const extra of ['，所以你当前应优先选择升学','，因此你应该选择升学','，你当前应优先选择升学'])assert.equal(safeEarlySentence(JSON.stringify({reply:'家里希望走稳定路线'+extra+'。'}),120,'reply',user),null)
 })
 import {repairReviewedDefects} from '../server/review-repairs.ts'
 

@@ -148,6 +148,8 @@ export function openUnreportedChoiceQuestion(reply:string,userText:string):strin
   // named. Preserve that quoted subject while opening the definition question.
   const definition=/^(你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"])[，,]?\s*(?:具体)?(?:是指|指的是).+$/.exec(topic)
   if(definition&&positivelyOwnedDefinitionTopic(definition[2]!,userText))return reply.slice(0,broad.index)+broad[1]+definition[1]+'具体指什么？'
+  const unquotedDefinition=/^你(?:所)?说的([^，,：:“”「」『』"']{1,30})[，,：:]/.exec(topic)
+  if(unquotedDefinition&&positivelyOwnedDefinitionTopic(unquotedDefinition[1]!,userText))return reply.slice(0,broad.index)+broad[1]+`你说的“${unquotedDefinition[1]}”具体指什么？`
   // Keep an already authored open question before its unsupported example
   // alternatives. Removing those examples need not invent another question.
   const openStem=topic.split(/——|—/)[0]!.trim()
@@ -910,6 +912,7 @@ const unsafePreviewClaim=(text:string)=>unsafeExternal.test(text.replace(/已经
   // A model's causal interpretation and a claimed memory write require the
   // validated final turn. Even a later discarded draft has already been seen.
   ||/(?:这(?:更像|说明|表明|证明|意味着|指向)|(?:^|[，,；;：:])\s*(?:说明|表明|证明)|主要是|根本原因|归因于|更可能)/.test(text)
+  ||/(?:所以|因此|因而|于是)|(?:你|本人).{0,8}(?:应优先|应该选|应当选|更适合|优先选择|就选|必须选)/.test(text)
   ||Object.values(memoryControlSuccessClaims(text)).some(Boolean)
   ||/已(?:经)?采用/.test(text)
   ||/(?:被|遭到)[^。！？?\n]{0,24}(?:拒绝|否定|录取|采用|淘汰)/.test(text)

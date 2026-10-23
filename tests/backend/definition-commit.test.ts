@@ -10,8 +10,9 @@ import {model} from '../../server/model.ts'
 import {config} from '../../server/config.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
 
-test('the captured owned definition streams safely and stores the same authorized unknown',async()=>{
- const fixture=JSON.parse(readFileSync(new URL('../fixtures/final81-freedom-question.json',import.meta.url),'utf8'))
+test.after(async()=>{await pool.end()})
+async function verifyDefinition(path:string,expected:string){
+ const fixture=JSON.parse(readFileSync(new URL(path,import.meta.url),'utf8'))
  const actor='definition-replay-'+randomUUID(),chat=randomUUID(),signal=new AbortController().signal
  const previous={url:model.baseUrl,key:config.apiKey,budget:config.providerBudgetEnabled,encode:localEmbedding.encode}
  localEmbedding.encode=async texts=>texts.map(()=>Array(512).fill(0));config.providerBudgetEnabled=false
@@ -39,7 +40,6 @@ test('the captured owned definition streams safely and stores the same authorize
   const staged:store.Staged={candidates:[],audit:[]}
   const result=await createTurnEngine({capabilityVerified:()=>true})({run,staged,context:await store.contextForRun(run),decision:null,signal,emit:frame=>{frames.push(frame);if(frame.type==='draft'&&!completionSent)draftBeforeCompletion=true}})
   const committed=await store.finishRun(run,staged,result.text,result.usage,signal)
-  const expected='你说的“更自由的生活”具体指什么？'
   assert.equal(calls,1)
   assert.equal(result.text,expected)
   const unknowns=committed.event!.nodes.filter(node=>node.kind==='unknown')
@@ -49,6 +49,8 @@ test('the captured owned definition streams safely and stores the same authorize
  }finally{
   fake.closeAllConnections();await new Promise<void>(done=>fake.close(()=>done()))
   model.baseUrl=previous.url;config.apiKey=previous.key;config.providerBudgetEnabled=previous.budget;localEmbedding.encode=previous.encode
-  await localEmbedding.close();await pool.end()
+  await localEmbedding.close()
  }
-})
+}
+test('the captured quoted definition streams safely and stores the same authorized unknown',()=>verifyDefinition('../fixtures/final81-freedom-question.json','你说的“更自由的生活”具体指什么？'))
+test('the captured unquoted definition preserves its owned concept before completion and at commit',()=>verifyDefinition('../fixtures/final82-freedom-question.json','你说的“自由”具体指什么？'))
