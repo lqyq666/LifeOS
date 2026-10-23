@@ -9,7 +9,7 @@ import type { CoachKnowledgeRef } from './coach-knowledge.ts'
 import { growthQuoteSuppressed } from './growth-privacy.ts'
 import {reconcileActionStages,type ActionCase} from './workflows/action-review.ts'
 import {scanUserClauses,assistantRequestClause} from './user-command-spans.ts'
-import {reportedEvidenceFromText,reportedOutcomeSourceClauses,sameReportedResponseSubject} from './turn-contract.ts'
+import {reportedEvidenceFromText,reportedOutcomeSourceClauses,sameReportedResponseSubject,unrelatedExternalCorrection} from './turn-contract.ts'
 import {explicitMaterialForms} from './experience-episodes.ts'
 
 // Provider selections are rendered before staging. Keep the provider contract
@@ -292,6 +292,7 @@ async function checkDelta(c:PoolClient,run:Run,delta:EventDelta,reply:string){
       // source-backed node with it would erase the other reported details.
       // Unknown answers and genuinely changed quotes keep their existing path.
       if(node.kind!=='unknown'&&node.content.includes(correction.source.quote))throw new HttpError(400,'COACH_CORRECTION_UNCHANGED')
+      if(node.kind!=='unknown'&&unrelatedExternalCorrection(node.content,correction.source.quote))throw new HttpError(400,'COACH_CORRECTION_SUBJECT_MISMATCH')
     }
     if((delta.declineUnknowns??[]).some(id=>(delta.resolveUnknowns??[]).includes(id))){
       const userText=String((await c.query("SELECT content FROM messages WHERE user_id=$1 AND id=$2 AND role='user'",[run.user_id,run.source_message_id])).rows[0]?.content??'')

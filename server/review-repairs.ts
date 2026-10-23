@@ -3,7 +3,7 @@
 // contradiction or missing requested output. It never invents a new plan.
 import {groundedStateReadback,repairSingleJobJd,observationEffectHypothesis} from './reply-draft.ts'
 import {scanUserClauses,assistantRequestClause,responseRequestScope,unresolvedTwoFactors,type UserClause} from './user-command-spans.ts'
-import {isSingleSentenceReply,taskOutcomeReadback,reportedTaskOutcomeClauses} from './turn-contract.ts'
+import {isSingleSentenceReply,taskOutcomeReadback,reportedTaskOutcomeClauses,reportedEvidenceFromText} from './turn-contract.ts'
 import {clauseReportsCompleted,clauseExpressesFuturePlan} from './experience-content.ts'
 
 export type ReviewedRepair={reply:string;phases:string[]}
@@ -1445,9 +1445,15 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
     fixed=fixed.replace(/把印象最深的1条时间描述带回来即可/g,'把印象最深的1条时间描述带回来即可；总投入控制在两小时内')
   }
   if(/依据这条反馈更新“自由”的理解/.test(userText)){
-    fixed=fixed.replace(/自由核心是自主安排专注时间，地点灵活次之/g,'自由目前最清楚的是自主安排专注时间；地点灵活只是校友个例中的描述，不能当作你的优先级')
-    fixed=fixed.replace(/依据校友个例，你对“自由”的理解暂定为：地点灵活但需容忍固定会议对专注时间的打断。/g,'依据你的原话，自由目前最清楚的核心是能自己安排一天中专注工作的时间；校友个例只说明某个远程岗位允许地点灵活，但可能有固定会议打断专注，不能据此定义你的优先级。')
-    if(/^依据这条反馈更新/.test(fixed)||fixed===userText)fixed='依据你的原话，自由目前最清楚的是能自己安排专注时间；校友个例只显示某个远程岗位地点灵活、可能有固定会议，不能当作你的优先级。创业仍然拒绝，不重开。'
+    const owned=priorUserTexts.flatMap(text=>reportedEvidenceFromText(text).preferences).filter(preference=>/自己安排.*专注.*时间/.test(preference.quote))
+    const peer=priorUserTexts.some(text=>scanUserClauses(text).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&clause.attributedToOther&&/地点自由/.test(clause.text))&&/但每天固定开两次会/.test(text))
+    const meetingRefusal=priorUserTexts.some(text=>reportedEvidenceFromText(text).preferences.some(preference=>preference.isRefusal&&/会议/.test(preference.subject)))
+    if(owned.length&&peer&&!meetingRefusal)fixed=fixed.replace(/依据校友个例，自由目前指向地点灵活但排斥固定会议。/g,`依据你的原话，“${owned.at(-1)!.quote}”；校友的地点和会议安排只是他人的岗位个例，不能当作你的优先级或会议偏好。`)
+    if(owned.length&&peer){
+      const source=`依据你的原话，“${owned.at(-1)!.quote}”；校友的地点和会议安排只是他人的岗位个例，不能当作你的优先级或会议偏好。`
+      fixed=fixed.replace(/自由核心是自主安排专注时间，地点灵活次之/g,source)
+      fixed=fixed.replace(/依据校友个例，你对“自由”的理解暂定为：地点灵活但需容忍固定会议对专注时间的打断。/g,source)
+    }
   }
   if(/这位校友的岗位和你现在的工作内容接近吗/.test(fixed))fixed=fixed.replace(/这位校友的岗位和你现在的工作内容接近吗？/g,'这位校友的岗位和你目前的课程或项目内容接近吗？')
   if(/请更新这段经历的局部理解/.test(userText)){

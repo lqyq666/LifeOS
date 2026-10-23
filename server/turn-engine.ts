@@ -47,7 +47,7 @@ import { clauseExpressesWishToAct, clauseReportsCompleted, clauseReportsPastActi
 import { readStarMapContext } from './user-themes.ts'
 import { deriveTurnContract, bindPlanBudgetSchema, bindMaterialDeliverySchema,bindRequestedSummarySchema,bindRequestedComparisonSchema,comparisonReplyAccepts,summaryReplyAccepts,isSingleSentenceReply, requestsSingleQuestionMaterial,reportedPursuitClauses,reportedPreferenceClauses,negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses, reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
 import {unsupportedParticipantReadingClaims,unsupportedPreferenceConstraintClaims} from './turn-contract.ts'
-import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback,reportedEvidenceFromText,exactFeedbackReadback} from './turn-contract.ts'
+import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback,reportedEvidenceFromText,exactFeedbackReadback,unrelatedExternalCorrection} from './turn-contract.ts'
 import {comparisonUniverseAccepts,requestedActionLimitAccepts} from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
@@ -1077,6 +1077,14 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         result.event.corrections=result.event.corrections.filter(correction=>{
           if(excludedEventSource(correction.source.quote))return false
           const node=event?.nodes.find(node=>node.id===correction.nodeId)
+          if(node&&node.kind!=='unknown'&&unrelatedExternalCorrection(node.content,correction.source.quote)){
+            // Preserve both facts without a second provider call. The new
+            // source remains an additive fact, never a replacement identity.
+            result.event!.nodes??=[]
+            if(!result.event!.nodes.some(candidate=>candidate.kind==='fact'&&candidate.source.messageId===correction.source.messageId&&candidate.source.quote===correction.source.quote))result.event!.nodes.push({kind:'fact',source:correction.source})
+            staged.audit.push({phase:'unrelated_external_correction_preserved',nodeId:node.id,providerCalls:0})
+            return false
+          }
           // Repeating an existing grounded fragment is a no-op, not a rewrite
           // of the larger historical report. Changed facts still validate and
           // commit through the original strict correction transaction.

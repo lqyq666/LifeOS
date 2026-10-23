@@ -464,6 +464,18 @@ export function taskOutcomeReadback(text:string,authorizedQuotes?:ReadonlySet<st
 // matters. These derived labels are evidence metadata, never saved new facts.
 type ReportedSourceBound={kind:string;quote:string;scope:string;explanationKind?:'explicit_self_explanation';measure?:'elapsed_time'|'questions_count';comparisonBaseline?:'not_implied_by_this_value';alternatives?:{first:string;second:string}}
 
+// A report about another person's expectations cannot erase a different
+// personal preference merely because the provider selected that node ID.
+// A genuine preference correction needs another owned preference report;
+// a shared topic word in someone else's expectation is not that evidence.
+export function unrelatedExternalCorrection(previous:string,current:string):boolean{
+ const before=reportedEvidenceFromText(previous),after=reportedEvidenceFromText(current)
+ return before.preferences.length>0&&after.externalExpectations.length>0&&before.preferences.some(preference=>{
+  const subject=preference.subject.replace(/本身$/,'').trim()
+  return subject.length>0&&!after.preferences.some(report=>report.subject.replace(/本身$/,'').trim()===subject)
+ })
+}
+
 export function reportedEvidenceFromText(text:string,ownedPreferenceContext=false){
  const participants=reportedTaskOutcomeClauses(text,false,true).flatMap(clause=>{
   const report=participantReport(clause.text)
@@ -659,9 +671,9 @@ export function reportedExternalExpectationClauses(text:string){
  return clauses.flatMap((clause,index)=>{
   const body=clause.text.replace(/^更正[:：]\s*/,'')
   if(!/^(?:我的?)?(?:家里|家人|父母|爸妈|爸爸|妈妈)/.test(body))return []
-  if(/(?:希望|期待|期望|建议)/.test(body))return [clause]
   const next=clauses[index+1]
   if(next&&next.sentenceStart===clause.sentenceStart&&/^[，,\s]*$/.test(text.slice(clause.end,next.start))&&/^(?:只是|仅仅|仍然|还是)?(?:希望|期待|期望)/.test(next.text))return [{...clause,end:next.end,text:text.slice(clause.start,next.end)}]
+  if(/(?:希望|期待|期望|建议|要求)/.test(body))return [clause]
   return []
  })
 }
