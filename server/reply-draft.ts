@@ -1053,11 +1053,21 @@ export function provisionalStatePreview(userText:string,_priorUserTexts:string[]
 }
 export function groundedFeedbackPreview(userText:string):string|null{
   const clauses=scanUserClauses(userText)
+  const scope=responseRequestScope(userText)
+  // Source-rendered distinction, never a model-prose exemption: the ordinary
+  // turn still supplies its judgment, while this lane reports only the two
+  // explicit owners and the parser's non-adoption boundary.
+  if(scope.judgmentUpdate&&!scope.actionRequested&&!clauses.some(clause=>clause.quoted||clause.code||clause.conditional||clause.quoteSpans.length||clause.codeSpans.length)){
+    const evidence=reportedEvidenceFromText(userText),preferences=evidence.preferences.filter(item=>item.modality==='priority')
+    if(evidence.externalExpectations.length===1&&preferences.length===1){
+      const preview=`外部期待「${evidence.externalExpectations[0]!.quote}」与本人偏好「${preferences[0]!.quote}」是两项不同依据，前者不自动成为本人的选择或硬性约束。`
+      if(preview.length<=200)return preview
+    }
+  }
   // This fast lane cannot disambiguate mixed reported speech. Let the ordinary
   // source-aware turn handle it instead of turning somebody else's or a
   // hypothetical experience into a first-person receipt.
   if(clauses.some(clause=>clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.quoteSpans.length||clause.codeSpans.length))return null
-  const scope=responseRequestScope(userText)
   if(scope.judgmentUpdate&&!scope.actionRequested){
     const observation=reportedCountObservation(userText)
     if(observation)return observation
@@ -1167,13 +1177,6 @@ export function safeEarlySentence(raw:string,maxChars=120,field:'reply'|'lead'='
       // other stability claim and the rest of the sentence safety-gated.
       const provisionalStateSummary=/^(?:当前|阶段)?暂定理解[：:]/.test(sentence)&&/(?:结果|状态|是否|仍)(?:仍然|仍|尚|还|暂时)?(?:未知|未确认|不明确)/.test(sentence)
       let safetyCandidate=sentence.replace(/(?:希望|期待|追求|看重|在意|想要)(?:更|比较|相对)?稳定/g,'').replace(/稳定期待/g,'个人期待')
-      // An explicitly reported family expectation is not evidence that an
-      // outcome is stable. Exempt only that exact sourced phrase; the rest of
-      // the sentence still passes every ordinary claim/receipt safety gate.
-      if(authorizedText!==undefined)for(const expectation of reportedEvidenceFromText(authorizedText).externalExpectations){
-        const phrase=expectation.quote.replace(/我|本人/g,'')
-        if(phrase.length>=4&&phrase.includes('稳定'))safetyCandidate=safetyCandidate.replace(phrase,'外部期待')
-      }
       if(provisionalStateSummary)safetyCandidate=safetyCandidate.replace(/已(?:经)?发出/g,'报告发出')
       if(summaryBoundary&&authorizedText!==undefined&&requestedPauseFraming(sentence,authorizedText))continue
       if(authorizedText!==undefined&&responseRequestScope(authorizedText).comparisonRequested&&!comparisonUniverseAccepts(sentence,authorizedText))return null
