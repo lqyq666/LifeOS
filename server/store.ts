@@ -23,7 +23,7 @@ import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, iden
 import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
 import { buildExperienceRelations } from './starmap-enrichment.ts'
 import { applicableExperienceOutcomes, generateInsight, summarizeExperience } from './experience-insight.ts'
-import {reportedEvidenceFromText,taskOutcomeReadback,reportedOutcomeSourceClauses} from './turn-contract.ts'
+import {reportedEvidenceFromText,taskOutcomeReadback,reportedOutcomeSourceClauses,sameReportedResponseSubject} from './turn-contract.ts'
 import {commitWorkflowSelection,type WorkflowAdoption} from './workflows/task-commit.ts'
 import {committedGrowthDiff,committedSnapshot,validGrowthDiff} from './workflows/committed-growth-diff.ts'
 import {advancedWorkflowsEnabled} from './workflows/router.ts'
@@ -308,8 +308,12 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     const sourceText=String((await c.query("SELECT content FROM messages WHERE user_id=$1 AND id=$2",[run.user_id,run.source_message_id])).rows[0]?.content??'')
     const reportsResponse=/(?:回复说|回复了|已回复|后来回复|刚刚回复|确认读到|回复[：:，,])/.test(sourceText)&&!/(?:未回复|没回复|没有回复|还没回复|没有约定回复时间|是否读过|是否回复|不回复)/.test(sourceText)
     if(reportsResponse){
-      await c.query("UPDATE growth_items SET status='stale',revision=revision+1,updated_at=now() WHERE user_id=$1 AND status='active' AND (text LIKE '%对方还没回复%' OR text LIKE '%老师没回复%' OR text LIKE '%未回复%')",[run.user_id])
-      await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) AND status='active' AND (content LIKE '%对方还没回复%' OR content LIKE '%老师没回复%')",[run.user_id,run.conversation_id])
+      const oldGrowth=(await c.query("SELECT id,text FROM growth_items WHERE user_id=$1 AND status='active' AND (text LIKE '%对方还没回复%' OR text LIKE '%老师没回复%' OR text LIKE '%未回复%')",[run.user_id])).rows
+      const staleIds=oldGrowth.filter(row=>sameReportedResponseSubject(row.text,sourceText)).map(row=>row.id)
+      if(staleIds.length)await c.query("UPDATE growth_items SET status='stale',revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=ANY($2::uuid[])",[run.user_id,staleIds])
+      const oldNodes=(await c.query("SELECT id,content FROM coach_nodes WHERE user_id=$1 AND event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) AND status='active' AND (content LIKE '%对方还没回复%' OR content LIKE '%老师没回复%')",[run.user_id,run.conversation_id])).rows
+      const resolvedIds=oldNodes.filter(row=>sameReportedResponseSubject(row.content,sourceText)).map(row=>row.id)
+      if(resolvedIds.length)await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=ANY($2::uuid[])",[run.user_id,resolvedIds])
       // Only correct the experience for the same reported material. A reply
       // about a PDF must not rewrite an earlier unreplied link.
       const materialPattern=/PDF/i.test(sourceText)?'%PDF%':/(?:老师|邮件)/.test(sourceText)?'%老师%':/链接/.test(sourceText)?'%链接%':null

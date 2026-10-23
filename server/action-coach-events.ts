@@ -9,7 +9,7 @@ import type { CoachKnowledgeRef } from './coach-knowledge.ts'
 import { growthQuoteSuppressed } from './growth-privacy.ts'
 import {reconcileActionStages,type ActionCase} from './workflows/action-review.ts'
 import {scanUserClauses,assistantRequestClause} from './user-command-spans.ts'
-import {reportedEvidenceFromText,reportedOutcomeSourceClauses} from './turn-contract.ts'
+import {reportedEvidenceFromText,reportedOutcomeSourceClauses,sameReportedResponseSubject} from './turn-contract.ts'
 import {explicitMaterialForms} from './experience-episodes.ts'
 
 // Provider selections are rendered before staging. Keep the provider contract
@@ -423,11 +423,6 @@ export async function persistCoachEvent(c:PoolClient,run:Run,staged:CoachStaged)
   }
   await c.query('INSERT INTO coach_current(user_id,conversation_id,event_id) VALUES($1,$2,$3) ON CONFLICT(user_id,conversation_id) DO UPDATE SET event_id=EXCLUDED.event_id',[run.user_id,run.conversation_id,staged.eventId])
   const event=await readCoachEvent(c,run.user_id,run.conversation_id,staged.eventId)
-  // A confirmed reply supersedes an earlier report that the other person had
-  // not replied. Keep the old record as history but do not leave it active.
-  if(event.actionStages?.replied===true){
-    await c.query("UPDATE growth_items SET status='stale',revision=revision+1,updated_at=now() WHERE user_id=$1 AND conversation_id=$2 AND status='active' AND text IN ('对方还没回复','对方还没有回复','对方没回复')",[run.user_id,run.conversation_id])
-  }
   const askedThisTurn=visibleCoachQuestions(staged.reply,change&&'draft'in change&&'content'in change.draft?change.draft.content:undefined)
   event.asked=[...new Set([...event.asked,...askedThisTurn])]
   // Process chronology is reconstructed from owned runs/messages, not copied
@@ -499,7 +494,7 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
   for(const turn of history){
     const source=sources.get(turn.source_message_id)
     if(!source)continue
-    const fragments=[...nodes.filter(n=>n.kind==='fact'&&n.status==='active'&&n.source?.messageId===source.id).map(n=>n.source!.quote),...unquotedRequestParts(source.content,nodeQuotes.get(source.id)??[])]
+    const fragments=[...nodes.filter(n=>n.kind==='fact'&&n.source?.messageId===source.id).map(n=>n.source!.quote),...unquotedRequestParts(source.content,nodeQuotes.get(source.id)??[])]
     const allowed:string[]=[]
     for(const quote of [...new Set(fragments)].sort((a,b)=>source.content.indexOf(a)-source.content.indexOf(b)))if(!await growthQuoteSuppressed(c,user,source.id,quote))allowed.push(quote)
     const previousStages=actionStages,previousEvidence=actionStageEvidence
@@ -536,7 +531,8 @@ export async function readCoachEvent(c:PoolClient,user:string,conversation:strin
       actionProgressReports.push({sourceMessageId:source.id,eventRevision:turn.revision,reportedAt:new Date(source.created_at).toISOString(),sourceQuotes:allowed,stages:actionStages,evidence:actionStageEvidence})
     }else{actionStages=previousStages;actionStageEvidence=previousEvidence}
   }
-  const projectedNodes=nodes.map(node=>{if(node.kind!=='fact'||!node.source||node.source.messageId!==actionStageScope?.sourceMessageId)return node;const stated=reconcileActionStages({sent:null,read:null,replied:null,used:null,effect:null},node.source.quote);return (['sent','read','replied','used'] as const).some(key=>stated[key]!==null&&actionStageEvidence[key]&&stated[key]!==actionStages[key])?{...node,supersededByActionCorrection:true}:node}).map(node=>actionStages.replied===true&&node.kind==='fact'&&/(?:对方|导师|老师).{0,8}(?:还没|还没有|未|没有).{0,3}(?:回复|回)/.test(node.content)?{...node,supersededByActionCorrection:true}:node)
+  const latestReport=actionProgressReports.at(-1)?.sourceQuotes.join('；')??''
+  const projectedNodes=nodes.map(node=>{if(node.kind!=='fact'||!node.source||node.source.messageId!==actionStageScope?.sourceMessageId)return node;const stated=reconcileActionStages({sent:null,read:null,replied:null,used:null,effect:null},node.source.quote);return (['sent','read','replied','used'] as const).some(key=>stated[key]!==null&&actionStageEvidence[key]&&stated[key]!==actionStages[key])?{...node,supersededByActionCorrection:true}:node}).map(node=>actionStages.replied===true&&node.kind==='fact'&&/(?:对方|导师|老师).{0,8}(?:还没|还没有|未|没有).{0,3}(?:回复|回)/.test(node.content)&&sameReportedResponseSubject(node.content,latestReport)?{...node,supersededByActionCorrection:true}:node)
   return {id:row.id,conversationId:row.conversation_id,title:row.title,revision:row.revision,generation:row.generation,nodes:projectedNodes,actions,asked:[...new Set(history.flatMap(entry=>entry.asked??[]))],processTurns,actionStages,actionStageEvidence,actionStageScope,actionProgressReports,createdAt:new Date(row.created_at).toISOString(),updatedAt:new Date(row.updated_at).toISOString()}
 }
 

@@ -14,6 +14,25 @@ import {growthView,actOnGrowthItem} from '../../server/growth.ts'
 const fixture=JSON.parse(readFileSync(new URL('../fixtures/public-native-memory-failure.json',import.meta.url),'utf8'))
 test.after(async()=>{await localEmbedding.close();await pool.end()})
 
+test('a teacher response retires only that report, preserving another actor and a different material',async()=>{
+ const {createGrowthItem,growthView}=await import('../../server/growth.ts')
+ const {sameReportedResponseSubject}=await import('../../server/turn-contract.ts')
+ assert.equal(sameReportedResponseSubject('老师没回复','老师后来回复说这周忙'),true)
+ assert.equal(sameReportedResponseSubject('同学未回复','老师后来回复说这周忙'),false)
+ assert.equal(sameReportedResponseSubject('导师未回复作品集链接','导师确认已经读到PDF'),false)
+ const actor='scoped-response-'+randomUUID(),chat=randomUUID()
+ await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+ await store.createConversation(actor,{id:chat,title:'SYNTHETIC scoped response'})
+ const items=[]
+ for(const text of ['老师没回复','同学未回复','导师未回复作品集链接'])items.push(await createGrowthItem(actor,{requestId:randomUUID(),conversationId:chat,kind:'context',text}))
+ const run=(await store.startRun(actor,chat,randomUUID(),'老师后来回复说这周忙，下周再看。')).run
+ await store.finishRun(run,{candidates:[],audit:[]},'老师已回复；其他事项保留。',null,new AbortController().signal)
+ const view=(await growthView(actor,chat)).items
+ assert.equal(view.find(item=>item.id===items[0].id)?.status,'stale')
+ assert.equal(view.find(item=>item.id===items[1].id)?.status,'active')
+ assert.equal(view.find(item=>item.id===items[2].id)?.status,'active')
+})
+
 test('actual NR create-envelope output commits once through canonical source authority',async()=>{
  const capture=JSON.parse(readFileSync(new URL('../fixtures/nr-output-envelope-failure.json',import.meta.url),'utf8'))
  const encode=localEmbedding.encode.bind(localEmbedding),base=model.baseUrl,key=config.apiKey
