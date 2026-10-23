@@ -1433,10 +1433,13 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
     fixed=fixed.replace(/从你已浏览过的平台选一个岗位即可/g,'从一个公开招聘页面选一个岗位即可')
     fixed=fixed.replace(/这能帮你判断[^。！？\n]*是否常见[^。！？\n]*[。]?/g,'这只能帮你了解这一个岗位的描述，不能判断是否常见，也不证明你适合该岗位。')
     fixed=fixed.replace(/读完3-5个JD后/g,'读完这个岗位的JD后')
+    fixed=fixed.replace(/随机点开3个职位描述/g,'只点开1个职位描述')
+    fixed=fixed.replace(/随机点开3个JD/g,'只点开1个JD')
     fixed=fixed.replace(/把印象最深的1条时间描述带回来即可/g,'把印象最深的1条时间描述带回来即可；总投入控制在两小时内')
   }
   if(/依据这条反馈更新“自由”的理解/.test(userText)){
     fixed=fixed.replace(/自由核心是自主安排专注时间，地点灵活次之/g,'自由目前最清楚的是自主安排专注时间；地点灵活只是校友个例中的描述，不能当作你的优先级')
+    fixed=fixed.replace(/依据校友个例，你对“自由”的理解暂定为：地点灵活但需容忍固定会议对专注时间的打断。/g,'依据你的原话，自由目前最清楚的核心是能自己安排一天中专注工作的时间；校友个例只说明某个远程岗位允许地点灵活，但可能有固定会议打断专注，不能据此定义你的优先级。')
   }
   if(/请更新这段经历的局部理解/.test(userText)){
     fixed=fixed.replace(/轻松源于不用表现及自然说话/g,'你报告轻松主要来自不用表现及自然说话；这仍是本人描述，不能排除其他因素')
