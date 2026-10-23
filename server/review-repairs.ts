@@ -1419,6 +1419,7 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
   // already-grounded reassurance rather than dropping the useful question.
   if(/不要用一次疲惫推翻/.test(userText)){
     fixed=fixed.replace(/不影响你对$/,'不影响你对这次放松的判断。')
+    fixed=fixed.replace(/不改变$/,'不改变之前的感受。')
   }
   if(/现在卡住的是$/.test(fixed)){
     fixed=fixed.replace(/现在卡住的是$/,'现在还没说清具体卡在哪一步；先保留这个问题，不安排下一步。')
