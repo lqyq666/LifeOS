@@ -11,7 +11,7 @@ import {config} from '../../server/config.ts'
 import {localEmbedding} from '../../server/local-embedding.ts'
 
 test.after(async()=>{await pool.end()})
-async function verifyDefinition(path:string,expected:string){
+async function verifyDefinition(path:string,expected:string,unrelatedUnknown=false,omitEvent=false){
  const fixture=JSON.parse(readFileSync(new URL(path,import.meta.url),'utf8'))
  const actor='definition-replay-'+randomUUID(),chat=randomUUID(),signal=new AbortController().signal
  const previous={url:model.baseUrl,key:config.apiKey,budget:config.providerBudgetEnabled,encode:localEmbedding.encode}
@@ -20,7 +20,10 @@ async function verifyDefinition(path:string,expected:string){
  const frames:any[]=[]
  const fake=createServer((req,res)=>{req.on('data',()=>{});req.on('end',()=>{
   calls++
-  const raw=fixture.raw.replaceAll(fixture.sourceMessageId,sourceId),split=raw.indexOf(',"event"')
+  const output=JSON.parse(fixture.raw.replaceAll(fixture.sourceMessageId,sourceId))
+  if(unrelatedUnknown){output.reply=expected;output.event.nodes.find((node:any)=>node.kind==='unknown').question='你下周可以花多少时间？'}
+  if(omitEvent){output.reply=expected;delete output.event;delete output.growthUpdates}
+  const raw=JSON.stringify(output),split=omitEvent?Math.floor(raw.length/2):raw.indexOf(',"event"')
   assert.ok(split>0)
   const envelope={id:'synthetic-definition-replay',object:'chat.completion.chunk',created:1,model:model.id}
   const frame=(text:string)=>'data: '+JSON.stringify({...envelope,choices:[{index:0,delta:{content:text},finish_reason:null}]})+'\n\n'
@@ -38,19 +41,29 @@ async function verifyDefinition(path:string,expected:string){
   await store.createConversation(actor,{id:chat,title:'SYNTHETIC definition source boundary'})
   const run=(await store.startRun(actor,chat,randomUUID(),fixture.user)).run;sourceId=run.source_message_id
   const staged:store.Staged={candidates:[],audit:[]}
-  const result=await createTurnEngine({capabilityVerified:()=>true})({run,staged,context:await store.contextForRun(run),decision:null,signal,emit:frame=>{frames.push(frame);if(frame.type==='draft'&&!completionSent)draftBeforeCompletion=true}})
+  const result=await createTurnEngine({capabilityVerified:()=>true})({run,staged,context:await store.contextForRun(run),decision:null,signal,emit:frame=>{frames.push(frame);if(frame.type==='draft'&&!completionSent){assert.equal(calls,0);draftBeforeCompletion=true}}})
   const committed=await store.finishRun(run,staged,result.text,result.usage,signal)
   assert.equal(calls,1)
   assert.equal(result.text,expected)
-  const unknowns=committed.event!.nodes.filter(node=>node.kind==='unknown')
-  assert.equal(unknowns.length,1)
-  assert.equal(unknowns[0]!.content,expected)
+  const unknowns=committed.event?.nodes.filter(node=>node.kind==='unknown')??[]
+  assert.equal(unknowns.length,unrelatedUnknown||omitEvent?0:1)
+  if(!unrelatedUnknown&&!omitEvent)assert.equal(unknowns[0]!.content,expected)
   assert.ok(draftBeforeCompletion,JSON.stringify({frames,audit:staged.audit.filter((item:any)=>/preview|draft/.test(item.phase))}))
+  if(omitEvent){
+   const answer='我主要在意能自己安排一天中专注工作的时间。'
+   const next=(await store.startRun(actor,chat,randomUUID(),answer)).run
+   const context=await store.contextForRun(next)
+   assert.ok(context.some(message=>message.role==='assistant'&&message.content===expected))
+   assert.ok(context.some(message=>message.role==='user'&&message.content===answer))
+   await store.finishRun(next,{candidates:[],audit:[]},'这说明你在意专注时间的安排。',null,signal)
+  }
  }finally{
   fake.closeAllConnections();await new Promise<void>(done=>fake.close(()=>done()))
   model.baseUrl=previous.url;config.apiKey=previous.key;config.providerBudgetEnabled=previous.budget;localEmbedding.encode=previous.encode
   await localEmbedding.close()
  }
 }
-test('the captured quoted definition streams safely and stores the same authorized unknown',()=>verifyDefinition('../fixtures/final81-freedom-question.json','你说的“更自由的生活”具体指什么？'))
+test('the captured quoted definition streams safely and stores the same authorized unknown',()=>verifyDefinition('../fixtures/final81-freedom-question.json','你说的“自由”具体指什么？'))
 test('the captured unquoted definition preserves its owned concept before completion and at commit',()=>verifyDefinition('../fixtures/final82-freedom-question.json','你说的“自由”具体指什么？'))
+test('an enum-compliant reply cannot save an unrelated unasked unknown',()=>verifyDefinition('../fixtures/final82-freedom-question.json','你说的“自由”具体指什么？',true))
+test('a reply-only question is persisted and carried into the next answer context without a mandatory event',()=>verifyDefinition('../fixtures/final82-freedom-question.json','你说的“自由”具体指什么？',false,true))

@@ -1,6 +1,6 @@
 ﻿import {explicitTimeEvidenceCandidates} from './growth-time.ts'
 import {taskPauseNeedsClarification} from './user-command-spans.ts'
-import {ownedOpenDefinitionQuestion} from './reply-draft.ts'
+import {ownedOpenDefinitionQuestion,boundedTimedObservationPreview} from './reply-draft.ts'
 import {surfaceDirectionScopes} from './growth-controls.ts'
 import {randomUUID,createHash} from 'node:crypto'
 import {mkdirSync,writeFileSync,appendFileSync} from 'node:fs'
@@ -730,9 +730,16 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const replyMaterial=materialIntent&&!resumePortfolioMode&&!asksRecall&&!hasSeparateQuestion&&!planIntent&&requiresImmediateMaterial(current.content)
   const singleQuestionMaterial=requestsSingleQuestionMaterial(current.content)
   const singleQuestionReply=!materialIntent&&!asksRecall&&!hasSeparateQuestion&&!planIntent&&requestsOneQuestionReply(current.content)
+  const requestedDefinition=singleQuestionReply&&!boundedReply&&!currentConversationOnly(current.content)&&!detectForgetIntentClauses(current.content).some(c=>c.kind==='forget'||c.kind==='pause_use')?provisionalQuestionPreview(current.content):null
+  const sourceDefinition=requestedDefinition&&!removeQuestionOnZeroTime(requestedDefinition,current.content)?requestedDefinition:null
   const questionFirstMaterial=materialIntent&&!resumePortfolioMode&&!planIntent&&singleQuestionMaterial&&(asksRecall||hasSeparateQuestion)&&requiresImmediateMaterial(current.content)
   const deliveryContract=bindMaterialDeliverySchema(bindBoundedReplySchema(originalContract,boundedReply),current.content,resumePortfolioMode,questionFirstMaterial?'question_first':replyMaterial)
   const contract=!boundedReply&&!materialIntent&&!planIntent?bindRequestedComparisonSchema(bindRequestedSummarySchema(deliveryContract,current.content,singleQuestionReply||hasSeparateQuestion),current.content):deliveryContract
+  if(sourceDefinition){
+    const schema=structuredClone(contract.schema) as any
+    schema.properties.reply={...schema.properties.reply,enum:[sourceDefinition]}
+    contract.schema=schema;contract.schemaChars=JSON.stringify(schema).length
+  }
   const answerDispositionRequired=Boolean(immediateAnsweredUnknown&&currentEvent&&contract.capabilities.event&&!boundedReply)
   if(answerDispositionRequired){
     const schema=structuredClone(contract.schema) as any
@@ -1001,7 +1008,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       else throw new HttpError(502,'BOUNDED_REPLY_INVALID')
     }
     if(singleQuestionReply){
-      const question=openingQuestionDraft(JSON.stringify({reply:result.reply}))
+      const question=sourceDefinition??openingQuestionDraft(JSON.stringify({reply:result.reply}))
       if(question)result.reply=question
     }
     const requestedQuestion=ensureRequestedQuestion(result.reply,current.content)
@@ -1252,6 +1259,19 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         if(result.event?.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind!=='unknown'||finalQuestion.includes(node.question.trim()))
         staged.audit.push({phase:'final_single_question_bounded',providerCalls:0})
       }
+    }
+    // Keep the already verified definition stable through later generic prose
+    // repairs; the pending-unknown synchronization below commits this wording.
+    if(sourceDefinition){
+      result.reply=sourceDefinition
+      if(result.event?.nodes)result.event.nodes=result.event.nodes.filter(node=>{
+        if(node.kind!=='unknown')return true
+        const topic=/^你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"]/.exec(node.question)?.[1]
+        // Do not persist an unrelated model-authored question that was never
+        // asked. Only the owned definition can share this displayed question.
+        if(!topic||!ownedOpenDefinitionQuestion(`你说的“${topic}”具体指什么？`,current.content))return false
+        node.question=sourceDefinition;return true
+      })
     }
     if(violatesLabelInferenceBoundary(result.reply,inferenceBoundaries,current.content))throw new HttpError(502,'REPLY_RECREATES_REJECTED_LABEL')
     if(distinctionActionRequested&&!distinctionActionAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_DISTINCTION_ACTION_INVALID')
@@ -1994,15 +2014,28 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     emit({type:'draft',text:provisionalCorrection,saved:false,draftKind:'safe_sentence',verifiedState:true})
     staged.audit.push({phase:'verified_correction_preview',providerCalls:0})
   }
-  const provisionalQuestion=!sourceStatusReadback&&!deterministicStateReadback&&!verifiedStatePreview&&!provisionalState&&!provisionalCorrection&&!explicitMaterial&&!refusalOnly?provisionalQuestionPreview(current.content):null
+  const provisionalQuestion=!sourceStatusReadback&&!deterministicStateReadback&&!verifiedStatePreview&&!provisionalState&&!provisionalCorrection&&!explicitMaterial&&!refusalOnly?sourceDefinition:null
   if(provisionalQuestion){
     emit({type:'draft',text:provisionalQuestion,saved:false,draftKind:'safe_question'})
     staged.audit.push({phase:'verified_provisional_question_preview',providerCalls:0,basis:'explicit_requested_clarifying_question'})
   }
-  const verifiedFeedbackPreview=!sourceStatusReadback&&!verifiedStatePreview&&!provisionalState&&!provisionalQuestion&&!explicitMaterial&&!refusalOnly?groundedFeedbackPreview(current.content):null
+  // A requested one-sentence pause summary may quote a prior observation,
+  // but must never acknowledge the new pause before the atomic commit.
+  // Require every factual clause to remain in the authorized growth snapshot;
+  // raw conversation history alone is not permission to reuse withdrawn facts.
+  let priorObservationPreview:string|null=null
+  if(turnNeedsControlReceipt&&requestedScope.summaryRequested&&requestedScope.sentenceLimit===1&&!requestedScope.actionRequested&&!materialIntent&&!planIntent&&!detectForgetIntentClauses(current.content).some(c=>c.kind==='forget'||c.kind==='pause_use')){
+    const previous=[...allContextMessages].reverse().find(message=>message.role==='user'&&message.id!==current.id)
+    if(previous){
+      const quotes=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.taskBoundary&&!item.inferenceBoundary).flatMap(item=>item.sources.filter(source=>source.type==='message'&&source.id===previous.id).map(source=>source.quote))
+      const factual=scanUserClauses(previous.content).filter(clause=>!assistantRequestClause(clause.text))
+      if(factual.length&&factual.every(clause=>quotes.some(quote=>quote.includes(clause.text))))priorObservationPreview=boundedTimedObservationPreview(previous.content)
+    }
+  }
+  const verifiedFeedbackPreview=!sourceStatusReadback&&!verifiedStatePreview&&!provisionalState&&!provisionalQuestion&&!explicitMaterial&&!refusalOnly?(groundedFeedbackPreview(current.content)??priorObservationPreview):null
   if(verifiedFeedbackPreview){
     emit({type:'draft',text:verifiedFeedbackPreview,saved:false,draftKind:'safe_sentence',verifiedFeedback:true})
-    staged.audit.push({phase:'verified_feedback_preview',providerCalls:0})
+    staged.audit.push({phase:'verified_feedback_preview',providerCalls:0,basis:priorObservationPreview?'authorized_prior_observation_without_control_receipt':'current_source'})
   }
   let provisionalModelText:string|null=null
   // Control turns wait for their atomic receipt. Do not try to enumerate all
@@ -2024,7 +2057,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(deterministicStateReadback)staged.audit.push({phase:'explicit_state_readback_without_generation',providerCalls:0,basis:'authorized_user_reports_only'})
     const planSchema=(contract.schema as any).properties?.weeklyPlan
     const planDraftExpectation:WeeklyPlanDraftExpectation|null=planBudget?.type==='weekly_plan'&&planBudget.minutes>0?{period:planBudget.period,availableMinutes:planBudget.minutes,allowedActions:planSchema?.properties?.items?.items?.properties?.action?.enum,mustLeaveSlack:requiresPlanSlack(current.content)}:null
-    firstText=explicitMaterial?JSON.stringify(explicitMaterial):refusalOnly?JSON.stringify({reply:'好的，先不继续建议或安排这件事。'}):deterministicStateReadback?JSON.stringify({reply:deterministicStateReadback}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',verifiedStatePreview||verifiedFeedbackPreview?undefined:modelDraft,observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,modelClauseCatalogue.map(handle=>handle.clauseId),questionFirstMaterial?'material_question':singleQuestionReply?'none':planDraftExpectation?'weekly_plan':'safe_sentence',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue) ,boundedReply,planDraftExpectation)
+    firstText=explicitMaterial?JSON.stringify(explicitMaterial):refusalOnly?JSON.stringify({reply:'好的，先不继续建议或安排这件事。'}):deterministicStateReadback?JSON.stringify({reply:deterministicStateReadback}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',verifiedStatePreview||verifiedFeedbackPreview||provisionalQuestion?undefined:modelDraft,observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,modelClauseCatalogue.map(handle=>handle.clauseId),questionFirstMaterial?'material_question':singleQuestionReply?'none':planDraftExpectation?'weekly_plan':'safe_sentence',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue) ,boundedReply,planDraftExpectation)
     result=await validateOutput(firstText)
     if(provisionalModelText&&!retainsDraftText(result.reply,provisionalModelText)){
       emit({type:'draft_discarded'})

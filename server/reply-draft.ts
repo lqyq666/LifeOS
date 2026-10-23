@@ -1012,16 +1012,26 @@ function reportedCountObservation(userText:string):string|null{
 // the provider finishes. This is a source readback, not a placeholder and not
 // an inference about whether the recipient read, accepted, or acted on it.
 export function provisionalQuestionPreview(userText:string):string|null{
- if(!/(?:先|只)问(?:我)?(?:一|一个)(?:个)?问题|先问一个问题/.test(userText))return null
- const negatesFreelance=/(?:不|没|并不|不想|不要|拒绝)[^。！？]{0,12}(?:创业|自由职业)|(?:创业|自由职业)[^。！？]{0,12}(?:不|没|拒绝)/.test(userText)
- if(/自由/.test(userText)&&/(?:创业|自由职业)/.test(userText)){
-  if(negatesFreelance){
-   // Never turn an explicitly rejected path into the clarifying question.
-   return /稳定/.test(userText)?'你更在意稳定，具体希望先确认哪一方面？':null
-  }
-  return '你说的自由，最想先体现在哪一块：自己安排时间、选择工作地点、决定工作内容，还是少受他人评价？'
- }
- return null
+ const clauses=scanUserClauses(userText),last=clauses.at(-1)
+ if(!last||last.quoted||last.code||last.conditional||last.attributedToOther||!requestsOneQuestionReply(last.text))return null
+ const topic=/(?:厘清|澄清|弄清|了解)我(?:所)?说的([^。！？]{1,30})[。！？\s]*$/.exec(last.text)?.[1]?.trim()
+ if(!topic)return null
+ const question=`你说的“${topic}”具体指什么？`
+ return ownedOpenDefinitionQuestion(question,userText)?question:null
+}
+
+// Render only a literal observation and its explicitly reported sample limit.
+// No speedup, cause, stable trait or write receipt is inferred from a duration.
+export function boundedTimedObservationPreview(userText:string):string|null{
+ const clauses=scanUserClauses(userText)
+ if(!/^回来反馈[:：]/.test(userText.trim())||clauses.some(c=>c.quoted||c.code||c.conditional||c.attributedToOther||c.quoteSpans.length||c.codeSpans.length))return null
+ const bounds=reportedEvidenceFromText(userText).sourceBounds
+ const durations=bounds.filter(bound=>bound.kind==='absolute_duration')
+ if(durations.length!==1||!bounds.some(bound=>bound.kind==='limited_sample'))return null
+ // Multiple measurements may include a baseline that this short rendering
+ // cannot faithfully summarize. Leave those to the ordinary model turn.
+ if([...userText.matchAll(/[零一二两三四五六七八九十百\d]+(?:\.\d+)?\s*(?:秒|分钟|小时)/g)].length!==1)return null
+ return `这条记录报告「${durations[0]!.quote}」；单次个例不能证明稳定效果或职业适合。`
 }
 export function provisionalCorrectionPreview(userText:string):string|null{
  if(!/^\s*更正[：:]/.test(userText))return null
@@ -1055,6 +1065,8 @@ export function groundedFeedbackPreview(userText:string):string|null{
   const clauses=scanUserClauses(userText)
   const scope=responseRequestScope(userText)
   if(clauses.some(clause=>clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.quoteSpans.length||clause.codeSpans.length))return null
+  const timed=boundedTimedObservationPreview(userText)
+  if(timed)return timed
   // Source-rendered distinction, never a model-prose exemption: the ordinary
   // turn still supplies its judgment, while this lane reports only the two
   // explicit owners and the parser's non-adoption boundary.
