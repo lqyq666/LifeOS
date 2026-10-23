@@ -1421,6 +1421,11 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
     fixed=fixed.replace(/不影响你对$/,'不影响你对这次放松的判断。')
     fixed=fixed.replace(/不改变$/,'不改变之前的感受。')
   }
+  if(/(?:本周|这周)[^。！？\n]{0,12}(?:时间|可用时间)[^。！？\n]{0,6}(?:零|0)|零时间/.test(userText)){
+    fixed=fixed.replace(/[^。！？\n]*[？?]/g,'').replace(/[ \t]+\n/g,'\n').trim()
+    if(!/这周先不安排动作/.test(fixed))fixed+='\n\n这周先不安排动作，等你有时间再继续。'
+    if(/老师没回复只是结果未知/.test(userText)&&!/不等于拒绝/.test(fixed))fixed=fixed.replace(/原因和结果都先保留未知。?/g,'原因和结果都先保留未知；没回复不等于拒绝。')
+  }
   if(/现在卡住的是$/.test(fixed)){
     fixed=fixed.replace(/现在卡住的是$/,'现在还没说清具体卡在哪一步；先保留这个问题，不安排下一步。')
   }
