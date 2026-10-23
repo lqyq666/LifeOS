@@ -1476,7 +1476,8 @@ export function closeDanglingReply(reply:string):string|null{
   const tail=trimmed.slice(last+1).trim()
   const count=(text:string,mark:string)=>text.split(mark).length-1
   const unclosed=(count(tail,'（')>count(tail,'）'))||(count(tail,'(')>count(tail,')'))||(count(tail,'“')>count(tail,'”'))
-  if(!unclosed&&!/^(?:我想确认的是|目前已知|现在卡住的是|也就是|或者说|以及|或者|和|与|[（(“"：:、，,]|如|例如|比如)/.test(tail))return null
+  const danglingEnd=/(?:剩下的|关键变量|关键|问题|答案|重点|缺口).{0,12}(?:就是|是|为|包括|例如|比如|如|以及|和|与|或)$/.test(tail)
+  if(!unclosed&&!danglingEnd&&!/^(?:我想确认的是|目前已知|现在卡住的是|也就是|或者说|以及|或者|和|与|[（(“"：:、，,]|如|例如|比如)/.test(tail))return null
   const closed=trimmed.slice(0,last+1).trim()
   return closed||null
 }
