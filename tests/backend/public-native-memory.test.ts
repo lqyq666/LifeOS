@@ -23,7 +23,7 @@ test('a teacher response retires only that report, preserving another actor and 
  const actor='scoped-response-'+randomUUID(),chat=randomUUID()
  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
  await store.createConversation(actor,{id:chat,title:'SYNTHETIC scoped response'})
- const items=[]
+ const items:Awaited<ReturnType<typeof createGrowthItem>>[]=[]
  for(const text of ['老师没回复','同学未回复','导师未回复作品集链接'])items.push(await createGrowthItem(actor,{requestId:randomUUID(),conversationId:chat,kind:'context',text}))
  const run=(await store.startRun(actor,chat,randomUUID(),'老师后来回复说这周忙，下周再看。')).run
  await store.finishRun(run,{candidates:[],audit:[]},'老师已回复；其他事项保留。',null,new AbortController().signal)
