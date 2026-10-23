@@ -1,7 +1,16 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
-import {openUnreportedChoiceQuestion,repairSingleJobJd} from '../server/reply-draft.ts'
+import {openUnreportedChoiceQuestion,openingQuestionDraft,repairSingleJobJd} from '../server/reply-draft.ts'
+
+test('a comma before an owned definition does not block its safe open question',()=>{
+ const user='我是成年大学生，我想要更自由的生活，但明确不想创业。不要换词劝我创业，先问一个问题厘清我说的自由。'
+ const reply='你说的“更自由的生活”，具体是指时间上的自主（比如不被固定打卡束缚），还是经济上的独立，或是其他什么？'
+ const expected='你说的“更自由的生活”具体指什么？'
+ assert.equal(openUnreportedChoiceQuestion(reply,user),expected)
+ assert.equal(openingQuestionDraft(JSON.stringify({reply}),'reply',user),expected)
+ for(const other of ['我不想要更自由的生活。','同学说：“我想要更自由的生活”。','如果我说想要更自由的生活呢？'])assert.equal(openingQuestionDraft(JSON.stringify({reply}),'reply',other),null)
+})
 import {repairReviewedDefects} from '../server/review-repairs.ts'
 
 test('a requested paused-direction summary can retain its complete clause before a long sentence ends',()=>{

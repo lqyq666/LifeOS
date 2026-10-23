@@ -331,16 +331,26 @@ export function reportedTaskBoundaryClauses(text:string){
    &&clauses.some(other=>other.sentenceStart===clause.sentenceStart&&/(?:我|本人)/.test(other.text))))
 }
 
-// A later response only retires the same participant/material report. A
-// generic “对方” is insufficient without an explicit shared delivery form.
+// A later response only retires the same participant/material report.
+// A role or delivery form alone cannot identify a different named matter.
 export function sameReportedResponseSubject(previous:string,current:string){
  if(explicitMaterialFormConflict(previous,current))return false
- const oldActors=new Set(reportedEvidenceFromText(previous).participants.map(report=>report.actor))
- const newActors=new Set(reportedEvidenceFromText(current).participants.filter(report=>report.states.response.status==='reported_response'||report.states.read.status==='reported_read').map(report=>report.actor))
+ const oldReports=reportedEvidenceFromText(previous).participants
+ const oldActors=new Set(oldReports.map(report=>report.actor))
+ const newActors=new Set(reportedEvidenceFromText(current).participants.filter(report=>report.states.response.status==='reported_response').map(report=>report.actor))
  if(oldActors.size!==1||newActors.size!==1)return false
  const oldActor=[...oldActors][0]!,newActor=[...newActors][0]!
- if(oldActor===newActor&&oldActor!=='对方')return true
- return (oldActor==='对方'||newActor==='对方')&&explicitMaterialForms(previous).length===1&&explicitMaterialForms(current).length===1
+ if(oldActor!==newActor||oldActor==='对方')return false
+ // Reuse the participant report parser. Preserve any explicitly named object
+ // after removing only its old no-response state; a later report must name
+ // that same object before we may retire it. PDF/link compatibility is a veto,
+ // never positive evidence that two deliveries were the same matter.
+ return oldReports.every(report=>{
+  const parsed=participantReport(report.quote)
+  if(!parsed)return false
+  const matter=parsed.rest.replace(/(?:还没(?:有)?|没(?:有)?|尚未|还未|未)(?:回复|回应|回)/g,'').replace(/[，,。；;\s]/g,'')
+  return !matter||current.replace(/[，,。；;\s]/g,'').includes(matter)
+ })
 }
 const participantActor='(?:对方|客户|学长|学姐|(?:[\u4e00-\u9fa5]{1,3})?(?:导师|老师)|同学|室友|朋友|他们|她们|他|她)'
 const participantUncertainty=/(?:可能|也许|好像|似乎|大概|不确定|不清楚|不知道|说不准|不一定|未必|猜测|是否|有没有|未知|未报告|未确认|不是|并非|绝非|不代表|不等于|不能证明|不能说明)/

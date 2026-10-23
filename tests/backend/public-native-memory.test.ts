@@ -20,6 +20,9 @@ test('a teacher response retires only that report, preserving another actor and 
  assert.equal(sameReportedResponseSubject('老师没回复','老师后来回复说这周忙'),true)
  assert.equal(sameReportedResponseSubject('同学未回复','老师后来回复说这周忙'),false)
  assert.equal(sameReportedResponseSubject('导师未回复作品集链接','导师确认已经读到PDF'),false)
+ assert.equal(sameReportedResponseSubject('老师没回复奖学金申请邮件','老师后来回复说课程作业已收到'),false)
+ assert.equal(sameReportedResponseSubject('对方还没回复PDF','老师后来回复说PDF已收到'),false)
+ assert.equal(sameReportedResponseSubject('导师未回复PDF','导师已读PDF'),false,'reading alone is not a response')
  const actor='scoped-response-'+randomUUID(),chat=randomUUID()
  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
  await store.createConversation(actor,{id:chat,title:'SYNTHETIC scoped response'})
@@ -31,6 +34,31 @@ test('a teacher response retires only that report, preserving another actor and 
  assert.equal(view.find(item=>item.id===items[0].id)?.status,'stale')
  assert.equal(view.find(item=>item.id===items[1].id)?.status,'active')
  assert.equal(view.find(item=>item.id===items[2].id)?.status,'active')
+})
+
+test('response cleanup preserves distinct matters for the same actor and an unidentified PDF recipient',async()=>{
+ const {createGrowthItem}=await import('../../server/growth.ts')
+ const actor='response-matter-'+randomUUID(),chat=randomUUID(),otherChat=randomUUID()
+ await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+ await setMemorySettings(actor,{requestId:randomUUID(),enabled:true,expectedRevision:0})
+ for(const id of [chat,otherChat])await store.createConversation(actor,{id,title:'SYNTHETIC separate teacher matters'})
+ const items:Awaited<ReturnType<typeof createGrowthItem>>[]=[]
+ for(const [conversationId,text] of [[chat,'老师没回复奖学金申请邮件'],[otherChat,'老师没回复课程作业邮件'],[otherChat,'对方还没回复PDF']]){
+  items.push(await createGrowthItem(actor,{requestId:randomUUID(),conversationId,kind:'context',text}))
+  if(text.includes('奖学金')){
+   const original=(await store.startRun(actor,conversationId,randomUUID(),text)).run
+   await store.finishRun(original,{candidates:[{sourceMessageId:original.source_message_id,quote:text,content:{action:'',result:'老师没回复',occurredAt:''},links:[]}],audit:[]},'保留该邮件尚未回复的报告。',null,new AbortController().signal)
+  }
+ }
+ const run=(await store.startRun(actor,chat,randomUUID(),'老师后来回复说课程作业邮件已收到。')).run
+ await store.finishRun(run,{candidates:[],audit:[]},'课程作业邮件已收到回复，奖学金申请邮件状态保留。',null,new AbortController().signal)
+ const view=(await growthView(actor,chat)).items
+ assert.equal(view.find(item=>item.id===items[0]!.id)?.status,'active')
+ assert.equal(view.find(item=>item.id===items[1]!.id)?.status,'stale')
+ assert.equal(view.find(item=>item.id===items[2]!.id)?.status,'active')
+ const experience=(await pool.query("SELECT content->>'result' AS result FROM experiences WHERE user_id=$1 AND source_quote=$2",[actor,'老师没回复奖学金申请邮件'])).rows
+ assert.equal(experience.length,1)
+ assert.equal(experience[0].result,'老师没回复')
 })
 
 test('actual NR create-envelope output commits once through canonical source authority',async()=>{

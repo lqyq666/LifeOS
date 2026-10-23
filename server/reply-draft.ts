@@ -146,7 +146,7 @@ export function openUnreportedChoiceQuestion(reply:string,userText:string):strin
   if(left.length>=2&&right.length>=2&&own.includes(left)&&own.includes(right))return null
   // Removing authored alternatives must not erase a concept the person actually
   // named. Preserve that quoted subject while opening the definition question.
-  const definition=/^(你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"])(?:具体)?(?:是指|指的是).+$/.exec(topic)
+  const definition=/^(你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"])[，,]?\s*(?:具体)?(?:是指|指的是).+$/.exec(topic)
   if(definition&&positivelyOwnedDefinitionTopic(definition[2]!,userText))return reply.slice(0,broad.index)+broad[1]+definition[1]+'具体指什么？'
   // Keep an already authored open question before its unsupported example
   // alternatives. Removing those examples need not invent another question.
