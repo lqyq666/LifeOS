@@ -101,9 +101,8 @@ markup = re.sub(r' color="#[A-Fa-f0-9]+"', '', markup).replace('<font>', '<span>
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>LifeOS 作品使用说明</title>
 <style>body{font-family:"Noto Sans SC","Microsoft YaHei",sans-serif;color:#111;max-width:900px;margin:0 auto;padding:32px 20px;line-height:1.85}h1,h2,a{color:#245AC8}h1{font-size:28px}h2{font-size:21px}p{margin:16px 0}blockquote{margin:16px 0;padding:12px;border-left:3px solid #d5d5d5;color:#555}table{border-collapse:collapse;min-width:750px;font-size:14px}td,th{border-bottom:1px solid #d5d5d5;padding:10px;text-align:left;vertical-align:top}th{background:#f3f5f8}.table-scroll{overflow-x:auto}hr{border:0;border-top:1px solid #d5d5d5;margin:35px 0}a{overflow-wrap:anywhere}</style>
 <nav><a href="https://github.com/lqyq666/LifeOS/tree/competition/20261023/docs/competition">材料中心</a> · <a href="/">体验 LifeOS</a></nav><main>''' + markup + '</main></html>', encoding='utf-8', newline='\n')
-public_names = ['index.html', 'guide.html', 'DELIVERY_STATUS.md', NAME+'.pdf', NAME+'.md',
-    'build_user_guide.py', 'LifeOS_Product_Design_20261023.pdf',
-    'LifeOS_Functional_Validation_Evidence_20261023.pdf']
+public_names = ['index.html', 'guide.html', 'DELIVERY_STATUS.md', NAME+'.md',
+    'build_user_guide.py', 'LINKS_READY_20261023.md', 'LifeOS_Submission_Links_20261023.txt']
 (ROOT/'SHA256SUMS.txt').write_bytes(''.join(sha256((ROOT/n).read_bytes()).hexdigest()+'  '+n+'\n'
-    for n in public_names).encode('utf-8'))
+    for n in public_names if (ROOT/n).is_file()).encode('utf-8'))
 print(ROOT/(NAME+'.pdf'))

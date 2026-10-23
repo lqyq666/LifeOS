@@ -1,17 +1,29 @@
-# LifeOS
+# LifeOS｜见己实验室
 
-面向大学生的个人 AI 成长决策伙伴，帮助用户看清自己、梳理方向，并把目标转化为可开始的小行动。
+面向大学生的个人AI成长决策伙伴，帮助用户看清自己、梳理方向，并把目标转化为可开始的小行动。
 
-- 正式作品网址：[lqynb.xyz](https://lqynb.xyz/)（试运行，需要已开通的邮箱账户与对话资格）。
-- [使用说明与材料中心](https://github.com/lqyq666/LifeOS/tree/competition/20261023/docs/competition) · [五页使用说明 PDF](docs/competition/LifeOS_User_Guide_and_Submission_Checklist_20261023.pdf) · [可编辑源文件](docs/competition/LifeOS_User_Guide_and_Submission_Checklist_20261023.md)。
-- [产品设计 PDF](docs/competition/LifeOS_Product_Design_20261023.pdf) · [功能验证与效果佐证 PDF](docs/competition/LifeOS_Functional_Validation_Evidence_20261023.pdf)。
-- [交付状态与对应运行版本](docs/competition/DELIVERY_STATUS.md)：本分支仅整理参赛材料与真实链接，产品功能验收另行记录。
+**正式作品：[https://lqynb.xyz/](https://lqynb.xyz/)**
+直接进入对话：[https://lqynb.xyz/#conversation](https://lqynb.xyz/#conversation)。产品体验需要已开通的邮箱账户与对话资格；代码仓库公开，无需邀请。
 
-本仓库保持私有，评委查看代码需仓库所有者邀请。两份原报告分别保留 `88bd390 / final80` 与 `a12fd22 / final89` 测试口径。`final89` 的三项速度未达原目标；当前模型回复可能重复或不完全符合格式，材料需自行审阅，产品不自动发送或执行。真实学生长期效果尚未完成验收。
+## 提交与下载
 
-[可复制的提交链接清单](docs/competition/LINKS_READY_20261023.md)已准备；仓库保持私有，评委需要邀请后访问。
+| 文件或入口 | 用途 |
+| --- | --- |
+| [源码ZIP](https://github.com/lqyq666/LifeOS/releases/download/competition-20261023/LifeOS_Source_20261023.zip) | 项目源码及运行配置示例，不含密钥、数据库和三份指定PDF |
+| [提交链接TXT](https://github.com/lqyq666/LifeOS/releases/download/competition-20261023/LifeOS_Submission_Links_20261023.txt) | 可直接复制的作品、仓库及附件链接 |
+| [逐文件用途说明](FILE_GUIDE.md) | 按路径解释本分支每个Git跟踪文件的用途 |
+| [使用说明Markdown](docs/competition/LifeOS_User_Guide_and_Submission_Checklist_20261023.md) | 产品使用方式、控制边界与提交清单 |
+| [附件汇总](https://github.com/lqyq666/LifeOS/releases/tag/competition-20261023) | 源码、链接和文件用途说明的固定下载版本 |
 
-当前产品是面向中国大陆成年大学生的专属 AI 分身与成长决策伙伴，完整目标和验收见 [PRODUCT.md](PRODUCT.md)。开发断点见 HANDOFF.md，实施依据见 .planning/research/campus-growth/BRIEF.md。docs/v1.3-action-coach 保存历史组件目标，不再是当前整体验收。
+三份PDF按要求不放入仓库或本仓库Release。演示视频尚待提供：MP4、3—5分钟、≤200MB，画面包含“见己实验室”且不出现个人信息。
+
+## 先看哪些文件
+
+- 用户与评审：正式作品 → [使用说明](docs/competition/LifeOS_User_Guide_and_Submission_Checklist_20261023.md) → [提交链接](docs/competition/LINKS_READY_20261023.md)。
+- 代码阅读：[PRODUCT.md](PRODUCT.md) → [FILE_GUIDE.md](FILE_GUIDE.md) → `src/App.tsx` 与 `server/index.ts`。
+- 运行与验证：`package.json`、`.env.server.example`、`server/migrations/`、`tests/`、`deploy/`。
+
+历史验收文件按各自版本解读；本次公开与材料整理不代表当前公网全部功能已通过，真实学生长期效果尚未完成验收。
 
 ## 本地开发
 

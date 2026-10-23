@@ -46,3 +46,8 @@ dist/
 # Python bytecode is local cache, never release content.
 __pycache__/
 *.py[cod]
+
+# Competition PDFs are local outputs, excluded by owner request.
+/docs/competition/LifeOS_Product_Design_20261023.pdf
+/docs/competition/LifeOS_Functional_Validation_Evidence_20261023.pdf
+/docs/competition/LifeOS_User_Guide_and_Submission_Checklist_20261023.pdf

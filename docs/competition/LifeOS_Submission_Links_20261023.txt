@@ -1,0 +1,14 @@
+LifeOS｜见己实验室｜提交链接
+
+正式作品：https://lqynb.xyz/
+直接对话：https://lqynb.xyz/#conversation
+公开GitHub仓库：https://github.com/lqyq666/LifeOS
+逐文件用途说明：https://github.com/lqyq666/LifeOS/blob/competition/20261023/FILE_GUIDE.md
+提交附件页面：https://github.com/lqyq666/LifeOS/releases/tag/competition-20261023
+源码ZIP：https://github.com/lqyq666/LifeOS/releases/download/competition-20261023/LifeOS_Source_20261023.zip
+
+作品体验需要已开通的邮箱账户与对话资格。仓库和源码附件公开，无需GitHub邀请。
+三份PDF不放入Git仓库，也不上传到本仓库Release附件。
+演示视频仍待提供：MP4，3—5分钟，≤200MB，画面包含“见己实验室”，不出现个人信息。
+如比赛要求作品链接，填写正式作品网址；本源码包是补充交付，不代表已构建的安装程序。
+未替团队向比赛平台最终提交。
