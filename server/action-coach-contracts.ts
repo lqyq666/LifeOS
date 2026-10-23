@@ -123,6 +123,22 @@ export function completeCoachJsonFrame(raw:string):string|null {
   return null
 }
 
+// Only a structurally complete root object missing its final brace qualifies.
+// Any open string, array, or nested object remains rejected.
+function completeMissingRootBrace(raw:string):string|null {
+  const text=raw.trim()
+  if(!text.startsWith('{')||!text.endsWith('}'))return null
+  let depth=0,inString=false,escaped=false
+  for(const char of text){
+    if(inString){if(escaped)escaped=false;else if(char==='\\')escaped=true;else if(char==='"')inString=false;continue}
+    if(char==='"')inString=true
+    else if(char==='{'||char==='[')depth++
+    else if(char==='}'||char===']')depth--
+  }
+  if(inString||depth!==1)return null
+  return text+'}'
+}
+
 
 // Some captured text streams contain a JSON draft, an explicit deliberation
 // terminator, then the final JSON. Only that complete final object is business
@@ -131,6 +147,10 @@ export function completeCoachJsonFrame(raw:string):string|null {
 // the business reply; it cannot supply state or replace missing business data.
 export function finalCoachJsonText(raw:string,onNormalization?:(kind:string)=>void):string {
   const text=raw.trim(),first=completeCoachJsonFrame(text)
+  if(!first){
+    const completed=completeMissingRootBrace(text)
+    if(completed){onNormalization?.('missing_root_closing_brace');return completed}
+  }
   let rest=first?text.slice(first.length).trimStart():''
   // A captured provider emitted a redundant root closing brace, either alone
   // or before its explicit deliberation terminator. The complete frame is
@@ -239,6 +259,13 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
     if(!body||!pairs?.length||pairs.length>2||pairs.some(pair=>!/[\p{L}\p{N}]/u.test(pair))||body.replace(literal,'').includes('"')){options.onRejection?.({stage:'json'});throw error}
     output=JSON.parse('{"reply":'+JSON.stringify(body)+'}')
     options.onNormalization?.('quoted_reply_literal')
+  }
+  // A provider can close `event` before its node list and leave `nodes` at the
+  // root. Move only that already-present list into an event that has none.
+  if((output as any)?.event&&Array.isArray((output as any).nodes)&&!(output as any).event.nodes){
+    ;(output as any).event.nodes=(output as any).nodes
+    delete (output as any).nodes
+    options.onNormalization?.('root_nodes_moved_into_event')
   }
   // A captured provider response used an explicitly named create envelope
   // instead of the advertised array. Decode that unambiguous operation here,
