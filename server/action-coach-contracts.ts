@@ -155,7 +155,7 @@ export function finalCoachJsonText(raw:string,onNormalization?:(kind:string)=>vo
   // Transport-only HTML/analysis/result tags may follow the complete business
   // frame; ignore that tail, including echoed prompt text. A tag inside the
   // business JSON is already inside `first` and is never truncated here.
-  if(first&&/^<\/?(?:br|analysis|result)\b/i.test(rest)){onNormalization?.('transport_tag_tail_ignored');return first}
+  if(first&&/^<\/?(?:br|analysis|result|body|html)\b/i.test(rest)){onNormalization?.('transport_tag_tail_ignored');return first}
   // A captured provider emitted a redundant root closing brace, either alone
   // or before its explicit deliberation terminator. The complete frame is
   // already parsed; surplus closing braces carry no fields.
@@ -367,5 +367,6 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
 }
 
 export const eventSearchSchema=Type.Object({query:Type.String({maxLength:16000}),eventId:Type.Optional(id),actionId:Type.Optional(id),object:Type.Optional(text(200)),after:Type.Optional(text(100)),before:Type.Optional(text(100))},{additionalProperties:false})
+
 
 
