@@ -1054,10 +1054,12 @@ export function provisionalStatePreview(userText:string,_priorUserTexts:string[]
 export function groundedFeedbackPreview(userText:string):string|null{
   const clauses=scanUserClauses(userText)
   const scope=responseRequestScope(userText)
+  if(clauses.some(clause=>clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.quoteSpans.length||clause.codeSpans.length))return null
   // Source-rendered distinction, never a model-prose exemption: the ordinary
   // turn still supplies its judgment, while this lane reports only the two
   // explicit owners and the parser's non-adoption boundary.
-  if(scope.judgmentUpdate&&!scope.actionRequested&&!clauses.some(clause=>clause.quoted||clause.code||clause.conditional||clause.quoteSpans.length||clause.codeSpans.length)){
+  const affirmativeUpdate=scope.instructions.some(clause=>/^(?:请|麻烦)?(?:先|只|仅|直接)?(?:更新|调整|重开).{0,16}(?:判断|理解)/.test(clause.commandText.trim()))
+  if(affirmativeUpdate&&!scope.actionRequested){
     const evidence=reportedEvidenceFromText(userText),preferences=evidence.preferences.filter(item=>item.modality==='priority')
     if(evidence.externalExpectations.length===1&&preferences.length===1){
       const preview=`外部期待「${evidence.externalExpectations[0]!.quote}」与本人偏好「${preferences[0]!.quote}」是两项不同依据，前者不自动成为本人的选择或硬性约束。`
@@ -1067,7 +1069,6 @@ export function groundedFeedbackPreview(userText:string):string|null{
   // This fast lane cannot disambiguate mixed reported speech. Let the ordinary
   // source-aware turn handle it instead of turning somebody else's or a
   // hypothetical experience into a first-person receipt.
-  if(clauses.some(clause=>clause.quoted||clause.code||clause.conditional||clause.attributedToOther||clause.quoteSpans.length||clause.codeSpans.length))return null
   if(scope.judgmentUpdate&&!scope.actionRequested){
     const observation=reportedCountObservation(userText)
     if(observation)return observation
