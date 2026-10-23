@@ -552,7 +552,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   staged.usedEventRefs=[...(currentEvent?[currentEvent]:[]),...historicalEvents].map(event=>({eventId:event.id,revision:event.revision,generation:event.generation}))
   const route={tier:'default' as const,escalated:false,reason:null},runtime=resolveModel('default')
   const growthAll=await growthContext(run.user_id,run.conversation_id)
-  const correctionPlan=planExplicitCorrection(current.content,growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text})))
+  const correctionPlan=planExplicitCorrection(current.content,growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,sourceIds:item.sources.filter(source=>source.type==='message').map(source=>source.id)})))
   // Normalize every engine-originated delta, including correction/supplement
   // branches, before the strict growth store. The store itself keeps rejecting
   // invalid feedback; only the model-facing wrapper repairs optional fields.
@@ -1389,9 +1389,18 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         const mergedBindings=new Map(staged.growth?.inputIndexBindings??[])
         const syntheticBase=Math.max(supplementBase,result.growthUpdates?.length??0)
         stagedCorrection.changes.forEach((_,i)=>mergedBindings.set(syntheticBase+i,mergedChanges.length-stagedCorrection!.changes.length+i))
-        staged.growth={changes:mergedChanges,prepared:[...(staged.growth?.prepared??[]),...stagedCorrection.prepared],inputIndexBindings:mergedBindings,skipped:[...(staged.growth?.skipped??[]),...(stagedCorrection.skipped??[])]}
+        const offset=staged.growth?.changes.length??0
+        staged.growth={changes:mergedChanges,prepared:[...(staged.growth?.prepared??[]),...stagedCorrection.prepared.map(entry=>entry.kind==='split_amend'?{...entry,normalizedIndex:entry.normalizedIndex+offset}:entry)],inputIndexBindings:mergedBindings,skipped:[...(staged.growth?.skipped??[]),...(stagedCorrection.skipped??[])]}
         staged.audit.push({phase:'correction_server_staged',mode:amendDelta&&stagedCorrection.prepared.some(entry=>entry.kind==='split_amend')?'amend':'verbatim_create',providerCalls:0})
       }
+    }
+    for(const target of correctionPlan?.relatedTargets??[]){
+      const prepared=staged.growth?.prepared??[]
+      if(prepared.some(entry=>entry.kind==='split_amend'?entry.parent.id===target.itemId:entry.delta.target.operation!=='create'&&entry.delta.target.itemId===target.itemId))continue
+      const extra=await stageGrowth([{target:{operation:'amend',...target},kind:target.kind,assertion:'user_reported',source:{messageId:run.source_message_id,quote:correctionPlan!.newQuote}}],{})
+      const offset=staged.growth?.changes.length??0
+      staged.growth={changes:[...(staged.growth?.changes??[]),...extra.changes],prepared:[...prepared,...extra.prepared.map(entry=>entry.kind==='split_amend'?{...entry,normalizedIndex:entry.normalizedIndex+offset}:entry)],inputIndexBindings:new Map(staged.growth?.inputIndexBindings??[]),skipped:[...(staged.growth?.skipped??[]),...(extra.skipped??[])]}
+      staged.audit.push({phase:'same_source_correction_staged',itemId:target.itemId,providerCalls:0})
     }
     // NP_NEG_01 / BS_RESOURCE_01: optional model deltas omitted explicit status.
     // Retain only the speaker's guarded verbatim status, never an experience,

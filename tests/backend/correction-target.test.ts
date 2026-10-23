@@ -107,21 +107,22 @@ test('B1 correction target: converted create (T6 replay), wrong item never overw
     assert.ok(afterRedirect.items.some(item => item.text === '我是大二' && item.status === 'active'), 'corrected fact active')
     const strayAfter = afterRedirect.items.find(item => item.id === strayItem.id)
     assert.ok(strayAfter && strayAfter.text === '我还不确定毕业方向', 'unrelated record untouched')
-    assert.ok(!afterRedirect.items.some(item => item.text.includes('更正一下')), 'marker prefixes never leak into stored facts')
+    assert.ok(!afterRedirect.items.some(item => item.sources.some(source=>source.type==='message'&&source.id===corrected.run.source_message_id)&&item.text.includes('更正一下')), 'this correction marker is not stored as the new fact; unrelated original reports remain intact')
+    assert.ok(afterRedirect.items.some(item=>item.text==='读市场营销'&&item.status==='active'),'correcting the year preserves the other clause in the original report')
 
     // Kept: a correct already aiming at the scored item is honored in place.
     const budget = await turn('我每周有六小时可以做项目。', { reply: '记下了。', growthUpdates: [{ target: { operation: 'create' }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c0' } }] })
     void budget
     const beforeBudget = await growthView(user, chat)
     const budgetItem = beforeBudget.items.find(item => item.text === '我每周有六小时可以做项目')!
-    const kept = await turn('更正一下：我每周有四小时，刚才说成六小时了。', {
+    const kept = await turn('更正一下：我每周有四小时可以做项目，刚才说成六小时了。', {
       reply: '已更正为四小时。',
       growthUpdates: [{ target: { operation: 'correct', itemId: budgetItem.id }, kind: 'context', assertion: 'user_reported', source: { clauseId: 'c0' } }],
     })
     const keptAudit = (kept.staged.audit.filter((a: any) => a?.phase === 'growth_correct_honored') as any[])[0]
     assert.equal(keptAudit.itemId, budgetItem.id, 'correct model target honored in place')
     assert.equal(keptAudit.mode, 'replace', 'single-clause item replaced, not split')
-    assert.ok((await growthContext(user, chat)).some(item => item.text === '我每周有四小时'), 'budget replaced in place')
+    assert.ok((await growthContext(user, chat)).some(item => item.text === '我每周有四小时可以做项目'), 'the explicitly same project budget is replaced in place')
     // New conversation reads the corrected facts, not the overwritten ones.
     const later = await growthContext(user, chatLater)
     assert.ok(later.some(item => item.text === '我是大二'), 'new conversation: corrected major readable')

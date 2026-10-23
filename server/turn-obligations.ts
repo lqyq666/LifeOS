@@ -521,6 +521,7 @@ const correctionMarker=/(?:更正|说错了?|搞错了?|记错了?|写错了?|�
 export type CorrectionPlan={
   // The user's own affirmative new-value words, verbatim in the message.
   newQuote:string
+  relatedTargets?:NonNullable<CorrectionPlan['target']>[]
   // Best-effort deterministic amend target, derived ONLY from character
   // overlap between the correction message and the authorized old items.
   target:undefined|{
@@ -538,7 +539,7 @@ const sharedChars=(a:string,b:string)=>{
   for(const char of b.replace(/[^\p{L}\p{N}]/gu,''))if(set.has(char)){count++;set.delete(char)}
   return count
 }
-export type CorrectionCandidate={id:string;revision:number;kind:NonNullable<CorrectionPlan['target']>['kind'];assertion:string;text:string}
+export type CorrectionCandidate={id:string;revision:number;kind:NonNullable<CorrectionPlan['target']>['kind'];assertion:string;text:string;sourceIds?:string[]}
 // Conservative field identity for a quantified-time correction. Mask only the
 // amount and budget grammar; keep activity words, calendar labels
 // and the rest of the source intact. Different wording may safely create a new
@@ -645,7 +646,7 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
     for(const char of b.replace(/[^\p{L}\p{N}]/gu,''))if(set.has(char)){count++;set.delete(char)}
     return count
   }
-  const restOfMessage=clauses.map(clause=>clause.text).join('').replace(newQuote,'')
+  const restOfMessage=clauses.map(clause=>clause.text.replace(/^.{0,3}更正(?:一下)?[：:，,]?/,'').replace(/^(?:不对|不是的?)[，,。！？]?/,'')).join('').replace(newQuote,'')
   const scored:Scored[]=[]
   const readStatusCorrection=/看过|读过|已读/.test(newQuote)
   // Qualifying an inference does not retract its underlying event. Require
@@ -681,6 +682,16 @@ export function planExplicitCorrection(text:string,authorized:readonly Correctio
     if(candidates.length>1)return {newQuote,target:undefined}
   }
   const best=scored[0],runnerUp=scored[1]
+  if(best&&best.score>=3&&runnerUp?.score===best.score){
+    const tied=scored.filter(candidate=>candidate.score===best.score)
+    // Copies of the same original clause share message provenance. Equal
+    // words from separate reports remain ambiguous and cannot authorize amends.
+    const source=best.item.sourceIds?.find(id=>tied.every(candidate=>candidate.item.sourceIds?.includes(id)))
+    if(source&&tied.every(candidate=>candidate.clause===best.clause&&candidate.item.text.split(candidate.clause).length===2)){
+      const targets=tied.map(candidate=>({itemId:candidate.item.id,expectedRevision:candidate.item.revision,beforeQuote:candidate.clause,kind:candidate.item.kind}))
+      return {newQuote,target:targets[0],relatedTargets:targets.slice(1)}
+    }
+  }
   if(best&&best.score>=3&&(!runnerUp||runnerUp.score<best.score)&&best.item.text.split(best.clause).length===2){
     return {newQuote,target:{itemId:best.item.id,expectedRevision:best.item.revision,beforeQuote:best.clause,kind:best.item.kind}}
   }

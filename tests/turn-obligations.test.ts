@@ -268,6 +268,18 @@ test('P2-1: explicit corrections carry a required, deterministic state change',(
   assert.equal(yearPlan?.newQuote,'我是大二')
   assert.equal(yearPlan?.target?.itemId,'g-year')
   assert.equal(yearPlan?.target?.beforeQuote,'我大三')
+  const duplicateYear=planExplicitCorrection('更正一下：我是大二，刚才说成大三了。',[
+    {id:'whole',revision:1,kind:'context',assertion:'user_reported',text:'我是大三，读市场营销',sourceIds:['same-original-message']},
+    {id:'part',revision:1,kind:'context',assertion:'user_reported',text:'我是大三',sourceIds:['same-original-message']},
+    {id:'unrelated',revision:1,kind:'context',assertion:'user_reported',text:'更正一下：那张海报的设计主要是队友做的，我只负责了排版和打印',sourceIds:['other-message']},
+  ])
+  assert.ok(duplicateYear?.target)
+  assert.equal(duplicateYear?.relatedTargets?.length,1,'two copies of one original clause must both be corrected')
+  const unrelatedCopies=planExplicitCorrection('更正一下：我是大二，刚才说成大三了。',[
+    {id:'first',revision:1,kind:'context',assertion:'user_reported',text:'我是大三',sourceIds:['first-message']},
+    {id:'second',revision:1,kind:'context',assertion:'user_reported',text:'我是大三',sourceIds:['second-message']},
+  ])
+  assert.equal(unrelatedCopies?.target,undefined,'same words in independent reports do not grant a multi-record correction')
   // A02 shape: composite team award — the scored clause is the personal role.
   const teamOld={id:'g-team',revision:1,kind:'ability' as const,assertion:'user_reported',text:'我们团队上学期拿了校园文创设计二等奖，我做的是整体策划。'}
   const teamPlan=planExplicitCorrection('更正一下：整体策划主要是队长做的，我只负责了宣传物料里的排版部分。',[teamOld])
