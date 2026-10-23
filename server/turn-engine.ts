@@ -47,7 +47,7 @@ import { clauseExpressesWishToAct, clauseReportsCompleted, clauseReportsPastActi
 import { readStarMapContext } from './user-themes.ts'
 import { deriveTurnContract, bindPlanBudgetSchema, bindMaterialDeliverySchema,bindRequestedSummarySchema,bindRequestedComparisonSchema,comparisonReplyAccepts,summaryReplyAccepts,isSingleSentenceReply, requestsSingleQuestionMaterial,reportedPursuitClauses,reportedPreferenceClauses,negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses, reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
 import {unsupportedParticipantReadingClaims,unsupportedPreferenceConstraintClaims} from './turn-contract.ts'
-import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback,reportedEvidenceFromText,exactFeedbackReadback,unrelatedExternalCorrection,sameReportedResponseSubject} from './turn-contract.ts'
+import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback,reportedEvidenceFromText,exactFeedbackReadback,unrelatedExternalCorrection,sameReportedResponseSubject,reportedResponseContinuationTargets} from './turn-contract.ts'
 import {comparisonUniverseAccepts,requestedActionLimitAccepts} from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
@@ -1413,6 +1413,19 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       const offset=staged.growth?.changes.length??0
       staged.growth={changes:[...(staged.growth?.changes??[]),...extra.changes],prepared:[...prepared,...extra.prepared.map(entry=>entry.kind==='split_amend'?{...entry,normalizedIndex:entry.normalizedIndex+offset}:entry)],inputIndexBindings:new Map(staged.growth?.inputIndexBindings??[]),skipped:[...(staged.growth?.skipped??[]),...(extra.skipped??[])]}
       staged.audit.push({phase:'same_source_correction_staged',itemId:target.itemId,providerCalls:0})
+    }
+    const responseEvent=result.event?.target.operation==='continue'?[currentEvent,...historicalEvents].find(event=>event?.id===(result.event!.target as {eventId:string}).eventId):null
+    const responseAlreadyBound=responseEvent?.nodes.some(node=>node.kind==='fact'&&node.source&&sameReportedResponseSubject(node.content,current.content,{sameEvent:true}))
+    if(contract.capabilities.growth&&!currentConversationOnly(current.content)&&!responseAlreadyBound){
+      const continuations=reportedResponseContinuationTargets(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({id:item.id,revision:item.revision,text:item.text,sourceMessageIds:item.sources.filter(source=>source.type==='message').map(source=>source.id),blocked:Boolean(item.taskBoundary||item.recommendationStopped||item.inferenceBoundary?.active||item.kind!=='context')})))
+      for(const target of continuations){
+        const prepared=staged.growth?.prepared??[]
+        if(prepared.some(entry=>entry.kind==='split_amend'?entry.parent.id===target.itemId:entry.delta.target.operation!=='create'&&entry.delta.target.itemId===target.itemId))continue
+        const extra=await stageGrowth([{target:{operation:'amend',itemId:target.itemId,expectedRevision:target.expectedRevision,beforeQuote:target.beforeQuote},kind:'context',assertion:'user_reported',source:{messageId:run.source_message_id,quote:target.quote}}],{})
+        const offset=staged.growth?.changes.length??0
+        staged.growth={changes:[...(staged.growth?.changes??[]),...extra.changes],prepared:[...prepared,...extra.prepared.map(entry=>entry.kind==='split_amend'?{...entry,normalizedIndex:entry.normalizedIndex+offset}:entry)],inputIndexBindings:new Map(staged.growth?.inputIndexBindings??[]),skipped:[...(staged.growth?.skipped??[]),...(extra.skipped??[])]}
+        staged.audit.push({phase:'source_bound_growth_response_continuation',itemId:target.itemId,actor:target.actor,providerCalls:0})
+      }
     }
     // NP_NEG_01 / BS_RESOURCE_01: optional model deltas omitted explicit status.
     // Retain only the speaker's guarded verbatim status, never an experience,

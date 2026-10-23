@@ -333,11 +333,12 @@ export function reportedTaskBoundaryClauses(text:string){
 
 // A later response only retires the same participant/material report.
 // A role or delivery form alone cannot identify a different named matter.
-export function sameReportedResponseSubject(previous:string,current:string,scope?:{sameEvent:boolean}){
+export function sameReportedResponseSubject(previous:string,current:string,scope?:{sameEvent?:boolean;sourceBoundMatter?:boolean}){
  if(explicitMaterialFormConflict(previous,current))return false
  const oldReports=reportedEvidenceFromText(previous).participants
  const oldActors=new Set(oldReports.map(report=>report.actor))
- const newReports=reportedEvidenceFromText(current).participants.filter(report=>report.states.response.status==='reported_response'&&(!scope?.sameEvent||oldActors.has(report.actor)))
+ const boundMatter=scope?.sameEvent||scope?.sourceBoundMatter
+ const newReports=reportedEvidenceFromText(current).participants.filter(report=>report.states.response.status==='reported_response'&&(!boundMatter||oldActors.has(report.actor)))
  const newActors=new Set(newReports.map(report=>report.actor))
  if(oldActors.size!==1||newActors.size!==1)return false
  const oldActor=[...oldActors][0]!,newActor=[...newActors][0]!
@@ -354,7 +355,7 @@ export function sameReportedResponseSubject(previous:string,current:string,scope
   // to its generic earlier no-response report. It grants no identity across
   // events, named materials, or a newly named artifact in the reply body.
   const generic=matter.replace(/(?:只是|仅是|是)?结果未知/g,'')
-  if(scope?.sameEvent&&/(?:还没(?:有)?|没(?:有)?|尚未|还未|未)(?:回复|回应|回)/.test(parsed.rest)&&/^(?:(?:这|那|该)(?:封|份|个)?|之前|上次|本次|这次|我的)*(?:邮件|消息)?是?$/.test(generic)&&newReports.some(next=>{
+  if(boundMatter&&/(?:还没(?:有)?|没(?:有)?|尚未|还未|未)(?:回复|回应|回)/.test(parsed.rest)&&/^(?:(?:这|那|该)(?:封|份|个)?|之前|上次|本次|这次|我的)*(?:邮件|消息)?是?$/.test(generic)&&newReports.some(next=>{
     const later=participantReport(next.quote)
     return later&&later.body.startsWith(next.actor+'后来回复')&&!/(?:另一|其他|新的|邮件|消息|表格|作业|报告|材料|文件|链接|PDF|项目)/i.test(later.rest)
   }))return true
@@ -363,6 +364,30 @@ export function sameReportedResponseSubject(previous:string,current:string,scope
   if(!matter||/^(?:(?:这|那|该)(?:封|份|个)?|之前|上次|本次|这次|我的)*(?:邮件|消息|PDF|作品集|材料|文档|文件|链接|表格|附件|作业|报告)?$/i.test(matter))return false
   return newReports.some(next=>next.actor===oldActor&&next.quote.replace(/[，,。；;\s]/g,'').includes(matter))
  })
+}
+// Event-free conversations still have source-backed facts. A single explicitly
+// referenced generic mail/message can bind a later reply, provided every older
+// report about that actor is compatible and the anchor has one original source.
+// Return exact-clause amends; the shared fragment transaction preserves other
+// actors and interpretations in composite records.
+export function reportedResponseContinuationTargets(current:string,records:readonly {id:string;revision:number;text:string;sourceMessageIds:readonly string[];blocked?:boolean}[]){
+ const targets:{itemId:string;expectedRevision:number;beforeQuote:string;quote:string;actor:string}[]=[]
+ const currentReports=reportedEvidenceFromText(current).participants
+ for(const next of currentReports.filter(report=>report.states.response.status==='reported_response')){
+  if(currentReports.filter(report=>report.actor===next.actor).length!==1)continue
+  const nextQuote=scanUserClauses(next.quote).find(clause=>reportedEvidenceFromText(clause.text).participants.some(report=>report.actor===next.actor&&report.states.response.status==='reported_response'))?.text
+  if(!nextQuote)continue
+  const group=records.map(record=>({record,reports:reportedEvidenceFromText(record.text).participants.filter(report=>report.actor===next.actor)})).filter(entry=>entry.reports.length)
+  if(!group.length||group.some(({record,reports})=>record.blocked||!record.sourceMessageIds.length||reports.length!==1||scanUserClauses(reports[0]!.quote).length!==1||record.text.split(reports[0]!.quote).length!==2))continue
+  const anchors=group.filter(({reports})=>/^(?:这|那|该)封(?:邮件|消息)(?:是)?(?:还没(?:有)?|没(?:有)?|尚未|还未|未)(?:回复|回应|回)/.test(participantReport(reports[0]!.quote)?.rest??''))
+  const anchorSources=new Set(anchors.flatMap(({record})=>record.sourceMessageIds))
+  const anchorReferences=new Set(anchors.map(({reports})=>/^(?:这|那|该)封(?:邮件|消息)/.exec(participantReport(reports[0]!.quote)?.rest??'')?.[0]))
+  if(anchorSources.size!==1||anchorReferences.size!==1)continue
+  if(group.some(({reports})=>!sameReportedResponseSubject(reports[0]!.quote,nextQuote,{sourceBoundMatter:true})))continue
+  for(const {record,reports} of group)targets.push({itemId:record.id,expectedRevision:record.revision,beforeQuote:reports[0]!.quote,quote:nextQuote,actor:next.actor})
+ }
+ // Two different current replies cannot both rewrite the same parent version.
+ return targets.filter(target=>targets.filter(other=>other.itemId===target.itemId).length===1)
 }
 const participantActor='(?:对方|客户|学长|学姐|(?:[\u4e00-\u9fa5]{1,3})?(?:导师|老师)|同学|室友|朋友|他们|她们|他|她)'
 const participantUncertainty=/(?:可能|也许|好像|似乎|大概|不确定|不清楚|不知道|说不准|不一定|未必|猜测|是否|有没有|未知|未报告|未确认|不是|并非|绝非|不代表|不等于|不能证明|不能说明)/
