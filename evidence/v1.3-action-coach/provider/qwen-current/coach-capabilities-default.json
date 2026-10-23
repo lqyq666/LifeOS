@@ -1,16 +1,16 @@
 {
-  "at": "2026-10-21T04:40:28.534Z",
-  "runId": "coach-probe-default-1792557628534-d4619db0",
+  "at": "2026-10-23T01:53:25.616Z",
+  "runId": "coach-probe-default-1792720405616-44f6c962",
   "status": "PASS",
   "evidence": "REAL_PROVIDER_API",
   "contract": "action-coach-v1.3",
   "probeContractMode": "legacy_full_contract",
   "sourceFreeze": {
-    "path": "D:\\aaaLife\\LifeOS\\.local\\real-six-chain-20261021-r3\\probe-source-freeze-v4.json",
-    "digest": "0d15ff900e144269264a0f0ea1e85068f0057afcb516c5ca15e68efba6ce7b4d"
+    "path": "D:\\aaaLife\\LifeOS\\.local\\final-six-chain-current\\source-freeze.json",
+    "digest": "e1143e5dcd22bf8a2bb68d3a37a2c151bda03f6408075f99b59b819cdea1644a"
   },
-  "contractSignature": "198222fcee0d415f91386abb4f9bca94ad626f1fb2a1fa1724f955512db6a73a",
-  "interfaceSignature": "a6f6c3fa9d0898398d6f05272668b7b34fca19d3025e0d069c5831be32f7b166",
+  "contractSignature": "325f710c4e87dec387ffe28b8b29fa4414379a42e040ce9c172518049597b6e5",
+  "interfaceSignature": "f44ea656c9cc115e731abac583f399de23098d13dde60832573e593b2cd85724",
   "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
   "tier": "default",
   "provider": "bailian",
@@ -19,67 +19,67 @@
   "maxRetries": 0,
   "authorization": {
     "kind": "SINGLE_RUNTIME_DATABASE_BUDGET",
-    "budgetId": "acceptance_topup_20261018"
+    "budgetId": "acceptance_topup_20261023"
   },
   "checks": {
     "streaming": {
       "passed": true,
       "stopReason": "stop",
-      "elapsedMs": 2787,
-      "firstRawDeltaMs": 1411,
-      "deltas": 16,
+      "elapsedMs": 2828,
+      "firstRawDeltaMs": 2503,
+      "deltas": 5,
       "usage": {
         "uncachedInputTokens": 4572,
         "cacheWriteInputTokens": 0,
         "cachedInputTokens": 0,
-        "outputTokens": 43
+        "outputTokens": 13
       },
-      "estimatedCostCny": 0.0037737,
-      "callId": "021cd0f5-47cf-48dc-a2f6-494db1565b8d",
+      "estimatedCostCny": 0.0036927,
+      "callId": "f6233e07-ad12-4618-b329-d3b31edac1f6",
       "cancelledAfterDelta": false,
       "actualContractMode": null,
       "schemaSha256": null,
       "errorCategory": null,
-      "reply": "好，我在。你说吧，先不记任何东西，就聊。",
+      "reply": "好，我在。你想先问什么？",
       "note": "Raw delta timing is transport evidence, not meaningful first content."
     },
     "freeOutput": {
       "passed": true,
       "stopReason": "stop",
-      "elapsedMs": 4852,
-      "firstRawDeltaMs": 633,
-      "deltas": 63,
+      "elapsedMs": 7739,
+      "firstRawDeltaMs": 2403,
+      "deltas": 60,
       "usage": {
         "uncachedInputTokens": 1494,
         "cacheWriteInputTokens": 0,
         "cachedInputTokens": 3072,
-        "outputTokens": 199
+        "outputTokens": 191
       },
-      "estimatedCostCny": 0.0020397,
-      "callId": "d7a77d49-589d-4587-a016-bf7f87cd0c42",
+      "estimatedCostCny": 0.0020181,
+      "callId": "4854a61c-7496-4ad1-aef3-0cb78fd8ab8f",
       "cancelledAfterDelta": false,
       "actualContractMode": null,
       "schemaSha256": null,
       "errorCategory": null,
-      "reply": "递归就是“自己调用自己”。\n\n打个比方：你想知道前面排队有多少人，但你只看得见前面一个人的后脑勺。于是你拍他肩膀问：“你前面有几个人？”他也不知道，就继续拍更前面的人问……直到问到队首那个人，他说“我前面没人（0个）”，然后答案一层层传回来：第一个人是1，第二个人是2……\n\n在编程里，递归需要两个条件：\n1. **递**：把大问题拆成一个小一点的同类问题，不断调用自己。\n2. **归**：有一个明确的“终止条件”（比如上面的队首），否则就会无限套娃、程序崩溃。\n\n最常见的例子是算阶乘：5! = 5 × 4!，而 4! = 4 × 3!……一直算到 1! = 1，再乘回去。",
+      "reply": "递归就是“自己调用自己”。\n\n想象你面前有一摞书，要数清楚有多少本。你的做法是：拿起最上面一本，然后问剩下的那摞书：“你们有几本？” 剩下的书又拿起一本，继续问更小的那一摞……直到最后只剩一本书，它直接回答“1本”，然后答案一层层传回来，最终得到总数。\n\n在编程里，递归通常包含两个关键部分：\n1. **基准情形（Base Case）**：什么时候停止？比如“只剩一本书时，答案是1”。没有这个，程序会无限循环下去。\n2. **递归步骤（Recursive Step）**：怎么把大问题变小？比如“拿走一本，去算剩下那摞的数量”。\n\n简单说，递归就是把一个大问题拆解成结构相同的小问题，直到小问题可以直接解决，再把结果合并起来。",
       "output": {
-        "reply": "递归就是“自己调用自己”。\n\n打个比方：你想知道前面排队有多少人，但你只看得见前面一个人的后脑勺。于是你拍他肩膀问：“你前面有几个人？”他也不知道，就继续拍更前面的人问……直到问到队首那个人，他说“我前面没人（0个）”，然后答案一层层传回来：第一个人是1，第二个人是2……\n\n在编程里，递归需要两个条件：\n1. **递**：把大问题拆成一个小一点的同类问题，不断调用自己。\n2. **归**：有一个明确的“终止条件”（比如上面的队首），否则就会无限套娃、程序崩溃。\n\n最常见的例子是算阶乘：5! = 5 × 4!，而 4! = 4 × 3!……一直算到 1! = 1，再乘回去。"
+        "reply": "递归就是“自己调用自己”。\n\n想象你面前有一摞书，要数清楚有多少本。你的做法是：拿起最上面一本，然后问剩下的那摞书：“你们有几本？” 剩下的书又拿起一本，继续问更小的那一摞……直到最后只剩一本书，它直接回答“1本”，然后答案一层层传回来，最终得到总数。\n\n在编程里，递归通常包含两个关键部分：\n1. **基准情形（Base Case）**：什么时候停止？比如“只剩一本书时，答案是1”。没有这个，程序会无限循环下去。\n2. **递归步骤（Recursive Step）**：怎么把大问题变小？比如“拿走一本，去算剩下那摞的数量”。\n\n简单说，递归就是把一个大问题拆解成结构相同的小问题，直到小问题可以直接解决，再把结果合并起来。"
       }
     },
     "actionOutput": {
       "passed": true,
       "stopReason": "stop",
-      "elapsedMs": 9198,
-      "firstRawDeltaMs": 721,
-      "deltas": 132,
+      "elapsedMs": 8141,
+      "firstRawDeltaMs": 2524,
+      "deltas": 121,
       "usage": {
-        "uncachedInputTokens": 1814,
+        "uncachedInputTokens": 1940,
         "cacheWriteInputTokens": 0,
         "cachedInputTokens": 3072,
-        "outputTokens": 459
+        "outputTokens": 427
       },
-      "estimatedCostCny": 0.0029977,
-      "callId": "58bca63f-d867-49b2-8cea-a448e9a504bd",
+      "estimatedCostCny": 0.0030121,
+      "callId": "63747458-7365-4735-940f-1e12ca75609f",
       "cancelledAfterDelta": false,
       "actualContractMode": null,
       "schemaSha256": null,
@@ -90,7 +90,7 @@
         "revision": 3
       },
       "output": {
-        "reply": "同学，之前发你的资料手机打不开，确实挺影响查看的。想确认一下，你现在还需要哪一部分内容？我这边先不重新制作，等你明确需求后再看怎么调整最方便你使用。",
+        "reply": "同学，之前发的资料你手机打不开，没看也没关系。你现在还需要哪一部分内容？我按你的需求来安排下一步。",
         "event": {
           "target": {
             "operation": "continue",
@@ -123,23 +123,23 @@
           "action": {
             "operation": "create",
             "draft": {
-              "content": "同学，之前发你的资料手机打不开，确实挺影响查看的。想确认一下，你现在还需要哪一部分内容？我这边先不重新制作，等你明确需求后再看怎么调整最方便你使用。"
+              "content": "同学，之前发的资料你手机打不开，没看也没关系。你现在还需要哪一部分内容？我按你的需求来安排下一步。"
             }
           }
         }
       },
-      "renderedReply": "同学，之前发你的资料手机打不开，确实挺影响查看的。想确认一下，你现在还需要哪一部分内容？我这边先不重新制作，等你明确需求后再看怎么调整最方便你使用。",
+      "renderedReply": "同学，之前发的资料你手机打不开，没看也没关系。你现在还需要哪一部分内容？我按你的需求来安排下一步。",
       "note": "Existing event identity/revision, exact new source and one authoritative material. Optional candidate remains unconfirmed. Final quality still needs trajectory review."
     },
     "cancel": {
       "passed": true,
       "stopReason": "aborted",
-      "elapsedMs": 840,
-      "firstRawDeltaMs": 727,
+      "elapsedMs": 1705,
+      "firstRawDeltaMs": 1607,
       "deltas": 1,
       "usage": "unknown",
       "estimatedCostCny": "unknown",
-      "callId": "ed63109b-27cf-45ad-bd14-cf8d3fa597e2",
+      "callId": "c445da2d-ebb3-40f5-9146-c21180c68307",
       "cancelledAfterDelta": true,
       "actualContractMode": null,
       "schemaSha256": null,
@@ -149,111 +149,117 @@
   },
   "calls": [
     {
-      "callId": "021cd0f5-47cf-48dc-a2f6-494db1565b8d",
+      "callId": "f6233e07-ad12-4618-b329-d3b31edac1f6",
       "status": "finished",
       "purpose": "capability",
       "tier": "default",
       "provider": "bailian",
       "model": "qwen3.8-flash",
       "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
-      "sourceDigest": "0d15ff900e144269264a0f0ea1e85068f0057afcb516c5ca15e68efba6ce7b4d",
-      "runtimeBudgetSpendId": "b3df9bb5-046e-4c25-81b9-086ca5164a7e",
+      "sourceDigest": "e1143e5dcd22bf8a2bb68d3a37a2c151bda03f6408075f99b59b819cdea1644a",
+      "runtimeBudgetSpendId": "5b315d63-8a71-48ba-99bd-8932e287baa2",
       "outcome": "stop",
       "usage": {
         "uncachedInputTokens": 4572,
         "cacheWriteInputTokens": 0,
         "cachedInputTokens": 0,
-        "outputTokens": 43
+        "outputTokens": 13
       },
-      "estimatedCostCny": 0.0037737,
-      "providerResponseId": "chatcmpl-e27d2203-b369-91f8-a74a-b4f3fe725e3c",
-      "finishedAt": "2026-10-21T04:40:31.232Z"
+      "estimatedCostCny": 0.0036927,
+      "providerResponseId": "chatcmpl-f536e6bb-36a0-9170-80a7-23bfe245b3fb",
+      "finishedAt": "2026-10-23T01:53:30.811Z"
     },
     {
-      "callId": "d7a77d49-589d-4587-a016-bf7f87cd0c42",
+      "callId": "4854a61c-7496-4ad1-aef3-0cb78fd8ab8f",
       "status": "finished",
       "purpose": "capability",
       "tier": "default",
       "provider": "bailian",
       "model": "qwen3.8-flash",
       "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
-      "sourceDigest": "0d15ff900e144269264a0f0ea1e85068f0057afcb516c5ca15e68efba6ce7b4d",
-      "runtimeBudgetSpendId": "4caef0b1-3910-4595-a2b3-e76aadd9dfa8",
+      "sourceDigest": "e1143e5dcd22bf8a2bb68d3a37a2c151bda03f6408075f99b59b819cdea1644a",
+      "runtimeBudgetSpendId": "0133ea54-8342-4df7-b0f5-68dd769b6e00",
       "outcome": "stop",
       "usage": {
         "uncachedInputTokens": 1494,
         "cacheWriteInputTokens": 0,
         "cachedInputTokens": 3072,
-        "outputTokens": 199
+        "outputTokens": 191
       },
-      "estimatedCostCny": 0.0020397,
-      "providerResponseId": "chatcmpl-2034613b-47f6-9a73-aced-e32527a7f962",
-      "finishedAt": "2026-10-21T04:40:36.080Z"
+      "estimatedCostCny": 0.0020181,
+      "providerResponseId": "chatcmpl-8a921c59-d786-902b-ac0c-696e814ae272",
+      "finishedAt": "2026-10-23T01:53:38.548Z"
     },
     {
-      "callId": "58bca63f-d867-49b2-8cea-a448e9a504bd",
+      "callId": "63747458-7365-4735-940f-1e12ca75609f",
       "status": "finished",
       "purpose": "capability",
       "tier": "default",
       "provider": "bailian",
       "model": "qwen3.8-flash",
       "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
-      "sourceDigest": "0d15ff900e144269264a0f0ea1e85068f0057afcb516c5ca15e68efba6ce7b4d",
-      "runtimeBudgetSpendId": "13eace22-6c32-478c-a94e-2b3694a3b575",
+      "sourceDigest": "e1143e5dcd22bf8a2bb68d3a37a2c151bda03f6408075f99b59b819cdea1644a",
+      "runtimeBudgetSpendId": "a2630168-5682-466e-91f5-e7935d3541ff",
       "outcome": "stop",
       "usage": {
-        "uncachedInputTokens": 1814,
+        "uncachedInputTokens": 1940,
         "cacheWriteInputTokens": 0,
         "cachedInputTokens": 3072,
-        "outputTokens": 459
+        "outputTokens": 427
       },
-      "estimatedCostCny": 0.0029977,
-      "providerResponseId": "chatcmpl-c49c29b7-54d6-96a1-a2f1-2b32665fe9bf",
-      "finishedAt": "2026-10-21T04:40:45.281Z"
+      "estimatedCostCny": 0.0030121,
+      "providerResponseId": "chatcmpl-fad94001-af1e-94d6-b275-bca9aa15d145",
+      "finishedAt": "2026-10-23T01:53:46.681Z"
     },
     {
-      "callId": "ed63109b-27cf-45ad-bd14-cf8d3fa597e2",
+      "callId": "c445da2d-ebb3-40f5-9146-c21180c68307",
       "status": "finished",
       "purpose": "capability",
       "tier": "default",
       "provider": "bailian",
       "model": "qwen3.8-flash",
       "signature": "bailian:qwen3.8-flash:endpoint-5891aed827c4e67b:pi-ai@0.73.1",
-      "sourceDigest": "0d15ff900e144269264a0f0ea1e85068f0057afcb516c5ca15e68efba6ce7b4d",
-      "runtimeBudgetSpendId": "2d0db593-e3d4-4d42-a077-e4c9a15d202d",
+      "sourceDigest": "e1143e5dcd22bf8a2bb68d3a37a2c151bda03f6408075f99b59b819cdea1644a",
+      "runtimeBudgetSpendId": "7f16a400-4818-47aa-a17c-99731531ce8b",
       "outcome": "aborted",
       "usage": "unknown",
       "estimatedCostCny": "unknown",
-      "providerResponseId": "chatcmpl-52f65ab3-f463-9e06-a5dc-6e29bfcfe8c0",
-      "finishedAt": "2026-10-21T04:40:46.120Z"
+      "providerResponseId": "chatcmpl-2b5fb960-f880-93a7-843b-6b34859afd3a",
+      "finishedAt": "2026-10-23T01:53:48.405Z"
     }
   ],
   "note": "Capability/transport evidence only; not A01–A08 quality or the 20-sample speed acceptance.",
+  "transportPreflight": {
+    "attempted": true,
+    "status": 401,
+    "elapsedMs": 2453,
+    "completed": true
+  },
   "rawOutputs": [
     {
       "check": "R1",
-      "path": ".local/v1.3-action-coach/coach-probe-default-1792557628534-d4619db0/R1.txt",
-      "chars": 113,
-      "sha256": "4c3d8ece81e3e06d05476cd24d59ad37d1971f4d1260692063fbbab4558d635a",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1792720405616-44f6c962/R1.txt",
+      "chars": 24,
+      "sha256": "bc757f2e9b3b5d85e68fc96f26977c6ecb8118a59a1c17c6647aa43e94dc7137",
       "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
     },
     {
       "check": "R2",
-      "path": ".local/v1.3-action-coach/coach-probe-default-1792557628534-d4619db0/R2.txt",
-      "chars": 312,
-      "sha256": "d87d1746f464278a3e8476b78f8ee846151e0c66ac7acd45b23fe5be74b701f0",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1792720405616-44f6c962/R2.txt",
+      "chars": 335,
+      "sha256": "9857c18b43bfbb39940de9a0e27d71b30e46a1e91725eeff542ef56de94649d8",
       "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
     },
     {
       "check": "R3",
-      "path": ".local/v1.3-action-coach/coach-probe-default-1792557628534-d4619db0/R3.txt",
-      "chars": 952,
-      "sha256": "be84db4457d36164774f06a7a9a203971eda36993df5fe1d9c8bce8507e5436d",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1792720405616-44f6c962/R3.txt",
+      "chars": 902,
+      "sha256": "1e5e46e55cc6e1f3b61a6afeef96de2c6c339f983b0c8eb8f003b0dcf449d1d7",
       "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
     },
     {
       "check": "R4",
-      "path": ".local/v1.3-action-coach/coach-probe-default-1792557628534-d4619db0/R4.txt",
+      "path": ".local/v1.3-action-coach/coach-probe-default-1792720405616-44f6c962/R4.txt",
       "chars": 1,
       "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
       "evidence": "ACTUAL_SYNTHETIC_PROBE_TEXT_NOT_REASONING"
@@ -261,8 +267,8 @@
   ],
   "runtimeBudgetAfter": {
     "enabled": true,
-    "budgetId": "acceptance_topup_20261018",
+    "budgetId": "acceptance_topup_20261023",
     "revision": 1,
-    "unknownOrActiveCalls": 1
+    "unknownOrActiveCalls": 2
   }
 }

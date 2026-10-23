@@ -888,7 +888,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
           const question=openUnreportedChoiceQuestion(node.question,current.content)
           const nodeTopic=/^你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"]具体(?:是)?指/.exec(node.question)?.[1]
           if(question&&opened.includes(question.trim()))node.question=question
-          else if(definedTopic&&pendingQuestions.length===1&&nodeTopic===definedTopic)node.question=opened
+          else if(definedTopic&&pendingQuestions.length===1&&nodeTopic&&definedTopic.includes(nodeTopic))node.question=opened
         }
         staged.audit.push({phase:'grilling_loaded_choices_opened',providerCalls:0})
       }

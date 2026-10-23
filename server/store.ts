@@ -308,9 +308,12 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     const sourceText=String((await c.query("SELECT content FROM messages WHERE user_id=$1 AND id=$2",[run.user_id,run.source_message_id])).rows[0]?.content??'')
     const reportsResponse=/(?:回复说|回复了|已回复|后来回复|刚刚回复|确认读到|回复[：:，,])/.test(sourceText)&&!/(?:未回复|没回复|没有回复|还没回复|没有约定回复时间|是否读过|是否回复|不回复)/.test(sourceText)
     if(reportsResponse){
-      const oldGrowth=(await c.query("SELECT id,text FROM growth_items WHERE user_id=$1 AND status='active' AND (text LIKE '%对方还没回复%' OR text LIKE '%老师没回复%' OR text LIKE '%未回复%')",[run.user_id])).rows
+      const oldGrowth=(await c.query("SELECT id,text FROM growth_items WHERE user_id=$1 AND (conversation_id=$2 OR EXISTS(SELECT 1 FROM user_memory_settings WHERE user_id=$1 AND enabled=true)) AND status='active' AND (text LIKE '%对方还没回复%' OR text LIKE '%老师没回复%' OR text LIKE '%未回复%')",[run.user_id,run.conversation_id])).rows
       const staleIds=oldGrowth.filter(row=>sameReportedResponseSubject(row.text,sourceText)).map(row=>row.id)
-      if(staleIds.length)await c.query("UPDATE growth_items SET status='stale',revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=ANY($2::uuid[])",[run.user_id,staleIds])
+      if(staleIds.length){
+        const changed=(await c.query("UPDATE growth_items SET status='stale',revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=ANY($2::uuid[]) RETURNING *",[run.user_id,staleIds])).rows
+        for(const row of changed)await c.query("INSERT INTO growth_revisions(user_id,item_id,revision,action,snapshot) VALUES($1,$2,$3,'correct',$4)",[run.user_id,row.id,row.revision,{...row,correctionSource:{messageId:run.source_message_id,quote:sourceText,requestId:run.request_id}}])
+      }
       const oldNodes=(await c.query("SELECT id,content FROM coach_nodes WHERE user_id=$1 AND event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) AND status='active' AND (content LIKE '%对方还没回复%' OR content LIKE '%老师没回复%')",[run.user_id,run.conversation_id])).rows
       const resolvedIds=oldNodes.filter(row=>sameReportedResponseSubject(row.content,sourceText)).map(row=>row.id)
       if(resolvedIds.length)await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=ANY($2::uuid[])",[run.user_id,resolvedIds])
@@ -318,7 +321,13 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       // about a PDF must not rewrite an earlier unreplied link.
       const oldExperiences=(await c.query("SELECT id,source_quote FROM experiences WHERE user_id=$1 AND conversation_id=$2 AND status='confirmed' AND (content->>'result' IN ('对方还没回复','老师没回复') OR content->>'title' LIKE '%对方还没回复%' OR content->>'summary' LIKE '%对方还没回复%')",[run.user_id,run.conversation_id])).rows
       const responseExperienceIds=oldExperiences.filter(row=>sameReportedResponseSubject(row.source_quote,sourceText)).map(row=>row.id)
-      if(responseExperienceIds.length)await c.query("UPDATE experiences SET content=jsonb_set(jsonb_set(jsonb_set(content,'{result}','\"后续已收到对方回复\"'::jsonb,true),'{title}',to_jsonb(replace(COALESCE(content->>'title',''),'对方还没回复','对方已回复')),true),'{summary}',to_jsonb(replace(COALESCE(content->>'summary',''),'对方还没回复','对方已回复')),true),revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=ANY($2::uuid[])",[run.user_id,responseExperienceIds])
+      if(responseExperienceIds.length){
+        const changed=(await c.query("UPDATE experiences SET content=jsonb_set(jsonb_set(jsonb_set(content,'{result}','\"后续已收到对方回复\"'::jsonb,true),'{title}',to_jsonb(replace(COALESCE(content->>'title',''),'对方还没回复','对方已回复')),true),'{summary}',to_jsonb(replace(COALESCE(content->>'summary',''),'对方还没回复','对方已回复')),true),revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=ANY($2::uuid[]) RETURNING id,revision,content",[run.user_id,responseExperienceIds])).rows
+        for(const row of changed){
+          await c.query("INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,'correct',$4)",[run.user_id,row.id,row.revision,{merged:true,fromMessageId:run.source_message_id,quote:sourceText,requestId:run.request_id,content:row.content}])
+          await invalidatePatternsForExperience(c,run.user_id,row.id)
+        }
+      }
     }
     if(/没有约定回复时间/.test(sourceText)){
       await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) AND status='active' AND content LIKE '%是否约定过回复时间%'",[run.user_id,run.conversation_id])

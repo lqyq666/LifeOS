@@ -17,23 +17,44 @@ test.after(async()=>{await localEmbedding.close();await pool.end()})
 test('a teacher response retires only that report, preserving another actor and a different material',async()=>{
  const {createGrowthItem,growthView}=await import('../../server/growth.ts')
  const {sameReportedResponseSubject}=await import('../../server/turn-contract.ts')
- assert.equal(sameReportedResponseSubject('老师没回复','老师后来回复说这周忙'),true)
+ assert.equal(sameReportedResponseSubject('老师没回复课程作业邮件','老师后来回复说课程作业邮件已收到'),true)
+ assert.equal(sameReportedResponseSubject('老师没回复','老师后来回复说这周忙'),false,'a bare role does not identify the matter')
+ assert.equal(sameReportedResponseSubject('王老师没回复邮件','王老师回复了课程作业邮件'),false)
+ assert.equal(sameReportedResponseSubject('导师未回复PDF','导师回复了课程作业PDF'),false)
  assert.equal(sameReportedResponseSubject('同学未回复','老师后来回复说这周忙'),false)
  assert.equal(sameReportedResponseSubject('导师未回复作品集链接','导师确认已经读到PDF'),false)
  assert.equal(sameReportedResponseSubject('老师没回复奖学金申请邮件','老师后来回复说课程作业已收到'),false)
  assert.equal(sameReportedResponseSubject('对方还没回复PDF','老师后来回复说PDF已收到'),false)
  assert.equal(sameReportedResponseSubject('导师未回复PDF','导师已读PDF'),false,'reading alone is not a response')
+ assert.equal(sameReportedResponseSubject('老师没回复奖学金申请邮件','老师后来回复说课程作业邮件已收到。不要改奖学金申请邮件。'),false,'an instruction cannot supply the response subject')
  const actor='scoped-response-'+randomUUID(),chat=randomUUID()
  await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
  await store.createConversation(actor,{id:chat,title:'SYNTHETIC scoped response'})
  const items:Awaited<ReturnType<typeof createGrowthItem>>[]=[]
- for(const text of ['老师没回复','同学未回复','导师未回复作品集链接'])items.push(await createGrowthItem(actor,{requestId:randomUUID(),conversationId:chat,kind:'context',text}))
- const run=(await store.startRun(actor,chat,randomUUID(),'老师后来回复说这周忙，下周再看。')).run
+ for(const text of ['老师没回复课程作业邮件','同学未回复','导师未回复作品集链接'])items.push(await createGrowthItem(actor,{requestId:randomUUID(),conversationId:chat,kind:'context',text}))
+ const run=(await store.startRun(actor,chat,randomUUID(),'老师后来回复说课程作业邮件已收到。')).run
  await store.finishRun(run,{candidates:[],audit:[]},'老师已回复；其他事项保留。',null,new AbortController().signal)
  const view=(await growthView(actor,chat)).items
  assert.equal(view.find(item=>item.id===items[0].id)?.status,'stale')
  assert.equal(view.find(item=>item.id===items[1].id)?.status,'active')
  assert.equal(view.find(item=>item.id===items[2].id)?.status,'active')
+})
+
+test('a same-matter experience response has its new source in the canonical revision history',async()=>{
+ const actor='response-source-'+randomUUID(),chat=randomUUID(),signal=new AbortController().signal
+ await pool.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$1,$2,false,now(),now())',[actor,actor+'@example.invalid'])
+ await store.createConversation(actor,{id:chat,title:'SYNTHETIC response revision source'})
+ const text='老师没回复课程作业邮件',original=(await store.startRun(actor,chat,randomUUID(),text)).run
+ await store.finishRun(original,{candidates:[{sourceMessageId:original.source_message_id,quote:text,content:{action:'',result:'老师没回复',occurredAt:''},links:[]}],audit:[]},'保留当时未回复的报告。',null,signal)
+ const update='老师后来回复说课程作业邮件已收到。',run=(await store.startRun(actor,chat,randomUUID(),update)).run
+ await store.finishRun(run,{candidates:[],audit:[]},'课程作业邮件已收到回复。',null,signal)
+ const experience=(await pool.query('SELECT id,content,revision FROM experiences WHERE user_id=$1',[actor])).rows[0]
+ assert.equal(experience.content.result,'后续已收到对方回复')
+ const revision=(await pool.query('SELECT snapshot FROM experience_revisions WHERE user_id=$1 AND experience_id=$2 AND revision=$3',[actor,experience.id,experience.revision])).rows[0]
+ assert.ok(revision,'the current experience revision must have a persisted snapshot')
+ assert.equal(revision.snapshot.fromMessageId,run.source_message_id)
+ assert.equal(revision.snapshot.quote,update)
+ assert.equal(revision.snapshot.content.result,experience.content.result)
 })
 
 test('response cleanup preserves distinct matters for the same actor and an unidentified PDF recipient',async()=>{
@@ -56,6 +77,11 @@ test('response cleanup preserves distinct matters for the same actor and an unid
  assert.equal(view.find(item=>item.id===items[0]!.id)?.status,'active')
  assert.equal(view.find(item=>item.id===items[1]!.id)?.status,'stale')
  assert.equal(view.find(item=>item.id===items[2]!.id)?.status,'active')
+ const hidden=await createGrowthItem(actor,{requestId:randomUUID(),conversationId:otherChat,kind:'context',text:'老师没回复竞赛报名邮件'})
+ await setMemorySettings(actor,{requestId:randomUUID(),enabled:false,expectedRevision:1})
+ const offRun=(await store.startRun(actor,chat,randomUUID(),'老师后来回复说竞赛报名邮件已收到。')).run
+ await store.finishRun(offRun,{candidates:[],audit:[]},'本会话只保留当前报告。',null,new AbortController().signal)
+ assert.equal((await pool.query('SELECT status FROM growth_items WHERE user_id=$1 AND id=$2',[actor,hidden.id])).rows[0].status,'active','Memory OFF does not alter another session report')
  const experience=(await pool.query("SELECT content->>'result' AS result FROM experiences WHERE user_id=$1 AND source_quote=$2",[actor,'老师没回复奖学金申请邮件'])).rows
  assert.equal(experience.length,1)
  assert.equal(experience[0].result,'老师没回复')

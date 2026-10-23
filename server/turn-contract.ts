@@ -337,7 +337,8 @@ export function sameReportedResponseSubject(previous:string,current:string){
  if(explicitMaterialFormConflict(previous,current))return false
  const oldReports=reportedEvidenceFromText(previous).participants
  const oldActors=new Set(oldReports.map(report=>report.actor))
- const newActors=new Set(reportedEvidenceFromText(current).participants.filter(report=>report.states.response.status==='reported_response').map(report=>report.actor))
+ const newReports=reportedEvidenceFromText(current).participants.filter(report=>report.states.response.status==='reported_response')
+ const newActors=new Set(newReports.map(report=>report.actor))
  if(oldActors.size!==1||newActors.size!==1)return false
  const oldActor=[...oldActors][0]!,newActor=[...newActors][0]!
  if(oldActor!==newActor||oldActor==='对方')return false
@@ -349,7 +350,10 @@ export function sameReportedResponseSubject(previous:string,current:string){
   const parsed=participantReport(report.quote)
   if(!parsed)return false
   const matter=parsed.rest.replace(/(?:还没(?:有)?|没(?:有)?|尚未|还未|未)(?:回复|回应|回)/g,'').replace(/[，,。；;\s]/g,'')
-  return !matter||current.replace(/[，,。；;\s]/g,'').includes(matter)
+  // A bare role/form is ambiguous even when it occurs verbatim in the new
+  // report. Keep that historical report rather than guessing its identity.
+  if(!matter||/^(?:(?:这|那|该)(?:封|份|个)?|之前|上次|本次|这次|我的)*(?:邮件|消息|PDF|作品集|材料|文档|文件|链接|表格|附件|作业|报告)?$/i.test(matter))return false
+  return newReports.some(next=>next.actor===oldActor&&next.quote.replace(/[，,。；;\s]/g,'').includes(matter))
  })
 }
 const participantActor='(?:对方|客户|学长|学姐|(?:[\u4e00-\u9fa5]{1,3})?(?:导师|老师)|同学|室友|朋友|他们|她们|他|她)'
