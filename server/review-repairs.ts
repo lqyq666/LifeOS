@@ -948,7 +948,8 @@ function repairSingleJobAndEnumeration(reply:string,userText:string):string|null
     fixed=fixed.replace(/(?:如果|若)[^。]*?换下一个[^。]*?最多看两个[。]?/g,'如果信息不足，就停在这一个岗位，记录缺失项；不换下一个。')
     // A count must be adjacent to its classifier. “30分钟读一个…岗位”
     // contains a duration and one job, not thirty jobs.
-    fixed=fixed.replace(/(?<![\d一二两三四五六七八九十])(?:两|二|三|四|五|六|七|八|九|十|几|[2-9]\d*|1\d+)\s*(?:个|份)\s*(?:(?:不同|公开|远程)的?)*岗位(?!的?(?:JD|jd|描述))/g,'一个岗位')
+    fixed=fixed.replace(/(?<![\d一二两三四五六七八九十])(?:两|二|三|四|五|六|七|八|九|十|几|[2-9]\d*|1\d+)\s*(?:个|份)\s*(?:(?:不同|公开|远程)的?)*(?:岗位(?:的?(?:JD|jd|描述))?|职位(?:描述)?|JD|jd)/g,'一个岗位描述')
+    fixed=fixed.replace(/(?:做完|看完|浏览完)这(?:两|二|三|四|五|六|七|八|九|十|[2-9]\d*|1\d+)(?:个|份)(?:就停)?/g,'看完这一个岗位描述就停')
     fixed=fixed.replace(/记录你看到的[^。]*?岗位[^。]*?差异/g,'记录你看到的这个岗位对时间的描述')
   }
   if(/这三项信息/.test(fixed)&&!/(?:、|\d+[.、])/.test(fixed)){

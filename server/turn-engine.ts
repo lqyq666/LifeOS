@@ -2006,6 +2006,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     staged.audit.push({phase:'final_dangling_reply_closed',providerCalls:0})
   }
   if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
+  // Final display boundaries must commit the same reply that the user sees.
+  if(staged.coach)staged.coach.reply=result.reply
   const usage=usageSummary(calls,contextTokenEstimate,retrieved,route.escalated,route.reason,refusalOnly||Boolean(explicitMaterial)||Boolean(deterministicStateReadback))
   staged.modelUsage=usage
   return {text:result.reply,usage}
