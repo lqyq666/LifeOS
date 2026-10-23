@@ -333,11 +333,11 @@ export function reportedTaskBoundaryClauses(text:string){
 
 // A later response only retires the same participant/material report.
 // A role or delivery form alone cannot identify a different named matter.
-export function sameReportedResponseSubject(previous:string,current:string){
+export function sameReportedResponseSubject(previous:string,current:string,scope?:{sameEvent:boolean}){
  if(explicitMaterialFormConflict(previous,current))return false
  const oldReports=reportedEvidenceFromText(previous).participants
  const oldActors=new Set(oldReports.map(report=>report.actor))
- const newReports=reportedEvidenceFromText(current).participants.filter(report=>report.states.response.status==='reported_response')
+ const newReports=reportedEvidenceFromText(current).participants.filter(report=>report.states.response.status==='reported_response'&&(!scope?.sameEvent||oldActors.has(report.actor)))
  const newActors=new Set(newReports.map(report=>report.actor))
  if(oldActors.size!==1||newActors.size!==1)return false
  const oldActor=[...oldActors][0]!,newActor=[...newActors][0]!
@@ -350,6 +350,14 @@ export function sameReportedResponseSubject(previous:string,current:string){
   const parsed=participantReport(report.quote)
   if(!parsed)return false
   const matter=parsed.rest.replace(/(?:还没(?:有)?|没(?:有)?|尚未|还未|未)(?:回复|回应|回)/g,'').replace(/[，,。；;\s]/g,'')
+  // A same-event source link licenses an explicit "later replied" update
+  // to its generic earlier no-response report. It grants no identity across
+  // events, named materials, or a newly named artifact in the reply body.
+  const generic=matter.replace(/(?:只是|仅是|是)?结果未知/g,'')
+  if(scope?.sameEvent&&/(?:还没(?:有)?|没(?:有)?|尚未|还未|未)(?:回复|回应|回)/.test(parsed.rest)&&/^(?:(?:这|那|该)(?:封|份|个)?|之前|上次|本次|这次|我的)*(?:邮件|消息)?是?$/.test(generic)&&newReports.some(next=>{
+    const later=participantReport(next.quote)
+    return later&&later.body.startsWith(next.actor+'后来回复')&&!/(?:另一|其他|新的|邮件|消息|表格|作业|报告|材料|文件|链接|PDF|项目)/i.test(later.rest)
+  }))return true
   // A bare role/form is ambiguous even when it occurs verbatim in the new
   // report. Keep that historical report rather than guessing its identity.
   if(!matter||/^(?:(?:这|那|该)(?:封|份|个)?|之前|上次|本次|这次|我的)*(?:邮件|消息|PDF|作品集|材料|文档|文件|链接|表格|附件|作业|报告)?$/i.test(matter))return false

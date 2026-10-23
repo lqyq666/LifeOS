@@ -8,7 +8,7 @@ import {scanUserClauses,assistantRequestClause} from './user-command-spans.ts'
 import { assertMemoryEvidence, assertSnapshotStillValid, invalidatePatternsForExperience, persistChanges, type MemorySnapshot, type MemoryChange } from './memory.ts'
 import type { DialoguePath } from './dialogue.ts'
 import seed from '../src/features/cognition/data/lifeos-graph.seed.json' with { type: 'json' }
-import { persistCoachEvent, invalidateCoachSources, assertCoachEvidence, coachEventView, type CoachStaged } from './action-coach-events.ts'
+import { persistCoachEvent, invalidateCoachSources, assertCoachEvidence, coachEventView, readCoachEvent, type CoachStaged } from './action-coach-events.ts'
 import { assertCoachKnowledge, type CoachKnowledgeRef } from './coach-knowledge.ts'
 import {persistGuideUsage,type GuideUsage} from './guide-usage.ts'
 import { assertGrowthSnapshot, persistGrowthUpdates, growthView, type GrowthStaged } from './growth.ts'
@@ -196,7 +196,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     }
     for(const id of candidateIds)await proposeExperiencePatterns(c,run.user_id,id)
     for(const ref of knowledgeRefs)await c.query('INSERT INTO coach_reply_sources(user_id,request_id,source_id,revision) VALUES($1,$2,$3,$4)',[run.user_id,run.request_id,ref.sourceId,ref.revision])
-    const coach=staged.coach?await persistCoachEvent(c,run,staged.coach):null
+    let coach=staged.coach?await persistCoachEvent(c,run,staged.coach):null
     if(staged.guideUsage?.length)await persistGuideUsage(c,run,staged.guideUsage)
     let growth=staged.growth?await persistGrowthUpdates(c,run,staged.growth):null
     // 主题投影：本轮已提交的 growth 事实（用户亲述的目标/方向/优先级/偏好）
@@ -309,14 +309,16 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     const sourceText=String((await c.query("SELECT content FROM messages WHERE user_id=$1 AND id=$2",[run.user_id,run.source_message_id])).rows[0]?.content??'')
     const reportsResponse=/(?:回复说|回复了|已回复|后来回复|刚刚回复|确认读到|回复[：:，,])/.test(sourceText)&&!/(?:未回复|没回复|没有回复|还没回复|没有约定回复时间|是否读过|是否回复|不回复)/.test(sourceText)
     if(reportsResponse){
-      const oldGrowth=(await c.query("SELECT id,text FROM growth_items WHERE user_id=$1 AND (conversation_id=$2 OR EXISTS(SELECT 1 FROM user_memory_settings WHERE user_id=$1 AND enabled=true)) AND status='active' AND (text LIKE '%对方还没回复%' OR text LIKE '%老师没回复%' OR text LIKE '%未回复%')",[run.user_id,run.conversation_id])).rows
-      const staleIds=oldGrowth.filter(row=>sameReportedResponseSubject(row.text,sourceText)).map(row=>row.id)
+      const boundEvent=staged.coach?.delta.target.operation==='continue'?staged.coach.eventId:null
+      const eventSources=boundEvent?new Set((await c.query('SELECT DISTINCT r.source_message_id FROM coach_event_revisions e JOIN runs r ON r.user_id=e.user_id AND r.request_id=e.request_id WHERE e.user_id=$1 AND e.event_id=$2',[run.user_id,boundEvent])).rows.map(row=>row.source_message_id)):new Set()
+      const oldGrowth=(await c.query("SELECT id,text,sources FROM growth_items WHERE user_id=$1 AND (conversation_id=$2 OR EXISTS(SELECT 1 FROM user_memory_settings WHERE user_id=$1 AND enabled=true)) AND status='active' AND text ~ '(还没(有)?|没(有)?|尚未|还未|未)(回复|回应|回)'",[run.user_id,run.conversation_id])).rows
+      const staleIds=oldGrowth.filter(row=>sameReportedResponseSubject(row.text,sourceText,{sameEvent:(row.sources??[]).some((source:any)=>source.type==='message'&&eventSources.has(source.id))})).map(row=>row.id)
       if(staleIds.length){
         const changed=(await c.query("UPDATE growth_items SET status='stale',revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=ANY($2::uuid[]) RETURNING *",[run.user_id,staleIds])).rows
         for(const row of changed)await c.query("INSERT INTO growth_revisions(user_id,item_id,revision,action,snapshot) VALUES($1,$2,$3,'correct',$4)",[run.user_id,row.id,row.revision,{...row,correctionSource:{messageId:run.source_message_id,quote:sourceText,requestId:run.request_id}}])
       }
-      const oldNodes=(await c.query("SELECT id,content FROM coach_nodes WHERE user_id=$1 AND event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) AND status='active' AND (content LIKE '%对方还没回复%' OR content LIKE '%老师没回复%')",[run.user_id,run.conversation_id])).rows
-      const resolvedIds=oldNodes.filter(row=>sameReportedResponseSubject(row.content,sourceText)).map(row=>row.id)
+      const oldNodes=(await c.query("SELECT id,content,event_id FROM coach_nodes WHERE user_id=$1 AND (event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) OR event_id=$3::uuid) AND status='active' AND content ~ '(还没(有)?|没(有)?|尚未|还未|未)(回复|回应|回)'",[run.user_id,run.conversation_id,boundEvent])).rows
+      const resolvedIds=oldNodes.filter(row=>sameReportedResponseSubject(row.content,sourceText,{sameEvent:row.event_id===boundEvent})).map(row=>row.id)
       if(resolvedIds.length)await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=ANY($2::uuid[])",[run.user_id,resolvedIds])
       // Only correct the experience for the same reported material. A reply
       // about a PDF must not rewrite an earlier unreplied link.
@@ -333,6 +335,9 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     if(/没有约定回复时间/.test(sourceText)){
       await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) AND status='active' AND content LIKE '%是否约定过回复时间%'",[run.user_id,run.conversation_id])
     }
+    // Automatic state reconciliation above belongs to this same commit.
+    // Capture its final event state in the completion receipt, too.
+    if(coach)coach=await readCoachEvent(c,run.user_id,run.conversation_id,coach.id)
     await consumeEntitlement(c,run.user_id,current.entitlement_reserved)
     await c.query('INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,\'assistant\',$4,$5)',[randomUUID(),run.user_id,run.conversation_id,text,run.request_id])
     const response={requestId:run.request_id,decisionVersion:version,candidateIds,mergedExperienceIds,themeChangedIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthCreatedIds:growth?growth.createdIds:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],growthWrite:growth??null,stateChange,...(memoryControl?{memoryControl}:{}),...(directionControls?{directionControls:{changedScopes,effects:controlEffects}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}

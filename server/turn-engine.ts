@@ -18,7 +18,7 @@ import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner
 import { HttpError, pool } from './db.ts'
 import {classifyProviderFailure,providerError,type ProviderFailureCategory} from './provider-errors.ts'
 import { parseActionCoachTurn, finalCoachJsonText, completeCoachJsonFrame, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
-import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, coachMaterialPresentation,requestedBlankJobWorksheet,effectiveMaterialRequest,unchangedProposedAction,unknownQuestionTopicMatches, type CoachEvent } from './action-coach-events.ts'
+import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, requestsMaterialRewrite, coachMaterialPresentation,requestedBlankJobWorksheet,effectiveMaterialRequest,unchangedProposedAction,unknownQuestionTopicMatches, type CoachEvent } from './action-coach-events.ts'
 import { estimateTokens } from './context.ts'
 import { loadSnapshot, stageCoachBackground } from './memory.ts'
 import { readKnownMajor } from './model-router.ts'
@@ -47,7 +47,7 @@ import { clauseExpressesWishToAct, clauseReportsCompleted, clauseReportsPastActi
 import { readStarMapContext } from './user-themes.ts'
 import { deriveTurnContract, bindPlanBudgetSchema, bindMaterialDeliverySchema,bindRequestedSummarySchema,bindRequestedComparisonSchema,comparisonReplyAccepts,summaryReplyAccepts,isSingleSentenceReply, requestsSingleQuestionMaterial,reportedPursuitClauses,reportedPreferenceClauses,negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses, reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
 import {unsupportedParticipantReadingClaims,unsupportedPreferenceConstraintClaims} from './turn-contract.ts'
-import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback,reportedEvidenceFromText,exactFeedbackReadback,unrelatedExternalCorrection} from './turn-contract.ts'
+import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback,reportedEvidenceFromText,exactFeedbackReadback,unrelatedExternalCorrection,sameReportedResponseSubject} from './turn-contract.ts'
 import {comparisonUniverseAccepts,requestedActionLimitAccepts} from './turn-contract.ts'
 import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, authorizedGuideApplication } from './workflows/host.ts'
 import { selectHistoryForMode } from './history-selection.ts'
@@ -357,7 +357,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     &&(deliverableIntent(clause.text,'create')||deliverableIntent(clause.text,'modify'))
     &&/(?:一句(?:简历(?:表达|描述)|(?:作品|(?:本人|个人|我的)?贡献)描述)|(?:作品|(?:本人|个人|我的)?贡献)描述[^。！？\n]{0,8}(?:压成|缩成|写成)一句)/.test(clause.text))
   const contributionParagraphMode=requiresImmediateMaterial(current.content)&&contributionDescription&&!contributionSentenceMode
-  const resumePortfolioMode=requiresImmediateMaterial(current.content)&&(contributionDescription||/简历|作品清单|作品集|个人介绍/.test(current.content))
+  const resumePortfolioMode=requiresImmediateMaterial(current.content)&&!requestsMaterialRewrite(current.content)&&(contributionDescription||/简历|作品清单|作品集|个人介绍/.test(current.content))
   const obligations=deriveTurnObligations(current.content,{resumePortfolioMode,...(turnDerivedControls.status==='explicit'?{directionControls:turnDerivedControls.changes}:{})})
   staged.turnObligations=obligations
   if(isPureControlCommand(current.content,obligations,turnDerivedControls.status==='explicit'?turnDerivedControls.changes.map(change=>change.quote):[])){
@@ -1285,6 +1285,18 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     const statusReadbackReply=sourceStatusReadback?repairStatusUpdate(sourceStatusReadback,current.content)?.reply??sourceStatusReadback:null
     if(statusReadbackReply){
       result.reply=statusReadbackReply
+      const matches=!retrieval.ambiguous?historicalEvents.filter(event=>event.nodes.some(node=>node.kind==='fact'&&node.source&&sameReportedResponseSubject(node.content,current.content,{sameEvent:true}))):[]
+      if(!result.event&&matches.length===1){
+        const event=matches[0]!,reports=reportedEvidenceFromText(current.content).participants.filter(report=>report.states.response.status==='reported_response'&&event.nodes.some(node=>node.kind==='fact'&&node.source&&sameReportedResponseSubject(node.content,report.quote,{sameEvent:true})))
+        // A truncated retrieval result is not uniqueness proof. Check the
+        // eligible workspace set for these actors before binding a bare role.
+        const known=(await pool.query("SELECT DISTINCT n.event_id FROM coach_nodes n JOIN coach_events e ON e.user_id=n.user_id AND e.id=n.event_id WHERE n.user_id=$1 AND (e.conversation_id=$2 OR $3::boolean) AND e.status<>'forgotten' AND n.kind='fact' AND n.status='active' AND n.content LIKE ANY($4::text[])",[run.user_id,run.conversation_id,snapshot.settings.enabled,reports.map(report=>'%'+report.actor+'%')])).rows
+        const quotes=[...new Set(reports.map(report=>report.quote))]
+        if(quotes.length&&known.length===1&&known[0].event_id===event.id){
+          result.event={target:{operation:'continue',eventId:event.id,expectedRevision:event.revision},nodes:quotes.map(quote=>({kind:'fact',source:{messageId:run.source_message_id,quote}}))}
+          staged.audit.push({phase:'verified_response_bound_to_existing_event',eventId:event.id,providerCalls:0})
+        }
+      }
       staged.audit.push({phase:'participant_status_projected_from_current_source',sourceMessageId:run.source_message_id,synthesized:statusReadbackReply!==sourceStatusReadback,providerCalls:0})
     }
     if(!boundedReplyAccepts(result.reply,boundedReply)){

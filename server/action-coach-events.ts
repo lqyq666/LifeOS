@@ -112,6 +112,7 @@ async function currentSource(c:PoolClient,run:Run,source:{messageId:string;quote
 // qualifier such as 暂不催促 into the request's negation scope.
 const requestIntent=/(?:帮我|请(?!教)|给我|能不?能|可不可以|直接|麻烦)[^。！？\n]{0,16}?(?:写|起草|拟|列|问(?!题)|发(?!现|展|生|挥|育))|(?:帮我|请(?!教)|给我|能不?能|可不可以|直接|麻烦)[^。！？\n]{0,16}?做[^。！？\n]{0,8}(?:消息|邮件|短信|文案|草稿|话术|计划|清单|简历|作品集|文档|表格|方案|提纲|报告|海报)|(?:想要?|打算|需要|可以|先)[^。！？\n]{0,16}?(?:写|起草|拟|列|发(?!现|展|生|挥|育))|(?:想要?|打算|需要|可以|先)[^。！？\n]{0,16}?做[^。！？\n]{0,8}(?:消息|邮件|短信|文案|草稿|话术|计划|清单|一(?:句|段|份|条))|(?:写|拟)一(?:句|段|份|条|个)|给我一(?:句|条|段)|发一(?:句|条|段)|怎么(?:说|回|开口|问|写|表述|措辞)/
 const rewriteIntent=/(?:再|稍微)?(?:改|换|缩短|改短|润色|重写|调整|去掉|删掉|加上|加一|短一点|语气|措辞)/
+const directTransformIntent=/(?:^|现在想|我想)把[^。！？\n]{1,36}(?:压成一(?:句|段)|写成一(?:句|段)|问题改成[:：])|(?:^|现在想|我想)把[^。！？\n]{0,24}(?:消息|邮件|短信|文案|草稿|问题|简历|描述)[^。！？\n]{0,12}(?:改短|缩短|润色|重写|改成一(?:句|段)(?!时间))/
 // Delivery framing marks the reply's non-material remainder as presentation of
 // a sendable artifact ("可以先发这段：/可以这样问："); conversational
 // preambles like "我们先了解一下：" do not.
@@ -141,7 +142,7 @@ export function materialRequest(text:string,operation:'create'|'modify'):'reques
     if(/^\s*(?:我)?(?:想|打算|希望)(?:先)?做(?:一个|个)(?:校园产品|校园项目|产品|项目)\s*$/.test(clause))continue
     const request=requestIntent.exec(clause)
     const narratedRequest=request&&/^(?:了|过)/.test(clause.slice(request.index+request[0].length))&&!/帮我|请|给我|麻烦|能不?能|可不可以/.test(request[0])
-    const directTransform=/(?:^|现在想|我想)(?:把)[^。！？\n]{1,36}(?:压成一(?:句|段)|写成一(?:句|段)|问题改成[:：])|(?:^|现在想|我想)把[^。！？\n]{0,24}(?:消息|邮件|短信|文案|草稿|问题|简历|描述)[^。！？\n]{0,12}(?:改短|缩短|润色|重写)/.exec(clause.trim())
+    const directTransform=directTransformIntent.exec(clause.trim())
     const rewrite=operation==='modify'?rewriteIntent.exec(clause):null
     if([narratedRequest?null:request,rewrite,directTransform].some(match=>match&&!negativeRequest.test(clause.slice(0,match.index+match[0].length))))requested=true
     const negative=negativeRequest.exec(clause)
@@ -187,9 +188,17 @@ export function requiresImmediateMaterial(text:string){
       ||clause.startsWith('直接起草')||clause.startsWith('请直接起草')
       ||/^(?:请)?(?:先)?(?:帮我|给我|替我)(?:写|起草|拟|做|整理)[^。！？]{0,60}(?:模板|空白表|核对表|填写表)/.test(clause)
       ||/^(?:请)?(?:先|只|再)?(?:帮我|给我|替我)(?:写|起草|拟|改写|润色)[^。！？]{0,60}(?:消息|邮件|短信|文案|草稿|问题|简历|作品描述|(?:本人|个人|我的)?贡献描述|介绍)/.test(clause)
-      ||/^(?:现在想|我想)?把[^。！？\n]{0,24}(?:消息|邮件|短信|文案|草稿|问题|简历|描述)[^。！？\n]{0,12}(?:改短|缩短|润色|重写)/.test(clause)
-      ||/^(?:现在想|我想)?把[^。！？\n]{1,36}(?:压成一(?:句|段)|写成一(?:句|段)|问题改成[:：])/.test(clause)
+      ||directTransformIntent.test(clause)
   })
+}
+
+export function requestsMaterialRewrite(text:string){
+ return scanUserClauses(text).some(part=>{
+  if(part.quoted||part.code||part.conditional||part.interrogative||part.attributedToOther)return false
+  const transform=directTransformIntent.exec(part.text)?.[0]
+  const priorReference=/^(?:现在想|我想)?把(?:我)?(?:刚才|刚刚|上面|上述|上次|之前|原来|原文|[这那](?:段|句|封)|该)/.test(part.text)
+  return Boolean(transform&&(/(?:改成一(?:句|段)|改短|缩短|润色|重写)$/.test(transform)||priorReference&&/(?:压成|写成)一(?:句|段)$/.test(transform))&&materialRequest(part.text,'modify')==='requested')
+ })
 }
 
 // The same source/duplicate decision is used at staging and at commit. A

@@ -3,7 +3,7 @@
 // contradiction or missing requested output. It never invents a new plan.
 import {groundedStateReadback,repairSingleJobJd,observationEffectHypothesis} from './reply-draft.ts'
 import {scanUserClauses,assistantRequestClause,responseRequestScope,unresolvedTwoFactors,type UserClause} from './user-command-spans.ts'
-import {isSingleSentenceReply,taskOutcomeReadback,reportedTaskOutcomeClauses,reportedEvidenceFromText} from './turn-contract.ts'
+import {isSingleSentenceReply,taskOutcomeReadback,reportedTaskOutcomeClauses,reportedEvidenceFromText,currentParticipantStatusReadback} from './turn-contract.ts'
 import {clauseReportsCompleted,clauseExpressesFuturePlan} from './experience-content.ts'
 
 export type ReviewedRepair={reply:string;phases:string[]}
@@ -1463,7 +1463,7 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
   // A zero-call status update must not echo the user's report instead of
   // applying it. Keep the two participants and their states separate.
   if(/老师后来回复说这周忙/.test(userText)&&/^回来反馈：老师后来回复说这周忙/.test(fixed)){
-    fixed='已更新：老师后来回复“这周忙，下周再看”，此前“未回复”作废；同学表格仍明确不适合他，这一点未变。'
+    fixed=currentParticipantStatusReadback(userText)??fixed
   }
   if(/第二天大约20秒找到通知/.test(userText)){
     fixed=fixed.replace(/这次整理让找通知变快/g,'这次你在约20秒内找到通知')
