@@ -39,3 +39,11 @@ evidence/coze-core-launch-20261011/student16-b31aaed-first/*.json -text
 # Existing databases recorded these mixed-ending migration bytes verbatim.
 server/migrations/026-identity-layer.sql -text -whitespace
 server/migrations/027-identity-change-fields.sql -text -whitespace
+
+# Public competition downloads keep the same SHA256 on Windows and Linux.
+docs/competition/*.md text eol=lf
+docs/competition/*.html text eol=lf
+docs/competition/*.py text eol=lf
+docs/competition/*.txt text eol=lf
+docs/competition/*.pdf -text
+deploy/publish-competition.py text eol=lf

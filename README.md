@@ -1,8 +1,21 @@
 # LifeOS
 
+面向大学生的个人 AI 成长决策伙伴，帮助用户看清自己、梳理方向，并把目标转化为可开始的小行动。
+
+- 正式作品网址：[lqynb.xyz](https://lqynb.xyz/)（试运行，需要已开通的邮箱账户与对话资格）。
+- [使用说明与材料中心](https://lqynb.xyz/competition/) · [五页使用说明 PDF](docs/competition/LifeOS_User_Guide_and_Submission_Checklist_20261023.pdf) · [可编辑源文件](docs/competition/LifeOS_User_Guide_and_Submission_Checklist_20261023.md)。
+- [产品设计 PDF](docs/competition/LifeOS_Product_Design_20261023.pdf) · [功能验证与效果佐证 PDF](docs/competition/LifeOS_Functional_Validation_Evidence_20261023.pdf)。
+- [交付状态与对应运行版本](docs/competition/DELIVERY_STATUS.md)：产品候选 `a12fd22`；文档提交与产品发布分别记录，当前发布核验中。
+
+本仓库保持私有，评委查看代码需仓库所有者邀请。两份原报告分别保留 `88bd390 / final80` 与 `a12fd22 / final89` 测试口径。`final89` 的三项速度未达原目标；当前模型回复可能重复或不完全符合格式，材料需自行审阅，产品不自动发送或执行。真实学生长期效果尚未完成验收。
+
 当前产品是面向中国大陆成年大学生的专属 AI 分身与成长决策伙伴，完整目标和验收见 [PRODUCT.md](PRODUCT.md)。开发断点见 HANDOFF.md，实施依据见 .planning/research/campus-growth/BRIEF.md。docs/v1.3-action-coach 保存历史组件目标，不再是当前整体验收。
 
 ## 本地开发
+
+环境：Node.js 24、Docker（本地 PostgreSQL 17.11）以及 Python 3.12。先在本地将 [.env.server.example](.env.server.example) 复制为 `.env.server`，仅在私有环境填写模型密钥。新建开发环境可运行 `npm run db:setup` 建立专用本地数据库，然后 `npm run db:migrate`。已有数据库配置应先核对目标与备份。
+
+离线检索依赖、固定模型和生产构建所需的能力证据见 [部署说明](deploy/README.md) 与 [部署交接](DEPLOYMENT_HANDOFF.md)；这些环境资源和密钥不随公开材料提供。准备好后分别运行 `npm run server` 与 `npm run dev`，访问 `http://127.0.0.1:5173`。本地启动地址不是参赛作品入口。
 
     npm ci
     npm run typecheck
