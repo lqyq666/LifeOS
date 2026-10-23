@@ -1998,6 +1998,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   staged.dialoguePath='direct';staged.upstreamCalls=calls.length
   staged.audit.push({phase:'engine_stage_timings',preRetrievalMs,knowledgeMs,validationMs,modelCallsMs:calls.map(call=>call.latencyMs),firstRawDeltaMs:calls.map(call=>call.firstRawDeltaMs),firstQuestionDraftMs:calls.map(call=>call.firstQuestionDraftMs),userPromptChars:userPrompt.length})
+  const zeroTimeFinal=removeQuestionOnZeroTime(result.reply,current.content)
+  if(zeroTimeFinal){result.reply=zeroTimeFinal;staged.audit.push({phase:'final_zero_time_boundary_enforced',providerCalls:0})}
   const closedReply=closeDanglingReply(result.reply)
   if(closedReply){
     result.reply=closedReply

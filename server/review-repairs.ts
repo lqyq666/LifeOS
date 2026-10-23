@@ -1446,7 +1446,9 @@ function repairPostReviewScope(reply:string,userText:string,priorUserTexts:reado
   if(/依据这条反馈更新“自由”的理解/.test(userText)){
     fixed=fixed.replace(/自由核心是自主安排专注时间，地点灵活次之/g,'自由目前最清楚的是自主安排专注时间；地点灵活只是校友个例中的描述，不能当作你的优先级')
     fixed=fixed.replace(/依据校友个例，你对“自由”的理解暂定为：地点灵活但需容忍固定会议对专注时间的打断。/g,'依据你的原话，自由目前最清楚的核心是能自己安排一天中专注工作的时间；校友个例只说明某个远程岗位允许地点灵活，但可能有固定会议打断专注，不能据此定义你的优先级。')
+    if(/^依据这条反馈更新/.test(fixed)||fixed===userText)fixed='依据你的原话，自由目前最清楚的是能自己安排专注时间；校友个例只显示某个远程岗位地点灵活、可能有固定会议，不能当作你的优先级。创业仍然拒绝，不重开。'
   }
+  if(/这位校友的岗位和你现在的工作内容接近吗/.test(fixed))fixed=fixed.replace(/这位校友的岗位和你现在的工作内容接近吗？/g,'这位校友的岗位和你目前的课程或项目内容接近吗？')
   if(/请更新这段经历的局部理解/.test(userText)){
     fixed=fixed.replace(/轻松源于不用表现及自然说话/g,'你报告轻松主要来自不用表现及自然说话；这仍是本人描述，不能排除其他因素')
   }
@@ -1485,7 +1487,7 @@ export function closeDanglingReply(reply:string):string|null{
   const tail=trimmed.slice(last+1).trim()
   const count=(text:string,mark:string)=>text.split(mark).length-1
   const unclosed=(count(tail,'（')>count(tail,'）'))||(count(tail,'(')>count(tail,')'))||(count(tail,'“')>count(tail,'”'))
-  const danglingEnd=/(?:剩下的|关键变量|关键|问题|答案|重点|缺口).{0,12}(?:就是|是|为|包括|例如|比如|如|以及|和|与|或)$/.test(tail)
+  const danglingEnd=/(?:剩下的|关键变量|关键|问题|答案|重点|缺口|指向).{0,12}(?:就是|是|为|包括|例如|比如|如|以及|和|与|或|的是)$/.test(tail)
   if(!unclosed&&!danglingEnd&&!/^(?:我想确认的是|目前已知|现在卡住的是|也就是|或者说|以及|或者|和|与|[（(“"：:、，,]|如|例如|比如)/.test(tail))return null
   const closed=trimmed.slice(0,last+1).trim()
   return closed||null
