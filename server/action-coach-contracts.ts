@@ -132,9 +132,10 @@ export function completeCoachJsonFrame(raw:string):string|null {
 export function finalCoachJsonText(raw:string,onNormalization?:(kind:string)=>void):string {
   const text=raw.trim(),first=completeCoachJsonFrame(text)
   let rest=first?text.slice(first.length).trimStart():''
-  // A captured provider emitted a redundant root closing brace before its
-  // explicit deliberation terminator. The complete frame is already parsed;
-  // surplus transport braces carry no fields and cannot replace it.
+  // A captured provider emitted a redundant root closing brace, either alone
+  // or before its explicit deliberation terminator. The complete frame is
+  // already parsed; surplus closing braces carry no fields.
+  if(first&&/^[}\s]*$/.test(rest)){onNormalization?.('surplus_root_closing_brace');return first}
   if(/^[}\s]*<\/thinking>/.test(rest))rest=rest.replace(/^[}\s]*/,'')
   const canonical=(value:string)=>{try{return JSON.stringify(JSON.parse(value))}catch{return value}}
   const transportMarker=/^(?:<\/?(?:br|parameter|result|invoke|tool|function)\s*\/?>|<\|(?:tool_call(?:_end)?|tool_name|json_output)\|>)/i
@@ -249,7 +250,15 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   // create: keep its source selector, never infer a personal preference/goal,
   // accept free prose or turn it into an edit of an existing memory.
   if(Array.isArray(updates))for(const update of updates){
-
+    // The provider sometimes places the correction target id beside `target`
+    // instead of inside it. Move only that already-present identity; never
+    // infer a target.
+    if(update&&typeof update==='object'&&update.target?.operation==='correct'
+      &&typeof update.itemId==='string'&&!update.target.itemId){
+      update.target.itemId=update.itemId
+      delete update.itemId
+      options.onNormalization?.('growth_correct_item_id_moved')
+    }
     if(update&&typeof update==='object'&&update.kind==='externalExpectation'
       &&update.assertion==='user_reported'&&update.target?.operation==='create'
       &&Object.keys(update).length===4&&Object.keys(update).every(key=>['target','assertion','kind','source'].includes(key))){
