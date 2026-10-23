@@ -1058,7 +1058,8 @@ export function groundedFeedbackPreview(userText:string):string|null{
   // Source-rendered distinction, never a model-prose exemption: the ordinary
   // turn still supplies its judgment, while this lane reports only the two
   // explicit owners and the parser's non-adoption boundary.
-  const affirmativeUpdate=scope.instructions.some(clause=>/^(?:请|麻烦)?(?:先|只|仅|直接)?(?:更新|调整|重开).{0,16}(?:判断|理解)/.test(clause.commandText.trim()))
+  const lastUpdate=clauses.filter(clause=>/(?:更新|调整|重开).{0,16}(?:判断|理解)/.test(clause.text)).at(-1)
+  const affirmativeUpdate=Boolean(lastUpdate&&scope.instructions.some(clause=>clause.start===lastUpdate.start&&/^(?:请|麻烦)?(?:先|只|仅|直接)?(?:更新|调整|重开).{0,16}(?:判断|理解)/.test(clause.commandText.trim())))
   if(affirmativeUpdate&&!scope.actionRequested){
     const evidence=reportedEvidenceFromText(userText),preferences=evidence.preferences.filter(item=>item.modality==='priority')
     if(evidence.externalExpectations.length===1&&preferences.length===1){

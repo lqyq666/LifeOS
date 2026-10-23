@@ -29,6 +29,7 @@ test('family expectations preview only through the source-rendered distinction',
  for(const extra of ['，所以你当前应优先选择升学','，因此你应该选择升学','，你当前应优先选择升学','，升学应优先于就业','，是你犹豫的原因'])assert.equal(safeEarlySentence(JSON.stringify({reply:'家里希望走稳定路线'+extra+'。'}),120,'reply',user),null)
  for(const other of ['同学说：“'+user+'”','如果家里希望我走稳定路线，而我更在意留城，请更新判断。','我没说家里希望走稳定路线。请更新判断。',user+'请给一个小行动。',user.replace('请更新判断','不要更新判断')])assert.equal(groundedFeedbackPreview(other),null)
  for(const other of ['家里希望我走稳定路线。我自己更在意留在目前城市。请不要替我更新判断。','同学说，家里希望我走稳定路线。我自己更在意留在目前城市。请更新判断，不要替我选。'])assert.equal(groundedFeedbackPreview(other),null)
+ for(const stop of ['请不要替我更新判断。','不要更新判断。'])assert.equal(groundedFeedbackPreview(user+stop),null)
 })
 import {repairReviewedDefects} from '../server/review-repairs.ts'
 
