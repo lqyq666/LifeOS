@@ -41,6 +41,10 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
     // repeated fragments in the captured runtime failure; preserve the
     // documented default and require fresh capability evidence for this wire.
     body.presence_penalty=['qwen3.8-max','qwen3.8-flash'].includes(profile.id)&&thinkingBudget===0?1.5:0
+    // Transport terminators belong to the normal request contract, not to
+    // local diagnostics. Keep them narrow; business payloads are validated by
+    // the parser after the first complete object.
+    body.stop=['<tool_call>','<tool_','</parameter>','</function>','</tool_call>','<|tool_','[Follow-up interjection]']
     const compiled=providerSchema(schema,currentMessageId) as any
     if(eventTargets&&compiled.properties?.event){
       const target=compiled.properties?.event?.properties?.target

@@ -152,10 +152,14 @@ export function finalCoachJsonText(raw:string,onNormalization?:(kind:string)=>vo
     if(completed){onNormalization?.('missing_root_closing_brace');return completed}
   }
   let rest=first?text.slice(first.length).trimStart():''
+  // Transport-only HTML/analysis/result tags may follow the complete business
+  // frame; ignore that tail, including echoed prompt text. A tag inside the
+  // business JSON is already inside `first` and is never truncated here.
+  if(first&&/^<\/?(?:br|analysis|result)\b/i.test(rest)){onNormalization?.('transport_tag_tail_ignored');return first}
   // A captured provider emitted a redundant root closing brace, either alone
   // or before its explicit deliberation terminator. The complete frame is
   // already parsed; surplus closing braces carry no fields.
-  if(first&&/^[}\s]*$/.test(rest)){onNormalization?.('surplus_root_closing_brace');return first}
+  if(first&&/^}\s*$/.test(rest)){onNormalization?.('surplus_root_closing_brace');return first}
   if(/^[}\s]*<\/thinking>/.test(rest))rest=rest.replace(/^[}\s]*/,'')
   const canonical=(value:string)=>{try{return JSON.stringify(JSON.parse(value))}catch{return value}}
   const transportMarker=/^(?:<\/?(?:br|parameter|result|invoke|tool|function)\s*\/?>|<\|(?:tool_call(?:_end)?|tool_name|json_output)\|>)/i
