@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { graph, subscribeGraph, getGraphRevision } from './graph.ts'
-import { api, dataChanged, explainError } from '../../backend/client'
+import { graph, subscribeGraph, getGraphRevision, replaceGraph } from './graph.ts'
+import { api, ApiError, dataChanged, explainError } from '../../backend/client'
 import { ClickSpark } from '../../components/animations/ClickSpark'
 
 const KIND_LABELS: Record<string, string> = { goal: '目标', pursuit: '阶段追求', valued_point: '重视点', interest: '兴趣探索' }
@@ -17,6 +17,7 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
   const edges = node ? graph.data.edges.filter(edge => edge.type === 'RELATES_TO_VALUE' && edge.targetId === node.id) : []
   useEffect(() => { dialog.current?.showModal(); close.current?.focus(); const el = dialog.current; return () => el?.close() }, [])
   if (!node) return null
+  const directionPaused = (node as any).recommendationBoundary === 'direction_paused'
   const revision = node.themeRevision ?? 1
   const actLink = async (experienceServerId: string, themeId: string, action: 'confirm' | 'revoke') => {
     if (busy) return
@@ -30,15 +31,27 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
     if (busy) return
     setBusy(true); setError('')
     try {
-      await api(`/api/themes/${node.themeId}/actions`, { requestId: crypto.randomUUID(), expectedRevision: revision, action, ...(nextTitle !== undefined ? { title: nextTitle } : {}) })
+      const updated = await api(`/api/themes/${node.themeId}/actions`, { requestId: crypto.randomUUID(), expectedRevision: revision, action, ...(nextTitle !== undefined ? { title: nextTitle } : {}) })
+      // Use the committed receipt immediately. A delayed background read must
+      // not make a rapid second edit submit the previous revision or title.
+      const current = graph.getNode(node.id)
+      if (current && current.themeId === updated.id && updated.revision >= (current.themeRevision ?? 1)) {
+        replaceGraph({ ...graph.data, nodes: graph.data.nodes.map(item => item.id === node.id ? {
+          ...item, title: updated.title, themeRevision: updated.revision,
+          themeStatus: updated.status, themePinned: updated.pinned, themeUpdatedAt: updated.updated_at,
+        } : item) })
+      }
       dataChanged(); setRenaming(false); onClose()
-    } catch (caught) { setError(explainError(caught)) } finally { setBusy(false) }
+    } catch (caught) {
+      setError(explainError(caught))
+      if (caught instanceof ApiError && caught.code === 'THEME_REVISION_CONFLICT') dataChanged()
+    } finally { setBusy(false) }
   }
   return <dialog ref={dialog} className="record-panel theme-panel" aria-labelledby="theme-title" onCancel={event => { event.preventDefault(); onClose() }}>
     <div className="record-body">
       <header className="record-header">
         <button ref={close} onClick={onClose} aria-label="关闭主题详情，返回原位">返回</button>
-        <span className="theme-kinds">{KIND_LABELS[node.themeKind ?? 'pursuit'] ?? '主题'}{node.themeStatus === 'pending' ? ' · 待核对' : ''}{(node as any).recommendationBoundary === 'direction_paused' ? ' · 已暂停主动推荐' : ''}{node.themePinned ? ' · 已置顶' : ''}</span>
+        <span className="theme-kinds">{KIND_LABELS[node.themeKind ?? 'pursuit'] ?? '主题'}{node.themeStatus === 'pending' ? ' · 待核对' : ''}{node.themeStatus === 'paused' ? ' · 已暂缓' : ''}{(node as any).recommendationBoundary === 'direction_paused' ? ' · 已暂停主动推荐' : ''}{node.themePinned ? ' · 已置顶' : ''}</span>
       </header>
       <main className="record-content">
         <h2 id="theme-title">{node.title}</h2>
@@ -52,6 +65,7 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
           </form>
           : <p className="record-summary">{(node.description ?? '').split('\n').slice(1).join('\n') || '这个主题来自你说过的话；关联经历会随对话继续补充。'}</p>}
         {node.themeUpdatedAt && <p className="record-date">最近更新：{new Date(node.themeUpdatedAt).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}</p>}
+        {directionPaused && <p className="theme-primary-reason">你已在对话中暂停这个方向的主动推荐。如需恢复，点击“继续聊这个主题”，在对话中明确说“恢复{node.title}建议”；只打开主题不会取消你的暂停要求。</p>}
         <section className="record-story" aria-label="关联经历">
           <h3>关联经历（{linked.length}）</h3>
           {linked.length ? linked.map(id => {
@@ -74,14 +88,14 @@ export function ThemePanel({ themeNodeId, onClose }: { themeNodeId: string; onCl
           <ClickSpark sparkColor="#b89ad6">
           <button type="button" onClick={() => {
             onClose()
-            window.dispatchEvent(new CustomEvent('lifeos-open-conversation'))
             sessionStorage.setItem('lifeos:pending-conversation-draft', `聊聊「${node.title}」这个方向，帮我看看下一步`)
             sessionStorage.setItem('lifeos:focus-context', JSON.stringify({ type: 'theme', id: node.themeId, label: node.title.slice(0, 80) }))
+            window.dispatchEvent(new CustomEvent('lifeos-open-conversation'))
           }}>继续聊这个主题</button></ClickSpark>
           {!renaming && <button type="button" disabled={busy} onClick={() => { setRenaming(true); setTitle(node.title) }}>重命名</button>}
           <button type="button" disabled={busy} onClick={() => void act(node.themePinned ? 'unpin' : 'pin')}>{node.themePinned ? '取消置顶' : '置顶'}</button>
           {node.themeStatus !== 'paused' && node.themeStatus !== 'retired' && <button type="button" disabled={busy} onClick={() => void act('pause')}>暂缓</button>}
-          {node.themeStatus === 'paused' && <button type="button" disabled={busy} onClick={() => void act('resume')}>恢复</button>}
+          {node.themeStatus === 'paused' && !directionPaused && <button type="button" disabled={busy} onClick={() => void act('resume')}>恢复</button>}
           {node.themeStatus !== 'retired' && <button type="button" className="theme-danger" disabled={busy} onClick={() => void act('revoke')}>撤销主题</button>}
         </div>
       </main>

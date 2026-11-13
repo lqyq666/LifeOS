@@ -1,6 +1,8 @@
 ﻿import { Type, type Static } from 'typebox'
 import { Value } from 'typebox/value'
 import { growthDeltaSchema } from './growth-model-contracts.ts'
+import {decisionProposalSchema} from './decision-comparison.ts'
+import {resolveProcessSourceHandles} from './clause-catalogue.ts'
 
 const text=(maxLength=16000)=>Type.String({minLength:1,maxLength})
 const id=Type.String({pattern:'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'})
@@ -35,11 +37,17 @@ export const resumePortfolioDraftSchema=Type.Object({
 export const actionDraftSchema=Type.Union([legacyDraftSchema,resumePortfolioDraftSchema])
 const actionTarget={actionId:id,expectedRevision:Type.Integer({minimum:1})}
 export const actionChangeSchema=Type.Union([
-  Type.Object({operation:Type.Literal('create'),draft:actionDraftSchema},{additionalProperties:false}),
-  Type.Object({operation:Type.Literal('modify'),...actionTarget,draft:actionDraftSchema},{additionalProperties:false}),
+  Type.Object({operation:Type.Literal('create'),source:Type.Optional(processSourceSchema),draft:actionDraftSchema},{additionalProperties:false}),
+  Type.Object({operation:Type.Literal('modify'),...actionTarget,source:Type.Optional(processSourceSchema),draft:actionDraftSchema},{additionalProperties:false}),
   Type.Object({operation:Type.Literal('reuse'),...actionTarget},{additionalProperties:false}),
   Type.Object({operation:Type.Literal('close'),...actionTarget,reason:text(2000)},{additionalProperties:false}),
-],{description:'可选的实际行动变化。只交付成品时create/modify，确有现有行动才reuse/close；纯倾听、知识回答或仅追问时省略整个action，不能填空draft。'})
+],{description:'可选的实际行动变化。只交付成品时create/modify，确有现有行动才reuse/close；纯倾听、知识回答或仅追问时省略整个action，不能填空draft。source选择本轮明确要求这项行动的连续原句；同一消息有多个请求时必须提供，不能把另一个请求或事实当来源。'})
+export const matterReportSchema=Type.Object({
+  state:Type.Union([Type.Literal('proposed'),Type.Literal('accepted'),Type.Literal('unattempted'),Type.Literal('partial'),Type.Literal('attempted'),Type.Literal('waiting_result'),Type.Literal('adjusted'),Type.Literal('paused'),Type.Literal('ended'),Type.Literal('completed'),Type.Literal('blocked'),Type.Literal('unknown'),Type.Null()]),
+  choice:Type.Union([Type.Literal('accepted'),Type.Literal('declined'),Type.Null()]),
+  resumed:Type.Boolean(),
+  source:processSourceSchema,
+},{additionalProperties:false,description:'本轮本人对目标事项的状态报告。state与choice分别解释执行状态和选择；没有新报告的维度填null。接受建议仍未执行，部分完成仍有未完部分，动作完成但等待反馈用waiting_result。今天没空仅限制今天；明确暂停、结束或重新恢复才改变持续边界。只引用本轮本人报告，不把助手建议、假设或他人行动变成本人状态。'})
 export const eventDeltaSchema=Type.Object({
   target:Type.Union([
     Type.Object({operation:Type.Literal('create'),title:text(200),source:processSourceSchema},{additionalProperties:false,description:'仅用于没有对应已存在事件的新事情。用户回答上轮问题、补充制作或交付细节不是新事情，不得复制当前事件的标题再创建。标题只概括已知经过，不把未使用改成未反馈或拒绝。'}),
@@ -50,6 +58,7 @@ export const eventDeltaSchema=Type.Object({
   resolveUnknowns:Type.Optional(Type.Array(id,{maxItems:24,description:'仅标记授权事件中实际已回答的对应未知问题ID；按问题与回答对应，不因本轮有任何新事实就任意选择ID。记不清仍未知。'})),
   declineUnknowns:Type.Optional(Type.Array(id,{maxItems:24,description:'仅在用户明确拒绝回答对应问题时标记该问题ID；记不清不是拒答，不标记declined，也不转移到另一个旧问题。原因不想讲可保留为declined，另一个时间记不清仍active。'})),
   action:Type.Optional(actionChangeSchema),
+  matterReports:Type.Optional(Type.Array(matterReportSchema,{maxItems:8,description:'按原话顺序解释此事项本轮状态变化；没有状态变化用空数组，state与choice不能同时为null。服务器把报告来源投影到同一可控事实，不必为同一原话重复生成growthUpdates或factRefs；后续会话直接读取此解释。'})),
 },{additionalProperties:false,description:'仅在本人具体事件/目标的过程或行动确有变化时使用。不是对话话题分类；纯知识、概念解释、只倾听不建立event。没有事件变化时整字段省略，不只填target来凑结构。'})
 // Fix 3: the model only SELECTS which verified proposition it used (claimId =
 // the knowledge entry id from authorizedContext.knowledge). The server
@@ -64,7 +73,7 @@ export const coachCitationSchema=Type.Union([
 export type CoachCitation=Static<typeof coachCitationSchema>
 export const actionCoachTurnSchema=Type.Object({
   lead:Type.Optional(Type.String({minLength:0,maxLength:240,description:'首句预览：必须逐字等于reply第一句，不另写标题或另一种表述；不超过24个汉字，只给实际判断、具体起点或必要问题。禁止状态宣告、完成/发送/保存声明、承诺、材料正文或诊断。'})),
-  reply:Type.String({minLength:1,maxLength:16000,description:'先回应本轮新增内容与实际诉求，不重复上一轮回复或已经回答的问题，不强行转问感受。只更新理解或明确不行动时不给新任务；有关键未知才问。除非本人要求展开，通常一至四句，说完即停。交付材料时这里只写必要提醒或未知边界，不引用或复写成品，不额外解释材料的作用；完整可复制文本只放event.action.draft.content，由服务器展示同一材料。'}),
+  reply:Type.String({minLength:1,maxLength:16000,description:'先回应本轮新增内容与实际诉求，不重复上一轮回复或已经回答的问题，不强行转问感受。只更新理解或明确不行动时不给新任务；有关键未知才问。篇幅按任务需要展开，不固定句数；较长回答分段，并列内容逐项换行，用小标题和重点加粗帮助阅读，结构随问题变化。本人要求简短、只给一句或纯倾听时仍遵守。交付材料时这里只写必要提醒或未知边界，不引用或复写成品，不额外解释材料的作用；完整可复制文本只放event.action.draft.content，由服务器展示同一材料。'}),
   citations:Type.Optional(Type.Array(coachCitationSchema,{maxItems:6,description:'仅对确实使用的有效知识条目逐命题引用；普通追问、个人起草和倾听通常省略。不得编造来源。'})),
   event:Type.Optional(eventDeltaSchema),
   growthUpdates:Type.Optional(Type.Array(growthDeltaSchema,{maxItems:8,description:'只有当前个人情况、方向/近期判断或实际反馈新增/变化才给小粒度增量。普通知识/倾听无需建档。明确陈述与带局限的待核对AI观察分开，每条一项；不要求每轮补齐档案。'})),
@@ -107,7 +116,22 @@ export const actionCoachTurnSchema=Type.Object({
     links:Type.Optional(Type.Array(Type.Object({valueId:Type.Union([Type.Literal('value-creation'),Type.Literal('value-autonomy'),Type.Literal('value-growth')]),reason:Type.String({maxLength:2000,description:'为什么挂这个分类：引用原话中的词语说明，不编造'})},{additionalProperties:false}),{maxItems:3,description:'经历的价值分类（value-creation创造：做出作品或方案／value-autonomy自主：自己拿主意并承担结果／value-growth成长：从反馈更新认知）。按source原话内容选最贴切的，可多选；拿不准就省略，由服务器兜底。'})),
   },{additionalProperties:false,description:'用户报告本人已发生、已完成的具体行为与结果时输出：服务器把所选原话收入星图并按links挂分类；计划、技能或他人故事不输出。'})),
 },{additionalProperties:false,description:'reply是唯一必填字段。其余字段仅表示真实必要变化；知识或倾听可以只有reply。可选不是要求每轮创建对象，省略未发生的变化，不填空对象或空文案。'})
-export type ActionCoachTurn=Static<typeof actionCoachTurnSchema>
+// The provider capability fingerprint describes the established core API.
+// Per-turn provenance and decision fields are checked by the business lane.
+// Keep the proven core schema derived from that same definition.
+const capabilityEvent=actionCoachTurnSchema.properties.event
+const capabilityAction=capabilityEvent.properties.action
+export const coachCapabilitySchema={...actionCoachTurnSchema,properties:{
+  ...actionCoachTurnSchema.properties,
+  event:{...capabilityEvent,properties:{
+    ...Object.fromEntries(Object.entries(capabilityEvent.properties).filter(([key])=>key!=='matterReports')),
+    action:{...capabilityAction,anyOf:capabilityAction.anyOf.map(branch=>({
+      ...branch,properties:Object.fromEntries(Object.entries(branch.properties).filter(([key])=>key!=='source')),
+    }))},
+  }},
+}}
+const decisionTurnOutputSchema=Type.Object({...actionCoachTurnSchema.properties,decisionProposal:Type.Optional(decisionProposalSchema)},{additionalProperties:false})
+export type ActionCoachTurn=Static<typeof decisionTurnOutputSchema>
 export type EventDelta=Static<typeof eventDeltaSchema>
 export type ActionDraft=Static<typeof legacyDraftSchema>
 export type ResumePortfolioDraft=Static<typeof resumePortfolioDraftSchema>
@@ -152,17 +176,22 @@ export function finalCoachJsonText(raw:string,onNormalization?:(kind:string)=>vo
     if(completed){onNormalization?.('missing_root_closing_brace');return completed}
   }
   let rest=first?text.slice(first.length).trimStart():''
-  // Transport-only HTML/analysis/result tags may follow the complete business
-  // frame; ignore that tail, including echoed prompt text. A tag inside the
-  // business JSON is already inside `first` and is never truncated here.
-  if(first&&/^<\/?(?:br|analysis|result|body|html)\b/i.test(rest)){onNormalization?.('transport_tag_tail_ignored');return first}
+  // Delimited final business JSON must reach the same strict frame parser.
+  // Never classify an entire tag-prefixed tail as noise: it may contain the
+  // real final reply, or a conflicting second business frame.
+  if(first&&rest.startsWith('<analysis>')){
+    const end=rest.indexOf('</analysis>')
+    if(end<0)return text
+    rest=rest.slice(end)
+  }
+  if(first&&/^(?:<\/?(?:br|analysis|result|body|html)\s*\/?>\s*)+$/.test(rest)){onNormalization?.('empty_transport_tags');return first}
   // A captured provider emitted a redundant root closing brace, either alone
   // or before its explicit deliberation terminator. The complete frame is
   // already parsed; surplus closing braces carry no fields.
   if(first&&/^}\s*$/.test(rest)){onNormalization?.('surplus_root_closing_brace');return first}
   if(/^[}\s]*<\/thinking>/.test(rest))rest=rest.replace(/^[}\s]*/,'')
   const canonical=(value:string)=>{try{return JSON.stringify(JSON.parse(value))}catch{return value}}
-  const transportMarker=/^(?:<\/?(?:br|parameter|result|invoke|tool|function)\s*\/?>|<\|(?:tool_call(?:_end)?|tool_name|json_output)\|>)/i
+  const transportMarker=/^(?:<\/?(?:br|parameter|result|invoke|tool|function|body|html)\s*\/?>|<\|(?:tool_call(?:_end)?|tool_name|json_output)\|>)/i
   const stripTransportMarkers=(value:string)=>{let out=value.trimStart();while(true){const marker=transportMarker.exec(out);if(!marker)return out;out=out.slice(marker[0].length).trimStart()}}
   const onlyTransportMarkers=(value:string)=>stripTransportMarkers(value)===''
   const sameCompleteTail=(value:string):boolean=>{
@@ -208,7 +237,7 @@ export function finalCoachJsonText(raw:string,onNormalization?:(kind:string)=>vo
   }
   // Tool-parameter/result wrappers are transport. They may be followed by an
   // identical duplicate or by no business object, never by a conflicting one.
-  if(first&&/^<\/(?:parameter|result|invoke|tool|function)>/.test(rest)){
+  if(first&&/^<\/?(?:parameter|result|invoke|tool|function|body|html)>/.test(rest)){
     if(sameCompleteTail(rest)){onNormalization?.('wrapper_without_conflicting_frame');return first}
     return text
   }
@@ -248,11 +277,158 @@ export function finalCoachJsonText(raw:string,onNormalization?:(kind:string)=>vo
   return text
 }
 
-export type CoachOutputRejection={stage:'json'|'draft_reference'|'schema';issues?:{keyword:string;schemaPath:string}[]}
-export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExplanation?:boolean;allowEmptyReplyWithCompleteDraft?:boolean;onNormalization?:(kind:string)=>void;onRejection?:(diagnostic:CoachOutputRejection)=>void}={}):ActionCoachTurn {
+const analysisQuote=Type.Array(Type.String({pattern:'^(?:c[0-9]+|h[0-9]+_[0-9]+)$'}),{minItems:1})
+const answerObject={additionalProperties:false} as const
+const answerText=Type.String({minLength:1})
+const answerObservation=Type.Object({sources:analysisQuote,content:answerText},answerObject)
+const answerExplanation=Type.Object({kind:Type.Literal('explanation'),sources:analysisQuote,content:answerText},answerObject)
+const answerHypothesis=Type.Object({kind:Type.Literal('hypothesis'),content:answerText,check:answerText},answerObject)
+const replyAnalysisSchema=Type.Object({
+  observations:Type.Optional(Type.Array(answerObservation,{minItems:1})),
+  reasons:Type.Array(Type.Union([answerExplanation,answerHypothesis]),{minItems:1}),
+},answerObject)
+const replyObservationTestSchema=Type.Object({
+  baseline:answerText,
+  comparison:answerText,
+  record:Type.Object({lastStep:answerText,firstStop:answerText,firstDifference:answerText},answerObject),
+},answerObject)
+const replyAdjustmentSchema=Type.Object({
+  change:answerText,
+  check:answerText,
+},answerObject)
+const replyChoiceSchema=Type.Object({
+  check:answerText,
+  ifYes:answerText,
+  ifNo:answerText,
+},answerObject)
+const matchedTrialPrefix='\n\n保持第一次的其他条件，做第二次尝试：'
+
+const ordinaryAnswerSchema=Type.Union([
+  Type.Object({deliver:{...answerText,maxLength:16000}},answerObject),
+  Type.Object({choose:replyChoiceSchema},answerObject),
+  Type.Object({adjust:replyAdjustmentSchema},answerObject),
+  Type.Object({locate:replyObservationTestSchema},answerObject),
+  Type.Object({explain:replyAnalysisSchema},answerObject),
+])
+export function ordinaryAnswerWireSchema(reply:Record<string,unknown>,sourceIds:readonly string[]){
+  const branches=ordinaryAnswerSchema.anyOf
+  const {description,...plain}=reply
+  const bindSources=<T extends {properties:{sources:typeof analysisQuote}}>(item:T)=>({...item,properties:{...item.properties,sources:{...analysisQuote,items:{...analysisQuote.items,enum:sourceIds}}}})
+  const {observations,reasons}=replyAnalysisSchema.properties
+  const analysis={...replyAnalysisSchema,properties:{
+    ...(sourceIds.length?{observations:{...observations,items:bindSources(answerObservation)}}:{}),
+    reasons:{...reasons,items:{anyOf:sourceIds.length?[bindSources(answerExplanation),answerHypothesis]:[answerHypothesis]}},
+  }}
+  return {description,anyOf:[
+    {...branches[0],properties:{deliver:plain}},
+    branches[1],
+    branches[2],branches[3],{...branches[4],properties:{explain:analysis}},
+  ]}
+}
+
+export type GroundedReplyFrame={reply?:unknown;answer?:unknown}
+export function groundedReplyText(frame:GroundedReplyFrame|undefined|null,sourceIds:readonly string[],draft=false):string|undefined{
+  if(!frame||typeof frame!=='object'||Object.hasOwn(frame,'reply'))return
+  const answer=frame.answer
+  if(!Value.Check(ordinaryAnswerSchema,answer)){
+    // Stream the usable action before the observation fields arrive.
+    if(draft&&answer&&typeof answer==='object'&&Object.keys(answer).length===1){
+      if('choose' in answer&&answer.choose&&typeof answer.choose==='object'&&!Object.hasOwn(answer.choose,'ifNo')){
+        const {check,ifYes,...rest}=answer.choose as Record<string,unknown>
+        if(!Object.keys(rest).length&&typeof check==='string'&&check.trim()){
+          if(ifYes===undefined)return '先核对：'+check
+          if(typeof ifYes==='string'&&ifYes.trim())return '先核对：'+check+'\n\n如果是：'+ifYes
+        }
+      }
+      if('locate' in answer&&answer.locate&&typeof answer.locate==='object'&&!Object.hasOwn(answer.locate,'record')){
+        const {baseline,comparison,...rest}=answer.locate as Record<string,unknown>
+        if(!Object.keys(rest).length&&typeof baseline==='string'&&baseline.trim()){
+          if(comparison===undefined)return baseline
+          if(typeof comparison==='string'&&comparison.trim())return baseline+matchedTrialPrefix+comparison
+        }
+      }
+      if('adjust' in answer&&answer.adjust&&typeof answer.adjust==='object'&&Object.keys(answer.adjust).length===1&&'change' in answer.adjust){
+        const {change}=answer.adjust
+        if(typeof change==='string'&&change.trim())return change
+      }
+    }
+    return
+  }
+  // Keep blank checks local. Flash's strict decoder treated the unanchored
+  // non-whitespace pattern as a one-character grammar in real generation.
+  if('deliver' in answer)return answer.deliver.trim()?answer.deliver:undefined
+  if('choose' in answer){
+    const {check,ifYes,ifNo}=answer.choose
+    if(![check,ifYes,ifNo].every(part=>part.trim()))return
+    return '先核对：'+check+'\n\n如果是：'+ifYes+'\n\n如果不是：'+ifNo
+  }
+  if('adjust' in answer){
+    const {change,check}=answer.adjust
+    return change.trim()&&check.trim()?change+'\n\n这次记录：'+check:undefined
+  }
+  if('locate' in answer){
+    const {baseline,comparison,record}=answer.locate
+    const items=[record.lastStep,record.firstStop,record.firstDifference]
+    if(!baseline.trim()||!comparison.trim()||items.some(item=>!item.trim()))return
+    return baseline+matchedTrialPrefix+comparison+'\n\n记录项：\n'+items.map(item=>'- '+item).join('\n')
+  }
+  const {observations=[],reasons}=answer.explain
+  if([...observations,...reasons].some(part=>!part.content.trim()||('sources' in part&&part.sources.some(id=>!sourceIds.includes(id)))||('check' in part&&!part.check.trim())))return
+  return [...observations.map(part=>'观察：'+part.content),...reasons.map(part=>part.kind==='hypothesis'?'待验证假设：'+part.content+'\n验证办法：'+part.check:'有依据的解释：'+part.content)].join('\n\n')
+}
+
+// Check each object before JSON.parse can collapse duplicate keys, including
+// escaped aliases inside the evidence object and optional sidecars.
+export function duplicateTurnFrameKey(raw:string,forbiddenRootKey?:string):boolean {
+  const objects:(Set<string>|null)[]=[]
+  const tokens=/"(?:[^"\\\x00-\x1f]|\\.)*"|[{}\[\]]/gu
+  for(const token of raw.matchAll(tokens)){
+    const value=token[0]
+    if(value==='{'||value==='['){objects.push(value==='{'?new Set():null);continue}
+    if(value==='}'||value===']'){
+      if(!objects.length||(objects.at(-1)===null)!==(value===']'))return true
+      objects.pop();continue
+    }
+    const seen=objects.at(-1)
+    if(!seen||!/^\s*:/.test(raw.slice(token.index!+value.length)))continue
+    let key:string
+    try{key=JSON.parse(value)}catch{continue}
+    if(seen.has(key)||objects.length===1&&key===forbiddenRootKey)return true
+    seen.add(key)
+  }
+  return false
+}
+
+// Recover only the closed answer before a damaged optional sidecar. Keep the
+// original structured answer so it still goes through final validation.
+export function replyBeforeMalformedOptionalFields(raw:string,ordinaryAnswerSourceIds?:readonly string[]):{reply:string;field:string;wire:GroundedReplyFrame}|null {
+  if(duplicateTurnFrameKey(raw,ordinaryAnswerSourceIds?'reply':undefined))return null
+  try{
+    if(ordinaryAnswerSourceIds){
+      const start=/^\s*\{\s*"answer"\s*:\s*/u.exec(raw)
+      if(!start)return null
+      const answer=completeCoachJsonFrame(raw.slice(start[0].length))
+      if(!answer)return null
+      const field=/^\s*,\s*"(growthUpdates|event)"\s*:/u.exec(raw.slice(start[0].length+answer.length))?.[1]
+      const wire={answer:JSON.parse(answer)}
+      const reply=groundedReplyText(wire,ordinaryAnswerSourceIds)
+      return field&&reply?{reply,field,wire}:null
+    }
+    const frame=/^\s*\{\s*"reply"\s*:\s*("(?:[^"\\\x00-\x1f]|\\.)*")\s*,\s*"(growthUpdates|event)"\s*:/su.exec(raw)
+    if(!frame)return null
+    const reply=JSON.parse(frame[1]!) as string
+    return reply.trim()?{reply,field:frame[2]!,wire:{reply}}:null
+  }catch{return null}
+}
+export type CoachOutputRejection={stage:'json'|'draft_reference'|'schema';issues?:{keyword:string;schemaPath:string}[];sourceCode?:string}
+export function parseActionCoachTurn(raw:string,options:{sourceCatalogue?:Parameters<typeof resolveProcessSourceHandles>[1];replyOnly?:boolean;ordinaryAnswerSourceIds?:readonly string[];allowDecisionProposal?:boolean;projectDecisionProposal?:(value:unknown)=>unknown;allowEmptyMaterialExplanation?:boolean;allowEmptyReplyWithCompleteDraft?:boolean;feedbackProgress?:(clauseId:string)=>'completed'|'unattempted'|'attempted'|'stuck'|'unknown'|undefined;onNormalization?:(kind:string)=>void;onRejection?:(diagnostic:CoachOutputRejection)=>void}={}):ActionCoachTurn {
   const unframed=raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')
   const text=finalCoachJsonText(unframed,options.onNormalization)
   let output:unknown
+  if(options.ordinaryAnswerSourceIds&&duplicateTurnFrameKey(text)){
+    options.onRejection?.({stage:'schema',issues:[{keyword:'uniqueKeys',schemaPath:'/'}]})
+    throw new Error('ACTION_COACH_OUTPUT_INVALID')
+  }
   try{output=JSON.parse(text)}catch(error){
     // A captured complete reply-only frame omitted escaping around a short
     // literal phrase. Normalize only that serialization defect, verbatim.
@@ -263,6 +439,20 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
     if(!body||!pairs?.length||pairs.length>2||pairs.some(pair=>!/[\p{L}\p{N}]/u.test(pair))||body.replace(literal,'').includes('"')){options.onRejection?.({stage:'json'});throw error}
     output=JSON.parse('{"reply":'+JSON.stringify(body)+'}')
     options.onNormalization?.('quoted_reply_literal')
+  }
+  if(options.ordinaryAnswerSourceIds){
+    const wire=output as GroundedReplyFrame
+    const reply=groundedReplyText(wire,options.ordinaryAnswerSourceIds)
+    if(reply===undefined){
+      options.onRejection?.({stage:'schema',issues:[{keyword:'answerShapeOrEvidence',schemaPath:'/properties/answer'}]})
+      throw new Error('ACTION_COACH_OUTPUT_INVALID')
+    }
+    wire.reply=reply
+    delete wire.answer
+  }
+  if(options.replyOnly&&output&&typeof output==='object'&&!Array.isArray(output)&&Object.keys(output).some(key=>key!=='reply')){
+    output={reply:(output as {reply?:unknown}).reply}
+    options.onNormalization?.('read_only_reply_sidecars_removed')
   }
   // A provider can close `event` before its node list and leave `nodes` at the
   // root. Move only that already-present list into an event that has none.
@@ -281,6 +471,10 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   // create: keep its source selector, never infer a personal preference/goal,
   // accept free prose or turn it into an edit of an existing memory.
   if(Array.isArray(updates))for(const update of updates){
+    if(update&&update.kind==='feedback'&&update.assertion==='user_reported'&&update.progressState===undefined&&typeof update.source?.clauseId==='string'){
+      const progress=options.feedbackProgress?.(update.source.clauseId)
+      if(progress){update.progressState=progress;options.onNormalization?.('feedback_progress_from_current_clause')}
+    }
     // The provider sometimes places the correction target id beside `target`
     // instead of inside it. Move only that already-present identity; never
     // infer a target.
@@ -347,9 +541,14 @@ export function parseActionCoachTurn(raw:string,options:{allowEmptyMaterialExpla
   const action=(output as any)?.event?.action
   const completeOrdinaryDraft=action&&['create','modify'].includes(action.operation)&&draft&&typeof draft==='object'&&!('kind'in draft)&&typeof draft.content==='string'&&draft.content.trim().length>0
   const mayOmitReply=options.allowEmptyMaterialExplanation&&draft?.kind==='resume_portfolio'||options.allowEmptyReplyWithCompleteDraft&&(output as any)?.reply===''&&completeOrdinaryDraft
+  if(options.allowDecisionProposal&&options.projectDecisionProposal&&output&&typeof output==='object'&&Object.hasOwn(output,'decisionProposal'))(output as any).decisionProposal=options.projectDecisionProposal((output as any).decisionProposal)
+  if(options.sourceCatalogue){
+    try{resolveProcessSourceHandles(output,options.sourceCatalogue,options.onNormalization)}catch(error){options.onRejection?.({stage:'schema',issues:[{keyword:'source',schemaPath:'/event/source'}],sourceCode:error instanceof Error&&/^[A-Z_]{1,80}$/.test(error.message)?error.message:'PROCESS_SOURCE_INVALID'});throw error}
+  }
+  const outputSchema=options.allowDecisionProposal?decisionTurnOutputSchema:actionCoachTurnSchema
   const schema=mayOmitReply
-    ?{...actionCoachTurnSchema,properties:{...actionCoachTurnSchema.properties,reply:{...actionCoachTurnSchema.properties.reply,minLength:0}}}
-    :actionCoachTurnSchema
+    ?{...outputSchema,properties:{...outputSchema.properties,reply:{...outputSchema.properties.reply,minLength:0}}}
+    :outputSchema
   if(!Value.Check(schema,output)){
     // Only schema-owned locations are retained. instancePath, params and
     // messages can contain arbitrary model text or user data.

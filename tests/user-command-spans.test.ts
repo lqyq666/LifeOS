@@ -1,13 +1,31 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
+test('a new conversation can state saved background without offering advice',()=>{
+ const request='这是一个全新对话。请从你已经保存的资料里简短说出：我的学校、年级、专业，我在做什么产品，以及我最看重的三件事。没有依据的不要猜，也先别给建议。'
+ assert.equal(currentConversationOnly(request),false)
+ assert.equal(assistantRequestClause('请从你已经保存的资料里简短说出：我的学校'),true)
+ assert.equal(currentConversationOnly(request+'算了，我只想聊聊。'),true)
+ assert.equal(currentConversationOnly('同学说请从你已经保存的资料里简短说出我的学校。我只想聊聊。'),true)
+ assert.equal(currentConversationOnly('我只想聊聊。如果我请你根据保存的资料说出我的专业，先不要建议。'),true)
+ assert.equal(readbackRequestClause('请根据你保存的资料说出我应该选哪个工作'),false)
+})
+
+test('an explicit factual readback still answers when advice is refused',()=>{
+ assert.equal(currentConversationOnly('请只读回我现在的专业，以及我本人负责的小组工作；不要给建议或更改记录。'),false)
+ assert.equal(currentConversationOnly('不要给建议，请读回我之前报告的专业。'),false)
+ assert.equal(currentConversationOnly('请读回我的专业。算了，我只想聊聊。'),true)
+ assert.equal(currentConversationOnly('同学说请读回我的专业。我只想聊聊。'),true)
+ assert.equal(currentConversationOnly('“请读回我的专业”，我只想聊聊。'),true)
+})
+
 test('a later substantive summary request overrides listening without inventing a task',()=>{
  assert.equal(currentConversationOnly('我只想聊聊，给我一句阶段理解。'),false)
  assert.equal(currentConversationOnly('给我一句阶段理解，但现在只想聊聊，不要总结。'),true)
  assert.equal(currentConversationOnly('我只想聊聊，朋友说给我一句阶段理解。'),true)
 })
 import {weeklyTimeIntent} from '../server/turn-obligations.ts'
-import {scanUserClauses,parseExactHours,assistantRequestClause,responseRequestScope,currentConversationOnly} from '../server/user-command-spans.ts'
+import {scanUserClauses,parseExactHours,assistantRequestClause,responseRequestScope,currentConversationOnly,readbackRequestClause,conversationPreferenceClause} from '../server/user-command-spans.ts'
 
 test('direct sentence-scoped understanding requests share the existing summary authority',()=>{
  for(const text of ['用一句话说明当前理解和仍未知的地方。','请只用一句话概括当前判断。','以一句表述当前理解。']){
@@ -18,6 +36,20 @@ test('direct sentence-scoped understanding requests share the existing summary a
 })
 import {reportedPreferenceClauses,reportedPursuitClauses,reportedOutcomeSourceClauses} from '../server/turn-contract.ts'
 import {reconcileActionStages} from '../server/workflows/action-review.ts'
+
+test('passive requests to be heard select listening rather than a personal pursuit',()=>{
+ for(const text of ['我现在只想被听见','我今天希望被倾听','今天我只想被理解','我现在只想被听见，不想分析方向']){
+  assert.equal(conversationPreferenceClause(text),true,text)
+  assert.equal(currentConversationOnly(text),true,text)
+  assert.deepEqual(reportedPursuitClauses(text),[],text)
+ }
+ for(const text of ['我想成为一名倾听者','我希望做帮助听障人士的工具','我最近听不见右耳的声音'])assert.equal(conversationPreferenceClause(text),false,text)
+})
+
+test('bounded negative interpretations remain facts while noncommitment instructions remain instructions',()=>{
+ for(const text of ['不等于拒绝我','不代表我没有能力','不等于我不喜欢科研'])assert.equal(assistantRequestClause(text),false,text)
+ for(const text of ['不代表我已选择','不代表我已经接受','不等于我已经执行','不要把建议写成我的经历'])assert.equal(assistantRequestClause(text),true,text)
+})
 
 test('embedded content questions in an owned intention retain the stated goal and outcome',()=>{
  const text='不是因为老师要求；我会主动继续整理，主要想更快看出哪些信息关键，减少自己反复找东西的时间。我还不知道这是否只是一次偶然。'
@@ -214,4 +246,9 @@ test('scanUserClauses keeps absolute offsets, quotes, code and sentence facts',(
   assert.equal(scanUserClauses('按我提供的作品分工，我负责哪些部分，哪些不能算在我身上？')[1]!.interrogative,true,'an earlier clause in a compound recall question is still a question')
   assert.equal(scanUserClauses('我想了解哪些方向符合我的约束。')[0]!.interrogative,false,'a plan to learn is not a direct question')
   assert.equal(scanUserClauses('我负责排版，我承担哪些其他任务？')[0]!.interrogative,false,'the preceding actual fact remains a fact')
+})
+
+test('interpretation instructions are not new personal facts and do not swallow first-person reports',()=>{
+ for(const text of ['先按这个意思理解','请按上述定义回答','暂时根据我说的原话分析'])assert.equal(assistantRequestClause(text),true,text)
+ for(const text of ['我先按这个意思理解了课程材料','我主要在意能自己安排专注工作的时间','我想了解这个定义'])assert.equal(assistantRequestClause(text),false,text)
 })

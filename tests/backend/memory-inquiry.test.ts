@@ -47,7 +47,9 @@ test('distinct event constraints stay with their original raw sources and never 
     const firstReply=await engine({run:firstRun,staged:firstStaged,context:firstContext,decision:null,signal:firstSignal,emit:()=>{}})
     await store.finishRun(firstRun,firstStaged,firstReply.text,firstReply.usage,firstSignal)
     const firstEvent=(await coachEventView(user,conversation))!
-    assert.equal(firstEvent.nodes[0].content,firstText)
+    const firstFacts=['我想准备志愿咨询','每周最多四小时','帮助同学整理资料']
+    assert.deepEqual(new Set(firstEvent.nodes.map(node=>node.content)),new Set(firstFacts))
+    assert.ok(firstEvent.nodes.every(node=>node.source?.messageId===firstRun.source_message_id&&node.source.quote===node.content),'each split fact retains its exact original message source')
 
     const secondText='这是另一个问题：我想尝试社团宣传，每周最多一小时，请切换方向，不沿用之前的时间安排。'
     const secondRun=(await store.startRun(user,conversation,randomUUID(),secondText)).run
@@ -56,15 +58,17 @@ test('distinct event constraints stay with their original raw sources and never 
     const secondStaged:store.Staged={candidates:[],audit:[]},secondSignal=new AbortController().signal
     const secondReply=await engine({run:secondRun,staged:secondStaged,context:secondContext,decision:null,signal:secondSignal,emit:()=>{}})
     const secondPrompt=JSON.parse(bodies.at(-1).messages.find((message:any)=>message.role==='user').content)
-    assert.equal(secondPrompt.currentEvent.id,firstEvent.id,'history is available with its event identity, not silently converted into new conditions')
+    assert.equal(secondPrompt.readOnlyEventWorkspace.eventRef.id,firstEvent.id,'history is available with its event identity, not silently converted into new conditions')
     assert.equal(secondPrompt.knownProfile.length,0)
     await store.finishRun(secondRun,secondStaged,secondReply.text,secondReply.usage,secondSignal)
 
     const secondEvent=(await coachEventView(user,conversation))!
     assert.notEqual(secondEvent.id,firstEvent.id)
-    assert.equal(secondEvent.nodes[0].content,secondText)
+    const secondFacts=['这是另一个问题：我想尝试社团宣传','每周最多一小时','请切换方向','不沿用之前的时间安排']
+    assert.deepEqual(new Set(secondEvent.nodes.map(node=>node.content)),new Set(secondFacts))
+    assert.ok(secondEvent.nodes.every(node=>node.source?.messageId===secondRun.source_message_id&&node.source.quote===node.content),'the switched matter keeps only its own split message sources')
     assert.ok(!secondEvent.nodes.some(node=>node.content.includes('四小时')))
-    assert.equal((await coachEventView(user,conversation,firstEvent.id))!.nodes[0].content,firstText)
+    assert.deepEqual(new Set((await coachEventView(user,conversation,firstEvent.id))!.nodes.map(node=>node.content)),new Set(firstFacts))
     assert.equal((await pool.query('SELECT 1 FROM memory_items WHERE user_id=$1',[user])).rowCount,0)
     assert.equal((await pool.query('SELECT 1 FROM campus_inquiries WHERE user_id=$1',[user])).rowCount,0)
   }finally{

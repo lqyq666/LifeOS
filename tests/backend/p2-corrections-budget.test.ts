@@ -29,7 +29,7 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
       if(output===undefined){res.writeHead(500);res.end();return}
       if(output&&typeof output==='object'&&'reply'in output&&output.reply==='__BOUND_REPLY__'){
         const context=JSON.parse(requests.at(-1).messages[1].content)
-        output.reply=context.boundedReply?.choices[0]??'可以先核对可用时间和当前任务。'
+        output.reply=requests.at(-1).response_format?.json_schema?.schema?.properties?.reply?.enum?.[0]??'可以先核对可用时间和当前任务。'
       }
       const content=typeof output==='string'?output:JSON.stringify(output)
       res.writeHead(200,{'Content-Type':'text/event-stream'})
@@ -98,12 +98,12 @@ test('P2: explicit corrections persist and plans bind supplement facts (isolated
       const input=await prepare('更正一下：我现在更喜欢做产品运营了。')
       // No deterministic target (unrelated old item), model output claims success.
       const beforeReq=requests.length
-      outputs.push({reply:'已经把你的方向更正为产品运营了。'},{reply:'已记录你现在更喜欢做产品运营；原来的兴趣记录还没改，需要你再说一次原话我才能更新。'})
-      const result=await engine(input)
-      assert.ok(requests.length-beforeReq>=2,'one bounded repair fired')
-      await store.finishRun(input.run,input.staged,result.text,result.usage,input.signal)
+      outputs.push({reply:'已经把你的方向更正为产品运营了。'})
+      await assert.rejects(engine(input),(e:any)=>e.code==='REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
+      assert.equal(requests.length-beforeReq,1,'false write claim is refused without automatic repair')
+      await store.terminateRun(user,input.run.request_id,'failed','SYNTHETIC_FALSE_CORRECTION_CLAIM')
       const items=await growthContext(user,conversation)
-      assert.ok(items.some(item=>item.text.includes('更喜欢做产品运营')),'verbatim new value recorded')
+      assert.ok(!items.some(item=>item.text.includes('更喜欢做产品运营')),'failed turn does not commit a partial correction')
       assert.ok(items.some(item=>item.text.includes('我每周三小时练琴')),'unrelated old fact untouched')
     })
     await t.test('P3 cross-turn: a failed correction stays outstanding and a later 已更正 claim is refused',async()=>{

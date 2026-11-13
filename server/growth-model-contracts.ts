@@ -67,7 +67,7 @@ export type ResolvedTimeEvidence=
   |{kind:'calendar_week';which:'this'|'next';quote:string}
 export type ResolvedGrowthTarget=
   |{operation:'create'}
-  |{operation:'replace'|'amend';itemId:string;expectedRevision:number;beforeQuote?:string}
+  |{operation:'replace'|'amend';itemId:string;expectedRevision:number;beforeQuote?:string;field?:'education.major'}
 type DistributiveOmit<T,K extends keyof never>=T extends unknown?Omit<T,K>:never
 export type ResolvedGrowthDelta=DistributiveOmit<GrowthInputDelta,'source'|'target'|'timeEvidence'>&{
   source:{messageId:string;quote:string}

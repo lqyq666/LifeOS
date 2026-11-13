@@ -29,6 +29,25 @@ async function giveGoalAndExperience(user: string) {
   return { conversation, goal, experience, message }
 }
 
+test('pausing and resuming a theme never resurrects an explicitly revoked experience link',async()=>{
+ const user=await seedUser('resume-revoked-link'),{experience}=await giveGoalAndExperience(user)
+ await setMemorySettings(user,{requestId:randomUUID(),enabled:true,expectedRevision:0})
+ let theme=(await pool.query('SELECT * FROM user_themes WHERE user_id=$1',[user])).rows[0]
+ await store.themeLinkAction(user,experience,theme.id,{requestId:randomUUID(),action:'revoke'})
+ theme=await store.themeAction(user,theme.id,{requestId:randomUUID(),expectedRevision:theme.revision,action:'pause'})
+ assert.equal((await readStarMapContext(pool,user))?.linkedExperiences.length??0,0)
+ await store.themeAction(user,theme.id,{requestId:randomUUID(),expectedRevision:theme.revision,action:'resume'})
+ assert.equal((await pool.query('SELECT status FROM experience_theme_links WHERE user_id=$1 AND experience_id=$2',[user,experience])).rows[0].status,'retired')
+ assert.equal((await readStarMapContext(pool,user))?.linkedExperiences.length??0,0)
+ const other=await seedUser('resume-live-link'),live=await giveGoalAndExperience(other)
+ await setMemorySettings(other,{requestId:randomUUID(),enabled:true,expectedRevision:0})
+ let active=(await pool.query('SELECT * FROM user_themes WHERE user_id=$1',[other])).rows[0]
+ active=await store.themeAction(other,active.id,{requestId:randomUUID(),expectedRevision:active.revision,action:'pause'})
+ assert.equal((await readStarMapContext(pool,other))?.linkedExperiences.length??0,0)
+ await store.themeAction(other,active.id,{requestId:randomUUID(),expectedRevision:active.revision,action:'resume'})
+ assert.equal((await readStarMapContext(pool,other))?.linkedExperiences.length,1)
+})
+
 test('star map context obeys the memory switch, active links, source validity and cross-account isolation', async () => {
   const user = await seedUser('trust'), stranger = await seedUser('stranger')
   const { goal, experience } = await giveGoalAndExperience(user)

@@ -88,3 +88,14 @@ export function AnswerChoices({ question, draft, inputRef, onDraft, onAnswer, on
     </footer>
   </form>
 }
+
+// Opening intents are actions, not a personal-fact confirmation form.
+export function OpeningChoices({ question, disabled, onChoose }: { question: AnswerQuestion; disabled: boolean; onChoose: (option: AnswerOption) => void }) {
+  return <section className="qa-opening-choices" aria-label="开始方式">
+    <p className="qa-opening-label">从这里开始，也可以直接输入</p>
+    {question.options.map(option => <button key={option.id} type="button" disabled={disabled} className="qa-opening-option" onClick={() => onChoose(option)}>
+      <Icon name={option.action === 'write' ? 'compose' : option.action === 'explore' ? 'orbit' : 'memory'} size={19} />
+      <span><strong>{option.label}</strong><small>{option.description}</small></span><Icon name="arrow" size={16} />
+    </button>)}
+  </section>
+}

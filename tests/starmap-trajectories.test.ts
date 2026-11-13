@@ -74,7 +74,7 @@ const TRAJECTORIES: { label: string; stages: Stage[] }[] = [
   },
   {
     label: '就业', stages: [
-      { name: '追求', input: '我目标是毕业前拿到产品实习', expect: t => t.themes.some(x => x.title === '就业' && x.status === 'active') },
+      { name: '追求', input: '我目标是毕业前拿到产品实习', expect: t => t.themes.some(x => x.title === '毕业前拿到产品实习' && x.status === 'active') },
       { name: '行动', input: '昨天我投了三份产品岗的简历', expect: t => t.experiences.length >= 1 },
       { name: '关系', input: '', expect: t => t.relations.length >= 1 },
     ],
@@ -102,9 +102,9 @@ const TRAJECTORIES: { label: string; stages: Stage[] }[] = [
   },
   {
     label: '留学', stages: [
-      { name: '追求', input: '我计划申请香港的研究生', expect: t => t.themes.some(x => x.title === '留学') },
+      { name: '追求', input: '我计划申请香港的研究生', expect: t => t.themes.some(x => x.title === '申请香港的研究生') },
       { name: '行动', input: '上学期我考了雅思，总分7分', expect: t => t.experiences.some(e => e.includes('雅思')) },
-      { name: '关系(同义词回填)', input: '', expect: t => t.relations.some(r => /留学/.test(r.theme)) },
+      { name: '关系(同义词回填)', input: '', expect: t => t.relations.some(r => r.theme==='申请香港的研究生') },
     ],
   },
   {
@@ -115,7 +115,7 @@ const TRAJECTORIES: { label: string; stages: Stage[] }[] = [
   },
   {
     label: '跨专业', stages: [
-      { name: '追求', input: '我想从土木转到数据分析', expect: t => t.themes.some(x => x.title === '跨专业') },
+      { name: '追求', input: '我想从土木转到数据分析', expect: t => t.themes.some(x => x.title === '从土木转到数据分析') },
       { name: '行动', input: '上个月我完成了数据分析的一个实战项目', expect: t => t.experiences.length >= 1 },
     ],
   },
@@ -152,7 +152,7 @@ const TRAJECTORIES: { label: string; stages: Stage[] }[] = [
   },
   {
     label: '生活平衡', stages: [
-      { name: '边界追求', input: '这学期不再熬夜赶工', expect: t => t.themes.some(x => x.title === '生活平衡' && x.status === 'active') },
+      { name: '边界追求', input: '这学期不再熬夜赶工', expect: t => t.themes.some(x => x.title === '不再熬夜赶工' && x.status === 'active') },
       { name: '行动', input: '昨天我拒绝了社团的第三次加班请求，早点回去休息了', expect: t => t.experiences.length >= 1 },
     ],
   },
@@ -170,9 +170,9 @@ test('G5: sixteen longitudinal trajectories pass the full deterministic pipeline
     const context = new Trajectory(trajectory.label)
     const failures: string[] = []
     for (const stage of trajectory.stages) {
-      const RELATE_HINTS: Record<string, string> = { 校园创业: '创业', 自由职业: '自由职业', 就业: '就业', 保研: '保研', 考研: '考研', 科研: '科研' }
+      const RELATE_HINTS: Record<string, string> = { 校园创业: '创业', 自由职业: '自由职业', 就业: '产品实习', 保研: '保研', 考研: '考研', 科研: '科研' }
       if (stage.name === '关系') context.relate(RELATE_HINTS[trajectory.label] ?? trajectory.label, context.experiences.length - 1)
-      if (stage.name === '关系(同义词回填)') context.relate('留学', context.experiences.length - 1)
+      if (stage.name === '关系(同义词回填)') context.relate('申请香港的研究生', context.experiences.length - 1)
       if (stage.name === '关系(同义词)') context.relate('科研', context.experiences.length - 1)
       if (stage.input) {
         if (stage.name === '行动' || stage.name.includes('结果') || stage.name.includes('事件') || stage.name === '探索态' && false) context.act(stage.input)
@@ -203,14 +203,14 @@ test('G5 compound: 先有经历后成主题的回填、身份自述后否定、�
   const compound = new Trajectory('compound')
   compound.say('我想试试做知识区自媒体')
   compound.say('这学期不再熬夜赶工')
-  assert.ok(compound.themes.some(t => t.title==='自媒体'&&t.kind === 'exploration') && compound.themes.some(t => t.title==='生活平衡'&&t.status==='active'), '自媒体 exploration 与 休息 boundary pursuit 并存')
+  assert.ok(compound.themes.some(t => t.title==='自媒体'&&t.kind === 'exploration') && compound.themes.some(t => t.title==='不再熬夜赶工'&&t.status==='active'), '自媒体 exploration 与 休息 boundary pursuit 并存')
 })
 
 test('starmap enrichment: skill tags, blocked detection, external feedback', async () => {
   const { extractSkillTags, isBlockedExperience, isExternalFeedback } = await import('../server/starmap-enrichment.ts')
   // 技能标签：从行动/结果原话提取
-  assert.deepEqual(extractSkillTags('我设计了一套海报', '', '设计海报'), ['设计'])
-  assert.deepEqual(extractSkillTags('我写了Python爬虫', '', ''), ['写作', '编程', '数据分析'])
+  assert.deepEqual(extractSkillTags('我设计了一套海报', '', '我设计了一套海报'), ['设计'])
+  assert.deepEqual(extractSkillTags('我写了Python爬虫', '', ''), ['编程'])
   assert.deepEqual(extractSkillTags('我去食堂吃了饭', '', '吃饭'), [])
   // 未完成识别
   assert.equal(isBlockedExperience('', '', '实验报告还没写完，卡在数据分析'), true)

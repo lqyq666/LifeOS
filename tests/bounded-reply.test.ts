@@ -89,6 +89,14 @@ test('same-time conflicting responses cannot be ordered by fact-array order',()=
  assert.equal(taskOutcomeReadback(combined[1].text,undefined,true).response.status,'unknown')
  assert.equal(taskOutcomeReadback('对方已经看过但没有读过',undefined,true).read.status,'unknown')
 })
+test('aggregate rejection vocabulary is not a concrete participant response',()=>{
+ for(const text of ['导师拒绝率是20%','导师拒绝 率是20%','导师拒绝\n率是20%','导师拒绝作品集链接的比例是20%','导师拒绝作品集链接占比20%','导师拒绝总数是20','导师拒绝总量是20','导师拒绝汇总还没做','导师拒绝分析如下','导师拒绝情况见下表','导师拒绝作品集链接的情况见下表','导师拒绝作品集链接的情况见下表了','导师拒绝情况汇总报告了','导师否决率近期上升','导师拒绝率提高了'])assert.equal(taskOutcomeReadback(text,undefined,true).response.status,'unknown',text)
+ assert.equal(taskOutcomeReadback('导师后来明确拒绝了作品集链接',undefined,true).response.status,'reported_response')
+ assert.equal(taskOutcomeReadback('导师拒绝了报告',undefined,true).response.status,'reported_response','a report can be the exact rejected object')
+ assert.equal(taskOutcomeReadback('导师明确拒绝报告了',undefined,true).response.status,'reported_response','sentence-final perfective 了 makes 报告 the concrete rejected object')
+ assert.equal(taskOutcomeReadback('导师拒绝我的项目报告了',undefined,true).response.status,'reported_response','a modified report object remains a concrete sentence-final rejection')
+ assert.equal(taskOutcomeReadback('导师明确拒绝了作品集链接，但拒绝率统计还没做',undefined,true).response.status,'reported_response','a nearby aggregate does not erase the exact rejection')
+})
 test('own contact excludes delegated or observed third-party actions and distinguishes role suffixes',()=>{
  for(const text of ['我让同学联系了学长','我看到同学联系了导师','我知道同学发了邮件','我亲眼看到同学联系了学长','我收到消息说同学发了邮件','我确认同学发了邮件','我收到学长发了邮件']){
   assert.doesNotMatch(boundedRecallReply('目前是否已经联系？',[{text,createdAt:'2026-10-12T00:00:00Z'}]).choices[0],/按较后报告的联系进展/)
@@ -164,22 +172,55 @@ test('new task starts preserve contracting and recurring-budget boundaries inste
 })
 import {safeEarlySentence} from '../server/reply-draft.ts'
 import {knowledgeIntent} from '../server/evergreen-guide.ts'
-import {deriveTurnContract,reportedPerformedTaskClauses,taskOutcomeReadback} from '../server/turn-contract.ts'
+import {deriveTurnContract,reportedPerformedTaskClauses,requestedQuestionEditClauses,taskOutcomeReadback,completeUserReply} from '../server/turn-contract.ts'
 const make=(text:string,extra:Partial<Parameters<typeof boundedOrdinaryReply>[0]>={})=>boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default',...extra})
+
+test('an explicit follow-up note is complete and inline unfilled fields are not',()=>{
+ const request='请说明当前理解。'
+ assert.ok(completeUserReply('这次已核对三列。\n\n【待补】下次有整块时间时再说，现在不追问。',request))
+ for(const note of ['下次有整块时间时再说，现在不追问原因或感受……','“下次有时间再说。”'])assert.ok(completeUserReply('【待补】'+note,request),note)
+ assert.ok(completeUserReply('你这次去掉了3条重复问卷。\n\n【待补】若你能提供本次使用的具体软件（如Excel、Python pandas等）及判定重复的具体依据，可给出更针对性的验证步骤。',request))
+  assert.ok(completeUserReply('先问什么算完成。\n\n**【待补】** 交付格式仍未确认，先向负责人核对是否要附代码。',request))
+  assert.ok(completeUserReply('先问什么算完成。\n\n**【待补】** 交付格式：仍未确认，先向负责人核对是否要附代码。',request))
+  const missing='【待补】你尚未说明自己的专业和感兴趣的具体方向，以上步骤不依赖这些信息也能执行'
+  assert.ok(completeUserReply(missing+'；若你愿意补充，下次可以帮你把搜索词收得更准。',request))
+  assert.ok(completeUserReply(missing+'。',request))
+  assert.equal(completeUserReply(missing+'；报名已替你提交。',request),false)
+  assert.equal(completeUserReply(missing+'；若你愿意补充，下次可以帮你把。',request),false)
+  assert.equal(completeUserReply(missing+'；若你愿意补充，下次可以帮你把【待补】。',request),false)
+  assert.equal(completeUserReply(missing+'；若你愿意补充，后续可以帮你把搜索词收得更准且报名已替你提交。',request),false)
+  assert.equal(completeUserReply(missing.replace('专业和','专业且报名已替你提交和')+'。',request),false)
+  assert.equal(completeUserReply('【待补】你尚未说明专业但目前更适合就业，以上步骤不依赖这些信息也能执行。',request),false)
+  assert.equal(completeUserReply('【待补】你尚未说明专业，以上步骤不依赖这些信息也能执行；若你愿意补充，下次可以帮你把报名直接提交。',request),false)
+  assert.equal(completeUserReply('**【待补】** 姓名。',request),false)
+ assert.equal(completeUserReply('【待补】若你能提供数据，可给出',request),false)
+ for(const text of ['【待补】','姓名：【待补】 年龄：20','专业：【待补】，学校：成都理工大学。','【待补：姓名】 学校：成都理工大学。','【待补】 年龄：20','【待补】下次补充，姓名：【待补】','【待补】下次再说，姓名：','【待补】下次再说，姓名：张三。','【待补】姓名','【待补】姓名。','【待补】下次复诊时间……','【待补】下次有时间再说。姓名。','【待补】“下次有时间再说。”姓名。','【待补】下次有时间再说，姓名。'])assert.equal(completeUserReply(text,request),false,text)
+ for(const separator of ['；',';','、','．','—',' ','\t','｜','']){
+  const text='【待补】下次有时间再说'+separator+'姓名。'
+  assert.equal(completeUserReply(text,request),false,text)
+ }
+ for(const text of ['【待补】下次有时间再说，现在不追问 姓名已替你提交报名。','【待补】下次有时间再说 报名已替你提交 明天再确认。','【待补】“下次有时间再说。』'])assert.equal(completeUserReply(text,request),false,text)
+ assert.ok(completeUserReply('姓名：【待补】','请帮我写一份填空模板。'))
+})
+
+test('a priority help question keeps free grounded help instead of a fixed declaration acknowledgement',()=>{
+ assert.equal(make('接着上次方向变化，我今天该优先做什么？'),null)
+ assert.equal(make('我应该优先哪一件事'),null)
+ assert.ok(make('我现在优先处理课程作业。'))
+})
 test('an explicit request to continue a known unavailable resource uses the same blocked boundary',()=>{
  const bounded=make('这次课程的资料网页无法打开，我尚未开始准备课堂汇报，先处理这个卡点。')
  assert.equal(bounded?.stage,'blocked');assert.ok(bounded?.choices.every(s=>!s.includes('校园网')&&!s.includes('换个网络')))
 })
-test('source-free ordinary choices separate preparation, actual blockage and unknown response',()=>{
- const start=make('我还有两小时准备明天的课堂汇报，先做哪一步？')!
+test('ordinary advice generates for the current situation while known blockage and unknown response remain distinct',()=>{
+ for(const text of ['我还有两小时准备明天的课堂汇报，先做哪一步？','我写课程报告时总把开头写得太长。怎么让第一段更清楚？给我一个今天能用的办法。','社团开会时我有个想法没讲清，怎样在下次发言前把它理顺？','刚看完一章课本，觉得自己看懂了。怎样简单检验一下是不是真的懂了？'])assert.equal(make(text),null,text)
  const waiting=make('我发给学长的问题还没有回复，今天还要催吗？')!
  const blocked=make('昨天作业没做完，今晚怎么调整？')!
- assert.equal(start.stage,'start');assert.equal(waiting.stage,'waiting_result');assert.equal(blocked.stage,'blocked')
+ assert.equal(waiting.stage,'waiting_result');assert.equal(blocked.stage,'blocked')
  assert.equal(make('我今天没按原计划做完作业，想调整一个小步骤。')!.stage,'blocked')
- assert.equal(start.basis,'editorial_adaptation');assert.equal(start.sourceStatus,'NO_PUBLIC_METHOD')
+ assert.equal(waiting.basis,'editorial_adaptation');assert.equal(waiting.sourceStatus,'NO_PUBLIC_METHOD')
  assert.ok(waiting.choices.every(s=>!s.includes('明天再')&&!s.includes('更容易得到回应')))
  assert.ok(blocked.choices.every(s=>!s.includes('自责')&&!s.includes('很正常')))
- assert.ok(start.choices.every(s=>!s.includes('分钟')),'no invented budget allocation')
  assert.ok(blocked.choices.some(s=>s.includes('不重新安排整套')))
 })
 test('a first complete authorized editorial sentence can display provisionally without surfacing arbitrary model claims',()=>{
@@ -253,6 +294,89 @@ test('a continued interview uses the authorized revised question and cannot reop
  const reply=boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract:deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),knowledgeCount:0,tier:'default',priorInterviewQuestion:'最近一次卡在什么地方'})!
  assert.ok(reply.choices.every(c=>c.includes('最近一次卡在什么地方')))
  assert.ok(reply.choices.every(c=>!c.includes('尚未联系')&&!c.includes('起草消息')))
+})
+
+test('a question edit stops before an unrelated third-party statement',()=>{
+ const spacedColon='创业访谈： 我想把访谈问题改成上次遇到什么困难。'
+ assert.deepEqual(requestedQuestionEditClauses(spacedColon).map(clause=>clause.text),['我想把访谈问题改成上次遇到什么困难'])
+ const text='创业访谈，我想把访谈问题改成上次遇到什么困难，导师已经回答了另一个问题。'
+ assert.deepEqual(requestedQuestionEditClauses(text).map(clause=>clause.text),['我想把访谈问题改成上次遇到什么困难'])
+ const secondPersonStatement='创业访谈，我想把访谈问题改成你上次遇到什么困难，你已经完成了报告。'
+ assert.deepEqual(requestedQuestionEditClauses(secondPersonStatement).map(clause=>clause.text),['我想把访谈问题改成你上次遇到什么困难'])
+ const unrelatedQuestion='创业访谈，我想把访谈问题改成上次遇到什么困难，今天天气怎么样？'
+ assert.deepEqual(requestedQuestionEditClauses(unrelatedQuestion).map(clause=>clause.text),['我想把访谈问题改成上次遇到什么困难'])
+ const unrelatedWhyQuestion='创业访谈，我想把访谈问题改成上次遇到什么困难，为什么会下雨？'
+ assert.deepEqual(requestedQuestionEditClauses(unrelatedWhyQuestion).map(clause=>clause.text),['我想把访谈问题改成上次遇到什么困难'])
+ const unrelatedNounQuestion='创业访谈，我想把访谈问题改成上次遇到什么困难，今天日期是什么？'
+ assert.deepEqual(requestedQuestionEditClauses(unrelatedNounQuestion).map(clause=>clause.text),['我想把访谈问题改成上次遇到什么困难'])
+ const unrelatedStatement='创业访谈，我想把访谈问题改成上次遇到什么困难，天气很好。'
+ assert.deepEqual(requestedQuestionEditClauses(unrelatedStatement).map(clause=>clause.text),['我想把访谈问题改成上次遇到什么困难'])
+ const cohesiveQuestion='创业访谈，我想把访谈问题改成上次遇到的最大困难是什么，原因是什么？'
+ assert.deepEqual(requestedQuestionEditClauses(cohesiveQuestion).map(clause=>clause.text),['我想把访谈问题改成上次遇到的最大困难是什么，原因是什么'])
+ const separateQuestion='我想把访谈问题改成上次遇到什么困难，我该考研吗？'
+ assert.deepEqual(requestedQuestionEditClauses(separateQuestion).map(clause=>clause.text),['我想把访谈问题改成上次遇到什么困难'])
+})
+
+test('mentioning a previous interview cannot swallow a new mentor-contact question',()=>{
+ const reply=make('我上次做了访谈，接下来怎么联系导师？',{priorInterviewQuestion:'最近一次卡在什么地方'})!
+ assert.equal(reply.stage,'start')
+ assert.ok(reply.choices.every(choice=>/联系|交流|发出/.test(choice)&&!choice.includes('最近一次卡在什么地方')))
+ const yesNo=make('我上次做了访谈，接下来联系导师好吗？',{priorInterviewQuestion:'最近一次卡在什么地方',knowledgeCount:1})
+ assert.equal(yesNo,null,'a new contact question with knowledge available stays on the model path')
+ const unrelated=make('我上次做了访谈，接下来宿舍矛盾怎么处理？',{priorInterviewQuestion:'最近一次卡在什么地方',knowledgeCount:1})
+ assert.equal(unrelated,null,'an unrelated new-matter question cannot reuse the old interview shortcut')
+ const declarative=make('我上次做了访谈，接下来宿舍矛盾很难处理。',{priorInterviewQuestion:'最近一次卡在什么地方',knowledgeCount:1})
+ assert.equal(declarative,null,'a completed interview mention cannot swallow a declarative new matter')
+ const decision=make('继续上次访谈，接下来问什么专业更好？',{priorInterviewQuestion:'最近一次卡在什么地方',knowledgeCount:1})
+ assert.equal(decision,null,'问什么 followed by a new decision object is not an interview-continuation command')
+})
+
+test('a prior interview shortcut cannot swallow a new completed matter report',()=>{
+ const text='继续上次访谈，我已经完成了英语六级复习。'
+ assert.equal(make(text,{priorInterviewQuestion:'最近一次卡在什么地方',knowledgeCount:1}),null)
+})
+
+test('a prior interview shortcut cannot swallow a new future plan',()=>{
+ const text='继续创业访谈，接下来我会先验证定价。'
+ assert.equal(make(text,{priorInterviewQuestion:'最近一次客户拒绝在哪一步',knowledgeCount:1}),null)
+})
+test('a bare interview continuation cannot swallow a declarative new matter',()=>{
+ const text='继续上次访谈，宿舍矛盾现在很严重。'
+ assert.equal(make(text,{priorInterviewQuestion:'最近一次客户拒绝在哪一步',knowledgeCount:1}),null)
+})
+test('an explicit interview material rewrite outranks the continuation shortcut',()=>{
+  for(const text of ['继续上次访谈，把访谈问题改成一句更短的话。','继续上次访谈，改短这个访谈问题。']){
+   const contract=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+   assert.equal(boundedOrdinaryReply({text,intent:knowledgeIntent(text),contract,knowledgeCount:0,tier:'default',material:true,priorInterviewQuestion:'最近一次卡在什么地方'}),null,text)
+  }
+ const mixed='继续上次访谈，把简历改成一页版。'
+ const mixedContract=deriveTurnContract({text:mixed,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+ assert.equal(boundedOrdinaryReply({text:mixed,intent:knowledgeIntent(mixed),contract:mixedContract,knowledgeCount:0,tier:'default',material:true,priorInterviewQuestion:'最近一次卡在什么地方'}),null,'an unrelated deliverable cannot be swallowed by interview continuation')
+ const followups='继续上次访谈，给我三个追问。'
+ const followupContract=deriveTurnContract({text:followups,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+ assert.equal(boundedOrdinaryReply({text:followups,intent:knowledgeIntent(followups),contract:followupContract,knowledgeCount:0,tier:'default',material:true,priorInterviewQuestion:'最近一次卡在什么地方'}),null,'an explicit follow-up-question deliverable keeps its requested cardinality')
+ for(const artifact of ['继续上次访谈，帮我整理一份访谈纪要。','继续上次访谈，整理一份问题清单。']){
+  const artifactContract=deriveTurnContract({text:artifact,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+  assert.equal(boundedOrdinaryReply({text:artifact,intent:knowledgeIntent(artifact),contract:artifactContract,knowledgeCount:0,tier:'default',material:true,priorInterviewQuestion:'最近一次卡在什么地方'}),null,artifact)
+ }
+ for(const artifact of ['继续上次访谈，帮我写一份访谈脚本。','继续上次访谈，帮我写一份访谈话术。']){
+  const artifactContract=deriveTurnContract({text:artifact,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+  assert.equal(boundedOrdinaryReply({text:artifact,intent:knowledgeIntent(artifact),contract:artifactContract,knowledgeCount:0,tier:'default',material:true,priorInterviewQuestion:'最近一次卡在什么地方'}),null,artifact)
+ }
+ for(const artifact of ['继续上次访谈，分析这次访谈记录中的三个共同需求。','继续上次访谈，提取并归纳访谈记录里的共同需求。']){
+  const artifactContract=deriveTurnContract({text:artifact,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+  assert.equal(boundedOrdinaryReply({text:artifact,intent:knowledgeIntent(artifact),contract:artifactContract,knowledgeCount:0,tier:'default',material:true,priorInterviewQuestion:'最近一次卡在什么地方'}),null,artifact)
+ }
+ const portrait='继续上次访谈，帮我生成一张用户画像。'
+ const portraitContract=deriveTurnContract({text:portrait,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+ assert.equal(boundedOrdinaryReply({text:portrait,intent:knowledgeIntent(portrait),contract:portraitContract,knowledgeCount:0,tier:'default',material:true,priorInterviewQuestion:'最近一次卡在什么地方'}),null)
+ const makePortrait='继续上次访谈，做一张用户画像。'
+ const makePortraitContract=deriveTurnContract({text:makePortrait,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+ assert.equal(boundedOrdinaryReply({text:makePortrait,intent:knowledgeIntent(makePortrait),contract:makePortraitContract,knowledgeCount:0,tier:'default',material:true,priorInterviewQuestion:'最近一次卡在什么地方'}),null)
+ for(const artifact of ['继续上次访谈，帮我设计一份用户画像。','继续上次访谈，画一份用户画像。','继续上次访谈，产出一份用户画像。']){
+  const contract=deriveTurnContract({text:artifact,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+  assert.equal(boundedOrdinaryReply({text:artifact,intent:knowledgeIntent(artifact),contract,knowledgeCount:0,tier:'default',material:true,priorInterviewQuestion:'最近一次卡在什么地方'}),null,artifact)
+ }
 })
 
 test('a natural problem-discovery request provides an editorial first interview step',()=>{

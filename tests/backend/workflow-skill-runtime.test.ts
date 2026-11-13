@@ -61,6 +61,19 @@ test('feedback keeps its kind and a completed Skill trace binds the actual expla
  const execution=trace.rows.find(row=>row.skillPhase==='output_validated')!
  assert.equal(execution.skill,'lifeos-growth-diff');assert.deepEqual(execution.usedEvidenceIds,[source.ref.id]);assert.equal(execution.providerCalls,0)
  assert.notEqual(execution.outputRefDigest,trace.rows.find(row=>row.skill===execution.skill&&row.skillPhase==='loaded')!.outputRefDigest)
+ assert.equal(trace.rows.some(row=>row.skill==='lifeos-experience-evidence'),false,'feedback alone does not load the experience Skill')
+})
+
+test('an actual experience validates and uses the experience evidence Skill before the growth delta',()=>{
+ const f=fixture();f.request.mode='growth_diff'
+ const source={...f.records[0]!,ref:{type:'experience' as const,id:randomUUID(),revision:1}}
+ f.request.authorizedEvidenceRefs=[source.ref];f.request.budget=null
+ const after=[{ref:source.ref,kind:'experience' as const,status:'active' as const,assertion:'user_reported' as const,text:source.text}]
+ const trace=createTrace(),changes=growthDiff(f.request,{traceId:f.request.traceId,requestId:f.request.requestId,committed:true,changedIds:[source.ref.id]},[],after,[source],row=>trace.append(row))
+ assert.equal(changes.length,1);assert.match(changes[0]!.now,/本人经历/)
+ const experience=trace.rows.find(row=>row.skill==='lifeos-experience-evidence'&&row.skillPhase==='output_validated')
+ assert.ok(experience);assert.deepEqual(experience.usedEvidenceIds,[source.ref.id]);assert.equal(experience.providerCalls,0)
+ assert.deepEqual(changes[0]!.evidenceRefs,[source.ref]);assert.deepEqual(changes[0]!.unknowns,['这次任务范围外的稳定能力与实际适配仍未知。'])
 })
 
 

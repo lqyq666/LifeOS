@@ -119,3 +119,16 @@ test('present location guard does not confuse applying, contacting or researchin
 test('deictic activity descriptions are not place nouns',()=>{
  for(const text of ['我正在一个项目里调研医院，访谈还没开始。','我正在一个项目中联系学校，暂时没有回复。'])assert.ok(reportedSourceContextClauses(text,[text.split('，')[0]!]).some(c=>c.text.includes(text.split('，')[0]!)),text)
 })
+
+
+test('observed same-week allocation correction without an explicit pronoun replaces only the same activity',()=>{
+ const old={id:'direction-time',revision:1,kind:'constraint' as const,assertion:'user_edit',text:'本周只能给方向探索两小时，其他周可用时间还未确认。'}
+ const text='更正本周的时间：现在只剩三十分钟用于方向探索，之前说本周两小时已不适用。其他周的时间仍未确认。请只更新这项时间理解，保留其他事实，不创建任务。'
+ const plan=planExplicitCorrection(text,[old])
+ assert.equal(plan?.target?.itemId,old.id)
+ assert.equal(plan?.target?.beforeQuote,'本周只能给方向探索两小时')
+ assert.ok(plan?.newQuote.includes('三十分钟用于方向探索'))
+ assert.equal(planExplicitCorrection(text,[old,{...old,id:'existing-new',text:plan!.newQuote}])?.target?.itemId,old.id,'an already-stored new value does not hide a conflicting old field')
+ assert.equal(planExplicitCorrection(text,[{...old,text:'本周只能给课程复习两小时'}])?.target,undefined)
+ assert.equal(planExplicitCorrection(text,[{...old,text:'每周能给方向探索两小时'}])?.target,undefined)
+})

@@ -2,9 +2,10 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
 import {pool,transaction,HttpError} from '../../server/db.ts'
-import {loadSnapshot,stageCoachBackground,getMemoryView,setMemorySettings,applyMemoryAction,assertMemoryEvidence,persistChanges} from '../../server/memory.ts'
+import {loadSnapshot,stageCoachBackground,getMemoryView,setMemorySettings,applyMemoryAction,assertMemoryEvidence,assertSnapshotStillValid,persistChanges} from '../../server/memory.ts'
 import {stageCoachEvent} from '../../server/action-coach-events.ts'
 import * as store from '../../server/store.ts'
+import {buildClauseCatalogue,clauseMessageSource} from '../../server/clause-catalogue.ts'
 
 test('V1.3 stable background is opt-in, exact-current-source, editable, forgettable and atomic; event constraints stay in the event',async()=>{
   const user='coach-background-'+randomUUID(),signal=new AbortController().signal
@@ -42,6 +43,32 @@ test('V1.3 stable background is opt-in, exact-current-source, editable, forgetta
     const cross=await loadSnapshot(user,second,'准备新的课程项目')
     assert.equal(cross.profile.find(item=>item.key==='education.major')?.value,'计算机专业')
     assert.ok(!cross.profile.some(item=>item.key==='availableTime'))
+    const deletedSourceChat=randomUUID(),deletedMemoryId=randomUUID(),deletedValue='SQL分析',deletedText='我熟悉SQL分析。'
+    await store.createConversation(user,{id:deletedSourceChat,title:'将删除的记忆来源'})
+    const deletedRun=(await store.startRun(user,deletedSourceChat,randomUUID(),deletedText)).run
+    await store.finishRun(deletedRun,{candidates:[],audit:[]},'已记录。',null,signal)
+    await pool.query("INSERT INTO memory_items(id,user_id,kind,key,value,assertion,scope,source_refs,observed_at,valid_from,status) VALUES($1,$2,'fact','skills',$3,'user_reported','user',$4,now(),now(),'active')",[deletedMemoryId,user,JSON.stringify(deletedValue),JSON.stringify([{type:'message',conversationId:deletedSourceChat,messageId:deletedRun.source_message_id,quote:deletedText}])])
+    const deletedSnapshot=await loadSnapshot(user,second,'继续准备项目')
+    assert.equal(deletedSnapshot.profile.find(item=>item.id===deletedMemoryId)?.value,deletedValue)
+    await store.deleteConversation(user,deletedSourceChat)
+    let snapshotError:string|undefined,citationError:string|undefined
+    try{await transaction(c=>assertSnapshotStillValid(c,user,deletedSnapshot,[{memoryId:deletedMemoryId,revision:1}]))}catch(error:any){snapshotError=error?.code}
+    try{await assertMemoryEvidence(user,deletedMemoryId,1,true)}catch(error:any){citationError=error?.code}
+    const deletedView=await getMemoryView(user)
+    assert.equal(snapshotError,'MEMORY_SNAPSHOT_INVALIDATED','commit validation rejects a fact whose source conversation was deleted')
+    assert.equal(citationError,'MEMORY_EVIDENCE_STALE','deleted transcript cannot remain citation evidence')
+    assert.ok(!deletedView.items.some(item=>item.id===deletedMemoryId),'memory details cannot expose a fact from a deleted transcript')
+    const duplicateQuote='我熟悉Python建模',duplicateText=`${duplicateQuote}；${duplicateQuote}。`
+    const duplicateRun=(await store.startRun(user,second,randomUUID(),duplicateText)).run
+    const duplicateSnapshot=await loadSnapshot(user,second,duplicateText)
+    await assert.rejects(()=>stageCoachBackground(user,second,duplicateRun.source_message_id,[{key:'skills',value:'Python建模',source:{messageId:duplicateRun.source_message_id,quote:duplicateQuote}}],duplicateSnapshot),(error:any)=>error.code==='COACH_BACKGROUND_INVALID','a repeated literal without a server-owned clause selection is ambiguous')
+    const duplicateClause=buildClauseCatalogue(duplicateText).at(-1)!
+    const exactDuplicateSource=clauseMessageSource(duplicateRun.source_message_id,duplicateClause)
+    const duplicateChanges=await stageCoachBackground(user,second,duplicateRun.source_message_id,[{key:'skills',value:'Python建模',source:exactDuplicateSource}],duplicateSnapshot)
+    assert.deepEqual(duplicateChanges[0]?.evidence.range,{start:duplicateClause.start,end:duplicateClause.end},'the canonical clause handle binds the intended repeated occurrence exactly')
+    await store.finishRun(duplicateRun,{candidates:[],audit:[],snapshot:duplicateSnapshot,memoryChanges:duplicateChanges},'已按当前原话记录。',null,signal)
+    const duplicateSaved=(await pool.query("SELECT source_refs FROM memory_items WHERE user_id=$1 AND key='skills' AND status='active'",[user])).rows[0]
+    assert.deepEqual(duplicateSaved.source_refs[0].range,duplicateChanges[0]?.evidence.range,'the exact server-owned occurrence survives persistence')
     const target=pool as any,original=target.query
     target.query=function(sql:string,...args:any[]){if(sql.startsWith('SELECT enabled,revision FROM user_memory_settings'))throw new Error('synthetic read failure');return original.call(this,sql,...args)}
     try{await assert.rejects(()=>loadSnapshot(user,chat,'继续'),(e:any)=>e.code==='MEMORY_LOAD_FAILED')}finally{target.query=original}

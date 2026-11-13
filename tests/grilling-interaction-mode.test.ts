@@ -17,7 +17,7 @@ test('stable evidence instructions are cacheable without losing user context or 
  const original=providerTurnMessages(serialized,profile),cached=providerTurnMessages(serialized,profile,system)
  const before=JSON.parse(original[0]!.content as string),after=JSON.parse(cached[0]!.content as string)
  const removed=before.currentTask.responseScope.rules.filter((rule:string)=>!after.currentTask.responseScope.rules.includes(rule))
- assert.equal(removed.length,15)
+ assert.equal(removed.length,16)
  for(const rule of removed)assert.ok(system.includes(rule),'removed instruction remains in actual system prompt')
  assert.ok((original[0]!.content as string).length-(cached[0]!.content as string).length>1400)
  assert.deepEqual(cached.slice(1),original.slice(1),'all actual dialogue roles and text are unchanged')
@@ -129,9 +129,9 @@ test('internal placeholder paragraphs do not become asserted gaps or overwrite r
  assert.equal(repairReviewedDefects(template,'请给我一个填空模板。')?.reply??template,template)
 })
 
-test('ordinary summaries are concise while explicit detailed and material requests keep their format',()=>{
+test('ordinary summaries allow detail while explicit single-sentence and material requests keep their format',()=>{
  const bind=(text:string)=>bindRequestedSummarySchema(deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),text)
- assert.equal((bind('请更新当前理解。').schema.properties as any).reply.maxLength,100)
+ assert.equal((bind('请更新当前理解。').schema.properties as any).reply.maxLength,16000)
  assert.ok((bind('请详细更新当前理解。').schema.properties as any).reply.maxLength>200)
  assert.ok((bind('请全面说明当前理解。').schema.properties as any).reply.maxLength>200)
  assert.equal((bind('请给一句阶段理解。').schema.properties as any).reply.maxLength,240)
@@ -202,7 +202,7 @@ test('explicit first-person crisis switches off growth, event and planning lanes
 test('normal prompt carries server-derived grilling mode and exact policy fingerprint',()=>{
   const id='00000000-0000-4000-8000-000000000001'
   const prompt=JSON.parse(buildTurnPrompt({currentMessageId:id,messages:[{id,role:'user',content:'我在就业和考研之间犹豫。'}]}))
-  assert.equal(prompt.grilling.policyVersion,'lifeos-grilling/1.0.19')
+  assert.equal(prompt.grilling.policyVersion,'lifeos-grilling/1.0.21')
   assert.equal(prompt.grilling.interactionMode,'explore')
   assert.match(prompt.grilling.policyDigest,/^[a-f0-9]{64}$/)
 })

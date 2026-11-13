@@ -5,9 +5,16 @@ import {explicitTimeEvidenceCandidates} from './growth-time.ts'
 
 type ProviderProfile={provider:string;id:string}
 export type OutputPath='turn'|'repair'
-// Bailian strict JSON Schema returns HTTP 400 for uniqueItems. Keep it in the
-// authoritative TypeBox schema and local selector validation; omit only on wire.
-const nonProviderSchemaKeys=new Set(['~optional','$schema','$id','uniqueItems'])
+const nativeStrictSchemaModels=new Set(['qwen3.8-flash','qwen3.8-max','qwen3.7-plus'])
+export function supportsNativeStrictSchema(profile:ProviderProfile){
+  return profile.provider==='bailian'&&nativeStrictSchemaModels.has(profile.id)
+}
+// Bailian strict JSON Schema does not support these array constraints. Keep
+// coverage/uniqueness in the authoritative schema and local validation; omit
+// only on wire. https://help.aliyun.com/zh/model-studio/qwen-structured-output
+const nonProviderSchemaKeys=new Set(['~optional','$schema','$id','uniqueItems','contains','minContains','maxContains','additionalItems'])
+const namedSchemaMapKeys=new Set(['properties','$defs','definitions','dependentSchemas','patternProperties','dependencies'])
+const literalSchemaDataKeys=new Set(['const','enum','default','examples','dependentRequired'])
 
 export function outputTokenLimit(profile:ProviderProfile,tier:ModelTier){
   return profile.provider==='bailian'&&profile.id==='deepseek-v4.1-flash'&&tier==='reasoning'?16384:8192
@@ -20,9 +27,41 @@ function providerSchema(value:unknown,currentMessageId?:string):unknown{
   if(Array.isArray(schema.anyOf)&&schema.anyOf.length&&schema.anyOf.every(item=>item&&typeof item==='object'&&(item as Record<string,unknown>).type==='string'&&typeof(item as Record<string,unknown>).const==='string')){
     return {type:'string',enum:schema.anyOf.map(item=>(item as Record<string,unknown>).const)}
   }
-  return Object.fromEntries(Object.entries(schema).filter(([key])=>!nonProviderSchemaKeys.has(key)).map(([key,item])=>[
-    key,key==='messageId'&&currentMessageId?{...item as Record<string,unknown>,enum:[currentMessageId]}:providerSchema(item,currentMessageId),
-  ]))
+  return Object.fromEntries(Object.entries(schema).filter(([key])=>!nonProviderSchemaKeys.has(key)).map(([key,item])=>{
+    // Named-schema maps contain user field/definition names, not keywords.
+    if(namedSchemaMapKeys.has(key)&&item&&typeof item==='object'&&!Array.isArray(item)){
+      return [key,Object.fromEntries(Object.entries(item).map(([name,child])=>{
+        const compiled=providerSchema(child,currentMessageId)
+        return [name,key==='properties'&&name==='messageId'&&currentMessageId?{...compiled as Record<string,unknown>,enum:[currentMessageId]}:compiled]
+      }))]
+    }
+    // These values are data: their object keys must never be compiled as schemas.
+    return [key,literalSchemaDataKeys.has(key)?structuredClone(item):providerSchema(item,currentMessageId)]
+  }))
+}
+
+// Ordinary reply-first turns already carry the semantic rules in the system
+// policy. Keep the reply's request-specific guidance, but do not resend that
+// policy dozens of times as nested JSON Schema descriptions. Validation,
+// enums, bounds and source/identity bindings are untouched.
+function compactReplyFirstDescriptions(schema:any):void{
+  const properties=schema?.properties
+  const first=Object.keys(properties??{})[0]
+  if(!properties||(first!=='answer'&&first!=='reply')||!properties.growthUpdates&&!properties.event)return
+  const replyDescription=properties[first]?.description
+  const strip=(value:any)=>{
+    if(Array.isArray(value)){for(const item of value)strip(item);return}
+    if(!value||typeof value!=='object')return
+    delete value.description
+    for(const [key,child] of Object.entries(value)){
+      if(literalSchemaDataKeys.has(key))continue
+      if(namedSchemaMapKeys.has(key)&&child&&typeof child==='object'&&!Array.isArray(child)){
+        for(const schemaNode of Object.values(child))strip(schemaNode)
+      }else strip(child)
+    }
+  }
+  strip(schema)
+  if(typeof replyDescription==='string')properties[first].description=replyDescription
 }
 
 export function configureProviderPayload(payload:unknown,profile:ProviderProfile,tier:ModelTier,schema:unknown=actionCoachTurnSchema,schemaName='lifeos_action_coach',maxOutputTokens?:number,currentMessageId?:string,eventTargets?:readonly {id:string;revision:number;activeUnknownIds?:readonly string[];nodeIds?:readonly string[];actionIds?:readonly string[]}[],growthTargets?:readonly {id:string;revision:number}[],thinkingBudget=0,requireMaterial=false,resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds?:readonly string[],requireCandidate=false,growthTimeBinding?:{clauses:readonly ClauseHandle[];requestTimeUtc:string}):unknown{
@@ -30,7 +69,7 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
   if(!payload||typeof payload!=='object'||Array.isArray(payload))return payload
   const body={...payload as Record<string,unknown>}
   if(profile.provider!=='bailian')return payload
-  if(['qwen3.8-flash','qwen3.8-max','qwen3.7-plus'].includes(profile.id)){
+  if(supportsNativeStrictSchema(profile)){
     if(!Number.isSafeInteger(thinkingBudget)||thinkingBudget<0||thinkingBudget>4096||(thinkingBudget>0&&(!maxOutputTokens||thinkingBudget>=maxOutputTokens)))throw new Error('QWEN_THINKING_BUDGET_INVALID')
     body.enable_thinking=thinkingBudget>0
     delete body.reasoning_effort
@@ -240,6 +279,7 @@ export function configureProviderPayload(payload:unknown,profile:ProviderProfile
       if(profile.id==='qwen3.8-flash')compiled.properties.event=bounded.length===1?bounded[0]:{description:event.description,anyOf:bounded}
       else event.anyOf=bounded
     }
+    compactReplyFirstDescriptions(compiled)
     body.response_format={type:'json_schema',json_schema:{name:schemaName,strict:true,schema:compiled}}
     if(maxOutputTokens)body.max_completion_tokens=maxOutputTokens
     delete body.max_tokens

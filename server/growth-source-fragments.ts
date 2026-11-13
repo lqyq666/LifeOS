@@ -1,6 +1,6 @@
 /** Pure provenance-preserving amendment. Database ownership/CAS checks are separate. */
 export type Source =
-  | { type: 'message'; id: string; quote: string }
+  | { type: 'message'; id: string; quote: string; range?:{start:number;end:number} }
   | { type: 'user_edit'; quote: string }
 export type Fragment = { text: string; source: Source }
 export class FragmentError extends Error {
@@ -28,12 +28,19 @@ export function joinFragments(fragments: readonly Fragment[]): string {
 export function fromLegacyText(text: string, sources: readonly Source[]): Fragment[] {
   if (!text.trim() || text.length > MAX_TEXT) fail('GROWTH_FRAGMENT_INVALID')
   const candidates = sources.filter(source => source.quote.includes(text))
-  const identities = new Map(candidates.map(source => [
-    source.type === 'message' ? `message:${source.id}` : 'user_edit', source,
-  ]))
+  if(candidates.some(source=>source.quote.indexOf(text,source.quote.indexOf(text)+1)>=0))fail('GROWTH_COMPOSITE_REQUIRES_REVIEW')
+  const identities = new Map(candidates.map(source => {
+    const selected=sliceSource(source,text,source.quote.indexOf(text))
+    return [selected.type==='message'?JSON.stringify(['message',selected.id,selected.range?[selected.range.start,selected.range.end]:source.quote]):'user_edit',selected] as const
+  }))
   if (identities.size !== 1) fail('GROWTH_COMPOSITE_REQUIRES_REVIEW')
   const source = [...identities.values()][0]!
-  return [{ text, source: { ...source, quote: text } }]
+  return [{ text, source }]
+}
+
+export function sliceSource(source:Source,quote:string,offset=source.quote.indexOf(quote)):Source{
+  const {range,...base}=source as Extract<Source,{type:'message'}>
+  return {...base,quote,...(range&&offset>=0?{range:{start:range.start+offset,end:range.start+offset+quote.length}}:{})} as Source
 }
 
 /** All boundaries use JS UTF-16 offsets internally; the model never supplies offsets. */
@@ -45,7 +52,7 @@ function sliceFragments(parts: readonly Fragment[], start: number, end: number):
     const hi = Math.min(end - offset, part.text.length)
     if (hi > lo) {
       const text = part.text.slice(lo, hi)
-      output.push({ text, source: { ...part.source, quote: text } })
+      output.push({ text, source: sliceSource(part.source,text,lo) })
     }
     offset += part.text.length
   }

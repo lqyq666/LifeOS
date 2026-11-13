@@ -5,8 +5,10 @@
 import type { PoolClient,Pool } from 'pg'
 import { matchPathTheme } from './path-lexicon.ts'
 import { recordChangeEvent } from './identity.ts'
+import { HttpError } from './db.ts'
 import { distinctiveGrams } from './experience-episodes.ts'
-import {deferredPursuitClause,conversationPreferenceClause,assistantRequestClause,unstartedActivityOnlyClause,scanUserClauses} from './user-command-spans.ts'
+import {deferredPursuitClause,conversationPreferenceClause,assistantRequestClause,assistantInstructionClause,profileWritesDisallowed,unstartedActivityOnlyClause,scanUserClauses,reportedPurposeClause,withdrawnPursuitTarget,historicalIntentionClause,namedMatterEndTarget,namedMatterTargetMatches} from './user-command-spans.ts'
+import {sourceControlRanges,sourceQuotesOverlap,type SourceControlRef} from './clause-catalogue.ts'
 
 // 路径同义词表：主题锚词除标题片段外，还接受该路径的领域词（行测↔考公、
 // 雅思↔留学）。这只是连线候选的召回面；成线仍需本人经历原文包含锚词。
@@ -23,7 +25,7 @@ const PATH_SYNONYMS: [RegExp, string[]][] = [
   [/竞赛|建模/, ['数模', '美赛', '国赛', '队伍']],
 ]
 export function themeAnchors(title: string): string[] {
-  const anchors = [...distinctiveGrams(title)]
+  const anchors = [...distinctiveGrams(title)].filter(token=>!STOP_TOKENS.has(token))
   for (const [pattern, synonyms] of PATH_SYNONYMS) if (pattern.test(title)) anchors.push(...synonyms)
   return anchors
 }
@@ -61,7 +63,7 @@ export function themeTitle(text: string): string {
   const comma = stripped.search(/[，,；;]/)
   if (comma >= 2 && comma <= 10) stripped = stripped.slice(0, comma)
   const cleaned = stripped.replace(/(?:一个|一类|之类的|的话|比较|真的|就是)/g, '').trim()
-  return (cleaned || text).slice(0, 14)
+  return (cleaned || text).replace(/[。！？]+$/,'').slice(0, 60)
 }
 
 // 路径词用于合并宽泛表述；本人写出的可执行目标保留具体对象，避免把
@@ -69,7 +71,13 @@ export function themeTitle(text: string): string {
 function projectedThemeTitle(text: string, assertion?: string, kind?: ThemeKind): string {
   const path = kind==='valued_point'?null:matchPathTheme(text)
   const specific = themeTitle(text)
-  return path && !(assertion === 'user_edit' && /(?:找到|完成|申请|拿到|通过|提交|做出|交付)/.test(specific)) ? path.title : specific
+  const pathIndex=path?specific.indexOf(path.title):-1
+  if(path&&pathIndex>=0){const suffix=specific.slice(pathIndex+path.title.length);if(suffix&&!/^(?:成功|上岸|考试|方向|探索|这条路|优先|为主)$/.test(suffix))return specific}
+  if(/(?:帮助|帮|为)(?:别人|他人|同学|室友|学弟|学妹)|志愿(?:服务)?|指导(?:服务)?/.test(specific))return specific
+  // Domain hints (复习/绩点/编程) may retrieve a path candidate, but cannot
+  // turn a stated learning goal into 考研/保研/跨专业. Canonicalize only a
+  // path the user actually named; retain specific task objects either way.
+  return path && text.includes(path.title) && !(/(?:找到|完成|申请|拿到|通过|提交|做出|交付)/.test(specific)) ? path.title : specific
 }
 // 以过去时间词开头的陈述是事件报告，不是追求——不投影为主题。
 const PAST_EVENT_OPEN = /^(?:上周|上个月|上月|昨天|前天|上次|之前|当时|上学期|上年)/
@@ -101,15 +109,26 @@ const immediateStep=(quote:string)=>/^(?:我)?(?:想|希望)(?:先)?(?:找|选|�
 const uncertainPriority=/(?:不知道|不确定|是否|还没|尚未|说不清|没想好|犹豫|纠结)/
 const explicitPriority=(quote:string)=>scanUserClauses(quote).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!assistantRequestClause(clause.text)&&!uncertainPriority.test(clause.text)&&!HEDGING.test(clause.text)&&(
   /^(?:我(?:确认|决定|想)?(?:本阶段|当前|现在|目前|本周|这周)?(?:优先|更重视|先了解|先考虑|先探索)|(?:本阶段|当前|现在|目前|本周|这周)(?:我)?(?:优先|更重视|重点(?:是|在|放在)))/.test(clause.text)
+  || /^(?:我)?(?:先)?把重点(?:改成|改为|放在)/.test(clause.text)
   || /^(?:我(?:确认|决定|想)?(?:本阶段|当前|现在|目前|本周|这周)?|(?:本阶段|当前|现在|目前|本周|这周)(?:我)?)[^，。；！？]{1,16}(?:优先|为主|放第一)/.test(clause.text)
 ))
 function affirmativeThemeQuote(quote:string):string|null{
+ const clauses=scanUserClauses(quote).filter(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther)
+ // A former consideration and a later explicit decision have different
+ // temporal force. Use the latter's verbatim clause, not the first path word.
+ let final=-1
+ for(let index=0;index<clauses.length;index++)if(/(?:但|不过|最后|最终|现在|目前).{0,8}(?:决定|确定|改为|改成)/.test(clauses[index]!.text))final=index
+ if(final>0&&clauses.slice(0,final).some(clause=>/(?:考虑过|曾经|原来|之前|以前)/.test(clause.text)))quote=clauses[final]!.text
  if(!REJECTED_PURSUIT.test(quote)||BOUNDARY_PURSUIT.test(quote))return quote
  const positive=scanUserClauses(quote).filter(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!assistantRequestClause(clause.text)).flatMap(clause=>clause.text.split(/所以|因为/)).filter(text=>text&&!assistantRequestClause(text)&&!REJECTED_PURSUIT.test(text)&&(INTENT_MARKER.test(text)||/(?:喜欢|享受|在意|看重|重视|偏好)/.test(text)))
  return positive.length===1?positive[0]!:null
 }
 export function pursuitLevel(quote: string): { kind: 'pursuit' | 'exploration'; status: 'active' | 'pending' } | null {
+  if(namedMatterEndTarget(quote)||withdrawnPursuitTarget(quote)||historicalIntentionClause(quote))return null
 
+  // A past consideration is historical context, not a still-open pursuit.
+  // growthView shares this gate, so old stored rows are projected safely too.
+  if(/考虑过|曾经考虑/.test(quote)&&!/(?:现在|目前|仍|还|重新|再).{0,8}考虑/.test(quote)&&!/(?:但|最后|最终).{0,8}(?:决定|确定)/.test(quote))return null
   if(immediateStep(quote)||/(?:想|准备)(?:报|试|做|选)$/.test(quote.trim()))return null
   if(unstartedActivityOnlyClause(quote)||assistantRequestClause(quote))return null
   if(deferredPursuitClause(quote)||conversationPreferenceClause(quote))return null
@@ -117,8 +136,8 @@ export function pursuitLevel(quote: string): { kind: 'pursuit' | 'exploration'; 
   if (REJECTED_PURSUIT.test(quote) && !BOUNDARY_PURSUIT.test(quote)) return null
   // 不确定语气不建主题："我可能在考虑考研" 不占星图
   if (HEDGING.test(quote)) return null
-  if(/^(?:我)?(?:现在|目前|本阶段).{0,8}(?:主要)?探索/.test(quote))return {kind:'exploration',status:'active'}
-  if(/优先|更重视|放第一|第一位/.test(quote))return {kind:'pursuit',status:'active'}
+  if(/^(?:我)?(?:现在|目前|本阶段).{0,8}(?:主要)?探索/.test(quote)||explicitPriority(quote)&&EXPLORING_MARK.test(quote))return {kind:'exploration',status:'active'}
+  if(explicitPriority(quote)||/优先|更重视|放第一|第一位/.test(quote))return {kind:'pursuit',status:'active'}
   if (BOUNDARY_PURSUIT.test(quote)) return { kind: 'pursuit', status: 'active' }
   if (EXPLORING_MARK.test(quote) && !DECIDED_MARK.test(quote)) return { kind: 'exploration', status: 'pending' }
   if (FUTURE_MARK.test(quote) && !DECIDED_MARK.test(quote)) return { kind: 'exploration', status: 'pending' }
@@ -134,10 +153,12 @@ export function deriveThemeCandidates(facts: readonly GrowthFact[]): ThemeCandid
     if (fact.status !== 'active' || !['user_reported', 'user_edit'].includes(fact.assertion)) continue
     const quote = affirmativeThemeQuote(fact.text.trim())
     if (!quote) continue
+    if (reportedPurposeClause(quote)) continue
     // Ending a main path is a current boundary, not a new goal to promote.
     // The original growth fact remains available as a limitation in dialogue.
     if(!themeHasPursuitSource({pinned:false,source_refs:[{growthItemId:fact.id,quote}]}))continue
-    if (PAST_EVENT_OPEN.test(quote) || THIRD_PARTY.test(quote)) continue
+    const helpingOthers=/^(?:我|本人)(?:想|希望|计划|打算|决定|要).{0,8}(?:帮助|帮|为)(?:别人|他人|同学|室友|学弟|学妹)/.test(quote)
+    if (PAST_EVENT_OPEN.test(quote) || THIRD_PARTY.test(quote)&&!helpingOthers) continue
     // 假设句不建主题："如果考研失败我会考虑就业" 不是当前追求
     if (/(?:如果|假如|要是|万一|假设)/.test(quote)) continue
     // 自我描述（“我是那种……的人”）是身份声明不是追求：不进主题，由
@@ -155,11 +176,6 @@ export function deriveThemeCandidates(facts: readonly GrowthFact[]): ThemeCandid
     const title = projectedThemeTitle(quote, fact.assertion, kind)
     const dedupeKey = kind + '|' + normalize(title)
     if (seen.has(dedupeKey)) continue
-    // 同义主题合并：同类且一方标题完整包含另一方（保研 ⊂ 保研成功）只留
-    // 第一条；共享“目标”这类功能词不算同义。
-    const normalizedTitle = normalize(title)
-    const synonym = candidates.some(candidate => candidate.kind === kind && (normalizedTitle.includes(normalize(candidate.title)) || normalize(candidate.title).includes(normalizedTitle)))
-    if (synonym) continue
     seen.add(dedupeKey)
     candidates.push({ kind, title, status, sourceGrowthId: fact.id, quote } as ThemeCandidate)
   }
@@ -184,6 +200,7 @@ export function currentThemeProjection<T extends ThemeRow & {title_locked?:boole
   if(!theme.source_refs.length)return theme
   const sources=theme.source_refs.flatMap(ref=>facts.filter(fact=>fact.id===ref.growthItemId))
   if(!sources.length)return null
+  if(sources.some(source=>namedMatterEndTarget(source.text)||withdrawnPursuitTarget(source.text)||historicalIntentionClause(source.text)))return null
   if(theme.pinned||theme.title_locked)return theme
   const candidates=sources.flatMap(source=>deriveThemeCandidates([source]))
   if(candidates.length!==sources.length)return null
@@ -221,7 +238,13 @@ export function rankPrimaryThemes<T extends PrimaryTheme>(themes: readonly T[]):
     || timestamp(right) - timestamp(left)
     || left.title.localeCompare(right.title, 'zh-CN')
   )
-  return sorted.slice(0, 3).map(theme => {
+  const seenQuotes=new Set<string>()
+  const unique=sorted.filter(theme=>{
+    const quotes=(theme.source_refs??[]).map(ref=>normalize(ref.quote)).filter(Boolean)
+    if(quotes.some(quote=>seenQuotes.has(quote)))return false
+    quotes.forEach(quote=>seenQuotes.add(quote));return true
+  })
+  return unique.slice(0, 3).map(theme => {
     const confirmed = theme.confirmedExperienceCount ?? 0
     const linked = theme.linkedExperienceCount ?? 0
     const sources = sourceCount(theme)
@@ -256,9 +279,11 @@ export function mergeThemeCandidates(existing: readonly ThemeRow[], candidates: 
   for (const candidate of candidates) {
     const bySource = existing.find(row => row.source_refs.some(ref => ref.growthItemId === candidate.sourceGrowthId))
     const byTitle = existing.find(row => row.status !== 'retired' && normalize(row.title) === normalize(candidate.title))
-    const target = bySource ?? byTitle
+    const byQuote = existing.find(row=>row.status!=='retired'&&row.source_refs.some(ref=>normalize(ref.quote)===normalize(candidate.quote)))
+    const target = bySource ?? byTitle ?? byQuote
     if (target) {
       if (target.source_refs.some(ref => ref.growthItemId === candidate.sourceGrowthId)) continue
+      if (target.source_refs.some(ref=>normalize(ref.quote)===normalize(candidate.quote))) continue
       update.push({ row: target, candidate })
       continue
     }
@@ -272,7 +297,9 @@ export function mergeThemeCandidates(existing: readonly ThemeRow[], candidates: 
 // 按主题类型与经历形态决定；没有重叠就不连（不相关经历不强行连线）。
 // 标题的滑窗二元/三元片段作为主题锚词：主题和经历只要共享一个实义片段就
 // 有连线的资格；功能词片段被排除。
-const STOP_TOKENS = new Set(['自己', '现在', '想要', '打算', '准备', '希望', '可以', '因为', '但是', '而且', '然后', '所以', '时候', '觉得', '可能', '一个', '这个', '那个', '什么', '怎么', '上周', '昨天', '今天', '明天', '前天', '这周', '下周', '上周五', '这学', '学期', '时候', '最近', '后来', '上次'])
+const STOP_TOKENS = new Set(['我想','我要','我也','也想','看重','重视','为这','这次','自己', '现在', '想要', '打算', '准备', '希望', '可以', '因为', '但是', '而且', '然后', '所以', '时候', '觉得', '可能', '一个', '这个', '那个', '什么', '怎么', '上周', '昨天', '今天', '明天', '前天', '这周', '下周', '上周五', '这学', '学期', '时候', '最近', '后来', '上次'])
+export const unusableThemeLinkReasons=()=>[...STOP_TOKENS].map(token=>`经历原话提到「${token}」`)
+export const themeLinkReasonUsable=(reason:string,confirmed=false)=>confirmed||!unusableThemeLinkReasons().includes(reason)
 export function themeTokens(title: string): string[] {
   const normalized = title.replace(/[\s，。、；！？?！,.\-—我要想去]/g, '')
   const tokens = new Set<string>()
@@ -308,12 +335,13 @@ export async function projectUserThemes(c: PoolClient, user: string, newFacts: r
   // 用 correct 改写旧条目。边界意图（“不再熬夜”）不是否定，不受影响。
   for (const fact of newFacts) {
     if (!['user_reported', 'user_edit'].includes(fact.assertion) || fact.status !== 'active') continue
-    if(!/^我(?:不想|不打算|放弃|没兴趣)/.test(fact.text.trim()))continue
-    const domain = fact.text.trim().replace(/^我(?:不想|不打算|放弃|没兴趣)+/, '').replace(/了$/, '')
+    const withdrawal=namedMatterEndTarget(fact.text)??withdrawnPursuitTarget(fact.text)
+    if(!withdrawal&&!/^我(?:不想|不打算|放弃|没兴趣)/.test(fact.text.trim()))continue
+    const domain = (withdrawal??fact.text.trim().replace(/^我(?:不想|不打算|放弃|没兴趣)+/, '')).replace(/了$/, '')
     if (domain.length < 2 || domain === fact.text.trim()) continue
     const domainAnchors = new Set([...distinctiveGrams(domain), ...themeAnchors(domain)])
     for (const theme of existing.filter(row => row.status === 'active' || row.status === 'pending')) {
-      const matched = themeAnchors(theme.title).some(anchor => domainAnchors.has(anchor)) || [...distinctiveGrams(theme.title)].some(gram => domain.includes(gram))
+      const matched = namedMatterEndTarget(fact.text)?namedMatterTargetMatches(theme.title,domain):themeAnchors(theme.title).some(anchor => domainAnchors.has(anchor)) || [...distinctiveGrams(theme.title)].some(gram => domain.includes(gram))
       if (!matched) continue
       await c.query("UPDATE user_themes SET status='retired', revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2", [user, theme.id])
       await c.query("UPDATE experience_theme_links SET status='retired', revision=revision+1 WHERE user_id=$1 AND theme_id=$2 AND status='active'", [user, theme.id])
@@ -347,9 +375,94 @@ export async function projectUserThemes(c: PoolClient, user: string, newFacts: r
 }
 
 // 事务内连线：先用锚词匹配（快），不中时用语义 embedding 兜底（准），
-// 两种方式都不中才不连。语义连线标记 reason 里的分数供面板展示。
+// 语义或同次讲述的相邻线索只生成待核对连线，并展示本人原话依据。
+const adjacentPreferenceReason='同次讲述中先表达偏好，随后报告这段经历；关联待核对。'
+const adjacentPreferenceReasonPrefix='同次讲述先说「'
+export const isAdjacentPreferenceReason=(reason:string)=>reason===adjacentPreferenceReason||reason.startsWith(adjacentPreferenceReasonPrefix)
+type EpisodeAnchor={id:string;source_message_id:string;source_quote:string}
+type ThemeExperienceLink={experience_id:string;theme_id:string;reason:string;confirmed:boolean}
+type ContextLink=ThemeExperienceLink & EpisodeAnchor & {
+  theme_title:string;relation:string;link_revision:number;cursor_time:string;summary:string;revision:number;content:unknown
+}
+
+export async function retireAdjacentThemeLinks(c:PoolClient,user:string,messageIds:readonly string[],controls?:readonly SourceControlRef[]){
+  if(!messageIds.length)return
+  const rows=(await c.query(`SELECT e.id,e.source_message_id,e.source_quote,l.theme_id
+    FROM experience_theme_links l JOIN experiences e ON e.user_id=l.user_id AND e.id=l.experience_id
+    WHERE l.user_id=$1 AND l.status='active' AND e.source_message_id=ANY($2::uuid[]) AND (l.reason=$3 OR starts_with(l.reason,$4))`,[user,messageIds,adjacentPreferenceReason,adjacentPreferenceReasonPrefix])).rows
+  for(const row of rows){
+    if(controls){
+      const anchor=await adjacentPreferenceSource(c,user,row)
+      // An unresolvable derived link is no longer suitable for decisions.
+      if(anchor&&!controls.some(ref=>ref.messageId===row.source_message_id&&(
+        sourceQuotesOverlap(anchor.message.content,anchor.preference,ref)||
+        sourceQuotesOverlap(anchor.message.content,{quote:row.source_quote,range:anchor.action},ref)
+      )))continue
+    }
+    await c.query("UPDATE experience_theme_links SET status='retired',reason='',revision=revision+1 WHERE user_id=$1 AND experience_id=$2 AND theme_id=$3 AND status='active'",[user,row.id,row.theme_id])
+  }
+}
+
+async function adjacentPreferenceSource(c:PoolClient|Pool,user:string,episode:EpisodeAnchor){
+  if(!episode.source_quote)return
+  const message=(await c.query("SELECT content,conversation_id FROM messages WHERE user_id=$1 AND id=$2 AND role='user'",[user,episode.source_message_id])).rows[0]
+  if(!message||profileWritesDisallowed(message.content))return
+  const {experienceFactBindings}=await import('./growth-privacy.ts')
+  let ranges=sourceControlRanges(message.content,episode.source_quote)
+  if(ranges.length!==1){
+    const bound=(await experienceFactBindings(c,user,[episode.id])).get(episode.id)?.source
+    if(bound?.source_message_id!==episode.source_message_id||bound.source_quote!==episode.source_quote)return
+    ranges=sourceControlRanges(message.content,{quote:episode.source_quote,range:bound.range})
+    if(ranges.length!==1)return
+  }
+  const action=ranges[0]!,start=action.start,clauses=scanUserClauses(message.content)
+  const clause=clauses.filter(clause=>clause.end<=start).at(-1)
+  if(!clause||clause.interrogative||clause.conditional||clause.quoted||clause.code||clause.attributedToOther||clause.quoteSpans.length||
+    assistantInstructionClause(message.content,clause,clauses)||!/^[。！？；，,、\s]*$/.test(message.content.slice(clause.end,start)))return
+  return {message,action,preference:{quote:clause.text,range:{start:clause.start,end:clause.end}}}
+}
+
+async function adjacentPreferenceIds(c:PoolClient|Pool,user:string,episode:EpisodeAnchor,facts:readonly GrowthFact[]):Promise<Set<string>>{
+  const ids=new Set<string>()
+  if(!facts.some(fact=>fact.kind==='preference'))return ids
+  const source=await adjacentPreferenceSource(c,user,episode)
+  if(!source)return ids
+  const {message,preference}=source
+  const matching=facts.filter(fact=>fact.kind==='preference'&&fact.text.trim().replace(/[。！？]+$/,'')===preference.quote&&deriveThemeCandidates([fact]).some(candidate=>candidate.kind==='valued_point'))
+  if(!matching.length)return ids
+  // Exact current report of a saved preference. The archive item remains
+  // unchanged; its presence alone does not authorize the adjacent message.
+  const {checkMessageSource}=await import('./growth-privacy.ts')
+  try{await checkMessageSource(c,user,message.conversation_id,{id:episode.source_message_id,...preference})}
+  catch(error){if(error instanceof HttpError)return ids;throw error}
+  return new Set(matching.map(fact=>fact.id))
+}
+
+export async function currentThemeLinks<T extends ThemeExperienceLink>(c:PoolClient|Pool,user:string,links:readonly T[],episodes:readonly EpisodeAnchor[],themes:readonly ThemeRow[],facts:readonly GrowthFact[]):Promise<T[]>{
+  const byEpisode=new Map(episodes.map(episode=>[episode.id,episode]))
+  const byTheme=new Map(themes.map(theme=>[theme.id,theme]))
+  const adjacentByEpisode=new Map<string,Set<string>>()
+  const current:T[]=[]
+  for(const link of links){
+    const episode=byEpisode.get(link.experience_id),theme=byTheme.get(link.theme_id)
+    if(!episode||!theme||!themeLinkReasonUsable(link.reason,link.confirmed))continue
+    if(isAdjacentPreferenceReason(link.reason)){
+      let ids=adjacentByEpisode.get(episode.id)
+      if(!ids){ids=await adjacentPreferenceIds(c,user,episode,facts);adjacentByEpisode.set(episode.id,ids)}
+      if(!theme.source_refs.some(ref=>ids.has(ref.growthItemId)))continue
+      current.push({...link,reason:adjacentPreferenceReason})
+    }else current.push(link)
+  }
+  return current
+}
+
 export async function linkExperienceToThemes(c: PoolClient, user: string, experienceId: number | string, experienceText: string, completedAction: boolean): Promise<number> {
-  const themes = (await c.query("SELECT id, kind, title FROM user_themes WHERE user_id=$1 AND status IN ('active','pending')", [user])).rows as { id: string; kind: ThemeKind; title?: string }[]
+  const experience=(await c.query("SELECT id,source_message_id,source_quote,revision,status,content FROM experiences WHERE user_id=$1 AND id=$2 AND status='confirmed'",[user,experienceId])).rows[0]
+  if(!experience)return 0
+  const {filterAvailableExperienceSources}=await import('./growth-privacy.ts')
+  if(!(await filterAvailableExperienceSources(c,user,[experience])).length)return 0
+  const themes = (await c.query("SELECT id, kind, title, source_refs FROM user_themes WHERE user_id=$1 AND status IN ('active','pending')", [user])).rows as { id: string; kind: ThemeKind; title?: string; source_refs?:{growthItemId:string;quote:string}[] }[]
+  let adjacentIds:Set<string>|undefined
   let linked = 0
   for (const theme of themes) {
     // 第一步：锚词匹配（已有逻辑）
@@ -361,11 +474,27 @@ export async function linkExperienceToThemes(c: PoolClient, user: string, experi
         const { semanticMatch } = await import('./semantic-search.ts')
         const matches = await semanticMatch(theme.title, [experienceText], 0.55)
         if (matches.length > 0) {
-          const kind = theme.kind
-          relation = { relation: (kind === 'goal' || kind === 'pursuit') && completedAction ? 'acting_toward' : kind === 'exploration' || kind === 'valued_point' ? 'exploring' : 'partial_evidence', token: '' }
-          reason = `语义相关度 ${(matches[0]!.score * 100).toFixed(0)}%`
+          // Similar wording can suggest a browsing link; it cannot establish
+          // that the user acted toward this goal. Keep it explicitly tentative.
+          relation = { relation: 'partial_evidence', token: '' }
+          const excerpt=experienceText.split(/[。！？\n]/).find(part=>part.trim())?.trim().slice(0,80)??''
+          reason = `「${theme.title}」与这段经历可能相关，尚未确认：${excerpt}`
         }
       } catch { /* embedding 服务不可用时跳过语义兜底 */ }
+    }
+    // A value immediately followed by one episode is a useful browsing hint,
+    // not proof of causality or a stable ability. Both quotes must be from
+    // the same owned user message, with no intervening subject or instruction.
+    if(!relation&&theme.kind==='valued_point'&&theme.source_refs?.length){
+      if(!adjacentIds){
+        const factIds=themes.filter(theme=>theme.kind==='valued_point').flatMap(theme=>theme.source_refs?.map(ref=>ref.growthItemId)??[])
+        const rows=(await c.query("SELECT id,kind,text,assertion,status FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[]) AND status='active' AND kind='preference'",[user,factIds])).rows
+        adjacentIds=await adjacentPreferenceIds(c,user,experience,rows)
+      }
+      if(theme.source_refs.some(ref=>adjacentIds!.has(ref.growthItemId))){
+        relation={relation:'partial_evidence',token:''}
+        reason=adjacentPreferenceReason
+      }
     }
     if (!relation) continue
     const result = await c.query(`INSERT INTO experience_theme_links(user_id, experience_id, theme_id, relation, reason) VALUES($1,$2,$3,$4,$5) ON CONFLICT (user_id, experience_id, theme_id) DO NOTHING`, [user, experienceId, theme.id, relation.relation, reason])
@@ -401,7 +530,7 @@ export async function reconcileThemesWithGrowth(c: PoolClient, user: string): Pr
     }
     const primary = facts.get(live[live.length - 1]!.growthItemId)
     if (!primary) continue
-    if (!theme.title_locked || endedMainPath(primary.text)) {
+    if (!theme.title_locked || endedMainPath(primary.text)||namedMatterEndTarget(primary.text)||withdrawnPursuitTarget(primary.text)) {
       // 更正可能改写追求本身：重新分级。被明确否定的追求（“我不打算考公了”）
       // 退休主题；从决定降为考虑则转为 exploration/pending。
       const level = deriveThemeCandidates([primary])[0]
@@ -436,7 +565,10 @@ export async function readStarMapContext(c: PoolClient|Pool, user: string): Prom
   // 跨会话星图个人事实——主题本身就是跨会话投影。
   const settings=(await c.query('SELECT enabled FROM user_memory_settings WHERE user_id=$1',[user])).rows[0]
   if(!settings?.enabled)return null
-  const themes = (await c.query("SELECT id, title, kind, status, pinned, source_refs, revision, title_locked FROM user_themes WHERE user_id=$1 AND status IN ('active','pending') ORDER BY pinned DESC, updated_at DESC LIMIT 12", [user])).rows
+  const themes = (await c.query(`SELECT t.*,count(l.experience_id) FILTER (WHERE l.status='active' AND (l.confirmed OR NOT(l.reason=ANY($2::text[]))))::int AS "linkedExperienceCount",
+    count(l.experience_id) FILTER (WHERE l.status='active' AND l.confirmed)::int AS "confirmedExperienceCount"
+    FROM user_themes t LEFT JOIN experience_theme_links l ON l.user_id=t.user_id AND l.theme_id=t.id
+    WHERE t.user_id=$1 AND t.status IN ('active','pending') GROUP BY t.user_id,t.id`, [user,unusableThemeLinkReasons()])).rows
   if (!themes.length) return null
   // 主题来源事实必须仍有效：全部失效的主题不得进入决策上下文。
   // Share the existing availability gate: raw status='active' does not establish
@@ -444,32 +576,41 @@ export async function readStarMapContext(c: PoolClient|Pool, user: string): Prom
   const {growthView}=await import('./growth.ts')
   const effective=(await growthView(user,undefined,c)).items.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped)
   const liveSourceIds=new Set(effective.map(item=>item.id))
-  const validThemes=themes.map((theme:any)=>currentThemeProjection(theme,effective)).filter((theme):theme is NonNullable<typeof theme>=>Boolean(theme)&&theme!.source_refs.some((ref:any)=>liveSourceIds.has(ref.growthItemId))).slice(0,3)
+  const validThemes=rankPrimaryThemes(themes.map((theme:any)=>currentThemeProjection(theme,effective)).filter((theme):theme is NonNullable<typeof theme>=>Boolean(theme)&&theme!.source_refs.some((ref:any)=>liveSourceIds.has(ref.growthItemId))))
   if(!validThemes.length)return null
-  const links = (await c.query(`SELECT t.title AS theme_title, l.relation, l.confirmed, l.revision AS link_revision, l.experience_id, l.theme_id,
-    left(e.content->>'summary', 80) AS summary, e.source_quote, e.source_message_id
+  const {filterAvailableExperienceSources}=await import('./growth-privacy.ts')
+  const unchangedThemes=validThemes.filter(theme=>themes.some(raw=>raw.id===theme.id&&raw.title===theme.title&&raw.kind===theme.kind))
+  const validLinks:ContextLink[]=[]
+  let cursor:[string,string,string]|null=null
+  for(let page=0;page<4&&unchangedThemes.length&&validLinks.length<6;page++){
+    // Look past stale rows in stable order, within a 24-link read budget.
+    const links:ContextLink[]=(await c.query(`SELECT t.title AS theme_title, l.relation, l.reason, l.confirmed, l.revision AS link_revision, l.experience_id, l.theme_id,l.created_at::text AS cursor_time,
+    left(e.content->>'summary', 80) AS summary, e.id, e.revision, e.content, e.source_quote, e.source_message_id
     FROM experience_theme_links l JOIN user_themes t ON t.user_id=l.user_id AND t.id=l.theme_id
     JOIN experiences e ON e.user_id=l.user_id AND e.id=l.experience_id AND e.status='confirmed'
     JOIN messages m ON m.user_id=l.user_id AND m.id=e.source_message_id AND m.role='user'
-    WHERE l.user_id=$1 AND l.status='active' AND t.status IN ('active','pending')
-      AND btrim(e.source_quote)<>'' AND strpos(m.content, e.source_quote)>0
-    ORDER BY l.created_at DESC LIMIT 6`, [user])).rows
-  // 来源未被遗忘/停止使用（growth 隐私抑制表）；被抑制的引用不可进入决策。
-  const validLinks=[]
-  const validThemeIds=new Set(validThemes.filter(theme=>themes.some(raw=>raw.id===theme.id&&raw.title===theme.title&&raw.kind===theme.kind)).map(theme=>theme.id))
-  for(const link of links){
-    if(!validThemeIds.has(link.theme_id))continue
-    // 与 growth 隐私抑制同源的一条查询（内联以保持本模块可在纯函数测试中
-    // 被 strip-types 加载）：被遗忘/停止使用的原话不进入模型上下文。
-    const suppressed=(await c.query('SELECT 1 FROM growth_source_suppressions WHERE user_id=$1 AND message_id=$2 AND (strpos($3,quote)>0 OR strpos(quote,$3)>0) LIMIT 1',[user,link.source_message_id,link.source_quote])).rowCount
-    if(suppressed)continue
-    validLinks.push(link)
+    WHERE l.user_id=$1 AND l.status='active' AND l.theme_id=ANY($2::uuid[]) AND (l.confirmed OR NOT(l.reason=ANY($3::text[])))
+      AND ($4::timestamptz IS NULL OR (l.created_at,l.experience_id,l.theme_id)<($4::timestamptz,$5::uuid,$6::uuid))
+      AND ((btrim(e.source_quote)<>'' AND strpos(m.content, e.source_quote)>0) OR EXISTS(SELECT 1 FROM runs native CROSS JOIN LATERAL jsonb_array_elements(native.tool_audit) proof(value) WHERE native.user_id=e.user_id AND proof.value->>'phase'='canonical_contribution_staged' AND proof.value->>'experienceId'=e.id::text))
+    ORDER BY l.created_at DESC,l.experience_id DESC,l.theme_id DESC LIMIT 6`,[user,unchangedThemes.map(theme=>theme.id),unusableThemeLinkReasons(),...(cursor??[null,null,null])])).rows
+    const availableLinks=[]
+    for(const link of await filterAvailableExperienceSources(c,user,links)){
+      const suppressed=(await c.query('SELECT 1 FROM growth_source_suppressions WHERE user_id=$1 AND message_id=$2 AND (strpos($3,quote)>0 OR strpos(quote,$3)>0) LIMIT 1',[user,link.source_message_id,link.source_quote])).rowCount
+      if(!suppressed)availableLinks.push(link)
+    }
+    validLinks.push(...await currentThemeLinks(c,user,availableLinks,availableLinks,unchangedThemes,effective))
+    if(links.length<6)break
+    const last=links[links.length-1]!
+    cursor=[last.cursor_time,last.experience_id,last.theme_id]
   }
+  validLinks.splice(6)
+  const {currentExperienceEvidence}=await import('./growth-privacy.ts')
+  const projectedLinks=await currentExperienceEvidence(c,user,validLinks)
   const constraints = effective.filter(item=>item.kind==='constraint'&&['user_reported','user_edit'].includes(item.assertion)).slice(0,3).map(item=>item.text)
   const boundaries = (await c.query("SELECT title FROM user_themes WHERE user_id=$1 AND status IN ('paused','retired') ORDER BY updated_at DESC LIMIT 5", [user])).rows.map((row: any) => row.title)
   return {
     themes: validThemes.map((theme: any) => ({ id: theme.id, title: theme.title, kind: theme.kind, status: theme.status, pinned: theme.pinned, revision: theme.revision })),
-    linkedExperiences: validLinks.map((link: any) => ({ themeTitle: link.theme_title, relation: link.relation, candidate: !link.confirmed, summary: link.summary })),
+    linkedExperiences: projectedLinks.map((link: any) => ({ themeTitle: link.theme_title, relation: link.relation, candidate: !link.confirmed, summary: link.correctionProjection?link.quote.slice(0,80):link.summary })),
     constraints,
     boundaries,
     usedLinks: validLinks.map((link: any) => ({ experienceId: String(link.experience_id), themeId: String(link.theme_id), revision: link.link_revision })),

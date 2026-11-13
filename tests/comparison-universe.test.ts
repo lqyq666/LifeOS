@@ -9,9 +9,9 @@ test('actual NS negated exclusivity is accepted without rewriting its useful com
  assert.equal(comparisonUniverseAccepts(actual.raw.reply.replace('不声称','声称'),actual.user),false,'removing the negation restores an unsupported closed-universe claim')
 })
 
-test('ordinary summaries stay concise while detailed and one-sentence requests retain their contracts',()=>{
+test('ordinary summaries allow sufficient detail while one-sentence requests retain their contract',()=>{
  const schema=(text:string)=>bindRequestedSummarySchema(deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false}),text).schema.properties as any
- assert.equal(schema('请更新当前理解和仍未知的地方。').reply.maxLength,100)
+ assert.equal(schema('请更新当前理解和仍未知的地方。').reply.maxLength,16000)
  assert.equal(schema('请详细说明当前理解和仍未知的地方。').reply.maxLength,16000)
  assert.equal(schema('用一句话说明当前理解和仍未知的地方。').reply.maxLength,240)
 })

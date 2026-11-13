@@ -1,10 +1,11 @@
 import {reportsOwnContribution} from './grounded-material.ts'
-import {scanUserClauses,currentConversationOnly,refusalPreferenceClause} from './user-command-spans.ts'
-import {reportedPerformedTaskClauses,reportedCompletedContactClauses,reportedTaskOutcomeClauses,taskOutcomeReadback} from './turn-contract.ts'
+import {scanUserClauses,currentConversationOnly,refusalPreferenceClause,reportedPurposeClause} from './user-command-spans.ts'
+import {reportedPerformedTaskClauses,reportedCompletedContactClauses,reportedTaskOutcomeClauses,taskOutcomeReadback,interviewContinuationRequest} from './turn-contract.ts'
 import {hoursIn} from './turn-obligations.ts'
 import type {KnowledgeIntent} from './evergreen-guide.ts'
 import type {TurnContract} from './turn-contract.ts'
 import {groundedStateReadback,hasUnprojectedEvaluationReport} from './reply-draft.ts'
+import {clauseExpressesFuturePlan,clauseReportsCompleted} from './experience-content.ts'
 
 export type BoundedReply={basis:'editorial_adaptation';sourceStatus:'NO_PUBLIC_METHOD'|'PUBLIC_METHOD_NOT_USED';stage:'start'|'blocked'|'waiting_result'|'adopted'|'reported_result';choices:string[];nextUnknown:string}
 
@@ -72,20 +73,25 @@ export function boundedRecallReply(text:string,facts:{text:string;createdAt:stri
 // Material delivery, scheduling, listening and personal decisions keep their
 // existing contracts. This is not a second guide corpus.
 export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;contract:TurnContract;knowledgeCount:number;tier:string;material?:boolean;priorInterviewQuestion?:string;priorUserTexts?:readonly string[];verifiedBudget?:{minutes:number;period:'current'|'this_week'|'next_week';quote:string}}):BoundedReply|null{
- const contactQuestion=/(?:联系|请教|联络)/.test(input.text)&&/(?:怎么|如何|怎样)/.test(input.text)
- if(input.tier!=='default'||input.contract.capabilities.plan||input.material)return null
  const clauses=scanUserClauses(input.text)
+ const contactQuestion=clauses.some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&clause.interrogative&&/(?:联系|请教|联络)/.test(clause.text))
  const own=clauses.filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
+ const completedCurrentReport=clauses.some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!clause.interrogative&&clauseReportsCompleted(clause.text))
+ const plannedCurrentReport=clauses.some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!clause.interrogative&&clauseExpressesFuturePlan(clause.text))
+ const interviewContinuation=interviewContinuationRequest(input.text)&&!contactQuestion&&!completedCurrentReport&&!plannedCurrentReport
+ if(input.tier!=='default'||input.contract.capabilities.plan||input.material)return null
+ const priorityHelp=clauses.some(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&/优先/.test(c.text)&&(c.interrogative||/(?:怎么|如何|怎样|什么|哪|比较|取舍)/.test(c.text)))
  const make=(stage:BoundedReply['stage'],nextUnknown:string,choices:string[]):BoundedReply=>({basis:'editorial_adaptation',sourceStatus:input.knowledgeCount?'PUBLIC_METHOD_NOT_USED':'NO_PUBLIC_METHOD',stage,nextUnknown,choices})
  // Use the same verified renderer before native enum generation and after
  // generation. A generic report catalogue must not conflict with the final
  // readback of separately reported send/read/reply/adoption/effect states.
  const stateReadback=groundedStateReadback(input.text,[...(input.priorUserTexts??[])])
  if(stateReadback)return make('reported_result','仅按已报告的状态回读，其他维度保持未知',[stateReadback])
+ if(priorityHelp)return null
  if(currentConversationOnly(input.text)&&clauses.some(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther&&refusalPreferenceClause(c.text)))return make('reported_result','核对停止推荐的原事项；保留事实',[
   '这件事先不再主动安排。若出现确认卡，请选择你指的原事项；确认前也不主动推荐这些候选事项，已报告的事实保留。',
  ])
- if(/我.{0,20}优先/.test(own)&&/(?:暂停|不要再推荐|不要再推)/.test(own))return make('reported_result','新的优先事项需要什么帮助',[
+ if(!priorityHelp&&/我.{0,20}优先/.test(own)&&/(?:暂停|不要再推荐|不要再推)/.test(own))return make('reported_result','新的优先事项需要什么帮助',[
   '先按你刚说的优先事项来，暂停的方向不再主动加任务。已报告的经历保留；接下来只处理你现在更优先的事情。',
  ])
  if(currentConversationOnly(input.text))return make('reported_result','本人愿意表达的内容；不推测感受或原因',[
@@ -107,7 +113,7 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  if(demandMinutes!==null&&input.verifiedBudget&&demandMinutes>input.verifiedBudget.minutes)return make('blocked','机会能否缩小或推迟，后续周时间是否不同',[
   `这个机会要求每周${demandMinutes}分钟，你报告的${input.verifiedBudget.period==='next_week'?'下周':'本周'}可用时间是${input.verifiedBudget.minutes}分钟，当前时段不足以按原范围投入。先核对能否缩小或推迟；已明确的优先事项继续保留，其他周的条件仍未知。`,
  ])
- if(/我.{0,20}优先/.test(own)&&!/(?:怎么|如何|怎样|比较|取舍)/.test(own))return make('reported_result','新的优先事项需要什么帮助',[
+ if(!priorityHelp&&/我.{0,20}优先/.test(own))return make('reported_result','新的优先事项需要什么帮助',[
   '先按你刚说的优先事项来，其他方向不继续加任务。已报告的经历保留；接下来可以只处理当前优先的事情。',
  ])
  if(/(?:已经|已)(?:读了|读过|看过)|对方看过/.test(own)&&/(?:没(?:有)?|尚未|未)(?:回复|回应)|没回/.test(own))return make('waiting_result','尚未回应原因及实际效果仍未知',[
@@ -169,6 +175,9 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
  if(reportedContribution&&/(?:没确定|没想好|不确定).{0,24}(?:就业|职业|方向)/.test(own)&&/(?:了解自己|更喜欢哪种|探索起点)/.test(own)&&!/(?:比较|对比|选哪个)/.test(own))return make('start','本人在已报告工作中的具体偏好与受阻环节',[
   `可以从你已经做过的部分聊起：「${reportedContribution.text}」。其中哪一个具体环节你愿意再做，哪一个不太想继续？先说一个就好。这能提供了解偏好的线索，还不能据此判断你适合哪种职业，也不用现在选定方向。`,
  ])
+ if(interviewContinuation)return make('reported_result','这次原步骤中的实际回答与行为',[
+  input.priorInterviewQuestion?`沿用你提出的问法「${input.priorInterviewQuestion}」，只继续这次访谈的一步，不重发入门方法。先看对方最近一次实际遇到的情况与当时做法；采用、付款和效果仍分别核对。你想先看哪段回答？`:'先接着这次访谈的原步骤与实际反馈，核对最近一次具体困难和对方当时怎样处理。采用、付款和效果分别保留；你想先看哪段回答？',
+ ])
  if(input.knowledgeCount&&!contactQuestion)return null
  // A direct request for a personally grounded next action needs the model's
  // actual advice. Mentioning an unstarted alternative is not a report that
@@ -189,7 +198,7 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '先保留这次报告的结果，不据此推成稳定收入或长期适配。你现在想核对实际反馈，还是先处理另一件事？',
  ])
  const actionQuestion=/(?:怎么|如何|怎样|哪一步|下一步|要不要|还要[^，；]{0,12}吗|该不该|能不能|怎么办|调整)/
- const questions=clauses.filter(c=>(c.interrogative||actionQuestion.test(c.text))&&!c.quoted&&!c.code&&!c.attributedToOther)
+ const questions=clauses.filter(c=>(c.interrogative||actionQuestion.test(c.text)&&!reportedPurposeClause(c.text+c.delimiter))&&!c.quoted&&!c.code&&!c.attributedToOther)
  const request=questions.map(c=>c.text).join('；')
  const report=clauses.filter(c=>!questions.includes(c)&&!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther).map(c=>c.text).join('；')
  const materialUnavailable=/(?:材料|教材|课件|链接|资料|网页).{0,6}(?:打不开|无法打开)/.test(report)
@@ -216,18 +225,11 @@ export function boundedOrdinaryReply(input:{text:string;intent:KnowledgeIntent;c
   '先回看上次真正做过的那一步和实际反馈，不重新安排整套入门方法。是没开始、做到中途卡住，还是做完后结果不符合预期？',
   '可以先缩小这次要处理的范围，不补猜失败原因。已经有哪些可继续使用的内容，哪一步还缺材料？',
  ]}
- if(/访谈/.test(own)&&/上次|还是|继续|接下来/.test(own))return make('reported_result','这次原步骤中的实际回答与行为',[
-  input.priorInterviewQuestion?`沿用你提出的问法「${input.priorInterviewQuestion}」，只继续这次访谈的一步，不重发入门方法。先看对方最近一次实际遇到的情况与当时做法；采用、付款和效果仍分别核对。你想先看哪段回答？`:'先接着这次访谈的原步骤与实际反馈，核对最近一次具体困难和对方当时怎样处理。采用、付款和效果分别保留；你想先看哪段回答？',
- ])
  if(/(?:联系|请教|学长|导师)/.test(own))return make('start','本次交流中希望对方确认的一项信息',[
   '先确认对方是否愿意聊课程项目与实习作品，再把你最想了解的能力呈现问题写成一句。尚未联系时不记为发送；你想先整理要问的这句话吗？',
   '先把这次交流要确认的一个问题写清楚，其他问题暂放。需要的话我们可以一起起草；发出以后再分别记录回应与结果。',
  ])
- return {basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'start',nextUnknown:'当前交付目标与已有材料',choices:[
-  '先把这次要完成的核心内容写成一句话，再用已有材料补这句话。你现在已经有哪部分内容？',
-  '先选这次最需要完成的一小部分，把已有材料放到一起。哪一部分已经有内容，哪一部分还缺？',
-  '先选当前事情的一小步，沿用已经说清的目标。哪部分可以直接开始，哪部分还缺必要材料？',
- ]}
+ return null
 }
 
 export function bindBoundedReplySchema(contract:TurnContract,bounded:BoundedReply|null):TurnContract{

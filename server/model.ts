@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from './config.ts'
-import {actionCoachTurnSchema} from './action-coach-contracts.ts'
+import {actionCoachTurnSchema,coachCapabilitySchema} from './action-coach-contracts.ts'
 import {turnSystemPrompt,providerTurnMessages} from './turn-prompt.ts'
 import {renderCoachReply} from './coach-reply.ts'
 import {configureProviderPayload,outputTokenLimit} from './model-payload.ts'
@@ -68,7 +68,7 @@ export function coachContractSignatureFor(tier:ModelTier){
 export function coachInterfaceSignatureFor(tier:ModelTier){
   const route=resolveModel(tier)
   const structural=(value:unknown):unknown=>Array.isArray(value)?value.map(structural):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).filter(([key])=>key!=='description').map(([key,item])=>[key,structural(item)])):value
-  return createHash('sha256').update(JSON.stringify({version:'action-coach-interface-v1',model:modelSignatureFor(tier),api:route.model.api,compat:route.model.compat,schema:structural(actionCoachTurnSchema),payload:structural(configureProviderPayload({},route.model,tier,undefined,undefined,outputTokenLimit(route.model,tier),undefined,undefined,undefined,tier==='default'?config.qwenThinkingBudget:0)),payloadImplementation:configureProviderPayload.toString(),outputTokenLimit:outputTokenLimit(route.model,tier),transport:{stream:true,cancel:true,maxRetries:0}})).digest('hex')
+  return createHash('sha256').update(JSON.stringify({version:'action-coach-interface-v1',model:modelSignatureFor(tier),api:route.model.api,compat:route.model.compat,schema:structural(coachCapabilitySchema),payload:structural(configureProviderPayload({},route.model,tier,coachCapabilitySchema,undefined,outputTokenLimit(route.model,tier),undefined,undefined,undefined,tier==='default'?config.qwenThinkingBudget:0)),payloadImplementation:configureProviderPayload.toString(),outputTokenLimit:outputTokenLimit(route.model,tier),transport:{stream:true,cancel:true,maxRetries:0}})).digest('hex')
 }
 export function coachCapabilityReuseProof(report:any,tier:ModelTier){
   if(report?.interfaceSignature!==undefined||report?.contractSignature!==coachContractSignatureFor(tier)||!coachCapabilityReportMatches(report,tier))throw new Error('CAPABILITY_EQUIVALENCE_NOT_PROVEN')

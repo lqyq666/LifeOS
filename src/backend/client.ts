@@ -18,17 +18,27 @@ async function responseError(response:Response){
   const delay=Number(data.retryAfter??response.headers.get('Retry-After'))
   return new ApiError(data.error??data.code??'REQUEST_FAILED',response.status,delay>0?delay:undefined)
 }
-export async function api<T=any>(path:string,body?:unknown,method?:string):Promise<T>{
-  const response=await fetch(path,{credentials:'same-origin',method:method??(body===undefined?'GET':'POST'),headers:body===undefined?undefined:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)})
+Object.assign(notices,{THEME_REVISION_CONFLICT:'主题已在另一处更新，正在刷新；你的输入仍保留，请核对后再保存。'})
+export async function api<T=any>(path:string,body?:unknown,method?:string,options:{keepalive?:boolean}={}):Promise<T>{
+  const response=await fetch(path,{credentials:'same-origin',...(options.keepalive?{keepalive:true}:{}),method:method??(body===undefined?'GET':'POST'),headers:body===undefined?undefined:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)})
   if(!response.ok)throw await responseError(response)
   return await response.json() as T
 }
 export function dataChanged(){window.dispatchEvent(new Event('lifeos-data-changed'))}
 export function conversationFromRows(rows:any[]):Conversation{
-  return {...emptyConversation(),stage:rows.length?'followup':'opening',messages:rows.map((m,i)=>({id:i,role:m.role,text:m.content,sourceId:m.id}))}
+  return {...emptyConversation(),stage:rows.length?'followup':'opening',messages:rows.map((m,i)=>({id:i,role:m.role,text:m.content,sourceId:m.id,...(Number.isInteger(m.memory_reference_count)?{memoryReferenceCount:m.memory_reference_count}:{})}))}
+}
+// Only an actual post-commit receipt can replace the extra full-history read.
+// Mutations, replays without a saved delta and older servers retain readback.
+export function committedTurn(current:Conversation,input:{conversationId:string;requestId:string;sourceId?:string;text:string;reply:string;savedDelta:boolean},done:any):{conversation:Conversation;title:string}|null{
+  const receipt=done?.commitReceipt,uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if(!input.savedDelta||!input.reply.trim()||receipt?.version!==1||receipt.refreshRequired!==false||done.requestId!==input.requestId||receipt.conversationId!==input.conversationId||receipt.userMessageId!==input.sourceId)return null
+  if(!uuid.test(receipt.userMessageId??'')||!uuid.test(receipt.assistantMessageId??'')||receipt.userMessageId===receipt.assistantMessageId||typeof receipt.title!=='string'||!receipt.title||!Number.isSafeInteger(done.memoryReferenceCount)||done.memoryReferenceCount<0)return null
+  if(current.messages.some(m=>m.sourceId===receipt.userMessageId||m.sourceId===receipt.assistantMessageId))return null
+  return {title:receipt.title,conversation:{...current,stage:'followup',demo:false,messages:[...current.messages,{id:current.messages.length,role:'user',text:input.text,sourceId:receipt.userMessageId},{id:current.messages.length+1,role:'assistant',text:input.reply,sourceId:receipt.assistantMessageId,memoryReferenceCount:done.memoryReferenceCount,transient:false}]}}
 }
 export async function loadWorkspace(user:SessionUser,current?:Workspace):Promise<Workspace>{
-  const rows=await api<any[]>('/api/conversations')
+  const rows=await api<any[]>('/api/conversations?includeStateChanges=false')
   const cached=current?.chats??[]
   const chats=rows.map(row=>({id:row.id,title:row.title,renamed:row.renamed,pinned:row.pinned,projectId:row.project_id,updatedAt:new Date(row.updated_at).getTime(),draft:cached.find(c=>c.id===row.id)?.draft??'',conversation:conversationFromRows(row.messages)}))
   // Unsent drafts and explicitly marked demos remain account-scoped browser data.
@@ -42,7 +52,7 @@ export async function loadWorkspace(user:SessionUser,current?:Workspace):Promise
   return {version:1,projects:validProjects,chats,activeId:chats.some(c=>c.id===current?.activeId)?current!.activeId:chats[0].id}
 }
 export async function streamChat(conversationId:string,requestId:string,text:string,signal:AbortSignal,onEvent:(event:any)=>void,focusContext?:{type:'theme'|'experience';id:string;label:string}){
-  const response=await fetch('/api/conversations/'+conversationId+'/messages',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({requestId,text,...(focusContext?{focusContext}:{})}),signal})
+  const response=await fetch('/api/conversations/'+conversationId+'/messages',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-LifeOS-Draft-Deltas':'1'},body:JSON.stringify({requestId,text,...(focusContext?{focusContext}:{})}),signal})
   if(!response.ok)throw await responseError(response)
   if(!response.body)throw new ApiError('MISSING_STREAM',502)
   const reader=response.body.getReader(),decoder=new TextDecoder();let pending='',finished=false

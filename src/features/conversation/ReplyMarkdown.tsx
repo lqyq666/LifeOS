@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, memo, type ReactNode } from 'react'
 import {FullMethod} from './FullMethod'
 
 // Structured reply rendering: companion replies already carry markdown-shaped
@@ -9,11 +9,12 @@ import {FullMethod} from './FullMethod'
 // and accent colors. It never touches innerHTML, so reply text stays inert.
 
 type Block =
+  | { kind: 'hr' }
   | { kind: 'p'; lines: string[] }
   | { kind: 'h'; level: number; text: string }
   | { kind: 'quote'; lines: string[] }
   | { kind: 'ul'; items: string[][] }
-  | { kind: 'ol'; items: string[][] }
+  | { kind: 'ol'; items: string[][]; numbers: string[] }
 
 const INLINE_CODE = /`([^`]+)`/
 const LINK = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g
@@ -36,7 +37,7 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
       const close = text.indexOf('**', i + 2)
       if (close > i + 2) { flush(); const inner = text.slice(i + 2, close); push(<strong>{inline(inner, `${keyPrefix}-b${key}`)}</strong>); i = close + 2; continue }
     }
-    if (rest[i] === '*') {
+    if (rest.startsWith('*') && !rest.startsWith('**')) {
       const close = text.indexOf('*', i + 1)
       if (close > i + 1) { flush(); const inner = text.slice(i + 1, close); push(<em className="qa-md-em">{inline(inner, `${keyPrefix}-i${key}`)}</em>); i = close + 1; continue }
     }
@@ -58,23 +59,37 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
 
 function parseBlocks(source: string): Block[] {
   const blocks: Block[] = []
-  const lines = source.split('\n')
+  const lines = source.split('\n').flatMap(line => {
+    // Legacy replies may contain a real list squeezed onto one line. Reuse
+    // this parser's ordered-list blocks; never infer options from prose.
+    if (/[`]|https?:\/\//.test(line)) return [line]
+    const markers = [...line.matchAll(/(^|[:：;；]\s*|\s+)([1-9]\d?)[.、)](?=\s*[^\s\d])/g)]
+    if (markers.length < 2 || markers.some((m, i) => Number(m[2]) !== i + 1)
+      || !/^(?:\s*|[:：]\s*)$/.test(markers[0]![1]!)) return [line]
+    const cuts = markers.map(m => m.index! + m[1]!.length)
+    const result: string[] = []
+    if (cuts[0]! > 0) result.push(line.slice(0, cuts[0]))
+    for (let i = 0; i < cuts.length; i++) result.push(line.slice(cuts[i], cuts[i + 1]))
+    return result
+  })
   let paragraph: string[] | null = null
   let quote: string[] | null = null
-  let list: { ordered: boolean; items: string[][] } | null = null
+  let list: { ordered: boolean; items: string[][]; numbers: string[] } | null = null
   const closeParagraph = () => { if (paragraph?.length) blocks.push({ kind: 'p', lines: paragraph }); paragraph = null }
   const closeQuote = () => { if (quote?.length) blocks.push({ kind: 'quote', lines: quote }); quote = null }
-  const closeList = () => { if (list?.items.length) blocks.push(list.ordered ? { kind: 'ol', items: list.items } : { kind: 'ul', items: list.items }); list = null }
+  const closeList = () => { if (list?.items.length) blocks.push(list.ordered ? { kind: 'ol', items: list.items, numbers:list.numbers } : { kind: 'ul', items: list.items }); list = null }
   for (const raw of lines) {
     const line = raw.replace(/\s+$/, '')
     if (!line.trim()) { closeParagraph(); closeQuote(); closeList(); continue }
+    if (/^ {0,3}(?:-{3,}|\*{3,}|_{3,})$/.test(line)) { closeParagraph(); closeQuote(); closeList(); blocks.push({kind:'hr'}); continue }
     const heading = /^(#{1,4})\s+(.*)$/.exec(line)
     if (heading) { closeParagraph(); closeQuote(); closeList(); blocks.push({ kind: 'h', level: heading[1]!.length, text: heading[2]! }); continue }
+    if (/^\*\*[^*]+\*\*$/.test(line.trim())) { closeParagraph(); closeQuote(); closeList(); blocks.push({kind:'p',lines:[line]}); continue }
     if (/^>\s?/.test(line)) { closeParagraph(); closeList(); quote = quote ?? []; quote.push(line.replace(/^>\s?/, '')); continue }
     const bullet = /^\s*[-•]\s+(.*)$/.exec(line)
-    if (bullet) { closeParagraph(); closeQuote(); if (list && list.ordered) closeList(); list = list ?? { ordered: false, items: [] }; list.items.push([bullet[1]!]); continue }
-    const numbered = /^\s*(\d{1,2})[.、)]\s+(.*)$/.exec(line)
-    if (numbered) { closeParagraph(); closeQuote(); if (list && !list.ordered) closeList(); list = list ?? { ordered: true, items: [] }; list.items.push([numbered[2]!]); continue }
+    if (bullet) { closeParagraph(); closeQuote(); if (list && list.ordered) closeList(); list = list ?? { ordered: false, items: [], numbers: [] }; list.items.push([bullet[1]!]); continue }
+    const numbered = /^\s*(\d{1,2})[.、)]\s*([^\s\d].*)$/.exec(line)
+    if (numbered) { closeParagraph(); closeQuote(); if (list && !list.ordered) closeList(); list = list ?? { ordered: true, items: [], numbers: [] }; list.items.push([numbered[2]!]); list.numbers.push(numbered[1]!); continue }
     if (list) { list.items.at(-1)!.push(line); continue }
     if (quote) { quote.push(line); continue }
     paragraph = paragraph ?? []
@@ -84,15 +99,16 @@ function parseBlocks(source: string): Block[] {
   return blocks
 }
 
-export function ReplyMarkdown({ text }: { text: string }) {
+export const ReplyMarkdown = memo(function ReplyMarkdown({ text }: { text: string }) {
   const blocks = parseBlocks(text)
   return <div className="qa-md">
     {blocks.map((block, index) => {
       const key = `b${index}`
+      if (block.kind === 'hr') return <hr key={key} className="qa-md-rule"/>
       if (block.kind === 'h') return <p key={key} className={`qa-md-h qa-md-h${block.level}`}>{inline(block.text, key)}</p>
-      if (block.kind === 'quote') return <blockquote key={key} className="qa-md-quote">{inline(block.lines.join(' '), key)}</blockquote>
+      if (block.kind === 'quote') return <blockquote key={key} className="qa-md-quote">{inline(block.lines.join('\n'), key)}</blockquote>
       if (block.kind === 'ul') return <ul key={key} className="qa-md-ul">{block.items.map((item, i) => <li key={i}>{inline(item.join(' '), `${key}-${i}`)}</li>)}</ul>
-      if (block.kind === 'ol') return <ol key={key} className="qa-md-ol">{block.items.map((item, i) => <li key={i} className="qa-md-li"><span className="qa-md-num">{i + 1}</span><span>{inline(item.join(' '), `${key}-${i}`)}</span></li>)}</ol>
+      if (block.kind === 'ol') return <ol key={key} className="qa-md-ol">{block.items.map((item, i) => <li key={i} value={Number(block.numbers[i])} className="qa-md-li"><span className="qa-md-num">{block.numbers[i]}</span><span>{inline(item.join(' '), `${key}-${i}`)}</span></li>)}</ol>
       // A paragraph that is only a bold lead renders as an emphasized lead
       // line — the layered look the replies actually intend.
       const joined = block.lines.join('\n')
@@ -103,4 +119,4 @@ export function ReplyMarkdown({ text }: { text: string }) {
       return <p key={key}>{inline(joined.replace(/\n/g, ' '), key)}</p>
     })}
   </div>
-}
+})

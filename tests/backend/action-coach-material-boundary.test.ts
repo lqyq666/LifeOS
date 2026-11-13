@@ -223,7 +223,10 @@ test('a stale re-emission never silently swallows unrecorded current input, howe
       const recorded = await stageCoachEvent(run, { target: { operation: 'continue', eventId: current.id, expectedRevision: current.revision }, nodes: [{ kind: 'fact', source: { messageId: run.source_message_id, quote: constraint } }] }, '已记录。')
       await store.finishRun(run, { candidates: [], audit: [], coach: recorded }, '已记录。', null, opening.signal)
       current = (await coachEventView(opening.user, opening.conversation))!
-      assert.ok(current.nodes.some(node => node.content === constraint), 'constraint recorded as a node: ' + constraint)
+      if(constraint==='不用联系了'){
+        assert.ok(!current.nodes.some(node=>node.content===constraint),'a request to stop contact is not a reported event fact')
+        assert.ok(current.processTurns?.some(turn=>turn.inputSources?.some(source=>source.messageId===run.source_message_id&&source.quote===constraint)),'the exact control remains traceable in process sources')
+      }else assert.ok(current.nodes.some(node => node.content === constraint), 'constraint recorded as a node: ' + constraint)
     }
     // A01 turn-8 long agreement fact keeps the same behavior.
     const turn8 = (await store.startRun(opening.user, opening.conversation, randomUUID(), '没有明确约好交付时间和格式。')).run

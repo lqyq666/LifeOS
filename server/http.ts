@@ -1,3 +1,6 @@
+import {readReplyMemoryReferences} from './reply-memory-references.ts'
+import {personalUnderstanding} from './personal-understanding.ts'
+import {replyDraftFrame} from './reply-stream.ts'
 import {entitlementView} from './entitlements.ts'
 import { coachHistoryView } from './coach-history.ts'
 import { searchCoachEvents } from './coach-retrieval.ts'
@@ -34,6 +37,7 @@ import {createWorkflowHost,type WorkflowHost} from './workflows/task-host.ts'
 import {workflowRuntimeVersion} from './workflows/runtime-version.ts'
 import {WorkflowError} from './workflows/contracts.ts'
 import {queueMaintenancePack,listMaintenanceDrafts,readMaintenanceDraft,actOnMaintenanceDraft} from './kb-maintenance.ts'
+import type { RuntimeCoordination } from './runtime-coordination.ts'
 
 export function modelReady() {
   return credentialReady()&&modelCapabilityVerified('default')
@@ -46,12 +50,15 @@ async function body(req:IncomingMessage){
 }
 function json(res:ServerResponse,status:number,value:unknown){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(value))}
 function sse(res:ServerResponse,event:unknown){if(!res.destroyed&&!res.writableEnded)res.write('data: '+JSON.stringify(event)+'\n\n')}
-export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHost?:WorkflowHost){
-  const workflows=workflowHost??createWorkflowHost()
+export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHost?:WorkflowHost,runtime?:RuntimeCoordination){
+  const workflows=workflowHost??createWorkflowHost({runtime})
   const modelManaged=engine.modelManaged===true,engineReady=()=>engine.modelReadiness?.()??modelReady()
   const active=new Map<string,AbortController>()
   const scheduler=new RequestScheduler(config.generationConcurrency,config.generationQueueLimit)
   let shuttingDown=false
+  let handling=0
+  const drained=new Set<()=>void>()
+  const offLost=runtime?.onLost(()=>{for(const controller of active.values())controller.abort('INSTANCE_LOCK_CONNECTION_LOST')})
   const authHandler=toNodeHandler(auth)
   const server=createServer(async(req,res)=>{
     // P7: the user wait starts when the request arrives, not when `started`
@@ -63,12 +70,14 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHos
     if(config.production)res.setHeader('Strict-Transport-Security','max-age=31536000')
     // Overwrite the private header using the socket; clients cannot choose their rate-limit bucket.
     req.headers['x-lifeos-client-ip']=clientIP(req.socket.remoteAddress??'unknown',typeof req.headers['x-real-ip']==='string'?req.headers['x-real-ip']:undefined)
+    let admitted=false
     try{
       const url=new URL(req.url??'/',config.origin), path=url.pathname, method=req.method??'GET'
       if(path==='/api/access-policy'&&method==='GET'){json(res,200,{signupEnabled:config.signupEnabled,passwordResetEnabled:mailConfigured()});return}
       if(path==='/api/health'&&method==='GET'){await pool.query('SELECT 1');json(res,200,{database:'postgresql',model:model.id,modelTiers:availableModelTiers(),capabilitiesVerified:modelReady(),provider:await modelState(),providerCheckedByHealth:false});return}
       if(path==='/api/ready'&&method==='GET'){await pool.query('SELECT id FROM lifeos_model_state WHERE id=1');const ready=!shuttingDown&&localEmbedding.healthy;json(res,ready?200:503,{ready,scope:'application-database-and-offline-embedding',embedding:{ready:localEmbedding.healthy,offline:true},modelLiveVerified:false});return}
       if(shuttingDown)throw new HttpError(503,'SERVER_SHUTTING_DOWN',10)
+      handling++;admitted=true
       if(!['GET','HEAD'].includes(method)&&req.headers.origin!==config.origin)throw new HttpError(403,'ORIGIN_REJECTED')
       if(Number(req.headers['content-length']??0)>65536)throw new HttpError(413,'REQUEST_TOO_LARGE')
       if(path==='/api/auth/pending-reset')throw new HttpError(404,'NOT_FOUND')
@@ -138,13 +147,19 @@ export function createApp(engine:Engine=runAgent,runTimeoutMs=180000,workflowHos
         }
         const campus=path.match(/^\/api\/conversations\/([^/]+)\/campus$/)
         if(campus&&method==='GET'){json(res,200,await campusView(user,validateId(campus[1])));return}
+        const replyReferences=path.match(/^\/api\/messages\/([^/]+)\/memory-references$/)
+        if(replyReferences&&method==='GET'){json(res,200,await readReplyMemoryReferences(user,validateId(replyReferences[1])));return}
+        if(path==='/api/understanding'&&method==='GET'){const conversation=url.searchParams.get('conversation');json(res,200,await personalUnderstanding(user,conversation?validateId(conversation):undefined));return}
         if(path==='/api/memory'&&method==='GET'){const conversation=url.searchParams.get('conversation');json(res,200,await memory.getMemoryView(user,conversation?validateId(conversation):undefined));return}
         if(path==='/api/memory/settings'&&method==='POST'){json(res,200,await memory.setMemorySettings(user,validate(memorySettingsSchema,await body(req))));return}
         const memoryAction=path.match(/^\/api\/memory\/([^/]+)\/actions$/)
         if(memoryAction&&method==='POST'){json(res,200,await memory.applyMemoryAction(user,validateId(memoryAction[1]),validate(memoryActionSchema,await body(req))));return}
-        if(path==='/api/conversations'&&method==='GET'){json(res,200,await store.listConversations(user));return}
+        if(path==='/api/conversations'&&method==='GET'){json(res,200,await store.listConversations(user,url.searchParams.get('includeStateChanges')!=='false'));return}
         if(path==='/api/conversations'&&method==='POST'){json(res,201,await store.createConversation(user,validate(createChatSchema,await body(req))));return}
+        const ownedConversationPath=path.match(/^\/api\/conversations\/([^/]+)(?:\/|$)/)
+        if(ownedConversationPath&&method!=='DELETE')await store.requireVisibleConversation(user,validateId(ownedConversationPath[1]))
         const chat=path.match(/^\/api\/conversations\/([^/]+)$/)
+        if(chat&&method==='DELETE'){json(res,200,await store.deleteConversation(user,validateId(chat[1])));return}
         if(chat&&method==='PATCH'){json(res,200,await store.patchConversation(user,validateId(chat[1]),validate(chatPatchSchema,await body(req))));return}
         const decisions=path.match(/^\/api\/conversations\/([^/]+)\/decisions$/)
         if(decisions&&method==='GET'){json(res,200,await store.decisionVersions(user,validateId(decisions[1])));return}
@@ -165,6 +180,11 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
         const cancel=path.match(/^\/api\/runs\/([^/]+)\/cancel$/)
         if(cancel&&method==='POST'){
           const id=validateId(cancel[1]);active.get(user+':'+id)?.abort()
+          // First release only: the legacy owner cannot poll durable cancels.
+          // Forward authentication only to the fixed private legacy peer.
+          if(runtime&&process.env.LIFEOS_LEGACY_CANCEL_PEER==='lifeos-app-1'){
+            await fetch('http://lifeos-app-1:8787'+path,{method:'POST',headers:{Origin:config.origin,Cookie:req.headers.cookie??''},signal:AbortSignal.timeout(3000)}).then(r=>r.body?.cancel()).catch(()=>{})
+          }
           json(res,200,await store.terminateRun(user,id,'cancelled','USER_CANCELLED'));return
         }
         const send=path.match(/^\/api\/conversations\/([^/]+)\/messages$/)
@@ -178,6 +198,9 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
               if(!knownFactAnswer&&!engineReady())throw new HttpError(503,'MODEL_CAPABILITY_TEST_REQUIRED')
             }
           }
+          const ownership=runtime?await runtime.claimRun(user,input.requestId):undefined
+          if(ownership===null)throw new HttpError(409,'RUN_IN_PROGRESS')
+          try{
           const started=await store.startRun(user,conversation,input.requestId,input.text)
           const startRunDoneAt=performance.now()
           const run=started.run
@@ -188,8 +211,15 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
             res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache, no-store'});sse(res,{type:'done',...response,replayed:true});res.end();return
           }
           const controller=new AbortController(),key=user+':'+run.request_id;active.set(key,controller)
-          if(shuttingDown)controller.abort('SERVER_SHUTTING_DOWN')
           const timer=setTimeout(()=>controller.abort('MODEL_TIMEOUT'),runTimeoutMs)
+          let checking=false
+          const cancellation=runtime?setInterval(async()=>{
+            if(checking||controller.signal.aborted)return
+            checking=true
+            try{const row=(await pool.query('SELECT status FROM runs WHERE user_id=$1 AND request_id=$2',[user,run.request_id])).rows[0];if(row?.status!=='running')controller.abort('USER_CANCELLED')}
+            catch{controller.abort('INSTANCE_DATABASE_UNAVAILABLE')}
+            finally{checking=false}
+          },250):undefined
           res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache, no-store','Connection':'keep-alive','X-Accel-Buffering':'no'});res.flushHeaders()
           sse(res,{type:'started',requestId:run.request_id,sourceMessageId:run.source_message_id})
           const startedEventAt=performance.now()
@@ -199,6 +229,7 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
           if(res.destroyed)closed()
           const staged:store.Staged={candidates:[],audit:[]}
           let release:(()=>void)|undefined
+          let releaseGeneration:(()=>Promise<void>)|undefined
           // P2-5: observable stage latencies, numeric only, persisted in the
           // run audit and echoed on done. Stages that did not run stay null —
           // nothing is inferred by subtraction.
@@ -207,12 +238,16 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
           let queueWaitMs:number|null=null,contextLoadMs:number|null=null,engineTotalMs:number|null=null,finishRunMs:number|null=null,contextMark=0
           try{
             release=await scheduler.acquire(user,controller.signal,()=>sse(res,{type:'queued',requestId:run.request_id}))
+            releaseGeneration=await runtime?.acquireGeneration(user,config.generationConcurrency,controller.signal)
             controller.signal.throwIfAborted()
             queueWaitMs=mark()
             sse(res,{type:'processing',requestId:run.request_id})
-            const context=await store.contextForRun(run),versions=await store.decisionVersions(user,conversation)
+            sse(res,{type:'progress',stage:'context'})
+            const [context,versions]=await Promise.all([store.contextForRun(run),store.decisionVersions(user,conversation)])
             contextMark=mark();contextLoadMs=contextMark-queueWaitMs
             const safeEvents:Record<string,unknown>[]=[]
+            const incrementalDrafts=req.headers['x-lifeos-draft-deltas']==='1'
+            let lastDraft=''
             // 继续聊：焦点身份只信服务器校验过的归属（本人且未撤销），标签仅展示。
             let focusContext:null|{type:'theme'|'experience';id:string;label:string}=null
             if(input.focusContext){
@@ -228,41 +263,53 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
             const result=await engine({run,staged,context,decision:versions[0]?.payload,signal:controller.signal,focusContext,emit:event=>{
               if(controller.signal.aborted)return
               if(event.type==='draft'&&typeof event.text==='string'&&event.saved===false){
-                const question=openingQuestionDraft(JSON.stringify({reply:event.text}))===event.text
+                const streaming=modelManaged&&event.draftKind==='stream_reply'&&event.text.length<=16000
+                const question=!streaming&&openingQuestionDraft(JSON.stringify({reply:event.text}))===event.text
                 // Only the engine's validated sentence lane can use this path;
                 // arbitrary draft events retain the stricter question guard.
-                const sentence=event.draftKind==='safe_sentence'&&safeEarlySentence(JSON.stringify({reply:event.text+'。'}))===event.text
+                const sentence=!streaming&&event.draftKind==='safe_sentence'&&safeEarlySentence(JSON.stringify({reply:event.text+'。'}))===event.text
                 // The five-state preview is rendered by the server from the
                 // user's own reports; it is not an unvalidated model sentence.
                 const verifiedState=event.verifiedState===true
                 const verifiedFeedback=event.verifiedFeedback===true
-                if(question||sentence||verifiedState||verifiedFeedback)sse(res,{type:'draft',text:event.text,saved:false})
+                if(question||sentence||verifiedState||verifiedFeedback||streaming){
+                  sse(res,replyDraftFrame(event.text,lastDraft,incrementalDrafts&&streaming));lastDraft=event.text
+                }
               }
-              if(event.type==='draft_discarded')sse(res,{type:'draft_discarded'})
+              if(event.type==='progress'&&['background','generating','validating'].includes(String(event.stage)))sse(res,{type:'progress',stage:event.stage})
+              if(event.type==='draft_discarded'){lastDraft='';sse(res,{type:'draft_discarded'})}
               if(event.type==='tool'&&typeof event.name==='string'&&typeof event.status==='string')safeEvents.push(event)
             }})
             engineTotalMs=mark()-contextMark
             const preStartTimings={receivedToStartedMs:Math.round(startedEventAt-receivedAt),authMs:Math.round(authDoneAt-receivedAt),authToStartRunMs:Math.round(startRunDoneAt-authDoneAt),startRunToStartedMs:Math.round(startedEventAt-startRunDoneAt)}
             staged.audit.push({phase:'http_stage_timings',...preStartTimings,queueWaitMs,contextLoadMs,engineTotalMs})
             const finishStart=performance.now()
+            sse(res,{type:'progress',stage:'saving'})
             const response=await store.finishRun(run,staged,result.text,result.usage,controller.signal,staged.dialoguePath,staged.upstreamCalls)
             finishRunMs=Math.round(performance.now()-finishStart)
-            if(modelManaged&&staged.upstreamCalls)await recordModelSuccess().catch(()=>{})
             for(const event of safeEvents)sse(res,event)
             sse(res,{type:'delta',text:result.text,replace:true,saved:true})
             sse(res,{type:'done',...response,stageTimings:{...preStartTimings,queueWaitMs,contextLoadMs,engineTotalMs,finishRunMs}})
+            // The transaction above owns the save receipt. Health telemetry
+            // must not keep a fully saved reply or the response body waiting.
+            res.end()
+            if(modelManaged&&staged.upstreamCalls)await recordModelSuccess().catch(()=>{})
           }catch(error){
             if(process.env.LIFEOS_DEBUG_FINISH)console.error('FINISH_ERR',error)
             const timedOut=controller.signal.reason==='MODEL_TIMEOUT',cancelled=controller.signal.aborted&&!timedOut
             const failure=timedOut?new HttpError(504,'MODEL_TIMEOUT',15):error instanceof HttpError?error:new HttpError(502,'MODEL_REQUEST_FAILED',15)
             const code=cancelled?(controller.signal.reason==='SERVER_SHUTTING_DOWN'?'SERVER_SHUTTING_DOWN':'CANCELLED'):failure.code
             if(!cancelled&&modelManaged&&code.startsWith('MODEL_'))await recordModelFailure(failure).catch(()=>{})
-            await store.terminateRun(user,run.request_id,cancelled?'cancelled':'failed',code)
-            await pool.query('UPDATE runs SET usage=$3,tool_audit=$4 WHERE user_id=$1 AND request_id=$2',[user,run.request_id,staged.modelUsage??null,JSON.stringify(staged.audit)]).catch(()=>{})
-            sse(res,{type:'draft_discarded'})
-            sse(res,{type:'error',code,status:cancelled?409:failure.status,retryAfter:cancelled?undefined:failure.retryAfter})
+            try{
+              await store.terminateRun(user,run.request_id,cancelled?'cancelled':'failed',code)
+              await pool.query('UPDATE runs SET usage=$3,tool_audit=$4 WHERE user_id=$1 AND request_id=$2',[user,run.request_id,staged.modelUsage??null,JSON.stringify(staged.audit)]).catch(()=>{})
+            }finally{
+              sse(res,{type:'draft_discarded'})
+              sse(res,{type:'error',code,status:cancelled?409:failure.status,retryAfter:cancelled?undefined:failure.retryAfter})
+            }
             console.info(JSON.stringify({event:'run_finished',requestId:run.request_id,status:cancelled?'cancelled':'failed',code}))
-          }finally{release?.();clearTimeout(timer);clearInterval(heartbeat);active.delete(key);res.off('close',closed);res.end()}
+          }finally{if(cancellation)clearInterval(cancellation);await releaseGeneration?.();release?.();clearTimeout(timer);clearInterval(heartbeat);active.delete(key);res.off('close',closed);if(!res.writableEnded)res.end()}
+          }finally{await ownership?.()}
           return
         }
         throw new HttpError(404,'NOT_FOUND')
@@ -285,14 +332,17 @@ if(path==='/api/cognition'&&method==='GET'){json(res,200,await store.cognitionGr
       if(retryAfter&&!res.headersSent)res.setHeader('Retry-After',String(retryAfter))
       if(res.headersSent){sse(res,{type:'error',code,status,retryAfter});res.end()}else json(res,status,{error:code,retryAfter})
       if(status===500)console.error('INTERNAL_ERROR',error instanceof Error?error.name:'unknown')
-    }
+    }finally{if(admitted)handling--;if(handling===0)for(const resolve of drained)resolve()}
   })
-  server.on('close',()=>{workflows.close();for(const controller of active.values())controller.abort()})
+  server.on('close',()=>{offLost?.();workflows.close();for(const controller of active.values())controller.abort()})
   server.headersTimeout=15000
   server.requestTimeout=60000
   return Object.assign(server,{drain:async()=>{
     shuttingDown=true
-    const entries=[...active.entries()];for(const [,controller] of entries)controller.abort('SERVER_SHUTTING_DOWN')
-    await Promise.all(entries.map(([key])=>{const split=key.lastIndexOf(':');return store.terminateRun(key.slice(0,split),key.slice(split+1),'cancelled','SERVER_SHUTTING_DOWN')}))
+    // Include requests admitted before auth/startRun. Keep dependencies alive
+    // through their final save; deployment must never cancel these handlers.
+    if(handling)await new Promise<void>(resolve=>drained.add(resolve))
+    drained.clear()
+    await workflows.drain()
   }})
 }

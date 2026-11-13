@@ -36,12 +36,15 @@ test('event process turns preserve exact input/question chronology across old di
     const context=await store.contextForRun(current),prompt=buildTurnPrompt({currentMessageId:current.source_message_id,messages:context,currentEvent:await coachEventView(user,chat)})
     const metadata=JSON.parse(providerTurnMessages(prompt,{provider:'openai',id:'qwen3.8-flash'})[0].content as string)
     assert.ok(!metadata.messages.some((m:{id:string})=>m.id===sources[1]),'ordinary old message is outside bounded dialogue history')
-    const oldTurn=metadata.currentEvent.processTurns[1],oldQuote=metadata.currentEvent.nodes.find((n:{id:string})=>n.id===oldTurn.nodeIds[0]).source
+    assert.equal(metadata.currentEvent,undefined,'provider metadata uses the read-only workspace instead of an event write object')
+    const workspace=metadata.readOnlyEventWorkspace
+    assert.equal(workspace.eventRef.id,event.id)
+    const oldTurn=workspace.sourceHistory[1],oldQuote=workspace.reportedNodes.find((n:{id:string})=>n.id===oldTurn.affectedNodeIds[0]).source
     assert.equal(oldTurn.sourceMessageId,sources[1]);assert.equal(oldQuote.messageId,sources[1]);assert.equal(oldQuote.quote,'这个细节我记不清了。')
-    assert.equal(Object.hasOwn(metadata.currentEvent.processTurns[1],'answered'),false)
-    assert.deepEqual(metadata.currentEvent.processTurns.find((turn:any)=>turn.sourceMessageId===unknown.source_message_id).inputSources,unknownTurn.inputSources,'old non-node original survives outside bounded role history')
-    assert.deepEqual(metadata.currentEvent.processTurns.find((turn:any)=>turn.sourceMessageId===unknown.source_message_id).introducedUnknownNodeIds,[introducedUnknownId],'question introduction remains explicit outside the bounded role history')
-    assert.equal(metadata.currentEvent.processTurns.find((turn:any)=>turn.sourceMessageId===refusal.source_message_id).inputSources[0].quote,'原因我不想讲。')
+    assert.equal(Object.hasOwn(oldTurn.metadata,'answered'),false)
+    assert.deepEqual(workspace.sourceHistory.find((turn:any)=>turn.sourceMessageId===unknown.source_message_id).sourceReports,unknownTurn.inputSources,'old non-node original survives outside bounded role history')
+    assert.deepEqual(workspace.sourceHistory.find((turn:any)=>turn.sourceMessageId===unknown.source_message_id).metadata.introducedUnknownNodeIds,[introducedUnknownId],'question introduction remains explicit outside the bounded role history')
+    assert.equal(workspace.sourceHistory.find((turn:any)=>turn.sourceMessageId===refusal.source_message_id).sourceReports[0].quote,'原因我不想讲。')
     await store.terminateRun(user,current.request_id,'cancelled','SYNTHETIC_DONE')
     await transaction(async c=>{await c.query('INSERT INTO memory_suppressions(user_id,source_message_id,source_conversation_id,key) VALUES($1,$2,$3,$4)',[user,sources[1],chat,'*'])})
     assert.ok(!(await coachEventView(user,chat))!.processTurns!.some(t=>t.sourceMessageId===sources[1]))

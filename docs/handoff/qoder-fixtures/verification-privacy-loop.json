@@ -1,0 +1,28 @@
+{
+  "id": "privacy-loop",
+  "cases": [
+    {
+      "actor": "privacy",
+      "text": "我的专业是信息管理。昨天我独立清洗了社团问卷数据，去掉了3条重复问卷。我也会用SQL写基础查询。"
+    },
+    {
+      "actor": "privacy",
+      "text": "接着上次的问卷经历，我做过的部分是什么？还有哪一项需要核实？"
+    },
+    {
+      "actor": "privacy",
+      "continued": true,
+      "text": "我的专业从信息管理改成软件工程。保留问卷经历和其他已保存的事实。"
+    },
+    {
+      "actor": "privacy",
+      "continued": true,
+      "expectedCalls": 0,
+      "text": "请忘掉我会用SQL写基础查询这条记录。"
+    },
+    {
+      "actor": "privacy",
+      "text": "只根据仍然保存的事实，说明我的专业、问卷经历，以及下次该如何验证清洗结果。"
+    }
+  ]
+}

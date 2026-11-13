@@ -17,8 +17,8 @@ test('the lexicon classifies by strong direct evidence or two weak clues',()=>{
 const experience=(id:string,over:Partial<PatternExperience>):PatternExperience=>({ id, revision:1, conversationId:'c-'+id, sourceMessageId:'m-'+id, quote:'q-'+id, action:'', result:'', valueIds:[], ...over })
 
 test('patterns need two supporting experiences including the fresh one',()=>{
-  const late=experience('e1',{ result:'比约定晚了两天，部长说效果还不错', action:'我把推文和海报整套都交了', valueIds:['value-creation'] })
-  const late2=experience('e2',{ result:'迟了一天交上去', action:'我完成了课程展示的课件', valueIds:['value-creation'] })
+  const late=experience('e1',{ quote:'我把推文和海报整套都交了，比约定晚了两天，部长说效果还不错', result:'比约定晚了两天，部长说效果还不错', action:'我把推文和海报整套都交了', valueIds:['value-creation'] })
+  const late2=experience('e2',{ quote:'我完成了课程展示的课件，迟了一天交上去', result:'迟了一天交上去', action:'我完成了课程展示的课件', valueIds:['value-creation'] })
   const alone=derivePatternProposals([late],'e1')
   assert.equal(alone.length,0,'one experience never becomes a pattern')
   const pair=derivePatternProposals([late,late2],'e2')

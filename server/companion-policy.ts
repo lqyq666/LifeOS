@@ -21,3 +21,35 @@ export const mainCompanionPolicy=Object.freeze({
  scope:'follow-up-deliver-stop+grilling',instructions:extracted.instructions,
  grilling:Object.freeze({name:'lifeos-grilling',version:extracted.grillingVersion,policyDigest:createHash('sha256').update(extracted.grillingInstructions).digest('hex'),instructions:extracted.grillingInstructions}),
 })
+
+// Read-only matter comparison does not conduct the deeper interview. Keep the
+// original delivery, refusal, evidence and privacy policy paragraphs verbatim.
+const decisionEnd=extracted.instructions.indexOf('\nUse this only for a real direction choice')
+if(decisionEnd<0)throw Error('DECISION_COMPANION_POLICY_UNAVAILABLE')
+const decisionBoundaries=['When the person reports zero available time,','Use only contact channels, people and resources present in authorized state.'].map(start=>{
+ const paragraph=extracted.grillingInstructions.split(/\r?\n\r?\n/).find(part=>part.startsWith(start))
+ if(!paragraph)throw Error('DECISION_COMPANION_BOUNDARY_UNAVAILABLE')
+ return paragraph
+})
+const decisionInstructions=[extracted.instructions.slice(0,decisionEnd).trim(),...decisionBoundaries].join('\n\n')
+export const readOnlyDecisionPolicy=Object.freeze({
+ name:mainCompanionPolicy.name,version:mainCompanionPolicy.version,
+ sourceDigest:mainCompanionPolicy.sourceDigest,
+ policyDigest:createHash('sha256').update(decisionInstructions).digest('hex'),
+ scope:'read-only-matter-decision/1',instructions:decisionInstructions,
+})
+
+// Keep the approved delivery and privacy policy. The depth checklist is
+// used by the full policy when the turn actually needs exploration.
+const directDeliveryEnd=extracted.instructions.indexOf('\n## Personal understanding')
+const directPrivacy=extracted.instructions.split(/\r?\n\r?\n/).find(part=>part.startsWith('沿用 growth、memory、experience'))
+if(directDeliveryEnd<0||!directPrivacy)throw Error('DIRECT_COMPANION_POLICY_UNAVAILABLE')
+const directDelivery=extracted.instructions.slice(0,directDeliveryEnd).trim()
+ .replace(/mark what is truly\s+missing with【】placeholders or an explicit 待补 list/u,'state what remains unknown in complete prose')
+const directOrdinaryInstructions=[directDelivery,directPrivacy,...decisionBoundaries].join('\n\n')
+export const directOrdinaryPolicy=Object.freeze({
+ name:mainCompanionPolicy.name,version:mainCompanionPolicy.version,
+ sourceDigest:mainCompanionPolicy.sourceDigest,
+ policyDigest:createHash('sha256').update(directOrdinaryInstructions).digest('hex'),
+ scope:'direct-ordinary/2',instructions:directOrdinaryInstructions,
+})

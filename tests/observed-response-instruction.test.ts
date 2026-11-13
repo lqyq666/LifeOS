@@ -3,6 +3,15 @@ import assert from 'node:assert/strict'
 import {buildClauseCatalogue} from '../server/clause-catalogue.ts'
 import {resolveGrowthDeltas} from '../server/growth-authority.ts'
 import {assistantRequestClause} from '../server/user-command-spans.ts'
+import {clauseReportsCompleted} from '../server/experience-content.ts'
+
+test('completing a reply and its output format are instructions, not personal achievements',()=>{
+ for(const text of ['请现在完成这两条建议','每条两句话','说明结合我本人背景的理由及仍未知的部分']){
+  assert.equal(assistantRequestClause(text),true,text)
+  assert.equal(clauseReportsCompleted(text),false,'output requests cannot trigger a saved experience')
+ }
+ assert.equal(assistantRequestClause('我现在完成了这两项比赛任务'),false)
+})
 
 test('the observed request for one step is not a personal time constraint or an observation dependency',()=>{
  const text='这周现在只剩半小时，只看一个岗位就好，给我一个能开始的步骤。',catalogue=buildClauseCatalogue(text)

@@ -13,11 +13,11 @@ export function renderCoachReply(turn:ActionCoachTurn):string{
   if(!material.trim())throw new Error('ACTION_COACH_EMPTY_MATERIAL')
   if(turn.reply.includes(material))return turn.reply
   // A complete plain-text draft may already appear with simple bold markup.
-  // Only accept an exact match after removing those wrappers; preserve code,
+  // Compare without those wrappers, but return the untouched original; preserve code,
   // escapes and literal operators, and never rewrite the authoritative draft.
   if(!/[`\\]/.test(turn.reply)&&!/[`\\*]/.test(material)){
     const plain=turn.reply.replace(/(?<![\\\w*])\*\*(\S(?:[^\n]*?\S)?)\*\*(?![\w*])/g,'$1')
-    if(plain.includes(material))return plain
+    if(plain.includes(material))return turn.reply
   }
   return turn.reply.trim()?turn.reply+'\n\n'+material:material
 }

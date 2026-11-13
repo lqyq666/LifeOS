@@ -7,13 +7,15 @@
 // batch (they commit through the control path instead — P3).
 
 import type { ClauseHandle } from './clause-catalogue.ts'
-import { resolveClause } from './clause-catalogue.ts'
+import { resolveClause,clauseMessageSource,inheritReportedContribution,reportedContribution } from './clause-catalogue.ts'
 import type { GrowthInputDelta, ResolvedGrowthDelta, ResolvedGrowthTarget } from './growth-model-contracts.ts'
 import type { CorrectionPlan } from './turn-obligations.ts'
 import {applicableTimeBudget} from './turn-obligations.ts'
-import {assistantInstructionClause,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,unstartedActivityOnlyClause} from './user-command-spans.ts'
-import {reportedPursuitClauses} from './turn-contract.ts'
+import {assistantInstructionClause,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,unstartedActivityOnlyClause,profileWritesDisallowed,goalChangeMarker} from './user-command-spans.ts'
+import {reportedPursuitClauses,reportedPreferenceClauses} from './turn-contract.ts'
+import {reportedPurposeClause} from './user-command-spans.ts'
 import {violatesLabelInferenceBoundary} from './forget-intent.ts'
+import {explicitTimeEvidenceCandidates} from './growth-time.ts'
 
 export type AuthorityItemView={id:string;revision:number;kind:string;assertion:string;text:string;unavailableReason:string|null;status?:string;inferenceBoundary?:{label:string;active:boolean}}
 
@@ -36,7 +38,7 @@ export type GrowthAuthorityAudit=
 
 // A goal/direction change marker in the CURRENT clause: the user is changing
 // course, not asserting a new independent fact alongside the old ones.
-export const goalChangeMarker=/(?:改主意|换(?:个)?(?:方向|目标)|不想(?:再)?(?:做|继续|准备)|不打算|决定不|改为|换成|转向|放弃)/
+export {goalChangeMarker} from './user-command-spans.ts'
 const goalChangeMarkerReplace=/(?:改为|换成|转向|不想(?:再)?(?:做|继续|准备)|不打算|决定不|放弃)/
 const clauseIsControl=(text:string,controlClauseTexts:readonly string[])=>controlClauseTexts.some(control=>control.trim()===text.trim())
 const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
@@ -44,6 +46,7 @@ const carriesClauseText=(text:string)=>/[\p{L}\p{N}]/u.test(text)
 export function resolveGrowthDeltas(input:{
   deltas:readonly GrowthInputDelta[]
   currentMessageId:string
+  requestTimeUtc?:string
   currentText:string
   catalogue:readonly ClauseHandle[]
   authorized:readonly AuthorityItemView[]
@@ -55,9 +58,14 @@ export function resolveGrowthDeltas(input:{
   const audit:GrowthAuthorityAudit[]=[]
   const resolved:ResolvedGrowthDelta[]=[]
   const indexMap=new Map<number,number>()
+  if(profileWritesDisallowed(input.currentText))return {deltas:resolved,audit,indexMap}
   audit.push({phase:'growth_authority_entry',deltas:input.deltas.length,planTarget:Boolean(input.correctionPlan?.target),controlClauses:input.controlClauseTexts.length})
   const mutatedItems=new Set<string>()
   const emittedClauses=new Set<string>()
+  const emittedContributionKeys=new Map<string,Set<string>>()
+  const contributionKey=(delta:object)=>{const contribution=reportedContribution(delta);return contribution?JSON.stringify([contribution.actor,contribution.pendingActionQuote??contribution.actionQuote]):null}
+  const contributionClauses=new Set(input.deltas.filter(delta=>reportedContribution(delta)).map(delta=>delta.source.clauseId))
+  const markEmitted=(clauseId:string,delta:object)=>{emittedClauses.add(clauseId);const key=contributionKey(delta);if(key){const keys=emittedContributionKeys.get(clauseId)??new Set<string>();keys.add(key);emittedContributionKeys.set(clauseId,keys)}}
   for(const [inputIndex,delta] of input.deltas.entries()){
     if(delta.assertion==='ai_observation'&&violatesLabelInferenceBoundary(delta.text,input.inferenceBoundaries??input.authorized.flatMap(item=>item.status==='active'&&!item.unavailableReason&&item.inferenceBoundary?.active?[item.inferenceBoundary]:[]),input.currentText)){
       audit.push({phase:'growth_rejected_label_inference_dropped',inputIndex});continue
@@ -84,14 +92,20 @@ export function resolveGrowthDeltas(input:{
     }
     // The same clause grounds one fact per turn; a provider echoing one span
     // into several shapes (the C06 duplicate replace shape) keeps the first.
-    if(emittedClauses.has(clause.clauseId)){audit.push({phase:'growth_duplicate_clause',inputIndex,clauseId:clause.clauseId});continue}
+    const plannedMajor=input.correctionPlan?.field==='education.major'&&delta.assertion==='user_reported'&&(clause.text===input.correctionPlan.newQuote||clause.text===input.correctionPlan.markerQuote&&delta.target.operation==='correct'&&delta.target.itemId===input.correctionPlan.target?.itemId)
+    const canonicalClauseId=plannedMajor?input.catalogue.find(handle=>handle.text===input.correctionPlan!.newQuote)?.clauseId??clause.clauseId:clause.clauseId
+    const selectedContributionKey=contributionKey(delta),priorContributionKeys=emittedContributionKeys.get(canonicalClauseId)
+    // A server-validated semantic contribution owns this clause regardless of
+    // provider array order. A generic duplicate cannot pre-empt it and expose
+    // an unknown actor as an ordinary personal fact.
+    if((!selectedContributionKey&&contributionClauses.has(clause.clauseId))||(emittedClauses.has(canonicalClauseId)&&(!selectedContributionKey||!priorContributionKeys||priorContributionKeys.has(selectedContributionKey)))){audit.push({phase:'growth_duplicate_clause',inputIndex,clauseId:clause.clauseId});continue}
     // The marker clause of an active correction plan belongs to the
     // deterministic fallback staging — a model create anchored there would
     // store the marker prefix (更正一下：…) as a stray fact, so creates are
     // dropped early. A correct aimed at the scored plan target is honored
     // below (the plan supplies the stripped newQuote), so it passes through.
     if(delta.target.operation!=='correct'&&input.correctionPlan&&/(?:更正|说错了?|搞错了?|记错了?|写错了?|看错了?|不对|说成|说成过|之前说|以前说|原本是)/.test(clause.text)&&!clause.interrogative){audit.push({phase:'growth_marker_clause_excluded',inputIndex,clauseId:clause.clauseId});continue}
-    const timeEvidence=resolveTimeEvidence(delta,input.catalogue)
+    const timeEvidence=resolveTimeEvidence(delta,input.catalogue,input.requestTimeUtc)
     // The wire timeEvidence (clauseId form) must never leak through: an
     // unresolvable anchor means NO evidence, and the supplement path covers
     // the obligation deterministically. A legacy validUntil is kept ONLY when
@@ -102,16 +116,20 @@ export function resolveGrowthDeltas(input:{
     const expiry='validUntil'in delta?delta.validUntil:undefined
     const legacyValidUntil=typeof expiry==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(expiry)?expiry:undefined
     if('validUntil'in deltaWithoutExpiry)delete deltaWithoutExpiry.validUntil
-    const next:ResolvedGrowthDelta={...deltaWithoutExpiry,...(legacyValidUntil?{validUntil:legacyValidUntil}:{}),source:{messageId:input.currentMessageId,quote:clause.text},target:{operation:'create'},...(timeEvidence?{timeEvidence}:{})} as unknown as ResolvedGrowthDelta
+    const next:ResolvedGrowthDelta={...deltaWithoutExpiry,...(legacyValidUntil?{validUntil:legacyValidUntil}:{}),source:clauseMessageSource(input.currentMessageId,clause),target:{operation:'create'},...(timeEvidence?{timeEvidence}:{})} as unknown as ResolvedGrowthDelta
+    inheritReportedContribution(delta,next)
+    if(plannedMajor&&next.assertion==='user_reported'){next.kind='context';delete next.text}
     const reportedPursuit=!currentConversationOnly(input.currentText)&&reportedPursuitClauses(input.currentText).some(pursuit=>pursuit.text===clause.text)
     if(next.assertion==='user_reported'&&next.kind==='context'&&reportedPursuit)next.kind='goal'
+    if(next.assertion==='user_reported'&&['context','goal','direction','priority'].includes(next.kind)&&/(?:看重|重视)/.test(clause.text)&&reportedPreferenceClauses(input.currentText).some(preference=>preference.text===clause.text))next.kind='preference'
     // A provider kind is not evidence of an affirmative pursuit. Reports,
     // negative preferences and current feelings retain their words as context.
     if(next.assertion==='user_reported'&&['goal','direction'].includes(next.kind)&&
       ((currentConversationOnly(input.currentText)&&!/我.{0,20}优先/.test(clause.text))||clause.attributedToOther||/^(?:但|也|还|仍)?(?:没|没有|未|尚未)|(?:不想|不要|别)(?:改|到|再)|(?:我)?(?:有点|很)?(?:担心|烦躁|难过)/.test(clause.text)||
-       (!reportedPursuit&&!/(?:想|打算|希望|准备|计划|优先|决定|目标|我(?:要|将)|先(?:就业|考研|考公|探索|处理))|^(?:就业|考研|保研|考公|创业|留学|专升本)$/.test(clause.text))))next.kind='context'
+       (!reportedPursuit&&!/(?:想|打算|希望|准备|计划|优先|决定|目标|考虑|探索|不再|我(?:要|将)|先(?:就业|考研|考公|探索|处理))|^(?:就业|考研|保研|考公|创业|留学|专升本)$/.test(clause.text))))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&/^我想把(?:验证问题|访谈问题|提问|这个问题)/.test(clause.text))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&deferredPursuitClause(clause.text))next.kind='context'
+    if(['goal','direction','priority'].includes(next.kind)&&reportedPurposeClause(clause.text))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&unstartedActivityOnlyClause(clause.text))next.kind='context'
     if(['goal','direction'].includes(next.kind)&&/^我(?:愿意|想)(?:试|尝试)(?:这个|刚才|上述)(?:方法|那一步)?/.test(clause.text))next.kind='context'
     if(next.assertion==='user_reported'&&['context','constraint'].includes(next.kind)){
@@ -124,13 +142,13 @@ export function resolveGrowthDeltas(input:{
     if(delta.target.operation==='correct'){
       const itemId=delta.target.itemId
       const item=input.authorized.find(row=>row.id===itemId)
-      if(!item){audit.push({phase:'growth_correct_unknown_item',inputIndex,itemId});emittedClauses.add(clause.clauseId);indexMap.set(inputIndex,resolved.length);resolved.push(next);continue}
+      if(!item){audit.push({phase:'growth_correct_unknown_item',inputIndex,itemId});markEmitted(canonicalClauseId,delta);indexMap.set(inputIndex,resolved.length);resolved.push(next);continue}
       // One mutation per old item per turn (C06/L2:6 duplicate shapes).
-      if(mutatedItems.has(itemId)){audit.push({phase:'growth_correct_duplicate_target',inputIndex,itemId});emittedClauses.add(clause.clauseId);indexMap.set(inputIndex,resolved.length);resolved.push(next);continue}
+      if(mutatedItems.has(itemId)){audit.push({phase:'growth_correct_duplicate_target',inputIndex,itemId});markEmitted(canonicalClauseId,delta);indexMap.set(inputIndex,resolved.length);resolved.push(next);continue}
       // The deterministic correction plan is authoritative for fact
       // corrections; a goal/direction change marker honors an explicit item
       // selection on a goal-shaped item. Anything else is a new fact.
-      const planTarget=input.correctionPlan?.target?.itemId===itemId?input.correctionPlan.target:null
+      const planTarget=input.correctionPlan?.target?.itemId===itemId&&(!input.correctionPlan.target.field||plannedMajor)?input.correctionPlan.target:null
       const goalChange=['goal','direction'].includes(item.kind)&&item.assertion==='user_reported'&&!item.unavailableReason&&goalChangeMarker.test(clause.text)
       // A correction clause carries its marker prefix (更正一下：我是大二); the
       // stored value is the plan's marker-stripped verbatim newQuote, never the
@@ -140,11 +158,12 @@ export function resolveGrowthDeltas(input:{
       // feedback item the delta must actually carry the action state.
       const kindCompatible=item.kind!=='feedback'||('progressState'in delta)
       if(planTarget&&kindCompatible){
-        const composite=(item.text.match(/[，,；;。！？\n]/)?.length??0)>0
+        const composite=Boolean(planTarget.field)||(item.text.match(/[，,；;。！？\n]/)?.length??0)>0
         next.target=composite
-          ?{operation:'amend',itemId:item.id,expectedRevision:item.revision,beforeQuote:planTarget.beforeQuote}
+          ?{operation:'amend',itemId:item.id,expectedRevision:item.revision,beforeQuote:planTarget.beforeQuote,...(planTarget.field?{field:planTarget.field}:{})}
           :{operation:'replace',itemId:item.id,expectedRevision:item.revision}
-        if(input.correctionPlan&&input.correctionPlan.newQuote!==clause.text)next.source={messageId:input.currentMessageId,quote:input.correctionPlan.newQuote}
+        if(input.correctionPlan&&input.correctionPlan.newQuote!==clause.text)next.source=clauseMessageSource(input.currentMessageId,input.catalogue.find(handle=>handle.text===input.correctionPlan!.newQuote)??clause,input.correctionPlan.newQuote)
+        if(planTarget.field&&next.assertion==='user_reported')delete next.text
         audit.push({phase:'growth_correct_honored',inputIndex,itemId,mode:next.target.operation})
       }else if(goalChange){
         // When the anchor is the marker clause itself (我改主意了), the
@@ -154,7 +173,7 @@ export function resolveGrowthDeltas(input:{
           // The marker's 我 already scopes the sentence to the user; the
           // follow clause itself may omit it (现在想先就业).
           const follow=input.catalogue.filter(handle=>handle.start>clause.end&&!handle.interrogative&&!handle.attributedToOther&&!goalChangeMarker.test(handle.text)).find(handle=>carriesClauseText(handle.text))
-          if(follow)next.source={messageId:input.currentMessageId,quote:follow.text}
+          if(follow)next.source=clauseMessageSource(input.currentMessageId,follow)
         }
         next.target={operation:'replace',itemId:item.id,expectedRevision:item.revision}
         audit.push({phase:'growth_correct_goal_change',inputIndex,itemId})
@@ -164,18 +183,18 @@ export function resolveGrowthDeltas(input:{
         // deterministic fallback staging; a model delta aimed at the WRONG
         // item never re-saves the corrected value as a stray duplicate.
         if(markerClause)continue
-        emittedClauses.add(clause.clauseId);resolved.push(next);continue
+        markEmitted(canonicalClauseId,delta);resolved.push(next);continue
       }
       // A correction carries the corrected item's kind; the provider's own
       // kind label never retypes an existing record (L3:4 shape).
       ;(next as {kind:string}).kind=item.kind
       mutatedItems.add(itemId)
-      emittedClauses.add(clause.clauseId)
+      markEmitted(canonicalClauseId,delta)
       indexMap.set(inputIndex,resolved.length)
       resolved.push(next)
       continue
     }
-    emittedClauses.add(clause.clauseId)
+    markEmitted(canonicalClauseId,delta)
     indexMap.set(inputIndex,resolved.length)
     resolved.push(next)
   }
@@ -194,10 +213,11 @@ export function resolveGrowthDeltas(input:{
       const delta=resolved[index]!
       const target=input.authorized.find(item=>item.id===plan.target!.itemId)
       if(target&&target.revision===plan.target!.expectedRevision){
-        const composite=(target.text.match(/[，,；;。！？\n]/)?.length??0)>0
+        const composite=Boolean(targetPlan.field)||(target.text.match(/[，,；;。！？\n]/)?.length??0)>0
         resolved[index]={...delta,kind:targetPlan.kind,target:composite
-          ?{operation:'amend',itemId:target.id,expectedRevision:target.revision,beforeQuote:plan.target!.beforeQuote}
+          ?{operation:'amend',itemId:target.id,expectedRevision:target.revision,beforeQuote:plan.target!.beforeQuote,...(targetPlan.field?{field:targetPlan.field}:{})}
           :{operation:'replace',itemId:target.id,expectedRevision:target.revision}} as typeof delta
+        if(targetPlan.field&&resolved[index]!.assertion==='user_reported')delete (resolved[index] as Extract<ResolvedGrowthDelta,{assertion:'user_reported'}>).text
         audit.push({phase:'growth_correction_plan_retarget',inputIndex:-1,itemId:target.id,mode:composite?'amend':'replace'})
       }
     }
@@ -205,17 +225,29 @@ export function resolveGrowthDeltas(input:{
   // Goal supersession (goal-change semantics): when a change-marker sentence
   // (改主意/不想继续/决定不…) lands a NEW goal/direction via a plain create,
   // the server retargets it to replace the single active goal record — the
-  // old goal must not stay active beside its declared replacement (两个相反
-  // 的当前目标不能同时有效). The marker is matched against the WHOLE message:
-  // the anchor clause itself (现在想先就业) may not carry the marker (我改主意了).
+  // old goal must not stay active beside its declared replacement. Bind the
+  // changed value to its own clause, or the adjacent pursuit after a bare
+  // personal change marker; an unrelated create in the message is not a change.
   if(input.authorized.length){
     const activeGoals=input.authorized.filter(item=>['goal','direction'].includes(item.kind)&&item.assertion==='user_reported'&&item.status==='active'&&!item.unavailableReason)
-    if(activeGoals.length===1){
+    if(activeGoals.length===1&&!resolved.some(delta=>(delta.target.operation==='replace'||delta.target.operation==='amend')&&delta.target.itemId===activeGoals[0]!.id)){
+      const eligible=(clause:ClauseHandle)=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!clause.quoteSpans?.length&&!clause.codeSpans?.length
+      const changeSources=new Set(input.catalogue.filter(clause=>eligible(clause)&&goalChangeMarker.test(clause.text)).flatMap(marker=>{
+        const follow=input.catalogue[input.catalogue.indexOf(marker)+1]
+        const bare=/^(?:我|本人)?(?:现在)?(?:改主意了?|换(?:个)?(?:方向|目标)了?)$/.test(marker.text)
+        const adjacent=bare&&follow&&eligible(follow)&&!/^(?:(?:我|本人)?(?:现在)?)?(?:另外|还|也|同时|此外|顺便)/.test(follow.text)
+        return [marker.clauseId,...(adjacent?[follow.clauseId]:[])]
+      }))
       for(let index=0;index<resolved.length;index++){
         const delta=resolved[index]!
-        if(delta.target.operation==='create'&&['goal','direction'].includes(delta.kind)&&(goalChangeMarker.test(delta.source.quote)||goalChangeMarker.test(input.currentText))){
-          resolved[index]={...delta,target:{operation:'replace',itemId:activeGoals[0]!.id,expectedRevision:activeGoals[0]!.revision}} as typeof delta
-          audit.push({phase:'growth_goal_superseded',inputIndex:indexMap.size?index:-1,itemId:activeGoals[0]!.id,mode:'create_retarged_to_replace'})
+        const originalIndex=[...indexMap].find(([,position])=>position===index)?.[0]
+        const sourceClauseId=originalIndex===undefined?undefined:input.deltas[originalIndex]?.source.clauseId
+        if(delta.target.operation==='create'&&['goal','direction'].includes(delta.kind)&&sourceClauseId&&changeSources.has(sourceClauseId)){
+          // Like an explicit correction above, supersession changes the
+          // existing record's value, never its storage kind. Goal/direction
+          // labels may differ even when the user changes the same pursuit.
+          resolved[index]={...delta,kind:activeGoals[0]!.kind,target:{operation:'replace',itemId:activeGoals[0]!.id,expectedRevision:activeGoals[0]!.revision}} as typeof delta
+          audit.push({phase:'growth_goal_superseded',inputIndex:originalIndex??-1,itemId:activeGoals[0]!.id,mode:'create_retarged_to_replace'})
           break
         }
       }
@@ -228,6 +260,7 @@ export function resolveGrowthDeltas(input:{
     if(delta.assertion==='ai_observation'){
       const dependencies=delta.dependencies.map(ref=>{
         if('id'in ref)return input.authorized.some(item=>item.id===ref.id&&item.revision===ref.revision&&!item.unavailableReason&&['active','proposed'].includes(item.status??'active')&&['user_reported','user_edit'].includes(item.assertion))?ref:null
+        if(reportedContribution(input.deltas[ref.updateIndex]!)?.actor==='unknown')return null
         const oldPosition=indexMap.get(ref.updateIndex),mapped=oldPosition===undefined?undefined:positions.get(oldPosition)
         return mapped!==undefined&&kept[mapped]?.assertion==='user_reported'?{updateIndex:mapped}:null
       })
@@ -245,11 +278,14 @@ export function resolveGrowthDeltas(input:{
 // dated/duration phrases resolve to the tightest grammar-matching span inside
 // the clause, so calendar/duration evidence still validates verbatim while the
 // model can only point at a clause — never author the span.
-function resolveTimeEvidence(delta:GrowthInputDelta,catalogue:readonly ClauseHandle[]):ResolvedGrowthDelta['timeEvidence']|undefined{
+function resolveTimeEvidence(delta:GrowthInputDelta,catalogue:readonly ClauseHandle[],requestTimeUtc?:string):ResolvedGrowthDelta['timeEvidence']|undefined{
   const evidence='timeEvidence'in delta?delta.timeEvidence:undefined
   if(!evidence)return undefined
   const anchor=resolveClause(catalogue,evidence.clauseId)
   if(!anchor)return undefined
+  if(requestTimeUtc){
+    return explicitTimeEvidenceCandidates(anchor.text,requestTimeUtc,'Asia/Shanghai').find(candidate=>candidate.kind===evidence.kind&&(candidate.kind==='calendar_week'&&evidence.kind==='calendar_week'?candidate.which===evidence.which:candidate.kind==='date_inclusive'&&evidence.kind==='date_inclusive'?candidate.date===evidence.date:candidate.kind==='duration'&&evidence.kind==='duration'?candidate.count===evidence.count&&candidate.unit===evidence.unit:false))
+  }
   if(evidence.kind==='calendar_week'){
     const token=evidence.which==='this'?(['本周','这周'] as const).find(week=>anchor.text.includes(week)):(anchor.text.includes('下周')?'下周':undefined)
     return token?{...evidence,quote:token}:undefined

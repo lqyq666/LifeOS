@@ -17,8 +17,8 @@ test('complete long material is rendered from its one authority without duplicat
 test('saved real bold-formatted material is rendered once with all authoritative bytes and its introduction',()=>{
   const turn=JSON.parse(readFileSync('tests/fixtures/coach-markdown-material-duplicate.json','utf8')),before=JSON.stringify(turn)
   const material=turn.event.action.draft.content,rendered=renderCoachReply(turn)
-  assert.equal(rendered,'好的，这是为你准备的实施意图草稿：\n\n'+material)
-  assert.equal(rendered.split(material).length,2)
+  assert.equal(rendered,turn.reply)
+  assert.equal(renderCoachReply({...turn,reply:rendered}),rendered,'format-equivalent material is not appended a second time')
   assert.equal(JSON.stringify(turn),before)
 })
 
@@ -32,5 +32,5 @@ test('different material and literal code, escapes or arithmetic never become fo
 
 test('formatting-equivalent material retains a real introduction and a later question',()=>{
   const material='你现在还需要资料吗？\n\n不需要也没关系。',turn:ActionCoachTurn={reply:'可以这样发：\n\n**你现在还需要资料吗？**\n\n**不需要也没关系。**\n\n你想改哪一处？',event:{target:{operation:'create',title:'材料',source:{messageId:'00000000-0000-4000-8000-000000000001',quote:'请起草'}},action:{operation:'create',draft:{content:material}}}}
-  assert.equal(renderCoachReply(turn),'可以这样发：\n\n'+material+'\n\n你想改哪一处？')
+  assert.equal(renderCoachReply(turn),turn.reply)
 })

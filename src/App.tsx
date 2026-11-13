@@ -73,8 +73,8 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
   const completeAuth = async () => {
     await (authReturn.current?.onDone ?? sessionRefresh.current)?.()
     dataChanged(); setAuthMode(null); authReturn.current = null
-    // 登录后先展示星图演示，再进入聊天
-    setShowStarmapDemo(true)
+    setShowOnboarding(false)
+    openConversation()
   }
   const openConversation = () => {
     controller.stop()
@@ -214,7 +214,7 @@ export default function App({ onEnter }: { onEnter?: () => void }) {
   }, [conversationOpen, authMode])
 
   if (graphError&&!authMode&&!conversationOpen&&!landing) {
-    return <div className="campus-page is-cognition"><div className="scene-error" role="alert"><h2>星图暂时没能加载</h2><p>{graphError}这里不会用演示数据冒充你的档案。</p><button type="button" onClick={() => { setGraphError(null); window.dispatchEvent(new CustomEvent('lifeos-data-changed')) }}>重试加载</button></div></div>
+    return <div className="campus-page is-cognition"><div className="scene-error" role="alert"><h2>星图暂时没能加载</h2><p>{graphError}这里不会用演示数据冒充你的档案。</p><button type="button" onClick={() => { setGraphError(null); window.dispatchEvent(new CustomEvent('lifeos-data-changed')) }}>重试加载</button><button type="button" onClick={openConversation}>继续对话</button></div></div>
   }
   return <div className={`campus-page ${landing ? 'is-landing' : 'is-cognition'}`} data-mode={view.mode}>
     {showOnboarding && landing && <LandingGuide onDone={() => { setShowOnboarding(false); localStorage.setItem('lifeos-onboarded', '1') }} />}

@@ -2,7 +2,8 @@ import type {PoolClient} from 'pg'
 import {pool,HttpError,requireRow} from './db.ts'
 import type {CampusSource,Inquiry,InquiryPayload,EvidenceLink} from './campus-contracts.ts'
 import type {KnowledgeRecord} from './campus-knowledge.ts'
-import { growthQuoteSuppressed } from './growth-privacy.ts'
+import { checkMessageSource,growthQuoteSuppressed,messageQuoteCorrected,messageSourceMatches } from './growth-privacy.ts'
+import {fullMemorySuppressionSql} from './memory-suppression.ts'
 // Saved V1.2 records are read-only. New writes use action-coach-events.ts.
 type DB=Pick<PoolClient,'query'>
 async function owner(c:DB,user:string,conversation:string){requireRow((await c.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2',[user,conversation])).rows[0])}
@@ -12,18 +13,29 @@ function allLinks(payload:InquiryPayload):EvidenceLink[]{
 }
 function allSources(payload:InquiryPayload):CampusSource[]{return [payload.questionSource,...payload.studentContext.map(item=>item.source),...allLinks(payload).map(item=>item.source)]}
 function activeSources(payload:InquiryPayload):CampusSource[]{return [payload.questionSource,...payload.studentContext.map(item=>item.source),...payload.evidence.map(item=>item.source),...payload.opportunities.flatMap(item=>item.evidence.map(link=>link.source)),...payload.hypotheses.filter(item=>!['rejected','stale'].includes(item.status)).flatMap(item=>item.evidence.map(link=>link.source))]}
-const sourceKey=(ref:CampusSource)=>JSON.stringify([ref.type,ref.id,'revision' in ref?ref.revision:null,ref.quote])
+const sourceKey=(ref:CampusSource)=>JSON.stringify([ref.type,ref.id,'revision' in ref?ref.revision:null,ref.quote,'range' in ref?ref.range??null:null])
+// Exact occurrence coordinates are persistence-only provenance. Historical
+// clients keep the original V1.2 payload shape even when a stored source has a
+// new internal range used by revocation checks.
+function publicCampusValue<T>(value:T):T{
+ if(Array.isArray(value))return value.map(publicCampusValue) as T
+ if(!value||typeof value!=='object'||value instanceof Date)return value
+ const source=value as Record<string,unknown>,result:Record<string,unknown>={}
+ for(const [key,child] of Object.entries(source)){
+  if(key==='range'&&source.type==='message'&&typeof source.id==='string'&&typeof source.quote==='string')continue
+  result[key]=publicCampusValue(child)
+ }
+ return result as T
+}
+function publicCampusSources<T>(value:T[]):T[]{
+ const projected=publicCampusValue(value)
+ return [...new Map(projected.map(item=>[JSON.stringify(item),item])).values()]
+}
 export async function checkCampusSource(c:DB,user:string,conversation:string,enabled:boolean,ref:CampusSource,locking=false){
   if(typeof ref.quote!=='string'||!ref.quote.trim())throw new HttpError(400,'CAMPUS_SOURCE_INVALID')
   const share=locking?' FOR SHARE':''
   if(ref.type==='message'){
-    if(await growthQuoteSuppressed(c,user,ref.id,ref.quote))throw new HttpError(400,'CAMPUS_SOURCE_FORGOTTEN')
-    const source=(await c.query("SELECT content,conversation_id FROM messages WHERE user_id=$1 AND id=$2 AND role='user'"+share,[user,ref.id])).rows[0]
-    if(!source||source.conversation_id!==conversation||!ref.quote.trim()||!source.content.includes(ref.quote))throw new HttpError(400,'CAMPUS_MESSAGE_SOURCE_INVALID')
-    const suppressed=(await c.query('SELECT 1 FROM memory_suppressions WHERE user_id=$1 AND source_message_id=$2 LIMIT 1',[user,ref.id])).rowCount
-    if(suppressed)throw new HttpError(400,'CAMPUS_SOURCE_FORGOTTEN')
-    if((await c.query('SELECT 1 FROM coach_source_withdrawals WHERE user_id=$1 AND message_id=$2',[user,ref.id])).rowCount)throw new HttpError(400,'CAMPUS_SOURCE_FORGOTTEN')
-    if((await c.query("SELECT 1 FROM experiences WHERE user_id=$1 AND source_message_id=$2 AND status='deleted' LIMIT 1",[user,ref.id])).rowCount)throw new HttpError(400,'CAMPUS_SOURCE_DELETED')
+    await checkMessageSource(c,user,conversation,ref,locking)
     return {label:'本段对话',text:ref.quote,verified:false}
   }
   if(ref.type==='knowledge'){
@@ -64,11 +76,13 @@ async function sourceState(c:DB,user:string,conversation:string,enabled:boolean,
   return {stale,sources,redactedForRevocation}
 }
 async function resultInvalidation(c:DB,user:string,result:NonNullable<InquiryPayload['experiments'][number]['result']>):Promise<'forgotten'|'corrected'|'removed'|null>{
-  const message=(await c.query("SELECT conversation_id FROM messages WHERE user_id=$1 AND id=$2 AND role='user'",[user,result.source.id])).rows[0]
+  const message=(await c.query("SELECT m.content,m.conversation_id FROM messages m WHERE m.user_id=$1 AND m.id=$2 AND m.role='user' AND NOT EXISTS(SELECT 1 FROM deleted_conversations d WHERE d.user_id=m.user_id AND d.conversation_id=m.conversation_id)",[user,result.source.id])).rows[0]
   if(!message)return 'removed'
-  if((await c.query('SELECT 1 FROM memory_suppressions WHERE user_id=$1 AND source_message_id=$2 LIMIT 1',[user,result.source.id])).rowCount)return 'forgotten'
+  if(!messageSourceMatches(message.content,result.source))return 'removed'
+  if((await c.query(`SELECT 1 FROM memory_suppressions suppression WHERE user_id=$1 AND source_message_id=$2 AND ${fullMemorySuppressionSql('suppression')} LIMIT 1`,[user,result.source.id])).rowCount)return 'forgotten'
   if((await c.query('SELECT 1 FROM coach_source_withdrawals WHERE user_id=$1 AND message_id=$2',[user,result.source.id])).rowCount)return 'forgotten'
-  if((await c.query("SELECT 1 FROM experiences WHERE user_id=$1 AND source_message_id=$2 AND status='deleted' LIMIT 1",[user,result.source.id])).rowCount)return 'removed'
+  const range=result.source.type==='message'?result.source.range:undefined
+  if(await messageQuoteCorrected(c,user,result.source.id,result.source.quote,message.content,range)||await growthQuoteSuppressed(c,user,result.source.id,result.source.quote,message.content,range))return 'removed'
   if(result.candidateId){
     const candidate=(await c.query('SELECT status,content FROM experiences WHERE user_id=$1 AND id=$2',[user,result.candidateId])).rows[0]
     if(!candidate||candidate.status==='deleted')return 'removed'
@@ -88,7 +102,7 @@ export async function campusView(user:string,conversation:string){
     const validity=await sourceState(pool,user,row.conversation_id,enabled,row)
     if(validity.redactedForRevocation){
       const payload:InquiryPayload={domain:row.payload.domain,question:'这条历史记录的依据已被忘记或撤回，内容已隐藏。',questionSource:{...row.payload.questionSource,quote:'[已隐藏]'},criteria:[],readiness:'clarify',questions:[],studentContext:[],pathways:[],opportunities:[],evidence:[],hypotheses:[],experiments:[],changes:[]}
-      inquiries.push({...row,payload,stale:true,stale_reason:'source_revoked',sources:[],redactedForRevocation:true})
+      inquiries.push({...row,payload:publicCampusValue(payload),stale:true,stale_reason:'source_revoked',sources:[],redactedForRevocation:true})
       continue
     }
     const experiments=[]
@@ -99,7 +113,7 @@ export async function campusView(user:string,conversation:string){
     const hiddenReportIds=new Set(experiments.flatMap(item=>item.result?.invalidated?[item.result.source.id]:[]))
     const changes=row.payload.changes.filter(change=>!change.sourceMessageId||!hiddenReportIds.has(change.sourceMessageId))
     const payload={...row.payload,changes,hypotheses:validity.stale?row.payload.hypotheses.map(item=>item.status==='rejected'||item.status==='stale'?item:{...item,status:'stale' as const}):row.payload.hypotheses,experiments:validity.stale?experiments.map(item=>item.status==='reported'?item:{...item,needsReview:true}):experiments}
-    inquiries.push({...row,payload,stale:validity.stale,sources:validity.sources,redactedForRevocation:false})
+    inquiries.push({...row,payload:publicCampusValue(payload),stale:validity.stale,sources:publicCampusSources(validity.sources),redactedForRevocation:false})
     if(!current&&enabled)for(const action of experiments)if(action.result?.source.type==='message'&&!action.result.invalidated&&(await pool.query('SELECT 1 FROM messages WHERE user_id=$1 AND conversation_id=$2 AND id=$3 AND role=\'user\'',[user,conversation,action.result.source.id])).rowCount)reportedInquiryIds.add(row.id)
   }
   return {currentId:current,reportedInquiryId:reportedInquiryIds.size===1?[...reportedInquiryIds][0]:null,inquiries,memoryEnabled:enabled}

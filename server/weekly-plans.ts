@@ -52,17 +52,9 @@ export function normalizeWeeklyPlanTasks(input:WeeklyPlanInput):WeeklyPlanInput{
  return {...input,items:input.items.filter(item=>!rest.test(item.action.trim())).map(item=>({...item,action:weeklyPlanActionLabels[item.action.trim()]??item.action}))}
 }
 
-// The provider may repeat its native action IDs in free prose as well as in
-// the structured plan. Keep the user-visible reply aligned with the same
-// normalized labels used for persistence and the appended plan.
-export function normalizeWeeklyPlanReply(reply:string,input:WeeklyPlanInput):string{
- let normalized=reply
- for(const item of input.items){
-  const raw=item.action.trim(),label=weeklyPlanActionLabels[raw]
-  if(label)normalized=normalized.split(raw).join(label)
- }
- return normalized
-}
+// Labels are normalized only in structured task data, never inside arbitrary
+// model prose, quoted user text, URLs or code (e.g. review inside preview).
+export function normalizeWeeklyPlanReply(reply:string,_input:WeeklyPlanInput):string{return reply}
 
 export function requiresPlanSlack(text:string):boolean{
  return /(?:别|不要|不想|不用|避免)(?:把时间|全部|全)?排满|留(?:些|一点|点|有)?(?:余量|缓冲)/.test(text)

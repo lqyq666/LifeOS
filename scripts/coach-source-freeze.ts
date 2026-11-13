@@ -9,6 +9,9 @@ const hash=(value:string|Buffer)=>createHash('sha256').update(value).digest('hex
 export function captureCoachSource(root=process.cwd()){
   const base=realpathSync(root),files:{path:string;sha256:string}[]=[],visited=new Set<string>()
   function visit(path:string){
+    // Explicit user protection also applies to indirect startup/test hashes.
+    // Skip before lstat/realpath/read so a snapshot never opens this source.
+    if(relative(base,path).replaceAll('\\','/')==='tests/backend/action-coach-engine.test.ts')return
     if(lstatSync(path).isSymbolicLink())throw new Error('SOURCE_FREEZE_SYMLINK_REJECTED')
     const exact=realpathSync(path)
     if(!exact.startsWith(base+sep))throw new Error('SOURCE_FREEZE_PATH_INVALID')
@@ -33,7 +36,7 @@ export function captureCoachSource(root=process.cwd()){
   }
   files.sort((a,b)=>a.path.localeCompare(b.path))
   for(const required of ['package.json','server/turn-engine.ts','server/action-coach-contracts.ts','src/backend/client.ts'])if(!files.some(file=>file.path===required))throw new Error('SOURCE_FREEZE_INCOMPLETE')
-  const runtime={node:process.version,platform:process.platform,arch:process.arch,embedding:embeddingSignature,generationConcurrency:config.generationConcurrency,generationQueueLimit:config.generationQueueLimit,access:{entitlementsEnabled:config.entitlementsEnabled,providerBudgetEnabled:config.providerBudgetEnabled,providerBudgetId:config.providerBudgetId,signupEnabled:config.signupEnabled,syntheticModelDiagnosticsEnabled:config.syntheticModelDiagnosticsEnabled,syntheticDiagnosticUserIdsDigest:createHash('sha256').update([...config.syntheticDiagnosticUserIds].sort().join('\n')).digest('hex')},models:(['default','reasoning'] as const).map(tier=>{const route=resolveModel(tier);return {tier,provider:route.model.provider,model:route.model.id,available:route.available,signature:modelSignatureFor(tier),contractSignature:coachContractSignatureFor(tier),interfaceSignature:coachInterfaceSignatureFor(tier),pricing:route.pricing}})}
+  const runtime={node:process.version,platform:process.platform,arch:process.arch,embedding:embeddingSignature,generationConcurrency:config.generationConcurrency,generationQueueLimit:config.generationQueueLimit,access:{messagesPerMinute:config.messagesPerMinute,messagesPerDay:config.messagesPerDay,entitlementsEnabled:config.entitlementsEnabled,providerBudgetEnabled:config.providerBudgetEnabled,providerBudgetId:config.providerBudgetId,signupEnabled:config.signupEnabled,syntheticModelDiagnosticsEnabled:config.syntheticModelDiagnosticsEnabled,syntheticDiagnosticUserIdsDigest:createHash('sha256').update([...config.syntheticDiagnosticUserIds].sort().join('\n')).digest('hex')},models:(['default','reasoning'] as const).map(tier=>{const route=resolveModel(tier);return {tier,provider:route.model.provider,model:route.model.id,available:route.available,signature:modelSignatureFor(tier),contractSignature:coachContractSignatureFor(tier),interfaceSignature:coachInterfaceSignatureFor(tier),pricing:route.pricing}})}
   const comparison={qwenThinkingBudget:config.qwenThinkingBudget}
   const exactRuntime={...runtime,comparison}
   return {kind:'FROZEN_SOURCE_AND_RUNTIME_CONFIG' as const,files,runtime:exactRuntime,digest:hash(JSON.stringify({files,runtime:exactRuntime}))}

@@ -3,9 +3,10 @@ import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
 import {Value} from 'typebox/value'
 import { turnSystemPrompt } from '../../server/turn-prompt.ts'
-import { actionCoachTurnSchema } from '../../server/action-coach-contracts.ts'
+import { actionCoachTurnSchema,parseActionCoachTurn } from '../../server/action-coach-contracts.ts'
 import { configureProviderPayload, outputTokenLimit } from '../../server/model-payload.ts'
 import {buildClauseCatalogue} from '../../server/clause-catalogue.ts'
+import {deriveTurnContract} from '../../server/turn-contract.ts'
 
 test('Qwen3.8 nonthinking uses the documented presence penalty while bounded thinking controls stay unchanged',()=>{
  const make=(model:string,thinking=0)=>configureProviderPayload({},{provider:'bailian',id:model},'default',undefined,undefined,8192,undefined,undefined,undefined,thinking) as any
@@ -61,6 +62,16 @@ test('a single new-event branch exposes its required target directly without cha
   assert.equal(Value.Check(native,{reply:'当前理解。',event:invalid}),false)
  }
  assert.equal(Value.Check(native,{reply:'当前理解。'}),true,'optional event stays optional')
+})
+
+test('a coordinated material action keeps an exact object source through the native schema and sole parser',()=>{
+ const current='00000000-0000-4000-8000-000000000011',text='请帮我写一份预算表和一条跟进消息。',catalogue=buildClauseCatalogue(text),material='这是跟进消息。'
+ const contract=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:true})
+ const native=(configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default',contract.schema,'lifeos_action_coach',8192,current,[],[],0,false,undefined,false,catalogue.map(clause=>clause.clauseId)) as any).response_format.json_schema.schema
+ const output={reply:material,event:{target:{operation:'create',title:'并列材料事项',source:{clauseId:'c0'}},matterReports:[],action:{operation:'create',source:{messageId:current,quote:'一条跟进消息'},draft:{content:material}}}}
+ assert.equal(Value.Check(native,output),true,'the provider can select one exact coordinated object without a new public field')
+ const parsed=parseActionCoachTurn(JSON.stringify(output),{sourceCatalogue:{messageId:current,catalogue,text,canonicalFacts:true}})
+ assert.equal(parsed.event?.action&&'source' in parsed.event.action?parsed.event.action.source?.quote:null,'一条跟进消息')
 })
 
 test('saved two-hour failure cannot select an unverifiable constraint; explicit windows stay paired to their own facts',()=>{
@@ -266,7 +277,7 @@ test('the existing DeepSeek default candidate carries the same full schema witho
   assert.equal(payload.max_completion_tokens,8192)
 })
 
-test('Flash keeps the previously verified native transport without the failed stop experiment',()=>{
+test('Flash retains the deployed verified transport safety boundaries',()=>{
  const wire=configureProviderPayload({},{provider:'bailian',id:'qwen3.8-flash'},'default') as any
- assert.equal(wire.stop,undefined)
+ assert.deepEqual(wire.stop,['<tool_call>','<tool_','</parameter>','</function>','</tool_call>','<|tool_','[Follow-up interjection]'])
 })

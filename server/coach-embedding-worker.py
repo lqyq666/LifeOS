@@ -12,6 +12,7 @@ import sys
 import numpy as np
 import torch
 from sentence_transformers import SentenceTransformer
+from embedding_cpu import inference_threads
 
 MODEL = Path(__file__).resolve().parents[1] / ".local" / "models" / "bge-small-zh-v1.5"
 REVISION = "7999e1d3359715c523056ef9478215996d62a620"
@@ -26,7 +27,7 @@ class Encoder:
         for name, entry in manifest["files"].items():
             if hashlib.sha256((MODEL / name).read_bytes()).hexdigest() != entry["sha256"]:
                 raise RuntimeError("Embedding file changed")
-        torch.set_num_threads(4)
+        torch.set_num_threads(inference_threads())
         self.model = SentenceTransformer(str(MODEL), device="cpu", local_files_only=True, trust_remote_code=False)
         self.model.eval()
 

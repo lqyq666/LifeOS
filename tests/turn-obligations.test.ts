@@ -53,12 +53,205 @@ test('natural candidate schedule request is mandatory and keeps its requested we
  assert.ok(deriveTurnObligations(text).requiredEffects.some(e=>e.type==='weekly_plan'&&e.period==='next_week'&&e.minutes===60))
  for(const no of ['室友说请给课程和备考安排下周的候选任务。','如果请给课程和备考安排下周的候选任务会怎么样？','请给课程和备考不要安排下周的任务。'])assert.ok(!deriveTurnObligations(no).requiredEffects.some(e=>e.type==='weekly_plan'),no)
 })
-import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,isPureZeroPlanRequest,verifyTurnObligations,verifyReplyAgainstObligations,repairReplyBudget,supplementMissingBudgetDeltas,planExplicitCorrection,hoursIn} from '../server/turn-obligations.ts'
+import {weeklyTimeIntent,remainingWeeklyTimeIntent,weeklyPlanIntent,deriveTurnObligations,isPureControlCommand,isPureZeroPlanRequest,verifyTurnObligations,verifyReplyAgainstObligations,repairReplyBudget,supplementMissingBudgetDeltas,planExplicitCorrection,explicitCorrectionIntent,hoursIn} from '../server/turn-obligations.ts'
 test('V19 remaining-week replacement identifies only the matching owned budget, never recurring time',()=>{
  const old=[{id:'remaining',revision:2,kind:'constraint' as const,assertion:'user_reported',text:'这周还剩两小时'},{id:'routine',revision:1,kind:'context' as const,assertion:'user_reported',text:'平时每周能拿出六小时'}]
  assert.equal(planExplicitCorrection('这周剩余时间要改成三十分钟。',old)?.target?.itemId,'remaining')
  for(const text of ['如果这周剩余时间要改成三十分钟。','同学说这周剩余时间要改成三十分钟。','这周剩余时间要改成三十分钟吗？'])assert.equal(planExplicitCorrection(text,old),null,text)
  assert.equal(planExplicitCorrection('这周剩余时间要改成三十分钟。',old.slice(1))?.target,undefined)
+})
+
+test('a generic fact correction owned by another person never becomes the user correction',()=>{
+ for(const text of ['我的男朋友职业目标写错了，应该是考研。','我的男朋友偏好写错了，应该是独处。']){
+  assert.equal(explicitCorrectionIntent(text),false,text)
+  assert.equal(planExplicitCorrection(text,[{id:'goal',revision:1,kind:'goal',assertion:'user_reported',text:'我的职业目标是就业'}]),null,text)
+ }
+ const matchingThirdParty=[{id:'roommate-preference',revision:2,kind:'preference' as const,assertion:'user_reported',text:'我的室友偏好是晚上复习'}]
+ const matchingText='我的室友偏好写错了，应该是早上复习。'
+ assert.equal(explicitCorrectionIntent(matchingText,matchingThirdParty),false,'stored third-party text cannot grant self ownership')
+ assert.equal(planExplicitCorrection(matchingText,matchingThirdParty),null)
+ const qualifiedThirdParty=[{id:'roommate-food',revision:3,kind:'preference' as const,assertion:'user_reported',text:'我的室友饮食偏好是吃辣'}]
+ const qualifiedText='我的室友饮食偏好写错了，应该是不吃辣。'
+ assert.equal(explicitCorrectionIntent(qualifiedText,qualifiedThirdParty),false,'an allowed self qualifier cannot hide a third-party possessor')
+ assert.equal(planExplicitCorrection(qualifiedText,qualifiedThirdParty),null)
+ const partnerText='我的男朋友饮食偏好写错了，应该是不吃辣。'
+ const partnerOld=[{id:'partner-food',revision:1,kind:'preference' as const,assertion:'user_reported',text:'我的男朋友饮食偏好是吃辣'}]
+ assert.equal(explicitCorrectionIntent(partnerText,partnerOld),false,'arbitrary relationship owners remain third party')
+ assert.equal(planExplicitCorrection(partnerText,partnerOld),null)
+ const partnerMusic='我的男朋友音乐偏好写错了，应该是古典乐。'
+ const partnerMusicOld=[{id:'partner-music',revision:1,kind:'preference' as const,assertion:'user_reported',text:'我的男朋友音乐偏好是流行乐'}]
+ assert.equal(explicitCorrectionIntent(partnerMusic,partnerMusicOld),false,'an open qualifier cannot hide a human possessor')
+ assert.equal(planExplicitCorrection(partnerMusic,partnerMusicOld),null)
+ const cousinText='我的表姐学习偏好写错了，应该是早上复习。'
+ const cousinOld=[{id:'cousin-learning',revision:1,kind:'preference' as const,assertion:'user_reported',text:'我的表姐学习偏好是晚上复习'}]
+ assert.equal(explicitCorrectionIntent(cousinText,cousinOld),false,'an authorized compound qualifier cannot turn an unlisted relationship into self ownership')
+ assert.equal(planExplicitCorrection(cousinText,cousinOld),null)
+ const nicknameText='我的小明英语学习偏好写错了，应该是早上复习。'
+ const nicknameOld=[{id:'nickname-learning',revision:1,kind:'preference' as const,assertion:'user_reported',text:'我的小明英语学习偏好是晚上复习'}]
+ assert.equal(explicitCorrectionIntent(nicknameText,nicknameOld),false,'an authorized row cannot turn an arbitrary nickname possessor into the user')
+ assert.equal(planExplicitCorrection(nicknameText,nicknameOld),null)
+})
+
+test('a bare correction cannot inherit ownership across a third-party sentence',()=>{
+ const old=[{id:'birthday',revision:2,kind:'context' as const,assertion:'user_reported',text:'我的生日是2003年5月1日'}]
+ for(const text of ['我室友的生日原来记成2003年。生日记错了，应该是2004年5月1日。','室友生日原来记成2003年。生日记错了，应该是2004年5月1日。','小王生日原来记成2003年。生日记错了，应该是2004年5月1日。','我室友的生日原来记成2003年。顺便补充一下。生日记错了，应该是2004年5月1日。','关于室友。生日记错了，应该是2004年5月1日。','关于我室友。生日记错了，应该是2004年5月1日。','关于我的室友。生日记错了，应该是2004年5月1日。','关于我的前任。生日记错了，应该是2004年5月1日。','关于室友。顺便补充一下。生日记错了，应该是2004年5月1日。']){
+  assert.equal(explicitCorrectionIntent(text,old),false,text)
+  assert.equal(planExplicitCorrection(text,old),null,text)
+ }
+ const selfOverride='关于我室友。我的生日是2003年5月1日。生日记错了，应该是2004年5月1日。'
+ assert.equal(planExplicitCorrection(selfOverride,old)?.target?.itemId,'birthday','the nearest explicit self-owner supersedes an older third-party frame')
+})
+
+test('a longer non-profile object cannot borrow a personal-field prefix',()=>{
+ const text='我的兴趣小组名字写错了，应该是机器人协会。'
+ const old=[{id:'interest',revision:1,kind:'preference' as const,assertion:'user_reported',text:'我的兴趣是摄影'}]
+ assert.equal(explicitCorrectionIntent(text,old),false)
+ assert.equal(planExplicitCorrection(text,old),null)
+})
+
+test('a qualified first-person personal field remains an owned correction',()=>{
+ const text='我的饮食偏好写错了，应该是不吃辣。'
+ const old=[{id:'preference',revision:1,kind:'context' as const,assertion:'user_reported',text:'我的饮食偏好是吃辣'}]
+ assert.equal(explicitCorrectionIntent(text),true)
+ assert.equal(planExplicitCorrection(text,old)?.target?.itemId,'preference')
+ const learning='我的英语学习偏好写错了，应该是早上复习。'
+ const learningOld=[{id:'learning-preference',revision:3,kind:'preference' as const,assertion:'user_reported',text:'我的英语学习偏好是晚上复习'}]
+ assert.equal(explicitCorrectionIntent(learning,learningOld),true)
+ assert.equal(planExplicitCorrection(learning,learningOld)?.target?.itemId,'learning-preference')
+ const programming='我的编程学习偏好写错了，应该是早上复习。'
+ const programmingOld=[{id:'programming-preference',revision:2,kind:'preference' as const,assertion:'user_reported',text:'我的编程学习偏好是晚上复习'}]
+ assert.equal(explicitCorrectionIntent(programming,programmingOld),true)
+ assert.equal(planExplicitCorrection(programming,programmingOld)?.target?.itemId,'programming-preference')
+ const music='我的音乐偏好写错了，应该是古典乐。'
+ const musicOld=[{id:'music-preference',revision:5,kind:'preference' as const,assertion:'user_reported',text:'我的音乐偏好是流行乐'}]
+ assert.equal(explicitCorrectionIntent(music,musicOld),true,'an exact authorized first-person field may use an open qualifier')
+ assert.equal(planExplicitCorrection(music,musicOld)?.target?.itemId,'music-preference')
+ const discovered='我才发现我的专业写错了，应该是计算机科学与技术。'
+ const discoveredOld=[{id:'discovered-major',revision:4,kind:'context' as const,assertion:'user_reported',text:'我的专业是软件工程'}]
+ assert.equal(explicitCorrectionIntent(discovered,discoveredOld),true)
+ assert.equal(planExplicitCorrection(discovered,discoveredOld)?.target?.itemId,'discovered-major')
+ const observedThirdParty='我发现我的男朋友专业写错了，应该是计算机科学与技术。'
+ const observedThirdPartyOld=[{id:'observed-partner-major',revision:2,kind:'context' as const,assertion:'user_reported',text:'我的男朋友专业是软件工程'}]
+ assert.equal(explicitCorrectionIntent(observedThirdParty,observedThirdPartyOld),false)
+ assert.equal(planExplicitCorrection(observedThirdParty,observedThirdPartyOld),null)
+ const unrelated=[{id:'own-preference',revision:1,kind:'preference' as const,assertion:'user_reported',text:'我的学习偏好是晚上复习'}]
+ assert.equal(explicitCorrectionIntent('我的室友偏好写错了，应该是早上复习。',unrelated),false)
+ assert.equal(planExplicitCorrection('我的室友偏好写错了，应该是早上复习。',unrelated),null)
+ for(const school of ['我所在学校写错了，应该是四川大学。','我就读的学校写错了，应该是四川大学。']){
+  const schoolOld=[{id:'school',revision:2,kind:'context' as const,assertion:'user_reported',text:'我的学校是成都理工大学'}]
+  assert.equal(explicitCorrectionIntent(school,schoolOld),true,school)
+  assert.equal(planExplicitCorrection(school,schoolOld)?.target?.itemId,'school',school)
+ }
+})
+
+test('a reflexive first-person owner remains an owned correction',()=>{
+ const text='我自己的生日记错了，应该是2004年5月1日。'
+ const old=[{id:'birthday',revision:1,kind:'context' as const,assertion:'user_reported',text:'我自己的生日是2004年4月1日'}]
+ assert.equal(explicitCorrectionIntent(text),true)
+ assert.equal(planExplicitCorrection(text,old)?.target?.itemId,'birthday')
+ const framed='关于我本人。生日记错了，应该是2004年5月1日。'
+ assert.equal(explicitCorrectionIntent(framed),true)
+ assert.equal(planExplicitCorrection(framed,old)?.target?.itemId,'birthday')
+})
+
+test('a personal correction stops before an independent third-party correction',()=>{
+ const text='我的专业记错了应该是计算机科学与技术同时我室友的生日也记错了应该是2004年5月1日。'
+ const old=[{id:'major',revision:1,kind:'context' as const,assertion:'user_reported',text:'我的专业是软件工程'}]
+ const plan=planExplicitCorrection(text,old)
+ assert.equal(plan?.target?.itemId,'major')
+ assert.equal(plan?.newQuote,'我的专业记错了应该是计算机科学与技术')
+ assert.ok(!plan?.newQuote.includes('室友'))
+})
+
+test('an owned correction after an independent third-party correction still applies',()=>{
+ const text='我室友的生日记错了应该是2004年5月1日同时我的专业也记错了应该是计算机科学与技术。'
+ const old=[{id:'major',revision:1,kind:'context' as const,assertion:'user_reported',text:'我的专业是软件工程'}]
+ assert.equal(explicitCorrectionIntent(text),true)
+ const plan=planExplicitCorrection(text,old)
+ assert.equal(plan?.target?.itemId,'major')
+ assert.equal(plan?.newQuote,'我的专业也记错了应该是计算机科学与技术')
+ assert.ok(!plan?.newQuote.includes('室友'))
+})
+
+test('a named previous major remains an owned major correction',()=>{
+ const text='我的软件工程专业记错了，应该是计算机科学与技术。'
+ const old=[{id:'major',revision:1,kind:'context' as const,assertion:'user_reported',text:'我的专业是软件工程'}]
+ assert.equal(explicitCorrectionIntent(text),true)
+ assert.equal(planExplicitCorrection(text,old)?.target?.itemId,'major')
+})
+
+test('a completed correction report is not executed as a new correction command',()=>{
+ const old=[{id:'major',revision:1,kind:'context' as const,assertion:'user_reported',text:'我的专业是软件工程'}]
+ for(const text of ['我把我的专业改成计算机科学与技术后，又更新了简历。','我把我的专业改成计算机科学与技术后，吃了饭。','我把我的专业改成计算机科学与技术后吃了饭。','我把我的专业改成计算机科学与技术后一直没再调整。']){
+  assert.equal(explicitCorrectionIntent(text,old),false,text)
+  assert.equal(planExplicitCorrection(text,old),null,text)
+ }
+})
+
+test('a natural named-major correction binds arbitrary authorized major names',()=>{
+ const text='我的人工智能专业记错了，应该是网络空间安全。'
+ const old=[{id:'major',revision:2,kind:'context' as const,assertion:'user_reported',text:'我的专业是人工智能'}]
+ assert.equal(explicitCorrectionIntent(text,old),true)
+ const plan=planExplicitCorrection(text,old)
+ assert.equal(plan?.target?.itemId,'major')
+ assert.equal(plan?.target?.expectedRevision,2)
+ assert.match(plan?.newQuote??'',/网络空间安全/)
+ const punctuated='我的电子信息工程（中外合作办学）专业记错了，应该是人工智能。'
+ const punctuatedOld=[{id:'major-punctuated',revision:1,kind:'context' as const,assertion:'user_reported',text:'我的专业是电子信息工程（中外合作办学）'}]
+ assert.equal(explicitCorrectionIntent(punctuated,punctuatedOld),true)
+ assert.equal(planExplicitCorrection(punctuated,punctuatedOld)?.target?.itemId,'major-punctuated')
+ const thirdParty='我的姐姐专业记错了，应该是人工智能。'
+ assert.equal(explicitCorrectionIntent(thirdParty,old),false)
+ assert.equal(planExplicitCorrection(thirdParty,old),null)
+})
+
+test('whitespace after a correction modifier keeps the replacement atomic',()=>{
+ const text='我的专业刚才 写错了，应该是计算机科学与技术。'
+ const old=[{id:'major',revision:1,kind:'context' as const,assertion:'user_reported',text:'我的专业是软件工程'}]
+ assert.equal(explicitCorrectionIntent(text),true)
+ const plan=planExplicitCorrection(text,old)
+ assert.equal(plan?.target?.itemId,'major')
+ assert.match(plan?.newQuote??'',/计算机科学与技术/)
+})
+
+test('an explicit major rewrite binds arbitrary authorized major names',()=>{
+ const text='把我的专业从人工智能改成网络空间安全。'
+ const old=[{id:'major',revision:3,kind:'context' as const,assertion:'user_reported',text:'我的专业是人工智能'}]
+ const plan=planExplicitCorrection(text,old)
+ assert.equal(plan?.target?.itemId,'major')
+ assert.equal(plan?.target?.expectedRevision,3)
+ assert.equal(plan?.target?.beforeQuote,'我的专业是人工智能')
+ assert.match(plan?.newQuote??'',/网络空间安全/)
+ const direct='我的专业从人工智能改成网络空间安全。'
+ assert.equal(explicitCorrectionIntent(direct),true)
+ assert.equal(planExplicitCorrection(direct,old)?.target?.itemId,'major')
+ const naturalOld=[{...old[0]!,text:'我目前就读人工智能专业'}]
+ assert.equal(planExplicitCorrection(text,naturalOld)?.target?.itemId,'major')
+})
+
+test('a completed personal-field correction report is not executed again',()=>{
+ const old=[{id:'major',revision:1,kind:'context' as const,assertion:'user_reported',text:'我的专业是软件工程'}]
+ for(const report of ['我把我的专业改成计算机科学与技术了，为什么页面还显示软件工程？','把我的专业改成计算机科学与技术了，为什么页面还显示软件工程？','请把我的专业改成计算机科学与技术了，可是页面仍显示软件工程。','麻烦帮我把我的专业改成计算机科学与技术了，不过系统仍显示软件工程。','我把我的专业改成了计算机科学与技术，为什么页面还显示软件工程？','我把我的专业改成计算机科学与技术了可是页面还显示软件工程。','我把我的专业改成计算机科学与技术后，页面仍显示软件工程。','我把我的专业改成计算机科学与技术了以后，页面仍显示软件工程。']){
+  assert.equal(explicitCorrectionIntent(report,old),false,report)
+  assert.equal(planExplicitCorrection(report,old),null,report)
+ }
+})
+
+test('a correction followed by another requested action is still an atomic correction command',()=>{
+ const old=[{id:'major',revision:1,kind:'context' as const,assertion:'user_reported',text:'我的专业是软件工程'}]
+ for(const text of ['把我的专业改成计算机科学与技术后，再更新简历。','请把我的专业改成计算机科学与技术了以后，再更新简历。']){
+  assert.equal(explicitCorrectionIntent(text,old),true,text)
+  const plan=planExplicitCorrection(text,old)
+  assert.equal(plan?.target?.itemId,'major',text)
+  assert.match(plan?.newQuote??'',/计算机科学与技术/,text)
+ }
+})
+
+test('a derived artifact containing a personal-field name is not a profile correction',()=>{
+ for(const text of ['我的职业目标分析写错了，应该是还缺信息。','我的偏好报告写错了，应该重做。','我的兴趣清单写错了，应该是阅读清单。','我的年龄计算写错了，应该是另一种算法。','我的年龄相关计算写错了，应该是另一种算法。','我的专业方向写错了，应该是人工智能安全。','我的专业课程写错了，应该是机器学习。','我的专业课写错了，应该是机器学习。','我的学校邮箱写错了，应该换一个地址。']){
+  assert.equal(explicitCorrectionIntent(text),false,text)
+  assert.equal(planExplicitCorrection(text,[]),null,text)
+ }
 })
 
 test('only the complete explicit empty-plan request can take the zero-generation path',()=>{
@@ -316,4 +509,18 @@ test('new real first failures: one-and-a-half remainder is not thirty minutes an
  const zero=deriveTurnObligations('这周后面都排满了，能用的时间是零。下周大概有四小时，先不排具体任务。')
  const deltas=supplementMissingBudgetDeltas(zero,undefined,'00000000-0000-4000-8000-000000000001','这周后面都排满了，能用的时间是零。下周大概有四小时，先不排具体任务。')
  assert.ok(deltas.some(d=>d.source.quote==='能用的时间是零'))
+})
+
+test('a separated correction marker preserves the scope of a named major and can be corrected again',()=>{
+ const before={id:'major',revision:1,kind:'context',assertion:'user_reported',text:'另外我的专业是软件工程'}
+ const correction='更正一下，我的专业不是软件工程，是人工智能；请按更正后的专业重新比较之前的取舍。'
+ const plan=planExplicitCorrection(correction,[before])
+ assert.equal(plan?.target?.itemId,before.id)
+ assert.equal(plan?.target?.beforeQuote,before.text)
+ assert.equal(plan?.newQuote,'我的专业不是软件工程，是人工智能')
+ const next=planExplicitCorrection('我的专业从人工智能改成信息管理。',[{...before,id:'major-revised',text:plan!.newQuote}])
+ assert.equal(next?.target?.itemId,'major-revised')
+ assert.equal(next?.target?.beforeQuote,plan?.newQuote)
+ assert.equal(planExplicitCorrection('假设更正一下，我的专业不是软件工程，是人工智能。',[before]),null)
+ assert.equal(planExplicitCorrection('更正一下，室友的专业不是软件工程，是人工智能。',[before]),null)
 })

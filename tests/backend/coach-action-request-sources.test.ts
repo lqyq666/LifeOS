@@ -16,7 +16,7 @@ test('action modifications retain non-node request sources but do not revive cor
     try{const change=delta(run),reply=change.action?.draft?.content??'这是本轮已核对的经过。';const coach=await stageCoachEvent(run,change,reply);event=(await store.finishRun(run,{candidates:[],audit:[],coach},reply,null,signal)).event;const operatedId=coach.actionId??change.action?.actionId??action?.id;action=event.actions.find((a:{id:string})=>a.id===operatedId)??event.actions.find((a:{status:string})=>a.status==='proposed')??event.actions[0];return run.source_message_id}
     finally{await store.terminateRun(user,run.request_id,'failed','SYNTHETIC_TEST_CLEANUP')}
   }
-  const target=()=>({operation:'continue',eventId:event.id,expectedRevision:event.revision})
+  const target=()=>({operation:'continue' as const,eventId:event.id,expectedRevision:event.revision})
   const source=(run:store.Run,quote:string)=>({messageId:run.source_message_id,quote})
   try{
     await finish('继续做现有例题的小材料。',run=>({target:{operation:'create',title:'准备例题',source:source(run,'继续做现有例题的小材料。')}}))
@@ -29,7 +29,11 @@ test('action modifications retain non-node request sources but do not revive cor
     assert.ok((await ids()).includes(originalRequest),'creation-only user budget request survives a modification without a model node')
     assert.ok((await ids()).includes(modifiedRequest))
     assert.ok(action.requestSources.some((s:{messageId:string;quote:string})=>s.messageId===originalRequest&&s.quote.includes('十分钟')))
-    await finish('更正一下，我会Python和R。',run=>({target:target(),corrections:[{nodeId:oldNode,source:source(run,'更正一下，我会Python和R。')}],action:{operation:'modify',actionId:action.id,expectedRevision:action.revision,draft:{content:'第三版，背景已更正。'}}}))
+    const correctionOnly=(await store.startRun(user,chat,randomUUID(),'更正一下，我会Python和R。')).run
+    try{
+      await assert.rejects(stageCoachEvent(correctionOnly,{target:target(),corrections:[{nodeId:oldNode,source:source(correctionOnly,'我会Python和R')}],action:{operation:'modify',actionId:action.id,expectedRevision:action.revision,draft:{content:'没有获得修改授权的版本。'}}},'没有获得修改授权的版本。'),(error:any)=>error?.code==='COACH_ACTION_SOURCE_INVALID','a fact correction alone cannot authorize rewriting an existing material')
+    }finally{await store.terminateRun(user,correctionOnly.request_id,'cancelled','SYNTHETIC_UNREQUESTED_CORRECTION_REWRITE')}
+    await finish('更正一下，我会Python和R，请同步修改这份说明。',run=>({target:target(),corrections:[{nodeId:oldNode,source:source(run,'我会Python和R')}],action:{operation:'modify',actionId:action.id,expectedRevision:action.revision,draft:{content:'第三版，背景已更正。'}}}))
     assert.ok(!(await ids()).includes(correctedInput),'superseded node input is not restored as whole request evidence')
     assert.ok((await ids()).includes(originalRequest))
     assert.ok(!action.requestSources.some((s:{messageId:string})=>s.messageId===correctedInput))

@@ -1,20 +1,22 @@
+import {ReplyActions} from './ReplyActions'
+import {ProductModes} from './ProductModes'
 import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'react'
 import { CodexSelect } from '../../components/ui/CodexSelect'
-import { advanceConversation, beginExploration, createDemoConversation, type Conversation } from './flow.ts'
+import { advanceConversation, beginExploration, createDemoConversation, DEMO_TITLE, type Conversation } from './flow.ts'
 import { Companion, type CompanionMotion } from './Companion'
-import { AnswerChoices } from './AnswerChoices'
+import { AnswerChoices, OpeningChoices } from './AnswerChoices'
 import { AutoTextarea } from './AutoTextarea'
 
 import { MemoryPanel } from './MemoryPanel'
 import { ControlCards } from './ControlCards'
-import {WorkflowPanel} from './WorkflowPanel'
 import { ReplyMarkdown } from './ReplyMarkdown'
+import {ProcessingStatus,processingStages,type ProcessingStage} from './ProcessingStatus'
 import { getAnswerQuestion, type AnswerOption } from './choices.ts'
 import { WORKSPACE_KEY, chatTitle, newChat, newWorkspace, parseWorkspace, updateChat, type Chat, type Workspace } from './workspace.ts'
 import { WorkspaceSidebar } from './WorkspaceSidebar'
 import { WorkspaceIcon as Icon } from './WorkspaceIcon'
 import { useVoiceInput } from './useVoiceInput'
-import { api, ApiError, dataChanged, explainError, loadWorkspace, streamChat, type SessionUser } from '../../backend/client'
+import { api, ApiError, committedTurn, dataChanged, explainError, loadWorkspace, streamChat, type SessionUser } from '../../backend/client'
 import './conversation.css'
 import './workspace.css'
 
@@ -53,6 +55,7 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
   const sidebarTrigger = useRef<HTMLButtonElement>(null)
   const [storageNotice, setStorageNotice] = useState(loaded.blocked ? '本地对话未能读取。当前内容仅暂存内存，原保存数据没有被覆盖。' : '')
   const [busy, setBusy] = useState(false)
+  const [processingStage,setProcessingStage]=useState<ProcessingStage>('sending')
   useEffect(()=>{
     let current=true
     if(!user){setAccess(null);return}
@@ -69,7 +72,7 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
   const accessBlocked = !conversation.demo && !!user && !!access?.required && (access.enabled === false || access.remaining === 0)
   const accessNotice = accessBlocked ? access?.enabled === false ? '对话资格尚未开通或已到期，请联系邀请人。已保存的对话仍可查看，草稿会保留。' : '本次对话额度已用完或正在使用，请稍后刷新或联系邀请人。已保存的对话仍可查看，草稿会保留。' : ''
   const question = getAnswerQuestion(conversation)
-  const showChoices = choicesOpen && !!question && !busy
+  const showChoices = choicesOpen && !!question && conversation.stage !== 'opening' && !busy
   const voice = useVoiceInput({ active: open && !busy && !project && !summaryOpen, draft, onDraft: setDraft, onFinish: () => input.current?.focus() })
   function setDraft(text: string) { setWorkspace(value => updateChat(value, value.activeId, { draft: text })) }
   function closeMemory() { setMemoryOpen(false); memoryTrigger.current?.focus() }
@@ -88,7 +91,7 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
       }
       if (epoch !== copyEpoch.current) return
       await navigator.clipboard.writeText(message.text)
-      if (epoch === copyEpoch.current) setNotice('已复制完整回复。复制不代表已经发送或执行。')
+      if (epoch === copyEpoch.current) return true
     } catch (error) {
       if (epoch === copyEpoch.current) setNotice(error instanceof Error && error.name === 'NotAllowedError' ? '浏览器没有允许复制，请选中回复文字手动复制。' : '未能复制，回复仍保留在页面中；请稍后再试或手动复制。')
     } finally { if (epoch === copyEpoch.current) setCopying(null) }
@@ -117,17 +120,26 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
   }, [])
   // Opening a record's source conversation from the star map stashes the id
   // here; it applies only after the workspace (with all server conversations)
-  // has loaded, and never creates anything.
+  // has loaded. A suggested follow-up may create a local draft, never a sent turn.
   function applyPendingConversation(loaded: Workspace): Workspace {
     const pending = sessionStorage.getItem('lifeos:pending-conversation')
-    if (!pending) return loaded
-    sessionStorage.removeItem('lifeos:pending-conversation')
-    const chat = loaded.chats.find(item => item.id === pending)
-    if (!chat) return loaded
     const pendingMessage = sessionStorage.getItem('lifeos:pending-conversation-message')
-    if (pendingMessage) sessionStorage.removeItem('lifeos:pending-conversation-message')
     const pendingDraft = sessionStorage.getItem('lifeos:pending-conversation-draft')
-    if (pendingDraft) sessionStorage.removeItem('lifeos:pending-conversation-draft')
+    if (!pending && !pendingDraft) return loaded
+    for (const key of ['lifeos:pending-conversation','lifeos:pending-conversation-message','lifeos:pending-conversation-draft']) sessionStorage.removeItem(key)
+    let chat = pending ? loaded.chats.find(item => item.id === pending) : undefined
+    if (pending && !chat) { sessionStorage.removeItem('lifeos:focus-context'); return loaded }
+    // A theme opens its own draft. Never overwrite an unsent message when an
+    // experience supplies a suggested follow-up for an existing conversation.
+    if (!chat || (pendingDraft && chat.draft.trim() && chat.draft !== pendingDraft)) {
+      chat = newChat(chat?.projectId ?? null)
+      loaded = { ...loaded, chats: [chat, ...loaded.chats] }
+    }
+    const rawFocus = sessionStorage.getItem('lifeos:focus-context')
+    if (rawFocus && pendingDraft) {
+      try { sessionStorage.setItem('lifeos:focus-context', JSON.stringify({ ...JSON.parse(rawFocus), chatId: chat.id })) }
+      catch { sessionStorage.removeItem('lifeos:focus-context') }
+    } else sessionStorage.removeItem('lifeos:focus-context')
     requestAnimationFrame(() => {
       if (pendingMessage) {
         const element = document.getElementById('qa-msg-' + pendingMessage)
@@ -137,8 +149,19 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
     })
     return pendingDraft ? updateChat({ ...loaded, activeId: chat.id }, chat.id, { draft: pendingDraft }) : { ...loaded, activeId: chat.id }
   }
+  useEffect(() => {
+    const navigate = () => {
+      if (remote.current) { setNotice('当前回复仍在生成，请结束后再打开这条记录。'); return }
+      setProjectId(null); setMemoryOpen(false); setChoicesOpen(false)
+      setWorkspace(applyPendingConversation(workspace))
+    }
+    window.addEventListener('lifeos-open-conversation', navigate)
+    return () => window.removeEventListener('lifeos-open-conversation', navigate)
+  }, [workspace])
   async function loggedIn() {
     const nextUser = await api<SessionUser>('/api/session')
+    // A newly authenticated account must not inherit another session's star-map draft.
+    for (const key of ['lifeos:pending-conversation','lifeos:pending-conversation-message','lifeos:pending-conversation-draft','lifeos:focus-context']) sessionStorage.removeItem(key)
     let cached
     try { const raw = localStorage.getItem(WORKSPACE_KEY + '.' + nextUser.id); cached = raw ? parseWorkspace(raw) : undefined; setCacheBlocked(false) }
     catch { setCacheBlocked(true) }
@@ -153,6 +176,7 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
     if (busy) return
     try {
       await api('/api/auth/sign-out', {})
+      for (const key of ['lifeos:pending-conversation','lifeos:pending-conversation-message','lifeos:pending-conversation-draft','lifeos:focus-context']) sessionStorage.removeItem(key)
       setUser(null); setWorkspace(loaded.workspace); setCacheBlocked(loaded.blocked); setSummaryOpen(false); setMemoryOpen(false); setChoicesOpen(false); setNotice('已退出登录'); dataChanged()
     } catch (error) { setNotice(explainError(error)) }
   }
@@ -176,26 +200,35 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
     remote.current = pending; retry.current = { chatId, text, requestId }; setBusy(true); setNotice(''); setChoicesOpen(false); setCompanionMotion('thinking')
     follow.current = true
     const userId = current.messages.length, assistantId = userId + 1
-    let assistant = '', sourceId: string | undefined, completed = false, transient = false
+    let assistant = '', sourceId: string | undefined, completed = false, transient = false, savedDelta=false, acceptedCommit=false
     const render = () => setConversation({ ...current, stage: 'followup', demo: false, messages: [...current.messages, { id: userId, role: 'user', text, sourceId }, ...(assistant ? [{ id: assistantId, role: 'assistant' as const, text: assistant, transient }] : [])] })
-    render()
+    setProcessingStage('sending');render()
     try {
-      await api('/api/conversations', { id: chatId, title: active.title })
+      // A server-issued message ID proves this conversation was already created.
+      // Avoid a redundant network round trip on every follow-up; a deleted
+      // conversation must fail normally rather than be recreated implicitly.
+      if (!current.messages.some(message => message.sourceId && !message.transient)) {
+        await api('/api/conversations', { id: chatId, title: active.title, ...(!current.messages.length?{renamed:active.renamed,pinned:active.pinned,projectId:active.projectId}:{}) })
+      }
       pending.controller.signal.throwIfAborted()
       const rawFocus = sessionStorage.getItem('lifeos:focus-context')
       let focusContext: { type: 'theme' | 'experience'; id: string; label: string } | undefined
-      if (rawFocus) { sessionStorage.removeItem('lifeos:focus-context'); try { const parsed = JSON.parse(rawFocus); if (parsed && (parsed.type === 'theme' || parsed.type === 'experience') && typeof parsed.id === 'string') focusContext = parsed } catch { /* ignore malformed focus */ } }
+      if (rawFocus) { sessionStorage.removeItem('lifeos:focus-context'); try { const parsed = JSON.parse(rawFocus); if (parsed?.chatId === chatId && (parsed.type === 'theme' || parsed.type === 'experience') && typeof parsed.id === 'string') focusContext = { type: parsed.type, id: parsed.id, label: parsed.label } } catch { /* ignore malformed focus */ } }
       await streamChat(chatId, requestId, text, pending.controller.signal, event => {
         if (remote.current !== pending || pending.controller.signal.aborted) return
         if (event.type === 'started') { pending.started = true; sourceId = event.sourceMessageId; setDraft(''); render() }
         if (event.type === 'queued') setNotice('正在等待处理，你可以取消这次等待。')
+        if(event.type==='queued')setProcessingStage('queued')
+        if(event.type==='progress'&&typeof event.stage==='string'&&event.stage in processingStages)setProcessingStage(event.stage as ProcessingStage)
         if (event.type === 'processing') setNotice('')
-        if (event.type === 'draft') { assistant = event.text; transient = true; setCompanionMotion('answering'); render() }
+        if (event.type === 'draft') { assistant = event.append ? assistant + event.text : event.text; transient = true; setProcessingStage('streaming');setCompanionMotion('answering'); render() }
         if (event.type === 'draft_discarded') { assistant = ''; transient = false; render() }
-        if (event.type === 'delta') { assistant = event.replace ? event.text : assistant + event.text; transient = false; setCompanionMotion('answering'); render() }
+        if (event.type === 'delta') { assistant = event.replace ? event.text : assistant + event.text; transient = false; savedDelta=event.saved===true&&event.replace===true; setCompanionMotion('answering'); render() }
         if (event.type === 'tool') setCompanionMotion(event.name === 'query_experiences' ? 'searching' : 'thinking')
         if (event.type === 'done') {
           completed = true; retry.current = null; dataChanged()
+          const saved=committedTurn(current,{conversationId:chatId,requestId,sourceId,text,reply:assistant,savedDelta},event)
+          if(saved){acceptedCommit=true;setWorkspace(value=>updateChat(value,chatId,{conversation:saved.conversation,title:saved.title,draft:'',updatedAt:Date.now()}))}
           // P5.5: the saved-message notice and the growth-archive update are
           // separate truths; show the real receipt from the committed run.
           const receipt=event.stateChange
@@ -219,6 +252,7 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
       }, focusContext)
       animateAnswer(true)
     } catch (error) {
+      acceptedCommit=false
       assistant = ''; transient = false; render()
       if (!pending.controller.signal.aborted) {
         setNotice(explainError(error)); setDraft(text)
@@ -240,6 +274,7 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
         else setConversation(current)
       }
       const remainingDraft = completed || (pending.started && pending.controller.signal.aborted) ? '' : text
+      if(completed&&acceptedCommit){if(remote.current===pending)remote.current=null;setBusy(false);setCompanionMotion('waiting');return}
       try {
         const next = await loadWorkspace(currentUser, { ...workspace, activeId: chatId, chats: workspace.chats.map(chat => chat.id === chatId ? { ...chat, draft: remainingDraft } : chat) })
         setWorkspace(next)
@@ -366,7 +401,7 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
     motionTimers.current = []
     animateAnswer(true)
     follow.current = true
-    const demo = { ...newChat(), title: '比赛与课程之间的选择', conversation: createDemoConversation() }
+    const demo = { ...newChat(), title: DEMO_TITLE, conversation: createDemoConversation() }
     setWorkspace(value => ({ ...value, activeId: demo.id, chats: [demo, ...value.chats] }))
     setPrevious(null)
     setDraft('')
@@ -390,11 +425,31 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
     setProjectId(null); setChoicesOpen(false); setNotice(''); setPrevious(null); setCompanionMotion('idle')
     if (mobile) closeSidebar()
   }
+  async function deleteChat(id: string) {
+    if (busy) return // The sidebar presents the in-product confirmation before calling this handler.
+    const chat = workspace.chats.find(item => item.id === id)
+    if (!chat) return
+    setBusy(true); setNotice('')
+    try {
+      if (user && !chat.conversation.demo) {
+        try { await api('/api/conversations/' + id, undefined, 'DELETE') }
+        catch(error) { if (!(error instanceof ApiError && error.status === 404 && !chat.conversation.messages.length)) throw error }
+      }
+      voice.cancel(); retry.current = null; setPrevious(null); setSummaryOpen(false); setMemoryOpen(false)
+      setWorkspace(value => {
+        const chats = value.chats.filter(item => item.id !== id)
+        if (!chats.length) chats.push(newChat())
+        return { ...value, chats, activeId: value.activeId === id ? chats[0]!.id : value.activeId }
+      })
+      setNotice('已删除这段对话。长期记忆和星图中已保存的资料仍保留。')
+    } catch(error) { setNotice(explainError(error)) }
+    finally { setBusy(false) }
+  }
   function patchChat(id: string, patch: Partial<Chat>) {
     setWorkspace(value => updateChat(value, id, patch))
     if (user && !workspace.chats.find(chat => chat.id === id)?.conversation.demo) {
-      void api('/api/conversations', { id, title: workspace.chats.find(chat => chat.id === id)?.title ?? '新对话' })
-        .then(() => api('/api/conversations/' + id, patch, 'PATCH')).catch(error => setNotice(explainError(error)))
+      void api('/api/conversations', { id, title: workspace.chats.find(chat => chat.id === id)?.title ?? '新对话', ...patch }, 'POST', {keepalive:true})
+        .catch(error => setNotice(explainError(error)))
     }
   }
   function openProject(id: string) { voice.cancel(); setSummaryOpen(false); setProjectId(id); setNotice(''); if (mobile) closeSidebar() }
@@ -402,7 +457,7 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
 
   return <dialog ref={dialog} tabIndex={-1} className="qa-page" aria-label="LifeOS 聊一聊" onCancel={event => { event.preventDefault(); if (memoryOpen) closeMemory(); else if (mobile && sidebarOpen) closeSidebar(); else onClose() }}>
     <div className="qa-app-layout">
-      <WorkspaceSidebar workspace={workspace} busy={busy || connecting} accountConnected={!!user} open={sidebarOpen} mobile={mobile} projectId={projectId} onClose={closeSidebar} onExit={onClose} onOpenCognition={onOpenCognition} onSelect={selectChat} onProject={openProject} onNew={createChat} onChat={patchChat}
+      <WorkspaceSidebar workspace={workspace} busy={busy || connecting} accountConnected={!!user} open={sidebarOpen} mobile={mobile} projectId={projectId} onClose={closeSidebar} onExit={onClose} onOpenCognition={onOpenCognition} onSelect={selectChat} onProject={openProject} onNew={createChat} onChat={patchChat} onDelete={id => void deleteChat(id)}
         onSaveProject={(id, name, description) => {
           const nextId = id ?? crypto.randomUUID()
           setWorkspace(value => ({ ...value, projects: id ? value.projects.map(item => item.id === id ? { ...item, name, description } : item) : [...value.projects, { id: nextId, name, description }] }))
@@ -434,27 +489,29 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
           {!workspace.chats.some(chat => chat.projectId === project.id) && <div className="qa-project-empty"><Icon name="compose" size={24} /><p>还没有对话</p><span>从一件想理清的事开始。</span></div>}
         </section>
       </main> : <>
-      <div hidden={summaryOpen} inert={memoryOpen} className={`qa-workspace ${empty ? 'is-empty' : ''} ${showChoices ? 'has-choices' : ''}`}>
+      <div hidden={summaryOpen} inert={memoryOpen} className={`qa-workspace ${empty ? 'is-empty' : ''} ${showChoices ? 'has-choices' : empty && question ? 'has-starters' : ''}`}>
         <div className="qa-scroll" ref={scroll} onScroll={() => {
           const element = scroll.current
           if (element) follow.current = element.scrollHeight - element.scrollTop - element.clientHeight < 100
         }}>
+          <ProductModes key={(user?.id??'guest')+':'+active.id} disabled={busy||connecting||voice.listening||conversation.demo} onSend={text=>send(draft.trim()?text+'\n\n我想补充：\n'+draft.trim():text)}/>
           {empty ? <section className="qa-welcome" aria-labelledby="qa-heading">
             <Companion large motion={draft.trim() ? 'waiting' : 'idle'} animated={open && !summaryOpen} />
             <p className="qa-greeting">我在，慢慢说。</p>
             <h1 id="qa-heading">现在，有想聊的具体问题吗？</h1>
             <p className="qa-welcome-note">从眼前的困惑，到过去的经历，一起找找答案。</p>
+            {question && conversation.stage === 'opening' && <OpeningChoices question={question} disabled={busy || connecting || voice.listening} onChoose={option => { if (option.action === 'write') input.current?.focus(); else answerChoice(option) }} />}
           </section> : <div className="qa-thread" role="log" aria-label="对话内容" aria-live="polite" aria-relevant="additions text">
-            {conversation.demo && <p className="qa-demo-label">示例对话 · 比赛与课程之间的选择</p>}
-            {conversation.messages.map(message => <article key={message.id} id={'qa-msg-' + message.id} className={`qa-message is-${message.role}`} aria-label={message.role === 'user' ? '你的消息' : 'LifeOS 的回应'}>
+            {conversation.demo && <p className="qa-demo-label">示例对话 · {DEMO_TITLE}</p>}
+            {conversation.messages.map(message => <article key={message.id} id={'qa-msg-' + (message.sourceId ?? message.id)} className={`qa-message is-${message.role}`} aria-label={message.role === 'user' ? '你的消息' : 'LifeOS 的回应'}>
               {message.role === 'assistant' && <div className="qa-assistant-name"><Companion motion={message.id === conversation.messages.at(-1)?.id && !busy ? companionMotion : 'idle'} animated={open && !summaryOpen && !busy && message.id === conversation.messages.at(-1)?.id} /><span>LifeOS</span></div>}
               <div className="qa-message-body">{message.transient && <small role="status">生成草稿 · 未校验、未保存</small>}{message.role === 'assistant' ? <ReplyMarkdown text={message.text} /> : message.text.split('\n\n').map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
-              {message.role === 'assistant' && !message.transient && <div className="qa-reply-actions"><button type="button" disabled={busy || copying !== null || (!conversation.demo && !message.sourceId)} onClick={() => void copyReply(message)} aria-label="复制完整回复">{copying === message.id ? '正在复制…' : '复制回复'}</button></div>}
+              {message.role === 'assistant' && !message.transient && <ReplyActions message={message} disabled={busy || copying !== null || (!conversation.demo && !message.sourceId)} copying={copying===message.id} onCopy={()=>copyReply(message)}/>}
             </article>)}
-            {busy && <div className="qa-thinking" role="status"><Companion motion={companionMotion} animated={open && !summaryOpen} /><span>{companionMotion === 'received' ? '收到你的想法' : '整理中'}</span>{remote.current && <button type="button" onClick={() => void cancelRemote()}>取消</button>}</div>}
+            {connecting&&<div className="qa-thinking"><ProcessingStatus stage="connecting"/></div>}
+            {busy && <div className="qa-thinking"><ProcessingStatus stage={processingStage}/></div>}
           </div>}
           {!conversation.demo && user && !summaryOpen && !busy && <ControlCards conversationId={active.id} refreshKey={controlRefresh} onResolved={() => setControlRefresh(value => value + 1)} />}
-          {!conversation.demo&&user&&!summaryOpen&&!busy&&conversation.messages.some(message=>message.sourceId)&&<WorkflowPanel key={active.id} conversationId={active.id} refreshKey={controlRefresh} source={(()=>{const message=conversation.messages.filter(x=>x.role==='user'&&x.sourceId).at(-1);return message?.sourceId?{id:message.sourceId,text:message.text}:null})()} onChanged={selectionSaved=>{setControlRefresh(value=>value+1);setStarMapUpdate(selectionSaved?'已同步你明确确认的计划或阶段方向。':'')}}/>}
         </div>
 
         <div className="qa-bottom">
@@ -465,7 +522,7 @@ export function ConversationPage({ open, onClose, onOpenCognition=onClose, onReq
               onChange={event => setDraft(event.target.value)} onKeyDown={event => {
                 if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.nativeEvent.keyCode !== 229) { event.preventDefault(); send() }
               }} />
-            <div className="qa-composer-bottom">{question && !busy ? <button type="button" className="qa-show-choices" onClick={() => setChoicesOpen(true)}><svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M6 4h7M6 8h7M6 12h7" stroke="currentColor" strokeWidth="1.2" /><circle cx="2.5" cy="4" r="1" fill="currentColor" /><circle cx="2.5" cy="8" r="1" fill="currentColor" /><circle cx="2.5" cy="12" r="1" fill="currentColor" /></svg>{conversation.stage === 'opening' ? '开始方式' : '确认理解'}</button> : <div className="qa-composer-project"><Icon name="folder" size={15} /><CodexSelect label="当前对话所属项目" value={active.projectId ?? ''} disabled={busy || voice.listening} onChange={value => patchChat(active.id, { projectId: value || null })} options={[{ value: '', label: '未归类' }, ...workspace.projects.map(item => ({ value: item.id, label: item.name }))]} /></div>}<div className="qa-composer-actions">{voiceButton}<button type="submit" className="qa-send" disabled={!draft.trim() || busy || voice.listening || accessBlocked} aria-label="发送消息"><Icon name="send" size={20} /></button></div></div>
+            <div className="qa-composer-bottom">{question && conversation.stage !== 'opening' && !busy ? <button type="button" className="qa-show-choices" onClick={() => setChoicesOpen(true)}><svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M6 4h7M6 8h7M6 12h7" stroke="currentColor" strokeWidth="1.2" /><circle cx="2.5" cy="4" r="1" fill="currentColor" /><circle cx="2.5" cy="8" r="1" fill="currentColor" /><circle cx="2.5" cy="12" r="1" fill="currentColor" /></svg>确认理解</button> : <div className="qa-composer-project"><Icon name="folder" size={15} /><CodexSelect label="当前对话所属项目" value={active.projectId ?? ''} disabled={busy || voice.listening} onChange={value => patchChat(active.id, { projectId: value || null })} options={[{ value: '', label: '未归类' }, ...workspace.projects.map(item => ({ value: item.id, label: item.name }))]} /></div>}<div className="qa-composer-actions">{voiceButton}{busy?<button type="button" className="qa-send is-stop" disabled={!remote.current} onClick={()=>void cancelRemote()} aria-label="停止生成" title="停止生成"><Icon name="stop" size={18}/></button>:<button type="submit" className="qa-send" disabled={!draft.trim() || voice.listening || accessBlocked} aria-label="发送消息" title="发送消息"><Icon name="send" size={20} /></button>}</div></div>
           </form>}
           {voice.status && <p className="qa-voice-status" role="status">{voice.listening && <span className="qa-voice-dot" />}{voice.status}</p>}
           <p className="qa-preview-note">{conversation.demo ? '示例互动 · 不作为个人业务记录' : user ? access?.required ? access.enabled ? `对话保存在你的账户 · 剩余 ${access.remaining} 次${access.expiresAt ? ' · 有效至 '+new Date(access.expiresAt).toLocaleDateString() : ''}` : '对话资格尚未开通或已到期 · 已保存内容仍可查看' : '对话保存在你的账户' : connecting ? '正在连接服务端…' : '登录后开始真实对话 · 原浏览器演示已保留'}</p>

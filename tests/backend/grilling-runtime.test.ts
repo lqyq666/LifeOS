@@ -42,6 +42,13 @@ test('normal LifeOS transaction sends and commits the current grilling policy an
     assert.ok(staged.audit.some((row:any)=>row.phase==='grilling_loaded_choices_opened'))
     const system=String(requests[0].messages[0].content)
     assert.ok(system.includes(mainCompanionPolicy.grilling.instructions),'actual provider payload includes the current grilling policy text')
+    assert.ok(system.includes(mainCompanionPolicy.instructions),'actual HTTP model payload includes the complete consumed business policy')
+    assert.match(system,/lifeos-understanding-gaps\/1\.0\.1/)
+    assert.match(system,/一次独立完成比赛只支持当次行动，不推出排斥合作或适合创业/)
+    assert.match(system,/未核对前不保存为科研兴趣不足或不适合科研/)
+    assert.match(system,/拒答保留为拒答，不改成未知反复追问/)
+    assert.match(system,/尚未说明是否喜欢研究.*是未知，不是本人已否认不喜欢/)
+    assert.match(system,/一次求助只证明该次求助，不推出排斥或不排斥合作等稳定偏好/)
     const context=JSON.parse(requests[0].messages.find((message:any)=>message.role==='user').content)
     assert.deepEqual(context.grilling,{policyVersion:mainCompanionPolicy.grilling.version,policyDigest:mainCompanionPolicy.grilling.policyDigest,interactionMode:'explore'})
     const payload=staged.audit.find((row:any)=>row.phase==='grilling_policy_payload') as any

@@ -8,6 +8,14 @@ import {createHash} from 'node:crypto'
 import {parseActionCoachTurn} from '../server/action-coach-contracts.ts'
 import {responseRequestScope} from '../server/user-command-spans.ts'
 
+test('ordinary summaries can explain personal evidence beyond the former 100 character cap',()=>{
+ const text='请总结当前理解和仍未知的地方，用小标题和分段。'
+ const base=deriveTurnContract({text,knowledgeCount:0,currentEventExists:false,planIntent:false,material:false})
+ const bound=bindRequestedSummarySchema(base,text)
+ assert.equal(bound.requiredReplyKind,'summary')
+ assert.ok(Value.Check((bound.schema.properties as any).reply,'**已有依据**\n'+ '正在实践产品，只能证明已有探索。'.repeat(12)+'\n\n**仍未知**\n尚未确认真实用户的反馈。'))
+})
+
 test('actual DE correction plus a small action request stays a mixed delivery',()=>{
  const text='更正：同学少问一次只是结果，不代表我因此有成就感；我当时真正轻松的是自己不用反复找。只更新受影响的判断，给一个本周能开始的小动作。'
  const scope=responseRequestScope(text)

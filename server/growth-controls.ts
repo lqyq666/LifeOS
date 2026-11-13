@@ -2,7 +2,7 @@ import {createHash,randomUUID} from 'node:crypto'
 import type { PoolClient } from 'pg'
 import { pool, HttpError, requireRow } from './db.ts'
 import type { Run } from './store.ts'
-import { scanUserClauses } from './user-command-spans.ts'
+import { scanUserClauses,withdrawnPursuitTarget } from './user-command-spans.ts'
 import {applyGrowthAction} from './growth.ts'
 
 // P3: durable, cross-session direction controls. Pausing a direction is an
@@ -120,13 +120,14 @@ export function deriveExplicitDirectionControls(currentText:string):
     // “不要推出我适合X” rejects an inference; 推出/推断/推导 is not the
     // product command “别推X”. Never turn an evidence boundary into a durable
     // pause for the named direction.
-    if(/(?:不要|别|不应|不能).{0,8}(?:推出|推断|推导|推理).{0,24}(?:适合|结论|判断|方向)/.test(body))continue
+    if(/(?:不要|别|不应|不能).{0,8}(?:推出|推断|推导|推理)/.test(body))continue
     const refusal=/^(?:但|但是|不过|也|而)?(?:我|本人)?(?:现在|目前|这次)?(?:仍然|仍|还是|明确)?(?:拒绝|不考虑|不想)(.+)$/.exec(body)
       ??/^(.+?)(?:仍然|仍|还是|明确)?(?:拒绝|不考虑)$/.exec(body)
       ??/^(?:不要|别)(?:再|换词|换个说法)?劝(?:我)?(.+)$/.exec(body)
     const refusalTarget=refusal?.[1]?.replace(/(?:这个)?方向$/,'').trim()
     const namedRefusal=refusal&&refusalTarget&&directionPatterns.some(({pattern})=>{const match=pattern.exec(refusalTarget);return match?.index===0&&match[0]===refusalTarget})?refusal:null
-    const pause=pauseVerbs.exec(body)??/(?:不再把|不再将).{1,16}作为主线/.exec(body)??namedRefusal
+    const withdrawal=withdrawnPursuitTarget(body)?/./.exec(body):null
+    const pause=pauseVerbs.exec(body)??/(?:不再把|不再将).{1,16}作为主线/.exec(body)??namedRefusal??withdrawal
     const resume=resumeVerbs.exec(body)
     if(!pause&&!resume)continue
     const verbIndex=pause?pause.index:resume!.index
@@ -231,7 +232,7 @@ export async function persistDirectionControls(c:PoolClient,run:Run,staged:Prepa
         [run.user_id,scope,updated.revision,JSON.stringify({scope:updated.scope,state:updated.state,revision:updated.revision,sourceMessageId:updated.source_message_id,sourceConversationId:updated.source_conversation_id,sourceQuote:updated.source_quote,sourceRedacted:updated.source_redacted,updatedAt:updated.updated_at.toISOString()}),run.request_id])
       // A scope with no row implicitly starts enabled, so a first pause IS a change.
       effects.push({scope,before:existing?existing.state:'enabled',after:targetState,revision:updated.revision})
-      if(change.operation==='pause'&&/(?:不再把|不再将).{1,16}作为主线/.test(change.source.quote)){
+      if(change.operation==='pause'&&(/(?:不再把|不再将).{1,16}作为主线/.test(change.source.quote)||withdrawnPursuitTarget(change.source.quote))){
         const goals=(await c.query("SELECT id,revision,text FROM growth_items WHERE user_id=$1 AND kind IN ('goal','direction') AND assertion='user_reported' AND status='active' ORDER BY id FOR UPDATE",[run.user_id])).rows
         for(const goal of goals){
           const named=new Set(directionPatterns.filter(p=>p.pattern.test(goal.text)).flatMap(p=>p.scopes()))

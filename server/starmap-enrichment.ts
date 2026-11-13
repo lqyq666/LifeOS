@@ -3,27 +3,23 @@
 import type { PoolClient,Pool } from 'pg'
 import { randomUUID } from 'node:crypto'
 import { recordChangeEvent } from './identity.ts'
-import {clauseReportsCompleted} from './experience-content.ts'
+import {SKILL_ACTION_LEXICON} from './category-lexicon.ts'
+import {clauseReportsCompleted,personalContributionClauses,personalActionText} from './experience-content.ts'
+import {buildClauseCatalogue,unprotectedClauseText} from './clause-catalogue.ts'
+import {scanUserClauses} from './user-command-spans.ts'
+import {reportedExternalFeedback} from './turn-contract.ts'
 
 // ── 能力标签 ──
-// 技能同义词表：经历的行动/结果原文包含这些词时挂对应能力标签。
-// 这只是证据召回——"做过海报"不等于"擅长设计"，标签始终显示来源经历数。
-const SKILL_LEXICON: { tag: string; words: string[] }[] = [
-  { tag: '设计', words: ['设计', '海报', '排版', '配色', '排版', '视觉', 'UI', 'logo', 'Logo'] },
-  { tag: '写作', words: ['写了', '写完', '文案', '推文', '文章', '公众号', '稿件', '剧本'] },
-  { tag: '编程', words: ['代码', '编程', '开发', 'Python', 'python', 'Java', '前端', '后端', '小程序', '爬虫', '算法', 'SQL'] },
-  { tag: '视频制作', words: ['剪辑', '视频', '拍摄', '拍了', 'Pr', 'AE', '剪辑', 'Vlog', 'vlog'] },
-  { tag: '组织协调', words: ['组织', '策划', '协调', '带队', '负责', '主持', '招新', '活动'] },
-  { tag: '沟通表达', words: ['访谈', '采访', '演讲', '答辩', '汇报', '主持', '谈判', '沟通'] },
-  { tag: '数据分析', words: ['数据', '分析', 'Excel', 'excel', '统计', 'SPSS', 'Python', '可视化'] },
-  { tag: '教学', words: ['家教', '辅导', '教了', '讲课', '支教', '答疑'] },
-  { tag: '科研', words: ['文献', '综述', '实验', '科研', '论文', '课题'] },
-  { tag: '外语', words: ['雅思', '托福', '六级', '四级', '英语', '日语', '翻译'] },
-]
+// Conservative contribution evidence: an owned, performed action is required.
+// Task domains, delegation and denied work do not establish a personal skill.
 
-export function extractSkillTags(action: string, result: string, quote: string): string[] {
-  const text = `${action} ${result} ${quote}`
-  return SKILL_LEXICON.filter(entry => entry.words.some(word => text.includes(word))).map(entry => entry.tag)
+
+export function extractSkillTags(action: string, result: string, quote: string, interpretedSkillTags?:readonly string[]): string[] {
+  if(interpretedSkillTags!==undefined)return [...new Set(interpretedSkillTags)]
+  // A source quote, when present, governs historical extracted action labels.
+  // A task title or a model-inferred action cannot overrule that source.
+  const evidence=(quote.trim()?[quote]:[action,result]).flatMap(text=>personalContributionClauses(buildClauseCatalogue(text)).map(clause=>personalActionText(unprotectedClauseText(clause))??''))
+  return SKILL_ACTION_LEXICON.filter(entry=>evidence.some(text=>entry.action.test(text)&&clauseReportsCompleted(text))).map(entry=>entry.tag)
 }
 
 // ── 未完成/卡住识别 ──
@@ -43,20 +39,20 @@ export function isBlockedExperience(action: string, result: string, quote: strin
 
 // ── 外部反馈标记 ──
 // "部长说/导师夸/客户评价/老师反馈" → 来自他人；无这些标记 → 本人自述。
-const EXTERNAL_FEEDBACK = /(?:部长|导师|老师|客户|社长|学长|同学|评委|负责人|经理|HR|面试官)(?:说|说|表示|评价|反馈|夸|批评|认为|觉得)|(?:客户|对方|他们).{0,8}(?:用了|使用|采用)|(?:反馈|评价|验收|回复)(?:说|是|不错|很好|挺好|还行|一般|不好)|(?:被)(?:夸|批评|表扬|认可|拒绝)/
 export function isExternalFeedback(result: string, quote: string): boolean {
-  return EXTERNAL_FEEDBACK.test(`${result} ${quote}`)
+  return ['positive','negative','reported'].includes(reportedExternalFeedback([quote,result].filter(Boolean).join('；')).status)
 }
 
 // ── 数据库读写 ──
 
 // 从已确认经历中汇总能力标签（有证据的那种），返回 {tag, count} 列表。
-export async function readSkillTags(c: PoolClient|Pool, user: string): Promise<{ tag: string; count: number }[]> {
-  const rows = (await c.query("SELECT content FROM experiences WHERE user_id=$1 AND status='confirmed'", [user])).rows
+export function summarizeSkillTags(rows: readonly {content:any;source_quote?:string;quote?:string;interpretedSkillTags?:readonly string[]}[]): { tag: string; count: number }[] {
+  // Reuse the graph's source-checked records. Raw confirmed rows can still
+  // contain withdrawn sources or historical wording superseded by an edit.
   const counts = new Map<string, number>()
   for (const row of rows) {
     const content = row.content ?? {}
-    for (const tag of extractSkillTags(String(content.action ?? ''), String(content.result ?? ''), String(content.summary ?? ''))) {
+    for (const tag of extractSkillTags(String(content.action ?? ''), String(content.result ?? ''), String(row.source_quote??row.quote??content.summary??''),row.interpretedSkillTags)) {
       counts.set(tag, (counts.get(tag) ?? 0) + 1)
     }
   }

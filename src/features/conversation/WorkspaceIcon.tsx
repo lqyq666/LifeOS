@@ -1,5 +1,8 @@
-type Name = 'panel' | 'compose' | 'search' | 'folder' | 'plus' | 'chevron' | 'more' | 'pin' | 'mic' | 'stop' | 'orbit' | 'send' | 'close' | 'check' | 'arrow'
+type Name = 'trash' | 'copy' | 'memory' | 'panel' | 'compose' | 'search' | 'folder' | 'plus' | 'chevron' | 'more' | 'pin' | 'mic' | 'stop' | 'orbit' | 'send' | 'close' | 'check' | 'arrow'
 const paths: Record<Name, string> = {
+  trash:'M3 6h18M9 6V3h6v3M5 6l1 14h12l1-14M10 10v6M14 10v6',
+  copy:'M9 8V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3M5 9h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z',
+  memory:'M12 5a3 3 0 0 0-5-2 3 3 0 0 0-3 4 4 4 0 0 0-1 7 3 3 0 0 0 3 5 3 3 0 0 0 6 1Zm0 0a3 3 0 0 1 5-2 3 3 0 0 1 3 4 4 4 0 0 1 1 7 3 3 0 0 1-3 5 3 3 0 0 1-6 1Z',
   panel: 'M8 4v16M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z',
   compose: 'M13 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-7M16 3l5 5M11 13l-1 4 4-1 7-7a2.8 2.8 0 0 0-4-4Z',
   search: 'M16 16l5 5M18 10.5a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z',

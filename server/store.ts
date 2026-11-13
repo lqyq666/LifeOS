@@ -1,50 +1,132 @@
+import {reportedActualComparisonClauses,reportedPartialActionOutcomes} from './workflows/action-review.ts'
+import {reportedComparisonFactClauses} from './decision-comparison.ts'
+import type {ReplyMemoryReference} from './reply-memory-references.ts'
 import {reserveEntitlement,lockEntitlement,consumeEntitlement} from './entitlements.ts'
 import { randomUUID, createHash } from 'node:crypto'
 import type { PoolClient } from 'pg'
-import { pool, transaction, HttpError, requireRow } from './db.ts'
+import { pool, providerDispatchPool, transaction, HttpError, requireRow } from './db.ts'
 import { validate, candidateSchema, retrievalSchema, type Candidate, type ExperienceAction } from './contracts.ts'
-import {clauseExpressesFuturePlan,clauseReportsCompleted} from './experience-content.ts'
-import {scanUserClauses,assistantRequestClause} from './user-command-spans.ts'
-import { assertMemoryEvidence, assertSnapshotStillValid, invalidatePatternsForExperience, persistChanges, type MemorySnapshot, type MemoryChange } from './memory.ts'
+import {clauseExpressesFuturePlan,clauseReportsCompleted,reportedAdjacentCleanupResult,requiresExperienceCandidate} from './experience-content.ts'
+import {buildClauseCatalogue,reportedContribution,sourceQuotesOverlap,sourceQuoteRanges,sourceControlRanges,selectedSourceRange,uniqueSourceControlRange,type SourceControlRef} from './clause-catalogue.ts'
+import {scanUserClauses,assistantRequestClause,profileWritesDisallowed,reportedPurposeClause} from './user-command-spans.ts'
+import { assertMemoryEvidence, assertSnapshotStillValid, invalidatePatternsForExperience, persistChanges, loadPatternEvidence, patternSuppressionKey, type MemorySnapshot, type MemoryChange } from './memory.ts'
 import type { DialoguePath } from './dialogue.ts'
 import seed from '../src/features/cognition/data/lifeos-graph.seed.json' with { type: 'json' }
-import { persistCoachEvent, invalidateCoachSources, assertCoachEvidence, coachEventView, readCoachEvent, type CoachStaged } from './action-coach-events.ts'
+import { persistCoachEvent, invalidateCoachSources,invalidateCoachSourceQuotes, assertCoachEvidence, coachEventView, readCoachEvent, type CoachStaged } from './action-coach-events.ts'
 import { assertCoachKnowledge, type CoachKnowledgeRef } from './coach-knowledge.ts'
 import {persistGuideUsage,type GuideUsage} from './guide-usage.ts'
-import { assertGrowthSnapshot, persistGrowthUpdates, growthView, type GrowthStaged } from './growth.ts'
+import { assertGrowthSnapshot,assertFactInterpretations,persistGrowthUpdates, growthView, applyGrowthAction,lockGrowth,type GrowthStaged,type FactInterpretationRef } from './growth.ts'
 import { persistDirectionControls, readDirectionControls, directionControlsSnapshotKey, directionScopeLabel, type PreparedDirectionControls } from './growth-controls.ts'
+import {detectUnconfirmedLabelRejection} from './forget-intent.ts'
 import { persistMemoryControl, persistPendingControlRequest, type MemoryControlReceipt, type PendingMemoryControl, type StagedMemoryControl } from './memory-controls.ts'
 import { persistWeeklyPlan, type PersistedWeeklyPlan } from './weekly-plans.ts'
 import { derivePatternProposals } from './experience-patterns.ts'
 import { findEpisode, mergeContent,timeContradiction,explicitMaterialForms } from './experience-episodes.ts'
-import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth, rankPrimaryThemes, themeNextStep, currentThemeProjection } from './user-themes.ts'
+import { projectUserThemes, linkExperienceToThemes, reconcileThemesWithGrowth, rankPrimaryThemes, themeNextStep, currentThemeProjection, currentThemeLinks } from './user-themes.ts'
 import { matchPathTheme } from './path-lexicon.ts'
-import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction } from './identity.ts'
-import { extractSkillTags, isBlockedExperience, isExternalFeedback, readSkillTags } from './starmap-enrichment.ts'
+import { projectIdentityClaims, recordChangeEvent, reconcileIdentityClaims, identityClaimAction, readIdentityClaims } from './identity.ts'
+import { extractSkillTags, isBlockedExperience, summarizeSkillTags } from './starmap-enrichment.ts'
 import { buildExperienceRelations } from './starmap-enrichment.ts'
 import { applicableExperienceOutcomes, generateInsight, summarizeExperience } from './experience-insight.ts'
-import {reportedEvidenceFromText,taskOutcomeReadback,reportedOutcomeSourceClauses,sameReportedResponseSubject} from './turn-contract.ts'
-import {redactExperienceResultSources} from './growth-privacy.ts'
+import {reportedEvidenceFromText,taskOutcomeReadback,reportedOutcomeSourceClauses,sameReportedResponseSubject,reportedExternalFeedback,interviewOccurrenceConflictsWithContinuation} from './turn-contract.ts'
+import {redactExperienceResultSources,currentExperienceEvidence,filterAvailableExperienceSources,experienceFactBindings,experienceActionSourceRange,experienceResultSource,coachSourceBoundaryRefs,checkMessageSource} from './growth-privacy.ts'
+import {fullMemorySuppressionSql} from './memory-suppression.ts'
 import {commitWorkflowSelection,type WorkflowAdoption} from './workflows/task-commit.ts'
 import {committedGrowthDiff,committedSnapshot,validGrowthDiff} from './workflows/committed-growth-diff.ts'
 import {advancedWorkflowsEnabled} from './workflows/router.ts'
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const lock = (client: PoolClient, key: string) => client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[key])
-export async function createConversation(user: string, input: { id: string; title: string }) {
+type Queryable=Pick<PoolClient,'query'>
+export type InterviewChronologyScope={sourceId:string;sourceQuote?:string;sourceRange?:{start:number;end:number};currentMessageId:string;conversationId:string;memoryEnabled:boolean}
+export type InterviewChronologySnapshot={scope:InterviewChronologyScope;key:string}
+export type InterviewChronologyMessage={id:string;content:string;created_at:Date;created_micros:string}
+export async function readInterviewChronologySnapshot(user:string,scope:InterviewChronologyScope,db?:Queryable):Promise<{messages:InterviewChronologyMessage[];key:string;boundaries:SourceControlRef[]}>{
+  if(!db)return transaction(async c=>{
+    await c.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
+    return readInterviewChronologySnapshot(user,scope,c)
+  })
+  // Both chronology bounds stay inside PostgreSQL. Converting created_at to a
+  // JavaScript Date first would discard its microseconds and could hide a real
+  // report earlier in the same millisecond as the current message.
+  const rows=(await db.query(`WITH source AS (SELECT m.created_at FROM messages m WHERE m.user_id=$1 AND m.role='user' AND m.id=$2::uuid AND NOT EXISTS(SELECT 1 FROM deleted_conversations d WHERE d.user_id=m.user_id AND d.conversation_id=m.conversation_id) AND NOT EXISTS(SELECT 1 FROM memory_suppressions x WHERE ${fullMemorySuppressionSql('x')} AND x.user_id=m.user_id AND x.source_message_id=m.id) AND NOT EXISTS(SELECT 1 FROM coach_source_withdrawals w WHERE w.user_id=m.user_id AND w.message_id=m.id)), current_message AS (SELECT created_at,content FROM messages WHERE user_id=$1 AND role='user' AND id=$3::uuid) SELECT m.id,m.content,m.created_at,floor(extract(epoch FROM m.created_at)*1000000)::text AS created_micros,m.created_at<=current_row.created_at AS historical,current_row.content AS current_text_internal FROM messages m CROSS JOIN source s CROSS JOIN current_message current_row WHERE m.user_id=$1 AND m.role='user' AND m.created_at>=s.created_at AND m.id<>$3::uuid AND (m.conversation_id=$4 OR $5::boolean) AND (m.id=$2::uuid OR strpos(m.content,'访谈')>0 OR strpos(m.content,'采访')>0) AND NOT EXISTS (SELECT 1 FROM deleted_conversations d WHERE d.user_id=m.user_id AND d.conversation_id=m.conversation_id) AND NOT EXISTS (SELECT 1 FROM memory_suppressions x WHERE ${fullMemorySuppressionSql('x')} AND x.user_id=m.user_id AND x.source_message_id=m.id) AND NOT EXISTS (SELECT 1 FROM coach_source_withdrawals w WHERE w.user_id=m.user_id AND w.message_id=m.id) ORDER BY m.created_at,m.id`,[user,scope.sourceId,scope.currentMessageId,scope.conversationId,scope.memoryEnabled])).rows as (InterviewChronologyMessage&{historical:boolean;current_text_internal:string})[]
+  const selectedSource=rows.find(message=>String(message.id)===scope.sourceId)
+  if(!selectedSource)throw new HttpError(409,'INTERVIEW_CHRONOLOGY_INVALIDATED')
+  const currentText=String(selectedSource.current_text_internal)
+  const messages=rows.filter(message=>message.historical).map(({historical:_,current_text_internal:__,...message})=>message)
+  const allIds=new Set(rows.map(message=>String(message.id))),historicalIds=new Set(messages.map(message=>String(message.id)))
+  const allBoundaries=(await coachSourceBoundaryRefs(db,user)).filter(ref=>allIds.has(ref.messageId)).sort((left,right)=>JSON.stringify(left).localeCompare(JSON.stringify(right)))
+  const boundaries=allBoundaries.filter(ref=>historicalIds.has(ref.messageId))
+  if(scope.sourceQuote){
+    const ref={quote:scope.sourceQuote,...(scope.sourceRange?{range:scope.sourceRange}:{})}
+    if(!uniqueSourceControlRange(String(selectedSource.content),ref)||allBoundaries.some(boundary=>boundary.messageId===scope.sourceId&&sourceQuotesOverlap(String(selectedSource.content),ref,boundary)))throw new HttpError(409,'INTERVIEW_CHRONOLOGY_INVALIDATED')
+  }
+  const visibleInterviewOccurrence=(message:InterviewChronologyMessage)=>{
+    const content=String(message.content)
+    if(profileWritesDisallowed(content))return false
+    const controlled=allBoundaries.filter(ref=>ref.messageId===String(message.id))
+    let visiblePrefix='',previousEnd=-1
+    for(const clause of scanUserClauses(content)){
+      const suppressed=controlled.some(ref=>sourceQuotesOverlap(content,{quote:clause.text,range:{start:clause.start,end:clause.end}},ref))
+      if(suppressed){visiblePrefix='';previousEnd=-1;continue}
+      visiblePrefix+=previousEnd>=0?content.slice(previousEnd,clause.start)+clause.text:clause.text
+      if(interviewOccurrenceConflictsWithContinuation(currentText,visiblePrefix))return true
+      previousEnd=clause.end
+    }
+    return false
+  }
+  // A newer owned, completed occurrence already present at snapshot time has
+  // superseded this continuation. Third-party, future, negated and controlled
+  // text is not an occurrence and must not block unrelated help.
+  if(rows.some(message=>!message.historical&&visibleInterviewOccurrence(message)))throw new HttpError(409,'INTERVIEW_CHRONOLOGY_INVALIDATED')
+  // A qualifying occurrence arriving during generation is rejected by the
+  // same check at commit. The key therefore covers only chronology that may
+  // actually be read, not irrelevant newer keyword matches.
+  return {messages,boundaries,key:hash([messages.map(message=>[String(message.id),String(message.content),String(message.created_micros)]),boundaries.map(ref=>[ref.messageId,ref.quote,ref.range??null])])}
+}
+async function assertInterviewChronologySnapshot(c:PoolClient,user:string,snapshot:InterviewChronologySnapshot):Promise<void>{
+  await lock(c,user+':interview-chronology')
+  if((await readInterviewChronologySnapshot(user,snapshot.scope,c)).key!==snapshot.key)throw new HttpError(409,'INTERVIEW_CHRONOLOGY_INVALIDATED')
+}
+export async function createConversation(user: string, input: { id: string; title: string; renamed?:boolean; pinned?:boolean; projectId?:string|null }) {
   return transaction(async c => {
-    await c.query('INSERT INTO conversations(id,user_id,title) VALUES($1,$2,$3) ON CONFLICT(id) DO NOTHING',[input.id,user,input.title])
-    return requireRow((await c.query('SELECT * FROM conversations WHERE id=$1 AND user_id=$2',[input.id,user])).rows[0])
+    await c.query('INSERT INTO conversations(id,user_id,title,renamed,pinned,project_id) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(id) DO NOTHING',[input.id,user,input.title,input.renamed??false,input.pinned??false,input.projectId??null])
+    const existing=requireRow((await c.query('SELECT * FROM conversations WHERE id=$1 AND user_id=$2 AND NOT EXISTS (SELECT 1 FROM deleted_conversations d WHERE d.user_id=$2 AND d.conversation_id=$1) FOR UPDATE',[input.id,user])).rows[0])
+    if(input.renamed===undefined&&input.pinned===undefined&&input.projectId===undefined)return existing
+    // One account-scoped transaction owns creation and metadata. A page reload
+    // must not cancel a second chained request after only creation committed.
+    return requireRow((await c.query('UPDATE conversations SET title=CASE WHEN $3 THEN $4 ELSE title END,renamed=COALESCE($5,renamed),pinned=COALESCE($6,pinned),project_id=CASE WHEN $7 THEN $8 ELSE project_id END,updated_at=now() WHERE id=$1 AND user_id=$2 RETURNING *',[input.id,user,input.renamed===true,input.title,input.renamed??null,input.pinned??null,input.projectId!==undefined,input.projectId??null])).rows[0])
+  })
+}
+// Transcript deletion is separate from explicitly saved memories and map evidence.
+// Retain raw evidence and billing audit for recovery; never cascade-delete a user's map.
+export async function requireVisibleConversation(user:string,id:string) {
+  requireRow((await pool.query('SELECT id FROM conversations c WHERE user_id=$1 AND id=$2 AND NOT EXISTS (SELECT 1 FROM deleted_conversations d WHERE d.user_id=c.user_id AND d.conversation_id=c.id)',[user,id])).rows[0])
+}
+export async function deleteConversation(user:string,id:string) {
+  return transaction(async c=>{
+    await lock(c,user+':conversation:'+id)
+    // The tombstone revokes memory, growth and chronology authority. Claim the
+    // canonical account locks after the narrower conversation lock.
+    await lock(c,user+':memory-settings')
+    await lockGrowth(c,user)
+    await lock(c,user+':interview-chronology')
+    requireRow((await c.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2 FOR UPDATE',[user,id])).rows[0])
+    if((await c.query("SELECT 1 FROM runs WHERE user_id=$1 AND conversation_id=$2 AND status='running'",[user,id])).rowCount)throw new HttpError(409,'CONVERSATION_BUSY')
+    await c.query('INSERT INTO deleted_conversations(user_id,conversation_id) VALUES($1,$2) ON CONFLICT DO NOTHING',[user,id])
+    return {deleted:true}
   })
 }
 export async function patchConversation(user:string,id:string,patch:{ title?:string;renamed?:boolean;pinned?:boolean;projectId?:string|null }) {
+  await requireVisibleConversation(user,id)
   return requireRow((await pool.query('UPDATE conversations SET title=COALESCE($3,title),renamed=COALESCE($4,renamed),pinned=COALESCE($5,pinned),project_id=CASE WHEN $6 THEN $7 ELSE project_id END,updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING *',[user,id,patch.title??null,patch.renamed??null,patch.pinned??null,patch.projectId!==undefined,patch.projectId??null])).rows[0])
 }
-export async function listConversations(user:string) {
-  const chats = (await pool.query('SELECT * FROM conversations WHERE user_id=$1 ORDER BY updated_at DESC,id',[user])).rows
-  const messages = (await pool.query('SELECT m.*,CASE WHEN m.role=\'assistant\' AND NOT coach_reply_sources_valid(m.user_id,m.run_request_id) THEN \'这条回复引用的资料已更新或失效，请重新核验。\' ELSE m.content END AS content FROM messages m JOIN runs r ON r.user_id=m.user_id AND r.request_id=m.run_request_id WHERE m.user_id=$1 AND (m.role=\'user\' OR r.status=\'completed\') ORDER BY m.created_at,m.id',[user])).rows
+export async function listConversations(user:string,includeStateChanges=true) {
+  const chats = (await pool.query('SELECT * FROM conversations WHERE user_id=$1 AND NOT EXISTS (SELECT 1 FROM deleted_conversations d WHERE d.user_id=conversations.user_id AND d.conversation_id=conversations.id) ORDER BY updated_at DESC,id',[user])).rows
+  const messages = (await pool.query('SELECT m.*,CASE WHEN m.role=\'assistant\' AND r.response ? \'memoryReferences\' THEN jsonb_array_length(r.response->\'memoryReferences\') ELSE NULL END AS memory_reference_count,CASE WHEN m.role=\'assistant\' AND NOT coach_reply_sources_valid(m.user_id,m.run_request_id) THEN \'这条回复引用的资料已更新或失效，请重新核验。\' ELSE m.content END AS content FROM messages m JOIN runs r ON r.user_id=m.user_id AND r.request_id=m.run_request_id WHERE m.user_id=$1 AND NOT EXISTS (SELECT 1 FROM deleted_conversations d WHERE d.user_id=m.user_id AND d.conversation_id=m.conversation_id) AND (m.role=\'user\' OR r.status=\'completed\') ORDER BY m.created_at,m.id',[user])).rows
   // N4.1: each assistant message carries ITS OWN run's stateChange receipt —
   // never the account's latest receipt, never a fabricated demo receipt.
+  if(!includeStateChanges)return chats.map(chat=>({...chat,messages:messages.filter((m:{conversation_id:string})=>m.conversation_id===chat.id)}))
   const receiptRows = (await pool.query(`SELECT request_id, response->'stateChange' AS \"stateChange\" FROM runs WHERE user_id=$1 AND status='completed' AND response ? 'stateChange'`,[user])).rows as {request_id:string;stateChange:unknown}[]
   const receipts=new Map<string,unknown>(await Promise.all(receiptRows.map(async row=>{const state=row.stateChange as {growthDiff?:import('./workflows/growth-diff.ts').GrowthDelta[]};const message=messages.find(m=>m.run_request_id===row.request_id);return [row.request_id,state?.growthDiff?.length&&message?{...state,growthDiff:await validGrowthDiff(user,message.conversation_id,state.growthDiff)}:state] as const})))
   return chats.map(chat=>({ ...chat, messages: messages.filter((m:{conversation_id:string})=>m.conversation_id===chat.id).map((m:Record<string,unknown>)=>m.role==='assistant'&&typeof m.run_request_id==='string'&&receipts.has(m.run_request_id)?{...m,stateChange:receipts.get(m.run_request_id)??null}:m) }))
@@ -54,40 +136,149 @@ export async function decisionVersions(user:string,conversation:string) {
   return (await pool.query('SELECT version,payload,created_at FROM decision_versions WHERE user_id=$1 AND conversation_id=$2 ORDER BY version DESC',[user,conversation])).rows
 }
 async function experienceSuppressionIndex(user:string){
-  const memory=new Set((await pool.query('SELECT source_message_id FROM memory_suppressions WHERE user_id=$1',[user])).rows.map(row=>String(row.source_message_id)))
-  const quotes=(await pool.query('SELECT message_id,quote FROM growth_source_suppressions WHERE user_id=$1',[user])).rows.map(row=>({messageId:String(row.message_id),quote:String(row.quote)}))
-  return {
-    suppressedMessage:(messageId:string)=>memory.has(String(messageId)),
-    suppressedText:(text:string)=>Boolean(text)&&quotes.some(row=>text.includes(row.quote)||row.quote.includes(text)),
+  const memory=new Set((await pool.query(`SELECT source_message_id FROM memory_suppressions suppression WHERE user_id=$1 AND ${fullMemorySuppressionSql('suppression')}`,[user])).rows.map(row=>String(row.source_message_id)))
+  // The shared boundary includes range-backed memory/experience controls that
+  // intentionally have no duplicate quote row in growth_source_suppressions.
+  // Reconstruct those exact quotes from their immutable source message once,
+  // then apply the same boundary to list, graph and retrieval projections.
+  const refs=await coachSourceBoundaryRefs(pool,user),messageIds=[...new Set(refs.map(ref=>ref.messageId))]
+  const messages=new Map((messageIds.length?(await pool.query("SELECT id,content FROM messages WHERE user_id=$1 AND id=ANY($2::uuid[]) AND role='user'",[user,messageIds])).rows:[]).map(row=>[String(row.id),String(row.content)]))
+  const controls=refs.flatMap(ref=>{const content=messages.get(ref.messageId);return content?[{...ref,content}]:[]})
+  const suppressedText=(messageId:string,text:string,range?:SourceControlRef['range'])=>Boolean(text)&&controls.some(ref=>ref.messageId===messageId&&(range?sourceQuotesOverlap(ref.content,{quote:text,range},ref):scanUserClauses(text).some(clause=>clause.text===ref.quote||sourceQuotesOverlap(ref.content,clause.text,ref))))
+  type RecordSource={source_message_id:string;source_quote?:string;result_source_message_id?:string;content:any;[experienceActionSourceRange]?:SourceControlRef['range'];[experienceResultSource]?:SourceControlRef}
+  // The shared availability check already selected the active occurrence.
+  // The display fields carrying that exact action must use the same range.
+  const suppressedActionText=(row:RecordSource,text:string)=>suppressedText(row.source_message_id,text,text===row.source_quote?row[experienceActionSourceRange]:undefined)
+  const suppressedResultText=(row:RecordSource,text:string)=>{
+    const evidence=row[experienceResultSource]
+    return suppressedText(row.result_source_message_id??row.source_message_id,text,evidence?.quote===text?evidence.range:undefined)
   }
+  const suppressedRecord=(row:RecordSource)=>memory.has(String(row.source_message_id))||[row.source_quote,row.content?.action,row.content?.summary].some(text=>text&&suppressedActionText(row,text))||suppressedResultText(row,row.content?.result??'')
+  return {suppressedText,suppressedActionText,suppressedResultText,suppressedRecord}
+}
+function publicExperienceRecord<T extends {status:string;source_quote?:unknown;source_text?:unknown;content:any}>(row:T):T{
+  if(row.status==='candidate')return {...row,source_quote:'',...('source_text'in row?{source_text:''}:{}),content:{...row.content,action:'',result:'',tags:[]}}
+  if(row.status==='deleted'||/^\[redacted:[0-9a-f-]+\]$/.test(String(row.source_quote??'')))return {...row,source_quote:'',...('source_text'in row?{source_text:''}:{})}
+  return row
 }
 export async function listExperiences(user:string,conversation?:string) {
   if (conversation) requireRow((await pool.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2',[user,conversation])).rows[0])
   const rows = (await pool.query('SELECT e.*, m.content AS source_text, m.created_at AS source_reported_at, c.title AS conversation_title FROM experiences e JOIN messages m ON m.user_id=e.user_id AND m.id=e.source_message_id JOIN conversations c ON c.user_id=e.user_id AND c.id=e.conversation_id WHERE e.user_id=$1 AND e.status<>\'deleted\' AND ($2::uuid IS NULL OR e.conversation_id=$2) ORDER BY e.updated_at DESC,e.id',[user,conversation??null])).rows
   const links = (await pool.query('SELECT * FROM experience_links WHERE user_id=$1',[user])).rows
   const suppression=await experienceSuppressionIndex(user)
-  return (await redactExperienceResultSources(pool,user,rows)).filter(e=>!suppression.suppressedMessage(e.source_message_id)
-    &&!suppression.suppressedText(String(e.source_quote??''))
-    &&!suppression.suppressedText([e.content?.action,e.content?.result,e.content?.summary].filter(Boolean).join('；'))).map(e=>({ ...e, links: links.filter(link=>link.experience_id===e.id) }))
+  return (await filterAvailableExperienceSources(pool,user,await redactExperienceResultSources(pool,user,rows))).filter(e=>!suppression.suppressedRecord(e)).map(e=>publicExperienceRecord({...e,links:links.filter(link=>link.experience_id===e.id)}))
 }
 // The retrieval seam is deliberately small. It returns only this session user's explicitly confirmed records.
 export async function retrieveExperiences(user:string,input:unknown,signal?:AbortSignal) {
   const { query,limit }=validate(retrievalSchema,input); signal?.throwIfAborted()
-  const rows=(await pool.query('SELECT e.id,e.content,e.source_quote,e.source_message_id,e.revision,e.confirmed_at FROM experiences e JOIN messages m ON m.user_id=e.user_id AND m.conversation_id=e.conversation_id AND m.id=e.source_message_id WHERE e.user_id=$1 AND e.status=\'confirmed\' AND m.role=\'user\' AND btrim(e.source_quote)<>\'\' AND strpos(m.content,e.source_quote)>0 AND ($2=\'\' OR strpos(lower(e.content::text),lower($2))>0) ORDER BY e.updated_at DESC,e.id LIMIT $3',[user,query,limit])).rows
+  const rows=(await pool.query('SELECT e.id,e.content,e.source_quote,e.source_message_id,e.revision,e.confirmed_at FROM experiences e JOIN messages m ON m.user_id=e.user_id AND m.conversation_id=e.conversation_id AND m.id=e.source_message_id WHERE e.user_id=$1 AND e.status=\'confirmed\' AND m.role=\'user\' AND ((btrim(e.source_quote)<>\'\' AND strpos(m.content,e.source_quote)>0) OR EXISTS(SELECT 1 FROM runs native CROSS JOIN LATERAL jsonb_array_elements(native.tool_audit) proof(value) WHERE native.user_id=e.user_id AND proof.value->>\'phase\'=\'canonical_contribution_staged\' AND proof.value->>\'experienceId\'=e.id::text)) AND ($2=\'\' OR strpos(lower(e.content::text),lower($2))>0) ORDER BY e.updated_at DESC,e.id LIMIT $3',[user,query,limit])).rows
   const suppression=await experienceSuppressionIndex(user)
   signal?.throwIfAborted()
-  return { records: (await redactExperienceResultSources(pool,user,rows)).filter(e=>(!query||JSON.stringify(e.content).toLowerCase().includes(query.toLowerCase()))&&!suppression.suppressedMessage(e.source_message_id)&&!suppression.suppressedText(String(e.source_quote??''))&&!suppression.suppressedText([e.content?.action,e.content?.result,e.content?.summary].filter(Boolean).join('；'))), method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
+  return { records: (await filterAvailableExperienceSources(pool,user,await redactExperienceResultSources(pool,user,rows))).filter(e=>(!query||JSON.stringify(e.content).toLowerCase().includes(query.toLowerCase()))&&!suppression.suppressedRecord(e)), method: 'postgresql-basic', scope: 'session-user-confirmed', interpretationsAutomaticallyConfirmed: false }
 }
 export type Run = { user_id:string; request_id:string; conversation_id:string; source_message_id:string; expected_version:number; status:string; response:any }
-export type Staged = { workflowAdoption?:WorkflowAdoption; guideUsage?:GuideUsage[]; candidates:Candidate[]; audit:unknown[]; backReferenceMerge?:{experienceId:string;quote:string;result:string;occurredAt:string}; serverGoals?:{text:string;quote:string;messageId:string}[];serverBudgets?:{text:string;quote:string;messageId:string}[];starMapSnapshot?:{themes:{id:string;revision:number}[];links:{experienceId:string;themeId:string;revision:number}[]}; snapshot?:MemorySnapshot;  dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations;weeklyPlan?:import('./weekly-plans.ts').PreparedWeeklyPlan;memoryControl?:StagedMemoryControl;pendingMemoryControl?:PendingMemoryControl }
+export type Staged = { factInterpretations?:{inputIndex:number;actor:'self'|'joint'|'other'|'unknown';proposedActor?:'self'|'joint';actionQuote:string;resultInputIndex?:number}[]; usedFactInterpretationRefs?:FactInterpretationRef[]; comparisonActualQuotes?:string[]; memoryReferences?:ReplyMemoryReference[]; workflowAdoption?:WorkflowAdoption; guideUsage?:GuideUsage[]; candidates:Candidate[]; audit:unknown[]; backReferenceMerge?:{experienceId:string;quote:string;result:string;occurredAt:string}; serverGoals?:{text:string;quote:string;messageId:string}[];serverBudgets?:{text:string;quote:string;messageId:string}[];starMapSnapshot?:{themes:{id:string;revision:number}[];links:{experienceId:string;themeId:string;revision:number}[]}; snapshot?:MemorySnapshot; interviewChronologySnapshot?:InterviewChronologySnapshot; dialoguePath?:DialoguePath; memoryChanges?:MemoryChange[]; usedMemoryRefs?:{memoryId:string;revision:number}[];usedExperienceRefs?:{id:string;revision:number}[];usedGrowthRefs?:{id:string;revision:number}[];growthSnapshotKey?:string;growthBoundaryKey?:string;growth?:GrowthStaged;usedEventRefs?:{eventId:string;revision:number;generation:number;sourceControlKey?:string}[];usedKnowledgeRefs?:CoachKnowledgeRef[]; upstreamCalls?:number; modelUsage?:unknown;coach?:CoachStaged;directionControls?:PreparedDirectionControls;directionControlSnapshotKey?:string;turnObligations?:import('./turn-obligations.ts').TurnObligations;weeklyPlan?:import('./weekly-plans.ts').PreparedWeeklyPlan;memoryControl?:StagedMemoryControl;pendingMemoryControl?:PendingMemoryControl }
+async function assertReadContext(c:PoolClient,run:Run,staged:Staged):Promise<CoachKnowledgeRef[]>{
+  const allKnowledgeRefs=[...(staged.usedKnowledgeRefs??[]),...(staged.coach?.knowledgeRefs??[])]
+  await assertCoachKnowledge(c,allKnowledgeRefs)
+  if(staged.snapshot)await assertSnapshotStillValid(c,run.user_id,staged.snapshot,staged.usedMemoryRefs??[])
+  await assertCoachEvidence(c,run.user_id,run.conversation_id,staged.usedEventRefs??[])
+  if(staged.interviewChronologySnapshot)await assertInterviewChronologySnapshot(c,run.user_id,staged.interviewChronologySnapshot)
+  await assertGrowthSnapshot(c,run.user_id,run.conversation_id,staged.usedGrowthRefs??[],staged.growthSnapshotKey,staged.growthBoundaryKey)
+  await assertFactInterpretations(c,run.user_id,run.conversation_id,staged.usedFactInterpretationRefs??[])
+  if(staged.directionControlSnapshotKey!==undefined&&directionControlsSnapshotKey(await readDirectionControls(run.user_id,c))!==staged.directionControlSnapshotKey)throw new HttpError(409,'DIRECTION_CONTROL_CONFLICT')
+  for(const ref of staged.usedExperienceRefs??[]){
+    const source=(await c.query("SELECT revision FROM experiences WHERE user_id=$1 AND id=$2 AND status='confirmed' FOR SHARE",[run.user_id,ref.id])).rows[0]
+    if(!source||source.revision!==ref.revision)throw new HttpError(409,'EXPERIENCE_SNAPSHOT_INVALIDATED')
+  }
+  if(staged.starMapSnapshot?.themes?.length||staged.starMapSnapshot?.links?.length)await assertStarMapSnapshot(c,run.user_id,staged.starMapSnapshot)
+  return [...new Map(allKnowledgeRefs.map(ref=>[ref.sourceId,ref])).values()]
+}
+export type ProviderDispatchFence={release:()=>Promise<void>}
+const providerFenceAbortError=(signal:AbortSignal)=>signal.reason??new DOMException('The operation was aborted.','AbortError')
+const waitForProviderFenceRetry=(signal:AbortSignal,delayMs=20)=>{
+  signal.throwIfAborted()
+  return new Promise<void>((resolve,reject)=>{
+    const done=()=>{signal.removeEventListener('abort',aborted);resolve()}
+    const aborted=()=>{clearTimeout(timer);signal.removeEventListener('abort',aborted);reject(providerFenceAbortError(signal))}
+    const timer=setTimeout(done,delayMs)
+    signal.addEventListener('abort',aborted,{once:true})
+  })
+}
+async function connectProviderDispatch(signal:AbortSignal):Promise<PoolClient>{
+  signal.throwIfAborted()
+  const pending=providerDispatchPool.connect()
+  let acquired:PoolClient|undefined
+  let aborted=()=>{}
+  const cancellation=new Promise<never>((_,reject)=>{
+    aborted=()=>reject(providerFenceAbortError(signal))
+    signal.addEventListener('abort',aborted,{once:true})
+  })
+  try{
+    acquired=await Promise.race([pending,cancellation])
+    if(signal.aborted){acquired.release();throw providerFenceAbortError(signal)}
+    return acquired
+  }catch(error){
+    if(signal.aborted&&!acquired)void pending.then(client=>client.release(),()=>{})
+    throw error
+  }finally{signal.removeEventListener('abort',aborted)}
+}
+// Keep every authority/row lock alive until the provider stream is fully
+// assembled. A correction that wins first invalidates before dispatch; one
+// that starts later waits until no more source-derived draft can be exposed.
+// This closes both dispatch and SSE visibility races without adding a second
+// source version or weakening finishRun's commit-time validation.
+export async function acquireProviderDispatchFence(run:Run,staged:Staged,signal:AbortSignal=new AbortController().signal):Promise<ProviderDispatchFence>{
+  for(;;){
+    const c=await connectProviderDispatch(signal)
+    let transactionOpen=false
+    try{
+      await c.query('BEGIN');transactionOpen=true
+      // The provider path is already bounded by its own abort signal and
+      // releases this client in `finally`. A finite idle timeout is unsafe
+      // after authority is acquired, but every pre-authority lock attempt is
+      // non-blocking and row locks are retried after a short bounded timeout.
+      await c.query("SET LOCAL idle_in_transaction_session_timeout='0'")
+      await c.query("SET LOCAL lock_timeout='100ms'")
+      signal.throwIfAborted()
+      const memory=(await c.query('SELECT pg_try_advisory_xact_lock(hashtextextended($1,0)) AS acquired',[run.user_id+':memory-settings'])).rows[0]?.acquired===true
+      const growth=memory&&(await c.query('SELECT pg_try_advisory_xact_lock(hashtextextended($1,0)) AS acquired',['growth:'+run.user_id])).rows[0]?.acquired===true
+      if(!memory||!growth)throw Object.assign(new Error('PROVIDER_FENCE_BUSY'),{code:'PROVIDER_FENCE_BUSY'})
+      signal.throwIfAborted()
+      const current=(await c.query('SELECT status FROM runs WHERE user_id=$1 AND request_id=$2 FOR SHARE',[run.user_id,run.request_id])).rows[0]
+      if(!current||current.status!=='running')throw new HttpError(409,'RUN_NO_LONGER_ACTIVE')
+      await assertReadContext(c,run,staged)
+      signal.throwIfAborted()
+      let released=false
+      return {release:async()=>{
+        if(released)return
+        released=true
+        try{await c.query('COMMIT')}
+        catch(error){try{await c.query('ROLLBACK')}catch{}throw error}
+        finally{c.release()}
+      }}
+    }catch(error){
+      try{if(transactionOpen)await c.query('ROLLBACK')}finally{c.release()}
+      if(['55P03','PROVIDER_FENCE_BUSY'].includes((error as {code?:string})?.code??'')&&!signal.aborted){await waitForProviderFenceRetry(signal);continue}
+      throw error
+    }
+  }
+}
 export async function startRun(user:string,conversation:string,requestId:string,text:string) {
+  await requireVisibleConversation(user,conversation)
   return transaction(async c=>{
     await lock(c,user+':'+requestId)
+    await lock(c,user+':conversation:'+conversation)
+    // Account chronology is always claimed after the narrower conversation
+    // lock. The commit path can validate chronology while finishing this same
+    // conversation, so reversing these two locks would permit a lock cycle.
+    await lock(c,user+':interview-chronology')
+    requireRow((await c.query('SELECT id FROM conversations WHERE user_id=$1 AND id=$2 AND NOT EXISTS (SELECT 1 FROM deleted_conversations d WHERE d.user_id=$1 AND d.conversation_id=$2)',[user,conversation])).rows[0])
     const previous=(await c.query('SELECT * FROM runs WHERE user_id=$1 AND request_id=$2',[user,requestId])).rows[0]
     const fingerprint=hash({conversation,text})
     if(previous) { if(previous.fingerprint!==fingerprint)throw new HttpError(409,'IDEMPOTENCY_KEY_REUSED'); return {run:previous as Run,replay:true} }
     const entitlementReserved=await reserveEntitlement(c,user)
-    const chat=requireRow((await c.query('SELECT * FROM conversations WHERE user_id=$1 AND id=$2 FOR UPDATE',[user,conversation])).rows[0])
+    const chat=requireRow((await c.query('SELECT * FROM conversations WHERE user_id=$1 AND id=$2 AND NOT EXISTS (SELECT 1 FROM deleted_conversations d WHERE d.user_id=$1 AND d.conversation_id=$2) FOR UPDATE',[user,conversation])).rows[0])
     if((await c.query('SELECT 1 FROM runs WHERE user_id=$1 AND conversation_id=$2 AND status=\'running\'',[user,conversation])).rowCount)throw new HttpError(409,'CONVERSATION_BUSY')
     const version=(await c.query('SELECT COALESCE(max(version),0)::int AS version FROM decision_versions WHERE user_id=$1 AND conversation_id=$2',[user,conversation])).rows[0].version
     const source=randomUUID()
@@ -99,9 +290,9 @@ export async function startRun(user:string,conversation:string,requestId:string,
   })
 }
 export async function contextForRun(run:Run) {
-  const rows=(await pool.query('SELECT m.id,m.role,m.content,m.created_at FROM messages m JOIN runs r ON r.user_id=m.user_id AND r.request_id=m.run_request_id WHERE m.user_id=$1 AND m.conversation_id=$2 AND (m.role=\'user\' OR (r.status=\'completed\' AND coach_reply_sources_valid(m.user_id,m.run_request_id))) ORDER BY m.created_at DESC,m.id DESC LIMIT 16',[run.user_id,run.conversation_id])).rows.reverse()
+  const rows=(await pool.query('SELECT m.id,m.role,m.content,m.created_at,floor(extract(epoch FROM m.created_at)*1000000)::text AS decision_created_micros,r.tool_audit @> \'[{"phase":"decision_comparison_read_only"}]\'::jsonb AS decision_comparison,(r.status=\'completed\' AND coach_reply_sources_valid(m.user_id,m.run_request_id)) AS completed_decision,(SELECT audit->\'eventRefs\' FROM jsonb_array_elements(r.tool_audit) audit WHERE audit->>\'phase\'=\'coach_context_bound\' LIMIT 1) AS comparison_event_refs,(SELECT audit->>\'sourceMessageId\' FROM jsonb_array_elements(r.tool_audit) audit WHERE audit->>\'phase\'=\'decision_comparison_baseline_bound\' LIMIT 1) AS comparison_baseline_source,(SELECT a FROM jsonb_array_elements(r.tool_audit) a WHERE a->>\'phase\'=\'decision_proposal\' LIMIT 1) AS decision_proposal,(SELECT a->\'messageIds\' FROM jsonb_array_elements(r.tool_audit) a WHERE a->>\'phase\'=\'decision_condition_sources\' LIMIT 1) AS comparison_condition_sources FROM messages m JOIN runs r ON r.user_id=m.user_id AND r.request_id=m.run_request_id WHERE m.user_id=$1 AND m.conversation_id=$2 AND (m.role=\'user\' OR (r.status=\'completed\' AND coach_reply_sources_valid(m.user_id,m.run_request_id))) ORDER BY m.created_at DESC,m.id DESC LIMIT 16',[run.user_id,run.conversation_id])).rows.reverse()
   let chars=0; const bounded:typeof rows=[]
-  for(const row of [...rows].reverse()) { if(chars+row.content.length>12000&&bounded.length>0)continue; bounded.unshift(row); chars+=row.content.length }
+  for(const row of [...rows].reverse()) { if(chars+row.content.length>12000&&bounded.length>0){if(row.role==='user')bounded.unshift({...row,content:'',decision_context_gap:true});continue} bounded.unshift(row); chars+=row.content.length }
   return bounded
 }
 export async function sourceQuote(run:Run,sourceId:string,quote:string) {
@@ -109,10 +300,44 @@ export async function sourceQuote(run:Run,sourceId:string,quote:string) {
   if(!quote.trim()||!source.content.includes(quote))throw new HttpError(400,'SOURCE_QUOTE_MISMATCH')
   return source
 }
-export async function stageCandidate(run:Run,staged:Staged,input:unknown,signal?:AbortSignal) {
+const candidateResultSources=new WeakMap<object,SourceControlRef>()
+const candidateFactInputs=new WeakMap<object,{inputIndex:number;actor:string;skillTags:string[]}>()
+export async function stageCandidate(run:Run,staged:Staged,input:unknown,signal?:AbortSignal,interpretation?:{fact:object;normalizedIndex:number;resultNormalizedIndex?:number}) {
   signal?.throwIfAborted(); const candidate=validate(candidateSchema,input); const source=await sourceQuote(run,candidate.sourceMessageId,candidate.quote)
+  if(profileWritesDisallowed(source.content))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
   if(candidate.sourceMessageId!==run.source_message_id)throw new HttpError(400,'EXPERIENCE_SOURCE_NOT_CURRENT_MESSAGE')
-  if(staged.candidates.length>=5)throw new HttpError(400,'CANDIDATE_LIMIT')
+  if(staged.candidates.length>=(interpretation?8:5))throw new HttpError(400,'CANDIDATE_LIMIT')
+  const contribution=interpretation?reportedContribution(interpretation.fact):undefined
+  const fact=interpretation?staged.growth?.changes[interpretation.normalizedIndex]:undefined
+  const resultFact=interpretation?.resultNormalizedIndex!==undefined?staged.growth?.changes[interpretation.resultNormalizedIndex]:undefined
+  const candidateAction=contribution?.pendingActionQuote??contribution?.actionQuote
+  const pending=contribution?.actor==='unknown'&&Boolean(contribution.pendingActionQuote)&&!contribution.skillTags.length&&!contribution.result
+  const semantic=Boolean(contribution&&candidateAction&&(['self','joint'].includes(contribution.actor)||pending)&&fact?.assertion==='user_reported'&&fact.kind==='feedback'&&['completed','attempted','stuck'].includes(fact.progressState)&&fact.source.messageId===run.source_message_id&&contribution.sourceMessageId===run.source_message_id&&candidate.quote===contribution.sourceQuote&&fact.source.quote===contribution.factQuote&&candidate.content?.action===candidateAction&&candidate.content?.result===(resultFact?contribution.result?.quote??'':'')&&candidate.quote.includes(candidateAction))
+  if(interpretation&&!semantic)throw new HttpError(400,'CONTRIBUTION_AUTHORITY_INVALID')
+  if(semantic&&interpretation?.resultNormalizedIndex===interpretation?.normalizedIndex)throw new HttpError(400,'CONTRIBUTION_RESULT_AUTHORITY_INVALID')
+  if(semantic&&interpretation?.resultNormalizedIndex!==undefined&&(!contribution?.result||!resultFact||resultFact.assertion!=='user_reported'||resultFact.source.messageId!==run.source_message_id||resultFact.source.quote!==contribution.result.quote))throw new HttpError(400,'CONTRIBUTION_RESULT_AUTHORITY_INVALID')
+  if(semantic&&contribution?.result?.quote&&resultFact){const range=selectedSourceRange(resultFact.source);candidateResultSources.set(candidate,{messageId:run.source_message_id,quote:contribution.result?.quote,...(range?{range}:{})})}
+  if(semantic&&!pending&&fact&&candidate.content&&!candidate.content.result){
+    const actionRange=uniqueSourceControlRange(source.content,{quote:fact.source.quote,range:selectedSourceRange(fact.source)})
+    if(actionRange){
+      const clauses=buildClauseCatalogue(source.content)
+      const anchor=clauses.findIndex(clause=>clause.start<=actionRange.start&&clause.end>=actionRange.end)
+      const cleanup=anchor>=0?reportedAdjacentCleanupResult(clauses[anchor]!,clauses[anchor+1]):null
+      const outcome=cleanup?{quote:cleanup.text,range:{start:cleanup.start,end:cleanup.end}}:reportedPartialActionOutcomes(source.content).find(proof=>proof.action.start===clauses[anchor]?.start)
+      if(outcome){
+        candidate.content.result=outcome.quote
+        candidateResultSources.set(candidate,{messageId:run.source_message_id,quote:outcome.quote,range:outcome.range})
+      }
+    }
+  }
+  if(semantic&&interpretation&&contribution){
+    const inputIndex=[...staged.growth!.inputIndexBindings].find(([,normalized])=>normalized===interpretation.normalizedIndex)?.[0]
+    if(inputIndex===undefined)throw new HttpError(400,'CONTRIBUTION_AUTHORITY_INVALID')
+    candidateFactInputs.set(candidate,{inputIndex,actor:contribution.actor,skillTags:contribution.skillTags})
+  }
+  if(!semantic){
+  if(!scanUserClauses(candidate.quote).some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther))throw new HttpError(400,'EXPERIENCE_SOURCE_NOT_OWNED')
+  if(profileWritesDisallowed(source.content)||/(?:不代表|不等于|不要假设|没有|并未|尚未)/.test(candidate.quote)&&!requiresExperienceCandidate(buildClauseCatalogue(candidate.quote)))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
   if(/(?:没(?:有)?|尚未|还未|未曾).{0,6}(?:开始|做|尝试|完成|交付)/.test(candidate.quote)&&!scanUserClauses(candidate.quote).some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.interrogative&&clauseReportsCompleted(clause.text)))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
   // Acceptance and standing skills are not completed events, even when an LLM proposes them.
   if(/(?:我接受|我同意|可以试|愿意试)/.test(candidate.quote)&&/(?:不代表|不等于|还没|尚未|未).{0,8}(?:完成|发生|开始|行动)/.test(candidate.quote))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
@@ -122,10 +347,11 @@ export async function stageCandidate(run:Run,staged:Staged,input:unknown,signal?
   // Bound the check to the quoted sentence, so an unrelated unfinished event cannot revoke a real action.
   const quotedSentence=source.content.slice(source.content.indexOf(candidate.quote),source.content.indexOf(candidate.quote)+candidate.quote.length+80).split(/[。！？\n]/,1)[0]
   if(!completedPast&&/(?:考虑|想过|设想|构想|想象)/.test(candidate.quote)&&/(?:没有|还没|并未|尚未|未).{0,8}(?:开始|动手|行动|执行|实施)/.test(quotedSentence))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
-  if(!completedPast&&clauseExpressesFuturePlan(candidate.quote))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
+  if(!completedPast&&scanUserClauses(candidate.quote).some(clause=>clauseExpressesFuturePlan(clause.text)&&!reportedPurposeClause(clause.text+clause.delimiter)))throw new HttpError(400,'PLANNED_ACTION_IS_NOT_EXPERIENCE')
+  }
   if(new Set(candidate.links.map(l=>l.valueId)).size!==candidate.links.length)throw new HttpError(400,'DUPLICATE_VALUE_LINK')
-  if(!staged.candidates.some(c=>c.sourceMessageId===candidate.sourceMessageId&&c.quote===candidate.quote))staged.candidates.push(candidate)
-  return {staged:true,status:'confirmed',autoConfirmed:true}
+  if(!staged.candidates.some(c=>c.sourceMessageId===candidate.sourceMessageId&&c.quote===candidate.quote&&candidateFactInputs.get(c)?.inputIndex===candidateFactInputs.get(candidate)?.inputIndex))staged.candidates.push(candidate)
+  return pending?{staged:true,status:'candidate',autoConfirmed:false}:{staged:true,status:'confirmed',autoConfirmed:true}
 }
 export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,signal:AbortSignal,dialoguePath:DialoguePath=staged.dialoguePath??'direct',upstreamCalls=staged.upstreamCalls??0) {
   signal.throwIfAborted()
@@ -133,30 +359,39 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
   if(staged.coach&&staged.coach.reply!==text)throw new HttpError(400,'COACH_REPLY_MISMATCH')
   return transaction(async c=>{
     await lockEntitlement(c,run.user_id)
+    await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[run.user_id+':memory-settings'])
+    // Canonical account order is memory-settings -> growth -> chronology.
+    // User confirmation/correction takes this same growth lock before touching
+    // a candidate row. Hold it before assertInterviewChronologySnapshot; the
+    // later assertGrowthSnapshot lock is reentrant on this transaction.
+    await lockGrowth(c,run.user_id)
     const current=requireRow((await c.query('SELECT * FROM runs WHERE user_id=$1 AND request_id=$2 FOR UPDATE',[run.user_id,run.request_id])).rows[0])
     if(current.status!=='running'||signal.aborted)throw new HttpError(409,'RUN_NO_LONGER_ACTIVE')
-    const allKnowledgeRefs=[...(staged.usedKnowledgeRefs??[]),...(staged.coach?.knowledgeRefs??[])]
-    await assertCoachKnowledge(c,allKnowledgeRefs)
-    const knowledgeRefs=[...new Map(allKnowledgeRefs.map(ref=>[ref.sourceId,ref])).values()]
-    if(staged.snapshot){
-      await assertSnapshotStillValid(c,run.user_id,staged.snapshot,staged.usedMemoryRefs??[])
+    const sourceRow=(await c.query("SELECT m.content,c.title FROM messages m JOIN conversations c ON c.user_id=m.user_id AND c.id=m.conversation_id WHERE m.user_id=$1 AND m.id=$2",[run.user_id,run.source_message_id])).rows[0]
+    const rawSourceText=String(sourceRow?.content??'')
+    const actualQuotes=staged.comparisonActualQuotes
+    if(actualQuotes){
+      const reports=[...reportedActualComparisonClauses(rawSourceText),...reportedComparisonFactClauses(rawSourceText)].map(clause=>clause.text)
+      const privacy=detectUnconfirmedLabelRejection(rawSourceText)?.boundaryQuotes??[]
+      if(actualQuotes.some(quote=>!reports.includes(quote)&&!privacy.includes(quote)))throw new HttpError(400,'TRIAL_SOURCE_NOT_WRITABLE')
     }
-    await assertCoachEvidence(c,run.user_id,run.conversation_id,staged.usedEventRefs??[])
-    await assertGrowthSnapshot(c,run.user_id,run.conversation_id,staged.usedGrowthRefs??[],staged.growthSnapshotKey,staged.growthBoundaryKey)
-    for(const ref of staged.usedExperienceRefs??[]){
-      const source=(await c.query("SELECT revision FROM experiences WHERE user_id=$1 AND id=$2 AND status='confirmed' FOR SHARE",[run.user_id,ref.id])).rows[0]
-      if(!source||source.revision!==ref.revision)throw new HttpError(409,'EXPERIENCE_SNAPSHOT_INVALIDATED')
+    const sourceText=actualQuotes?actualQuotes.join('。'):rawSourceText
+    const profileWritesAllowed=(!actualQuotes||actualQuotes.length>0)&&!profileWritesDisallowed(rawSourceText)
+    if(actualQuotes)staged={...staged,guideUsage:staged.guideUsage?.filter(usage=>actualQuotes.includes(usage.sourceQuote??'')),workflowAdoption:undefined}
+    if(!profileWritesAllowed){
+      staged={...staged,candidates:[],growth:undefined,serverGoals:undefined,serverBudgets:undefined,memoryChanges:undefined,backReferenceMerge:undefined,weeklyPlan:undefined,coach:undefined,workflowAdoption:undefined}
     }
+    const knowledgeRefs=await assertReadContext(c,run,staged)
     const version=(await c.query('SELECT COALESCE(max(version),0)::int AS version FROM decision_versions WHERE user_id=$1 AND conversation_id=$2',[run.user_id,run.conversation_id])).rows[0].version
     // G1.3 快照校验先于本轮任何写入：他端在生成期间改动了被使用的主题或
     // 连线（确认/撤销/更正）时，本轮基于旧证据的建议被阻止提交；本轮自己
     // 的正常更新发生在校验之后，不会自撞。
-    if(staged.starMapSnapshot?.themes?.length||staged.starMapSnapshot?.links?.length)await assertStarMapSnapshot(c,run.user_id,staged.starMapSnapshot)
     const diffEnabled=advancedWorkflowsEnabled()&&Boolean(staged.growth||staged.serverGoals?.length||staged.serverBudgets?.length||staged.workflowAdoption||staged.candidates.length||staged.backReferenceMerge)
     const diffBefore=diffEnabled?await committedSnapshot(c,run.user_id,run.conversation_id):[]
     const themesBeforeAdoption=staged.workflowAdoption?(await c.query('SELECT id,revision FROM user_themes WHERE user_id=$1',[run.user_id])).rows:[]
     const workflowCommit=staged.workflowAdoption?await commitWorkflowSelection(c,run,staged.workflowAdoption):null
-    const candidateIds:string[]=[],mergedExperienceIds:string[]=[]
+    const candidateIds:string[]=[],mergedExperienceIds:string[]=[],promotedCandidateIds=new Set<string>()
+    const contributionBindings:{experienceId:string;candidate:Candidate;action:string}[]=[]
     // 反述直连：命中既有经历的追述在事务内合并（身份不变、只补结果/反思）。
     if(staged.backReferenceMerge){
       const merge=staged.backReferenceMerge
@@ -171,39 +406,128 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     }
     // 同一事件的多轮讲述合并进原经历：先在既有已确认经历里找同源片段，
     // 找到就只更新内容并推进修订，不另立新行。
-    const existingEpisodes=(await c.query("SELECT id, source_quote, content FROM experiences WHERE user_id=$1 AND status='confirmed'",[run.user_id])).rows
+    const existingEpisodes=await filterAvailableExperienceSources(c,run.user_id,(await c.query("SELECT * FROM experiences WHERE user_id=$1 AND status='confirmed'",[run.user_id])).rows)
+    const pendingCandidateIds=new Set<string>(),pendingCandidateByHash=new Map<string,string>(),shadowedFactInterpretations=new Map<number,string>()
     for(const candidate of staged.candidates) {
       const id=randomUUID()
-      const content={title:candidate.quote.slice(0,36),summary:candidate.quote,action:candidate.content?.action??'',result:candidate.content?.result??'',reflection:'',occurredAt:candidate.content?.occurredAt??'',source:'用户对话原话',tags:[]}
-      const episode=findEpisode(existingEpisodes,candidate.quote,content.action,content.result)
+      const semanticInput=candidateFactInputs.get(candidate)
+      const resultSource=candidateResultSources.get(candidate)
+      if(resultSource)await checkMessageSource(c,run.user_id,run.conversation_id,{id:resultSource.messageId,quote:resultSource.quote,range:resultSource.range},true)
+      const summary=semanticInput?candidate.content!.action:candidate.quote
+      const content={title:summary.slice(0,36),summary,action:candidate.content?.action??'',result:candidate.content?.result??'',reflection:'',occurredAt:candidate.content?.occurredAt??'',source:'基于用户原话提取',tags:[]}
+      const experienceSourceQuote=semanticInput&&content.action?content.action:candidate.quote
+      if(semanticInput?.actor==='unknown'){
+        // Unverified ownership never merges into or replaces a confirmed fact.
+        const actionHash=createHash('sha256').update(content.action).digest('hex')
+        const confirmedDuplicate=existingEpisodes.find(episode=>episode.content?.action===content.action)
+        if(confirmedDuplicate)shadowedFactInterpretations.set(semanticInput.inputIndex,String(confirmedDuplicate.id))
+        const sameRun=pendingCandidateByHash.get(actionHash)
+        if(sameRun){contributionBindings.push({experienceId:sameRun,candidate,action:content.action});continue}
+        const candidateDuplicates=(await c.query("SELECT id FROM experiences WHERE user_id=$1 AND status='candidate' ORDER BY updated_at DESC FOR UPDATE",[run.user_id])).rows
+        const duplicateBindings=await experienceFactBindings(c,run.user_id,candidateDuplicates.map(row=>String(row.id)))
+        const duplicate=candidateDuplicates.find(row=>{
+          const binding=duplicateBindings.get(String(row.id))
+          return binding?.valid&&binding.actor==='unknown'&&binding.contentHash===actionHash&&binding.actionQuote===content.action
+        })
+        if(duplicate){
+          // Keep repeated weak reports attached to one tentative record. This
+          // lets a later correction withdraw every matching source without
+          // allowing weak evidence to modify a confirmed experience.
+          contributionBindings.push({experienceId:String(duplicate.id),candidate,action:content.action})
+          continue
+        }
+        const tentative={...content,title:'待核验的行动报告',summary:'执行者尚待核验，不作为本人能力或结果依据。\n报告原文：'+content.action,action:'',result:'',source:'用户原话，执行者尚待核验'}
+        const inserted=await c.query("INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status,confirmed_at,confirm_source,revision) VALUES($1,$2,$3,$4,$5,$6,$7,'candidate',NULL,'auto',1) ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id",[id,run.user_id,run.conversation_id,candidate.sourceMessageId,experienceSourceQuote,run.request_id,tentative])
+        if(!inserted.rowCount)continue
+        await c.query("INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,1,'propose',$3)",[run.user_id,id,{content:tentative,status:'candidate',source:candidate}])
+        pendingCandidateIds.add(id);pendingCandidateByHash.set(actionHash,id);candidateIds.push(id);contributionBindings.push({experienceId:id,candidate,action:content.action})
+        continue
+      }
+      const compatible=candidateFactInputs.has(candidate)?existingEpisodes.filter(episode=>episode.content?.action===content.action):existingEpisodes
+      const episode=findEpisode(compatible,candidate.quote,content.action,content.result)
       if(episode){
         const merged=mergeContent(episode.content??{},{action:content.action,result:content.result,occurredAt:content.occurredAt})
         const nextContent={...episode.content,action:merged.action,result:merged.result,reflection:merged.reflection,occurredAt:merged.occurredAt}
         const updated=(await c.query('UPDATE experiences SET content=$3, revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING revision',[run.user_id,episode.id,nextContent])).rows[0]
-        await c.query("INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,'correct',$4)",[run.user_id,episode.id,updated.revision,{merged:true,fromMessageId:candidate.sourceMessageId,content:nextContent}])
+        episode.content=nextContent
+        await c.query("INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,'correct',$4)",[run.user_id,episode.id,updated.revision,{merged:true,...(nextContent.action===content.action?{fromMessageId:candidate.sourceMessageId,quote:candidate.quote}:{}),content:nextContent,...(candidateResultSources.get(candidate)?{resultSource:candidateResultSources.get(candidate)}:{})}])
         // 反馈修正了原有认识：该经历的既有主题关系升级为 correction。
         await c.query("UPDATE experience_theme_links SET relation='correction', revision=revision+1 WHERE user_id=$1 AND experience_id=$2 AND status='active'",[run.user_id,episode.id])
         // 结果被后续反馈修正后，引用这段经历的旧模式观察随之失效。
         await invalidatePatternsForExperience(c,run.user_id,episode.id)
         mergedExperienceIds.push(String(episode.id))
+        if(candidateFactInputs.has(candidate)&&nextContent.action===candidate.content?.action)contributionBindings.push({experienceId:String(episode.id),candidate,action:nextContent.action})
         continue
       }
-      const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status,confirmed_at,confirm_source,revision) VALUES($1,$2,$3,$4,$5,$6,$7,\'confirmed\',now(),\'auto\',2) ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,candidate.quote,run.request_id,content])
-      if(!inserted.rowCount)continue
+      const inserted=await c.query('INSERT INTO experiences(id,user_id,conversation_id,source_message_id,source_quote,request_id,content,status,confirmed_at,confirm_source,revision) VALUES($1,$2,$3,$4,$5,$6,$7,\'confirmed\',now(),\'auto\',2) ON CONFLICT(user_id,source_message_id,source_quote) DO NOTHING RETURNING id',[id,run.user_id,run.conversation_id,candidate.sourceMessageId,experienceSourceQuote,run.request_id,content])
+      if(!inserted.rowCount){
+        const saved=(await c.query('SELECT id,content,source_quote,status,revision FROM experiences WHERE user_id=$1 AND source_message_id=$2 AND source_quote=$3',[run.user_id,candidate.sourceMessageId,experienceSourceQuote])).rows[0]
+        if(saved?.status==='candidate'&&semanticInput&&['self','joint'].includes(semanticInput.actor)){
+          const promoted=(await c.query("UPDATE experiences SET content=$3,status='confirmed',confirmed_at=now(),confirm_source='auto',revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 AND status='candidate' RETURNING id,revision",[run.user_id,saved.id,content])).rows[0]
+          if(promoted){
+            await c.query("INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,'confirm',$4)",[run.user_id,saved.id,promoted.revision,{auto:true,source:candidate,content}])
+            pendingCandidateIds.delete(String(saved.id));promotedCandidateIds.add(String(saved.id));if(!candidateIds.includes(String(saved.id)))candidateIds.push(String(saved.id))
+            existingEpisodes.push({id:String(saved.id),source_quote:experienceSourceQuote,content})
+            contributionBindings.push({experienceId:String(saved.id),candidate,action:content.action})
+          }
+          continue
+        }
+        if(saved&&candidateFactInputs.has(candidate)&&saved.content?.action===content.action)contributionBindings.push({experienceId:String(saved.id),candidate,action:content.action})
+        continue
+      }
+      existingEpisodes.push({id,source_quote:experienceSourceQuote,content})
       candidateIds.push(id)
+      if(candidateFactInputs.has(candidate))contributionBindings.push({experienceId:id,candidate,action:content.action})
       for(const link of candidate.links)await c.query('INSERT INTO experience_links(user_id,experience_id,value_id,reason,disposition) VALUES($1,$2,$3,$4,\'proposed\')',[run.user_id,id,link.valueId,link.reason])
-      await c.query('INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,1,\'propose\',$3),($1,$2,2,\'confirm\',\'{"auto":true}\'::jsonb)',[run.user_id,id,{content,status:'confirmed',source:candidate}])
+      await c.query('INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,1,\'propose\',$3),($1,$2,2,\'confirm\',\'{"auto":true}\'::jsonb)',[run.user_id,id,{content,status:'confirmed',source:candidate,...(candidateResultSources.get(candidate)?{resultSource:candidateResultSources.get(candidate)}:{})}])
     }
-    for(const id of candidateIds)await proposeExperiencePatterns(c,run.user_id,id)
+    // Native understanding candidates already belong to growthUpdates from
+    // the same model call; do not create a second lexical personality guess.
+    for(const id of candidateIds)if(!contributionBindings.some(binding=>binding.experienceId===id))await proposeExperiencePatterns(c,run.user_id,id)
     for(const ref of knowledgeRefs)await c.query('INSERT INTO coach_reply_sources(user_id,request_id,source_id,revision) VALUES($1,$2,$3,$4)',[run.user_id,run.request_id,ref.sourceId,ref.revision])
     let coach=staged.coach?await persistCoachEvent(c,run,staged.coach):null
     if(staged.guideUsage?.length)await persistGuideUsage(c,run,staged.guideUsage)
     let growth=staged.growth?await persistGrowthUpdates(c,run,staged.growth):null
+    for(const {experienceId,candidate,action} of contributionBindings){
+      const input=candidateFactInputs.get(candidate)!,fact=growth?.byInputIndex.get(input.inputIndex)
+      if(!fact)throw new HttpError(409,'CONTRIBUTION_AUTHORITY_INVALID')
+      const normalized=staged.growth!.inputIndexBindings.get(input.inputIndex)!,delta=staged.growth!.changes[normalized]!,source=delta.source,actionStart=delta.text.indexOf(action)
+      if(actionStart<0)throw new HttpError(409,'CONTRIBUTION_AUTHORITY_INVALID')
+      staged.audit.push({phase:'canonical_contribution_staged',experienceId,factId:fact.id,factRevision:fact.revision,actor:input.actor,skillTags:input.skillTags,contentHash:createHash('sha256').update(action).digest('hex'),sourceMessageId:source.messageId,actionRange:{start:actionStart,length:action.length},providerCalls:0})
+    }
+    const pendingActions=[...new Set(contributionBindings.filter(binding=>pendingCandidateIds.has(binding.experienceId)).map(binding=>binding.action))]
+    if(pendingActions.length){
+      const strongRows=(await c.query("SELECT * FROM experiences WHERE user_id=$1 AND status='confirmed' AND content->>'action'=ANY($2::text[])",[run.user_id,pendingActions])).rows
+      const strongByAction=new Map((await filterAvailableExperienceSources(c,run.user_id,strongRows)).map(row=>[String(row.content?.action??''),String(row.id)]))
+      for(const binding of contributionBindings){
+        if(!pendingCandidateIds.has(binding.experienceId))continue
+        const input=candidateFactInputs.get(binding.candidate),strongId=strongByAction.get(binding.action)
+        if(input&&strongId)shadowedFactInterpretations.set(input.inputIndex,strongId)
+      }
+    }
+    for(const interpretation of staged.factInterpretations??[]){
+      const fact=growth?.byInputIndex.get(interpretation.inputIndex)
+      if(!fact)continue
+      const resultFact=interpretation.resultInputIndex!==undefined?growth?.byInputIndex.get(interpretation.resultInputIndex):undefined
+      const normalized=staged.growth!.inputIndexBindings.get(interpretation.inputIndex)!,delta=staged.growth!.changes[normalized]!,source=delta.source
+      const actionStart=delta.text.indexOf(interpretation.actionQuote)
+      if(actionStart<0)throw new HttpError(409,'CONTRIBUTION_AUTHORITY_INVALID')
+      staged.audit.push({phase:'canonical_fact_interpretation',itemId:fact.id,revision:fact.revision,actor:interpretation.actor,...(interpretation.proposedActor?{proposedActor:interpretation.proposedActor}:{}),...(shadowedFactInterpretations.has(interpretation.inputIndex)?{shadowedByExperienceId:shadowedFactInterpretations.get(interpretation.inputIndex)}:{}),sourceMessageId:source.messageId,actionRange:{start:actionStart,length:interpretation.actionQuote.length},...(resultFact?{resultFact}:{})})
+    }
+    const tentativeFactIds=new Set((staged.factInterpretations??[]).filter(interpretation=>interpretation.actor==='unknown').flatMap(interpretation=>{
+      const fact=growth?.byInputIndex.get(interpretation.inputIndex)
+      return fact?[fact.id]:[]
+    }))
+    const shadowedCandidateIds=new Set(contributionBindings.filter(({candidate})=>{
+      const input=candidateFactInputs.get(candidate)
+      return Boolean(input&&shadowedFactInterpretations.has(input.inputIndex))
+    }).map(binding=>binding.experienceId))
     // 主题投影：本轮已提交的 growth 事实（用户亲述的目标/方向/优先级/偏好）
     // 确定性上投影为“我的成长主题”；随后的经历再挂到主题上。同一事务、
     // 零新增模型调用。
     // P2: 经历间关联——新经历与既有经历建 similar/follows 边
     for(const id of candidateIds){
+      if(pendingCandidateIds.has(id))continue
       const row=(await c.query('SELECT source_quote, content FROM experiences WHERE user_id=$1 AND id=$2',[run.user_id,id])).rows[0]
       if(row)await buildExperienceRelations(c,run.user_id,String(id),row.source_quote+' '+(row.content?.action??'')+' '+(row.content?.result??''))
     }
@@ -235,7 +559,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
       growth.ids.push(...serverGoalIds,...serverBudgetIds)
       growth.createdIds.push(...serverGoalIds,...serverBudgetIds)
     }
-    const themeFactIds=[...new Set([...(growth?.createdIds??[]),...(growth?.changedIds??[]),...(workflowCommit?[workflowCommit.itemId]:[])])]
+    const themeFactIds=[...new Set([...(growth?.createdIds??[]),...(growth?.changedIds??[]),...(workflowCommit?[workflowCommit.itemId]:[])])].filter(id=>!tentativeFactIds.has(id))
     let themeChangedIds:string[]=[];let facts:any[]=[]
     if(themeFactIds.length){
       facts=(await c.query('SELECT id,kind,text,assertion,status FROM growth_items WHERE user_id=$1 AND id=ANY($2::uuid[])',[run.user_id,themeFactIds])).rows
@@ -243,14 +567,15 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     }
     if(workflowCommit){const now=(await c.query('SELECT id,revision FROM user_themes WHERE user_id=$1',[run.user_id])).rows;themeChangedIds=[...new Set([...themeChangedIds,...now.filter(row=>!themesBeforeAdoption.some(old=>old.id===row.id&&old.revision===row.revision)).map(row=>row.id)])]}
     if(themeFactIds.length||candidateIds.length||mergedExperienceIds.length)await reconcileThemesWithGrowth(c,run.user_id)
-    await reconcileIdentityClaims(c,run.user_id)
+    if(profileWritesAllowed)await reconcileIdentityClaims(c,run.user_id)
     // 身份投影：本轮自述认同（“我是那种……”）进入身份层，幂等。
     const identityFacts=[...(facts??[]),...(staged.serverGoals??[]).map(goal=>({id:'server-'+goal.messageId+goal.text.length,kind:'goal',text:goal.text,assertion:'user_reported',status:'active'}))]
     await projectIdentityClaims(c,run.user_id,identityFacts as any)
     // 变更事件：经历创建与合并（真实迁移才记录）。
-    for(const id of candidateIds)await recordChangeEvent(c,run.user_id,{subjectType:'experience',subjectId:id,transition:'created',reason:'对话中报告的已发生行动',impact:'星图中外轨新增经历',unknowns:'后续反馈和长期意义还未知'})
+    for(const id of candidateIds)if(!shadowedCandidateIds.has(id))await recordChangeEvent(c,run.user_id,{subjectType:'experience',subjectId:id,transition:promotedCandidateIds.has(id)?'confirmed':'created',reason:promotedCandidateIds.has(id)?'后续本人行动报告确认了先前待核验记录':pendingCandidateIds.has(id)?'新增待核对的原文行动报告':'对话中报告的已发生行动',impact:pendingCandidateIds.has(id)?'执行者尚未核验，不作为本人能力或结果依据':'星图中外轨新增经历',unknowns:pendingCandidateIds.has(id)?'行动归属尚待本人确认':'后续反馈和长期意义还未知'})
     for(const id of mergedExperienceIds)await recordChangeEvent(c,run.user_id,{subjectType:'experience',subjectId:id,transition:'merged',reason:'同一事件的后续反馈并入原经历',impact:'经历结果更新，相关连线转为修正',unknowns:'新反馈是否形成稳定模式仍待更多证据'})
     for(const experienceId of [...candidateIds,...mergedExperienceIds]){
+      if(pendingCandidateIds.has(experienceId))continue
       const row=(await c.query('SELECT source_quote, content FROM experiences WHERE user_id=$1 AND id=$2',[run.user_id,experienceId])).rows[0]
       if(row)await linkExperienceToThemes(c,run.user_id,experienceId,`${row.source_quote} ${row.content?.action??''} ${row.content?.result??''}`,true)
     }
@@ -275,8 +600,9 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     // writes — never from the model's own claim of completion.
     const requiredEffects=staged.turnObligations?.requiredEffects??[]
     const requiredGrowth=requiredEffects.some(effect=>effect.type==='weekly_time'||effect.type==='remaining_time')
+    const visibleGrowth=growth?{...growth,ids:growth.ids.filter(id=>!tentativeFactIds.has(id)),createdIds:growth.createdIds.filter(id=>!tentativeFactIds.has(id)),changedIds:growth.changedIds.filter(id=>!tentativeFactIds.has(id)),retainedIds:growth.retainedIds.filter(id=>!tentativeFactIds.has(id))}:null
     const growthStatus=!staged.growth?'not_requested'
-      :requiredGrowth&&!growth?.changedIds.length&&!growth?.createdIds.length?'needs_confirmation'
+      :requiredGrowth&&!visibleGrowth?.changedIds.length&&!visibleGrowth?.createdIds.length?'needs_confirmation'
       :staged.growth.skipped?.length?'partial'
       :'applied'
     // N1.6: the receipt is built ONLY from this transaction's own results —
@@ -288,17 +614,19 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     const materialAction=coach?.actions.find(action=>action.status==='proposed'&&action.draft&&action.draft.readiness)
     const controlEffects=directionControls?directionControls.effects:[]
     const changedScopes=controlEffects.filter(effect=>effect.before!==effect.after).map(effect=>effect.scope)
-    const growthDiff=diffEnabled?await committedGrowthDiff(c,run.user_id,run.conversation_id,run.request_id,diffBefore,[...themeFactIds,...candidateIds,...mergedExperienceIds],row=>staged.audit.push({phase:'workflow_trace',...row})):[]
+    const confirmedExperienceIds=candidateIds.filter(id=>!pendingCandidateIds.has(id))
+    const visibleCandidateIds=candidateIds.filter(id=>!shadowedCandidateIds.has(id))
+    const growthDiff=diffEnabled?await committedGrowthDiff(c,run.user_id,run.conversation_id,run.request_id,diffBefore,[...themeFactIds,...confirmedExperienceIds,...mergedExperienceIds],row=>staged.audit.push({phase:'workflow_trace',...row})):[]
         const stateChange={
           growthDiff,
           growthDiffStatus:staged.audit.some((row:any)=>row.phase==='workflow_trace'&&row.agentRole==='skill'&&['lifeos-growth-diff','lifeos-experience-evidence'].includes(row.skill)&&row.status==='failed')?'unavailable':'applied',
           workflow:workflowCommit,
-          growth:{status:growthStatus,createdIds:growth?growth.createdIds:[],changedIds:growth?growth.changedIds:[],retainedIds:growth?growth.retainedIds:[],skipped:(staged.growth?.skipped??[]).map(skip=>({inputIndex:skip.inputIndex,code:skip.reason}))},
+          growth:{status:growthStatus,createdIds:visibleGrowth?visibleGrowth.createdIds:[],changedIds:visibleGrowth?visibleGrowth.changedIds:[],retainedIds:visibleGrowth?visibleGrowth.retainedIds:[],skipped:(staged.growth?.skipped??[]).map(skip=>({inputIndex:skip.inputIndex,code:skip.reason}))},
           controls:{changedScopes,effects:controlEffects},
           memoryControl,
           material:materialAction&&materialAction.draft?{actionId:materialAction.id,revision:materialAction.revision,readiness:materialAction.draft.readiness as 'template'|'draft_for_user_review',missingRequired:materialAction.draft.missingRequired??[]}:null,
           plan:plan?{itemId:plan.itemId,revision:plan.revision,status:'proposed',budgetRef:plan.budgetRef}:null,
-          experiences:{createdIds:candidateIds,mergedIds:mergedExperienceIds},
+          experiences:{createdIds:confirmedExperienceIds,mergedIds:mergedExperienceIds},
           themes:{changedIds:themeChangedIds},
           guideUsage:{status:staged.guideUsage?.length?'applied':'not_requested',items:(staged.guideUsage??[]).map(({guideId,revision,branch,stepId,status,eventId})=>({guideId,revision,branch,stepId,status,eventId}))},
         }
@@ -306,8 +634,7 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
     // A report that the other person replied is a state correction, not a new
     // duplicate fact. Close historical “not replied / no response” records in
     // the same transaction so a later readback cannot show both states.
-    const sourceText=String((await c.query("SELECT content FROM messages WHERE user_id=$1 AND id=$2",[run.user_id,run.source_message_id])).rows[0]?.content??'')
-    const reportsResponse=/(?:回复说|回复了|已回复|后来回复|刚刚回复|确认读到|回复[：:，,])/.test(sourceText)&&!/(?:未回复|没回复|没有回复|还没回复|没有约定回复时间|是否读过|是否回复|不回复)/.test(sourceText)
+    const reportsResponse=profileWritesAllowed&&/(?:回复说|回复了|已回复|后来回复|刚刚回复|确认读到|回复[：:，,])/.test(sourceText)&&!/(?:未回复|没回复|没有回复|还没回复|没有约定回复时间|是否读过|是否回复|不回复)/.test(sourceText)
     if(reportsResponse){
       const boundEvent=staged.coach?.delta.target.operation==='continue'?staged.coach.eventId:null
       const eventSources=boundEvent?new Set((await c.query('SELECT DISTINCT r.source_message_id FROM coach_event_revisions e JOIN runs r ON r.user_id=e.user_id AND r.request_id=e.request_id WHERE e.user_id=$1 AND e.event_id=$2',[run.user_id,boundEvent])).rows.map(row=>row.source_message_id)):new Set()
@@ -332,15 +659,18 @@ export async function finishRun(run:Run,staged:Staged,text:string,usage:unknown,
         await invalidatePatternsForExperience(c,run.user_id,row.id)
       }
     }
-    if(/没有约定回复时间/.test(sourceText)){
+    if(profileWritesAllowed&&/没有约定回复时间/.test(sourceText)){
       await c.query("UPDATE coach_nodes SET status='resolved',revision=revision+1,updated_at=now() WHERE user_id=$1 AND event_id IN (SELECT id FROM coach_events WHERE user_id=$1 AND conversation_id=$2) AND status='active' AND content LIKE '%是否约定过回复时间%'",[run.user_id,run.conversation_id])
     }
     // Automatic state reconciliation above belongs to this same commit.
     // Capture its final event state in the completion receipt, too.
     if(coach)coach=await readCoachEvent(c,run.user_id,run.conversation_id,coach.id)
     await consumeEntitlement(c,run.user_id,current.entitlement_reserved)
-    await c.query('INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,\'assistant\',$4,$5)',[randomUUID(),run.user_id,run.conversation_id,text,run.request_id])
-    const response={requestId:run.request_id,decisionVersion:version,candidateIds,mergedExperienceIds,themeChangedIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:growth?growth.ids:[],growthCreatedIds:growth?growth.createdIds:[],growthChangedIds:growth?growth.changedIds:[],growthRetainedIds:growth?growth.retainedIds:[],growthWrite:growth??null,stateChange,...(memoryControl?{memoryControl}:{}),...(directionControls?{directionControls:{changedScopes,effects:controlEffects}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
+    const assistantMessageId=randomUUID()
+    await c.query('INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,\'assistant\',$4,$5)',[assistantMessageId,run.user_id,run.conversation_id,text,run.request_id])
+    const refreshRequired=profileWritesAllowed||reportsResponse||Boolean(staged.growth||staged.coach||staged.weeklyPlan||staged.workflowAdoption||staged.backReferenceMerge||staged.memoryControl||staged.pendingMemoryControl||staged.directionControls||staged.memoryChanges?.length||staged.serverGoals?.length||staged.serverBudgets?.length||visibleCandidateIds.length||mergedExperienceIds.length||themeChangedIds.length||memoryIds.length)
+    const commitReceipt={version:1,conversationId:run.conversation_id,userMessageId:run.source_message_id,assistantMessageId,title:String(sourceRow?.title??''),refreshRequired}
+    const response={requestId:run.request_id,commitReceipt,memoryReferences:staged.memoryReferences??[],memoryReferenceCount:staged.memoryReferences?.length??0,decisionVersion:version,candidateIds:visibleCandidateIds,mergedExperienceIds,themeChangedIds,memoryIds,memorySavedCount:memoryIds.length,growthIds:visibleGrowth?visibleGrowth.ids:[],growthCreatedIds:visibleGrowth?visibleGrowth.createdIds:[],growthChangedIds:visibleGrowth?visibleGrowth.changedIds:[],growthRetainedIds:visibleGrowth?visibleGrowth.retainedIds:[],growthWrite:visibleGrowth,stateChange,...(memoryControl?{memoryControl}:{}),...(directionControls?{directionControls:{changedScopes,effects:controlEffects}}:{}),dialoguePath,upstreamCalls,usage,...(coach?{event:coach}:{})}
     if(workflowCommit)await c.query("UPDATE lifeos_workflow_tasks SET host_commit=$3,receipt=jsonb_set(receipt,'{status}','\"persisted\"'::jsonb) WHERE user_id=$1 AND request_id=$2",[run.user_id,workflowCommit.taskId,JSON.stringify(response)])
     await c.query('UPDATE runs SET status=\'completed\',response=$3,usage=$4,tool_audit=$5,finished_at=now() WHERE user_id=$1 AND request_id=$2',[run.user_id,run.request_id,response,usage,JSON.stringify(staged.audit)])
     await c.query('UPDATE conversations SET updated_at=now() WHERE user_id=$1 AND id=$2',[run.user_id,run.conversation_id])
@@ -352,7 +682,7 @@ export async function terminateRun(user:string,id:string,status:'cancelled'|'fai
   return requireRow((await pool.query('UPDATE runs SET status=CASE WHEN status=\'running\' THEN $3 ELSE status END,error_code=CASE WHEN status=\'running\' THEN $4 ELSE error_code END,finished_at=COALESCE(finished_at,now()) WHERE user_id=$1 AND request_id=$2 RETURNING status',[user,id,status,code])).rows[0])
 }
 export async function runStatus(user:string,id:string) {
-  const run=requireRow((await pool.query('SELECT request_id,status,error_code,usage,response FROM runs WHERE user_id=$1 AND request_id=$2',[user,id])).rows[0])
+  const run=requireRow((await pool.query('SELECT request_id,status,error_code,usage,response FROM runs WHERE user_id=$1 AND request_id=$2 AND NOT EXISTS (SELECT 1 FROM deleted_conversations d WHERE d.user_id=runs.user_id AND d.conversation_id=runs.conversation_id)',[user,id])).rows[0])
   if(run.status==='completed')run.response=await validRunResponse(user,id,run.response)
   return run
 }
@@ -367,52 +697,201 @@ export async function validRunResponse(user:string,id:string,response:any){
   return response
 }
 export async function experienceAction(user:string,id:string,input:ExperienceAction) {
-  return transaction(async c=>{
+  return transaction(c=>applyExperienceAction(c,user,id,input))
+}
+// Chat memory controls use the same operation inside the reply transaction.
+export async function applyExperienceAction(c:PoolClient,user:string,id:string,input:ExperienceAction) {
     await lock(c,user+':operation:'+input.requestId)
     await lock(c,user+':memory-settings')
+    if(input.action==='confirm'||input.action==='correct'||input.action==='delete')await lockGrowth(c,user)
+    // Corrections and deletion can withdraw a message from raw interview
+    // chronology. Take this before any experience row lock so finishRun's
+    // snapshot lock can never deadlock against the correction path.
+    if(input.action==='correct'||input.action==='delete')await lock(c,user+':interview-chronology')
     const fingerprint=hash({id,...input})
     const old=(await c.query('SELECT * FROM user_operations WHERE user_id=$1 AND request_id=$2',[user,input.requestId])).rows[0]
-    if(old){if(old.fingerprint!==fingerprint)throw new HttpError(409,'IDEMPOTENCY_KEY_REUSED');return old.response}
+    if(old){
+      if(old.fingerprint!==fingerprint)throw new HttpError(409,'IDEMPOTENCY_KEY_REUSED')
+      const current=(await c.query('SELECT * FROM experiences WHERE user_id=$1 AND id=$2',[user,id])).rows[0]
+      return publicExperienceRecord(current??old.response)
+    }
     const e=requireRow((await c.query('SELECT * FROM experiences WHERE user_id=$1 AND id=$2 AND status<>\'deleted\' FOR UPDATE',[user,id])).rows[0])
     if(e.revision!==input.expectedRevision)throw new HttpError(409,'EXPERIENCE_REVISION_CONFLICT')
     if(input.action==='correct'&&!input.content)throw new HttpError(400,'CONTENT_REQUIRED')
     if(input.action==='review'&&!input.link)throw new HttpError(400,'LINK_REQUIRED')
     if(input.action!=='correct'&&input.content)throw new HttpError(400,'UNEXPECTED_CONTENT')
     if(input.action==='delete'&&input.link)throw new HttpError(400,'UNEXPECTED_LINK')
-    const status=input.action==='delete'?'deleted':input.action==='confirm'?'confirmed':e.status
+    const candidateBinding=e.status==='candidate'?(await experienceFactBindings(c,user,[id])).get(id):undefined
     const changedFields=input.content?Object.keys(input.content).filter(key=>JSON.stringify(input.content![key as keyof typeof input.content])!==JSON.stringify(e.content[key])):[]
+    const confirmsCandidate=input.action==='correct'&&e.status==='candidate'&&e.confirm_source==='auto'&&Boolean(input.content&&Object.hasOwn(input.content,'action')&&input.content.action?.trim())
+    if(e.status==='candidate'&&input.action==='correct'&&!confirmsCandidate&&changedFields.some(field=>field!=='summary'))throw new HttpError(400,'EXPERIENCE_ACTION_INVALID')
+    const userConfirmed=input.action==='confirm'||confirmsCandidate
+    if(input.action==='confirm'&&e.status==='candidate'){
+      if(!candidateBinding?.valid||!candidateBinding.actionQuote)throw new HttpError(409,'EXPERIENCE_SOURCE_AMBIGUOUS')
+    }
+    const status=input.action==='delete'?'deleted':userConfirmed?'confirmed':e.status
     const content=input.content?{...e.content,...input.content,...(changedFields.includes('summary')?{title:input.content.summary.slice(0,36)}:{})}:e.content
+    if(userConfirmed&&e.status==='candidate'){
+      if(input.action==='confirm'){content.action=candidateBinding!.actionQuote;content.summary=candidateBinding!.actionQuote}
+      if(!input.content||!Object.hasOwn(input.content,'result'))content.result=''
+      if(!input.content||!Object.hasOwn(input.content,'tags'))content.tags=[]
+      content.source=confirmsCandidate&&changedFields.includes('action')?'本人更正':'本人确认'
+      if(confirmsCandidate&&!changedFields.includes('summary'))content.summary=input.content!.action!
+      content.title=String(content.summary||content.action||'已确认经历').replace(/^待核验：/,'').slice(0,36)
+    }else if(e.status==='candidate'&&input.action==='correct'&&changedFields.includes('summary')){
+      content.title='待核验的行动报告'
+    }
+    const confirmedSource=userConfirmed&&e.status==='candidate'&&candidateBinding?.valid?candidateBinding.source:undefined
     if(input.action==='correct')await c.query('UPDATE experience_links SET disposition=\'proposed\' WHERE user_id=$1 AND experience_id=$2',[user,id])
     if(input.link){
       const link=input.link
       const changed=await c.query('UPDATE experience_links SET reason=$4,disposition=$5 WHERE user_id=$1 AND experience_id=$2 AND value_id=$3',[user,id,link.valueId,link.reason,link.disposition])
       if(!changed.rowCount)throw new HttpError(404,'LINK_NOT_FOUND')
     }
-    const updated=(await c.query('UPDATE experiences SET content=$3,status=$4,revision=revision+1,confirmed_at=CASE WHEN $4=\'confirmed\' THEN COALESCE(confirmed_at,now()) ELSE NULL END,updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING *',[user,id,content,status])).rows[0]
+    let updated=(await c.query('UPDATE experiences SET content=$3,status=$4,revision=revision+1,confirmed_at=CASE WHEN $4=\'confirmed\' THEN COALESCE(confirmed_at,now()) ELSE NULL END,confirm_source=CASE WHEN $5 THEN \'user\' ELSE confirm_source END,conversation_id=COALESCE($6::uuid,conversation_id),source_message_id=COALESCE($7::uuid,source_message_id),source_quote=COALESCE($8::text,source_quote),updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING *',[user,id,content,status,userConfirmed,confirmedSource?.source_conversation_id??null,confirmedSource?.source_message_id??null,confirmedSource?.source_quote??null])).rows[0]
+    if(e.status==='candidate'&&userConfirmed)await recordChangeEvent(c,user,{subjectType:'experience',subjectId:id,transition:input.action==='confirm'?'confirmed':'corrected',reason:input.action==='confirm'?'本人确认了行动归属':'本人更正并确认了行动归属',impact:'该记录现在可作为本人经历使用；技能和长期意义仍需独立证据',unknowns:'实际效果和长期意义仍待后续反馈',userConfirmation:'confirmed'})
     if(input.action==='correct'||input.action==='delete'){
       await invalidatePatternsForExperience(c,user,id)
-      await invalidateCoachSources(c,user,[e.source_message_id],input.action==='delete')
     }
-    await c.query('INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,$4,$5)',[user,id,updated.revision,input.action,{content,status,link:input.link??null,...(input.action==='correct'?{correction:{version:1,changedFields}}:{})}])
-    await c.query('INSERT INTO user_operations(user_id,request_id,fingerprint,response) VALUES($1,$2,$3,$4)',[user,input.requestId,fingerprint,updated])
-    return updated
-  })
+    const sourceCorrections:SourceControlRef[]=[],nativeFactIds=new Set<string>(),nativeFactRevisions=new Map<string,Set<number>>(),nativeFactScopes=new Map<string,SourceControlRef[]>(),nativeResultFactIds=new Set<string>()
+    const addNativeFact=(factId:unknown,revision:unknown,result=false)=>{
+      if(typeof factId!=='string'||!Number.isSafeInteger(Number(revision)))return
+      nativeFactIds.add(factId);if(result)nativeResultFactIds.add(factId)
+      const revisions=nativeFactRevisions.get(factId)??new Set<number>();revisions.add(Number(revision));nativeFactRevisions.set(factId,revisions)
+    }
+    const addSourceCorrection=(ref:SourceControlRef,factId?:string)=>{
+      if(!ref.quote?.trim())return
+      if(!sourceCorrections.some(saved=>saved.messageId===ref.messageId&&saved.quote===ref.quote&&JSON.stringify(saved.range??null)===JSON.stringify(ref.range??null)))sourceCorrections.push(ref)
+      if(factId){const scopes=nativeFactScopes.get(factId)??[];if(!scopes.some(saved=>saved.messageId===ref.messageId&&saved.quote===ref.quote&&JSON.stringify(saved.range??null)===JSON.stringify(ref.range??null)))scopes.push(ref);nativeFactScopes.set(factId,scopes)}
+    }
+    const proof=(await experienceFactBindings(c,user,[id])).get(id),bound=proof?.source
+    const priorAnchor=(await c.query("SELECT snapshot->'sourceAnchor' AS anchor FROM experience_revisions WHERE user_id=$1 AND experience_id=$2 AND snapshot ? 'sourceAnchor' ORDER BY revision DESC LIMIT 1",[user,id])).rows[0]?.anchor
+    const sourceAnchor:SourceControlRef=bound?{messageId:bound.source_message_id,quote:bound.source_quote,...(bound.range?{range:bound.range}:{})}:typeof priorAnchor?.quote==='string'?priorAnchor:{messageId:e.source_message_id,quote:e.source_quote}
+    if(input.action==='correct'){
+      const original=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2',[user,sourceAnchor.messageId])).rows[0]?.content??''
+      const resultSource=changedFields.includes('result')?(await c.query("SELECT snapshot->'resultSource' AS source FROM experience_revisions WHERE user_id=$1 AND experience_id=$2 AND snapshot ? 'resultSource' AND snapshot#>'{content,result}'=$3::jsonb ORDER BY revision DESC LIMIT 1",[user,id,JSON.stringify(e.content.result)])).rows[0]?.source:null
+      for(const field of changedFields.filter(key=>['summary','action','result','reflection'].includes(key))){
+       // Candidate summaries are derived display text. Editing them never
+       // corrects or withdraws the separately bound, still-unconfirmed action.
+       if(e.status==='candidate'&&field==='summary')continue
+       for(const clause of scanUserClauses(String(e.content[field]??''))){
+        if(field==='result'&&resultSource?.messageId&&resultSource.quote)continue
+        if(field==='summary'&&['action','result'].some(key=>!changedFields.includes(key)&&String(e.content[key]??'').includes(clause.text)))continue
+        if(!clause.text.trim()||!original.includes(clause.text))continue
+        const ranges=sourceQuoteRanges(original,clause.text,field==='result'?undefined:sourceAnchor)
+        if(ranges.length!==1)throw new HttpError(409,'EXPERIENCE_SOURCE_AMBIGUOUS')
+        sourceCorrections.push({messageId:sourceAnchor.messageId,quote:clause.text,range:ranges[0]})
+       }
+      }
+      if(changedFields.includes('result'))for(const report of reportedExternalFeedback(String(e.source_quote??'')).reports)if(original.includes(report.quote))sourceCorrections.push({messageId:e.source_message_id,quote:report.quote})
+      if(changedFields.includes('result')){
+        if(resultSource?.messageId&&resultSource.quote)sourceCorrections.push(resultSource)
+      }
+      if(changedFields.includes('action')){
+        const priorAction=proof?.actionQuote??String(e.content.action??''),priorHash=proof?.contentHash??createHash('sha256').update(priorAction).digest('hex')
+        const adopted=priorAction?(await c.query("SELECT g.snapshot->'sources' AS sources FROM runs r CROSS JOIN LATERAL jsonb_array_elements(r.tool_audit) a(value) JOIN growth_revisions g ON g.user_id=r.user_id AND g.item_id::text=a.value->>'factId' AND g.revision::text=a.value->>'factRevision' WHERE r.user_id=$1 AND a.value->>'phase'='canonical_contribution_staged' AND a.value->>'experienceId'=$2 AND a.value->>'contentHash'=$3",[user,id,priorHash])).rows:[]
+        for(const report of adopted)for(const source of report.sources??[]){
+          if(source.type!=='message')continue
+          const text=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2',[user,source.id])).rows[0]?.content??''
+          const ranges=sourceQuoteRanges(text,priorAction,source)
+          if(ranges.length!==1)throw new HttpError(409,'EXPERIENCE_SOURCE_AMBIGUOUS')
+          sourceCorrections.push({messageId:source.id,quote:priorAction,range:ranges[0]})
+        }
+      }
+    }
+    if(input.action==='delete'){
+      const native=(await c.query(`SELECT a.value->>'factId' AS fact_id,a.value->>'factRevision' AS fact_revision,g.snapshot->'sources' AS sources,i.value->'actionRange' AS action_range,i.value->>'sourceMessageId' AS interpretation_message_id,i.value#>>'{resultFact,id}' AS result_fact_id,i.value#>>'{resultFact,revision}' AS result_fact_revision
+        FROM runs r CROSS JOIN LATERAL jsonb_array_elements(r.tool_audit) a(value)
+        LEFT JOIN growth_revisions g ON g.user_id=r.user_id AND g.item_id::text=a.value->>'factId' AND g.revision::text=a.value->>'factRevision'
+        LEFT JOIN LATERAL (SELECT interpretation.value FROM jsonb_array_elements(r.tool_audit) interpretation(value) WHERE interpretation.value->>'phase'='canonical_fact_interpretation' AND interpretation.value->>'itemId'=a.value->>'factId' AND interpretation.value->>'revision'=a.value->>'factRevision' LIMIT 1) i ON true
+        WHERE r.user_id=$1 AND a.value->>'phase'='canonical_contribution_staged' AND a.value->>'experienceId'=$2`,[user,id])).rows
+      if(native.length){
+        const messageIds=[...new Set<string>(native.flatMap(report=>(report.sources??[]).filter((source:any)=>source.type==='message').map((source:any)=>String(source.id))))]
+        const messages=new Map<string,string>(messageIds.length?(await c.query("SELECT id,content FROM messages WHERE user_id=$1 AND id=ANY($2::uuid[]) AND role='user'",[user,messageIds])).rows.map(row=>[String(row.id),String(row.content)]):[])
+        for(const report of native){
+          addNativeFact(report.fact_id,report.fact_revision)
+          addNativeFact(report.result_fact_id,report.result_fact_revision,true)
+          const source=(report.sources??[]).find((entry:any)=>entry.type==='message'&&entry.id===report.interpretation_message_id),range=report.action_range
+          let scoped=false
+          if(source&&range&&Number.isSafeInteger(range.start)&&Number.isSafeInteger(range.length)&&range.start>=0&&range.length>0&&range.start+range.length<=source.quote.length){
+            const quote=source.quote.slice(range.start,range.start+range.length),text=messages.get(String(source.id))??''
+            const matches=sourceQuoteRanges(text,quote,{quote:source.quote,...(source.range?{range:source.range}:{})})
+            if(matches.length===1){addSourceCorrection({messageId:source.id,quote,range:matches[0]},report.fact_id);scoped=true}
+          }
+          if(!scoped)for(const fallback of report.sources??[])if(fallback.type==='message')addSourceCorrection({messageId:fallback.id,quote:fallback.quote,...(fallback.range?{range:fallback.range}:{})},report.fact_id)
+        }
+      }else addSourceCorrection(sourceAnchor)
+      const later=(await c.query("SELECT snapshot FROM experience_revisions WHERE user_id=$1 AND experience_id=$2",[user,id])).rows
+      for(const {snapshot} of later){
+        if(snapshot.resultSource?.messageId&&snapshot.resultSource.quote){addSourceCorrection(snapshot.resultSource);for(const resultFactId of nativeResultFactIds)addSourceCorrection(snapshot.resultSource,resultFactId)}
+        if(!native.length&&snapshot.fromMessageId&&snapshot.quote)addSourceCorrection({messageId:snapshot.fromMessageId,quote:snapshot.quote})
+      }
+      // Delete this record's verified fragments, not every independent fact
+      // that happened to be reported in the same original message.
+      for(const ref of sourceCorrections){
+        if(!ref.quote?.trim())continue
+        if(ref.range)continue
+        await c.query("INSERT INTO growth_source_suppressions(user_id,conversation_id,message_id,quote) SELECT user_id,conversation_id,id,$3 FROM messages WHERE user_id=$1 AND id=$2 AND role='user' AND strpos(content,$3)>0 ON CONFLICT DO NOTHING",[user,ref.messageId,ref.quote])
+      }
+    }
+    await c.query('INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,$4,$5)',[user,id,updated.revision,input.action,{content,status,link:input.link??null,...(input.action==='correct'?{correction:{version:1,changedFields},sourceAnchor,sourceCorrections}:input.action==='delete'?{sourceCorrections}:{})}])
+    if(input.action==='delete'&&(sourceCorrections.length||nativeFactIds.size)){
+      if(nativeFactIds.size){
+        for(const factId of nativeFactIds){
+          const current=(await c.query('SELECT revision,status,text FROM growth_items WHERE user_id=$1 AND id=$2',[user,factId])).rows[0]
+          if(current&&nativeFactRevisions.get(factId)?.has(current.revision)&&current.status!=='forgotten'&&current.text)await applyGrowthAction(c,user,factId,{requestId:randomUUID(),expectedRevision:current.revision,action:'forget'},nativeFactScopes.get(factId))
+        }
+      }else{
+        const ids=[...new Set(sourceCorrections.map(ref=>ref.messageId))],messages=new Map((await c.query('SELECT id,content FROM messages WHERE user_id=$1 AND id=ANY($2::uuid[])',[user,ids])).rows.map(row=>[row.id,row.content as string]))
+        const facts=(await c.query("SELECT id,sources FROM growth_items WHERE user_id=$1 AND status<>'forgotten' AND EXISTS(SELECT 1 FROM jsonb_array_elements(sources) s WHERE s->>'type'='message' AND s->>'id'=ANY($2::text[]))",[user,ids])).rows
+        for(const fact of facts){
+          if(!fact.sources.some((source:any)=>source.type==='message'&&sourceCorrections.some(ref=>ref.messageId===source.id&&sourceQuotesOverlap(messages.get(source.id)??'',source,ref))))continue
+          const current=(await c.query('SELECT revision,status,text FROM growth_items WHERE user_id=$1 AND id=$2',[user,fact.id])).rows[0]
+          if(current&&current.status!=='forgotten'&&current.text)await applyGrowthAction(c,user,fact.id,{requestId:randomUUID(),expectedRevision:current.revision,action:'forget'})
+        }
+      }
+      updated=(await c.query('SELECT * FROM experiences WHERE user_id=$1 AND id=$2',[user,id])).rows[0]
+    }
+    if(input.action==='delete'){
+      const controls=(await c.query('SELECT snapshot FROM experience_revisions WHERE user_id=$1 AND experience_id=$2',[user,id])).rows.flatMap(row=>row.snapshot.sourceControls??[])
+      for(const ref of sourceCorrections){const raw=(await c.query('SELECT content FROM messages WHERE user_id=$1 AND id=$2',[user,ref.messageId])).rows[0]?.content??'';controls.push(...sourceControlRanges(raw,ref).map(range=>({messageId:ref.messageId,range})))}
+      const purged=Object.fromEntries(Object.entries(updated.content??{}).map(([key,value])=>[key,typeof value==='string'?'':Array.isArray(value)?[]:null]))
+      updated=(await c.query('UPDATE experiences SET content=$3,source_quote=$4,revision=revision+1,updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING *',[user,id,purged,'[redacted:'+id+']'])).rows[0]
+      await c.query("UPDATE experience_revisions SET snapshot=jsonb_build_object('redacted',true) WHERE user_id=$1 AND experience_id=$2",[user,id])
+      await c.query("INSERT INTO experience_revisions(user_id,experience_id,revision,action,snapshot) VALUES($1,$2,$3,'delete',$4)",[user,id,updated.revision,{redacted:true,sourceControls:controls}])
+      await c.query("UPDATE user_operations SET response=$3 WHERE user_id=$1 AND response->>'id'=$2",[user,id,{...updated,source_quote:''}])
+    }
+    if(input.action==='delete')await invalidateCoachSourceQuotes(c,user,sourceCorrections,true)
+    if(input.action==='correct'||input.action==='delete')await invalidateCoachSources(c,user,[...new Set([e.source_message_id,...sourceCorrections.map(ref=>ref.messageId)])],false,true,sourceCorrections)
+    if(/^\[redacted:[0-9a-f-]+\]$/.test(String(updated.source_quote??'')))updated={...updated,source_quote:''}
+    const response=publicExperienceRecord(updated)
+    await c.query('INSERT INTO user_operations(user_id,request_id,fingerprint,response) VALUES($1,$2,$3,$4)',[user,input.requestId,fingerprint,response])
+    return response
 }
 // 行为模式生成：同类已确认经历≥2段且新经历参与时，提出一条待核对观察。
 // 已存在同 behaviorKey 的候选（pending/accepted）不重提；被拒绝过的读法不再出现。
 async function proposeExperiencePatterns(c: PoolClient, user: string, newExperienceId: string) {
-  const rows = (await c.query(`SELECT e.id, e.revision, e.conversation_id, e.source_message_id, e.source_quote, e.content, array_remove(array_agg(l.value_id) FILTER (WHERE l.disposition <> 'rejected'), NULL) AS value_ids FROM experiences e LEFT JOIN experience_links l ON l.user_id = e.user_id AND l.experience_id = e.id WHERE e.user_id = $1 AND e.status = 'confirmed' GROUP BY e.id`, [user])).rows
-  const experiences = rows.map((row: any) => ({
+  await lock(c, user + ':memory-settings')
+  if (!(await c.query('SELECT 1 FROM user_memory_settings WHERE user_id=$1 AND enabled=true', [user])).rowCount) return
+  if((await experienceFactBindings(c,user,[newExperienceId])).has(newExperienceId))return
+  const rows = await loadPatternEvidence(c, user)
+  // Legacy forget receipts no longer contain the interpretation's meaning.
+  // Do not reconstruct it from private history or reuse those source records
+  // in a new automatic observation. The factual records remain readable.
+  const legacySuppressed = new Set((await c.query("SELECT source_message_id FROM memory_suppressions WHERE user_id=$1 AND key LIKE 'pattern:%' AND key NOT LIKE 'pattern:behavior:%'", [user])).rows.map(row => row.source_message_id))
+  const experiences = rows.filter(row => !legacySuppressed.has(row.source_message_id)).map((row: any) => ({
     id: row.id, revision: row.revision, conversationId: row.conversation_id, sourceMessageId: row.source_message_id,
-    quote: row.source_quote, action: String(row.content?.action ?? ''), result: String(row.content?.result ?? ''), valueIds: row.value_ids ?? [],
+    quote: row.quote, action: String(row.content?.action ?? ''), result: String(row.content?.result ?? ''), valueIds: row.value_ids ?? [],
   }))
   for (const proposal of derivePatternProposals(experiences, newExperienceId)) {
     const existing = (await c.query(`SELECT 1 FROM memory_items WHERE user_id = $1 AND kind = 'pattern_candidate' AND value->>'behaviorKey' = $2`, [user, proposal.behaviorKey])).rowCount
     if (existing) continue
+    const refs = proposal.supporting.map(experience => ({ type: 'experience', experienceId: experience.id, revision: experience.revision, conversationId: experience.conversationId, messageId: experience.sourceMessageId, quote: experience.quote }))
+    if ((await c.query('SELECT 1 FROM memory_suppressions WHERE user_id=$1 AND key=ANY($2::text[])', [user, [patternSuppressionKey(refs), 'pattern:behavior:' + proposal.behaviorKey]])).rowCount) continue
     await c.query(`INSERT INTO memory_items(id, user_id, kind, value, assertion, scope, source_refs, observed_at, valid_from, status) VALUES($1, $2, 'pattern_candidate', $3, 'system_pattern_candidate', 'user', $4, now(), now(), 'pending')`, [
       randomUUID(), user,
       JSON.stringify({ behaviorKey: proposal.behaviorKey, context: proposal.context, behavior: proposal.behavior, outcome: proposal.outcome, limitations: proposal.limitations }),
-      JSON.stringify(proposal.supporting.map(experience => ({ type: 'experience', experienceId: experience.id, revision: experience.revision, conversationId: experience.conversationId, messageId: experience.sourceMessageId, quote: experience.quote }))),
+      JSON.stringify(refs),
     ])
   }
 }
@@ -432,8 +911,10 @@ export async function themeAction(user:string,id:string,input:ThemeAction) {
     if(input.action!=='rename'&&input.title)throw new HttpError(400,'UNEXPECTED_TITLE')
     const nextStatus=input.action==='pause'?'paused':input.action==='resume'?(theme.origin==='user_stated'?'active':'pending'):input.action==='revoke'?'retired':theme.status
     const updated=(await c.query("UPDATE user_themes SET title=COALESCE($3,title), title_locked=CASE WHEN $4='rename' THEN true ELSE title_locked END, pinned=CASE WHEN $4='pin' THEN true WHEN $4='unpin' THEN false ELSE pinned END, status=$5, revision=revision+1, updated_at=now() WHERE user_id=$1 AND id=$2 RETURNING *",[user,id,input.action==='rename'?input.title!.trim().slice(0,60):null,input.action,nextStatus])).rows[0]
-    if(input.action==='revoke'||input.action==='pause')await c.query("UPDATE experience_theme_links SET status='retired', revision=revision+1 WHERE user_id=$1 AND theme_id=$2 AND status='active'",[user,id])
-    if(input.action==='resume')await c.query("UPDATE experience_theme_links SET status='active', revision=revision+1 WHERE user_id=$1 AND theme_id=$2 AND status='retired'",[user,id])
+    // Paused themes are already excluded by the theme availability gate. Keep
+    // each link's own decision intact: resume is not consent to undo a revoked
+    // link (including links retired by earlier versions or changed evidence).
+    if(input.action==='revoke')await c.query("UPDATE experience_theme_links SET status='retired', revision=revision+1 WHERE user_id=$1 AND theme_id=$2 AND status='active'",[user,id])
     await c.query('INSERT INTO user_operations(user_id,request_id,fingerprint,response) VALUES($1,$2,$3,$4)',[user,input.requestId,fingerprint,updated])
     return updated
   })
@@ -470,11 +951,11 @@ export async function themeLinkAction(user:string,experienceId:string,themeId:st
 // 阻止保存并要求重试，绝不基于过期理解落盘。
 export async function assertStarMapSnapshot(c: PoolClient, user: string, snapshot: { themes: { id: string; revision: number }[]; links: { experienceId: string; themeId: string; revision: number }[] }): Promise<void> {
   for (const entry of snapshot.themes ?? []) {
-    const row = (await c.query('SELECT revision FROM user_themes WHERE user_id=$1 AND id=$2', [user, entry.id])).rows[0]
+    const row = (await c.query('SELECT revision FROM user_themes WHERE user_id=$1 AND id=$2 FOR SHARE', [user, entry.id])).rows[0]
     if (!row || row.revision !== entry.revision) throw new HttpError(409, 'STARMAP_SNAPSHOT_INVALIDATED')
   }
   for (const entry of snapshot.links ?? []) {
-    const row = (await c.query('SELECT revision FROM experience_theme_links WHERE user_id=$1 AND experience_id=$2 AND theme_id=$3', [user, entry.experienceId, entry.themeId])).rows[0]
+    const row = (await c.query('SELECT revision FROM experience_theme_links WHERE user_id=$1 AND experience_id=$2 AND theme_id=$3 FOR SHARE', [user, entry.experienceId, entry.themeId])).rows[0]
     if (!row || row.revision !== entry.revision) throw new HttpError(409, 'STARMAP_SNAPSHOT_INVALIDATED')
   }
 }
@@ -491,8 +972,23 @@ export async function claimAction(user:string,id:string,input:{requestId:string;
   })
 }
 
+async function semanticSkillTags(user:string,rows:{id:string;source_message_id?:string;source_quote?:string;quote?:string;content:any}[]):Promise<Map<string,string[]>>{
+  const proofs=await experienceFactBindings(pool,user,rows.map(row=>row.id))
+  return new Map(rows.flatMap(row=>{
+    const content=row.content??{},hash=createHash('sha256').update(String(content.action??'')).digest('hex')
+    const proof=proofs.get(row.id)
+    return proof?[[row.id,proof.valid&&['self','joint'].includes(proof.actor)&&proof.contentHash===hash?proof.skillTags:[]] as [string,string[]]]:[]
+  }))
+}
+
 export async function cognitionGraph(user:string) {
-  const experiences=(await listExperiences(user)).filter(e=>e.status==='confirmed')
+  const records=await listExperiences(user),experiences=records.filter(e=>e.status==='confirmed')
+  const candidates=records.filter(e=>e.status==='candidate')
+  const candidateBindings=await experienceFactBindings(pool,user,candidates.map(e=>e.id))
+  const pending=candidates.filter(e=>{
+    const binding=candidateBindings.get(e.id)
+    return binding?.valid&&binding.actor==='unknown'&&Boolean(binding.actionQuote)&&binding.contentHash===createHash('sha256').update(binding.actionQuote!).digest('hex')&&!experiences.some(known=>known.content?.action===binding.actionQuote)
+  })
   const suppression=await experienceSuppressionIndex(user)
   // Only a versioned, direct user correction authorizes result-field readback.
   // Model-extracted and legacy result strings are not promoted to testimony.
@@ -500,19 +996,20 @@ export async function cognitionGraph(user:string) {
     WHERE user_id=$1 AND experience_id=ANY($2::uuid[]) AND action='correct'
     AND snapshot->'correction'->>'version'='1' AND snapshot->'correction'->'changedFields' ? 'result'
     ORDER BY experience_id,revision DESC`,[user,experiences.map(e=>e.id)])).rows.map(row=>[row.experience_id,row]))
-  const outcomeSources=(await pool.query("SELECT sources FROM growth_items WHERE user_id=$1 AND status='active'",[user])).rows
+  const growthState=await growthView(user)
+  const availableFacts=growthState.items.filter(item=>item.status==='active'&&!item.unavailableReason)
+  const outcomeSources=availableFacts.filter(item=>item.assertion==='user_reported')
   const outcomeMessageIds=[...new Set<string>(outcomeSources.flatMap(row=>(row.sources??[]).filter((s:any)=>s.type==='message').map((s:any)=>String(s.id))))]
-  const outcomeMessages=(await pool.query("SELECT m.id,m.content,m.created_at FROM messages m WHERE m.user_id=$1 AND m.id=ANY($2::uuid[]) AND m.role='user' AND NOT EXISTS(SELECT 1 FROM memory_suppressions s WHERE s.user_id=m.user_id AND s.source_message_id=m.id) AND NOT EXISTS(SELECT 1 FROM growth_source_suppressions s WHERE s.user_id=m.user_id AND (strpos(m.content,s.quote)>0 OR strpos(s.quote,m.content)>0)) ORDER BY m.created_at,m.id",[user,outcomeMessageIds])).rows
+  const outcomeMessages=(await pool.query("SELECT m.id,m.content,m.created_at FROM messages m WHERE m.user_id=$1 AND m.id=ANY($2::uuid[]) AND m.role='user' ORDER BY m.created_at,m.id",[user,outcomeMessageIds])).rows
   // A short performed action can inherit identity from one earlier, explicit
   // personal contact intention in its own session, or an explicit prior-action
   // back-reference while memory is enabled. It remains identity context,
   // never proof of action or effect. Multiple intentions stay ambiguous.
-  const contactIntentions=(await pool.query(`SELECT g.conversation_id,g.text,m.created_at FROM growth_items g
-   JOIN messages m ON m.user_id=g.user_id AND EXISTS(SELECT 1 FROM jsonb_array_elements(g.sources) s WHERE s->>'type'='message' AND s->>'id'=m.id::text)
-   WHERE g.user_id=$1 AND g.kind IN ('goal','context') AND g.status='active' AND g.assertion='user_reported' AND m.role='user'
-   AND EXISTS(SELECT 1 FROM user_memory_settings WHERE user_id=$1 AND enabled=true)
-   AND NOT EXISTS(SELECT 1 FROM memory_suppressions s WHERE s.user_id=m.user_id AND s.source_message_id=m.id)
-   AND NOT EXISTS(SELECT 1 FROM growth_source_suppressions s WHERE s.user_id=m.user_id AND s.message_id=m.id AND strpos(g.text,s.quote)>0)`,[user])).rows
+  const messageById=new Map(outcomeMessages.map(message=>[message.id,message]))
+  const contactIntentions=growthState.memoryEnabled?outcomeSources.filter(item=>['goal','context'].includes(item.kind)).flatMap(item=>item.sources.flatMap(source=>{
+   const message=source.type==='message'?messageById.get(source.id):undefined
+   return message?[{conversation_id:item.conversationId,text:item.text,created_at:message.created_at}]:[]
+  })):[]
   const identityEpisodes=experiences.map(episode=>{
    if(!/发了消息|发了邮件|发了封邮件/.test(episode.source_quote??'')||/(?:学长|学姐|导师|老师|客户|同学)[甲乙丙丁A-Z]/.test(episode.source_quote??''))return episode
    const contexts=contactIntentions.filter(g=>(g.conversation_id===episode.conversation_id||/按上次|上次那|之前说的/.test(episode.source_quote??''))&&g.created_at<=episode.created_at&&scanUserClauses(g.text).some(c=>!c.quoted&&!c.code&&!c.conditional&&!c.interrogative&&!c.attributedToOther&&/(?:想|打算|决定).{0,12}(?:请教|联系)|(?:想|打算|决定).{0,4}(?:向|给).{0,12}(?:请教|联系)/.test(c.text)&&/(?:学长|学姐|导师|老师|同学)[甲乙丙丁A-Z]/.test(c.text)))
@@ -526,10 +1023,15 @@ export async function cognitionGraph(user:string) {
   const selfRow=seed.nodes.find(n=>n.type==='self')!
   // 中央“当前的我”三分组：用户认可的自述 / 正在探索的身份可能 / 有证据
   // 待核对的观察（当前 AI 观察不自动生成，组保持空白而非编造）。
-  const claims=(await pool.query("SELECT id, text, origin, confirmed_by_user FROM identity_claims WHERE user_id=$1 AND status='active' ORDER BY updated_at DESC LIMIT 4",[user])).rows
+  const claims=(await readIdentityClaims(pool,user)).slice(0,4)
   const accepted=claims.filter(c=>c.confirmed_by_user).map(c=>c.text)
   const observations=claims.filter(c=>!c.confirmed_by_user).map(c=>c.text)
-  const skillTagList = await readSkillTags(pool, user)
+  const sourceCheckedExperienceFields=await currentExperienceEvidence(pool,user,experiences)
+  const interpretedSkills=await semanticSkillTags(user,sourceCheckedExperienceFields)
+  const currentExperienceFields=sourceCheckedExperienceFields.map(row=>({...row,interpretedSkillTags:interpretedSkills.get(row.id)}))
+  const currentExperienceById=new Map(currentExperienceFields.map(row=>[row.id,row]))
+  const currentTitleFor=(id:string)=>{const row=currentExperienceById.get(id);return row?.correctionProjection?String(row.content?.summary||row.content?.action||'已更正的经历').slice(0,36):row?.content?.title??''}
+  const skillTagList = summarizeSkillTags(currentExperienceFields)
   // Recorded tasks establish evidence about those tasks, not an identity level.
   const selfDescriptionParts=[...(accepted.length?[`我认可的自述：${accepted.join('；')}`]:[]),...(observations.length?[`待核对的观察：${observations.join('；')}`]:[]),...(skillTagList.length?[`本次任务涉及：${skillTagList.map(t=>t.tag).join('、')}；稳定能力仍未知`]:[])]
   const self={...selfRow,description:selfDescriptionParts.join('\n')||'当前还没有本人确认的自我描述。',identityAccepted:accepted,identityObservations:observations,skillTags:skillTagList} as any
@@ -538,18 +1040,23 @@ export async function cognitionGraph(user:string) {
   // historical unstarted-status projections never become a current pursuit.
   const pausedThemeLabels=new Set((await readDirectionControls(user)).filter(control=>control.state==='paused').map(control=>{const label=directionScopeLabel(control.scope);return matchPathTheme(label)?.title??label}))
   const nodes=[self] as any[]
-  const storedThemes=(await pool.query(`SELECT t.*,
-    count(l.experience_id) FILTER (WHERE l.status='active')::int AS "linkedExperienceCount",
-    count(l.experience_id) FILTER (WHERE l.status='active' AND l.confirmed=true)::int AS "confirmedExperienceCount"
-    FROM user_themes t LEFT JOIN experience_theme_links l ON l.user_id=t.user_id AND l.theme_id=t.id
-    WHERE t.user_id=$1 AND t.status IN ('active','pending')
-    GROUP BY t.user_id,t.id`,[user])).rows
-  const currentFacts=(await growthView(user)).items.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped)
+  const storedThemes=(await pool.query("SELECT * FROM user_themes WHERE user_id=$1 AND status IN ('active','pending','paused')",[user])).rows
+  const currentFacts=availableFacts.filter(item=>!item.recommendationStopped)
   const projectedThemes=storedThemes.map(theme=>currentThemeProjection(theme,currentFacts))
   const invalidThemeIds=new Set(storedThemes.filter((_,index)=>!projectedThemes[index]).map(theme=>theme.id))
-  const validThemes=projectedThemes.filter((theme):theme is NonNullable<typeof theme>=>theme!==null)
-  const themes=rankPrimaryThemes(validThemes)
-  const unchangedThemeIdentities=new Set(validThemes.filter(theme=>storedThemes.some(raw=>raw.id===theme.id&&raw.title===theme.title&&raw.kind===theme.kind)).map(theme=>theme.id))
+  const projected=projectedThemes.filter((theme):theme is NonNullable<typeof theme>=>theme!==null)
+  const unchangedThemes=projected.filter(theme=>storedThemes.some(raw=>raw.id===theme.id&&raw.title===theme.title&&raw.kind===theme.kind))
+  const storedLinks=(await pool.query("SELECT * FROM experience_theme_links WHERE user_id=$1 AND status='active' AND experience_id=ANY($2::uuid[])",[user,experiences.map(e=>e.id)])).rows
+  const themeLinks=await currentThemeLinks(pool,user,storedLinks,experiences,unchangedThemes,currentFacts)
+  const themeById=new Map(unchangedThemes.map(theme=>[theme.id,theme]))
+  const validThemes=projected.map(theme=>{
+    const links=themeLinks.filter(link=>link.theme_id===theme.id)
+    return {...theme,linkedExperienceCount:links.length,confirmedExperienceCount:links.filter(link=>link.confirmed).length}
+  })
+  // Keep paused themes reachable for explicit resume, without ranking them as
+  // current priorities or exposing them through the model's active-theme query.
+  const themes=[...rankPrimaryThemes(validThemes.filter(theme=>theme.status!=='paused')),
+    ...validThemes.filter(theme=>theme.status==='paused').map(theme=>({...theme,primaryReason:'本人已暂缓，可在主题详情恢复'}))]
   const pursuitFacts=currentFacts
   const pausedMatter=currentFacts.find(item=>item.taskBoundary?.matterBinding==='needs_same_matter_confirmation')?.taskBoundary
   const starmapNextStep=pausedMatter?`已暂停「${pausedMatter.targetText}」相关事项；原始事实保留，等待你主动继续。`:themeNextStep(themes,pausedThemeLabels,pursuitFacts)
@@ -578,7 +1085,7 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
       // "老师后来回复") to update the matching episode without requiring the
       // same message to restate the student's original action.
       for(const [key,outcome] of Object.entries(taskOutcomeReadback(message.content,authorizedQuotes,false,true))){
-        if(outcome.quote&&suppression.suppressedText(outcome.quote))continue
+        if(outcome.quote&&suppression.suppressedText(message.id,outcome.quote))continue
         // An explicit unknown (quote present) replaces an older positive/negative
         // readback. A silent dimension (no quote) does not erase history.
         if(outcome.status!=='unknown'||outcome.quote)taskOutcomes[key]={...outcome,sourceMessageId:message.id,reportedAt:new Date(message.created_at).toISOString()}
@@ -592,22 +1099,26 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
       const reports=reportedEvidenceFromText(String(e.content.result??'')).participants
       if(reports.length===1)for(const key of Object.keys(taskOutcomes)){
         const outcome=reports[0].states[key as keyof typeof reports[0]['states']]
-        if(outcome&&(outcome.status!=='unknown'||outcome.quote)&&!suppression.suppressedText(outcome.quote??String(e.content?.result??'')))taskOutcomes[key]={...outcome,sourceExperienceRevision:correction.revision,sourceField:'result',...(e.result_source_message_id?{sourceMessageId:e.result_source_message_id}:{}),reportedAt:new Date(correction.created_at).toISOString()}
+        if(outcome&&(outcome.status!=='unknown'||outcome.quote)&&!suppression.suppressedText(e.result_source_message_id??e.source_message_id,outcome.quote??String(e.content?.result??'')))taskOutcomes[key]={...outcome,sourceExperienceRevision:correction.revision,sourceField:'result',...(e.result_source_message_id?{sourceMessageId:e.result_source_message_id}:{}),reportedAt:new Date(correction.created_at).toISOString()}
       }
     }
-    const expAction = String(e.content?.action ?? ''), expResult = String(e.content?.result ?? ''), expSummary = String(e.content?.summary ?? '')
-    const expBlocked = isBlockedExperience(expAction, expResult, e.source_quote ?? '')
-    const expExternal = isExternalFeedback(expResult, e.source_quote ?? '')
-    const expSkills = extractSkillTags(expAction, expResult, expSummary)
+    const currentEvidence=currentExperienceById.get(e.id)
+    const currentFields=currentEvidence?.content??{}
+    const expAction = String(currentFields.action ?? ''), expResult = String(currentFields.result ?? ''), expSummary = String(currentFields.summary ?? '')
+    const currentTitle=currentTitleFor(e.id)
+    const expBlocked = isBlockedExperience(expAction, expResult, currentEvidence?.source_quote ?? '')
+    const feedbackEvidence=reportedExternalFeedback([currentEvidence?.source_quote,String(currentFields.result??'')].filter(Boolean).join('；'))
+    const expExternal = ['positive','negative','reported'].includes(feedbackEvidence.status)
+    const expSkills = extractSkillTags(String(currentFields.action??''),String(currentFields.result??''),String(currentEvidence?.source_quote??''),currentEvidence?.interpretedSkillTags)
     // 为每个经历节点生成洞察（零模型调用，基于已有数据）
-    const expThemes = (await pool.query("SELECT t.title, l.relation FROM experience_theme_links l JOIN user_themes t ON t.user_id=l.user_id AND t.id=l.theme_id WHERE l.user_id=$1 AND l.experience_id=$2 AND l.status='active'", [user, e.id])).rows
-    const expRelated = (await pool.query("SELECT e2.content->>'title' as title, er.score FROM experience_relations er JOIN experiences e2 ON e2.user_id=er.user_id AND e2.id=er.to_experience WHERE er.user_id=$1 AND er.from_experience=$2 AND NOT (er.relation='follows' AND er.reason='时间上先后发生') ORDER BY er.score DESC LIMIT 3", [user, e.id])).rows
+    const expThemes=themeLinks.filter(link=>link.experience_id===e.id).map(link=>({title:themeById.get(link.theme_id)!.title,relation:link.relation}))
+    const expRelated = (await pool.query("SELECT e2.id, er.score FROM experience_relations er JOIN experiences e2 ON e2.user_id=er.user_id AND e2.id=er.to_experience WHERE er.user_id=$1 AND er.from_experience=$2 AND e2.id=ANY($3::uuid[]) AND NOT (er.relation='follows' AND er.reason='时间上先后发生') ORDER BY er.score DESC LIMIT 3", [user, e.id,experiences.map(row=>row.id)])).rows
     const expInsight = generateInsight({
-      title: e.content.title, summary: expSummary, action: expAction, result: expResult,
+      title: currentTitle, summary: expSummary, action: expAction, result: expResult,
       occurredAt: String(e.content?.occurredAt ?? ''), skillTags: expSkills,
       blocked: expBlocked, externalFeedback: expExternal,
-      connectedThemes: expThemes.map(t => ({ title: t.title, relation: t.relation })),
-      relatedExperiences: expRelated.map(r => ({ title: String(r.title ?? ''), score: Number(r.score) })),
+      connectedThemes: expThemes,
+      relatedExperiences: expRelated.map(r => ({ title: currentTitleFor(r.id), score: Number(r.score) })),
       identityLevel: 0, identityName: '', nextIdentity: '', identityNextHint: '',
     })
     const outcomeKeys=applicableExperienceOutcomes({summary:expSummary,action:expAction,result:expResult,sourceQuote:String(e.source_quote??''),outcomes:taskOutcomes})
@@ -624,15 +1135,23 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
       const owned=clauses.some(clause=>/(?:我|本人)/.test(clause.text)||/^(?:老师|导师|同学|学长|学姐|客户|对方|他|她).{0,10}(?:回复|说|确认|反馈|采用|使用|试过|读过|未读|没回复)/.test(clause.text.trim()))
       if(owned&&clauses.length&&clauses[0]!.start===at&&clauses.at(-1)!.end===end&&clauses.every(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!assistantRequestClause(clause.text)&&!clause.quoteSpans.some(span=>span.end>at&&span.start<end)&&!clause.codeSpans.some(span=>span.end>at&&span.start<end))){originalResult=true;break}
     }
-    const resultSuppressed=[expAction,expResult,expSummary].some(text=>text&&suppression.suppressedText(text))
-    const resultBasis=resultSuppressed?'unverified_record':explicitResultCorrection?'record_correction':originalResult?'source_report':'unverified_record'
-    const asReported=resultBasis==='unverified_record'?undefined:{basis:resultBasis,result:expResult,recordedAt:new Date(e.updated_at).toISOString(),sourceExperienceRevision:e.revision,...(explicitResultCorrection?{reportedAt:new Date(correction.created_at).toISOString(),...(e.result_source_message_id?{sourceMessageId:e.result_source_message_id}:{})}:originalResult?{reportedAt:new Date(e.source_reported_at).toISOString(),sourceMessageId:e.source_message_id}:{})}
-    const safeContent=resultSuppressed?{...e.content,action:'',result:'',summary:''}:e.content
+    const resultSuppressed=[expAction,expSummary].some(text=>text&&suppression.suppressedActionText(e,text))||suppression.suppressedResultText(e,expResult)
+    const proof=e[experienceResultSource] as (SourceControlRef&{reportedAt:Date})|undefined
+    const resultSource=proof?.quote===expResult?proof:originalResult?{messageId:e.source_message_id,reportedAt:e.source_reported_at}:undefined
+    const resultBasis=resultSuppressed?'unverified_record':explicitResultCorrection?'record_correction':resultSource?'source_report':'unverified_record'
+    const asReported=resultBasis==='unverified_record'?undefined:{basis:resultBasis,result:expResult,recordedAt:new Date(e.updated_at).toISOString(),sourceExperienceRevision:e.revision,...(explicitResultCorrection?{reportedAt:new Date(correction.created_at).toISOString(),...(e.result_source_message_id?{sourceMessageId:e.result_source_message_id}:{})}:resultSource?{reportedAt:new Date(resultSource.reportedAt).toISOString(),sourceMessageId:resultSource.messageId}:{})}
+    const currentContent={...e.content,...currentFields,title:currentTitle}
+    const safeContent=resultSuppressed?{...currentContent,action:'',result:'',summary:''}:currentContent
     const safeSummary=resultSuppressed?{...experienceSummary,result:'',reflection:''}:experienceSummary
     const safeInsight=resultSuppressed?undefined:expInsight
-    nodes.push({id,type:'experience',...safeContent,title:e.content.title,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,taskOutcomes:applicableTaskOutcomes,outcomeKeys,skillTags:expSkills,insight:safeInsight,experienceSummary:safeSummary,resultBasis,asReported} as any)
+    nodes.push({id,type:'experience',...safeContent,title:currentTitle,contentStatus:e.confirm_source==='auto'?'auto_confirmed':'user_confirmed',evidenceStatus:'user_testimony',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:expBlocked,externalFeedback:expExternal,feedbackEvidence,taskOutcomes:applicableTaskOutcomes,outcomeKeys,skillTags:expSkills,insight:safeInsight,experienceSummary:safeSummary,resultBasis,asReported} as any)
   }
-  const themeLinks=(await pool.query("SELECT * FROM experience_theme_links WHERE user_id=$1 AND status='active'",[user])).rows
+  // Existing node fields show a clearly labelled report, not "what I did" or
+  // an inferred ability. Candidates never enter the confirmed evidence above.
+  for(const e of pending){
+    const raw=candidateBindings.get(e.id)!.actionQuote!,stored=String(e.content?.summary??''),summary=(/执行者尚待核验/.test(stored)?stored:'执行者尚待核验，不作为本人能力或结果依据。\n'+stored)+(stored.includes(raw)?'':'\n报告原文：'+raw)
+    nodes.push({id:'exp-'+e.id,type:'experience',title:'待核验的行动报告',summary,description:'原文行动报告，归属待确认。',action:'',result:'',reflection:'',occurredAt:e.content?.occurredAt??'',source:e.content?.source??'',contentStatus:'candidate',evidenceStatus:'unverified_record',overviewOrder:nodes.length,media:[],serverId:e.id,serverRevision:e.revision,extractionSource:e.extraction_source??'model',conversationId:e.conversation_id,conversationTitle:e.conversation_title,sourceMessageId:e.source_message_id,blocked:false,externalFeedback:false,taskOutcomes:{},outcomeKeys:[],skillTags:[],resultBasis:'unverified_record'} as any)
+  }
   const expRelations=(await pool.query("SELECT * FROM experience_relations WHERE user_id=$1 AND NOT (relation='follows' AND reason='时间上先后发生') ORDER BY created_at DESC LIMIT 10",[user])).rows
   const nodeIds=new Set(nodes.map(n=>n.id))
   for(const rel of expRelations){
@@ -641,7 +1160,6 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
     edges.push({id:'exp-rel-'+rel.from_experience+'-'+rel.to_experience,type:'RELATES_TO_EXPERIENCE',sourceId,targetId,reason:rel.reason||rel.relation,status:rel.relation,sourceEvidence:[],confidence:rel.score,sourceEvidenceType:'experience_relation'} as any)
   }
   for(const link of themeLinks){
-    if(!unchangedThemeIdentities.has(link.theme_id))continue
     const sourceId='exp-'+link.experience_id,targetId='theme-'+link.theme_id
     if(!nodeIds.has(sourceId)||!nodeIds.has(targetId))continue
     const experience=experiences.find(e=>e.id===link.experience_id)
@@ -649,8 +1167,10 @@ ${theme.summary}`,overviewOrder:nodes.length,themeId:theme.id,themeKind:theme.ki
   }
   const valueOrder=themes.map(theme=>'theme-'+theme.id)
   return {...seed,purpose:'当前登录用户的成长星图：主题来自本人陈述的目标与追求',notice:'主题来自你亲口说的目标和追求，可置顶、重命名、暂缓或撤销；经历由对话自动收入，可随时修改或删除。',nodes,edges,
-    viewConfig:{...seed.viewConfig,valueOrder,overviewExperienceOrder:experiences.map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false,starmapNextStep,changeEvents:changeEvents.filter(event=>event.subject_type!=='theme'||!invalidThemeIds.has(event.subject_id)).map(event=>{
-      const current=event.subject_type==='theme'?validThemes.find(x=>x.id===event.subject_id)?.title:event.subject_type==='experience'?experiences.find(x=>x.id===event.subject_id)?.content?.title:event.subject_type==='identity_claim'?claims.find(x=>x.id===event.subject_id)?.text:undefined
-      return {subjectType:event.subject_type,transition:event.transition,reason:current?event.reason:'原记录已改变、结束或撤回，不再展示历史原话。',committedAt:event.committed_at,userConfirmation:event.user_confirmation,before:event.old_snapshot?'此前记录已被更新；历史原话不在此重新展示。':undefined,now:current?String(current):'这项记录当前不可用于建议。',unknowns:current?event.unknowns:''}
+    viewConfig:{...seed.viewConfig,valueOrder,overviewExperienceOrder:[...experiences,...pending].sort((a,b)=>new Date(b.updated_at).getTime()-new Date(a.updated_at).getTime()).map(e=>'exp-'+e.id)},storage:'postgresql',interpretationsAutomaticallyConfirmed:false,starmapNextStep,changeEvents:changeEvents.filter(event=>event.subject_type!=='theme'||!invalidThemeIds.has(event.subject_id)).map(event=>{
+      const currentExperience=event.subject_type==='experience'?[...experiences,...pending].find(x=>x.id===event.subject_id):undefined
+      const current=event.subject_type==='theme'?validThemes.find(x=>x.id===event.subject_id)?.title:event.subject_type==='experience'?currentExperience?.content?.title:event.subject_type==='identity_claim'?claims.find(x=>x.id===event.subject_id)?.text:undefined
+      const candidateResolved=event.subject_type==='experience'&&event.transition==='created'&&event.reason==='新增待核对的原文行动报告'&&currentExperience?.status==='confirmed'
+      return {subjectType:event.subject_type,transition:event.transition,reason:current?(candidateResolved?'该报告创建时归属待核验，现已由本人确认。':event.reason):'原记录已改变、结束或撤回，不再展示历史原话。',committedAt:event.committed_at,userConfirmation:candidateResolved?'confirmed':event.user_confirmation,before:event.old_snapshot?'此前记录已被更新；历史原话不在此重新展示。':undefined,now:current?String(current):'这项记录当前不可用于建议。',unknowns:current&&!candidateResolved?event.unknowns:''}
     })}
 }

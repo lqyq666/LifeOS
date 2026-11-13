@@ -1,3 +1,4 @@
+import {scanUserClauses} from './user-command-spans.ts'
 /** Explicit time evidence only. No inferred semester, deadline or model timestamp. */
 export type Zone = 'Asia/Shanghai' | 'UTC'
 export type TimeEvidence =
@@ -14,6 +15,7 @@ export class TimeEvidenceError extends Error {
 }
 const fail = (): never => { throw new TimeEvidenceError('GROWTH_TIME_UNVERIFIED') }
 const DAY = 86_400_000
+const todayAvailability=(text:string)=>scanUserClauses(text).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!clause.quoteSpans.length&&!clause.codeSpans.length&&/^(?:今天(?:我|本人)?|(?:我|本人)今天)(?:目前|现在)?(?:(?:只(?:有|剩)|仅(?:有|剩)|最多|能用|可以用|可用|有|剩)\s*(?:\d+(?:\.\d+)?|[零一二两三四五六七八九十百]+)(?:个)?(?:小时|钟头|分钟)(?:可用|的可用时间)?|(?:剩余|可用)时间(?:是|为|只剩)?(?:零|0)|没有(?:可用|空闲)?时间)$/.test(clause.text))
 function offset(zone: Zone): number {
   if (zone !== 'Asia/Shanghai' && zone !== 'UTC') return fail()
   return zone === 'Asia/Shanghai' ? 8 * 3_600_000 : 0
@@ -58,7 +60,11 @@ export function resolveTimeWindow(
   if (evidence.kind === 'date_inclusive') {
     const [y, m, d] = dateParts(evidence.date)
     const match = /^(?:截至|截止到?|直到|到)\s*(20\d{2})(?:年|-)(\d{1,2})(?:月|-)(\d{1,2})日?$/.exec(evidence.quote)
-    if (!match || +match[1]! !== y || +match[2]! !== m || +match[3]! !== d) return fail()
+    if(evidence.quote==='今天'){
+      if(!todayAvailability(sourceText))return fail()
+      const local=new Date(now+zoneOffset)
+      if(local.getUTCFullYear()!==y||local.getUTCMonth()+1!==m||local.getUTCDate()!==d)return fail()
+    }else if (!match || +match[1]! !== y || +match[2]! !== m || +match[3]! !== d) return fail()
     // Inclusive user-facing cutoff day, right-open interval: 截至10月20日 in
     // Shanghai ends at Shanghai Oct 21 00:00 (Oct 20 16:00 UTC).
     until = Date.UTC(y, m - 1, d + 1) - zoneOffset
@@ -92,6 +98,10 @@ export function resolveTimeWindow(
 // amount of effort ("还有两小时") or from a semester/tomorrow mention.
 export function explicitTimeEvidenceCandidates(sourceText:string,requestTimeUtc:string,zone:Zone):TimeEvidence[]{
   const candidates:TimeEvidence[]=[]
+  if(todayAvailability(sourceText)){
+    const local=new Date(Date.parse(requestTimeUtc)+offset(zone))
+    if(Number.isFinite(local.getTime()))candidates.push({kind:'date_inclusive',date:local.toISOString().slice(0,10),quote:'今天'})
+  }
   for(const match of sourceText.matchAll(/本周|这周|下周/g))candidates.push({kind:'calendar_week',which:match[0]==='下周'?'next':'this',quote:match[0]})
   const cutoff=quoteStatedCutoff(sourceText,zone)
   if(cutoff)candidates.push({kind:'date_inclusive',date:cutoff.date,quote:cutoff.quote})

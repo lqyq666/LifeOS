@@ -1,51 +1,56 @@
-﻿import {explicitTimeEvidenceCandidates} from './growth-time.ts'
-import {taskPauseNeedsClarification} from './user-command-spans.ts'
+import {collectReplyMemoryReferences} from './reply-memory-references.ts'
+import {explicitTimeEvidenceCandidates} from './growth-time.ts'
+import {taskPauseNeedsClarification,profileWritesDisallowed,reportedPurposeClause,actionWriteRestrictions} from './user-command-spans.ts'
+import {streamingReplyText} from './reply-stream.ts'
 import {ownedOpenDefinitionQuestion,boundedTimedObservationPreview} from './reply-draft.ts'
 import {surfaceDirectionScopes} from './growth-controls.ts'
 import {randomUUID,createHash} from 'node:crypto'
 import {mkdirSync,writeFileSync,appendFileSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
-import {mainCompanionPolicy} from './companion-policy.ts'
+import {directOrdinaryPolicy,mainCompanionPolicy,readOnlyDecisionPolicy} from './companion-policy.ts'
 import {grillingInteractionMode} from './grilling-policy.ts'
 import {providerReservationCny,reserveProviderSpend,settleProviderSpend} from './provider-spend.ts'
 import {config} from './config.ts'
-import { searchCoachEvents } from './coach-retrieval.ts'
+import { searchCoachEvents, readMatterWorkingSet,readPriorDecision } from './coach-retrieval.ts'
+import {rebaseActualDecisionConditions,actualDecisionConditionText as actualConditionsText,reportedComparisonFactClauses,comparisonFactText,continuesDecisionContext,compileDecisionConditions,authorizedDecisionConditions,ownsDecisionCondition,projectDecisionCases,decisionProposalContract,bindDecisionProposalSchema,projectDecisionProposalWire,validateDecisionProposal,decisionReplyInternalFieldsVisible,type DecisionProposal,type DecisionConditions} from './decision-comparison.ts'
+import {reportedActualComparisonClauses,reportedActionProgress,reportedDatedMatterChoice,reportedDatedMatterTitle,reportedNamedMatterAcceptance,reportedSwitchedMatterChoice,acceptedStepFromQuote,matchesAcceptedPartialAction,reportedPartialActionOutcomes,projectMatterReport} from './workflows/action-review.ts'
 import { retrieveCoachKnowledgeCandidates, validateCoachCitations, readApprovedGuide } from './coach-knowledge.ts'
-import { openingQuestionDraft, openUnreportedChoiceQuestion, openPresupposedProblemQuestion, removePrematureDemoStep, removePrematureProductization, groundSingleLeadWithoutProduct, removeQuestionOnZeroTime, limitGrillingQuestions, removeUnsupportedContactChannels, groundUnsupportedOperationalResources, prioritizeReportedAccessFailure, groundReportedAccessAlternative, fixReportedReceiptState, acknowledgeRefusalBoundary, repairUnsupportedPreferenceClaim, repairUnsupportedZeroTimeClaim, enforceReportedQuantity, ensureZeroTimeFocus, removeZeroTimeTasks, ensureLowCostSelfStart, ensureTwoFactorPresenceChange, guardHealthTwoFactor, groundClickablePrototype, ensureClickableValidation, fixClickableCountConsistency, softenSingleObservationCausality, ensureRequestedQuestion, safeEarlySentence, groundedStateReadback, requestsOnlyStateReadback, retainsDraftText, groundedFeedbackPreview, provisionalStatePreview, provisionalQuestionPreview, provisionalCorrectionPreview, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
-import { boundedDistinctionReply,unresolvedTwoFactors,distinctionActionAccepts,repairReviewedDefects,repairStatusUpdate,closeDanglingReply } from './review-repairs.ts'
+import { openingQuestionDraft, observationEffectHypothesis, softenSingleObservationCausality, openUnreportedChoiceQuestion, removeQuestionOnZeroTime, enforceReportedQuantity, safeEarlySentence, groundedStateReadback, requestsOnlyStateReadback, retainsDraftText, groundedFeedbackPreview, provisionalStatePreview, provisionalQuestionPreview, provisionalCorrectionPreview, weeklyPlanDraft, weeklyPlanExplanation, requestsOneQuestionReply, type WeeklyPlanDraftExpectation } from './reply-draft.ts'
+import { boundedDistinctionReply,unresolvedTwoFactors,distinctionActionAccepts,repairStatusUpdate } from './review-repairs.ts'
 import { renderCoachReply } from './coach-reply.ts'
 import { stream, parseStreamingJson, type AssistantMessage } from '@mariozechner/pi-ai'
 import { HttpError, pool } from './db.ts'
 import {classifyProviderFailure,providerError,type ProviderFailureCategory} from './provider-errors.ts'
-import { parseActionCoachTurn, finalCoachJsonText, completeCoachJsonFrame, actionCoachTurnSchema, type ActionCoachTurn } from './action-coach-contracts.ts'
-import { coachEventView, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, requestsMaterialRewrite, coachMaterialPresentation,requestedBlankJobWorksheet,effectiveMaterialRequest,unchangedProposedAction,unknownQuestionTopicMatches, type CoachEvent } from './action-coach-events.ts'
+import { parseActionCoachTurn, finalCoachJsonText, completeCoachJsonFrame, replyBeforeMalformedOptionalFields, actionCoachTurnSchema, type ActionCoachTurn, type CoachOutputRejection } from './action-coach-contracts.ts'
+import { coachEventView, coachEventViewWithSources, stageCoachEvent, deliverableIntent, requiresImmediateMaterial, requestsMaterialRewrite, coachMaterialPresentation,requestedBlankJobWorksheet,effectiveMaterialRequest,unchangedProposedAction,unknownQuestionTopicMatches,validateReadOnlyCoachDraft,coachMaterialVisibility,viewOnlyDraftComplete, type CoachEvent, type CoachEventSourceBindings } from './action-coach-events.ts'
 import { estimateTokens } from './context.ts'
 import { loadSnapshot, stageCoachBackground } from './memory.ts'
 import { readKnownMajor } from './model-router.ts'
 import { modelCapabilityVerified, modelSignatureFor, resolveModel, type ModelPricing, type ModelRuntime, type ModelTier } from './model.ts'
 import { checkModelCooldown } from './operations.ts'
-import { stageCandidate, type Run, type Staged } from './store.ts'
+import { acquireProviderDispatchFence,stageCandidate,readInterviewChronologySnapshot, type ProviderDispatchFence,type Run, type Staged } from './store.ts'
 import type {GrowthItem} from '../src/features/growth/types.ts'
-import { buildTurnPrompt, providerTurnMessages, turnSystemPrompt, promptResponseScopeRules } from './turn-prompt.ts'
-import { configureProviderPayload, outputTokenLimit, type OutputPath } from './model-payload.ts'
+import { SINGLE_QUESTION_GENERATION_RULES, SINGLE_ACTION_GENERATION_RULES, PERSONAL_ACTION_EVIDENCE_RULES, PARTIAL_FEEDBACK_EVIDENCE_RULE, REPLY_FIRST_STREAMING_RULE, GROUNDED_FEEDBACK_STREAMING_RULE, GROUNDED_ORDINARY_STREAMING_RULE, DIRECT_ORDINARY_REPLY_RULES, ORDINARY_REPLY_FIELD, MATTER_REPORT_RULE, MATTER_FEEDBACK_RULE, PERSISTENCE_RECEIPT_RULE, SEMANTIC_DELIVERY_RULES, EXPLICIT_LATEST_TIME, TENTATIVE_PROGRESS_CLAUSE, NEUTRAL_OTHER_REWRITE, understandingOpeningGenerationRules, buildTurnPrompt, ordinaryHistoryAnswerSources, providerTurnMessages, turnSystemPrompt, promptResponseScopeRules } from './turn-prompt.ts'
+import { configureProviderPayload, outputTokenLimit, supportsNativeStrictSchema, type OutputPath } from './model-payload.ts'
 import { estimateProviderCallCostCny } from './cost-workload.ts'
-import { growthContext, growthBoundaryContext, growthSnapshotKey, stageGrowthUpdates } from './growth.ts'
-import { normalizeModelFeedbackDelta } from './growth-model-normalize.ts'
+import { growthContext, growthSemanticContext, growthBoundaryContext, growthSnapshotKey, growthMessageSourceLocations, stageGrowthUpdates, preciseIsoFromEpochMicros } from './growth.ts'
+import { normalizeModelFeedbackDelta,reportedFeedbackProgress } from './growth-model-normalize.ts'
+import {resolveOccurredDate} from './growth-time.ts'
 import { selectRelevantGrowth, splitGrowthByCurrentTopic } from './growth-selection.ts'
 import { readDirectionControls, deriveExplicitDirectionControls, stageDirectionControls, overlayDirectionChanges, directionControlsSnapshotKey, directionScopeLabel, allScopes,mentionedDirectionScopes } from './growth-controls.ts'
-import { redactGrowthHistory } from './growth-privacy.ts'
+import { redactGrowthHistory,currentExperienceEvidence } from './growth-privacy.ts'
 import { cozeConfigFrom, cozeMissingConfig, searchCozePublicKnowledge, mapCozeCandidates, CozeRetrievalError } from './coze-knowledge.ts'
 import { codeWorkflowConfigFrom, codeWorkflowMissingConfig, searchCodeWorkflowKnowledge, CodeWorkflowError, type CodeWorkflowConfig } from './coze-code-workflow.ts'
 import { buildPublicKnowledgeQueryFromText, renderPublicKnowledgeQuery } from './coze-public-query.ts'
 import { reportsOwnContribution, buildMaterialFactCatalogue, resolveSelectedMaterialFacts, singleUniqueContributionFact } from './grounded-material.ts'
 import { stageWeeklyPlan, renderProposedWeeklyPlan, requiresPlanSlack, normalizeWeeklyPlanTasks, normalizeWeeklyPlanReply } from './weekly-plans.ts'
 import { ignorableConnectives } from './turn-obligations.ts'
-import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, repairReplyBudget, supplementMissingBudgetDeltas, planExplicitCorrection, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
-import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause,methodReferenceClause,responseRequestScope,closingOnlyInstruction } from './user-command-spans.ts'
-import { buildClauseCatalogue, resolveContiguousClauseRange, type ClauseHandle } from './clause-catalogue.ts'
-import { clauseExpressesWishToAct, clauseReportsCompleted, clauseReportsPastAction, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, sentenceIsFirstPersonPublic } from './experience-content.ts'
+import { applicableTimeBudget, deriveTurnObligations, isPureZeroPlanRequest, verifyTurnObligations, verifyReplyAgainstObligations, repairReplyBudget, supplementMissingBudgetDeltas, planExplicitCorrection, explicitCorrectionIntent, hoursIn, isPureControlCommand, controlReplyText, isObligationError, requestsTimeArrangement, type TurnObligations } from './turn-obligations.ts'
+import { scanUserClauses,assistantRequestClause,conversationPreferenceClause,currentConversationOnly,readbackRequestClause,deferredPursuitClause,refusalPreferenceClause,scopedTaskPauseClause,methodReferenceClause,responseRequestScope,comparisonRequestClause,closingOnlyInstruction,requestsMatterOverview,decisionComparisonRequest,requestsMatterDecision,requestsFeedbackStepRevision } from './user-command-spans.ts'
+import {resolveProcessSourceHandles,processSourceClauseId,processFactInputIndices,reportedContribution,clauseMessageSource,buildClauseCatalogue,constrainClauseCatalogueHandles,resolveContiguousClauseRange,sourceQuotesOverlap,sourceQuoteRanges,selectedSourceRange,inheritSourceRange,type ClauseHandle} from './clause-catalogue.ts'
+import { clauseExpressesWishToAct, clauseReportsCompleted, clauseReportsPastAction, deriveStructuralLinks, resolveCandidateContent, requiresExperienceCandidate, selectStructuralCandidate, selectStructuralCandidates, sentenceIsFirstPersonPublic } from './experience-content.ts'
 import { readStarMapContext } from './user-themes.ts'
-import { deriveTurnContract, bindPlanBudgetSchema, bindMaterialDeliverySchema,bindRequestedSummarySchema,bindRequestedComparisonSchema,comparisonReplyAccepts,summaryReplyAccepts,isSingleSentenceReply, requestsSingleQuestionMaterial,reportedPursuitClauses,reportedPreferenceClauses,negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses, reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,reportedAdoptionClauses } from './turn-contract.ts'
+import { deriveTurnContract, bindPlanBudgetSchema, bindMaterialDeliverySchema,bindRequestedSummarySchema,bindRequestedComparisonSchema,replyStreamingSchema,comparisonReplyAccepts, requestedComparisonCount,summaryReplyAccepts,isSingleSentenceReply, requestsSingleQuestionMaterial,reportedPursuitClauses,reportedPreferenceClauses,negativePersonalFactClauses, resourceBlockedPersonalFactClauses, reportedTaskOutcomeClauses, reportedPerformedTaskClauses,reportedTaskBoundaryClauses,requestedQuestionEditClauses,resolveRequestedQuestionEdit,selectedRequestedQuestionEditMemory,selectedRequestedQuestionEditMatter,selectedRequestedQuestionEditSource,questionEditMatchesMatter,interveningInterviewTexts,reportedAdoptionClauses } from './turn-contract.ts'
 import {unsupportedParticipantReadingClaims,unsupportedPreferenceConstraintClaims} from './turn-contract.ts'
 import {reportedSourceContextClauses,reportedCompletedContactClauses,completeUserReply,reportedExternalExpectationClauses,currentParticipantStatusReadback,reportedEvidenceFromText,exactFeedbackReadback,unrelatedExternalCorrection,sameReportedResponseSubject,reportedResponseContinuationTargets} from './turn-contract.ts'
 import {comparisonUniverseAccepts,requestedActionLimitAccepts} from './turn-contract.ts'
@@ -53,17 +58,19 @@ import { actionReviewHints, continuedActionUsage, canContinueGuideFeedback, auth
 import { selectHistoryForMode } from './history-selection.ts'
 import { goalChangeMarker } from './growth-authority.ts'
 import { resolveGrowthDeltas } from './growth-authority.ts'
-import { findEpisode } from './experience-episodes.ts'
+import { findEpisode,planExplicitExperienceSupplement } from './experience-episodes.ts'
 import { detectForgetIntentClauses, detectUnconfirmedLabelRejection, scoreForgetTargets, memoryControlSuccessClaims,violatesLabelInferenceBoundary,samePersonalLabel } from './forget-intent.ts'
 import { readRecommendationControls,listControlRequests } from './memory-controls.ts'
 import {knowledgeIntent,deduplicateGuides,methodPromptContext} from './evergreen-guide.ts'
-import {readGuideUsage,readPriorGuideEvents,classifyGuideFeedback,feedbackMatchesCurrent} from './guide-usage.ts'
+import {readGuideUsage,readPriorGuideEvents,classifyGuideFeedback,feedbackMatchesCurrent,guideFeedbackSource} from './guide-usage.ts'
 import {boundedOrdinaryReply,boundedRecallReply,bindBoundedReplySchema,boundedReplyAccepts,boundedDraftAccepts,boundedSentenceAccepts,type BoundedReply} from './bounded-reply.ts'
 import {jevMethodFitContext,selectJevMethodCandidates} from './jev-method-fit.ts'
+
 export type FocusContext={type:'theme'|'experience';id:string;label:string}
 export type EngineInput={run:Run;staged:Staged;context:any[];decision:unknown;signal:AbortSignal;emit:(event:Record<string,unknown>)=>void;focusContext?:FocusContext|null}
 export type Engine=((input:EngineInput)=>Promise<{text:string;usage:unknown}>)&{modelManaged?:boolean;modelReadiness?:()=>boolean}
-type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;firstSafeSentenceMs?:number|null;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';errorCode:string|null;failureCategory:ProviderFailureCategory|null}
+type CallRecord={callId:string;requestId:string;purpose:'turn'|'repair';tier:ModelTier;provider:string;model:string;configSignature:string;providerResponseId:string|null;providerResponseModel:string|null;pricing:ModelPricing|null;outputTokenLimit:number;uncachedInputTokens:number|null;cacheWriteInputTokens:number|null;outputTokens:number|null;cachedInputTokens:number|null;usageCompleteness:'complete'|'partial'|'unavailable';startedAt:string;finishedAt:string|null;latencyMs:number|null;firstRawDeltaMs:number|null;firstQuestionDraftMs:number|null;firstSafeSentenceMs?:number|null;omitQuestionMatterReports:boolean;startedMonotonicMs:number;contextTokenEstimate:number;outcome:'pending'|'completed'|'failed';stopReason?:AssistantMessage['stopReason'];errorCode:string|null;failureCategory:ProviderFailureCategory|null}
+type TurnCallRecord=CallRecord&{ordinaryAnswerSourceIds?:readonly string[]}
 export type ProviderCallObserver={allowRepair?:boolean;before:(call:Readonly<CallRecord>)=>void|Promise<void>;after:(call:Readonly<CallRecord>)=>void|Promise<void>;output?:(call:Readonly<CallRecord>,text:string)=>void|Promise<void>;payload?:(call:Readonly<CallRecord>,payload:unknown)=>void}
 const assistantText=(message:AssistantMessage)=>message.content.filter((part):part is Extract<AssistantMessage['content'][number],{type:'text'}>=>part.type==='text').map(part=>part.text).join('').trim()
 const tokenValue=(value:unknown)=>typeof value==='number'&&Number.isFinite(value)&&value>=0?value:null
@@ -130,42 +137,135 @@ export async function stageGrowthPreservingFeedback<T extends {kind:string;sourc
   }
 }
 
-async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:CallRecord[],signal:AbortSignal,staged:Staged,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string,kind:'safe_question'|'safe_sentence')=>boolean,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds:readonly string[]=[],earlyDraftMode:'none'|'safe_sentence'|'material_question'|'weekly_plan'='none',requireCandidate=false,boundedReply:BoundedReply|null=null,earlyPlan:WeeklyPlanDraftExpectation|null=null,maxOutputOverride?:number):Promise<string>{
+const ordinaryPrivateRecord=/(?:成长档案|个人档案|长期记忆|跨会话记忆|星图|用户画像)|\b(?:your|saved|stored|personal)\s+(?:memory|profile|archive)\b/iu
+const ordinaryWriteReceipt=/(?:已(?:经)?|刚刚)[^。！？!?,，；;\n]{0,32}(?:记录|记住|记下|保存|写入|更正|更新|遗忘|删除|同步|归档|加入|添加|存入|调取)|(?:我|这边)[^。！？!?,，；;\n]{0,32}(?:记在|记到|保存|写入|同步|归档|存入)[^。！？!?,，；;\n]{0,24}(?:了|完毕)|(?:根据|依据|结合)你(?:上次|之前|此前|以前)(?:说|提)|\b(?:I(?:['’]ve| have)?\s+(?:saved|recorded|stored|added|updated|deleted|forgotten|remembered|synced|retrieved)|(?:has|have)\s+been\s+(?:saved|recorded|stored|added|updated|deleted|synced)|(?:based on|according to)\s+your\s+(?:saved|stored|previous)\s+(?:memory|records?|notes?))\b/iu
+const peerUnderstandingStatement=/(?:^|[，,。；;])\s*(?:(?:这|该)(?:个|项|条)?(?:要求|规则|说明))?(?:大家|同学们?|对方|他们|别人|他人)(?:都|应该|可能|大概|已经|肯定|一定|也许|想必|基本){0,4}(?:(?:懂|理解|清楚|明白|了解)(?:(?:这|该)(?:个|项|条)?(?:要求|规则|说明))?了?|还?有(?:一些|些|一点)?不(?:太)?(?:懂|理解|清楚|明白|了解)(?:的(?:地方|部分|内容))?)(?:[，,。；;]|$)/
+
+async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:string,callIndex:number,requestId:string,contextEstimate:number,totalContextEstimate:number,retrievedMemoryCount:number,escalated:boolean,escalationReason:string|null,calls:TurnCallRecord[],signal:AbortSignal,staged:Staged,acquireContextFence:(signal:AbortSignal)=>Promise<ProviderDispatchFence>,capabilityVerified:(tier:ModelTier)=>boolean,purpose:CallRecord['purpose']='turn',schemaOverride?:unknown,schemaName?:string,outputPath:OutputPath='turn',emitDraft?:(text:string,kind:'safe_question'|'safe_sentence'|'stream_reply')=>boolean,observer?:ProviderCallObserver,userId='',resumePortfolioCatalogueIds?:readonly string[],slimUpdateTimeMode=false,clauseIds:readonly string[]=[],earlyDraftMode:'none'|'safe_sentence'|'material_question'|'weekly_plan'='none',requireCandidate=false,boundedReply:BoundedReply|null=null,earlyPlan:WeeklyPlanDraftExpectation|null=null,maxOutputOverride?:number,replyFirstEligible=false,directOrdinary=false):Promise<string>{
   signal.throwIfAborted()
   if(!runtime.available)throw new HttpError(503,'MODEL_TIER_UNAVAILABLE')
   if(!capabilityVerified(runtime.tier))throw new HttpError(503,'MODEL_CAPABILITY_TEST_REQUIRED')
-  if(callIndex>=1)throw new HttpError(502,'UPSTREAM_CALL_LIMIT')
+  // One user turn has exactly one paid generation slot. Keep this adjacent to
+  // the transport entry so every future call site fails before any side effect.
+  if(callIndex!==0||calls.length||purpose!=='turn'||outputPath!=='turn')throw new HttpError(502,'UPSTREAM_CALL_LIMIT')
+  const schemaProperties=(schemaOverride as {properties?:Record<string,unknown>}|undefined)?.properties
+  const envelope=JSON.parse(userPrompt),authorized=envelope.authorizedContext??envelope,currentMessageId=authorized.currentUserMessage.id
+  const progressiveReply=Boolean(replyFirstEligible&&supportsNativeStrictSchema(runtime.model)&&emitDraft&&earlyDraftMode==='safe_sentence'&&!boundedReply&&resumePortfolioCatalogueIds===undefined&&schemaProperties&&!Object.hasOwn(schemaProperties,'decisionProposal'))
+  const semanticFeedback=Boolean(authorized.currentTask?.feedbackReport?.reportedOutcome||authorized.currentTask?.priorFeedback?.reportedFacts?.length)
+  const compactFeedbackFrame=progressiveReply&&semanticFeedback
+  const ordinaryBlock='\n'+DIRECT_ORDINARY_REPLY_RULES
+  const groundedOrdinary=directOrdinary&&Boolean(schemaProperties?.reply)&&!semanticFeedback
+  const moveOrdinaryBlock=progressiveReply&&groundedOrdinary&&systemPrompt.includes(ordinaryBlock)
+  const currentClauses=buildClauseCatalogue(authorized.currentUserMessage.text)
+  // Keep references for reply evidence separate from current-turn write handles.
+  // `authorized.messages` is the already redacted, selected provider history.
+  const ordinaryAnswerSourceIds=groundedOrdinary?[
+    ...(authorized.currentUserMessage.clauses??[]).map((source:{id:string})=>source.id),
+    ...(authorized.messages as {id:string;role:string;text:string}[]).flatMap((message,index)=>ordinaryHistoryAnswerSources(message,currentMessageId,index).map(source=>source.id)),
+  ]:undefined
+  if(moveOrdinaryBlock)systemPrompt=systemPrompt.replace(ordinaryBlock,'')
+  const frameReply=(schemaProperties?.reply as {description?:string}|undefined)
+  if(frameReply?.description?.startsWith(DIRECT_ORDINARY_REPLY_RULES)&&(moveOrdinaryBlock||systemPrompt.includes(DIRECT_ORDINARY_REPLY_RULES))){
+    const description=frameReply.description.slice(DIRECT_ORDINARY_REPLY_RULES.length).trimStart()
+    schemaOverride={...(schemaOverride as Record<string,unknown>),properties:{...schemaProperties,reply:{...frameReply,description:[ORDINARY_REPLY_FIELD,description].filter(Boolean).join('\n')}}}
+  }
+  let ordinaryInstruction=''
+  if(progressiveReply||ordinaryAnswerSourceIds){
+    let frame=schemaOverride as Record<string,any>
+    const event=frame.properties.event
+    const reports=event?.properties?.matterReports
+    // Ask for a state entry only when the host cannot bind the current report.
+    const needsReport=compactFeedbackFrame&&Boolean(authorized.currentTask?.feedbackReport?.reportedOutcome&&!authorized.currentTask?.feedbackReport?.sourceBound&&reports)
+    const first=needsReport?'event':'reply'
+    if(needsReport){
+      const feedbackEvent={
+        ...event,
+        required:[...new Set([...event.required??[],'matterReports'])],
+        properties:{...event.properties,matterReports:{...reports,minItems:1}},
+      }
+      frame={
+        ...frame,
+        required:[...new Set([...frame.required??[],'event'])],
+        properties:{...frame.properties,event:feedbackEvent},
+      }
+    }
+    schemaOverride=replyStreamingSchema(frame,first,ordinaryAnswerSourceIds)
+    const ordinaryRules=[GROUNDED_ORDINARY_STREAMING_RULE,reports?MATTER_REPORT_RULE:'',MATTER_FEEDBACK_RULE,PERSISTENCE_RECEIPT_RULE].filter(Boolean).join('\n')
+    const instruction=(ordinaryAnswerSourceIds?ordinaryRules:first==='reply'?REPLY_FIRST_STREAMING_RULE:GROUNDED_FEEDBACK_STREAMING_RULE)+'\n'
+    if(ordinaryAnswerSourceIds)ordinaryInstruction=instruction
+    else systemPrompt=instruction+systemPrompt
+    const addedTokens=estimateTokens(instruction);contextEstimate+=addedTokens;totalContextEstimate+=addedTokens
+  }
+  // Bind the per-turn source handles once before prompt and wire compilation.
+  constrainClauseCatalogueHandles(schemaOverride,clauseIds)
   let maxOutputTokens=outputTokenLimit(runtime.model,runtime.tier)
   if(maxOutputOverride!==undefined)maxOutputTokens=Math.min(maxOutputTokens,maxOutputOverride)
-  const envelope=JSON.parse(userPrompt),authorized=envelope.authorizedContext??envelope,currentMessageId=authorized.currentUserMessage.id
+  const deliveryFocus=(schemaProperties?.event||schemaProperties?.growthUpdates)&&!boundedReply&&(semanticFeedback||!groundedOrdinary&&!currentClauses.some(clause=>clause.quoteSpans?.length||clause.codeSpans?.length))
+    ?'\n\n本轮语义与交付约定\n'+SEMANTIC_DELIVERY_RULES+(semanticFeedback&&!compactFeedbackFrame?'\n'+PARTIAL_FEEDBACK_EVIDENCE_RULE:'')
+    :''
+  if(deliveryFocus){
+    systemPrompt+=deliveryFocus
+    const addedTokens=estimateTokens(deliveryFocus)
+    contextEstimate+=addedTokens;totalContextEstimate+=addedTokens
+  }
+  if(moveOrdinaryBlock)systemPrompt+=ordinaryBlock
+  if(ordinaryInstruction)systemPrompt+='\n'+ordinaryInstruction
+  const feedbackFocus=deliveryFocus&&compactFeedbackFrame
+    ?authorized.currentTask?.feedbackReport?.reportedOutcome
+      ?'先交付本人报告的动作、程度与有没有帮助，使用实际花费时长。先前的可用时间只属于原时段，不能减去已花时间来算现在还剩多少。原因和方法效果未报告时，未知项只给名称与未知状态。本人说今天停止时，说明这次反馈怎样改变下次帮助后收尾。'
+      :'第一句交付一个使用实际反馈的调整。找到一条相关信息或到本轮时间上限即停，仅记录本次查找的结果。建议不写成当轮执行。'
+    :''
+  if(feedbackFocus){
+    const addedTokens=estimateTokens('本轮反馈交付规则：'+feedbackFocus+'\n'+PARTIAL_FEEDBACK_EVIDENCE_RULE+'\n此前本人报告：')
+    contextEstimate+=addedTokens;totalContextEstimate+=addedTokens
+  }
   const eventTargets=[authorized.currentEvent,...authorized.events??[]].filter(Boolean).map((event:any)=>({id:event.id,revision:event.revision,activeUnknownIds:(event.nodes??[]).filter((node:any)=>node.kind==='unknown'&&node.status==='active').map((node:any)=>node.id),nodeIds:(event.nodes??[]).map((node:any)=>node.id),actionIds:(event.actions??[]).filter((action:any)=>action.status==='proposed').map((action:any)=>action.id)}))
-  const configure=(payload:unknown,selected:{provider:string;id:string}=runtime.model)=>configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,[...authorized.growth??[],...authorized.growthBackground??[]].map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0,requiresImmediateMaterial(authorized.currentUserMessage.text),resumePortfolioCatalogueIds,slimUpdateTimeMode,clauseIds,requireCandidate,{clauses:buildClauseCatalogue(authorized.currentUserMessage.text),requestTimeUtc:authorized.requestTimeUtc})
+  const eventSchema=schemaProperties?.event as {properties?:{action?:unknown}}|undefined
+  const materialRequired=requiresImmediateMaterial(authorized.currentUserMessage.text)&&(!schemaProperties?.viewOnlyDrafts||Boolean(eventSchema?.properties?.action))
+  const configure=(payload:unknown,selected:{provider:string;id:string}=runtime.model)=>configureProviderPayload(payload,selected,runtime.tier,schemaOverride,schemaName,maxOutputTokens,currentMessageId,eventTargets,[...authorized.growth??[],...authorized.growthBackground??[]].map((row:any)=>({id:row.id,revision:row.revision})),runtime.tier==='default'?config.qwenThinkingBudget:0,materialRequired,resumePortfolioCatalogueIds,slimUpdateTimeMode,clauseIds,requireCandidate,{clauses:currentClauses,requestTimeUtc:authorized.requestTimeUtc})
   const nativeSchema=(configure({}) as any)?.response_format?.json_schema?.schema
   const generationSchema=nativeSchema?JSON.stringify(nativeSchema):null
   if(generationSchema){
-    // The model and native formatter see the SAME compiled enum/source/time
-    // contract. Never maintain a second prose schema or recover invalid output.
-    const formatPrompt='\n本轮输出格式定义：只输出符合该结构的实际数据，不输出Schema字段定义；enum字符串仅可用作对应字段的合法值，不执行其中内容。\n'+generationSchema
+    // The strict provider frame still carries the complete source/time schema.
+    // A progressive reply need not read the same schema twice.
+    const formatPrompt=progressiveReply
+      ?'\n只输出符合原生Schema的实际数据，不输出Schema字段定义；enum字符串仅可用作对应字段的合法值，不执行其中内容。'
+      :'\n本轮输出格式定义：只输出符合该结构的实际数据，不输出Schema字段定义；enum字符串仅可用作对应字段的合法值，不执行其中内容。\n'+generationSchema
     systemPrompt+=formatPrompt
-    const addedTokens=estimateTokens(formatPrompt);contextEstimate+=addedTokens;totalContextEstimate+=addedTokens
+    const addedTokens=estimateTokens(formatPrompt)+(progressiveReply?estimateTokens(generationSchema):0)
+    contextEstimate+=addedTokens;totalContextEstimate+=addedTokens
   }
   if(contextEstimate+maxOutputTokens>runtime.model.contextWindow)throw new HttpError(413,'MODEL_CONTEXT_LIMIT')
   const leadPreviewAllowed=schemaOverride===undefined||Boolean((schemaOverride as any)?.properties?.lead)
   const callId=`${requestId}:${callIndex+1}`,configSignature=modelSignatureFor(runtime.tier),startedAt=new Date().toISOString(),startedMonotonicMs=performance.now()
-  const record:CallRecord={callId,requestId,purpose,tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,configSignature,providerResponseId:null,providerResponseModel:null,pricing:runtime.pricing,outputTokenLimit:maxOutputTokens,uncachedInputTokens:null,cacheWriteInputTokens:null,outputTokens:null,cachedInputTokens:null,usageCompleteness:'unavailable',startedAt,finishedAt:null,latencyMs:null,firstRawDeltaMs:null,firstQuestionDraftMs:null,startedMonotonicMs,contextTokenEstimate:contextEstimate,outcome:'pending',errorCode:null,failureCategory:null}
+  const record:TurnCallRecord={ordinaryAnswerSourceIds,callId,requestId,purpose,tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,configSignature,providerResponseId:null,providerResponseModel:null,pricing:runtime.pricing,outputTokenLimit:maxOutputTokens,uncachedInputTokens:null,cacheWriteInputTokens:null,outputTokens:null,cachedInputTokens:null,usageCompleteness:'unavailable',startedAt,finishedAt:null,latencyMs:null,firstRawDeltaMs:null,firstQuestionDraftMs:null,omitQuestionMatterReports:progressiveReply&&Boolean(nativeSchema?.properties?.event)&&Array.isArray(nativeSchema?.required)&&!nativeSchema.required.includes('event'),startedMonotonicMs,contextTokenEstimate:contextEstimate,outcome:'pending',errorCode:null,failureCategory:null}
   const finishCall=(outcome:'completed'|'failed',errorCode:string|null=null)=>{record.finishedAt??=new Date().toISOString();record.latencyMs??=Math.max(0,Math.round(performance.now()-startedMonotonicMs));record.outcome=outcome;record.errorCode=errorCode}
   const ceiling=config.providerBudgetEnabled?providerReservationCny(runtime.model.contextWindow,maxOutputTokens,runtime.pricing):0
-  const spend=await reserveProviderSpend({user:userId,requestId,callIndex:callIndex+1,provider:runtime.model.provider,model:runtime.model.id,ceilingCny:ceiling})
-  try{await observer?.before(Object.freeze({...record}))}catch(error){await settleProviderSpend(spend,0,true);throw error}
-  calls.push(record);staged.upstreamCalls=calls.length
-  staged.modelUsage=usageSummary(calls,totalContextEstimate,retrievedMemoryCount,escalated,escalationReason)
-  staged.audit.push({phase:'model_call_started',call:callIndex+1,callId,requestId,purpose,tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,configSignature,providerResponseId:null,outputTokenLimit:maxOutputTokens,outputPath,schemaName:schemaName??null,startedAt,contextTokenEstimate:contextEstimate,contextTokenEstimateKind:'heuristic'})
+  let spend:Awaited<ReturnType<typeof reserveProviderSpend>>|undefined,dispatchFence:ProviderDispatchFence|undefined
+  let payloadHandedOff=false,dispatchCounted=false
+  const countDispatch=(dispatchEvidence:'response'|'stream_event'|'possible_after_payload_handoff')=>{
+    if(dispatchCounted)return
+    dispatchCounted=true
+    calls.push(record);staged.upstreamCalls=calls.length
+    staged.modelUsage=usageSummary(calls,totalContextEstimate,retrievedMemoryCount,escalated,escalationReason)
+    staged.audit.push({phase:'model_call_started',call:callIndex+1,callId,requestId,purpose,tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,configSignature,providerResponseId:null,outputTokenLimit:maxOutputTokens,outputPath,schemaName:schemaName??null,startedAt,contextTokenEstimate:contextEstimate,contextTokenEstimateKind:'heuristic',dispatchEvidence})
+  }
+  await observer?.before(Object.freeze({...record}))
   let streamedText=''
   const frameAbort=new AbortController()
   const deadlineSignal=AbortSignal.timeout(60000)
   const providerSignal=AbortSignal.any([signal,frameAbort.signal,deadlineSignal])
   try{
-    const messages=providerTurnMessages(userPrompt,runtime.model,systemPrompt)
+    const nativeFactFrame=Boolean((schemaOverride as any)?.properties?.growthUpdates?.items?.anyOf?.some((branch:any)=>branch.properties?.contribution))
+    const messages=providerTurnMessages(userPrompt,runtime.model,systemPrompt,nativeFactFrame,feedbackFocus?feedbackFocus+'\n'+PARTIAL_FEEDBACK_EVIDENCE_RULE:'',groundedOrdinary)
+    // `pi-ai` does not promise to await `onPayload`. Commit the short spend
+    // reservation before checking out the long-lived source-fence client.
+    // Reversing that order lets same-user fence waiters consume the whole pool
+    // while the lock owner still needs another client for its reservation.
+    // No transport starts until both independent authorities are held.
+    spend=await reserveProviderSpend({user:userId,requestId,callIndex:callIndex+1,provider:runtime.model.provider,model:runtime.model.id,ceilingCny:ceiling})
+    dispatchFence=await acquireContextFence(providerSignal)
+    signal.throwIfAborted()
     const source=stream(runtime.model,{systemPrompt,messages},{apiKey:runtime.apiKey,maxTokens:maxOutputTokens,timeoutMs:60000,maxRetries:0,signal:providerSignal,onPayload:(payload,selected)=>{
       const configured=configure(payload,selected)
       // One-variable acceptance diagnostic only. The default remains untouched;
@@ -183,8 +283,12 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
       staged.audit.push({phase:'provider_transport_stop_applied',stops:(configured as {stop?:string[]}).stop??[],providerCalls:0})
       // Actual outgoing instructions, tied to the existing call/completion and
       // final commit receipt. Never log user context or assert model compliance.
-      if(JSON.stringify(configured).includes(JSON.stringify(mainCompanionPolicy.instructions).slice(1,-1))){
-        staged.audit.push({phase:'main_skill_payload',callId,requestId,skill:mainCompanionPolicy.name,skillVersion:mainCompanionPolicy.version,skillDigest:mainCompanionPolicy.sourceDigest,policyDigest:mainCompanionPolicy.policyDigest,scope:mainCompanionPolicy.scope,status:'included_in_provider_payload'})
+      const configuredText=JSON.stringify(configured)
+       const appliedPolicy=[mainCompanionPolicy,readOnlyDecisionPolicy,directOrdinaryPolicy].find(policy=>systemPrompt.includes(policy.instructions)&&configuredText.includes(JSON.stringify(policy.instructions).slice(1,-1)))
+      if(appliedPolicy){
+        staged.audit.push({phase:'main_skill_payload',callId,requestId,skill:appliedPolicy.name,skillVersion:appliedPolicy.version,skillDigest:appliedPolicy.sourceDigest,policyDigest:appliedPolicy.policyDigest,scope:appliedPolicy.scope,status:'included_in_provider_payload'})
+      }
+      if(appliedPolicy===mainCompanionPolicy){
         staged.audit.push({phase:'grilling_policy_payload',callId,requestId,skill:mainCompanionPolicy.grilling.name,skillVersion:mainCompanionPolicy.grilling.version,policyDigest:mainCompanionPolicy.grilling.policyDigest,status:'included_in_provider_payload',providerCalls:0})
       }
       // Explicit isolated instrumentation only. The observer cannot mutate the
@@ -199,9 +303,18 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
       if(native){
         staged.audit.push({phase:'provider_native_contract',callId,requestId,type:native.type,strict:native.json_schema?.strict??null,properties:Object.keys(native.json_schema?.schema?.properties??{}),schemaSha256:createHash('sha256').update(JSON.stringify(native.json_schema?.schema??{})).digest('hex'),generationSchemaIncluded:generationSchema!==null,providerCalls:0})
       }
+      // The SDK invokes onPayload immediately before constructing the HTTP
+      // request. Until this callback completes, a synchronous stream failure,
+      // failed payload check or already-observed abort is provably not sent.
+      providerSignal.throwIfAborted()
+      payloadHandedOff=true
       return configured
-    }})
-    let partialReply='',draftSent=false
+    },onResponse:()=>{countDispatch('response')}})
+    let partialReply='',draftSent=false,lastStreamText='',lastStreamAt=0
+    const emitProgressiveReply=(now:number)=>{
+      const preview=streamingReplyText(partialReply,ordinaryAnswerSourceIds)
+      if(preview&&preview!==lastStreamText&&emitDraft?.(preview,'stream_reply')===true){lastStreamText=preview;draftSent=true;record.firstSafeSentenceMs??=Math.max(0,Math.round(now-startedMonotonicMs))}
+    }
     // G3: reply_only may surface the FIRST complete safe sentence; every
     // other mode still waits for a complete safe question. Both draft paths
     // are display-only — the saved state comes exclusively from finishRun.
@@ -210,14 +323,15 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     // through the substantive draft lane. The validated allocation below owns
     // that lane and its first-content timing.
     for await(const event of source){
+      if(payloadHandedOff&&event.type!=='start'&&event.type!=='error')countDispatch('stream_event')
       signal.throwIfAborted()
       if(event.type==='text_delta'){
         record.firstRawDeltaMs??=Math.max(0,Math.round(performance.now()-startedMonotonicMs));streamedText+=event.delta
+        partialReply+=event.delta
       }
       // Catalogue-backed material is rendered by the host after validation;
       // model prose cannot be its first delivered content or a completion receipt.
-      if(event.type==='text_delta'&&emitDraft&&!draftSent&&resumePortfolioCatalogueIds===undefined){
-        partialReply+=event.delta
+      if(event.type==='text_delta'&&emitDraft&&!progressiveReply&&!ordinaryAnswerSourceIds&&!draftSent&&resumePortfolioCatalogueIds===undefined){
         // The structured lead is the earliest safe preview: it is generated
         // before reply and must itself be a judgment/start/question, not a
         // status announcement. The final reply remains authoritative.
@@ -240,9 +354,18 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
           if(sentence&&(!boundedReply||boundedSentenceAccepts(sentence,boundedReply))&&emitDraft?.(sentence,'safe_sentence')===true){record.firstSafeSentenceMs=Math.max(0,Math.round(performance.now()-startedMonotonicMs));draftSent=true;earlyDraftKind='safe_sentence'}
         }
       }
+      if(event.type==='text_delta'&&emitDraft&&progressiveReply){
+        const now=performance.now()
+        if(now-lastStreamAt>=80){
+          lastStreamAt=now
+           emitProgressiveReply(now)
+        }
+      }
     }
+    if(emitDraft&&progressiveReply)emitProgressiveReply(performance.now())
     ;(record as {earlyDraftKind?:string}).earlyDraftKind=earlyDraftKind
     const message=await source.result()
+    record.stopReason=message.stopReason
     signal.throwIfAborted()
     if(deadlineSignal.aborted)throw new HttpError(504,'MODEL_DEADLINE_EXCEEDED')
     if(providerSignal.aborted)throw new HttpError(504,'MODEL_DEADLINE_EXCEEDED')
@@ -257,7 +380,7 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     const usageValues=[record.uncachedInputTokens,record.cacheWriteInputTokens,record.outputTokens,record.cachedInputTokens]
     record.usageCompleteness=usageValues.every(value=>value!==null)?'complete':usageValues.some(value=>value!==null)?'partial':'unavailable'
     finishCall('completed')
-    staged.modelUsage=usageSummary(calls,totalContextEstimate,retrievedMemoryCount,escalated,escalationReason,false,purpose==='repair'?'coach_contract_repair':null)
+    staged.modelUsage=usageSummary(calls,totalContextEstimate,retrievedMemoryCount,escalated,escalationReason)
     signal.throwIfAborted()
     if(message.stopReason==='error'||message.stopReason==='aborted'){
       const providerMessage=message.errorMessage||`Provider finish_reason ${message.stopReason}`
@@ -288,21 +411,37 @@ async function runModelCall(runtime:ModelRuntime,systemPrompt:string,userPrompt:
     return raw
   }catch(error){
     await captureSyntheticOutput(userId,requestId,streamedText,staged,'partial_synthetic_business_output_captured')
+    // After the SDK owns the payload, error wording does not prove that the
+    // HTTP request stayed local. Keep uncertain spend in the existing ledger.
+    if(payloadHandedOff)countDispatch('possible_after_payload_handoff')
+    if(!dispatchCounted){
+      const code=error instanceof HttpError?error.code:'MODEL_REQUEST_FAILED'
+      finishCall('failed',code)
+      staged.audit.push({phase:'provider_dispatch_blocked',callId,requestId,code,providerCalls:0})
+      throw error instanceof HttpError?error:providerError(error instanceof Error?error.message:'Provider request failed')
+    }
     if(!record.failureCategory&&!(error instanceof HttpError))record.failureCategory=classifyProviderFailure(error instanceof Error?error.message:String(error))
     const code=error instanceof HttpError?error.code:'MODEL_REQUEST_FAILED'
     const failedStreamSha=createHash('sha256').update(streamedText).digest('hex')
     staged.audit.push({phase:'provider_output_stages',callId,requestId,streamChars:streamedText.length,resultChars:'unknown',normalizedChars:'unknown',streamEqualsResult:'unknown',resultEqualsNormalized:'unknown',streamSha256:failedStreamSha,resultSha256:'unknown',normalizedSha256:'unknown',stopReason:'unavailable_before_sdk_result',normalizationApplied:'unknown',providerCalls:0})
     finishCall('failed',code)
-    staged.modelUsage=usageSummary(calls,totalContextEstimate,retrievedMemoryCount,escalated,escalationReason,false,purpose==='repair'?'coach_contract_repair':null)
+    staged.modelUsage=usageSummary(calls,totalContextEstimate,retrievedMemoryCount,escalated,escalationReason)
     staged.audit.push({phase:'model_call_failed',call:callIndex+1,callId,requestId,providerResponseId:record.providerResponseId,providerResponseModel:record.providerResponseModel,configSignature,startedAt:record.startedAt,finishedAt:record.finishedAt,latencyMs:record.latencyMs,firstRawDeltaMs:record.firstRawDeltaMs,firstQuestionDraftMs:record.firstQuestionDraftMs,usageCompleteness:record.usageCompleteness,purpose,tier:runtime.tier,provider:runtime.model.provider,model:runtime.model.id,outputTokenLimit:maxOutputTokens,outputPath,schemaName:schemaName??null,uncachedInputTokens:record.uncachedInputTokens??'unknown',uncachedInputIncludesCacheWrite:false,cacheWriteInputTokens:record.cacheWriteInputTokens??'unknown',cachedInputTokens:record.cachedInputTokens??'unknown',outputTokens:record.outputTokens??'unknown',estimatedCostCny:record.usageCompleteness==='complete'?callCost(record.uncachedInputTokens!+record.cacheWriteInputTokens!,record.cachedInputTokens!,record.outputTokens!,record.pricing):'unknown',code,failureCategory:record.failureCategory})
     throw error instanceof HttpError?error:providerError(error instanceof Error?error.message:'Provider request failed')
   }finally{
     frameAbort.abort()
+    // Keep source authority valid through every externally visible draft.
+    // After stream assembly no more private prose is emitted; final text still
+    // waits for finishRun's fresh snapshot validation.
+    const fence=dispatchFence;dispatchFence=undefined
+    let releaseError:unknown
+    try{await fence?.release()}catch(error){releaseError=error}
     const cost=record.usageCompleteness==='complete'?callCost(record.uncachedInputTokens!+record.cacheWriteInputTokens!,record.cachedInputTokens!,record.outputTokens!,record.pricing):'unknown'
     // Preserve both independent receipts even if either settlement fails.
     let expenseError:unknown
-    try{const settled=await settleProviderSpend(spend,cost);if(settled?.overrun)expenseError=new HttpError(503,'PROVIDER_PRICE_CHANGED')}catch(error){expenseError=error}
+    if(spend)try{const settled=await settleProviderSpend(spend,dispatchCounted?cost:0,!dispatchCounted);if(settled?.overrun)expenseError=new HttpError(503,'PROVIDER_PRICE_CHANGED')}catch(error){expenseError=error}
     await observer?.after(Object.freeze({...record}))
+    if(releaseError)throw releaseError
     if(expenseError)throw expenseError
   }
 }
@@ -311,8 +450,48 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   signal.throwIfAborted()
   const current=context.find(row=>row.id===run.source_message_id)
   if(!current||current.role!=='user')throw new HttpError(409,'CURRENT_MESSAGE_MISSING')
-  const priorUserTexts=context.filter(row=>row.role==='user'&&row.id!==current.id).slice(-8).map(row=>row.content)
+  const trialHistoryIds=new Set<string>()
+  let hasPriorDecision=false,lastTrial=false,lastComparison=false
+  let previousComparisonUser:string|null=null,previousComparisonReply:string|null=null,realComparisonUser:string|null=null,realComparisonReply:string|null=null
+  let previousComparisonRefs:string[]=[]
+  let previousProposal:(DecisionProposal&{conditions?:DecisionConditions;realConditions?:DecisionConditions})|null=null,rememberedBaselineSource:string|null=null,priorDecisionMissing=false
+  let rememberedConditionSources:string[]=[]
+  let supplementFieldSources:Record<string,{messageId:string;valueDigest:string}>={}
+  for(const row of context.filter(row=>row.id!==current.id)){
+    if(row.decision_context_gap){hasPriorDecision=false;lastTrial=false;lastComparison=false;previousComparisonUser=null;previousComparisonReply=null;previousComparisonRefs=[];previousProposal=null;realComparisonUser=null;realComparisonReply=null;rememberedConditionSources=[];continue}
+    if(row.role==='user'){
+      const trial=decisionComparisonRequest(row.content,hasPriorDecision||row.decision_comparison===true)
+      lastTrial=trial!==null;lastComparison=row.completed_decision===true&&(lastTrial||requestsMatterDecision(row.content))
+      hasPriorDecision=lastComparison||hasPriorDecision&&continuesDecisionContext(row.content)
+      if(lastComparison){hasPriorDecision=true;previousComparisonUser=row.id;previousComparisonReply=null;previousComparisonRefs=(row.comparison_event_refs??[]).map((ref:{eventId:string})=>ref.eventId);previousProposal=row.decision_proposal??null;rememberedConditionSources=row.comparison_condition_sources??[];if(!lastTrial){realComparisonUser=row.id;realComparisonReply=null}}
+      if(/^(?:换个话题|今天到这里|不用比较了)|^(?:好[，,])?(?:先这样|就这样|先到这里)/.test(row.content))hasPriorDecision=false
+      if(!hasPriorDecision){previousComparisonUser=null;previousComparisonReply=null;previousComparisonRefs=[];previousProposal=null;realComparisonUser=null;realComparisonReply=null;rememberedConditionSources=[]}
+    }else if(lastComparison){previousComparisonReply=row.id;if(!lastTrial)realComparisonReply=row.id}
+    else if(row.completed_decision===true&&(row.decision_comparison===true||row.decision_proposal)&&!previousComparisonUser){previousComparisonReply=row.id;previousComparisonRefs=(row.comparison_event_refs??[]).map((ref:{eventId:string})=>ref.eventId);previousProposal=row.decision_proposal??null;rememberedConditionSources=row.comparison_condition_sources??[];hasPriorDecision=true}
+    if(lastTrial||row.decision_comparison===true)trialHistoryIds.add(row.id)
+  }
+  // Real privacy commands retain their normal transaction, even in a turn
+  // which also mentions a comparison. A trial cannot override withdrawal.
+  const decisionComparison=decisionComparisonRequest(current.content,hasPriorDecision)
+  if(decisionComparison&&!hasPriorDecision&&!previousComparisonRefs.length&&!/(?:手头(?:的)?(?:这些)?事|这些(?:事|事项|任务)|当前事项|我的(?:事项|任务)|之前|上次|刚才|原来|恢复|回到)/.test(current.content))priorDecisionMissing=true
+  if(decisionComparison&&(hasPriorDecision||decisionComparison==='restore'||/(?:之前|上次|刚才|原来|原先|上一轮)/.test(current.content))){
+    const prior=await readPriorDecision(run.user_id,run.conversation_id)
+    if(prior?.eventRefs?.length){previousComparisonUser=prior.sourceMessageId;previousComparisonRefs=prior.eventRefs.map((ref:{eventId:string})=>ref.eventId);previousProposal=prior.proposal??null;rememberedConditionSources=prior.conditionSources??[];supplementFieldSources=prior.supplementFieldSources??{};rememberedBaselineSource=prior.baselineSourceMessageId??(!prior.isTrial?prior.sourceMessageId:null)}
+    else {priorDecisionMissing=true;previousComparisonUser=null;previousComparisonReply=null;previousComparisonRefs=[];previousProposal=null;rememberedConditionSources=[];rememberedBaselineSource=null;realComparisonUser=null;realComparisonReply=null}
+  }
+  const actionComparisonClauses=decisionComparison?reportedActualComparisonClauses(current.content):[]
+  const comparisonLabelControl=decisionComparison?detectUnconfirmedLabelRejection(current.content):null
+  const privacyComparisonClauses=comparisonLabelControl?scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&comparisonLabelControl.boundaryQuotes.includes(c.text.trim())):[]
+  const comparisonFactClauses=decisionComparison?reportedComparisonFactClauses(current.content).filter(clause=>!actionComparisonClauses.some(action=>action.start===clause.start)&&!privacyComparisonClauses.some(privacy=>privacy.start===clause.start)):[]
+  const comparisonFactQuotes=new Set(comparisonFactClauses.map(clause=>clause.text))
+  const actualComparisonClauses=[...actionComparisonClauses,...privacyComparisonClauses,...comparisonFactClauses].sort((a,b)=>a.start-b.start)
+  const personalWritesBlocked=Boolean(decisionComparison)&&!actualComparisonClauses.length||profileWritesDisallowed(current.content)
+  const actualWriteText=decisionComparison?(personalWritesBlocked?'':comparisonFactText(current.content,actualComparisonClauses)):current.content
+  const factualWriteText=decisionComparison?comparisonFactText(current.content,comparisonFactClauses):current.content
+  if(decisionComparison)staged.comparisonActualQuotes=actualComparisonClauses.map(c=>c.text)
+  const priorUserTexts=context.filter(row=>row.role==='user'&&row.id!==current.id&&!trialHistoryIds.has(row.id)).slice(-8).map(row=>row.content)
   const snapshot=await loadSnapshot(run.user_id,run.conversation_id,current.content)
+  if(snapshot.settings.enabled&&snapshot.confirmedExperiences.length)emit({type:'progress',stage:'background'})
   staged.snapshot=snapshot
   const stageLabelRejectionBoundary=async(authorized:GrowthItem[])=>{
     const rejection=detectUnconfirmedLabelRejection(current.content)
@@ -325,7 +504,11 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     // attaches every instruction quote to its inferenceBoundary. Staging one
     // record per clause duplicated control text and let a zero-call turn mutate
     // extra state.
-    const boundary=await stageGrowthUpdates(run,[{target:{operation:'create' as const},assertion:'user_reported' as const,kind:'context' as const,source:{messageId:run.source_message_id,quote:current.content}}],authorized)
+    const privacySpans=decisionComparison?scanUserClauses(current.content).filter(c=>rejection.boundaryQuotes.includes(c.text.trim())):[]
+    const privacySpan=privacySpans.length?current.content.slice(privacySpans[0].start,privacySpans.at(-1)!.end):''
+    const boundaryQuote=decisionComparison?(privacySpan&&scanUserClauses(privacySpan).every(c=>rejection.boundaryQuotes.includes(c.text.trim()))?privacySpan:rejection.boundaryQuotes.find(q=>q.includes(rejection.label))??rejection.boundaryQuotes[0]):current.content
+    if(!boundaryQuote||staged.growth?.changes.some(delta=>delta.source.messageId===run.source_message_id&&delta.source.quote===boundaryQuote))return false
+    const boundary=await stageGrowthUpdates(run,[{target:{operation:'create' as const},assertion:'user_reported' as const,kind:'context' as const,source:{messageId:run.source_message_id,quote:boundaryQuote}}],authorized)
     if(!boundary.changes.length)return false
     staged.growth={changes:[...(staged.growth?.changes??[]),...boundary.changes],prepared:[...(staged.growth?.prepared??[]),...boundary.prepared],inputIndexBindings:new Map(staged.growth?.inputIndexBindings??[]),skipped:[...(staged.growth?.skipped??[]),...(boundary.skipped??[])]}
     staged.audit.push({phase:'unconfirmed_label_boundary_staged',providerCalls:0,count:boundary.changes.length})
@@ -345,7 +528,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   let preRetrievalMs:number|null=null,knowledgeMs:number|null=null,validationMs:number|null=null
   const controlsBefore=await readDirectionControls(run.user_id)
   const expectedControlKey=directionControlsSnapshotKey(controlsBefore)
-  const turnDerivedControls=deriveExplicitDirectionControls(current.content)
+  const turnDerivedControls=deriveExplicitDirectionControls(actualWriteText)
   const effectiveControls=overlayDirectionChanges(controlsBefore,turnDerivedControls.status==='explicit'?turnDerivedControls.changes:[])
   staged.directionControlSnapshotKey=expectedControlKey
   if(turnDerivedControls.status==='explicit'){
@@ -358,7 +541,8 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     &&/(?:一句(?:简历(?:表达|描述)|(?:作品|(?:本人|个人|我的)?贡献)描述)|(?:作品|(?:本人|个人|我的)?贡献)描述[^。！？\n]{0,8}(?:压成|缩成|写成)一句)/.test(clause.text))
   const contributionParagraphMode=requiresImmediateMaterial(current.content)&&contributionDescription&&!contributionSentenceMode
   const resumePortfolioMode=requiresImmediateMaterial(current.content)&&!requestsMaterialRewrite(current.content)&&(contributionDescription||/简历|作品清单|作品集|个人介绍/.test(current.content))
-  const obligations=deriveTurnObligations(current.content,{resumePortfolioMode,...(turnDerivedControls.status==='explicit'?{directionControls:turnDerivedControls.changes}:{})})
+  const obligations=deriveTurnObligations(actualWriteText,{resumePortfolioMode,...(turnDerivedControls.status==='explicit'?{directionControls:turnDerivedControls.changes}:{})})
+  if(decisionComparison){staged.audit.push({phase:'decision_comparison_read_only',mode:decisionComparison,persistence:'TURN_ONLY_NOT_USER_FACTS',separateActualClauses:actualComparisonClauses.length,providerCalls:0})}
   staged.turnObligations=obligations
   if(isPureControlCommand(current.content,obligations,turnDerivedControls.status==='explicit'?turnDerivedControls.changes.map(change=>change.quote):[])){
     // N1.4/P5.6: a pure control command commits through the real storage rules
@@ -423,13 +607,45 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   try{currentEvent=await coachEventView(run.user_id,run.conversation_id)}catch(error){
     if(!(error instanceof HttpError)||!['NOT_FOUND','MEMORY_DISABLED','COACH_SOURCE_REVOKED'].includes(error.code))throw error
   }
+  const conversationEventId=currentEvent?.id
   const retrievalStarted=performance.now()
   const retrieval=await searchCoachEvents(run.user_id,run.conversation_id,{query:current.content},signal)
   staged.audit.push({phase:'coach_retrieval_completed',latencyMs:Math.round(performance.now()-retrievalStarted),eventCount:retrieval.events.length,indexPending:retrieval.indexPending,ambiguous:retrieval.ambiguous,embedding:'local_offline'})
   let historicalEvents=retrieval.events.filter(event=>event.id!==currentEvent?.id)
+  const comparisonBasis=decisionComparison?previousComparisonRefs:[]
+  const matterWorkingSetStarted=performance.now()
+  const matterWorkingSet=priorDecisionMissing?{events:[] as CoachEvent[],sourceControls:{} as Record<string,string>,coverage:{scope:'ORIGINAL_COMPARISON_UNAVAILABLE',candidateLimit:0,relatedCaseLimit:0,moreAvailable:false,selection:'original comparison unavailable; do not replace with unrelated recent matters'}}:requestsMatterDecision(current.content)||decisionComparison?await readMatterWorkingSet(run.user_id,run.conversation_id,signal,[...(currentEvent?[currentEvent.id]:[]),...historicalEvents.map(event=>event.id)],comparisonBasis):null
+  if(matterWorkingSet){
+    currentEvent=currentEvent?matterWorkingSet.events.find(event=>event.id===currentEvent!.id)??null:null
+    historicalEvents=matterWorkingSet.events.filter(event=>event.id!==currentEvent?.id)
+    staged.audit.push({phase:'matter_working_set_bound',eventCount:historicalEvents.length+(currentEvent?1:0),latencyMs:Math.round(performance.now()-matterWorkingSetStarted),coverage:matterWorkingSet.coverage,providerCalls:0})
+  }
   preRetrievalMs=Math.round(performance.now()-engineStageClock)
   const knowledgeStart=performance.now()
-  const allContextMessages=await redactGrowthHistory(run.user_id,context.filter(row=>row.id===run.source_message_id||!snapshot.suppressedMessageIds?.includes(row.id)))
+  let authorizedHistory=await redactGrowthHistory(run.user_id,context.filter(row=>!row.decision_context_gap&&(row.id===run.source_message_id||!snapshot.suppressedMessageIds?.includes(row.id))))
+  if(decisionComparison){
+    const remembered=realComparisonUser??rememberedBaselineSource??(previousComparisonRefs.length?context.slice().reverse().find(row=>row.comparison_baseline_source)?.comparison_baseline_source:null)
+    const missing=[...new Set([remembered,previousComparisonUser,...rememberedConditionSources.slice(0,64)].filter((id):id is string=>typeof id==='string'&&!snapshot.suppressedMessageIds?.includes(id)&&!authorizedHistory.some(row=>row.id===id)))]
+    if(missing.length){
+      const rows=(await pool.query("SELECT m.id,m.role,m.content,m.created_at,floor(extract(epoch FROM m.created_at)*1000000)::text AS decision_created_micros,(r.status='completed') AS completed_decision,r.tool_audit @> jsonb_build_array(jsonb_build_object('phase','decision_comparison_read_only')) AS decision_comparison FROM messages m JOIN runs r ON r.user_id=m.user_id AND r.request_id=m.run_request_id WHERE m.user_id=$1 AND m.conversation_id=$2 AND m.id::text=ANY($3::text[]) AND m.role='user' AND NOT EXISTS(SELECT 1 FROM deleted_conversations d WHERE d.user_id=m.user_id AND d.conversation_id=m.conversation_id)",[run.user_id,run.conversation_id,missing])).rows
+      for(const row of rows)if(row.decision_comparison)trialHistoryIds.add(row.id)
+      authorizedHistory=[...await redactGrowthHistory(run.user_id,rows),...authorizedHistory]
+    }
+    if(typeof remembered==='string'&&authorizedHistory.some(row=>row.id===remembered))realComparisonUser=remembered
+  }
+  if(decisionComparison)staged.audit.push({phase:'decision_comparison_baseline_bound',sourceMessageId:realComparisonUser,persistence:'REFERENCE_TO_USER_CONDITIONS_NOT_PROFILE_UPDATE',providerCalls:0})
+  // Trial transcripts remain visible in chat, but do not become later factual
+  // context. A new comparison gets only explicitly labelled authorized trials.
+  const allContextMessages=authorizedHistory.flatMap(row=>{
+    if(decisionComparison&&row.role==='assistant')return []
+    if(row.id===current.id||!trialHistoryIds.has(row.id))return [row]
+    const actual=row.role==='user'?reportedActualComparisonClauses(row.content).map(c=>c.text).join('。'):''
+    return actual?[{...row,content:actual}]:[]
+  })
+  const comparisonTranscript=(userId:string|null,replyId:string|null)=>{
+    const request=authorizedHistory.find(row=>row.id===userId),reply=authorizedHistory.find(row=>row.id===replyId)
+    return request||reply?{sourceMessageId:request?.id??null,conditionsText:request?.content??null,reportedAt:request?.created_at??null,hasCompletedReply:Boolean(reply||request?.completed_decision),assistantProseExcluded:true}:null
+  }
   // An unambiguous owned event can carry its method into another conversation.
   // A new or competing matter must not inherit that event's usage or branch.
   const guideEvent=currentEvent??(!retrieval.ambiguous&&historicalEvents.length===1?historicalEvents[0]:null)
@@ -441,7 +657,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   if(!previousGuideUsage.length&&methodReferenceClause(current.content)){
     const matches=[]
     const guideEvents=await readPriorGuideEvents(run.user_id,run.conversation_id)
-    for(const event of guideEvents.filter(event=>feedbackMatchesCurrent(current.content,event.title,event.title))){
+    for(const event of guideEvents.filter(event=>(!matterWorkingSet||matterWorkingSet.events.some(selected=>selected.id===event.id))&&feedbackMatchesCurrent(current.content,event.title,event.title))){
       const usage=await readGuideUsage(run.user_id,run.conversation_id,event.id)
       if(usage.length)matches.push({event,usage})
     }
@@ -549,14 +765,36 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   let historySelection:{selected:typeof allContextMessages;totalMessages:number;totalChars:number;selectedChars:number}|null=null
   staged.usedMemoryRefs=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').map(item=>({memoryId:item.id,revision:item.revision}))
   staged.usedExperienceRefs=snapshot.confirmedExperiences.map(item=>({id:item.id,revision:item.revision}))
-  staged.usedEventRefs=[...(currentEvent?[currentEvent]:[]),...historicalEvents].map(event=>({eventId:event.id,revision:event.revision,generation:event.generation}))
+  staged.usedEventRefs=[...(currentEvent?[currentEvent]:[]),...historicalEvents].map(event=>({eventId:event.id,revision:event.revision,generation:event.generation,...(matterWorkingSet?{sourceControlKey:matterWorkingSet.sourceControls[event.id]}:{})}))
+  staged.audit.push({phase:'coach_context_bound',eventRefs:staged.usedEventRefs,currentEventId:currentEvent?.id??null,scope:'supplied_context_only_not_proof_of_effective_help',providerCalls:0})
   const route={tier:'default' as const,escalated:false,reason:null},runtime=resolveModel('default')
-  const growthAll=await growthContext(run.user_id,run.conversation_id)
-  const correctionPlan=planExplicitCorrection(current.content,growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,sourceIds:item.sources.filter(source=>source.type==='message').map(source=>source.id)})))
+  const growthSemantic=await growthSemanticContext(run.user_id,run.conversation_id)
+  const growthAll=growthSemantic.items
+  const correctionCandidates=growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,sourceIds:item.sources.filter(source=>source.type==='message').map(source=>source.id)}))
+  const correctionPlan=planExplicitCorrection(factualWriteText,correctionCandidates)
   // Normalize every engine-originated delta, including correction/supplement
   // branches, before the strict growth store. The store itself keeps rejecting
   // invalid feedback; only the model-facing wrapper repairs optional fields.
-  const stageGrowth=async (deltas:any[],options:any={})=>stageGrowthUpdates(run,deltas.map(delta=>normalizeModelFeedbackDelta(delta)) as any,growthAll,options)
+  // Matter transitions and privacy use their own existing transactions.
+  // A comparison's growth lane can use only the independent report or correction.
+  const stageGrowth=async (deltas:any[],options:any={})=>{
+    const authorized=personalWritesBlocked?[]:!decisionComparison?deltas:deltas.filter(delta=>{
+      const source=delta.source,quote=source.quote
+      if(source.messageId!==run.source_message_id||!comparisonFactQuotes.has(quote)&&correctionPlan?.newQuote!==quote)return false
+      const selected=selectedSourceRange(source)
+      const occurrences=sourceQuoteRanges(current.content,quote)
+      if(!selected&&occurrences.length!==1)return false
+      const ranges=occurrences.filter(range=>{
+        if(selected&&(selected.start!==range.start||selected.end!==range.end))return false
+        const spans=comparisonFactClauses.filter(clause=>clause.start>=range.start&&clause.end<=range.end)
+        return spans[0]?.start===range.start&&spans.at(-1)?.end===range.end&&comparisonFactText(current.content,spans)===quote
+      })
+      if(ranges.length!==1)return false
+      if(!selected)inheritSourceRange(clauseMessageSource(run.source_message_id,{start:ranges[0]!.start,text:quote}),source)
+      return true
+    })
+    return stageGrowthUpdates(run,authorized.map(delta=>normalizeModelFeedbackDelta(delta)) as any,growthAll,options)
+  }
   // P4 B1: relevance-based selection within a pre-declared budget; the full
   // authorized set still drives staging/snapshot checks - only the prompt
   // context is selected so large archives do not serialize wholesale.
@@ -564,15 +802,22 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   const pendingRecommendationIds=new Set((await listControlRequests(run.user_id)).filter(row=>row.status==='pending'&&row.kind==='stop_recommend').flatMap(row=>row.candidates.map(candidate=>candidate.itemId)))
   const recommendationBlockedIds=new Set([...recommendationStopped,...pendingRecommendationIds])
   const unresolvedTaskBoundaries=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&item.taskBoundary)
-  const clauseCatalogue=buildClauseCatalogue(current.content)
+  const clauseCatalogue=buildClauseCatalogue(current.content).filter(c=>!decisionComparison||actualComparisonClauses.some(real=>real.start===c.start&&real.end===c.end))
+  const experienceCandidateRequired=requiresExperienceCandidate(clauseCatalogue)
   const refusalOnly=Boolean(currentConversationOnly(current.content)&&clauseCatalogue.some(c=>refusalPreferenceClause(c.text))&&clauseCatalogue.every(c=>conversationPreferenceClause(c.text)||/^(?:按上次办法|还是上次那件事|上次那件事)$/.test(c.text)))
   const turnNeedsControlReceipt=turnDerivedControls.status!=='none'||detectForgetIntentClauses(current.content).length>0||reportedTaskBoundaryClauses(current.content).some(clause=>scopedTaskPauseClause(clause.text))
   const newMatterExplicit=scanUserClauses(current.content).some(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:换个|换一件|另一件|另一个|新事情|新话题|转到|转而|不谈上次)/.test(clause.text))
   const explicitMaterialRequest=clauseCatalogue.some(clause=>!clause.conditional&&!clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&deliverableIntent(clause.text,'create'))
-  const explicitRecallRequest=/^(?:请|帮我|麻烦)?(?:回顾|总结|复述|回读|列出)(?:一下)?[:：]?/.test(current.content)
+  const imperativeRecallRequest=clauseCatalogue.some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&readbackRequestClause(clause.text))
+  const explicitRecallRequest=imperativeRecallRequest||/^(?:请|帮我|麻烦)?(?:回顾|总结|复述|回读|列出)(?:一下)?[:：]?/.test(current.content)
   const asksRecall=explicitRecallRequest||methodIntent.reason==='memory_query'||/(?:我报告过|我之前把|按我(?:提供|报告)|你(?:目前|现在)?知道.{0,20}(?:实际做过|做过什么|报告过)|你会把|是不是(?:等于|意味着)|如果.{0,15}只想聊天)|^(?:我)?(?:本周|这周).{0,35}(?:是多少|多久|多少时间)/.test(current.content)
   const onlyReadback=clauseCatalogue.every(clause=>clause.interrogative||clause.conditional||clause.quoted||clause.code||clause.attributedToOther||assistantRequestClause(clause.text)||/^(?:请)?只(?:按|说|回答|回顾|说明)|^按我(?:提供|报告)|^上次[^我本人]{1,24}那件事$/.test(clause.text))
-  const readOnlyQuestion=methodIntent.decision==='NONE'&&asksRecall&&(onlyReadback||explicitRecallRequest)&&obligations.requiredEffects.length===0&&!currentConversationOnly(current.content)&&!explicitMaterialRequest&&clauseCatalogue.some(clause=>clause.interrogative)
+  const [recallScope,...recallParts]=clauseCatalogue
+  const savedReadbackOnly=Boolean(imperativeRecallRequest&&recallScope&&!recallScope.quoted&&!recallScope.code&&!recallScope.conditional&&!recallScope.attributedToOther&&/^(?:请)?只(?:根据|依据|按)(?:仍然|仍|当前|已经|已|还)?(?:保存|保留|记录)的(?:事实|信息|资料|档案)$/.test(recallScope.text)&&recallParts.every(clause=>
+    assistantRequestClause(clause.text)||/^(?:以及|并且?|另外)?(?:下次|之后|以后)(?:该|应|要|可以)?(?:如何|怎么)(?:验证|核实|核对|检查|比较).+$/.test(clause.text)||/^(?:我的|本人的)?(?!我|本人)[\p{L}\p{N}]{1,24}(?:经历|背景|记录|能力|技能|专业|结果|资料)$/u.test(clause.text)))
+  const historicalEvidenceOnly=Boolean(recallScope&&!recallScope.quoted&&!recallScope.code&&!recallScope.conditional&&!recallScope.attributedToOther&&/^(?:接着|继续|回到)(?:上次|之前|先前)的?[^。！？]{1,24}(?:经历|事项|尝试|反馈)$/.test(recallScope.text)&&recallParts.some(clause=>clause.interrogative&&/^(?:我|本人)(?:上次|之前|实际)?做过.{0,12}(?:是什么|有哪些|是什么样)$/.test(clause.text))&&recallParts.every(clause=>clause.interrogative&&!clause.conditional&&!clause.attributedToOther))
+  const sourceReadbackOnly=savedReadbackOnly||historicalEvidenceOnly
+  const readOnlyQuestion=obligations.requiredEffects.length===0&&!currentConversationOnly(current.content)&&!explicitMaterialRequest&&(sourceReadbackOnly&&!turnNeedsControlReceipt||methodIntent.decision==='NONE'&&asksRecall&&(onlyReadback||explicitRecallRequest)&&(imperativeRecallRequest||clauseCatalogue.some(clause=>clause.interrogative)))
   const reconsideringPaused=/(?:重新|重开).{0,10}(?:想清楚|梳理|考虑|判断)|只问一个问题.{0,20}(?:目标|方向)/.test(current.content)
   const explicitGoalDeclaration=/(?:我|本人)(?:现在|当前|目前)?的?目标是/.test(current.content)
   const explicitDeliverableRequest=deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
@@ -607,7 +852,9 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     const chars=(text:string)=>new Set([...text].filter(char=>/\p{Script=Han}/u.test(char)&&!stopChars.has(char)))
     const unknownChars=chars(`${unknown.content}${(unknown as any).affects??''}`)
     const answerChars=chars(current.content)
-    if([...answerChars].filter(char=>unknownChars.has(char)).length<2)return null
+    const priorQuestionRequest=[...allContextMessages].reverse().find(message=>message.id!==run.source_message_id&&message.role==='user')
+    const answersDefinition=Boolean(priorQuestionRequest&&ownedOpenDefinitionQuestion(unknown.content,priorQuestionRequest.content)&&reportedEvidenceFromText(current.content).preferences.length)
+    if(!answersDefinition&&[...answerChars].filter(char=>unknownChars.has(char)).length<2)return null
     const answer=clauseCatalogue.filter(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative&&!assistantRequestClause(clause.text)).map(clause=>clause.text).join('')
     // This is schema eligibility only, never an automatic state transition.
     return normalize(answer).length>=4?unknown:null
@@ -630,9 +877,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // P4: resume/portfolio materials render from a server-built catalogue of the
   // user's own verified words only; the model selects ids and never authors
   // factual prose for this material class.
+  const evidenceExperiences=await currentExperienceEvidence(pool,run.user_id,snapshot.confirmedExperiences)
   const materialCatalogue=resumePortfolioMode?buildMaterialFactCatalogue(
     growth,
-    snapshot.confirmedExperiences,
+    evidenceExperiences,
     {id:run.source_message_id,conversationId:run.conversation_id,text:current.content},
     allContextMessages
       .filter(message=>message.role==='user'&&message.id!==run.source_message_id)
@@ -674,12 +922,20 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     staged.audit.push({phase:'task_boundary_clarification_required',pendingTargets:pendingRecommendationIds.size,unresolvedScopes:unresolvedTaskBoundaries.length,deferredPlanRequest:requestsTimeArrangement(current.content),deferredMaterialRequest:resumePortfolioMode,deferredEffects:obligations.requiredEffects.filter(effect=>effect.type==='weekly_plan'||effect.type==='grounded_material'),providerCalls:0})
     obligations.requiredEffects=obligations.requiredEffects.filter(effect=>effect.type!=='weekly_plan'&&effect.type!=='grounded_material')
   }
-  const planIntent=!boundaryNeedsClarification&&(requestsTimeArrangement(current.content)||obligations.requiredEffects.some(effect=>effect.type==='weekly_plan'))
+  const actionRestrictions=actionWriteRestrictions(current.content)
+  const materialOperation=currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create'
+  const materialVisibility=explicitMaterialRequest?coachMaterialVisibility(current.content):null
+  const viewOnlyDrafts=materialVisibility?.viewOnly??[]
+  const readOnlyMaterial=materialVisibility?.allReadOnly===true
+  const mixedViewOnly=viewOnlyDrafts.length>0&&!readOnlyMaterial
+  const materialPersistenceRefused=readOnlyMaterial||actionRestrictions[materialOperation]
+  if(actionRestrictions.plan||materialPersistenceRefused)obligations.requiredEffects=obligations.requiredEffects.filter(effect=>!(actionRestrictions.plan&&effect.type==='weekly_plan')&&!(materialPersistenceRefused&&effect.type==='grounded_material'))
+  const planIntent=!actionRestrictions.plan&&!decisionComparison&&!boundaryNeedsClarification&&(requestsTimeArrangement(current.content)||obligations.requiredEffects.some(effect=>effect.type==='weekly_plan'))
   // The contract must offer the material lane exactly when validation can
   // DEMAND it: deliverableIntent is the same detector the material-visibility
   // check uses (怎么开口 counts as a deliverable request), so the schema and
   // the validator can never disagree about the lane.
-  const materialIntent=!readOnlyQuestion&&!instructionOnlySummary&&!boundaryNeedsClarification&&(resumePortfolioMode||deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create'))
+  const materialIntent=!materialPersistenceRefused&&!decisionComparison&&!readOnlyQuestion&&!instructionOnlySummary&&!boundaryNeedsClarification&&(resumePortfolioMode||deliverableIntent(current.content,materialOperation))
   const planBudget=obligations.requiredEffects.find(effect=>effect.type==='weekly_plan')
   const requestedGuide=clauseCatalogue.some(clause=>!clause.quoted&&!clause.conditional&&!clause.attributedToOther&&assistantRequestClause(clause.text)&&/(?:用|使用|按|参考|依据).{0,80}(?:攻略|指南|方法)/.test(clause.text))?knowledge.find(card=>card.guide&&methodIntent.query.includes(card.title)):undefined
   const allowedPlanScopes=mentionedDirectionScopes([current.content,...growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>item.text)].join('\n'))
@@ -696,12 +952,22 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // that same clause as an expiring constraint. Keep it visible for reasoning;
   // only its duplicate model-write handle is withheld. Corrections and dated
   // windows retain their original paths.
-  const programOwnedBudgetQuotes=summaryEventReadOnly&&!correctionPlan&&!explicitTimeEvidenceCandidates(current.content,new Date(current.created_at).toISOString(),'Asia/Shanghai').length
+  const programOwnedBudgetQuotes=decisionComparison?obligations.requiredEffects.flatMap(effect=>effect.type==='weekly_time'||effect.type==='remaining_time'?[effect.quote]:[])
+    :summaryEventReadOnly&&!correctionPlan&&!explicitTimeEvidenceCandidates(current.content,new Date(current.created_at).toISOString(),'Asia/Shanghai').length
     ?obligations.requiredEffects.flatMap(effect=>effect.type==='weekly_time'&&effect.period==='current'?[effect.quote]:[]):[]
-  const modelClauseCatalogue=clauseCatalogue.filter(clause=>!programOwnedBudgetQuotes.includes(clause.text))
+  const modelClauseCatalogue=clauseCatalogue.filter(clause=>{
+    if(programOwnedBudgetQuotes.includes(clause.text))return false
+    if(!decisionComparison)return true
+    const correctionSource=correctionPlan&&(correctionPlan.markerQuote===clause.text||correctionPlan.newQuote.includes(clause.text)||/^更正(?:一下)?$/.test(clause.text))
+    return comparisonFactQuotes.has(clause.text)&&!correctionSource
+  })
   const explicitSourceRequest=/(?:来源|依据|方法|攻略|指南|政策|规定|数据|研究|证明|出处)/.test(current.content)
   const suppressUnrequestedCitations=!requestedGuide&&!explicitSourceRequest
-  const baseContract=deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,knowledgeIds:requestedGuide?[requestedGuide.id]:knowledge.map(card=>card.id),requiredKnowledgeCitation:Boolean(requestedGuide),currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent,readOnly:readOnlyQuestion||instructionOnlySummary,eventReadOnly:summaryEventReadOnly})
+  const fieldCorrectionOnly=snapshot.settings.enabled&&!personalWritesBlocked&&correctionPlan?.target?.field==='education.major'&&clauseCatalogue.every(clause=>
+    !clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!clause.quoteSpans?.length&&!clause.codeSpans?.length&&
+    (correctionPlan.newQuote.includes(clause.text)||correctionPlan.markerQuote===clause.text||
+      /^(?:请)?保留(?:[^，。；！？]{1,24}经历和)?(?:其他|其余)(?:已保存的)?(?:经历|事实|记录|资料)(?:不变)?$/u.test(clause.text)))
+  const baseContract=deriveTurnContract({text:current.content,knowledgeCount:knowledge.length,knowledgeIds:requestedGuide?[requestedGuide.id]:knowledge.map(card=>card.id),requiredKnowledgeCitation:Boolean(requestedGuide),currentEventExists:!boundaryNeedsClarification&&currentEvent!==null,planIntent,material:materialIntent,readOnly:fieldCorrectionOnly||Boolean(decisionComparison)&&!modelClauseCatalogue.length||readOnlyQuestion||instructionOnlySummary,eventReadOnly:Boolean(decisionComparison)||summaryEventReadOnly})
   if(suppressUnrequestedCitations){
     delete (baseContract.schema.properties as any).citations
     baseContract.capabilities.citations=false
@@ -719,33 +985,159 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     baseContract.schemaChars=JSON.stringify(baseContract.schema).length
   }
   const originalContract=bindPlanBudgetSchema(baseContract,planBudget?.type==='weekly_plan'?planBudget:undefined,current.content,allowedPlanScopes)
-  const priorInterviewQuestions=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion)&&requestedQuestionEditClauses(item.text).length>0).map(item=>item.text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/, '').replace(/^[“「『]|[”」』]$/g,'')).filter(q=>q.length>0&&q.length<=300)
-  const priorInterviewQuestion=priorInterviewQuestions.length===1?priorInterviewQuestions[0]:undefined
+  // Duplicate host/model writes from one source are one edit. Distinct source
+  // groups may belong to different interviews, so an unscoped continuation
+  // stays unresolved instead of silently taking the newest question.
+  const sourceMessages=new Map(allContextMessages.filter(message=>message.role==='user').map(message=>[message.id,message]))
+  const sourceMessageTexts=new Map([...sourceMessages].map(([id,message])=>[id,message.content]))
+  const sourceMessageCreatedAt=new Map([...sourceMessages].map(([id,message])=>[id,preciseIsoFromEpochMicros(message.decision_created_micros,message.created_at)]))
+  const interviewMemoryFor=(item:(typeof growthAll)[number])=>{
+    const exact=growthSemantic.sourceLocations.get(item.id)??[]
+    const fallback=growthMessageSourceLocations(item.sources,sourceMessageTexts,sourceMessageCreatedAt)
+    const locations=exact.length?exact:fallback
+    // Routing may only use exact user-message evidence. A growth row without
+    // a resolvable message source is not allowed to become a second source of
+    // truth merely because its text resembles an interview report.
+    if(!locations.length)return []
+    return locations.flatMap(location=>{
+      if(location.ambiguous)return []
+      const message=sourceMessages.get(location.sourceId)
+      const createdAt=location.createdAt??sourceMessageCreatedAt.get(location.sourceId)??item.createdAt
+      const sourceOrder=location.start!==undefined&&location.start>=0?location.start:undefined
+      const contextText=location.contextText??message?.content
+       const conversationId=location.conversationId??(message?run.conversation_id:undefined)
+       return [{text:location.quote,sourceId:location.sourceId,createdAt,...(conversationId?{conversationId}:{}),...(sourceOrder===undefined?{}:{sourceOrder}),...(contextText?{contextText}:{})}]
+    })
+  }
+  const authoritativeInterviewItems=growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&!item.recommendationStopped&&['user_reported','user_edit'].includes(item.assertion))
+  const interviewEditMemories=authoritativeInterviewItems.flatMap(interviewMemoryFor)
+  const interviewEditResolution=resolveRequestedQuestionEdit(interviewEditMemories,current.content)
+  const selectedInterviewEdit=selectedRequestedQuestionEditMemory(interviewEditMemories,interviewEditResolution,current.content)
+  const selectedInterviewMatter=selectedRequestedQuestionEditMatter(interviewEditMemories,interviewEditResolution,current.content)
+  const selectedInterviewSource=selectedRequestedQuestionEditSource(interviewEditMemories,interviewEditResolution,current.content)
+  // Active growth remains the only recall source. Raw persisted user messages
+  // participate only as fail-closed chronology: a later real interview can
+  // invalidate a stale edit even when optional extraction omitted that turn.
+  // Their text is neither selected as a memory nor added to provider context.
+  const selectedSourceId=selectedInterviewSource?.sourceId
+  // Keep the selected historical source in this scan so a later clause in the
+  // same message can invalidate its earlier edit. `$4` is the current,
+  // in-progress message and is the only row excluded from chronology.
+  const chronologyScope=selectedSourceId&&selectedInterviewSource&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(selectedSourceId)?{...selectedInterviewSource,currentMessageId:String(current.id),conversationId:run.conversation_id,memoryEnabled:snapshot.settings.enabled}:null
+  const chronologySnapshot=chronologyScope?await readInterviewChronologySnapshot(run.user_id,chronologyScope):null
+  const persistedChronologyMessages=chronologySnapshot?.messages??[]
+  if(chronologySnapshot)staged.interviewChronologySnapshot={scope:chronologyScope!,key:chronologySnapshot.key}
+  const chronologySourceBoundaries=chronologySnapshot?.boundaries??[]
+  const databaseInterviewChronology=persistedChronologyMessages.flatMap(message=>{
+    const content=String(message.content),sourceId=String(message.id)
+    if(profileWritesDisallowed(content))return []
+    const rows:{text:string;sourceId:string;sourceOrder:number;createdAt:string}[]=[],createdAt=preciseIsoFromEpochMicros(message.created_micros,message.created_at)
+    let visiblePrefix='',previousEnd=-1
+    for(const clause of scanUserClauses(content)){
+      const suppressed=chronologySourceBoundaries.some(ref=>ref.messageId===sourceId&&sourceQuotesOverlap(content,{quote:clause.text,range:{start:clause.start,end:clause.end}},ref))
+      // A hidden clause is also an ownership boundary. Otherwise keep the
+      // visible message prefix so `我先整理…，后来做了访谈` reaches the same
+      // actor-inheritance parser as an unsplit in-memory message.
+      if(suppressed){visiblePrefix='';previousEnd=-1;continue}
+      visiblePrefix=visiblePrefix+((previousEnd>=0?content.slice(previousEnd,clause.start):''))+clause.text
+      rows.push({text:visiblePrefix,sourceId,sourceOrder:clause.start,createdAt})
+      previousEnd=clause.end
+    }
+    return rows
+  })
+  const interviewChronology=[...authoritativeInterviewItems.flatMap(interviewMemoryFor),...databaseInterviewChronology]
+  const laterInterviewTexts=selectedInterviewEdit?interveningInterviewTexts(interviewChronology,selectedInterviewEdit):[]
+  const priorInterviewQuestion=interviewEditResolution.status==='selected'&&selectedInterviewEdit&&selectedInterviewMatter&&questionEditMatchesMatter(current.content,selectedInterviewMatter,laterInterviewTexts)?interviewEditResolution.question:undefined
+  const editedInterviewContinuation=Boolean(priorInterviewQuestion&&/访谈/.test(current.content)&&/(?:上次|继续|接下来)/.test(current.content))
   // A resolved event workspace already supplies the bounded identities and
   // review state. Do not replace its contextual reply with a generic editorial
   // catalogue; the event/action validators still constrain every mutation.
   const freshReviewEvidence=currentEvent!==null&&!currentConversationOnly(current.content)
-  const boundedReply:BoundedReply|null=(reconsideringPaused||explicitGoalDeclaration)?null:turnNeedsControlReceipt||refusalOnly?null:boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停了一件事项，尚未确认和这次是否同一件事。先核对这次要继续的事项，以及是否要恢复它；确认前不安排任务。']}:readOnlyQuestion&&!explicitRecallRequest?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):methodIntent.reason==='method_reference_missing'?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'本人所指的既有方法名称或原步骤',choices:['我目前无法确认你说的“上次那个方法”具体是哪一个，因此不换方法。请把方法名或上次那一步贴过来；已解示例缺失、课件链接打不开先按你的原话保留。']}:requestedGuide||(methodIntent.continuation&&knowledge.length)||freshReviewEvidence?null:boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier,material:materialIntent,priorInterviewQuestion,priorUserTexts})
+  staged.audit.push({phase:'edited_interview_route',candidateCount:interviewEditResolution.candidateCount,sourceCount:interviewEditResolution.sourceCount,resolution:interviewEditResolution.status,selectedSourceId:interviewEditResolution.status==='selected'?interviewEditResolution.sourceId:null,continuation:editedInterviewContinuation,decisionComparison,matterWorkingSet:Boolean(matterWorkingSet),reconsideringPaused,explicitGoalDeclaration,requestedGuide,methodContinuation:methodIntent.continuation&&knowledge.length>0,freshReviewEvidence,providerCalls:0})
+  // Explicit factual recall uses the authorized personal context and normal reply;
+  // it must not fall through to a generic pre-contact action catalogue.
+  const oneQuestionReplyRequested=requestsOneQuestionReply(current.content)
+  const canRecordNamedMatter=snapshot.settings.enabled&&originalContract.capabilities.event&&!personalWritesBlocked&&!decisionComparison
+  const canStartNamedMatter=canRecordNamedMatter&&!currentEvent&&!historicalEvents.length&&!retrieval.ambiguous
+  const namedAcceptance=canStartNamedMatter?reportedNamedMatterAcceptance(current.content):null
+  const newNamedMatter=canStartNamedMatter?reportedDatedMatterChoice(current.content)??namedAcceptance:null
+  const explicitSwitch=canRecordNamedMatter&&newMatterExplicit?reportedSwitchedMatterChoice(current.content):null
+  const switchFocus=explicitSwitch?.focus
+  // Earlier records may include 准备 in the title. Bind the shorter focus only
+  // when this current matter still has an active first-person source for it.
+  const retainsSwitchFocus=currentEvent&&switchFocus&&(
+    currentEvent.title===switchFocus||
+    currentEvent.title==='准备'+switchFocus&&currentEvent.nodes.some(node=>
+      node.kind==='fact'&&node.status==='active'&&!node.supersededByActionCorrection&&
+      reportedDatedMatterTitle(node.source?.quote??'')===switchFocus))
+  const switchedMatter=explicitSwitch&&explicitSwitch.title!==currentEvent?.title&&(!switchFocus||retainsSwitchFocus)?explicitSwitch:null
+  const namedMatter=switchedMatter??newNamedMatter
+  const partialOutcomes=canRecordNamedMatter&&!newMatterExplicit?reportedPartialActionOutcomes(current.content):[]
+  const feedbackTarget=(()=>{
+    if(partialOutcomes.length!==1||retrieval.ambiguous)return null
+    const proof=partialOutcomes[0]!
+    const targets=[...(currentEvent?[currentEvent]:[]),...historicalEvents]
+    const matches=targets.flatMap(event=>event.nodes.flatMap(node=>{
+      if(node.kind!=='unknown'||node.status!=='active')return []
+      const subject=/^(?:你(?:上次|这次)?)?(?:查看|核对|阅读|看|检查|尝试)([^，。！？]{2,32}?)(?:以后|之后|后)的?(?:具体|实际)?反馈(?:是)?什么[？?]?$/.exec(node.content)?.[1]
+      return subject&&unknownQuestionTopicMatches(subject,proof.action.text)?[{event,nodeId:node.id,proof}]:[]
+    }))
+    if(matches.length===1)return matches[0]!
+    if(matches.length>1)return null
+    const acceptedTargets=targets.filter(event=>{
+      const accepted=event.matterProgress?.reports.filter(report=>report.choice==='accepted').at(-1)
+      return accepted&&matchesAcceptedPartialAction(proof.action.text,accepted.quotes)
+    })
+    return acceptedTargets.length===1?{event:acceptedTargets[0]!,nodeId:undefined,proof}:null
+  })()
+  const boundedReply:BoundedReply|null=(newNamedMatter||feedbackTarget||decisionComparison||matterWorkingSet||reconsideringPaused||explicitGoalDeclaration)?null:turnNeedsControlReceipt||refusalOnly?null:boundaryNeedsClarification?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'停止或暂停指的是哪件事项；不猜相似事件',choices:[pendingRecommendationIds.size?'先确认你想停止推荐的是哪件事：请在确认卡里选择原事项。已报告的事实保留；确认前不主动安排这些候选事项。想换一件新事，也可以直接告诉我。':'你之前暂停了一件事项，尚未确认和这次是否同一件事。先核对这次要继续的事项，以及是否要恢复它；确认前不安排任务。']}:readOnlyQuestion&&(explicitRecallRequest||sourceReadbackOnly)&&!editedInterviewContinuation?null:readOnlyQuestion&&!explicitRecallRequest&&!editedInterviewContinuation?boundedRecallReply(current.content,growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>({text:item.text,createdAt:item.createdAt})),priorInterviewQuestion):methodIntent.reason==='method_reference_missing'?{basis:'editorial_adaptation',sourceStatus:'NO_PUBLIC_METHOD',stage:'reported_result',nextUnknown:'本人所指的既有方法名称或原步骤',choices:['我目前无法确认你说的“上次那个方法”具体是哪一个，因此不换方法。请把方法名或上次那一步贴过来；已解示例缺失、课件链接打不开先按你的原话保留。']}:(!editedInterviewContinuation&&(requestedGuide||(methodIntent.continuation&&knowledge.length)))||freshReviewEvidence||oneQuestionReplyRequested?null:boundedOrdinaryReply({text:current.content,intent:methodIntent,contract:originalContract,knowledgeCount:knowledge.length,tier:route.tier,material:materialIntent,priorInterviewQuestion,priorUserTexts})
   const hasSeparateQuestion=clauseCatalogue.some(clause=>clause.interrogative&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!assistantRequestClause(clause.text))
-  const replyMaterial=materialIntent&&!resumePortfolioMode&&!asksRecall&&!hasSeparateQuestion&&!planIntent&&requiresImmediateMaterial(current.content)
   const singleQuestionMaterial=requestsSingleQuestionMaterial(current.content)
-  const singleQuestionReply=!materialIntent&&!asksRecall&&!hasSeparateQuestion&&!planIntent&&requestsOneQuestionReply(current.content)
+  const replyMaterial=materialIntent&&!mixedViewOnly&&!resumePortfolioMode&&!asksRecall&&!hasSeparateQuestion&&!planIntent&&(requiresImmediateMaterial(current.content)||singleQuestionMaterial)
+  const singleQuestionReply=!materialIntent&&!asksRecall&&!hasSeparateQuestion&&!planIntent&&oneQuestionReplyRequested
   const requestedDefinition=singleQuestionReply&&!boundedReply&&!currentConversationOnly(current.content)&&!detectForgetIntentClauses(current.content).some(c=>c.kind==='forget'||c.kind==='pause_use')?provisionalQuestionPreview(current.content):null
   const sourceDefinition=requestedDefinition&&!removeQuestionOnZeroTime(requestedDefinition,current.content)?requestedDefinition:null
-  const questionFirstMaterial=materialIntent&&!resumePortfolioMode&&!planIntent&&singleQuestionMaterial&&(asksRecall||hasSeparateQuestion)&&requiresImmediateMaterial(current.content)
+  const questionFirstMaterial=materialIntent&&!resumePortfolioMode&&!planIntent&&singleQuestionMaterial&&(asksRecall||hasSeparateQuestion)
   const deliveryContract=bindMaterialDeliverySchema(bindBoundedReplySchema(originalContract,boundedReply),current.content,resumePortfolioMode,questionFirstMaterial?'question_first':replyMaterial)
-  const contract=!boundedReply&&!materialIntent&&!planIntent?bindRequestedComparisonSchema(bindRequestedSummarySchema(deliveryContract,current.content,singleQuestionReply||hasSeparateQuestion),current.content):deliveryContract
+  if(viewOnlyDrafts.length){
+    const schema=deliveryContract.schema as {properties:Record<string,any>;required?:string[]}
+    schema.properties.viewOnlyDrafts={type:'array',minItems:viewOnlyDrafts.length,maxItems:viewOnlyDrafts.length,items:{type:'string',minLength:1,maxLength:12000},description:'按请求顺序写每份完整可用的只读成品。内容由服务器展示，不写成行动。'}
+    schema.required=[...new Set([...(schema.required??[]),'viewOnlyDrafts'])]
+    schema.properties.reply={...schema.properties.reply,minLength:0,description:'仅写有必要的其他回应；无须说明时为空字符串。只读材料正文只写viewOnlyDrafts。'}
+    const writableIds=modelClauseCatalogue.filter(clause=>materialVisibility!.writable.some(request=>request.range.start===clause.start&&request.range.end===clause.end)).map(clause=>clause.clauseId)
+    if(writableIds.length)for(const branch of schema.properties.event?.properties?.action?.anyOf??[]){
+      if(!branch.properties?.source)continue
+      branch.properties.source={anyOf:[branch.properties.source,{type:'object',properties:{clauseId:{type:'string',enum:writableIds}},required:['clauseId'],additionalProperties:false}]}
+    }
+    deliveryContract.schemaChars=JSON.stringify(deliveryContract.schema).length
+  }
+  const summaryContract=!boundedReply&&!materialIntent&&!planIntent?bindRequestedSummarySchema(deliveryContract,current.content,singleQuestionReply||hasSeparateQuestion):deliveryContract
+  const comparisonContract=!boundedReply&&!materialIntent&&!planIntent?bindRequestedComparisonSchema(summaryContract,current.content):summaryContract
+  const comparisonInstructions=responseRequestScope(current.content).instructions.filter(clause=>comparisonRequestClause(clause.commandText))
+  const scopedComparison=matterWorkingSet!==null&&comparisonInstructions.every(clause=>comparisonRequestClause(clause.commandText,'matter_set',current.content))
+  // Matter coverage uses its own contract; retain the existing universe check
+  // while leaving its prose free of the generic numbered-options presentation.
+  const contract=scopedComparison?summaryContract:comparisonContract
   if(sourceDefinition){
     const schema=structuredClone(contract.schema) as any
     schema.properties.reply={...schema.properties.reply,enum:[sourceDefinition]}
     contract.schema=schema;contract.schemaChars=JSON.stringify(schema).length
   }
-  const answerDispositionRequired=Boolean(immediateAnsweredUnknown&&currentEvent&&contract.capabilities.event&&!boundedReply)
+  const answerDispositionRequired=Boolean(immediateAnsweredUnknown&&immediateAnsweredUnknown.id!==feedbackTarget?.nodeId&&currentEvent&&contract.capabilities.event&&!boundedReply)
   if(answerDispositionRequired){
     const schema=structuredClone(contract.schema) as any
     schema.required=[...new Set([...schema.required??[],'event'])]
     schema.properties.event.required=[...new Set([...schema.properties.event.required??[],'resolveUnknowns'])]
     contract.schema=schema;contract.schemaChars=JSON.stringify(schema).length
+  }
+  // An exact switch already carries every write source. Use the same
+  // source-owned receipt and atomic finish path as an explicit state readback.
+  const switchContract=switchedMatter&&!answerDispositionRequired&&!materialIntent&&!planIntent&&!requestedGuide&&!contract.requiredReplyKind
+    ?deriveTurnContract({text:current.content,knowledgeCount:0,currentEventExists:currentEvent!==null,planIntent:false,material:false,readOnly:true})
+    :null
+  if(switchContract){
+    contract.schema=switchContract.schema
+    contract.schemaChars=switchContract.schemaChars
   }
   // Explicit corrections are staged by the server; withholding the optional growth array prevents provider self-correction loops and invalid enum guesses.
   if(/^\\s*更正[:：]/.test(current.content)&&(contract.schema.properties as any).growthUpdates){delete (contract.schema.properties as any).growthUpdates;contract.schemaChars=JSON.stringify(contract.schema).length}
@@ -755,12 +1147,16 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     &&requestedScope.actionLimit===1
     &&reportsUnresolvedTwoFactor
   const judgmentActionRequested=requestedScope.judgmentUpdate&&requestedScope.actionRequested&&!materialIntent&&!planIntent&&!turnNeedsControlReceipt
-  if(turnNeedsControlReceipt||distinctionActionRequested||(requestedScope.judgmentUpdate&&!judgmentActionRequested)){
+  const correctionReplyMustWait=correctionPlan!==null||explicitCorrectionIntent(factualWriteText,correctionCandidates)
+  const transactionalReplyMustWait=turnNeedsControlReceipt||correctionReplyMustWait
+  const ordinaryProgressiveReply=!decisionComparison&&!matterWorkingSet&&!materialIntent&&!planIntent&&!boundedReply&&!resumePortfolioMode&&!singleQuestionReply&&!distinctionActionRequested&&!turnNeedsControlReceipt
+  if(transactionalReplyMustWait||decisionComparison||matterWorkingSet||distinctionActionRequested||(requestedScope.judgmentUpdate&&!judgmentActionRequested)||ordinaryProgressiveReply||singleQuestionMaterial||singleQuestionReply){
     // Control previews are deliberately withheld until commit. Do not spend
     // generation on a duplicate lead that cannot be delivered. Judgment
     // updates without an action deliver their understanding directly in reply.
-    // A mixed judgment/action request retains the ordinary safe lead so the
-    // requested concrete starting point need not wait for growth-write output.
+    // Ordinary replies already stream directly from reply. A separate lead is
+    // never displayed in that lane and delays the first visible reply token.
+    // Material/plan/single-question lanes keep their existing preview rules.
     // The distinction
     // reply is already rendered/validated by this same helper after generation;
     // bind that existing result instead of generating prose only to replace it.
@@ -773,45 +1169,300 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     }
     contract.schema=schema;contract.schemaChars=JSON.stringify(schema).length
   }
-  if(replyMaterial&&singleQuestionMaterial)(contract.schema.properties as any).reply.maxLength=160
   if(contract.capabilities.material){
     const schema=contract.schema as {properties:Record<string,unknown>}
     // Grounded first-person material is authored only by selecting verified
     // catalogue entries. Keep an original, short explanatory reply rather
     // than letting a second factual artifact bypass those selections.
-    if(resumePortfolioMode)schema.properties.reply={type:'string',minLength:0,maxLength:160,description:'没有必要的反馈、提醒或未知时用空字符串，不为填字段复述已知贡献、宣布已撰写或补出待填项。混合复盘仍可写必要回应。完整材料由selectedFactIds对应的原话渲染，不另写正文。'}
-    if(singleQuestionMaterial||/(?:问题|提问).{0,10}(?:压成一句|缩成一句|改成)/.test(current.content)){
-      const narrow=(node:any)=>{if(!node||typeof node!=='object')return;if(node.properties?.content){node.properties.content.maxLength=160;if(singleQuestionMaterial)node.properties.content.description='只写一个完整提问，针对已有具体线索问可观察的环节；不要先写笼统的过程总问，再把关键细节放到第二个问题。'}for(const value of Object.values(node))if(Array.isArray(value))value.forEach(narrow);else if(value&&typeof value==='object')narrow(value)}
-      narrow(schema)
-    }
+    if(resumePortfolioMode)schema.properties.reply={type:'string',minLength:0,maxLength:16000,description:'没有必要的反馈、提醒或未知时用空字符串，不为填字段复述已知贡献、宣布已撰写或补出待填项。混合复盘仍可写必要回应。完整材料由selectedFactIds对应的原话渲染，不另写正文。'}
+
+  }
+  // Explicit single-question shape is part of generation, never a later edit.
+  // Control receipts and quoted question literals retain their existing lane.
+  if(singleQuestionReply&&contract.requiredReplyKind!=='comparison'&&contract.requiredReplyKind!=='summary'&&!turnNeedsControlReceipt&&!scanUserClauses(current.content).some(clause=>clause.quoteSpans.some(span=>/[?？]/.test(current.content.slice(span.start,span.end))))){
+    (contract.schema as any).properties.reply.pattern='^[^?？\\r\\n]*[?？]$'
   }
   // G4 mode-aware history selection: bound the raw dialogue the model reads
   // (the DB and structured lanes keep everything). The current message is
   // always present in buildTurnPrompt regardless of this filter.
-  const historyForSelection=allContextMessages.filter(row=>row.id!==run.source_message_id).map(row=>({id:row.id,role:row.role==='assistant'?'assistant' as const:'user' as const,content:row.content??''}))
+  // The server owns the field edit; there is no old dialogue to answer here.
+  const historyForSelection=fieldCorrectionOnly?[]:allContextMessages.filter(row=>row.id!==run.source_message_id).map(row=>({id:row.id,role:row.role==='assistant'?'assistant' as const:'user' as const,content:row.content??''}))
   historySelection=selectHistoryForMode(historyForSelection,contract.mode,current.content)
   const selectedIds=new Set(historySelection.selected.map(row=>row.id))
   const messages=allContextMessages.filter(row=>row.id===run.source_message_id||selectedIds.has(row.id))
   staged.audit.push({phase:'history_selection',mode:contract.mode,historyTotalMessages:historySelection.totalMessages,historySelectedMessages:historySelection.selected.length,historyTotalChars:historySelection.totalChars,historySelectedChars:historySelection.selectedChars,providerCalls:0})
-  const materialRevisionPrompt=materialIntent&&currentEvent?.actions.some(action=>action.status==='proposed')?'\n本轮修改已有材料时，新的draft.content必须落实本人这次提出的变化，不能原样返回当前材料；如果本人要求更具体，必须改成更具体的可直接使用文本。':''
+  const materialRevisionPrompt=materialIntent&&currentEvent?.actions.some(action=>action.status==='proposed')?'\n本轮修改已有材料时，新的'+(replyMaterial?'reply正文（draft只有fromReply:true，不生成draft.content）':'draft.content')+'必须落实本人这次提出的变化和本轮生成契约，不能原样返回当前材料；如果本人要求更具体，必须改成更具体的可直接使用文本。':''
   const grillingMode=grillingInteractionMode(current.content,{material:materialIntent,plan:requestsTimeArrangement(current.content),listen:currentConversationOnly(current.content)})
+  const proposalEvents=[...(currentEvent?[currentEvent]:[]),...historicalEvents]
+  const actualBindings=decisionComparison?actionComparisonClauses.flatMap(clause=>{
+    const named=proposalEvents.filter(event=>event.title.trim().length>=2&&clause.text.includes(event.title.trim()))
+    const matches=named.length?named:proposalEvents.filter(event=>feedbackMatchesCurrent(clause.text,event.title,event.title))
+    if(matches.length!==1)throw new HttpError(409,'TRIAL_ACTUAL_MATTER_TARGET_UNRESOLVED',undefined,{message:'请先在原事项中说明这条实际变化，再比较条件；本轮尚未更新任何事项。'})
+    const progress=reportedActionProgress(clause.text,matches[0].title)
+    return [{event:matches[0],quote:clause.text,clause,state:progress.state,resumed:progress.resumed,choice:progress.choice}]
+  }):[]
+  const actualTransitions=actualBindings.filter(binding=>binding.resumed||binding.state!==null||binding.choice!==null)
+  if(actualBindings.length>1)throw new HttpError(409,'MULTIPLE_MATTER_UPDATES_REQUIRE_SEPARATE_TURNS',undefined,{message:'请分别说明各事项的实际变化，再比较条件；本轮尚未更新任何事项。'})
+  const resetTrial=decisionComparison==='restore'||scanUserClauses(current.content).some(c=>{
+    if(c.quoted||c.code||c.attributedToOther||c.quoteSpans.length||c.codeSpans.length)return false
+    const match=/(?:重新试算|另做一次(?:试算|比较)|再做一次(?:试算|比较)|(?:按|沿|回到|恢复)[^。！？]{0,8}(?:最初|原来|真实)[^。！？]{0,5}基线|(?:不|不要)(?:再)?沿用(?:上轮|上次|之前|前两次|旧)(?:的)?(?:假设|试算|条件))/.exec(c.text)
+    return Boolean(match&&!/(?:不|不要|不用|别|不必|不需要)\s*$/.test(c.text.slice(0,match.index)))
+  })
+  const realBaseRow=authorizedHistory.find(row=>row.id===realComparisonUser),previousBaseRow=authorizedHistory.find(row=>row.id===previousComparisonUser)
+  const userHistory=authorizedHistory.filter(row=>row.role==='user'&&row.id!==current.id),authorizedTexts=userHistory.map(row=>row.content)
+  const referencedActualIds=new Set([
+    ...Object.values(previousProposal?.conditions?.sourceRefs??{}).filter(ref=>ref.kind==='actual').map(ref=>ref.messageId),
+    ...Object.values(previousProposal?.realConditions?.sourceRefs??{}).map(ref=>ref.messageId),
+    ...Object.values(supplementFieldSources).map(ref=>ref.messageId),
+  ])
+  const conditionSourceRows=userHistory.flatMap<{id:string;content:string;kind:'actual'|'trial'}>(row=>{
+    if(!trialHistoryIds.has(row.id))return [{id:row.id,content:row.content,kind:'actual'}]
+    const actual=referencedActualIds.has(row.id)&&row.completed_decision&&!profileWritesDisallowed(row.content)?comparisonFactText(row.content,reportedComparisonFactClauses(row.content)):''
+    return [{id:row.id,content:row.content,kind:'trial' as const},...(actual?[{id:row.id,content:actual,kind:'actual' as const}]:[])]
+  })
+  const realConditionSources=conditionSourceRows.filter(row=>row.kind==='actual'),realAuthorizedTexts=realConditionSources.map(row=>row.content)
+  const authorizedPreviousConditions=previousProposal?.conditions?authorizedDecisionConditions(previousProposal.conditions,authorizedTexts,conditionSourceRows):null
+  const previousPremiseAvailable=!previousProposal?.conditions||JSON.stringify(authorizedPreviousConditions)===JSON.stringify(previousProposal.conditions)
+  const actualAfter=(row:{id?:string;created_at?:unknown;decision_created_micros?:string}|undefined)=>{
+    if(!row)return []
+    const clock=(item:typeof row)=>BigInt(item!.decision_created_micros??String(new Date(item!.created_at as string).getTime()*1000))
+    const compare=(a:typeof row,b:typeof row)=>clock(a)<clock(b)?-1:clock(a)>clock(b)?1:(a!.id??'').localeCompare(b!.id??'')
+    const later=userHistory.filter(item=>compare(item,row)>0&&!trialHistoryIds.has(item.id)).sort(compare)
+    const boundary=later.findIndex(item=>item.completed_decision===false||!continuesDecisionContext(item.content)&&!(item.completed_decision===true&&requestsMatterDecision(item.content)))
+    return boundary<0?later:later.slice(0,boundary)
+  }
+  let realConditions=previousProposal?.realConditions?authorizedDecisionConditions(previousProposal.realConditions,realAuthorizedTexts,realConditionSources):compileDecisionConditions('',realBaseRow?.content??'',undefined,realBaseRow?{messageId:realBaseRow.id,kind:'actual'}:undefined)
+  for(const row of actualAfter(previousProposal?.realConditions?previousBaseRow:realBaseRow))realConditions=compileDecisionConditions(realConditions,actualConditionsText(row.content),undefined,{messageId:row.id,kind:'actual'})
+  const unavailableRealFields=Object.keys(previousProposal?.realConditions?.sources??{}).filter(key=>!Object.hasOwn(realConditions.sources,key))
+  const scalarFields=['minutes','continuousMinutes','energy','network','contact'],resourceFields=['电脑','手机','材料','场地','预算','设备','资源','外出']
+  for(const [key,ref] of Object.entries(supplementFieldSources)){
+    if(!scalarFields.includes(key)&&!resourceFields.includes(key))continue
+    const source=realConditionSources.find(row=>row.id===ref.messageId),decoded=source?compileDecisionConditions('',actualConditionsText(source.content)):null
+    const value=decoded?(Object.hasOwn(decoded,key)?(decoded as unknown as Record<string,unknown>)[key]:decoded.unavailableResources.includes(key)):null
+    if(decoded&&Object.hasOwn(decoded.sources,key)&&createHash('sha256').update(JSON.stringify(value)).digest('hex')===ref.valueDigest)continue
+    if(key==='energy')realConditions.energy='unknown'
+    else if(scalarFields.includes(key))Object.assign(realConditions,{[key]:null})
+    else realConditions.unavailableResources=realConditions.unavailableResources.filter(item=>item!==key)
+    delete realConditions.sources[key];if(realConditions.sourceRefs)delete realConditions.sourceRefs[key];unavailableRealFields.push(key)
+  }
+  if(unavailableRealFields.length)staged.audit.push({phase:'decision_real_sources_unavailable',fields:[...new Set(unavailableRealFields)],providerCalls:0})
+  const reportedConditions=decisionComparison?(personalWritesBlocked?'':factualWriteText):actualConditionsText(current.content)
+  realConditions=compileDecisionConditions(realConditions,reportedConditions,undefined,{messageId:current.id,kind:'actual'})
+  let proposalBase=decisionComparison&&!resetTrial&&authorizedPreviousConditions?rebaseActualDecisionConditions(authorizedPreviousConditions,realConditions):realConditions
+  if(decisionComparison&&reportedConditions)proposalBase=compileDecisionConditions(proposalBase,reportedConditions,undefined,{messageId:current.id,kind:'actual'})
+  const proposalConditions=matterWorkingSet?.events.length?compileDecisionConditions(proposalBase,scanUserClauses(current.content).filter(c=>personalWritesBlocked||!actualComparisonClauses.some(actual=>actual.start===c.start)).map(c=>c.text).join('。'),realConditions,{messageId:current.id,kind:decisionComparison?'trial':'actual'}):null
+  if(proposalConditions)staged.audit.push({phase:'decision_condition_sources',messageIds:[...new Set([...Object.values(realConditions.sourceRefs??{}),...Object.values(proposalConditions.sourceRefs??{})].map(ref=>ref.messageId))].slice(0,32),providerCalls:0})
+  const currentMatterTransition=actualTransitions[0]
+  const projectedProposalEvents=proposalEvents.map(event=>currentMatterTransition?.event.id===event.id
+    ?{...event,matterProgress:projectMatterReport(event.matterProgress!,currentMatterTransition)}
+    :event)
+  const currentMatterReport=currentMatterTransition?{eventId:currentMatterTransition.event.id,quote:currentMatterTransition.quote}:undefined
+  const proposalCases=proposalConditions?projectDecisionCases(projectedProposalEvents,proposalConditions,currentMatterReport):[]
+  const priorFirst=previousProposal?.items.find(item=>['do_now','prepare_only'].includes(item.mode)&&(item.minutesCeiling===null||item.minutesCeiling>0))
+  const validPreviousProposal=previousProposal&&previousPremiseAvailable?{...previousProposal,items:previousProposal.items.filter(item=>proposalCases.some(c=>c.eventId===item.eventId)),scopeChanged:previousProposal.items.some(item=>!proposalCases.some(c=>c.eventId===item.eventId)),firstChoiceUnavailable:Boolean(priorFirst&&!proposalCases.some(c=>c.eventId===priorFirst.eventId))}:null
+  if(validPreviousProposal&&(previousComparisonUser||previousComparisonReply)){
+    const dependencies=(await pool.query("SELECT DISTINCT r.request_id,coach_reply_sources_valid(r.user_id,r.request_id) AS valid,(SELECT coalesce(jsonb_agg(jsonb_build_object('sourceId',s.source_id,'revision',s.revision)),'[]'::jsonb) FROM coach_reply_sources s WHERE s.user_id=r.user_id AND s.request_id=r.request_id) AS refs FROM runs r JOIN messages m ON m.user_id=r.user_id AND m.run_request_id=r.request_id WHERE r.user_id=$1 AND r.conversation_id=$2 AND m.id=ANY($3::uuid[]) AND r.status='completed'",[run.user_id,run.conversation_id,[previousComparisonUser,previousComparisonReply].filter(Boolean)])).rows
+    if(!dependencies.length||dependencies.some(row=>!row.valid))throw new HttpError(409,'PRIOR_DECISION_SOURCE_INVALIDATED')
+    const refs=dependencies.flatMap(row=>row.refs);contextKnowledge.push(...refs)
+    staged.audit.push({phase:'decision_knowledge_dependencies',refs,providerCalls:0})
+  }
+  if(previousProposal&&!previousPremiseAvailable)staged.audit.push({phase:'decision_prior_premise_unavailable',previousProposalWithheld:true,providerCalls:0})
+  if(proposalConditions&&proposalCases.length){contract.schema=bindDecisionProposalSchema(contract.schema,proposalCases,proposalConditions,validPreviousProposal);contract.schemaChars=JSON.stringify(contract.schema).length}
   staged.audit.push({phase:'grilling_interaction_mode',policyVersion:mainCompanionPolicy.grilling.version,policyDigest:mainCompanionPolicy.grilling.policyDigest,mode:grillingMode,providerCalls:0})
   const crisisPrompt=grillingMode==='crisis_support'?'\n本轮是明确危机支持：先确认眼前安全并鼓励立即联系当地紧急服务或身边可信任的人；保持简短、温和、直接。不要继续职业/方向追问，不给生产力任务，不作诊断，不把危机内容保存为成长画像或经历。':''
-  let systemPrompt=turnSystemPrompt('default',runtime.model.id,contract,materialIntent)+materialRevisionPrompt+crisisPrompt+(questionFirstMaterial?'\n本轮先输出event.action.draft.content里的唯一完整中性问题，再输出event其他字段和reply。reply先列最近本人报告的事实和时间，再列从未提供或此后未更新的结果，不重复问题；不使用fromReply。问题围绕已有具体线索追问可观察的环节；对新对象询问其如何核查该线索，不预设对方也经历了上次反馈的困难。':'')+(currentConversationOnly(current.content)?'\n本轮本人只想倾听或明确拒绝方法：回应当前表达，不给行动、方法、解决问题的追问或安排，不重发上轮建议。对本次聊天的偏好不存为个人目标、经历或长期事实；独立的新本人事实如有则保留原话与未知。':'')+(boundedReply?'\nboundedReply是本轮服务端授权的编辑动作与过程追问，不是获审公共攻略。reply必须完整选择choices中适合当前请求的一项，不增加事实、因果、效果、时间或情绪判断；其他合法状态更新仍按原契约锚定本人原话。':'')
-  const baseUserPrompt=buildTurnPrompt({currentMessageId:run.source_message_id,messages,profile:snapshot.profile,confirmedExperiences:snapshot.confirmedExperiences,currentEvent,events:historicalEvents,knowledge,methodContext:methodContext.knowledge,methodFit:methodFitContext,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,growth:growthTopic.currentTopic,growthBackground:growthTopic.background,growthBoundaries,growthRecommendationBoundaries,taskBoundaries:unresolvedTaskBoundaries.map(item=>item.taskBoundary!),directionControls:effectiveControls,allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},clauses:modelClauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null,grillingMode})
-  const workflowHints=await actionReviewHints({run,staged,text:current.content,memoryEnabled:snapshot.settings.enabled,currentEvent,historicalEvents,ambiguous:retrieval.ambiguous,listeningOnly:currentConversationOnly(current.content),signal})
+  const directOrdinary=ordinaryProgressiveReply&&grillingMode==='ordinary'&&!transactionalReplyMustWait&&!currentEvent&&!historicalEvents.length&&!feedbackTarget&&!namedMatter&&!asksRecall&&!requestedScope.judgmentUpdate&&!experienceCandidateRequired
+    &&!reportedTaskOutcomeClauses(current.content,false,true).length
+  const replyOnly=(fieldCorrectionOnly||sourceReadbackOnly&&readOnlyQuestion)&&!turnNeedsControlReceipt&&!contract.capabilities.growth&&!contract.capabilities.event&&!contract.capabilities.material&&!contract.capabilities.plan&&!proposalCases.length
+  const schemaKeys=Object.keys(contract.schema.properties as object)
+  const compactReadback=replyOnly&&grillingMode!=='crisis_support'&&!contract.requiredReplyKind&&schemaKeys.join(',')==='reply'
+  const compactDecision=grillingMode!=='crisis_support'&&scopedComparison&&schemaKeys.length===2&&schemaKeys.includes('decisionProposal')&&schemaKeys.includes('reply')
+  const feedbackOwner=feedbackTarget?.event??currentEvent??(!retrieval.ambiguous&&historicalEvents.length===1?historicalEvents[0]:null)
+  const ownsPartialFeedback=feedbackOwner?.matterProgress?.state==='partial'
+  const hasPartialFeedback=ownsPartialFeedback||partialOutcomes.length>0
+  const feedbackRevision=hasPartialFeedback&&requestedScope.instructions.some(clause=>requestsFeedbackStepRevision(clause.commandText))
+  const acceptanceSource=newNamedMatter?.clauses.map(clause=>clause.text)??((feedbackTarget||feedbackRevision)
+    ?feedbackOwner?.matterProgress?.reports.filter(report=>report.choice==='accepted').at(-1)?.quotes:undefined)
+  const acceptedSteps=(acceptanceSource??[]).flatMap(quote=>{const step=acceptedStepFromQuote(quote);return step?[{step,quote}]:[]})
+  const acceptedStep=acceptedSteps.length===1?acceptedSteps[0]:undefined
+  const acceptedStepMode=newNamedMatter?'initial':feedbackRevision?'revision':'feedback'
+  const feedbackSources=feedbackTarget?[feedbackTarget.proof.action,...feedbackTarget.proof.clauses]:[]
+  const feedbackClause=feedbackTarget?modelClauseCatalogue.find(clause=>clause.start===feedbackTarget.proof.action.start&&clause.end===feedbackTarget.proof.action.end):undefined
+  const ownedFeedbackClauses=feedbackClause&&contract.capabilities.growth&&contract.capabilities.event&&!boundedReply
+    ?new Set(modelClauseCatalogue.filter(clause=>feedbackSources.some(source=>source.start===clause.start&&source.end===clause.end)).map(clause=>clause.clauseId)):undefined
+  const compactFeedback=grillingMode!=='crisis_support'&&!decisionComparison&&!materialIntent&&!planIntent&&!turnNeedsControlReceipt&&!contract.requiredReplyKind&&!contract.capabilities.citations&&!boundedReply&&!hasSeparateQuestion&&!asksRecall&&!requestedScope.summaryRequested&&!requestedScope.comparisonRequested
+    &&Boolean(feedbackTarget||feedbackRevision)&&!requiresExperienceCandidate(clauseCatalogue.filter(clause=>!feedbackSources.some(source=>source.start===clause.start&&source.end===clause.end)))
+  const bindOwnedFeedback=compactFeedback&&ordinaryProgressiveReply&&supportsNativeStrictSchema(runtime.model)&&Boolean(ownedFeedbackClauses?.size&&ownedFeedbackClauses.size===feedbackSources.length)
+    &&!reportedActionProgress(scanUserClauses(current.content).filter(clause=>!feedbackSources.some(source=>source.start===clause.start&&source.end===clause.end))).quotes.length
+  if(directOrdinary&&!contract.requiredReplyKind){
+    const replySchema=(contract.schema.properties as Record<string,{description?:string}>).reply
+    if(replySchema)replySchema.description=DIRECT_ORDINARY_REPLY_RULES
+    contract.schemaChars=JSON.stringify(contract.schema).length
+  }
+  const providerContract=switchContract?{...contract,mode:'reply_only' as const,capabilities:switchContract.capabilities}:contract
+  let systemPrompt=turnSystemPrompt('default',runtime.model.id,providerContract,materialIntent,compactDecision,directOrdinary,compactReadback||compactFeedback)+materialRevisionPrompt+crisisPrompt+(questionFirstMaterial?'\n本轮先输出event.action.draft.content里的唯一完整中性问题，再输出event其他字段和reply。reply先列最近本人报告的事实和时间，再列从未提供或此后未更新的结果，不重复问题；不使用fromReply。问题围绕已有具体线索追问可观察的环节；对新对象询问其如何核查该线索，不预设对方也经历了上次反馈的困难。':'')+(currentConversationOnly(current.content)?'\n本轮本人只想倾听或明确拒绝方法：回应当前表达，不给行动、方法、解决问题的追问或安排，不重发上轮建议。对本次聊天的偏好不存为个人目标、经历或长期事实；独立的新本人事实如有则保留原话与未知。':'')+(boundedReply?'\nboundedReply是本轮服务端授权的编辑动作与过程追问，不是获审公共攻略。reply必须完整选择choices中适合当前请求的一项，不增加事实、因果、效果、时间或情绪判断；其他合法状态更新仍按原契约锚定本人原话。':'')
+  const omitHistoricalMaterialBodies=Boolean(replyMaterial&&singleQuestionMaterial&&!currentEvent&&!requestsMaterialRewrite(current.content)&&!clauseCatalogue.some(clause=>!clause.quoted&&!clause.code&&!clause.attributedToOther&&/(?:上次|之前|刚才|刚刚|原文|那份|这份|那段|这段|那个问题)/.test(clause.text)))
+  const promptGrowthIds=new Set([...growthTopic.currentTopic,...growthTopic.background].map(item=>item.id))
+  const relevantTentativeIds=new Set(splitGrowthByCurrentTopic(growthSemantic.tentativeItems,current.content).currentTopic.map(item=>item.id))
+  const factInterpretations=fieldCorrectionOnly?[]:growthSemantic.interpretations.filter(item=>item.actor==='unknown'?relevantTentativeIds.has(item.itemId):promptGrowthIds.has(item.itemId))
+  staged.usedFactInterpretationRefs=factInterpretations.filter(item=>item.actor==='unknown').map(({itemId,revision,actor,proposedActor,actionQuote})=>({itemId,revision,actor,actionQuote,...(proposedActor?{proposedActor}:{})}))
+  // The same authorized fields can be a summary or a corrected projection.
+  // Keep exact source labels on source spans, never on the display text.
+  const promptExperiences=(fieldCorrectionOnly?[]:evidenceExperiences).map(experience=>{
+    const {quote,source_quote:_,...record}=experience as typeof experience & {source_quote?:string}
+    return {...record,readbackText:quote}
+  })
+  const baseUserPrompt=buildTurnPrompt({
+    directOrdinary,compactEvidence:compactReadback||compactFeedback||compactDecision,omitHistoricalMaterialBodies,currentMessageId:run.source_message_id,messages,
+    clauses:modelClauseCatalogue.map(handle=>({id:handle.clauseId,text:handle.text})),grillingMode,
+    ...(fieldCorrectionOnly?{}:{
+      profile:snapshot.profile,confirmedExperiences:promptExperiences,currentEvent,events:historicalEvents,knowledge,
+      methodContext:methodContext.knowledge,methodFit:methodFitContext,knowledgeIntent:methodIntent,guideUsage:previousGuideUsage,
+      growth:growthTopic.currentTopic,growthBackground:growthTopic.background,factInterpretations,growthBoundaries,growthRecommendationBoundaries,
+      taskBoundaries:unresolvedTaskBoundaries.map(item=>item.taskBoundary!),directionControls:effectiveControls,
+      allowedDirectionScopes:blockedDirectionScopes.length?allowedDirectionScopes:null,blockedDirectionScopes:blockedDirectionScopes.length?blockedDirectionScopes:null,
+      ...(resumePortfolioMode?{growthCatalogue:materialCatalogue.map(fact=>({catalogueId:fact.catalogueId,field:fact.field,text:fact.text,sourceKind:fact.sourceKind,completeForField:fact.completeForField}))}:{}),
+      retrieval:{ambiguous:retrieval.ambiguous,indexPending:retrieval.indexPending},
+      starMap:process.env.LIFEOS_DISABLE_STARMAP?null:await (async()=>{const ctx=await readStarMapContext(pool,run.user_id);if(ctx)staged.starMapSnapshot={themes:ctx.themes.map(theme=>({id:theme.id,revision:theme.revision})),links:ctx.usedLinks};return ctx})(),
+      currentUserFocus:focusContext?{type:focusContext.type,id:focusContext.id,label:focusContext.label}:null,
+    }),
+  })
+  const workflowHints=fieldCorrectionOnly?null:await actionReviewHints({run,staged,text:current.content,memoryEnabled:snapshot.settings.enabled,currentEvent,historicalEvents,ambiguous:retrieval.ambiguous,listeningOnly:currentConversationOnly(current.content),signal})
   const promptContext=JSON.parse(baseUserPrompt)
+  const quotedEdit=promptContext.currentTask.responseScope.quotedEdit
+  const openWait=quotedEdit?.openWait
+  const materialNames='材料|资料|文件夹|文件|稿件|文档|附件'
+  const materialModifier='(?:这份|这些|相关)?'
+  const deliveryVerb='发(?:出(?:去|来)?|送|过去|过来)?'
+  const clauseStart='(?:^|[，,。；;：:！？!?\\r\\n])\\s*'
+  const preparationNeeded='(?:还|仍|尚)?(?:需要|需|得|待)'
+  const subjectPredicate='(?=(?:目前|现在|暂时)?(?:也)?(?:有点|有些|还在|仍在|正在|尚在|整理中|准备中|可能|预计|大概|也许|'+preparationNeeded+'|尚未|还未|还没|已经|已|刚|不是|并不|将|会|[\\s，,。；;：:]|$))'
+  const objectEnd='[\\s，,。；;：:！？!?]|$'
+  const later='(?:再|才(?:能|会)?)'
+  // openWait is an allowlisted duration taken from the quoted source.
+  const delay='(?:(?:等|过)(?:上)?'+openWait+later+'|(?:在)?'+openWait+'(?:的?时间)?(?:(?:以后|之后|后)'+later+'?|'+later+'))'
+  const deliveryClause=TENTATIVE_PROGRESS_CLAUSE+delay
+  const materialPattern=(name:string)=>{
+    const noun=materialModifier+name
+    const preparation=clauseStart+'(?:(?:目前|现在|暂时)|(?:我(?:们)?|这边)){0,2}(?:还在|仍在|正在|尚在|先|再|需要)?'
+    return new RegExp([
+      clauseStart+'(?:目前|现在|暂时)?'+noun+subjectPredicate,
+      preparation+'(?:整理|处理|准备|把|将|'+deliveryVerb+')'+noun+'(?='+deliveryVerb+'|'+objectEnd+')',
+      deliveryClause+'(?:把'+noun+deliveryVerb+'|'+deliveryVerb+noun+')(?='+objectEnd+')',
+    ].join('|'),'u')
+  }
+  // Match full clauses to keep verbs inside compounds out of the object check.
+  const progressObjects=openWait?materialNames.split('|').filter(name=>materialPattern(name).test(quotedEdit.sourceText)):[]
+  const progressObject=progressObjects.length===1?progressObjects[0]:undefined
+  const requiredProgressObject=progressObject?materialPattern(progressObject):null
+  const otherProgressObject=progressObject?materialPattern('(?:'+materialNames.split('|').filter(name=>name!==progressObject).join('|')+')'):null
+  const keepsProgressObject=(text:string)=>!requiredProgressObject||requiredProgressObject.test(text)&&!otherProgressObject?.test(text)
+  const material='(?:'+materialModifier+'(?:'+materialNames+')|它们?)'
+  const send='(?:把'+material+')?'+deliveryVerb+'(?:给(?:你|您|对方)|'+material+')?(?:[。！？!?，,；;]|$)'
+  // Validate the finished sentence locally. Native regex decoding narrowed the
+  // whole model reply to the delivery fragment and dropped the reported state.
+  const progressTiming=openWait?new RegExp(deliveryClause+send,'u'):null
+  const statusNoun=materialModifier+(progressObject??'(?:'+materialNames+')')
+  const statusStart='^(?:(?:目前|现在|暂时)|(?:我(?:们)?|这边)){0,2}(?:'+statusNoun+')?(?:目前|现在|暂时)?(?:也)?'
+  const statusEnd='(?:'+statusNoun+')?$'
+  const ongoing='(?:还在|仍在|正在|尚在)'
+  const statusClauses=(text:string)=>text.split(/[，,。；;：:！？!?\r\n]/u).map(clause=>clause.trim()).filter(Boolean)
+  const reportedStatuses=statusClauses(quotedEdit?.currentProgress??'')
+  const messyStatus=new RegExp(statusStart+'(?:有点|有些)(?:乱|杂乱|零散)'+statusEnd,'u')
+  if(reportedStatuses.some(source=>messyStatus.test(source)))quotedEdit.clarifyPreparation=true
+  const statusChecks=reportedStatuses.map(source=>{
+    const work=new RegExp(statusStart+ongoing+'(整理|核对|合并|校对|准备|汇总|收集|处理)(?:中)?'+statusEnd,'u').exec(source)?.[1]
+    const accepted=work?ongoing+work+'(?:中)?|'+work+'(?:工作)?(?:中|尚未完成|还未完成)|(?:尚未|还未|还没)'+work+'(?:完成|好|完)'
+      :messyStatus.test(source)?preparationNeeded+'(?:再)?整理(?:一下)?|(?:还在|仍在|正在)整理|(?:尚未|还未|还没)整理(?:好|完|完成)':null
+    if(!accepted)return (clause:string)=>clause.replace(/^请/u,'')===source.replace(/^请/u,'')
+    const state=new RegExp(statusStart+'(?:'+accepted+')'+statusEnd,'u')
+    const named=reportedStatuses.length>1?materialNames.split('|').filter(name=>materialPattern(name).test(source)):[]
+    const namedObject=named.length===1?materialPattern(named[0]!):null
+    return (clause:string)=>state.test(clause)&&(!namedObject||namedObject.test(clause))
+  })
+  if(progressObject)quotedEdit.deliveryObject=progressObject
+  if(quotedEdit&&NEUTRAL_OTHER_REWRITE.test(quotedEdit.requestedChanges)&&peerUnderstandingStatement.test(quotedEdit.sourceText)){
+    const replySchema=(contract.schema.properties as Record<string,{not?:{type:'string';pattern:string}}>).reply!
+    replySchema.not={type:'string',pattern:peerUnderstandingStatement.source}
+    contract.schemaChars=JSON.stringify(contract.schema).length
+  }
+  if(viewOnlyDrafts.length)systemPrompt+='\n按顺序将以下请求各自的完整成品写入viewOnlyDrafts：'+JSON.stringify(viewOnlyDrafts.map(request=>request.quote))+'。填写模板要给实际字段和值槽，不写交付承诺。只有另行授权写入的行动放event.action，优先用source.clauseId选择对应请求。'
+  else if(materialPersistenceRefused)systemPrompt+='\n明确索要的只读材料直接放在reply；不把材料存为行动。'
+  if(actionRestrictions.create&&!materialPersistenceRefused)systemPrompt+='\n本人拒绝新建行动；只修改本轮明确要求修改的已有材料。'
+  if(actionRestrictions.plan)systemPrompt+='\n本人拒绝写入计划，省略 weeklyPlan。'
+  if(promptExperiences.length)systemPrompt+='\n回读经历时，readbackText和经历字段是可转述的记录，不是逐字引文。未要求引文时用“你此前报告”直接说明，不标“本人原话”；需引文时只使用单条明确的原始来源，不拼接改写。直接结果和后续用途、反馈及效果分别说明，已记录的量化结果不与后续未知合并。正文使用自然的字段名称，不显示内部键名或状态码。'
+  if(sourceReadbackOnly&&readOnlyQuestion){
+    promptContext.currentTask.recordedVerificationPoints=[currentEvent,...historicalEvents.filter(event=>event.id!==currentEvent?.id)].flatMap(event=>
+      event?.nodes.filter(node=>node.kind==='unknown'&&node.status==='active'&&!node.supersededByActionCorrection)
+        .map(node=>({matter:event.title,question:node.content}))??[])
+    const rule='只用当前可见的本人记录，按本轮范围回读具体动作、字段和结果，不把其中一个环节写成整件事完成。相关状态未报告时说明没有记录。仅在本人明确报告独立完成时保留这项事实，不因分工或工具未报告而重新质疑独立完成；否则独立程度未确认。本人专门询问分工或工具时再回答。已记录待核实项只能取recordedVerificationPoints里属于当前事项的内容，资料、技能自述和历史对话里的问题不在此列时不算。若问“哪一项”，只选一个与结果直接相关的核对点；没有已存的待核实项时，把新核验明确写成建议，先说明相关记录没有列出待核实项，再单独给一项新建议。用户问如何核验时，核验步骤直接给出，并明确这是下次的建议。影响核验的未知写成陈述，正文结束后不追加追问。用户明确索要核对问题时按要求提供。正文省略内部字段名和状态代码。'
+    systemPrompt+='\n'+rule
+    const replySchema=(contract.schema.properties as Record<string,{description?:string}>).reply!
+    replySchema.description=[replySchema.description,rule].filter(Boolean).join('\n')
+    contract.schemaChars=JSON.stringify(contract.schema).length
+  }
+  if(fieldCorrectionOnly){
+    const rule='只确认本人本轮更正后的专业和明确保留的范围，不为说明保留而复述上一轮的事实或问题，不新增核验或建议。'
+    systemPrompt+='\n'+rule
+    const replySchema=(contract.schema.properties as Record<string,{description?:string}>).reply!
+    replySchema.description=rule
+    contract.schemaChars=JSON.stringify(contract.schema).length
+  }else if(correctionPlan)systemPrompt+='\n更正时按本轮请求说明变更。保留其他事实表示这些记录不修改，不为说明保留而复述上一轮的事实或问题。本轮另有明确回读或建议请求时照常回应。'
+  if(experienceCandidateRequired)systemPrompt+='\n本轮同时包含个人背景、技能或实际行动时，分别称为背景、技能和经历。只把本人实际做过的行动称为经历，避免在正文中承诺哪些内容已经保存。'
+  const priorFeedbackReport=feedbackRevision&&!partialOutcomes.length?feedbackOwner?.matterProgress?.reports.filter(report=>report.state==='partial').at(-1):undefined
+  if(priorFeedbackReport&&feedbackOwner){
+    const facts=feedbackOwner.nodes.flatMap(({kind,status,source})=>kind==='fact'&&status==='active'&&source&&source.messageId===priorFeedbackReport.sourceMessageId?[source.quote]:[])
+    promptContext.currentTask.priorFeedback={sourceMessageId:priorFeedbackReport.sourceMessageId,reportedFacts:[...new Set([...priorFeedbackReport.quotes,...facts])]}
+  }
+  if(feedbackTarget)promptContext.currentTask.feedbackReport={action:feedbackTarget.proof.action.text,reportedOutcome:feedbackTarget.proof.quote,status:'partial',reason:null,...(bindOwnedFeedback?{sourceBound:true}:{})}
+  if(acceptedStep)promptContext.currentTask.acceptedStep={...acceptedStep,mode:acceptedStepMode}
+  if(switchedMatter){
+    promptContext.reportedMatterSwitch={newMatter:switchedMatter.title,focus:switchedMatter.focus??null,sourceFacts:switchedMatter.clauses.map(clause=>clause.text)}
+    const rule='本轮只确认这次明确切换。reportedMatterSwitch 的接受、未执行与暂停只属于 newMatter。focus 表示当前优先事项，保持它已报告的截止与进度。简短确认这两件事，不补原因、行动或追问。'
+    systemPrompt+='\n'+rule
+    const replySchema=(contract.schema.properties as Record<string,{description?:string;pattern?:string}>).reply!
+    replySchema.description=[replySchema.description,rule].filter(Boolean).join('\n')
+    replySchema.pattern='^[^?？]+$'
+    contract.schemaChars=JSON.stringify(contract.schema).length
+  }
+  if(proposalConditions&&proposalCases.length){promptContext.decisionPlanContract=decisionProposalContract(proposalCases,proposalConditions,validPreviousProposal);systemPrompt+='\n本轮先生成decisionProposal，再生成唯一完整reply。它是建议记录，不是用户选择或执行。正文与选定的提案一致，说明相对上次的变化和仍未知的事；不得复述内部字段或ID。'+promptContext.decisionPlanContract.rule}
+  if(decisionComparison){
+    const unknownActualFields=Object.entries({minutes:realConditions.minutes,continuousMinutes:realConditions.continuousMinutes,energy:realConditions.energy,network:realConditions.network,contact:realConditions.contact}).filter(([,value])=>value===null||value==='unknown').map(([field])=>field)
+    const rules=[
+      '试算只替换本人指定的条件。只把 actualWritableQuotes 中独立报告的真实事实、更正或动作交给各自原有流程；不记录试算条件，隐私指令照常生效。',
+      '先直接给本次取舍，再说明相对previousComparison改变的步骤、先后或投入及其原因、保留项。短时选择有实际进展的小起步；低精力选择可停止的低负担进展和休息余地；不可联网或联系时只选不依赖受限资源的动作。条件对结论无影响时允许保持原排序。',
+      '恢复现实条件只恢复实际有来源的字段，撤销假设不等于确认相反情况。actualUnknownFields中的连续时段、精力、网络或联系能力仍未知：总时长不写成完整连续时段，网络和联系未知不写成无约束。各事项只使用自身有来源的依赖；本次建议时间只是投入上限。',
+      '正文只交付本次有用差异和必要依据，范围遵守本人要求；记录忠实对应正文。等待结果、本人是否接受、实际执行、暂停或结束分别保留；未报告的自主准备保持未知。',
+    ]
+    promptContext.decisionComparison={mode:decisionComparison,actualUnknownFields:unknownActualFields,unavailableRealConditionFields:[...new Set(unavailableRealFields)],persistence:'TURN_ONLY_NOT_USER_FACTS',conditionsText:current.content,actualWritableQuotes:actualComparisonClauses.map(c=>c.text),previousComparison:comparisonTranscript(previousComparisonUser,previousComparisonReply),realConditionComparison:comparisonTranscript(realComparisonUser,realComparisonReply),rules}
+    systemPrompt+='\n条件改变后的取舍比较：'+rules.join('\n')
+  }
+  if(matterWorkingSet){
+    promptContext.matterOverview={...matterWorkingSet.coverage,entries:projectedProposalEvents.map(event=>({eventId:event.id,revision:event.revision,generation:event.generation,reportedState:event.matterProgress?.state??'unknown',choice:event.matterProgress?.choice??'unknown',disposition:event.matterProgress?.recommendationStopped?'do_not_resume':event.matterProgress?.state==='completed'?'already_completed':event.matterProgress?.state==='waiting_result'?'waiting_external_result':event.matterProgress?.choice==='accepted'?'accepted_not_new_obligation':'unaccepted_or_unknown'})),rules:[
+      '依据当前有界事项清单的本人原话、进度、选择和截止，给出暂定排序与理由。每个已报告截止的事项各自保留时间节点；比较它们的先后和当前可行性。未报告的截止、准备条件、下游效果、风险和收益保持未知；按有本人来源的相对条件比较。其他事项是否存在及未报告条件保持未知。',
+      '建议、已接受、未执行、部分完成、等待结果、暂停和结束分别承接。已暂停或结束的事项维持不安排；等待外部结果时，自主准备仅按本人来源说明。新时间只用于本轮，旧时间保留原日期和范围。',
+      '每个安排给可直接开始的有价值进展、建议投入上限与停点，记录和正文的投入一致；未分配时间留给本人决定，额外投入需要新选择。完整任务耗时估计保留为本人估计；独立事项各自评估，材料按明确请求使用原交付协议。',
+      '先给本次取舍和影响判断的依据，按需说明改变判断所需的新信息。理由随建议说明一次。本人未要求详细时先交付可开始的一两项，等待与暂停项简述，不重列背景或复述规则。建议仍待本人选择；各项未知、暂停和权限忠实保留。用自然中文表达，记录字段仅供内部保存。',
+    ]}
+    systemPrompt+='\n本轮跨事项取舍：'+promptContext.matterOverview.rules.join('\n')
+  }
   if(answerDispositionRequired)promptContext.currentTask.pendingAskedUnknown={id:immediateAnsweredUnknown!.id,question:immediateAnsweredUnknown!.content,dispositionRule:'显式评估本轮是否回答了这一个实际已问问题；event.resolveUnknowns必须出现，未回答则为空数组。其他事项的新事实不作为它的答案，不靠回复中自行补出的关系关闭未知。'}
   // Project the same source authority used by native generation and the
   // canonical resolver. Internal staging objects are not model-write sources.
-  promptContext.growthWriteScope={sourceClauseIds:contract.capabilities.growth?modelClauseCatalogue.map(clause=>clause.clauseId):[],programOwnedClauseIds:clauseCatalogue.filter(clause=>programOwnedBudgetQuotes.includes(clause.text)).map(clause=>clause.clauseId)}
+  promptContext.growthWriteScope={sourceClauseIds:providerContract.capabilities.growth?modelClauseCatalogue.map(clause=>clause.clauseId):[],programOwnedClauseIds:clauseCatalogue.filter(clause=>programOwnedBudgetQuotes.includes(clause.text)).map(clause=>clause.clauseId)}
   if(programOwnedBudgetQuotes.length){
     staged.audit.push({phase:'budget_memory_program_owned',count:programOwnedBudgetQuotes.length,providerCalls:0})
   }
-  systemPrompt+='\n感受用 growthUpdates.kind=context，不得使用 feeling 等未授权枚举。'
+  if(!switchContract)systemPrompt+='\n感受用 growthUpdates.kind=context，不得使用 feeling 等未授权枚举。'
   systemPrompt+='\n只输出一个完整 JSON 业务对象；不要输出工具标签、</parameter>、<|tool_|>、重复 JSON 或模拟的校验反馈。'
-  systemPrompt+='\n每个暂定判断区分本人报告的事实、本人给出的解释和仍待核实的假设。先后发生或少量观察不能确认原因；本人优先A不等于排除未谈过的B；暂时举不出例子不能断定缺口属于哪个方向。解释若超出本人原话，应明确它是可被后续反馈推翻的假设。情绪与因果解释只属于其来源事项，不搬到相似新事件；更正只改被否定的命题，独立的原始事实仍保留。'
-  systemPrompt+='\n本轮服务端回复边界：'+JSON.stringify(promptResponseScopeRules(promptContext.currentTask.responseScope.rules,systemPrompt))+'\n普通追问、反馈更新按实际需要写1至4句、160字以内；一个必要问题已经足够时只给这个问题，不为凑句数补写假设性解释；明确请求深入解释、详细比较、方案或材料时按实际需要展开。只写新增判断、必要个人依据和具体未知，不重复请求、边界或整段旧背景。没有被本人报告的次数、因果、费用、资源与个人偏好不补写。'+(requestedScope.sentenceLimit===1?'本轮数量要求优先：reply只有一句完整阶段理解，不输出lead、不另加短首句或第二句；这句直接交付具体线索及其局限。':contract.requiredReplyKind==='comparison'?'本轮交付比较：不输出lead，reply第一个字符直接从“方式一：”开始，不写前言，不给标签加Markdown粗体；写完第一项后直接给“方式二：”。每项说明依据与投入/局限，所列只是本轮有限示例，不声称只有两种，也不替本人选择。':contract.requiredReplyKind==='summary'?'本轮交付阶段理解：直接给有依据的暂定理解，不用状态确认替代；仅在schema开放lead时才输出lead并逐字作为reply首句。reply任何位置都不能出现问号或疑问句；把未知写成“仍未知的是…”陈述句，不写“是什么”“是否”“哪一个”等向本人索取答案的句式。保留未获答案的缺口，不重问上一问，不安排新的行动。':!Object.hasOwn((contract.schema as any).properties,'lead')?'本轮不输出lead，直接按reply的格式、数量及已开放成品契约交付实际内容，不额外添加概括前言。':'先输出lead，逐字作为reply首句：一个完整开放问题、可开始的具体操作或有依据的判断，不用标题或状态宣告。首句尽量在20字以内，把支持细节留在reply后续句；不能用收到、正在分析等状态文字代替实际内容，也不为缩短而省掉问题对象或操作。')
+  systemPrompt+='\n每个暂定判断区分本人报告的事实、本人给出的解释和仍待核实的假设。先后发生或少量观察不能确认原因；本人优先A不等于排除未谈过的B；暂时举不出例子不能断定缺口属于哪个方向。'+(hasPartialFeedback||directOrdinary?'':'解释若超出本人原话，应明确它是可被后续反馈推翻的假设。')+'情绪与因果解释只属于其来源事项，不搬到相似新事件；更正只改被否定的命题，独立的原始事实仍保留。'
+  const replyPresentation=ordinaryProgressiveReply&&!contract.requiredReplyKind
+    ?'\n未核实的信息用完整句说明，保持未知，不使用待补栏位。'
+    :'\n篇幅由本轮问题决定，不固定句数或160字上限；多层内容用简短小标题、分段与分点，并列建议逐项换行，少量加粗关键判断；不要把完整回答挤在一段里，也不为凑格式增加空话。明确只要一句、简短或纯倾听时仍遵守；一个必要问题已经足够时只给这个问题。只写新增判断、必要个人依据和具体未知，不重复请求、边界或整段旧背景。没有被本人报告的次数、因果、费用、资源与个人偏好不补写。'
+  systemPrompt+='\n本轮服务端回复边界：'+JSON.stringify(promptResponseScopeRules(promptContext.currentTask.responseScope.rules,systemPrompt))+((singleQuestionReply||singleQuestionMaterial&&!questionFirstMaterial&&!planIntent)?'\n'+SINGLE_QUESTION_GENERATION_RULES:requestedScope.actionLimit===1&&!planIntent&&!materialIntent?'\n'+SINGLE_ACTION_GENERATION_RULES:replyPresentation)+(requestedScope.sentenceLimit===1?'本轮数量要求优先：reply只有一句完整阶段理解，不输出lead、不另加短首句或第二句；这句直接交付具体线索及其局限。':contract.requiredReplyKind==='comparison'?'本轮交付比较：不输出lead，reply第一个字符直接从“方式一：”开始，不写前言，不给标签加Markdown粗体；按本轮对象数量依次给“方式二：”“方式三：”等，至少'+requestedComparisonCount(current.content)+'项，必须完整覆盖用户已经点名的对象，不能只给两项就结束。每项说明依据与投入/局限；未点名的其他道路无需枚举，不声称只有这些道路，也不替本人选择。':contract.requiredReplyKind==='summary'?'本轮交付阶段理解：直接给有依据的暂定理解，不用状态确认替代；仅在schema开放lead时才输出lead并逐字作为reply首句。reply任何位置都不能出现问号或疑问句；把未知写成“仍未知的是…”陈述句，不写“是什么”“是否”“哪一个”等向本人索取答案的句式。保留未获答案的缺口，不重问上一问，不安排新的行动。':!Object.hasOwn((contract.schema as any).properties,'lead')?'本轮不输出lead，直接按reply的格式、数量及已开放成品契约交付实际内容，不额外添加概括前言。':'先输出lead，逐字作为reply首句：一个完整开放问题、可开始的具体操作或有依据的判断，不用标题或状态宣告。首句尽量在20字以内，把支持细节留在reply后续句；不能用收到、正在分析等状态文字代替实际内容，也不为缩短而省掉问题对象或操作。')
+  if(singleQuestionMaterial||singleQuestionReply){
+    if(questionFirstMaterial||planIntent)systemPrompt+='\n'+SINGLE_QUESTION_GENERATION_RULES
+    systemPrompt+='\n'+(questionFirstMaterial?'问题只在event.action.draft.content生成；reply仅回应用户明确请求的读回，不加第二个追问。':replyMaterial||singleQuestionReply?'reply直接且只包含最终问题正文；不输出lead，不在前后添加说明，不受短首句预览字数惯例影响。': '问题只在event.action.draft.content生成；其余字段仅承接用户明确要求的其他交付，不自动增加附注。')
+  }
   if(!contract.capabilities.citations)systemPrompt+='\n本轮引用不会展示给用户，方法上下文只供改编候选建议；不要把改编写成外部作者或平台已给出的依据，也不声称未展示的研究或资料证明了方案。区分本人的已知依据与助手给出的候选办法，不虚构来源归因。'
   const summaryLengthLimit=(contract.schema.properties as any).reply?.maxLength
   if(judgmentActionRequested)systemPrompt+='\n本轮同时要求更正判断和一个可开始动作：先给这个动作的具体起点，再简洁说明受影响的本人依据和未知；不要以更新状态或整段旧判断作为首句。这是内容顺序，不替换本人更正，不新增其他动作。'
@@ -829,10 +1480,20 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     }
     staged.audit.push({phase:'catalogue_material_context',processHistoryOmitted:true,oldBodiesOmitted:true,providerCalls:0})
   }
+  const understandingOpeningRules=understandingOpeningGenerationRules(current.content)
+  if(ordinaryProgressiveReply&&!boundedReply&&!materialIntent&&(requestedScope.actionRequested||scanUserClauses(current.content).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&/(?:建议|起步)/.test(clause.text)))){
+    systemPrompt+='\n'+PERSONAL_ACTION_EVIDENCE_RULES
+  }
+  if(understandingOpeningRules){
+    systemPrompt+='\n'+understandingOpeningRules
+    const replySchema=(contract.schema.properties as any).reply
+    replySchema.description=[replySchema.description,understandingOpeningRules].filter(Boolean).join('\n')
+    replySchema.pattern='^[^?？]*[?？][\\s*_]*$'
+  }
   const userPrompt=JSON.stringify({...promptContext,...(workflowHints?{workflowHints}:{}),...(boundedReply?{boundedReply}:{})})
   let contextTokenEstimate=estimateTokens(systemPrompt+'\n'+userPrompt)
   const retrieved=snapshot.profile.filter(item=>item.scope==='user'&&item.status==='active').length+snapshot.confirmedExperiences.length+(currentEvent?1:0)+historicalEvents.length
-  const calls:CallRecord[]=[]
+  const calls:TurnCallRecord[]=[]
   staged.audit.push({phase:'model_route',tier:route.tier,reason:route.reason??'ordinary_turn',escalated:route.escalated,retrievedMemoryCount:retrieved,contextTokenEstimate,contextTokenEstimateKind:'heuristic'})
   staged.audit.push({phase:'turn_contract',mode:contract.mode,capabilities:contract.capabilities,schemaChars:contract.schemaChars,systemPromptChars:systemPrompt.length,providerCalls:0})
   if(boundedReply)staged.audit.push({phase:'bounded_ordinary_reply',basis:boundedReply.basis,sourceStatus:boundedReply.sourceStatus,stage:boundedReply.stage,choices:boundedReply.choices.length,providerCalls:0})
@@ -845,16 +1506,159 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   // P2-5: one numeric per observable engine stage into the audit. Validation
   // is wrapped so repair cycles also count.
   const genericSkip=new Set([...`我你他她它们了的是一在和都也与及还就很不去要这那有没说会被把`])
+  const explicitlyUnattemptedMatterQuote=(quote:string)=>/^(?:但|不过)?(?:我|本人)?(?:现在|目前)?(?:还没有|还没|尚未|没有|未)(?:开始|执行|动手)$/.test(quote)
+  const explicitMatterChoiceReport=()=>{
+    if(decisionComparison||personalWritesBlocked||readOnlyQuestion||instructionOnlySummary||summaryEventReadOnly||boundaryNeedsClarification||newMatterExplicit||currentConversationOnly(current.content)||currentEvent?.conversationId!==run.conversation_id)return null
+    const report=reportedActionProgress(current.content,currentEvent.title)
+    const choiceOnly=report.quotes.every(quote=>reportedActionProgress(quote,currentEvent.title).choice!==null&&(/^(?:我|本人)(?:现在|已经|已|决定)?(?:接受|同意|愿意试|拒绝|不接受)(?:你(?:刚才|上次|之前)?(?:建议|说|提出|给)的?)?(?:这|那|该)(?:个)?(?:步骤|建议|方案|做法|办法|方法|计划|安排|行动)$/.test(quote)||/^这只是(?:我|本人)选择接受$/.test(quote))||explicitlyUnattemptedMatterQuote(quote))
+    return report.choice!==null&&report.quotes.length&&choiceOnly?report:null
+  }
+  const invalidSidecarChoiceReport=()=>{
+    const report=explicitMatterChoiceReport()
+    if(!report||!report.quotes.some(explicitlyUnattemptedMatterQuote))return null
+    const boundary=/^(?:(?:这次|本次|现在|目前)?先不(?:增加|新增|加|安排)(?:其他|新的?)?(?:任务|行动|步骤|计划)|(?:不要|别)把(?:这次|本次)?(?:接受|同意|选择接受)(?:写|记|算|当)成(?:已经)?(?:完成|执行|做完)|(?:接受|同意)(?:不等于|并不代表)(?:已经)?(?:完成|执行|做完))$/
+    return clauseCatalogue.every(clause=>report.quotes.includes(clause.text)||boundary.test(clause.text))?report:null
+  }
+  const knownTurnFields=new Set([...Object.keys(actionCoachTurnSchema.properties),'decisionProposal'])
+  const discardableChoiceSidecarRejection=(wire:unknown,rejections:readonly CoachOutputRejection[]):'unknown_top_level_sidecar'|'unattempted_contribution'|null=>{
+    const rejection=rejections.length===1?rejections[0]:undefined
+    if(!wire||typeof wire!=='object'||Array.isArray(wire)||rejection?.stage!=='schema')return null
+    const unknownKeys=Object.keys(wire).filter(key=>!knownTurnFields.has(key))
+    const unknownSidecarIssues=Boolean(rejection.issues?.length)&&rejection.issues!.every(issue=>(issue.keyword==='boolean'&&issue.schemaPath==='#/additionalProperties')||(issue.keyword==='additionalProperties'&&issue.schemaPath==='#'))
+    const unknownSidecarOnly=!rejection.sourceCode&&unknownSidecarIssues&&unknownKeys.length>0
+    const contributionSourceIssue=rejection.issues?.length===1&&rejection.issues[0]?.keyword==='source'&&rejection.issues[0]?.schemaPath==='/event/source'
+    if(unknownSidecarOnly)return 'unknown_top_level_sidecar'
+    if(contributionSourceIssue&&rejection.sourceCode==='CONTRIBUTION_UNATTEMPTED_ACTION_INVALID')return 'unattempted_contribution'
+    return null
+  }
   async function validateOutput(raw:string):Promise<ActionCoachTurn>{
     const validationStart=performance.now()
     try{return await validateOutputInner(raw)}
     finally{validationMs=Math.round(performance.now()-validationStart)}
   }
   async function validateOutputInner(raw:string):Promise<ActionCoachTurn>{
+    if(viewOnlyDrafts.length){
+      let presentation:Record<string,unknown>|null=null
+      try{presentation=JSON.parse(finalCoachJsonText(raw.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i,'$1')))}catch{}
+      const bodies=presentation?.viewOnlyDrafts
+      if(typeof presentation?.reply!=='string'||!Array.isArray(bodies)||bodies.length!==viewOnlyDrafts.length
+        ||bodies.some((body,index)=>typeof body!=='string'||body.length>12000||!viewOnlyDraftComplete(viewOnlyDrafts[index]!,body)))throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
+      presentation.reply=[presentation.reply,...bodies].filter(body=>body.trim()).join('\n\n')
+      delete presentation.viewOnlyDrafts
+      raw=JSON.stringify(presentation)
+    }
     let result:ActionCoachTurn
-    try{result=parseActionCoachTurn(raw,{allowEmptyMaterialExplanation:resumePortfolioMode,allowEmptyReplyWithCompleteDraft:true,onNormalization:kind=>staged.audit.push({phase:'coach_output_normalized',kind,providerCalls:0}),onRejection:diagnostic=>staged.audit.push({phase:'coach_output_rejected',...diagnostic,providerCalls:0})})}catch{
-      await captureSyntheticOutput(run.user_id,run.request_id,raw,staged,'rejected_synthetic_business_output_captured')
-      throw new HttpError(502,'COACH_OUTPUT_INVALID')
+    const completeReply=(reply:string)=>completeUserReply(reply,current.content,code=>staged.audit.push({phase:'coach_reply_integrity_rejected',code,providerCalls:0}))
+    const outputRejections:CoachOutputRejection[]=[]
+    const acceptedFactInputs=new Map<number,number>()
+    const acceptedFactResolvedInputs=new Map<number,number>()
+    const sourceOwnsNewChoice=Boolean(namedAcceptance)&&!planIntent
+    const optionalContributions=contract.capabilities.growth&&!decisionComparison&&!feedbackTarget&&!materialIntent&&!experienceCandidateRequired
+      &&(sourceOwnsNewChoice||!namedMatter&&!transactionalReplyMustWait)
+    const requiredFields=contract.schema.required
+    const omitQuestionMatterReports=!transactionalReplyMustWait&&calls.length===1&&calls[0]!.omitQuestionMatterReports
+    const ordinaryAnswerSourceIds=calls[0]?.ordinaryAnswerSourceIds
+    const parseOptions:NonNullable<Parameters<typeof parseActionCoachTurn>[1]>={replyOnly:replyOnly||Boolean(switchContract),ordinaryAnswerSourceIds,sourceCatalogue:{messageId:run.source_message_id,catalogue:decisionComparison?clauseCatalogue:modelClauseCatalogue,text:current.content,canonicalFacts:!decisionComparison&&contract.capabilities.growth,optionalContributions,omitQuestionMatterReports},allowDecisionProposal:proposalCases.length>0,projectDecisionProposal:proposalConditions?value=>projectDecisionProposalWire(value,proposalCases,proposalConditions,validPreviousProposal):undefined,allowEmptyMaterialExplanation:resumePortfolioMode,allowEmptyReplyWithCompleteDraft:true,feedbackProgress:clauseId=>{
+      const clause=modelClauseCatalogue.find(clause=>clause.clauseId===clauseId)
+      if(!clause||clause.quoted||clause.code||clause.conditional||clause.interrogative||clause.attributedToOther||clause.quoteSpans?.length||clause.codeSpans?.length)return undefined
+      return reportedFeedbackProgress(clause.text)
+    }}
+    try{result=parseActionCoachTurn(raw,{...parseOptions,sourceCatalogue:{...parseOptions.sourceCatalogue!,ownedFeedbackClauses,boundFeedbackActionClauseId:bindOwnedFeedback?feedbackClause?.clauseId:undefined},onNormalization:kind=>staged.audit.push({phase:'coach_output_normalized',kind,providerCalls:0}),onRejection:diagnostic=>{outputRejections.push(diagnostic);staged.audit.push({phase:'coach_output_rejected',...diagnostic,providerCalls:0})}})}catch(error){
+      const code=error instanceof Error&&['DECISION_WIRE_INVALID','DECISION_CASE_COVERAGE_INVALID','DECISION_ALLOCATION_BASIS_INVALID'].includes(error.message)?error.message:'COACH_PARSE_INVALID'
+      staged.audit.push({phase:'coach_output_parse_rejected',code,providerCalls:0})
+      let wire:unknown
+      try{wire=JSON.parse(raw)}catch{}
+      const canRebuildMatter=Boolean(namedMatter??invalidSidecarChoiceReport())
+      const reply=wire&&typeof wire==='object'&&!Array.isArray(wire)&&typeof (wire as {reply?:unknown}).reply==='string'?(wire as {reply:string}).reply:null
+      const discardReason=discardableChoiceSidecarRejection(wire,outputRejections)
+      let recovered:ActionCoachTurn|null=null
+      if(canRebuildMatter&&reply!==null&&discardReason&&wire&&typeof wire==='object'&&!Array.isArray(wire))try{
+        // For the contribution rejection, every model-owned sidecar is
+        // untrusted: a second malformed event/growth lane must not suppress a
+        // choice and non-execution state already proven by the host parser.
+        // Re-validate only the exact reply, then rebuild the matter delta from
+        // the current user source below. Unknown-field failures can retain the
+        // stricter known-field validation because no known lane was rejected.
+        const safeWire:Record<string,unknown>=discardReason==='unattempted_contribution'?{reply}:Object.fromEntries(Object.entries(wire as Record<string,unknown>).filter(([key])=>knownTurnFields.has(key)))
+        const validated=parseActionCoachTurn(JSON.stringify(safeWire),parseOptions)
+        if(validated.reply===reply)recovered={reply}
+      }catch{}
+      let ordinaryReplyRecovered=false
+      const completedCall=calls.length===1?calls[0]:undefined
+      if(!recovered&&directOrdinary&&!requestedGuide&&!answerDispositionRequired&&!contract.requiredReplyKind
+        &&Array.isArray(requiredFields)&&requiredFields.length===1&&requiredFields[0]==='reply'
+        &&completedCall?.outcome==='completed'&&completedCall.usageCompleteness==='complete'&&completedCall.stopReason==='stop'
+        &&outputRejections.length===1&&outputRejections[0]?.stage==='json'){
+        const frame=replyBeforeMalformedOptionalFields(raw,ordinaryAnswerSourceIds)
+        if(frame&&Object.hasOwn(contract.schema.properties as object,frame.field)&&!ordinaryPrivateRecord.test(frame.reply)&&!ordinaryWriteReceipt.test(frame.reply))try{
+          const validated=parseActionCoachTurn(JSON.stringify(frame.wire),parseOptions)
+          if(validated.reply===frame.reply){recovered=validated;ordinaryReplyRecovered=true}
+        }catch{}
+      }
+      if(recovered){
+        result=recovered
+        if(ordinaryReplyRecovered)staged.audit.push({phase:'ordinary_reply_preserved_after_optional_json_error',providerCalls:0})
+        else staged.audit.push({phase:'invalid_provider_sidecar_discarded_for_explicit_matter_choice',reason:discardReason,discardedFields:Object.keys(wire as object).filter(key=>key!=='reply').length,providerCalls:0})
+      }else{
+        await captureSyntheticOutput(run.user_id,run.request_id,raw,staged,'rejected_synthetic_business_output_captured')
+        throw new HttpError(502,'COACH_OUTPUT_INVALID')
+      }
+    }
+    let readOnlyDraftDelivered=false
+    const outputAction=result.event?.action
+    if(outputAction?.operation==='create'||outputAction?.operation==='modify'){
+      const source=outputAction.source?.messageId===run.source_message_id?outputAction.source:null
+      const ranges=source&&viewOnlyDrafts.length?sourceQuoteRanges(current.content,source.quote):[]
+      const range=source&&(selectedSourceRange(source)??(ranges.length===1?ranges[0]:undefined))
+      const outputReadOnly=readOnlyMaterial||Boolean(range&&viewOnlyDrafts.some(request=>request.range.start===range.start&&request.range.end===range.end))
+      if(outputReadOnly||actionRestrictions[outputAction.operation]){
+        if(!outputReadOnly&&deliverableIntent(current.content,outputAction.operation)&&'content'in outputAction.draft){
+          await validateReadOnlyCoachDraft(run,outputAction.operation,outputAction.draft.content,outputAction.source)
+          result.reply=renderCoachReply(result)
+          readOnlyDraftDelivered=materialPersistenceRefused||actionRestrictions[outputAction.operation]
+        }
+        delete result.event!.action
+      }
+    }
+    if(actionRestrictions.plan)delete result.weeklyPlan
+    const boundFeedbackEvent=bindOwnedFeedback&&result.event?.target.operation==='continue'&&result.event.target.eventId===feedbackTarget?.event.id?result.event:undefined
+    if(feedbackTarget&&contract.capabilities.event&&!boundedReply&&(!result.event?.matterReports||bindOwnedFeedback)){
+      const {event,nodeId,proof}=feedbackTarget
+      if(feedbackClause&&contract.capabilities.growth){
+        // The owned report is one partial attempt. Its negative outcome is
+        // evidence of that attempt, never a second unattempted action.
+        const updates=result.growthUpdates??=[]
+        const existing=updates.findIndex(item=>item.assertion==='user_reported'&&item.target.operation==='create'&&item.source.clauseId===feedbackClause.clauseId)
+        if(existing>=0&&reportedContribution(updates[existing]!)){
+          const update=updates[existing]!
+          if(update.kind==='feedback')update.progressState='attempted'
+        }else{
+          const projected=parseActionCoachTurn(JSON.stringify({reply:result.reply,growthUpdates:[{
+            target:{operation:'create'},kind:'feedback',assertion:'user_reported',progressState:'attempted',source:{clauseId:feedbackClause.clauseId},contribution:{actor:'self',actionQuote:feedbackClause.text},
+          }]}),parseOptions).growthUpdates?.[0]
+          if(projected&&existing<0)updates.push(projected)
+          else if(projected)updates[existing]=projected
+        }
+        if(result.experienceCandidate){
+          const selection=resolveContiguousClauseRange(current.content,clauseCatalogue,result.experienceCandidate.source.clauseIds)
+          if(selection&&selection.start<proof.range.end&&proof.action.start<selection.end)delete result.experienceCandidate
+        }
+      }
+      const sources=feedbackSources.map(clause=>clauseMessageSource(run.source_message_id,clause))
+      const sameSource=(left:{messageId:string;quote:string},right:{messageId:string;quote:string})=>{
+        const range=selectedSourceRange(left),other=selectedSourceRange(right)
+        return left.messageId===right.messageId&&left.quote===right.quote&&range!==undefined&&range.start===other?.start&&range.end===other.end
+      }
+      const nodes=boundFeedbackEvent?.nodes??[]
+      const missingSources=sources.filter(source=>!nodes.some(node=>node.kind==='fact'&&sameSource(source,node.source)))
+      const legacy={target:{operation:'continue' as const,eventId:event.id,expectedRevision:event.revision},resolveUnknowns:nodeId?[nodeId]:[]}
+      result.event={...(boundFeedbackEvent??legacy),nodes:[...nodes,...missingSources.map(source=>({kind:'fact' as const,source}))]}
+      if(bindOwnedFeedback){
+        const firstOutcome=proof.clauses[0]!
+        result.event.matterReports=[{state:'partial',choice:null,resumed:false,source:clauseMessageSource(run.source_message_id,firstOutcome)},
+          ...(boundFeedbackEvent?.matterReports??[]).filter(report=>!sources.some(source=>sameSource(source,report.source)))]
+      }
+      staged.audit.push({phase:'feedback_event_bound_from_source',eventId:event.id,nodeId:nodeId??null,sourceMessageId:run.source_message_id,providerCalls:0})
     }
     if(answerDispositionRequired&&(!result.event||!Object.hasOwn(result.event,'resolveUnknowns'))){
       await captureSyntheticOutput(run.user_id,run.request_id,raw,staged,'rejected_synthetic_business_output_captured')
@@ -862,134 +1666,80 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       throw new HttpError(502,'COACH_UNKNOWN_DISPOSITION_MISSING')
     }
     if(calls.length)await captureSyntheticOutput(run.user_id,run.request_id,raw,staged,'synthetic_business_output_captured')
-    if(!completeUserReply(result.reply,current.content))throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
+    if(!completeReply(result.reply))throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
+    if(!keepsProgressObject(result.reply))throw new HttpError(502,'REPLY_PROGRESS_OBJECT_MISSING')
+    if(progressTiming){
+      const delivery=progressTiming.exec(result.reply)
+      if(!delivery||EXPLICIT_LATEST_TIME.test(result.reply))throw new HttpError(502,'REPLY_PROGRESS_TIMING_CHANGED')
+      const statuses=[result.reply.slice(0,delivery.index),result.reply.slice(delivery.index+delivery[0].length)].flatMap(statusClauses)
+      const keepsStatuses=statuses.length===statusChecks.length&&statusChecks.every(check=>{
+        const match=statuses.findIndex(check)
+        if(match<0)return false
+        statuses.splice(match,1)
+        return true
+      })
+      if(!keepsStatuses)throw new HttpError(502,'REPLY_PROGRESS_STATE_MISSING')
+    }
+    if(proposalConditions&&proposalCases.length){
+      if(!result.decisionProposal)throw new HttpError(400,'DECISION_PROPOSAL_MISSING')
+      try{validateDecisionProposal(result.decisionProposal,proposalCases,proposalConditions,validPreviousProposal,result.reply)}catch(error){const code=error instanceof Error?error.message:'DECISION_PROPOSAL_INVALID';staged.audit.push({phase:'decision_proposal_rejected',code,items:result.decisionProposal.items.map(item=>({caseIndex:proposalCases.findIndex(c=>c.eventId===item.eventId),mode:item.mode,minutesCeiling:item.minutesCeiling})),orderRelation:result.decisionProposal.orderRelation,providerCalls:0});throw new HttpError(400,code)}
+      staged.audit.push({phase:'decision_proposal',...result.decisionProposal,conditions:proposalConditions,realConditions,persistence:'PROPOSAL_NOT_USER_CHOICE',providerCalls:0})
+    }
     const preferenceSurfaces=[result.reply,...(result.lead?[result.lead]:[])]
     if(preferenceSurfaces.some(text=>unsupportedPreferenceConstraintClaims(text,promptContext.currentTask.responseScope.reportedEvidence.preferences,current.id,current.content).length))throw new HttpError(502,'REPLY_PREFERENCE_HARDENED')
-    if(contract.requiredReplyKind==='comparison'&&!comparisonReplyAccepts(result.reply)){
+    if(contract.requiredReplyKind==='comparison'&&!comparisonReplyAccepts(result.reply,current.content)){
       // The validated parser may have normalized a wrapper while the provider's
       // complete JSON reply still carries both explicitly labelled options.
       // Use that exact raw reply only when the comparison validator accepts it.
-      try{const rawReply=(JSON.parse(raw) as any)?.reply;if(typeof rawReply==='string'&&comparisonReplyAccepts(rawReply)){result.reply=rawReply;staged.audit.push({phase:'comparison_reply_restored_from_raw',providerCalls:0})}}catch{}
-      if(!comparisonReplyAccepts(result.reply)){if(process.env.LIFEOS_DEBUG_COMPARISON)appendFileSync('.local/comparison-debug.txt',JSON.stringify({reply:result.reply,raw,current:current.content})+'\n');throw new HttpError(502,'REPLY_COMPARISON_MISSING')}
+      try{const rawReply=(JSON.parse(raw) as any)?.reply;if(typeof rawReply==='string'&&comparisonReplyAccepts(rawReply,current.content)){result.reply=rawReply;staged.audit.push({phase:'comparison_reply_restored_from_raw',providerCalls:0})}}catch{}
+      if(!comparisonReplyAccepts(result.reply,current.content)){if(process.env.LIFEOS_DEBUG_COMPARISON)appendFileSync('.local/comparison-debug.txt',JSON.stringify({reply:result.reply,raw,current:current.content})+'\n');throw new HttpError(502,'REPLY_COMPARISON_MISSING')}
     }
-    if(contract.requiredReplyKind==='comparison'&&!comparisonUniverseAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_COMPARISON_UNBOUNDED')
+    if(comparisonContract.requiredReplyKind==='comparison'&&!comparisonUniverseAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_COMPARISON_UNBOUNDED')
     if(!requestedActionLimitAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_ACTION_LIMIT')
     if(contract.requiredReplyKind==='summary'&&!summaryReplyAccepts(result.reply))throw new HttpError(502,'REPLY_SUMMARY_MISSING')
+    // Validate unsupported causal claims without rewriting or shortening prose.
+    const reportedCausalEvidence=[current.content,...messages.filter(message=>message.role==='user').map(message=>message.content),...snapshot.confirmedExperiences.map(item=>item.quote),...growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).flatMap(item=>item.assertion==='user_edit'?[item.text]:item.sources.flatMap(source=>source.quote?[source.quote]:[]))].join('\n')
+    if(softenSingleObservationCausality(result.reply,current.content,reportedCausalEvidence)!==null||(!result.citations?.length&&observationEffectHypothesis(result.reply,true)!==null))throw new HttpError(502,'REPLY_CAUSALITY_UNGROUNDED')
+    if(!boundedReply&&!materialIntent&&!planIntent&&(grillingMode==='ordinary'||grillingMode==='explore')&&openUnreportedChoiceQuestion(result.reply,current.content)!==null)throw new HttpError(502,'REPLY_QUESTION_PREMISE_UNGROUNDED')
+    if(enforceReportedQuantity(result.reply,current.content)!==null)throw new HttpError(502,'REPLY_QUANTITY_INVALID')
     const generatedReply=result.reply
     const generatedAskedNodes=new Set(result.event?.nodes?.filter(node=>node.kind==='unknown'&&generatedReply.includes(node.question.trim()))??[])
-    // Server-authored enum choices already encode their evidence boundary.
-    // Validate selection before prose repair; model-only rewriting must not
-    // invalidate the same authorized selection before commit.
+    // Ordinary model prose is not edited after generation: no sentence,
+    // question-count or wording repair may discard the visible answer.
+    // Authorization, source, explicit quantity and state checks still fail closed.
     if(!boundedReplyAccepts(result.reply,boundedReply)){
-      // A paused-target boundary can still answer an explicit one-question recall with its safe clarification choice; never accept the model's unsupported alternative.
-      if(boundedReply?.choices.length&&/只问一个问题/.test(current.content)){result.reply=boundedReply.choices[0]!;staged.audit.push({phase:'bounded_boundary_choice_selected',providerCalls:0})}
-      else throw new HttpError(502,'BOUNDED_REPLY_INVALID')
-    }
-    if(!boundedReply&&(grillingMode==='ordinary'||grillingMode==='explore')){
-      const original=result.reply,opened=openUnreportedChoiceQuestion(original,current.content)
-      if(opened){
-        result.reply=opened
-        const pendingQuestions=result.event?.nodes?.filter(node=>node.kind==='unknown')??[]
-        const definedTopic=/^你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"]具体指什么[？?]$/.exec(opened)?.[1]
-        if(result.event?.nodes)for(const node of result.event.nodes)if(node.kind==='unknown'){
-          const question=openUnreportedChoiceQuestion(node.question,current.content)
-          const nodeTopic=/^你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"]具体(?:是)?指/.exec(node.question)?.[1]
-          if(question&&opened.includes(question.trim()))node.question=question
-          else if(definedTopic&&pendingQuestions.length===1&&nodeTopic&&definedTopic.includes(nodeTopic))node.question=opened
-        }
-        staged.audit.push({phase:'grilling_loaded_choices_opened',providerCalls:0})
-      }
-    }
-    const authorizedQuestionText=[current.content,...messages.filter(message=>message.role==='user').map(message=>message.content),...growthAll.filter(item=>item.status==='active'&&!item.unavailableReason&&['user_reported','user_edit'].includes(item.assertion)).map(item=>item.text),JSON.stringify(snapshot.confirmedExperiences)].join('\n')
-    if(!boundedReply&&(grillingMode==='ordinary'||grillingMode==='explore')&&!materialIntent&&!planIntent){
-      const accessGrounded=prioritizeReportedAccessFailure(result.reply,current.content)
-      if(accessGrounded){result.reply=accessGrounded;staged.audit.push({phase:'reported_access_failure_prioritized',providerCalls:0})}
-      const accessAlternative=groundReportedAccessAlternative(result.reply,current.content)
-      if(accessAlternative!==null){
-        if(!accessAlternative)throw new HttpError(502,'REPLY_ACCESS_MEASUREMENT_UNBOUNDED')
-        result.reply=accessAlternative;staged.audit.push({phase:'reported_access_alternative_grounded',providerCalls:0})
-      }
-      const receiptState=fixReportedReceiptState(result.reply,current.content)
-      if(receiptState){result.reply=receiptState;staged.audit.push({phase:'reported_receipt_state_separated',providerCalls:0})}
-      const clickablePrototype=groundClickablePrototype(result.reply,current.content)
-      if(clickablePrototype){result.reply=clickablePrototype;staged.audit.push({phase:'clickable_prototype_grounded',providerCalls:0})}
-      const causalitySoftened=softenSingleObservationCausality(result.reply,current.content,authorizedQuestionText)
-      if(causalitySoftened){result.reply=causalitySoftened;staged.audit.push({phase:'single_observation_causality_softened',providerCalls:0})}
-      // History is evidence for available resources, not authorization for a
-      // new action. A current pause/understanding-only turn must not inherit an
-      // older public-lookup request.
-      const resourceGrounded=groundUnsupportedOperationalResources(result.reply,current.content)
-      if(resourceGrounded){result.reply=resourceGrounded;staged.audit.push({phase:'unsupported_operational_resource_replaced',providerCalls:0})}
-      const channelGrounded=removeUnsupportedContactChannels(result.reply,authorizedQuestionText,current.content)
-      if(channelGrounded!==null){
-        if(!channelGrounded)throw new HttpError(502,'REPLY_UNSUPPORTED_CONTACT_CHANNEL')
-        result.reply=channelGrounded;staged.audit.push({phase:'unsupported_contact_channel_removed',providerCalls:0})
-      }
-      // The single-lead boundary is a whole-reply stage correction, so it runs
-      // before sentence-level guards; a coherent clarification beats a reply
-      // with its productisation sentences cut out.
-      const singleLeadGrounded=groundSingleLeadWithoutProduct(result.reply,current.content)
-      if(singleLeadGrounded){
-        result.reply=singleLeadGrounded
-        if(result.event?.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind!=='unknown'||singleLeadGrounded.includes(node.question.trim()))
-        staged.audit.push({phase:'grilling_single_lead_without_product_grounded',providerCalls:0})
-      }
-      const beforePresupposition=result.reply
-      const presuppositionOpened=openPresupposedProblemQuestion(result.reply)
-      if(presuppositionOpened){
-        result.reply=presuppositionOpened
-        const originalQuestion=beforePresupposition.match(/[^。！!；;\n]*[？?]\s*$/)?.[0]?.trim()
-        const openedQuestion=presuppositionOpened.match(/[^。！!；;\n]*[？?]\s*$/)?.[0]?.trim()
-        if(originalQuestion&&openedQuestion&&result.event?.nodes)for(const node of result.event.nodes)if(node.kind==='unknown'&&node.question.trim()===originalQuestion)node.question=openedQuestion
-        staged.audit.push({phase:'grilling_presupposed_problem_opened',providerCalls:0})
-      }
-      const demoRemoved=removePrematureDemoStep(result.reply,current.content)
-      if(demoRemoved){result.reply=demoRemoved;staged.audit.push({phase:'grilling_premature_demo_removed',providerCalls:0})}
-      const productizationRemoved=removePrematureProductization(result.reply,current.content)
-      if(productizationRemoved){result.reply=productizationRemoved;staged.audit.push({phase:'grilling_premature_productization_removed',providerCalls:0})}
-      const zeroTimeStopped=removeQuestionOnZeroTime(result.reply,current.content)
-      if(zeroTimeStopped){result.reply=zeroTimeStopped;staged.audit.push({phase:'grilling_zero_time_question_removed',providerCalls:0})}
-      const bounded=limitGrillingQuestions(result.reply,current.content,authorizedQuestionText)
-      if(bounded){
-        result.reply=bounded
-        if(result.event?.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind!=='unknown'||bounded.includes(node.question.trim()))
-        staged.audit.push({phase:'grilling_single_question_bounded',providerCalls:0})
-      }
-    }
-    // A material-intent turn can still downgrade an explicitly requested
-    // clickable prototype to a sketch. Apply the same boundary outside the
-    // ordinary/explore block when no material draft owns the reply.
-    if(!boundedReply&&!(result.event?.action&&'draft'in result.event.action)){
-      // Refusal is a current-turn boundary, not a grilling-mode branch. A
-      // listening/direct mode must still acknowledge the named boundary.
-      const refusalAcknowledged=acknowledgeRefusalBoundary(result.reply,current.content)
-      if(refusalAcknowledged){result.reply=refusalAcknowledged;staged.audit.push({phase:'refusal_boundary_acknowledged',providerCalls:0})}
-      const unsupportedPreference=repairUnsupportedPreferenceClaim(result.reply,current.content,promptContext.currentTask.responseScope.reportedEvidence.preferences)
-      if(unsupportedPreference!==null){result.reply=unsupportedPreference;if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL');staged.audit.push({phase:'unsupported_preference_claim_repaired',providerCalls:0})}
-      const unsupportedZero=repairUnsupportedZeroTimeClaim(result.reply,current.content)
-      if(unsupportedZero){result.reply=unsupportedZero;staged.audit.push({phase:'unsupported_zero_time_claim_removed',providerCalls:0})}
-      const quantityEnforced=enforceReportedQuantity(result.reply,current.content)
-      if(quantityEnforced){result.reply=quantityEnforced;staged.audit.push({phase:'reported_quantity_enforced',providerCalls:0})}
-      const zeroTimeFocus=ensureZeroTimeFocus(result.reply,current.content)
-      if(zeroTimeFocus){result.reply=zeroTimeFocus;staged.audit.push({phase:'zero_time_focus_preserved',providerCalls:0})}
-      const zeroTimeTasks=removeZeroTimeTasks(result.reply,current.content)
-      if(zeroTimeTasks){result.reply=zeroTimeTasks;staged.audit.push({phase:'zero_time_tasks_removed',providerCalls:0})}
-      const lowCostSelfStart=ensureLowCostSelfStart(result.reply,current.content)
-      if(lowCostSelfStart){result.reply=lowCostSelfStart;staged.audit.push({phase:'low_cost_self_start_added',providerCalls:0})}
-      const twoFactorPresence=ensureTwoFactorPresenceChange(result.reply,current.content)
-      if(twoFactorPresence){result.reply=twoFactorPresence;staged.audit.push({phase:'two_factor_presence_change_required',providerCalls:0})}
-      const healthTwoFactor=guardHealthTwoFactor(result.reply,current.content)
-      if(healthTwoFactor){result.reply=healthTwoFactor;staged.audit.push({phase:'health_two_factor_boundary_added',providerCalls:0})}
-      const clickablePrototype=groundClickablePrototype(result.reply,current.content)
-      if(clickablePrototype){result.reply=clickablePrototype;staged.audit.push({phase:'clickable_prototype_grounded',providerCalls:0})}
-      const clickableValidation=ensureClickableValidation(result.reply,current.content)
-      if(clickableValidation){result.reply=clickableValidation;staged.audit.push({phase:'clickable_validation_added',providerCalls:0})}
-      const clickableCount=fixClickableCountConsistency(result.reply,current.content)
-      if(clickableCount){result.reply=clickableCount;staged.audit.push({phase:'clickable_count_consistent',providerCalls:0})}
+      throw new HttpError(502,'BOUNDED_REPLY_INVALID')
     }
     if(requestedGuide&&!result.citations?.length)throw new HttpError(400,'COACH_CITATION_INVALID')
     if(/"(?:readiness|missingRequired|materialFactIds|materialEvidence)"\s*:/.test(raw))staged.audit.push({phase:'provider_material_metadata_ignored',providerCalls:0})
     if(explicitMaterial?.event?.action&&'draft'in explicitMaterial.event.action&&result.event?.action&&'draft'in result.event.action)result.event.action.draft=explicitMaterial.event.action.draft
+    if(personalWritesBlocked){
+      delete result.experienceCandidate;delete result.background;delete result.weeklyPlan;delete result.event;result.growthUpdates=[]
+      staged.audit.push({phase:'explicit_analysis_only_writes_suppressed',providerCalls:0})
+    }
+    if(decisionComparison&&!personalWritesBlocked&&actualBindings.length===1&&!result.event){
+      const actual=actualBindings[0]
+      result.event={target:{operation:'continue',eventId:actual.event.id,expectedRevision:actual.event.revision},nodes:[{kind:'fact',source:clauseMessageSource(run.source_message_id,actual.clause)}]}
+      staged.audit.push({phase:'decision_comparison_actual_transition_bound',eventId:actual.event.id,sourceMessageId:run.source_message_id,providerCalls:0})
+    }
+    if(decisionComparison){
+      delete result.experienceCandidate;delete result.background;delete result.weeklyPlan
+      if(!contract.capabilities.growth)delete result.growthUpdates
+      if(result.event){
+        if(result.event.target.operation!=='continue'||!result.event.nodes?.length||result.event.action||result.event.corrections?.length||result.event.resolveUnknowns?.length||result.event.declineUnknowns?.length)throw new HttpError(400,'TRIAL_EVENT_MUTATION_NOT_AUTHORIZED')
+        const targetId=result.event.target.eventId
+        for(const node of result.event.nodes){
+          if(node.kind!=='fact')throw new HttpError(400,'TRIAL_EVENT_MUTATION_NOT_AUTHORIZED')
+          const {source}=node
+          const selected=selectedSourceRange(source)
+          const ranges=selected?[selected]:sourceQuoteRanges(current.content,source.quote)
+          if(source.messageId!==run.source_message_id||ranges.length!==1)throw new HttpError(400,'TRIAL_SOURCE_NOT_WRITABLE')
+          const range=ranges[0]!,binding=actualBindings.find(candidate=>candidate.quote===source.quote&&candidate.clause.start===range.start&&candidate.clause.end===range.end)
+          if(!binding||binding.event.id!==targetId)throw new HttpError(400,'TRIAL_ACTUAL_TARGET_MISMATCH')
+          if(!selected)inheritSourceRange(clauseMessageSource(run.source_message_id,binding.clause),source)
+        }
+      }
+    }
     if((readOnlyQuestion||instructionOnlySummary)&&(result.event||result.experienceCandidate||result.weeklyPlan||result.growthUpdates?.length)){
       staged.audit.push({phase:'coach_output_rejected',stage:'read_only_scope',providerCalls:0})
       throw new HttpError(502,'COACH_OUTPUT_INVALID')
@@ -1003,61 +1753,45 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       throw new HttpError(502,'COACH_OUTPUT_INVALID')
     }
     if(!boundedReplyAccepts(result.reply,boundedReply)){
-      // A paused-target boundary can still answer an explicit one-question recall with its safe clarification choice; never accept the model's unsupported alternative.
-      if(boundedReply?.choices.length&&/只问一个问题/.test(current.content)){result.reply=boundedReply.choices[0]!;staged.audit.push({phase:'bounded_boundary_choice_selected',providerCalls:0})}
-      else throw new HttpError(502,'BOUNDED_REPLY_INVALID')
-    }
-    if(singleQuestionReply){
-      const question=sourceDefinition??openingQuestionDraft(JSON.stringify({reply:result.reply}))
-      if(question)result.reply=question
-    }
-    const requestedQuestion=ensureRequestedQuestion(result.reply,current.content)
-    if(requestedQuestion){result.reply=requestedQuestion;staged.audit.push({phase:'requested_question_grounded',providerCalls:0})}
-    // Do not downgrade a reported observation while applying the independent
-    // source/safety repairs (run-mz C6-T3). Native guards still apply.
-    const preserveSummary=contract.requiredReplyKind==='summary'
-    const reviewed=boundedReply?null:sourceStatusReadback?repairStatusUpdate(result.reply,current.content):repairReviewedDefects(result.reply,current.content,priorUserTexts,{preserveReportedObservation:preserveSummary})
-    if(reviewed){
-      result.reply=reviewed.reply
-      // An originally empty explanation with a validated material remains on
-      // the existing parser lane. Do not turn a nonempty internal draft into
-      // an empty delivered answer during repair.
-      if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
-      staged.audit.push({phase:'reviewed_defects_repaired',rules:reviewed.phases,providerCalls:0})
-    }
-    const closedEarly=result.reply.trim()?closeDanglingReply(result.reply):null
-    if(closedEarly){
-      result.reply=closedEarly
-      staged.audit.push({phase:'dangling_reply_closed_before_validation',providerCalls:0})
+      throw new HttpError(502,'BOUNDED_REPLY_INVALID')
     }
     if(distinctionActionRequested){
       const boundedDistinction=boundedDistinctionReply(current.content)
       if(boundedDistinction===null)throw new HttpError(502,'REPLY_DISTINCTION_ACTION_INVALID')
-      if(result.reply!==boundedDistinction){result.reply=boundedDistinction;staged.audit.push({phase:'distinction_action_bounded',providerCalls:0})}
+      if(result.reply!==boundedDistinction)throw new HttpError(502,'REPLY_DISTINCTION_ACTION_INVALID')
       if(Object.hasOwn((contract.schema as any).properties,'lead'))result.lead=boundedDistinction.slice(0,boundedDistinction.indexOf('。')+1)
       if(!distinctionActionAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_DISTINCTION_ACTION_INVALID')
     }
-    staged.coach=undefined;staged.candidates=[];staged.memoryChanges=[];staged.growth=undefined
+    staged.coach=undefined;staged.candidates=[];staged.memoryChanges=[];staged.growth=undefined;staged.factInterpretations=undefined
     if(result.event?.action&&result.event.action.operation!=='close'&&!materialIntent){
-      const target=result.event.target,event=target.operation==='continue'?[currentEvent,...historicalEvents].find(event=>event?.id===target.eventId)??null:null
+      const target=result.event.target
+      let event=target.operation==='continue'?[currentEvent,...historicalEvents].find(event=>event?.id===target.eventId)??null:null
+      let eventBindings:CoachEventSourceBindings|undefined
+      if(event)try{const authoritative=await coachEventViewWithSources(run.user_id,run.conversation_id,event.id);event=authoritative.event;eventBindings=authoritative.bindings}catch(error){if(error instanceof HttpError&&[403,404,409].includes(error.status))event=null;else throw error}
       const unchanged=unchangedProposedAction(event,result.event)
-      const effective=effectiveMaterialRequest(current.content,result.event.action.operation==='modify'?'modify':'create',event)
-      if(unchanged||effective.disposition==='declined'||'draft'in result.event.action&&!effective.inheritedCreateRequest){
+      const effective=effectiveMaterialRequest(current.content,result.event.action.operation==='modify'?'modify':'create',event,eventBindings)
+      if(unchanged||effective.disposition==='declined'||'draft'in result.event.action&&!effective.inheritedActionRequest){
         delete result.event.action
         staged.audit.push({phase:unchanged?'unchanged_unrequested_material_dropped':'unsolicited_material_dropped',providerCalls:0})
-        if(!result.event.nodes?.length&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
+        if(!result.event.nodes?.length&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length&&!result.event.matterReports?.length)delete result.event
       }
     }
     if(result.event?.target.operation==='continue'&&result.event.resolveUnknowns?.length){
       const targetId=result.event.target.eventId
       const event=[currentEvent,...historicalEvents].find(event=>event?.id===targetId)
+      const priorFeedbackId=compactFeedback?priorFeedbackReport?.sourceMessageId:undefined
+      const priorFeedbackGaps=priorFeedbackId?event?.processTurns?.find(turn=>turn.sourceMessageId===priorFeedbackId)?.introducedUnknownNodeIds:undefined
       const engagementSources=[...reportedEvidenceFromText(current.content).preferences.filter(preference=>preference.modality==='like').map(preference=>preference.quote),
         ...reportedPursuitClauses(current.content).filter(clause=>/^(?:我|本人)(?:最|更|确实|现在)?愿意/.test(clause.text)).map(clause=>clause.text)]
       result.event.resolveUnknowns=result.event.resolveUnknowns.filter(id=>{
         const question=event?.nodes.find(node=>node.id===id&&node.kind==='unknown')?.content??''
+        if(priorFeedbackGaps?.includes(id)&&id!==immediateAnsweredUnknown?.id&&!clauseCatalogue.some(clause=>
+          !clause.interrogative&&!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!assistantRequestClause(clause.text)&&unknownQuestionTopicMatches(question,clause.text))){
+          staged.audit.push({phase:'prior_feedback_unknown_retained',nodeId:id,providerCalls:0});return false
+        }
         // A reply that still presents the same item as unknown cannot close it
         // in the persisted event state.
-        if(/(?:仍未知|尚未确认|不确定|是否偶然|不知道|未确认)/.test(result.reply)&&unknownQuestionTopicMatches(question,result.reply)){
+        if(scanUserClauses(result.reply).some(clause=>/(?:仍未知|尚未确认|不确定|是否偶然|不知道|未确认)/.test(clause.text)&&unknownQuestionTopicMatches(question,clause.text))){
           staged.audit.push({phase:'unknown_stays_open_when_reply_says_unknown',nodeId:id,sourceMessageId:run.source_message_id,providerCalls:0});return false
         }
         // A causal either/or unknown is not answered by repeating the same
@@ -1078,7 +1812,15 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // Apply the same instruction boundary to corrections: a new request or
       // continuation cue cannot overwrite the history it refers to.
       const excludedEventSource=(quote:string)=>scanUserClauses(quote).every(clause=>!clause.quoted&&!clause.code&&(assistantRequestClause(clause.text)||/^(?:接着|继续|回到)(?:上次|之前|刚才)[^，。！？\n]*$/.test(clause.text)||/^只看[^，。！？\n]{1,40}(?:就好|即可)$/.test(clause.text)||/^(?:现在)?长期记忆(?:已经|已)?(?:开启|关闭)$/.test(clause.text.trim())))
-      if(result.event.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind==='unknown'||!excludedEventSource(node.source.quote))
+      if(feedbackRevision&&result.event.matterReports)result.event.matterReports=result.event.matterReports.filter(report=>!excludedEventSource(report.source.quote))
+      if(result.event.nodes)result.event.nodes=result.event.nodes.flatMap<NonNullable<NonNullable<ActionCoachTurn['event']>['nodes']>[number]>(node=>{
+        if(node.kind==='unknown')return [node]
+        const clauses=scanUserClauses(node.source.quote)
+        if(!clauses.some(clause=>excludedEventSource(clause.text)))return [node]
+        // Keep literal factual clauses when a provider selected a mixed span;
+        // removing an instruction must not remove the adjacent real condition.
+        return clauses.filter(clause=>!excludedEventSource(clause.text)).map(clause=>({...node,source:{...node.source,quote:clause.text}}))
+      })
       if(result.event.corrections){
         const target=result.event.target,event=target.operation==='continue'?[currentEvent,...historicalEvents].find(event=>event?.id===target.eventId):null
         result.event.corrections=result.event.corrections.filter(correction=>{
@@ -1104,10 +1846,60 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         // current fact; do not create a second copy of the same source span.
         if(result.event.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind==='unknown'||!result.event!.corrections!.some(correction=>event?.nodes.some(existing=>existing.id===correction.nodeId&&existing.kind===node.kind)&&correction.source.messageId===node.source.messageId&&correction.source.quote===node.source.quote))
       }
-      if(!result.event.nodes?.length&&!result.event.action&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
+      if(!result.event.nodes?.length&&!result.event.action&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length&&!result.event.matterReports?.length)delete result.event
     }
 
-    {
+    // A provider may acknowledge a choice in prose but omit its event lane.
+    // Bind only an explicit choice to the current conversation's known matter;
+    // reuse the native progress parser and normal revision/source transaction.
+    const acceptedClause=acceptedStepMode==='initial'&&acceptedStep&&contract.capabilities.growth
+      &&(supportsNativeStrictSchema(runtime.model)||result.event?.matterReports?.some(report=>report.choice==='accepted'))
+      ?namedAcceptance?.clauses.find(clause=>clause.text===acceptedStep.quote):undefined
+    if(acceptedClause&&namedAcceptance){
+      const selectionClause=modelClauseCatalogue.find(clause=>clause.start===namedAcceptance.task.start&&clause.end===namedAcceptance.task.end)
+      if(selectionClause)result.growthUpdates=result.growthUpdates?.map(update=>{
+        if(update.target.operation!=='create'||update.assertion!=='user_reported'||update.kind!=='feedback'||update.source.clauseId!==selectionClause.clauseId)return update
+        const {progressState:_,...selection}=update
+        return {...selection,kind:'context'}
+      })
+    }
+    if(namedMatter&&(!result.event?.matterReports||acceptedClause)&&(switchedMatter||!result.event||result.event.target.operation==='create')){
+      const target=result.event?.target
+      const ownsProviderTarget=target?.operation==='create'&&target.title===namedMatter.title&&target.source.quote===namedMatter.task.text
+      const optionalEvent=switchedMatter?undefined:namedAcceptance
+        ?materialIntent&&result.event?.action?.operation==='create'?{action:result.event.action}:undefined
+        :result.event
+      const initialNodes=namedMatter.clauses.map(clause=>({kind:'fact' as const,source:clauseMessageSource(run.source_message_id,clause)}))
+      const reportedQuotes=new Set(namedMatter.clauses.map(clause=>clause.text))
+      const otherNodes=switchedMatter?[]:(result.event?.nodes??[]).filter(node=>{
+        if(namedAcceptance&&!ownsProviderTarget)return false
+        if(node.kind==='unknown')return true
+        if(!namedAcceptance)return !reportedQuotes.has(node.source.quote)
+        const range=selectedSourceRange(node.source)
+        return Boolean(acceptedClause&&range&&!namedMatter.clauses.some(clause=>clause.start===range.start&&clause.end===range.end))
+      })
+      const priorReports=ownsProviderTarget?result.event?.matterReports??[]:[]
+      const matterReports=acceptedClause?[{state:null,choice:'accepted' as const,resumed:false,source:clauseMessageSource(run.source_message_id,acceptedClause)},
+        ...priorReports.flatMap(report=>{
+          const range=selectedSourceRange(report.source)
+          if(range?.start===acceptedClause.start&&range.end===acceptedClause.end)return []
+          if(report.choice!=='accepted')return [report]
+          // A model may attach the choice to the time earmarked for a future
+          // attempt. Keep independently reported progress on its own source.
+          const state=reportedActionProgress(report.source.quote,namedMatter.title).state
+          return report.state&&report.state!=='accepted'&&(report.state===state||report.state==='attempted'&&clauseReportsPastAction(report.source.quote))
+            ?[{...report,choice:null}]:[]
+        })]:undefined
+      result.event={...optionalEvent,target:{operation:'create',title:namedMatter.title,source:clauseMessageSource(run.source_message_id,namedMatter.task)},nodes:[...initialNodes,...otherNodes],...(matterReports?{matterReports}:{})}
+      staged.audit.push({phase:switchedMatter?'switched_matter_choice_source_bound':'named_matter_choice_source_bound',providerCalls:0})
+    }else if(!result.event){
+      const report=explicitMatterChoiceReport()
+      if(report){
+        result.event={target:{operation:'continue',eventId:currentEvent!.id,expectedRevision:currentEvent!.revision},nodes:clauseCatalogue.filter(clause=>report.quotes.includes(clause.text)).map(clause=>({kind:'fact',source:clauseMessageSource(run.source_message_id,clause)}))}
+        staged.audit.push({phase:'explicit_matter_choice_source_bound',eventId:currentEvent!.id,providerCalls:0})
+      }
+    }
+    if(!personalWritesBlocked&&!decisionComparison){
       // 确定性目标捕获：模型对复合句的首个决定子句有稳定的漏存倾向
       // （三轮实测均只存后半句）。显式决定/否定句若未被本轮 growth 引用
       // 覆盖，由服务器按分句原话补一条 user_reported 目标事实；身份、
@@ -1122,6 +1914,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         &&!deliverableIntent(handle.text,'create')
         &&!assistantRequestClause(handle.text)
         &&!deferredPursuitClause(handle.text)
+        &&!reportedPurposeClause(handle.text)
         &&!clauseReportsPastAction(handle.text)
         &&!/^我(?:今天|现在|目前|这次)?(?:只想|就想|想|只希望|希望)(?:你)?(?:先)?(?:听(?:我|你|说)|聊|说说|说点|倾诉|吐槽|陪我)/.test(handle.text)
         &&!/^我.{0,6}不想(?:再|继续)?(?:聊|说|讨论)/.test(handle.text)
@@ -1154,29 +1947,22 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         try{
           const material=resolveSelectedMaterialFacts(selection.selectedFactIds??[],materialCatalogue,run.user_id,run.user_id,contributionSentenceMode?'contribution_sentence':contributionParagraphMode?'contribution_paragraph':'resume')
           ;(result.event.action as {draft:unknown}).draft={content:material.content,readiness:material.readiness,missingRequired:material.missingRequired,materialFactIds:material.usedCatalogueIds,materialEvidence:material.facts.map(fact=>({field:fact.field,text:fact.text,sourceRef:fact.sourceRef}))}
-          // This class has one authoritative factual artifact. Keep the
-          // model's original introductory paragraph; an additional free-text
-          // body must not bypass the verified fact selection and rendering.
-          const explanation=result.reply.split(/\n\s*\n/,1)[0]!.trim()
-          if(explanation!==result.reply){result.reply=explanation;staged.audit.push({phase:'grounded_material_duplicate_body_removed',providerCalls:0})}
+          // Source-selected resumes have one authoritative factual artifact.
+          // Never discard a model-authored second body and pretend it passed:
+          // exact duplicate material is safe; unverifiable extra prose fails.
+          const paragraphs=result.reply.split(/\n\s*\n/)
+          if(paragraphs.length>1&&result.reply.trim()!==material.content&&paragraphs.slice(1).join('\n\n').trim()!==material.content)throw new HttpError(400,'MATERIAL_NARRATIVE_UNVERIFIED')
         }catch(error){
           throw error instanceof Error&&(error.message==='MATERIAL_REFERENCE_INVALID'||error.message==='MATERIAL_CATALOGUE_INVALID'||error.message==='MATERIAL_OUTPUT_LIMIT')?new HttpError(400,'MATERIAL_REFERENCE_INVALID'):error
         }
       }
     }
     const hasMaterial=result.event?.action&&'draft'in result.event.action
-    const deliveredDraft=materialDraftOf(result)
-    if(singleQuestionMaterial&&deliveredDraft?.content&&(deliveredDraft.content.match(/[？?]/g)?.length??0)>1){
-      const original=deliveredDraft.content
-      let body=original.trim()
-      for(const [open,close] of [['“','”'],['「','」'],['『','』']])if(body.startsWith(open!)&&body.endsWith(close!)){body=body.slice(1,-1);break}
-      const question=openingQuestionDraft(JSON.stringify({reply:body}))
-      if(!question)throw new HttpError(400,'COACH_MATERIAL_QUANTITY_INVALID')
-      deliveredDraft.content=question
-      result.reply=result.reply.replace(original,question)
-      staged.audit.push({phase:'single_question_material_bounded',providerCalls:0})
-    }
-    const requestedMaterial=deliverableIntent(current.content,currentEvent?.actions.some(action=>action.status==='proposed')?'modify':'create')
+    if(mixedViewOnly&&materialIntent&&!hasMaterial)throw new HttpError(400,'COACH_MATERIAL_NOT_VISIBLE')
+    // Question marks inside quoted examples or a complete draft are not a
+    // state/source violation. Keep explicit quantity guidance in the prompt;
+    // never reject or cut a material solely by counting punctuation.
+    const requestedMaterial=!materialPersistenceRefused&&!readOnlyDraftDelivered&&deliverableIntent(current.content,materialOperation)
     // A direct drafting instruction requests delivery now. Abstract advice is
     // not a completed delivery, even when it lacks the old framing markers.
     const directDraft=requiresImmediateMaterial(current.content)
@@ -1205,6 +1991,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // unverified number), and the durable text comes from persistWeeklyPlan.
       if(result.weeklyPlan.items.some(item=>item.directionScopes.some(scope=>!allowedPlanScopes.includes(scope))))throw new HttpError(400,'WEEKLY_PLAN_SCOPE_UNGROUNDED')
       const planInput=normalizeWeeklyPlanTasks(result.weeklyPlan as unknown as import('./weekly-plans.ts').WeeklyPlanInput)
+      if(scanUserClauses(result.reply).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.quoteSpans.length&&!clause.codeSpans.length&&/^\s*(?:[-*•]|\d+[.)、])\s*\d+\s*[–—~～-]\s*\d+\s*(?:min|分钟|小时)\s*[:：]/i.test(clause.text)))throw new HttpError(502,'REPLY_PLAN_SHADOW_SCHEDULE')
       result.reply=normalizeWeeklyPlanReply(result.reply,result.weeklyPlan as unknown as import('./weekly-plans.ts').WeeklyPlanInput)
       if(planInput.items.length!==result.weeklyPlan.items.length)staged.audit.push({phase:'weekly_plan_rest_as_unallocated',removedBufferItems:result.weeklyPlan.items.length-planInput.items.length,providerCalls:0})
       // P2 (B05/B10): the plan's budget is the OBLIGATION's binding amount —
@@ -1228,42 +2015,9 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // structure that is persisted, not free prose recalling an older week.
       result.reply=[weeklyPlanExplanation(result.reply),renderProposedWeeklyPlan(planInput)].filter(Boolean).join('\n\n')
     }
-    // A method note is support for a requested method or a factual claim, not
-    // decoration for every ordinary answer. Suppress unrequested citations so a
-    // short focus answer does not end with an unrelated 依据与边界 block.
-    const finalReviewed=boundedReply||sourceStatusReadback?null:repairReviewedDefects(result.reply,current.content,priorUserTexts,{preserveReportedObservation:preserveSummary})
-    if(finalReviewed){
-      result.reply=finalReviewed.reply
-      if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
-      staged.audit.push({phase:'reviewed_defects_repaired_final',rules:finalReviewed.phases,providerCalls:0})
-    }
-    const closedFinalReview=closeDanglingReply(result.reply)
-    if(closedFinalReview){
-      result.reply=closedFinalReview
-      staged.audit.push({phase:'dangling_reply_closed_after_final_review',providerCalls:0})
-    }
-    if(!boundedReply&&!sourceStatusReadback&&(grillingMode==='ordinary'||grillingMode==='explore')&&!materialIntent&&!planIntent){
-      const preference=repairUnsupportedPreferenceClaim(result.reply,current.content,promptContext.currentTask.responseScope.reportedEvidence.preferences)
-      if(preference!==null){result.reply=preference;staged.audit.push({phase:'final_preference_scope_grounded',providerCalls:0})}
-      const effect=softenSingleObservationCausality(result.reply,current.content,authorizedQuestionText)
-      if(effect!==null){result.reply=effect;staged.audit.push({phase:'final_time_effect_scope_grounded',providerCalls:0})}
-      if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
-    }
-    // Later semantic repairs may append a second question after the earlier
-    // grilling bound. Re-apply the one-question boundary to the final visible
-    // reply, without changing persisted state.
-    if(!boundedReply&&!sourceStatusReadback&&requestsOneQuestionReply(current.content)){
-      const finalQuestion=limitGrillingQuestions(result.reply,current.content,authorizedQuestionText)
-      if(finalQuestion){
-        result.reply=finalQuestion
-        if(result.event?.nodes)result.event.nodes=result.event.nodes.filter(node=>node.kind!=='unknown'||finalQuestion.includes(node.question.trim()))
-        staged.audit.push({phase:'final_single_question_bounded',providerCalls:0})
-      }
-    }
-    // Keep the already verified definition stable through later generic prose
-    // repairs; the pending-unknown synchronization below commits this wording.
+    // Definitions are schema-bound before generation, not substituted afterward.
     if(sourceDefinition){
-      result.reply=sourceDefinition
+      if(result.reply!==sourceDefinition)throw new HttpError(502,'BOUNDED_REPLY_INVALID')
       if(result.event?.nodes)result.event.nodes=result.event.nodes.filter(node=>{
         if(node.kind!=='unknown')return true
         const topic=/^你(?:所)?说的[“「『"]([^”」』"]{1,30})[”」』"]/.exec(node.question)?.[1]
@@ -1276,10 +2030,9 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     if(violatesLabelInferenceBoundary(result.reply,inferenceBoundaries,current.content))throw new HttpError(502,'REPLY_RECREATES_REJECTED_LABEL')
     if(distinctionActionRequested&&!distinctionActionAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_DISTINCTION_ACTION_INVALID')
     // P5.3 step 8: the final reply must not contradict the verified effects.
-    // A wrong week-hour restatement is repaired to the user's verified budget
-    // instead of discarding an otherwise valid turn; the audit keeps the fact.
+    // Reject a contradictory budget rather than silently rewriting model prose.
     const budgetRepaired=repairReplyBudget(obligations,result.reply)
-    if(budgetRepaired!==result.reply){result.reply=budgetRepaired;staged.audit.push({phase:'budget_contradiction_repaired',providerCalls:0})}
+    if(budgetRepaired!==result.reply)throw new HttpError(502,'REPLY_BUDGET_CONTRADICTION')
     // Bind a displayed repaired question to the same pending unknown. Never
     // persist an old asked question after replacing it in the visible answer.
     if(result.event?.nodes&&generatedReply!==result.reply){
@@ -1320,9 +2073,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       staged.audit.push({phase:'participant_status_projected_from_current_source',sourceMessageId:run.source_message_id,synthesized:statusReadbackReply!==sourceStatusReadback,providerCalls:0})
     }
     if(!boundedReplyAccepts(result.reply,boundedReply)){
-      // A paused-target boundary can still answer an explicit one-question recall with its safe clarification choice; never accept the model's unsupported alternative.
-      if(boundedReply?.choices.length&&/只问一个问题/.test(current.content)){result.reply=boundedReply.choices[0]!;staged.audit.push({phase:'bounded_boundary_choice_selected',providerCalls:0})}
-      else throw new HttpError(502,'BOUNDED_REPLY_INVALID')
+      throw new HttpError(502,'BOUNDED_REPLY_INVALID')
     }
     try{
       verifyReplyAgainstObligations(obligations,result.reply)
@@ -1353,9 +2104,10 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         staged.audit.push({phase:'explicit_personal_intent_supplemented',count:missing.length,providerCalls:0})
       }
     }
+    if(result.event&&!decisionComparison&&contract.capabilities.growth)resolveProcessSourceHandles(result,{messageId:run.source_message_id,catalogue:clauseCatalogue,text:current.content,canonicalFacts:true,hostFactClauses:bindOwnedFeedback||!result.event.matterReports?ownedFeedbackClauses:undefined})
     if(result.growthUpdates?.length){
       staged.audit.push({phase:'growth_plan_context',authorizedCount:growthAll.length,authorizedKinds:growthAll.map(item=>item.kind),planTargetItem:correctionPlan?.target?.itemId??null,newQuote:correctionPlan?.newQuote??null,providerCalls:0})
-      const authoritative=resolveGrowthDeltas({deltas:result.growthUpdates,suppressObservations:obligations.requiredEffects.some(effect=>effect.type==='remaining_time'||effect.type==='weekly_time'),currentMessageId:run.source_message_id,currentText:current.content,catalogue:modelClauseCatalogue,authorized:growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,unavailableReason:item.unavailableReason,status:item.status,inferenceBoundary:item.inferenceBoundary})),correctionPlan,controlClauseTexts,inferenceBoundaries})
+      const authoritative=resolveGrowthDeltas({deltas:result.growthUpdates,requestTimeUtc:new Date(current.created_at).toISOString(),suppressObservations:obligations.requiredEffects.some(effect=>effect.type==='remaining_time'||effect.type==='weekly_time'),currentMessageId:run.source_message_id,currentText:current.content,catalogue:modelClauseCatalogue,authorized:growthAll.map(item=>({id:item.id,revision:item.revision,kind:item.kind,assertion:item.assertion,text:item.text,unavailableReason:item.unavailableReason,status:item.status,inferenceBoundary:item.inferenceBoundary})),correctionPlan,controlClauseTexts,inferenceBoundaries})
       for(const entry of authoritative.audit)staged.audit.push(entry)
       staged.audit.push({phase:'growth_model_input_shape',ops:result.growthUpdates.map((delta)=>({op:delta.target.operation,itemId:delta.target.operation==='correct'?delta.target.itemId.slice(0,8):null,clauseId:delta.source.clauseId,kind:delta.kind})),providerCalls:0})
       for(const delta of authoritative.deltas)if(delta.assertion==='ai_observation'&&delta.dependencies.some(ref=>'id'in ref&&(recommendationBlockedIds.has(ref.id)||unresolvedTaskBoundaries.some(item=>item.id===ref.id))))throw new HttpError(400,'RECOMMENDATION_CONTROL_NOT_APPLIED')
@@ -1364,9 +2116,19 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       if(normalizedGrowthCount)staged.audit.push({phase:'model_growth_delta_normalized',count:normalizedGrowthCount,providerCalls:0})
       if(growthDeltas.length){
         const stageOptions={allowedDirectionScopes:allowedDirectionScopes}
-        const isolated=await stageGrowthPreservingFeedback(growthDeltas,result.reply,Boolean(result.weeklyPlan),changes=>stageGrowth(changes,stageOptions))
+        const isolated=await stageGrowthPreservingFeedback(growthDeltas,result.reply,Boolean(result.weeklyPlan),async changes=>{
+          const value=await stageGrowth(changes,stageOptions)
+          // Isolating one invalid feedback must not renumber surviving source
+          // references. Preserve original resolved-input positions explicitly.
+          return {...value,inputIndexBindings:new Map([...value.inputIndexBindings].map(([inputIndex,normalizedIndex])=>[growthDeltas.indexOf(changes[inputIndex]!),normalizedIndex]))}
+        })
         if(isolated.dropped.length)staged.audit.push({phase:'growth_optional_feedback_dropped',dropped:isolated.dropped.length,sourceSha256:createHash('sha256').update(isolated.dropped.join('\n')).digest('hex'),providerCalls:0})
         if(isolated.value!==undefined)staged.growth=isolated.value
+      }
+      for(const [inputIndex,resolvedIndex] of authoritative.indexMap){
+        const fact=authoritative.deltas[resolvedIndex]
+        const savedIndex=staged.growth?.inputIndexBindings.get(resolvedIndex)
+        if(fact?.assertion==='user_reported'&&savedIndex!==undefined&&staged.growth?.changes[savedIndex]?.assertion==='user_reported'){acceptedFactInputs.set(inputIndex,savedIndex);acceptedFactResolvedInputs.set(inputIndex,resolvedIndex)}
       }
       // Plan refs speak the MODEL's array positions; the persisted bindings are
       // keyed by the resolved positions. Translate surviving refs forward so
@@ -1384,34 +2146,20 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         planRefs.basis=planRefs.basis.map(translate)
       }
     }
-    // P1: a server-verified budget the model failed to persist is staged from
-    // the obligation itself (the user's verbatim clause) so an explicit budget
-    // statement never fails its own turn. Same deterministic pattern as
-    // explicit direction controls; audit records the supplement. P2: synthetic
-    // provider positions let a plan reference the supplement fact when the
-    // model's own budget delta was skipped.
-    const budgetSupplement=supplementMissingBudgetDeltas(obligations,staged.growth,run.source_message_id,current.content)
     let supplementBase=-1
-    if(budgetSupplement.length){
-      const stagedSupplement=await stageGrowth(budgetSupplement,{})
-      if(stagedSupplement.changes.length){
-        const mergedChanges=[...(staged.growth?.changes??[]),...stagedSupplement.changes]
-        const mergedBindings=new Map(staged.growth?.inputIndexBindings??[])
-        const syntheticBase=result.growthUpdates?.length??0
-        stagedSupplement.changes.forEach((_,i)=>mergedBindings.set(syntheticBase+i,mergedChanges.length-stagedSupplement.changes.length+i))
-        supplementBase=syntheticBase
-        staged.growth={changes:mergedChanges,prepared:[...(staged.growth?.prepared??[]),...stagedSupplement.prepared],inputIndexBindings:mergedBindings,skipped:[...(staged.growth?.skipped??[]),...(stagedSupplement.skipped??[])]}
-        staged.audit.push({phase:'budget_fact_server_staged',effects:stagedSupplement.changes.map(delta=>delta.kind),providerCalls:0})
-      }
-    }
     // P2-1 fallback: the model produced no verifiable correction. Stage the
     // deterministic amend (or, without a safe target, the verbatim new value)
     // so a correction turn never ends with the old fact still quietly active.
-    if(correctionPlan&&!staged.growth?.prepared.some(entry=>entry.kind==='split_amend'||(entry.kind==='ordinary'&&(entry.delta.target.operation==='replace'||entry.delta.target.operation==='amend')))&&!staged.growth?.changes.some(delta=>delta.target.operation==='create'&&delta.source.quote===correctionPlan.newQuote)){
-      const amendDelta=correctionPlan.target?{target:{operation:'amend' as const,itemId:correctionPlan.target.itemId,expectedRevision:correctionPlan.target.expectedRevision,beforeQuote:correctionPlan.target.beforeQuote},assertion:'user_reported' as const,kind:correctionPlan.target.kind as 'context',source:{messageId:run.source_message_id,quote:correctionPlan.newQuote}}:null
+    const correctionAlreadyPrepared=correctionPlan?.target&&staged.growth?.prepared.some(entry=>entry.kind==='split_amend'
+      ?entry.parent.id===correctionPlan.target!.itemId&&entry.parent.revision===correctionPlan.target!.expectedRevision&&entry.field===correctionPlan.target!.field&&entry.currentSource.quote===correctionPlan.newQuote
+      :!correctionPlan.target!.field&&entry.delta.target.operation!=='create'&&entry.delta.target.itemId===correctionPlan.target!.itemId&&entry.delta.target.expectedRevision===correctionPlan.target!.expectedRevision&&entry.delta.source.quote===correctionPlan.newQuote)
+    if(correctionPlan&&!correctionAlreadyPrepared&&!( !correctionPlan.target&&staged.growth?.changes.some(delta=>delta.target.operation==='create'&&delta.assertion==='user_reported'&&delta.kind==='context'&&delta.text===correctionPlan.newQuote&&delta.source.quote===correctionPlan.newQuote))){
+      const timeSource=supplementMissingBudgetDeltas(obligations,staged.growth,run.source_message_id,current.content).find(delta=>delta.kind==='constraint'&&delta.source.quote.includes(correctionPlan.newQuote))
+      const amendDelta=correctionPlan.target?{target:{operation:'amend' as const,itemId:correctionPlan.target.itemId,expectedRevision:correctionPlan.target.expectedRevision,beforeQuote:correctionPlan.target.beforeQuote,...(correctionPlan.target.field?{field:correctionPlan.target.field}:{})},assertion:'user_reported' as const,kind:correctionPlan.target.kind as 'context',...(timeSource&&'timeEvidence'in timeSource?{timeEvidence:timeSource.timeEvidence}:{}),source:{messageId:run.source_message_id,quote:correctionPlan.newQuote}}:null
       let stagedCorrection=null
       if(amendDelta){
-        try{stagedCorrection=await stageGrowth([amendDelta],{})}catch{stagedCorrection=null}
+        stagedCorrection=await stageGrowth([amendDelta],{})
+        if(!stagedCorrection.changes.length)throw new HttpError(400,'CORRECTION_TARGET_NOT_APPLIED')
       }
       if(!stagedCorrection?.changes.length){
         stagedCorrection=await stageGrowth([{target:{operation:'create'},assertion:'user_reported',kind:'context',source:{messageId:run.source_message_id,quote:correctionPlan.newQuote}}],{})
@@ -1424,6 +2172,25 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         const offset=staged.growth?.changes.length??0
         staged.growth={changes:mergedChanges,prepared:[...(staged.growth?.prepared??[]),...stagedCorrection.prepared.map(entry=>entry.kind==='split_amend'?{...entry,normalizedIndex:entry.normalizedIndex+offset}:entry)],inputIndexBindings:mergedBindings,skipped:[...(staged.growth?.skipped??[]),...(stagedCorrection.skipped??[])]}
         staged.audit.push({phase:'correction_server_staged',mode:amendDelta&&stagedCorrection.prepared.some(entry=>entry.kind==='split_amend')?'amend':'verbatim_create',providerCalls:0})
+      }
+    }
+    // P1: a server-verified budget the model failed to persist is staged from
+    // the obligation itself (the user's verbatim clause) so an explicit budget
+    // statement never fails its own turn. Same deterministic pattern as
+    // explicit direction controls; audit records the supplement. P2: synthetic
+    // provider positions let a plan reference the supplement fact when the
+    // model's own budget delta was skipped.
+    const budgetSupplement=supplementMissingBudgetDeltas(obligations,staged.growth,run.source_message_id,current.content)
+    if(budgetSupplement.length){
+      const stagedSupplement=await stageGrowth(budgetSupplement,{})
+      if(stagedSupplement.changes.length){
+        const mergedChanges=[...(staged.growth?.changes??[]),...stagedSupplement.changes]
+        const mergedBindings=new Map(staged.growth?.inputIndexBindings??[])
+        const syntheticBase=result.growthUpdates?.length??0
+        stagedSupplement.changes.forEach((_,i)=>mergedBindings.set(syntheticBase+i,mergedChanges.length-stagedSupplement.changes.length+i))
+        supplementBase=syntheticBase
+        staged.growth={changes:mergedChanges,prepared:[...(staged.growth?.prepared??[]),...stagedSupplement.prepared],inputIndexBindings:mergedBindings,skipped:[...(staged.growth?.skipped??[]),...(stagedSupplement.skipped??[])]}
+        staged.audit.push({phase:'budget_fact_server_staged',effects:stagedSupplement.changes.map(delta=>delta.kind),providerCalls:0})
       }
     }
     for(const target of correctionPlan?.relatedTargets??[]){
@@ -1453,8 +2220,9 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     const contributionFacts=scanUserClauses(current.content).filter(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&(reportsOwnContribution(clause.text)||(/^(?:补充(?:作品|项目)分工[:：])?.{1,20}(?:由|是)(?:同伴|同学|队友).{0,12}(?:完成|负责|画的)$/.test(clause.text)&&clauseCatalogue.some(own=>!own.conditional&&!own.interrogative&&!own.attributedToOther&&reportsOwnContribution(own.text)))))
     const explicitTaskFacts=[...contributionFacts,...reportedTaskBoundaryClauses(current.content),...negativePersonalFactClauses(current.content),...reportedAdoptionClauses(current.content),...requestedQuestionEditClauses(current.content),...resourceBlockedPersonalFactClauses(current.content),...reportedTaskOutcomeClauses(current.content,growthAll.some(item=>item.assertion==='user_reported'&&item.kind==='feedback'&&item.progressState==='completed'),true),...reportedPerformedTaskClauses(current.content),...reportedCompletedContactClauses(current.content),...scanUserClauses(current.content).filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&((!c.interrogative&&!c.quoteSpans.length&&(/^(?:但)?(?:遇到|卡在|停在).{0,30}(?:卡住|受阻|做不下去)/.test(c.text)||/^不再问(?:愿不愿意|是否愿意|想不想)/.test(c.text)))||(!c.interrogative&&!c.quoteSpans.length&&(/^(?:这次|刚才那次).{0,12}(?:访谈|行动|任务)我(?:暂时|先)不继续/.test(c.text)||/^(?:实际效果|使用结果|付款结果).{0,12}(?:我不知道|仍未知|不清楚)/.test(c.text))))) ]
     const referenceContext=contract.capabilities.growth?[...reportedSourceContextClauses(current.content,[...explicitTaskFacts.map(fact=>fact.text),...(staged.growth?.changes??[]).filter(delta=>delta.assertion==='user_reported').map(delta=>delta.source.quote),...(staged.serverGoals??[]).map(goal=>goal.quote)],controlClauseTexts),...reportedExternalExpectationClauses(current.content)]:[]
-    const taskFactSupplement=snapshot.settings.enabled&&!readOnlyQuestion?[...new Map([...explicitTaskFacts,...referenceContext].map(clause=>[clause.text,clause])).values()].filter(clause=>
+    const taskFactSupplement=snapshot.settings.enabled&&!readOnlyQuestion&&!decisionComparison?[...new Map([...explicitTaskFacts,...referenceContext].map(clause=>[clause.text,clause])).values()].filter(clause=>
       !assistantRequestClause(clause.text)&&
+      !(correctionPlan?.target?.field==='education.major'&&clause.text.includes(correctionPlan.newQuote)&&/更正|说错|搞错|记错|写错/.test(clause.text))&&
       !controlClauseTexts.includes(clause.text)&&
       !staged.growth?.changes.some(delta=>delta.source.quote.includes(clause.text))&&
       !growthAll.some(item=>item.status==='active'&&!item.unavailableReason&&item.text===clause.text)
@@ -1722,7 +2490,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         // record rewrite.
         result.reply=result.reply.replace(/更正为/g,'现在理解为')
         staged.audit.push({phase:'semantic_correction_reworded_without_record_claim',providerCalls:0})
-      }else if(!amendedNow&&!groundedInferenceDenial&&claimDishonest&&correctionClaim&&!staged.audit.some(entry=>(entry as {phase?:string}).phase==='correction_server_staged'))throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
+      }else if(!amendedNow&&!groundedInferenceDenial&&claimDishonest&&correctionClaim)throw new HttpError(400,'REPLY_CLAIMS_UNCOMMITTED_CORRECTION')
 
     }
     // P4 (F03): the forget-claim guard runs INDEPENDENTLY of any correction
@@ -1772,16 +2540,43 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       // readback may be misclassified by the model-derived contract.
       delete result.event.action
       staged.audit.push({phase:'unsolicited_hidden_material_dropped',providerCalls:0})
-      if(!result.event.nodes?.length&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length)delete result.event
+      if(!result.event.nodes?.length&&!result.event.corrections?.length&&!result.event.resolveUnknowns?.length&&!result.event.declineUnknowns?.length&&!result.event.matterReports?.length)delete result.event
     }
     if(result.event){
+      // A fact rejected by the canonical memory authority cannot survive in
+      // an event projection. Unknown ownership is likewise kept only in the
+      // canonical interpretation, never flattened into an ordinary fact node.
+      const eventFactAccepted=(index:number)=>acceptedFactInputs.has(index)&&reportedContribution(result.growthUpdates![index]!)?.actor!=='unknown'
+      result.event.nodes=result.event.nodes?.filter(node=>decisionComparison||!contract.capabilities.growth||node.kind!=='fact'||!processSourceClauseId(node)||(processFactInputIndices(node)??[]).some(eventFactAccepted))
+      result.event.nodes=result.event.nodes?.map(node=>{
+        if(node.kind!=='fact')return node
+        const input=(processFactInputIndices(node)??[]).find(eventFactAccepted),normalized=input===undefined?undefined:acceptedFactInputs.get(input)
+        const fact=normalized===undefined?undefined:staged.growth?.changes[normalized]
+        return fact?.assertion==='user_reported'?{...node,source:fact.source}:node
+      })
       // Only identities actually supplied in this user's authorized snapshot
       // may be continued. Database/permission failures remain non-repairable.
       const target=result.event.target
       if(target.operation==='continue'&&!staged.usedEventRefs?.some(ref=>ref.eventId===target.eventId))throw new HttpError(400,'COACH_EVENT_TARGET_INVALID')
       if(result.event){
       try{
-        staged.coach=await stageCoachEvent(run,result.event,result.reply);staged.coach.knowledgeRefs=staged.usedKnowledgeRefs
+        const growthCoachFacts=(staged.growth?.changes??[]).flatMap(change=>change.assertion==='user_reported'?[{content:change.text,source:change.source}]:[])
+        const memoryCoachFacts=(staged.memoryChanges??[]).flatMap(change=>{
+          const evidence=change.evidence,range=evidence.range
+          if(change.kind!=='fact'||change.status!=='active'||change.value===null||evidence.messageId!==run.source_message_id)return []
+          const clause=range?clauseCatalogue.find(item=>item.start<=range.start&&item.end>=range.end):clauseCatalogue.find(item=>item.text.includes(evidence.quote))
+          // Preserve the user's canonical field wording (for example 专业),
+          // not only its value. Related questions can bind to this exact
+          // source without a second key-label translation layer.
+          return clause?[{content:clause.text,source:clauseMessageSource(run.source_message_id,clause,evidence.quote)}]:[]
+        })
+        const coachFacts=[...growthCoachFacts,...memoryCoachFacts]
+        staged.coach=await stageCoachEvent(run,result.event,result.reply,coachFacts);staged.coach.knowledgeRefs=staged.usedKnowledgeRefs
+        const unsupportedReports=(result.event.matterReports?.length??0)-(staged.coach.delta.matterReports?.length??0)
+        if(unsupportedReports)staged.audit.push({phase:'unsupported_matter_reports_omitted',count:unsupportedReports,providerCalls:0})
+        if(switchedMatter?.focus&&conversationEventId&&currentEvent?.id===conversationEventId&&staged.coach.delta.target.operation==='create'&&staged.coach.delta.target.title===switchedMatter.title){
+          staged.coach.keepCurrentEventId=conversationEventId
+        }
       }catch(error){
         // The event workspace is optional; a model-supplied request/conditional
         // source must never be persisted. If it carries no material/action,
@@ -1798,8 +2593,9 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     staged.guideUsage=[]
     if(usageEventId){
       const feedback=classifyGuideFeedback(current.content),previous=previousGuideUsage[0]
+      const feedbackSource=feedback&&previous&&currentEvent?guideFeedbackSource(current.content,feedback,{title:currentEvent.title,task:previous.branch_task??''}):null
       // A different named current task never changes the old task's usage.
-      if(feedback&&previous&&currentEvent&&canContinueGuideFeedback(previous.status,feedback)&&feedbackMatchesCurrent(current.content,currentEvent.title,previous.branch_task??'')&&usageEventId===currentEvent.id)staged.guideUsage.push({guideId:previous.guide_id,revision:previous.revision,branch:previous.branch,stepId:previous.step_id,status:feedback,eventId:usageEventId,sourceMessageId:run.source_message_id,sourceQuote:current.content})
+      if(feedback&&feedbackSource&&previous&&currentEvent&&canContinueGuideFeedback(previous.status,feedback)&&feedbackMatchesCurrent(current.content,currentEvent.title,previous.branch_task??'')&&usageEventId===currentEvent.id)staged.guideUsage.push({guideId:previous.guide_id,revision:previous.revision,branch:previous.branch,stepId:previous.step_id,status:feedback,eventId:usageEventId,sourceMessageId:run.source_message_id,sourceQuote:feedbackSource.quote,sourceRange:feedbackSource.range})
       if(!staged.guideUsage.length&&!currentEvent&&historicalEvents.length===1&&historicalEvents[0].id===usageEventId&&(result.event?.target.operation==='continue'||refusalEvent!==null)){
         const continued=await continuedActionUsage({run,text:current.content,event:historicalEvents[0],ambiguous:retrieval.ambiguous})
         if(continued)staged.guideUsage.push(continued)
@@ -1811,8 +2607,42 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         if(suggestion)staged.guideUsage.push(suggestion)
       }
     }
+    // A contribution annotation alone is not an experience commit. Only a
+    // contribution that survives canonical growth authority and is actually
+    // staged may supersede the provider's source-bound candidate. Context-only
+    // facts such as contact channel/recipient must not erase the experience.
+    const semanticCandidateClauseIds=new Set<string>()
+    const rejectedActionRanges:{start:number;end:number}[]=[]
+    if(!readOnlyQuestion&&!instructionOnlySummary&&snapshot.settings.enabled&&!personalWritesBlocked){
+      for(const [inputIndex,fact] of (result.growthUpdates??[]).entries()){
+        const contribution=reportedContribution(fact)
+        if(!contribution)continue
+        if(contribution.rejectedActionRanges)rejectedActionRanges.push(...contribution.rejectedActionRanges)
+        const resolvedIndex=acceptedFactResolvedInputs.get(inputIndex)
+        if(resolvedIndex!==undefined){
+          staged.factInterpretations??=[]
+          const resultIndex=contribution.result?acceptedFactResolvedInputs.get(contribution.result.inputIndex):undefined
+          staged.factInterpretations.push({inputIndex:resolvedIndex,actor:contribution.actor,...(contribution.proposedActor?{proposedActor:contribution.proposedActor}:{}),actionQuote:contribution.pendingActionQuote??contribution.actionQuote,...(resultIndex!==undefined?{resultInputIndex:resultIndex}:{})})
+        }
+        const candidateAction=contribution.pendingActionQuote??contribution.actionQuote
+        if(!acceptedFactInputs.has(inputIndex)||!(['self','joint'].includes(contribution.actor)||contribution.actor==='unknown'&&contribution.pendingActionQuote)||!candidateAction)continue
+        const normalizedIndex=acceptedFactInputs.get(inputIndex)??-1
+        const accepted=staged.growth?.changes[normalizedIndex]
+        if(normalizedIndex<0||accepted?.kind!=='feedback'||!['completed','attempted','stuck'].includes(accepted.progressState))continue
+        const resultNormalizedIndex=contribution.result?acceptedFactInputs.get(contribution.result.inputIndex):undefined
+        if(contribution.result&&resultNormalizedIndex===undefined)staged.audit.push({phase:'optional_contribution_result_not_accepted',inputIndex,providerCalls:0})
+        const quote=contribution.sourceQuote,content={action:candidateAction,result:resultNormalizedIndex!==undefined?contribution.result?.quote??'':'',occurredAt:resolveOccurredDate(contribution.factQuote,new Date(current.created_at).toISOString(),'Asia/Shanghai')??''}
+        await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote,content,links:[]},signal,{fact,normalizedIndex,resultNormalizedIndex})
+        semanticCandidateClauseIds.add(contribution.sourceClauseId)
+      }
+    }
+    if(semanticCandidateClauseIds.size)delete result.experienceCandidate
+    const actionSourceRejected=(span:{quote:string;start:number;end:number},action:string)=>rejectedActionRanges.length>0&&sourceQuoteRanges(current.content,action,{quote:span.quote,range:{start:span.start,end:span.end}}).some(range=>rejectedActionRanges.some(rejected=>range.start<rejected.end&&rejected.start<range.end))
+    // Native semantic facts own the entire turn. Legacy model candidates and
+    // lexical inference remain a compatibility path, never a second opinion.
+    if(!semanticCandidateClauseIds.size){
     // A pure direction declaration is not a completed experience.
-    if(result.experienceCandidate&&!requiresExperienceCandidate(clauseCatalogue)){
+    if(result.experienceCandidate&&!experienceCandidateRequired){
       delete result.experienceCandidate
       staged.audit.push({phase:'coach_optional_candidate_rejected',code:'DIRECTION_DECLARATION_IS_NOT_EXPERIENCE',committed:false})
     }
@@ -1849,7 +2679,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         // the leading clause's action and time words are not lost (the flash
         // tier routinely selects only the trailing result clauses).
         const anchorIso=new Date(current.created_at).toISOString()
-        const structural=selectStructuralCandidate(current.content,clauseCatalogue,anchorIso)
+        const structural=selectStructuralCandidates(current.content,clauseCatalogue,anchorIso).find(candidate=>candidate.start<=selection.start&&selection.start<candidate.end)??selectStructuralCandidate(current.content,clauseCatalogue,anchorIso)
         const coveredByStructural=structural&&structural.start<=selection.start&&selection.end<=structural.end
         // 退化短选段（如只选了「对了」两个字）不足以代表经历：结构句更长时
         // 采用整句，同一套服务器选段规则。
@@ -1858,14 +2688,17 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         const span=structural&&(includesCommand||coveredByStructural||(degenerate&&structural.quote.length>selection.quote.length))?structural:{quote:selection.quote,start:selection.start,end:selection.end}
         const extracted=resolveCandidateContent(clauseCatalogue,span,result.experienceCandidate,anchorIso)
         if(span===structural){
-          if(!clauseReportsCompleted(extracted.content.action))extracted.content.action=structural!.content.action
+          if(!clauseReportsCompleted(extracted.content.action)||structural!.content.action.includes(extracted.content.action))extracted.content.action=structural!.content.action
           // 结果若是回指词本身（模型把“上次那个…访谈”当成了结果），换用
           // 结构句挑出的真实结果分句。
           if(!extracted.content.result||structural!.content.result.includes(extracted.content.result)||/上次那|上次说|那件事|刚才说/.test(extracted.content.result))extracted.content.result=structural!.content.result
         }
         for(const field of extracted.dropped)staged.audit.push({phase:'coach_candidate_field_dropped',code:'CANDIDATE_FIELD_CLAUSE_UNRESOLVED',field,committed:false})
-        try{
-          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:span.quote,links:result.experienceCandidate.links??deriveStructuralLinks(span.quote),content:extracted.content},signal)
+        if(actionSourceRejected(span,extracted.content.action)){
+          delete result.experienceCandidate
+          staged.audit.push({phase:'coach_optional_candidate_rejected',code:'ACTION_SOURCE_ALREADY_REJECTED',committed:false})
+        }else try{
+          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:span.quote,links:deriveStructuralLinks(extracted.content.action,extracted.content.result),content:extracted.content},signal)
         }catch(error){
           // Only an independent semantic candidate error may be dropped. Source,
           // ownership and transaction failures still invalidate the whole turn.
@@ -1880,16 +2713,17 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         }
       }
     }
-    if(!result.experienceCandidate&&!slimUpdateTimeMode&&requiresExperienceCandidate(clauseCatalogue)){
+    if(!readOnlyQuestion&&!instructionOnlySummary&&!slimUpdateTimeMode&&experienceCandidateRequired){
       // Constrained decoding only guides, it does not force: flash-tier models
       // keep omitting the optional lane even when the schema requires it. A
       // structurally unambiguous completed first-person action report still
       // becomes a candidate here — same server-owned verbatim quote, same
       // guards, same user-confirmation lifecycle as the model-selected path.
-      const structural=selectStructuralCandidate(current.content,clauseCatalogue,new Date(current.created_at).toISOString())
-      if(structural){
+      for(const structural of selectStructuralCandidates(current.content,clauseCatalogue,new Date(current.created_at).toISOString())){
+        if(actionSourceRejected(structural,structural.content.action))continue
+        if(staged.candidates.some(candidate=>candidate.quote.includes(structural.quote)))continue
         try{
-          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:structural.quote,links:deriveStructuralLinks(structural.quote),content:structural.content},signal)
+          await stageCandidate(run,staged,{sourceMessageId:run.source_message_id,quote:structural.quote,links:deriveStructuralLinks(structural.content.action,structural.content.result),content:structural.content},signal)
           staged.audit.push({phase:'coach_candidate_structural',code:'STRUCTURAL_CANDIDATE_STAGED',quoteChars:structural.quote.length,committed:false})
         }catch(error){
           const savingRelated=/(?:保存|记录|记下|记住|存入|收录|入库|确认|经历|经验|图谱|长期记忆|experience|remember|record|save|memory)/i
@@ -1900,12 +2734,25 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
         }
       }
     }
-    if(!staged.candidates.length){
+    }
+    if(current.content.includes('更新到已有的')&&snapshot.settings.enabled&&!readOnlyQuestion&&!currentConversationOnly(current.content)&&!detectForgetIntentClauses(current.content).length&&!staged.memoryControl&&!staged.pendingMemoryControl){
+      const episodes=(await pool.query("SELECT id,source_quote,content FROM experiences WHERE user_id=$1 AND status='confirmed'",[run.user_id])).rows
+      const supplement=planExplicitExperienceSupplement(current.content,episodes)
+      if(supplement){
+        // The user's destination wins over optional candidate extraction. The
+        // same transaction records the exact quote and advances this record;
+        // it must not create a duplicate or credit delegated work to the user.
+        staged.candidates=[]
+        staged.backReferenceMerge=supplement
+        staged.audit.push({phase:'coach_candidate_structural',code:'EXPLICIT_EXISTING_SUPPLEMENT_STAGED',experienceId:supplement.experienceId,providerCalls:0,committed:false})
+      }
+    }
+    if(!readOnlyQuestion&&!instructionOnlySummary&&!semanticCandidateClauseIds.size&&!staged.candidates.length&&!staged.backReferenceMerge){
       // 反述直连：模型把追述写进 feedback 通道时，事件身份仍由服务器判定——
       // 原始消息里有明确指代且命中既有经历（同一套区别性词元+时间守卫），
       // 就 staged 一条合并指令，由 finishRun 在事务里落盘。
       const rawStructural=selectStructuralCandidate(current.content,clauseCatalogue,new Date(current.created_at).toISOString())
-      if(rawStructural){
+      if(rawStructural&&!actionSourceRejected(rawStructural,rawStructural.content.action)){
         const episodes=(await pool.query("SELECT id, source_quote FROM experiences WHERE user_id=$1 AND status='confirmed'",[run.user_id])).rows
         const episode=findEpisode(episodes,rawStructural.quote,'','')
         if(episode){
@@ -1932,25 +2779,30 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       staged.audit.push({phase:'source_status_readback_preserved_after_rendering',providerCalls:0})
     }
     if(!boundedReplyAccepts(result.reply,boundedReply)){
-      // A paused-target boundary can still answer an explicit one-question recall with its safe clarification choice; never accept the model's unsupported alternative.
-      if(boundedReply?.choices.length&&/只问一个问题/.test(current.content)){result.reply=boundedReply.choices[0]!;staged.audit.push({phase:'bounded_boundary_choice_selected',providerCalls:0})}
-      else throw new HttpError(502,'BOUNDED_REPLY_INVALID')
+      throw new HttpError(502,'BOUNDED_REPLY_INVALID')
     }
     try{verifyReplyAgainstObligations(obligations,result.reply)}catch(error){if(isObligationError(error))throw new HttpError(400,error.code);throw error}
-    if(contract.requiredReplyKind==='comparison'&&!comparisonReplyAccepts(result.reply)){
+    if(contract.requiredReplyKind==='comparison'&&!comparisonReplyAccepts(result.reply,current.content)){
       // The validated parser may have normalized a wrapper while the provider's
       // complete JSON reply still carries both explicitly labelled options.
       // Use that exact raw reply only when the comparison validator accepts it.
-      try{const rawReply=(JSON.parse(raw) as any)?.reply;if(typeof rawReply==='string'&&comparisonReplyAccepts(rawReply)){result.reply=rawReply;staged.audit.push({phase:'comparison_reply_restored_from_raw',providerCalls:0})}}catch{}
-      if(!comparisonReplyAccepts(result.reply)){if(process.env.LIFEOS_DEBUG_COMPARISON)appendFileSync('.local/comparison-debug.txt',JSON.stringify({reply:result.reply,raw,current:current.content})+'\n');throw new HttpError(502,'REPLY_COMPARISON_MISSING')}
+      try{const rawReply=(JSON.parse(raw) as any)?.reply;if(typeof rawReply==='string'&&comparisonReplyAccepts(rawReply,current.content)){result.reply=rawReply;staged.audit.push({phase:'comparison_reply_restored_from_raw',providerCalls:0})}}catch{}
+      if(!comparisonReplyAccepts(result.reply,current.content)){if(process.env.LIFEOS_DEBUG_COMPARISON)appendFileSync('.local/comparison-debug.txt',JSON.stringify({reply:result.reply,raw,current:current.content})+'\n');throw new HttpError(502,'REPLY_COMPARISON_MISSING')}
     }
+    if(unsupportedPreferenceConstraintClaims(result.reply,promptContext.currentTask.responseScope.reportedEvidence.preferences,current.id,current.content).length)throw new HttpError(502,'REPLY_PREFERENCE_HARDENED')
+    if(singleQuestionReply&&!requestedScope.comparisonRequested&&!contract.requiredReplyKind&&(grillingMode==='ordinary'||grillingMode==='explore')&&!/^[^？?]*[？?]\s*$/.test(result.reply))throw new HttpError(502,'REPLY_SINGLE_QUESTION_INVALID')
     if(contract.requiredReplyKind==='summary'&&!summaryReplyAccepts(result.reply))throw new HttpError(502,'REPLY_SUMMARY_MISSING')
-    if(requestedScope.sentenceLimit===1&&!boundedReply&&!materialIntent&&!planIntent&&(!isSingleSentenceReply(result.reply)||result.reply.length>240))throw new HttpError(502,'REPLY_SENTENCE_LIMIT')
+    if(requestedScope.sentenceLimit===1&&!boundedReply&&!materialIntent&&!planIntent&&!isSingleSentenceReply(result.reply))throw new HttpError(502,'REPLY_SENTENCE_LIMIT')
     if(contract.requiredReplyKind==='comparison'&&!comparisonUniverseAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_COMPARISON_UNBOUNDED')
     if(!requestedActionLimitAccepts(result.reply,current.content))throw new HttpError(502,'REPLY_ACTION_LIMIT')
-    if(!completeUserReply(result.reply,current.content))throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
+    if(!completeReply(result.reply))throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
     const replyEventId=result.event?(result.event.target.operation==='continue'?result.event.target.eventId:null):newMatterExplicit?null:currentEvent?.id
     if(unsupportedParticipantReadingClaims(result.reply,promptContext.currentTask.responseScope.reportedEvidence.participants,{currentMessageId:current.id,eventId:replyEventId}).length)throw new HttpError(502,'REPLY_STATE_NOT_SUPPORTED')
+    if(personalWritesBlocked){
+      delete staged.growth;delete staged.serverGoals;delete staged.serverBudgets;delete staged.memoryChanges
+      delete staged.backReferenceMerge;delete staged.weeklyPlan;delete staged.coach;staged.candidates=[]
+    }
+    if(decisionComparison){staged.guideUsage=staged.guideUsage?.filter(usage=>actualComparisonClauses.some(c=>usage.sourceQuote===c.text));delete staged.workflowAdoption}
     return result
   }
   const slimUpdateTimeMode=obligations.kind==='update_weekly_time'&&!/(?:已经|昨天|已投|已发|投了|发了|完成了|做了|交了)/.test(current.content)
@@ -1970,7 +2822,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   let result:ActionCoachTurn,firstText:string|undefined
   let explicitMaterial:ActionCoachTurn|undefined
-  if(contract.capabilities.material&&!boundaryNeedsClarification){
+  if(contract.capabilities.material&&!boundaryNeedsClarification&&!viewOnlyDrafts.length){
     const worksheet=requestedBlankJobWorksheet(current.content)
     const draft=worksheet
     if(draft){
@@ -1979,7 +2831,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       staged.audit.push({phase:'explicit_material_rendered_without_generation',basis:'explicit_blank_job_worksheet',providerCalls:0})
     }
   }
-  if(!explicitMaterial&&resumePortfolioMode&&(contributionSentenceMode||contributionParagraphMode)&&!hasSeparateQuestion&&!planIntent&&!boundaryNeedsClarification){
+  if(!materialPersistenceRefused&&!explicitMaterial&&resumePortfolioMode&&(contributionSentenceMode||contributionParagraphMode)&&!hasSeparateQuestion&&!planIntent&&!boundaryNeedsClarification&&!viewOnlyDrafts.length){
     const contribution=singleUniqueContributionFact(materialCatalogue,run.conversation_id)
     if(contribution){
       // This exact literal paragraph already has one authorized source and no
@@ -1993,11 +2845,15 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
       }
     }
   }
-  // A pure five-state recall needs no new generation. Feedback with new facts
-  // still uses the ordinary turn; both lanes validate and commit normally.
-  const exactFeedback=!currentEvent&&!materialIntent&&!planIntent&&!turnNeedsControlReceipt&&!boundedReply&&!explicitMaterial&&!refusalOnly?exactFeedbackReadback(current.content):null
-  const sourceStatusCandidate=!currentEvent&&!materialIntent&&!planIntent&&!turnNeedsControlReceipt&&!boundedReply&&!explicitMaterial&&!refusalOnly?currentParticipantStatusReadback(current.content):null
-  const sourceStatusReadback=exactFeedback??(sourceStatusCandidate&&sourceStatusCandidate.length<=((contract.schema.properties as any).reply?.maxLength??16000)?sourceStatusCandidate:null)
+  // A pure state readback or fully sourced switch needs no generation.
+  // The switch receipt describes only facts staged by this same transaction.
+  const switchStep=switchedMatter?.scope.choiceQuote?.replace(/^(?:我|本人)(?:接受|同意)/,'')
+  const switchReceipt=switchContract&&switchedMatter
+    ?'「'+switchedMatter.title+'」按你的决定暂停。'+(switchStep?'你已接受「'+switchStep+'」，这一步还没执行。':'你已接受的步骤还没执行。')+(switchedMatter.focus?'当前重点仍是「'+switchedMatter.focus+'」。':'')
+    :null
+  const exactFeedback=!currentEvent&&!materialIntent&&!planIntent&&!turnNeedsControlReceipt&&!boundedReply&&!explicitMaterial&&!refusalOnly&&!viewOnlyDrafts.length?exactFeedbackReadback(current.content):null
+  const sourceStatusCandidate=!currentEvent&&!materialIntent&&!planIntent&&!turnNeedsControlReceipt&&!boundedReply&&!explicitMaterial&&!refusalOnly&&!viewOnlyDrafts.length?currentParticipantStatusReadback(current.content):null
+  const sourceStatusReadback=switchReceipt??exactFeedback??(sourceStatusCandidate&&sourceStatusCandidate.length<=((contract.schema.properties as any).reply?.maxLength??16000)?sourceStatusCandidate:null)
   const verifiedStatePreview=!sourceStatusReadback&&!explicitMaterial&&!refusalOnly?groundedStateReadback(current.content,priorUserTexts):null
   const deterministicStateReadback=sourceStatusReadback??(verifiedStatePreview&&requestsOnlyStateReadback(current.content)?verifiedStatePreview:null)
   if(verifiedStatePreview){
@@ -2009,7 +2865,7 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     emit({type:'draft',text:provisionalState,saved:false,draftKind:'safe_sentence',verifiedState:true})
     staged.audit.push({phase:'verified_provisional_state_preview',providerCalls:0,basis:'explicit_current_source_readback'})
   }
-  const provisionalCorrection=!sourceStatusReadback&&!deterministicStateReadback&&!verifiedStatePreview&&!provisionalState&&!explicitMaterial&&!refusalOnly?provisionalCorrectionPreview(current.content):null
+  const provisionalCorrection=!sourceStatusReadback&&!deterministicStateReadback&&!verifiedStatePreview&&!provisionalState&&!requestedScope.actionRequested&&!explicitMaterial&&!refusalOnly?provisionalCorrectionPreview(current.content):null
   if(provisionalCorrection){
     emit({type:'draft',text:provisionalCorrection,saved:false,draftKind:'safe_sentence',verifiedState:true})
     staged.audit.push({phase:'verified_correction_preview',providerCalls:0})
@@ -2038,26 +2894,39 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
     staged.audit.push({phase:'verified_feedback_preview',providerCalls:0,basis:priorObservationPreview?'authorized_prior_observation_without_control_receipt':'current_source'})
   }
   let provisionalModelText:string|null=null
-  // Control turns wait for their atomic receipt. Do not try to enumerate all
-  // natural-language ways a model could prematurely claim the write succeeded.
-  const modelDraft=(text:string,draftKind:'safe_question'|'safe_sentence')=>{
+  const modelDraft=(text:string,draftKind:'safe_question'|'safe_sentence'|'stream_reply')=>{
+    // Semantic dependence cannot be proven from lexical overlap. If this turn
+    // changes a stored fact, every model-authored draft waits for the same
+    // atomic commit; otherwise advice derived from the new value could escape
+    // over SSE even when a concurrent revision makes the write fail.
+    if(correctionReplyMustWait||progressTiming||directOrdinary&&(ordinaryPrivateRecord.test(text)||ordinaryWriteReceipt.test(text)))return false
+    if(proposalCases.length&&decisionReplyInternalFieldsVisible(text,proposalCases.map(c=>c.title)))return false
     if(surfaceDirectionScopes(text).some(scope=>blockedDirectionScopes.includes(scope)))return false
     if(turnNeedsControlReceipt){
       // A positively sourced, open definition question makes no write receipt
       // or recommendation. All statements and other control drafts still wait.
       if(draftKind!=='safe_question'||!requestsOneQuestionReply(current.content)||!ownedOpenDefinitionQuestion(text,current.content))return false
     }
+    // A judgment-only update may not have a server correction plan, so retain
+    // the conservative receipt guard for that separate path.
+    if(requestedScope.judgmentUpdate&&/(?:^|[。！？；\n])[^。！？；\n]{0,12}(?:已|已经)(?:按[^。！？；\n]{0,20})?(?:更正|更新|修改|改为|改成)|(?:已|已经)把[^。！？；\n]{0,40}(?:改为|改成|更正为|更新为)/.test(text))return false
     if(violatesLabelInferenceBoundary(text,inferenceBoundaries,current.content))return false
+    // Apply the same source-bound checks before exposing a provisional chunk.
+    // A final repair cannot undo an unsupported choice or quantity already seen.
+    if(openUnreportedChoiceQuestion(text,current.content)||enforceReportedQuantity(text,current.content))return false
     if(unsupportedPreferenceConstraintClaims(text,promptContext.currentTask.responseScope.reportedEvidence.preferences,current.id,current.content).length)return false
+    if(provisionalModelText===text)return true
     provisionalModelText=text;emit({type:'draft',text,saved:false,draftKind});return true
   }
   try{
-    if(!explicitMaterial&&!refusalOnly&&!deterministicStateReadback)await checkModelCooldown()
+    if(!explicitMaterial&&!refusalOnly&&!deterministicStateReadback){await checkModelCooldown();emit({type:'progress',stage:'generating'})}
     if(refusalOnly)staged.audit.push({phase:'explicit_refusal_deterministic',providerCalls:0})
     if(deterministicStateReadback)staged.audit.push({phase:'explicit_state_readback_without_generation',providerCalls:0,basis:'authorized_user_reports_only'})
     const planSchema=(contract.schema as any).properties?.weeklyPlan
     const planDraftExpectation:WeeklyPlanDraftExpectation|null=planBudget?.type==='weekly_plan'&&planBudget.minutes>0?{period:planBudget.period,availableMinutes:planBudget.minutes,allowedActions:planSchema?.properties?.items?.items?.properties?.action?.enum,mustLeaveSlack:requiresPlanSlack(current.content)}:null
-    firstText=explicitMaterial?JSON.stringify(explicitMaterial):refusalOnly?JSON.stringify({reply:'好的，先不继续建议或安排这件事。'}):deterministicStateReadback?JSON.stringify({reply:deterministicStateReadback}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',verifiedStatePreview||verifiedFeedbackPreview||provisionalQuestion?undefined:modelDraft,observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,modelClauseCatalogue.map(handle=>handle.clauseId),questionFirstMaterial?'material_question':singleQuestionReply?'none':planDraftExpectation?'weekly_plan':'safe_sentence',contract.capabilities.candidate&&requiresExperienceCandidate(clauseCatalogue) ,boundedReply,planDraftExpectation)
+    const existingPreview=verifiedStatePreview||provisionalState||provisionalCorrection||verifiedFeedbackPreview||provisionalQuestion
+    firstText=explicitMaterial?JSON.stringify(explicitMaterial):refusalOnly?JSON.stringify({reply:'好的，先不继续建议或安排这件事。'}):deterministicStateReadback?JSON.stringify({reply:deterministicStateReadback}):await runModelCall(runtime,systemPrompt,userPrompt,0,run.request_id,contextTokenEstimate,contextTokenEstimate,retrieved,route.escalated,route.reason,calls,signal,staged,providerSignal=>acquireProviderDispatchFence(run,staged,providerSignal),capabilityVerified,'turn',contract.schema as never,'lifeos_action_coach','turn',existingPreview?undefined:modelDraft,observer,run.user_id,resumePortfolioMode?materialCatalogue.map(fact=>fact.catalogueId):undefined,slimUpdateTimeMode,modelClauseCatalogue.map(handle=>handle.clauseId),questionFirstMaterial?'material_question':singleQuestionReply&&turnNeedsControlReceipt?'none':planDraftExpectation?'weekly_plan':'safe_sentence',contract.capabilities.candidate&&experienceCandidateRequired ,boundedReply,planDraftExpectation,undefined,ordinaryProgressiveReply&&!viewOnlyDrafts.length,directOrdinary&&!contract.requiredReplyKind)
+    emit({type:'progress',stage:'validating'})
     result=await validateOutput(firstText)
     if(provisionalModelText&&!retainsDraftText(result.reply,provisionalModelText)){
       emit({type:'draft_discarded'})
@@ -2073,18 +2942,12 @@ async function runDialogueTurn({run,staged,context,signal,emit,focusContext}:Eng
   }
   staged.dialoguePath='direct';staged.upstreamCalls=calls.length
   staged.audit.push({phase:'engine_stage_timings',preRetrievalMs,knowledgeMs,validationMs,modelCallsMs:calls.map(call=>call.latencyMs),firstRawDeltaMs:calls.map(call=>call.firstRawDeltaMs),firstQuestionDraftMs:calls.map(call=>call.firstQuestionDraftMs),userPromptChars:userPrompt.length})
-  const zeroTimeFinal=removeQuestionOnZeroTime(result.reply,current.content)
-  if(zeroTimeFinal){result.reply=zeroTimeFinal;staged.audit.push({phase:'final_zero_time_boundary_enforced',providerCalls:0})}
-  const closedReply=closeDanglingReply(result.reply)
-  if(closedReply){
-    result.reply=closedReply
-    staged.audit.push({phase:'final_dangling_reply_closed',providerCalls:0})
-  }
   if(!result.reply.trim())throw new HttpError(502,'REPLY_INCOMPLETE_OR_INTERNAL')
   // Final display boundaries must commit the same reply that the user sees.
   if(staged.coach)staged.coach.reply=result.reply
   const usage=usageSummary(calls,contextTokenEstimate,retrieved,route.escalated,route.reason,refusalOnly||Boolean(explicitMaterial)||Boolean(deterministicStateReadback))
   staged.modelUsage=usage
+  staged.memoryReferences=calls.length?collectReplyMemoryReferences(userPrompt):[]
   return {text:result.reply,usage}
 }
 

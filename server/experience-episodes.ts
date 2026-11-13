@@ -9,6 +9,35 @@ export type EpisodeExisting = {
   content: { action?: string; result?: string; reflection?: string; occurredAt?: string }
 }
 
+export function planExplicitExperienceSupplement(text:string,existing:readonly (EpisodeExisting&{content:EpisodeExisting['content']&{title?:string}})[]):{experienceId:string;quote:string;result:string;occurredAt:string}|null{
+  // An explicitly named existing record is a different authority from a
+  // similarity-based new experience. Reuse the shared scanner and require a
+  // unique title; neither recency nor model prose can choose the destination.
+  const clauses=scanUserClauses(text)
+  const directives=clauses.filter(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.interrogative&&!clause.attributedToOther&&!clause.quoteSpans.length&&!clause.codeSpans.length
+    &&/^(?:请|麻烦)?把这些(?:进展|补充|信息)更新到已有的[^。！？，,；;]{3,40}经历中$/.test(clause.text.trim()))
+  if(directives.length!==1)return null
+  const directive=directives[0]!,name=/更新到已有的(.{3,40})经历中$/.exec(directive.text.trim())![1]!.trim()
+  if(clauses.some(clause=>clause.start>directive.start&&!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther
+    &&/(?:不要|别|不用).{0,8}(?:更新|修改|保存|记住|记录|写入)/.test(clause.text)))return null
+  const label=name.toLocaleLowerCase()
+  const named=existing.filter(row=>{
+    const title=row.content.title?.trim().toLocaleLowerCase()??''
+    return title===label||(title.startsWith(label)&&/^[\s:：—–-]/.test(title.slice(label.length)))
+  })
+  const matches=named.length?named:existing.filter(row=>row.content.title?.toLocaleLowerCase().includes(label))
+  if(matches.length!==1)return null
+  const facts=clauses.filter(clause=>clause.end<=directive.start)
+  if(!facts.length||facts.some(clause=>clause.quoted||clause.code||clause.conditional||clause.interrogative||clause.attributedToOther||clause.quoteSpans.length||clause.codeSpans.length))return null
+  let start=facts[0]!.start
+  const introduction=/^(?:补充|更新)[^：:]{0,60}[:：]/.exec(text.slice(start,directive.start))
+  if(introduction)start+=introduction[0].length
+  const quote=text.slice(start,directive.start).trim()
+  if(!/^(?:我|本人)/.test(quote)||!quote||/(?:如果|假如|假设|打算|希望|请|不要把)/.test(quote))return null
+  const episode=matches[0]!
+  return {experienceId:episode.id,quote,result:[episode.content.result,quote].filter(Boolean).join('\n'),occurredAt:episode.content.occurredAt??''}
+}
+
 export function bigrams(text: string): Set<string> {
   const normalized = text.replace(/[\s，。、；！？?!.,]/g, '')
   const grams = new Set<string>()

@@ -1,4 +1,4 @@
-import { emptyConversation, type Conversation } from './flow.ts'
+import { emptyConversation, DEMO_TITLE, type Conversation } from './flow.ts'
 
 export const WORKSPACE_KEY = 'lifeos.conversation-workspace.v1'
 export type Project = { id: string; name: string; description: string }
@@ -66,5 +66,5 @@ export function updateChat(workspace: Workspace, id: string, patch: Partial<Chat
   return { ...workspace, chats: workspace.chats.map(chat => chat.id === id ? { ...chat, ...patch } : chat) }
 }
 export function chatTitle(conversation: Conversation): string {
-  return conversation.demo ? '比赛与课程之间的选择' : conversation.messages.find(message => message.role === 'user')?.text.replace(/\s+/g, ' ').slice(0, 30) || '新对话'
+  return conversation.demo ? DEMO_TITLE : conversation.messages.find(message => message.role === 'user')?.text.replace(/\s+/g, ' ').slice(0, 30) || '新对话'
 }

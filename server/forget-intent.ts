@@ -72,13 +72,75 @@ export function violatesLabelInferenceBoundary(text:string,boundaries:readonly {
 
 // Erase commands. Matched positively; a negation directly in front of one of
 // these (不要删除 / 先别删掉) is a REFUSAL handled separately below.
-const forgetCommands = /(?:帮我(?:来)?|请|麻烦)?(?:忘掉|忘记(?!了)|忘了吧|忘记吧|删除|删掉|删了|清除|清掉|移除|去掉|抹掉)|(?:不要|不想|不用|无需|不必|不再)(?:再)?保留/
+const removalVerbs = /删除|删掉|清除|清掉|移除|去掉|抹掉/
+const forgetVerb = new RegExp(`(?:忘掉|忘记(?!了)|忘了吧|删了|(?:${removalVerbs.source})(?!了))`)
+const retentionVerb = /(?:不要|不想|不用|无需|不必|不再)(?:再)?保留(?!的)/
+const forgetCommands = new RegExp(`${forgetVerb.source}|${retentionVerb.source}`)
+const completedRemoval = new RegExp(`(?:${removalVerbs.source})[了过]|删了`)
+const forgetLead = /^(?:(?:顺便|然后)\s*)?(请(?:帮我|你)?|麻烦(?:你)?|帮我(?:来)?|我(?:想|要|希望|需要))?\s*/
+const leadingForget = new RegExp(`^${forgetVerb.source}`)
+const objectFirstForget = new RegExp(`^(?:把|将)(.+)${forgetVerb.source}吧?$`)
+const terminalRetention = new RegExp(`${retentionVerb.source}(?:了?吧|了)?$`)
+const memoryNouns = /经历|记录|记忆|条目|档案|内容|信息|事实|对话|目标|计划|材料|标签|偏好/g
+const interfaceNouns = /面板|按钮|界面|功能|入口|组件|卡片|控件/g
+const namedMemoryObject = new RegExp(`(?:的|(?:这|那|该)(?:条|段|件|份|个|项))(?:${memoryNouns.source})`,'g')
+const laterReport = /后(?:我|本人)(?:又|还|就|才|已经)/
+const completedSentenceTail = /了[啊呀嘛啦哦喔呐咯诶欸哟]*$/
+const independentInterfaceAction = /^(?:并且?|同时|然后|另外)(?:还|也|再)?(?:保留|继续|保持|关闭|打开|显示)/
+const controlWords = new Intl.Segmenter('zh',{granularity:'word'})
+function followsCompletedVerb(text:string):boolean{
+  if(text.startsWith('了'))return true
+  if(!text.startsWith('过'))return false
+  const word=controlWords.segment(text).containing(0)?.segment
+  return word==='过'||word==='过的'
+}
+function namesInterfaceObject(text:string):boolean{
+  const ui=[...text.matchAll(interfaceNouns)].at(-1)
+  if(!ui)return false
+  const memory=[...text.matchAll(memoryNouns)].at(-1)
+  return !memory||ui.index>memory.index
+}
+function afterNamedMemoryObject(text:string):string|null{
+  const named=[...text.matchAll(namedMemoryObject)].at(-1)
+  if(!named)return null
+  const tail=text.slice(named.index+named[0].length)
+  return completedRemoval.test(tail)||laterReport.test(tail)?null:tail
+}
+// Return words outside the object. False closes the destructive path for a
+// completed report, a refused command, or removal of a UI control.
+function governingForget(body:string):string|false|null{
+  const [lead,address]=forgetLead.exec(body)!
+  const command=body.slice(lead.length)
+  const leading=leadingForget.exec(command)?.[0]
+  // An old removal inside a named object does not supply its own authority.
+  // Bare commands with old removal words need that object boundary.
+  if(leading&&(leading!=='删了'||address||command.startsWith('删了吧'))){
+    const object=command.slice(leading.length)
+    const tail=afterNamedMemoryObject(object)
+    const target=tail&&independentInterfaceAction.test(tail)?object.slice(0,-tail.length):object
+    if(namesInterfaceObject(target)||followsCompletedVerb(object)||!address&&completedSentenceTail.test(target))return false
+    if(address||!completedRemoval.test(object)||tail!==null&&!laterReport.test(object))return tail??body
+  }
+  const object=objectFirstForget.exec(command)?.[1]
+  if(object){
+    if(namesInterfaceObject(object)||refusesGoverningVerb.test(object))return false
+    const tail=afterNamedMemoryObject(object)
+    if(!address&&tail===null&&completedRemoval.test(object)&&object.includes('后'))return false
+    return tail??''
+  }
+  const retention=terminalRetention.exec(command)
+  const tail=retention?afterNamedMemoryObject(command.slice(0,retention.index)):null
+  return tail!==null&&!refusesGoverningVerb.test(tail)?tail:null
+}
 // Stop-using commands: the negative wording IS the command.
 const pauseUseCommands = /(?:不(?:要再?|再)?(?:用来?)?作为[^。！？]{0,10}(?:依据|参考)|不再作为[^。！？]{0,10}(?:依据|参考)|不再?用来?作为[^。！？]{0,10}(?:依据|参考)|别再?作为[^。！？]{0,10}(?:依据|参考)|别再用|别再拿|不要再拿|不要拿|不想再用|不必再用|不再用|先不用|暂时不用|别拿|停止使用|停止作为[^。！？]{0,10}(?:依据|参考))/
 // Stop-recommending commands (narrower than stop-using: mentions 推/推荐/提).
 const stopRecommendCommands = /(?:别再推荐|不要再推荐|不再推荐|不要再推|先别推|别推|停止推荐|别再提|不要再提|先别提|别提|不再主动提)/
 // A negation directly preceding an erase verb turns the clause into refusal.
-const refusedForget = /(?:请不要?|请别|请勿|请莫|不|别|莫|勿|没)(?:要|想|用|再)?(?:删除|删掉|删了|清除|清掉|移除|去掉|抹掉|忘掉|忘记)/
+const refusalVerb = new RegExp(`(?:${removalVerbs.source}|删了|忘掉|忘记)`)
+const refusalLead = /(?:不(?:要|想|用|必|该|是)?|别|莫|勿|没(?:有)?|并非)(?:再)?(?:(?:给|替|帮)我)?/
+const refusesGoverningVerb = new RegExp(`${refusalLead.source}$`)
+const refusedForget = new RegExp(`${refusalLead.source}(?:${refusalVerb.source}|(?:把|将).+${refusalVerb.source}吧?$)`)
 // First-person statements about one's own memory are cognitive lapses, not
 // instructions: 我忘记了 / 我记不清 / 想不起来 / 不记得了. 帮我/让我/请我
 // preceding the verb turns the same words back into a command.
@@ -91,6 +153,9 @@ export function detectForgetIntentClauses(text: string): ForgetIntentClause[] {
   for (const clause of scanUserClauses(text)) {
     const body = clause.text.trim()
     if (!body) continue
+    // Product UI removal is not authority to erase a lexically similar memory.
+    if(/(?:删除|删掉|移除|去掉)[^。！？]{0,24}(?:面板|按钮|界面|功能|入口|组件)/.test(body)
+      &&!/(?:记录|记忆|档案|经历|目标)/.test(body))continue
     // Quotes, code, third-party speech and conditionals never state the
     // user's own control intent.
     if (clause.quoted || clause.code || clause.attributedToOther || clause.conditional) continue
@@ -99,19 +164,15 @@ export function detectForgetIntentClauses(text: string): ForgetIntentClause[] {
     if (/(?:如果|要是|假如|假设|万一|一旦|以后想|以后再)/.test(body)) continue
     // A question about how to do it is not the operation itself.
     if (questionLike.test(body) || clause.interrogative) continue
-    // A cognitive lapse reports the user's own memory, never commands the
-    // system to erase saved information (N04).
-    if (cognitiveLapse.test(body)) continue
-    // A refusal of the erase verb keeps the current state; it authorizes
-    // neither a delete nor a pause (N02/N03).
-    const refused = refusedForget.test(body)
-    const preserveRequested = preserveMarkers.test(body)
+    const governing=governingForget(body)
+    if(governing===false)continue
+    if(governing===null&&cognitiveLapse.test(body))continue
+    const preserveRequested = preserveMarkers.test(governing??body)
     let kind: ForgetIntentKind = null
-    // Stop commands are affirmative regardless of their negative wording, so
-    // they are checked before the refusal guard (N05/N06).
-    if (stopRecommendCommands.test(body)) kind = 'stop_recommend'
+    if(governing!==null)kind='forget'
+    else if (stopRecommendCommands.test(body)) kind = 'stop_recommend'
     else if (pauseUseCommands.test(body)) kind = 'pause_use'
-    else if (!refused && forgetCommands.test(body)) kind = 'forget'
+    else if(!refusedForget.test(body)&&!completedRemoval.test(body)&&forgetCommands.test(body))kind='forget'
     if (!kind) continue
     // A delete request softened by an explicit same-clause preserve note
     // ("先不删，别再用") is a pause, not a forget.

@@ -33,6 +33,12 @@ async function applyMigrations(){
         await client.query('INSERT INTO "user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,$2,$3,false,now(),now())',[legacyUser,'Migration fixture',legacyUser+'@example.invalid'])
         seededLegacy=true
       }
+      if(name==='042-memory-suppression-kind.sql'){
+        const conversationId=randomUUID(),messageId=randomUUID(),requestId=randomUUID(),createdAt='2026-10-31T00:00:00.123456Z'
+        await client.query('INSERT INTO conversations(id,user_id,title) VALUES($1,$2,$3)',[conversationId,legacyUser,'Migration suppression fixture'])
+        await client.query("INSERT INTO messages(id,user_id,conversation_id,role,content,run_request_id) VALUES($1,$2,$3,'user',$4,$5)",[messageId,legacyUser,conversationId,'Legacy suppression fixture',requestId])
+        await client.query("INSERT INTO memory_suppressions(user_id,source_conversation_id,source_message_id,key,created_at) VALUES($1,$2,$3,'education.major',$4),($1,$2,$3,'scope:education.major',$4),($1,$2,$3,'health',$4),($1,$2,$3,'scope:health',$4)",[legacyUser,conversationId,messageId,createdAt])
+      }
       const sql=readFileSync(resolve(root,'server/migrations',name),'utf8')
       const sha=createHash('sha256').update(sql).digest('hex')
       await client.query('BEGIN')
@@ -42,6 +48,10 @@ async function applyMigrations(){
         else{await client.query(sql);await client.query('INSERT INTO lifeos_schema_migrations(name,sha256) VALUES($1,$2)',[name,sha]);migrations++}
         await client.query('COMMIT')
       }catch(error){await client.query('ROLLBACK');throw error}
+      if(name==='042-memory-suppression-kind.sql'){
+        const kinds=new Map((await client.query('SELECT key,suppression_kind FROM memory_suppressions WHERE user_id=$1',[legacyUser])).rows.map(row=>[row.key,row.suppression_kind]))
+        if(kinds.get('education.major')!=='fact'||kinds.get('scope:education.major')!=='fact'||kinds.get('health')!=='fact'||kinds.get('scope:health')!=='fact')throw new Error('Memory suppression migration did not preserve ambiguous legacy rows as conservative factual tombstones.')
+      }
     }
     if(!seededLegacy||(await client.query('SELECT id FROM "user" WHERE id=$1',[legacyUser])).rowCount!==1)throw new Error('Existing database row lost during append migration.')
     const repeated=spawnSync(process.execPath,['--import','tsx','--import',pathToFileURL(resolve(root,'scripts/backend-test-preload.ts')).href,resolve(root,'scripts/migrate-db.ts')],{cwd:root,env:{...process.env,LIFEOS_ISOLATED_TEST_DATABASE_URL:databaseUrl.href},encoding:'utf8',windowsHide:true})
@@ -57,18 +67,21 @@ async function applyMigrations(){
 async function main(){
   // Validate the entire requested batch before creating a disposable database.
   const files=selectBackendTests(readdirSync(resolve(root,'tests/backend')),process.argv.slice(2))
+  const hotSchema=process.env.LIFEOS_ROLLING_HOT_SCHEMA==='true'
+  if(hotSchema&&(files.length!==1||files[0]!=='residual-rolling-nginx.test.ts'||process.env.LIFEOS_RESIDUAL_ROLLING_ACCEPTANCE!=='true'||process.argv.includes('--verify-recovery')))throw new Error('The empty-database rolling migration is limited to the exact Nginx rehearsal.')
+  const isolatedModelPricing=JSON.stringify({[`${config.modelTiers.default.provider}:${config.modelTiers.default.id}`]:{inputCnyPerMillion:0.01,outputCnyPerMillion:0.01,cachedInputCnyPerMillion:0.01}})
   await admin.connect()
   const identity=(await admin.query('SELECT current_database() AS database,current_user AS role,rolcreatedb FROM pg_roles WHERE rolname=current_user')).rows[0]
   if(identity.database!=='lifeos'||!identity.rolcreatedb)throw new Error('The configured local database role cannot safely create a disposable test database.')
   await admin.query(`CREATE DATABASE "${databaseName}"`)
   created=true
-  await applyMigrations()
+  if(!hotSchema)await applyMigrations()
   process.stdout.write(`Isolated PostgreSQL target: ${databaseName} (local port ${adminUrl.port||'5432'}); applied ${migrations} migrations.\n`)
   for(const file of files){
     process.stdout.write(`\n=== ${file} ===\n`)
     const result=spawnSync(process.execPath,['--import','tsx','--import',pathToFileURL(resolve(root,'scripts/backend-test-preload.ts')).href,'--test',resolve(root,'tests/backend',file)],{
       cwd:root,
-      env:{...process.env,NODE_ENV:'test',LIFEOS_ISOLATED_TEST_DATABASE_URL:databaseUrl.href},
+      env:{...process.env,NODE_ENV:'test',LIFEOS_ISOLATED_TEST_DATABASE_URL:databaseUrl.href,LIFEOS_MODEL_PRICING_JSON:isolatedModelPricing},
       encoding:'utf8',
       maxBuffer:8*1024*1024,
       windowsHide:true,

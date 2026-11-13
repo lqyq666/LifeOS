@@ -11,7 +11,7 @@ import { config } from '../../server/config.ts'
 import * as store from '../../server/store.ts'
 import { stageCoachEvent } from '../../server/action-coach-events.ts'
 
-test('actual service warms offline encoder, reclaims index lease, rejects duplicate instance and drains without orphaning encoder',async()=>{
+test('actual service warms offline encoder, reclaims index lease, permits peer instance and drains without orphaning encoder',async()=>{
   const allocator=net.createServer();await new Promise<void>(resolveListen=>allocator.listen(0,'127.0.0.1',resolveListen))
   const port=(allocator.address() as {port:number}).port;await new Promise<void>(resolveClose=>allocator.close(()=>resolveClose()))
   assert.ok(![8790,55432].includes(port))
@@ -23,8 +23,8 @@ test('actual service warms offline encoder, reclaims index lease, rejects duplic
   await store.finishRun(run,{candidates:[],audit:[],coach},coach.reply,null,new AbortController().signal)
   await pool.query("UPDATE coach_index_jobs SET status='processing',locked_at=now()-interval '10 minutes',attempts=1 WHERE user_id=$1",[user])
   const abandoned=(await store.startRun(user,conversation,randomUUID(),'模拟启动前遗留的未完成请求。')).run
-  function launch(){
-    const child=spawn(process.execPath,['--import','tsx','--import',pathToFileURL(resolve('scripts/backend-test-preload.ts')).href,'--import',pathToFileURL(resolve('scripts/coach-service-test-preload.ts')).href,'server/index.ts'],{cwd:process.cwd(),env:{...process.env,LIFEOS_ISOLATED_TEST_DATABASE_URL:config.databaseUrl,LIFEOS_SERVICE_TEST_PORT:String(port)},stdio:['ignore','pipe','pipe','ipc'],windowsHide:true})
+  function launch(selectedPort=port){
+    const child=spawn(process.execPath,['--import','tsx','--import',pathToFileURL(resolve('scripts/backend-test-preload.ts')).href,'--import',pathToFileURL(resolve('scripts/coach-service-test-preload.ts')).href,'server/index.ts'],{cwd:process.cwd(),env:{...process.env,LIFEOS_ISOLATED_TEST_DATABASE_URL:config.databaseUrl,LIFEOS_SERVICE_TEST_PORT:String(selectedPort)},stdio:['ignore','pipe','pipe','ipc'],windowsHide:true})
     let stdout='',stderr=''
     child.stdout!.on('data',data=>{stdout+=data.toString()});child.stderr!.on('data',data=>{stderr+=data.toString()})
     const exited=new Promise<number|null>(resolveExit=>child.once('exit',code=>resolveExit(code)))
@@ -51,7 +51,17 @@ test('actual service warms offline encoder, reclaims index lease, rejects duplic
       await new Promise(resolveWait=>setTimeout(resolveWait,50))
     }
     assert.ok((await pool.query('SELECT 1 FROM coach_semantic_index WHERE user_id=$1 AND event_id=$2',[user,coach.eventId])).rowCount)
-    const duplicate=launch();assert.equal(await duplicate.exited,1);assert.match(duplicate.error(),/LIFEOS_ALREADY_RUNNING/)
+    const peerAllocator=net.createServer();await new Promise<void>(r=>peerAllocator.listen(0,'127.0.0.1',r))
+    const peerPort=(peerAllocator.address() as {port:number}).port;await new Promise<void>(r=>peerAllocator.close(()=>r()))
+    const peer=launch(peerPort)
+    try{
+      const start=Date.now()
+      while(!peer.output().includes('"service":"LifeOS"')){
+        if(peer.child.exitCode!==null||Date.now()-start>30000)throw new Error('Peer failed: '+peer.error())
+        await new Promise(r=>setTimeout(r,50))
+      }
+      assert.equal(peer.child.exitCode,null,'second production entrypoint stays alive against same DB')
+    }finally{if(peer.child.exitCode===null&&peer.child.connected)peer.child.send({type:'lifeos_shutdown'});assert.equal(await peer.exited,0,peer.error())}
     service.child.send({type:'lifeos_shutdown'})
     assert.equal(await service.exited,0)
     assert.throws(()=>process.kill(encoderPid,0),'offline encoder must terminate with the actual server')
@@ -75,7 +85,7 @@ test('actual service warms offline encoder, reclaims index lease, rejects duplic
       assert.equal(unavailable,true,'dead encoder must make the running service unready')
       report.embeddingCrashReadiness='HTTP_503'
     }finally{if(crashed.child.exitCode===null){crashed.child.send({type:'lifeos_shutdown'});assert.equal(await crashed.exited,0)}}
-    report.checks=['offline encoder prewarmed before listen','health never probes provider','abandoned run terminated','expired index lease reclaimed','duplicate instance rejected','IPC invokes actual production drain','encoder process exited','instance lock released']
+    report.checks=['offline encoder prewarmed before listen','health never probes provider','abandoned run terminated','expired index lease reclaimed','peer instance coexists','IPC invokes actual production drain','encoder process exited','instance lock released']
     report.status='PASSED'
   }finally{
     if(service.child.exitCode===null){service.child.send({type:'lifeos_shutdown'});await service.exited}

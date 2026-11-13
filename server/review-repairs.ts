@@ -5,9 +5,10 @@ import {groundedStateReadback,repairSingleJobJd,observationEffectHypothesis} fro
 import {scanUserClauses,assistantRequestClause,responseRequestScope,unresolvedTwoFactors,type UserClause} from './user-command-spans.ts'
 import {isSingleSentenceReply,taskOutcomeReadback,reportedTaskOutcomeClauses,reportedEvidenceFromText,currentParticipantStatusReadback} from './turn-contract.ts'
 import {clauseReportsCompleted,clauseExpressesFuturePlan} from './experience-content.ts'
+import {productModeRequest} from '../src/features/conversation/product-modes.ts'
 
 export type ReviewedRepair={reply:string;phases:string[]}
-export type ReviewedRepairOptions={preserveReportedObservation?:boolean}
+export type ReviewedRepairOptions={preserveReportedObservation?:boolean;reportedPersonalEvidence?:readonly string[]}
 
 export {unresolvedTwoFactors} from './user-command-spans.ts'
 
@@ -74,6 +75,7 @@ export function repairReviewedDefects(reply:string,userText:string,priorUserText
   text=apply(text,phases,'follow_exam',value=>repairFollowExam(value,priorUserTexts))
   text=apply(text,phases,'placeholders',value=>repairPlaceholders(value,userText))
   text=apply(text,phases,'time_claim',value=>repairTimeClaim(value))
+  text=apply(text,phases,'choice_action_guarantee',value=>repairChoiceActionGuarantee(value,userText))
   text=apply(text,phases,'stable_income_claim',value=>repairStableIncomeClaim(value,userText))
   text=apply(text,phases,'missing_action',value=>repairMissingAction(value))
   text=apply(text,phases,'enumeration_gap',value=>repairEnumerationGap(value))
@@ -101,7 +103,9 @@ export function repairReviewedDefects(reply:string,userText:string,priorUserText
   text=apply(text,phases,'exploration_time_scope',value=>repairExplorationTimeScope(value,userText))
   text=apply(text,phases,'update_only_action',value=>repairUpdateOnlyAction(value,userText))
   text=apply(text,phases,'family_correction_scope',value=>repairFamilyCorrectionScope(value,userText))
-  text=apply(text,phases,'path_motive_neutrality',value=>repairPathMotiveNeutrality(value,userText))
+  text=apply(text,phases,'path_motive_neutrality',value=>repairPathMotiveNeutrality(value,userText,[...priorUserTexts,...options.reportedPersonalEvidence??[]]))
+  text=apply(text,phases,'campus_evidence_scope',value=>repairCampusEvidenceScope(value,userText,[...priorUserTexts,...options.reportedPersonalEvidence??[]]))
+  text=apply(text,phases,'personal_capability_scope',value=>repairPersonalCapabilityScope(value,userText,[...priorUserTexts,...options.reportedPersonalEvidence??[]]))
   text=apply(text,phases,'autonomy_continuity',value=>repairAutonomyContinuity(value,userText,priorUserTexts))
   text=apply(text,phases,'public_rhythm_evidence',value=>repairPublicRhythmEvidence(value,userText))
   text=apply(text,phases,'incomplete_example_tail',value=>repairIncompleteExampleTail(value))
@@ -535,7 +539,7 @@ function repairPlaceholders(reply:string,userText:string):string|null{
     .replace(/【待补[^】]*】/g,'')
     .replace(/\[待补[^\]]*\]/g,'')
     .replace(/（待补[^）]*）/g,'')
-    .replace(/^\s*\*{0,2}待补[^\n：:]*[:：]\*{0,2}\s*$/gm,'')
+    .replace(/^\s*\*{0,2}待补[^\n：:]*[:：]\*{0,2}\s*$/gm,(heading,offset:number)=>productModeRequest(userText)?.title==='做选择'&&/^\s*(?:[-*]|\d+[.)])\s+\S/.test(withoutDraft.slice(offset+heading.length))?heading:'')
     .replace(/^\s*目前信息不足[:：]\s*$/gm,'')
     .replace(/^\s*【[^】]{1,80}】\s*$/gm,'')
     .replace(/【([^】]{1,30})】/g,'$1')
@@ -545,11 +549,32 @@ function repairPlaceholders(reply:string,userText:string):string|null{
   return fixed
 }
 
+function repairChoiceActionGuarantee(reply:string,userText:string):string|null{
+  if(productModeRequest(userText)?.title!=='做选择')return null
+  const spans=scanUserClauses(reply).flatMap(clause=>[...clause.quoteSpans,...clause.codeSpans])
+  const userConfirmed=scanUserClauses(userText).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.interrogative&&/我(?:已|已经)?(?:确认|核实)/.test(clause.text))
+  let fixed=reply.replace(/这(?:是|将是)唯一(?:能|可(?:以)?)在[^。！？\n]{0,80}(?:预算|分钟|小时)[^。！？\n]{0,80}(?:完成|做完)[^。！？\n]{0,80}(?:动作|尝试|方式|办法)[。]?/g,(claim,offset:number)=>{
+    if(spans.some(span=>offset>=span.start&&offset+claim.length<=span.end)||userConfirmed&&userText.includes(claim))return claim
+    // Keep the actual action and all its steps. Only this unsupported future
+    // guarantee changes; neither the budget nor an outcome is fabricated.
+    return '这是一个可选择的尝试。建议只在本次预算内进行，时间用完就停；是否完成、能获得什么信息，以实际进展为准。'
+  })
+  const timingSpans=scanUserClauses(fixed).flatMap(clause=>[...clause.quoteSpans,...clause.codeSpans])
+  fixed=fixed.replace(/它能在(\d+)分钟内完成(?:[（(]仅涉及沟通[，,]不涉及实际建模工作[）)])?/g,(claim,minutes:string,offset:number)=>timingSpans.some(span=>offset>=span.start&&offset+claim.length<=span.end)?claim:`建议最多投入${minutes}分钟；是否完成或收到回复仍未知，时间到就停`)
+  const durationSpans=scanUserClauses(fixed).flatMap(clause=>[...clause.quoteSpans,...clause.codeSpans])
+  fixed=fixed.replace(/(?:可以|能够|可|能)在(\d+)分钟内完成/g,(claim,minutes:string,offset:number)=>durationSpans.some(span=>offset>=span.start&&offset+claim.length<=span.end)||userConfirmed&&userText.includes(claim)?claim:`建议最多投入${minutes}分钟；是否完成仍需看实际进展，时间到就停`)
+  return fixed!==reply?fixed:null
+}
+
 function repairTimeClaim(reply:string):string|null{
   let fixed=reply.replace(/只花\s*\d+\s*[-–—~至]\s*\d+\s*分钟/g,'用一小段你愿意投入的时间')
   fixed=fixed.replace(/\d+\s*分钟看完即停/g,'看完即停')
   fixed=fixed.replace(/此步骤可在\s*\d+\s*分钟内完成/g,'这一步可随时停')
-  fixed=fixed.replace(/控制在\s*\d+\s*分钟内/g,'看完即停')
+  fixed=fixed.replace(/控制在\s*\d+\s*分钟内/g,(claim,offset:number,whole:string)=>{
+    const end=whole.indexOf('\n',offset),line=whole.slice(whole.lastIndexOf('\n',offset)+1,end<0?whole.length:end)
+    // A time-to-stop cap is not a promise that the task will finish in time.
+    return /时间用完|时间到|到时即停|停止条件|到点/.test(line)?claim:'看完即停'
+  })
   return fixed!==reply?fixed:null
 }
 
@@ -833,7 +858,7 @@ function repairSourceClaims(reply:string,userText:string):string|null{
   fixed=fixed.replace(/你希望升学或就业具体改变什么现状，尚未明确。/g,'你已表达想要做有清晰产出的工作；尚未定义的是具体产出例子、技能差距和岗位要求。')
   fixed=fixed.replace(/尚未说明[^。\n]{0,30}你希望升学或就业具体改变什么现状[^。\n]*/g,'你已表达想要做有清晰产出的工作；尚未定义的是具体产出例子、技能差距和岗位要求。')
   fixed=fixed.replace(/这是硬预算/g,'这是探索时间上限')
-  if(/(?:更低成本|探索方式|比较)/.test(userText)&&/(?:客户|自由职业)/.test(userText)){
+  if(!productModeRequest(userText)&&/(?:更低成本|探索方式|比较)/.test(userText)&&/(?:客户|自由职业)/.test(userText)){
     fixed=fixed.replace(/你手上已有哪一个可用来源？/g,'可以先比较两种不依赖客户的小探索：①用一周记录你能自主安排的专注时段；②用两小时完成一个自己手里的小任务，观察时间是否被打断。先选一个，不联系客户、不接单，做完即停。')
   }
   fixed=fixed.replace(/(\*\*下一步建议\*\*[:：])\s*[）)]\s*/g,'$1先核对具体产出例子和岗位技能差距，不替你选方向。\n')
@@ -968,7 +993,8 @@ function repairSingleJobAndEnumeration(reply:string,userText:string):string|null
 function repairOffTopicExamPrep(reply:string,userText:string):string|null{
   if(!/(?:自由|探索|低成本)/.test(userText)||/真题|面经|考研|考试/.test(userText))return null
   if(!/真题|面经/.test(reply))return null
-  const fixed=reply.split(/(?<=[。！？!?；;\n])/).filter(sentence=>!/真题|面经/.test(sentence)).join('')
+  const contest=scanUserClauses(userText).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&/竞赛|比赛/.test(clause.text))
+  const fixed=reply.split(/(?<=[。！？!?；;\n])/).filter(sentence=>!(/面经/.test(sentence)||/真题/.test(sentence)&&(!contest||/考研|考试|考公|考编/.test(sentence)))).join('')
     .replace(/[^。！？\n]*(?:不依赖别人|不依赖他人)也能开始[^。！？\n]*[。]?/g,'')
     .trim()
   return fixed&&fixed!==reply?fixed:null
@@ -1221,9 +1247,76 @@ function repairFamilyCorrectionScope(reply:string,userText:string):string|null{
   return fixed!==reply?fixed:null
 }
 
-function repairPathMotiveNeutrality(reply:string,userText:string):string|null{
-  if(!/清晰产出/.test(userText)||!/担心直接就业准备不足/.test(userText)||!/不享受考试/.test(userText))return null
-  const fixed=reply.replace(/这三点放在一起[，,]?指向一个核心矛盾[:：][^。！？\n]*考研通常被视为[^。！？\n]*[。]?/g,'目前只能确认：你重视工作产出、担心直接就业准备不足，并且不享受考试；考研或就业是否适合仍需具体核对，不能由这三点直接推出。')
+// Only quoted user evidence can preserve a personal motive; generic path
+// examples and assistant statements must not become autobiographical facts.
+function repairPathMotiveNeutrality(reply:string,userText:string,evidence:readonly string[]=[]):string|null{
+  let fixed=reply
+  if(productModeRequest(userText)?.title==='选方向'){
+    const reported=[userText,...evidence].some(text=>scanUserClauses(text).some(clause=>assertiveReplyClause(clause)&&!/(?:不想|并不|从未|不为|没有|没在)/.test(clause.text)&&/逃避就业/.test(clause.text)))
+    if(!reported){
+      const protectedSpans=scanUserClauses(fixed).flatMap(clause=>[...clause.quoteSpans,...clause.codeSpans])
+      fixed=fixed.replace(/若为逃避就业而考[，,]动机未确认[，,]不作推断/g,(claim,offset:number)=>protectedSpans.some(span=>offset<span.end&&offset+claim.length>span.start)?claim:'考研动机尚未确认，需要由你说明，不能从比较选项推断')
+    }
+  }
+  if(/清晰产出/.test(userText)&&/担心直接就业准备不足/.test(userText)&&/不享受考试/.test(userText))fixed=fixed.replace(/这三点放在一起[，,]?指向一个核心矛盾[:：][^。！？\n]*考研通常被视为[^。！？\n]*[。]?/g,'目前只能确认：你重视工作产出、担心直接就业准备不足，并且不享受考试；考研或就业是否适合仍需具体核对，不能由这三点直接推出。')
+  return fixed!==reply?fixed:null
+}
+
+function repairPersonalCapabilityScope(reply:string,userText:string,evidence:readonly string[]):string|null{
+  if(!productModeRequest(userText))return null
+  let fixed=reply
+  // An outcome is evidence of that occurrence, not of a general capability.
+  // Qualify the predicate only: keep the reported event and every later option.
+  for(const clause of scanUserClauses(fixed).reverse()){
+    if(!ownedObservationClause(clause)||unassertedObservation.test(clause.text))continue
+    const bounded=clause.text.replace(/(?:说明|证明|表明|显示|暗示|体现)(?:了)?(?:你)?(?:有能力[^。！？；;，,\n]{0,45}(?:推进|完成)[^。！？；;，,\n]{0,12}(?:项目|任务)|(?:具备|拥有|有|一定的)[^。！？；;，,\n]{0,65}(?:能力|基础|执行力))/g,'只支持当次已报告的行动或结果；相关技术基础及持续胜任仍需核实')
+    if(bounded!==clause.text)fixed=fixed.slice(0,clause.start)+bounded+fixed.slice(clause.end)
+  }
+  const protectedSpans=scanUserClauses(fixed).flatMap(clause=>[...clause.quoteSpans,...clause.codeSpans])
+  fixed=fixed.replace(/你已掌握的(?:[（(]如([^）)]+)[）)])?/g,(claim,examples:string|undefined,offset:number)=>{
+    if(protectedSpans.some(span=>offset<span.end&&offset+claim.length>span.start))return claim
+    const names=examples?.split(/、|[，,]|和|与|及/).map(name=>name.trim()).filter(Boolean)??[]
+    const reported=[userText,...evidence].flatMap(text=>scanUserClauses(text)).filter(clause=>assertiveReplyClause(clause)&&/^(?:我|本人)/.test(clause.text.trim())&&/(?:熟练|已经|已)?掌握/.test(clause.text)&&!/(?:不|没|未).{0,4}掌握/.test(clause.text))
+    if(names.length?names.every(name=>reported.some(clause=>clause.text.includes(name))):reported.length>0)return claim
+    return '有本人报告依据、掌握程度仍需核实的'+(examples?'（如'+examples+'）':'')
+  })
+  return fixed!==reply?fixed:null
+}
+
+function repairCampusEvidenceScope(reply:string,userText:string,evidence:readonly string[]):string|null{
+  if(productModeRequest(userText)?.title!=='做选择')return null
+  const reported=[userText,...evidence].some(text=>/^(?:我|本人)/.test(text.trim())&&!/(?:同学|朋友|老师|他|她)/.test(text)&&/(?:比赛|竞赛)/.test(text)&&scanUserClauses(text).some(clause=>assertiveReplyClause(clause)&&/(?:获得|获|拿到).{0,8}(?:[一二三]等奖|奖项)/.test(clause.text)))
+  let fixed=reply
+  if(reported)for(const clause of scanUserClauses(fixed).reverse()){
+    if(clause.quoted||clause.code||clause.quoteSpans.length||clause.codeSpans.length)continue
+    const bounded=clause.text.replace(/在没有过往竞赛成绩或团队实力评估的情况下/g,'本次竞赛的历史成绩数据尚未核实，当前团队实力也未评估')
+    if(bounded!==clause.text)fixed=fixed.slice(0,clause.start)+bounded+fixed.slice(clause.end)
+  }
+  // A related task is a reason to investigate, not a tested fit score or
+  // proof of unreported presentation skills. Keep every option and step.
+  const spans=scanUserClauses(fixed).flatMap(clause=>[...clause.quoteSpans,...clause.codeSpans])
+  fixed=fixed.replace(/能力匹配度较高|这与你的实际经历高度重合|(?:在)?本周(?:内)?(?:无法|不能)(?:启动|完成|开展|做出)(?:任何)?实质性(?:的)?[^。！？；;，,\n*但却并再先后]{0,24}(?:工作|准备|行动)|本周时间预算不足以支撑任何实质行动|甚至无法完成一次完整的会议或代码调试|(?:说明|证明|表明|显示|暗示)(?:你)?(?:具备|拥有|有|一定的)[^。！？；;\n]{0,32}能力|这部分工作上手成本低|你正在学习的Python\/API等技能|30分钟能力|竞赛高强度投入|本周时间不足以启动|之前的短期独立任务|零时间成本或极低时间成本|仅为了社交或学分|利用已有能力[（(]资料整理、答辩[）)]贡献价值/g,(claim,offset:number)=>{
+    if(spans.some(span=>offset>=span.start&&offset+claim.length<=span.end))return claim
+    if(/^(?:在)?本周(?:内)?(?:无法|不能)/.test(claim)||claim==='本周时间预算不足以支撑任何实质行动')return '本周预算低于所述完整参与要求；能否先做一小步取决于具体分工和步骤'
+    if(/^(?:说明|证明|表明|显示|暗示)/.test(claim))return '只支持当次已报告的行动或结果；本次相关能力仍需按具体要求验证'
+    switch(claim){
+      case '甚至无法完成一次完整的会议或代码调试':return '具体会议或调试的实际耗时未核实，不能仅凭可用量判断是否能完成'
+      case '这部分工作上手成本低':return '这部分工作的实际要求和上手成本仍需核实'
+      case '你正在学习的Python/API等技能':return '你已做过的Python处理或正在学习的API等内容'
+      case '30分钟能力':return '30分钟预算'
+      case '竞赛高强度投入':return '竞赛所述投入要求'
+      case '能力匹配度较高':return '有相关任务经历，适配仍待验证'
+      case '这与你的实际经历高度重合':return '这与已有经历部分相关，本次建模与答辩的具体要求仍待核实'
+      case '本周无法启动实质性的竞赛工作':case '本周无法启动任何实质性准备':case '本周无法启动实质性准备':return '本周预算低于所述完整参与要求；能否先做一小步取决于具体分工和步骤'
+      case '本周时间不足以启动':return '本周时间不满足所述完整参与要求'
+      case '之前的短期独立任务':return '此前的独立任务（实际持续时长尚未核实）'
+      case '零时间成本或极低时间成本':return '建议以本次预算为投入上限、实际耗时与结果未知'
+      case '仅为了社交或学分':return '你有其他明确认可的参与理由，具体理由尚未报告'
+      default:return '结合已报告的资料整理经历贡献价值，答辩能否承担仍需核实'
+    }
+  })
+  const finalSpans=scanUserClauses(fixed).flatMap(clause=>[...clause.quoteSpans,...clause.codeSpans])
+  fixed=fixed.replace(/重视[“"]自主[”"]的你[^。！？\n]{0,70}偏好冲突[^。！？\n]{0,50}/g,(claim,offset:number)=>finalSpans.some(span=>offset>=span.start&&offset+claim.length<=span.end)?claim:'具体分工是否可接受、是否与个人追求冲突，需由你核对；不从单一价值词推断协作偏好')
   return fixed!==reply?fixed:null
 }
 

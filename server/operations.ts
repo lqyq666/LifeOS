@@ -17,10 +17,12 @@ export async function recordModelFailure(error:HttpError){
 }
 export async function recordModelSuccess(){await pool.query('UPDATE lifeos_model_state SET error_code=NULL,retry_until=NULL,last_success_at=now() WHERE id=1')}
 export async function checkMessageLimit(user:string){
+  if(config.messagesPerMinute===0&&config.messagesPerDay===0)return
   const row=(await pool.query(`SELECT count(*) FILTER (WHERE started_at>now()-interval '1 minute')::int AS minute,
     count(*) FILTER (WHERE started_at>=date_trunc('day',now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC')::int AS day FROM (
       SELECT started_at FROM runs WHERE user_id=$1
       UNION ALL SELECT started_at FROM memory_review_runs WHERE user_id=$1
     ) requests`,[user])).rows[0]
-  if(row.minute>=config.messagesPerMinute||row.day>=config.messagesPerDay)throw new HttpError(429,'USER_MESSAGE_LIMIT',row.day>=config.messagesPerDay?Math.ceil((86400000-Date.now()%86400000)/1000):60)
+  const dailyLimited=config.messagesPerDay>0&&row.day>=config.messagesPerDay
+  if((config.messagesPerMinute>0&&row.minute>=config.messagesPerMinute)||dailyLimited)throw new HttpError(429,'USER_MESSAGE_LIMIT',dailyLimited?Math.ceil((86400000-Date.now()%86400000)/1000):60)
 }

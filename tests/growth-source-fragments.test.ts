@@ -24,6 +24,11 @@ test('fromLegacyText keeps provenance and refuses ambiguous originals',()=>{
   assert.throws(()=>fromLegacyText('每周能投入6小时',[m1,{type:'user_edit',quote:COMPOSITE}]),/GROWTH_COMPOSITE_REQUIRES_REVIEW/)
   // The same identity repeated is still one provenance.
   assert.doesNotThrow(()=>fromLegacyText('每周能投入6小时',[m1,{type:'message',id:'m1',quote:COMPOSITE}]))
+  const first:Source={type:'message',id:'m',quote:'同一事实',range:{start:0,end:4}},second:Source={...first,range:{start:5,end:9}}
+  assert.throws(()=>fromLegacyText('同一事实',[first,second]),/GROWTH_COMPOSITE_REQUIRES_REVIEW/,'different occurrences cannot collapse to one message identity')
+  assert.deepEqual(fromLegacyText('同一事实',[first,{...first}]),[{text:'同一事实',source:first}],'an identical bound source repeated remains one provenance')
+  assert.deepEqual(fromLegacyText('同一事实',[first,{...first,quote:'同一事实，其他',range:{start:0,end:7}}]),[{text:'同一事实',source:first}],'a broader verified source and its exact slice agree on the same range')
+  assert.throws(()=>fromLegacyText('同一事实',[{type:'message',id:'m',quote:'同一事实，同一事实'}]),/GROWTH_COMPOSITE_REQUIRES_REVIEW/,'a substring with two positions cannot choose its first occurrence silently')
 })
 
 test('carriesPersonalText separates punctuation from personal content',()=>{

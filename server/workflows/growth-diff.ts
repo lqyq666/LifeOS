@@ -1,6 +1,6 @@
 import {growthLabels,type GrowthKind} from '../../src/features/growth/types.ts'
-import {WorkflowError,type EvidenceRecord,type EvidenceRef,type WorkflowRequest} from './contracts.ts'
-import {validateEvidence} from './evidence-gate.ts'
+import {WorkflowError,type EvidenceRecord,type EvidenceRef,type WorkflowProposal,type WorkflowRequest} from './contracts.ts'
+import {validateEvidence,validateProposal} from './evidence-gate.ts'
 import {createTrace,type TraceRow} from './trace.ts'
 import {loadBusinessSkill,recordSkillOutput} from './skills.ts'
 export type GrowthSnapshotItem={ref:EvidenceRef;kind:GrowthKind|'experience'|'identity';status:'active'|'proposed'|'withdrawn';text:string;assertion:'user_reported'|'user_edit'|'ai_observation'}
@@ -10,10 +10,14 @@ export function growthDiff(request:WorkflowRequest,host:{traceId:string;requestI
  if(request.mode!=='growth_diff'||!host.committed||host.traceId!==request.traceId||host.requestId!==request.requestId)throw new WorkflowError('stale_snapshot')
  if(!host.changedIds.length)return []
  const trace=createTrace(sink)
- let skill:ReturnType<typeof loadBusinessSkill>
+ const changedExperience=after.some(current=>{
+  const old=before.find(item=>item.ref.type===current.ref.type&&item.ref.id===current.ref.id)
+  return current.kind==='experience'&&host.changedIds.includes(current.ref.id)&&(!old||old.ref.revision!==current.ref.revision)
+ })
+ let skill:ReturnType<typeof loadBusinessSkill>,experienceSkill:ReturnType<typeof loadBusinessSkill>|undefined
  try{
   skill=loadBusinessSkill('lifeos-growth-diff',request.traceId,trace)
-  loadBusinessSkill('lifeos-experience-evidence',request.traceId,trace)
+  if(changedExperience)experienceSkill=loadBusinessSkill('lifeos-experience-evidence',request.traceId,trace)
  }catch(error){
   // This optional view has no authority to discard valid host facts. Keep its
   // failed zero-call trace and omit the explanation; never use changed instructions.
@@ -37,7 +41,9 @@ export function growthDiff(request:WorkflowRequest,host:{traceId:string;requestI
   const source=records.find(x=>x.ref.type===current.ref.type&&x.ref.id===current.ref.id)!
   if(current.text!==source.text)throw new WorkflowError('source_invalid')
   const observation=current.assertion==='ai_observation'||current.kind==='observation'
-  changes.push({schemaVersion:2,before:old?'此前这条理解已被更新；旧原话不重新展示。':'此前还没有这条记录。',evidenceRefs:[current.ref],now:observation?'新增了一条待本人核对的观察，尚未形成身份认同。':`${old?'更正后的':'新增的'}${current.kind==='experience'?'本人经历':current.kind==='identity'?'本人认可的描述':growthLabels[current.kind]}：${source.text}`,unknowns:current.kind==='feedback'?['本次行动反馈不等于稳定能力、长期适配或所有后续结果；未报告的采用、付款与效果仍未知。']:current.kind==='experience'?['这次任务范围外的稳定能力与实际适配仍未知。']:['这条信息对其他事情的影响仍待本人核对。'],needsConfirmation:observation||current.status==='proposed',change:old?'corrected':'added',itemId:id})
+  const experienceProposal:WorkflowProposal|undefined=current.kind==='experience'?{schemaVersion:2,traceId:request.traceId,evidenceRefs:[current.ref],hypotheses:[{text:'这条已授权来源只支持本次任务中的本人实际经历。',limitation:'这次任务范围外的稳定能力与实际适配仍未知。',needsConfirmation:true}],alternatives:[],nextActions:[],suggestedStateChanges:[]}:undefined
+  if(experienceProposal){validateProposal(request,experienceProposal,records);recordSkillOutput(experienceSkill!,request.traceId,trace,{committed:true,evidenceRef:current.ref},experienceProposal,[current.ref.id])}
+  changes.push({schemaVersion:2,before:old?'此前这条理解已被更新；旧原话不重新展示。':'此前还没有这条记录。',evidenceRefs:[current.ref],now:observation?'新增了一条待本人核对的观察，尚未形成身份认同。':`${old?'更正后的':'新增的'}${current.kind==='experience'?'本人经历':current.kind==='identity'?'本人认可的描述':growthLabels[current.kind]}：${source.text}`,unknowns:current.kind==='feedback'?['本次行动反馈不等于稳定能力、长期适配或所有后续结果；未报告的采用、付款与效果仍未知。']:experienceProposal?experienceProposal.hypotheses.map(item=>item.limitation):['这条信息对其他事情的影响仍待本人核对。'],needsConfirmation:observation||current.status==='proposed',change:old?'corrected':'added',itemId:id})
  }
  if(changes.length)recordSkillOutput(skill,request.traceId,trace,{before,after,changedIds:host.changedIds},changes,changes.flatMap(change=>change.evidenceRefs.map(ref=>ref.id)))
  return changes

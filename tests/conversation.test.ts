@@ -51,3 +51,11 @@ test('fictional sample is isolated from the real-input flow and is explicitly fl
   assert.equal(emptyConversation().messages.length, 0)
   assert.equal(new Set(demo.messages.map(message => message.id)).size, demo.messages.length)
 })
+
+test('direction demo compares desired life, investments and unknowns without presenting planned steps as completed',()=>{
+ const demo=createDemoConversation(),text=demo.messages.map(m=>m.text).join('\n')
+ assert.equal(demo.messages.length,10)
+ for(const topic of ['想过的生活','先就业或实习','考研','其他道路','机会成本','尚待核实','两小时','计划本身不会被记成你已完成的经历'])assert.ok(text.includes(topic),topic)
+ assert.doesNotMatch(text,/这次比赛|课程作业几乎都是赶出来/)
+ assert.ok(demo.demo)
+})

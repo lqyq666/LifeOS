@@ -2,13 +2,14 @@
 // requested time arrangements and authorized sources narrow capabilities;
 // legacy mode names are retained only for callers reading old contracts.
 
-import { actionCoachTurnSchema } from './action-coach-contracts.ts'
+import { actionCoachTurnSchema,ordinaryAnswerWireSchema } from './action-coach-contracts.ts'
+import {bindProcessSourceHandles,unprotectedClauseText} from './clause-catalogue.ts'
 import {crisisSupportIntent} from './grilling-policy.ts'
-import { scanUserClauses,currentConversationOnly,refusalPreferenceClause,scopedTaskPauseClause,assistantRequestClause,responseRequestScope,conversationPreferenceClause } from './user-command-spans.ts'
+import { scanUserClauses,currentConversationOnly,refusalPreferenceClause,scopedTaskPauseClause,assistantRequestClause,responseRequestScope,conversationPreferenceClause,profileWritesDisallowed,comparisonRequestClause,firstPersonalActor,jointPersonalActorClause,personalReportBody,otherActorClause,assistedSelfPerformanceClause,canonicalExamMatterIdentity,boundedOtherActorPhrase,openNestedOtherActor,openDirectOtherActor,openHumanOtherActor,openNonHumanOtherActor,leadingActionTimeLength } from './user-command-spans.ts'
 import {independentTrialNouns,unresolvedTwoFactors} from './user-command-spans.ts'
 import {requiresImmediateMaterial,deliverableIntent} from './action-coach-events.ts'
 import {requiresPlanSlack} from './weekly-plans.ts'
-import {clauseExpressesFuturePlan} from './experience-content.ts'
+import {actionEvidenceUnavailable,clauseExpressesFuturePlan} from './experience-content.ts'
 import {applicableTimeBudget} from './turn-obligations.ts'
 import {explicitMaterialForms,explicitMaterialFormConflict} from './experience-episodes.ts'
 
@@ -24,14 +25,35 @@ export type TurnContractCapabilities={
 export type TurnContract={
   mode:TurnContractMode
   capabilities:TurnContractCapabilities
-  // Slimmed clone of the full action-coach schema; a deleted lane is
-  // unrepresentable, everything kept is byte-identical to the full contract.
+  // Private generation schema: closed lanes are unrepresentable; source
+  // handles/fact references resolve to the unchanged public contract.
   schema:Record<string,unknown>
   schemaChars:number
   requiredReplyKind?:'comparison'|'summary'
 }
 
-const comparisonLabelTokens=['(?:(?:选项|方式|方案|路径|对象|方向)(?:一|1|A|甲)[:：]|[1Aa][.)、:：]|一[、.])','(?:(?:选项|方式|方案|路径|对象|方向)(?:二|2|B|乙)[:：]|[2Bb][.)、:：]|二[、.])']
+const comparisonOrdinals=['一','二','三','四','五','六','七','八','九','十']
+const comparisonStems=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸']
+const comparisonLabelTokens=comparisonOrdinals.map((word,index)=>{const n=index+1,upper=String.fromCharCode(65+index),lower=upper.toLowerCase();return `(?:(?:选项|方式|方案|路径|对象|方向)(?:${word}|${n}|${upper}|${comparisonStems[index]})[:：]|(?:${n}|${upper}|${lower})[.)、:：]|${word}[、.])`})
+// Count only the user's comparison-list head and its adjacent enumeration,
+// using the same clause offsets as command ownership. Criteria lists are not
+// extra options, and unmentioned roads need not be enumerated.
+export function requestedComparisonCount(text:string):number{
+ const clauses=scanUserClauses(text);let count=2
+ for(const [index,clause] of clauses.entries()){
+  if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||!comparisonRequestClause(clause.text))continue
+  const explicit=/(?:比较|对比|权衡)(?:一下)?(?:以下|这|那|上述)?([2-9二两三四五六七八九十])(?:个|条|种)(?:不同)?(?:路径|方向|选项|方式|方案|选择|办法|方法)/.exec(clause.text)
+  if(explicit){const value=Number(explicit[1])||comparisonOrdinals.indexOf(explicit[1]!)+1;count=Math.max(count,explicit[1]==='两'?2:value)}
+  const parts=[clause.text];let length=1,last=clause
+  for(const next of clauses.slice(index+1)){
+   if(!/^[、\s]*$/.test(text.slice(last.end,next.start))||!text.slice(last.end,next.start).includes('、')||next.quoted||next.code||next.conditional||next.attributedToOther)break
+   length++;parts.push(next.text);last=next
+  }
+  const dimensions=/的(?:时间|投入|代价|条件|差异|风险|成本|异同|优劣|优缺点)/.test(clause.text)&&parts.slice(1).every(part=>/^(?:所需|实际|当前)?(?:时间|投入|代价|条件|差异|风险|成本|异同|优劣|优缺点|收益|未知)$/.test(part.trim()))
+  if(!dimensions)count=Math.max(count,length)
+ }
+ return Math.min(comparisonOrdinals.length,count)
+}
 const comparisonLabels=comparisonLabelTokens.map(label=>'(?:^|\\n|[。；;：:])[ \\t]*'+label)
 const comparisonOpeningPattern='^[ \\t\\r\\n]*'+comparisonLabelTokens[0]
 export function comparisonOptionBody(text:string):string|null{
@@ -40,14 +62,14 @@ export function comparisonOptionBody(text:string):string|null{
 }
 // This checks only the requested presentation exists. It does not certify the
 // options' factual support, utility, resource feasibility or causal reasoning.
-export const comparisonReplyAccepts=(reply:string)=>{
- const normalized=reply.replace(/\*\*/g,'')
- const first=new RegExp(comparisonLabels[0]!).exec(normalized)
- if(!first)return false
- const tail=normalized.slice(first.index+first[0].length),second=new RegExp(comparisonLabels[1]!).exec(tail)
- if(!second)return false
- const bodies=[tail.slice(0,second.index).trim(),tail.slice(second.index+second[0].length).trim()]
- return bodies.every(body=>body.length>0&&scanUserClauses(body).some(clause=>!clause.interrogative&&/[\p{L}\p{N}]/u.test(clause.text)))
+export const comparisonReplyAccepts=(reply:string,sourceText='')=>{
+ const normalized=reply.replace(/\*\*/g,''),required=requestedComparisonCount(sourceText),starts:{label:number;body:number}[]=[]
+ let cursor=0
+ for(const pattern of comparisonLabels.slice(0,required)){
+  const match=new RegExp(pattern).exec(normalized.slice(cursor));if(!match)return false
+  starts.push({label:cursor+match.index,body:cursor+match.index+match[0].length});cursor=starts.at(-1)!.body
+ }
+ return starts.every((start,index)=>{const body=normalized.slice(start.body,starts[index+1]?.label??normalized.length).trim();return body.length>0&&scanUserClauses(body).some(clause=>!clause.interrogative&&/[\p{L}\p{N}]/u.test(clause.text))})
 }
 // A finite set of suggestions is not evidence of an exhaustive universe.
 export function comparisonUniverseAccepts(reply:string,sourceText:string){
@@ -84,7 +106,7 @@ export function bindRequestedComparisonSchema(contract:TurnContract,text:string)
  if(scanUserClauses(text).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&/表格|不分点|不要分点|不要编号|不要标题|只用一段|只(?:给|留|选|要)[^。！？\n]{0,12}(?:一个|一条|一句|1个|1条)|(?:只|仅)(?:回答|说)[^。！？\n]{0,10}(?:哪个|哪一)/.test(clause.text)))return contract
  const schema=structuredClone(contract.schema) as any
  delete schema.properties.lead
- schema.properties.reply={...schema.properties.reply,pattern:comparisonOpeningPattern,allOf:comparisonLabels.map(pattern=>({type:'string',pattern})),description:'reply从第一个选项标签及其具体内容开始，随后给第二个选项。每项是当前选取的有限示例，说明与本人已知条件相关的依据和投入/局限；其他可能方式仍可存在，本轮无需列全。比较不代表已经选择或安排任务。缺少某项必需条件就如实标明该选项不能开始，不虚构资源或个人偏好。'}
+ schema.properties.reply={...schema.properties.reply,pattern:comparisonOpeningPattern,allOf:comparisonLabels.slice(0,requestedComparisonCount(text)).map(pattern=>({type:'string',pattern})),description:'reply从第一个选项标签及其具体内容开始，依次完整交付本轮点名的'+requestedComparisonCount(text)+'个比较对象，不固定为两项。每项说明与本人已知条件相关的依据和投入/局限；用户已经点名的对象不可遗漏，未点名的其他道路无需枚举。比较不代表已经选择或安排任务。缺少某项必需条件就如实标明该选项不能开始，不虚构资源或个人偏好。'}
  return {...contract,schema,schemaChars:JSON.stringify(schema).length,requiredReplyKind:'comparison'}
 }
 
@@ -102,12 +124,11 @@ export function bindRequestedSummarySchema(contract:TurnContract,text:string,que
  const scope=responseRequestScope(text)
  if(!scope.summaryRequested||questionRequested||requiresImmediateMaterial(text)||contract.capabilities.plan)return contract
  const schema=structuredClone(contract.schema) as any
- const expanded=scope.instructions.some(clause=>/详细|详尽|展开|完整|逐项|逐条|长文|全面|深入|细说|细讲/.test(clause.commandText))
  if(scope.sentenceLimit===1)delete schema.properties.lead
  else if(schema.properties.lead)schema.properties.lead={...schema.properties.lead,pattern:'^[^？?]*$',description:'本轮交付当前理解的第一句预览；给基于本人报告的实际判断，不追问、不以状态确认替代理解，须在reply逐字保留。'}
  schema.properties.reply=scope.sentenceLimit===1
   ?{...schema.properties.reply,maxLength:240,pattern:'^[^。！？!?\\r\\n]+[。！!]?$' ,description:'只给一句当前阶段理解，以已报告的具体线索及局限为内容；'+(scope.actionRequested?'同一句中还须交付用户明确要求的小行动，遵守数量、时间与资源限制；':'')+'不复制上一轮整段，不加标题、状态确认、分段、第二句或追问。'}
-  :{...schema.properties.reply,...(!expanded&&!scope.actionRequested?{maxLength:100}:{}),pattern:'^[^？?]*$',description:'本轮要求更新或说明当前理解：综合本人具体报告、暂定理解及真正仍未知的地方。未知用尚未确认的陈述表达，不变成要求用户逐项回答的问题；不以重问上一问或只确认状态替代交付。'+(scope.actionRequested?'同时交付本轮明确要求的小行动，遵守其数量、时间与资源限制。':'没有要求提问，不加入问句，不新增行动。')}
+  :{...schema.properties.reply,pattern:'^[^？?]*$',description:'本轮要求更新或说明当前理解：按内容需要用小标题、分段和分点说明本人具体报告、暂定理解及真正仍未知的地方，不强行压成一小段。未知用尚未确认的陈述表达，不变成要求用户逐项回答的问题；不以重问上一问或只确认状态替代交付。'+(scope.actionRequested?'同时交付本轮明确要求的小行动，遵守其数量、时间与资源限制。':'没有要求提问，不加入问句，不新增行动。')}
  return {...contract,schema,schemaChars:JSON.stringify(schema).length,requiredReplyKind:'summary'}
 }
 
@@ -134,7 +155,7 @@ export function reportsPersonalEvent(text:string):boolean{
   return false
 }
 
-const negativePersonalFact=/^(?:这次|这周|本周|最近)?我(?:目前|现在|暂时|还|仍|一直|并|从来)?(?:没(?:有)?|尚未|还未|未|不)(?:开始|做|学|复习|准备|完成|交付|发送|收到|拿到|有|想|愿意|打算|决定|能)/
+const negativePersonalFact=/^(?:但|不过)?(?:这次|这周|本周|最近)?我(?:目前|现在|暂时|还|仍|一直|并|从来)?(?:没(?:有)?|尚未|还未|未|不)(?:开始|做|学|复习|准备|完成|交付|发送|收到|拿到|有|想|愿意|打算|决定|能|按时(?:交付|提交|完成))/
 const anchorablePersonalClauses=(text:string)=>scanUserClauses(text).filter(clause=>!clause.interrogative&&!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther&&!clause.quoteSpans.length)
 const explicitPersonalUncertainty=/^(?:我|本人)(?:(?:目前|现在|还|仍|依然|暂时|也)){0,4}(?:不知道|不确定|不清楚|说不清|尚不清楚|尚未确定|无法确定|无法确认|不能确定|不能确认|还没弄清)(?=这|那|它|上述|前面|刚才)/
 
@@ -238,27 +259,56 @@ export function reportedSourceContextClauses(text:string,anchorQuotes:readonly s
 
 // Surface integrity only. Balanced prose is not proof of semantic completeness
 // or usefulness; the independent real-dialogue review remains a separate gate.
-export function completeUserReply(reply:string,userText:string){
+export function completeUserReply(reply:string,userText:string,onFailure?:(code:'placeholder'|'internal_token'|'unfinished_predicate'|'unbalanced_punctuation')=>void){
+ const fail=(code:Parameters<NonNullable<typeof onFailure>>[0])=>{onFailure?.(code);return false}
+ const templateRequested=scanUserClauses(userText).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&assistantRequestClause(clause.text)&&/模板|填空|占位|待补/.test(clause.text))||/【待补|\[待补|（待补/.test(userText)
+ const placeholder=/(?:【待补[^】]*】|\[待补[^\]]*\]|（待补[^）]*）)/
+ if(!templateRequested&&placeholder.test(reply)){
+  for(const line of reply.split(/\r?\n/)){
+   if(!placeholder.test(line))continue
+   // Only a full deferral note may use this marker outside a requested
+   // template. Validate the whole line, including any follow-up boundary.
+    const note=/^[ \t]*(?:[-+*][ \t]+)?(?<bold>\*\*)?(?:【待补】|\[待补\]|（待补）)(?:\k<bold>)[ \t]*(?<prose>.+)$/u.exec(line)?.groups?.prose?.trim()
+   if(!note)return fail('placeholder')
+   const quotePairs:Record<string,string>={'“':'”','‘':'’','「':'」','『':'』','"':'"'}
+   const closer=quotePairs[note.charAt(0)]
+   const prose=closer&&note.endsWith(closer)?note.slice(1,-1):note
+   const sentenceEnd=/[。！？．.!?…]+$/u
+   if(!sentenceEnd.test(prose))return fail('placeholder')
+    if(/^[^【】\[\]，,。！？；;：:\n]{2,40}(?:[:：][ \t]*)?(?:仍未知|仍未确认|尚未核实|尚未明确|还没确认)(?:[，,](?:先|可以|可)(?:向[^，,。！？；;：:\n]{1,20})?(?:问|核对|确认|查明)[^【】\[\]，,。！？；;：:\n]{2,60})?[。！？．.!?…]+$/u.test(prose))continue
+   if(!placeholder.test(prose)&&/^(?:若|如果)(?:你|您)?(?:能|可以|愿意|方便)提供[^。！？；;：:\n]{2,140}[，,]\s*(?:我(?:就)?(?:能|可以)|可|可以)(?:再)?(?:给出|提供|说明|核对|调整|细化)[^。！？；;：:\n]{2,60}[。！？．.!?…]+$/u.test(prose))continue
+   const [missing,feasible,permission,offer,...extra]=prose.replace(sentenceEnd,'').split(/[，,；;]\s*/)
+   const reportsMissing=/^(?:你|您)(?:尚未|还没|还未|未)(?:说明|提供|提到)(?:自己的|你的|您的)?(?:专业(?:和感兴趣的(?:具体)?方向)?|感兴趣的(?:具体)?方向)$/.test(missing??'')
+   const feasibleWithoutIt=/^(?:(?:以上|上述|本次)(?:步骤|建议|做法)|这一步)不(?:依赖|需要)(?:这些|上述)信息也能(?:执行|开始)$/.test(feasible??'')
+   const optionalOffer=permission===undefined||!extra.length&&/^(?:若|如果)(?:你|您)?(?:愿意|方便)(?:再)?补充(?:这些信息)?$/.test(permission)
+    &&/^(?:下次|之后|后续)(?:我)?(?:可|可以)(?:再)?(?:帮(?:你|您)把(?:搜索词|检索词)(?:收得|改得|调得)更(?:准|准确|精确|具体)|(?:调整|细化)(?:搜索词|检索词))$/.test(offer??'')
+   if(reportsMissing&&feasibleWithoutIt&&optionalOffer&&!placeholder.test(prose))continue
+   const [deferral='',boundary,...rest]=prose.replace(sentenceEnd,'').split(/[，,]\s*/)
+   const defersDiscussion=/^(?:(?:下次|以后|后续)(?:有(?:空|(?:整块)?时间)(?:时)?)?|等(?:你)?有(?:空|(?:整块)?时间|反馈|结果)(?:时)?)再(?:说明|说|谈|聊|问|补充|核实|确认|处理)$/.test(deferral)
+   const skipsFollowUp=boundary===undefined||/^(?:现在|今天|本轮|这次|暂时)?(?:先)?不(?:再)?追问(?:原因(?:或感受)?|感受)?$/.test(boundary)
+   if(rest.length||!defersDiscussion||!skipsFollowUp)return fail('placeholder')
+  }
+ }
  const internal=reply.match(/\b(?:reported_(?:no_response|response|not_read|read|received|used|not_used|paid|unpaid|tried|not_tried)|growthUpdates|user_reported)\b/g)??[]
- if(internal.some(token=>!userText.includes(token)))return false
+ if(internal.some(token=>!userText.includes(token)))return fail('internal_token')
   // A complete JSON frame can still end mid-proposition. Reject high-confidence
   // continuative predicates when their required complement has not arrived.
   const surfaceEnd=reply.trim().replace(/[。！？!?…]+$/,'').trim()
-  if(/(?:都|均)(?:支持|证明|说明|表明|意味着|包括|包含|依赖|取决于|导致|造成|改善|增加|减少|避免|确认|展示|显示)$/.test(surfaceEnd))return false
+  if(/(?:都|均)(?:支持|证明|说明|表明|意味着|包括|包含|依赖|取决于|导致|造成|改善|增加|减少|避免|确认|展示|显示)$/.test(surfaceEnd))return fail('unfinished_predicate')
  const protectedSpans=scanUserClauses(reply).flatMap(clause=>[...clause.codeSpans,...clause.quoteSpans])
  const pairs:Record<string,string>={'（':'）','(':')','【':'】','[':']'},stack:string[]=[]
  for(let index=0;index<reply.length;index++){
   if(protectedSpans.some(span=>index>=span.start&&index<span.end))continue
   const char=reply[index]!
   if(pairs[char])stack.push(pairs[char]!)
-  else if(stack.length&&Object.values(pairs).includes(char)&&stack.pop()!==char)return false
+  else if(stack.length&&Object.values(pairs).includes(char)&&stack.pop()!==char)return fail('unbalanced_punctuation')
  }
- return stack.length===0
+ return stack.length===0||fail('unbalanced_punctuation')
 }
 const embeddedOtherActorAction=(text:string)=>/(?:我|本人).{0,15}(?:让|看到|看见|听说|知道|发现|听到|要求|请(?!教)|确认|得知|获悉|收到).{0,15}(?:同学|学长|学姐|导师|老师|客户|朋友|对方|他|她)/.test(text)
 // Explicit preferences remain exact reports, never inferred traits. Reuse the
 // shared ownership/quote/condition guards and exclude conversational requests.
-const personalPreference=/^(?:我(?:自己|个人|本人)?)?(?:现在|目前)?(?:确实|其实|真的|的确)?(?:更|主要|最|也|仍然|仍|并)?(?:在意|不在意|喜欢|偏好|不喜欢|享受不了|不享受|享受|不想承担|不愿承担)(.+)$/
+const personalPreference=/^(?:但|不过)?(?:我(?:自己|个人|本人)?)?(?:现在|目前)?(?:确实|其实|真的|的确)?(?:更|主要|最|也|仍然|仍|并)?(?:看重|重视|在意|不在意|喜欢|偏好|不喜欢|享受不了|不享受|享受|不想承担|不愿承担|愿意(?=在.{1,16}(?:表达|交流|发言)))(.+)$/
 const hardClaimNegated=(text:string,at:number)=>{
  const local=text.slice(Math.max(0,at-18),at).split(/但是|不过|而是|但/).at(-1)??''
  return /不$/.test(local)||/(?:不(?:是|等于|应|宜|能|认为)|并非|未被|没有(?:被|把|将)?|不把|不得(?!不)|无需|不需(?:要)?|没(?:有)?必要).{0,12}$/.test(local)
@@ -389,13 +439,25 @@ export function reportedResponseContinuationTargets(current:string,records:reado
  // Two different current replies cannot both rewrite the same parent version.
  return targets.filter(target=>targets.filter(other=>other.itemId===target.itemId).length===1)
 }
-const participantActor='(?:对方|客户|学长|学姐|(?:[\u4e00-\u9fa5]{1,3})?(?:导师|老师)|同学|室友|朋友|他们|她们|他|她)'
+const participantActor='(?:对方|客户|学长|学姐|(?:课程)?助教|辅导员老师|辅导员|部长|社长|评委|负责人|经理|HR|面试官|(?:[\u4e00-\u9fa5]{1,3})?(?:导师|老师)|同学|室友|朋友|他们|她们|他|她)'
 const participantUncertainty=/(?:可能|也许|好像|似乎|大概|不确定|不清楚|不知道|说不准|不一定|未必|猜测|是否|有没有|未知|未报告|未确认|不是|并非|绝非|不代表|不等于|不能证明|不能说明)/
 // Scope uncertainty to its explicit process dimension, without altering the
 // source quote or ownership/condition scanner. Bare "but not sure" still
 // qualifies the original statement; a different dimension does not erase it.
-const participantDimensionBoundary=/(?=(?:但是|但|不过|然而|可是)(?=(?:这|已|已经|还|仍|尚|未|没有|可能|也许|是否|有没有|不确定|不清楚|不知道|不代表|不等于|未确认|未报告){0,6}(?:读|阅读|看|回复|回应|采用|使用|付款|付费|效果|试过|试用))|(?:不代表|不等于|不能证明|不能说明)(?=(?:已|已经)?(?:读|阅读|看|回复|回应|采用|使用|付款|付费|效果|试过|试用)))/
-const participantStateFields={read:/读|阅读|看/,response:/回复|回应|没回/,adoption:/采用|使用|用过|用了/,payment:/付款|付费|付钱|付了/,effect:/效果|反馈/} as const
+const participantDimensionBoundary=/(?=(?:但是|但|不过|然而|可是)(?=(?:这|已|已经|还|仍|尚|未|没有|可能|也许|是否|有没有|不确定|不清楚|不知道|不代表|不等于|未确认|未报告|他|她|对方|之后|后来|会不会|能否){0,8}(?:读|阅读|看|回复|回应|采用|使用|付款|付费|效果|试过|试用))|(?:不代表|不等于|不能证明|不能说明)(?=(?:已|已经)?(?:读|阅读|看|回复|回应|采用|使用|付款|付费|效果|试过|试用)))/
+const participantStateFields={read:/读|阅读|看/,response:/回复|回应|没回|答复|回绝|拒绝|否决/,adoption:/采用|使用|用过|用了/,payment:/付款|付费|付钱|付了/,effect:/效果|反馈/} as const
+const participantRejectionMetricNoun='(?:率|比例|占比|数量|人数|次数|总数|总量|汇总|合计|统计|数据|趋势|分布|明细|报表|指标|名单|列表|表格)'
+const participantRejectionReportNoun='(?:分析|情况|结果|状态|记录|报告|清单|详情|概况|总结|小结)'
+const aggregateParticipantRejection=new RegExp(`(?:回绝|拒绝|否决)(?!了)\\s*(?:${participantRejectionMetricNoun}|${participantRejectionReportNoun})|(?:回绝|拒绝|否决)(?!了)[^。！？]{0,40}(?:的)?(?:${participantRejectionMetricNoun}|${participantRejectionReportNoun})`)
+const perfectiveRejectedReportObject=new RegExp(`^(?:明确)?(?:回绝|拒绝|否决)\\s*[^。！？]{0,40}${participantRejectionReportNoun}了$`)
+const aggregateBeforePerfectiveRejectedReport=new RegExp(`^(?:明确)?(?:回绝|拒绝|否决)\\s*[^。！？]{0,40}(?:${participantRejectionMetricNoun}|情况|结果|状态|记录|清单|详情|概况|总结|小结)[^。！？]{0,20}报告了$`)
+const concreteParticipantRejection=(rest:string)=>{
+ const lead=rest.split(/(?:，|,|；|;|但(?:是)?|不过|然而|可是)/,1)[0]?.trim()??''
+ const match=/^(明确)?(?:回绝|拒绝|否决)(?:了)?(.*)$/.exec(lead)
+ const perfectiveObject=perfectiveRejectedReportObject.test(lead)&&!aggregateBeforePerfectiveRejectedReport.test(lead)
+ return Boolean(match&&(match[1]||match[2]?.trim())&&(!aggregateParticipantRejection.test(lead)||perfectiveObject))
+}
+const aggregateParticipantRejectionOnly=(context:string,rest:string)=>aggregateParticipantRejection.test(context)&&!concreteParticipantRejection(rest)
 function participantDimensionText(text:string,words:RegExp){
  const parts=text.split(participantDimensionBoundary),selected=parts.filter(part=>words.test(part))
  return (selected.length?selected:parts).join('；')
@@ -407,6 +469,33 @@ function participantReport(text:string){
  const rest=match[2]!.replace(/^(?:后来|已经|刚才|实际|这次|本次|刚刚|又|仍然)+/,'')
  const indirect=new RegExp('(?:说|听说|提到)[^。！？]*'+participantActor+'[^。！？]*(?:回复|回应|读|看过|采用|付款|试过|试用)').test(rest)
  return {body,actor:match[1]!,rest,indirect}
+}
+// Feedback metadata uses the same protected clauses and participant parser as
+// response readback. These labels annotate testimony; they never add facts.
+export function reportedExternalFeedback(text:string){
+ type Status='positive'|'negative'|'reported'|'none'|'unknown'
+ const byActor=new Map<string,{actor:string|null;status:Status;quote:string}>()
+ for(const clause of scanUserClauses(text)){
+  if(clause.quoted||clause.code||clause.conditional||clause.interrogative||clause.codeSpans.length)continue
+  const body=clause.text.trim().replace(/^(?:但|不过|更正[:：]?|本人更正[:：]?)/,'')
+  const report=participantReport(body)
+  const received=/^(?:我|本人)?(?:还|仍|也|已经|已|刚)?(?:没(?:有)?|尚未|还未|未)?(?:收到|得到|获得|被)/.test(body)&&/反馈|评价|表扬|夸|批评|认可|拒绝/.test(body)
+  const unknown=/^(?:我|本人)?(?:还|仍)?(?:不知道|不确定|不清楚)|^(?:可能|也许|好像|似乎)/.test(body)||/(?:有没有|是否).{0,12}(?:评价|反馈|表扬|夸|批评)/.test(body)
+  const absent=/(?:没(?:有)?|尚未|还未|未)(?:能)?(?:收到|得到|获得|被).{0,16}(?:反馈|评价|回复|回应|表扬|夸|批评|认可)|(?:没(?:有)?|尚未|还未|未)(?:给我|作出|提供)?(?:反馈|评价|回复|回应)/.test(body)
+  const direct=report&&!report.indirect&&/^(?:说|表示|评价|反馈|夸|批评|认为|觉得|回复|回答|回应|确认|采用|使用|用了)/.test(report.rest)
+  if(report&&new RegExp(participantActor+'(?:说|评价|反馈|夸|批评)').test(report.rest))continue
+  if(!received&&!direct&&!absent&&!unknown)continue
+  if((unknown||absent)&&!/反馈|评价|回复|回应|表扬|夸|批评|认可/.test(body))continue
+  const actor=report?.actor??new RegExp(participantActor).exec(body)?.[0]??null
+  const negative=/不好|不满意|不清楚|不充分|不合格|未通过|批评|拒绝|有问题/.test(body)
+  const positive=/不错|很好|挺好|满意|清楚|有用|认可|表扬|夸|肯定|采用|使用|用了/.test(body)
+  const status:Status=unknown?'unknown':absent?'none':negative?'negative':positive?'positive':'reported'
+  byActor.set(actor??'unspecified',{actor,status,quote:clause.text})
+ }
+ const reports=[...byActor.values()],present=reports.filter(report=>['positive','negative','reported'].includes(report.status))
+ const statuses=new Set(present.map(report=>report.status))
+ const status:Status=present.length?(statuses.size===1?present[0]!.status:'reported'):reports.length&&reports.every(report=>report.status==='none')?'none':'unknown'
+ return {status,reports}
 }
 export function reportedOutcomeSourceClauses(text:string,scanned=scanUserClauses(text)){
   // A comma-separated status list belongs to the request from “把/将” through
@@ -424,7 +513,8 @@ export function reportedTaskOutcomeClauses(text:string,continuingOwnedTask=false
   if(!taskKnown&&!allowReportedContext)return []
   return clauses.flatMap(c=>{
    const report=participantReport(c.text)
-   const direct=report&&!report.indirect&&/(?:回复|回应|没回|已读|读到|读过|看过|采用|使用|用了|试过|试用|不适合|打不开|收到|付款|付费)/.test(report.rest)
+   const rejectionContext=text.slice(c.start,Math.min(text.length,c.end+24))
+   const direct=report&&!report.indirect&&!aggregateParticipantRejectionOnly(rejectionContext,report.rest)&&/(?:回复|回应|没回|答复|回绝|拒绝|否决|已读|读到|读过|看过|采用|使用|用了|试过|试用|不适合|打不开|收到|付款|付费|评价|反馈|夸|批评)/.test(report.rest)
    if(!taskKnown&&!direct)return []
    if(report?.indirect)return []
    const legacy=/^(?:实际)?效果(?:是|为|[:：]|很|不|没|有|尚|未知)/.test(c.text)
@@ -446,16 +536,344 @@ export function reportedPerformedTaskClauses(text:string){
  return anchorablePersonalClauses(text).filter(c=>!embeddedOtherActorAction(c.text)&&/(?:我|本人)/.test(c.text)&&/(?:发出去了|发出了|发出(?:那个|这个)?(?:问题|消息|邮件|资料|材料)了|发了|交给.{0,10}了|交付了|提交了|问了|问过|聊过|访谈了|已经尝试|尝试了|试做了|开始尝试)/.test(c.text)&&!/(?:想|打算|准备|计划|希望|考虑|愿意|决定|如果|还没|没有|尚未|未曾|没)(?:.{0,40})(?:发出|发了|交给|交付|提交|问|聊|访谈|尝试|试做)/.test(c.text))
 }
 // Reuse the ownership/intent guards; an attempt or a channel noun is not a send.
+const inlineContactFailure=/^(.+?)(?:但|不过|然而|可是)(?:其实)?((?:(?:发送|发出|提交|交付)(?:失败|没(?:有)?成功)|没(?:有)?发(?:成功)?))$/
+function directCompletedContactClauses(text:string){
+ return anchorablePersonalClauses(text).filter(c=>{
+  const source=inlineContactFailure.exec(c.text)?.[1]??c.text
+  const body=source.replace(/^(?:(?:回来反馈|状态更新)[：:]\s*)?(?:(?:昨天|今天|刚才|后来|之后)\s*)?/,'')
+  return !embeddedOtherActorAction(source)&&/^(?:(?:回来反馈|状态更新)[：:]\s*)?(?:(?:昨天|今天|刚才|后来|之后)\s*)?(?:我|本人|按上次)/.test(source)&&(/(?:发出去了|发出了|发出(?:那个|这个)?(?:问题|消息|邮件|资料|材料)了|发了(?:.{0,20})(?:邮件|消息|短信|问题|PDF|链接|作品集|资料|材料|报告|报名表|表格|文档|申请|作业)|(?:PDF|链接|作品集|资料|材料|报告|报名表|表格|文档|申请|作业).{0,12}发给.{0,12}了|交给.{0,20}了|交付了|提交了|联系了|发送了)/.test(source)||/^(?:我|本人)(?:现在|刚才|已经|已|只|仅){0,3}(?:补齐|整理|完成|核对|修改)了[^。；！？，,]{1,40}(?:并且?|随后)(?:发给|发送给|交给)(?:了)?(?:同学|室友|导师|老师|助教|朋友|客户|对方)(?:了)?$/.test(participantDimensionText(body,/发出|发送|发给|发了|联系|交给|交付|提交/)))&&!participantUncertainty.test(participantDimensionText(source,/发出|发送|发给|发了|联系|交给|交付|提交/))&&!/(?:想|打算|准备|计划|希望|考虑|愿意|决定|还没|没有|尚未|未曾|没|尝试|试做).{0,40}(?:发出|发了|发给|联系|发送|交给|交付|提交)/.test(source)
+ })
+}
+export function reportedFailedContactClauses(text:string){
+ const scanned=scanUserClauses(text)
+ return reportedOutcomeSourceClauses(text,scanned).flatMap(c=>{
+  if(c.attributedToOther||c.codeSpans.length||embeddedOtherActorAction(c.text))return []
+  const correction=inlineContactFailure.exec(c.text)
+  const body=correction?correction[2]!:c.text
+  const failure=/^(?:我|本人)?(?:但|不过|然而|可是)?(?:其实|确实|还|随后|后来|结果)?(?:邮件)?(?:(发送|发出|提交|交付)(?:失败|没(?:有)?成功)|没(?:有)?发(?:成功)?)$/.exec(body)
+  if(!failure)return []
+  const own=!correction&&/^(?:我|本人)/.test(c.text)
+  const previous=correction?{...c,text:correction[1]!}:scanned[scanned.findIndex(part=>part.start===c.start)-1]
+  const verb=failure[1],compatible=verb==='提交'?/提交/:verb==='交付'?/交付|交给/:/发给|发了|发送|发出/
+  if(own&&previous&&directCompletedContactClauses(previous.text).length&&!compatible.test(previous.text))return []
+  if(!own&&(!previous||previous.quoted||previous.code||previous.conditional||previous.attributedToOther||previous.quoteSpans.length||previous.codeSpans.length||!compatible.test(previous.text)||!directCompletedContactClauses(previous.text).length))return []
+  return [{...c,contactSourceStart:own?c.start:previous!.start}]
+ })
+}
 export function reportedCompletedContactClauses(text:string){
- return anchorablePersonalClauses(text).filter(c=>!embeddedOtherActorAction(c.text)&&/^(?:(?:回来反馈|状态更新)[：:]\s*)?(?:(?:昨天|今天|刚才|后来|之后)\s*)?(?:我|本人|按上次)/.test(c.text)&&/(?:发出去了|发出了|发出(?:那个|这个)?(?:问题|消息|邮件|资料|材料)了|发了(?:.{0,20})(?:邮件|消息|短信|问题|PDF|链接|作品集|资料|材料|报告|表格|文档|申请|作业)|(?:PDF|链接|作品集|资料|材料|报告|表格|文档|申请|作业).{0,12}发给.{0,12}了|交给.{0,20}了|交付了|提交了|联系了|发送了)/.test(c.text)&&!participantUncertainty.test(participantDimensionText(c.text,/发出|发送|发给|发了|联系|交给|交付|提交/))&&!/(?:想|打算|准备|计划|希望|考虑|愿意|决定|还没|没有|尚未|未曾|没|尝试|试做).{0,40}(?:发出|发了|发给|联系|发送|交给|交付|提交)/.test(c.text))
+ const failed=new Set(reportedFailedContactClauses(text).map(clause=>clause.contactSourceStart))
+ return directCompletedContactClauses(text).filter(clause=>!failed.has(clause.start))
 }
 export function requestedQuestionEditClauses(text:string){
- const clauses=scanUserClauses(text)
- return clauses.filter(c=>!c.conditional&&!c.quoted&&!c.code&&!c.attributedToOther&&/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成/.test(c.text)).map(first=>{
-   const same=clauses.filter(c=>c.start>=first.start&&c.sentenceStart===first.sentenceStart)
-   const last=same.at(-1)??first
-   return {...first,end:last.end,text:text.slice(first.start,last.end)}
+ const editStart=/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成/
+ const clauses=scanUserClauses(text).flatMap(clause=>{
+   const colon=clause.text.search(/[：:][\t \u3000]*(?=(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成)/)
+   if(colon<0||!/访谈(?!问题)/.test(clause.text.slice(0,colon)))return [clause]
+   const right=clause.text.slice(colon+1),leadingSpace=/^[\t \u3000]*/.exec(right)?.[0].length??0
+   const rightStart=clause.start+colon+1+leadingSpace
+   return [
+    {...clause,text:clause.text.slice(0,colon),end:clause.start+colon},
+    {...clause,text:right.slice(leadingSpace),start:rightStart},
+   ]
  })
+ const firstPersonQuestionContinuation=/^(?:我|我们|本人)(?:(?:还)?(?:可以|能)(?:为(?:你|对方|客户|用户))?(?:提供)?什么(?:帮助|支持)|(?:(?:还)?(?:可以|能|应该|该))?(?:怎么|如何)(?:帮助|支持)(?:你|对方|客户|用户)?)/
+ return clauses.flatMap((first,index)=>{
+   if(first.conditional||first.quoted||first.code||first.attributedToOther||!editStart.test(first.text))return []
+   let last=first
+   for(const following of clauses.slice(index+1)){
+    const rawBody=following.text.trim()
+    const commandBody=following.text.trim().replace(/^(?:并且?|同时|另外|顺便)(?:也|还|再)?/,'')
+    const linkedIntervieweeQuestion=/^(?:你|您|对方|客户|用户)(?:上次|当时|后来|之后|那时|具体|最终|实际|还|又|再|为什么|怎么|如何|是否|有没有|能否|会不会|愿不愿意|对(?:此|这件事|这个)|(?:觉得|认为)(?:这个|这样|这次|当时))/.test(commandBody)
+    const nounQuestion=/^([^，。；！？]{1,16})(?:是(?:什么|哪些)|有(?:什么|哪些|多少)|包括(?:什么|哪些))$/.exec(commandBody)
+    const nounHead=nounQuestion?.[1]?.trim()??''
+    const linkedNounQuestion=Boolean(nounQuestion&&(first.text.includes(nounHead)||/^(?:(?:(?:这|那)(?:件事|次|个)?|其)的?)?(?:(?:主要|具体|真正|最大|最关键)的?)?(?:原因|理由|结果|影响|困难|问题|障碍|顾虑|需求|感受|想法|变化|收获|教训|目标|期望|做法|步骤|方法|选择|下一步)$/.test(nounHead)))
+    const linkedSubjectlessQuestion=/^(?:(?:以及|并(?:且)?|同时|另外|然后|接着|当时|后来|之后|那时)|(?:为什么|怎么|如何)(?:会)?(?:这样|这么|那么|选择|处理|解决|应对|决定|做|想))/.test(rawBody)
+      ||linkedNounQuestion
+    const questionContinuation=firstPersonQuestionContinuation.test(commandBody)||following.interrogative&&(linkedIntervieweeQuestion||linkedSubjectlessQuestion)
+    if(following.sentenceStart!==first.sentenceStart||following.attributedToOther||!questionContinuation||otherActorClause(commandBody,{allowOmittedSubject:true})&&!linkedIntervieweeQuestion||editStart.test(following.text)||/访谈(?!问题)/.test(following.text)||assistantRequestClause(commandBody)||deliverableIntent(commandBody,'create')||deliverableIntent(commandBody,'modify')||!questionContinuation&&Boolean(firstPersonalActor(commandBody)||jointPersonalActorClause(commandBody)))break
+    last=following
+   }
+   const matter=clauses.slice(0,index).filter(clause=>clause.sentenceStart===first.sentenceStart&&/访谈(?!问题)/.test(clause.text)).at(-1)
+   return [{...first,end:last.end,text:text.slice(first.start,last.end),matterStart:matter?.start??first.sentenceStart}]
+ })
+}
+ export type RequestedQuestionEditMemory={text:string;sourceId:string;conversationId?:string;sourceOrder?:number;createdAt?:string;contextText?:string}
+export type RequestedQuestionEditResolution=
+ |{status:'none';candidateCount:0;sourceCount:0}
+ |{status:'ambiguous';candidateCount:number;sourceCount:number}
+ |{status:'selected';candidateCount:number;sourceCount:1;question:string;sourceId:string}
+function preciseInstant(value:string):{second:number;fraction:string}|null{
+ const match=/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:\d{2})$/.exec(value)
+ if(match){
+  const second=Date.parse(match[1]!+match[3]!)
+  return Number.isFinite(second)?{second,fraction:(match[2]??'').padEnd(9,'0').slice(0,9)}:null
+ }
+ const parsed=Date.parse(value)
+ return Number.isFinite(parsed)?{second:parsed,fraction:''}:null
+}
+function comparePreciseInstants(left:string,right:string):number|null{
+ const a=preciseInstant(left),b=preciseInstant(right)
+ if(!a||!b)return null
+ if(a.second!==b.second)return a.second-b.second
+ return a.fraction===b.fraction?0:a.fraction>b.fraction?1:-1
+}
+export function interveningInterviewTexts<T extends {text:string;sourceId:string;createdAt:string;sourceOrder?:number}>(items:readonly T[],selected:T):string[]{
+ return items.filter(item=>{
+  const duplicateSelectedRow=item.sourceId===selected.sourceId&&item.text===selected.text&&item.createdAt===selected.createdAt&&item.sourceOrder===selected.sourceOrder
+  const order=comparePreciseInstants(item.createdAt,selected.createdAt)
+  const laterInSameSource=order===0&&item.sourceId===selected.sourceId&&Number.isFinite(item.sourceOrder)&&Number.isFinite(selected.sourceOrder)&&item.sourceOrder!>selected.sourceOrder!
+  const unorderedDifferentSource=order===0&&item.sourceId!==selected.sourceId
+  return !duplicateSelectedRow&&order!==null&&(order>0||laterInSameSource||unorderedDifferentSource)
+ }).map(item=>item.text)
+}
+const interviewMatterPatterns:[string,RegExp][]=[
+ ['employment',/(?:就业|求职|找工作|岗位|投递|面试|实习)/],
+ ['entrepreneurship',/(?:创业|产品|用户|客户|需求)/],
+ ['course',/(?:课程|课设|课堂|作业|小组项目|课程项目)/],
+ ['research',/(?:科研|导师|论文|实验室|研究项目)/],
+ ['exam',/(?:考试|备考|考研|考公|四级|六级|CET[-_ ]?[46])/i],
+ ['campus',/(?:社团|竞赛|比赛|校园活动)/],
+]
+const interviewMatterIdentities=(text:string)=>interviewMatterPatterns.filter(([,pattern])=>pattern.test(text)).map(([identity])=>identity)
+const genericInterviewLabel=/^(?:上次|这次|本次|之前|先前|继续|接下来|用户|一次|一轮|这个|那个)$/
+function explicitInterviewMatterLabels(text:string):string[]{
+ const labels:string[]=[]
+ for(const match of text.matchAll(/([\p{Script=Han}A-Za-z0-9_-]{2,24}?)(?:的)?访谈(?!问题)/gu)){
+  const label=match[1]!.replace(/^(?:请帮我|麻烦帮我|请|麻烦|帮我|后来|随后|然后|我想|我(?:要|在|做了|进行了)?|还是|继续|接下来|回到|关于|针对|做|进行|上次|这次|本次|之前|先前)+/,'').replace(/^的/,'').replace(/(?:这边|方面)$/,'')
+  if(label.length>=2&&!genericInterviewLabel.test(label))labels.push(label)
+ }
+ return [...new Set(labels)]
+}
+function specificInterviewLabelIdentity(text:string):string|null{
+ const compact=text.replace(/[\s_-]/g,'')
+ // In an interview label these are human participant roles, not exam aliases.
+ // Exam intent must be named as 考研/考公; otherwise a graduate-student or
+ // civil-servant interview can steal an unrelated exam-preparation edit.
+ if(/^(?:研究生|公务员)$/.test(compact))return null
+ const identity=canonicalExamMatterIdentity(text)
+ return identity&&(identity.startsWith('course:')?identity:'exam:'+identity)
+}
+function sameExplicitInterviewIdentity(left:string,right:string):boolean{
+ const leftLabels=explicitInterviewMatterLabels(left),rightLabels=explicitInterviewMatterLabels(right)
+ if(!leftLabels.length||!rightLabels.length)return false
+ return leftLabels.some(a=>rightLabels.some(b=>a===b||Boolean(specificInterviewLabelIdentity(a)&&specificInterviewLabelIdentity(a)===specificInterviewLabelIdentity(b))))
+}
+// A noun after 访谈 is an artifact or preparation object unless the user also
+// supplies an actual interview verb (访谈了/过). This positive boundary keeps
+// open-ended artifacts such as 对象名单 and 招募表 out of chronology without
+// maintaining another noun catalogue.
+const completedInterviewTail='(?=$|(?:但|可是|不过|然而|而且|并且|后来|随后|然后|接着))'
+const interviewParticipantQuantity='(?:[一二两三四五六七八九十百\\d]+(?:个|位|名)?|几(?:个|位|名)|多(?:个|位|名)|一些)'
+const interviewCompletionAspect='(?:了|过|完(?:了)?|好(?:了)?)'
+const completedInterviewVerb=`(?:访谈|采访)${interviewCompletionAspect}`
+const completedInterviewAction=`(?:做|进行)?${completedInterviewVerb}`
+const objectFrontedCompletedInterview='(?:把|将)[^，。；！？]{0,24}?(?:访谈|采访)[^，。；！？]{0,12}?(?:做|进行)?(?:完(?:了)?|好(?:了)?|完成了)'
+// Quantity-before-aspect is an occurrence only when the bounded object ends in
+// a human participant head. This positive grammar rejects any open artifact
+// predicate (名单打印了、招募表更新了) without maintaining a verb blacklist.
+const interviewParticipantPhrase='(?:[^，。！？；的了过]{0,12}(?:者|员|生|师|友|人)|(?:访谈|采访)?对象|客户|用户|同学|老师|导师|校友|商家|居民|家长)'
+const quantifiedCompletedInterview=`(?:访谈|采访)${interviewParticipantQuantity}${interviewParticipantPhrase}(?:了|过)${completedInterviewTail}`
+const openHumanInterviewQuantity='(?:[一二两三四五六七八九十百0-9]+(?:位|名)|几(?:位|名)|多(?:位|名))'
+const openQuantifiedCompletedInterviewPattern=new RegExp(`(?:访谈|采访)${openHumanInterviewQuantity}([^，。！？；的了过]{1,16}?)(?:了|过)${completedInterviewTail}`)
+const openQuantifiedCompletedInterview=(text:string)=>openHumanOtherActor(openQuantifiedCompletedInterviewPattern.exec(text)?.[1])
+const directCompletedInterviewSubject=new RegExp(`^([^，。；！？]{1,20}?)(?:访谈|采访)${interviewCompletionAspect}`)
+const directOpenOtherInterviewSubject=(text:string)=>{const view=text.slice(leadingActionTimeLength(text)),actor=directCompletedInterviewSubject.exec(view)?.[1];return openHumanOtherActor(actor)||openNonHumanOtherActor(actor)||openDirectOtherActor(actor)}
+const interviewOccurrence=new RegExp(`做完[^。！？；]{0,24}(?:访谈|采访)${completedInterviewTail}|${objectFrontedCompletedInterview}|(?:做(?:完)?|进行|完成|开始|参加|主持|开展|组织)(?:了|过)[^。！？；]{0,24}(?:访谈|采访)${completedInterviewTail}|${completedInterviewVerb}[^。！？；]{0,24}|${quantifiedCompletedInterview}|(?:访谈|采访)(?:已经|已)?(?:开始|完成|结束)了`)
+const observedOtherInterviewPattern=new RegExp(`^(?:我|本人|我们)(?:看到|看见|发现|得知|听说|记录到)(?:了)?([^，。；！？]{1,24}?)${completedInterviewVerb}`)
+const laterSelfInterviewPattern=new RegExp(`(?:后|随后|然后|接着)[^，。；！？]{0,16}(?:我|本人|我们|自己)(?!的)(?:(?:又|再|亲自|独立|共同|一起)\\s*)*${completedInterviewAction}`)
+const nestedCompletedInterviewPattern=new RegExp(completedInterviewVerb)
+const guidedSelfInterviewPattern=new RegExp(`(?:指导|辅导)(?:我|本人|我们)(?:(?:亲自|独立|一起|共同)\\s*)?${completedInterviewAction}`)
+const inlineReflexiveSelfInterviewPattern=new RegExp(`^(?:我|本人|我们)(?:看到|看见|发现|得知|听说|记录到)(?:了)?[^，。；！？]{1,24}?${completedInterviewVerb}[^，。；！？]{0,24}?后[，,]?\\s*(?:我|本人|我们|自己)(?!的)(?:(?:又|再|随后|然后|接着)\\s*)?(?:(?:亲自|独立|共同|一起)\\s*)?${completedInterviewAction}`)
+const reflexiveSelfInterviewPattern=new RegExp(`^自己(?:(?:又|再|随后|然后|接着)\\s*)?(?:亲自|独立|共同|一起)?\\s*${completedInterviewAction}`)
+const observedOtherInterview=(text:string)=>{
+ const match=observedOtherInterviewPattern.exec(text)
+ if(!match||/(?:我|本人|我们|自己)(?:(?:亲自|独立|共同|一起)\s*)?$/.test(match[1]!.trim()))return false
+ return !laterSelfInterviewPattern.test(text.slice(match.index+match[0].length))
+}
+const embeddedOtherInterview=(text:string)=>{
+ const outer=/^(?:我|本人|我们)(?:(?!(?:访谈|采访))[^，。；！？]){1,48}?(?:了|过|完(?:了)?|好(?:了)?)/.exec(text)
+ if(!outer)return false
+ const tail=text.slice(outer[0].length)
+ const openActor=/^([^，。；！？]{1,20}?)(?:访谈|采访)(?:了|过|完(?:了)?|好(?:了)?)/.exec(tail)?.[1]??''
+ if(!nestedCompletedInterviewPattern.test(tail)||!(otherActorClause(tail,{allowOmittedSubject:true})||boundedOtherActorPhrase(openActor)||openNestedOtherActor(openActor)))return false
+ return !laterSelfInterviewPattern.test(tail)
+}
+export const reportsInterviewOccurrence=(text:string)=>{
+ let ownerSentence=-1
+ let previousOwned:boolean=false,previousSentence:number=-1,observedOtherSentence=-1
+ for(const clause of scanUserClauses(text)){
+  if(clause.conditional||clause.quoted||clause.code||clause.interrogative||clause.attributedToOther){ownerSentence=-1;previousOwned=false;observedOtherSentence=-1;previousSentence=clause.sentenceStart;continue}
+  const raw=unprotectedClauseText({...clause,clauseId:'chronology'}).trim(),body=personalReportBody(raw)
+  const guidedSelfInterview=guidedSelfInterviewPattern.test(body)
+  const inlineReflexiveSelfInterview=inlineReflexiveSelfInterviewPattern.test(body)
+  if(observedOtherInterview(body)){ownerSentence=-1;previousOwned=false;observedOtherSentence=clause.sentenceStart;previousSentence=clause.sentenceStart;continue}
+  const reflexiveSelfAfterObservation=observedOtherSentence===clause.sentenceStart&&reflexiveSelfInterviewPattern.test(body)
+  const explicitSelf=Boolean(firstPersonalActor(body)||jointPersonalActorClause(body)||assistedSelfPerformanceClause(body)||reflexiveSelfAfterObservation||inlineReflexiveSelfInterview)
+  const actorView=body.slice(leadingActionTimeLength(body))
+  if((otherActorClause(actorView,{allowOmittedSubject:true})||directOpenOtherInterviewSubject(actorView))&&!guidedSelfInterview&&!inlineReflexiveSelfInterview){ownerSentence=-1;previousOwned=false;observedOtherSentence=-1;previousSentence=clause.sentenceStart;continue}
+  const temporalContinuation=/^(?:后来|随后|然后|接着|再|又)/.test(raw)||leadingActionTimeLength(raw)>0
+  const crossSentenceInherited:boolean=previousOwned&&previousSentence!==clause.sentenceStart&&temporalContinuation
+  if(explicitSelf||crossSentenceInherited)ownerSentence=clause.sentenceStart
+  const inherited:boolean=temporalContinuation&&(ownerSentence===clause.sentenceStart||crossSentenceInherited)
+   if((interviewOccurrence.test(body)||openQuantifiedCompletedInterview(body))&&!embeddedOtherInterview(body)&&!actionEvidenceUnavailable(body)&&!clauseExpressesFuturePlan(body)&&(explicitSelf||inherited))return true
+  if(!explicitSelf&&!inherited)ownerSentence=-1
+  previousOwned=explicitSelf||inherited
+  observedOtherSentence=-1
+  previousSentence=clause.sentenceStart
+ }
+ return false
+}
+export function interviewOccurrenceConflictsWithContinuation(currentText:string,occurrenceText:string):boolean{
+ if(!reportsInterviewOccurrence(occurrenceText))return false
+ const currentLabels=explicitInterviewMatterLabels(currentText),occurrenceLabels=explicitInterviewMatterLabels(occurrenceText)
+ // A named continuation can safely ignore only a positively different named
+ // matter. An unlabeled occurrence remains ambiguous and therefore blocks.
+ return !currentLabels.length||!occurrenceLabels.length||sameExplicitInterviewIdentity(currentText,occurrenceText)
+}
+export function interviewContinuationRequest(text:string):boolean{
+ const clauses=scanUserClauses(text).filter(clause=>!clause.conditional&&!clause.quoted&&!clause.code&&!clause.attributedToOther)
+ const own=clauses.map(clause=>clause.text).join('；')
+ if(!/访谈/.test(own)||!/(?:上次|还是|继续|接下来)/.test(own))return false
+ const questions=clauses.filter(clause=>clause.interrogative)
+ const continuationQuestion=/^(?:(?:那|然后|接下来|下一步|继续)\s*)?(?:该|应该)?(?:(?:怎么|如何|怎样)(?:继续)?(?:问|聊|访谈|追问)|问(?:什么(?:问题|内容|话题|追问)?|哪(?:个|些)?(?:问题|内容|话题|句|段)?)|是(?:什么|哪一步))(?:(?:比较|更)?(?:好|合适)|呢)?[？?]?$/
+ const continuationStatement=/^(?:(?:那|然后|接下来|下一步|继续)\s*)?(?:(?:按|沿用)[^，。；！？]{0,20})?(?:继续)?(?:问|聊|访谈|采访|追问|看(?:哪段|哪个)?回答|核对(?:回答|反馈))/
+ const explicitNewTopicStatement=/^(?:(?:那|然后|接下来|下一步|继续)\s*)?(?:继续)?(?:问|聊|追问)(?!\s*(?:下去|这个|那个|该|上次|之前|刚才|什么|哪(?:个|些)?))\s*[^，。；！？]{1,40}[。！]?$/
+ if(clauses.some(clause=>!clause.interrogative&&explicitNewTopicStatement.test(clause.text.trim())))return false
+ if(questions.length)return questions.every(clause=>continuationQuestion.test(clause.text.trim()))&&clauses.filter(clause=>!clause.interrogative).every(clause=>/访谈/.test(clause.text)||continuationStatement.test(clause.text.trim()))
+ return clauses.every(clause=>/访谈/.test(clause.text)||continuationStatement.test(clause.text.trim()))
+}
+// A globally unique edit is still not a globally applicable edit. An
+// explicitly named continuation needs at least the same matter identity in
+// the source edit; an unscoped "continue the last interview" may use the sole
+// authorized source. This is transient routing only, never a second memory.
+export function questionEditMatchesMatter(currentText:string,sourceText:string,interveningTexts:readonly string[]=[]):boolean{
+ const currentLabels=explicitInterviewMatterLabels(currentText),sourceLabels=new Set(explicitInterviewMatterLabels(sourceText))
+ const laterRelevantOccurrence=interveningTexts.some(text=>interviewOccurrenceConflictsWithContinuation(currentText,text))
+ if(reportsInterviewOccurrence(currentText)||laterRelevantOccurrence)return false
+ if(/访谈/.test(currentText)&&/(?:上次|还是|继续|接下来)/.test(currentText)&&!requestedQuestionEditClauses(currentText).length&&!interviewContinuationRequest(currentText))return false
+ if(!currentLabels.length&&!interviewMatterIdentities(currentText).length&&(sourceLabels.size>0||interviewMatterIdentities(sourceText).length>0)&&!interviewContinuationRequest(currentText))return false
+ if(currentLabels.length){
+  const broadLabel=/^(?:就业|求职|找工作|创业|用户|客户|科研|考研|考公|备考)$/
+  // Explicit labels are the highest-confidence matter identity. Domains that
+  // merely occur inside the proposed question must not override them.
+  const sourceIdentityText=sourceLabels.size?[...sourceLabels].join(' '):sourceText
+  const sourceIdentities=new Set(interviewMatterIdentities(sourceIdentityText))
+  return currentLabels.every(label=>{
+   if(sourceLabels.has(label))return true
+   const specific=specificInterviewLabelIdentity(label)
+   if(specific){
+    const candidates=sourceLabels.size?[...sourceLabels]:[sourceText]
+    return candidates.some(source=>specificInterviewLabelIdentity(source)===specific)
+   }
+   if(sourceLabels.size)return false
+   return broadLabel.test(label)&&interviewMatterIdentities(label).every(identity=>sourceIdentities.has(identity))
+  })
+ }
+ const current=interviewMatterIdentities(currentText)
+ if(!current.length)return true
+ const source=new Set(interviewMatterIdentities(sourceText))
+ return source.size>0&&current.every(identity=>source.has(identity))
+}
+type RequestedQuestionEditCandidate={
+  sourceId:string;conversationId?:string;itemIndex:number;sourceOffset:number;sourceOrder?:number;createdAt?:string
+ sourceText:string;matterText:string;effectiveMatterText:string;question:string;referenceRevision:boolean
+}
+function compareRequestedQuestionEditOrder(left:RequestedQuestionEditCandidate,right:RequestedQuestionEditCandidate):number|null{
+ if(left.sourceId===right.sourceId){
+  if(Number.isFinite(left.sourceOrder)&&Number.isFinite(right.sourceOrder)&&left.sourceOrder!==right.sourceOrder)return left.sourceOrder!>right.sourceOrder!?1:-1
+  if(left.itemIndex===right.itemIndex&&left.sourceOffset!==right.sourceOffset)return left.sourceOffset>right.sourceOffset?1:-1
+ }
+ if(left.createdAt&&right.createdAt){
+  const order=comparePreciseInstants(left.createdAt,right.createdAt)
+  if(order!==null&&order!==0)return order>0?1:-1
+ }
+ return null
+}
+function uniqueLatestQuestionEdit<T extends RequestedQuestionEditCandidate>(edits:readonly T[]):T|undefined{
+ const equivalent=(left:T,right:T)=>left.sourceId===right.sourceId&&left.question===right.question&&left.effectiveMatterText===right.effectiveMatterText
+   &&(Number.isFinite(left.sourceOrder)||Number.isFinite(right.sourceOrder)?left.sourceOrder===right.sourceOrder:left.sourceOffset===right.sourceOffset)
+ return edits.find(candidate=>edits.every(other=>other===candidate||equivalent(candidate,other)||compareRequestedQuestionEditOrder(candidate,other)===1))
+}
+const normalizedRequestedQuestion=(text:string)=>text.replace(/^(?:我想把(?:验证问题|访谈问题|提问|这个问题)|把(?:上次的|这个)?问题)改成[:：]?/,'').replace(/^[“「『]|[”」』]$/g,'')
+function requestedQuestionEditCandidates(items:readonly RequestedQuestionEditMemory[]):RequestedQuestionEditCandidate[]{
+ const raw=items.flatMap((item,itemIndex)=>{
+  const contextual=item.contextText&&item.sourceOrder!==undefined?requestedQuestionEditClauses(item.contextText):[]
+  return requestedQuestionEditClauses(item.text).map(clause=>{
+   const absoluteStart=item.sourceOrder===undefined?undefined:item.sourceOrder+clause.start
+   const contextClause=absoluteStart===undefined?undefined:contextual.find(candidate=>candidate.start===absoluteStart)
+   const matterText=contextClause&&item.contextText?item.contextText.slice(contextClause.matterStart,contextClause.end):item.text.slice(clause.matterStart,clause.end)
+   return {
+     sourceId:item.sourceId,conversationId:item.conversationId,itemIndex,sourceOffset:clause.start,
+     sourceOrder:absoluteStart,createdAt:item.createdAt,sourceText:clause.text,matterText,effectiveMatterText:matterText,
+    question:normalizedRequestedQuestion(clause.text),
+    referenceRevision:/^把(?:上次的|这个)问题改成/.test(clause.text),
+   }
+  })
+ })
+ const effectiveMatter=(edit:RequestedQuestionEditCandidate,seen=new Set<RequestedQuestionEditCandidate>()):string=>{
+  if(seen.has(edit)||!edit.referenceRevision||explicitInterviewMatterLabels(edit.matterText).length||interviewMatterIdentities(edit.matterText).length)return edit.matterText
+   const prior=raw.filter(candidate=>(candidate.sourceId===edit.sourceId||Boolean(edit.conversationId&&candidate.conversationId===edit.conversationId))&&compareRequestedQuestionEditOrder(candidate,edit)===-1)
+  const predecessor=uniqueLatestQuestionEdit(prior)
+  if(!predecessor)return edit.matterText
+  seen.add(edit)
+  return effectiveMatter(predecessor,seen)
+ }
+ return raw.map(edit=>({...edit,effectiveMatterText:effectiveMatter(edit)}))
+}
+export function resolveRequestedQuestionEdit(items:readonly RequestedQuestionEditMemory[],currentText?:string):RequestedQuestionEditResolution{
+ const edits=requestedQuestionEditCandidates(items).filter(edit=>edit.question.length>0&&edit.question.length<=300&&(!currentText||questionEditMatchesMatter(currentText,edit.effectiveMatterText)))
+ const bySource=new Map<string,(typeof edits)>()
+ for(const edit of edits)bySource.set(edit.sourceId,[...(bySource.get(edit.sourceId)??[]),edit])
+ if(bySource.size===0)return {status:'none',candidateCount:0,sourceCount:0}
+ const distinctMatters=edits.some((left,index)=>edits.slice(index+1).some(right=>
+  !questionEditMatchesMatter(left.effectiveMatterText,right.effectiveMatterText)||!questionEditMatchesMatter(right.effectiveMatterText,left.effectiveMatterText)
+ ))
+ if(distinctMatters)return {status:'ambiguous',candidateCount:edits.length,sourceCount:bySource.size}
+ if(bySource.size>1){
+  const latest=uniqueLatestQuestionEdit(edits)
+  const explicitlySameMatter=edits.every(edit=>explicitInterviewMatterLabels(edit.effectiveMatterText).length>0)
+  if(!latest||!latest.referenceRevision&&!explicitlySameMatter)return {status:'ambiguous',candidateCount:edits.length,sourceCount:bySource.size}
+  return {status:'selected',candidateCount:edits.length,sourceCount:1,question:latest.question,sourceId:latest.sourceId}
+ }
+ const sourceEdits=[...bySource.values()][0]!,latestByItem=new Map<number,(typeof edits)[number]>()
+ for(const edit of sourceEdits){const existing=latestByItem.get(edit.itemIndex);if(!existing||edit.sourceOffset>existing.sourceOffset)latestByItem.set(edit.itemIndex,edit)}
+ let effective=[...latestByItem.values()]
+ if(effective.length>1&&effective.every(edit=>Number.isFinite(edit.sourceOrder))){
+  const last=Math.max(...effective.map(edit=>edit.sourceOrder!))
+  effective=effective.filter(edit=>edit.sourceOrder===last)
+ }
+ let selected=effective[0]!
+ if(effective.length>1){
+  selected=[...effective].sort((a,b)=>b.question.length-a.question.length)[0]!
+  if(!effective.every(edit=>selected.question.includes(edit.question)))return {status:'ambiguous',candidateCount:edits.length,sourceCount:1}
+ }
+ return {status:'selected',candidateCount:edits.length,sourceCount:1,question:selected.question,sourceId:selected.sourceId}
+}
+function selectedRequestedQuestionEditCandidate(items:readonly RequestedQuestionEditMemory[],resolution:RequestedQuestionEditResolution,currentText?:string):RequestedQuestionEditCandidate|undefined{
+ if(resolution.status!=='selected')return undefined
+ const matching=requestedQuestionEditCandidates(items).filter(edit=>edit.sourceId===resolution.sourceId&&edit.question===resolution.question&&(!currentText||questionEditMatchesMatter(currentText,edit.effectiveMatterText)))
+ return uniqueLatestQuestionEdit(matching)??matching[0]
+}
+export function selectedRequestedQuestionEditMemory<T extends RequestedQuestionEditMemory>(items:readonly T[],resolution:RequestedQuestionEditResolution,currentText?:string):T|undefined{
+ const selected=selectedRequestedQuestionEditCandidate(items,resolution,currentText)
+ if(selected===undefined)return undefined
+ const item=items[selected.itemIndex]
+ if(!item||selected.sourceOrder===undefined||selected.sourceOrder===item.sourceOrder)return item
+ // The containing evidence range and the selected edit clause are not always
+ // coextensive. Chronology compares against the clause that actually won;
+ // otherwise an earlier interview in the same source can look later than an
+ // edit whose enclosing range starts at zero.
+ return {...item,sourceOrder:selected.sourceOrder} as T
+}
+// Keep the matter used by resolution available to the final continuation
+// guard instead of rechecking an unscoped revision's raw source fragment.
+export function selectedRequestedQuestionEditMatter<T extends RequestedQuestionEditMemory>(items:readonly T[],resolution:RequestedQuestionEditResolution,currentText?:string):string|undefined{
+ return selectedRequestedQuestionEditCandidate(items,resolution,currentText)?.effectiveMatterText
+}
+export function selectedRequestedQuestionEditSource(items:readonly RequestedQuestionEditMemory[],resolution:RequestedQuestionEditResolution,currentText?:string):{sourceId:string;sourceQuote:string;sourceRange?:{start:number;end:number}}|undefined{
+ const selected=selectedRequestedQuestionEditCandidate(items,resolution,currentText)
+ if(!selected)return undefined
+ return {sourceId:selected.sourceId,sourceQuote:selected.sourceText,...(selected.sourceOrder===undefined?{}:{sourceRange:{start:selected.sourceOrder,end:selected.sourceOrder+selected.sourceText.length}})}
 }
 export function reportedAdoptionClauses(text:string){
  return anchorablePersonalClauses(text).filter(c=>/^我(?:愿意|(?:先)?准备|打算|决定)(?:先)?(?:试|尝试|问|整理)|^(?:先从|那先).{1,30}(?:开始|整理)/.test(c.text))
@@ -473,8 +891,8 @@ export function taskOutcomeReadback(text:string,authorizedQuotes?:ReadonlySet<st
   const negativeRead=/(?:没(?:有)?|尚未|还未|未).{0,6}(?:读|看)(?:了|过)?/g,negativeResponse=/(?:没(?:有)?|尚未|还未|未)(?:回复|回应)|没回/g
   const readNo=readCertain&&q.match(negativeRead)!==null,readYes=readCertain&&/读了|读过|读到|看过|已读/.test(q.replace(negativeRead,''))
   const participant=participantReport(q)
-  const responseNo=responseCertain&&q.match(negativeResponse)!==null,responseYes=Boolean(participant&&!participant.indirect&&/^(?:说|觉得|回复|回答|回应|确认)/.test(participant.rest))
-    ||responseCertain&&/(?:已经|已)(?:回复|回应)|回复了|回应了/.test(q.replace(negativeResponse,''))
+  const responseNo=responseCertain&&q.match(negativeResponse)!==null,responseYes=Boolean(participant&&!participant.indirect&&!aggregateParticipantRejectionOnly(participant.rest,participant.rest)&&/^(?:说|觉得|回复|回答|回应|答复|确认|评价|反馈|夸|批评|(?:明确)?(?:回绝|拒绝|否决))/.test(participant.rest))
+    ||responseCertain&&/(?:已经|已)(?:明确)?(?:回复|回应)|回复了|回应了/.test(q.replace(negativeResponse,''))
   if(readNo&&readYes)result.read={status:'unknown',quote:null,conflicting:true}
   else if(readNo)result.read={status:'reported_not_read',quote:q}
   else if(readYes)result.read={status:'reported_read',quote:q}
@@ -531,7 +949,7 @@ export function reportedEvidenceFromText(text:string,ownedPreferenceContext=fals
   return [{actor:report.actor,quote:clause.text,states:{receipt,trial,...states}}]
  })
  const preferences=reportedPreferenceClauses(text,ownedPreferenceContext).map(clause=>{
-  const modality=/不在意/.test(clause.text)?'not_priority':/不想承担|不愿承担/.test(clause.text)?'unwilling':/不喜欢|不享受|享受不了/.test(clause.text)?'dislike':/喜欢|偏好|享受/.test(clause.text)?'like':'priority'
+  const modality=/不在意/.test(clause.text)?'not_priority':/不想承担|不愿承担/.test(clause.text)?'unwilling':/不喜欢|不享受|享受不了/.test(clause.text)?'dislike':/喜欢|偏好|享受/.test(clause.text)?'like':/愿意/.test(clause.text)?'willing':'priority'
   const subject=personalPreference.exec(clause.text)?.[1]?.trim()??''
   // Only an explicit owned requirement about the SAME literal subject licenses
   // hardening. Other requirements, quotes and hypothetical/third-party wishes
@@ -662,6 +1080,24 @@ export function unsupportedPreferenceConstraintClaims(reply:string,evidence:(Ret
  }
  const groups=[...new Set(positive.map(item=>item.subject).filter(Boolean))].map(subject=>({subject,items:positive.filter(item=>item.subject===subject),aliases:aliases(subject)}))
  const failures:string[]=[]
+ const currentClauses=currentText?scanUserClauses(currentText).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther):[]
+ for(const preference of evidence.filter(item=>item.modality==='not_priority')){
+  const subjects=aliases(preference.subject)
+  const explicitCurrent=currentClauses.some(c=>subjects.some(subject=>c.text.includes(subject))&&/^(?:更正[:：]\s*)?(?:我|本人)(?:现在|目前|明确|已经|决定|确实)*(?:拒绝|排除|不想|不愿|不接受|不考虑)/.test(c.text))
+  const currentNonpriority=currentClauses.some(c=>c.text.includes('不在意')&&subjects.some(subject=>c.text.includes(subject)))
+  if(explicitCurrent||!currentNonpriority&&evidence.some(item=>item.modality==='unwilling'&&subjects.includes(item.subject)))continue
+  for(const clause of scanUserClauses(reply)){
+   if(clause.quoted||clause.code||clause.conditional||clause.interrogative||clause.attributedToOther)continue
+   const claim=/(?:排除|拒绝)(?:了)?|不接受|不考虑|不愿|不想|不喜欢|不适合|没有兴趣/g
+   for(const match of clause.text.matchAll(claim)){
+    const prefix=clause.text.slice(0,match.index)
+    if(hardClaimNegated(clause.text,match.index!)||/(?:不代表|不意味着|并未|尚未|从未|未曾|未必|不一定|不再|是否).{0,10}$/.test(prefix))continue
+    const tail=clause.text.slice(match.index!+match[0].length)
+    if(/仍未知|尚未确认|待核实|还不知道/.test(tail))continue
+    if(subjects.some(subject=>tail.replace(/^[“「『\"'\* \t]+/,'').startsWith(subject)||tail.startsWith('了'+subject))){failures.push(clause.text);break}
+   }
+  }
+ }
  for(const clause of scanUserClauses(reply)){
   if(clause.quoted||clause.code||clause.conditional||clause.interrogative||clause.attributedToOther)continue
   const hard=/(?:必须|必需|需要|需|务必)(?:同时)?满足|(?:必须|只能|只可|一定要)|必要条件|硬(?:性)?(?:约束|要求|条件|边界)|刚性(?:约束|要求|条件)|不可(?:协商|妥协)的条件/g
@@ -752,17 +1188,25 @@ export function deriveTurnContract(input:{
   // requested planning and available sources narrow the contract; legacy modes
   // never classify a sentence and close another legitimate output lane.
   const crisis=crisisSupportIntent(input.text),supportOnly=currentConversationOnly(input.text)||crisis
+  // The same authority check already discards these writes after generation.
+  // Close only unused discussion write lanes upfront; keep requested material,
+  // planning and citation delivery on their existing contracts.
+  const discussionOnly=!input.material&&!input.planIntent&&profileWritesDisallowed(input.text)
   const capabilities:TurnContractCapabilities={
-    growth:!input.readOnly&&!crisis,
+    growth:!input.readOnly&&!crisis&&!discussionOnly,
     // Experience extraction and star-map updates are program-owned. The main
     // model need not generate a second copy of the same autobiographical span.
     candidate:false,
     plan:!input.readOnly&&!supportOnly&&input.planIntent,
     citations:!input.readOnly&&!supportOnly&&input.knowledgeCount>0,
-    event:!input.readOnly&&!input.eventReadOnly&&!supportOnly,
-    material:!input.readOnly&&!input.eventReadOnly&&!supportOnly,
+    event:!input.readOnly&&!input.eventReadOnly&&!supportOnly&&!discussionOnly,
+    material:!input.readOnly&&!input.eventReadOnly&&!supportOnly&&!discussionOnly,
   }
   const schema=slimActionCoachSchema(capabilities)
+  // These evidence limits belong to the generated answer on every turn,
+  // including unmarked follow-ups. Preserve the existing length and lanes.
+  const reply=(schema.properties as Record<string,any>).reply
+  reply.description=(reply.description??'')+'以本人原话和已核验的具体任务为依据，未提供的保持未知。只报告数量或步骤时，保留其粒度，不把过去建议检查的字段当作本人核对过的项目，也不补感受。没帮助判断只说明本次证据不足，未说明的原因保持未知，不用一次结果断定真正卡点。比较路径不按名称排自主高低、助人远近或反馈快慢，不生成无依据的匹配度排名；任务未知就说明需要核对的具体条件。实际或建议中的单次小验证只提供对该对象的一条线索，不承诺回答整条方向是否适合或值得选。最小尝试限定本次可控起点、投入上限与停点，不保证完成，不替本人接受或安排。保持完整内容、分段和必要加粗。'
   if(capabilities.citations&&input.knowledgeIds){
     // Generation selects from this turn's approved cards. The shared citation
     // validator still owns revision, scope and withdrawal checks at commit.
@@ -779,6 +1223,7 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
     required?:string[]
   }
   const properties=schema.properties
+  delete properties.decisionProposal
   const action=(properties.event as any)?.properties?.action
   for(const branch of action?.anyOf??[]){
     for(const draft of branch.properties?.draft?.anyOf??[]){
@@ -789,7 +1234,7 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
   // protocol regardless of mode.
   delete properties.background
   if(!capabilities.growth)delete properties.growthUpdates
-  if(!capabilities.candidate)delete properties.experienceCandidate
+  if(!capabilities.candidate||capabilities.growth)delete properties.experienceCandidate
   if(!capabilities.plan)delete properties.weeklyPlan
   if(!capabilities.citations)delete properties.citations
   if(capabilities.material){
@@ -802,7 +1247,33 @@ export function slimActionCoachSchema(capabilities:TurnContractCapabilities):Rec
     delete properties.event
   }
   schema.required=['reply']
+  bindProcessSourceHandles(schema)
+  const event=properties.event as {required?:string[];properties:Record<string,unknown>}|undefined
+  if(event){
+    if(capabilities.growth)event.required=[...new Set([...event.required??[],'matterReports'])]
+    else delete event.properties.matterReports
+  }
+  // Generate the small factual interpretation before the answer that uses it.
+  // A safe lead can still stream first; no extra model call is introduced.
+  const order=['lead','growthUpdates','weeklyPlan','event','reply']
+  schema.properties=Object.fromEntries([...order.filter(key=>key in properties),...Object.keys(properties).filter(key=>!order.includes(key))].map(key=>[key,properties[key]]))
   return schema as unknown as Record<string,unknown>
+}
+
+// Stream the reply before serializing facts and events in the same frame.
+export function replyStreamingSchema(schema:Record<string,any>,first:'reply'|'event'='reply',ordinaryAnswerSourceIds?:readonly string[]):Record<string,any>{
+  const properties=schema.properties as Record<string,unknown>|undefined
+  if(!properties?.reply)return schema
+  if(ordinaryAnswerSourceIds){
+    const {reply,...metadata}=properties
+    return {...schema,required:['answer',...schema.required.filter((key:string)=>key!=='reply')],properties:{answer:ordinaryAnswerWireSchema(reply as Record<string,unknown>,ordinaryAnswerSourceIds),...metadata}}
+  }
+  if(first==='reply'||!properties[first]){
+    const {reply,...metadata}=properties
+    return {...schema,properties:{reply,...metadata}}
+  }
+  const {[first]:grounding,reply,...metadata}=properties
+  return {...schema,properties:{[first]:grounding,reply,...metadata}}
 }
 
 // Explicit delivery requests must instantiate an artifact, never a bare
@@ -841,11 +1312,12 @@ export function bindMaterialDeliverySchema(contract:TurnContract,text:string,gro
     const draft=branch.properties?.draft
     if(draft?.anyOf)draft.anyOf=draft.anyOf.filter((format:any)=>format.properties?.kind?.const!=='resume_portfolio')
   }
- if(!contract.capabilities.material||!requiresImmediateMaterial(text))return {...contract,schemaChars:JSON.stringify(contract.schema).length}
+ const singleQuestion=requestsSingleQuestionMaterial(text)
+ if(!contract.capabilities.material||(!requiresImmediateMaterial(text)&&!singleQuestion))return {...contract,schemaChars:JSON.stringify(contract.schema).length}
  const schema=structuredClone(contract.schema) as any,event=schema.properties.event
  // The material body has its own validated field and is rendered once by the
  // host. A mandatory nonempty reply makes the model generate it a second time.
- schema.properties.reply={type:'string',minLength:0,maxLength:160,description:'完整材料只写在event.action.draft；没有额外必要的反馈、提醒或未知时reply用空字符串，不重复材料正文，也不宣布已写好。混合复盘可保留必要回应。'}
+ schema.properties.reply={type:'string',minLength:0,maxLength:16000,description:'完整材料只写在event.action.draft；没有额外必要的反馈、提醒或未知时reply用空字符串，不重复材料正文，也不宣布已写好。混合复盘可保留必要回应。'}
  schema.required=[...new Set([...(schema.required??[]),'event'])]
  event.required=[...new Set([...(event.required??[]),'action'])]
  event.properties.action.anyOf=event.properties.action.anyOf.filter((branch:any)=>branch.properties?.draft)
@@ -855,12 +1327,72 @@ export function bindMaterialDeliverySchema(contract:TurnContract,text:string,gro
   for(const branch of event.properties.action.anyOf)branch.properties={draft:branch.properties.draft,...Object.fromEntries(Object.entries(branch.properties).filter(([key])=>key!=='draft'))}
   event.properties={action:event.properties.action,...Object.fromEntries(Object.entries(event.properties).filter(([key])=>key!=='action'))}
   schema.properties={event,...Object.fromEntries(Object.entries(schema.properties).filter(([key])=>key!=='event'))}
-  schema.properties.reply={type:'string',minLength:1,maxLength:1000,description:'回应本轮读回事实、时间和未知，不重复draft.content中的材料问题。'}
+  schema.properties.reply={type:'string',minLength:1,maxLength:16000,description:'回应本轮读回事实、时间和未知，不重复draft.content中的材料问题。'}
  }else if(replyBody&&!groundedSelection){
   schema.properties.reply={type:'string',minLength:1,maxLength:12000,description:'本轮reply就是完整可使用的材料正文，不另写介绍、已完成声明或第二份正文。draft仅返回fromReply:true，服务器将同一正文保存为材料。'}
   for(const branch of event.properties.action.anyOf)branch.properties.draft={type:'object',properties:{fromReply:{type:'boolean',const:true}},required:['fromReply'],additionalProperties:false}
  }
 
+ if(singleQuestion&&!groundedSelection){
+  // Bind the generation rule to the field that actually owns the body. A
+  // fromReply draft has no content field; instructions there never reach it.
+  let questionDescription='全文恰好一个完整问句，不是一个问句加解释句；除原样保留的引文外不另起第二句，主问的问号后立即结束正文字符串。单个完整问句：围绕一个核心信息缺口，将任务、协作、反馈、投入等所需细节合入同一主问；保留用户指定语言、词数和原文引用，不另起第二个主问，不输出标题、导语、Notes、注释、翻译或补充说明。'
+  const wordRanges=new Map<string,{low:number;high:number}>()
+  for(const clause of scanUserClauses(text)){
+   if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||/^(?:请)?(?:不要|不必|无需|不用|别)/.test(clause.text.trim()))continue
+   if(!assistantRequestClause(clause.text)&&!requestsSingleQuestionMaterial(clause.text)&&! /^(?:约|大约)?\d{1,4}\s*[-—–~至到]\s*\d{1,4}\s*(?:词|words?)(?:左右)?$/i.test(clause.text.trim()))continue
+   for(const match of clause.text.matchAll(/(\d{1,4})\s*[-—–~至到]\s*(\d{1,4})\s*(?:词|words?)/gi)){
+    const at=clause.start+match.index!,low=Number(match[1]),high=Number(match[2])
+    if([...clause.quoteSpans,...clause.codeSpans].some(span=>span.start<=at&&at<span.end)||low<1||high<low||high>4000)continue
+    wordRanges.set(low+'-'+high,{low,high})
+   }
+  }
+  const quotedQuestions:string[]=[],rawQuotedQuestions:string[]=[]
+  for(const clause of scanUserClauses(text)){
+   if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther||!/保留|逐字|原样/.test(clause.text)||/^(?:请)?(?:不要|不必|无需|不用|别)/.test(clause.text.trim()))continue
+   for(const span of clause.quoteSpans){
+    const literal=text.slice(span.start,span.end).replace(/^[“\"「『‘]|[”\"」』’]$/g,'')
+    if(/[?？]/.test(literal)&&!quotedQuestions.includes(literal)){quotedQuestions.push(literal);rawQuotedQuestions.push(text.slice(span.start,span.end))}
+   }
+  }
+  let questionPattern=quotedQuestions.length===1?'^[^?？\\r\\n]*'+quotedQuestions[0]!.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[^?？\\r\\n]*[?？]$':quotedQuestions.length===0?'^[^?？\\r\\n]*[?？]$':null
+  if(wordRanges.size===1){
+   const {low,high}=[...wordRanges.values()][0]!
+   questionDescription+='本轮要求'+low+'—'+high+'词，请在同一次生成内按约'+Math.round((low+high)/2)+'词组织完整主问，词数不是字符数；不因只有一个问句而压缩所需内容，不输出词数说明，不靠虚构信息凑词。'
+   if(/英文|英语|\bEnglish\b/i.test(text)){
+    questionDescription+='Use one governing interrogative clause; keep all requested topics as noun phrases or dependent clauses governed by that same verb. After linking words, continue the dependent structure instead of opening another stand-alone subject-auxiliary inversion. Do not repeat instructions about invention, sending, saving, or formatting in the drafted question; use the word budget for substantive role details and unknown conditions.'
+    // One regex expresses the user's whole generation shape. Separate string
+    // patterns in allOf were not jointly respected in the real-provider run.
+    // This only guides native generation; no validator edits/retries the reply.
+    const word='[^?？.!！。\\s]+',space='[ \\t]+'
+    if(quotedQuestions.length===0)questionPattern='^(?:'+word+space+'){'+(low-1)+','+(high-1)+'}'+word+'[?？]$'
+    else if(quotedQuestions.length===1&&high<=200){
+     const literal=rawQuotedQuestions[0]!.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),n=rawQuotedQuestions[0]!.trim().split(/\s+/).length,alternatives:string[]=[],englishWord="[A-Za-z0-9À-ɏ][A-Za-z0-9À-ɏ'’/—–-]*[,;:]?"
+     // The literal occupies n words; enumerate only its possible position,
+     // leaving all other wording to the same model generation.
+     questionDescription+='除逐字保留的引文外，正文全部使用自然、完整的英文，不夹杂中文，不把多个英文词粘在一起。较早引入引用例子，再展开实际任务、协作、反馈、投入与未知，给后半句留足空间。'
+     for(let prefix=1;prefix<=Math.min(high-n-1,Math.round((low+high)/4));prefix++){
+      const minSuffix=Math.max(1,low-n-prefix),maxSuffix=high-n-prefix
+      if(maxSuffix>=minSuffix)alternatives.push('(?:'+englishWord+space+'){'+prefix+'}'+literal+'(?:'+space+englishWord+'){'+minSuffix+','+maxSuffix+'}')
+     }
+     if(alternatives.length)questionPattern='^(?:'+alternatives.join('|')+')[?？]$'
+    }
+   }
+  }
+  delete schema.properties.lead
+  schema.required=(schema.required??[]).filter((key:string)=>key!=='lead')
+  if(replyBody&&replyBody!=='question_first'){
+   schema.properties.reply.description=questionDescription+'完整问题仅在reply生成一次，draft仅为fromReply:true。'
+   if(questionPattern)schema.properties.reply.pattern=questionPattern
+  }
+  else{
+   for(const branch of event.properties.action.anyOf){
+    const draft=branch.properties?.draft
+    for(const body of draft?.anyOf??[draft])if(body?.properties?.content){body.properties.content.description=questionDescription;if(questionPattern)body.properties.content.pattern=questionPattern}
+   }
+   schema.properties.reply.description=replyBody==='question_first'?'仅回应用户明确请求的读回事实与未知；可分段，不复制材料问题，不加附注或另问。没有依据如实说明当前读取范围未知。':'没有额外明确请求时为空字符串；不介绍材料、不附Notes、不重复问题。'
+  }
+ }
  return {...contract,schema,schemaChars:JSON.stringify(schema).length}
 }
 
@@ -908,7 +1440,7 @@ export function bindPlanBudgetSchema(contract:TurnContract,budget:{minutes:numbe
    plan.properties.items.items.properties.minutes.maximum=budget.minutes-1
   }
  }
- if(budget.minutes>0)schema.properties.reply={type:'string',minLength:1,maxLength:160,description:'简短说明取舍、实际反馈或未知；具体时间只在weeklyPlan展示，不另写数字日程。'}
+ if(budget.minutes>0)schema.properties.reply={type:'string',minLength:1,maxLength:16000,description:'说明取舍、实际反馈或未知；具体时间只在weeklyPlan展示，不另写数字日程。'}
  if(budget.minutes>0){
   // Structured providers emit properties in schema order. Put the bounded
   // allocation first so the following reply key is an unambiguous streaming

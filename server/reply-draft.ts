@@ -1,6 +1,9 @@
-﻿import {scanUserClauses,assistantRequestClause,responseRequestScope} from './user-command-spans.ts'
+import {applicableTimeBudget} from './turn-obligations.ts'
+import {grillingInteractionMode} from './grilling-policy.ts'
+﻿import {scanUserClauses,assistantRequestClause,assistantInstructionClause,currentConversationOnly,responseRequestScope} from './user-command-spans.ts'
 import {reportedCompletedContactClauses,taskOutcomeReadback,comparisonUniverseAccepts,comparisonOptionBody,reportedEvidenceFromText,reportedPursuitClauses} from './turn-contract.ts'
 import {memoryControlSuccessClaims} from './forget-intent.ts'
+import {productModeRequest} from '../src/features/conversation/product-modes.ts'
 
 // Shared by provisional display and the final repair. The request scope is
 // source-aware; this changes only JD cardinality, not the rest of the reply.
@@ -40,7 +43,7 @@ export function repairSingleJobJd(reply:string,userText:string):string|null{
 export function requestsOneQuestionReply(text:string):boolean{
   return scanUserClauses(text).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&(
     /^(?:请|麻烦|那就|先)?(?:先)?(?:帮我|给我)(?:选|找|想|确定)(?:出)?一(?:个|条)[^。！？\n]{0,14}(?:问题|提问)(?:(?:来|用来|以便)?(?:厘清|了解|澄清|弄清)[^。！？\n]{1,24})?[。！？\s]*$/.test(clause.text.trim())
-    ||/^(?:请|麻烦|那就|先)?(?:先)?(?:问我|问|提出|提|给我出)一(?:个|条)[^。！？\n]{0,14}(?:问题|提问)(?:(?:来|用来|以便)?(?:厘清|了解|澄清|弄清)[^。！？\n]{1,24})?[。！？\s]*$/.test(clause.text.trim())
+    ||/^(?:请|麻烦|那就|先)?(?:先)?(?:只|仅)?(?:问我|问|提出|提|给我出)一(?:个|条)[^。！？\n]{0,14}(?:问题|提问)(?:(?:来|用来|以便)?(?:厘清|了解|澄清|弄清)[^。！？\n]{1,24})?[。！？\s]*$/.test(clause.text.trim())
   ))
 }
 
@@ -166,10 +169,45 @@ export function openUnreportedChoiceQuestion(reply:string,userText:string):strin
 // runs only on ordinary/exploration turns after the provider response parses.
 // It also prevents an invented contact channel from becoming the chosen next
 // step when that channel is absent from the authorized text.
+function requestsAnalysisReply(userText:string):boolean{
+  const scope=responseRequestScope(userText)
+  // The shared scanner splits “please use my background, analyse …” at
+  // the comma. Keep that explicit request together within its own sentence;
+  // quoted, conditional and third-party instructions cannot open this lane.
+  const own=scanUserClauses(userText).filter(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther).map(clause=>{
+    const spans=[...clause.quoteSpans,...clause.codeSpans]
+    return {...clause,plain:clause.text.split('').map((char,index)=>spans.some(span=>clause.start+index>=span.start&&clause.start+index<span.end)?' ':char).join('').trim()}
+  })
+  const contextLed=own.some(clause=>/^(?:先|只|再)?(?:分析|比较|对比|解释|说明)/.test(clause.plain)
+    &&own.some(lead=>lead.sentenceStart===clause.sentenceStart&&lead.start<clause.start&&/^(?:请|麻烦)(?:先|再)?(?:结合|基于|根据|依据)/.test(lead.plain)))
+  const oneQuestion=own.some(clause=>/^(?:请|麻烦)?(?:先)?只问(?:我)?一(?:个|条)/.test(clause.plain))
+  return !oneQuestion&&!requestsOneQuestionReply(userText)&&!scope.instructions.some(clause=>/只问(?:我)?一(?:个|条)/.test(clause.commandText))
+    &&(productModeRequest(userText)?.title==='认识我'||contextLed||scope.instructions.some(clause=>/^(?:请|麻烦)?(?:只|先)?(?:分析|比较|对比|解释|说明)/.test(clause.commandText.trim())))
+}
 export function limitGrillingQuestions(reply:string,userText:string,authorizedText=userText):string|null{
   if(/(?:一起|同时|分别|批量|一组|多个|几个|三到五个|列出).{0,10}(?:问题|提问)|(?:问题|提问).{0,8}(?:一起|分别|多个|几个)/.test(userText))return null
   const questionPattern=/[^。！？?!；;\n]*[？?]/g
-  const questions=[...reply.matchAll(questionPattern)]
+  // Count followups, not question marks inside quoted/code content or the
+  // action steps and observation criteria the user explicitly requested.
+  const clauses=scanUserClauses(reply)
+  const contentSpans=clauses.flatMap(clause=>[...clause.quoteSpans,...clause.codeSpans])
+  const observationRequested=scanUserClauses(userText).some(clause=>{
+    if(clause.quoted||clause.code||clause.conditional||clause.attributedToOther)return false
+    const spans=[...clause.quoteSpans,...clause.codeSpans]
+    const plain=clause.text.split('').map((char,index)=>spans.some(span=>clause.start+index>=span.start&&clause.start+index<span.end)?' ':char).join('')
+    return !/^(?:请)?(?:不要|不必|不用|无需|别|不需要)/.test(plain.trim())&&/(?:验证|观察|自查|反思|弄清|了解|确认)[^。！？\n]{0,40}(?:问题|什么)/.test(plain)
+  })
+  const headings=[...reply.matchAll(/^[ \t]*(?:#{1,6}[ \t]+(.{1,100})|\*\*([^\n]{1,100})\*\*[：:]?)[ \t]*$/gm)].reverse()
+  const analysisRequested=requestsAnalysisReply(userText)
+  const questions=[...reply.matchAll(questionPattern)].filter(match=>{
+    const end=match.index!+match[0].length-1
+    if(contentSpans.some(span=>end>=span.start&&end<span.end))return false
+    const heading=headings.find(heading=>heading.index!<=end)
+    const title=heading?.[1]??heading?.[2]??''
+    const requestedContent=/(?:验证|观察|自查|反思|弄清|了解|确认).*(?:问题|什么)|^(?:做什么|具体做法|操作步骤|行动步骤|复盘步骤|自查步骤)(?:[（(:：]|$)/.test(title)
+    const analysisContent=analysisRequested&&heading&&!/(?:追问|问你|想问|还需要了解|补充问题)/.test(title)
+    return !(observationRequested&&requestedContent||analysisContent)
+  })
   if(questions.length<=1)return null
   const preferred=questions.find(match=>/(?:复盘问题|下一次访谈问题|关键问题|先问这一点)[:：]?/.test(match[0]))??questions[0]!
   let selected=preferred[0].trim()
@@ -177,8 +215,10 @@ export function limitGrillingQuestions(reply:string,userText:string,authorizedTe
   if(channels.some(channel=>selected.includes(channel)&&!authorizedText.includes(channel))){
     selected=authorizedText.includes('学长')?'你上次向学长具体问了什么内容？':'你上次具体向对方问了什么内容？'
   }
+  const followupStarts=new Set(questions.map(question=>question.index))
   let kept=false
-  const bounded=reply.replace(questionPattern,question=>{
+  const bounded=reply.replace(questionPattern,(question,offset:number)=>{
+    if(!followupStarts.has(offset))return question
     if(!kept&&question===preferred[0]){kept=true;return selected}
     return ''
   }).replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').replace(/([。！!；;])\1+/g,'$1').trim()
@@ -209,6 +249,14 @@ export function removeUnsupportedContactChannels(reply:string,authorizedText:str
     const unknownPrivate=channels.some(channel=>sentence.includes(channel)&&!authorizedText.includes(channel))
     const blockedContact=contactDeclined&&names.some(channel=>withContact(parts,channel))
     const unknownPublic=!authorizedPublicOutreach&&withContact(parts,'公开渠道')
+    // An analysis may propose outreach without asserting an existing route.
+    // Keep its purpose and stop condition, but make the missing prerequisite
+    // explicit. A declined contact or a claimed past action still cannot pass.
+    if(unknownPrivate&&!contactDeclined&&requestsAnalysisReply(currentText)&&/联系|咨询|询问|了解|沟通/.test(sentence)
+      &&!/(?:已经|已有|发过|联系过|回复了|你上次|你此前|你有)/.test(sentence)){
+      for(const channel of channels)if(!authorizedText.includes(channel))sentence=sentence.replaceAll(channel,'可用渠道（需你先确认）')
+      return sentence
+    }
     return unknownPrivate||blockedContact||unknownPublic?'':sentence
   }).replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()
   return grounded!==reply.trim()?grounded:null
@@ -250,7 +298,19 @@ export function groundUnsupportedOperationalResources(reply:string,authorizedTex
   const unsupportedSentence=(sentence:string)=>resources.some(resource=>sentence.includes(resource)&&!authorizedText.includes(resource))||namedSearchRouteRe.test(sentence)
   const offending=sentences.filter(unsupportedSentence)
   if(offending.length&&!sourceExplicitlyMissing&&offending.every(sentence=>!contactOrPossession.test(withoutDeclined(sentence))))return null
-  return '这一步需要一个你确实能访问、也愿意使用的公开资料来源；你目前没有提供具体来源。你手上已有哪一个可用来源？'
+  const missing='这一步需要一个你确实能访问、也愿意使用的公开资料来源；你目前没有提供具体来源。你手上已有哪一个可用来源？'
+  // A missing outreach prerequisite does not invalidate the requested path
+  // analysis. Replace only the unsupported route; retain the other sections,
+  // observations and stop conditions. The original short-turn guard remains.
+  if(requestsAnalysisReply(authorizedText)&&/^\s*(?:#{1,6}\s|\*\*)/m.test(reply)){
+    let explained=false
+    return sentences.map(sentence=>{
+      if(!unsupportedSentence(sentence))return sentence
+      if(explained)return ''
+      explained=true;return '\n'+missing+' 未确认可用渠道前，不执行这一步。\n'
+    }).join('').trim()
+  }
+  return missing
 }
 
 // A reported mobile-access failure is already the next observable blocker.
@@ -389,16 +449,34 @@ export function groundSingleLeadWithoutProduct(reply:string,userText:string):str
   return clarification
 }
 
-// Zero available time or a refusal is a stopping boundary, not an invitation
+function ownedBoundaryText(text:string):string{
+  return scanUserClauses(text).filter(c=>!c.quoted&&!c.code&&!c.conditional&&!c.attributedToOther).map(c=>c.text.split('').map((char,index)=>[...c.quoteSpans,...c.codeSpans].some(span=>c.start+index>=span.start&&c.start+index<span.end)?' ':char).join('')).join('；')
+}
+const ZERO_ACTION_BOUNDARY=/(?:本周|这周|今天|现在|目前).{0,8}(?:可用时间|时间).{0,6}?(?:是)?零|零时间|没(?:有)?时间|没空|不(?:想|再)?安排(?:任何)?(?:任务|动作|事)|不想做任何安排/
+
+// Zero available time is a stopping boundary, not an invitation
 // to end with another question. Remove the trailing question and leave a short
 // stop; the provisional understanding stays. Structural boundary only.
 export function removeQuestionOnZeroTime(reply:string,userText:string):string|null{
-  const zero=/(?:本周|这周|今天|现在|目前).{0,8}(?:可用时间|时间).{0,6}?(?:是)?零|零时间|没(?:有)?时间|没空|不(?:想|再)?安排(?:任何)?(?:任务|动作|事)|不想做任何安排|不要追问|不想说|拒绝回答/.test(userText)
-  if(!zero)return null
-  // No time to execute a plan is not no time to talk or receive a clarification.
-  // When the user explicitly asks to talk or asks for a question, keep the
-  // reflective question and do not replace it with a generic pause.
+  const owned=ownedBoundaryText(userText),zero=ZERO_ACTION_BOUNDARY.test(owned),refused=/不要追问|不想说|拒绝回答/.test(owned)
+  if(!zero&&!refused)return null
+  if(!refused&&requestsOneQuestionReply(userText))return null
+  // Keep the existing opt-in to reflective questions, including a pivot away
+  // from a refused topic. No time to act is not no time to talk.
   if(/(?:愿意|可以|想|现在).{0,8}(?:聊|聊聊|说说|倾诉)|问我一个问题|想被问|主动求解释/.test(userText))return null
+  if(!zero){
+    // Refusing questions is not a report of zero time. Keep the requested
+    // understanding and advice, removing only owned follow-up questions.
+    const questions=scanUserClauses(reply).filter(c=>{
+      if(c.quoted||c.code||c.attributedToOther||!c.interrogative)return false
+      const plain=c.text.split('').map((char,index)=>[...c.quoteSpans,...c.codeSpans].some(span=>c.start+index>=span.start&&c.start+index<span.end)?' ':char).join('')
+      return /[？?]/.test(c.delimiter)||/(?:吗|呢|么)\s*$/.test(plain)
+    })
+    if(!questions.length)return null
+    let bounded=reply
+    for(const question of questions.reverse())bounded=bounded.slice(0,question.start)+bounded.slice(question.end+question.delimiter.length)
+    return bounded.trim()||'这部分可以先不谈。'
+  }
   if(!/[？?]|我需要知道|你方便|列一下|告诉我|哪几门|有没有/.test(reply))return null
   // Keep at most the first reassurance sentence; any information request or
   // task list is removed, not merely its question mark.
@@ -465,7 +543,7 @@ export function groundReportedAccessAlternative(reply:string,userText:string):st
 // A zero-time turn may still state one provisional focus; removing the question
 // must not turn "what should I look at first?" into a content-free stop.
 export function ensureZeroTimeFocus(reply:string,userText:string):string|null{
-  const zero=/(?:本周|这周|今天|现在|目前).{0,8}(?:可用时间|时间).{0,6}?(?:是)?零|零时间|没(?:有)?时间|没空|不(?:想|再)?安排(?:任何)?(?:任务|动作|事)|不想做任何安排|不要追问|不想说|拒绝回答/.test(userText)
+  const zero=ZERO_ACTION_BOUNDARY.test(ownedBoundaryText(userText))
   if(!zero)return null
   if(!/(?:最该|优先|先).{0,8}(?:看|关注|准备|做)什么/.test(userText))return null
   const focus='先看这件事的截止时间和硬性条件；等你有时间再展开。'
@@ -692,9 +770,10 @@ export function repairUnsupportedPreferenceClaim(reply:string,userText:string,pr
 
 // Do not add a zero/unavailable-time constraint the user never reported. A
 // request not to add tasks is not a report that this week has no time.
-export function repairUnsupportedZeroTimeClaim(reply:string,userText:string):string|null{
+export function repairUnsupportedZeroTimeClaim(reply:string,userText:string,verifiedThisWeekZero=false):string|null{
   // "不安排任务，但我其实有空" is not a zero-time report. Only a genuine
   // no-time/zero-time report suppresses the unsupported-time check.
+  if(verifiedThisWeekZero&&/(?:本周|这周).{0,6}(?:无|没有|零)\s*(?:可用)?时间/.test(reply)&&!(applicableTimeBudget(userText,undefined,'this_week')?.amountMinutes))return null
   const userHasTime=/(?:其实)?(?:有空|有时间|不忙|时间充裕)/.test(userText)
   const userReportedZero=!userHasTime&&/(?:没(?:有)?时间|没空|零时间|无可用时间|不想安排|不(?:再)?安排)/.test(userText)
   if(userReportedZero)return null
@@ -712,6 +791,9 @@ export function repairUnsupportedZeroTimeClaim(reply:string,userText:string):str
 // A reported quantity of one stays one. Do not silently expand one role/person
 // into a comparison set the person did not ask for.
 export function enforceReportedQuantity(reply:string,userText:string):string|null{
+  // One requested document is not one option inside that document.
+  if(requestsAnalysisReply(userText)&&scanUserClauses(userText).some(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&!clause.quoteSpans.length
+    &&/^(?:请|麻烦)?(?:帮我|给我)?(?:完整|详细|清楚|深入|系统地?)*写一(?:份|篇|段)/.test(clause.text.trim())))return null
   const reported=/(?:只|仅)?(?:愿意|想|要|会)?(?:只|仅)?(?:了解|看|问|找|联系|访谈|比较)?\s*一(?:个|位|名|条|份)\s*([^，。；\n的]{1,12})/.exec(userText)
   if(!reported)return null
   const object=reported[1].trim()
@@ -721,7 +803,9 @@ export function enforceReportedQuantity(reply:string,userText:string):string|nul
   const escapedNoun=noun.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')
   const count=new RegExp(`(?:(?:[2-9]|[两三四五六七八九十])\\s*[-~–—至]\\s*\\d+|(?:[2-9]|[两三四五六七八九十])(?:[两三四五六七八九十])?)\\s*(?:个|位|名|条|份)([^。！？\\n]{0,12}(?:${escaped}|${escapedNoun}))`,'g')
   if(!count.test(reply))return null
-  const fixed=reply.replace(count,(_,tail)=>`一个${tail}`)
+  count.lastIndex=0
+  const changedCounts=new Set([...reply.matchAll(count)].flatMap(match=>{const value=/^([2-9]|[两三四五六七八九十])\s*(个|位|名|条|份)/.exec(match[0]);return value?[value[1]+value[2]]:[]}))
+  const fixed=reply.replace(count,(_,tail)=>`一个${tail}`).replace(/((?:读|看|问|联系|访谈)完)\s*([2-9]|[两三四五六七八九十])\s*(个|位|名|条|份)(?=\s*(?:就|即|便)?(?:停|结束))/g,(whole,verb,amount,unit)=>changedCounts.has(amount+unit)?verb+'这'+unit:whole)
   return fixed!==reply?fixed:null
 }
 
@@ -870,14 +954,10 @@ export function weeklyPlanDraft(raw:unknown,expected:WeeklyPlanDraftExpectation)
   return draft.length<=160?draft:null
 }
 
-// A validated structured plan owns the timetable. Preserve explanatory prose,
-// but do not append a second model-authored schedule with different totals.
-export function weeklyPlanExplanation(reply:string):string{
-  return reply.split(/\n\s*\n/).filter(paragraph=>
-    !/(?:^|\n)\s*(?:[-*•]|\d+[.)、]|【[^】\n]+】)\s*[^\n]*(?:\d|[一二两三四五六七八九十])\s*(?:min|分钟|小时)|\d+\s*[–—~～-]\s*\d+\s*(?:min|分钟|小时)/i.test(paragraph)
-    &&!/(?:总计|共计|合计|未安排|含)[^。\n]{0,16}\d+\s*(?:min|分钟|小时)/i.test(paragraph)
-  ).join('\n\n').trim()
-}
+// The validated structured plan owns persisted actions and budget. The model's
+// explanatory prose is independent: a time mention must not erase its reasons,
+// unknowns or formatting. Conflicts are validated by the engine, never edited.
+export function weeklyPlanExplanation(reply:string):string{return reply}
 
 
 // G3 mode-aware early draft: in reply_only turns the schema guarantees the
@@ -888,10 +968,11 @@ export function weeklyPlanExplanation(reply:string):string{
 // Evidence of an observed result does not yet license an effect inference.
 // Both provisional display and the final observation repair use this clause
 // predicate, so a discarded draft cannot expose the unsupported inference.
-export function observationEffectHypothesis(text:string):string|null{
+export function observationEffectHypothesis(text:string,includeCausalAssertions=false):string|null{
   for(const clause of scanUserClauses(text)){
     if(clause.quoted||clause.code||clause.conditional||clause.interrogative||clause.quoteSpans.length||clause.codeSpans.length)continue
-    const match=/^(?:(?:这(?:次)?(?:结果|反馈)?|上述结果|该结果)(?:也)?)?(?:初步)?(?:支持|提示)(?:了)?([^。！？\n]{1,100})$/.exec(clause.text.trim())
+    const surface=includeCausalAssertions?clause.text.trim().replace(/^(说明|表明|证明)/,'支持'):clause.text.trim()
+    const match=/^(?:(?:这(?:次)?(?:结果|反馈)?|上述结果|该结果)(?:也)?)?(?:初步)?(?:支持|提示)(?:了)?([^。！？\n]{1,100})$/.exec(surface)
     if(!match)continue
     const proposition=match[1]!,effect=/(?:减少|降低|改善|提高|提升|缩短|增强|省时|有效|起作用)/.exec(proposition)
     if(!effect||/(?:减少|降低|改善)[^。！？]{1,24}的(?:偏好|意愿|愿望|动机|目标)/.test(proposition))continue
@@ -1012,8 +1093,8 @@ function reportedCountObservation(userText:string):string|null{
 // the provider finishes. This is a source readback, not a placeholder and not
 // an inference about whether the recipient read, accepted, or acted on it.
 export function provisionalQuestionPreview(userText:string):string|null{
- const clauses=scanUserClauses(userText),last=clauses.at(-1)
- if(!last||last.quoted||last.code||last.conditional||last.attributedToOther||!requestsOneQuestionReply(last.text))return null
+ const clauses=scanUserClauses(userText),last=[...clauses].reverse().find(clause=>!clause.quoted&&!clause.code&&!clause.conditional&&!clause.attributedToOther&&requestsOneQuestionReply(clause.text))
+ if(!last||(currentConversationOnly(userText.slice(last.end))||grillingInteractionMode(userText.slice(last.end))==='listen')||clauses.some(clause=>clause.start>last.end&&!assistantInstructionClause(userText,clause,clauses)))return null
  const topic=/(?:厘清|澄清|弄清|了解)我(?:所)?说的([^。！？]{1,30})[。！？\s]*$/.exec(last.text)?.[1]?.trim()
  if(!topic)return null
  const question=`你说的“${topic}”具体指什么？`
@@ -1197,6 +1278,7 @@ export function safeEarlySentence(raw:string,maxChars=120,field:'reply'|'lead'='
       if(unsafePreviewClaim(safetyCandidate))return null
       if(authorizedText!==undefined&&/[？?]/.test(parts[index+1]??'')&&openUnreportedChoiceQuestion(sentence+'？',authorizedText))return null
       if(selfStatus.test(sentence))continue
+      if(/^(?:你(?:觉得|怎么看|怎么想)(?:呢)?|你呢|怎么样|好吗|可以吗)$/.test(sentence))continue
       // Salutation/name placeholders and a chat-only acknowledgement are
       // framing. Keep looking for the actual request or supportive content.
       if(/^[“「『"']?[^。！？]{0,16}(?:你好|您好)[，,\s]*(?:我是[^。！？]{1,32})?$/.test(sentence))continue

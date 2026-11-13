@@ -1,6 +1,6 @@
 // Storage types for authenticated historical V1.2 reads only. No generation
 // schema, business gate, hypothesis template or model-output parser remains.
-export type CampusSource={type:'message';id:string;quote:string}|{type:'experience'|'memory'|'knowledge';id:string;revision:number;quote:string}
+export type CampusSource={type:'message';id:string;quote:string;range?:{start:number;end:number}}|{type:'experience'|'memory'|'knowledge';id:string;revision:number;quote:string}
 export type EvidenceLink={source:CampusSource;role:'support'|'counterexample'|'background'|'unknown';match:string;limitation:string}
 type HistoricalFact={key:string;value:string;status:string;source:CampusSource;scope:string;observedAt?:string}
 type HistoricalOpportunity={evidence:EvidenceLink[];[key:string]:unknown}

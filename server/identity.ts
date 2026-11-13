@@ -18,6 +18,11 @@ export function deriveIdentityClaims(facts: readonly IdentitySourceFact[]): { te
     const clause=scanUserClauses(fact.text).find(part=>!part.conditional&&!part.interrogative&&!['？','?'].includes(part.delimiter)&&!part.attributedToOther&&!part.quoted&&!part.code&&!part.quoteSpans.length&&SELF_DESCRIPTION.test(part.text))
     const match = clause?SELF_DESCRIPTION.exec(clause.text):null
     if (!match) continue
+    // The identity phrase must be the user's current assertion itself. A
+    // nested 我是 inside 不认为/希望/以前 is governed by that outer scope;
+    // stripping the prefix would reverse its meaning.
+    const prefix=clause!.text.slice(0,match.index).trim()
+    if(!/^(?:(?:但|但是|不过|现在|目前|如今|其实|一直以来)\s*)*$/.test(prefix))continue
     claims.push({ text: match[0], sourceGrowthId: fact.id, quote: fact.text })
   }
   return claims
@@ -70,8 +75,21 @@ export async function readChangeEvents(c: PoolClient, user: string, limit = 20) 
 }
 
 // 读取有效身份：用户认可的自述 + 待核对的 AI 观察（当前只有自述）。
-export async function readIdentityClaims(c: PoolClient, user: string) {
-  return (await c.query("SELECT id, text, origin, confirmed_by_user, status, source_refs, updated_at FROM identity_claims WHERE user_id=$1 AND status='active' ORDER BY updated_at DESC LIMIT 6", [user])).rows
+export async function readIdentityClaims(c: Pick<PoolClient,'query'>, user: string) {
+  const claims=(await c.query("SELECT id, text, origin, confirmed_by_user, status, source_refs, updated_at FROM identity_claims WHERE user_id=$1 AND status='active' ORDER BY updated_at DESC", [user])).rows
+  if(!claims.length)return []
+  // Reuse the current, source-checked growth view for legacy projections too.
+  // No startup rewrite; an authenticated manual correction is new testimony.
+  const {growthView}=await import('./growth.ts')
+  const facts=(await growthView(user,undefined,c)).items.filter(fact=>fact.status==='active'&&!fact.unavailableReason&&!fact.recommendationStopped)
+  return claims.filter(claim=>{
+    const refs=claim.source_refs??[]
+    if(refs.some((ref:any)=>ref.type==='user_edit'&&ref.quote===claim.text&&claim.confirmed_by_user))return true
+    return refs.length>0&&refs.every((ref:any)=>{
+      const fact=facts.find(fact=>fact.id===ref.growthItemId)
+      return fact&&deriveIdentityClaims([fact]).some(current=>current.text===claim.text)
+    })
+  }).slice(0,6)
 }
 
 // 身份声明与来源 growth 项同步（G1.2）：来源遗忘/拒绝 → 身份声明退休且旧

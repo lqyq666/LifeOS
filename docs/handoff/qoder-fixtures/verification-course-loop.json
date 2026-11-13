@@ -1,0 +1,29 @@
+{
+  "id": "course-loop",
+  "cases": [
+    {
+      "actor": "course",
+      "text": "我准备课程报告，截止明晚。我接受先整理两条证据这个步骤，还没开始。"
+    },
+    {
+      "actor": "course",
+      "continued": true,
+      "text": "换一件事，我还考虑参加校内创新赛。我接受先看报名要求，但这次完全没执行。竞赛先暂停，当前重点改成课程报告。",
+      "expectedCalls": 0
+    },
+    {
+      "actor": "course",
+      "text": "我现在有45分钟，帮我把手头这些事排个优先级，说明已暂停的事项怎么处理。"
+    },
+    {
+      "actor": "course",
+      "continued": true,
+      "text": "请按假设只剩10分钟、精力低而且不能联网的情况，重新比较之前的取舍。"
+    },
+    {
+      "actor": "course",
+      "continued": true,
+      "text": "恢复真实条件重新比较。"
+    }
+  ]
+}

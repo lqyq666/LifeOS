@@ -371,3 +371,26 @@ test('an unrendered ordinary causal preamble cannot delay a separate neutral que
   assert.equal(openingQuestionDraft(JSON.stringify({reply:'那这位同学是因为你不认真所以拒绝你吗？'})),null)
 })
 
+
+test('a definition request remains source-bound when followed only by a no-options instruction',async()=>{
+ const {provisionalQuestionPreview}=await import('../server/reply-draft.ts')
+ const user='我是成年大学生，我想要更自由的生活，但明确不想创业。不要换词劝我创业，先问一个问题厘清我说的自由。不要替我补出时间、地点、收入等选项。'
+ assert.equal(provisionalQuestionPreview(user),'你说的“自由”具体指什么？')
+ assert.equal(provisionalQuestionPreview(user+'我后来不想谈自由了。'),null)
+})
+
+test('an authorized zero this week is retained beside a separate next-week budget',async()=>{
+ const {repairUnsupportedZeroTimeClaim}=await import('../server/reply-draft.ts')
+ const reply='下周有360分钟，与本周零时间分别保存。'
+ assert.equal(repairUnsupportedZeroTimeClaim(reply,'下周有六小时可用。',true),null)
+ assert.notEqual(repairUnsupportedZeroTimeClaim(reply,'下周有六小时可用。'),null)
+ assert.notEqual(repairUnsupportedZeroTimeClaim(reply,'我这周有六小时可用。',true),null)
+ assert.notEqual(repairUnsupportedZeroTimeClaim('今天没有时间。','下周有六小时可用。',true),null)
+})
+
+test('the actual final live question request survives a separate no-task boundary',async()=>{
+ const {removeQuestionOnZeroTime}=await import('../server/reply-draft.ts')
+ const user='请先问一个问题，了解我在课程任务中如何安排专注时间。不要补出我没说过的偏好，不安排任务。'
+ assert.equal(removeQuestionOnZeroTime('你在课程任务里通常如何安排开始专注的时间？',user),null)
+ assert.notEqual(removeQuestionOnZeroTime('你在课程任务里通常如何安排开始专注的时间？',user+'现在不要追问了。'),null)
+})
